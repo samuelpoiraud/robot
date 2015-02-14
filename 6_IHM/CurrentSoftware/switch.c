@@ -41,7 +41,7 @@ void SWITCHS_update(){
 	// Gère tous les switchs qui envoient un message vers le monde extérieure
 	switchs_pressed = 0;
 #ifdef BIROUTE_PORT
-	switchs_pressed |= (BIROUTE_PORT)? (1<<BIROUTE_IHM) : 0;
+	switchs_pressed |= (BIROUTE_PORT)? (1<<BIROUTE_IHM) : 0; // Le laisse là, afin de le mettre à jour dans la variable switchs, si on vient à la demander plus tard (IHM_get..)
 #endif
 #ifdef SWITCH_COLOR_PORT
 	switchs_pressed |= (SWITCH_COLOR_PORT)?  (1<<SWITCH_COLOR_IHM) : 0;
@@ -114,9 +114,31 @@ void SWITCHS_update(){
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++){
 		// Mets à jour le tableau pour une éventuelle demande extérieure
 
-		if((switchs_edge & (1<<i)) && initialized)// N'envoie pas, l'information si n'est pas encore init
+		if((switchs_edge & (1<<i)) && initialized && i != BIROUTE_IHM)// N'envoie pas, l'information si n'est pas encore init ou si c'est la biroute
 			SWITCHS_send_msg(i);
 	}
+}
+
+void SWITCHS_biroute_update(){
+#ifdef BIROUTE_PORT
+	static bool_e first_time = FALSE, msg_send = FALSE;
+
+	if(!BIROUTE_PORT){ // Biroute pas présente
+		if(first_time && !msg_send){ // N'envoie pas la première fois et ne répéte pas le message
+			CAN_msg_t msg;
+			msg.size = 1;
+			msg.sid = IHM_SWITCH;
+			msg.data[0] = (((Uint8)(BIROUTE_PORT)<< 7) | ((Uint8)BIROUTE_IHM & SWITCH_ID));
+			CAN_send(&msg);
+
+			msg_send = TRUE;
+		}else
+			first_time = TRUE;
+	}else{
+		first_time = FALSE;
+		msg_send = FALSE;
+	}
+#endif
 }
 
 void SWITCHS_send_msg(switch_ihm_e switch_id){

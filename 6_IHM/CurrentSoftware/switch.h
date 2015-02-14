@@ -23,5 +23,6 @@ void SWITCHS_update();
 bool_e SWITCHS_get(switch_ihm_e switch_id);
 void SWITCHS_answer(CAN_msg_t *send);
 void SWITCHS_send_all();
+void SWITCHS_biroute_update();
 
 #endif /* ndef SWITCH_H */
