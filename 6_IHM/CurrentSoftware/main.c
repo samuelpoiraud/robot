@@ -66,7 +66,10 @@ int main (void){
 			#endif
 		}
 
-		if(t_ms > 20){	//Pour éviter les rebonds, au dessus de 20ms
+		if(t_ms%10 >=9) //Regarde toute les 10ms si la biroute est présente ou non, avec sécurité
+			SWITCHS_biroute_update();
+
+		if(t_ms >= 20){	//Pour éviter les rebonds, au dessus de 20ms
 			t_ms = 0;
 			BUTTONS_update();			//Gestion des boutons
 			SWITCHS_update();			//Surveillance des switchs
