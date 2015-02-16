@@ -26,6 +26,7 @@
 #include "Can_msg_processing.h"
 
 volatile Uint8 t_ms = 0;
+volatile Uint8 t_ms_biroute = 0;
 
 static void MAIN_global_var_init();
 
@@ -66,8 +67,10 @@ int main (void){
 			#endif
 		}
 
-		if(t_ms%10 >=9) //Regarde toute les 10ms si la biroute est présente ou non, avec sécurité
+		if(t_ms_biroute >= 10){ //Regarde toute les 10ms si la biroute est présente ou non, avec sécurité
+			t_ms_biroute = 0;
 			SWITCHS_biroute_update();
+		}
 
 		if(t_ms >= 20){	//Pour éviter les rebonds, au dessus de 20ms
 			t_ms = 0;
@@ -83,6 +86,7 @@ int main (void){
 
 void MAIN_process_it(Uint8 ms){
 	t_ms += ms;
+	t_ms_biroute += ms;
 }
 
 static void MAIN_global_var_init(){

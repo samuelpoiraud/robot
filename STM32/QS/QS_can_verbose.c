@@ -124,16 +124,20 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_DO_SELFTEST:							print(string, len, "%x ACT_DO_SELFTEST                        ", ACT_DO_SELFTEST								);	break;
 		case PROP_DO_SELFTEST:							print(string, len, "%x PROP_DO_SELFTEST                       ", PROP_DO_SELFTEST								);	break;
 		case BEACON_DO_SELFTEST:						print(string, len, "%x BEACON_DO_SELFTEST                     ", BEACON_DO_SELFTEST								);	break;
+		case IHM_DO_SELFTEST:							print(string, len, "%x IHM_DO_SELFTEST						  ", IHM_DO_SELFTEST								);	break;
 		case STRAT_ACT_SELFTEST_DONE:					print(string, len, "%x STRAT_ACT_SELFTEST_DONE                ", STRAT_ACT_SELFTEST_DONE						);	break;
 		case STRAT_PROP_SELFTEST_DONE:					print(string, len, "%x STRAT_PROP_SELFTEST_DONE               ", STRAT_PROP_SELFTEST_DONE						);	break;
+		case STRAT_IHM_SELFTEST_DONE:					print(string, len, "%x STRAT_IHM_SELFTEST_DONE                ", STRAT_IHM_SELFTEST_DONE						);	break;
 		case STRAT_BEACON_IR_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_IR_SELFTEST_DONE          ", STRAT_BEACON_IR_SELFTEST_DONE					);	break;
 		case STRAT_BEACON_US_SELFTEST_DONE:				print(string, len, "%x STRAT_BEACON_US_SELFTEST_DONE          ", STRAT_BEACON_US_SELFTEST_DONE					);	break;
 		case ACT_PING:									print(string, len, "%x ACT_PING                               ", ACT_PING										);	break;
 		case PROP_PING:									print(string, len, "%x PROP_PING                              ", PROP_PING										);	break;
 		case BEACON_PING:								print(string, len, "%x BEACON_PING                            ", BEACON_PING									);	break;
+		case IHM_PING:									print(string, len, "%x IHM_PING					              ", IHM_PING										);	break;
 		case STRAT_ACT_PONG:							print(string, len, "%x STRAT_ACT_PONG                         ", STRAT_ACT_PONG									);	break;
 		case STRAT_PROP_PONG:							print(string, len, "%x STRAT_PROP_PONG                        ", STRAT_PROP_PONG								);	break;
 		case STRAT_BEACON_PONG:							print(string, len, "%x STRAT_BEACON_PONG                      ", STRAT_BEACON_PONG								);	break;
+		case STRAT_IHM_PONG:							print(string, len, "%x STRAT_IHM_PONG						  ", STRAT_IHM_PONG									);	break;
 
 
 

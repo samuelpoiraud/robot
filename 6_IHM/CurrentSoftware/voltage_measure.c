@@ -111,3 +111,15 @@ static void send_msgCAN(IHM_power_e state){
 	msg.size = 1;
 	CAN_send(&msg);
 }
+
+bool_e VOLTAGE_MEASURE_get_state_hokuyo(void){
+	return HOKUYO_enable;
+}
+
+bool_e VOLTAGE_MEASURE_get_state_battery(void){
+	return !BATTERY_Low;
+}
+
+bool_e VOLTAGE_MEASURE_get_state_ARU(void){
+	return ARU_enable;
+}
