@@ -61,8 +61,6 @@
 
 	#define VERBOSE_MODE				//Activation du verbose
 
-	//#define VERBOSE_MSG_SEND_OVER_UART//Activation de la verbosité des messages CAN sur UART
-
 	#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
 
 	#define FDP_2014					//Define Temporaire pour l'ancien FDP
@@ -157,6 +155,9 @@
 
 /* Réglages FIFO */
 	#define USE_FIFO
+
+/* Réglages ADC */
+	#define USE_AN_11
 
 #include "../_Propulsion_config.h"
 
