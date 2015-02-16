@@ -71,6 +71,8 @@ static Uint8 nb_cup = 0;
 static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker les indices des tableaux puis les coordonnées des gobelets
 static bool_e run_calcul,end_scan;
 static color_e color;
+static scan_result_t mesure_en_cours;
+static receve_msg_can_e receve_msg_can;
 
 
 //------------------------------------------------------------------------------------ Prototype des fonctions local
@@ -97,7 +99,7 @@ void SCAN_CUP_process_it(){
 	}state_e;
 	static state_e state = INIT;
 	Uint8 i;
-	scan_result_t mesure_en_cours;
+	//scan_result_t mesure_en_cours;
 	receve_msg_can_e receve_msg_can= NO_MSG_CAN;
 	bool_e last_point=0;
 	switch(state){
@@ -124,7 +126,7 @@ void SCAN_CUP_process_it(){
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;
-				mesure_en_cours.dist = conversion_capteur(ADC_getValue(SENSOR_NAME));
+				//mesure_en_cours.dist = conversion_capteur(ADC_getValue(SENSOR_NAME));
 				debug_printf("distance capteur=%d\n", mesure_en_cours.dist);
 				inArea(&mesure_en_cours);
 			}
@@ -139,6 +141,7 @@ void SCAN_CUP_process_it(){
 			break;
 
 		case WAIT_CALCULATE:
+			SCAN_CUP_calculate();
 			if(!run_calcul)
 				state = SEND_COOR_CUP;
 			break;
@@ -229,13 +232,22 @@ GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points, Uint8
 }
 
 void SCAN_CUP_canMsg(CAN_msg_t *msg){
-	if(msg->data[0] & 0x01)
-		end_scan = TRUE;
-	else
-		end_scan = FALSE;
+	switch(msg->data[0]){
+		case 0:
+			receve_msg_can=MSG_CAN_SCAN_LINEAR;
+			end_scan = FALSE;
+			break;
+		case 1:
+			end_scan = FALSE;
+			mesure_en_cours.dist = conversion_capteur(U16FROMU8(msg->data[1],msg->data[2]));
+			break;
+		case 2:
+			end_scan = TRUE;
+			break;
+	}
 }
 
-void SCAN_TRIANGLE_calculate(void){
+void SCAN_CUP_calculate(void){
 	if(run_calcul){
 		debug_printf("Calcul\n");
 		Sint16 first, i;
@@ -246,7 +258,7 @@ void SCAN_TRIANGLE_calculate(void){
 			first = 0;
 			coorCup[nb_cup].x = first;
 			for(i=1;i<nbPointH;i++){
-				if(abs(salleH[first].x-salleH[i].x) > RADIUS_CUP){
+				if(puissance(salleH[first].x-salleH[i].x,2) > RADIUS_CUP*RADIUS_CUP){
 					coorCup[nb_cup].y = i-1;
 					first = i;
 					nb_cup++;      // /!\ Mettre une protection si le nombre de dépasse 5
@@ -269,7 +281,7 @@ void SCAN_TRIANGLE_calculate(void){
 			first = 0;
 			coorCup[nb_cup].x = first;
 			for(i=1;i<nbPointB;i++){
-				if(abs(salleB[first].x-salleB[i].x) > RADIUS_CUP){
+				if(puissance(salleB[first].x-salleB[i].x,2) > RADIUS_CUP*RADIUS_CUP){
 					coorCup[nb_cup].y = i-1;
 					first = i;
 					nb_cup++;      // /!\ Mettre une protection si le nombre de dépasse 5
@@ -286,6 +298,7 @@ void SCAN_TRIANGLE_calculate(void){
 			}
 		}
 	}
+	run_calcul = FALSE;
 }
 
 #endif
