@@ -67,6 +67,8 @@
 
 	#define FDP_2014					//Define Temporaire pour l'ancien FDP
 
+	#define SCAN_CUP                    //Avtivation du scan de gobelets
+
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
 	//#define MODE_REGLAGE_KV
