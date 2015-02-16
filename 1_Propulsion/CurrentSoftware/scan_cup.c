@@ -39,6 +39,9 @@
 #define X4					1600
 #define QUANTUM_MESURE		5	//Distance entre deux mesures
 #define SENSOR_NAME			ADC_11
+#define RADIUS_CUP			70
+#define NB_POINT_MIN		4
+#define NB_POINT_ELIM       1		// Nombre de points que l'on élimine à chaque extrémitée
 
 
 
@@ -65,7 +68,7 @@ static Uint8 nbPointB = 0;
 static Uint32 old_measure = 0;
 //static Uint8 nb_mesure = 0;
 static Uint8 nb_cup = 0;
-//static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker les indices des tableaux puis les coordonnées des gobelets
+static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker les indices des tableaux puis les coordonnées des gobelets
 static bool_e run_calcul,end_scan;
 static color_e color;
 
@@ -73,7 +76,7 @@ static color_e color;
 //------------------------------------------------------------------------------------ Prototype des fonctions local
 
 static void inArea(scan_result_t * objet);
-static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points);
+static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points, Uint8 first);
 
 
 //------------------------------------------------------------------------------------ Fonctions
@@ -97,7 +100,6 @@ void SCAN_CUP_process_it(){
 	scan_result_t mesure_en_cours;
 	receve_msg_can_e receve_msg_can= NO_MSG_CAN;
 	bool_e last_point=0;
-	GEOMETRY_point_t centre;
 	switch(state){
 
 		case INIT :
@@ -148,23 +150,7 @@ void SCAN_CUP_process_it(){
 				}else{
 					last_point=TRUE;
 				}
-
-				if(color){
-					if(global.position.x<1000 && global.position.y<1500){ //Salle de cinema du haut
-						centre=determine_center(salleH,nbPointH);
-					}
-					if(global.position.x>1000 && global.position.y<1500){ //Salle de cinema du bas
-						centre=determine_center(salleB,nbPointB);
-					}
-				}else{
-					if(global.position.x<1000 && global.position.y>1500){ //Salle de cinema du haut
-						centre=determine_center(salleH,nbPointH);
-					}
-					if(global.position.x>1000 && global.position.y>1500){ //Salle de cinema du bas
-						centre=determine_center(salleB,nbPointB);
-					}
-				}
-				SECRETARY_send_cup_position(last_point,centre.x, centre.y);
+				SECRETARY_send_cup_position(last_point,coorCup[i].x, coorCup[i].y);
 			}
 			break;
 	}
@@ -206,14 +192,14 @@ static void inArea(scan_result_t * objet){
 	}
 }
 
-static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points){
+GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points, Uint8 first){
 	Sint64 sumX=0, sumY=0, sumX2=0, sumY2=0, sumX3=0, sumY3=0, sumXY=0, sumX2Y=0, sumXY2=0; //les sommes de 0 à nb_points-1 des coordonnées. ex: sumX=somme de toutes les abscisses
 	Sint64 c11=0, c20=0, c30=0, c21=0, c02=0, c03=0, c12=0; //des coefficients intermédiaires de calculs
 	Uint8 i;
 	GEOMETRY_point_t centre;
 
 	//Calcul des sommes
-	for(i=0;i<nb_points; i++){
+	for(i=first;i<nb_points+first; i++){
 		sumX=sumX+tab[i].x;
 		sumY=sumY+tab[i].y;
 		sumX2=sumX2+puissance(tab[i].x,2);
@@ -237,6 +223,8 @@ static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points
 	//calcul du centre de la balise
 	centre.x = ((c30+c12)*c02-(c03+c21)*c11)/(2.*(c20*c02-c11*c11));
 	centre.y = ((c03+c21)*c20-(c30+c12)*c11)/(2.*(c20*c02-c11*c11));
+
+
 	return centre;
 }
 
@@ -250,7 +238,53 @@ void SCAN_CUP_canMsg(CAN_msg_t *msg){
 void SCAN_TRIANGLE_calculate(void){
 	if(run_calcul){
 		debug_printf("Calcul\n");
-		//Détermination des centres des gobelets
+		Sint16 first, i;
+		nb_cup = 0;
+
+		// Analyse de la salle du haut
+		if(nbPointH>=NB_POINT_MIN){
+			first = 0;
+			coorCup[nb_cup].x = first;
+			for(i=1;i<nbPointH;i++){
+				if(abs(salleH[first].x-salleH[i].x) > RADIUS_CUP){
+					coorCup[nb_cup].y = i-1;
+					first = i;
+					nb_cup++;      // /!\ Mettre une protection si le nombre de dépasse 5
+					coorCup[nb_cup].x = first;
+				}
+			}
+			coorCup[nb_cup].y = nbPointH-1;
+			nb_cup++;
+			// On cherche le(s) centre(s)
+			for(i=0;i<nb_cup;i++){
+				GEOMETRY_point_t p = determine_center(salleH,coorCup[i].y-coorCup[i].x-NB_POINT_ELIM,coorCup[i].x+NB_POINT_ELIM);
+				coorCup[i].x = p.x;
+				coorCup[i].y = p.y;
+			}
+		}
+		Uint8 nb_cup_prec = nb_cup;
+
+		// Analyse de la salle du bas
+		if(nbPointB>=NB_POINT_MIN){
+			first = 0;
+			coorCup[nb_cup].x = first;
+			for(i=1;i<nbPointB;i++){
+				if(abs(salleB[first].x-salleB[i].x) > RADIUS_CUP){
+					coorCup[nb_cup].y = i-1;
+					first = i;
+					nb_cup++;      // /!\ Mettre une protection si le nombre de dépasse 5
+					coorCup[nb_cup].x = first;
+				}
+			}
+			coorCup[nb_cup].y = nbPointB-1;
+			nb_cup++;
+			// On cherche le(s) centre(s)
+			for(i=nb_cup_prec;i<nb_cup;i++){
+				GEOMETRY_point_t p = determine_center(salleB,coorCup[i].y-coorCup[i].x-NB_POINT_ELIM,coorCup[i].x+NB_POINT_ELIM);
+				coorCup[i].x = p.x;
+				coorCup[i].y = p.y;
+			}
+		}
 	}
 }
 
