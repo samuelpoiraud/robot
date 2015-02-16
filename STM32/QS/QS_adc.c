@@ -20,6 +20,8 @@
 
 #define ADC_CONTINUOUS_CONVERSION
 
+#define USE_AN_11
+
 static ADC_TypeDef* ADCx = ADC1;
 static Sint16 adc_converted_value[MAX_ADC_CHANNELS];
 static Sint8 adc_id[MAX_ADC_CHANNELS];

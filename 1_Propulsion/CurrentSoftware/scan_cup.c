@@ -8,11 +8,14 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_maths.h"
+#include "QS/QS_measure.h"
 #include "supervisor.h"
 #include "secretary.h"
 #include "corrector.h"
 #include "roadmap.h"
 #include "_Propulsion_config.h"
+#include "odometry.h"
+#include "config/config_use.h"
 
 #ifdef SCAN_CUP
 
@@ -34,8 +37,9 @@
 #define X2					800
 #define X3					1200
 #define X4					1600
-#define QUANTUM_MESURE		5					//Distance entre deux mesures
-#define SENSOR_NAME			ADC_SENSOR_BIG
+#define QUANTUM_MESURE		5	//Distance entre deux mesures
+#define SENSOR_NAME			ADC_11
+
 
 
 //------------------------------------------------------------------------------------ Définition des structures et énumerations
@@ -59,11 +63,11 @@ static GEOMETRY_point_t salleB[NB_POINT_MAX];
 static Uint8 nbPointH = 0;
 static Uint8 nbPointB = 0;
 static Uint32 old_measure = 0;
-static Uint8 nb_mesure = 0;
+//static Uint8 nb_mesure = 0;
 static Uint8 nb_cup = 0;
-static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker les indices des tableaux puis les coordonnées des gobelets
+//static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker les indices des tableaux puis les coordonnées des gobelets
 static bool_e run_calcul,end_scan;
-color_e color = ODOMETRY_get_color();
+static color_e color;
 
 
 //------------------------------------------------------------------------------------ Prototype des fonctions local
@@ -91,9 +95,13 @@ void SCAN_CUP_process_it(){
 	static state_e state = INIT;
 	Uint8 i;
 	scan_result_t mesure_en_cours;
+	receve_msg_can_e receve_msg_can= NO_MSG_CAN;
+	bool_e last_point=0;
+	GEOMETRY_point_t centre;
 	switch(state){
 
 		case INIT :
+			color = ODOMETRY_get_color();
 			receve_msg_can = NO_MSG_CAN;
 			state = WAIT;
 			break;
@@ -111,10 +119,11 @@ void SCAN_CUP_process_it(){
 			break;
 
 		case SCAN_LINEAR:
-			if(abs(old_measure-global.position.x) >= QUANTUM_MESURE){
+			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;
 				mesure_en_cours.dist = conversion_capteur(ADC_getValue(SENSOR_NAME));
+				debug_printf("distance capteur=%d\n", mesure_en_cours.dist);
 				inArea(&mesure_en_cours);
 			}
 			if(end_scan == TRUE){		//On passe dans la phase de calcul
@@ -135,10 +144,27 @@ void SCAN_CUP_process_it(){
 		case SEND_COOR_CUP:
 			for(i=0;i<nb_cup;i++){
 				if(i<nb_cup-1){
-					SECRETARY_send_cup_position(FALSE,GEOMETRY_point_t p);
+					last_point=FALSE;
 				}else{
-					SECRETARY_send_cup_position(TRUE,GEOMETRY_point_t p);
+					last_point=TRUE;
 				}
+
+				if(color){
+					if(global.position.x<1000 && global.position.y<1500){ //Salle de cinema du haut
+						centre=determine_center(salleH,nbPointH);
+					}
+					if(global.position.x>1000 && global.position.y<1500){ //Salle de cinema du bas
+						centre=determine_center(salleB,nbPointB);
+					}
+				}else{
+					if(global.position.x<1000 && global.position.y>1500){ //Salle de cinema du haut
+						centre=determine_center(salleH,nbPointH);
+					}
+					if(global.position.x>1000 && global.position.y>1500){ //Salle de cinema du bas
+						centre=determine_center(salleB,nbPointB);
+					}
+				}
+				SECRETARY_send_cup_position(last_point,centre.x, centre.y);
 			}
 			break;
 	}
@@ -147,7 +173,10 @@ void SCAN_CUP_process_it(){
 static void inArea(scan_result_t * objet){
 	GEOMETRY_point_t cup;
 	cup.x = objet->robot.x;				//+ constante suivant où est placé le capteur
-	cup.y = objet->robot.y+objet->dist;	//Modifier la distance suivant emplacement capteur (+constante)
+	if(color==YELLOW)
+		cup.y = objet->robot.y-objet->dist-SMALL_ROBOT_WIDTH;	//Modifier la distance suivant emplacement capteur (+constante)
+	else
+		cup.y = objet->robot.y+objet->dist+SMALL_ROBOT_WIDTH;	//Modifier la distance suivant emplacement capteur (+constante)
 	if(color){
 		if(cup.x>=X1 && cup.x<=X2 && cup.y>=Y3 && cup.y<=Y4){ //Salle de cinema du haut
 			if(nbPointH>=NB_POINT_MAX){
@@ -208,6 +237,7 @@ static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points
 	//calcul du centre de la balise
 	centre.x = ((c30+c12)*c02-(c03+c21)*c11)/(2.*(c20*c02-c11*c11));
 	centre.y = ((c03+c21)*c20-(c30+c12)*c11)/(2.*(c20*c02-c11*c11));
+	return centre;
 }
 
 void SCAN_CUP_canMsg(CAN_msg_t *msg){
