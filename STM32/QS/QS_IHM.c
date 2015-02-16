@@ -42,6 +42,7 @@ void IHM_init(){
 	for(i=0;i<BP_NUMBER_IHM;i++)
 		IHM_define_act_button((button_ihm_e)i,NULL,NULL);
 
+	switchs[BIROUTE] = TRUE;			// Activation Biroute
 	switchs[SWITCH_DEBUG] = TRUE;		// Activation Debug
 	switchs[SWITCH_VERBOSE] = TRUE;		// Activation Verbose
 	switchs[SWITCH_XBEE] = TRUE;		// Activation Xbee

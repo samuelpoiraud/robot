@@ -324,17 +324,21 @@
  *****************************************************************/
 
 
-	/* Carte super vers carte actionneur */
+	/* Carte strat vers carte actionneur */
 	#define ACT_DO_SELFTEST		0x300
 	#define ACT_PING			0x316	//16 = IG = PING
 
-	/* Carte super vers carte propulsion */
+	/* Carte strat vers carte propulsion */
 	#define PROP_DO_SELFTEST	0x100
 	#define PROP_PING			0x116	//16 = IG = PING
 
-	/* Carte super vers carte balise */
+	/* Carte strat vers carte balise */
 	#define BEACON_DO_SELFTEST	0x400
 	#define BEACON_PING			0x416	//16 = IG = PING
+
+	/* Carte strat vers carte IHM */
+	#define IHM_DO_SELFTEST		0x600
+	#define IHM_PING			0x616	//16 = IG = PING
 
 	/* Carte actionneur vers Strat */
 	#define STRAT_ACT_SELFTEST_DONE 				0x2E3
@@ -345,6 +349,11 @@
 	#define STRAT_PROP_SELFTEST_DONE 				0x2E1
 	#define STRAT_PROP_PONG							0x216
 	#define STRAT_CUP_POSITION                      0x219
+		//Data[0] contient l'ID du robot (WHO_AM_I)
+
+	/* Carte IHM vers Strat */
+	#define STRAT_IHM_SELFTEST_DONE 				0x2E6
+	#define STRAT_IHM_PONG							0x266
 		//Data[0] contient l'ID du robot (WHO_AM_I)
 
 	/* Carte balise vers Strat */
@@ -386,9 +395,14 @@
 		SELFTEST_STRAT_BIROUTE_FORGOTTEN,
 		SELFTEST_STRAT_LASER_TORCH,
 		SELFTEST_STRAT_SD_WRITE_FAIL,
+		SELFTEST_IHM_BATTERY_NO_24V,
+		SELFTEST_IHM_BATTERY_LOW,
+		SELFTEST_IHM_BIROUTE_FORGOTTEN,
+		SELFTEST_IHM_POWER_HOKUYO_FAILED,
 		SELFTEST_ACT_UNREACHABLE,
 		SELFTEST_PROP_UNREACHABLE,
 		SELFTEST_BEACON_UNREACHABLE,
+		SELFTEST_IHM_UNREACHABLE,
 
 		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
 		SELFTEST_ACT_MISSING_TEST,	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)

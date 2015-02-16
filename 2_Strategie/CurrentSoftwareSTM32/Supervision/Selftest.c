@@ -37,6 +37,7 @@
 #define TIMEOUT_SELFTEST_BEACON_BATTERY	1000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_US		1000	// en ms
 #define TIMEOUT_SELFTEST_AVOIDANCE		5000	// en ms
+#define TIMEOUT_SELFTEST_IHM			1000	// en ms
 #define MAX_ERRORS_NUMBER				200
 
 #define THRESHOLD_BATTERY_OFF	18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
@@ -143,6 +144,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 	static bool_e act_ping_ok = FALSE;
 	static bool_e prop_ping_ok = FALSE;
 	static bool_e beacon_ping_ok = FALSE;
+	static bool_e ihm_ping_ok = FALSE;
 	static bool_e receiveBigBalise = FALSE, receiveSmallBalise = FALSE;
 
 	typedef enum
@@ -152,6 +154,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		SELFTEST_PING_ACT_PROP,
 		SELFTEST_ACT,
 		SELFTEST_PROP,
+		SELFTEST_IHM,
 		SELFTEST_BEACON_IR,
 		SELFTEST_BEACON_US,
 		SELFTEST_STRAT,
@@ -215,6 +218,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				CAN_send_sid(ACT_PING);
 				CAN_send_sid(PROP_PING);
 				CAN_send_sid(BEACON_PING);
+				CAN_send_sid(IHM_PING);
 				debug_printf("SELFTEST PING OTHER BOARDS\r\n");
 			}
 			if(CAN_msg_received != NULL)
@@ -231,10 +235,17 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
 					prop_ping_ok = TRUE;
 				}
+				if(CAN_msg_received->sid == STRAT_IHM_PONG)
+				{
+					if(CAN_msg_received->data[0] != QS_WHO_AM_I_get())
+						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
+					ihm_ping_ok = TRUE;
+				}
 				if(CAN_msg_received->sid == STRAT_BEACON_PONG)
 					beacon_ping_ok = TRUE;
+
 			}
-			if(act_ping_ok == TRUE && prop_ping_ok == TRUE && beacon_ping_ok == TRUE)
+			if(act_ping_ok == TRUE && prop_ping_ok == TRUE && beacon_ping_ok == TRUE && ihm_ping_ok == TRUE)
 			{
 				if(!flag_timeout)
 					WATCHDOG_stop(watchdog_id);
@@ -252,6 +263,8 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_PROP_UNREACHABLE);
 				if(!beacon_ping_ok)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_BEACON_UNREACHABLE);
+				if(!ihm_ping_ok)
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_IHM_UNREACHABLE);
 			}
 			break;
 		case SELFTEST_ACT:
@@ -293,7 +306,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					debug_printf("SELFTEST PROP\r\n");
 				}
 				else
-					state = SELFTEST_BEACON_IR;
+					state = SELFTEST_IHM;
 
 				// Lever erreur si switch_asser n'est actif
 				if(IHM_switchs_get(SWITCH_ASSER))
@@ -306,14 +319,46 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					if(!flag_timeout)
 						WATCHDOG_stop(watchdog_id);
-					state = SELFTEST_BEACON_IR;
+					state = SELFTEST_IHM;
 				}
 			if(flag_timeout)	//Timeout
 			{
 				debug_printf("SELFTEST PROP TIMEOUT\r\n");
+				state = SELFTEST_IHM;
+			}
+			break;
+
+		case SELFTEST_IHM:
+			if(entrance)
+			{
+				flag_timeout = FALSE;
+				if(ihm_ping_ok)
+				{
+					CAN_send_sid(IHM_DO_SELFTEST);
+					watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_IHM, (bool_e*) &(flag_timeout));
+					debug_printf("SELFTEST IHM\r\n");
+				}
+				else
+					state = SELFTEST_BEACON_IR;
+			}
+
+			if(CAN_msg_received != NULL)
+				if(CAN_msg_received->sid == STRAT_IHM_SELFTEST_DONE)
+				{
+					//Retour de la carte IHM
+					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
+					if(!flag_timeout)
+						WATCHDOG_stop(watchdog_id);
+					state = SELFTEST_BEACON_IR;
+				}
+
+			if(flag_timeout)	//Timeout
+			{
+				debug_printf("SELFTEST IHM TIMEOUT\r\n");
 				state = SELFTEST_BEACON_IR;
 			}
 			break;
+
 		case SELFTEST_BEACON_IR:
 			if(entrance)
 			{
@@ -515,7 +560,12 @@ error_e SELFTEST_strategy(bool_e reset)
 			status = RTC_get_local_time (&date);
 			if(!status)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_RTC);
+
+#ifdef FDP_2014
 			state = TEST_MEASURE24;
+#else
+			state = TEST_SD_CARD;
+#endif
 			break;
 		case TEST_MEASURE24:
 			battery_level = SELFTEST_measure24_mV();
@@ -531,6 +581,9 @@ error_e SELFTEST_strategy(bool_e reset)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BIROUTE_FORGOTTEN);
 			state = TEST_SD_CARD;
 			break;
+
+
+
 		case TEST_SD_CARD:
 			nb_written = 0;
 			if(f_open(&file, "selftest.txt", FA_WRITE | FA_CREATE_ALWAYS | FA_OPEN_ALWAYS) == FR_OK)
@@ -588,15 +641,20 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
 				case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE:debug_printf("SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE");	break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");								break;
-				case SELFTEST_STRAT_LASER_TORCH:				debug_printf("SELFTEST_STRAT_LASER_TORCH");				break;
+				case SELFTEST_STRAT_LASER_TORCH:				debug_printf("SELFTEST_STRAT_LASER_TORCH");						break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");					break;
 				case SELFTEST_STRAT_BATTERY_LOW:				debug_printf("SELFTEST_STRAT_BATTERY_LOW");						break;
 				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
 				case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_STRAT_BIROUTE_FORGOTTEN");				break;
 				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");					break;
+				case SELFTEST_IHM_BATTERY_NO_24V:				debug_printf("SELFTEST_IHM_BATTERY_NO_24V");					break;
+				case SELFTEST_IHM_BATTERY_LOW:					debug_printf("SELFTEST_IHM_BATTERY_LOW");						break;
+				case SELFTEST_IHM_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_IHM_BIROUTE_FORGOTTEN");					break;
+				case SELFTEST_IHM_POWER_HOKUYO_FAILED:			debug_printf("SELFTEST_IHM_POWER_HOKUYO_FAILED");				break;
 				case SELFTEST_ACT_UNREACHABLE:					debug_printf("SELFTEST_ACT_UNREACHABLE");						break;
 				case SELFTEST_PROP_UNREACHABLE:					debug_printf("SELFTEST_PROP_UNREACHABLE");						break;
 				case SELFTEST_BEACON_UNREACHABLE:				debug_printf("SELFTEST_BEACON_UNREACHABLE");					break;
+				case SELFTEST_IHM_UNREACHABLE:					debug_printf("SELFTEST_IHM_UNREACHABLE");						break;
 					// Actionneurs
 
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
@@ -853,9 +911,14 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";			break;
 		case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			return "Biroute Forgotten"; 	break;
 		case SELFTEST_STRAT_SD_WRITE_FAIL:				return "SD Write FAIL";			break;
+		case SELFTEST_IHM_BATTERY_NO_24V:				return "NO 24V";				break;
+		case SELFTEST_IHM_BATTERY_LOW:					return "BATTERY LOW";			break;
+		case SELFTEST_IHM_BIROUTE_FORGOTTEN:			return "Biroute Forgotten";		break;
+		case SELFTEST_IHM_POWER_HOKUYO_FAILED:			return "Hokuyo power failed";	break;
 		case SELFTEST_ACT_UNREACHABLE:					return "ACT Unreachable";		break;
 		case SELFTEST_PROP_UNREACHABLE:					return "PROP Unreachable";		break;
 		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";	break;
+		case SELFTEST_IHM_UNREACHABLE:					return "IHM Unreachable";		break;
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
 
