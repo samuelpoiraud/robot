@@ -6,6 +6,6 @@
 void SCAN_CUP_init(void);
 void SCAN_CUP_process_it();
 void SCAN_CUP_canMsg(CAN_msg_t *msg);
-void SCAN_TRIANGLE_calculate(void);
+void SCAN_CUP_calculate(void);
 
 #endif
