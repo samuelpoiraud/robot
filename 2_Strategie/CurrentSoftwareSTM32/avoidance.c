@@ -212,7 +212,7 @@ Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fai
 
 		case GO :
 			return_state = try_going(point.x, point.y, in_progress, success_state, fail_state, speed, way, avoidance, end_condition);
-			if(return_state == success_state || return_state == fail_state)
+			if(return_state != in_progress)
 				state = COMPUTE;
 			break;
 	}
