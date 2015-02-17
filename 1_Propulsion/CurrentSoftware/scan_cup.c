@@ -83,7 +83,8 @@ static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points
 
 //------------------------------------------------------------------------------------ Fonctions
 
-void SCAN_CUP_init(void){
+void SCAN_CUP_init(void)
+{
 	ADC_init();				//Initialisation des convertisseurs analogiques numeriques
 	run_calcul = FALSE;
 }

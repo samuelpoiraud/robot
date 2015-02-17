@@ -123,7 +123,9 @@ void initialisation(void)
 	JOYSTICK_init();
 	DEBUG_init();
 	BUTTONS_init();
-
+	#ifdef SCAN_CUP
+		SCAN_CUP_init();
+	#endif
 	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
 	BUTTONS_define_actions(BUTTON1,&calibration_button_action, NULL, 1);
 
