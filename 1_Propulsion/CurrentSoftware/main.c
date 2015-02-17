@@ -35,6 +35,7 @@
 #include "gyroscope.h"
 #include "detection.h"
 #include "clock.h"
+#include "scan_cup.h"
 
 #if defined (STM32F40XX)
 	#include "QS/QS_sys.h"

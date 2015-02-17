@@ -28,6 +28,7 @@
 #include "detection.h"
 #include "avoidance.h"
 #include "gyroscope.h"
+#include "scan_cup.h"
 
 #if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
 		#include <timer.h>
@@ -122,7 +123,7 @@ void _ISR _T2Interrupt()
 
 	#ifdef SCAN_CUP
 	SCAN_CUP_process_it();
-#endif
+	#endif
 	#ifdef MODE_PRINTF_TABLEAU
 		debug_print_tableau();
 	#endif
