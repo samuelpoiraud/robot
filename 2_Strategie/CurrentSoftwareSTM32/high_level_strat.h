@@ -48,6 +48,8 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	SUB_INIT,
 	SUB_GETOUT,
 
+	//Peu importe l'ordre des états... (sauf en cas de priorité égale)
+
 	//--------------Sub action de holly
 	HOLLY_SUB_INITIAL,
 	HOLLY_SUB_DISPOSE_IN_START_ZONE,
@@ -55,10 +57,10 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	HOLLY_SUB_SCAN_AND_DISPOSE_ON_ESTRAD,
 	HOLLY_SUB_DO_OUR_CLAP,
 	HOLLY_SUB_CUP_SCAN_AND_STEAL,
-	HOLLY_SUB_COLLECT_POPCORN,
-	HOLLY_SUB_DROP_POPCORN,
 	HOLLY_SUB_COLLECT_POPCORN_ADV,
-	//Peu importe l'ordre des états... (sauf en cas de priorité égale)
+	HOLLY_SUB_TAKE_REAR_FEET_IN_LIFT,
+	HOLLY_SUB_END_OF_MATCH,
+
 	//--------------Sub action de wood
 	WOOD_SUB_INITIAL,
 	WOOD_SUB_ADV_CLAP,
