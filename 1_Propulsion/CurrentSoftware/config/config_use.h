@@ -65,6 +65,7 @@
 
 	#define FDP_2014					//Define Temporaire pour l'ancien FDP
 
+	#define SCAN_CUP
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
