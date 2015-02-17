@@ -22,7 +22,7 @@
 //------------------------------------------------------------------------------------ Macro
 
 #define square(x) ((float)(x)*(float)(x))
-#define conversion_capteur(x) ((Sint32)(563)*(x)/1000 -68)
+#define conversion_capteur(x) ((Sint32)(703)*(x)/1000 - 117)
 
 //------------------------------------------------------------------------------------ Define
 
@@ -42,6 +42,7 @@
 #define RADIUS_CUP			70
 #define NB_POINT_MIN		4
 #define NB_POINT_ELIM       1		// Nombre de points que l'on élimine à chaque extrémitée
+#define BORDER				30
 
 
 
@@ -49,7 +50,7 @@
 
 typedef struct{
 	GEOMETRY_point_t robot;
-	Uint8 dist;
+	Uint16 dist;
 }scan_result_t;
 
 
@@ -96,12 +97,12 @@ void SCAN_CUP_process_it(){
 		SCAN_LINEAR,
 		SCAN_CALCUL,
 		WAIT_CALCULATE,
-		SEND_COOR_CUP
+		SEND_COOR_CUP,
+		END
 	}state_e;
 	static state_e state = INIT;
 	Uint8 i;
 	//scan_result_t mesure_en_cours;
-	receve_msg_can_e receve_msg_can= NO_MSG_CAN;
 	bool_e last_point=0;
 	switch(state){
 
@@ -125,10 +126,11 @@ void SCAN_CUP_process_it(){
 
 		case SCAN_LINEAR:
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
+				Sint16 ADC_Value = ADC_getValue(SENSOR_NAME);
+				mesure_en_cours.dist = conversion_capteur(ADC_Value);
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;
-				//mesure_en_cours.dist = conversion_capteur(ADC_getValue(SENSOR_NAME));
-				debug_printf("distance capteur=%d\n", mesure_en_cours.dist);
+				old_measure = global.position.x;
 				inArea(&mesure_en_cours);
 			}
 			if(end_scan == TRUE){		//On passe dans la phase de calcul
@@ -153,42 +155,54 @@ void SCAN_CUP_process_it(){
 					last_point=FALSE;
 				}else{
 					last_point=TRUE;
+					state = END;
 				}
 				SECRETARY_send_cup_position(last_point,coorCup[i].x, coorCup[i].y);
 			}
+			break;
+
+		case END:
+			state = INIT;
+			return;
 			break;
 	}
 }
 
 static void inArea(scan_result_t * objet){
+	//debug_printf("###############################################################################\n");
+	//debug_printf("\tPoint avant modif {%d,%d}\n",objet->robot.x,objet->robot.y);
 	GEOMETRY_point_t cup;
-	cup.x = objet->robot.x;				//+ constante suivant où est placé le capteur
-	if(color==YELLOW)
-		cup.y = objet->robot.y-objet->dist-SMALL_ROBOT_WIDTH;	//Modifier la distance suivant emplacement capteur (+constante)
-	else
-		cup.y = objet->robot.y+objet->dist+SMALL_ROBOT_WIDTH;	//Modifier la distance suivant emplacement capteur (+constante)
-	if(color){
-		if(cup.x>=X1 && cup.x<=X2 && cup.y>=Y3 && cup.y<=Y4){ //Salle de cinema du haut
-			if(nbPointH>=NB_POINT_MAX){
+	if(color==YELLOW){
+		cup.x = objet->robot.x - 55;
+		cup.y = objet->robot.y-objet->dist-100;	//Modifier la distance suivant emplacement capteur (+constante)
+	}else{
+		cup.y = objet->robot.y+objet->dist+100;	//Modifier la distance suivant emplacement capteur (+constante)
+		cup.x = objet->robot.x + 55;
+	}
+	//debug_printf("\tPoint après modif {%d,%d}\n",cup.x,cup.y);
+	//debug_printf("###############################################################################\n");
+		if(color){
+		if(cup.x>=X1 && cup.x<=X2 && cup.y>=Y3 && cup.y<=Y4-BORDER){ //Salle de cinema du haut
+			if(nbPointH<=NB_POINT_MAX){
 				salleH[nbPointH] = cup;
 				nbPointH++;
 			}
 		}
-		if(cup.x>=X3 && cup.x<=X4 && cup.y>=Y3 && cup.y<=Y4){ //Salle de cinema du bas
-			if(nbPointB>=NB_POINT_MAX){
+		if(cup.x>=X3 && cup.x<=X4 && cup.y>=Y3 && cup.y<=Y4-BORDER){ //Salle de cinema du bas
+			if(nbPointB<=NB_POINT_MAX){
 				salleB[nbPointB] = cup;
 				nbPointB++;
 			}
 		}
 	}else{
-		if(cup.x>=X1 && cup.x<=X2 && cup.y>=Y1 && cup.y<=Y2){ //Salle de cinema du haut
-			if(nbPointH>=NB_POINT_MAX){
+		if(cup.x>=X1 && cup.x<=X2 && cup.y>=Y1+BORDER && cup.y<=Y2){ //Salle de cinema du haut
+			if(nbPointH<=NB_POINT_MAX){
 				salleH[nbPointH] = cup;
 				nbPointH++;
 			}
 		}
-		if(cup.x>=X3 && cup.x<=X4 && cup.y>=Y1 && cup.y<=Y2){ //Salle de cinema du bas
-			if(nbPointB>=NB_POINT_MAX){
+		if(cup.x>=X3 && cup.x<=X4 && cup.y>=Y1+BORDER && cup.y<=Y2){ //Salle de cinema du bas
+			if(nbPointB<=NB_POINT_MAX){
 				salleB[nbPointB] = cup;
 				nbPointB++;
 			}
@@ -234,13 +248,9 @@ GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points, Uint8
 
 void SCAN_CUP_canMsg(CAN_msg_t *msg){
 	switch(msg->data[0]){
-		case 0:
+		case 1:
 			receve_msg_can=MSG_CAN_SCAN_LINEAR;
 			end_scan = FALSE;
-			break;
-		case 1:
-			end_scan = FALSE;
-			mesure_en_cours.dist = conversion_capteur(U16FROMU8(msg->data[1],msg->data[2]));
 			break;
 		case 2:
 			end_scan = TRUE;
@@ -250,7 +260,6 @@ void SCAN_CUP_canMsg(CAN_msg_t *msg){
 
 void SCAN_CUP_calculate(void){
 	if(run_calcul){
-		debug_printf("Calcul\n");
 		Sint16 first, i;
 		nb_cup = 0;
 
@@ -300,6 +309,17 @@ void SCAN_CUP_calculate(void){
 		}
 	}
 	run_calcul = FALSE;
+	//debug_printf("###############################################################################\n");
+	//debug_printf("\tnbPointB = %d\n",nbPointB);
+	//debug_printf("\tnbPointH = %d\n",nbPointH);
+	//debug_printf("\tnb_cup = %d\n",nb_cup);
+	int i;
+	//debug_printf("###############################################################################\n");
+	//debug_printf("\tnbPointH = %d\n",nbPointH);
+	for(i=0;i<nbPointH;i++){
+		debug_printf("{%d,%d} ",salleH[i].x,salleH[i].y);
+	}
+	//debug_printf("###############################################################################\n");
 }
 
 #endif
