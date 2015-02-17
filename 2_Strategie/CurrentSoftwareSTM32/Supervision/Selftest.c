@@ -492,7 +492,7 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_LASER_TORCH,
 		TEST_RTC,
 		TEST_MEASURE24,
-		TEST_BIROUTE,
+		TEST_SWITCHS,
 		TEST_SD_CARD,
 		FAIL,
 		DONE
@@ -574,11 +574,18 @@ error_e SELFTEST_strategy(bool_e reset)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_NO_24V);
 			else if(battery_level < THRESHOLD_BATTERY_LOW)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_LOW);
-			state = TEST_BIROUTE;
+			state = TEST_SWITCHS;
 			break;
-		case TEST_BIROUTE:
-			if(!IHM_switchs_get(BIROUTE))
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BIROUTE_FORGOTTEN);
+		case TEST_SWITCHS:
+
+
+			if(IHM_switchs_get(SWITCH_DISABLE_POPCORN))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_POPCORN_DISABLED);
+			if(IHM_switchs_get(SWITCH_DISABLE_LEFT_PUMP))	SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED);
+			if(IHM_switchs_get(SWITCH_DISABLE_RIGHT_PUMP))	SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED);
+			if(IHM_switchs_get(SWITCH_DISABLE_CLAPS))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CLAPS_DISABLED);
+			if(IHM_switchs_get(SWITCH_DISABLE_CARPETS))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CARPETS_DISABLED);
+			if(IHM_switchs_get(SWITCH_DISABLE_LIFT))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LIFT_DISABLED);
+
 			state = TEST_SD_CARD;
 			break;
 
@@ -906,6 +913,11 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE: return "XBee dest unreach";	break;
 		case SELFTEST_STRAT_LASER_TORCH:				return "Laser torch fail";		break;
 		case SELFTEST_STRAT_RTC:						return "RTC failed";			break;
+		case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	return "Popcorn Disabled";		break;
+		case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	return "Left Pump Disabled";	break;
+		case SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED:	return "Right Pump Disabled";	break;
+		case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		return "Claps Disabled";		break;
+		case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	return "Carpets Disabled";		break;
 		case SELFTEST_STRAT_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_STRAT_BATTERY_LOW:				return "BATTERY LOW";			break;
 		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";			break;

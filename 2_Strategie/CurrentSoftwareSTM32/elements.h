@@ -50,9 +50,9 @@
 
 	typedef enum
 	{
-		STORAGE_CENTER_CUP,					//WOOD OR HOOLY
-		STORAGE_LEFT_CUP,					//WOOD ONLY
-		STORAGE_RIGHT_CUP,					//WOOD ONLY
+		HOLLY_STORAGE_CENTER_CUP,					//HOOLY
+		WOOD_STORAGE_LEFT_CUP,					//WOOD ONLY
+		WOOD_STORAGE_RIGHT_CUP,					//WOOD ONLY
 		STORAGE_POPCORNS,
 		HOLLY_LEFT_REAR_SUCKER_FULL,		//Un pied dans la ventouse arrière gauche
 		HOLLY_RIGHT_REAR_SUCKER_FULL,		//Un pied dans la ventouse arrière droite
