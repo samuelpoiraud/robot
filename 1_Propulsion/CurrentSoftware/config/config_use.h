@@ -65,7 +65,6 @@
 
 	#define FDP_2014					//Define Temporaire pour l'ancien FDP
 
-	#define SCAN_CUP                    //Avtivation du scan de gobelets
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
@@ -157,7 +156,7 @@
 	#define USE_FIFO
 
 /* Réglages ADC */
-	#define USE_AN_11
+	#define USE_AN11
 
 #include "../_Propulsion_config.h"
 
