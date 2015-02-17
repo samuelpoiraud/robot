@@ -1,7 +1,7 @@
-#include "QS/QS_all.h"
+#define SCAN_CUP
 
 #ifdef SCAN_CUP
-
+#include "QS/QS_all.h"
 
 void SCAN_CUP_init(void);
 void SCAN_CUP_process_it();
