@@ -174,10 +174,11 @@
  * 14 : TIMER_4
  * 13 : TIMER_3
  * 11 : TIMER_2
- * 9  : TIMER_1
- * 3  : USART_1
- * 2  : CAN
- * 1  : USB
+ *  9 : TIMER_1
+ *  3 : USART_1
+ *  2 : CAN
+ *  1 : USB
+ *  0 : Systick
  */
 
 #endif /* CONFIG_USE_H */
