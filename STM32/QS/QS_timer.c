@@ -14,16 +14,48 @@
 #include "stm32f4xx_tim.h"
 
 #if TIMER_MS_PRESCALER <= 0 || TIMER_MS_PRESCALER > 65535
-#error "TIMER_MS_PRESCALER is not > 0 or < 65536"
+	#error "TIMER_MS_PRESCALER is not > 0 or < 65536"
 #endif
 #if TIMER_US_PRESCALER <= 0 || TIMER_US_PRESCALER > 65535
-#error "TIMER_US_PRESCALER is not > 0 or < 65536"
+	#error "TIMER_US_PRESCALER is not > 0 or < 65536"
 #endif
 #if TIMER_PULSE_PER_MS <= 0
-#error "TIMER_PULSE_PER_MS is <= 0"
+	#error "TIMER_PULSE_PER_MS is <= 0"
 #endif
 #if TIMER_PULSE_PER_US <= 0
-#error "TIMER_PULSE_PER_US is <= 0"
+	#error "TIMER_PULSE_PER_US is <= 0"
+#endif
+
+#ifndef TIMER_1_PRIORITY
+	#define TIMER_1_PRIORITY 9
+#endif
+#ifndef TIMER_2_PRIORITY
+	#define TIMER_2_PRIORITY 11
+#endif
+#ifndef TIMER_3_PRIORITY
+	#define TIMER_3_PRIORITY 13
+#endif
+#ifndef TIMER_4_PRIORITY
+	#define TIMER_4_PRIORITY 14
+#endif
+#ifndef TIMER_5_PRIORITY
+	#define TIMER_5_PRIORITY 15
+#endif
+
+#if TIMER_1_PRIORITY < 0 || TIMER_1_PRIORITY > 255
+	#error "TIMER_1_PRIORITY is not >= 0 or <= 255"
+#endif
+#if TIMER_2_PRIORITY < 0 || TIMER_2_PRIORITY > 255
+	#error "TIMER_2_PRIORITY is not >= 0 or <= 255"
+#endif
+#if TIMER_3_PRIORITY < 0 || TIMER_3_PRIORITY > 255
+	#error "TIMER_3_PRIORITY is not >= 0 or <= 255"
+#endif
+#if TIMER_4_PRIORITY < 0 || TIMER_4_PRIORITY > 255
+	#error "TIMER_4_PRIORITY is not >= 0 or <= 255"
+#endif
+#if TIMER_5_PRIORITY < 0 || TIMER_5_PRIORITY > 255
+	#error "TIMER_5_PRIORITY is not >= 0 or <= 255"
 #endif
 
 //Interruptions
@@ -89,23 +121,23 @@ void TIMER_init(void){
 	NVICInit.NVIC_IRQChannelCmd = ENABLE;
 	NVICInit.NVIC_IRQChannelSubPriority = 0;
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 9;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_1_PRIORITY;
 	NVICInit.NVIC_IRQChannel = TIM1_TRG_COM_TIM11_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 11;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_2_PRIORITY;
 	NVICInit.NVIC_IRQChannel = TIM8_BRK_TIM12_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 13;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_3_PRIORITY;
 	NVICInit.NVIC_IRQChannel = TIM8_UP_TIM13_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 1;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_4_PRIORITY;
 	NVICInit.NVIC_IRQChannel = TIM8_TRG_COM_TIM14_IRQn;
 	NVIC_Init(&NVICInit);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = 15;
+	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_5_PRIORITY;
 	NVICInit.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
 	NVIC_Init(&NVICInit);
 

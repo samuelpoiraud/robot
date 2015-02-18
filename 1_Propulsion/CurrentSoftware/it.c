@@ -30,11 +30,6 @@
 #include "gyroscope.h"
 #include "scan_cup.h"
 
-#if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
-		#include <timer.h>
-#endif
-
-
 #ifdef LCD_TOUCH
 	#include "LCDTouch/LCD.h"
 	#include "LCDTouch/zone.h"
@@ -47,12 +42,6 @@ void IT_init(void)
 	//Et c'est parti pour les it !!!
 	//Tache d'interruption principale...
 	TIMER_init();
-#if !defined(USE_QSx86) && defined(__dsPIC30F6010A__)
-	ConfigIntTimer1(T1_INT_PRIOR_5 & T1_INT_OFF);
-//	ConfigIntTimer3(T3_INT_PRIOR_1 & T3_INT_OFF);
-#elif !defined(USE_QSx86) && defined(STM32F40XX)
-	NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 10);
-#endif
 
 	//Note : run_us 5000 est beaucoup plus précis que run tout court à 5...
 	#ifdef USE_GYROSCOPE

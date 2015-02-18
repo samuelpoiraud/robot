@@ -67,4 +67,22 @@
 	#define USE_AN6		// Mesure 24V puissance
 	#define USE_AN10	// Mesure 24V permanence
 
+/* Récapitulatif TIMERs :
+ * TIMER 1 : IT				(it.c/h)
+ * TIMER 2 : ...
+ * TIMER 3 : Watchdog		(QS_watchdog.c/h)
+ * TIMER 4 : ...
+ * TIMER 5 : ...
+ */
+
+/* Récapitulatif IT priorité :
+ * 15 : TIMER_5
+ * 14 : TIMER_4
+ * 13 : TIMER_3
+ * 11 : TIMER_2
+ *  9 : TIMER_1
+ *  3 : USART_1
+ *  1 : CAN
+ */
+
 #endif /* CONFIG_USE_H */

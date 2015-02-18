@@ -31,15 +31,13 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_watchdog.h"
 #include "QS/QS_can.h"
+#include "QS/QS_sys.h"
+#include "QS/QS_systick.h"
 #include "hokuyo.h"
 #include "gyroscope.h"
 #include "detection.h"
-#include "clock.h"
 #include "scan_cup.h"
 
-#if defined (STM32F40XX)
-	#include "QS/QS_sys.h"
-#endif
 #if defined (LCD_TOUCH)
 	#include "LCDTouch/stm32f4_discovery_lcd.h"
 	#include "LCDTouch/LCDTouch_Display.h"
@@ -95,6 +93,7 @@ void initialisation(void)
 	SYS_init();				// Init système
 	PORTS_init();			// Config des ports
 	MAIN_global_var_init();	// Init variable globale
+	SYSTICK_init((time32_t*)&(global.absolute_time));
 
 	#ifdef FDP_2014
 		PORTS_set_pull(GPIOE, GPIO_Pin_8, GPIO_PuPd_UP); // Pull up sur le switch asser dans le cas d'un fdp incomplet
@@ -143,7 +142,6 @@ void initialisation(void)
 		LCD_init();
 	#endif
 
-	CLOCK_init();
 	IT_init();
 
 	// Demande des états initiaux des switchs

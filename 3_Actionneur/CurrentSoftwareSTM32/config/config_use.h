@@ -94,12 +94,24 @@
 #	include "config_small/config_use.h"
 #endif
 
-/* Récapitulatif IT :
+/* Récapitulatif TIMERs :
  * TIMER 1 : ...
  * TIMER 2 : AX12			(QS_ax12.c/h)
- * TIMER 3 : Watchdog		(QS_buttons.c/h)
+ * TIMER 3 : Watchdog		(QS_watchdog.c/h)
  * TIMER 4 : Clock			(clock.c/h)
  * TIMER 5 : Servo			(QS_servo.c/h)
+ */
+
+/* Récapitulatif IT priorité :
+ * 15 : TIMER_5
+ * 14 : TIMER_4
+ * 13 : TIMER_3
+ * 11 : TIMER_2
+ *  9 : TIMER_1
+ *  3 : USART_1
+ *  3 : USART_2
+ *  3 : USART_3
+ *  2 : CAN
  */
 
 #endif /* CONFIG_USE_H */

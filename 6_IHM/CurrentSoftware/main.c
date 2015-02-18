@@ -18,6 +18,7 @@
 #include "QS/QS_sys.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_can_verbose.h"
+#include "QS/QS_systick.h"
 #include "it.h"
 #include "button.h"
 #include "switch.h"
@@ -33,6 +34,7 @@ static void MAIN_global_var_init();
 void initialisation(void){
 	// Initialisation du système
 	SYS_init();				// Init système
+	SYSTICK_init((time32_t*)&(global.absolute_time));
 	PORTS_init();			// Config des ports
 	MAIN_global_var_init();	// Init variable globale
 
