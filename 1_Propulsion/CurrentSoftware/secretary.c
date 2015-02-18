@@ -42,12 +42,11 @@
 #include "avoidance.h"
 #include "scan_cup.h"
 
-//Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
-#define SECRETARY_MAILBOX_SIZE (32)
+
 
 typedef struct{
 	CAN_msg_t can_msg;
-	MAIL_from_e from;
+	MAIL_from_to_e from_to;
 }mailbox_t;
 
 static void SECRETARY_send_callback(CAN_msg_t * can_msg);
@@ -56,16 +55,25 @@ static bool_e SECRETARY_mailbox_get(Uint8 * index);
 static void SECRETARY_send_pong(void);
 static void SECRETARY_send_coef(PROPULSION_coef_e i);
 static void SECRETARY_send_all_coefs(void);
+static void SECRETARY_mailbox_out_add(CAN_msg_t * msg, MAIL_from_to_e from_to);
+static void SECRETARY_mailbox_out_process_main(void);
 
-volatile static Uint8 index_read;
-volatile static Uint8 index_write;
-volatile static Uint8 index_nb;
+volatile static Uint8 mailbox_in_index_read;
+volatile static Uint8 mailbox_in_index_write;
+volatile static Uint8 mailbox_in_index_nb;
+volatile static Uint8 mailbox_out_index_read;
+volatile static Uint8 mailbox_out_index_write;
+volatile static Uint8 mailbox_out_index_nb;
 volatile bool_e selftest_validated = FALSE;
 
-mailbox_t mailbox[SECRETARY_MAILBOX_SIZE];  //Les messages CAN reçus dans le main sont ajouté à la mailbox et traités en IT...
+//Ne doit pas être trop petit dans le cas de courbe multipoint assez grande: on doit pouvoir contenir tous les messages CAN qu'on reçoit en 5ms dans ce buffer
+#define SECRETARY_MAILBOX_IN_SIZE (32)
+#define SECRETARY_MAILBOX_OUT_SIZE (16)
+
+mailbox_t mailbox_in[SECRETARY_MAILBOX_IN_SIZE];  //Les messages CAN reçus dans le main sont ajouté à la mailbox et traités en IT...
 //Cela permet d'éviter les nombreux problèmes liés à la préemption (notamment liés au buffer d'ordres... dont les fonctions ne peuvent être réentraintes)
 
-
+mailbox_t mailbox_out[SECRETARY_MAILBOX_OUT_SIZE];	//Messages fournit en IT... à sortir en tâche de fond...
 
 
 //////////////////////////////////////////////////////////////////
@@ -76,8 +84,12 @@ void SECRETARY_init(void)
 {
 	CAN_init();
 	CAN_set_send_callback(SECRETARY_send_callback);
-	index_read = 0;
-	index_write = 0;
+	mailbox_in_index_read = 0;
+	mailbox_in_index_write = 0;
+	mailbox_in_index_nb = 0;
+	mailbox_out_index_read = 0;
+	mailbox_out_index_write = 0;
+	mailbox_out_index_nb = 0;
 }
 
 void SECRETARY_process_main(void)
@@ -89,7 +101,7 @@ void SECRETARY_process_main(void)
 	while(CAN_data_ready())
 	{
 			received_msg = CAN_get_next_msg();
-			SECRETARY_mailbox_add(&received_msg, FROM_CAN);
+			SECRETARY_mailbox_in_add(&received_msg, FROM_CAN);
 			#ifdef CAN_VERBOSE_MODE
 				QS_CAN_VERBOSE_can_msg_print(&received_msg, VERB_INPUT_MSG);
 			#endif
@@ -109,13 +121,15 @@ void SECRETARY_process_main(void)
 					receivedCanMsg_over_uart.sid == BROADCAST_COULEUR
 					)
 				#endif
-					SECRETARY_mailbox_add(&receivedCanMsg_over_uart, FROM_UART);
+					SECRETARY_mailbox_in_add(&receivedCanMsg_over_uart, FROM_UART);
 			}
 		#else
 			if(u1rxToCANmsg(&receivedCanMsg_over_uart))
 				SECRETARY_mailbox_add(&receivedCanMsg_over_uart, FROM_UART);
 		#endif
 	}
+
+	SECRETARY_mailbox_out_process_main();
 }
 
 void SECRETARY_process_it(void)
@@ -123,7 +137,7 @@ void SECRETARY_process_it(void)
 	Uint8 index;
 	while(SECRETARY_mailbox_get(&index))  //Tant qu'il y a un message à traiter...
 	{
-		SECRETARY_process_CANmsg(&(mailbox[index].can_msg), mailbox[index].from);  //Traitement du message CAN.
+		SECRETARY_process_CANmsg(&(mailbox_in[index].can_msg), mailbox_in[index].from_to);  //Traitement du message CAN.
 	}
 }
 
@@ -188,7 +202,7 @@ PROP_GO_POSITION
 		case PROP_WARN_Y:				y
 
 */
-void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_e from)
+void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 {
 	way_e sens_marche;
 	toggle_led(LED_CAN);
@@ -491,6 +505,14 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 	#endif
 }
 
+
+void SECRETARY_send_canmsg_from_it(CAN_msg_t * msg)
+{
+	SECRETARY_mailbox_out_add(msg,TO_CAN);
+}
+
+
+
 bool_e SECRETARY_is_selftest_validated(void)
 {
 	return selftest_validated;
@@ -602,6 +624,7 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 	}
 #endif
 
+//Fonction appelée uniquement en IT.
 void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout){
 	CAN_msg_t msg;
 		msg.sid = STRAT_PROP_FOE_DETECTED;
@@ -611,11 +634,13 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout){
 		msg.data[2] = HIGHINT(y);
 		msg.data[3] = LOWINT(y);
 		msg.data[4] = timeout;
-	SECRETARY_send_canmsg(&msg);
+	SECRETARY_send_canmsg_from_it(&msg);
 }
 
 #ifdef SCAN_CUP
-void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, Sint16 x, Sint16 y){
+//Fonction appelée uniquement en IT.
+void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, Sint16 x, Sint16 y)
+{
 	CAN_msg_t msg;
 	/*		0:7		: Indiquant si c'est le dernier gobelet
 	 * 		1		: x HIGH bit
@@ -630,7 +655,7 @@ void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, Sint16 x, Sint16 y){
 	msg.data[3] = HIGHINT(y);
 	msg.data[4] = LOWINT(y);
 	msg.size = 5;
-	SECRETARY_send_canmsg(&msg);
+	SECRETARY_send_canmsg_from_it(&msg);
 }
 #endif
 
@@ -640,21 +665,58 @@ void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, Sint16 x, Sint16 y){
 //----------------------FONCTION AUTRE--------------------------//
 //////////////////////////////////////////////////////////////////
 
-void SECRETARY_mailbox_add(CAN_msg_t * msg, MAIL_from_e from) //Fonction appelée en tâche de fond uniquement !
+void SECRETARY_mailbox_in_add(CAN_msg_t * msg, MAIL_from_to_e from_to) //Fonction appelée en tâche de fond uniquement !
 {
-	if(index_nb < SECRETARY_MAILBOX_SIZE)
+	if(mailbox_in_index_nb < SECRETARY_MAILBOX_IN_SIZE)
 	{
-		mailbox[index_write].can_msg = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
-		mailbox[index_write].from = from;
+		mailbox_in[mailbox_in_index_write].can_msg = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
+		mailbox_in[mailbox_in_index_write].from_to = from_to;
 		TIMER2_disableInt();
-			index_nb++; //Il ne faut pas que la préemption ait lieu maintenant !
+			mailbox_in_index_nb++; //Il ne faut pas que la préemption ait lieu maintenant !
 		TIMER2_enableInt();
-		index_write = (index_write + 1) % SECRETARY_MAILBOX_SIZE;
+		mailbox_in_index_write = (mailbox_in_index_write + 1) % SECRETARY_MAILBOX_IN_SIZE;
 	}
+	else
+		CAN_send_sid(DEBUG_PROPULSION_MAILBOX_IN_IS_FULL);
+}
 
+static void SECRETARY_mailbox_out_add(CAN_msg_t * msg, MAIL_from_to_e from_to)	//Fonction appelée en IT uniquement !
+{
+	if(mailbox_out_index_nb < SECRETARY_MAILBOX_OUT_SIZE)
+	{
+		mailbox_out[mailbox_out_index_write].can_msg = *msg;	//J'écris tranquillement mon message (tant pis si je suis préempté maintenant...)
+		mailbox_out[mailbox_out_index_write].from_to = from_to;
+		mailbox_out_index_nb++;
+		mailbox_out_index_write = (mailbox_out_index_write + 1) % SECRETARY_MAILBOX_OUT_SIZE;
+	}
 }
 
 
+static void SECRETARY_mailbox_out_process_main(void)	 //Fonction appelée en tâche de fond
+{
+	while(mailbox_out_index_nb > 0)
+	{
+		if(mailbox_out_index_nb == SECRETARY_MAILBOX_OUT_SIZE)
+			CAN_send_sid(DEBUG_PROPULSION_MAILBOX_OUT_IS_FULL);
+
+		switch(mailbox_out[mailbox_out_index_read].from_to)
+		{
+			case TO_CAN:
+				SECRETARY_send_canmsg(&mailbox_out[mailbox_out_index_read].can_msg);
+				break;
+			case TO_UART:
+				CANmsgToU1tx(&mailbox_out[mailbox_out_index_read].can_msg);
+				break;
+			default:
+				break;
+		}
+
+		TIMER2_disableInt();	//Section critique, pas de préemption maintenant !
+			mailbox_out_index_read = (mailbox_out_index_read + 1) % SECRETARY_MAILBOX_OUT_SIZE;
+			mailbox_out_index_nb--;
+		TIMER2_enableInt();
+	}
+}
 
 
 //////////////////////////////////////////////////////////////////
@@ -683,11 +745,11 @@ static void SECRETARY_send_callback(CAN_msg_t * can_msg){
 
 static bool_e SECRETARY_mailbox_get(Uint8 * index)	 //Fonction appelée en IT uniquement !
 {
-	if(index_nb >0)
+	if(mailbox_in_index_nb >0)
 	{
-		*index = index_read;
-		index_read = (index_read + 1) % SECRETARY_MAILBOX_SIZE;
-		index_nb--;
+		*index = mailbox_in_index_read;
+		mailbox_in_index_read = (mailbox_in_index_read + 1) % SECRETARY_MAILBOX_IN_SIZE;
+		mailbox_in_index_nb--;
 		return TRUE;	//Il y a un message à traiter.
 	}
 	return FALSE;	//Pas de message à traiter.

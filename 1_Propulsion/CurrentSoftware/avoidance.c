@@ -274,7 +274,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 					}
 
 					msg.data[1] = num;
-					SECRETARY_send_canmsg(&msg);
+					SECRETARY_send_canmsg_from_it(&msg);
 				}
 
 				last_time_refresh_avoid_displayed = global.absolute_time;

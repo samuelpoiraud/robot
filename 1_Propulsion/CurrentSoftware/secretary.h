@@ -18,8 +18,11 @@
 		FROM_CAN = 0,
 		FROM_UART,
 		FROM_XBEE,
-		FROM_LCD
-	}MAIL_from_e;
+		FROM_LCD,
+		TO_CAN,
+		TO_UART,
+		TO_XBEE
+	}MAIL_from_to_e;
 
 		void SECRETARY_init(void);
 
@@ -28,7 +31,7 @@
 	Fonction qui traite les messages reçus.
 	Selon le cas, elle peut ajouter des ordres dans la roadmap, configurer le système...
 	*/
-	void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_e from);
+	void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from);
 
 	void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability);
 
@@ -51,12 +54,13 @@
 
 	void SECRETARY_process_it(void);
 
-	void SECRETARY_mailbox_add(CAN_msg_t * msg, MAIL_from_e from);
+	void SECRETARY_mailbox_add(CAN_msg_t * msg, MAIL_from_to_e from);
 
 	void SECRETARY_send_selftest_result(bool_e result);
 
 	bool_e SECRETARY_is_selftest_validated(void);
 
-	void SECRETARY_send_canmsg(CAN_msg_t * msg);
+	void SECRETARY_send_canmsg(CAN_msg_t * msg);			//NE DOIT PAS ETRE APPELEE EN IT !
+	void SECRETARY_send_canmsg_from_it(CAN_msg_t * msg);	//NE DOIT PAS ETRE APPELEE EN TACHE DE FOND !
 
 #endif	//def _SECRETARY_H
