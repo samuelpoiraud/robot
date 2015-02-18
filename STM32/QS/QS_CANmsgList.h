@@ -179,7 +179,8 @@
 	#define DEBUG_STRAT_STATE_CHANGED	0x760  //Envoyé par la strat quand un état change d'une machine à état
 		//Paramètres: data[0]:data[1] = ID d'une machine à état (data[0] le poids fort), data[2] = old_state, data[3] = new_state, data suivant: paramètres divers
 
-
+	#define DEBUG_PROPULSION_MAILBOX_IN_IS_FULL						0x70D
+	#define DEBUG_PROPULSION_MAILBOX_OUT_IS_FULL					0x70E
 	#define DEBUG_ENABLE_MODE_BEST_EFFORT							0x70F
 	#define DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT					0x710
 
