@@ -83,6 +83,7 @@
  *  9 : TIMER_1
  *  3 : USART_1
  *  1 : CAN
+ *  0 : Systick
  */
 
 #endif /* CONFIG_USE_H */

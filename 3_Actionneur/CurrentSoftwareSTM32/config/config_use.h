@@ -112,6 +112,7 @@
  *  3 : USART_2
  *  3 : USART_3
  *  2 : CAN
+ *  0 : Systick
  */
 
 #endif /* CONFIG_USE_H */
