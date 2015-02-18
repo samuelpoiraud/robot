@@ -52,7 +52,6 @@ void TIMER_SRC_TIMER_interrupt()
 	#endif
 
 	toggle_led(LED_RUN);
-	global.absolute_time += 10;
 #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)
 	BUTTONS_process_it();
 #endif

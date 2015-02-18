@@ -108,7 +108,7 @@
 /* CAN */
 	#define USE_CAN
 	#define CAN_BUF_SIZE		32	//Nombre de messages CAN conservés pour traitement hors interuption
-	#define QS_CAN_RX_IT_PRI	5	//Modif de la priorité de l'IT can pour rendre la priorité des codeurs plus grande ! (Plus faible = plus prioritaire)
+	#define QS_CAN_RX_IT_PRI	2	//Modif de la priorité de l'IT can pour rendre la priorité des codeurs plus grande ! (Plus faible = plus prioritaire)
 
 /* Réglages UART */
 	#define USE_UART1
@@ -161,12 +161,23 @@
 
 #include "../_Propulsion_config.h"
 
-/* Récapitulatif IT :
-* TIMER 1 : Gyroscope		(it.c/h)
-* TIMER 2 : IT principale	(it.c/h)
-* TIMER 3 : Boutons		(QS_buttons.c/h)
-* TIMER 4 : Watchdog		(QS_watchdog.c/h)
-* TIMER 5 : Clock			(clock.c/h)
-*/
+/* Récapitulatif TIMERs :
+ * TIMER 1 : Gyroscope		(it.c/h)
+ * TIMER 2 : IT principale	(it.c/h)
+ * TIMER 3 : Boutons		(QS_buttons.c/h)
+ * TIMER 4 : Watchdog		(QS_watchdog.c/h)
+ * TIMER 5 : ...
+ */
+
+/* Récapitulatif IT priorité :
+ * 15 : TIMER_5
+ * 14 : TIMER_4
+ * 13 : TIMER_3
+ * 11 : TIMER_2
+ * 9  : TIMER_1
+ * 3  : USART_1
+ * 2  : CAN
+ * 1  : USB
+ */
 
 #endif /* CONFIG_USE_H */

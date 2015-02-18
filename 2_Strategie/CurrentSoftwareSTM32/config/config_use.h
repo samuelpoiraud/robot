@@ -135,12 +135,25 @@
 	#define RF_USE_WATCHDOG
 	#define SYNCHROBALISE_TIMER 4
 
-/* Récapitulatif IT :
-* TIMER 1 : Clock			(clock.c/h)
-* TIMER 2 : ...
-* TIMER 3 : Watchdog		(QS_buttons.c/h)
-* TIMER 4 : Synchro balise	(Synchro_balises.c/h)
-* TIMER 5 : ...
-*/
+/* Récapitulatif TIMERs :
+ * TIMER 1 : Clock			(clock.c/h)
+ * TIMER 2 : ...
+ * TIMER 3 : Watchdog		(QS_watchdog.c/h)
+ * TIMER 4 : Synchro balise	(Synchro_balises.c/h)
+ * TIMER 5 : ...
+ */
+
+/* Récapitulatif IT priorité :
+ * 15 : TIMER_5
+ * 14 : TIMER_4
+ * 13 : TIMER_3
+ * 11 : TIMER_2
+ * 10 : USART_3
+ *  9 : TIMER_1
+ *  7 : I2C
+ *  3 : USART_2
+ *  3 : USART_1
+ *  1 : CAN
+ */
 
 #endif /* CONFIG_USE_H */

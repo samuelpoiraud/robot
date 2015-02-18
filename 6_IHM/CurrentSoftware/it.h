@@ -19,6 +19,5 @@
 
 	void IT_init(void);
 	void _ISR _T1Interrupt(void); //Sur interruption timer 1...
-	void _ISR _T2Interrupt(void); //Sur interruption timer 2...
 
 #endif	//def _IT_H

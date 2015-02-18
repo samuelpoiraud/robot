@@ -26,12 +26,13 @@
 #include "QS/QS_ax12.h"
 #include "QS/QS_CapteurCouleurCW.h"
 #include "QS/QS_can_verbose.h"
+#include "QS/QS_IHM.h"
+#include "QS/QS_systick.h"
 #include "terminal/term_io.h"
 #include "queue.h"
 #include "clock.h"
 #include "ActManager.h"
 #include "Can_msg_processing.h"
-#include "QS/QS_IHM.h"
 
 #ifdef I_AM_ROBOT_BIG
 	#include "Pierre/TestServo.h"
@@ -55,6 +56,7 @@ int main (void)
 
 	//Initialisation du système
 	SYS_init();				// Init système
+	SYSTICK_init((time32_t*)&(global.absolute_time));
 	PORTS_init();			// Config des ports
 	MAIN_global_var_init();	// Init variable globale
 
