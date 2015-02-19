@@ -55,7 +55,7 @@ int main (void){
 
 	QS_WHO_AM_I_find();
 	debug_printf("------- Hello, I'm IHM (%s) -------\n", QS_WHO_AM_I_get_name());
-
+	GPIO_SetBits(I_AM_READY);
 	CAN_msg_t msg;
 
 	while(1){
