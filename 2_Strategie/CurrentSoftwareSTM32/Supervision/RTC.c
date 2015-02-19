@@ -45,6 +45,7 @@
 volatile date_t local_date;
 volatile bool_e local_date_updated = FALSE;
 volatile bool_e periodic_it_was_called = FALSE;
+volatile bool_e rtc_updated = FALSE;	//lorsque nous mettons à jour la RTC, il faut autoriser la fonction get à la lire à nouveau...
 
 void RTC_init(void)
 {
@@ -111,8 +112,12 @@ Uint8 RTC_set_time  (date_t * date)
 	local_date_updated = FALSE;	//La date locale n'est plus à jour. On ne prend pas pour autant la nouvelle date comme date locale, puisqu'en cas d'échec, mieux vaut avoir relu la date RTC réelle.
 
 	if(I2C2_write(DS1307_I2C_ADDRESS, datas, 9, TRUE))
+	{
 		debug_printf("RTC mise à jours\n");
-	else{
+		rtc_updated = TRUE;
+	}
+	else
+	{
 		debug_printf("RTC ERROR I2C\n");
 		return FALSE;
 	}
@@ -141,24 +146,31 @@ Uint8 RTC_get_time (date_t * date)
 	date->month = 1;
 	date->year = 0;
 	#ifdef USE_RTC
+	static Uint8 nb_try = 0;
 	Uint8 datas[7];
 	datas[0] = 0x00;	//@ du premier registre
-	if(I2C2_write(DS1307_I2C_ADDRESS, datas, 1, FALSE))	//Condition de stop non envoyée...
+	if(nb_try < 2 || rtc_updated)
 	{
-		if(I2C2_read(DS1307_I2C_ADDRESS, datas, 7))	//Le START sera donc ici un RESTART
+		rtc_updated = FALSE;
+		nb_try++;
+		if(I2C2_write(DS1307_I2C_ADDRESS, datas, 1, FALSE))	//Condition de stop non envoyée...
 		{
-			local_date.seconds 	= (datas[0] & 0x0f) + (((datas[0] & 0x70) >> 4) * 10);		//(Bit 7 is osc flag bit - dump)
-			local_date.minutes 	= (datas[1] & 0x0f) + (((datas[1] & 0x70) >> 4) * 10);
-			local_date.hours 	= (datas[2] & 0x0f) + (((datas[2] & 0x30) >> 4) * 10);
-			local_date.day 		= (datas[3] & 0x07);
-			local_date.date 	= (datas[4] & 0x0f) + (((datas[4] & 0x30) >> 4) * 10);
-			local_date.month 	= (datas[5] & 0x0f) + (((datas[5] & 0x10) >> 4) * 10);
-			local_date.year 	= (datas[6] & 0x0f) + ((datas[6] >> 4) * 10);
-			local_date_updated = TRUE;
-			*date = local_date;
-			return TRUE;
+			if(I2C2_read(DS1307_I2C_ADDRESS, datas, 7))	//Le START sera donc ici un RESTART
+			{
+				local_date.seconds 	= (datas[0] & 0x0f) + (((datas[0] & 0x70) >> 4) * 10);		//(Bit 7 is osc flag bit - dump)
+				local_date.minutes 	= (datas[1] & 0x0f) + (((datas[1] & 0x70) >> 4) * 10);
+				local_date.hours 	= (datas[2] & 0x0f) + (((datas[2] & 0x30) >> 4) * 10);
+				local_date.day 		= (datas[3] & 0x07);
+				local_date.date 	= (datas[4] & 0x0f) + (((datas[4] & 0x30) >> 4) * 10);
+				local_date.month 	= (datas[5] & 0x0f) + (((datas[5] & 0x10) >> 4) * 10);
+				local_date.year 	= (datas[6] & 0x0f) + ((datas[6] >> 4) * 10);
+				local_date_updated = TRUE;
+				*date = local_date;
+				return TRUE;
+			}
 		}
 	}
+
 	#endif
 	return FALSE;
 }

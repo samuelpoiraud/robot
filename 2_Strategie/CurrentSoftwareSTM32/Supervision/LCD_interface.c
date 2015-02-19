@@ -88,22 +88,30 @@ static bool_e initialized = FALSE;
 ////////////////////////////////////////////////////////////////////////
 /// INIT
 
-void init_LCD_interface(void){
-	LCD_I2C_init();
-	LCD_init();
-	LCD_clear_display();
-	LCD_cursor_display(FALSE,FALSE);
-	state = INFO_s;
-	previous_state = INFO_s;
-	free_msg_updated = TRUE;
-	Uint8 i;
-	for(i=0;i<LINE_NUMBER;i++)
-		clear_line(i);
-	for(i=0;i<FREE_MSG_NB;i++)
-		free_msg[i][0] = 0;
-	//IHM_LEDS(FALSE, FALSE, FALSE, FALSE);
+bool_e init_LCD_interface(void){
+	#ifndef FDP_2014
+	if(GPIO_ReadInputDataBit(IHM_IS_READY))	//Si la carte IHM est présente... on initialise le LCD...
+	#else
+	if(!initialized)
+	#endif
+	{
+		LCD_I2C_init();
+		LCD_init();
+		LCD_clear_display();
+		LCD_cursor_display(FALSE,FALSE);
+		state = INFO_s;
+		previous_state = INFO_s;
+		free_msg_updated = TRUE;
+		Uint8 i;
+		for(i=0;i<LINE_NUMBER;i++)
+			clear_line(i);
+		for(i=0;i<FREE_MSG_NB;i++)
+			free_msg[i][0] = 0;
+		//IHM_LEDS(FALSE, FALSE, FALSE, FALSE);
 
-	initialized = TRUE;
+		initialized = TRUE;
+	}
+	return initialized;
 }
 
 // Enregistre une chaine formattée vers une ligne donnée.
@@ -242,7 +250,9 @@ void LCD_Update(void){
 	static menu_e previous_menu = INIT;
 	static menu_e menu = INIT;
 	bool_e entrance;
-
+	if(!initialized)
+		if(init_LCD_interface() == FALSE)	//on retente l'initialisation...
+			return;
 	//Navigation dans les menus.
 	if(ask_for_menu_user)	//Flag prépondérant... ce menu rebaissera le booléen avec un appui SET. (car prioritaire devant le SWITCH !)
 		menu = MENU_USER;
