@@ -43,6 +43,8 @@
  *
  */
 	volatile bool_e flag_recouvrement_IT;
+	volatile time32_t recouvrement_IT_time;
+	volatile char recouvrement_section;
 
 	///REFERENTIEL GENERAL/////////(x, y, teta...)///////////////////
 

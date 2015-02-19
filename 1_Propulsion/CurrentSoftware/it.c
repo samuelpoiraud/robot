@@ -35,6 +35,25 @@
 	#include "LCDTouch/zone.h"
 #endif
 
+typedef enum{
+	IT_STATE_NONE = 0,
+	IT_STATE_ODOMETRY,
+	IT_STATE_SECRETARY,
+	IT_STATE_WARNER,
+	IT_STATE_JOYSTICK,
+	IT_STATE_AVOIDANCE,
+	IT_STATE_COPILOT,
+	IT_STATE_PILOT,
+	IT_STATE_SUPERVISOR,
+	IT_STATE_MAIN,
+	IT_STATE_HOKUYO,
+	IT_STATE_DETECTION,
+	IT_STATE_SCAN_CUP,
+	IT_STATE_DEBUG,
+	IT_STATE_LCD
+}it_state_e;
+
+void IT_test_state(time32_t time_begin, it_state_e it_state, bool_e *over_time);
 static void display_led(void);
 
 void IT_init(void)
@@ -79,6 +98,8 @@ void _ISR _T2Interrupt()
 									#endif
 {
 	static Uint16 led_display_it = 0;
+	time32_t begin_it_time = global.absolute_time;
+	bool_e first_overtime = FALSE;
 #ifdef LCD_TOUCH
 	static Uint8 count = 0;
 #endif
@@ -87,6 +108,7 @@ void _ISR _T2Interrupt()
 
 	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
 	ODOMETRY_update();
+	IT_test_state(begin_it_time, IT_STATE_ODOMETRY, &first_overtime);
 
 	//Sauvegarde de l'état du système, en mode debug...
 
@@ -95,24 +117,42 @@ void _ISR _T2Interrupt()
 	#endif
 
 	SECRETARY_process_it();
+	IT_test_state(begin_it_time, IT_STATE_SECRETARY, &first_overtime);
+
 	WARNER_process_it();	//MAJ des avertisseurs
+	IT_test_state(begin_it_time, IT_STATE_WARNER, &first_overtime);
+
 	JOYSTICK_process_it();
+	IT_test_state(begin_it_time, IT_STATE_JOYSTICK, &first_overtime);
+
 	AVOIDANCE_process_it();
+	IT_test_state(begin_it_time, IT_STATE_AVOIDANCE, &first_overtime);
 
 	COPILOT_process_it();
+	IT_test_state(begin_it_time, IT_STATE_COPILOT, &first_overtime);
+
 	PILOT_process_it();
+	IT_test_state(begin_it_time, IT_STATE_PILOT, &first_overtime);
+
 	SUPERVISOR_process_it();
+	IT_test_state(begin_it_time, IT_STATE_SUPERVISOR, &first_overtime);
+
 	MAIN_process_it(PERIODE_IT_ASSER);
+	IT_test_state(begin_it_time, IT_STATE_MAIN, &first_overtime);
 
 	#ifdef USE_HOKUYO
 		HOKUYO_process_it(PERIODE_IT_ASSER);
 	#endif
+	IT_test_state(begin_it_time, IT_STATE_HOKUYO, &first_overtime);
 
 	DETECTION_process_it();
+	IT_test_state(begin_it_time, IT_STATE_DETECTION, &first_overtime);
 
 	#ifdef SCAN_CUP
-	SCAN_CUP_process_it();
+		SCAN_CUP_process_it();
 	#endif
+	IT_test_state(begin_it_time, IT_STATE_SCAN_CUP, &first_overtime);
+
 	#ifdef MODE_PRINTF_TABLEAU
 		debug_print_tableau();
 	#endif
@@ -120,6 +160,7 @@ void _ISR _T2Interrupt()
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 		DEBUG_process_it();
 	#endif
+	IT_test_state(begin_it_time, IT_STATE_DEBUG, &first_overtime);
 
 	#ifdef LCD_TOUCH
 		if(count == 1){
@@ -129,6 +170,7 @@ void _ISR _T2Interrupt()
 		}
 		count++;
 	#endif
+	IT_test_state(begin_it_time, IT_STATE_LCD, &first_overtime);
 
 	// Affichage des leds toutes les 500ms
 	led_display_it++;
@@ -138,8 +180,10 @@ void _ISR _T2Interrupt()
 	}
 
 	g2 = global;
-	if(TIMER2_getITStatus())	//L'IT est trop longue ! il y a recouvrement !!!
+	if(TIMER2_getITStatus()){	//L'IT est trop longue ! il y a recouvrement !!!
 		global.flag_recouvrement_IT = TRUE;
+		global.recouvrement_IT_time = global.absolute_time - begin_it_time;
+	}
 	GPIO_SetBits(LED_USER);  //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 }
 
@@ -215,5 +259,15 @@ static void display_led(void)
 			GPIO_ResetBits(LED_SELFTEST);
 		else
 			GPIO_SetBits(LED_SELFTEST);
+	}
+}
+
+void IT_test_state(time32_t time_begin, it_state_e it_state, bool_e* over_time){
+	if(*over_time)
+		return;
+
+	if(global.absolute_time - time_begin > 5){
+		global.recouvrement_section = it_state;
+		*over_time = TRUE;
 	}
 }

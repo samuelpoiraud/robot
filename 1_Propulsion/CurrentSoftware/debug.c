@@ -89,15 +89,10 @@ void DEBUG_process_main(void)
 		global.flag_recouvrement_IT = FALSE;
 		debug_printf("#");//debug_printf("prévenez samuelp5@gmail.com, recouvrement IT !");//Fuck, il y a des IT trop longues... on remonte l'info au développeur !
 		msg.sid = DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT;
-		msg.size = 8;
-		msg.data[0] = 'E';
-		msg.data[1] = 'R';
-		msg.data[2] = 'R';
-		msg.data[3] = 'O';
-		msg.data[4] = 'R';
-		msg.data[5] = 'P';
-		msg.data[6] = 'R';
-		msg.data[7] = 'O';
+		msg.size = 3;
+		msg.data[0] = HIGHINT(global.recouvrement_IT_time);
+		msg.data[1] = LOWINT(global.recouvrement_IT_time);
+		msg.data[2] = global.recouvrement_section;
 		CAN_send(&msg);
 	}
 
