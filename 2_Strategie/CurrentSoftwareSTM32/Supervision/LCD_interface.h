@@ -19,8 +19,9 @@
 
 /*
  * Initialise l'ecran et son affichage
+ * @return si ca s'est bien passé... ou pas...
  */
-void init_LCD_interface(void);
+bool_e init_LCD_interface(void);
 
 /*
  * Met à jour l'affichage selon les evenements

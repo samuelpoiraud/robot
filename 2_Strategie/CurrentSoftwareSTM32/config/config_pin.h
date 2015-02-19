@@ -222,9 +222,9 @@
 		// - programmation -			5
 		// - programmation -			6
 		//								7
-		#define ACT_IS_READY			GPIOE->IDR8
-		#define PROP_IS_READY			GPIOE->IDR9
-		#define IHM_IS_READY			GPIOE->IDR10
+		#define ACT_IS_READY			GPIOE,GPIO_Pin_8
+		#define PROP_IS_READY			GPIOE,GPIO_Pin_9
+		#define IHM_IS_READY			GPIOE,GPIO_Pin_10
 		//								11
 		//								12
 		//								13
