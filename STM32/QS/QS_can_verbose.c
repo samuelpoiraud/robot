@@ -15,6 +15,24 @@
 #include "QS_IHM.h"
 #include <stdio.h>
 
+char *it_state_name[] = {
+	"NONE",
+	"ODOMETRY",
+	"SECRETARY",
+	"WARNER",
+	"JOYSTICK",
+	"AVOIDANCE",
+	"COPILOT",
+	"PILOT",
+	"SUPERVISOR",
+	"MAIN",
+	"HOKUYO",
+	"DETECTION",
+	"SCAN_CUP",
+	"DEBUG",
+	"LCD"
+};
+
 static void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
 static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len);
 static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int len, QS_VERBOSE_msg_type_e verbose_msg_type);
@@ -63,7 +81,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 #endif
 
 #ifdef I_AM_CARTE_PROP			// Message ignoré par la propulsion
-
+		case BROADCAST_ADVERSARIES_POSITION:
 #endif
 
 #ifdef I_AM_CARTE_ACT			// Message ignoré par l'actionneur
@@ -208,6 +226,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", u8(0),u32(1,2,3,4));	break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%d\n", u16(0,1));								break;
+		case DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT :	print(string, len, "| duration : %dms  section : %s\n", u16(0,1), it_state_name[u8(2)]);										break;
 
 		case IR_ERROR_RESULT:					print_ir_result(msg, &string, &len);									break;
 
