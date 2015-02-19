@@ -84,7 +84,7 @@
 		#define BLUE_LED_MASK		GPIO_Pin_4
 	//	-								5
 	#define SWITCH_COLOR_PORT		GPIOD->IDR6
-	#define BIROUTE_PORT			(!GPIOD->IDR7)	//La biroute doit être par défaut dans l'état NON par défaut... pour qu'on soit sur qu'elle est là.
+	#define BIROUTE_PORT			GPIOD->IDR7	//La biroute doit être par défaut dans l'état NON par défaut... pour qu'on soit sur qu'elle est là.
 	//									8
 	//									9
 	#define LED0_PORT				GPIOD,GPIO_Pin_10
