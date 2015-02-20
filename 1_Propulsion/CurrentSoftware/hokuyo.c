@@ -37,6 +37,9 @@
 
 #ifdef USE_HOKUYO
 
+// Temps d'acquisition
+// MS : 45 - 50  ms
+// ME : 70 - 100 ms
 	#define USE_COMMAND_ME	// afin de récupérer la distance et l'intensité, sinon récupére juste la distance
 
 	#define HOKUYO_BUFFER_READ_TIMEOUT	500		// ms
@@ -75,7 +78,7 @@
 	#define NB_BYTES_FROM_HOKUYO	2500
 #endif
 
-	#define PERIOD_SEND_ADVERSARIES_DATAS	175	//[ms]
+	#define PERIOD_SEND_ADVERSARIES_DATAS	120	//[ms]
 
 	__ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core __ALIGN_END;
 	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
@@ -130,7 +133,6 @@
 		//static Uint8 droiteRegression1[3], droiteRegression2[3];
 
 	#endif
-		Uint8 cpt=0;
 
 
 //Fonction d'initialisation du périphérique USB
@@ -236,7 +238,7 @@ void HOKUYO_process_main(void)
 			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
 				state=ASK_NEW_MEASUREMENT;
 #else
-			if(HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
+			if(datas_index > 1 && HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
 				state=REMOVE_LF;
 			else if(datas_index>2278)
 				state=ASK_NEW_MEASUREMENT;
@@ -250,11 +252,6 @@ void HOKUYO_process_main(void)
 		break;
 		case TREATMENT_DATA:
 			hokuyo_find_valid_points();
-			cpt++;
-			if(cpt==4){
-				debug_printf("\nCOMPTEUR cpt=%d\n", cpt);
-				cpt=0;
-			}
 			#ifdef TRIANGULATION
 			//debug_printf("Pouet %s\n", (global.match_over)?"over":"");
 			//debug_printf("nbpoints1=%ld  nbpoints2=%ld  nbpoints3=%ld \n", nb_points_B1, nb_points_B2, nb_points_B3);
