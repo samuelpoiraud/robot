@@ -130,7 +130,7 @@ bool_e CARPET_LAUNCHER_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
 		SELFTEST_set_actions(&CARPET_LAUNCHER_LEFT_run_command, 3, (SELFTEST_action_t[]){
 								 {ACT_CARPET_LAUNCHER_LEFT_IDLE,		0,  QUEUE_ACT_AX12_CARPET_LAUNCHER_LEFT},
-								 {ACT_CARPET_LAUNCHER_LEFT_LAUNCH,			0,  QUEUE_ACT_AX12_CARPET_LAUNCHER_LEFT},
+								 {ACT_CARPET_LAUNCHER_LEFT_LAUNCH,		0,  QUEUE_ACT_AX12_CARPET_LAUNCHER_LEFT},
 								 {ACT_CARPET_LAUNCHER_LEFT_IDLE,		0,  QUEUE_ACT_AX12_CARPET_LAUNCHER_LEFT}
 							 });
 	}
