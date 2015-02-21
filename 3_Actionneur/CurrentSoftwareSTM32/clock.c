@@ -14,6 +14,7 @@
 #include "QS/QS_buttons.h"
 #include "QS/QS_DCMotor2.h"
 #include "QS/QS_ports.h"
+#include "Holly/Ascenseur/elevator.h"
 
 #ifdef CLOCK_TIMER_ID
 	#define TIMER_SRC_TIMER_ID CLOCK_TIMER_ID
@@ -47,6 +48,8 @@ void CLOCK_init()
 #include "QS/QS_uart.h"
 void TIMER_SRC_TIMER_interrupt()
 {
+	ELEVATOR_process_it();
+
 	#ifdef USE_DCMOTOR2
 		DCM_process_it();
 	#endif

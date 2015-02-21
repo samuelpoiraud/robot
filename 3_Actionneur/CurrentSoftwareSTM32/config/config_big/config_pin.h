@@ -19,8 +19,8 @@
 	//	-				 			  4
 	#define AX12_DIRECTION_PORT_RX24 GPIOA,GPIO_Pin_5
 	//	-				 			  6
-	//	-				 			  7
-	//	-				 			  8
+	#define ELEVATOR_FDC			 (GPIOA->IDR7)
+	//ELEVATOR_DCM_SENS				  8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -132,5 +132,6 @@
 #define SPOT_POMPE_RIGHT_PWM_NUM		2
 #define SPOT_POMPE_LEFT_PWM_NUM			3
 
+#define ELEVATOR_ID						0
 
 #endif /* BIG_CONFIG_PIN_H */

@@ -47,8 +47,6 @@
 //MODES INDISPENSABLES EN MATCHS
 	#define PERIODE_IT_ASSER (5)		//[ms] ne pas y toucher sans savoir ce qu'on fait, (ou bien vous voulez vraiment tout casser !)
 
-	#define USE_CODEUR_SUR_IT_ET_QE		//Utiliser les IT externes et les QEx pour acquérir les infos codeurs au lieu du CPLD !
-
 	#define USE_HOKUYO					//Active le module HOKUYO et la détection des ennemis... !
 
 	//#define USE_GYROSCOPE				//Activation du gyroscope
@@ -147,11 +145,8 @@
 	#endif
 
 /* Réglages QEI */
-	#ifdef USE_CODEUR_SUR_IT_ET_QE
-		#define USE_QEI_ON_IT
-		#define QEI_ON_IT_QA 1
-		#define QEI_ON_IT_QB 2
-	#endif
+	#define QEI_ON_IT_QA 1
+	#define QEI_ON_IT_QB 2
 
 /* Réglages FIFO */
 	#define USE_FIFO
