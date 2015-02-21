@@ -15,7 +15,6 @@
 #include "selftest.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Pierre/TestServo.h"
 	#include "Holly/Popcorn/Pop_collect_left.h"
 	#include "Holly/Popcorn/Pop_collect_left_config.h"
 	#include "Holly/Popcorn/Pop_collect_right.h"
@@ -54,7 +53,6 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 static ACTQ_functions_t actionneurs[] = {
 	#ifdef I_AM_ROBOT_BIG
-		ACT_DECLARE(TEST_SERVO),
 		ACT_DECLARE(POP_COLLECT_LEFT),
 		ACT_DECLARE(POP_COLLECT_RIGHT),
 		ACT_DECLARE(POP_DROP_LEFT),
