@@ -1,8 +1,3 @@
-/* ------------------- TODO -------------------
- * Ajouter la fonction pour envoyer le message CAN
- * Mettre en place la trame du message CAN
-*/
-
 #include "scan_cup.h"
 #include "QS/QS_adc.h"
 #include "QS/QS_outputlog.h"
@@ -26,9 +21,7 @@
 
 //------------------------------------------------------------------------------------ Define
 
-#define RADIUS_MIN_CUP		50
-#define RADIUS_MAX_CUP		100
-#define NB_POINT_MAX		200					//Max : 255
+#define NB_POINT_MAX		250					//Max : 255
 #define Y1					0
 #define Y2					400
 #define Y3					2600
@@ -37,12 +30,18 @@
 #define X2					800
 #define X3					1200
 #define X4					1600
-#define QUANTUM_MESURE		5	//Distance entre deux mesures
+#define QUANTUM_MESURE		2		//Distance entre deux mesures
 #define SENSOR_NAME			ADC_11
 #define RADIUS_CUP			70
 #define NB_POINT_MIN		4
-#define NB_POINT_ELIM       1		// Nombre de points que l'on élimine à chaque extrémitée
+#define NB_POINT_ELIM       3		// Nombre de points que l'on élimine à chaque extrémitée
 #define BORDER				30
+#define MARGE				10
+#define ECART_MAX			10
+#define ONE_CUP				48
+#define TWO_CUP				79
+#define ZERO_CUP			20
+#define DEBUG				1
 
 
 
@@ -64,11 +63,14 @@ typedef enum{
 
 static GEOMETRY_point_t salleH[NB_POINT_MAX];
 static GEOMETRY_point_t salleB[NB_POINT_MAX];
+static GEOMETRY_point_t salleDebug[NB_POINT_MAX];
 static Uint8 nbPointH = 0;
 static Uint8 nbPointB = 0;
+static Uint8 nbPointDebug = 0;
 static Uint32 old_measure = 0;
-//static Uint8 nb_mesure = 0;
 static Uint8 nb_cup = 0;
+static Uint8 nb_cupB;
+static Uint8 nb_cupH;
 static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker les indices des tableaux puis les coordonnées des gobelets
 static bool_e run_calcul,end_scan;
 static color_e color;
@@ -80,15 +82,27 @@ static receve_msg_can_e receve_msg_can;
 
 static void inArea(scan_result_t * objet);
 static GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points, Uint8 first);
-
+static void removeWrongPoints(GEOMETRY_point_t tab[],Uint8 *nb_points);
+static Uint8 isValidCenter(GEOMETRY_point_t salle[], Uint8 first, Uint8 end, GEOMETRY_point_t center);
+static void detectMaxMinY(GEOMETRY_point_t salle[], Uint8 nbPoint, Uint8 *iMax, Uint8 *iMin);
+static void cupNumber();
+static void detectCenter();
 
 //------------------------------------------------------------------------------------ Fonctions
+
+
+
+
 
 void SCAN_CUP_init(void)
 {
 	ADC_init();				//Initialisation des convertisseurs analogiques numeriques
 	run_calcul = FALSE;
 }
+
+//---------------------------------------------------------------------------------------------------------------
+//												MAE Scan Cup
+//---------------------------------------------------------------------------------------------------------------
 
 void SCAN_CUP_process_it(){
 	typedef enum{
@@ -144,20 +158,45 @@ void SCAN_CUP_process_it(){
 			break;
 
 		case WAIT_CALCULATE:
+			if(DEBUG){
+				debug_printf("###############################################################################\n");
+				debug_printf("\tnbCup = %d\n",nb_cup);
+				debug_printf("\tnbPointDebug = %d\n",nbPointDebug);
+				for(i=0;i<nbPointDebug;i++){
+					debug_printf("{%d,%d} ",salleDebug[i].x,salleDebug[i].y);
+				}
+				debug_printf("\n###############################################################################\n");
+				debug_printf("X = [ ");
+				for(i=0;i<nbPointDebug;i++){
+					debug_printf("%d ",salleDebug[i].x);
+				}
+				debug_printf("]\n");
+				debug_printf("Y = [ ");
+				for(i=0;i<nbPointDebug;i++){
+					debug_printf("%d ",salleDebug[i].y);
+				}
+				debug_printf("]\n");
+				debug_printf("\n###############################################################################\n");
+			}
 			SCAN_CUP_calculate();
 			if(!run_calcul)
 				state = SEND_COOR_CUP;
 			break;
 
 		case SEND_COOR_CUP:
+
+			if(nb_cup==0){
+				state = END;
+				SECRETARY_send_cup_position(1,0,0,0,0);
+			}
 			for(i=0;i<nb_cup;i++){
-				if(i<nb_cup-1){
+				if(i<nb_cup-2){
 					last_point=FALSE;
 				}else{
 					last_point=TRUE;
 					state = END;
 				}
-				SECRETARY_send_cup_position(last_point,coorCup[i].x, coorCup[i].y);
+				SECRETARY_send_cup_position(last_point,0,1,coorCup[i].x, coorCup[i].y);
 			}
 			break;
 
@@ -168,6 +207,355 @@ void SCAN_CUP_process_it(){
 	}
 }
 
+
+//---------------------------------------------------------------------------------------------------------------
+//											Détermination des centres
+//---------------------------------------------------------------------------------------------------------------
+
+
+/*
+ * Fonction qui à pour but d'éliminer des points à l'extérieur d'une zone.
+ * On récupère seulement les points à l'intérieur d'une salle de cinéma.
+ * MARGE permet de d'agrandir ou non la zone de prise en compte du point.
+ *		MARGE > 0 : on agrandit la zone de détection
+ *		MARGE = 0 : taille réelle de la salle de cinéma
+ *		MARGE < 0 : on diminue la zone de détection
+*/
+
+static void inArea(scan_result_t * objet){
+	GEOMETRY_point_t cup;
+	if(color==YELLOW){
+		cup.x = objet->robot.x - 55;
+		cup.y = objet->robot.y-objet->dist-100;
+	}else{
+		cup.y = objet->robot.y+objet->dist+100;
+		cup.x = objet->robot.x + 55;
+	}
+	if(DEBUG){
+		salleDebug[nbPointDebug].x=cup.x;
+		salleDebug[nbPointDebug].y=cup.y;
+		nbPointDebug++;
+	}
+	if(color){
+		if(cup.x>=X1-MARGE && cup.x<=X2+MARGE && cup.y>=Y3-MARGE && cup.y<=Y4+MARGE){ //Salle de cinema du haut
+			if(nbPointH<=NB_POINT_MAX){
+				salleH[nbPointH] = cup;
+				nbPointH++;
+			}
+		}
+		if(cup.x>=X3-MARGE && cup.x<=X4+MARGE && cup.y>=Y3-MARGE && cup.y<=Y4+MARGE){ //Salle de cinema du bas
+			if(nbPointB<=NB_POINT_MAX){
+				salleB[nbPointB] = cup;
+				nbPointB++;
+			}
+		}
+	}else{
+		if(cup.x>=X1-MARGE && cup.x<=X2+MARGE && cup.y>=Y1-MARGE && cup.y<=Y2+MARGE){ //Salle de cinema du haut
+			if(nbPointH<=NB_POINT_MAX){
+				salleH[nbPointH] = cup;
+				nbPointH++;
+			}
+		}
+		if(cup.x>=X3-MARGE && cup.x<=X4+MARGE && cup.y>=Y1-MARGE && cup.y<=Y2+MARGE){ //Salle de cinema du bas
+			if(nbPointB<=NB_POINT_MAX){
+				salleB[nbPointB] = cup;
+				nbPointB++;
+			}
+		}
+	}
+}
+
+GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 end, Uint8 first){
+	Sint64 sumX=0, sumY=0, sumX2=0, sumY2=0, sumX3=0, sumY3=0, sumXY=0, sumX2Y=0, sumXY2=0; //les sommes de 0 à nb_points-1 des coordonnées. ex: sumX=somme de toutes les abscisses
+	Sint64 c11=0, c20=0, c30=0, c21=0, c02=0, c03=0, c12=0; //des coefficients intermédiaires de calculs
+	Uint8 i, nb_points = end-first+1;
+	GEOMETRY_point_t centre;
+
+	//Calcul des sommes
+	for(i=first;i<=end; i++){
+		sumX=sumX+tab[i].x;
+		sumY=sumY+tab[i].y;
+		sumX2=sumX2+puissance(tab[i].x,2);
+		sumY2=sumY2+puissance(tab[i].y,2);
+		sumX3=sumX3+puissance(tab[i].x,3);
+		sumY3=sumY3+puissance(tab[i].y,3);
+		sumXY=sumXY+tab[i].x*tab[i].y;
+		sumX2Y=sumX2Y+puissance(tab[i].x,2)*tab[i].y;
+		sumXY2=sumXY2+tab[i].x*puissance(tab[i].y,2);
+	}
+
+	//Calcul des coefficients
+	c11=nb_points*sumXY-sumX*sumY;
+	c20=nb_points*sumX2-sumX*sumX;
+	c30=nb_points*sumX3-sumX2*sumX;
+	c21=nb_points*sumX2Y-sumX2*sumY;
+	c02=nb_points*sumY2-sumY*sumY;
+	c03=nb_points*sumY3-sumY2*sumY;
+	c12=nb_points*sumXY2-sumX*sumY2;
+
+	//calcul du centre de la balise
+	centre.x = ((c30+c12)*c02-(c03+c21)*c11)/(2.*(c20*c02-c11*c11));
+	centre.y = ((c03+c21)*c20-(c30+c12)*c11)/(2.*(c20*c02-c11*c11));
+
+	return centre;
+}
+
+static void removeWrongPoints(GEOMETRY_point_t tab[],Uint8 *nb_points){
+	Uint8 i, nbPointSalle = 0;
+	GEOMETRY_point_t salle[NB_POINT_MAX];
+	if((*nb_points) > 1){
+		// Cas particulier du premier point
+		if(GEOMETRY_distance(tab[0],tab[1]) < ECART_MAX){
+			salle[nbPointSalle] = tab[0];
+			nbPointSalle++;
+		}
+		for(i=1;i<(*nb_points)-1;i++){
+			if(GEOMETRY_distance(tab[i-1],tab[i]) < ECART_MAX || GEOMETRY_distance(tab[i],tab[i+1]) < ECART_MAX){
+				salle[nbPointSalle] = tab[i];
+				nbPointSalle++;
+			}
+		}
+		// Cas particulier du dernier point
+		if(GEOMETRY_distance(tab[(*nb_points)-2],tab[(*nb_points)-1]) < ECART_MAX){
+			salle[nbPointSalle] = tab[(*nb_points)-1];
+			nbPointSalle++;
+		}
+	}
+	*nb_points = nbPointSalle;
+	for(i=0;i<nbPointSalle;i++){
+		tab[i] = salle[i];
+	}
+}
+
+static void cupNumber(){
+	if(nbPointH <= ZERO_CUP)
+		nb_cupH = 0;
+	if(nbPointH > ZERO_CUP && nbPointH <= ONE_CUP)
+		nb_cupH = 1;
+	if(nbPointH > ONE_CUP && nbPointH <= TWO_CUP)
+		nb_cupH = 2;
+	if(nbPointH > TWO_CUP)
+		nb_cupH = 3;
+
+	if(nbPointB <= ZERO_CUP)
+		nb_cupB = 0;
+	if(nbPointB > ZERO_CUP && nbPointH <= ONE_CUP)
+		nb_cupB = 1;
+	if(nbPointB > ONE_CUP && nbPointH <= TWO_CUP)
+		nb_cupB = 2;
+	if(nbPointB > TWO_CUP)
+		nb_cupB = 3;
+}
+
+static void detectCenterONE_CUP(GEOMETRY_point_t salle[], Uint8 nbPoint){
+	GEOMETRY_point_t centre = determine_center(salle,nbPoint-1,0);
+	coorCup[nb_cup].x = centre.x;
+	coorCup[nb_cup].y = centre.y;
+	nb_cup++;
+}
+
+static void detectCenterTWO_CUP(GEOMETRY_point_t salle[], Uint8 nbPoint){
+	//On regarde si un gobelet cache une partie d'un autre
+	Uint8 i,cache=TRUE,indice = 0,indice2 = 0,iMax,iMin;
+	Sint16 aux;
+	GEOMETRY_point_t centre;
+	for(i=0;i<nbPoint-1;i++){
+		if((salle[i].x-salle[i+1].x)*(salle[i].x-salle[i+1].x) > 100){
+			cache = FALSE;
+			indice = i;
+			break;
+		}
+	}
+	if(cache){  // Cas ou il y a un gobelet qui est cache par un autre
+		detectMaxMinY(salle,nbPoint,&iMax,&iMin);
+		if(iMin <= 5){
+			indice = 0;
+			indice2 = 0;
+			for(i=nbPoint-1;i>0;i--){
+				aux = (salle[nbPoint-1].x-salle[i-1].x)*(salle[nbPoint-1].x-salle[i-1].x);
+				if(aux > RADIUS_CUP*RADIUS_CUP){
+					indice = i;
+					break;
+				}
+			}
+			centre = determine_center(salle,nbPoint-1-NB_POINT_ELIM,indice+NB_POINT_ELIM);
+			if(isValidCenter(salle, nbPoint-1-NB_POINT_ELIM, indice+NB_POINT_ELIM, centre)){
+				coorCup[nb_cup].x = centre.x;
+				coorCup[nb_cup].y = centre.y;
+				nb_cup++;
+			}
+			for(i=indice-1;i>0;i--){
+				aux = (salle[indice-1].x-salle[i-1].x)*(salle[indice-1].x-salle[i-1].x);
+				if(aux > RADIUS_CUP*RADIUS_CUP){
+					indice2 = i;
+					break;
+				}
+			}
+			centre = determine_center(salle,indice-1-NB_POINT_ELIM,indice2+NB_POINT_ELIM);
+			if(isValidCenter(salle, indice-1-NB_POINT_ELIM, indice2+NB_POINT_ELIM, centre)){
+				coorCup[nb_cup].x = centre.x;
+				coorCup[nb_cup].y = centre.y;
+				nb_cup++;
+			}
+		}
+		if(iMin >= nbPoint-6){
+			indice = nbPoint-1;
+			indice2 = nbPoint-1;
+			for(i=0;i<nbPoint-1;i++){
+				aux = (salle[0].x-salle[i+1].x)*(salle[0].x-salle[i+1].x);
+				if(aux > RADIUS_CUP*RADIUS_CUP){
+					indice = i;
+					break;
+				}
+			}
+			centre = determine_center(salle,indice-NB_POINT_ELIM,0+NB_POINT_ELIM);
+			if(isValidCenter(salle, 0+NB_POINT_ELIM, indice-NB_POINT_ELIM, centre)){
+				coorCup[nb_cup].x = centre.x;
+				coorCup[nb_cup].y = centre.y;
+				nb_cup++;
+			}
+			for(i=indice+1;i<nbPoint-1;i++){
+				aux = (salle[indice+1].x-salle[i+1].x)*(salle[indice+1].x-salle[i+1].x);
+				if(aux > RADIUS_CUP*RADIUS_CUP){
+					indice2 = i;
+					break;
+				}
+			}
+			centre = determine_center(salle,indice2-NB_POINT_ELIM,indice+1+NB_POINT_ELIM);
+			if(isValidCenter(salle, indice+1+NB_POINT_ELIM, indice2-NB_POINT_ELIM, centre)){
+				coorCup[nb_cup].x = centre.x;
+				coorCup[nb_cup].y = centre.y;
+				nb_cup++;
+			}
+		}
+	}else{		// Cas ou aucun gobelet n'est cache
+		centre = determine_center(salle,indice,0);
+		if(isValidCenter(salle, 0, indice, centre)){
+			coorCup[nb_cup].x = centre.x;
+			coorCup[nb_cup].y = centre.y;
+			nb_cup++;
+		}
+		centre = determine_center(salle,nbPoint-1,indice+1);
+		if(isValidCenter(salle, indice+1, nbPoint-1, centre)){
+			coorCup[nb_cup].x = centre.x;
+			coorCup[nb_cup].y = centre.y;
+			nb_cup++;
+		}
+	}
+}
+
+static void detectCenter(){
+	if(nb_cupH == 0){
+
+	}
+	if(nb_cupH == 1){
+		detectCenterONE_CUP(salleH,nbPointH);
+	}
+	if(nb_cupH == 2){
+		detectCenterTWO_CUP(salleH,nbPointH);
+	}
+	if(nb_cupB == 0){
+
+	}
+	if(nb_cupB == 1){
+		detectCenterONE_CUP(salleB,nbPointB);
+	}
+	if(nb_cupB == 2){
+		detectCenterTWO_CUP(salleB,nbPointB);
+	}
+}
+
+static void detectMaxMinY(GEOMETRY_point_t salle[], Uint8 nbPoint, Uint8 *iMax, Uint8 *iMin){
+	Uint8 i;
+	Sint16 max,min;
+	if(color){
+		max = 3200;
+		min = 2500;
+		for(i=0;i<nbPoint;i++){
+			if(salle[i].y < max){  // Il faut que le Y soit le plus petit
+				max = salle[i].y;
+				(*iMax) = i;
+			}
+			if(salle[i].y > min){
+				min = salle[i].y;
+				(*iMin) = i;
+			}
+		}
+	}else{
+		max = -200;
+		min = 500;
+		for(i=0;i<nbPoint;i++){
+			if(salle[i].y > max){  // Il faut que le Y soit le plus grand
+				max = salle[i].y;
+				(*iMax) = i;
+			}
+			if(salle[i].y < min){
+				min = salle[i].y;
+				(*iMin) = i;
+			}
+		}
+	}
+}
+
+static Uint8 isValidCenter(GEOMETRY_point_t salle[], Uint8 first, Uint8 end, GEOMETRY_point_t center){
+	printf("%d < %d && %d < %d\n",GEOMETRY_distance(salle[first],center),RADIUS_CUP + 10,GEOMETRY_distance(salle[end],center),RADIUS_CUP + 10);
+	if( (GEOMETRY_distance(salle[first],center) < (RADIUS_CUP + 10))  && (GEOMETRY_distance(salle[end],center) < (RADIUS_CUP + 10)) )
+		return TRUE;
+	return FALSE;
+}
+
+void SCAN_CUP_calculate(void){
+	if(run_calcul){
+		removeWrongPoints(salleH,&nbPointH);
+		removeWrongPoints(salleB,&nbPointB);
+		cupNumber();
+		detectCenter();
+	}
+	run_calcul = FALSE;
+	if(DEBUG){
+		int i;
+		debug_printf("###############################################################################\n");
+		debug_printf("\tnbPointB = %d\n",nbPointB);
+		debug_printf("\tnbPointH = %d\n",nbPointH);
+		debug_printf("\tnb_cup = %d\n",nb_cup);
+		debug_printf("###############################################################################\n");
+		debug_printf("###############################################################################\n");
+		debug_printf("\tSalle du Haut\n");
+		for(i=0;i<nbPointH;i++){
+			debug_printf("{%d,%d} ",salleH[i].x,salleH[i].y);
+		}
+		debug_printf("###############################################################################\n");
+		debug_printf("\tSalle du Bas\n");
+		for(i=0;i<nbPointH;i++){
+			debug_printf("{%d,%d} ",salleH[i].x,salleH[i].y);
+		}
+		debug_printf("###############################################################################\n");
+	}
+}
+
+
+//---------------------------------------------------------------------------------------------------------------
+//											Traitement messages CAN
+//---------------------------------------------------------------------------------------------------------------
+
+void SCAN_CUP_canMsg(CAN_msg_t *msg){
+	switch(msg->data[0]){
+		case 1:
+			receve_msg_can=MSG_CAN_SCAN_LINEAR;
+			end_scan = FALSE;
+			break;
+		case 2:
+			end_scan = TRUE;
+			break;
+	}
+}
+
+
+//---------------------------------------------------------------------------------------------------------------
+//											Anciennes fonctions
+//---------------------------------------------------------------------------------------------------------------
+
+/*
 static void inArea(scan_result_t * objet){
 	//debug_printf("###############################################################################\n");
 	//debug_printf("\tPoint avant modif {%d,%d}\n",objet->robot.x,objet->robot.y);
@@ -179,6 +567,9 @@ static void inArea(scan_result_t * objet){
 		cup.y = objet->robot.y+objet->dist+100;	//Modifier la distance suivant emplacement capteur (+constante)
 		cup.x = objet->robot.x + 55;
 	}
+	salleDebug[nbPointDebug].x=cup.x;
+	salleDebug[nbPointDebug].y=cup.y;
+	nbPointDebug++;
 	//debug_printf("\tPoint après modif {%d,%d}\n",cup.x,cup.y);
 	//debug_printf("###############################################################################\n");
 		if(color){
@@ -207,54 +598,6 @@ static void inArea(scan_result_t * objet){
 				nbPointB++;
 			}
 		}
-	}
-}
-
-GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 nb_points, Uint8 first){
-	Sint64 sumX=0, sumY=0, sumX2=0, sumY2=0, sumX3=0, sumY3=0, sumXY=0, sumX2Y=0, sumXY2=0; //les sommes de 0 à nb_points-1 des coordonnées. ex: sumX=somme de toutes les abscisses
-	Sint64 c11=0, c20=0, c30=0, c21=0, c02=0, c03=0, c12=0; //des coefficients intermédiaires de calculs
-	Uint8 i;
-	GEOMETRY_point_t centre;
-
-	//Calcul des sommes
-	for(i=first;i<nb_points+first; i++){
-		sumX=sumX+tab[i].x;
-		sumY=sumY+tab[i].y;
-		sumX2=sumX2+puissance(tab[i].x,2);
-		sumY2=sumY2+puissance(tab[i].y,2);
-		sumX3=sumX3+puissance(tab[i].x,3);
-		sumY3=sumY3+puissance(tab[i].y,3);
-		sumXY=sumXY+tab[i].x*tab[i].y;
-		sumX2Y=sumX2Y+puissance(tab[i].x,2)*tab[i].y;
-		sumXY2=sumXY2+tab[i].x*puissance(tab[i].y,2);
-	}
-
-	//Calcul des coefficients
-	c11=nb_points*sumXY-sumX*sumY;
-	c20=nb_points*sumX2-sumX*sumX;
-	c30=nb_points*sumX3-sumX2*sumX;
-	c21=nb_points*sumX2Y-sumX2*sumY;
-	c02=nb_points*sumY2-sumY*sumY;
-	c03=nb_points*sumY3-sumY2*sumY;
-	c12=nb_points*sumXY2-sumX*sumY2;
-
-	//calcul du centre de la balise
-	centre.x = ((c30+c12)*c02-(c03+c21)*c11)/(2.*(c20*c02-c11*c11));
-	centre.y = ((c03+c21)*c20-(c30+c12)*c11)/(2.*(c20*c02-c11*c11));
-
-
-	return centre;
-}
-
-void SCAN_CUP_canMsg(CAN_msg_t *msg){
-	switch(msg->data[0]){
-		case 1:
-			receve_msg_can=MSG_CAN_SCAN_LINEAR;
-			end_scan = FALSE;
-			break;
-		case 2:
-			end_scan = TRUE;
-			break;
 	}
 }
 
@@ -309,17 +652,20 @@ void SCAN_CUP_calculate(void){
 		}
 	}
 	run_calcul = FALSE;
-	//debug_printf("###############################################################################\n");
-	//debug_printf("\tnbPointB = %d\n",nbPointB);
-	//debug_printf("\tnbPointH = %d\n",nbPointH);
-	//debug_printf("\tnb_cup = %d\n",nb_cup);
+	debug_printf("###############################################################################\n");
+	debug_printf("\tnbPointB = %d\n",nbPointB);
+	debug_printf("\tnbPointH = %d\n",nbPointH);
+	debug_printf("\tnb_cup = %d\n",nb_cup);
 	int i;
-	//debug_printf("###############################################################################\n");
-	//debug_printf("\tnbPointH = %d\n",nbPointH);
+	debug_printf("###############################################################################\n");
+	debug_printf("\tnbPointH = %d\n",nbPointH);
 	for(i=0;i<nbPointH;i++){
 		debug_printf("{%d,%d} ",salleH[i].x,salleH[i].y);
 	}
-	//debug_printf("###############################################################################\n");
+	debug_printf("###############################################################################\n");
 }
+
+*/
+
 
 #endif
