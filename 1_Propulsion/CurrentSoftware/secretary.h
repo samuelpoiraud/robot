@@ -39,7 +39,7 @@
 
 	void SECRETARY_send_trajectory_for_test_coefs_finished(Uint16 duration);
 
-	void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, Sint16 x, Sint16 y);
+	void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, bool_e cup_detected, Sint16 x, Sint16 y);
 
 	#ifdef LCD_TOUCH
 		void SECRETARY_send_friend_position(Sint16 x, Sint16 y);

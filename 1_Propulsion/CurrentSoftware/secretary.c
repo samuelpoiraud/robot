@@ -639,17 +639,19 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout){
 
 #ifdef SCAN_CUP
 //Fonction appelée uniquement en IT.
-void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, Sint16 x, Sint16 y)
+void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, bool_e cup_detected, Sint16 x, Sint16 y)
 {
 	CAN_msg_t msg;
-	/*		0:7		: Indiquant si c'est le dernier gobelet
+	/*		0:7		: Indique si c'est le dernier gobelet
+	 *		0:6		: Indique s'il y a eu une erreur lors du scan
+	 *		0:5		: Est à 1 s'il y a un ou des gobelets de détecté(s)
 	 * 		1		: x HIGH bit
 	 * 		2		: x LOW bit
 	 * 		3		: y HIGH bit
 	 *		4		: y LOW bit
 	 */
 	msg.sid = STRAT_CUP_POSITION;
-	msg.data[0] = (it_is_the_last_cup)?1:0;
+	msg.data[0] = ((it_is_the_last_cup)?1:0) | (((error_scan)?1:0) << 1) | (((cup_detected)?1:0) << 2);
 	msg.data[1] = HIGHINT(x);
 	msg.data[2] = LOWINT(x);
 	msg.data[3] = HIGHINT(y);
