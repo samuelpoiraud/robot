@@ -16,7 +16,7 @@
 /**************** Périphériques ****************/
 
 /* Réglages PWM */
-	//#define USE_PWM1
+	#define USE_PWM1
 	#define USE_PWM2
 	#define USE_PWM3
 	//#define USE_PWM4
@@ -25,5 +25,18 @@
 /* Servo-Moteurs standart */
 	#define SERVO_TIMER 5
 	#define USE_SERVO
+
+/* Asservissement en position/vitesse de moteurs CC */
+	/* déclarer l'utilisation du pilote */
+	#define USE_DCMOTOR2
+	/* définir le nombre d'actionneurs asservis */
+	#define DCM_NUMBER			2
+	/* Période d'asservisement (en ms) */
+	#define DCM_TIME_PERIOD		10
+	/* nombre maximum de positions à gérer par moteur */
+	#define DCMOTOR_NB_POS		1
+
+/* QEI */
+	#define QEI_ON_IT_QA		1
 
 #endif /* BIG_CONFIG_USE_H */

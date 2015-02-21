@@ -35,7 +35,7 @@
 #include "Can_msg_processing.h"
 
 #ifdef I_AM_ROBOT_BIG
-
+	#include "Holly/Ascenseur/elevator.h"
 #else
 
 #endif
@@ -60,6 +60,7 @@ int main (void)
 	SYS_init();				// Init système
 	SYSTICK_init((time32_t*)&(global.absolute_time));
 	PORTS_init();			// Config des ports
+	PORTS_pwm_init();
 	MAIN_global_var_init();	// Init variable globale
 
 	GPIO_SetBits(LED_RUN);
@@ -132,6 +133,12 @@ int main (void)
 
 		QUEUE_run();
 		BUTTONS_update();
+
+		#ifdef I_AM_ROBOT_BIG
+			ELEVATOR_state_machine();
+		#else
+
+		#endif
 
 		/*-------------------------------------
 			Réception CAN et exécution
