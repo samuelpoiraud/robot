@@ -112,16 +112,16 @@ static void DCM_setWay(Uint8 dc_motor_id, Uint8 value)
 	DCMotor_config_t* this = &(DCMotors[dc_motor_id].config);
 	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STOPPED));
 	if (value)
-		BIT_SET(*(this->way_latch), this->way_bit_number);
+		GPIO_SetBits(this->way_latch, this->way_bit_number);
 	else
-		BIT_CLR(*(this->way_latch), this->way_bit_number);
+		GPIO_ResetBits(this->way_latch, this->way_bit_number);
 }
 
 static Uint8 DCM_getWay(Uint8 dc_motor_id)
 {
 	DCMotor_config_t* this = &(DCMotors[dc_motor_id].config);
 	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STOPPED));
-	return BIT_TEST(*(this->way_latch), this->way_bit_number);
+	return GPIO_ReadInputDataBit(this->way_latch, this->way_bit_number);
 }
 
 
