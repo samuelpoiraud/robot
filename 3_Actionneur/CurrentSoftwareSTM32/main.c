@@ -35,7 +35,9 @@
 #include "Can_msg_processing.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Pierre/TestServo.h"
+
+#else
+
 #endif
 
 
@@ -99,10 +101,6 @@ int main (void)
 
 	//Init actioneurs
 	ACTMGR_init();
-	#ifdef I_AM_ROBOT_BIG
-	   TEST_SERVO_init();
-	#endif
-
 	TERMINAL_init();
 
 	BUTTONS_define_actions(BUTTON0, &MAIN_onButton0, NULL, 1);
@@ -159,7 +157,6 @@ int main (void)
 }
 
 
-#define SERVO 0
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton0() {
 	static Uint8 state = 0;
