@@ -28,7 +28,7 @@ static Uint8 expected_act_num = 0;
 static Uint8 act_test_done_num = 0;
 static bool_e test_finished = TRUE;
 
-static void SELFTEST_done_test(Uint11 act_sid, queue_id_t queue_id, bool_e test_ok);
+static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok);
 static bool_e SELFTEST_check_end(queue_id_t queueId);
 static void SELFTEST_run(queue_id_t queueId, bool_e init);
 
@@ -118,18 +118,18 @@ bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 
 		action_t next_action;
 		QUEUE_next_action_info(queue_id, &next_action, NULL, NULL);
 		if(next_action == &QUEUE_give_sem) {
-			SELFTEST_done_test(act_sid, queue_id, TRUE);
+			SELFTEST_done_test(act_sid, TRUE);
 		}
 
 		return TRUE;
 	} else {
-		SELFTEST_done_test(act_sid, queue_id, FALSE);
+		SELFTEST_done_test(act_sid, FALSE);
 	}
 
 	return FALSE;
 }
 
-static void SELFTEST_done_test(Uint11 act_sid, queue_id_t queue_id, bool_e test_ok) {
+static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 	Uint8 i;
 
 	if(test_finished) {
@@ -142,7 +142,7 @@ static void SELFTEST_done_test(Uint11 act_sid, queue_id_t queue_id, bool_e test_
 	if(test_ok == FALSE) {
 		for(i = 0; i < MAX_NB_ACT; i++) {
 			if(failed_act_tests[i] == SELFTEST_NOT_DONE) {
-				switch(queue_id) {
+				switch(act_sid){
 #if 0
 					case QUEUE_EXEMPLE:
 						failed_act_tests[i] = SELFTEST_ACT_EXEMPLE;
@@ -150,39 +150,46 @@ static void SELFTEST_done_test(Uint11 act_sid, queue_id_t queue_id, bool_e test_
 #endif
 
 // Holly
-					case QUEUE_ACT_AX12_POP_COLLECT_LEFT:
+					case ACT_POP_COLLECT_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_POP_COLLECT_LEFT;
 						break;
-					case QUEUE_ACT_AX12_POP_COLLECT_RIGHT:
+					case ACT_POP_COLLECT_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_POP_COLLECT_RIGHT;
 						break;
 
-					case QUEUE_ACT_AX12_POP_DROP_LEFT:
+					case ACT_POP_DROP_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_POP_DROP_LEFT;
 						break;
-					case QUEUE_ACT_AX12_POP_DROP_RIGHT:
+					case ACT_POP_DROP_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_POP_DROP_RIGHT;
 						break;
 
-					case QUEUE_ACT_AX12_BACK_SPOT_LEFT:
+					case ACT_BACK_SPOT_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_BACK_SPOT_LEFT;
 						break;
-					case QUEUE_ACT_AX12_BACK_SPOT_RIGHT:
+					case ACT_BACK_SPOT_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_BACK_SPOT_RIGHT;
 						break;
 
-					case QUEUE_ACT_SPOT_POMPE_LEFT:
+					case ACT_SPOT_POMPE_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_SPOT_POMPE_LEFT;
 						break;
-					case QUEUE_ACT_SPOT_POMPE_RIGHT:
+					case ACT_SPOT_POMPE_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_SPOT_POMPE_RIGHT;
 						break;
 
-					case QUEUE_ACT_AX12_CARPET_LAUNCHER_RIGHT:
+					case ACT_CARPET_LAUNCHER_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_CARPET_LAUNCHER_RIGHT;
 						break;
-					case QUEUE_ACT_AX12_CARPET_LAUNCHER_LEFT:
+					case ACT_CARPET_LAUNCHER_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_CARPET_LAUNCHER_LEFT;
+						break;
+
+					case ACT_PINCEMI_LEFT:
+						failed_act_tests[i] = SELFTEST_ACT_PINCEMI_LEFT;
+						break;
+					case ACT_PINCEMI_RIGHT:
+						failed_act_tests[i] = SELFTEST_ACT_PINCEMI_RIGHT;
 						break;
 
 					default:

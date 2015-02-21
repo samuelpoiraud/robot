@@ -162,9 +162,33 @@ int main (void)
 #define SERVO 0
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton0() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_PINCEMI_LEFT;
+
+	if(state == 0)
+		msg.data[0] = ACT_PINCEMI_LEFT_CLOSE	;
+	else if(state == 1)
+		msg.data[0] = ACT_PINCEMI_LEFT_OPEN;
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton1() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_PINCEMI_RIGHT;
+
+	if(state == 0)
+		msg.data[0] = ACT_PINCEMI_RIGHT_CLOSE	;
+	else if(state == 1)
+		msg.data[0] = ACT_PINCEMI_RIGHT_OPEN;
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton2() {

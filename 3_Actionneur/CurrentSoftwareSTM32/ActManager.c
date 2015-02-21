@@ -34,6 +34,8 @@
 	#include "Holly/Carpet/carpet_launcher_left_config.h"
 	#include "Holly/Carpet/carpet_launcher_right.h"
 	#include "Holly/Carpet/carpet_launcher_right_config.h"
+	#include "Holly/Ascenseur/pincemi_RX24.h"
+	#include "Holly/Ascenseur/pincemi_RX24_config.h"
 #else
 	#include "Wood/Pince_gauche.h"
 	#include "Wood/Pince_gauche_config.h"
@@ -62,7 +64,9 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(SPOT_POMPE_RIGHT),
 		ACT_DECLARE(SPOT_POMPE_LEFT),
 		ACT_DECLARE(CARPET_LAUNCHER_RIGHT),
-		ACT_DECLARE(CARPET_LAUNCHER_LEFT)
+		ACT_DECLARE(CARPET_LAUNCHER_LEFT),
+		ACT_DECLARE(PINCEMI)
+		//ACT_DECLARE(ELEVATOR)
 	#else
 		ACT_DECLARE(PINCE_GAUCHE),
 		ACT_DECLARE(PINCE_DROITE),
