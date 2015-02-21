@@ -32,7 +32,7 @@ typedef bool_e (*OperationFinishedCallback)(queue_id_t queue_id, Uint11 act_sid,
 
 typedef struct {
 	Uint8 canCommand;
-	Uint16 param;
+	Sint16 param;
 	OperationFinishedCallback callback; //function called when operation is finished, can be NULL
 } QUEUE_arg_t;
 

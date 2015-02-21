@@ -157,7 +157,7 @@ void PINCE_DROITE_run_command(queue_id_t queueId, bool_e init) {
 //Initialise une commande
 static void PINCE_DROITE_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
+	Sint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 
 	*ax12_goalPosition = 0xFFFF;
 	PINCE_DROITE_initAX12();
