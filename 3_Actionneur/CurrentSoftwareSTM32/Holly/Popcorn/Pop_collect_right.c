@@ -158,7 +158,7 @@ void POP_COLLECT_RIGHT_run_command(queue_id_t queueId, bool_e init) {
 //Initialise une commande
 static void POP_COLLECT_RIGHT_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	Uint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
+	Sint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 
 	*ax12_goalPosition = 0xFFFF;
 	POP_COLLECT_RIGHT_initAX12();

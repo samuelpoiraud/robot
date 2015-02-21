@@ -119,7 +119,7 @@ void PINCEMI_config(CAN_msg_t* msg){
 	}
 }
 
-// Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
+// Fonction appellée pour l'initialisation en position de le RX24 dés l'arrivé de l'alimentation (via ActManager)
 void PINCEMI_init_pos(){
 	Uint8 i;
 
@@ -129,9 +129,9 @@ void PINCEMI_init_pos(){
 	for(i=0;i<4;i++){
 		if(pincemi_act[i].is_initialized == TRUE){
 			if(!AX12_set_position(pincemi_act[i].servo_id, 150))
-				debug_printf("   L'AX12 n°%d n'est pas là\n", pincemi_act[i].servo_id);
+				debug_printf("   Le RX24 n°%d n'est pas là\n", pincemi_act[i].servo_id);
 			else
-				debug_printf("   L'AX12 n°%d a été initialisé en position\n", pincemi_act[i].servo_id);
+				debug_printf("   Le RX24 n°%d a été initialisé en position\n", pincemi_act[i].servo_id);
 		}
 	}
 }
@@ -154,6 +154,7 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_PINCEMI_RIGHT_LOCK :
 			case ACT_PINCEMI_RIGHT_OPEN :
 			case ACT_PINCEMI_RIGHT_OPEN_GREAT :
+			case ACT_PINCEMI_RIGHT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_PINCEMI_RIGHT, &PINCEMI_run_command, 0, TRUE);
 				break;
 
@@ -175,6 +176,7 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_PINCEMI_LEFT_LOCK :
 			case ACT_PINCEMI_LEFT_OPEN :
 			case ACT_PINCEMI_LEFT_OPEN_GREAT :
+			case ACT_PINCEMI_LEFT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_PINCEMI_LEFT, &PINCEMI_run_command, 0, TRUE);
 				break;
 
@@ -281,13 +283,13 @@ static void PINCEMI_command_init(queue_id_t queueId) {
 			error_printf("AX12_set_position error: 0x%x (mord droit pince droite)\n", AX12_get_last_error(pincemi_act[0].servo_id).error);
 			result = FALSE;
 		}else
-			debug_printf("Move PINCEMI ax12(%d) to %d\n", pincemi_act[0].servo_id, rx24_goalPosition_right);
+			debug_printf("Move PINCEMI rx24(%d) to %d\n", pincemi_act[0].servo_id, rx24_goalPosition_right);
 
 		if(!AX12_set_position(pincemi_act[1].servo_id, rx24_goalPosition_left)){
 			error_printf("AX12_set_position error: 0x%x (mord gauche pince droite)\n", AX12_get_last_error(pincemi_act[1].servo_id).error);
 			result = FALSE;
 		}else
-			debug_printf("Move PINCEMI ax12(%d) to %d\n", pincemi_act[1].servo_id, rx24_goalPosition_left);
+			debug_printf("Move PINCEMI rx24(%d) to %d\n", pincemi_act[1].servo_id, rx24_goalPosition_left);
 
 
 		if(result == FALSE){

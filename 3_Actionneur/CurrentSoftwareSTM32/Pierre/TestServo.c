@@ -90,7 +90,7 @@ void TEST_SERVO_run_command(queue_id_t queueId, bool_e init){
 //Initialise une commande
 static void TEST_SERVO_command_init(queue_id_t queueId){
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	Uint16* goalPosition = &QUEUE_get_arg(queueId)->param;
+	Sint16* goalPosition = &QUEUE_get_arg(queueId)->param;
 
 	*goalPosition = 0xFFFF;
 
