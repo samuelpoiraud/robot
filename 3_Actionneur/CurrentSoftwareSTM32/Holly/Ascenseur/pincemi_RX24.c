@@ -360,9 +360,9 @@ static void PINCEMI_command_run(queue_id_t queueId) {
 			if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE)
 				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
 			else if(result_right != ACT_RESULT_DONE)
-				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, done_right, errorCode_right, line_right);
+				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, result_right, errorCode_right, line_right);
 			else
-				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, done_left, errorCode_left, line_left);
+				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, result_left, errorCode_left, line_left);
 		}
 
 	}else{
@@ -382,9 +382,9 @@ static void PINCEMI_command_run(queue_id_t queueId) {
 			if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE)
 				QUEUE_next(queueId, ACT_PINCEMI_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
 			else if(result_right != ACT_RESULT_DONE)
-				QUEUE_next(queueId, ACT_PINCEMI_LEFT, done_right, errorCode_right, line_right);
+				QUEUE_next(queueId, ACT_PINCEMI_LEFT, result_right, errorCode_right, line_right);
 			else
-				QUEUE_next(queueId, ACT_PINCEMI_LEFT, done_left, errorCode_left, line_left);
+				QUEUE_next(queueId, ACT_PINCEMI_LEFT, result_left, errorCode_left, line_left);
 		}
 	}
 }
