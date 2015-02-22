@@ -13,6 +13,7 @@
 #define GENERIC_FUNCTIONS_C
 
 #include "Generic_functions.h"
+#include "avoidance.h"
 #include "QS/QS_outputlog.h"
 
 void wait_forever (stack_id_e stack_id, bool_e init)
