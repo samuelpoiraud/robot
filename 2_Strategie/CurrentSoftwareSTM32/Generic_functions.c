@@ -13,6 +13,7 @@
 #define GENERIC_FUNCTIONS_C
 
 #include "Generic_functions.h"
+#include "QS/QS_outputlog.h"
 
 void wait_forever (stack_id_e stack_id, bool_e init)
 {
@@ -46,4 +47,9 @@ Uint8 wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 			return success_state;
 	}
 	return in_progress;
+}
+
+void on_turning_point(){
+	if(!is_possible_point_for_rotation(&((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+		debug_printf(" !! NOT ON TURNING POINT !!\n");
 }
