@@ -36,7 +36,8 @@
 	/* nombre maximum de positions à gérer par moteur */
 	#define DCMOTOR_NB_POS		1
 
-/* QEI */
-	#define QEI_ON_IT_QA		1
+/* Réglages QEI */
+	#define USE_QUEI1
+	#define USE_QUEI2
 
 #endif /* BIG_CONFIG_USE_H */

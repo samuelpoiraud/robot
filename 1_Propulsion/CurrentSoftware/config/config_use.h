@@ -145,8 +145,8 @@
 	#endif
 
 /* Réglages QEI */
-	#define QEI_ON_IT_QA 1
-	#define QEI_ON_IT_QB 2
+	#define USE_QUEI1
+	#define USE_QUEI2
 
 /* Réglages FIFO */
 	#define USE_FIFO
