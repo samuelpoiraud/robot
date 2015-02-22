@@ -203,20 +203,27 @@ void ELEMENTS_set_cup(Uint8 number){
 }
 
  void collect_cup_coord(CAN_msg_t *msg){
-	 cup[nb_cup].x=U16FROMU8(msg->data[1],msg->data[2]);
-	 cup[nb_cup].y=U16FROMU8(msg->data[3],msg->data[4]);
-	 nb_cup++;
-	 if(msg->data[0] & 0x01)
-		 end_transmission_cup=TRUE;
-	 else
-		 end_transmission_cup=FALSE;
+	 if(msg->data[0] & 0x02  || msg->data[0] & 0x04){  //erreur de scan ou pas de gobelets de détectés
+		  end_transmission_cup=TRUE;
+		  nb_cup=0;
+	 }else{  //si on a des gobelets de détectés
+		 cup[nb_cup].x=U16FROMU8(msg->data[1],msg->data[2]);
+		 cup[nb_cup].y=U16FROMU8(msg->data[3],msg->data[4]);
+		 nb_cup++;
+		 if(msg->data[0] & 0x01)  //dernier gobelet détecté ?
+			 end_transmission_cup=TRUE;
+		 else
+			 end_transmission_cup=FALSE;
+	 }
  }
 
  bool_e get_cup_transmission(void){
+	 //return 1;  //test
 	 return end_transmission_cup;
  }
 
  Uint8 get_number_cup(void){
+	 //return 1;  //test
 	 return nb_cup;
  }
 
