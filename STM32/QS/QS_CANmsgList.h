@@ -511,6 +511,12 @@
 	 * 4/5 : translation en mm/2  (>>1)
 	 */
 
+	#define STRAT_INFORM_PINCEMI		0x218
+		// Dans data[0]
+		#define STRAT_INFORM_PINCEMI_ABSENT		(0b000000000)
+		#define STRAT_INFORM_PINCEMI_PRESENT	(0b000000001)
+		#define STRAT_INFORM_PINCEMI_ERROR		(0b000000010)
+
 
 	/* carte stratégie vers carte propulsion */
 	#define PROP_GO_POSITION					0x155
@@ -672,7 +678,7 @@
 
 		//Ajoutez-en si nécessaire
 		#define ACT_RESULT_ERROR_UNKNOWN      255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
-	/////////////////////////////////////////
+	/////////////////////////////////////////////
 
 	///////////////COMMON ARG////////////////////
 	// Dans data[1]
@@ -684,6 +690,11 @@
 		#define AX12_TORQUE_CONFIG				0x01
 		   // (0 à 100)
 	/////////////////////////////////////////////
+
+	#define ACT_PINCEMI_PRESENCE			0x3FE
+		// Dans data[0]
+		#define PINCEMI_PRESENCE_RIGHT		(0b000000000)
+		#define PINCEMI_PRESENCE_LEFT		(0b000000001)
 
 // Code des SID des messages: 0x30x = message pour Holly, 0x33x = message pour Wood.
 // Le SID 0x300 est reservé pour le self_test

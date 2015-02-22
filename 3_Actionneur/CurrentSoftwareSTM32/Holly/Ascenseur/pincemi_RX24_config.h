@@ -24,6 +24,7 @@
 	#define PINCEMIR_RIGHT_CLOSE									50
 	#define PINCEMIR_RIGHT_CLOSE_INNER								150
 	#define PINCEMIR_RIGHT_LOCK										150
+	#define PINCEMIR_RIGHT_LOCK_CHECK								150
 	#define PINCEMIR_RIGHT_OPEN										150
 	#define PINCEMIR_RIGHT_OPEN_GREAT								150
 
@@ -38,6 +39,7 @@
 	#define PINCEMIL_RIGHT_CLOSE									50
 	#define PINCEMIL_RIGHT_CLOSE_INNER								150
 	#define PINCEMIL_RIGHT_LOCK										150
+	#define PINCEMIL_RIGHT_LOCK_CHECK								150
 	#define PINCEMIL_RIGHT_OPEN										150
 	#define PINCEMIL_RIGHT_OPEN_GREAT								150
 

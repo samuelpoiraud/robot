@@ -17,6 +17,7 @@
 // Les différents includes nécessaires...
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
+#include "../QS/QS_can.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../ActManager.h"
@@ -30,6 +31,7 @@
 static void PINCEMI_command_run(queue_id_t queueId);
 static void PINCEMI_initRX24();
 static void PINCEMI_command_init(queue_id_t queueId);
+static void PINCEMI_check_command(queue_id_t queueId, bool_e init);
 static void PINCEMI_config(CAN_msg_t* msg);
 static void PINCEMI_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *right_pos, Uint16 *left_pos);
 
@@ -145,53 +147,56 @@ void PINCEMI_stop(){
 
 // fonction appellée à la réception d'un message CAN (via ActManager)
 bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
-	if(msg->sid == ACT_PINCEMI_RIGHT){
-		PINCEMI_initRX24();
-		switch(msg->data[0]) {
-			// Listing de toutes les positions de l'actionneur possible
-			case ACT_PINCEMI_RIGHT_CLOSE :
-			case ACT_PINCEMI_RIGHT_CLOSE_INNER :
-			case ACT_PINCEMI_RIGHT_LOCK :
-			case ACT_PINCEMI_RIGHT_OPEN :
-			case ACT_PINCEMI_RIGHT_OPEN_GREAT :
-			case ACT_PINCEMI_RIGHT_STOP :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_PINCEMI_RIGHT, &PINCEMI_run_command, 0, TRUE);
-				break;
+	switch(msg->sid){
+		case ACT_PINCEMI_RIGHT :
+			PINCEMI_initRX24();
+			switch(msg->data[0]) {
+				// Listing de toutes les positions de l'actionneur possible
+				case ACT_PINCEMI_RIGHT_CLOSE :
+				case ACT_PINCEMI_RIGHT_CLOSE_INNER :
+				case ACT_PINCEMI_RIGHT_LOCK :
+				case ACT_PINCEMI_RIGHT_OPEN :
+				case ACT_PINCEMI_RIGHT_OPEN_GREAT :
+				case ACT_PINCEMI_RIGHT_STOP :
+					ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_PINCEMI_RIGHT, &PINCEMI_run_command, 0, TRUE);
+					break;
 
-			case ACT_CONFIG :
-				PINCEMI_config(msg);
-				break;
-
-
-			default:
-				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
-		}
-		return TRUE;
-	}else if(msg->sid == ACT_PINCEMI_LEFT){
-		PINCEMI_initRX24();
-		switch(msg->data[0]) {
-			// Listing de toutes les positions de l'actionneur possible
-			case ACT_PINCEMI_LEFT_CLOSE :
-			case ACT_PINCEMI_LEFT_CLOSE_INNER :
-			case ACT_PINCEMI_LEFT_LOCK :
-			case ACT_PINCEMI_LEFT_OPEN :
-			case ACT_PINCEMI_LEFT_OPEN_GREAT :
-			case ACT_PINCEMI_LEFT_STOP :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_PINCEMI_LEFT, &PINCEMI_run_command, 0, TRUE);
-				break;
-
-			case ACT_CONFIG :
-				PINCEMI_config(msg);
-				break;
+				case ACT_CONFIG :
+					PINCEMI_config(msg);
+					break;
 
 
-			default:
-				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
-		}
-		return TRUE;
-	}else if(msg->sid == ACT_DO_SELFTEST){
-		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&PINCEMI_run_command, 6, (SELFTEST_action_t[]){
+				default:
+					component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+			}
+			return TRUE;
+
+		case ACT_PINCEMI_LEFT :
+			PINCEMI_initRX24();
+			switch(msg->data[0]) {
+				// Listing de toutes les positions de l'actionneur possible
+				case ACT_PINCEMI_LEFT_CLOSE :
+				case ACT_PINCEMI_LEFT_CLOSE_INNER :
+				case ACT_PINCEMI_LEFT_LOCK :
+				case ACT_PINCEMI_LEFT_OPEN :
+				case ACT_PINCEMI_LEFT_OPEN_GREAT :
+				case ACT_PINCEMI_LEFT_STOP :
+					ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_PINCEMI_LEFT, &PINCEMI_run_command, 0, TRUE);
+					break;
+
+				case ACT_CONFIG :
+					PINCEMI_config(msg);
+					break;
+
+
+				default:
+					component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+			}
+			return TRUE;
+
+		case ACT_DO_SELFTEST :
+			// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
+			SELFTEST_set_actions(&PINCEMI_run_command, 6, (SELFTEST_action_t[]){
 								 {ACT_PINCEMI_RIGHT_CLOSE,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT},
 								 {ACT_PINCEMI_RIGHT_OPEN,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT},
 								 {ACT_PINCEMI_RIGHT_CLOSE,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT},
@@ -199,7 +204,33 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 								 {ACT_PINCEMI_LEFT_OPEN,		0,  QUEUE_ACT_RX24_PINCEMI_LEFT},
 								 {ACT_PINCEMI_LEFT_CLOSE,		0,  QUEUE_ACT_RX24_PINCEMI_LEFT}
 							 });
+			break;
+
+		case ACT_PINCEMI_PRESENCE :{
+			queue_id_t queueId = QUEUE_create();
+			assert(queueId != QUEUE_CREATE_FAILED);
+			if(queueId == QUEUE_CREATE_FAILED){
+				CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_ERROR});
+				return TRUE;
+			}
+
+			if(msg->data[0] == PINCEMI_PRESENCE_RIGHT){
+				QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_RX24_PINCEMI_RIGHT);
+				QUEUE_add(queueId, PINCEMI_check_command, (QUEUE_arg_t){PINCEMI_PRESENCE_RIGHT, 0, &ACTQ_finish_SendNothing}, QUEUE_ACT_RX24_PINCEMI_RIGHT);
+				QUEUE_add(queueId, PINCEMI_run_command, (QUEUE_arg_t){ACT_PINCEMI_RIGHT_LOCK, 0, &ACTQ_finish_SendNothing}, QUEUE_ACT_RX24_PINCEMI_RIGHT);
+				QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_RX24_PINCEMI_RIGHT);
+			}else if(msg->data[0] == PINCEMI_PRESENCE_LEFT){
+				QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_RX24_PINCEMI_LEFT);
+				QUEUE_add(queueId, PINCEMI_check_command, (QUEUE_arg_t){PINCEMI_PRESENCE_LEFT, 0, &ACTQ_finish_SendNothing}, QUEUE_ACT_RX24_PINCEMI_LEFT);
+				QUEUE_add(queueId, PINCEMI_run_command, (QUEUE_arg_t){ACT_PINCEMI_LEFT_LOCK, 0, &ACTQ_finish_SendNothing}, QUEUE_ACT_RX24_PINCEMI_LEFT);
+				QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, QUEUE_ACT_RX24_PINCEMI_LEFT);
+			}
+
+			return TRUE;
+
+			}break;
 	}
+
 	return FALSE;
 }
 
@@ -388,6 +419,66 @@ static void PINCEMI_command_run(queue_id_t queueId) {
 		}
 	}
 }
+
+
+static void PINCEMI_check_command(queue_id_t queueId, bool_e init) {
+	if(QUEUE_has_error(queueId)) {
+		QUEUE_behead(queueId);
+		return;
+	}
+
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_PINCEMI_LEFT || QUEUE_get_act(queueId) == QUEUE_ACT_RX24_PINCEMI_RIGHT){
+		if(init){
+			if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_PINCEMI_RIGHT){
+				if(pincemi_act[0].is_initialized == FALSE || pincemi_act[1].is_initialized == FALSE){
+					error_printf("Impossible de mettre l'actionneur en position il n'est pas initialisé\n");
+					QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_ERROR});
+					return;
+				}
+
+				//Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
+				AX12_reset_last_error(pincemi_act[0].servo_id);
+
+				//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
+				if(!AX12_set_position(pincemi_act[0].servo_id, PINCEMIR_RIGHT_LOCK_CHECK)){
+					error_printf("AX12_set_position error: 0x%x (mord droit pince droite)\n", AX12_get_last_error(pincemi_act[0].servo_id).error);
+					QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_ERROR});
+				}else
+					debug_printf("Move PINCEMI rx24(%d) to %d\n", pincemi_act[0].servo_id, PINCEMIR_RIGHT_LOCK_CHECK);
+			}else{
+				if(pincemi_act[2].is_initialized == FALSE || pincemi_act[3].is_initialized == FALSE){
+					error_printf("Impossible de mettre l'actionneur en position il n'est pas initialisé\n");
+					QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_ERROR});
+					return;
+				}
+
+				//Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
+				AX12_reset_last_error(pincemi_act[2].servo_id);
+
+				//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
+				if(!AX12_set_position(pincemi_act[2].servo_id, PINCEMIL_RIGHT_LOCK_CHECK)){
+					error_printf("AX12_set_position error: 0x%x (mord droit pince droite)\n", AX12_get_last_error(pincemi_act[2].servo_id).error);
+					QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_ERROR});
+				}else
+					debug_printf("Move PINCEMI rx24(%d) to %d\n", pincemi_act[2].servo_id, PINCEMIL_RIGHT_LOCK_CHECK);
+			}
+		}else{
+			Uint8 result, errorCode;
+			Uint16 line;
+			if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_PINCEMI_RIGHT){
+				// TODO : Gestion de mesure du couple de l'actionneur
+			}else{
+
+			}
+
+		}
+	}
+}
+
 
 static void PINCEMI_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *right_pos, Uint16 *left_pos){
 	if(act_id == QUEUE_ACT_RX24_PINCEMI_RIGHT){
