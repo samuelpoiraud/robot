@@ -249,7 +249,6 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		case ACT_POP_COLLECT_RIGHT & 0xFF:		originalSidStr = "Pop_collect_right";		break;
 		case ACT_POP_DROP_LEFT & 0xFF:			originalSidStr = "Pop_drop_left";			break;
 		case ACT_POP_DROP_RIGHT & 0xFF:			originalSidStr = "Pop_drop_right";			break;
-		case ACT_ELEVATOR & 0xFF:				originalSidStr = "Elevator";				break;
 		case ACT_BACK_SPOT_RIGHT & 0xFF:		originalSidStr = "Back_spot_right";			break;
 		case ACT_BACK_SPOT_LEFT & 0xFF:			originalSidStr = "Back_spot_left";			break;
 		case ACT_SPOT_POMPE_RIGHT & 0xFF:		originalSidStr = "Spot_pompe_left";			break;
@@ -257,7 +256,9 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		case ACT_CARPET_LAUNCHER_RIGHT & 0xFF:	originalSidStr = "Carpet_launcher_right";	break;
 		case ACT_CARPET_LAUNCHER_LEFT & 0xFF:	originalSidStr = "Carpet_launcher_left";	break;
 		case ACT_PINCEMI_LEFT & 0xFF:			originalSidStr = "Pincemi_left";			break;
-		case ACT_PINCEMI_RIGHT & 0xFF:			originalSidStr = "Pincemi_right";			break;
+		case ACT_ELEVATOR & 0xFF:				originalSidStr = "Elevator";				break;
+		case ACT_STOCK_LEFT & 0xFF:				originalSidStr = "Stock_left";				break;
+		case ACT_STOCK_RIGHT & 0xFF:			originalSidStr = "Stock_right";				break;
 		default:								originalSidStr = "Unknown";					break;
 	}
 	switch(result) {

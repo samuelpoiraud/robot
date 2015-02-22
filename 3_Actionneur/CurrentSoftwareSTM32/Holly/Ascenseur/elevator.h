@@ -44,6 +44,8 @@ void ELEVATOR_state_machine();
 
 void ELEVATOR_process_it();
 
+void ELEVATOR_reset_config();
+
 #endif	/* ELEVATOR_H */
 
 #endif

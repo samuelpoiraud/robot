@@ -129,6 +129,16 @@
 #define PINCEMIL_R_RX24_ID				25
 #define PINCEMIL_L_RX24_ID				26
 
+#define STOCKR_R_F1_RX24_ID				27
+#define STOCKR_L_F1_RX24_ID				28
+#define STOCKL_R_F1_RX24_ID				29
+#define STOCKL_L_F1_RX24_ID				30
+
+#define STOCKR_R_F2_RX24_ID				31
+#define STOCKR_L_F2_RX24_ID				32
+#define STOCKL_R_F2_RX24_ID				33
+#define STOCKL_L_F2_RX24_ID				34
+
 #define SPOT_POMPE_RIGHT_PWM_NUM		2
 #define SPOT_POMPE_LEFT_PWM_NUM			3
 
