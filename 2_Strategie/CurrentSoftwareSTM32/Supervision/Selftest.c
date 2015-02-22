@@ -668,10 +668,26 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");						break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
 
 				//case SELFTEST_ACT_TORCH_LOCKER:				debug_printf("SELFTEST_ACT_TORCH_LOCKER");						break;
-				case SELFTEST_ACT_POP_COLLECT_LEFT:				debug_printf("ACT Pop Collect Left");							break;
-				case SELFTEST_ACT_POP_COLLECT_RIGHT:			debug_printf("ACT Pop Collect Right");							break;
-				case SELFTEST_ACT_POP_DROP_LEFT:				debug_printf("ACT Pop Drop Left");								break;
-				case SELFTEST_ACT_POP_DROP_RIGHT:				debug_printf("ACT Pop Drop Right");								break;
+				case SELFTEST_ACT_POP_COLLECT_LEFT:				debug_printf("SELFTEST_ACT_POP_COLLECT_LEFT");					break;
+				case SELFTEST_ACT_POP_COLLECT_RIGHT:			debug_printf("SELFTEST_ACT_POP_COLLECT_RIGHT");					break;
+				case SELFTEST_ACT_POP_DROP_LEFT:				debug_printf("SELFTEST_ACT_POP_DROP_LEFT");						break;
+				case SELFTEST_ACT_POP_DROP_RIGHT:				debug_printf("SELFTEST_ACT_POP_DROP_RIGHT");					break;
+				case SELFTEST_ACT_BACK_SPOT_LEFT:				debug_printf("SELFTEST_ACT_BACK_SPOT_LEFT");					break;
+				case SELFTEST_ACT_BACK_SPOT_RIGHT:				debug_printf("SELFTEST_ACT_BACK_SPOT_RIGHT");					break;
+				case SELFTEST_ACT_SPOT_POMPE_LEFT:				debug_printf("SELFTEST_ACT_SPOT_POMPE_LEFT");					break;
+				case SELFTEST_ACT_SPOT_POMPE_RIGHT:				debug_printf("SELFTEST_ACT_SPOT_POMPE_RIGHT");					break;
+				case SELFTEST_ACT_CARPET_LAUNCHER_RIGHT:		debug_printf("SELFTEST_ACT_CARPET_LAUNCHER_RIGHT");				break;
+				case SELFTEST_ACT_CARPET_LAUNCHER_LEFT:			debug_printf("SELFTEST_ACT_CARPET_LAUNCHER_LEFT");				break;
+				case SELFTEST_ACT_PINCEMI_LEFT:					debug_printf("SELFTEST_ACT_PINCEMI_LEFT");						break;
+				case SELFTEST_ACT_PINCEMI_RIGHT:				debug_printf("SELFTEST_ACT_PINCEMI_RIGHT");						break;
+				case SELFTEST_ACT_ELEVATOR:						debug_printf("SELFTEST_ACT_ELEVATOR");							break;
+				case SELFTEST_ACT_STOCK_LEFT:					debug_printf("SELFTEST_ACT_STOCK_LEFT");						break;
+				case SELFTEST_ACT_STOCK_RIGHT:					debug_printf("SELFTEST_ACT_STOCK_RIGHT");						break;
+				case SELFTEST_ACT_CUP_NIPPER:					debug_printf("SELFTEST_ACT_CUP_NIPPER");						break;
+				case SELFTEST_ACT_CUP_NIPPER_ELEVATOR:			debug_printf("SELFTEST_ACT_CUP_NIPPER_ELEVATOR");				break;
+				case SELFTEST_ACT_CLAP:							debug_printf("SELFTEST_ACT_CLAP");								break;
+				case SELFTEST_ACT_PINCE_DROITE:					debug_printf("SELFTEST_ACT_PINCE_DROITE");						break;
+				case SELFTEST_ACT_PINCE_GAUCHE:					debug_printf("SELFTEST_ACT_PINCE_GAUCHE");						break;
 
 				default:										debug_printf("UNKNOW_ERROR_CODE");								break;
 			}
@@ -939,6 +955,22 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_POP_COLLECT_RIGHT:			return "ACT Pop collect Right";	break;
 		case SELFTEST_ACT_POP_DROP_LEFT:				return "ACT Pop Drop Left";		break;
 		case SELFTEST_ACT_POP_DROP_RIGHT:				return "ACT Pop Drop Right";	break;
+		case SELFTEST_ACT_BACK_SPOT_LEFT:				return "ACT Back Spot Right";	break;
+		case SELFTEST_ACT_BACK_SPOT_RIGHT:				return "ACT Back Spot Left";	break;
+		case SELFTEST_ACT_SPOT_POMPE_LEFT:				return "ACT Pompe Left";		break;
+		case SELFTEST_ACT_SPOT_POMPE_RIGHT:				return "ACT Pompe Right";		break;
+		case SELFTEST_ACT_CARPET_LAUNCHER_RIGHT:		return "ACT Carpet Right";		break;
+		case SELFTEST_ACT_CARPET_LAUNCHER_LEFT:			return "ACT Carpet Left";		break;
+		case SELFTEST_ACT_PINCEMI_LEFT:					return "ACT Pincemi Left";		break;
+		case SELFTEST_ACT_PINCEMI_RIGHT:				return "ACT Pincemi Right";		break;
+		case SELFTEST_ACT_ELEVATOR:						return "ACT Elevator";			break;
+		case SELFTEST_ACT_STOCK_LEFT:					return "ACT Stock Left";		break;
+		case SELFTEST_ACT_STOCK_RIGHT:					return "ACT Stock Right";		break;
+		case SELFTEST_ACT_CUP_NIPPER:					return "ACT Cup Nipper";		break;
+		case SELFTEST_ACT_CUP_NIPPER_ELEVATOR:			return "ACT Cup Nipper elev";	break;
+		case SELFTEST_ACT_CLAP:							return "ACT Clap";				break;
+		case SELFTEST_ACT_PINCE_DROITE:					return "ACT Pince Droite";		break;
+		case SELFTEST_ACT_PINCE_GAUCHE:					return "ACT Pince Gauche";		break;
 
 		case SELFTEST_ERROR_NB: return NULL; break;
 		case SELFTEST_NO_ERROR: return NULL; break;
