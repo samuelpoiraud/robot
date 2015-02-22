@@ -11,7 +11,7 @@
 #ifndef BIG_CONFIG_PIN_H
 #define BIG_CONFIG_PIN_H
 
-#define PORT_A_IO_MASK	0xFFDF
+#define PORT_A_IO_MASK	0xFEDF
 	#define BUTTON0_PORT		GPIOA->IDR0
 	//	-				 			  1
 	//	AX12/U2TX					  2
@@ -20,7 +20,7 @@
 	#define AX12_DIRECTION_PORT_RX24 GPIOA,GPIO_Pin_5
 	//	-				 			  6
 	#define ELEVATOR_FDC			 (GPIOA->IDR7)
-	//ELEVATOR_DCM_SENS				  8
+	#define ELEVATOR_DCM_SENS		 GPIOA,GPIO_Pin_8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -47,11 +47,11 @@
 	//	-			 	  			  14
 	//	-			 	  			  15
 
-#define PORT_C_IO_MASK	0xF3FF
+#define PORT_C_IO_MASK	0xE3FF
 	//  -							  0
 	//	-				 			  1
 	//	-				 			  2
-	//	-				 			  3
+	#define CUP_NIPPER_FDC			 (GPIOA->IDR7)
 	//	-				 			  4
 	//	-				 			  5
 	//	-				 			  6
@@ -60,7 +60,7 @@
 	//	-				 			  9
 	#define SPOT_POMPE_RIGHT_SENS	GPIOC,GPIO_Pin_10
 	#define SPOT_POMPE_LEFT_SENS	GPIOC,GPIO_Pin_11
-	//	-				 			  12
+	#define CUP_NIPPER_DCM_SENS		GPIOC,GPIO_Pin_12
 	//	-				 			  13
 	//	-	OSC32_in 			  	  14
 	//	-	OSC32_out 			  	  15
@@ -119,7 +119,7 @@
 #define POP_DROP_RIGHT_AX12_ID			48
 
 #define BACK_SPOT_RIGHT_AX12_ID			7
-#define BACK_SPOT_LEFT_AX12_ID			3
+#define BACK_SPOT_LEFT_AX12_ID			7
 
 #define CARPET_LAUNCHER_RIGHT_AX12_ID	10
 #define CARPET_LAUNCHER_LEFT_AX12_ID	37
@@ -142,6 +142,9 @@
 #define SPOT_POMPE_RIGHT_PWM_NUM		2
 #define SPOT_POMPE_LEFT_PWM_NUM			3
 
+#define CUP_NIPPER_AX12_ID				3
+
 #define ELEVATOR_ID						0
+#define CUP_NIPPER_ID					1
 
 #endif /* BIG_CONFIG_PIN_H */

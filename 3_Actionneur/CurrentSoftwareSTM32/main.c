@@ -226,6 +226,18 @@ static void MAIN_onButton3() {
 }
 
 static void MAIN_onButton4() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_CUP_NIPPER;
+
+	if(state == 0)
+		msg.data[0] = ACT_CUP_NIPPER_CLOSE;
+	else if(state == 1)
+		msg.data[0] = ACT_CUP_NIPPER_OPEN;
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
 }
 
 #else // ROBOT_SMALL
