@@ -428,6 +428,8 @@
 		SELFTEST_ACT_PINCEMI_RIGHT,
 		SELFTEST_ACT_PINCEMI_LEFT,
 		SELFTEST_ACT_ELEVATOR,
+		SELFTEST_ACT_STOCK_RIGHT,
+		SELFTEST_ACT_STOCK_LEFT,
 
 		SELFTEST_FAIL_UNKNOW_REASON,
 		SELFTEST_ERROR_NB,
@@ -765,6 +767,22 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_PINCEMI_LEFT_OPEN				0x24
 		#define ACT_PINCEMI_LEFT_OPEN_GREAT			0x25
 		#define ACT_PINCEMI_LEFT_STOP				0x26
+
+	/////////////////STOCK RIGHT///////////////////
+	ACT_STOCK_RIGHT = (ACT_FILTER | 0x09),
+		#define ACT_STOCK_RIGHT_CLOSE				0x11
+		#define ACT_STOCK_RIGHT_LOCK				0x12
+		#define ACT_STOCK_RIGHT_UNLOCK				0x13
+		#define ACT_STOCK_RIGHT_OPEN				0x14
+		#define ACT_STOCK_RIGHT_STOP				0x15
+
+	//////////////////STOCK LEFT///////////////////
+	ACT_STOCK_LEFT = (ACT_FILTER | 0x0A),
+		#define ACT_STOCK_LEFT_CLOSE				0x21
+		#define ACT_STOCK_LEFT_LOCK					0x22
+		#define ACT_STOCK_LEFT_UNLOCK				0x23
+		#define ACT_STOCK_LEFT_OPEN					0x24
+		#define ACT_STOCK_LEFT_STOP					0x25
 
 
 
