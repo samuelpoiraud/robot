@@ -18,26 +18,20 @@
 	// Initialisation de l'interface
 	void QEI_init();
 
-	//Compatibilité avec les anciennes fonctions, il n'y avait qu'un QEI et un autre simulé par IT externe
-	#define QEI_get_count QEI1_get_count
-	#define QEI_set_count QEI1_set_count
+	#ifdef USE_QUEI1
+		// Recupération de la valeur du codeur
+		Sint16 QEI1_get_count();
 
-	#define QEI_ON_IT_init QEI_init
-	#define QEI_ON_IT_get_count QEI2_get_count
-	#define QEI_ON_IT_set_count QEI2_set_count
+		// Ecriture de la valeur du codeur
+		void QEI1_set_count(Sint16 count);
+	#endif
 
+	#ifdef USE_QUEI2
+		// Recupération de la valeur du codeur
+		Sint16 QEI2_get_count();
 
-	// Recupération de la valeur du codeur
-	Sint16 QEI1_get_count();
-
-	// Ecriture de la valeur du codeur
-	void QEI1_set_count(Sint16 count);
-
-
-	// Recupération de la valeur du codeur
-	Sint16 QEI2_get_count();
-
-	// Ecriture de la valeur du codeur
-	void QEI2_set_count(Sint16 count);
+		// Ecriture de la valeur du codeur
+		void QEI2_set_count(Sint16 count);
+	#endif
 
 #endif /* ndef QS_QEI_H */

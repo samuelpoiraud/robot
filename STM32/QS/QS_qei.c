@@ -18,7 +18,7 @@
 /*-------------------------------------
 	Initialisation de l'interface
 -------------------------------------*/
-void QEI_init() 
+void QEI_init()
 {
 	static bool_e initialized = FALSE;
 	if(initialized)
@@ -27,36 +27,46 @@ void QEI_init()
 
 	PORTS_qei_init();
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3  | RCC_APB1Periph_TIM2 , ENABLE);
+	#if defined(USE_QUEI1) || defined(USE_QUEI2)
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3  | RCC_APB1Periph_TIM2 , ENABLE);
+	#endif
 
-	TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
-	TIM_SetAutoreload(TIM3, 0xFFFF);
-	TIM_EncoderInterfaceConfig(TIM2, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
-	TIM_SetAutoreload(TIM2, 0xFFFF);
+	#ifdef USE_QUEI1
+		TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
+		TIM_SetAutoreload(TIM3, 0xFFFF);
+		TIM_Cmd(TIM3, ENABLE);
+	#endif
 
-	TIM_Cmd(TIM3, ENABLE);
-	TIM_Cmd(TIM2, ENABLE);
+	#ifdef USE_QUEI2
+		TIM_EncoderInterfaceConfig(TIM2, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
+		TIM_SetAutoreload(TIM2, 0xFFFF);
+		TIM_Cmd(TIM2, ENABLE);
+	#endif
 }
 
 /*-------------------------------------
 	Recupération de la valeur du codeur
 -------------------------------------*/
-Sint16 QEI1_get_count()
-{
-	return -(Sint16)TIM_GetCounter(TIM3);
-}
+#ifdef USE_QUEI1
+	Sint16 QEI1_get_count()
+	{
+		return -(Sint16)TIM_GetCounter(TIM3);
+	}
 
-void QEI1_set_count(Sint16 count)
-{	
-	TIM_SetCounter(TIM3, (Sint32)count);
-}
+	void QEI1_set_count(Sint16 count)
+	{
+		TIM_SetCounter(TIM3, (Sint32)count);
+	}
+#endif
 
-Sint16 QEI2_get_count()
-{
-	return (Sint16)TIM_GetCounter(TIM2);
-}
+#ifdef USE_QUEI2
+	Sint16 QEI2_get_count()
+	{
+		return (Sint16)TIM_GetCounter(TIM2);
+	}
 
-void QEI2_set_count(Sint16 count)
-{
-	TIM_SetCounter(TIM2, (Sint32)count);
-}
+	void QEI2_set_count(Sint16 count)
+	{
+		TIM_SetCounter(TIM2, (Sint32)count);
+	}
+#endif
