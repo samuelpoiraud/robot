@@ -909,6 +909,7 @@ void SELFTEST_check_hokuyo(){
 		alarmed = TRUE;
 	}else if(delta_time <= 250 && alarmed == TRUE){
 		IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, OFF});
+		LCD_printf(3, TRUE, TRUE, "HOKUYO IS ALIVE !");
 		alarmed = FALSE;
 	}
 }
