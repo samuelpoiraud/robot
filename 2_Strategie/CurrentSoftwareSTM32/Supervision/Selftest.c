@@ -20,15 +20,16 @@
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_can_over_xbee.h"
 #include "../QS/QS_IHM.h"
+#include "../QS/QS_IHM.h"
+#include "../QS/QS_ports.h"
 #include "../elements.h"
 #include "../act_functions.h"
+#include "../detection.h"
 #include "SD/Libraries/fat_sd/ff.h"
 #include "SD/SD.h"
 #include "RTC.h"
 #include "Buzzer.h"
 #include "LCD_interface.h"
-#include "../QS/QS_IHM.h"
-#include "../QS/QS_ports.h"
 
 #define TIMEOUT_SELFTEST_ACT			20000	// en ms
 #define TIMEOUT_SELFTEST_PROP			10000	// en ms
@@ -70,6 +71,7 @@ error_e SELFTEST_strategy(bool_e reset);
 void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size);
 Uint16 SELFTEST_measure24_mV(void);
 static void SELFTEST_check_alim();
+static void SELFTEST_check_hokuyo();
 
 
 void SELFTEST_init(void)
@@ -134,6 +136,7 @@ void SELFTEST_process_main(void)
 {
 	SELFTEST_update(NULL);
 	SELFTEST_check_alim();
+	SELFTEST_check_hokuyo();
 }
 
 //Machine a état du selftest, doit être appelée : dans le process de tâche de fond ET à chaque réception d'un message can de selftest.
@@ -894,6 +897,20 @@ void SELFTEST_check_alim(){
 		global.env.alim = FALSE;
 	}
 
+}
+
+void SELFTEST_check_hokuyo(){
+	static bool_e alarmed = FALSE;
+	time32_t delta_time = DETECTION_get_last_time_since_hokuyo_date();
+	if(delta_time > 250 && alarmed == FALSE){
+		BUZZER_play(15, DEFAULT_NOTE, 5);
+		LCD_printf(3, TRUE, TRUE, "HOKUYO LOST !");
+		IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, FLASH_BLINK_10MS});
+		alarmed = TRUE;
+	}else if(delta_time <= 250 && alarmed == TRUE){
+		IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, OFF});
+		alarmed = FALSE;
+	}
 }
 
 SELFTEST_error_code_e SELFTEST_getError(Uint8 index)
