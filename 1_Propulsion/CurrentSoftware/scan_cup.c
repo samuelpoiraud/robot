@@ -31,7 +31,6 @@
 #define X3					1200
 #define X4					1600
 #define QUANTUM_MESURE		2		//Distance entre deux mesures
-#define SENSOR_NAME			ADC_11
 #define RADIUS_CUP			70
 #define NB_POINT_MIN		4
 #define NB_POINT_ELIM       3		// Nombre de points que l'on élimine à chaque extrémitée
@@ -140,7 +139,7 @@ void SCAN_CUP_process_it(){
 
 		case SCAN_LINEAR:
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
-				Sint16 ADC_Value = ADC_getValue(SENSOR_NAME);
+				Sint16 ADC_Value = ADC_getValue(SCAN_CUP_SENSOR);
 				mesure_en_cours.dist = conversion_capteur(ADC_Value);
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;

@@ -489,7 +489,6 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_LEDS_AND_BUZZER,
 		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
-		TEST_LASER_TORCH,
 		TEST_RTC,
 		TEST_MEASURE24,
 		TEST_SWITCHS,
@@ -546,13 +545,6 @@ error_e SELFTEST_strategy(bool_e reset)
 			{
 				if(XBee_is_destination_reachable() == FALSE)
 					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE);
-			}
-			state = TEST_LASER_TORCH;
-			break;
-		case TEST_LASER_TORCH:
-			if(QS_WHO_AM_I_get() == BIG_ROBOT){
-				if(ADC_getValue(ADC_14) < 10)
-					SELFTEST_declare_errors(NULL,SELFTEST_STRAT_LASER_TORCH);
 			}
 			state = TEST_RTC;
 			break;
@@ -639,21 +631,24 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_BEACON_BATTERY_SMALL_LOW:			debug_printf("SELFTEST_BEACON_BATTERY_SMALL_LOW");				break;
 				case SELFTEST_FAIL_UNKNOW_REASON:				debug_printf("FAIL_UNKNOW_REASON");								break;
 				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");										break;
+
 				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");									break;
 				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");					break;
 				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");				break;
 				case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			debug_printf("SELFTEST_PROP_IN_LCD_TOUCH_MODE");				break;
 				case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		debug_printf("SELFTEST_PROP_SWITCH_ASSER_DISABLE");				break;
+				case SELFTEST_PROP_SENSOR_CUP:					debug_printf("SELFTEST_PROP_SENSOR_CUP");						break;
+
 				case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	debug_printf("SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE");		break;
 				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
 				case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE:debug_printf("SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE");	break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");								break;
-				case SELFTEST_STRAT_LASER_TORCH:				debug_printf("SELFTEST_STRAT_LASER_TORCH");						break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");					break;
 				case SELFTEST_STRAT_BATTERY_LOW:				debug_printf("SELFTEST_STRAT_BATTERY_LOW");						break;
 				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
 				case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_STRAT_BIROUTE_FORGOTTEN");				break;
 				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");					break;
+
 				case SELFTEST_IHM_BATTERY_NO_24V:				debug_printf("SELFTEST_IHM_BATTERY_NO_24V");					break;
 				case SELFTEST_IHM_BATTERY_LOW:					debug_printf("SELFTEST_IHM_BATTERY_LOW");						break;
 				case SELFTEST_IHM_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_IHM_BIROUTE_FORGOTTEN");					break;
@@ -919,15 +914,17 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		return "IR not synchronized";	break;
 		case SELFTEST_FAIL_UNKNOW_REASON:				return "Error 404"; 			break;
 		case SELFTEST_TIMEOUT:							return "Selftest Timeout";		break;
+
 		case SELFTEST_PROP_FAILED:						return "PROP failed";			break;
 		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";			break;
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
 		case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			return "PROP in LCD T mode"; 	break;
 		case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		return "Asser Switch disable"; 	break;
+		case SELFTEST_PROP_SENSOR_CUP:					return "PROP Sensor Cup";		break;
+
 		case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	return "Evit Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		return "XBee Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE: return "XBee dest unreach";	break;
-		case SELFTEST_STRAT_LASER_TORCH:				return "Laser torch fail";		break;
 		case SELFTEST_STRAT_RTC:						return "RTC failed";			break;
 		case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	return "Popcorn Disabled";		break;
 		case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	return "Left Pump Disabled";	break;
@@ -939,6 +936,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";			break;
 		case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			return "Biroute Forgotten"; 	break;
 		case SELFTEST_STRAT_SD_WRITE_FAIL:				return "SD Write FAIL";			break;
+
 		case SELFTEST_IHM_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_IHM_BATTERY_LOW:					return "BATTERY LOW";			break;
 		case SELFTEST_IHM_BIROUTE_FORGOTTEN:			return "Biroute Forgotten";		break;

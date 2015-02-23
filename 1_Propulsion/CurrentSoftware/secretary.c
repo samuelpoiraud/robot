@@ -57,6 +57,7 @@ static void SECRETARY_send_coef(PROPULSION_coef_e i);
 static void SECRETARY_send_all_coefs(void);
 static void SECRETARY_mailbox_out_add(CAN_msg_t * msg, MAIL_from_to_e from_to);
 static void SECRETARY_mailbox_out_process_main(void);
+static void SECRETARY_mailbox_in_add(CAN_msg_t * msg, MAIL_from_to_e from_to);
 
 volatile static Uint8 mailbox_in_index_read;
 volatile static Uint8 mailbox_in_index_write;
@@ -531,6 +532,8 @@ void SECRETARY_send_selftest_result(bool_e result)
 		msg.data[i++] = SELFTEST_PROP_FAILED;
 	if(HOKUYO_is_working_well() == FALSE)
 		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED;
+	if(ADC_getValue(SCAN_CUP_SENSOR) < 15)
+		msg.data[i++] = SELFTEST_PROP_SENSOR_CUP;
 
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 		msg.data[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
@@ -667,7 +670,7 @@ void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, b
 //----------------------FONCTION AUTRE--------------------------//
 //////////////////////////////////////////////////////////////////
 
-void SECRETARY_mailbox_in_add(CAN_msg_t * msg, MAIL_from_to_e from_to) //Fonction appelée en tâche de fond uniquement !
+static void SECRETARY_mailbox_in_add(CAN_msg_t * msg, MAIL_from_to_e from_to) //Fonction appelée en tâche de fond uniquement !
 {
 	if(mailbox_in_index_nb < SECRETARY_MAILBOX_IN_SIZE)
 	{
