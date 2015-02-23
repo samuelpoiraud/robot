@@ -57,6 +57,7 @@ volatile adversary_t adversaries[MAX_HOKUYO_FOES];	//Ce tableau se construit pro
 volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
 
 volatile adversary_t beacon_ir_objects[MAX_BEACON_FOES];
+static volatile time32_t data_from_propulsion_update_time = 0;
 
 void DETECTION_init(void)
 {
@@ -121,7 +122,6 @@ static void DETECTION_compute(detection_reason_e reason)
 	Uint8 i,j, j_min;
 	Sint16 dist_min;
 	bool_e objects_chosen[MAX_HOKUYO_FOES];
-	static time32_t data_from_propulsion_update_time = 0;
 
 	//On se contente de choisir les NB_FOES objets hokuyo les plus proches observés et de les enregistrer dans le tableau d'adversaires.
 	//Si pas de données venant de la propulsion (hokuyo ou adversaire virtuel parfait) -> on prend les données IR.
@@ -347,6 +347,12 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			break;
 	}
 }
+
+time32_t DETECTION_get_last_time_since_hokuyo_date(){
+	return global.env.absolute_time - data_from_propulsion_update_time;
+}
+
+
 //void DETECTION_update_foe_position(void)
 //{
 

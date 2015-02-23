@@ -60,15 +60,8 @@ trajectoire pour l'information de position de l'adversaire */
 
 	void DETECTION_clean(void);
 
-	/*	mise à jour de l'information de la position des adversaires à l'aide uniquement des telemetres*/
-	void DETECTION_update_foe_only_by_telemeter();
-
 	void DETECTION_pos_foe_update (CAN_msg_t* msg);
 
-	/*	mise à jour de l'information de la position des adversaires à l'aide des telemetres et des balises*/
-	void DETECTION_update_foe_by_telemeter();
-
-	/* nettoyage des flags dans l'environnement */
-	void DETECTION_clear_updates();
+	time32_t DETECTION_get_last_time_since_hokuyo_date();
 
 #endif /* ndef DETECTION_H */
