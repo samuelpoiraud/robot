@@ -52,6 +52,8 @@
 	#include "Wood/Clap_config.h"
 	#include "Wood/Pop_drop_left_Wood.h"
 	#include "Wood/Pop_drop_left_Wood_config.h"
+	#include "Wood/Pop_drop_right_Wood.h"
+	#include "Wood/Pop_drop_right_Wood_config.h"
 #endif
 
 
@@ -81,6 +83,7 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(PINCE_DEVANT),
 		ACT_DECLARE(CLAP),
 		ACT_DECLARE(POP_DROP_LEFT_WOOD),
+		ACT_DECLARE(POP_DROP_RIGHT_WOOD),
 	#endif
 };
 
