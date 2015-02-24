@@ -28,6 +28,7 @@
 	#include "../Wood/Pince_droite_config.h"
 	#include "../Wood/Pince_devant_config.h"
 	#include "../Wood/Clap_config.h"
+	#include "../Wood/Pop_drop_left_Wood_config.h"
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);
@@ -80,7 +81,8 @@ terminal_motor_s terminal_motor[] = {
 		DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12),
 		DECLARE_AX12_RX24(2, '1', PINCE_DROITE_AX12),
 		DECLARE_AX12_RX24(2, '2', PINCE_DEVANT_AX12),
-		DECLARE_AX12_RX24(2, '3', CLAP_AX12)
+		DECLARE_AX12_RX24(2, '3', CLAP_AX12),
+		DECLARE_AX12_RX24(2, '4', POP_DROP_LEFT_WOOD_AX12)
 	#endif
 };
 

@@ -114,5 +114,6 @@
 	#define PINCE_DROITE_AX12_ID						12
 	#define PINCE_DEVANT_AX12_ID						8
 	#define CLAP_AX12_ID						        0
+	#define POP_DROP_LEFT_WOOD_AX12_ID                  2
 
 #endif /* SMALL_CONFIG_PIN_H */

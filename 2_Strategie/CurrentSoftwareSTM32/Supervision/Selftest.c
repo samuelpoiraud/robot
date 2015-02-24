@@ -686,6 +686,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_CLAP:							debug_printf("SELFTEST_ACT_CLAP");								break;
 				case SELFTEST_ACT_PINCE_DROITE:					debug_printf("SELFTEST_ACT_PINCE_DROITE");						break;
 				case SELFTEST_ACT_PINCE_GAUCHE:					debug_printf("SELFTEST_ACT_PINCE_GAUCHE");						break;
+				case SELFTEST_ACT_POP_DROP_LEFT_WOOD:			debug_printf("SELFTEST_ACT_POP_DROP_LEFT_WOOD");				break;
 
 				default:										debug_printf("UNKNOW_ERROR_CODE");								break;
 			}

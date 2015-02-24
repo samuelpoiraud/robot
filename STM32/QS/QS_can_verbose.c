@@ -196,6 +196,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_SPOT_POMPE_LEFT:						print(string, len, "%x ACT_SPOT_POMPE_LEFT                    ", ACT_SPOT_POMPE_LEFT							);	break;
 		case ACT_CARPET_LAUNCHER_RIGHT:					print(string, len, "%x ACT_CARPET_LAUNCHER_RIGHT              ", ACT_CARPET_LAUNCHER_RIGHT						);	break;
 		case ACT_CARPET_LAUNCHER_LEFT:					print(string, len, "%x ACT_CARPET_LAUNCHER_LEFT               ", ACT_CARPET_LAUNCHER_LEFT						);	break;
+		case ACT_PINCE_GAUCHE:							print(string, len, "%x ACT_PINCE_GAUCHE                       ", ACT_PINCE_GAUCHE					         	);	break;
+		case ACT_PINCE_DROITE:							print(string, len, "%x ACT_PINCE_DROITE                       ", ACT_PINCE_DROITE					         	);	break;
+		case ACT_POP_DROP_LEFT_WOOD:				    print(string, len, "%x ACT_POP_DROP_LEFT_WOOD                 ", ACT_POP_DROP_LEFT_WOOD				         	);	break;
 
 		case ACT_TEST_SERVO:							print(string, len, "%x ACT_TEST_SERVO                         ", ACT_TEST_SERVO									);	break;
 		case PROP_SCAN_CUP:                             print(string, len, "%x PROP_SCAN_CUP                          ", PROP_SCAN_CUP							     	);	break;

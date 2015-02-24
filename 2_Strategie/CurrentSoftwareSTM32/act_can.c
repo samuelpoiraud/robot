@@ -325,6 +325,9 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		case ACT_CLAP & 0xFF:
 					act_id = ACT_QUEUE_Clap;
 					break;
+		case ACT_POP_DROP_LEFT_WOOD & 0xFF:
+					act_id = ACT_QUEUE_Pop_drop_left_Wood;
+					break;
 		// Common
 
 
