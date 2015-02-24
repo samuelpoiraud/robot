@@ -230,6 +230,15 @@ bool_e ACT_pop_drop_left_Wood(ACT_pop_drop_left_Wood_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_left_Wood, &args);
 }
 
+bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_POP_DROP_RIGHT_WOOD, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_POP_DROP_RIGHT_WOOD,  ACT_POP_DROP_RIGHT_WOOD_STOP);
+
+	return ACT_push_operation(ACT_QUEUE_Pop_drop_right_Wood, &args);
+}
+
 ////////////////////////////////////////
 //////////////// COMMON ////////////////
 ////////////////////////////////////////

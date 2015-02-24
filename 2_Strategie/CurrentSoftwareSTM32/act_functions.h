@@ -149,6 +149,12 @@ typedef enum {
 	ACT_pop_drop_left_Wood_stop = ACT_POP_DROP_LEFT_WOOD_STOP
 }ACT_pop_drop_left_Wood_cmd_e;
 
+typedef enum {
+	ACT_pop_drop_right_Wood_closed = ACT_POP_DROP_RIGHT_WOOD_CLOSED,
+	ACT_pop_drop_right_Wood_open = ACT_POP_DROP_RIGHT_WOOD_OPEN,
+	ACT_pop_drop_right_Wood_stop = ACT_POP_DROP_RIGHT_WOOD_STOP
+}ACT_pop_drop_right_Wood_cmd_e;
+
 ////////////////////////////////////////
 //////////////// COMMON ////////////////
 ////////////////////////////////////////
