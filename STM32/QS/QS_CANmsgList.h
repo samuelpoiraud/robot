@@ -524,7 +524,6 @@
 		// Dans data[0]
 		#define STRAT_INFORM_PINCEMI_ABSENT		(0b000000000)
 		#define STRAT_INFORM_PINCEMI_PRESENT	(0b000000001)
-		#define STRAT_INFORM_PINCEMI_ERROR		(0b000000010)
 
 
 	/* carte stratégie vers carte propulsion */
