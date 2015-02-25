@@ -816,6 +816,42 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_CUP_NIPPER_ELEVATOR_UP			0x12
 		#define ACT_CUP_NIPPER_ELEVATOR_STOP		0x13
 
+	///////////////BACK SPOT RIGHT/////////////////
+	ACT_BACK_SPOT_RIGHT = (ACT_FILTER | 0x0D),
+		#define ACT_BACK_SPOT_RIGHT_OPEN			0x11
+		#define ACT_BACK_SPOT_RIGHT_CLOSED			0x12
+		#define ACT_BACK_SPOT_RIGHT_STOP			0x13
+
+	///////////////BACK SPOT LEFT/////////////////
+	ACT_BACK_SPOT_LEFT = (ACT_FILTER | 0x0E),
+		#define ACT_BACK_SPOT_LEFT_OPEN				0x11
+		#define ACT_BACK_SPOT_LEFT_CLOSED			0x12
+		#define ACT_BACK_SPOT_LEFT_STOP				0x13
+
+	///////////////SPOT POMPE LEFT/////////////////
+	ACT_SPOT_POMPE_LEFT = (ACT_FILTER | 0x0F),
+		#define ACT_SPOT_POMPE_LEFT_NORMAL			0x11
+		#define ACT_SPOT_POMPE_LEFT_REVERSE			0x12
+		#define ACT_SPOT_POMPE_LEFT_STOP			0x13
+
+	///////////////BACK SPOT RIGHT/////////////////
+	ACT_SPOT_POMPE_RIGHT = (ACT_FILTER | 0x10),
+		#define ACT_SPOT_POMPE_RIGHT_NORMAL			0x11
+		#define ACT_SPOT_POMPE_RIGHT_REVERSE		0x12
+		#define ACT_SPOT_POMPE_RIGHT_STOP			0x13
+
+	//////////////CARPET LAUNCHER RIGHT/////////////
+	ACT_CARPET_LAUNCHER_RIGHT = (ACT_FILTER | 0x11),
+		#define ACT_CARPET_LAUNCHER_RIGHT_IDLE		0x11
+		#define ACT_CARPET_LAUNCHER_RIGHT_LAUNCH	0x12
+		#define ACT_CARPET_LAUNCHER_RIGHT_STOP		0x13
+
+	////////////CARPET LAUNCHER LEFT////////////////
+	ACT_CARPET_LAUNCHER_LEFT = (ACT_FILTER | 0x12),
+		#define ACT_CARPET_LAUNCHER_LEFT_IDLE		0x11
+		#define ACT_CARPET_LAUNCHER_LEFT_LAUNCH		0x12
+		#define ACT_CARPET_LAUNCHER_LEFT_STOP		0x13
+
 
 
 	//////////////////////////////////////////////////////////////////
@@ -838,56 +874,12 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_PINCE_DROITE_CLOSED				0x14
 		#define ACT_PINCE_DROITE_STOP				0x15
 
-	/////////////////PINCE DEVANT//////////////////
-	ACT_PINCE_DEVANT = (ACT_FILTER | 0x32),
-		#define ACT_PINCE_DEVANT_IDLE				0x11
-		#define ACT_PINCE_DEVANT_OPEN				0x12
-		#define ACT_PINCE_DEVANT_MID_POS			0x13
-		#define ACT_PINCE_DEVANT_CLOSED				0x14
-		#define ACT_PINCE_DEVANT_STOP				0x15
-
 	//////////////////CLAP/////////////////////////
 	ACT_CLAP = (ACT_FILTER | 0x33),
 		#define ACT_CLAP_IDLE						0x11
 		#define ACT_CLAP_OPEN						0x12
 		#define ACT_CLAP_CLOSED						0x13
 		#define ACT_CLAP_STOP						0x14
-
-	///////////////BACK SPOT RIGHT/////////////////
-	ACT_BACK_SPOT_RIGHT = (ACT_FILTER | 0x34),
-		#define ACT_BACK_SPOT_RIGHT_OPEN			0x11
-		#define ACT_BACK_SPOT_RIGHT_CLOSED			0x12
-		#define ACT_BACK_SPOT_RIGHT_STOP			0x13
-
-	///////////////BACK SPOT LEFT/////////////////
-	ACT_BACK_SPOT_LEFT = (ACT_FILTER | 0x35),
-		#define ACT_BACK_SPOT_LEFT_OPEN				0x11
-		#define ACT_BACK_SPOT_LEFT_CLOSED			0x12
-		#define ACT_BACK_SPOT_LEFT_STOP				0x13
-
-	///////////////SPOT POMPE LEFT/////////////////
-	ACT_SPOT_POMPE_LEFT = (ACT_FILTER | 0x36),
-		#define ACT_SPOT_POMPE_LEFT_NORMAL			0x11
-		#define ACT_SPOT_POMPE_LEFT_REVERSE			0x12
-		#define ACT_SPOT_POMPE_LEFT_STOP			0x13
-
-	///////////////BACK SPOT RIGHT/////////////////
-	ACT_SPOT_POMPE_RIGHT = (ACT_FILTER | 0x37),
-		#define ACT_SPOT_POMPE_RIGHT_NORMAL			0x11
-		#define ACT_SPOT_POMPE_RIGHT_REVERSE		0x12
-		#define ACT_SPOT_POMPE_RIGHT_STOP			0x13
-
-	//////////////CARPET LAUNCHER RIGHT/////////////
-	ACT_CARPET_LAUNCHER_RIGHT = (ACT_FILTER | 0x38),
-		#define ACT_CARPET_LAUNCHER_RIGHT_IDLE		0x11
-		#define ACT_CARPET_LAUNCHER_RIGHT_LAUNCH	0x12
-		#define ACT_CARPET_LAUNCHER_RIGHT_STOP		0x13
-
-	////////////CARPET LAUNCHER LEFT////////////////
-	ACT_CARPET_LAUNCHER_LEFT = (ACT_FILTER | 0x39),
-		#define ACT_CARPET_LAUNCHER_LEFT_IDLE		0x11
-		#define ACT_CARPET_LAUNCHER_LEFT_LAUNCH		0x12
-		#define ACT_CARPET_LAUNCHER_LEFT_STOP		0x13
 
 	////////////POP DROP LEFT WOOD////////////////
 	ACT_POP_DROP_LEFT_WOOD = (ACT_FILTER | 0x40),

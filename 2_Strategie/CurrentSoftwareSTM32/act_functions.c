@@ -203,15 +203,6 @@ bool_e ACT_pince_droite(ACT_pince_droite_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Pince_Droite, &args);
 }
 
-bool_e ACT_pince_devant(ACT_pince_devant_cmd_e cmd) {
-	QUEUE_arg_t args;
-
-	ACT_arg_init(&args, ACT_PINCE_DEVANT, cmd);
-	ACT_arg_set_fallbackmsg(&args, ACT_PINCE_DEVANT,  ACT_PINCE_DEVANT_STOP);
-
-	return ACT_push_operation(ACT_QUEUE_Pince_Devant, &args);
-}
-
 bool_e ACT_clap(ACT_clap_cmd_e cmd) {
 	QUEUE_arg_t args;
 

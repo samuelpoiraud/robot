@@ -205,14 +205,7 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 							 });
 			break;
 
-		case ACT_PINCEMI_PRESENCE :{
-			queue_id_t queueId = QUEUE_create();
-			assert(queueId != QUEUE_CREATE_FAILED);
-			if(queueId == QUEUE_CREATE_FAILED){
-				CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_ERROR});
-				return TRUE;
-			}
-
+		case ACT_PINCEMI_PRESENCE :
 			if(msg->data[0] == PINCEMI_PRESENCE_RIGHT){
 				if(0)
 					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_PRESENT});
@@ -227,7 +220,7 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 
 			return TRUE;
 
-			}break;
+			break;
 	}
 
 	return FALSE;
