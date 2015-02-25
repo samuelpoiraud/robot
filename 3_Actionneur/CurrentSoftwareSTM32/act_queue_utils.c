@@ -243,7 +243,6 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		// case ACT_EXEMPLE & 0xFF:				originalSidStr = "Exemple";					break;
 		case ACT_PINCE_GAUCHE & 0xFF:			originalSidStr = "PinceG";					break;
 		case ACT_PINCE_DROITE & 0xFF:			originalSidStr = "PinceD";					break;
-		case ACT_PINCE_DEVANT & 0xFF:			originalSidStr = "PinceFr";					break;
 		case ACT_CLAP & 0xFF:					originalSidStr = "Clap";					break;
 		case ACT_POP_COLLECT_LEFT & 0xFF:		originalSidStr = "Pop_collect_left";		break;
 		case ACT_POP_COLLECT_RIGHT & 0xFF:		originalSidStr = "Pop_collect_right";		break;
