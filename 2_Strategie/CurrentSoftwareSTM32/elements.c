@@ -203,7 +203,7 @@ void ELEMENTS_set_cup(Uint8 number){
 }
 
  void collect_cup_coord(CAN_msg_t *msg){
-	 if(msg->data[0] & 0x02  || msg->data[0] & 0x04){  //erreur de scan ou pas de gobelets de détectés
+	 if( msg->data[0] & 0x04){  //pas de gobelets de détectés
 		  end_transmission_cup=TRUE;
 		  nb_cup=0;
 	 }else{  //si on a des gobelets de détectés
