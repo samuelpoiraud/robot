@@ -48,9 +48,10 @@ void CLOCK_init()
 #include "QS/QS_uart.h"
 void TIMER_SRC_TIMER_interrupt()
 {
-#ifdef I_AM_ROBOT_BIG
-	ELEVATOR_process_it();
-#endif
+	#ifdef I_AM_ROBOT_BIG
+		ELEVATOR_process_it();
+		CUP_NIPPER_process_it();
+	#endif
 
 	#ifdef USE_DCMOTOR2
 		DCM_process_it();

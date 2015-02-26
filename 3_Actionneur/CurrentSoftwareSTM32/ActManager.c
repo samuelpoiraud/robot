@@ -41,6 +41,8 @@
 	#include "Holly/Ascenseur/stock_RX24_config.h"
 	#include "Holly/Cup/cup_nipper.h"
 	#include "Holly/Cup/cup_nipper_config.h"
+	#include "Holly/Clap/clap_holly.h"
+	#include "Holly/Clap/clap_holly_config.h"
 #else
 	#include "Wood/Pince_gauche.h"
 	#include "Wood/Pince_gauche_config.h"
@@ -74,7 +76,8 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(PINCEMI),
 		ACT_DECLARE(ELEVATOR),
 		ACT_DECLARE(STOCK),
-		ACT_DECLARE(CUP_NIPPER)
+		ACT_DECLARE(CUP_NIPPER),
+		ACT_DECLARE(CLAP_HOLLY)
 	#else
 		ACT_DECLARE(PINCE_GAUCHE),
 		ACT_DECLARE(PINCE_DROITE),

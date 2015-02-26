@@ -31,9 +31,9 @@
 	#define CUP_NIPPER_KI2								10
 	#define CUP_NIPPER_KD2								10
 
-	#define CUP_NIPPER_PWM_NUM							4
+	#define CUP_NIPPER_PWM_NUM							2
 	#define CUP_NIPPER_PORT_WAY							GPIOC
-	#define CUP_NIPPER_PORT_WAY_BIT						12
+	#define CUP_NIPPER_PORT_WAY_BIT						10
 	#define CUP_NIPPER_MAX_PWM_WAY0						80
 	#define CUP_NIPPER_MAX_PWM_WAY1						80
 
