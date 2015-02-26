@@ -11,6 +11,8 @@
 #ifndef BIG_CONFIG_PIN_H
 #define BIG_CONFIG_PIN_H
 
+#include "../config_use.h"
+
 #define PORT_A_IO_MASK	0xFEDF
 	#define BUTTON0_PORT		GPIOA->IDR0
 	//	-				 			  1
@@ -58,9 +60,9 @@
 	//  -							  7
 	//	-				 			  8
 	//	-				 			  9
-	#define SPOT_POMPE_RIGHT_SENS	GPIOC,GPIO_Pin_10
-	#define SPOT_POMPE_LEFT_SENS	GPIOC,GPIO_Pin_11
-	#define CUP_NIPPER_DCM_SENS		GPIOC,GPIO_Pin_12
+	#define CUP_NIPPER_DCM_SENS		GPIOC,GPIO_Pin_10
+	#define SPOT_POMPE_RIGHT_SENS	GPIOC,GPIO_Pin_11
+	#define CLAP_GOLLY_DCM_SENS		GPIOC,GPIO_Pin_12
 	//	-				 			  13
 	//	-	OSC32_in 			  	  14
 	//	-	OSC32_out 			  	  15
@@ -89,8 +91,13 @@
 	#define LED_USER 			GPIOD,GPIO_Pin_15	// Led bleue carte STM
 		#define LED_BLEU			LED_USER
 
+#ifdef FDP_2014
+	#define PORT_E_IO_MASK	0xFFFF
+#else
+	#define PORT_E_IO_MASK	0xFFFE
+#endif
 
-#define PORT_E_IO_MASK	0xFFFF
+
 	//	-				 			  0
 	//	-				 			  1
 	// - programmation -			  2
@@ -102,10 +109,14 @@
 	//	-							  9
 	//	-							  10
 	//	-							  11
+#ifdef FDP_2014
 	#define BUTTON1_PORT		(!GPIOE->IDR12)
 	#define BUTTON2_PORT		(!GPIOE->IDR13)
 	#define BUTTON3_PORT		(!GPIOE->IDR14)
 	#define BUTTON4_PORT		(!GPIOE->IDR15)
+#else
+	#define SPOT_POMPE_LEFT_SENS	GPIOE,GPIO_Pin_15
+#endif
 
 //--------------------Configuration des ID des actionneurs-----------------------
 
@@ -140,7 +151,7 @@
 #define STOCKL_L_F2_RX24_ID				34
 
 #define SPOT_POMPE_RIGHT_PWM_NUM		3
-#define SPOT_POMPE_LEFT_PWM_NUM			5
+//#define SPOT_POMPE_LEFT_PWM_NUM		CUSTOM ! Laisser les en commentaires
 
 #define CUP_NIPPER_AX12_ID				3
 

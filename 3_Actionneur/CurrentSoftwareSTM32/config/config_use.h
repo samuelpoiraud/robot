@@ -10,6 +10,7 @@
 
 #ifndef CONFIG_USE_H
 #define CONFIG_USE_H
+#include "config_global.h"
 
 //////////////////////////////////////////////////////////////////
 //-------------------------MODE ET USE--------------------------//
@@ -25,6 +26,8 @@
 #define VERBOSE_MODE			//Activation du verbose
 
 #define CAN_VERBOSE_MODE		//Activation de la verbosité des messages CAN
+
+#define FDP_2014
 
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//
