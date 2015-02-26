@@ -25,6 +25,7 @@
 #define ELEVATOR_PORT_WAY_BIT				8
 #define ELEVATOR_MAX_PWM_WAY0				80
 #define ELEVATOR_MAX_PWM_WAY1				80
+#define ELEVATOR_QEI_COEF					0x0BFF			// Random à faire !
 
 #define ELEVATOR_ASSER_TIMEOUT				2000
 #define ELEVATOR_ASSER_POS_EPSILON			20

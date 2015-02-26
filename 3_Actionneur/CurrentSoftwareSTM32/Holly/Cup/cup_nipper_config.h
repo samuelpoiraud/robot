@@ -36,6 +36,7 @@
 	#define CUP_NIPPER_PORT_WAY_BIT						10
 	#define CUP_NIPPER_MAX_PWM_WAY0						80
 	#define CUP_NIPPER_MAX_PWM_WAY1						80
+	#define CUP_NIPPER_QEI_COEF							0x0BFF			// Random à faire !
 
 	#define CUP_NIPPER_DCM_ASSER_TIMEOUT				2000
 	#define CUP_NIPPER_DCM_ASSER_POS_EPSILON			20
