@@ -1,16 +1,18 @@
 /*  Club Robot ESEO 2014 - 2015
  *
- *	Fichier : spot_pompe_right.c
+ *	Fichier : spot_pompe_left.c
  *	Package : Carte actionneur
- *	Description : Gestion de la SPOT_POMPE_RIGHT pour attraper les spots arrière droite
+ *	Description : Gestion de la pompe pour attraper les spots arrière gauche
  *  Auteur : Arnaud
  *  Version 20130219
  *  Robot : HOLLY
  */
 
-#include "spot_pompe_right.h"
+#include "spot_pompe_left.h"
 
 #ifdef I_AM_ROBOT_BIG
+
+#ifndef FDP_2014
 
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
@@ -29,6 +31,10 @@ static void SPOT_POMPE_LEFT_command_init(queue_id_t queueId);
 static void SPOT_POMPE_LEFT_command_run(queue_id_t queueId);
 static void SPOT_POMPE_LEFT_do_order(Uint8 command, Uint8 param);
 static void SPOT_POMPE_LEFT_run_command(queue_id_t queueId, bool_e init);
+static void SPOT_POMPE_PWM_run(Uint8 duty /* en pourcents*/);
+static void SPOT_POMPE_PWM_stop();
+
+static volatile bool_e PWM_initialized = FALSE;
 
 void SPOT_POMPE_LEFT_init() {
 	static bool_e initialized = FALSE;
@@ -50,19 +56,56 @@ static void SPOT_POMPE_LEFT_initDCM() {
 		return;
 	initialized = TRUE;
 
-	PORTS_pwm_init();
-	PWM_init();
-	PWM_stop(SPOT_POMPE_LEFT_PWM_NUM);
+#ifdef USE_CUSTOM_PWM_5
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	TIM_OCInitTypeDef TIM_OCInitStructure;
+	GPIO_InitTypeDef GPInit;
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+
+	GPInit.GPIO_Mode = GPIO_Mode_AF;
+	GPInit.GPIO_Speed = GPIO_Speed_50MHz;
+	GPInit.GPIO_OType = GPIO_OType_PP;
+	GPInit.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+	GPInit.GPIO_Pin = GPIO_Pin_14;
+	GPIO_Init(GPIOE, &GPInit);
+	GPIO_PinAFConfig(GPIOE, GPIO_PinSource14, GPIO_AF_TIM8);
+
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_Period        = PWM_HIGH_SPEED_DUTY - 1;	//Le timer compte de 0 à period inclus
+	TIM_TimeBaseStructure.TIM_Prescaler     = (TIM_CLK2_FREQUENCY_HZ / PWM_FREQ / PWM_HIGH_SPEED_DUTY) - 1;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
+
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
+	TIM_OCInitStructure.TIM_Pulse = 0;
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_High;
+	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset;
+	TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
+
+	TIM_OC4Init(TIM8, &TIM_OCInitStructure);
+	TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
+
+	TIM_Cmd(TIM8, ENABLE);
+	TIM_CtrlPWMOutputs(TIM8, ENABLE);
+	PWM_initialized = TRUE;
+#endif
+
+	SPOT_POMPE_PWM_stop();
 
 	info_printf("initialisée (DCM) \n");
 }
 
 void SPOT_POMPE_LEFT_stop() {
-	PWM_stop(SPOT_POMPE_LEFT_PWM_NUM);
+	SPOT_POMPE_PWM_stop();
 }
 
 void SPOT_POMPE_LEFT_init_pos(){
-	PWM_stop(SPOT_POMPE_LEFT_PWM_NUM);
+	SPOT_POMPE_PWM_stop();
 }
 
 bool_e SPOT_POMPE_LEFT_CAN_process_msg(CAN_msg_t* msg) {
@@ -116,7 +159,7 @@ static void SPOT_POMPE_LEFT_command_init(queue_id_t queueId) {
 			break;
 
 		case ACT_SPOT_POMPE_LEFT_STOP:
-			PWM_stop(SPOT_POMPE_LEFT_PWM_NUM);
+			SPOT_POMPE_PWM_stop();
 			return;
 
 		default: {
@@ -138,12 +181,26 @@ static void SPOT_POMPE_LEFT_do_order(Uint8 command, Uint8 param){
 		GPIO_SetBits(SPOT_POMPE_LEFT_SENS);
 	else{
 		debug_printf("commande envoyée à SPOT_POMPE_LEFT_do_order inconnue -> %d	%x\n", command, command);
-		PWM_stop(SPOT_POMPE_LEFT_PWM_NUM);
+		SPOT_POMPE_PWM_stop();
 		return;
 	}
 
 	param = (param > 100) ? 100 : param;
-	PWM_run(param, SPOT_POMPE_LEFT_PWM_NUM);
+	SPOT_POMPE_PWM_run(param);
 }
+
+static void SPOT_POMPE_PWM_run(Uint8 duty /* en pourcents*/)
+{
+	if(!PWM_initialized)
+		return;
+	TIM_SetCompare4(TIM1, duty * (PWM_HIGH_SPEED_DUTY/100));
+}
+
+static void SPOT_POMPE_PWM_stop()
+{
+	SPOT_POMPE_PWM_run(0);
+}
+
+#endif
 
 #endif

@@ -102,10 +102,14 @@
 	//	-							  9
 	//	-							  10
 	//	-							  11
+#ifdef FDP_2014
 	#define BUTTON1_PORT		(!GPIOE->IDR12)
 	#define BUTTON2_PORT		(!GPIOE->IDR13)
 	#define BUTTON3_PORT		(!GPIOE->IDR14)
 	#define BUTTON4_PORT		(!GPIOE->IDR15)
+#else
+
+#endif
 
 //--------------------Configuration des ID des actionneurs-----------------------
 

@@ -25,10 +25,12 @@
 #define LED_USER 			GPIOD,GPIO_Pin_15
 
 /* Buttons */
-#define BUTTON1_PORT		(!GPIOE->IDR12)
-#define BUTTON2_PORT		(!GPIOE->IDR13)
-#define BUTTON3_PORT		(!GPIOE->IDR14)
-#define BUTTON4_PORT		(!GPIOE->IDR15)
+#ifdef FDP_2014
+	#define BUTTON1_PORT		(!GPIOE->IDR12)
+	#define BUTTON2_PORT		(!GPIOE->IDR13)
+	#define BUTTON3_PORT		(!GPIOE->IDR14)
+	#define BUTTON4_PORT		(!GPIOE->IDR15)
+#endif
 #define PORT_ROBOT_ID  		GPIOC->IDR13
 
 /* Switchs */

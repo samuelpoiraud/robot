@@ -20,6 +20,7 @@
 	#define USE_PWM2
 	#define USE_PWM3
 	#define USE_PWM4
+	#define USE_CUSTOM_PWM_5		// Gestion actionneur pompe gauche
 	#define FREQ_PWM_50KHZ
 
 /* Servo-Moteurs standart */
