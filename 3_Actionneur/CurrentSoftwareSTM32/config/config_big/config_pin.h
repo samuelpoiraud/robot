@@ -139,12 +139,14 @@
 #define STOCKL_R_F2_RX24_ID				33
 #define STOCKL_L_F2_RX24_ID				34
 
-#define SPOT_POMPE_RIGHT_PWM_NUM		2
-#define SPOT_POMPE_LEFT_PWM_NUM			3
+#define SPOT_POMPE_RIGHT_PWM_NUM		3
+#define SPOT_POMPE_LEFT_PWM_NUM			5
 
 #define CUP_NIPPER_AX12_ID				3
 
 #define ELEVATOR_ID						0
 #define CUP_NIPPER_ID					1
+#define CLAP_HOLLY_ID					2
+#define CLAP_HOLLY_ADC_SENSOR			ADC_11
 
 #endif /* BIG_CONFIG_PIN_H */

@@ -30,7 +30,7 @@
 	/* déclarer l'utilisation du pilote */
 	#define USE_DCMOTOR2
 	/* définir le nombre d'actionneurs asservis */
-	#define DCM_NUMBER			2
+	#define DCM_NUMBER			3
 	/* Période d'asservisement (en ms) */
 	#define DCM_TIME_PERIOD		10
 	/* nombre maximum de positions à gérer par moteur */
@@ -39,5 +39,8 @@
 /* Réglages QEI */
 	#define USE_QUEI1
 	#define USE_QUEI2
+
+/* Réglages ADC */
+	#define USE_AN15
 
 #endif /* BIG_CONFIG_USE_H */
