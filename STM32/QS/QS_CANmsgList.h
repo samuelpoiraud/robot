@@ -439,6 +439,7 @@
 		SELFTEST_ACT_PINCE_GAUCHE,
 		SELFTEST_ACT_POP_DROP_LEFT_WOOD,
 		SELFTEST_ACT_POP_DROP_RIGHT_WOOD,
+		SELFTEST_ACT_CLAP_HOLLY,
 
 		SELFTEST_FAIL_UNKNOW_REASON,
 		SELFTEST_ERROR_NB,
@@ -524,6 +525,10 @@
 		// Dans data[0]
 		#define STRAT_INFORM_PINCEMI_ABSENT		(0b000000000)
 		#define STRAT_INFORM_PINCEMI_PRESENT	(0b000000001)
+		#define STRAT_INFORM_PINCEMI_RIGHT		(0b000000010)
+		#define STRAT_INFORM_PINCEMI_LEFT		(0b000000100)
+
+
 
 
 	/* carte stratégie vers carte propulsion */
@@ -852,7 +857,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_CARPET_LAUNCHER_LEFT_LAUNCH		0x12
 		#define ACT_CARPET_LAUNCHER_LEFT_STOP		0x13
 
-	////////////CARPET LAUNCHER LEFT////////////////
+	////////////CLAP HOLLY////////////////
 	ACT_CLAP_HOLLY = (ACT_FILTER | 0x13),
 		#define ACT_CLAP_HOLLY_IDLE					0x11
 		#define ACT_CLAP_HOLLY_LEFT					0x12
