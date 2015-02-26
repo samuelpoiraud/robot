@@ -49,6 +49,11 @@
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
+//#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN
+#ifdef XBEE_SIMULATION
+	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+#endif
+
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//
 //////////////////////////////////////////////////////////////////

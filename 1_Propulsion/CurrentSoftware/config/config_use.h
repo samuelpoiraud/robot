@@ -67,6 +67,11 @@
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
+	//#define XBEE_SIMULATION			//Simulation : afin de simuler les messages XBEE entre les robots, activer XBEE_SIMULATION en strat
+	#ifdef XBEE_SIMULATION
+		#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+	#endif
+
 	//#define MODE_REGLAGE_KV
 	#ifdef MODE_REGLAGE_KV
 		#ifndef VERBOSE_MODE

@@ -207,7 +207,16 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 {
 	way_e sens_marche;
 	toggle_led(LED_CAN);
-//	debug_printf("#%x\n",msg->sid);
+	//debug_printf("#%x\n",msg->sid);
+
+#ifdef XBEE_SIMULATION
+	if((msg->sid & 0xF00) == XBEE_FILTER){
+		if(from == FROM_CAN) // Vient du CAN(strat)
+			CANmsgToU1tx(msg);
+		else if(from == FROM_UART) // Vient de la simulation
+			CAN_send(msg);
+	}
+#endif
 
 	switch (msg->sid)
 	{
@@ -469,6 +478,13 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			#endif
 			break;
 
+		case DEBUG_HOKUYO_ADD_POINT:
+		case DEBUG_HOKUYO_RESET:
+			#ifdef CAN_SEND_OVER_UART
+				CANmsgToU1tx(msg);
+			#endif
+			break;
+
 		case IHM_SWITCH_ALL:
 		case IHM_BUTTON:
 		case IHM_SWITCH:
@@ -482,7 +498,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		default :
 		break;
 	}
-
 }
 
 

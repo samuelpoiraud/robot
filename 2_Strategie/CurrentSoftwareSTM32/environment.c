@@ -276,7 +276,7 @@ void ENV_update(void)
 	{
 		toggle_led(LED_CAN);
 		incoming_msg_from_bus_can = CAN_get_next_msg();
-		ENV_process_can_msg(&incoming_msg_from_bus_can,FALSE, TRUE, TRUE, TRUE);	//Everywhere except CAN
+		ENV_process_can_msg(&incoming_msg_from_bus_can,FALSE, TRUE, TRUE, FALSE);	//Everywhere except CAN
 	}
 
 
