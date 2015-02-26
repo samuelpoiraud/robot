@@ -116,6 +116,70 @@ typedef enum {
 	ACT_carpet_launcher_left_stop = ACT_CARPET_LAUNCHER_LEFT_STOP
 } ACT_carpet_launcher_left_cmd_e;
 
+typedef enum {
+	ACT_cup_nipper_open = ACT_CUP_NIPPER_OPEN,
+	ACT_cup_nipper_close = ACT_CUP_NIPPER_CLOSE,
+	ACT_cup_nipper_lock = ACT_CUP_NIPPER_LOCK,
+	ACT_cup_nipper_stop = ACT_CUP_NIPPER_STOP
+} ACT_cup_nipper_cmd_e;
+
+typedef enum {
+	ACT_cup_nipper_elevator_idle = ACT_CUP_NIPPER_ELEVATOR_IDLE,
+	ACT_cup_nipper_elevator_up = ACT_CUP_NIPPER_ELEVATOR_UP,
+	ACT_cup_nipper_elevator_stop = ACT_CUP_NIPPER_ELEVATOR_STOP
+} ACT_cup_nipper_elevator_cmd_e;
+
+typedef enum {
+	ACT_clap_holly_idle = ACT_CLAP_HOLLY_IDLE,
+	ACT_clap_holly_left = ACT_CLAP_HOLLY_LEFT,
+	ACT_clap_holly_right = ACT_CLAP_HOLLY_RIGHT,
+	ACT_clap_holly_stop = ACT_CLAP_HOLLY_STOP
+} ACT_clap_holly_cmd_e;
+
+typedef enum {
+	ACT_elevator_bot = ACT_ELEVATOR_BOT,
+	ACT_elevator_mid = ACT_ELEVATOR_MID,
+	ACT_elevator_pre_top = ACT_ELEVATOR_PRE_TOP,
+	ACT_elevator_top = ACT_ELEVATOR_TOP,
+	ACT_elevator_stop = ACT_ELEVATOR_STOP
+} ACT_elevator_cmd_e;
+
+typedef enum {
+	ACT_pincemi_right_close = ACT_PINCEMI_RIGHT_CLOSE,
+	ACT_pincemi_right_close_inner = ACT_PINCEMI_RIGHT_CLOSE_INNER,
+	ACT_pincemi_right_lock = ACT_PINCEMI_RIGHT_LOCK,
+	ACT_pincemi_right_open = ACT_PINCEMI_RIGHT_OPEN,
+	ACT_pincemi_right_open_great = ACT_PINCEMI_RIGHT_OPEN_GREAT,
+	ACT_pincemi_right_stop = ACT_PINCEMI_RIGHT_STOP
+} ACT_pincemi_right_cmd_e;
+
+typedef enum {
+	ACT_pincemi_left_close = ACT_PINCEMI_LEFT_CLOSE,
+	ACT_pincemi_left_close_inner = ACT_PINCEMI_LEFT_CLOSE_INNER,
+	ACT_pincemi_left_lock = ACT_PINCEMI_LEFT_LOCK,
+	ACT_pincemi_left_open = ACT_PINCEMI_LEFT_OPEN,
+	ACT_pincemi_left_open_great = ACT_PINCEMI_LEFT_OPEN_GREAT,
+	ACT_pincemi_left_stop = ACT_PINCEMI_LEFT_STOP
+} ACT_pincemi_left_cmd_e;
+
+typedef enum {
+	ACT_stock_right_close = ACT_STOCK_RIGHT_CLOSE,
+	ACT_stock_right_lock = ACT_STOCK_RIGHT_LOCK,
+	ACT_stock_right_unlock = ACT_STOCK_RIGHT_UNLOCK,
+	ACT_stock_right_open = ACT_STOCK_RIGHT_OPEN,
+	ACT_stock_right_stop = ACT_STOCK_RIGHT_STOP
+} ACT_stock_right_cmd_e;
+
+typedef enum {
+	ACT_stock_left_close = ACT_STOCK_LEFT_CLOSE,
+	ACT_stock_left_lock = ACT_STOCK_LEFT_LOCK,
+	ACT_stock_left_unlock = ACT_STOCK_LEFT_UNLOCK,
+	ACT_stock_left_open = ACT_STOCK_LEFT_OPEN,
+	ACT_stock_left_stop = ACT_STOCK_LEFT_STOP
+} ACT_stock_left_cmd_e;
+
+
+
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
@@ -157,8 +221,9 @@ typedef enum {
 
 // -------------------------------- Fonctions de pilotage des actionneurs
 
-// Holly
 //bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
+
+// Holly
 bool_e ACT_pop_collect_left(ACT_pop_collect_left_cmd_e cmd);
 bool_e ACT_pop_collect_right(ACT_pop_collect_right_cmd_e cmd);
 
@@ -174,17 +239,50 @@ bool_e ACT_spot_pompe_left(ACT_spot_pompe_left_cmd_e cmd);
 bool_e ACT_carpet_launcher_right(ACT_carpet_launcher_right_cmd_e cmd);
 bool_e ACT_carpet_launcher_left(ACT_carpet_launcher_left_cmd_e cmd);
 
+bool_e ACT_cup_nipper(ACT_cup_nipper_cmd_e cmd);
+bool_e ACT_cup_nipper_elevator(ACT_cup_nipper_elevator_cmd_e cmd);
+
+bool_e ACT_clap_holly(ACT_clap_holly_cmd_e cmd);
+
+bool_e ACT_elevator(ACT_elevator_cmd_e cmd);
+bool_e ACT_pincemi_right(ACT_pincemi_right_cmd_e cmd);
+bool_e ACT_pincemi_left(ACT_pincemi_left_cmd_e cmd);
+bool_e ACT_stock_right(ACT_stock_right_cmd_e cmd);
+bool_e ACT_stock_left(ACT_stock_left_cmd_e cmd);
+
 // Wood
 bool_e ACT_pince_gauche(ACT_pince_gauche_cmd_e cmd);
 bool_e ACT_pince_droite(ACT_pince_droite_cmd_e cmd);
+
 bool_e ACT_clap(ACT_clap_cmd_e cmd);
+
+bool_e ACT_pop_drop_left_wood(ACT_pop_drop_left_Wood_cmd_e cmd);
+bool_e ACT_pop_drop_right_wood(ACT_pop_drop_right_Wood_cmd_e cmd);
 // Common
 
 
 // -------------------------------- Fonctions de pilotage haut niveau des actionneurs (avec machine à état intégré)
 
 // Holly
+/**
+ * @brief ACT_pincemi_right_presence
+ * @return :	END_OK				-> pied présent dans la pince
+ *				END_WITH_TIMEOUT	-> pas de réponse actionneur
+ *				NOT_HANDLED			-> pied NON présent dans la pince
+ *				IN_PROGRESS			-> demande en cours
+ */
+error_e ACT_pincemi_right_presence();
 
+/**
+ * @brief ACT_pincemi_left_presence
+ * @return :	END_OK				-> pied présent dans la pince
+ *				END_WITH_TIMEOUT	-> pas de réponse actionneur
+ *				NOT_HANDLED			-> pied NON présent dans la pince
+ *				IN_PROGRESS			-> demande en cours
+ */
+error_e ACT_pincemi_left_presence();
+
+void ACT_pincemi_answer(CAN_msg_t* msg);
 // Wood
 
 // Common

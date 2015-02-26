@@ -23,7 +23,6 @@
 typedef Uint8 queue_size_t;
 typedef enum {
 	//Holly
-	ACT_QUEUE_Torch_locker,
 	ACT_QUEUE_Pop_collect_left,
 	ACT_QUEUE_Pop_collect_right,
 	ACT_QUEUE_Pop_drop_left,
@@ -34,9 +33,16 @@ typedef enum {
 	ACT_QUEUE_Spot_pompe_left,
 	ACT_QUEUE_Carpet_launcher_right,
 	ACT_QUEUE_Carpet_launcher_left,
+	ACT_QUEUE_Cup_Nipper,
+	ACT_QUEUE_Cup_Nipper_Elevator,
+	ACT_QUEUE_Clap_Holly,
+	ACT_QUEUE_Elevator,
+	ACT_QUEUE_PinceMi_right,
+	ACT_QUEUE_PinceMi_left,
+	ACT_QUEUE_Stock_right,
+	ACT_QUEUE_Stock_left,
 
 	//Wood
-	ACT_QUEUE_Small_arm,
 	ACT_QUEUE_Pince_Gauche,
 	ACT_QUEUE_Pince_Droite,
 	ACT_QUEUE_Pince_Devant,

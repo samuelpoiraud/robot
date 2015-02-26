@@ -688,6 +688,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_PINCE_GAUCHE:					debug_printf("SELFTEST_ACT_PINCE_GAUCHE");						break;
 				case SELFTEST_ACT_POP_DROP_LEFT_WOOD:			debug_printf("SELFTEST_ACT_POP_DROP_LEFT_WOOD");				break;
 				case SELFTEST_ACT_POP_DROP_RIGHT_WOOD:			debug_printf("SELFTEST_ACT_POP_DROP_RIGHT_WOOD");				break;
+				case SELFTEST_ACT_CLAP_HOLLY:					debug_printf("SELFTEST_ACT_CLAP_HOLLY");						break;
 
 				default:										debug_printf("UNKNOW_ERROR_CODE");								break;
 			}
@@ -989,6 +990,9 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_CLAP:							return "ACT Clap";				break;
 		case SELFTEST_ACT_PINCE_DROITE:					return "ACT Pince Droite";		break;
 		case SELFTEST_ACT_PINCE_GAUCHE:					return "ACT Pince Gauche";		break;
+		case SELFTEST_ACT_POP_DROP_LEFT_WOOD:			return "Act Pop Drop Left";		break;
+		case SELFTEST_ACT_POP_DROP_RIGHT_WOOD:			return "Act Pop Drop Right";	break;
+		case SELFTEST_ACT_CLAP_HOLLY:					return "Act Clap";				break;
 
 		case SELFTEST_ERROR_NB: return NULL; break;
 		case SELFTEST_NO_ERROR: return NULL; break;

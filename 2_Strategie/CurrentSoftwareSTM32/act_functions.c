@@ -18,6 +18,19 @@
 #include "QS/QS_outputlog.h"
 #include "act_avoidance.h"
 #include "QS/QS_who_am_i.h"
+#include "state_machine_helper.h"
+
+#define PINCEMI_ANSWER_TIMEOUT		500
+
+typedef enum{
+	PINCEMI_SENSOR_WAIT,
+	PINCEMI_SENSOR_ABSENT,
+	PINCEMI_SENSOR_PRESENT
+}pincemi_sensor_e;
+
+static volatile pincemi_sensor_e pincemi_right_answer = PINCEMI_SENSOR_WAIT;
+static volatile pincemi_sensor_e pincemi_left_answer = PINCEMI_SENSOR_WAIT;
+
 
 
 /* Pile contenant les arguments d'une demande d'opération
@@ -182,6 +195,172 @@ bool_e ACT_carpet_launcher_left(ACT_carpet_launcher_left_cmd_e cmd){
 	return ACT_push_operation(ACT_QUEUE_Carpet_launcher_left, &args);
 }
 
+bool_e ACT_cup_nipper(ACT_cup_nipper_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_CUP_NIPPER, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_CUP_NIPPER,  ACT_cup_nipper_stop);
+
+	debug_printf("Pushing cup nipper Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_CUP_NIPPER, cmd);
+
+	return ACT_push_operation(ACT_QUEUE_Cup_Nipper, &args);
+}
+
+
+bool_e ACT_cup_nipper_elevator(ACT_cup_nipper_elevator_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_CUP_NIPPER_ELEVATOR, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_CUP_NIPPER_ELEVATOR,  ACT_cup_nipper_elevator_stop);
+
+	debug_printf("Pushing cup nipper elevator Run cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Cup_Nipper_Elevator, &args);
+}
+
+bool_e ACT_clap_holly(ACT_clap_holly_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_CLAP_HOLLY, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_CLAP_HOLLY,  ACT_clap_holly_stop);
+
+	debug_printf("Pushing clap Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_CLAP_HOLLY, cmd);
+
+	return ACT_push_operation(ACT_QUEUE_Clap_Holly, &args);
+}
+
+bool_e ACT_elevator(ACT_elevator_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_ELEVATOR, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_ELEVATOR,  ACT_elevator_stop);
+
+	debug_printf("Pushing elevator Run cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Elevator, &args);
+}
+
+
+bool_e ACT_pincemi_right(ACT_pincemi_right_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_PINCEMI_RIGHT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_PINCEMI_RIGHT,  ACT_pincemi_right_stop);
+
+	debug_printf("Pushing pincemi right Run cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_PinceMi_right, &args);
+}
+
+bool_e ACT_pincemi_left(ACT_pincemi_left_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_PINCEMI_LEFT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_PINCEMI_LEFT,  ACT_pincemi_left_stop);
+
+	debug_printf("Pushing pincemi left Run cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_PinceMi_left, &args);
+}
+
+bool_e ACT_stock_right(ACT_stock_right_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_STOCK_RIGHT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_STOCK_RIGHT,  ACT_stock_right_stop);
+
+	debug_printf("Pushing stock right Run cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Stock_right, &args);
+}
+
+bool_e ACT_stock_left(ACT_stock_left_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init(&args, ACT_STOCK_LEFT, cmd);
+	ACT_arg_set_fallbackmsg(&args, ACT_STOCK_LEFT,  ACT_stock_left_stop);
+
+	debug_printf("Pushing stock left Run cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Stock_left, &args);
+}
+
+error_e ACT_pincemi_right_presence(){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+
+	switch(state){
+		case SEND:
+			begin_time = global.env.absolute_time;
+			CAN_direct_send(ACT_PINCEMI_PRESENCE, 1, (Uint8 []){PINCEMI_PRESENCE_RIGHT});
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.env.absolute_time - begin_time > PINCEMI_ANSWER_TIMEOUT){
+				RESET_MAE();
+				return END_WITH_TIMEOUT;
+			}else if(pincemi_right_answer == PINCEMI_SENSOR_PRESENT){
+				RESET_MAE();
+				return END_OK;
+			}else if(pincemi_right_answer == PINCEMI_SENSOR_ABSENT){
+				RESET_MAE();
+				return NOT_HANDLED;
+			}
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+error_e ACT_pincemi_left_presence(){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+
+	switch(state){
+		case SEND:
+			begin_time = global.env.absolute_time;
+			CAN_direct_send(ACT_PINCEMI_PRESENCE, 1, (Uint8 []){PINCEMI_PRESENCE_LEFT});
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.env.absolute_time - begin_time > PINCEMI_ANSWER_TIMEOUT){
+				RESET_MAE();
+				return END_WITH_TIMEOUT;
+			}else if(pincemi_left_answer == PINCEMI_SENSOR_PRESENT){
+				RESET_MAE();
+				return END_OK;
+			}else if(pincemi_left_answer == PINCEMI_SENSOR_ABSENT){
+				RESET_MAE();
+				return NOT_HANDLED;
+			}
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+void ACT_pincemi_answer(CAN_msg_t* msg){
+	volatile pincemi_sensor_e *pincemi_answer;
+
+	if(msg->data[0] & STRAT_INFORM_PINCEMI_RIGHT)
+		pincemi_answer = &pincemi_right_answer;
+	else
+		pincemi_answer = &pincemi_left_answer;
+
+	if(msg->data[0] & STRAT_INFORM_PINCEMI_PRESENT)
+		*pincemi_answer = PINCEMI_SENSOR_PRESENT;
+	else
+		*pincemi_answer = PINCEMI_SENSOR_ABSENT;
+}
+
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
@@ -212,7 +391,7 @@ bool_e ACT_clap(ACT_clap_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Clap, &args);
 }
 
-bool_e ACT_pop_drop_left_Wood(ACT_pop_drop_left_Wood_cmd_e cmd) {
+bool_e ACT_pop_drop_left_wood(ACT_pop_drop_left_Wood_cmd_e cmd) {
 	QUEUE_arg_t args;
 
 	ACT_arg_init(&args, ACT_POP_DROP_LEFT_WOOD, cmd);
@@ -221,7 +400,7 @@ bool_e ACT_pop_drop_left_Wood(ACT_pop_drop_left_Wood_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_left_Wood, &args);
 }
 
-bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
+bool_e ACT_pop_drop_right_wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
 	QUEUE_arg_t args;
 
 	ACT_arg_init(&args, ACT_POP_DROP_RIGHT_WOOD, cmd);
