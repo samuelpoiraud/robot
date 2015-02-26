@@ -16,6 +16,7 @@
 // Les différents includes nécessaires...
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_pwm.h"
+#include "../QS/QS_qei.h"
 #include "../QS/QS_ports.h"
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_ax12.h"
@@ -30,6 +31,7 @@
 #include "../QS/QS_outputlog.h"
 
 static volatile bool_e CUP_NIPPER_ready = FALSE;
+static volatile bool_e encoder_ready = FALSE;
 static volatile bool_e ax12_is_initialized = FALSE;
 static volatile Sint16 CUP_NIPPER_position = 0;
 
@@ -97,6 +99,8 @@ void CUP_NIPPER_state_machine(){
 		case WAIT_FDC:
 			if(CUP_NIPPER_FDC){
 				PWM_run(0, CUP_NIPPER_PWM_NUM);
+				encoder_ready = TRUE;
+				QEI2_set_count(0);
 				state = INIT_POS;
 			}
 
@@ -127,8 +131,19 @@ void CUP_NIPPER_state_machine(){
 }
 
 void CUP_NIPPER_process_it(){
-	if(CUP_NIPPER_ready){
-		// TODO mise à jours de CUP_NIPPER_position avec la fonction QEI1_get_count();
+	if(encoder_ready){
+		static Sint16 count_prec = 0;
+		Sint16 count = QEI2_get_count();
+		Sint32 delta = count - count_prec;
+
+		if(delta > 512)
+			delta -= 65536;
+		else if(delta < -512)
+			delta += 65536;
+
+		count_prec = count;
+
+		CUP_NIPPER_position += delta * CUP_NIPPER_QEI_COEF;
 	}
 }
 

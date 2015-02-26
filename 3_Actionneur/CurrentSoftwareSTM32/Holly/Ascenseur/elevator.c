@@ -18,6 +18,7 @@
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_pwm.h"
 #include "../QS/QS_ports.h"
+#include "../QS/QS_qei.h"
 #include "../QS/QS_DCMotor2.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
@@ -30,6 +31,7 @@
 #include "../QS/QS_outputlog.h"
 
 static volatile bool_e ELEVATOR_ready = FALSE;
+static volatile bool_e encoder_ready = FALSE;
 static volatile Sint16 ELEVATOR_position = 0;
 
 static void ELEVATOR_command_run(queue_id_t queueId);
@@ -47,6 +49,7 @@ void ELEVATOR_init() {
 
 	PWM_init();
 	DCM_init();
+	QEI_init();
 	dcconfig.sensor_read = &ELEVATOR_get_position;
 	dcconfig.double_PID = TRUE;
 	dcconfig.Kp = ELEVATOR_KP;
@@ -90,6 +93,8 @@ void ELEVATOR_state_machine(){
 		case WAIT_FDC:
 			if(ELEVATOR_FDC){
 				PWM_run(0, ELEVATOR_PWM_NUM);
+				QEI1_set_count(0);
+				encoder_ready = TRUE;
 				state = INIT_POS;
 			}
 
@@ -120,8 +125,19 @@ void ELEVATOR_state_machine(){
 }
 
 void ELEVATOR_process_it(){
-	if(ELEVATOR_ready){
-		// TODO mise à jours de ELEVATOR_position avec la fonction QEI1_get_count();
+	if(encoder_ready){
+		static Sint16 count_prec = 0;
+		Sint16 count = QEI1_get_count();
+		Sint32 delta = count - count_prec;
+
+		if(delta > 512)
+			delta -= 65536;
+		else if(delta < -512)
+			delta += 65536;
+
+		count_prec = count;
+
+		ELEVATOR_position += delta * ELEVATOR_QEI_COEF;
 	}
 }
 
