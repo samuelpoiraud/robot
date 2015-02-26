@@ -19,6 +19,7 @@
 #include "QS_CANmsgList.h"
 #include "QS_outputlog.h"
 #include "QS_ports.h"
+#include "QS_can.h"
 
 
 #define XBEE_PING_PERIOD	500	//ms
@@ -408,6 +409,11 @@ void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e module_dest)
 {
 	Uint8 cs;
 	Uint8 i;
+
+#ifdef XBEE_SIMULATION
+	if((src->sid & 0xF00) == XBEE_FILTER && src->sid != XBEE_PING && (module_dest == SMALL_ROBOT_MODULE || module_dest == BIG_ROBOT_MODULE)) // Envoie seulement les messages XBEE
+		CAN_send(src);
+#endif
 
 #ifdef SD_ENABLE
 	if(src->sid != XBEE_PING)
