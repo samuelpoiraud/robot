@@ -32,8 +32,8 @@
 	//	-				 			  15
 
 #define PORT_B_IO_MASK	0xF7FF
-	//	-				 			  0
-	//	-				 			  1
+	#define PINCEMI_LEFT_SENSOR		(GPIOB->IDR0)
+	#define PINCEMI_RIGHT_SENSOR	(GPIOB->IDR1)
 	//	-				 			  2
 	// - programmation -			  3
 	//	-				 			  4
@@ -51,8 +51,8 @@
 
 #define PORT_C_IO_MASK	0xE3FF
 	//  -							  0
-	//	-				 			  1
-	//	-				 			  2
+	#define ELEVATOR_SENSOR_LEFT	 (GPIOC->IDR1)
+	#define ELEVATOR_SENSOR_RIGHT	 (GPIOC->IDR2)
 	#define CUP_NIPPER_FDC			 (GPIOA->IDR7)
 	//	-				 			  4
 	//	-				 			  5
