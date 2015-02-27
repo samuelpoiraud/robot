@@ -36,6 +36,7 @@
 
 #ifdef I_AM_ROBOT_BIG
 	#include "Holly/Ascenseur/elevator.h"
+	#include "Holly/Cup/cup_nipper.h"
 #else
 
 #endif
@@ -47,6 +48,7 @@ static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
 static void MAIN_global_var_init();
+static void MAIN_sensor_test();
 
 int main (void)
 {
@@ -133,9 +135,11 @@ int main (void)
 
 		QUEUE_run();
 		BUTTONS_update();
+		MAIN_sensor_test();
 
 		#ifdef I_AM_ROBOT_BIG
 			ELEVATOR_state_machine();
+			CUP_NIPPER_state_machine();
 		#else
 
 		#endif
@@ -279,4 +283,27 @@ static void MAIN_global_var_init(){
 	global.alim = FALSE;
 	global.alim_value = 0;
 	global.absolute_time = 0;
+}
+
+static void MAIN_sensor_test(){
+	static bool_e led_on = FALSE;
+	if(!global.match_started){
+#ifdef I_AM_ROBOT_BIG
+		if((CUP_NIPPER_FDC || ELEVATOR_FDC || PINCEMI_LEFT_SENSOR || PINCEMI_RIGHT_SENSOR || ELEVATOR_SENSOR_LEFT || ELEVATOR_SENSOR_RIGHT) && led_on == FALSE){
+			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+			led_on = TRUE;
+		}else if(!(CUP_NIPPER_FDC || ELEVATOR_FDC || PINCEMI_LEFT_SENSOR || PINCEMI_RIGHT_SENSOR || ELEVATOR_SENSOR_LEFT || ELEVATOR_SENSOR_RIGHT) && led_on == TRUE){
+			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
+			led_on = FALSE;
+		}
+#else
+		if((WT100_GOBELET_RIGHT || WT100_GOBELET_LEFT || WT100_GOBELET_FRONT) && led_on == FALSE){
+			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+			led_on = TRUE;
+		}else if(!(WT100_GOBELET_RIGHT || WT100_GOBELET_LEFT || WT100_GOBELET_FRONT) && led_on == TRUE){
+			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
+			led_on = FALSE;
+		}
+#endif
+	}
 }
