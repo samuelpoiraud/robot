@@ -20,17 +20,18 @@
 #include "QS/QS_who_am_i.h"
 #include "state_machine_helper.h"
 
-#define PINCEMI_ANSWER_TIMEOUT		500
+#define ACT_SENSOR_ANSWER_TIMEOUT		500
 
 typedef enum{
-	PINCEMI_SENSOR_WAIT,
-	PINCEMI_SENSOR_ABSENT,
-	PINCEMI_SENSOR_PRESENT
-}pincemi_sensor_e;
+	ACT_SENSOR_WAIT,
+	ACT_SENSOR_ABSENT,
+	ACT_SENSOR_PRESENT
+}act_sensor_e;
 
-static volatile pincemi_sensor_e pincemi_right_answer = PINCEMI_SENSOR_WAIT;
-static volatile pincemi_sensor_e pincemi_left_answer = PINCEMI_SENSOR_WAIT;
-
+static volatile act_sensor_e gobelet_right_wood_answer = ACT_SENSOR_WAIT;
+static volatile act_sensor_e gobelet_left_wood_answer = ACT_SENSOR_WAIT;
+static volatile act_sensor_e gobelet_front_wood_answer = ACT_SENSOR_WAIT;
+static volatile act_sensor_e gobelet_holly_answer = ACT_SENSOR_WAIT;
 
 
 /* Pile contenant les arguments d'une demande d'opération
@@ -289,77 +290,6 @@ bool_e ACT_stock_left(ACT_stock_left_cmd_e cmd){
 	return ACT_push_operation(ACT_QUEUE_Stock_left, &args);
 }
 
-error_e ACT_pincemi_right_presence(){
-	CREATE_MAE(SEND,
-				WAIT);
-
-	static time32_t begin_time;
-
-	switch(state){
-		case SEND:
-			begin_time = global.env.absolute_time;
-			CAN_direct_send(ACT_PINCEMI_PRESENCE, 1, (Uint8 []){PINCEMI_PRESENCE_RIGHT});
-			state = WAIT;
-			break;
-
-		case WAIT:
-			if(global.env.absolute_time - begin_time > PINCEMI_ANSWER_TIMEOUT){
-				RESET_MAE();
-				return END_WITH_TIMEOUT;
-			}else if(pincemi_right_answer == PINCEMI_SENSOR_PRESENT){
-				RESET_MAE();
-				return END_OK;
-			}else if(pincemi_right_answer == PINCEMI_SENSOR_ABSENT){
-				RESET_MAE();
-				return NOT_HANDLED;
-			}
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-error_e ACT_pincemi_left_presence(){
-	CREATE_MAE(SEND,
-				WAIT);
-
-	static time32_t begin_time;
-
-	switch(state){
-		case SEND:
-			begin_time = global.env.absolute_time;
-			CAN_direct_send(ACT_PINCEMI_PRESENCE, 1, (Uint8 []){PINCEMI_PRESENCE_LEFT});
-			state = WAIT;
-			break;
-
-		case WAIT:
-			if(global.env.absolute_time - begin_time > PINCEMI_ANSWER_TIMEOUT){
-				RESET_MAE();
-				return END_WITH_TIMEOUT;
-			}else if(pincemi_left_answer == PINCEMI_SENSOR_PRESENT){
-				RESET_MAE();
-				return END_OK;
-			}else if(pincemi_left_answer == PINCEMI_SENSOR_ABSENT){
-				RESET_MAE();
-				return NOT_HANDLED;
-			}
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-void ACT_pincemi_answer(CAN_msg_t* msg){
-	volatile pincemi_sensor_e *pincemi_answer;
-
-	if(msg->data[0] & STRAT_INFORM_PINCEMI_RIGHT)
-		pincemi_answer = &pincemi_right_answer;
-	else
-		pincemi_answer = &pincemi_left_answer;
-
-	if(msg->data[0] & STRAT_INFORM_PINCEMI_PRESENT)
-		*pincemi_answer = PINCEMI_SENSOR_PRESENT;
-	else
-		*pincemi_answer = PINCEMI_SENSOR_ABSENT;
-}
 
 ////////////////////////////////////////
 //////////////// WOOD //////////////////
@@ -442,4 +372,160 @@ bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value){
 	debug_printf("    value : %d\n", value);
 
 	return ACT_push_operation(queue_id, &args);
+}
+
+////////////////////////////////////////
+//////////////// SENSOR ////////////////
+////////////////////////////////////////
+
+error_e ACT_sensor_gobelet_right_wood(){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+
+	switch(state){
+		case SEND:
+			gobelet_right_wood_answer = ACT_SENSOR_WAIT;
+			begin_time = global.env.absolute_time;
+			CAN_direct_send(ACT_ASK_SENSOR, 1, (Uint8 []){PINCE_GOBELET_DROITE});
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
+				RESET_MAE();
+				return END_WITH_TIMEOUT;
+			}else if(gobelet_right_wood_answer == ACT_SENSOR_PRESENT){
+				RESET_MAE();
+				return END_OK;
+			}else if(gobelet_right_wood_answer == ACT_SENSOR_ABSENT){
+				RESET_MAE();
+				return NOT_HANDLED;
+			}
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+error_e ACT_sensor_gobelet_left_wood(){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+
+	switch(state){
+		case SEND:
+			gobelet_left_wood_answer = ACT_SENSOR_WAIT;
+			begin_time = global.env.absolute_time;
+			CAN_direct_send(ACT_ASK_SENSOR, 1, (Uint8 []){PINCE_GOBELET_GAUCHE});
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
+				RESET_MAE();
+				return END_WITH_TIMEOUT;
+			}else if(gobelet_left_wood_answer == ACT_SENSOR_PRESENT){
+				RESET_MAE();
+				return END_OK;
+			}else if(gobelet_left_wood_answer == ACT_SENSOR_ABSENT){
+				RESET_MAE();
+				return NOT_HANDLED;
+			}
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+error_e ACT_sensor_gobelet_front_wood(){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+
+	switch(state){
+		case SEND:
+			gobelet_front_wood_answer = ACT_SENSOR_WAIT;
+			begin_time = global.env.absolute_time;
+			CAN_direct_send(ACT_ASK_SENSOR, 1, (Uint8 []){GOBELET_DEVANT_WOOD});
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
+				RESET_MAE();
+				return END_WITH_TIMEOUT;
+			}else if(gobelet_front_wood_answer== ACT_SENSOR_PRESENT){
+				RESET_MAE();
+				return END_OK;
+			}else if(gobelet_front_wood_answer == ACT_SENSOR_ABSENT){
+				RESET_MAE();
+				return NOT_HANDLED;
+			}
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+error_e ACT_sensor_gobelet_holly(){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+
+	switch(state){
+		case SEND:
+			gobelet_holly_answer = ACT_SENSOR_WAIT;
+			begin_time = global.env.absolute_time;
+			CAN_direct_send(ACT_ASK_SENSOR, 1, (Uint8 []){GOBELET_HOLLY});
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
+				RESET_MAE();
+				return END_WITH_TIMEOUT;
+			}else if(gobelet_holly_answer== ACT_SENSOR_PRESENT){
+				RESET_MAE();
+				return END_OK;
+			}else if(gobelet_holly_answer == ACT_SENSOR_ABSENT){
+				RESET_MAE();
+				return NOT_HANDLED;
+			}
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+
+void ACT_sensor_answer(CAN_msg_t* msg){
+	volatile act_sensor_e *act_answer;
+
+	switch(msg->data[0]){
+		case PINCE_GOBELET_DROITE:
+			act_answer = &gobelet_right_wood_answer;
+			break;
+
+		case PINCE_GOBELET_GAUCHE:
+			act_answer = &gobelet_left_wood_answer;
+			break;
+
+		case GOBELET_DEVANT_WOOD:
+			act_answer = &gobelet_front_wood_answer;
+			break;
+
+		case GOBELET_HOLLY:
+			act_answer = &gobelet_holly_answer;
+			break;
+	}
+
+	if(!act_answer)
+		return;
+
+	if(msg->data[1] == STRAT_INFORM_CAPTEUR_PRESENT)
+		*act_answer = ACT_SENSOR_PRESENT;
+	else
+		*act_answer = ACT_SENSOR_ABSENT;
+
 }

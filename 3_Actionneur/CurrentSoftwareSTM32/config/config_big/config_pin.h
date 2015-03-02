@@ -32,8 +32,8 @@
 	//	-				 			  15
 
 #define PORT_B_IO_MASK	0xF7FF
-	#define PINCEMI_LEFT_SENSOR		(GPIOB->IDR0)
-	#define PINCEMI_RIGHT_SENSOR	(GPIOB->IDR1)
+	//	-				 			  0
+	//	-				 			  1
 	//	-				 			  2
 	// - programmation -			  3
 	//	-				 			  4
@@ -51,9 +51,9 @@
 
 #define PORT_C_IO_MASK	0xE3FF
 	//  -							  0
-	#define ELEVATOR_SENSOR_LEFT	 (GPIOC->IDR1)
-	#define ELEVATOR_SENSOR_RIGHT	 (GPIOC->IDR2)
-	#define CUP_NIPPER_FDC			 (GPIOA->IDR7)
+	#define PRESENCE_GOBELET_CENTRAL (GPIOC->IDR1)
+	//	-				 			  2
+	#define CUP_NIPPER_FDC			 (GPIOC->IDR3)
 	//	-				 			  4
 	//	-				 			  5
 	//	-				 			  6
@@ -71,8 +71,7 @@
 #define PORT_D_IO_MASK	0x03EF
 	//	CAN_RX						  0
 	//	CAN_TX						  1
-	//  -                             2
-#define SERVO0					GPIOD,GPIO_Pin_4
+	// -							  2
 	//	-				 			  3
 	//	-							  4
 	//	-	usb led red				  5
@@ -119,9 +118,6 @@
 #endif
 
 //--------------------Configuration des ID des actionneurs-----------------------
-
-/* Config test servo*/
-	#define TEST_SERVO_ID							1
 
 #define POP_COLLECT_LEFT_AX12_ID		12
 #define POP_COLLECT_RIGHT_AX12_ID		46

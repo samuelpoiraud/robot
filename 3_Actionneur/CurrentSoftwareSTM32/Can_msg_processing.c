@@ -100,6 +100,49 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			CAN_send(&answer);
 			break;
 
+		case ACT_ASK_SENSOR:{
+			bool_e found = TRUE;
+			answer.sid = STRAT_INFORM_CAPTEUR;
+			answer.size = 2;
+			answer.data[0] = msg->data[0];
+			switch(msg->data[0]){
+#ifdef I_AM_ROBOT_BIG
+				case GOBELET_HOLLY:
+					if(PRESENCE_GOBELET_CENTRAL)
+						answer.data[1] = STRAT_INFORM_CAPTEUR_PRESENT;
+					else
+						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
+					break;
+#else
+				case PINCE_GOBELET_DROITE:
+					if(WT100_GOBELET_RIGHT)
+						answer.data[1] = STRAT_INFORM_CAPTEUR_PRESENT;
+					else
+						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
+					break;
+
+				case PINCE_GOBELET_GAUCHE:
+					if(WT100_GOBELET_LEFT)
+						answer.data[1] = STRAT_INFORM_CAPTEUR_PRESENT;
+					else
+						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
+					break;
+
+				case GOBELET_DEVANT:
+					if(WT100_GOBELET_FRONT)
+						answer.data[1] = STRAT_INFORM_CAPTEUR_PRESENT;
+					else
+						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
+					break;
+#endif
+				default:
+					found = FALSE;
+					break;
+			}
+			if(found)
+				CAN_send(&answer);
+		}break;
+
 		case IHM_SWITCH_ALL:
 		case IHM_BUTTON:
 		case IHM_SWITCH:

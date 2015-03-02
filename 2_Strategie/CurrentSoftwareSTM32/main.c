@@ -39,6 +39,8 @@ void test_bp_switchs(void);
 void test_leds(void);
 void pull_bp_and_switch(void);
 void RCON_read(void);
+static void MAIN_sensor_test();
+
 
 void process_measure_loop_duration(void)
 {
@@ -143,6 +145,8 @@ int main (void)
 		actionneurs */
 		STACKS_run();
 		QUEUE_run();
+
+		MAIN_sensor_test();
 
 		any_match();
 
@@ -259,3 +263,29 @@ void RCON_read(void)
 #endif
 }
 
+static void MAIN_sensor_test(){
+	static bool_e led_on = FALSE;
+	if(!global.env.match_started){
+		if(QS_WHO_AM_I_get() == BIG_ROBOT){
+			if(RECALAGE_1 || RECALAGE_2 || RECALAGE_3 || RECALAGE_4 || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY){
+				if(led_on == FALSE){
+					IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+					led_on = TRUE;
+				}
+			}else if(led_on == TRUE){
+				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
+				led_on = FALSE;
+			}
+		}else{
+			if(RECALAGE_1 || RECALAGE_2 || RECALAGE_3 || RECALAGE_4){
+				if(led_on == FALSE){
+					IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+					led_on = TRUE;
+				}
+			}else if(led_on == TRUE){
+				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
+				led_on = FALSE;
+			}
+		}
+	}
+}
