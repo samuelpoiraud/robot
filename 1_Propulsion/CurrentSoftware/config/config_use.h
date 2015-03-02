@@ -158,6 +158,7 @@
 
 /* Réglages ADC */
 	#define USE_AN11
+	#define USE_AN12
 
 #include "../_Propulsion_config.h"
 

@@ -274,15 +274,18 @@ bool_e ACT_pop_drop_right_wood(ACT_pop_drop_right_Wood_cmd_e cmd);
 error_e ACT_pincemi_right_presence();
 
 /**
- * @brief ACT_pincemi_left_presence
- * @return :	END_OK				-> pied présent dans la pince
+ * @brief ACT_sensor_....
+ * @return :	END_OK				-> Le capteur détecte une présence
  *				END_WITH_TIMEOUT	-> pas de réponse actionneur
- *				NOT_HANDLED			-> pied NON présent dans la pince
+ *				NOT_HANDLED			-> Le capteur ne détecte aucune présence
  *				IN_PROGRESS			-> demande en cours
  */
-error_e ACT_pincemi_left_presence();
+error_e ACT_sensor_gobelet_right_wood();
+error_e ACT_sensor_gobelet_left_wood();
+error_e ACT_sensor_gobelet_front_wood();
+error_e ACT_sensor_gobelet_holly();
 
-void ACT_pincemi_answer(CAN_msg_t* msg);
+void ACT_sensor_answer(CAN_msg_t* msg);
 // Wood
 
 // Common

@@ -521,12 +521,11 @@
 	 * 4/5 : translation en mm/2  (>>1)
 	 */
 
-	#define STRAT_INFORM_PINCEMI		0x218
-		// Dans data[0]
-		#define STRAT_INFORM_PINCEMI_ABSENT		(0b000000000)
-		#define STRAT_INFORM_PINCEMI_PRESENT	(0b000000001)
-		#define STRAT_INFORM_PINCEMI_RIGHT		(0b000000010)
-		#define STRAT_INFORM_PINCEMI_LEFT		(0b000000100)
+	#define STRAT_INFORM_CAPTEUR		0x218
+		// Dans data[0] choix du capteur selon la liste à côté du message CAN ACT_ASK_SENSOR
+		// Dans data[1]
+		#define STRAT_INFORM_CAPTEUR_ABSENT		(0b000000000)
+		#define STRAT_INFORM_CAPTEUR_PRESENT	(0b000000001)
 
 
 
@@ -704,10 +703,12 @@
 		   // (0 à 100)
 	/////////////////////////////////////////////
 
-	#define ACT_PINCEMI_PRESENCE			0x3FE
+	#define ACT_ASK_SENSOR						0x3FE
 		// Dans data[0]
-		#define PINCEMI_PRESENCE_RIGHT		(0b000000000)
-		#define PINCEMI_PRESENCE_LEFT		(0b000000001)
+		#define PINCE_GOBELET_DROITE		(0b000000000)
+		#define PINCE_GOBELET_GAUCHE		(0b000000001)
+		#define GOBELET_DEVANT_WOOD			(0b000000010)
+		#define GOBELET_HOLLY				(0b000000011)
 
 // Code des SID des messages: 0x30x = message pour Holly, 0x33x = message pour Wood.
 // Le SID 0x300 est reservé pour le self_test

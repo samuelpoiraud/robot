@@ -66,6 +66,7 @@
 void RCON_read(void);
 void SWITCHS_update(void);
 static void MAIN_global_var_init();
+static void MAIN_sensor_test();
 volatile Uint8 t_ms = 0;
 volatile bool_e flag_calibration_asked = FALSE;
 volatile bool_e flag_selftest_asked = FALSE;
@@ -229,6 +230,8 @@ int main (void)
 		#endif
 		DETECTION_process_main();
 
+		MAIN_sensor_test();
+
 		if(flag_calibration_asked)
 		{
 			flag_calibration_asked = FALSE;
@@ -309,4 +312,19 @@ static void MAIN_global_var_init(){
 	global.match_started = FALSE;
 	global.match_over = FALSE;
 	global.absolute_time = 0;
+}
+
+static void MAIN_sensor_test(){
+	static bool_e led_on = FALSE;
+	if(!global.match_started){
+		if(ADC_getValue(ADC_11) < 50 || ADC_getValue(ADC_12) < 50){
+			if(led_on == FALSE){
+				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+				led_on = TRUE;
+			}
+		}else if(led_on == TRUE){
+			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
+			led_on = FALSE;
+		}
+	}
 }

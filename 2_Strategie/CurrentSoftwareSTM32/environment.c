@@ -436,8 +436,8 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ACT_process_result(incoming_msg);
 			break;
 
-		case STRAT_INFORM_PINCEMI:
-			ACT_pincemi_answer(incoming_msg);
+		case STRAT_INFORM_CAPTEUR:
+			ACT_sensor_answer(incoming_msg);
 			break;
 
 /************************************ Récupération des données de la balise *******************************/

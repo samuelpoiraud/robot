@@ -289,18 +289,22 @@ static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(!global.match_started){
 #ifdef I_AM_ROBOT_BIG
-		if((CUP_NIPPER_FDC || ELEVATOR_FDC || PINCEMI_LEFT_SENSOR || PINCEMI_RIGHT_SENSOR || ELEVATOR_SENSOR_LEFT || ELEVATOR_SENSOR_RIGHT) && led_on == FALSE){
-			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
-			led_on = TRUE;
-		}else if(!(CUP_NIPPER_FDC || ELEVATOR_FDC || PINCEMI_LEFT_SENSOR || PINCEMI_RIGHT_SENSOR || ELEVATOR_SENSOR_LEFT || ELEVATOR_SENSOR_RIGHT) && led_on == TRUE){
+		if(CUP_NIPPER_FDC || ELEVATOR_FDC || PRESENCE_GOBELET_CENTRAL){
+			if(led_on == FALSE){
+				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+				led_on = TRUE;
+			}
+		}else if(led_on == TRUE){
 			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
 			led_on = FALSE;
 		}
 #else
-		if((WT100_GOBELET_RIGHT || WT100_GOBELET_LEFT || WT100_GOBELET_FRONT) && led_on == FALSE){
-			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
-			led_on = TRUE;
-		}else if(!(WT100_GOBELET_RIGHT || WT100_GOBELET_LEFT || WT100_GOBELET_FRONT) && led_on == TRUE){
+		if(WT100_GOBELET_RIGHT || WT100_GOBELET_LEFT || WT100_GOBELET_FRONT){
+			if(led_on == FALSE){
+				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+				led_on = TRUE;
+			}
+		}else if(led_on == TRUE){
 			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
 			led_on = FALSE;
 		}
