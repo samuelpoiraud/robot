@@ -131,7 +131,7 @@ bool_e POP_COLLECT_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&POP_COLLECT_RIGHT_run_command, 3, (SELFTEST_action_t[]){
+		SELFTEST_set_actions(&POP_COLLECT_RIGHT_run_command, 24, 3, (SELFTEST_action_t[]){
 								 {ACT_POP_COLLECT_RIGHT_CLOSED,		0,  QUEUE_ACT_AX12_POP_COLLECT_RIGHT},
 								 {ACT_POP_COLLECT_RIGHT_OPEN,		0,  QUEUE_ACT_AX12_POP_COLLECT_RIGHT},
 								 {ACT_POP_COLLECT_RIGHT_CLOSED,		0,  QUEUE_ACT_AX12_POP_COLLECT_RIGHT}

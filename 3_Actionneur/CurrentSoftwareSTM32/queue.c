@@ -19,6 +19,7 @@
 #define LOG_PREFIX "queue: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_QUEUE
 #include "QS/QS_outputlog.h"
+#include "QS/QS_CANmsgList.h"
 #define component_printf_global(log_level, format, ...) component_printf(log_level, "[all] " format, ## __VA_ARGS__)
 #define component_printf_queue(log_level, queueId, format, ...) component_printf(log_level, "[%d] " format, queueId, ## __VA_ARGS__)
 #define component_printf_sem(log_level, queueId, semId, format, ...) component_printf(log_level, "[%d,s%d] " format, queueId, semId, ## __VA_ARGS__)
@@ -45,8 +46,6 @@ typedef struct{
 	bool_e used;
 	bool_e error_occured;
 } queue_t;
-
-
 
 /*Sémaphore pour l'utilisation des actionneurs et la synchronisation des files entre elles:
  * -Token utilisé ou non
@@ -411,4 +410,17 @@ void QUEUE_wait_synchro(queue_id_t thisa, bool_e init)
 			QUEUE_flush(thisa);
 		}
 	}
+}
+
+void QUEUE_wait_time(queue_id_t queueId, bool_e init){
+	if(QUEUE_has_error(queueId)) {
+		QUEUE_behead(queueId);
+		return;
+	}
+
+	if(init)
+		QUEUE_get_arg(queueId)->param = (Sint16)(global.absolute_time/100);
+	else if(global.absolute_time - QUEUE_get_arg(queueId)->param > QUEUE_get_arg(queueId)->canCommand*100)
+		QUEUE_next(queueId, 0, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+
 }
