@@ -59,6 +59,7 @@ void ELEVATOR_init() {
 	dcconfig.Ki2 = ELEVATOR_KI2;
 	dcconfig.Kd2 = ELEVATOR_KD2;
 	dcconfig.pos[0] = 0;
+	dcconfig.speed[0] = 0;
 	dcconfig.pwm_number = ELEVATOR_PWM_NUM;
 	dcconfig.way_latch = ELEVATOR_PORT_WAY;
 	dcconfig.way_bit_number = ELEVATOR_PORT_WAY_BIT;
@@ -101,7 +102,7 @@ void ELEVATOR_state_machine(){
 			break;
 
 		case INIT_POS:
-			DCM_setPosValue(ELEVATOR_ID, 0, ACT_ELEVATOR_INIT_POS);
+			DCM_setPosValue(ELEVATOR_ID, 0, ACT_ELEVATOR_INIT_POS, ACT_ELEVATOR_SPEED);
 			DCM_goToPos(ELEVATOR_ID, 0);
 			DCM_restart(ELEVATOR_ID);
 			state = WAIT_POS;
@@ -253,7 +254,7 @@ static void ELEVATOR_command_init(queue_id_t queueId) {
 		return;
 	}
 
-	DCM_setPosValue(ELEVATOR_ID, 0, *dcm_goalPosition);
+	DCM_setPosValue(ELEVATOR_ID, 0, *dcm_goalPosition, ACT_ELEVATOR_SPEED);
 	DCM_goToPos(ELEVATOR_ID, 0);
 	DCM_restart(ELEVATOR_ID);
 	debug_printf("Placement en position %d du moteur DC lancé\n", *dcm_goalPosition);
