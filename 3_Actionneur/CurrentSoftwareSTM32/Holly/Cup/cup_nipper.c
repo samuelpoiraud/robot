@@ -65,6 +65,7 @@ void CUP_NIPPER_init() {
 	dcconfig.Ki2 = CUP_NIPPER_KI2;
 	dcconfig.Kd2 = CUP_NIPPER_KD2;
 	dcconfig.pos[0] = 0;
+	dcconfig.speed[0] = 0;
 	dcconfig.pwm_number = CUP_NIPPER_PWM_NUM;
 	dcconfig.way_latch = CUP_NIPPER_PORT_WAY;
 	dcconfig.way_bit_number = CUP_NIPPER_PORT_WAY_BIT;
@@ -107,7 +108,7 @@ void CUP_NIPPER_state_machine(){
 			break;
 
 		case INIT_POS:
-			DCM_setPosValue(CUP_NIPPER_ID, 0, CUP_NIPPER_DCM_INIT_POS);
+			DCM_setPosValue(CUP_NIPPER_ID, 0, CUP_NIPPER_DCM_INIT_POS, CUP_NIPPER_DCM_SPEED);
 			DCM_goToPos(CUP_NIPPER_ID, 0);
 			DCM_restart(CUP_NIPPER_ID);
 			state = WAIT_POS;
@@ -319,7 +320,7 @@ static void CUP_NIPPER_DCM_command_init(queue_id_t queueId) {
 		return;
 	}
 
-	DCM_setPosValue(CUP_NIPPER_ID, 0, *dcm_goalPosition);
+	DCM_setPosValue(CUP_NIPPER_ID, 0, *dcm_goalPosition, CUP_NIPPER_DCM_SPEED);
 	DCM_goToPos(CUP_NIPPER_ID, 0);
 	DCM_restart(CUP_NIPPER_ID);
 	debug_printf("Placement en position %d du moteur DC lancé\n", *dcm_goalPosition);

@@ -39,6 +39,7 @@
 		Uint16 cmd_time;			// temps depuis la reception de la commande, en ms
 		Uint8 posToGo;				// consigne, en numero de position actionneur
 		Uint8 current_cmd;			// commande PWM actuelle
+		Uint16 wanted_pos;			// Position voulue
 		Sint16 previous_error;		// valeur de l'erreur à l'appel précédent du PID, pour calcul du terme derivé
 		init_state_e init_state;	// flag indiquant si le moteur a été configuré
 	}DCMotor_t;
@@ -89,6 +90,7 @@ void DCM_config (Uint8 dc_motor_id, DCMotor_config_t* config)
 	this->cmd_time=0;
 	this->posToGo=0;
 	this->current_cmd=0;
+	this->wanted_pos=0;
 	this->previous_error=0;
 
 	this->init_state=INITIALIZED;
@@ -141,10 +143,11 @@ void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos)
 /*-----------------------------------------
 		Changement de la valeur d'une position
 -----------------------------------------*/
-void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value) {
+void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 value_pos, Uint16 value_speed) {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
-	this->config.pos[pos_to_update] = new_value;
+	this->config.pos[pos_to_update] = value_pos;
+	this->config.speed[pos_to_update] = value_speed;
 	if(this->posToGo == pos_to_update) {
 		this->cmd_time = 0;
 		this->cmd_state = DCM_WORKING;
@@ -158,6 +161,15 @@ Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get) {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
 	return this->config.pos[pos_to_get];
+}
+
+/*-----------------------------------------
+		Récupération de la vitesse pour une position
+-----------------------------------------*/
+Uint16 DCM_getPosSpeed(Uint8 dc_motor_id, Uint8 pos_to_get) {
+	DCMotor_t* this = &(DCMotors[dc_motor_id]);
+	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
+	return this->config.speed[pos_to_get];
 }
 
 /*-----------------------------------------
@@ -306,6 +318,7 @@ void DCM_restart(Uint8 dc_motor_id)
 		this->cmd_time = 0;
 		this->cmd_state = DCM_WORKING;
 		this->init_state = INITIALIZED;
+		this->wanted_pos = this->config.sensor_read();
 	}
 }
 
@@ -344,8 +357,21 @@ void DCM_process_it()
 
 		if (this->init_state == INITIALIZED)
 		{
+			// Gestion de la vitesse de la mise en position de l'actionneur
+			if(config->speed[this->posToGo] == 0)
+				this->wanted_pos = config->pos[this->posToGo];
+			if(this->wanted_pos > config->pos[this->posToGo]){
+				this->wanted_pos -= config->speed[this->posToGo];
+				if(this->wanted_pos < config->pos[this->posToGo])
+					this->wanted_pos = config->pos[this->posToGo];
+			}else if(this->wanted_pos < config->pos[this->posToGo]){
+				this->wanted_pos += config->speed[this->posToGo];
+				if(this->wanted_pos > config->pos[this->posToGo])
+					this->wanted_pos = config->pos[this->posToGo];
+			}
+
 			// Acquisition de la position pour la détection de l'arrêt du moteur
-			error = config->pos[this->posToGo]-(config->sensor_read)();
+			error = this->wanted_pos-(config->sensor_read)();
 
 			//Gestion des changements d'états
 			switch(this->cmd_state) {
@@ -372,7 +398,7 @@ void DCM_process_it()
 				PWM_stop(config->pwm_number);
 			} else {
 
-				if(this->config.double_PID == FALSE ||  config->pos[this->posToGo] < (config->sensor_read)()){
+				if(this->config.double_PID == FALSE ||  this->wanted_pos < (config->sensor_read)()){
 
 					// Asservissement PID
 					/* integration si on n'est pas en saturation de commande (permet de désaturer plus vite) */

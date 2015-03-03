@@ -32,6 +32,7 @@
 			sensor_read_fun_t sensor_read;	//fonction a exectuer pour obtenir la position courante
 			Uint8 pwm_number;				// numero de la sortie PWM à utiliser (conformément à PWM_run(...))
 			Sint16 pos[DCMOTOR_NB_POS];		// valeurs de l'adc pour les différentes positions de l'actionneur
+			Uint16 speed[DCMOTOR_NB_POS];	// valeurs de la vitesse à laquel l'ont veut se rendre à la position en unité de capteur / temps de l'IT appellante de DCM_process_it
 			Uint8 way0_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens à 0
 			Uint8 way1_max_duty;			// rapport cyclique maximum de la pwm avec le bit sens à 1
 			bool_e double_PID;				// TRUE si utilisation du double PID
@@ -60,10 +61,13 @@
 		void DCM_config ( Uint8 dc_motor_id, DCMotor_config_t* config);
 
 		//Change la valeur d'une position sans arrêter l'asservissement. Si le moteur était asservi à cette position, l'asservissement prend en compte le changement
-		void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 new_value);
+		void DCM_setPosValue(Uint8 dc_motor_id, Uint8 pos_to_update, Sint16 value_pos, Uint16 value_speed);
 
 		//Récupère la valeur d'une position
 		Sint16 DCM_getPosValue(Uint8 dc_motor_id, Uint8 pos_to_get);
+
+		//Récupère la vitesse pour une position
+		Uint16 DCM_getPosSpeed(Uint8 dc_motor_id, Uint8 pos_to_get);
 
 		// Change si le moteur fonctionne en double PID
 		void DCM_setDoublePID(Uint8 dc_motor_id, bool_e double_PID);
