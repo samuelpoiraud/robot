@@ -56,7 +56,7 @@ bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 	return TRUE;
 }
 
-void SELFTEST_set_actions(action_t action, Uint8 action_num, const SELFTEST_action_t actions[]) {
+void SELFTEST_set_actions(action_t action, Uint8 delay, Uint8 action_num, const SELFTEST_action_t actions[]) {
 	Uint8 i, j;
 	queue_id_t queueId = QUEUE_create();
 
@@ -73,6 +73,11 @@ void SELFTEST_set_actions(action_t action, Uint8 action_num, const SELFTEST_acti
 	}
 
 	if(queueId != QUEUE_CREATE_FAILED) {
+
+		if(delay){
+			QUEUE_add(queueId, &QUEUE_wait_time, (QUEUE_arg_t){delay, 0, NULL}, 0);
+		}
+
 		//On cherche les actionneurs à lock, on doit lock un actionneur qu'une seule fois
 		for(i = 0; i < action_num; i++) {
 			bool_e already_locked = FALSE;

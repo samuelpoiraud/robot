@@ -191,7 +191,7 @@ bool_e ELEVATOR_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&ELEVATOR_run_command, 3, (SELFTEST_action_t[]){
+		SELFTEST_set_actions(&ELEVATOR_run_command, 0, 3, (SELFTEST_action_t[]){
 								 {ACT_ELEVATOR_BOT,		0,  QUEUE_ACT_ELEVATOR},
 								 {ACT_ELEVATOR_TOP,		0,  QUEUE_ACT_ELEVATOR},
 								 {ACT_ELEVATOR_BOT,		0,  QUEUE_ACT_ELEVATOR}

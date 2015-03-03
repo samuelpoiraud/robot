@@ -130,7 +130,7 @@ bool_e PINCE_GAUCHE_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&PINCE_GAUCHE_run_command, 3, (SELFTEST_action_t[]){
+		SELFTEST_set_actions(&PINCE_GAUCHE_run_command, 6, 3, (SELFTEST_action_t[]){
 								 {ACT_PINCE_GAUCHE_CLOSED,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
 								 {ACT_PINCE_GAUCHE_OPEN,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
 								 {ACT_PINCE_GAUCHE_CLOSED,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE}

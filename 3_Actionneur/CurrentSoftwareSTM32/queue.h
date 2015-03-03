@@ -116,4 +116,6 @@ void QUEUE_sem_delete(queue_id_t thisa, bool_e init);
 /*Attend la synchronisation*/
 void QUEUE_wait_synchro(queue_id_t thisa, bool_e init);
 
+void QUEUE_wait_time(queue_id_t queueId, bool_e init);
+
 #endif /* ndef QUEUE_H */

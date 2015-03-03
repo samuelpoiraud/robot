@@ -195,7 +195,7 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 
 		case ACT_DO_SELFTEST :
 			// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-			SELFTEST_set_actions(&PINCEMI_run_command, 6, (SELFTEST_action_t[]){
+			SELFTEST_set_actions(&PINCEMI_run_command, 3, 6, (SELFTEST_action_t[]){
 								 {ACT_PINCEMI_RIGHT_CLOSE,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT},
 								 {ACT_PINCEMI_RIGHT_OPEN,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT},
 								 {ACT_PINCEMI_RIGHT_CLOSE,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT},
@@ -203,23 +203,6 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 								 {ACT_PINCEMI_LEFT_OPEN,		0,  QUEUE_ACT_RX24_PINCEMI_LEFT},
 								 {ACT_PINCEMI_LEFT_CLOSE,		0,  QUEUE_ACT_RX24_PINCEMI_LEFT}
 							 });
-			break;
-
-		case ACT_PINCEMI_PRESENCE :
-			if(msg->data[0] == PINCEMI_PRESENCE_RIGHT){
-				if(PINCEMI_RIGHT_SENSOR)
-					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_PRESENT | STRAT_INFORM_PINCEMI_RIGHT});
-				else
-					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_ABSENT | STRAT_INFORM_PINCEMI_RIGHT});
-			}else if(msg->data[0] == PINCEMI_PRESENCE_LEFT){
-				if(PINCEMI_LEFT_SENSOR)
-					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_PRESENT | STRAT_INFORM_PINCEMI_LEFT});
-				else
-					CAN_direct_send(STRAT_INFORM_PINCEMI, 1, (Uint8[]){STRAT_INFORM_PINCEMI_ABSENT | STRAT_INFORM_PINCEMI_LEFT});
-			}
-
-			return TRUE;
-
 			break;
 	}
 

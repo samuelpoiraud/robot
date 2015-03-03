@@ -250,7 +250,7 @@ bool_e CUP_NIPPER_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&CUP_NIPPER_run_command, 6, (SELFTEST_action_t[]){
+		SELFTEST_set_actions(&CUP_NIPPER_run_command, 18, 6, (SELFTEST_action_t[]){
 								 {ACT_CUP_NIPPER_OPEN,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
 								 {ACT_CUP_NIPPER_CLOSE,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
 								 {ACT_CUP_NIPPER_OPEN,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
