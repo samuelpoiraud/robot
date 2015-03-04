@@ -47,12 +47,6 @@
 //////////////// HOLLY /////////////////
 ////////////////////////////////////////
 
-/*typedef enum {
-	ACT_TORCH_Locker_Lock = ACT_TORCH_LOCKER_LOCK,
-	ACT_TORCH_Locker_Unlock = ACT_TORCH_LOCKER_UNLOCK,
-	ACT_TORCH_Locker_Inside = ACT_TORCH_LOCKER_INSIDE,
-	ACT_TORCH_Locker_Stop = ACT_TORCH_LOCKER_STOP
-} ACT_torch_locker_cmd_e;*/
 
 typedef enum {
 	ACT_pop_collect_left_closed = ACT_POP_COLLECT_LEFT_CLOSED,
@@ -221,8 +215,6 @@ typedef enum {
 
 // -------------------------------- Fonctions de pilotage des actionneurs
 
-//bool_e ACT_torch_locker(ACT_torch_locker_cmd_e cmd);
-
 // Holly
 bool_e ACT_pop_collect_left(ACT_pop_collect_left_cmd_e cmd);
 bool_e ACT_pop_collect_right(ACT_pop_collect_right_cmd_e cmd);
@@ -258,21 +250,21 @@ bool_e ACT_clap(ACT_clap_cmd_e cmd);
 
 bool_e ACT_pop_drop_left_wood(ACT_pop_drop_left_Wood_cmd_e cmd);
 bool_e ACT_pop_drop_right_wood(ACT_pop_drop_right_Wood_cmd_e cmd);
+
 // Common
 
 
 // -------------------------------- Fonctions de pilotage haut niveau des actionneurs (avec machine à état intégré)
 
 // Holly
-/**
- * @brief ACT_pincemi_right_presence
- * @return :	END_OK				-> pied présent dans la pince
- *				END_WITH_TIMEOUT	-> pas de réponse actionneur
- *				NOT_HANDLED			-> pied NON présent dans la pince
- *				IN_PROGRESS			-> demande en cours
- */
-error_e ACT_pincemi_right_presence();
 
+
+
+// Wood
+
+
+
+// Common
 /**
  * @brief ACT_sensor_....
  * @return :	END_OK				-> Le capteur détecte une présence
@@ -286,11 +278,6 @@ error_e ACT_sensor_gobelet_front_wood();
 error_e ACT_sensor_gobelet_holly();
 
 void ACT_sensor_answer(CAN_msg_t* msg);
-// Wood
-
-// Common
-
-
 // -------------------------------- Fonctions de configuration des actionneurs
 /*
  * Entrer le sid de l'actionneur à paramètrer (Liste des sid dans QS_CANmsgList.h)
