@@ -547,8 +547,12 @@ void SECRETARY_send_selftest_result(bool_e result)
 		msg.data[i++] = SELFTEST_PROP_FAILED;
 	if(HOKUYO_is_working_well() == FALSE)
 		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED;
-	if(ADC_getValue(SCAN_CUP_SENSOR) < 15)
-		msg.data[i++] = SELFTEST_PROP_SENSOR_CUP;
+	if(QS_WHO_AM_I_get() == SMALL_ROBOT){
+		if(ADC_getValue(SCAN_CUP_SENSOR_LEFT) > 15)
+			msg.data[i++] = SELFTEST_PROP_SENSOR_CUP_LEFT;
+		if(ADC_getValue(SCAN_CUP_SENSOR_RIGHT) > 15)
+			msg.data[i++] = SELFTEST_PROP_SENSOR_CUP_RIGHT;
+	}
 
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 		msg.data[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;

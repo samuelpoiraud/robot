@@ -494,6 +494,8 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_XBEE,
 		TEST_RTC,
 		TEST_MEASURE24,
+		TEST_ESTRADE_SENSOR_RIGHT,
+		TEST_ESTRADE_SENSOR_LEFT,
 		TEST_SWITCHS,
 		TEST_SD_CARD,
 		FAIL,
@@ -559,7 +561,7 @@ error_e SELFTEST_strategy(bool_e reset)
 #ifdef FDP_2014
 			state = TEST_MEASURE24;
 #else
-			state = TEST_SD_CARD;
+			state = TEST_ESTRADE_SENSOR_RIGHT;
 #endif
 			break;
 		case TEST_MEASURE24:
@@ -569,10 +571,22 @@ error_e SELFTEST_strategy(bool_e reset)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_NO_24V);
 			else if(battery_level < THRESHOLD_BATTERY_LOW)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_LOW);
+			state = TEST_ESTRADE_SENSOR_RIGHT;
+			break;
+
+		case TEST_ESTRADE_SENSOR_RIGHT:
+			if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT > 15))
+				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT);
 			state = TEST_SWITCHS;
 			break;
-		case TEST_SWITCHS:
 
+		case TEST_ESTRADE_SENSOR_LEFT:
+			if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT > 15))
+				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_LEFT);
+			state = TEST_SWITCHS;
+			break;
+
+		case TEST_SWITCHS:
 
 			if(IHM_switchs_get(SWITCH_DISABLE_POPCORN))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_POPCORN_DISABLED);
 			if(IHM_switchs_get(SWITCH_DISABLE_LEFT_PUMP))	SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED);
@@ -640,10 +654,17 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");				break;
 				case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			debug_printf("SELFTEST_PROP_IN_LCD_TOUCH_MODE");				break;
 				case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		debug_printf("SELFTEST_PROP_SWITCH_ASSER_DISABLE");				break;
-				case SELFTEST_PROP_SENSOR_CUP:					debug_printf("SELFTEST_PROP_SENSOR_CUP");						break;
+				case SELFTEST_PROP_SENSOR_CUP_RIGHT:			debug_printf("SELFTEST_PROP_SENSOR_CUP_RIGHT");					break;
+				case SELFTEST_PROP_SENSOR_CUP_LEFT:				debug_printf("SELFTEST_PROP_SENSOR_CUP_LEFT");					break;
 
 				case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	debug_printf("SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE");		break;
 				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
+				case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_POPCORN_DISABLED");			break;
+				case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED");		break;
+				case SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED");		break;
+				case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_CLAPS_DISABLED");			break;
+				case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_CARPETS_DISABLED");			break;
+				case SELFTEST_STRAT_SWITCH_LIFT_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_LIFT_DISABLED");			break;
 				case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE:debug_printf("SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE");	break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");								break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");					break;
@@ -651,6 +672,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
 				case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_STRAT_BIROUTE_FORGOTTEN");				break;
 				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");					break;
+				case SELFTEST_STRAT_ESTRADE_SENSOR_LEFT:		debug_printf("SELFTEST_STRAT_ESTRADE_SENSOR_LEFT");				break;
+				case SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT:		debug_printf("SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT");			break;
 
 				case SELFTEST_IHM_BATTERY_NO_24V:				debug_printf("SELFTEST_IHM_BATTERY_NO_24V");					break;
 				case SELFTEST_IHM_BATTERY_LOW:					debug_printf("SELFTEST_IHM_BATTERY_LOW");						break;
@@ -941,7 +964,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
 		case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			return "PROP in LCD T mode"; 	break;
 		case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		return "Asser Switch disable"; 	break;
-		case SELFTEST_PROP_SENSOR_CUP:					return "PROP Sensor Cup";		break;
+		case SELFTEST_PROP_SENSOR_CUP_RIGHT:			return "PROP Sensor Cup right";	break;
+		case SELFTEST_PROP_SENSOR_CUP_LEFT:				return "PROP Sensor Cup left";	break;
 
 		case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	return "Evit Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		return "XBee Switch disable";	break;
@@ -957,6 +981,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";			break;
 		case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			return "Biroute Forgotten"; 	break;
 		case SELFTEST_STRAT_SD_WRITE_FAIL:				return "SD Write FAIL";			break;
+		case SELFTEST_STRAT_ESTRADE_SENSOR_LEFT:		return "Estrade sensor left";	break;
+		case SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT:		return "Estrade sensor right";	break;
 
 		case SELFTEST_IHM_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_IHM_BATTERY_LOW:					return "BATTERY LOW";			break;

@@ -157,8 +157,11 @@
 	#define USE_FIFO
 
 /* Réglages ADC */
-	#define USE_AN11
-	#define USE_AN12
+	#define USE_AN11		// Capteur cup left
+	#define USE_AN12		// Capteur cup right
+	#define SCAN_CUP_SENSOR_LEFT			ADC_11
+	#define SCAN_CUP_SENSOR_RIGHT			ADC_12
+
 
 #include "../_Propulsion_config.h"
 

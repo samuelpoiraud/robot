@@ -32,6 +32,7 @@
 		#include "stm32f4xx_rcc.h"
 	#endif
 #include "QS/QS_IHM.h"
+#include "QS/QS_adc.h"
 #include "act_avoidance.h"
 
 
@@ -267,7 +268,7 @@ static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(!global.env.match_started){
 		if(QS_WHO_AM_I_get() == BIG_ROBOT){
-			if(RECALAGE_1 || RECALAGE_2 || RECALAGE_3 || RECALAGE_4 || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY){
+			if(RECALAGE_1 || RECALAGE_2 || RECALAGE_3 || RECALAGE_4 || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY || ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 50 || ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) < 50){
 				if(led_on == FALSE){
 					IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 					led_on = TRUE;
