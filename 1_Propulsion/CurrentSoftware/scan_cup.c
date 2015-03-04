@@ -139,7 +139,7 @@ void SCAN_CUP_process_it(){
 
 		case SCAN_LINEAR:
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
-				Sint16 ADC_Value = ADC_getValue(SCAN_CUP_SENSOR);
+				Sint16 ADC_Value = ADC_getValue(SCAN_CUP_SENSOR_LEFT);
 				mesure_en_cours.dist = conversion_capteur(ADC_Value);
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;

@@ -119,13 +119,12 @@
 
 
 /* Réglages entrées analogiques */
-	#define USE_ANALOG_EXT_VREF
-	#define USE_AN8
-	#define ADC_CHANNEL_MEASURE24	ADC_8
-	//#define USE_AN12			// Fresque 2 et 3 // Changement fresque 3 sur PB1
-	#define ADC_SENSOR_BIG_XUK_RIGHT	ADC_14
+	#define USE_AN8				// Capteur mesure 24V
+	#define USE_AN13			// Capteur laser estrade right
+	#define USE_AN14			// Capteur laser estrade left
+	#define ADC_CHANNEL_MEASURE24		ADC_8
+	#define ADC_SENSOR_BIG_XUK_RIGHT	ADC_13
 	#define ADC_SENSOR_BIG_XUK_LEFT		ADC_14
-	#define USE_AN14			// Capteur laser torche
 
 /* Réglages XBEE */
 	#define USE_XBEE

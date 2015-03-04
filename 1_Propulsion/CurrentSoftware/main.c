@@ -12,6 +12,18 @@
  */
 
 #include "main.h"
+#include "QS/QS_ports.h"
+#include "QS/QS_uart.h"
+#include "QS/QS_buttons.h"
+#include "QS/QS_CANmsgList.h"
+#include "QS/QS_who_am_i.h"
+#include "QS/QS_outputlog.h"
+#include "QS/QS_watchdog.h"
+#include "QS/QS_can.h"
+#include "QS/QS_sys.h"
+#include "QS/QS_systick.h"
+#include "QS/QS_adc.h"
+#include "QS/QS_IHM.h"
 #include "odometry.h"
 #include "copilot.h"
 #include "pilot.h"
@@ -23,16 +35,6 @@
 #include "sequences.h"
 #include "debug.h"
 #include "joystick.h"
-#include "QS/QS_ports.h"
-#include "QS/QS_uart.h"
-#include "QS/QS_buttons.h"
-#include "QS/QS_CANmsgList.h"
-#include "QS/QS_who_am_i.h"
-#include "QS/QS_outputlog.h"
-#include "QS/QS_watchdog.h"
-#include "QS/QS_can.h"
-#include "QS/QS_sys.h"
-#include "QS/QS_systick.h"
 #include "hokuyo.h"
 #include "gyroscope.h"
 #include "detection.h"
@@ -317,14 +319,16 @@ static void MAIN_global_var_init(){
 static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(!global.match_started){
-		if(ADC_getValue(ADC_11) < 50 || ADC_getValue(ADC_12) < 50){
-			if(led_on == FALSE){
-				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
-				led_on = TRUE;
+		if(QS_WHO_AM_I_get() == SMALL_ROBOT){
+			if(ADC_getValue(SCAN_CUP_SENSOR_LEFT) < 50 || ADC_getValue(SCAN_CUP_SENSOR_RIGHT) < 50){
+				if(led_on == FALSE){
+					IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+					led_on = TRUE;
+				}
+			}else if(led_on == TRUE){
+				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
+				led_on = FALSE;
 			}
-		}else if(led_on == TRUE){
-			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
-			led_on = FALSE;
 		}
 	}
 }
