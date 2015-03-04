@@ -19,12 +19,12 @@
 	#define PINCE_GAUCHE_AX12_MAX_TORQUE_PERCENT		100		// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 
 //Position
-	#define PINCE_GAUCHE_AX12_IDLE_POS					77		//en degré
+	#define PINCE_GAUCHE_AX12_CLOSE_POS					77		//en degré
 	#define PINCE_GAUCHE_AX12_MID_POS					102		//en degré 25° de diff avec IDLE POS
-	#define PINCE_GAUCHE_AX12_DEPLOYED_POS				144		//en degré
+	#define PINCE_GAUCHE_AX12_OPEN_POS					144		//en degré
 
 //Position initiale de l'AX12
-	#define PINCE_GAUCHE_AX12_INIT_POS					PINCE_GAUCHE_AX12_IDLE_POS
+	#define PINCE_GAUCHE_AX12_INIT_POS					PINCE_GAUCHE_AX12_CLOSE_POS
 
 //Extremum valeur
 	#define PINCE_GAUCHE_AX12_MAX_VALUE					300

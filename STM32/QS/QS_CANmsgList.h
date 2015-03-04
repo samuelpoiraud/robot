@@ -873,40 +873,35 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 
 	/////////////////PINCE GAUCHE//////////////////
 	ACT_PINCE_GAUCHE = (ACT_FILTER | 0x30),
-		#define ACT_PINCE_GAUCHE_IDLE				0x11
-		#define ACT_PINCE_GAUCHE_CLOSED				0x12
-		#define ACT_PINCE_GAUCHE_MID_POS			0x13
-		#define ACT_PINCE_GAUCHE_OPEN				0x14
-		#define ACT_PINCE_GAUCHE_STOP				0x15
+		#define ACT_PINCE_GAUCHE_CLOSED				0x11
+		#define ACT_PINCE_GAUCHE_MID_POS			0x12
+		#define ACT_PINCE_GAUCHE_OPEN				0x13
+		#define ACT_PINCE_GAUCHE_STOP				0x14
 
 	/////////////////PINCE DROITE//////////////////
 	ACT_PINCE_DROITE = (ACT_FILTER | 0x31),
-		#define ACT_PINCE_DROITE_IDLE				0x11
-		#define ACT_PINCE_DROITE_OPEN				0x12
-		#define ACT_PINCE_DROITE_MID_POS			0x13
-		#define ACT_PINCE_DROITE_CLOSED				0x14
-		#define ACT_PINCE_DROITE_STOP				0x15
+		#define ACT_PINCE_DROITE_OPEN				0x11
+		#define ACT_PINCE_DROITE_MID_POS			0x12
+		#define ACT_PINCE_DROITE_CLOSED				0x13
+		#define ACT_PINCE_DROITE_STOP				0x14
 
 	//////////////////CLAP/////////////////////////
 	ACT_CLAP = (ACT_FILTER | 0x33),
-		#define ACT_CLAP_IDLE						0x11
-		#define ACT_CLAP_OPEN						0x12
-		#define ACT_CLAP_CLOSED						0x13
-		#define ACT_CLAP_STOP						0x14
+		#define ACT_CLAP_OPEN						0x11
+		#define ACT_CLAP_CLOSED						0x12
+		#define ACT_CLAP_STOP						0x13
 
 	////////////POP DROP LEFT WOOD////////////////
 	ACT_POP_DROP_LEFT_WOOD = (ACT_FILTER | 0x40),
-		#define ACT_POP_DROP_LEFT_WOOD_IDLE		    0x11
-		#define ACT_POP_DROP_LEFT_WOOD_OPEN			0x12
-		#define ACT_POP_DROP_LEFT_WOOD_CLOSED		0x13
-		#define ACT_POP_DROP_LEFT_WOOD_STOP 		0x14
+		#define ACT_POP_DROP_LEFT_WOOD_OPEN			0x11
+		#define ACT_POP_DROP_LEFT_WOOD_CLOSED		0x12
+		#define ACT_POP_DROP_LEFT_WOOD_STOP 		0x13
 
 	////////////POP DROP LEFT WOOD////////////////
 	ACT_POP_DROP_RIGHT_WOOD = (ACT_FILTER | 0x41)
-		#define ACT_POP_DROP_RIGHT_WOOD_IDLE		0x11
-		#define ACT_POP_DROP_RIGHT_WOOD_OPEN		0x12
-		#define ACT_POP_DROP_RIGHT_WOOD_CLOSED		0x13
-		#define ACT_POP_DROP_RIGHT_WOOD_STOP 		0x14
+		#define ACT_POP_DROP_RIGHT_WOOD_OPEN		0x11
+		#define ACT_POP_DROP_RIGHT_WOOD_CLOSED		0x12
+		#define ACT_POP_DROP_RIGHT_WOOD_STOP 		0x13
 
 
 
