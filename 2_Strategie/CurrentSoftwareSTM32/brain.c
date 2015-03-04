@@ -17,6 +17,7 @@
 #include "clock.h"
 #include "button.h"	//pour SWITCH_change_color
 #include "environment.h"
+#include "Pathfind.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"
 #include "QS/QS_who_am_i.h"
@@ -138,6 +139,7 @@ void any_match(void)
 			CAN_send_sid(BROADCAST_START);
 			Supervision_send_periodically_pos(20,PI4096/45);	//Demande d'envoi de la position : tout les 20 mm et tout les 4°
 			XBEE_ping_pong_enable(FALSE);						//Désactive le ping/pong... c'est trop tard pour ça...
+			PATHFIND_MAJ_COLOR();								// Configuration du pathfind spécifique à la couleur
 			return;
 		}
 

@@ -109,6 +109,9 @@ typedef struct {
 	//Uint16 cost;
 } pathfind_node_t;
 
+// Fonction a appelée au début de match afin de faire la configuration de pathfind spécifique à la couleur
+void PATHFIND_MAJ_COLOR();
+
 // Fonction a appelée si l'on veut se déplacer sur un node
 Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, PROP_speed_e speed, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
