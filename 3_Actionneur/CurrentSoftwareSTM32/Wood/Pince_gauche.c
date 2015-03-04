@@ -164,8 +164,8 @@ static void PINCE_GAUCHE_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_PINCE_GAUCHE_CLOSED : *ax12_goalPosition = PINCE_GAUCHE_AX12_IDLE_POS; break;
-		case ACT_PINCE_GAUCHE_OPEN : *ax12_goalPosition = PINCE_GAUCHE_AX12_DEPLOYED_POS; break;
+		case ACT_PINCE_GAUCHE_CLOSED : *ax12_goalPosition = PINCE_GAUCHE_AX12_CLOSE_POS; break;
+		case ACT_PINCE_GAUCHE_OPEN : *ax12_goalPosition = PINCE_GAUCHE_AX12_OPEN_POS; break;
 		case ACT_PINCE_GAUCHE_MID_POS : *ax12_goalPosition = PINCE_GAUCHE_AX12_MID_POS; break;
 
 		case ACT_PINCE_GAUCHE_STOP :

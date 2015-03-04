@@ -134,7 +134,6 @@ bool_e POP_DROP_LEFT_WOOD_CAN_process_msg(CAN_msg_t* msg) {
 		POP_DROP_LEFT_WOOD_initAX12();
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
-			case ACT_POP_DROP_LEFT_WOOD_IDLE :
 			case ACT_POP_DROP_LEFT_WOOD_OPEN :
 			case ACT_POP_DROP_LEFT_WOOD_CLOSED :
 			case ACT_POP_DROP_LEFT_WOOD_STOP :
@@ -186,9 +185,8 @@ static void POP_DROP_LEFT_WOOD_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_POP_DROP_LEFT_WOOD_IDLE : *ax12_goalPosition = POP_DROP_LEFT_WOOD_AX12_IDLE_POS; break;
-		case ACT_POP_DROP_LEFT_WOOD_OPEN : *ax12_goalPosition = POP_DROP_LEFT_WOOD_AX12_DEPLOYED_POS; break;
-		case ACT_POP_DROP_LEFT_WOOD_CLOSED : *ax12_goalPosition = POP_DROP_LEFT_WOOD_AX12_IDLE_POS; break;
+		case ACT_POP_DROP_LEFT_WOOD_OPEN : *ax12_goalPosition = POP_DROP_LEFT_WOOD_AX12_OPEN_POS; break;
+		case ACT_POP_DROP_LEFT_WOOD_CLOSED : *ax12_goalPosition = POP_DROP_LEFT_WOOD_AX12_CLOSE_POS; break;
 
 		case ACT_POP_DROP_LEFT_WOOD_STOP :
 			AX12_set_torque_enabled(POP_DROP_LEFT_WOOD_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

@@ -253,14 +253,12 @@ static void MAIN_onButton0() {
 	msg.sid = ACT_PINCE_GAUCHE;
 
 	if(state == 0)
-		msg.data[0] = ACT_PINCE_GAUCHE_IDLE	;
+		msg.data[0] = ACT_PINCE_GAUCHE_OPEN	;
 	else if(state == 1)
 		msg.data[0] = ACT_PINCE_GAUCHE_CLOSED;
-	else if(state == 2)
-		msg.data[0] = ACT_PINCE_GAUCHE_OPEN;
 
 	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
+	state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton1() {

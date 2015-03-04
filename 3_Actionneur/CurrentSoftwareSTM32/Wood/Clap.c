@@ -134,7 +134,7 @@ bool_e CLAP_CAN_process_msg(CAN_msg_t* msg) {
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
 		SELFTEST_set_actions(&CLAP_run_command, 0, 3, (SELFTEST_action_t[]){
 								 {ACT_CLAP_CLOSED,		0,  QUEUE_ACT_AX12_CLAP},
-								 {ACT_CLAP_OPEN,	0,  QUEUE_ACT_AX12_CLAP},
+								 {ACT_CLAP_OPEN,		0,  QUEUE_ACT_AX12_CLAP},
 								 {ACT_CLAP_CLOSED,		0,  QUEUE_ACT_AX12_CLAP}
 							 });
 	}
@@ -166,8 +166,8 @@ static void CLAP_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_CLAP_CLOSED : *ax12_goalPosition = CLAP_AX12_IDLE_POS; break;
-		case ACT_CLAP_OPEN : *ax12_goalPosition = CLAP_AX12_DEPLOYED_POS; break;
+		case ACT_CLAP_CLOSED : *ax12_goalPosition = CLAP_AX12_OPEN_POS; break;
+		case ACT_CLAP_OPEN : *ax12_goalPosition = CLAP_AX12_CLOSE_POS; break;
 
 		case ACT_CLAP_STOP :
 			AX12_set_torque_enabled(CLAP_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
