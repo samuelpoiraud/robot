@@ -26,6 +26,7 @@
 #include "strats_2015/actions_both_2015.h"
 #include "strats_2015/actions_wood.h"
 #include "strats_2015/actions_holly.h"
+#include "strats_2015/actions_tests.h"
 
 #include "high_level_strat.h"
 
