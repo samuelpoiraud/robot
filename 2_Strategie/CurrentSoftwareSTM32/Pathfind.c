@@ -148,6 +148,30 @@ static pathfind_node_list_t closedList;
 //////////////////////////////////////////////////////////////////
 
 /**
+ * @brief PATHFIND_MAJ_COLOR
+ *		Fonction mettant à jours le pathfind en fonction de la couleur au démarrage du match
+ */
+void PATHFIND_MAJ_COLOR(){
+	if(global.env.color == BOT_COLOR){
+		nodes[Z0].neighbors &= ~(1<<1);
+		nodes[Z1].neighbors = 0;
+		nodes[Z2].neighbors = 0;
+		nodes[Z3].neighbors &= ~(1<<21);
+		nodes[Y1].neighbors &= ~((1<<21)|(1<<20));
+		nodes[Y2].neighbors &= ~((1<<21)|(1<<20));
+		nodes[Y3].neighbors &= ~(1<<21);
+	}else{
+		nodes[A0].neighbors &= ~(1<<20);
+		nodes[A1].neighbors = 0;
+		nodes[A2].neighbors = 0;
+		nodes[A3].neighbors &= ~(1<<2);
+		nodes[B1].neighbors &= ~((1<<1)|(1<<2));
+		nodes[B2].neighbors &= ~((1<<1)|(1<<2));
+		nodes[B3].neighbors &= ~(1<<2);
+	}
+}
+
+/**
  * @brief PATHFIND_closestNode
  *		Ancien fonction de sélection du node le plus proche
  *		Pas de prise en compte du point d'arrivé
