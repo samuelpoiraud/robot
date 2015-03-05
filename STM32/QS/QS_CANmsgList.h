@@ -281,6 +281,9 @@
 		#define XBEE_ZONE_LOCK_RESULT    1	//Dans data[1]: la zone concernée, data[2]: TRUE/FALSE suivant si le verouillage à été accepté ou non
 		#define XBEE_ZONE_UNLOCK         2  //Dans data[1]: la zone libérée. Libère une zone qui a été verouillée
 
+	#define XBEE_HOLLY_ASK_PROTECT_NORTH 0x5C0
+	#define XBEE_HOLLY_ASK_PROTECT_SOUTH 0x5C1
+
 	#define XBEE_CAN_WOOD_ACCESS_SCAN		0x5B0
 	#define XBEE_WOOD_ACCESS_SCAN			0x5B1	//Réponse...
 		//data[0]... cf le code qui utilise ces messages.
