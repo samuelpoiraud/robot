@@ -31,7 +31,7 @@
 #define X3					1200
 #define X4					1600
 #define QUANTUM_MESURE		2		//Distance entre deux mesures
-#define RADIUS_CUP			70
+#define RADIUS_CUP			78
 #define NB_POINT_MIN		4
 #define NB_POINT_ELIM       3		// Nombre de points que l'on élimine à chaque extrémitée
 #define BORDER				30
@@ -72,6 +72,8 @@ static Uint8 nb_cupB;
 static Uint8 nb_cupH;
 static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker les indices des tableaux puis les coordonnées des gobelets
 static bool_e run_calcul,end_scan;
+static bool_e error_scan;
+static bool_e cup_detected;
 static color_e color;
 static scan_result_t mesure_en_cours;
 static receve_msg_can_e receve_msg_can;
@@ -117,6 +119,8 @@ void SCAN_CUP_process_it(){
 	Uint8 i;
 	//scan_result_t mesure_en_cours;
 	bool_e last_point=0;
+	error_scan = 0;
+	cup_detected = 0;
 	switch(state){
 
 		case INIT :
@@ -140,6 +144,7 @@ void SCAN_CUP_process_it(){
 		case SCAN_LINEAR:
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
 				Sint16 ADC_Value = ADC_getValue(SCAN_CUP_SENSOR_LEFT);
+				debug_printf("\tValeur mesuree = %d\n",ADC_Value);
 				mesure_en_cours.dist = conversion_capteur(ADC_Value);
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;
@@ -195,6 +200,9 @@ void SCAN_CUP_process_it(){
 					last_point=TRUE;
 					state = END;
 				}
+				debug_printf("###############################################################################\n");
+				debug_printf("\tCentre : {%d,%d}\n",coorCup[i].x,coorCup[i].y);
+				debug_printf("###############################################################################\n");
 				SECRETARY_send_cup_position(last_point,0,1,coorCup[i].x, coorCup[i].y);
 			}
 			break;
@@ -367,7 +375,7 @@ static void detectCenterTWO_CUP(GEOMETRY_point_t salle[], Uint8 nbPoint){
 	}
 	if(cache){  // Cas ou il y a un gobelet qui est cache par un autre
 		detectMaxMinY(salle,nbPoint,&iMax,&iMin);
-		if(iMin <= 5){
+		if(iMin <= 15){
 			indice = 0;
 			indice2 = 0;
 			for(i=nbPoint-1;i>0;i--){
@@ -397,7 +405,7 @@ static void detectCenterTWO_CUP(GEOMETRY_point_t salle[], Uint8 nbPoint){
 				nb_cup++;
 			}
 		}
-		if(iMin >= nbPoint-6){
+		if(iMin >= nbPoint-16){
 			indice = nbPoint-1;
 			indice2 = nbPoint-1;
 			for(i=0;i<nbPoint-1;i++){
