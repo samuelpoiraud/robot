@@ -431,6 +431,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_CUP_POSITION:
 			collect_cup_coord(incoming_msg);
 			break;
+
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
 			ACT_process_result(incoming_msg);
@@ -472,6 +473,14 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 		case XBEE_REACH_POINT_GET_OUT_INIT:
 			global.env.com.reach_point_get_out_init = TRUE;
+			break;
+
+		case XBEE_HOLLY_ASK_PROTECT_NORTH:
+			wood_receive_protect_north(incoming_msg);
+			break;
+
+		case XBEE_HOLLY_ASK_PROTECT_SOUTH:
+			wood_receive_protect_south(incoming_msg);
 			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/

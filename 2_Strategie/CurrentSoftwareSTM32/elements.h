@@ -14,6 +14,12 @@
 		LOST
 	}ELEMENTS_state_s;
 
+	typedef enum{
+		NORTH,
+		SOUTH,
+		SOUTH_AND_NORTH
+	}ELEMENTS_order_s;
+
 	typedef struct{
 		ELEMENTS_state_s state;
 		color_e color;
@@ -48,8 +54,8 @@
 		NB_DISPENSERS
 	}elements_dispenser_e;
 
-	typedef enum
-	{
+	typedef enum	{
+
 		HOLLY_STORAGE_CENTER_CUP,					//HOOLY
 		WOOD_STORAGE_LEFT_CUP,					//WOOD ONLY
 		WOOD_STORAGE_RIGHT_CUP,					//WOOD ONLY
@@ -79,6 +85,8 @@
 		ELEMENTS_ESTRAD_FOOT_TOOK,
 		ELEMENTS_SOUTH_CUP_TOOK,
 		ELEMENTS_SOUTH_CORNER_FEET_TOOK,
+	ELEMENTS_FLAGS_PROTECT_SOUTH,
+		ELEMENTS_FLAGS_PROTECT_NORTH,// Protection du nord
 		ELEMENTS_STEAL_CUP_IN_NORTH_CINEMA,
 		ELEMENTS_STEAL_CUP_IN_SOUTH_CINEMA,
 		ELEMENTS_FLAGS_NB
