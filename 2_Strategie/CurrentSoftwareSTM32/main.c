@@ -152,6 +152,9 @@ int main (void)
 		any_match();
 
 		process_measure_loop_duration();
+
+		/*Communication pour la communication XBEE entre Holly et Wood*/
+		protectWood_processMain();
 	}
 	return 0;
 }
