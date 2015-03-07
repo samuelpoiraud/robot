@@ -475,13 +475,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.env.com.reach_point_get_out_init = TRUE;
 			break;
 
-		case XBEE_HOLLY_ASK_PROTECT_NORTH:
-			wood_receive_protect_north(incoming_msg);
+		case XBEE_HOLLY_ASK_PROTECT:
+			wood_receive_protect();
 			break;
 
-		case XBEE_HOLLY_ASK_PROTECT_SOUTH:
-			wood_receive_protect_south(incoming_msg);
-			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
