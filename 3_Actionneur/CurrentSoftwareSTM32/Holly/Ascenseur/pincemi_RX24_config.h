@@ -24,6 +24,7 @@
 	#define PINCEMIR_RIGHT_CLOSE									50
 	#define PINCEMIR_RIGHT_CLOSE_INNER								150
 	#define PINCEMIR_RIGHT_LOCK										150
+	#define PINCEMIR_RIGHT_UNLOCK									150
 	#define PINCEMIR_RIGHT_OPEN										150
 	#define PINCEMIR_RIGHT_OPEN_GREAT								150
 
@@ -31,6 +32,7 @@
 	#define PINCEMIR_LEFT_CLOSE										50
 	#define PINCEMIR_LEFT_CLOSE_INNER								150
 	#define PINCEMIR_LEFT_LOCK										150
+	#define PINCEMIR_LEFT_UNLOCK									150
 	#define PINCEMIR_LEFT_OPEN										150
 	#define PINCEMIR_LEFT_OPEN_GREAT								150
 
@@ -38,6 +40,7 @@
 	#define PINCEMIL_RIGHT_CLOSE									50
 	#define PINCEMIL_RIGHT_CLOSE_INNER								150
 	#define PINCEMIL_RIGHT_LOCK										150
+	#define PINCEMIL_RIGHT_UNLOCK									150
 	#define PINCEMIL_RIGHT_OPEN										150
 	#define PINCEMIL_RIGHT_OPEN_GREAT								150
 
@@ -45,6 +48,7 @@
 	#define PINCEMIL_LEFT_CLOSE										50
 	#define PINCEMIL_LEFT_CLOSE_INNER								150
 	#define PINCEMIL_LEFT_LOCK										150
+	#define PINCEMIL_LEFT_UNLOCK									150
 	#define PINCEMIL_LEFT_OPEN										150
 	#define PINCEMIL_LEFT_OPEN_GREAT								150
 

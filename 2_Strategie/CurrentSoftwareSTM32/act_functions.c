@@ -375,6 +375,414 @@ bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value){
 }
 
 ////////////////////////////////////////
+//////////////// MAE  //////////////////
+////////////////////////////////////////
+
+error_e ACT_holly_spotix(ACT_holly_spotix_e order, ACT_holly_spotix_side_e who){
+	CREATE_MAE(
+		INIT,
+		COMPUTE_ORDER,
+		FAIL_COMPUTE,
+
+		// Take feet
+		TAKE_FEET,
+		CHECK_PRESENCE_FEET,
+		WIN_TAKE,
+		FAIL_TAKE,
+
+		// Open great
+		MOVE_OTHER_NIPPER,
+		OPEN_GREAT_FEET,
+		WIN_OPEN_GREAT,
+		FAIL_OPEN_GREAT,
+
+		// Stock
+		INIT_STOCK,
+		ELEVATOR_PRE_UP,
+		FAIL_ELEVATOR_PRE_UP,
+		STOCK_UNLOCK,
+		ELEVATOR_UP,
+		FAIL_ELEVATOR_UP_1,
+		FAIL_ELEVATOR_UP_2,
+		STOCK_LOCK,
+		ELEVATOR_DOWN,
+		NIPPER_OPEN,
+		WIN_STOCK,
+		FAIL_STOCK,
+
+		// Release spot
+		UNLOCK_SPOT,
+		RELEASE_SPOT,
+		WIN_RELEASE,
+		FAIL_RELEASE
+	);
+
+	static bool_e right_error = FALSE, left_error = FALSE;
+	static enum state_e state1, state2, state3, state4;
+	error_e ret = IN_PROGRESS;
+
+	switch(state){
+		case INIT:
+			right_error = FALSE;
+			left_error = FALSE;
+			state = COMPUTE_ORDER;
+			break;
+
+		case COMPUTE_ORDER:
+			switch(order){
+
+				case ACT_SPOTIX_TAKE:
+					state = TAKE_FEET;
+					break;
+
+				case ACT_SPOTIX_OPEN_GREAT:
+					if(who != ACT_SPOTIX_BOTH)
+						state = OPEN_GREAT_FEET;
+					else
+						state = FAIL_COMPUTE;
+					break;
+
+				case ACT_SPOTIX_STOCK:
+					state = INIT_STOCK;
+					break;
+
+				case ACT_SPOTIX_RELEASE:
+					state = UNLOCK_SPOT;
+					break;
+			}
+			break;
+
+		case FAIL_COMPUTE:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//--------------------------------------- Take feet
+
+		case TAKE_FEET:
+			if(entrance){
+				state1 = state2 = TAKE_FEET;
+				if(who != ACT_SPOTIX_LEFT)
+					ACT_pincemi_right(ACT_pincemi_right_lock);
+				if(who != ACT_SPOTIX_RIGHT)
+					ACT_pincemi_left(ACT_pincemi_left_lock);
+			}
+
+			if(state1 == TAKE_FEET && who != ACT_SPOTIX_LEFT)
+				state1 = check_act_status(ACT_QUEUE_PinceMi_right, state, CHECK_PRESENCE_FEET, FAIL_TAKE);
+			if(state2 == TAKE_FEET && who != ACT_SPOTIX_RIGHT)
+				state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, CHECK_PRESENCE_FEET, FAIL_TAKE);
+
+			if((who == ACT_SPOTIX_BOTH && state1 != TAKE_FEET && state2 != TAKE_FEET)
+					|| (who == ACT_SPOTIX_LEFT && state2 != TAKE_FEET)
+					|| (who == ACT_SPOTIX_RIGHT && state1 != TAKE_FEET))
+				state = CHECK_PRESENCE_FEET;
+
+			break;
+
+		case CHECK_PRESENCE_FEET:
+			if(who != ACT_SPOTIX_RIGHT && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
+				left_error = TRUE;
+			if(who != ACT_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
+				right_error = TRUE;
+
+			if(left_error || right_error)
+				state = FAIL_TAKE;
+			else
+				state = WIN_TAKE;
+		break;
+
+		case WIN_TAKE:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_TAKE:
+			if(left_error)
+				ACT_pincemi_left(ACT_pincemi_left_open);
+
+			if(right_error)
+				ACT_pincemi_right(ACT_pincemi_right_open);
+
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+
+//--------------------------------------- Take great feet
+
+		case MOVE_OTHER_NIPPER:
+			if(entrance){
+				if(who == ACT_SPOTIX_LEFT){
+					ACT_pincemi_right(ACT_pincemi_right_close_inner);
+				}if(who == ACT_SPOTIX_RIGHT){
+					ACT_pincemi_left(ACT_pincemi_left_close_inner);
+				}
+			}
+
+			if(who == ACT_SPOTIX_LEFT){
+				state = check_act_status(ACT_QUEUE_PinceMi_right, state, OPEN_GREAT_FEET, FAIL_OPEN_GREAT);
+			}
+			if(who == ACT_SPOTIX_RIGHT){
+				state = check_act_status(ACT_QUEUE_PinceMi_left, state, OPEN_GREAT_FEET, FAIL_OPEN_GREAT);
+			}
+			break;
+
+		case OPEN_GREAT_FEET:
+			if(entrance){
+				if(who == ACT_SPOTIX_LEFT){
+					ACT_pincemi_left(ACT_pincemi_left_open_great);
+				}if(who == ACT_SPOTIX_RIGHT){
+					ACT_pincemi_right(ACT_pincemi_right_open_great);
+				}
+			}
+
+			if(who == ACT_SPOTIX_LEFT){
+				state = check_act_status(ACT_QUEUE_PinceMi_right, state, WIN_OPEN_GREAT, FAIL_OPEN_GREAT);
+			}
+			if(who == ACT_SPOTIX_RIGHT){
+				state = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_OPEN_GREAT, FAIL_OPEN_GREAT);
+			}
+			break;
+
+		case WIN_OPEN_GREAT:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_OPEN_GREAT:
+			if(entrance){
+				ACT_pincemi_right(ACT_pincemi_right_open);
+				ACT_pincemi_left(ACT_pincemi_left_open);
+			}
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+
+//--------------------------------------- Stock
+
+		case INIT_STOCK:
+			if(who != ACT_SPOTIX_RIGHT && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
+				left_error = TRUE;
+			if(who != ACT_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
+				right_error = TRUE;
+
+			if(left_error && right_error)
+				state = FAIL_STOCK;
+			else
+				state = ELEVATOR_PRE_UP;
+			break;
+
+		case ELEVATOR_PRE_UP:
+			if(entrance)
+				ACT_elevator(ACT_elevator_pre_top);
+			state = check_act_status(ACT_QUEUE_Elevator, state, STOCK_UNLOCK, FAIL_STOCK);
+			break;
+
+		case FAIL_ELEVATOR_PRE_UP:
+			if(entrance)
+				ACT_elevator(ACT_elevator_bot);
+			state = check_act_status(ACT_QUEUE_Elevator, state, FAIL_STOCK, FAIL_STOCK);
+			break;
+
+		case STOCK_UNLOCK:
+			if(entrance){
+				state1 = state2 = STOCK_UNLOCK;
+				if(who != ACT_SPOTIX_LEFT && !right_error)
+					ACT_stock_right(ACT_stock_right_unlock);
+				if(who != ACT_SPOTIX_RIGHT && !left_error)
+					ACT_stock_left(ACT_stock_left_unlock);
+			}
+			if(state1 == STOCK_UNLOCK && who != ACT_SPOTIX_LEFT && !right_error)
+				state1 = check_act_status(ACT_QUEUE_Stock_right, state, ELEVATOR_UP, FAIL_TAKE);
+			if(state2 == STOCK_UNLOCK && who != ACT_SPOTIX_RIGHT && !left_error)
+				state2 = check_act_status(ACT_QUEUE_Stock_left, state, ELEVATOR_UP, FAIL_TAKE);
+
+			if((who == ACT_SPOTIX_BOTH && state1 != STOCK_UNLOCK && state2 != STOCK_UNLOCK)
+					|| (who == ACT_SPOTIX_LEFT && state2 != STOCK_UNLOCK)
+					|| (who == ACT_SPOTIX_RIGHT && state1 != STOCK_UNLOCK))
+				state = ELEVATOR_UP;
+			break;
+
+		// Question gestion d'erreur sur le fait de fail l'unlock ?
+
+		case ELEVATOR_UP:
+			if(entrance)
+				ACT_elevator(ACT_elevator_top);
+			state = check_act_status(ACT_QUEUE_Elevator, state, STOCK_LOCK, FAIL_STOCK);
+			break;
+
+		case FAIL_ELEVATOR_UP_1:
+			if(entrance){
+				state1 = state2 = FAIL_ELEVATOR_UP_1;
+				if(who != ACT_SPOTIX_LEFT && !right_error)
+					ACT_stock_right(ACT_stock_right_lock);
+				if(who != ACT_SPOTIX_RIGHT && !left_error)
+					ACT_stock_left(ACT_stock_left_lock);
+			}
+			if(state1 == FAIL_ELEVATOR_UP_1 && who != ACT_SPOTIX_RIGHT && !left_error)
+				state1 = check_act_status(ACT_QUEUE_Stock_left, state, FAIL_ELEVATOR_UP_2, FAIL_ELEVATOR_UP_2);
+			if(state2 == FAIL_ELEVATOR_UP_1 && who != ACT_SPOTIX_LEFT && !right_error)
+				state2 = check_act_status(ACT_QUEUE_Stock_right, state, FAIL_ELEVATOR_UP_2, FAIL_ELEVATOR_UP_2);
+
+			if((who == ACT_SPOTIX_BOTH && state1 != FAIL_ELEVATOR_UP_1 && state2 != FAIL_ELEVATOR_UP_1)
+					|| (who == ACT_SPOTIX_LEFT && state1 != FAIL_ELEVATOR_UP_1)
+					|| (who == ACT_SPOTIX_RIGHT && state2 != FAIL_ELEVATOR_UP_1))
+				state = FAIL_ELEVATOR_UP_2;
+			break;
+
+		case FAIL_ELEVATOR_UP_2:
+			if(entrance)
+				ACT_elevator(ACT_elevator_bot);
+			state = check_act_status(ACT_QUEUE_Elevator, state, FAIL_STOCK, FAIL_STOCK);
+			break;
+
+		case STOCK_LOCK:
+			if(entrance){
+				state1 = state2 = STOCK_LOCK;
+				if(who != ACT_SPOTIX_LEFT && !right_error)
+					ACT_stock_right(ACT_stock_right_lock);
+				if(who != ACT_SPOTIX_RIGHT && !left_error)
+					ACT_stock_left(ACT_stock_left_lock);
+			}
+			if(state1 == STOCK_LOCK && who != ACT_SPOTIX_RIGHT && !left_error)
+				state1 = check_act_status(ACT_QUEUE_Stock_left, state, ELEVATOR_DOWN, FAIL_TAKE);
+			if(state2 == STOCK_LOCK && who != ACT_SPOTIX_LEFT && !right_error)
+				state2 = check_act_status(ACT_QUEUE_Stock_right, state, ELEVATOR_DOWN, FAIL_TAKE);
+
+			if((who == ACT_SPOTIX_BOTH && state1 != STOCK_LOCK && state2 != STOCK_LOCK)
+					|| (who == ACT_SPOTIX_LEFT && state1 != STOCK_LOCK)
+					|| (who == ACT_SPOTIX_RIGHT && state2 != STOCK_LOCK))
+				state = ELEVATOR_DOWN;
+			break;
+
+		// Question gestion d'erreur sur le fait de fail le lock ?
+
+		case ELEVATOR_DOWN:
+			if(entrance)
+				ACT_elevator(ACT_elevator_bot);
+			state = check_act_status(ACT_QUEUE_Elevator, state, NIPPER_OPEN, FAIL_STOCK);
+			break;
+
+		case NIPPER_OPEN:
+			if(entrance){
+				state1 = state2 = NIPPER_OPEN;
+				if(who != ACT_SPOTIX_LEFT)
+					ACT_pincemi_right(ACT_pincemi_right_open);
+				if(who != ACT_SPOTIX_RIGHT)
+					ACT_pincemi_left(ACT_pincemi_left_open);
+			}
+			if(state1 == NIPPER_OPEN && who != ACT_SPOTIX_LEFT)
+				state1 = check_act_status(ACT_QUEUE_PinceMi_right, state, WIN_STOCK, WIN_STOCK);
+			if(state2 == NIPPER_OPEN && who != ACT_SPOTIX_RIGHT)
+				state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_STOCK, WIN_STOCK);
+
+			if((who == ACT_SPOTIX_BOTH && state1 != NIPPER_OPEN && state2 != NIPPER_OPEN)
+					|| (who == ACT_SPOTIX_LEFT && state2 != NIPPER_OPEN)
+					|| (who == ACT_SPOTIX_RIGHT && state1 != NIPPER_OPEN))
+				state = WIN_STOCK;
+			break;
+
+		case WIN_STOCK:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_STOCK:
+			if(left_error)
+				ACT_pincemi_left(ACT_pincemi_left_open);
+
+			if(right_error)
+				ACT_pincemi_right(ACT_pincemi_right_open);
+
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//--------------------------------------- Release
+
+		case UNLOCK_SPOT:
+			if(entrance){
+				state1 = state2 = state3 = state4 = UNLOCK_SPOT;
+				if(who != ACT_SPOTIX_LEFT){
+					ACT_stock_right(ACT_stock_right_unlock);
+					ACT_pincemi_right(ACT_pincemi_right_unlock);
+				}
+				if(who != ACT_SPOTIX_RIGHT){
+					ACT_stock_left(ACT_stock_left_unlock);
+					ACT_pincemi_left(ACT_pincemi_left_unlock);
+				}
+			}
+			if(who != ACT_SPOTIX_LEFT){ // Gestion Droite
+				if(state1 == UNLOCK_SPOT)
+					state1 = check_act_status(ACT_QUEUE_Stock_right, state, RELEASE_SPOT, FAIL_RELEASE);
+				if(state2 == UNLOCK_SPOT)
+					state2 = check_act_status(ACT_QUEUE_PinceMi_right, state, RELEASE_SPOT, FAIL_RELEASE);
+			}
+
+			if(who != ACT_SPOTIX_RIGHT){ // Gestion Gauche
+				if(state3 == UNLOCK_SPOT)
+					state3 = check_act_status(ACT_QUEUE_Stock_left, state, RELEASE_SPOT, FAIL_RELEASE);
+				if(state4 == UNLOCK_SPOT)
+					state4 = check_act_status(ACT_QUEUE_PinceMi_left, state, RELEASE_SPOT, FAIL_RELEASE);
+			}
+
+			if((who == ACT_SPOTIX_BOTH && state1 != UNLOCK_SPOT && state2 != UNLOCK_SPOT && state3 != UNLOCK_SPOT && state4 != UNLOCK_SPOT)
+					|| (who == ACT_SPOTIX_LEFT && state1 != UNLOCK_SPOT && state2 != UNLOCK_SPOT)
+					|| (who == ACT_SPOTIX_RIGHT && state3 != UNLOCK_SPOT && state4 != UNLOCK_SPOT))
+				state = RELEASE_SPOT;
+			break;
+
+
+		case RELEASE_SPOT:
+			if(entrance){
+				state1 = state2 = state3 = state4 = RELEASE_SPOT;
+				if(who != ACT_SPOTIX_LEFT){
+					ACT_stock_right(ACT_stock_right_open);
+					ACT_pincemi_right(ACT_pincemi_right_open);
+				}
+				if(who != ACT_SPOTIX_RIGHT){
+					ACT_stock_left(ACT_stock_left_open);
+					ACT_pincemi_left(ACT_pincemi_left_open);
+				}
+			}
+			if(who != ACT_SPOTIX_LEFT){ // Gestion Droite
+				if(state1 == RELEASE_SPOT)
+					state1 = check_act_status(ACT_QUEUE_Stock_right, state, WIN_RELEASE, FAIL_RELEASE);
+				if(state2 == RELEASE_SPOT)
+					state2 = check_act_status(ACT_QUEUE_PinceMi_right, state, WIN_RELEASE, FAIL_RELEASE);
+			}
+
+			if(who != ACT_SPOTIX_RIGHT){ // Gestion Gauche
+				if(state3 == RELEASE_SPOT)
+					state3 = check_act_status(ACT_QUEUE_Stock_left, state, WIN_RELEASE, FAIL_RELEASE);
+				if(state4 == RELEASE_SPOT)
+					state4 = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_RELEASE, FAIL_RELEASE);
+			}
+
+			if((who == ACT_SPOTIX_BOTH && state1 != RELEASE_SPOT && state2 != RELEASE_SPOT && state3 != RELEASE_SPOT && state4 != RELEASE_SPOT)
+					|| (who == ACT_SPOTIX_LEFT && state1 != RELEASE_SPOT && state2 != RELEASE_SPOT)
+					|| (who == ACT_SPOTIX_RIGHT && state3 != RELEASE_SPOT && state4 != RELEASE_SPOT))
+				state = WIN_RELEASE;
+			break;
+
+		case WIN_RELEASE:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_RELEASE:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+	}
+
+
+	return ret;
+}
+
+////////////////////////////////////////
 //////////////// SENSOR ////////////////
 ////////////////////////////////////////
 

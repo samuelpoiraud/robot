@@ -142,6 +142,7 @@ typedef enum {
 	ACT_pincemi_right_close = ACT_PINCEMI_RIGHT_CLOSE,
 	ACT_pincemi_right_close_inner = ACT_PINCEMI_RIGHT_CLOSE_INNER,
 	ACT_pincemi_right_lock = ACT_PINCEMI_RIGHT_LOCK,
+	ACT_pincemi_right_unlock = ACT_PINCEMI_RIGHT_LOCK,
 	ACT_pincemi_right_open = ACT_PINCEMI_RIGHT_OPEN,
 	ACT_pincemi_right_open_great = ACT_PINCEMI_RIGHT_OPEN_GREAT,
 	ACT_pincemi_right_stop = ACT_PINCEMI_RIGHT_STOP
@@ -151,6 +152,7 @@ typedef enum {
 	ACT_pincemi_left_close = ACT_PINCEMI_LEFT_CLOSE,
 	ACT_pincemi_left_close_inner = ACT_PINCEMI_LEFT_CLOSE_INNER,
 	ACT_pincemi_left_lock = ACT_PINCEMI_LEFT_LOCK,
+	ACT_pincemi_left_unlock = ACT_PINCEMI_LEFT_LOCK,
 	ACT_pincemi_left_open = ACT_PINCEMI_LEFT_OPEN,
 	ACT_pincemi_left_open_great = ACT_PINCEMI_LEFT_OPEN_GREAT,
 	ACT_pincemi_left_stop = ACT_PINCEMI_LEFT_STOP
@@ -258,6 +260,20 @@ bool_e ACT_pop_drop_right_wood(ACT_pop_drop_right_Wood_cmd_e cmd);
 
 // Holly
 
+typedef enum{
+	ACT_SPOTIX_TAKE,
+	ACT_SPOTIX_OPEN_GREAT,
+	ACT_SPOTIX_STOCK,
+	ACT_SPOTIX_RELEASE
+}ACT_holly_spotix_e;
+
+typedef enum{
+	ACT_SPOTIX_LEFT,
+	ACT_SPOTIX_RIGHT,
+	ACT_SPOTIX_BOTH
+}ACT_holly_spotix_side_e;
+
+error_e ACT_holly_spotix(ACT_holly_spotix_e order, ACT_holly_spotix_side_e who);
 
 
 // Wood
