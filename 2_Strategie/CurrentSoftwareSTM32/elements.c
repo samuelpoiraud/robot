@@ -194,8 +194,8 @@ void ELEMENTS_reset_holly_right_spot_level(void)
 }
 
 //Indiquer qu'un gobelet a été pris
-void ELEMENTS_set_cup(Uint8 number){
-	ELEMENTS_cup[number].state = TAKE;
+void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
+	ELEMENTS_cup[number].state = stateCup;
 }
 
  ELEMENTS_state_s ELEMENTS_get_cup(Uint8 number){
