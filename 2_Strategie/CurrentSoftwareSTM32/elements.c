@@ -242,7 +242,7 @@ void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
  }
 
 
-#define	TIMEOUT_PROTECT	200
+#define	TIMEOUT_PROTECT	1000
 static time32_t hollyTimeProtect = 0;
 
 void holly_send_message_protect_process_main(){

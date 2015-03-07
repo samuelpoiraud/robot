@@ -123,8 +123,8 @@ void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispen
  void collect_cup_coord( CAN_msg_t *msg);
 
 // Demande de protection
-void holly_ask_protect_north_process_main();
 void holly_send_message_protect_process_main();
 
+#include "strats_2015/actions_both_2015.h"
 
 #endif // ELEMENTS_H
