@@ -34,6 +34,7 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_adc.h"
 #include "act_avoidance.h"
+#include "strats_2015/actions_both_2015.h"
 
 
 void test_bp_switchs(void);
@@ -153,9 +154,12 @@ int main (void)
 
 		process_measure_loop_duration();
 
-		holly_send_message_protect_process_main();
 		/*Communication pour la communication XBEE entre Holly et Wood*/
-		protectWood_processMain();
+		if(PORT_ROBOT_ID)
+			holly_send_message_protect_process_main();
+		else
+			protectWood_processMain();
+
 	}
 	return 0;
 }
