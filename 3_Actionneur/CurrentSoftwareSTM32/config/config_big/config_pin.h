@@ -119,17 +119,19 @@
 
 //--------------------Configuration des ID des actionneurs-----------------------
 
-#define POP_COLLECT_LEFT_AX12_ID		12
-#define POP_COLLECT_RIGHT_AX12_ID		46
+#define POP_COLLECT_LEFT_AX12_ID		1
+#define POP_COLLECT_RIGHT_AX12_ID		2
 
-#define POP_DROP_LEFT_AX12_ID			47
-#define POP_DROP_RIGHT_AX12_ID			48
+#define POP_DROP_LEFT_AX12_ID			3
+#define POP_DROP_RIGHT_AX12_ID			4
 
-#define BACK_SPOT_RIGHT_AX12_ID			7
-#define BACK_SPOT_LEFT_AX12_ID			7
+#define BACK_SPOT_RIGHT_AX12_ID			5
+#define BACK_SPOT_LEFT_AX12_ID			6
 
-#define CARPET_LAUNCHER_RIGHT_AX12_ID	10
-#define CARPET_LAUNCHER_LEFT_AX12_ID	37
+#define CARPET_LAUNCHER_RIGHT_AX12_ID	7
+#define CARPET_LAUNCHER_LEFT_AX12_ID	8
+
+#define CUP_NIPPER_AX12_ID				14
 
 #define PINCEMIR_R_RX24_ID				23
 #define PINCEMIR_L_RX24_ID				24
@@ -148,8 +150,6 @@
 
 #define SPOT_POMPE_RIGHT_PWM_NUM		3
 //#define SPOT_POMPE_LEFT_PWM_NUM		CUSTOM ! Laisser les en commentaires
-
-#define CUP_NIPPER_AX12_ID				3
 
 #define ELEVATOR_ID						0
 #define CUP_NIPPER_ID					1

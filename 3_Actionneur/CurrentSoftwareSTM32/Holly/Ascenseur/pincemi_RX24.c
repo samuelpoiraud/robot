@@ -237,11 +237,13 @@ static void PINCEMI_command_init(queue_id_t queueId) {
 		case ACT_PINCEMI_LEFT_CLOSE :
 		case ACT_PINCEMI_LEFT_CLOSE_INNER :
 		case ACT_PINCEMI_LEFT_LOCK :
+		case ACT_PINCEMI_LEFT_UNLOCK :
 		case ACT_PINCEMI_LEFT_OPEN :
 		case ACT_PINCEMI_LEFT_OPEN_GREAT :
 		case ACT_PINCEMI_RIGHT_CLOSE :
 		case ACT_PINCEMI_RIGHT_CLOSE_INNER :
 		case ACT_PINCEMI_RIGHT_LOCK :
+		case ACT_PINCEMI_RIGHT_UNLOCK :
 		case ACT_PINCEMI_RIGHT_OPEN :
 		case ACT_PINCEMI_RIGHT_OPEN_GREAT :
 			PINCEMI_get_position(QUEUE_get_act(queueId), command, &rx24_goalPosition_right, &rx24_goalPosition_left);
@@ -414,6 +416,11 @@ static void PINCEMI_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *righ
 				*left_pos = PINCEMIR_LEFT_LOCK;
 				break;
 
+			case ACT_PINCEMI_RIGHT_UNLOCK :
+				*right_pos = PINCEMIR_RIGHT_UNLOCK;
+				*left_pos = PINCEMIR_LEFT_UNLOCK;
+				break;
+
 			case ACT_PINCEMI_RIGHT_OPEN :
 				*right_pos = PINCEMIR_RIGHT_OPEN;
 				*left_pos = PINCEMIR_LEFT_OPEN;
@@ -442,6 +449,11 @@ static void PINCEMI_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *righ
 				break;
 
 			case ACT_PINCEMI_LEFT_LOCK :
+				*right_pos = PINCEMIL_RIGHT_LOCK;
+				*left_pos = PINCEMIL_LEFT_LOCK;
+				break;
+
+			case ACT_PINCEMI_LEFT_UNLOCK :
 				*right_pos = PINCEMIL_RIGHT_LOCK;
 				*left_pos = PINCEMIL_LEFT_LOCK;
 				break;
