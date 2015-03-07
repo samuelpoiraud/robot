@@ -16,9 +16,15 @@
 
 	typedef enum{
 		NORTH,
-		SOUTH,
-		SOUTH_AND_NORTH
+		SOUTH
 	}ELEMENTS_order_s;
+
+	typedef enum{
+		ACTIVATE,
+		DISABLE_SEND,
+		AUTO_SEND,
+		NO_SET
+	}ELEMENTS_protect_s;
 
 	typedef struct{
 		ELEMENTS_state_s state;
@@ -115,6 +121,10 @@ void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispen
 
 //Message CAN de récupération du centre des gobelets
  void collect_cup_coord( CAN_msg_t *msg);
+
+// Demande de protection
+void holly_ask_protect_north_process_main();
+void holly_send_message_protect_process_main();
 
 
 #endif // ELEMENTS_H

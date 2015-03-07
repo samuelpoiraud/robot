@@ -12,6 +12,7 @@
 #define ENVIRONMENT_C
 
 #include "environment.h"
+#include "strats_2015/actions_both_2015.h"
 #include "act_functions.h"
 #include "zone_mutex.h"
 #include "fix_beacon.h"
@@ -476,7 +477,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 		case XBEE_HOLLY_ASK_PROTECT:
-			wood_receive_protect();
+			wood_receive_protect(incoming_msg);
 			break;
 
 

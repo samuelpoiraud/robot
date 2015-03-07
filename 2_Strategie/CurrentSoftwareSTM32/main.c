@@ -153,6 +153,7 @@ int main (void)
 
 		process_measure_loop_duration();
 
+		holly_send_message_protect_process_main();
 		/*Communication pour la communication XBEE entre Holly et Wood*/
 		protectWood_processMain();
 	}
