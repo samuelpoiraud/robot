@@ -240,3 +240,14 @@ void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
 		 }
 	 }
  }
+
+
+#define	TIMEOUT_PROTECT	200
+static time32_t hollyTimeProtect = 0;
+
+void holly_send_message_protect_process_main(){
+	if(global.env.match_time > (hollyTimeProtect + TIMEOUT_PROTECT)){
+		hollyTimeProtect = global.env.match_time;
+		holly_ask_protect_process_main();
+	}
+}
