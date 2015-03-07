@@ -410,6 +410,17 @@ error_e ACT_holly_spotix(ACT_holly_spotix_e order, ACT_holly_spotix_side_e who){
 		WIN_STOCK,
 		FAIL_STOCK,
 
+		// Go down (and release)
+		RELEASE_NIPPER,
+		ELEVATOR_GO_DOWN,
+		WIN_GO_DOWN,
+		FAIL_GO_DOWN,
+
+		// Go up
+		ELEVATOR_GO_UP,
+		WIN_GO_UP,
+		FAIL_GO_UP,
+
 		// Release spot
 		UNLOCK_SPOT,
 		RELEASE_SPOT,
@@ -442,8 +453,21 @@ error_e ACT_holly_spotix(ACT_holly_spotix_e order, ACT_holly_spotix_side_e who){
 						state = FAIL_COMPUTE;
 					break;
 
-				case ACT_SPOTIX_STOCK:
+				case ACT_SPOTIX_STOCK_AND_GO_DOWN:
+				case ACT_SPOTIX_STOCK_AND_STAY:
 					state = INIT_STOCK;
+					break;
+
+				case ACT_SPOTIX_GO_DOWN_AND_RELEASE:
+					state = RELEASE_NIPPER;
+					break;
+
+				case ACT_SPOTIX_GO_DOWN:
+					state = ELEVATOR_GO_DOWN;
+					break;
+
+				case ACT_SPOTIX_GO_UP:
+					state = ELEVATOR_GO_UP;
 					break;
 
 				case ACT_SPOTIX_RELEASE:
@@ -647,23 +671,21 @@ error_e ACT_holly_spotix(ACT_holly_spotix_e order, ACT_holly_spotix_side_e who){
 					ACT_stock_left(ACT_stock_left_lock);
 			}
 			if(state1 == STOCK_LOCK && who != ACT_SPOTIX_RIGHT && !left_error)
-				state1 = check_act_status(ACT_QUEUE_Stock_left, state, ELEVATOR_DOWN, FAIL_TAKE);
+				state1 = check_act_status(ACT_QUEUE_Stock_left, state, NIPPER_OPEN, FAIL_TAKE);
 			if(state2 == STOCK_LOCK && who != ACT_SPOTIX_LEFT && !right_error)
-				state2 = check_act_status(ACT_QUEUE_Stock_right, state, ELEVATOR_DOWN, FAIL_TAKE);
+				state2 = check_act_status(ACT_QUEUE_Stock_right, state, NIPPER_OPEN, FAIL_TAKE);
 
 			if((who == ACT_SPOTIX_BOTH && state1 != STOCK_LOCK && state2 != STOCK_LOCK)
 					|| (who == ACT_SPOTIX_LEFT && state1 != STOCK_LOCK)
-					|| (who == ACT_SPOTIX_RIGHT && state2 != STOCK_LOCK))
-				state = ELEVATOR_DOWN;
+					|| (who == ACT_SPOTIX_RIGHT && state2 != STOCK_LOCK)){
+				if(order == ACT_SPOTIX_STOCK_AND_STAY)
+					state = WIN_STOCK;
+				else
+					state = NIPPER_OPEN;
+			}
 			break;
 
 		// Question gestion d'erreur sur le fait de fail le lock ?
-
-		case ELEVATOR_DOWN:
-			if(entrance)
-				ACT_elevator(ACT_elevator_bot);
-			state = check_act_status(ACT_QUEUE_Elevator, state, NIPPER_OPEN, FAIL_STOCK);
-			break;
 
 		case NIPPER_OPEN:
 			if(entrance){
@@ -674,14 +696,20 @@ error_e ACT_holly_spotix(ACT_holly_spotix_e order, ACT_holly_spotix_side_e who){
 					ACT_pincemi_left(ACT_pincemi_left_open);
 			}
 			if(state1 == NIPPER_OPEN && who != ACT_SPOTIX_LEFT)
-				state1 = check_act_status(ACT_QUEUE_PinceMi_right, state, WIN_STOCK, WIN_STOCK);
+				state1 = check_act_status(ACT_QUEUE_PinceMi_right, state, ELEVATOR_DOWN, ELEVATOR_DOWN);
 			if(state2 == NIPPER_OPEN && who != ACT_SPOTIX_RIGHT)
-				state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_STOCK, WIN_STOCK);
+				state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, ELEVATOR_DOWN, ELEVATOR_DOWN);
 
 			if((who == ACT_SPOTIX_BOTH && state1 != NIPPER_OPEN && state2 != NIPPER_OPEN)
 					|| (who == ACT_SPOTIX_LEFT && state2 != NIPPER_OPEN)
 					|| (who == ACT_SPOTIX_RIGHT && state1 != NIPPER_OPEN))
-				state = WIN_STOCK;
+				state = ELEVATOR_DOWN;
+			break;
+
+		case ELEVATOR_DOWN:
+			if(entrance)
+				ACT_elevator(ACT_elevator_bot);
+			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_STOCK, FAIL_STOCK);
 			break;
 
 		case WIN_STOCK:
@@ -699,6 +727,61 @@ error_e ACT_holly_spotix(ACT_holly_spotix_e order, ACT_holly_spotix_side_e who){
 			RESET_MAE();
 			ret = NOT_HANDLED;
 			break;
+
+//--------------------------------------- Go down and release
+		case RELEASE_NIPPER:
+			if(entrance){
+				state1 = state2 = RELEASE_NIPPER;
+				if(who != ACT_SPOTIX_LEFT)
+					ACT_pincemi_right(ACT_pincemi_right_open);
+				if(who != ACT_SPOTIX_RIGHT)
+					ACT_pincemi_left(ACT_pincemi_left_open);
+			}
+			if(state1 == RELEASE_NIPPER && who != ACT_SPOTIX_LEFT)
+				state1 = check_act_status(ACT_QUEUE_PinceMi_right, state, ELEVATOR_GO_DOWN, ELEVATOR_GO_DOWN);
+			if(state2 == RELEASE_NIPPER && who != ACT_SPOTIX_RIGHT)
+				state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, ELEVATOR_GO_DOWN, ELEVATOR_GO_DOWN);
+
+			if((who == ACT_SPOTIX_BOTH && state1 != RELEASE_NIPPER && state2 != RELEASE_NIPPER)
+					|| (who == ACT_SPOTIX_LEFT && state2 != RELEASE_NIPPER)
+					|| (who == ACT_SPOTIX_RIGHT && state1 != RELEASE_NIPPER))
+				state = ELEVATOR_GO_DOWN;
+			break;
+
+		case ELEVATOR_GO_DOWN:
+			if(entrance)
+				ACT_elevator(ACT_elevator_bot);
+			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_GO_DOWN, FAIL_GO_DOWN);
+			break;
+
+		case WIN_GO_DOWN:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_GO_DOWN:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//--------------------------------------- Go up
+
+		case ELEVATOR_GO_UP:
+			if(entrance)
+				ACT_elevator(ACT_elevator_top);
+			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_GO_UP, FAIL_GO_UP);
+			break;
+
+		case WIN_GO_UP:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_GO_UP:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
 
 //--------------------------------------- Release
 
