@@ -103,7 +103,7 @@ void ELEMENTS_reset_holly_left_spot_level(void);
 Uint8 ELEMENTS_get_holly_right_spot_level(void);
 void ELEMENTS_inc_holly_right_spot_level(void);
 void ELEMENTS_reset_holly_right_spot_level(void);
-void ELEMENTS_set_cup(Uint8 number);
+void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup);
 ELEMENTS_state_s ELEMENTS_get_cup(Uint8 number);
 bool_e get_cup_transmission(void);
 Uint8 get_number_cup(void);
