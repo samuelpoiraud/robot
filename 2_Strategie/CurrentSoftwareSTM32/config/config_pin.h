@@ -44,11 +44,11 @@
 
 	#define PORT_B_IO_MASK	0x0DFF
 		// 								  0
-		#define RECALAGE_4			GPIOB->IDR1
+		#define RECALAGE_AV_D		GPIOB->IDR1
 		#define POWER_WATCH_INT		GPIOB->IDR2
 		// - programmation -			  3
-		#define RECALAGE_1			GPIOB->IDR4
-		#define RECALAGE_2			GPIOB->IDR5
+		#define RECALAGE_AV_G		GPIOB->IDR4
+		#define RECALAGE_AV_D		GPIOB->IDR5
 		#define SWITCH_XBEE_PORT	GPIOB->IDR4
 		#define SWITCH_SAVE_PORT	GPIOB->IDR5
 		//	U1TX						  6
@@ -70,7 +70,7 @@
 		#define PRESENCE_PIED_PINCE_DROITE_HOLLY			GPIOC->IDR2
 		//								3
 		//								4
-		#define RECALAGE_3			RECALAGE_2				// !!!!!! Juste pour les FDP 2014 pour que ça marche
+		#define RECALAGE_AR_G		RECALAGE_AV_D				// !!!!!! Juste pour les FDP 2014 pour que ça marche
 		#define BUTTON6_PORT		(!GPIOC->IDR5)
 		#define LED_BEACON_IR_GREEN	GPIOC,GPIO_Pin_6
 		#define LED_BEACON_IR_RED	GPIOC,GPIO_Pin_7
@@ -156,11 +156,11 @@
 
 	#define PORT_B_IO_MASK	0x0DFF
 		//	Mesure 24V					0
-		#define RECALAGE_4			GPIOB->IDR1
+		#define RECALAGE_AR_D		GPIOB->IDR1
 		#define POWER_WATCH_INT		GPIOB->IDR2
 		// - programmation -			3
-		#define RECALAGE_1			GPIOB->IDR4
-		#define RECALAGE_2			GPIOB->IDR5
+		#define RECALAGE_AV_G		GPIOB->IDR4
+		#define RECALAGE_AV_D		GPIOB->IDR5
 		//	U1TX						6
 		//	U1RX						7
 		//	-							8
@@ -180,7 +180,7 @@
 		#define PRESENCE_PIED_PINCE_DROITE_HOLLY			GPIOC->IDR2
 		//								3
 		//								4
-		#define RECALAGE_3			GPIOC->IDR5
+		#define RECALAGE_AR_G		GPIOC->IDR5
 		#define LED_BEACON_IR_GREEN	GPIOC,GPIO_Pin_6
 		#define LED_BEACON_IR_RED	GPIOC,GPIO_Pin_7
 		#define SYNCHRO_BEACON		GPIOC,GPIO_Pin_8
