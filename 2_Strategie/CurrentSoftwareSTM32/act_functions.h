@@ -261,24 +261,31 @@ bool_e ACT_pop_drop_right_wood(ACT_pop_drop_right_Wood_cmd_e cmd);
 // Holly
 
 typedef enum{
-	ACT_SPOTIX_TAKE,
-	ACT_SPOTIX_OPEN_GREAT,
-	ACT_SPOTIX_STOCK_AND_STAY,
-	ACT_SPOTIX_STOCK_AND_GO_DOWN,
-	ACT_SPOTIX_GO_DOWN_AND_RELEASE,
-	ACT_SPOTIX_GO_DOWN,
-	ACT_SPOTIX_GO_UP,
-	ACT_SPOTIX_RELEASE
-}ACT_holly_spotix_e;
+	ACT_MAE_SPOTIX_TAKE,
+	ACT_MAE_SPOTIX_OPEN_GREAT,
+	ACT_MAE_SPOTIX_STOCK_AND_STAY,
+	ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN,
+	ACT_MAE_SPOTIX_RELEASE_NIPPER_AND_GO_DOWN,
+	ACT_MAE_SPOTIX_GO_DOWN,
+	ACT_MAE_SPOTIX_GO_UP,
+	ACT_MAE_SPOTIX_RELEASE_STOCK
+}ACT_MAE_holly_spotix_e;
 
 typedef enum{
-	ACT_SPOTIX_LEFT,
-	ACT_SPOTIX_RIGHT,
-	ACT_SPOTIX_BOTH
-}ACT_holly_spotix_side_e;
+	ACT_MAE_SPOTIX_LEFT,
+	ACT_MAE_SPOTIX_RIGHT,
+	ACT_MAE_SPOTIX_BOTH
+}ACT_MAE_holly_spotix_side_e;
 
-error_e ACT_holly_spotix(ACT_holly_spotix_e order, ACT_holly_spotix_side_e who);
+typedef enum{
+	ACT_MAE_CUP_TAKE,
+	ACT_MAE_CUP_TAKE_AND_UP,
+	ACT_MAE_CUP_DOWN_AND_RELEASE,
+	ACT_MAE_CUP_CLOSE
+}ACT_MAE_holly_cup_e;
 
+error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who);
+error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order);
 
 // Wood
 
