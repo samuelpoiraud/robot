@@ -624,6 +624,9 @@ error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_
 			break;
 
 		case CHECK_PRESENCE_FEET:
+#ifdef ROBOT_VIRTUEL_PARFAIT
+			state = WIN_TAKE;
+#else
 			if(who != ACT_MAE_SPOTIX_RIGHT && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
 				left_error = TRUE;
 			if(who != ACT_MAE_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
@@ -633,6 +636,7 @@ error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_
 				state = FAIL_TAKE;
 			else
 				state = WIN_TAKE;
+#endif
 		break;
 
 		case WIN_TAKE:
@@ -706,11 +710,12 @@ error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_
 //--------------------------------------- Stock
 
 		case INIT_STOCK:
+#ifndef ROBOT_VIRTUEL_PARFAIT
 			if(who != ACT_MAE_SPOTIX_RIGHT && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
 				left_error = TRUE;
 			if(who != ACT_MAE_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
 				right_error = TRUE;
-
+#endif
 			if(left_error && right_error)
 				state = FAIL_STOCK;
 			else
@@ -985,7 +990,7 @@ error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_
 }
 
 error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order){
-	CREATE_MAE(
+	CREATE_MAE_WITH_VERBOSE(0,
 		INIT,
 		COMPUTE_ORDER,
 		FAIL_COMPUTE,
@@ -1078,6 +1083,9 @@ error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order){
 			break;
 
 		case CHECK_PRESENCE_CUP:{
+#ifdef ROBOT_VIRTUEL_PARFAIT
+			state = ELEVATOR_UP;
+#else
 			static enum state_e sucess_state;
 			if(entrance){
 				if(order == ACT_MAE_CUP_TAKE)
@@ -1086,6 +1094,7 @@ error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order){
 					sucess_state = FAIL_TAKE;
 			}
 			state = check_sub_action_result(ACT_sensor_gobelet_holly(), state, sucess_state, FAIL_TAKE);
+#endif
 		}break;
 
 		case ELEVATOR_UP:
