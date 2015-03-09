@@ -1138,6 +1138,8 @@ error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order){
 			if(entrance)
 				ACT_cup_nipper(ACT_cup_nipper_close);
 			state = check_act_status(ACT_QUEUE_Cup_Nipper, state, WIN_CLOSE, FAIL_CLOSE);
+			if(ON_LEAVING(CLOSE))
+				init = FALSE;
 			break;
 
 		case WIN_CLOSE:
