@@ -321,7 +321,7 @@ bool_e ACT_clap(ACT_clap_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Clap, &args);
 }
 
-bool_e ACT_pop_drop_left_wood(ACT_pop_drop_left_Wood_cmd_e cmd) {
+bool_e ACT_pop_drop_left_Wood(ACT_pop_drop_left_Wood_cmd_e cmd) {
 	QUEUE_arg_t args;
 
 	ACT_arg_init(&args, ACT_POP_DROP_LEFT_WOOD, cmd);
@@ -330,7 +330,7 @@ bool_e ACT_pop_drop_left_wood(ACT_pop_drop_left_Wood_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_left_Wood, &args);
 }
 
-bool_e ACT_pop_drop_right_wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
+bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
 	QUEUE_arg_t args;
 
 	ACT_arg_init(&args, ACT_POP_DROP_RIGHT_WOOD, cmd);
