@@ -91,7 +91,7 @@
 		ELEMENTS_ESTRAD_FOOT_TOOK,
 		ELEMENTS_SOUTH_CUP_TOOK,
 		ELEMENTS_SOUTH_CORNER_FEET_TOOK,
-		ELEMENTS_STAY_PROTECT,
+		ELEMENTS_PROTECT_MESSAGE,
 		ELEMENTS_FLAGS_PROTECT_SOUTH,
 		ELEMENTS_FLAGS_PROTECT_NORTH,// Protection du nord
 		ELEMENTS_STEAL_CUP_IN_NORTH_CINEMA,
@@ -122,9 +122,5 @@ void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispen
 //Message CAN de récupération du centre des gobelets
  void collect_cup_coord( CAN_msg_t *msg);
 
-// Demande de protection
-void holly_send_message_protect_process_main();
-
-#include "strats_2015/actions_both_2015.h"
 
 #endif // ELEMENTS_H
