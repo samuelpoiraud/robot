@@ -44,7 +44,7 @@
 
 	#define PORT_B_IO_MASK	0x0DFF
 		// 								  0
-		#define RECALAGE_AV_D		GPIOB->IDR1
+		#define RECALAGE_AR_D		GPIOB->IDR1
 		#define POWER_WATCH_INT		GPIOB->IDR2
 		// - programmation -			  3
 		#define RECALAGE_AV_G		GPIOB->IDR4
