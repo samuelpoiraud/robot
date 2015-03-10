@@ -154,12 +154,6 @@ int main (void)
 
 		process_measure_loop_duration();
 
-		/*Communication pour la communication XBEE entre Holly et Wood*/
-		if(PORT_ROBOT_ID)
-			holly_send_message_protect_process_main();
-		else
-			protectWood_processMain();
-
 	}
 	return 0;
 }

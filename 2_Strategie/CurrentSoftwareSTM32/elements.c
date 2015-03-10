@@ -248,6 +248,6 @@ static time32_t hollyTimeProtect = 0;
 void holly_send_message_protect_process_main(){
 	if(global.env.match_time > (hollyTimeProtect + TIMEOUT_PROTECT)){
 		hollyTimeProtect = global.env.match_time;
-		holly_ask_protect_process_main();
+		holly_ask_protect_to_wood();
 	}
 }
