@@ -123,5 +123,6 @@ bool_e get_sub_act_updated_for_lcd(subaction_id_e sub_action);
 void reset_sub_act_updated_for_lcd(subaction_id_e sub_action);
 bool_e get_sub_act_ask_stop_request(subaction_id_e sub_action);
 
+void wood_acquitte_flag_protection();
 
 #endif /* HIGH_STRAT_LEVEL_H */
