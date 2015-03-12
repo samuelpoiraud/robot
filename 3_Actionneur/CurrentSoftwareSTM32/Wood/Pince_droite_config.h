@@ -21,7 +21,7 @@
 //Position
 	#define PINCE_DROITE_AX12_CLOSE_POS					225		//en degré
 	#define PINCE_DROITE_AX12_MID_POS					200  	//en degré  25° de diff avec IDLE POS
-	#define PINCE_DROITE_AX12_OPEN_POS					152		//en degré
+	#define PINCE_DROITE_AX12_OPEN_POS					150		//en degré
 
 //Position initiale de l'AX12
 	#define PINCE_DROITE_AX12_INIT_POS					PINCE_DROITE_AX12_CLOSE_POS
