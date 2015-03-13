@@ -83,6 +83,7 @@ void CUP_NIPPER_state_machine(){
 		WAIT_FDC,
 		INIT_POS,
 		WAIT_POS,
+		INIT_AX12,
 		RUN
 	}state_e;
 	static state_e state = INIT;
@@ -118,12 +119,20 @@ void CUP_NIPPER_state_machine(){
 			if(ACTQ_check_status_dcmotor(CUP_NIPPER_ID, FALSE, &result, &error_code, &line)){
 				if(result == ACT_RESULT_DONE){
 					CUP_NIPPER_ready = TRUE;
-					state = RUN;
+					state = INIT_AX12;
 				}else{
 					DCM_stop(CUP_NIPPER_ID);
 					state = INIT;
 				}
 			}
+			break;
+
+		case INIT_AX12:
+			debug_printf("Init pos : \n");
+			if(!AX12_set_position(CUP_NIPPER_AX12_ID, CUP_NIPPER_AX12_INIT_POS))
+				debug_printf("   L'AX12 n°%d n'est pas là\n", CUP_NIPPER_AX12_ID);
+			else
+				debug_printf("   L'AX12 n°%d a été initialisé en position\n", CUP_NIPPER_AX12_ID);
 			break;
 
 		case RUN:
@@ -197,11 +206,7 @@ void CUP_NIPPER_init_pos(){
 	if(ax12_is_initialized == FALSE)
 		return;
 
-	debug_printf("Init pos : \n");
-	if(!AX12_set_position(CUP_NIPPER_AX12_ID, CUP_NIPPER_AX12_INIT_POS))
-		debug_printf("   L'AX12 n°%d n'est pas là\n", CUP_NIPPER_AX12_ID);
-	else
-		debug_printf("   L'AX12 n°%d a été initialisé en position\n", CUP_NIPPER_AX12_ID);
+
 }
 
 // Fonction appellée à la fin du match (via ActManager)
