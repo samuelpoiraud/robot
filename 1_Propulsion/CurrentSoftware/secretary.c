@@ -41,6 +41,7 @@
 #include "hokuyo.h"
 #include "avoidance.h"
 #include "scan_cup.h"
+#include "com_xbee.h"
 
 
 
@@ -493,6 +494,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 				CAN_send(msg);
 
 			IHM_process_main(msg);
+			break;
+
+		case PROP_WOOD_SEND_POSITION :
+			holly_receive_wood_position(msg);
 			break;
 
 		default :
