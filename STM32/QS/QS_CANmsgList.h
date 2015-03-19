@@ -282,6 +282,7 @@
 		#define XBEE_ZONE_UNLOCK         2  //Dans data[1]: la zone libérée. Libère une zone qui a été verouillée
 
 	#define XBEE_HOLLY_ASK_PROTECT          0x5C0
+	#define XBEE_WOOD_SEND_POSITION         0x5C1
 
 	#define XBEE_CAN_WOOD_ACCESS_SCAN		0x5B0
 	#define XBEE_WOOD_ACCESS_SCAN			0x5B1	//Réponse...
@@ -325,7 +326,6 @@
  *		et les cartes stratégie, actionneur et propulsion
  *
  *****************************************************************/
-
 
 	/* Carte strat vers carte actionneur */
 	#define ACT_DO_SELFTEST		0x300
@@ -665,6 +665,8 @@
 
 	#define PROP_DEBUG_FORCED_FOE				0x118
 	// Message CAN pour forcer la détection d'un adversaire
+
+	#define PROP_WOOD_SEND_POSITION				0x120
 
 /*****************************************************************
  *
