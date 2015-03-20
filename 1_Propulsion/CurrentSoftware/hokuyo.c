@@ -31,6 +31,7 @@
 	#include "secretary.h"
 	#include "detection.h"
 	#include "odometry.h"
+	#include "com_xbee.h"
 
 
 
@@ -90,6 +91,8 @@
 	#define	BEGIN_ZONE_G2_RECT_Y		2350
 	#define	BEGIN_ZONE_G2_WIDTH			320			// Largeur en x
 	#define	BEGIN_ZONE_G2_RECT_HEIGHT	70			// Longueur en y
+
+	#define PROTECTION_GAP				40
 
 
 #ifdef USE_COMMAND_ME
@@ -522,6 +525,14 @@ void hokuyo_find_valid_points(void){
 						&& y_absolute > BEGIN_ZONE_G2_RECT_Y
 						&& y_absolute < BEGIN_ZONE_G2_RECT_Y + BEGIN_ZONE_G2_RECT_HEIGHT) 	//zones de départ verte partie haute
 						point_filtered = TRUE;	//on refuse les points
+
+				if(get_wood_state_defensive()
+						&& x_absolute > get_wood_position_x() - SMALL_ROBOT_WIDTH - PROTECTION_GAP
+						&& x_absolute < get_wood_position_x() + SMALL_ROBOT_WIDTH + PROTECTION_GAP
+						&& y_absolute > get_wood_position_y() - SMALL_ROBOT_WIDTH - PROTECTION_GAP
+						&& y_absolute < get_wood_position_y() + SMALL_ROBOT_WIDTH + PROTECTION_GAP) 	//Filtrage temporaire des points pour ne pas qu'Holly évite Wood lorsqu'il est en position de protection
+						point_filtered = TRUE;	//on refuse les points
+
 
 				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
 					point_filtered = TRUE;
