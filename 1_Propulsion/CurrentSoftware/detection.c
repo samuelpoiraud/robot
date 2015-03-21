@@ -18,12 +18,14 @@
 #include "QS/QS_maths.h"
 #include "hokuyo.h"
 #include "../config/config_pin.h"
+#include "com_xbee.h"
 
 volatile static Uint32 hokuyo_update_time = 0;
 
 #define BEACON_MAX_FOES			2
 #define FOE_DATA_LIFETIME		250		//[ms] Durée de vie des données envoyées par la propulsion
 #define IR_FOE_DATA_LIFETIME	1000	//[ms] Durée de vie des données envoyées par la balise
+#define PROTECTION_GAP			40
 
 adversary_t adversaries[HOKUYO_MAX_FOES + BEACON_MAX_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
 volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
@@ -133,7 +135,20 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 
 	if(msg != NULL)
 	{
-		if (msg->sid == BROADCAST_ADVERSARIES_POSITION){
+
+		if( msg->sid == BROADCAST_ADVERSARIES_POSITION && get_wood_state_defensive() && (get_wood_position_x()>((Sint16)msg->data[1])*20-PROTECTION_GAP && get_wood_position_x()<((Sint16)msg->data[1])*20+PROTECTION_GAP  && get_wood_position_y()>((Sint16)msg->data[2])*20-PROTECTION_GAP && get_wood_position_y()<((Sint16)msg->data[2])*20+PROTECTION_GAP )){
+			debug_printf("HOLLY POINTS FILTRES  WOOD\n");
+		debug_printf("\nget_wood_state_defensive()=%d\n",get_wood_state_defensive());
+		}
+		if ( (msg->sid == BROADCAST_ADVERSARIES_POSITION && !get_wood_state_defensive() )  ||
+			   ( msg->sid == BROADCAST_ADVERSARIES_POSITION
+				 && get_wood_state_defensive()
+				 && !(get_wood_position_x()>((Sint16)msg->data[1])*20-PROTECTION_GAP
+					  && get_wood_position_x()<((Sint16)msg->data[1])*20+PROTECTION_GAP
+					  && get_wood_position_y()>((Sint16)msg->data[2])*20-PROTECTION_GAP
+					  && get_wood_position_y()<((Sint16)msg->data[2])*20+PROTECTION_GAP )))   {
+
+
 				adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
 				if(adversary_nb < HOKUYO_MAX_FOES)
 				{
@@ -143,8 +158,9 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 						adversaries[adversary_nb].enable = TRUE;
 						adversaries[adversary_nb].update_time = global.absolute_time;
 					}
-					else
+					else{
 						adversaries[adversary_nb].enable = FALSE;
+					}
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
 						adversaries[adversary_nb].x = ((Sint16)msg->data[1])*20;
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
