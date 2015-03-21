@@ -135,62 +135,51 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 
 	if(msg != NULL)
 	{
+		if (msg->sid == BROADCAST_ADVERSARIES_POSITION)
+		{
+			adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
+			if(adversary_nb < HOKUYO_MAX_FOES)
+			{
+				fiability = msg->data[6];
+				if(fiability)
+				{
+					adversaries[adversary_nb].enable = TRUE;
+					adversaries[adversary_nb].update_time = global.absolute_time;
+				}
+				else{
+					adversaries[adversary_nb].enable = FALSE;
+				}
+				if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
+					adversaries[adversary_nb].x = ((Sint16)msg->data[1])*20;
+				if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
+					adversaries[adversary_nb].y = ((Sint16)msg->data[2])*20;
+				if(fiability)
+				{
+					if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
+						adversaries[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
+					else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
+					{
+						adversaries[adversary_nb].angle = GEOMETRY_viewing_angle(global.position.x, global.position.y,adversaries[adversary_nb].x, adversaries[adversary_nb].y);
+						adversaries[adversary_nb].angle = GEOMETRY_modulo_angle(adversaries[adversary_nb].angle - global.position.teta);
+					}
+					if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
+						adversaries[adversary_nb].dist = ((Sint16)msg->data[5])*20;
+					else	//je dois calculer moi-même la distance de l'adversaire
+						adversaries[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.position.x, global.position.y},
+																				(GEOMETRY_point_t){adversaries[adversary_nb].x, adversaries[adversary_nb].y}
+																				);
+				}
 
-		if( msg->sid == BROADCAST_ADVERSARIES_POSITION && get_wood_state_defensive() && (get_wood_position_x()>((Sint16)msg->data[1])*20-PROTECTION_GAP && get_wood_position_x()<((Sint16)msg->data[1])*20+PROTECTION_GAP  && get_wood_position_y()>((Sint16)msg->data[2])*20-PROTECTION_GAP && get_wood_position_y()<((Sint16)msg->data[2])*20+PROTECTION_GAP )){
-			debug_printf("HOLLY POINTS FILTRES  WOOD\n");
-		debug_printf("\nget_wood_state_defensive()=%d\n",get_wood_state_defensive());
+			}
+			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
+			{
+				if(adversary_nb == 0 && !fiability)
+					hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
+				else
+					hokuyo_objects_number = adversary_nb + 1;
+			}
 		}
-		if ( (msg->sid == BROADCAST_ADVERSARIES_POSITION && !get_wood_state_defensive() )  ||
-			   ( msg->sid == BROADCAST_ADVERSARIES_POSITION
-				 && get_wood_state_defensive()
-				 && !(get_wood_position_x()>((Sint16)msg->data[1])*20-PROTECTION_GAP
-					  && get_wood_position_x()<((Sint16)msg->data[1])*20+PROTECTION_GAP
-					  && get_wood_position_y()>((Sint16)msg->data[2])*20-PROTECTION_GAP
-					  && get_wood_position_y()<((Sint16)msg->data[2])*20+PROTECTION_GAP )))   {
-
-
-				adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
-				if(adversary_nb < HOKUYO_MAX_FOES)
-				{
-					fiability = msg->data[6];
-					if(fiability)
-					{
-						adversaries[adversary_nb].enable = TRUE;
-						adversaries[adversary_nb].update_time = global.absolute_time;
-					}
-					else{
-						adversaries[adversary_nb].enable = FALSE;
-					}
-					if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
-						adversaries[adversary_nb].x = ((Sint16)msg->data[1])*20;
-					if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
-						adversaries[adversary_nb].y = ((Sint16)msg->data[2])*20;
-					if(fiability)
-					{
-						if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
-							adversaries[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
-						else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
-						{
-							adversaries[adversary_nb].angle = GEOMETRY_viewing_angle(global.position.x, global.position.y,adversaries[adversary_nb].x, adversaries[adversary_nb].y);
-							adversaries[adversary_nb].angle = GEOMETRY_modulo_angle(adversaries[adversary_nb].angle - global.position.teta);
-						}
-						if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
-							adversaries[adversary_nb].dist = ((Sint16)msg->data[5])*20;
-						else	//je dois calculer moi-même la distance de l'adversaire
-							adversaries[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.position.x, global.position.y},
-																					(GEOMETRY_point_t){adversaries[adversary_nb].x, adversaries[adversary_nb].y}
-																					);
-					}
-
-				}
-				if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
-				{
-					if(adversary_nb == 0 && !fiability)
-						hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
-					else
-						hokuyo_objects_number = adversary_nb + 1;
-				}
-		}else if(msg->sid == BROADCAST_BEACON_ADVERSARY_POSITION_IR)
+		else if(msg->sid == BROADCAST_BEACON_ADVERSARY_POSITION_IR)
 		{
 			for(i = 0; i<BEACON_MAX_FOES; i++)
 			{
@@ -255,6 +244,14 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 		}
 	}
 
+	for(i=0;i<HOKUYO_MAX_FOES + BEACON_MAX_FOES;i++)
+	{
+		if(adversaries[i].enable)	//Pour tout les adversaires observés...
+		{
+			if(is_point_protected_by_wood((GEOMETRY_point_t){adversaries[i].x, adversaries[i].y}))
+				adversaries[i].enable = FALSE;	//On désactive cet adversaire... Soit c'est WOOD, soit c'est un ennemi dont on est protégé par Wood.
+		}
+	}
 
 	/*debug_printf("Adv 1 : ");
 	if(adversaries[HOKUYO_MAX_FOES].enable == TRUE){

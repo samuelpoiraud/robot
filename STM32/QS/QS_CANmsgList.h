@@ -282,7 +282,15 @@
 		#define XBEE_ZONE_UNLOCK         2  //Dans data[1]: la zone libérée. Libère une zone qui a été verouillée
 
 	#define XBEE_HOLLY_ASK_PROTECT          0x5C0
-	#define XBEE_WOOD_SEND_POSITION         0x5C1
+	#define XBEE_WOOD_PROTECT_ZONE         	0x5C1
+		/*	Le rectangle dans lequel HOLLY doit ignorer les adversaires est indiqué ainsi
+		 * data[0-1] : Sint16 : x1
+		 * data[2-3] : Sint16 : x2
+		 * data[4-5] : Sint16 : y1
+		 * data[6-7] : Sint16 : y2
+		 *
+		 * ATTENTION : Pour déclarer que l'on arrête la protection, on envoie toutes les datas à 0 !!!
+		 */
 
 	#define XBEE_CAN_WOOD_ACCESS_SCAN		0x5B0
 	#define XBEE_WOOD_ACCESS_SCAN			0x5B1	//Réponse...
@@ -666,7 +674,15 @@
 	#define PROP_DEBUG_FORCED_FOE				0x118
 	// Message CAN pour forcer la détection d'un adversaire
 
-	#define PROP_WOOD_SEND_POSITION				0x120
+	#define PROP_WOOD_PROTECT_ZONE				0x120
+		/*	Le rectangle dans lequel HOLLY doit ignorer les adversaires est indiqué ainsi
+		 * data[0-1] : Sint16 : x1
+		 * data[2-3] : Sint16 : x2
+		 * data[4-5] : Sint16 : y1
+		 * data[6-7] : Sint16 : y2
+		 *
+		 * ATTENTION : Pour déclarer que l'on arrête la protection, on envoie toutes les datas à 0 !!!
+		 */
 
 /*****************************************************************
  *
