@@ -496,7 +496,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			IHM_process_main(msg);
 			break;
 
-		case PROP_WOOD_SEND_POSITION :
+		case PROP_WOOD_PROTECT_ZONE :
 			holly_receive_wood_position(msg);
 			break;
 

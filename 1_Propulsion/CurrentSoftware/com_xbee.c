@@ -7,46 +7,61 @@
 
 #define WAIT_TIME_POSITION         800
 
-static ELEMENTS_info_wood_protection infoWood = {FALSE,0,0,FALSE};
+static ELEMENTS_info_wood_protection infoWood = {0,0,0,0,FALSE};
 static watchdog_id_t watchdog_position_id = 255;
-static bool_e create_watchdog_position = FALSE;
-
-void holly_acquitte_flag_position();
 
 
-void holly_receive_wood_position(CAN_msg_t *msg){
-	if(msg->data[0]){
+void holly_timeout_wood_protection(void);
+
+
+void holly_receive_wood_position(CAN_msg_t * msg)
+{
+	if(msg->sid != PROP_WOOD_PROTECT_ZONE)
+		return;
+
+	if(watchdog_position_id != 255)
+	{
+		WATCHDOG_stop(watchdog_position_id);	//on arrête un éventuel watchdog précédemment lancé.
+		watchdog_position_id = 255;
+	}
+
+	infoWood.x1=U16FROMU8(msg->data[0],msg->data[1]);
+	infoWood.x2=U16FROMU8(msg->data[2],msg->data[3]);
+	infoWood.y1=U16FROMU8(msg->data[4],msg->data[5]);
+	infoWood.y2=U16FROMU8(msg->data[6],msg->data[7]);
+
+	if(infoWood.x1 || infoWood.x2 || infoWood.y1 || infoWood.y2)
+	{	//Le rectangle de protection est non nul : wood protège
 		infoWood.onTheDefensive = TRUE;
-		if(!create_watchdog_position){
-			watchdog_position_id = WATCHDOG_create(WAIT_TIME_POSITION, &holly_acquitte_flag_position,TRUE);
-			create_watchdog_position=TRUE;
-		}
+		watchdog_position_id = WATCHDOG_create(WAIT_TIME_POSITION, &holly_timeout_wood_protection,FALSE);
+		//Le lancement du watchdog permet d'assurer une durée de vie limitée à la levée du flag onTheDefensive
 	}
-	else{
+	else	//Rectangle d'évitement nul : plus de protection par wood
 		infoWood.onTheDefensive = FALSE;
-	}
-	infoWood.x=U16FROMU8(msg->data[1],msg->data[2]);
-	infoWood.y=U16FROMU8(msg->data[3],msg->data[4]);
-	debug_printf("Position de wood = (%d;%d)\n",infoWood.x,infoWood.y);
+}
+
+//Fonction appelée en IT par le watchdog......
+//Objectif : faire en sorte que le bool_e onTheDefensive ne puisse être levé en absence de réception périodique de message plus longtemps que WAIT_TIME_POSITION
+void holly_timeout_wood_protection(void)
+{
+	if(infoWood.onTheDefensive)
+		infoWood.onTheDefensive = FALSE;
 }
 
 
-void holly_acquitte_flag_position(){
-	if(infoWood.dataSend)
-		infoWood.dataSend = FALSE;
-	else
-		WATCHDOG_stop(watchdog_position_id);
-}
-
-Uint16 get_wood_position_x(){
-	return infoWood.x;
-}
-
-Uint16 get_wood_position_y(){
-	return infoWood.y;
-}
-
-bool_e get_wood_state_defensive(){
+bool_e get_wood_state_defensive()
+{
 	return infoWood.onTheDefensive;
 }
 
+ELEMENTS_info_wood_protection * get_info_wood_protection(void)
+{
+	return &infoWood;
+}
+
+bool_e is_point_protected_by_wood(GEOMETRY_point_t p)
+{
+	if(infoWood.onTheDefensive && is_in_square(infoWood.x1,infoWood.x2,infoWood.y1,infoWood.y2,p))
+		return TRUE;
+	return FALSE;
+}

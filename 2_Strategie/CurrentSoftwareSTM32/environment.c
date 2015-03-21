@@ -480,14 +480,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			wood_receive_protect(incoming_msg);
 			break;
 
-		case XBEE_WOOD_SEND_POSITION:{
-			// A complèter
-			CAN_msg_t msg = *incoming_msg;
-			msg.sid = PROP_WOOD_SEND_POSITION;
-			CAN_send(&msg);
-		}
+		case XBEE_WOOD_PROTECT_ZONE:
+			incoming_msg->sid = PROP_WOOD_PROTECT_ZONE;	//On change le SID et on restransmet à la prop.
+			CAN_send(incoming_msg);
 			break;
-
 
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
