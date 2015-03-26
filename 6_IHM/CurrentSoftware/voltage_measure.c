@@ -24,7 +24,7 @@
 #define ACQUISITION					200		//[ms] Faire une acquisition de la batterie tous les..
 
 static Uint32 valuePerm;
-static bool_e ARU_enable,BATTERY_Low,HOKUYO_enable;
+static bool_e ARU_enable,BATTERY_Low,BATTERY_off,HOKUYO_enable;
 volatile bool_e flag_200ms = FALSE;
 
 static void send_msgCAN(IHM_power_e state);
@@ -36,34 +36,28 @@ void VOLTAGE_MEASURE_init(){
 	BATTERY_Low = FALSE;
 	ARU_enable = FALSE;
 	HOKUYO_enable = TRUE;
-
+	BATTERY_off = FALSE;
 }
 
-void VOLTAGE_MEASURE_process_main(void)
-{
+void VOLTAGE_MEASURE_process_main(void){
 	Uint32 valuePcse;
 	Uint32 valueHokuyo;
 
-	if(flag_200ms)
-	{
+	if(flag_200ms){
 		flag_200ms = FALSE;
 		valuePcse = VOLTAGE_MEASURE_measure24_mV(ADC_24_PUISSANCE);
 		valueHokuyo = VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO);
-	//	debug_printf("power %d\n",valuePcse);
-	//	debug_printf("valueHokuyo %d\n",valueHokuyo);
-
 		valuePerm = valuePerm*(100-PERCENTAGE_FILTER)/100 + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER/100;
-		//debug_printf("valuePerm %d\n",valuePerm);
 
-
-		if(valuePerm < THRESHOLD_BATTERY_OFF && !BATTERY_Low){
+		if(valuePerm < THRESHOLD_BATTERY_OFF && !BATTERY_off){
 			send_msgCAN(BATTERY_OFF);
-			BATTERY_Low = TRUE;
-		}else if(valuePerm < THRESHOLD_BATTERY_LOW && !BATTERY_Low){
+			BATTERY_off = TRUE;
+		}
+
+		if(valuePerm < THRESHOLD_BATTERY_LOW && !BATTERY_Low){
 			send_msgCAN(BATTERY_LOW);
 			BATTERY_Low = TRUE;
 		}
-
 
 		if(valuePcse < valuePerm - GAP_BETWEEN_ARU && !ARU_enable){ // L'ARU vient d'être enfoncé, plus de puissance
 			send_msgCAN(ARU_ENABLE);
@@ -72,7 +66,6 @@ void VOLTAGE_MEASURE_process_main(void)
 			send_msgCAN(ARU_DISABLE);
 			ARU_enable = FALSE;
 		}
-
 
 		if((valueHokuyo < THRESHOLD_12V_HOKUYO_MIN || valueHokuyo > THRESHOLD_12V_HOKUYO_MAX)){
 			if(HOKUYO_enable)
@@ -88,12 +81,10 @@ void VOLTAGE_MEASURE_process_main(void)
 void VOLTAGE_MEASURE_process_it(Uint8 ms){
 	static Uint16 time = ACQUISITION;
 	// Regarde, s'il doit faire une acquisition ou bien passer son chemin
-	if(time > ms)
-	{
+	if(time > ms){
 		time -= (Uint8)(ms);
 	}
-	else
-	{
+	else{
 		time = ACQUISITION;
 		flag_200ms = TRUE;
 	}
