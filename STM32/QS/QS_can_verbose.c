@@ -352,8 +352,8 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 			switch(msg->data[0]){
 				case BATTERY_OFF:				print(*string, *len, "| BATTERY_OFF\n");			break;
 				case BATTERY_LOW:				print(*string, *len, "| BATTERY_LOW\n");			break;
-				case ARU_ENABLE:				print(*string, *len, "| ARU_ENABLE\n");				break;
-				case ARU_DISABLE:				print(*string, *len, "| ARU_DISABLE\n");			break;
+				case ARU_ENABLE:				print(*string, *len, "| POWER_DISABLE\n");			break;
+				case ARU_DISABLE:				print(*string, *len, "| POWER_ENABLE\n");			break;
 				case HOKUYO_POWER_FAIL:			print(*string, *len, "| HOKUYO_POWER_FAIL\n");		break;
 				default:																			break;
 			}
