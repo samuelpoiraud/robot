@@ -114,10 +114,10 @@
 //--------------------Configuration des ID des actionneurs-----------------------
 
 /* ID des différents AX12 */
-	#define PINCE_GAUCHE_AX12_ID						9
-	#define PINCE_DROITE_AX12_ID						10
+	#define PINCE_GAUCHE_AX12_ID						1
+	#define PINCE_DROITE_AX12_ID						12
 	#define CLAP_AX12_ID						        11
-	#define POP_DROP_LEFT_WOOD_AX12_ID                  12
-	#define POP_DROP_RIGHT_WOOD_AX12_ID                 13
+	#define POP_DROP_LEFT_WOOD_AX12_ID                  13
+	#define POP_DROP_RIGHT_WOOD_AX12_ID                 14
 
 #endif /* SMALL_CONFIG_PIN_H */
