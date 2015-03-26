@@ -119,34 +119,34 @@
 
 //--------------------Configuration des ID des actionneurs-----------------------
 
-#define POP_COLLECT_LEFT_AX12_ID		1
-#define POP_COLLECT_RIGHT_AX12_ID		2
+#define POP_COLLECT_LEFT_AX12_ID		2
+#define POP_COLLECT_RIGHT_AX12_ID		3
 
 #define POP_DROP_LEFT_AX12_ID			3
 #define POP_DROP_RIGHT_AX12_ID			4
 
-#define BACK_SPOT_RIGHT_AX12_ID			5
 #define BACK_SPOT_LEFT_AX12_ID			6
+#define BACK_SPOT_RIGHT_AX12_ID			7
 
-#define CARPET_LAUNCHER_RIGHT_AX12_ID	7
 #define CARPET_LAUNCHER_LEFT_AX12_ID	8
+#define CARPET_LAUNCHER_RIGHT_AX12_ID	9
 
-#define CUP_NIPPER_AX12_ID				14
+#define CUP_NIPPER_AX12_ID				10
 
-#define PINCEMIR_R_RX24_ID				23
-#define PINCEMIR_L_RX24_ID				24
-#define PINCEMIL_R_RX24_ID				25
-#define PINCEMIL_L_RX24_ID				26
+#define PINCEMIR_R_RX24_ID				26
+#define PINCEMIR_L_RX24_ID				25
+#define PINCEMIL_R_RX24_ID				23
+#define PINCEMIL_L_RX24_ID				24
 
-#define STOCKR_R_F1_RX24_ID				27
-#define STOCKR_L_F1_RX24_ID				28
-#define STOCKL_R_F1_RX24_ID				29
-#define STOCKL_L_F1_RX24_ID				30
+#define STOCKR_R_F1_RX24_ID				29
+#define STOCKR_L_F1_RX24_ID				30
+#define STOCKL_R_F1_RX24_ID				27
+#define STOCKL_L_F1_RX24_ID				28
 
-#define STOCKR_R_F2_RX24_ID				31
-#define STOCKR_L_F2_RX24_ID				32
-#define STOCKL_R_F2_RX24_ID				33
-#define STOCKL_L_F2_RX24_ID				34
+#define STOCKR_R_F2_RX24_ID				33
+#define STOCKR_L_F2_RX24_ID				34
+#define STOCKL_R_F2_RX24_ID				31
+#define STOCKL_L_F2_RX24_ID				32
 
 #define SPOT_POMPE_RIGHT_PWM_NUM		3
 //#define SPOT_POMPE_LEFT_PWM_NUM		CUSTOM ! Laisser les en commentaires
