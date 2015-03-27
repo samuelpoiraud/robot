@@ -41,7 +41,7 @@ void SWITCHS_update(){
 	// Gère tous les switchs qui envoient un message vers le monde extérieure
 	switchs_pressed = 0;
 #ifdef BIROUTE_PORT
-	switchs_pressed |= (!BIROUTE_PORT)? (1<<BIROUTE_IHM) : 0; // Le laisse là, afin de le mettre à jour dans la variable switchs, si on vient à la demander plus tard (IHM_get..)
+	switchs_pressed |= (BIROUTE_PORT)? (1<<BIROUTE_IHM) : 0; // Le laisse là, afin de le mettre à jour dans la variable switchs, si on vient à la demander plus tard (IHM_get..)
 #endif
 #ifdef SWITCH_COLOR_PORT
 	switchs_pressed |= (SWITCH_COLOR_PORT)?  (1<<SWITCH_COLOR_IHM) : 0;
