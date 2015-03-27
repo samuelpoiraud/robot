@@ -149,6 +149,8 @@
 	// Envoie l'états de la batterie a toute les cartes
 	// data 0 : de type IHM_power_e
 
+	#define IHM_BIROUTE_IS_REMOVED	0x064	//La biroute vient d'être retirée, let's go, c'est parti pour la purée !
+
 
 	/***********************************************************
 						Message pour personne

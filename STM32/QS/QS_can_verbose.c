@@ -209,10 +209,11 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
 		case IHM_SET_LED:								print(string, len, "%x IHM_SET_LED                            ", IHM_SET_LED									);	break;
-		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                             ", IHM_BUTTON									);	break;
-		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                             ", IHM_SWITCH									);	break;
-		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL								);	break;
-		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                              ", IHM_POWER									);	break;
+		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                             ", IHM_BUTTON										);	break;
+		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                             ", IHM_SWITCH										);	break;
+		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL									);	break;
+		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                              ", IHM_POWER										);	break;
+		case IHM_BIROUTE_IS_REMOVED:					print(string, len, "%.3x IHM_BIROUTE_IS_REMOVED                 ",IHM_BIROUTE_IS_REMOVED							);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
 	}
@@ -257,6 +258,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_SWITCH:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_GET_SWITCH:					print_ihm_result(msg, &string, &len);			break;
 		case IHM_POWER:							print_ihm_result(msg, &string, &len);			break;
+		case IHM_SET_LED:						print_ihm_result(msg, &string, &len);			break;
 
 		default:								print(string, len, "|\n");						break;
 	}
@@ -321,33 +323,40 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 		}break;
 		case IHM_GET_SWITCH:{
 			Uint8 i;
-			for(i = 0; i < msg->size; i++)
-				switch (msg->data[i]) {
-					case BIROUTE_IHM:			print(*string, *len, "| sw_biroute\n");					break;
-					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color\n");					break;
-					case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd\n");						break;
-					case SWITCH0_IHM:			print(*string, *len, "| %s\n",SWITCH0_IHM_NAME);		break;
-					case SWITCH1_IHM:			print(*string, *len, "| %s\n",SWITCH1_IHM_NAME);		break;
-					case SWITCH2_IHM:			print(*string, *len, "| %s\n",SWITCH2_IHM_NAME);		break;
-					case SWITCH3_IHM:			print(*string, *len, "| %s\n",SWITCH3_IHM_NAME);		break;
-					case SWITCH4_IHM:			print(*string, *len, "| %s\n",SWITCH4_IHM_NAME);		break;
-					case SWITCH5_IHM:			print(*string, *len, "| %s\n",SWITCH5_IHM_NAME);		break;
-					case SWITCH6_IHM:			print(*string, *len, "| %s\n",SWITCH6_IHM_NAME);		break;
-					case SWITCH7_IHM:			print(*string, *len, "| %s\n",SWITCH7_IHM_NAME);		break;
-					case SWITCH8_IHM:			print(*string, *len, "| %s\n",SWITCH8_IHM_NAME);		break;
-					case SWITCH9_IHM:			print(*string, *len, "| %s\n",SWITCH9_IHM_NAME);		break;
-					case SWITCH10_IHM:			print(*string, *len, "| %s\n",SWITCH10_IHM_NAME);		break;
-					case SWITCH11_IHM:			print(*string, *len, "| %s\n",SWITCH11_IHM_NAME);		break;
-					case SWITCH12_IHM:			print(*string, *len, "| %s\n",SWITCH12_IHM_NAME);		break;
-					case SWITCH13_IHM:			print(*string, *len, "| %s\n",SWITCH13_IHM_NAME);		break;
-					case SWITCH14_IHM:			print(*string, *len, "| %s\n",SWITCH14_IHM_NAME);		break;
-					case SWITCH15_IHM:			print(*string, *len, "| %s\n",SWITCH15_IHM_NAME);		break;
-					case SWITCH16_IHM:			print(*string, *len, "| %s\n",SWITCH16_IHM_NAME);		break;
-					case SWITCH17_IHM:			print(*string, *len, "| %s\n",SWITCH17_IHM_NAME);		break;
-					case SWITCH18_IHM:			print(*string, *len, "| %s\n",SWITCH18_IHM_NAME);		break;
-					default:					print(*string, *len, "| SWITCH %d\n",i-3);	// -3 car biroute, color, lcd avant
+			if(msg->size == 0)
+				print(*string, *len,"| ALL SWITCHS\n");
+			else
+			{
+				for(i = 0; i < msg->size; i++)
+				{
+					switch (msg->data[i]) {
+						case BIROUTE_IHM:			print(*string, *len, "| sw_biroute\n");					break;
+						case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color\n");					break;
+						case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd\n");						break;
+						case SWITCH0_IHM:			print(*string, *len, "| %s\n",SWITCH0_IHM_NAME);		break;
+						case SWITCH1_IHM:			print(*string, *len, "| %s\n",SWITCH1_IHM_NAME);		break;
+						case SWITCH2_IHM:			print(*string, *len, "| %s\n",SWITCH2_IHM_NAME);		break;
+						case SWITCH3_IHM:			print(*string, *len, "| %s\n",SWITCH3_IHM_NAME);		break;
+						case SWITCH4_IHM:			print(*string, *len, "| %s\n",SWITCH4_IHM_NAME);		break;
+						case SWITCH5_IHM:			print(*string, *len, "| %s\n",SWITCH5_IHM_NAME);		break;
+						case SWITCH6_IHM:			print(*string, *len, "| %s\n",SWITCH6_IHM_NAME);		break;
+						case SWITCH7_IHM:			print(*string, *len, "| %s\n",SWITCH7_IHM_NAME);		break;
+						case SWITCH8_IHM:			print(*string, *len, "| %s\n",SWITCH8_IHM_NAME);		break;
+						case SWITCH9_IHM:			print(*string, *len, "| %s\n",SWITCH9_IHM_NAME);		break;
+						case SWITCH10_IHM:			print(*string, *len, "| %s\n",SWITCH10_IHM_NAME);		break;
+						case SWITCH11_IHM:			print(*string, *len, "| %s\n",SWITCH11_IHM_NAME);		break;
+						case SWITCH12_IHM:			print(*string, *len, "| %s\n",SWITCH12_IHM_NAME);		break;
+						case SWITCH13_IHM:			print(*string, *len, "| %s\n",SWITCH13_IHM_NAME);		break;
+						case SWITCH14_IHM:			print(*string, *len, "| %s\n",SWITCH14_IHM_NAME);		break;
+						case SWITCH15_IHM:			print(*string, *len, "| %s\n",SWITCH15_IHM_NAME);		break;
+						case SWITCH16_IHM:			print(*string, *len, "| %s\n",SWITCH16_IHM_NAME);		break;
+						case SWITCH17_IHM:			print(*string, *len, "| %s\n",SWITCH17_IHM_NAME);		break;
+						case SWITCH18_IHM:			print(*string, *len, "| %s\n",SWITCH18_IHM_NAME);		break;
+						default:					print(*string, *len, "| SWITCH %d\n",i-3);	// -3 car biroute, color, lcd avant
+					}
 				}
-		}break;
+			}
+			break;}
 		case IHM_POWER:
 			switch(msg->data[0]){
 				case BATTERY_OFF:				print(*string, *len, "| BATTERY_OFF\n");			break;
@@ -358,6 +367,25 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 				default:																			break;
 			}
 			break;
+		case IHM_SET_LED:{
+			Uint8 i;
+			// 5 bits de poids faible id : 0b...XXXXX
+			// 3 bits de poids fort blink (clignotement) ou couleur pour LED_COLOR_IHM : 0bXXX.....
+			for(i = 0; i < msg->size; i++)
+			{
+				print(*string, *len, "| led%d:",msg->data[i]&0x1F);
+				switch(msg->data[i]>>5)
+				{
+					case OFF:				print(*string, *len, "OFF");	break;
+					case ON:				print(*string, *len, "ON");		break;
+					case BLINK_1HZ:			print(*string, *len, "BLINK");	break;
+					case SPEED_BLINK_4HZ:	print(*string, *len, "SPEED");	break;
+					case FLASH_BLINK_10MS:	print(*string, *len, "FLASH");	break;
+				}
+			}
+			print(*string, *len, " \n");
+			break;}
+
 		default:
 			break;
 	}
