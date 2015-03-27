@@ -129,8 +129,7 @@ void SWITCHS_biroute_update(){
 	{
 		CAN_msg_t msg;
 		msg.size = 1;
-		msg.sid = IHM_SWITCH;
-		msg.data[0] = ((Uint8)BIROUTE_IHM & SWITCH_ID);
+		msg.sid = IHM_BIROUTE_IS_REMOVED;
 		CAN_send(&msg);
 	}
 #endif
