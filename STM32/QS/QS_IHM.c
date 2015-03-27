@@ -57,6 +57,9 @@ void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 
 	Uint8 i = 0;
 	CAN_msg_t msg;
+
+	size = MIN(8,size);
+
 	msg.sid = IHM_SET_LED;
 	msg.size = size;
 
