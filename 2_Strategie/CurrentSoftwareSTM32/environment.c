@@ -510,6 +510,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case IHM_POWER:
 			IHM_process_main(incoming_msg);
 			break;
+		case IHM_BIROUTE_IS_REMOVED:
+			global.env.ask_start = TRUE;
+			break;
 
 		default:
 			break;

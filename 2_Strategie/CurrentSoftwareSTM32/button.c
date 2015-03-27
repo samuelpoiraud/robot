@@ -66,24 +66,7 @@ void BUTTON_init()
 
 void BUTTON_update()
 {
-	static bool_e biroute_forgotten = TRUE;
-	bool_e biroute_current;
-
-	biroute_current = IHM_switchs_get(BIROUTE);
-
 	BUTTONS_update();
-
-	if (biroute_current)
-	{
-		biroute_forgotten = FALSE;
-	}
-
-	/* regarder si le match doit commencer */
-	if((biroute_forgotten == FALSE && !biroute_current))
-	{
-		global.env.ask_start = TRUE;
-	}
-
 	BUTTON_verbose();
 }
 
