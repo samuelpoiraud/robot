@@ -41,7 +41,7 @@
 // Temps d'acquisition
 // MS : 45 - 50  ms
 // ME : 70 - 100 ms
-	#define USE_COMMAND_ME	// afin de récupérer la distance et l'intensité, sinon récupére juste la distance
+	//#define USE_COMMAND_ME	// afin de récupérer la distance et l'intensité, sinon récupére juste la distance
 
 	#define HOKUYO_BUFFER_READ_TIMEOUT	500		// ms
 
