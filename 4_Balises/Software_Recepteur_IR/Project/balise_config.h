@@ -17,10 +17,12 @@
 	
 	//#define VERBOSE_CAN_OVER_UART1	//Envoyer le contenu des messages can sur l'uart, avec une belle présentation..
 	
-	//#define CAN_SEND_OVER_UART1	//Envoyer les messages can sur l'uart 1.
+	//#define CAN_SEND_OVER_UART1		//Envoyer les messages can sur l'uart 1.
 
-	#define VERBOSE_MODE			//Activation des debug_printf()
-	
+	#define VERBOSE_MODE				//Activation des debug_printf()
+
+	//#define DEBUG_TSOP_MATLAB			// Activation de la visualisation des TSOP/Angle/Distance en temps réel sous matlab veillé à bien enlever les autres debug_printf
+
 	#define USE_CAN
 	#define CAN_BUF_SIZE		4	//	Nombre de messages CAN conservés pour traitement hors interuption
 	#define QS_CAN_RX_IT_PRI CAN_INT_PRI_5	//Priorité du CAN baissée volontairement.

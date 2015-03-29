@@ -189,7 +189,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					//Extraction des données du msg.
 					adversaries[HOKUYO_MAX_FOES+i].fiability_error = msg->data[0+4*i];
 					adversaries[HOKUYO_MAX_FOES+i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
-					adversaries[HOKUYO_MAX_FOES+i].dist = (Uint16)(msg->data[3+4*i])*12;	//*12 : normalement, c'est *10, mais on corrige ici la précision de la distance.
+					adversaries[HOKUYO_MAX_FOES+i].dist = (Uint16)(msg->data[3+4*i])*20;
 
 					//enable ou pas ?
 					adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
