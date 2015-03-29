@@ -27,7 +27,8 @@ figure('units','normalized','outerposition',[0 0 1 1]);
 echant = 1;
 while(1)
     while fread(s, 1, 'char') ~= 'm' end
-    dist(echant) = fscanf(s, '%d');
+    dist(echant) = fscanf(s, '%d')*20;
+    dist(echant)
     angle(echant) = fscanf(s, '%d')/(3.14*4096)*180;
     value = fscanf(s, '%d');
     TSOP(echant, :) = value';

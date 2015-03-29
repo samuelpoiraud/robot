@@ -9,8 +9,8 @@
  *	Version 201002
  */
 
-#define BRAIN_H
-	#ifdef BRAIN_H
+#ifndef BRAIN_H
+	#define BRAIN_H
 	
 	#include "QS/QS_all.h"
 	#include "eyes.h"
@@ -25,8 +25,10 @@
 
 	typedef struct
 	{
-		Uint8 distance;	//[cm]
+		Uint16 distance;	//[cm]
+		Uint16 past_distance;
 		Sint16 angle;
+		Sint16 past_angle;
 		error_t error;
 	}adversary_location_t;	
 	

@@ -295,7 +295,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 
 
 				beacon_ir_objects[i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
-				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*12;	//*12 : normalement, c'est *10, mais on corrige ici la précision de la distance.
+				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*20;
 
 				if(beacon_ir_objects[i].fiability_error & TACHE_TROP_GRANDE)
 					beacon_ir_objects[i].dist = 250;	//Lorsque l'on reçoit l'erreur TACHE TROP GRANDE, la distance est fausse, mais l'adversaire est probablement très proche. On impose 25cm.
