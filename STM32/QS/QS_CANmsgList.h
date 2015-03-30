@@ -387,12 +387,15 @@
 	typedef enum
 	{
 		SELFTEST_NOT_DONE = 0,
+		SELFTEST_FAIL_UNKNOW_REASON,
+		SELFTEST_TIMEOUT,
+
 		SELFTEST_BEACON_ADV1_NOT_SEEN,				//Ne rien mettre avant ceci sans synchroniser le QS_CANmsgList dsPIC pour la balise !!!
 		SELFTEST_BEACON_ADV2_NOT_SEEN,
 		SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED,
 		SELFTEST_BEACON_BATTERY_BIG_LOW,
 		SELFTEST_BEACON_BATTERY_SMALL_LOW,
-		SELFTEST_TIMEOUT,
+
 		SELFTEST_PROP_FAILED,
 		SELFTEST_PROP_HOKUYO_FAILED,
 		SELFTEST_PROP_IN_SIMULATION_MODE,
@@ -423,6 +426,7 @@
 		SELFTEST_IHM_BATTERY_LOW,
 		SELFTEST_IHM_BIROUTE_FORGOTTEN,
 		SELFTEST_IHM_POWER_HOKUYO_FAILED,
+
 		SELFTEST_ACT_UNREACHABLE,
 		SELFTEST_PROP_UNREACHABLE,
 		SELFTEST_BEACON_UNREACHABLE,
@@ -431,7 +435,6 @@
 		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
 		SELFTEST_ACT_MISSING_TEST,	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 		SELFTEST_ACT_UNKNOWN_ACT,	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
-		//SELFTEST_ACT_EXEMPLE,
 		SELFTEST_ACT_POP_COLLECT_LEFT,
 		SELFTEST_ACT_POP_COLLECT_RIGHT,
 		SELFTEST_ACT_POP_DROP_LEFT,
@@ -456,7 +459,6 @@
 		SELFTEST_ACT_POP_DROP_RIGHT_WOOD,
 		SELFTEST_ACT_CLAP_HOLLY,
 
-		SELFTEST_FAIL_UNKNOW_REASON,
 		SELFTEST_ERROR_NB,
 		SELFTEST_NO_ERROR = 0xFF
 		//... ajouter ici d'éventuels nouveaux code d'erreur.

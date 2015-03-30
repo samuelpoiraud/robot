@@ -641,13 +641,14 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 			switch(errors[i])
 			{
 				case SELFTEST_NOT_DONE:							debug_printf("NOT_DONE");										break;
+				case SELFTEST_FAIL_UNKNOW_REASON:				debug_printf("FAIL_UNKNOW_REASON");								break;
+				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");										break;
+
 				case SELFTEST_BEACON_ADV1_NOT_SEEN:				debug_printf("SELFTEST_BEACON_ADV1_NOT_SEEN");					break;
 				case SELFTEST_BEACON_ADV2_NOT_SEEN:				debug_printf("SELFTEST_BEACON_ADV2_NOT_SEEN");					break;
 				case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		debug_printf("SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED");			break;
 				case SELFTEST_BEACON_BATTERY_BIG_LOW:			debug_printf("SELFTEST_BEACON_BATTERY_BIG_LOW");				break;
 				case SELFTEST_BEACON_BATTERY_SMALL_LOW:			debug_printf("SELFTEST_BEACON_BATTERY_SMALL_LOW");				break;
-				case SELFTEST_FAIL_UNKNOW_REASON:				debug_printf("FAIL_UNKNOW_REASON");								break;
-				case SELFTEST_TIMEOUT:							debug_printf("TIMEOUT");										break;
 
 				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");									break;
 				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");					break;
@@ -659,12 +660,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 
 				case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	debug_printf("SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE");		break;
 				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
-				case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_POPCORN_DISABLED");			break;
-				case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED");		break;
-				case SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED");		break;
-				case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_CLAPS_DISABLED");			break;
-				case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_CARPETS_DISABLED");			break;
-				case SELFTEST_STRAT_SWITCH_LIFT_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_LIFT_DISABLED");			break;
 				case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE:debug_printf("SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE");	break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");								break;
 				case SELFTEST_STRAT_BATTERY_NO_24V:				debug_printf("SELFTEST_STRAT_BATTERY_NO_24V");					break;
@@ -674,21 +669,28 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");					break;
 				case SELFTEST_STRAT_ESTRADE_SENSOR_LEFT:		debug_printf("SELFTEST_STRAT_ESTRADE_SENSOR_LEFT");				break;
 				case SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT:		debug_printf("SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT");			break;
+				case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_POPCORN_DISABLED");			break;
+				case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED");		break;
+				case SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED");		break;
+				case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_CLAPS_DISABLED");			break;
+				case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_CARPETS_DISABLED");			break;
+				case SELFTEST_STRAT_SWITCH_LIFT_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_LIFT_DISABLED");			break;
 
 				case SELFTEST_IHM_BATTERY_NO_24V:				debug_printf("SELFTEST_IHM_BATTERY_NO_24V");					break;
 				case SELFTEST_IHM_BATTERY_LOW:					debug_printf("SELFTEST_IHM_BATTERY_LOW");						break;
 				case SELFTEST_IHM_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_IHM_BIROUTE_FORGOTTEN");					break;
 				case SELFTEST_IHM_POWER_HOKUYO_FAILED:			debug_printf("SELFTEST_IHM_POWER_HOKUYO_FAILED");				break;
+
 				case SELFTEST_ACT_UNREACHABLE:					debug_printf("SELFTEST_ACT_UNREACHABLE");						break;
 				case SELFTEST_PROP_UNREACHABLE:					debug_printf("SELFTEST_PROP_UNREACHABLE");						break;
 				case SELFTEST_BEACON_UNREACHABLE:				debug_printf("SELFTEST_BEACON_UNREACHABLE");					break;
 				case SELFTEST_IHM_UNREACHABLE:					debug_printf("SELFTEST_IHM_UNREACHABLE");						break;
+
 					// Actionneurs
 
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");						break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
 
-				//case SELFTEST_ACT_TORCH_LOCKER:				debug_printf("SELFTEST_ACT_TORCH_LOCKER");						break;
 				case SELFTEST_ACT_POP_COLLECT_LEFT:				debug_printf("SELFTEST_ACT_POP_COLLECT_LEFT");					break;
 				case SELFTEST_ACT_POP_COLLECT_RIGHT:			debug_printf("SELFTEST_ACT_POP_COLLECT_RIGHT");					break;
 				case SELFTEST_ACT_POP_DROP_LEFT:				debug_printf("SELFTEST_ACT_POP_DROP_LEFT");						break;
@@ -951,13 +953,14 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 
 	switch(error_num){
 		case SELFTEST_NOT_DONE:							return "Not done"; 				break;
-		case SELFTEST_BEACON_ADV1_NOT_SEEN:				return "IR Adv1 not seen";		break;
-		case SELFTEST_BEACON_ADV2_NOT_SEEN:				return "IR Adv2 not seen";		break;
-		case SELFTEST_BEACON_BATTERY_BIG_LOW:			return "Beac BAT BIG LOW";		break;
-		case SELFTEST_BEACON_BATTERY_SMALL_LOW:			return "Beac BAT SMALL LOW";	break;
-		case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		return "IR not synchronized";	break;
 		case SELFTEST_FAIL_UNKNOW_REASON:				return "Error 404"; 			break;
 		case SELFTEST_TIMEOUT:							return "Selftest Timeout";		break;
+
+		case SELFTEST_BEACON_ADV1_NOT_SEEN:				return "IR Adv1 not seen";		break;
+		case SELFTEST_BEACON_ADV2_NOT_SEEN:				return "IR Adv2 not seen";		break;
+		case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		return "IR not synchronized";	break;
+		case SELFTEST_BEACON_BATTERY_BIG_LOW:			return "Beac BAT BIG LOW";		break;
+		case SELFTEST_BEACON_BATTERY_SMALL_LOW:			return "Beac BAT SMALL LOW";	break;
 
 		case SELFTEST_PROP_FAILED:						return "PROP failed";			break;
 		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";			break;
@@ -971,11 +974,6 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		return "XBee Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE: return "XBee dest unreach";	break;
 		case SELFTEST_STRAT_RTC:						return "RTC failed";			break;
-		case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	return "Popcorn Disabled";		break;
-		case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	return "Left Pump Disabled";	break;
-		case SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED:	return "Right Pump Disabled";	break;
-		case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		return "Claps Disabled";		break;
-		case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	return "Carpets Disabled";		break;
 		case SELFTEST_STRAT_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_STRAT_BATTERY_LOW:				return "BATTERY LOW";			break;
 		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";			break;
@@ -983,19 +981,26 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_SD_WRITE_FAIL:				return "SD Write FAIL";			break;
 		case SELFTEST_STRAT_ESTRADE_SENSOR_LEFT:		return "Estrade sensor left";	break;
 		case SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT:		return "Estrade sensor right";	break;
+		case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	return "Popcorn Disabled";		break;
+		case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	return "Left Pump Disabled";	break;
+		case SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED:	return "Right Pump Disabled";	break;
+		case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		return "Claps Disabled";		break;
+		case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	return "Carpets Disabled";		break;
+		case SELFTEST_STRAT_SWITCH_LIFT_DISABLED:		return "Lift Disabled";			break;
 
 		case SELFTEST_IHM_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_IHM_BATTERY_LOW:					return "BATTERY LOW";			break;
 		case SELFTEST_IHM_BIROUTE_FORGOTTEN:			return "Biroute Forgotten";		break;
 		case SELFTEST_IHM_POWER_HOKUYO_FAILED:			return "Hokuyo power failed";	break;
+
 		case SELFTEST_ACT_UNREACHABLE:					return "ACT Unreachable";		break;
 		case SELFTEST_PROP_UNREACHABLE:					return "PROP Unreachable";		break;
 		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";	break;
 		case SELFTEST_IHM_UNREACHABLE:					return "IHM Unreachable";		break;
+
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
 
-		//case SELFTEST_ACT_TORCH_LOCKER:				return "ACT Torch Locker";		break;
 		case SELFTEST_ACT_POP_COLLECT_LEFT:				return "ACT Pop collect Left";	break;
 		case SELFTEST_ACT_POP_COLLECT_RIGHT:			return "ACT Pop collect Right";	break;
 		case SELFTEST_ACT_POP_DROP_LEFT:				return "ACT Pop Drop Left";		break;
@@ -1020,8 +1025,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_POP_DROP_RIGHT_WOOD:			return "Act Pop Drop Right";	break;
 		case SELFTEST_ACT_CLAP_HOLLY:					return "Act Clap";				break;
 
-		case SELFTEST_ERROR_NB: return NULL; break;
-		case SELFTEST_NO_ERROR: return NULL; break;
+		case SELFTEST_ERROR_NB:							return NULL;					break;
+		case SELFTEST_NO_ERROR:							return NULL;					break;
 		default:
 			if((error_num>>4)>9){
 				default_string[2]=(error_num>>4)+'A';

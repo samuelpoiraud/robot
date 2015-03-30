@@ -47,8 +47,8 @@
 		#define RECALAGE_AR_D		GPIOB->IDR1
 		#define POWER_WATCH_INT		GPIOB->IDR2
 		// - programmation -			  3
-		#define RECALAGE_AV_G		GPIOB->IDR4
-		#define RECALAGE_AV_D		GPIOB->IDR5
+		#define PRESENCE_PIED_PINCE_GAUCHE_HOLLY 		GPIOB->IDR4
+		#define PRESENCE_PIED_PINCE_DROITE_HOLLY 		GPIOB->IDR5
 		#define SWITCH_XBEE_PORT	GPIOB->IDR4
 		#define SWITCH_SAVE_PORT	GPIOB->IDR5
 		//	U1TX						  6
@@ -66,8 +66,8 @@
 
 	#define PORT_C_IO_MASK	0xE03E
 		#define	USB_POWER_ON	 	GPIOC,GPIO_Pin_0
-		#define PRESENCE_PIED_PINCE_GAUCHE_HOLLY			GPIOC->IDR1
-		#define PRESENCE_PIED_PINCE_DROITE_HOLLY			GPIOC->IDR2
+		#define RECALAGE_AV_G		GPIOC->IDR1
+		#define RECALAGE_AV_D		GPIOC->IDR2
 		//								3
 		//								4
 		#define RECALAGE_AR_G		RECALAGE_AV_D				// !!!!!! Juste pour les FDP 2014 pour que ça marche
@@ -159,8 +159,8 @@
 		#define RECALAGE_AR_D		GPIOB->IDR1
 		#define POWER_WATCH_INT		GPIOB->IDR2
 		// - programmation -			3
-		#define RECALAGE_AV_G		GPIOB->IDR4
-		#define RECALAGE_AV_D		GPIOB->IDR5
+		#define PRESENCE_PIED_PINCE_GAUCHE_HOLLY 		GPIOB->IDR4
+		#define PRESENCE_PIED_PINCE_DROITE_HOLLY 		GPIOB->IDR5
 		//	U1TX						6
 		//	U1RX						7
 		//	-							8
@@ -176,8 +176,8 @@
 
 	#define PORT_C_IO_MASK	0xE03E
 		#define	USB_POWER_ON	 	GPIOC,GPIO_Pin_0
-		#define PRESENCE_PIED_PINCE_GAUCHE_HOLLY			GPIOC->IDR1
-		#define PRESENCE_PIED_PINCE_DROITE_HOLLY			GPIOC->IDR2
+		#define RECALAGE_AV_G		GPIOC->IDR1
+		#define RECALAGE_AV_D		GPIOC->IDR2
 		//								3
 		//								4
 		#define RECALAGE_AR_G		GPIOC->IDR5
