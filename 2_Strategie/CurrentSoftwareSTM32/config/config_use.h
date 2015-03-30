@@ -45,7 +45,7 @@
 
 #define USE_PROP_AVOIDANCE		//Activation de l'évitement en propulsion
 
-#define FDP_2014				//Define Temporaire pour l'ancien FDP
+//#define FDP_2014				//Define Temporaire pour l'ancien FDP
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
