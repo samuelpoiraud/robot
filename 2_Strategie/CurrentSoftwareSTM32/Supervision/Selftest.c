@@ -949,7 +949,7 @@ SELFTEST_error_code_e SELFTEST_getError(Uint8 index)
 }
 
 char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
-	static char default_string[21] = {'0','x',0,0,' ','U','n','k','n','o','w','n',' ','E','R','R'};
+	static char default_string[20];
 
 	switch(error_num){
 		case SELFTEST_NOT_DONE:							return "Not done"; 				break;
@@ -1028,16 +1028,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ERROR_NB:							return NULL;					break;
 		case SELFTEST_NO_ERROR:							return NULL;					break;
 		default:
-			if((error_num>>4)>9){
-				default_string[2]=(error_num>>4)+'A';
-			}else{
-				default_string[2]=(error_num>>4)+'0';
-			}
-			if((error_num & 0x0F)>9){
-				default_string[3]=(error_num & 0x0F)+'A';
-			}else{
-				default_string[3]=(error_num & 0x0F)+'0';
-			}
+			sprintf(default_string, "0x%2x Unknown ERR", error_num);
 			return default_string;
 		break;
 	}
