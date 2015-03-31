@@ -29,7 +29,7 @@
 	//Si le robot va trop loin, il faut augmenter le coeff et vice versa
 
 
-	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (0)//(0x0010)
+	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (-5)//(0x0010)
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (-160)
 
 	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010E28	//Guy : 92mm entre roue codeuse et centre
