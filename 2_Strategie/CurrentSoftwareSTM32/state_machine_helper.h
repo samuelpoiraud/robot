@@ -2,6 +2,7 @@
 #define STATE_MACHINE_HELPER_H
 
 #include "QS/QS_all.h"
+#include "QS/QS_macro.h"
 #include "queue.h"
 #include "avoidance.h"
 #include "foreach_preprocessor.h"
@@ -126,7 +127,8 @@ void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, c
 	bool_e entrance = last_state_for_check_entrance != state || !initialized; \
 	if(entrance) last_state = last_state_for_check_entrance; \
 	last_state_for_check_entrance = state; \
-	initialized = TRUE
+	initialized = TRUE; \
+	UNUSED_VAR(last_state)
 
 // Macro à utiliser pour détecter la sortie d'un état
 // current_state : l'état dans lequel on est
