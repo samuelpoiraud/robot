@@ -121,7 +121,7 @@ void copy_cup_position(ELEMENTS_position cup_copy[]);
 void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispenser_done, Uint16 * x, Uint16 * y);
 
 //Message CAN de récupération du centre des gobelets
- void collect_cup_coord( CAN_msg_t *msg);
+void collect_cup_coord( CAN_msg_t *msg);
 
 
 #endif // ELEMENTS_H

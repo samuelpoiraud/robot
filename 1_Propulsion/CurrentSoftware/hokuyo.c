@@ -696,6 +696,30 @@ void hokuyo_find_valid_points(void){
 						&& y_absolute < MARCHE_RECT_Y + MARCHE_RECT_HEIGHT + MARGIN) 	//zones des marches
 						point_filtered = TRUE;	//on refuse les points
 
+				if(x_absolute > BEGIN_ZONE_Y1_RECT_X
+						&& x_absolute < BEGIN_ZONE_Y1_RECT_X + BEGIN_ZONE_Y1_WIDTH
+						&& y_absolute > BEGIN_ZONE_Y1_RECT_Y
+						&& y_absolute < BEGIN_ZONE_Y1_RECT_Y + BEGIN_ZONE_Y1_RECT_HEIGHT) 	//zones de départ jaune partie basse
+						point_filtered = TRUE;	//on refuse les points
+
+				if(x_absolute > BEGIN_ZONE_Y2_RECT_X
+						&& x_absolute < BEGIN_ZONE_Y2_RECT_X + BEGIN_ZONE_Y2_WIDTH
+						&& y_absolute > BEGIN_ZONE_Y2_RECT_Y
+						&& y_absolute < BEGIN_ZONE_Y2_RECT_Y + BEGIN_ZONE_Y2_RECT_HEIGHT) 	//zones de départ jaune partie haute
+						point_filtered = TRUE;	//on refuse les points
+
+				if(x_absolute > BEGIN_ZONE_G1_RECT_X
+						&& x_absolute < BEGIN_ZONE_G1_RECT_X + BEGIN_ZONE_G1_WIDTH
+						&& y_absolute > BEGIN_ZONE_G1_RECT_Y
+						&& y_absolute < BEGIN_ZONE_G1_RECT_Y + BEGIN_ZONE_G1_RECT_HEIGHT) 	//zones de départ verte partie basse
+						point_filtered = TRUE;	//on refuse les points
+
+				if(x_absolute > BEGIN_ZONE_G2_RECT_X
+						&& x_absolute < BEGIN_ZONE_G2_RECT_X + BEGIN_ZONE_G2_WIDTH
+						&& y_absolute > BEGIN_ZONE_G2_RECT_Y
+						&& y_absolute < BEGIN_ZONE_G2_RECT_Y + BEGIN_ZONE_G2_RECT_HEIGHT) 	//zones de départ verte partie haute
+						point_filtered = TRUE;	//on refuse les points
+
 				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
 					point_filtered = TRUE;
 
