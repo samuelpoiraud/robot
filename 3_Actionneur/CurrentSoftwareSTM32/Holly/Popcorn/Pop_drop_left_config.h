@@ -19,16 +19,16 @@
 	#define POP_DROP_LEFT_AX12_MAX_TORQUE_PERCENT			100				// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 
 //Position
-	#define POP_DROP_LEFT_AX12_IDLE_POS						110				//en degré
+	#define POP_DROP_LEFT_AX12_IDLE_POS						150				//en degré
 	#define POP_DROP_LEFT_AX12_MID_POS						110				//en degré
-	#define POP_DROP_LEFT_AX12_DEPLOYED_POS					163				//en degré
+	#define POP_DROP_LEFT_AX12_DEPLOYED_POS					80				//en degré
 
 //Position initiale de l'AX12
 	#define POP_DROP_LEFT_AX12_INIT_POS						POP_DROP_LEFT_AX12_IDLE_POS
 
 //Extremum valeur
-	#define POP_DROP_LEFT_AX12_MAX_VALUE					300
-	#define POP_DROP_LEFT_AX12_MIN_VALUE					0
+	#define POP_DROP_LEFT_AX12_MAX_VALUE					155
+	#define POP_DROP_LEFT_AX12_MIN_VALUE					75
 
 #endif	/* POP_DROP_LEFT_CONFIG_H */
 
