@@ -1593,13 +1593,13 @@ bool_e AX12_config_set_return_delay_time(Uint8 id_servo, Uint16 delay_us) {
 
 bool_e AX12_config_set_minimal_angle(Uint8 id_servo, Uint16 degre) {
 	if(degre > AX12_MAX_DEGRE) degre = AX12_MAX_DEGRE;
-	return AX12_instruction_write16(id_servo, AX12_CW_ANGLE_LIMIT_L, AX12_DEGRE_TO_ANGLE(degre));
+	return AX12_instruction_write16(id_servo, AX12_CW_ANGLE_LIMIT_L, degre);
 }
 
 bool_e AX12_config_set_maximal_angle(Uint8 id_servo, Uint16 degre) {
 	if(degre > AX12_MAX_DEGRE) degre = AX12_MAX_DEGRE;
 	if(degre == 0) degre = 1;	//Si l'utilisateur met un angle mini et maxi à 0, l'AX12/RX24 passera en mode rotation en continue, ce mode ne doit être activé que par AX12_set_wheel_mode_enabled (en passant TRUE)
-	return AX12_instruction_write16(id_servo, AX12_CCW_ANGLE_LIMIT_L, AX12_DEGRE_TO_ANGLE(degre));
+	return AX12_instruction_write16(id_servo, AX12_CCW_ANGLE_LIMIT_L, degre);
 }
 
 bool_e AX12_config_set_temperature_limit(Uint8 id_servo, Uint8 temperature) {
@@ -1832,10 +1832,10 @@ bool_e AX12_set_torque_response(Uint8 id_servo, Uint16 A, Uint16 B, Uint16 C, Ui
 	if(D > AX12_MAX_DEGRE)
 		D = AX12_MAX_DEGRE;
 
-	CcwComplianceSlope = AX12_DEGRE_TO_ANGLE(A);
-	CcwComplianceMargin = AX12_DEGRE_TO_ANGLE(B);
-	CwComplianceMargin = AX12_DEGRE_TO_ANGLE(C);
-	CwComplianceSlope = AX12_DEGRE_TO_ANGLE(D);
+	CcwComplianceSlope = A;
+	CcwComplianceMargin = B;
+	CwComplianceMargin = C;
+	CwComplianceSlope = D;
 
 	if(!AX12_instruction_async_write8(id_servo, AX12_CCW_COMPLIANCE_SLOPE, CcwComplianceSlope))
 		return FALSE;
@@ -1856,7 +1856,7 @@ bool_e AX12_set_torque_response(Uint8 id_servo, Uint16 A, Uint16 B, Uint16 C, Ui
 
 bool_e AX12_set_position(Uint8 id_servo, Uint16 degre) {
 	if(degre > AX12_MAX_DEGRE) degre = AX12_MAX_DEGRE;
-	return AX12_instruction_write16(id_servo, AX12_GOAL_POSITION_L, AX12_DEGRE_TO_ANGLE(degre));
+	return AX12_instruction_write16(id_servo, AX12_GOAL_POSITION_L, degre);
 }
 
 bool_e AX12_set_move_to_position_speed(Uint8 id_servo, Uint16 degre_per_sec) {
