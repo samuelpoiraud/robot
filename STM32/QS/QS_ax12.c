@@ -1460,7 +1460,7 @@ void AX12_init() {
 // Pourcentage entre 0 et 100
 
 //Angle max: 360°
-#define AX12_MAX_DEGRE 360
+#define AX12_MAX_ANGLE 1024
 #define AX12_ANGLE_TO_DEGRE(angle) ((((Uint32)(angle))*75) >> 8) // >> 8 <=> / 256, 75/256 = 300/1024 = 0.29296875
 #define AX12_DEGRE_TO_ANGLE(angle) ((((Uint32)(angle)) << 8) / 75)	//L'utilisation d'entier 32bits est nécessaire, l'angle max 360° * 256 donne un nombre supérieur à 65535
 //Aproximation pour eviter les entier 32bits (le dspic30F est 16bits), une unité d'angle vaut 0.296875°, perte de précision de 1,3%, AX12_DEGRE_TO_ANGLE(300) donne un angle réel de 296°, soit une perte de 4° pour un angle de 300°
@@ -1541,11 +1541,11 @@ Uint16 AX12_config_get_return_delay_time(Uint8 id_servo) {
 }
 
 Uint16 AX12_config_get_minimal_angle(Uint8 id_servo) {
-	return AX12_ANGLE_TO_DEGRE(AX12_instruction_read16(id_servo, AX12_CW_ANGLE_LIMIT_L, NULL));
+	return AX12_instruction_read16(id_servo, AX12_CW_ANGLE_LIMIT_L, NULL);
 }
 
 Uint16 AX12_config_get_maximal_angle(Uint8 id_servo) {
-	return AX12_ANGLE_TO_DEGRE(AX12_instruction_read16(id_servo, AX12_CCW_ANGLE_LIMIT_L, NULL));
+	return AX12_instruction_read16(id_servo, AX12_CCW_ANGLE_LIMIT_L, NULL);
 }
 
 Uint8  AX12_config_get_temperature_limit(Uint8 id_servo) {
@@ -1592,12 +1592,12 @@ bool_e AX12_config_set_return_delay_time(Uint8 id_servo, Uint16 delay_us) {
 }
 
 bool_e AX12_config_set_minimal_angle(Uint8 id_servo, Uint16 degre) {
-	if(degre > AX12_MAX_DEGRE) degre = AX12_MAX_DEGRE;
+	if(degre > AX12_MAX_ANGLE) degre = AX12_MAX_ANGLE;
 	return AX12_instruction_write16(id_servo, AX12_CW_ANGLE_LIMIT_L, degre);
 }
 
 bool_e AX12_config_set_maximal_angle(Uint8 id_servo, Uint16 degre) {
-	if(degre > AX12_MAX_DEGRE) degre = AX12_MAX_DEGRE;
+	if(degre > AX12_MAX_ANGLE) degre = AX12_MAX_ANGLE;
 	if(degre == 0) degre = 1;	//Si l'utilisateur met un angle mini et maxi à 0, l'AX12/RX24 passera en mode rotation en continue, ce mode ne doit être activé que par AX12_set_wheel_mode_enabled (en passant TRUE)
 	return AX12_instruction_write16(id_servo, AX12_CCW_ANGLE_LIMIT_L, degre);
 }
@@ -1663,16 +1663,16 @@ bool_e AX12_get_torque_response(Uint8 id_servo, Uint16* A, Uint16* B, Uint16* C,
 	CwComplianceSlope = AX12_instruction_read8(id_servo, AX12_CW_COMPLIANCE_SLOPE, &isOk);
 	if(!isOk) return FALSE;
 
-	if(A) *A = AX12_ANGLE_TO_DEGRE(CcwComplianceSlope);
-	if(B) *B = AX12_ANGLE_TO_DEGRE(CcwComplianceMargin);
-	if(C) *C = AX12_ANGLE_TO_DEGRE(CwComplianceMargin);
-	if(D) *D = AX12_ANGLE_TO_DEGRE(CwComplianceSlope);
+	if(A) *A = CcwComplianceSlope;
+	if(B) *B = CcwComplianceMargin;
+	if(C) *C = CwComplianceMargin;
+	if(D) *D = CwComplianceSlope;
 
 	return TRUE;
 }
 
 Uint16 AX12_get_position(Uint8 id_servo) {
-	return AX12_ANGLE_TO_DEGRE(AX12_instruction_read16(id_servo, AX12_PRESENT_POSITION_L, NULL));
+	return AX12_instruction_read16(id_servo, AX12_PRESENT_POSITION_L, NULL);
 }
 
 Sint16 AX12_get_move_to_position_speed(Uint8 id_servo) {
@@ -1823,21 +1823,21 @@ bool_e AX12_set_torque_response(Uint8 id_servo, Uint16 A, Uint16 B, Uint16 C, Ui
 	Uint16 CwComplianceSlope;
 
 	//Limite d'angle max sinon si l'angle est trop élevé, AX12_DEGRE_TO_ANGLE pourrait renvoyer une valeur erronée a cause d'un overflow
-	if(A > AX12_MAX_DEGRE)
-		A = AX12_MAX_DEGRE;
-	if(B > AX12_MAX_DEGRE)
-		B = AX12_MAX_DEGRE;
-	if(C > AX12_MAX_DEGRE)
-		C = AX12_MAX_DEGRE;
-	if(D > AX12_MAX_DEGRE)
-		D = AX12_MAX_DEGRE;
+	if(A > AX12_MAX_ANGLE)
+		A = AX12_MAX_ANGLE-1;
+	if(B > AX12_MAX_ANGLE)
+		B = AX12_MAX_ANGLE-1;
+	if(C > AX12_MAX_ANGLE)
+		C = AX12_MAX_ANGLE-1;
+	if(D > AX12_MAX_ANGLE)
+		D = AX12_MAX_ANGLE-1;
 
 	CcwComplianceSlope = A;
 	CcwComplianceMargin = B;
 	CwComplianceMargin = C;
 	CwComplianceSlope = D;
 
-	if(!AX12_instruction_async_write8(id_servo, AX12_CCW_COMPLIANCE_SLOPE, CcwComplianceSlope))
+	if(!AX12_instruction_async_write8(id_servo, AX12_CCW_COMPLIANCE_SLOPE, CcwComplianceSlope))   // A verifier value 16bits envoie dans une fonction 8 bits
 		return FALSE;
 	if(!AX12_instruction_async_write8(id_servo, AX12_CCW_COMPLIANCE_MARGIN, CcwComplianceMargin))
 		return FALSE;
@@ -1854,9 +1854,9 @@ bool_e AX12_set_torque_response(Uint8 id_servo, Uint16 A, Uint16 B, Uint16 C, Ui
 	return TRUE;
 }
 
-bool_e AX12_set_position(Uint8 id_servo, Uint16 degre) {
-	if(degre > AX12_MAX_DEGRE) degre = AX12_MAX_DEGRE;
-	return AX12_instruction_write16(id_servo, AX12_GOAL_POSITION_L, degre);
+bool_e AX12_set_position(Uint8 id_servo, Uint16 angle) {
+	if(angle > AX12_MAX_ANGLE) angle = AX12_MAX_ANGLE-1;
+	return AX12_instruction_write16(id_servo, AX12_GOAL_POSITION_L, angle);
 }
 
 bool_e AX12_set_move_to_position_speed(Uint8 id_servo, Uint16 degre_per_sec) {

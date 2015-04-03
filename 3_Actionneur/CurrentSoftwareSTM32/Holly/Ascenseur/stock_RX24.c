@@ -148,7 +148,7 @@ void STOCK_init_pos(){
 	debug_printf("Init pos : \n");
 	for(i=0;i<8;i++){
 		if(stock_act[i].is_initialized == TRUE){
-			if(!AX12_set_position(stock_act[i].servo_id, 150))
+			if(!AX12_set_position(stock_act[i].servo_id, stock_act[i].init_pos))
 				debug_printf("   Le RX24 n°%d n'est pas là\n", stock_act[i].servo_id);
 			else
 				debug_printf("   Le RX24 n°%d a été initialisé en position\n", stock_act[i].servo_id);
