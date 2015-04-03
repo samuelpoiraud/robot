@@ -930,7 +930,7 @@
 	 * @see AX12_get_position
 	 * @see AX12_set_wheel_mode_enabled
 	 */
-	bool_e AX12_set_position(Uint8 id_servo, Uint16 degre);
+	bool_e AX12_set_position(Uint8 id_servo, Uint16 angle);
 
 	/**
 	 * Défini la vitesse que le servo doit avoir lors d'un changement de position.

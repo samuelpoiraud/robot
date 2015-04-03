@@ -22,28 +22,28 @@
 
 // Etage 1
 	// Pince droite, mord droit
-	#define STOCKR_RIGHT_F1_CLOSE									50
-	#define STOCKR_RIGHT_F1_LOCK									150
-	#define STOCKR_RIGHT_F1_UNLOCK									150
-	#define STOCKR_RIGHT_F1_OPEN									150
+	#define STOCKR_RIGHT_F1_CLOSE									512
+	#define STOCKR_RIGHT_F1_LOCK									512
+	#define STOCKR_RIGHT_F1_UNLOCK									512
+	#define STOCKR_RIGHT_F1_OPEN									512
 
 	// Pince droite, mord gauche
-	#define STOCKR_LEFT_F1_CLOSE									50
-	#define STOCKR_LEFT_F1_LOCK										150
-	#define STOCKR_LEFT_F1_UNLOCK									150
-	#define STOCKR_LEFT_F1_OPEN										150
+	#define STOCKR_LEFT_F1_CLOSE									512
+	#define STOCKR_LEFT_F1_LOCK										512
+	#define STOCKR_LEFT_F1_UNLOCK									512
+	#define STOCKR_LEFT_F1_OPEN										512
 
 	// Pince gauche, mord droit
-	#define STOCKL_RIGHT_F1_CLOSE									50
-	#define STOCKL_RIGHT_F1_LOCK									150
-	#define STOCKL_RIGHT_F1_UNLOCK									150
-	#define STOCKL_RIGHT_F1_OPEN									150
+	#define STOCKL_RIGHT_F1_CLOSE									512
+	#define STOCKL_RIGHT_F1_LOCK									512
+	#define STOCKL_RIGHT_F1_UNLOCK									512
+	#define STOCKL_RIGHT_F1_OPEN									512
 
 	// Pince gauche, mord gauche
-	#define STOCKL_LEFT_F1_CLOSE									50
-	#define STOCKL_LEFT_F1_LOCK										150
-	#define STOCKL_LEFT_F1_UNLOCK									150
-	#define STOCKL_LEFT_F1_OPEN										150
+	#define STOCKL_LEFT_F1_CLOSE									401
+	#define STOCKL_LEFT_F1_LOCK										450
+	#define STOCKL_LEFT_F1_UNLOCK									512
+	#define STOCKL_LEFT_F1_OPEN										596
 
 
 // Etage 2
@@ -84,8 +84,8 @@
 
 
 //Extremum valeur
-	#define STOCK_RX24_MIN_VALUE									0
-	#define STOCK_RX24_MAX_VALUE									1024
+	#define STOCK_RX24_MIN_VALUE									400
+	#define STOCK_RX24_MAX_VALUE									600
 
 
 #endif	/* STOCK_RX24_CONFIG_H */
