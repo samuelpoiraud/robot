@@ -30,10 +30,12 @@
 
 
 	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (-5)//(0x0010)
-	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (-160)
+	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0)
 
 	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010E28	//Guy : 92mm entre roue codeuse et centre
-	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000AFC0  	//Pierre : 138mm entre roue codeuse et centre - théorique : B308
+	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000B63D  	//Holly : 269mm entre roues codeuses... -> théorique B7B0 
+																	// - 1% (estimation à l'arrache-mètre) -> B63D
+															//Pierre : 138mm entre roue codeuse et centre - théorique : B308
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
 	// COEF_ODOMETRIE_ROTATION = 1024*4096*64*(PI*d)/c /(2*r)	[rad/16/4096/1024/impulsions/5ms]
 	// d : diametre des roues codeuse en mm = 60
