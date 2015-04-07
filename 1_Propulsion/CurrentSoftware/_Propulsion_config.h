@@ -19,7 +19,7 @@
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
 	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C10
-	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BE6  //Théorique pour 60mm : 0x0C10
+	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BCC  //Théorique pour 60mm : 0x0C10
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
@@ -33,7 +33,7 @@
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0)
 
 	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010E28	//Guy : 92mm entre roue codeuse et centre
-	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000B63D  	//Holly : 269mm entre roues codeuses... -> théorique B7B0 
+	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000AD00  	//Holly : 278mm ENVIRON entre roues codeuses...
 																	// - 1% (estimation à l'arrache-mètre) -> B63D
 															//Pierre : 138mm entre roue codeuse et centre - théorique : B308
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
@@ -127,10 +127,10 @@
 
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
 	#define SMALL_KD_TRANSLATION 	(12) //0x80
-	#define BIG_KD_TRANSLATION 	(0x36) //0x80
+	#define BIG_KD_TRANSLATION 	(0x26) //0x80
 
 	#define SMALL_KP_TRANSLATION 	(34)
-	#define BIG_KP_TRANSLATION 	(17)
+	#define BIG_KP_TRANSLATION 	(0x30)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
@@ -138,7 +138,7 @@
 	#define BIG_KD_ROTATION 	(0x200) //0x800
 
 	#define SMALL_KP_ROTATION 	(130)//40 //0x80
-	#define BIG_KP_ROTATION 	(0xF0) //0x80
+	#define BIG_KP_ROTATION 	(0xFF) //0x80
 
 	//Ordre de grandeur :
 	//A la vitesse lumière, KV_TRANSLATION * vitesse_translation doit valoir 100*4096

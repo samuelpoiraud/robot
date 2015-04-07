@@ -59,9 +59,9 @@
 
 	#define VERBOSE_MODE				//Activation du verbose
 
-	#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
+	//#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
 
-	#define FDP_2014					//Define Temporaire pour l'ancien FDP
+//	#define FDP_2014					//Define Temporaire pour l'ancien FDP
 
 	#define SCAN_CUP
 
