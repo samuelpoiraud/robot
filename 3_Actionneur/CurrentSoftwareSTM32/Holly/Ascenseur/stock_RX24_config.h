@@ -40,36 +40,36 @@
 	#define STOCKL_RIGHT_F1_OPEN									512
 
 	// Pince gauche, mord gauche
-	#define STOCKL_LEFT_F1_CLOSE									401
-	#define STOCKL_LEFT_F1_LOCK										450
+	#define STOCKL_LEFT_F1_CLOSE									512
+	#define STOCKL_LEFT_F1_LOCK										512
 	#define STOCKL_LEFT_F1_UNLOCK									512
-	#define STOCKL_LEFT_F1_OPEN										596
+	#define STOCKL_LEFT_F1_OPEN										512
 
 
 // Etage 2
 	// Pince droite, mord droit
-	#define STOCKR_RIGHT_F2_CLOSE									STOCKR_RIGHT_F1_CLOSE
-	#define STOCKR_RIGHT_F2_LOCK									STOCKR_RIGHT_F1_LOCK
-	#define STOCKR_RIGHT_F2_UNLOCK									STOCKR_RIGHT_F1_UNLOCK
-	#define STOCKR_RIGHT_F2_OPEN									STOCKR_RIGHT_F1_OPEN
+	#define STOCKR_RIGHT_F2_CLOSE									512
+	#define STOCKR_RIGHT_F2_LOCK									512
+	#define STOCKR_RIGHT_F2_UNLOCK									512
+	#define STOCKR_RIGHT_F2_OPEN									512
 
 	// Pince droite, mord gauche
-	#define STOCKR_LEFT_F2_CLOSE									STOCKR_LEFT_F1_CLOSE
-	#define STOCKR_LEFT_F2_LOCK										STOCKR_LEFT_F1_LOCK
-	#define STOCKR_LEFT_F2_UNLOCK									STOCKR_LEFT_F1_UNLOCK
-	#define STOCKR_LEFT_F2_OPEN										STOCKR_LEFT_F1_OPEN
+	#define STOCKR_LEFT_F2_CLOSE									512
+	#define STOCKR_LEFT_F2_LOCK										512
+	#define STOCKR_LEFT_F2_UNLOCK									512
+	#define STOCKR_LEFT_F2_OPEN										512
 
 	// Pince gauche, mord droit
-	#define STOCKL_RIGHT_F2_CLOSE									STOCKL_RIGHT_F1_CLOSE
-	#define STOCKL_RIGHT_F2_LOCK									STOCKL_RIGHT_F1_LOCK
-	#define STOCKL_RIGHT_F2_UNLOCK									STOCKL_RIGHT_F1_UNLOCK
-	#define STOCKL_RIGHT_F2_OPEN									STOCKL_RIGHT_F1_OPEN
+	#define STOCKL_RIGHT_F2_CLOSE									460
+	#define STOCKL_RIGHT_F2_LOCK									460
+	#define STOCKL_RIGHT_F2_UNLOCK									460
+	#define STOCKL_RIGHT_F2_OPEN									460
 
 	// Pince gauche, mord gauche
-	#define STOCKL_LEFT_F2_CLOSE									STOCKL_LEFT_F1_CLOSE
-	#define STOCKL_LEFT_F2_LOCK										STOCKL_LEFT_F1_LOCK
-	#define STOCKL_LEFT_F2_UNLOCK									STOCKL_LEFT_F1_UNLOCK
-	#define STOCKL_LEFT_F2_OPEN										STOCKL_LEFT_F1_OPEN
+	#define STOCKL_LEFT_F2_CLOSE									512
+	#define STOCKL_LEFT_F2_LOCK										512
+	#define STOCKL_LEFT_F2_UNLOCK									512
+	#define STOCKL_LEFT_F2_OPEN										512
 
 //Position initiale du RX24
 	#define STOCKR_RIGHT_F1_INIT_POS								STOCKR_RIGHT_F1_CLOSE
