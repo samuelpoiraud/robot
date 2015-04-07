@@ -60,8 +60,8 @@
 	#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE 	81		//distance entre le 'centre' du robot et l'arrière en calage
 	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	81 		//distance entre le 'centre' du robot et l'avant en calage
 
-	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	155 		//distance entre le 'centre' du robot et l'arrière en calage
-	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	155 		//distance entre le 'centre' du robot et l'avant en calage
+	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	145 		//distance entre le 'centre' du robot et l'arrière en calage
+	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	111 		//distance entre le 'centre' du robot et l'avant en calage
 
 	#define BIG_CALIBRATION_WIDTH					 	285 		//largeur du robot
 
@@ -217,7 +217,7 @@
 
 		// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
 	#define BIG_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
-	#define BIG_TRANSLATION_SPEED_MAX 		(Sint32)(22448)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define BIG_TRANSLATION_SPEED_MAX 		(Sint32)(11224)//(22448)		 	//environ = 5[mm/5ms] = 1,0m/s
 	#define BIG_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
 	#define BIG_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
 	#define BIG_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
