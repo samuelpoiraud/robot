@@ -21,7 +21,7 @@
 	//	-				 			  4
 	#define AX12_DIRECTION_PORT_RX24 GPIOA,GPIO_Pin_5
 	//	-				 			  6
-	#define ELEVATOR_FDC			 (GPIOA->IDR7)
+	//	-				 			  7
 	#define ELEVATOR_DCM_SENS		 GPIOA,GPIO_Pin_8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
@@ -32,7 +32,8 @@
 	//	-				 			  15
 
 #define PORT_B_IO_MASK	0xF7FF
-	//	-				 			  0
+	#define ELEVATOR_FDC			 (GPIOB->IDR0)
+	#define CUP_NIPPER_FDC			 (GPIOB->IDR1)
 	//	-				 			  1
 	//	-				 			  2
 	// - programmation -			  3
@@ -53,7 +54,7 @@
 	//  -							  0
 	#define PRESENCE_GOBELET_CENTRAL (GPIOC->IDR1)
 	//	-				 			  2
-	#define CUP_NIPPER_FDC			 (GPIOC->IDR3)
+	//	-				 			  3
 	//	-				 			  4
 	//	-				 			  5
 	//	-				 			  6
