@@ -296,9 +296,6 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	switch(msg->data[0]) {
 
 		// Holly
-		/*case ACT_TORCH_LOCKER & 0xFF:
-			act_id = ACT_QUEUE_Torch_locker;
-			break;*/
 		case ACT_POP_COLLECT_LEFT & 0xFF:
 					act_id = ACT_QUEUE_Pop_collect_left;
 					break;
@@ -310,6 +307,48 @@ void ACT_process_result(const CAN_msg_t* msg) {
 					break;
 		case ACT_POP_DROP_RIGHT & 0xFF:
 					act_id = ACT_QUEUE_Pop_drop_right;
+					break;
+		case ACT_ELEVATOR & 0xFF:
+					act_id = ACT_QUEUE_Elevator;
+					break;
+		case ACT_PINCEMI_RIGHT & 0xFF:
+					act_id = ACT_QUEUE_PinceMi_right;
+					break;
+		case ACT_PINCEMI_LEFT & 0xFF:
+					act_id = ACT_QUEUE_PinceMi_left;
+					break;
+		case ACT_STOCK_RIGHT & 0xFF:
+					act_id = ACT_QUEUE_Stock_right;
+					break;
+		case ACT_STOCK_LEFT & 0xFF:
+					act_id = ACT_QUEUE_Stock_left;
+					break;
+		case ACT_CUP_NIPPER & 0xFF:
+					act_id = ACT_QUEUE_Cup_Nipper;
+					break;
+		case ACT_CUP_NIPPER_ELEVATOR & 0xFF:
+					act_id = ACT_QUEUE_Cup_Nipper_Elevator;
+					break;
+		case ACT_BACK_SPOT_RIGHT & 0xFF:
+					act_id = ACT_QUEUE_Back_spot_right;
+					break;
+		case ACT_BACK_SPOT_LEFT & 0xFF:
+					act_id = ACT_QUEUE_Back_spot_left;
+					break;
+		case ACT_SPOT_POMPE_LEFT & 0xFF:
+					act_id = ACT_QUEUE_Spot_pompe_left;
+					break;
+		case ACT_SPOT_POMPE_RIGHT & 0xFF:
+					act_id = ACT_QUEUE_Spot_pompe_right;
+					break;
+		case ACT_CARPET_LAUNCHER_RIGHT & 0xFF:
+					act_id = ACT_QUEUE_Carpet_launcher_right;
+					break;
+		case ACT_CARPET_LAUNCHER_LEFT & 0xFF:
+					act_id = ACT_QUEUE_Carpet_launcher_left;
+					break;
+		case ACT_CLAP_HOLLY & 0xFF:
+					act_id = ACT_QUEUE_Clap_Holly;
 					break;
 
 		// Wood

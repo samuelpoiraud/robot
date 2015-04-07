@@ -138,8 +138,8 @@ int main (void)
 		MAIN_sensor_test();
 
 		#ifdef I_AM_ROBOT_BIG
-			ELEVATOR_state_machine();
-			CUP_NIPPER_state_machine();
+			//ELEVATOR_state_machine();
+			//CUP_NIPPER_state_machine();
 		#else
 
 		#endif
