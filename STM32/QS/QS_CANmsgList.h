@@ -926,7 +926,7 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_POP_DROP_LEFT_WOOD_CLOSED		0x12
 		#define ACT_POP_DROP_LEFT_WOOD_STOP 		0x13
 
-	////////////POP DROP LEFT WOOD////////////////
+	////////////POP DROP RIGHT WOOD////////////////
 	ACT_POP_DROP_RIGHT_WOOD = (ACT_FILTER | 0x41)
 		#define ACT_POP_DROP_RIGHT_WOOD_OPEN		0x11
 		#define ACT_POP_DROP_RIGHT_WOOD_CLOSED		0x12
