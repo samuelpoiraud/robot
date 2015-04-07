@@ -103,9 +103,11 @@ bool_e CORRECTOR_PD_enable_get_translation(void)
 	return corrector_pd_translation;
 }
 
+#ifdef MODE_REGLAGE_KV
+#include "QS/QS_outputlog.h"
 void CORRECTOR_mode_reglage_kv(void)
 {
-	#ifdef MODE_REGLAGE_KV
+
 		#warning "vous compilez en mode Réglage KV... Ce mode affiche des printf régulièrement qui vous permettrons de régler les Kv."
 		Sint32 commande_translation;		//[% moteurs]
 		Sint32 commande_rotation;			//[% moteurs]
@@ -122,15 +124,17 @@ void CORRECTOR_mode_reglage_kv(void)
 									  )>>10;
 
 		debug_printf("T:%d Vt*Kvt=%d%% | R:%d Vr*Kvr=%d%%\n",
-						(Uint16) commande_translation,
-						(Uint16) (((100 * global.vitesse_translation * coefs[CORRECTOR_COEF_KV_TRANSLATION])/commande_translation)>>12),
-						(Uint16) commande_rotation,
-						(Uint16) (((100 * global.vitesse_rotation * coefs[CORRECTOR_COEF_KV_ROTATION]/2)/commande_rotation)>>10)
+						(Sint16) commande_translation,
+						(Sint16) (((100 * global.vitesse_translation * coefs[CORRECTOR_COEF_KV_TRANSLATION])/((commande_translation)?commande_translation:1))>>12),
+						(Sint16) commande_rotation,
+						(Sint16) (((100 * global.vitesse_rotation * coefs[CORRECTOR_COEF_KV_ROTATION]/2)/((commande_rotation)?commande_rotation:1))>>10)
 					);
 			//Le pourcentage affiché doit être proche de 100 en moyenne sur la trajectoire pour considérer que le Kv est bien calibré.
 			//Dans ce cas, c'est bien le Kv qui est l'auteur de la commande... cette commande étant CORRIGEE par les autres coefs.
-	#endif
+
 }
+#endif
+
 void CORRECTOR_update(void)
 {
 	Sint16 duty_left, duty_right;
