@@ -19,7 +19,7 @@
 	#define BACK_SPOT_RIGHT_AX12_MAX_TORQUE_PERCENT			100				// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 
 //Position
-	#define BACK_SPOT_RIGHT_AX12_OPEN_POS					512				//en degré
+	#define BACK_SPOT_RIGHT_AX12_OPEN_POS					817				//en degré
 	#define BACK_SPOT_RIGHT_AX12_CLOSED_POS					512				//en degré
 
 //Position initiale de l'AX12
