@@ -19,7 +19,7 @@
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
 	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C10
-	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BCC  //Théorique pour 60mm : 0x0C10
+	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BC7  //Théorique pour 60mm : 0x0C10
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
@@ -60,10 +60,10 @@
 	#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE 	81		//distance entre le 'centre' du robot et l'arrière en calage
 	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	81 		//distance entre le 'centre' du robot et l'avant en calage
 
-	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	145 		//distance entre le 'centre' du robot et l'arrière en calage
+	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	146 		//distance entre le 'centre' du robot et l'arrière en calage
 	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	111 		//distance entre le 'centre' du robot et l'avant en calage
 
-	#define BIG_CALIBRATION_WIDTH					 	285 		//largeur du robot
+	#define BIG_CALIBRATION_WIDTH					 	292 		//largeur du robot
 
 	#define FIELD_SIZE_Y 3000	//[mm]
 	#define FIELD_SIZE_X 2000	//[mm]
@@ -84,13 +84,13 @@
 
 	//BIG
 		//BOT_COLOR
-		#define BIG_BOT_COLOR_CALIBRATION_X  		(1200-BIG_CALIBRATION_WIDTH/2)
-		#define BIG_BOT_COLOR_CALIBRATION_Y  		(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE + 70)
+		#define BIG_BOT_COLOR_CALIBRATION_X  		(1222+BIG_CALIBRATION_WIDTH/2)    //(1200-BIG_CALIBRATION_WIDTH/2)
+		#define BIG_BOT_COLOR_CALIBRATION_Y  		(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)  //(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE + 70)
 		#define BIG_BOT_COLOR_CALIBRATION_TETA		(-PI4096/2)
 
 		//TOP_COLOR
-		#define BIG_TOP_COLOR_CALIBRATION_X  		(1200-BIG_CALIBRATION_WIDTH/2)
-		#define BIG_TOP_COLOR_CALIBRATION_Y  		(3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE - 70)
+		#define BIG_TOP_COLOR_CALIBRATION_X  		(1222+BIG_CALIBRATION_WIDTH/2)     //(1200-BIG_CALIBRATION_WIDTH/2)
+		#define BIG_TOP_COLOR_CALIBRATION_Y  		(3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)  //(3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE - 70)
 		#define BIG_TOP_COLOR_CALIBRATION_TETA 		(PI4096/2)
 
 
