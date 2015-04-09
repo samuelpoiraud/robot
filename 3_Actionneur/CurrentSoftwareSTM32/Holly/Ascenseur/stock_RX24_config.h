@@ -21,55 +21,55 @@
 //Position
 
 // Etage 1
-	// Pince droite, mord droit
-	#define STOCKR_RIGHT_F1_CLOSE									512
-	#define STOCKR_RIGHT_F1_LOCK									512
+	// Pince droite, mord droit		ID:29
+	#define STOCKR_RIGHT_F1_CLOSE									426
+	#define STOCKR_RIGHT_F1_LOCK									495
 	#define STOCKR_RIGHT_F1_UNLOCK									512
-	#define STOCKR_RIGHT_F1_OPEN									512
+	#define STOCKR_RIGHT_F1_OPEN									538
 
-	// Pince droite, mord gauche
-	#define STOCKR_LEFT_F1_CLOSE									512
-	#define STOCKR_LEFT_F1_LOCK										512
+	// Pince droite, mord gauche	ID:30
+	#define STOCKR_LEFT_F1_CLOSE									597
+	#define STOCKR_LEFT_F1_LOCK										538
 	#define STOCKR_LEFT_F1_UNLOCK									512
-	#define STOCKR_LEFT_F1_OPEN										512
+	#define STOCKR_LEFT_F1_OPEN										492
 
-	// Pince gauche, mord droit
-	#define STOCKL_RIGHT_F1_CLOSE									512
-	#define STOCKL_RIGHT_F1_LOCK									512
+	// Pince gauche, mord droit		ID:27
+	#define STOCKL_RIGHT_F1_CLOSE									426
+	#define STOCKL_RIGHT_F1_LOCK									500
 	#define STOCKL_RIGHT_F1_UNLOCK									512
-	#define STOCKL_RIGHT_F1_OPEN									512
+	#define STOCKL_RIGHT_F1_OPEN									538
 
-	// Pince gauche, mord gauche
-	#define STOCKL_LEFT_F1_CLOSE									512
-	#define STOCKL_LEFT_F1_LOCK										512
+	// Pince gauche, mord gauche	ID:28
+	#define STOCKL_LEFT_F1_CLOSE									597
+	#define STOCKL_LEFT_F1_LOCK										534
 	#define STOCKL_LEFT_F1_UNLOCK									512
-	#define STOCKL_LEFT_F1_OPEN										512
+	#define STOCKL_LEFT_F1_OPEN										492
 
 
 // Etage 2
-	// Pince droite, mord droit
-	#define STOCKR_RIGHT_F2_CLOSE									512
-	#define STOCKR_RIGHT_F2_LOCK									512
+	// Pince droite, mord droit		ID:33
+	#define STOCKR_RIGHT_F2_CLOSE									426
+	#define STOCKR_RIGHT_F2_LOCK									500
 	#define STOCKR_RIGHT_F2_UNLOCK									512
-	#define STOCKR_RIGHT_F2_OPEN									512
+	#define STOCKR_RIGHT_F2_OPEN									538
 
-	// Pince droite, mord gauche
-	#define STOCKR_LEFT_F2_CLOSE									512
-	#define STOCKR_LEFT_F2_LOCK										512
+	// Pince droite, mord gauche	ID:34
+	#define STOCKR_LEFT_F2_CLOSE									597
+	#define STOCKR_LEFT_F2_LOCK										534
 	#define STOCKR_LEFT_F2_UNLOCK									512
-	#define STOCKR_LEFT_F2_OPEN										512
+	#define STOCKR_LEFT_F2_OPEN										492
 
-	// Pince gauche, mord droit
-	#define STOCKL_RIGHT_F2_CLOSE									460
-	#define STOCKL_RIGHT_F2_LOCK									460
+	// Pince gauche, mord droit		ID:31
+	#define STOCKL_RIGHT_F2_CLOSE									370
+	#define STOCKL_RIGHT_F2_LOCK									435
 	#define STOCKL_RIGHT_F2_UNLOCK									460
-	#define STOCKL_RIGHT_F2_OPEN									460
+	#define STOCKL_RIGHT_F2_OPEN									482
 
-	// Pince gauche, mord gauche
-	#define STOCKL_LEFT_F2_CLOSE									512
-	#define STOCKL_LEFT_F2_LOCK										512
+	// Pince gauche, mord gauche	ID:32
+	#define STOCKL_LEFT_F2_CLOSE									597
+	#define STOCKL_LEFT_F2_LOCK										536
 	#define STOCKL_LEFT_F2_UNLOCK									512
-	#define STOCKL_LEFT_F2_OPEN										512
+	#define STOCKL_LEFT_F2_OPEN										492
 
 //Position initiale du RX24
 	#define STOCKR_RIGHT_F1_INIT_POS								STOCKR_RIGHT_F1_CLOSE
@@ -84,8 +84,8 @@
 
 
 //Extremum valeur
-	#define STOCK_RX24_MIN_VALUE									400
-	#define STOCK_RX24_MAX_VALUE									600
+	#define STOCK_RX24_MIN_VALUE									0
+	#define STOCK_RX24_MAX_VALUE									1024
 
 
 #endif	/* STOCK_RX24_CONFIG_H */
