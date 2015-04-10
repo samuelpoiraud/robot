@@ -261,6 +261,7 @@ bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd);
 // Holly
 
 typedef enum{
+	ACT_MAE_SPOTIX_OPEN,
 	ACT_MAE_SPOTIX_TAKE,
 	ACT_MAE_SPOTIX_OPEN_GREAT,
 	ACT_MAE_SPOTIX_STOCK_AND_STAY,
@@ -284,8 +285,19 @@ typedef enum{
 	ACT_MAE_CUP_CLOSE
 }ACT_MAE_holly_cup_e;
 
-error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who);
+typedef Sint16 spotix_order_id_t;
+
+// MAE Standart
 error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order);
+error_e ACT_MAE_holly_spotix_bloquing(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who);
+
+// Envoyé un ordre sans attente de retour
+spotix_order_id_t ACT_MAE_holly_spotix_do_order(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who);
+
+// Fonction pour avoir les retours de l'ordre en background
+bool_e ACT_MAE_holly_wait_end_order(spotix_order_id_t id);
+void ACT_MAE_holly_spotix_process_main();
+error_e ACT_holly_spotix_get_last_error();
 
 // Wood
 
