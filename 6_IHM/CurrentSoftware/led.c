@@ -225,3 +225,22 @@ void set_COLOR(led_color_e led_color){
 		GPIO_Init(GPIOD, &GPIO_InitStructure);
 	}
 }
+
+void LEDS_set_error(ihm_error_e ihm_error, bool_e state){
+	static ihm_error_e flags = 0;
+
+	if(state)
+		flags |= ihm_error;
+	else
+		flags &= ~ihm_error;
+
+	if(flags){
+		CAN_msg_t msg;
+		led_ihm_t led = (led_ihm_t){LED_WARNING, SPEED_BLINK_4HZ};
+		msg.sid = IHM_SET_LED;
+		msg.size = 1;
+		msg.data[0] = (led.blink << 5) | led.id;
+		LEDS_get_msg(&msg);
+	}
+}
+

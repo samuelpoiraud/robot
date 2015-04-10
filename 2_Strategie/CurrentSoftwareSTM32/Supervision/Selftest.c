@@ -933,11 +933,11 @@ void SELFTEST_check_hokuyo(){
 	if(delta_time > 250 && alarmed == FALSE){
 		BUZZER_play(15, DEFAULT_NOTE, 5);
 		LCD_printf(3, TRUE, TRUE, "HOKUYO LOST !");
-		IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, FLASH_BLINK_10MS});
+		CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, TRUE});
 		alarmed = TRUE;
 	}else if(delta_time <= 250 && alarmed == TRUE){
-		IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, OFF});
 		LCD_printf(3, TRUE, TRUE, "HOKUYO IS ALIVE !");
+		CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, FALSE});
 		alarmed = FALSE;
 	}
 }

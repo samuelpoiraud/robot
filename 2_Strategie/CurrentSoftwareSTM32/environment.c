@@ -609,9 +609,9 @@ void ENV_warning_switch(){
 
 	if(IHM_switchs_get(SWITCH_ASSER) != asser_switch){
 		if(IHM_switchs_get(SWITCH_ASSER))
-			IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, OFF});
+			CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, FALSE});
 		else
-			IHM_leds_send_msg(1, (led_ihm_t){LED_WARNING, FLASH_BLINK_10MS});
+			CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, TRUE});
 
 		asser_switch = IHM_switchs_get(SWITCH_ASSER);
 	}

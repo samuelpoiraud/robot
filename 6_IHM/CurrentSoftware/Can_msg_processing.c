@@ -45,6 +45,10 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				SWITCHS_answer(msg);
 			break;
 
+		case IHM_SET_ERROR:
+			LEDS_set_error(msg->data[0], msg->data[1]);
+			break;
+
 		case IHM_SET_LED:
 			LEDS_get_msg(msg);
 			break;

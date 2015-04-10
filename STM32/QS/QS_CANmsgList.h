@@ -999,18 +999,29 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
  *****************************************************************/
 
 
-#define IHM_GET_SWITCH 0x601
+#define IHM_GET_SWITCH				0x601
 // Demande à la carte, IHM l'état de des switchs
 // Dans chaque data mettre l'id du switch (type : switch_ihm_e) que vous souhaitez
 // ASTUCE : si vous souhaitez recevoir tous les switchs, mettre 0 en size (msg.size = 0)
 
-#define IHM_SET_LED 0x602
+#define IHM_SET_LED					0x602
 // Envoie les messages pour configurer les leds
 // 5 bits de poids faible id : 0b...XXXXX
 // 3 bits de poids fort blink (clignotement) ou couleur pour LED_COLOR_IHM : 0bXXX.....
 
-#define IHM_LCD_BIT_RESET 0x603
+#define IHM_LCD_BIT_RESET			0x603
 // Set ou reset le bits LCD_RESET de la carte IHM
 // data 0 == TRUE si set sinon reset
+
+#define IHM_SET_ERROR				0x604
+// data 0 -> ihm_error_e
+// data 1 ->	TRUE	-> set
+//				FALSE	-> reset
+
+
+typedef enum{
+	IHM_ERROR_HOKUYO	= 0b00000001,
+	IHM_ERROR_ASSER		= 0b00000010
+}ihm_error_e;
 
 #endif	/* ndef QS_CANMSGLIST_H */
