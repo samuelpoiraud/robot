@@ -18,6 +18,7 @@
 #include "QS/QS_outputlog.h"
 #include "act_avoidance.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_buffer_fifo.h"
 #include "state_machine_helper.h"
 
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
@@ -28,11 +29,20 @@ typedef enum{
 	ACT_SENSOR_PRESENT
 }act_sensor_e;
 
+typedef struct{
+	ACT_MAE_holly_spotix_e order;
+	ACT_MAE_holly_spotix_side_e who;
+}act_mae_real_time_t;
+
 static volatile act_sensor_e gobelet_right_wood_answer = ACT_SENSOR_WAIT;
 static volatile act_sensor_e gobelet_left_wood_answer = ACT_SENSOR_WAIT;
 static volatile act_sensor_e gobelet_front_wood_answer = ACT_SENSOR_WAIT;
 static volatile act_sensor_e gobelet_holly_answer = ACT_SENSOR_WAIT;
 
+static volatile act_mae_real_time_t act_mae_real_time = {END_OK, FALSE};
+static volatile FIFO_t FIFO_MAE_spotix;
+
+static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who);
 
 /* Pile contenant les arguments d'une demande d'opération
  * Contient les messages CAN à envoyer à la carte actionneur pour exécuter l'action.
@@ -493,11 +503,15 @@ bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value){
 //////////////// MAE  //////////////////
 ////////////////////////////////////////
 
-error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
+static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
 	CREATE_MAE(
 		INIT,
 		COMPUTE_ORDER,
 		FAIL_COMPUTE,
+
+		// Open
+		OPEN_ALL,
+		WIN_OPEN_ALL,
 
 		// Take feet
 		TAKE_FEET,
@@ -557,6 +571,10 @@ error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_
 		case COMPUTE_ORDER:
 			switch(order){
 
+				case ACT_MAE_SPOTIX_OPEN:
+					state = OPEN_ALL;
+					break;
+
 				case ACT_MAE_SPOTIX_TAKE:
 					state = TAKE_FEET;
 					break;
@@ -598,6 +616,47 @@ error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_
 		case FAIL_COMPUTE:
 			RESET_MAE();
 			ret = NOT_HANDLED;
+			break;
+
+
+//--------------------------------------- Open all
+
+		case OPEN_ALL:
+			if(entrance){
+				state1 = state2 = state3 = state4 = OPEN_ALL;
+				if(who != ACT_MAE_SPOTIX_LEFT){
+					ACT_stock_right(ACT_stock_right_open);
+					ACT_pincemi_right(ACT_pincemi_right_open);
+				}
+				if(who != ACT_MAE_SPOTIX_RIGHT){
+					ACT_stock_left(ACT_stock_left_open);
+					ACT_pincemi_left(ACT_pincemi_left_open);
+				}
+			}
+
+			if(who != ACT_MAE_SPOTIX_LEFT){ // Gestion Droite
+				if(state1 == OPEN_ALL)
+					state1 = check_act_status(ACT_QUEUE_Stock_right, state, WIN_OPEN_ALL, WIN_OPEN_ALL);
+				if(state2 == OPEN_ALL)
+					state2 = check_act_status(ACT_QUEUE_PinceMi_right, state, WIN_OPEN_ALL, WIN_OPEN_ALL);
+			}
+
+			if(who != ACT_MAE_SPOTIX_RIGHT){ // Gestion Gauche
+				if(state3 == OPEN_ALL)
+					state3 = check_act_status(ACT_QUEUE_Stock_left, state, WIN_OPEN_ALL, WIN_OPEN_ALL);
+				if(state4 == OPEN_ALL)
+					state4 = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_OPEN_ALL, WIN_OPEN_ALL);
+			}
+
+			if((who == ACT_MAE_SPOTIX_BOTH && state1 != OPEN_ALL && state2 != OPEN_ALL && state3 != OPEN_ALL && state4 != OPEN_ALL)
+					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != OPEN_ALL && state2 != OPEN_ALL)
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state3 != OPEN_ALL && state4 != OPEN_ALL))
+				state = WIN_OPEN_ALL;
+			break;
+
+		case WIN_OPEN_ALL:
+			RESET_MAE();
+			ret = END_OK;
 			break;
 
 //--------------------------------------- Take feet
@@ -1164,6 +1223,100 @@ error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order){
 	}
 	return ret;
 }
+
+typedef struct{
+	ACT_MAE_holly_spotix_e order;
+	ACT_MAE_holly_spotix_side_e who;
+	Uint16 order_id;
+}spotix_order_queue_t;
+
+volatile static spotix_order_queue_t spotix_order_queue[10];
+volatile static error_e last_spotix_error;
+
+volatile static Uint8 spotix_read;
+volatile static Uint8 spotix_write;
+
+volatile static spotix_order_id_t spotix_order_counter = 0;
+volatile static spotix_order_id_t last_order_id = -1;
+
+error_e ACT_MAE_holly_spotix_bloquing(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
+	static bool_e entrance = TRUE;
+	static spotix_order_id_t spotix_order_id;
+	if(entrance){
+		if(global.env.color == YELLOW)
+			spotix_order_id = ACT_MAE_holly_spotix_do_order(ACT_MAE_SPOTIX_TAKE, ACT_MAE_SPOTIX_LEFT);
+		else
+			spotix_order_id = ACT_MAE_holly_spotix_do_order(ACT_MAE_SPOTIX_TAKE, ACT_MAE_SPOTIX_RIGHT);
+	}
+	if(ACT_MAE_holly_wait_end_order(spotix_order_id)){
+		entrance = TRUE;
+		return ACT_holly_spotix_get_last_error();
+	}
+	entrance = FALSE;
+	return IN_PROGRESS;
+}
+
+bool_e ACT_MAE_holly_wait_end_order(spotix_order_id_t id){
+	if(last_order_id >= id)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+spotix_order_id_t ACT_MAE_holly_spotix_do_order(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
+
+	if(((spotix_write + 1) % 10) == spotix_read) // Buffer plein
+		return -1;
+
+	spotix_order_queue[spotix_write].order = order;
+	spotix_order_queue[spotix_write].who = who;
+	spotix_order_queue[spotix_write].order_id = spotix_order_counter;
+
+	spotix_write = (spotix_write + 1) % 10;
+	return spotix_order_counter++;
+}
+
+
+void ACT_MAE_holly_spotix_process_main(){
+	typedef enum{
+		INIT,
+		WAIT_ORDER,
+		DO_ORDER
+	}state_e;
+
+	static state_e state;
+	error_e result_sub;
+
+	switch(state){
+		case INIT:
+			spotix_read = 0;
+			spotix_write = 0;
+			state = WAIT_ORDER;
+			break;
+
+		case WAIT_ORDER:
+			if(spotix_read != spotix_write)
+				state = DO_ORDER;
+			break;
+
+		case DO_ORDER:
+			result_sub = ACT_MAE_holly_spotix(spotix_order_queue[spotix_read].order, spotix_order_queue[spotix_read].who);
+
+			if(result_sub != IN_PROGRESS){
+				state = WAIT_ORDER;
+				last_spotix_error = result_sub;
+				last_order_id = spotix_order_queue[spotix_read].order_id;
+				spotix_read = (spotix_read + 1) % 10;
+			}
+			break;
+
+	}
+}
+
+error_e ACT_holly_spotix_get_last_error(){
+	return last_spotix_error;
+}
+
 
 ////////////////////////////////////////
 //////////////// SENSOR ////////////////
