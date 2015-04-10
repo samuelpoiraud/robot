@@ -149,6 +149,7 @@ int main (void)
 		QUEUE_run();
 
 		MAIN_sensor_test();
+		ACT_MAE_holly_spotix_process_main();
 
 		any_match();
 
@@ -271,7 +272,9 @@ static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(!global.env.match_started){
 		if(QS_WHO_AM_I_get() == BIG_ROBOT){
-			if(RECALAGE_AV_G || RECALAGE_AV_D || RECALAGE_AR_G || RECALAGE_AR_D || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY || ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 50 || ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) < 50){
+			if(RECALAGE_AR_G || RECALAGE_AR_D || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY
+					|| ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 5 || ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 50
+					|| ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 5 || ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) < 50){
 				if(led_on == FALSE){
 					IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 					led_on = TRUE;
@@ -281,7 +284,7 @@ static void MAIN_sensor_test(){
 				led_on = FALSE;
 			}
 		}else{
-			if(RECALAGE_AV_G || RECALAGE_AV_D || RECALAGE_AR_G || RECALAGE_AR_D){
+			if(RECALAGE_AV_G || RECALAGE_AV_D){
 				if(led_on == FALSE){
 					IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 					led_on = TRUE;

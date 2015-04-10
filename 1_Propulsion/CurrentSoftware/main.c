@@ -320,7 +320,8 @@ static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(!global.match_started){
 		if(QS_WHO_AM_I_get() == SMALL_ROBOT){
-			if(ADC_getValue(SCAN_CUP_SENSOR_LEFT) < 50 || ADC_getValue(SCAN_CUP_SENSOR_RIGHT) < 50){
+			if(ADC_getValue(SCAN_CUP_SENSOR_LEFT) > 5 || ADC_getValue(SCAN_CUP_SENSOR_LEFT) < 50
+					|| ADC_getValue(SCAN_CUP_SENSOR_RIGHT) > 5 || ADC_getValue(SCAN_CUP_SENSOR_RIGHT) < 50){
 				if(led_on == FALSE){
 					IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 					led_on = TRUE;

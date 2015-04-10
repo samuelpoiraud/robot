@@ -156,11 +156,11 @@
 
 	#define PORT_B_IO_MASK	0x0DFF
 		//	Mesure 24V					0
-		#define RECALAGE_AR_D		GPIOB->IDR1
+		#define RECALAGE_AR_D		!GPIOB->IDR1
 		#define POWER_WATCH_INT		GPIOB->IDR2
 		// - programmation -			3
-		#define PRESENCE_PIED_PINCE_GAUCHE_HOLLY 		GPIOB->IDR4
-		#define PRESENCE_PIED_PINCE_DROITE_HOLLY 		GPIOB->IDR5
+		#define PRESENCE_PIED_PINCE_GAUCHE_HOLLY 		!GPIOB->IDR4
+		#define PRESENCE_PIED_PINCE_DROITE_HOLLY 		!GPIOB->IDR5
 		//	U1TX						6
 		//	U1RX						7
 		//	-							8
@@ -176,11 +176,11 @@
 
 	#define PORT_C_IO_MASK	0xE03E
 		#define	USB_POWER_ON	 	GPIOC,GPIO_Pin_0
-		#define RECALAGE_AV_G		GPIOC->IDR1
-		#define RECALAGE_AV_D		GPIOC->IDR2
+		#define RECALAGE_AV_G		!GPIOC->IDR1
+		#define RECALAGE_AV_D		!GPIOC->IDR2
 		//								3
 		//								4
-		#define RECALAGE_AR_G		GPIOC->IDR5
+		#define RECALAGE_AR_G		!GPIOC->IDR5
 		#define LED_BEACON_IR_GREEN	GPIOC,GPIO_Pin_6
 		#define LED_BEACON_IR_RED	GPIOC,GPIO_Pin_7
 		#define SYNCHRO_BEACON		GPIOC,GPIO_Pin_8
