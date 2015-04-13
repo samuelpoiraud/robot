@@ -61,7 +61,7 @@ static void PINCE_DROITE_initAX12() {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(PINCE_DROITE_AX12_ID, 136);
 		AX12_config_set_lowest_voltage(PINCE_DROITE_AX12_ID, 70);
-		AX12_config_set_maximum_torque_percentage(PINCE_DROITE_AX12_ID, PINCE_DROITE_AX12_MAX_TORQUE_PERCENT);
+		AX12_set_torque_limit(PINCE_DROITE_AX12_ID, PINCE_DROITE_AX12_MAX_TORQUE_PERCENT);
 
 		AX12_config_set_maximal_angle(PINCE_DROITE_AX12_ID, PINCE_DROITE_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(PINCE_DROITE_AX12_ID, PINCE_DROITE_AX12_MIN_VALUE);

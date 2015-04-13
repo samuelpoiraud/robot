@@ -113,10 +113,17 @@ static void DCM_setWay(Uint8 dc_motor_id, Uint8 value)
 {
 	DCMotor_config_t* this = &(DCMotors[dc_motor_id].config);
 	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STOPPED));
-	if (value)
-		GPIO_SetBits(this->way_latch, this->way_bit_number);
-	else
-		GPIO_ResetBits(this->way_latch, this->way_bit_number);
+	if(value){
+		if(this->inverseDirection)
+			GPIO_ResetBits(this->way_latch, this->way_bit_number);
+		else
+			GPIO_SetBits(this->way_latch, this->way_bit_number);
+	}else{
+		if(this->inverseDirection)
+			GPIO_SetBits(this->way_latch, this->way_bit_number);
+		else
+			GPIO_ResetBits(this->way_latch, this->way_bit_number);
+	}
 }
 
 static Uint8 DCM_getWay(Uint8 dc_motor_id)
@@ -124,6 +131,12 @@ static Uint8 DCM_getWay(Uint8 dc_motor_id)
 	DCMotor_config_t* this = &(DCMotors[dc_motor_id].config);
 	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STOPPED));
 	return GPIO_ReadInputDataBit(this->way_latch, this->way_bit_number);
+}
+
+void DCM_setWayDirection(Uint8 dc_motor_id, bool_e inverse){
+	DCMotor_config_t* this = &(DCMotors[dc_motor_id].config);
+	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STOPPED));
+	this->inverseDirection = inverse;
 }
 
 

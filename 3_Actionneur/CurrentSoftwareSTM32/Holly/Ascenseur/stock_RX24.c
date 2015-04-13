@@ -79,7 +79,7 @@ static void STOCK_initRX24() {
 			stock_act[i].is_initialized = TRUE;
 			AX12_config_set_highest_voltage(stock_act[i].servo_id, 136);
 			AX12_config_set_lowest_voltage(stock_act[i].servo_id, 70);
-			AX12_config_set_maximum_torque_percentage(stock_act[i].servo_id, STOCK_RX24_MAX_TORQUE_PERCENT);
+			AX12_set_torque_limit(stock_act[i].servo_id, STOCK_RX24_MAX_TORQUE_PERCENT);
 
 			AX12_config_set_maximal_angle(stock_act[i].servo_id, STOCK_RX24_MAX_VALUE);
 			AX12_config_set_minimal_angle(stock_act[i].servo_id, STOCK_RX24_MIN_VALUE);
@@ -492,10 +492,10 @@ static void STOCK_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *right_
 				break;
 
 			case ACT_STOCK_RIGHT_UNLOCK :
-				*right_f1_pos = STOCKR_RIGHT_F1_LOCK;
-				*left_f1_pos = STOCKR_LEFT_F1_LOCK;
-				*right_f2_pos = STOCKR_RIGHT_F2_LOCK;
-				*left_f2_pos = STOCKR_LEFT_F2_LOCK;
+				*right_f1_pos = STOCKR_RIGHT_F1_UNLOCK;
+				*left_f1_pos = STOCKR_LEFT_F1_UNLOCK;
+				*right_f2_pos = STOCKR_RIGHT_F2_UNLOCK;
+				*left_f2_pos = STOCKR_LEFT_F2_UNLOCK;
 				break;
 
 			case ACT_STOCK_RIGHT_OPEN :
@@ -529,10 +529,10 @@ static void STOCK_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *right_
 				break;
 
 			case ACT_STOCK_LEFT_UNLOCK :
-				*right_f1_pos = STOCKL_RIGHT_F1_LOCK;
-				*left_f1_pos = STOCKL_LEFT_F1_LOCK;
-				*right_f2_pos = STOCKL_RIGHT_F2_LOCK;
-				*left_f2_pos = STOCKL_LEFT_F2_LOCK;
+				*right_f1_pos = STOCKL_RIGHT_F1_UNLOCK;
+				*left_f1_pos = STOCKL_LEFT_F1_UNLOCK;
+				*right_f2_pos = STOCKL_RIGHT_F2_UNLOCK;
+				*left_f2_pos = STOCKL_LEFT_F2_UNLOCK;
 				break;
 
 			case ACT_STOCK_LEFT_OPEN :

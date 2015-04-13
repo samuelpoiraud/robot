@@ -60,7 +60,7 @@ static void CARPET_LAUNCHER_LEFT_initAX12() {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(CARPET_LAUNCHER_LEFT_AX12_ID, 136);
 		AX12_config_set_lowest_voltage(CARPET_LAUNCHER_LEFT_AX12_ID, 70);
-		AX12_config_set_maximum_torque_percentage(CARPET_LAUNCHER_LEFT_AX12_ID, CARPET_LAUNCHER_LEFT_AX12_MAX_TORQUE_PERCENT);
+		AX12_set_torque_limit(CARPET_LAUNCHER_LEFT_AX12_ID, CARPET_LAUNCHER_LEFT_AX12_MAX_TORQUE_PERCENT);
 
 		AX12_config_set_maximal_angle(CARPET_LAUNCHER_LEFT_AX12_ID, CARPET_LAUNCHER_LEFT_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(CARPET_LAUNCHER_LEFT_AX12_ID, CARPET_LAUNCHER_LEFT_AX12_MIN_VALUE);
@@ -112,6 +112,7 @@ bool_e CARPET_LAUNCHER_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CARPET_LAUNCHER_LEFT_IDLE :
+			case ACT_CARPET_LAUNCHER_LEFT_LOADING :
 			case ACT_CARPET_LAUNCHER_LEFT_LAUNCH :
 			case ACT_CARPET_LAUNCHER_LEFT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CARPET_LAUNCHER_LEFT, &CARPET_LAUNCHER_LEFT_run_command, 0,TRUE);
@@ -163,6 +164,7 @@ static void CARPET_LAUNCHER_LEFT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_CARPET_LAUNCHER_LEFT_IDLE : *ax12_goalPosition = CARPET_LAUNCHER_LEFT_AX12_IDLE_POS; break;
+		case ACT_CARPET_LAUNCHER_LEFT_LOADING : *ax12_goalPosition = CARPET_LAUNCHER_LEFT_AX12_LOADING_POS; break;
 		case ACT_CARPET_LAUNCHER_LEFT_LAUNCH : *ax12_goalPosition = CARPET_LAUNCHER_LEFT_AX12_LAUNCH_POS; break;
 
 		case ACT_CARPET_LAUNCHER_LEFT_STOP :

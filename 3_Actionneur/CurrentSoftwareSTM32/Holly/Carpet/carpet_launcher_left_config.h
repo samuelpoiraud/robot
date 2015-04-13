@@ -20,6 +20,7 @@
 
 //Position
 	#define CARPET_LAUNCHER_LEFT_AX12_IDLE_POS						761				//en degré
+	#define CARPET_LAUNCHER_LEFT_AX12_LOADING_POS					730				//en degré
 	#define CARPET_LAUNCHER_LEFT_AX12_LAUNCH_POS					275				//en degré
 
 //Position initiale de l'AX12

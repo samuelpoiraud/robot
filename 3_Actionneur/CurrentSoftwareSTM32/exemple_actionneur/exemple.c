@@ -83,7 +83,7 @@ static void EXEMPLE_initAX12() {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(EXEMPLE_AX12_ID, 136);
 		AX12_config_set_lowest_voltage(EXEMPLE_AX12_ID, 70);
-		AX12_config_set_maximum_torque_percentage(EXEMPLE_AX12_ID, SMALL_ARM_AX12_MAX_TORQUE_PERCENT);
+		AX12_set_torque_limit(EXEMPLE_AX12_ID, SMALL_ARM_AX12_MAX_TORQUE_PERCENT);
 
 		AX12_config_set_maximal_angle(EXEMPLE_AX12_ID, EXEMPLE_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(EXEMPLE_AX12_ID, EXEMPLE_AX12_MIN_VALUE);

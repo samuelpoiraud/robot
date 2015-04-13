@@ -76,7 +76,8 @@ static void PINCEMI_initRX24() {
 			pincemi_act[i].is_initialized = TRUE;
 			AX12_config_set_highest_voltage(pincemi_act[i].servo_id, 136);
 			AX12_config_set_lowest_voltage(pincemi_act[i].servo_id, 70);
-			AX12_config_set_maximum_torque_percentage(pincemi_act[i].servo_id, PINCEMI_RX24_MAX_TORQUE_PERCENT);
+			AX12_set_torque_limit(pincemi_act[i].servo_id, PINCEMI_RX24_MAX_TORQUE_PERCENT);
+			//AX12_config_set_return_delay_time(pincemi_act[i].servo_id, Uint16 delay_us);
 
 			AX12_config_set_maximal_angle(pincemi_act[i].servo_id, PINCEMI_RX24_MAX_VALUE);
 			AX12_config_set_minimal_angle(pincemi_act[i].servo_id, PINCEMI_RX24_MIN_VALUE);
