@@ -12,8 +12,6 @@
 
 #ifdef I_AM_ROBOT_BIG
 
-#ifndef FDP_2014
-
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
 #include "../QS/QS_pwm.h"
@@ -200,7 +198,5 @@ static void SPOT_POMPE_PWM_stop()
 {
 	SPOT_POMPE_PWM_run(0);
 }
-
-#endif
 
 #endif

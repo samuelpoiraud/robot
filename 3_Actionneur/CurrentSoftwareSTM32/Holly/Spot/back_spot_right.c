@@ -60,7 +60,7 @@ static void BACK_SPOT_RIGHT_initAX12() {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(BACK_SPOT_RIGHT_AX12_ID, 136);
 		AX12_config_set_lowest_voltage(BACK_SPOT_RIGHT_AX12_ID, 70);
-		AX12_config_set_maximum_torque_percentage(BACK_SPOT_RIGHT_AX12_ID, BACK_SPOT_RIGHT_AX12_MAX_TORQUE_PERCENT);
+		AX12_set_torque_limit(BACK_SPOT_RIGHT_AX12_ID, BACK_SPOT_RIGHT_AX12_MAX_TORQUE_PERCENT);
 
 		AX12_config_set_maximal_angle(BACK_SPOT_RIGHT_AX12_ID, BACK_SPOT_RIGHT_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(BACK_SPOT_RIGHT_AX12_ID, BACK_SPOT_RIGHT_AX12_MIN_VALUE);

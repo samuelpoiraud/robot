@@ -13,32 +13,35 @@
 #define	ELEVATOR_CONFIG_H
 
 // Configuration de l'asservissement PID
-#define ELEVATOR_KP							10
-#define ELEVATOR_KI							10
-#define ELEVATOR_KD							10
-#define ELEVATOR_KP2						10
-#define ELEVATOR_KI2						10
-#define ELEVATOR_KD2						10
+#define ELEVATOR_KP							70
+#define ELEVATOR_KI							12
+#define ELEVATOR_KD							1
+#define ELEVATOR_KP2						0
+#define ELEVATOR_KI2						0
+#define ELEVATOR_KD2						0
 
 #define ELEVATOR_PWM_NUM					1
 #define ELEVATOR_PORT_WAY					GPIOA
-#define ELEVATOR_PORT_WAY_BIT				8
+#define ELEVATOR_PORT_WAY_BIT				GPIO_Pin_8
 #define ELEVATOR_MAX_PWM_WAY0				80
 #define ELEVATOR_MAX_PWM_WAY1				80
-#define ELEVATOR_QEI_COEF					0x0BFF			// Random à faire !
+#define ELEVATOR_QEI_COEF					0x0001
 
 #define ELEVATOR_ASSER_TIMEOUT				2000
-#define ELEVATOR_ASSER_POS_EPSILON			20
+#define ELEVATOR_ASSER_POS_EPSILON			250
+
+#define ELEVATOR_MAX_VALUE					8000
+#define ELEVATOR_MIN_VALUE					610
 
 
 // Position
-#define ACT_ELEVATOR_BOT_POS				10
-#define ACT_ELEVATOR_MID_POS				10
-#define ACT_ELEVATOR_PRE_TOP_POS			10
-#define ACT_ELEVATOR_TOP_POS				10
+#define ACT_ELEVATOR_BOT_POS				680
+#define ACT_ELEVATOR_MID_POS				4124
+#define ACT_ELEVATOR_PRE_TOP_POS			4000
+#define ACT_ELEVATOR_TOP_POS				7950
 
-#define ACT_ELEVATOR_INIT_POS				ACT_ELEVATOR_MID_POS
-#define ACT_ELEVATOR_SPEED					20
+#define ACT_ELEVATOR_INIT_POS				ACT_ELEVATOR_TOP_POS
+#define ACT_ELEVATOR_SPEED					0
 
 #endif	/* ELEVATOR_CONFIG_H */
 

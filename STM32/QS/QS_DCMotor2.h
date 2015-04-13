@@ -39,9 +39,10 @@
 			Sint16 Kp, Ki, Kd;				// valeurs des gains pour le PID (si double PID -> valeurs pour si on est au dessus de la consigne)
 			Sint16 Kp2, Ki2, Kd2;			// (utilisé si double PID) valeurs des gains pour le PID si on est en dessous de la consigne
 			GPIO_TypeDef* way_latch;		// adresse du port contenant le bit de sens de controle du pont en H (exemple GPIOA)
-			Uint8 way_bit_number;			// numero du bit de sens dans le port
+			Uint16 way_bit_number;			// numero du bit de sens dans le port
 			Uint16 timeout;					// timeout en ms, si la position demandée n'est pas atteinte avant ce temps, l'asservissement est arreté (évite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
 			Uint16 epsilon;					// epsilon, si l'erreur devient inférieur à cette variable, la position est considéré comme atteinte
+			bool_e inverseDirection;		// Inverser la pin de sens du controle du moteur
 		} DCMotor_config_t;
 
 		/*-------------------------------------
@@ -91,6 +92,8 @@
 		void DCM_getPwmWay(Uint8 dc_motor_id, Uint8 *way0_max_duty, Uint8 *way1_max_duty);
 		// Change les coefficients pwm
 		void DCM_setPwmWay(Uint8 dc_motor_id, Uint8 way0_max_duty, Uint8 way1_max_duty);
+
+		void DCM_setWayDirection(Uint8 dc_motor_id, bool_e inverse);
 
 		// Arret de l'asservissement d'un actionneur
 		void DCM_stop(Uint8 dc_motor_id);

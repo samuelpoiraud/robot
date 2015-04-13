@@ -46,6 +46,8 @@ void ELEVATOR_process_it();
 
 void ELEVATOR_reset_config();
 
+Sint16 ELEVATOR_get_position();
+
 #endif	/* ELEVATOR_H */
 
 #endif

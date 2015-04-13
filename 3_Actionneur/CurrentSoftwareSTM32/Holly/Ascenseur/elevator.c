@@ -36,7 +36,6 @@ static volatile Sint16 ELEVATOR_position = 0;
 
 static void ELEVATOR_command_run(queue_id_t queueId);
 static void ELEVATOR_command_init(queue_id_t queueId);
-static Sint16 ELEVATOR_get_position();
 
 // Fonction appellée au lancement de la carte (via ActManager)
 void ELEVATOR_init() {
@@ -51,7 +50,7 @@ void ELEVATOR_init() {
 	DCM_init();
 	QEI_init();
 	dcconfig.sensor_read = &ELEVATOR_get_position;
-	dcconfig.double_PID = TRUE;
+	dcconfig.double_PID = FALSE;
 	dcconfig.Kp = ELEVATOR_KP;
 	dcconfig.Ki = ELEVATOR_KI;
 	dcconfig.Kd = ELEVATOR_KD;
@@ -67,6 +66,7 @@ void ELEVATOR_init() {
 	dcconfig.way1_max_duty = ELEVATOR_MAX_PWM_WAY1;
 	dcconfig.timeout = ELEVATOR_ASSER_TIMEOUT;
 	dcconfig.epsilon = ELEVATOR_ASSER_POS_EPSILON;
+	dcconfig.inverseDirection = FALSE;
 	DCM_config(ELEVATOR_ID, &dcconfig);
 	DCM_stop(ELEVATOR_ID);
 }
@@ -79,15 +79,22 @@ void ELEVATOR_state_machine(){
 		WAIT_POS,
 		RUN
 	}state_e;
-	static state_e state = INIT;
+	static state_e state = INIT, last_state = -1;
 	Uint8 result, error_code;
 	Uint16 line;
+	bool_e entrance = (state != last_state)? TRUE : FALSE;
+	last_state = state;
+
+	if(entrance)
+		debug_printf("%d -> %d\n", last_state, state);
+
 
 	switch (state) {
 		case INIT:
 			ELEVATOR_init();
-			GPIO_SetBits(ELEVATOR_PORT_WAY, ELEVATOR_PORT_WAY_BIT);
-			PWM_run(15, ELEVATOR_PWM_NUM);
+			DCM_setWayDirection(ELEVATOR_ID, TRUE);
+			GPIO_ResetBits(ELEVATOR_DCM_SENS);
+			PWM_run(30, ELEVATOR_PWM_NUM);
 			state = WAIT_FDC;
 			break;
 
@@ -98,7 +105,6 @@ void ELEVATOR_state_machine(){
 				encoder_ready = TRUE;
 				state = INIT_POS;
 			}
-
 			break;
 
 		case INIT_POS:
@@ -112,9 +118,12 @@ void ELEVATOR_state_machine(){
 			if(ACTQ_check_status_dcmotor(ELEVATOR_ID, FALSE, &result, &error_code, &line)){
 				if(result == ACT_RESULT_DONE){
 					ELEVATOR_ready = TRUE;
+					debug_printf("Win !\n");
 					state = RUN;
 				}else{
 					DCM_stop(ELEVATOR_ID);
+
+					debug_printf("Fail !\n");
 					state = INIT;
 				}
 			}
@@ -142,8 +151,9 @@ void ELEVATOR_process_it(){
 	}
 }
 
-static Sint16 ELEVATOR_get_position(){
-	return ELEVATOR_position;
+Sint16 ELEVATOR_get_position(){
+	return (Sint16)(-ELEVATOR_position*1.5628 + 8000);
+
 }
 
 // Fonction appellée si la carte IHM a détecté une grosse chutte de la tension d'alimentation des servos
@@ -265,8 +275,10 @@ static void ELEVATOR_command_run(queue_id_t queueId) {
 	Uint8 result, error_code;
 	Uint16 line;
 
-	if(ACTQ_check_status_dcmotor(ELEVATOR_ID, FALSE, &result, &error_code, &line))
+	if(ACTQ_check_status_dcmotor(ELEVATOR_ID, FALSE, &result, &error_code, &line)){
+		debug_printf("Elevator pos : %d\n", ELEVATOR_get_position());
 		QUEUE_next(queueId, ACT_ELEVATOR, result, error_code, line);
+	}
 }
 
 #endif

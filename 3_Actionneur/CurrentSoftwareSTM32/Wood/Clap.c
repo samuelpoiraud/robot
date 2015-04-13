@@ -63,7 +63,7 @@ static void CLAP_initAX12() {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(CLAP_AX12_ID, 136);
 		AX12_config_set_lowest_voltage(CLAP_AX12_ID, 70);
-		AX12_config_set_maximum_torque_percentage(CLAP_AX12_ID, CLAP_AX12_MAX_TORQUE_PERCENT);
+		AX12_set_torque_limit(CLAP_AX12_ID, CLAP_AX12_MAX_TORQUE_PERCENT);
 
 		AX12_config_set_maximal_angle(CLAP_AX12_ID, CLAP_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(CLAP_AX12_ID, CLAP_AX12_MIN_VALUE);

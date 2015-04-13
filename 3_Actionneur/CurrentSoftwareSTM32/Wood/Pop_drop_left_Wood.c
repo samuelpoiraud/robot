@@ -83,7 +83,7 @@ static void POP_DROP_LEFT_WOOD_initAX12() {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_highest_voltage(POP_DROP_LEFT_WOOD_AX12_ID, 136);
 		AX12_config_set_lowest_voltage(POP_DROP_LEFT_WOOD_AX12_ID, 70);
-		AX12_config_set_maximum_torque_percentage(POP_DROP_LEFT_WOOD_AX12_ID, POP_DROP_LEFT_WOOD_AX12_MAX_TORQUE_PERCENT);
+		AX12_set_torque_limit(POP_DROP_LEFT_WOOD_AX12_ID, POP_DROP_LEFT_WOOD_AX12_MAX_TORQUE_PERCENT);
 
 		AX12_config_set_maximal_angle(POP_DROP_LEFT_WOOD_AX12_ID, POP_DROP_LEFT_WOOD_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(POP_DROP_LEFT_WOOD_AX12_ID, POP_DROP_LEFT_WOOD_AX12_MIN_VALUE);
