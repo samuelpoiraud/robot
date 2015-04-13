@@ -36,6 +36,7 @@
 //							Valeur souhaitable pour le commit SVN : high_level_strat
 #define DEFAULT_STRAT_BIG	high_level_strat
 
+
 #define DEFAULT_STRAT_SMALL	high_level_strat
 
 
@@ -57,7 +58,7 @@ typedef enum{
 typedef struct{
 	char *name;
 	ia_fun_t function;
-	time32_t match_duration; // (MATCH_DURATION de base à 90 000 ms et 0 signifit stratégie avec un temps infini)
+	time32_t match_duration;
 	bool_e display_on;
 	robot_type_e robot_type;
 }strategy_list_s;
@@ -71,6 +72,7 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE,					BOTH},
 	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE,					BOTH},
 	{"strat_prop",			strat_reglage_prop,						0,					TRUE,					BOTH},
+	{"strat_avoidance",		strat_test_avoidance,					0,					TRUE,					BOTH},
 
 	// Pour holly
 	{"strat_inutile",		strat_inutile_holly,					MATCH_DURATION,		TRUE,					BIG},
