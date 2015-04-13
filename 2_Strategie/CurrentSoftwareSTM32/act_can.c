@@ -4,6 +4,9 @@
 #define LOG_PREFIX "act_c: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "QS/QS_outputlog.h"
+#include "QS/QS_who_am_i.h"
+
+#define ACT_DONT_TRY_FALLBACK_ON_SMALL
 
 //Info sur la gestion d'erreur des actionneurs:
 //La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT
@@ -92,22 +95,51 @@ void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout) {
 }
 
 void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd)  {
-#ifndef ACT_DONT_TRY_FALLBACK
-	arg->fallbackMsg.sid = sid;
-	arg->fallbackMsg.data[0] = cmd;
-	arg->fallbackMsg.size = 1;
-#endif
+
+	//Le code qui suit est dégeu... mais l'école ferme dans 10 minutes.
+	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
+	{
+		#ifndef ACT_DONT_TRY_FALLBACK_ON_SMALL
+			arg->fallbackMsg.sid = sid;
+			arg->fallbackMsg.data[0] = cmd;
+			arg->fallbackMsg.size = 1;
+		#endif
+	}
+	else
+	{
+		#ifndef ACT_DONT_TRY_FALLBACK_ON_BIG
+			arg->fallbackMsg.sid = sid;
+			arg->fallbackMsg.data[0] = cmd;
+			arg->fallbackMsg.size = 1;
+		#endif
+	}
+
+
 }
 
 
 void ACT_arg_set_fallbackmsg_with_param (QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param)  {
-#ifndef ACT_DONT_TRY_FALLBACK
-	arg->fallbackMsg.sid = sid;
-	arg->fallbackMsg.data[0] = cmd;
-	arg->fallbackMsg.data[1] = LOWINT(param);
-	arg->fallbackMsg.data[2] = HIGHINT(param);
-	arg->fallbackMsg.size = 3;
-#endif
+
+	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
+	{
+		#ifndef ACT_DONT_TRY_FALLBACK_ON_SMALL
+			arg->fallbackMsg.sid = sid;
+			arg->fallbackMsg.data[0] = cmd;
+			arg->fallbackMsg.data[1] = LOWINT(param);
+			arg->fallbackMsg.data[2] = HIGHINT(param);
+			arg->fallbackMsg.size = 3;
+		#endif
+	}
+	else
+	{
+		#ifndef ACT_DONT_TRY_FALLBACK_ON_BIG
+			arg->fallbackMsg.sid = sid;
+			arg->fallbackMsg.data[0] = cmd;
+			arg->fallbackMsg.data[1] = LOWINT(param);
+			arg->fallbackMsg.data[2] = HIGHINT(param);
+			arg->fallbackMsg.size = 3;
+		#endif
+	}
 }
 
 
