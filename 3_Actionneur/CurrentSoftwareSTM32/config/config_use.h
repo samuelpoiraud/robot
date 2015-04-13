@@ -27,7 +27,7 @@
 
 #define CAN_VERBOSE_MODE		//Activation de la verbosité des messages CAN
 
-//#define FDP_2014
+#define FDP_2014
 
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//

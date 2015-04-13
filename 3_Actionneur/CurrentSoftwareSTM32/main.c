@@ -123,14 +123,6 @@ int main (void)
 			Gestion des DELs, boutons, etc
 		-------------------------------------*/
 
-		//Switch choix de l'actionneur testé par les boutons: affichage de l'état s'il a changé
-		if(lastSwitchState[0] != SWITCH_RG0) {
-			lastSwitchState[0] = SWITCH_RG0;
-		}
-		if(lastSwitchState[1] != SWITCH_RG1) {
-			lastSwitchState[1] = SWITCH_RG1;
-		}
-
 		toggle_led(LED_USER);
 
 		QUEUE_run();
@@ -262,9 +254,33 @@ static void MAIN_onButton0() {
 }
 
 static void MAIN_onButton1() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_PINCE_GAUCHE;
+
+	if(state == 0)
+		msg.data[0] = ACT_PINCE_GAUCHE_OPEN	;
+	else if(state == 1)
+		msg.data[0] = ACT_PINCE_GAUCHE_CLOSED;
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton2() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_PINCE_DROITE;
+
+	if(state == 0)
+		msg.data[0] = ACT_PINCE_DROITE_OPEN	;
+	else if(state == 1)
+		msg.data[0] = ACT_PINCE_DROITE_CLOSED;
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton3() {

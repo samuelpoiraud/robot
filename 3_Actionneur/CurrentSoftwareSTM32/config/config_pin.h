@@ -30,12 +30,17 @@
 	#define BUTTON2_PORT		(!GPIOE->IDR13)
 	#define BUTTON3_PORT		(!GPIOE->IDR14)
 	#define BUTTON4_PORT		(!GPIOE->IDR15)
+	#define SWITCH_PE7			(GPIOE->IDR7)
+	#define SWITCH_PE8			(GPIOE->IDR8)
+	#define SWITCH_PE9			(GPIOE->IDR9)
+	#define SWITCH_PE10			(GPIOE->IDR10)
+	#define SWITCH_PE11			(GPIOE->IDR11)
+
 #endif
 #define PORT_ROBOT_ID  		GPIOC->IDR13
 
 /* Switchs */
-#define SWITCH_RG0 FALSE
-#define SWITCH_RG1 FALSE
+
 
 //Test et inclusion des configs spécifiques au robot
 #if (defined(I_AM_ROBOT_BIG) && defined(I_AM_ROBOT_SMALL)) || (!defined(I_AM_ROBOT_BIG) && !defined(I_AM_ROBOT_SMALL))
