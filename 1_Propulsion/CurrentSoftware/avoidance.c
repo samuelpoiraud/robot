@@ -192,7 +192,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 	 *  On calcule la position relative des robots adverses pour savoir s'ils se trouvent dans ce rectangle
 	 */
 
-	/*[mm/4096/5ms/5ms]*/	breaking_acceleration = ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ACCELERATION_NORMAL:BIG_ACCELERATION_NORMAL)*4; // Dans le cas d'un freinage on applique 4 fois notre potentiel d'accélération
+	/*[mm/4096/5ms/5ms]*/	breaking_acceleration = ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ACCELERATION_NORMAL:(BIG_ACCELERATION_NORMAL*2))*2; // Dans le cas d'un freinage on applique 4 fois notre potentiel d'accélération
 	/*[mm/4096/5ms]*/		current_speed = (Uint32)(absolute(vtrans)*1);
 	/*[mm]*/				break_distance = SQUARE(current_speed)/(2*breaking_acceleration) >> 12;	//distance que l'on va parcourir si l'on décide de freiner maintenant. (Division par 4096 car on calcule avec des variables /4096)
 	/*[mm]*/				respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
