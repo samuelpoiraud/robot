@@ -187,7 +187,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case XBEE_WOOD_PROTECT_ZONE:					print(string, len, "%x XBEE_WOOD_PROTECT_ZONE				  ", XBEE_WOOD_PROTECT_ZONE							);	break;
 		case PROP_WOOD_PROTECT_ZONE:					print(string, len, "%x PROP_WOOD_PROTECT_ZONE				  ", PROP_WOOD_PROTECT_ZONE							);	break;
 		case ACT_RESULT:								print(string, len, "%x ACT_RESULT                             ", ACT_RESULT										);	break;
-		//case ACT_TORCH_LOCKER:						print(string, len, "%x ACT_TORCH_LOCKER						  ", ACT_TORCH_LOCKER								);	break;
+// Holly
 		case ACT_POP_COLLECT_LEFT:						print(string, len, "%x ACT_POP_COLLECT_LEFT                   ", ACT_POP_COLLECT_LEFT							);	break;
 		case ACT_POP_COLLECT_RIGHT:						print(string, len, "%x ACT_POP_COLLECT_RIGHT                  ", ACT_POP_COLLECT_RIGHT							);	break;
 		case ACT_POP_DROP_LEFT:							print(string, len, "%x ACT_POP_DROP_LEFT                      ", ACT_POP_DROP_LEFT								);	break;
@@ -198,9 +198,20 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_SPOT_POMPE_LEFT:						print(string, len, "%x ACT_SPOT_POMPE_LEFT                    ", ACT_SPOT_POMPE_LEFT							);	break;
 		case ACT_CARPET_LAUNCHER_RIGHT:					print(string, len, "%x ACT_CARPET_LAUNCHER_RIGHT              ", ACT_CARPET_LAUNCHER_RIGHT						);	break;
 		case ACT_CARPET_LAUNCHER_LEFT:					print(string, len, "%x ACT_CARPET_LAUNCHER_LEFT               ", ACT_CARPET_LAUNCHER_LEFT						);	break;
+		case ACT_ELEVATOR:								print(string, len, "%x ACT_ELEVATOR                           ", ACT_ELEVATOR									);	break;
+		case ACT_PINCEMI_RIGHT:							print(string, len, "%x ACT_PINCEMI_RIGHT                      ", ACT_PINCEMI_RIGHT								);	break;
+		case ACT_PINCEMI_LEFT:							print(string, len, "%x ACT_PINCEMI_LEFT                       ", ACT_PINCEMI_LEFT								);	break;
+		case ACT_STOCK_RIGHT:							print(string, len, "%x ACT_STOCK_RIGHT                        ", ACT_STOCK_RIGHT								);	break;
+		case ACT_STOCK_LEFT:							print(string, len, "%x ACT_STOCK_LEFT                         ", ACT_STOCK_LEFT									);	break;
+		case ACT_CUP_NIPPER:							print(string, len, "%x ACT_CUP_NIPPER                         ", ACT_CUP_NIPPER									);	break;
+		case ACT_CUP_NIPPER_ELEVATOR:					print(string, len, "%x ACT_CUP_NIPPER_ELEVATOR                ", ACT_CUP_NIPPER_ELEVATOR				    	);	break;
+		case ACT_CLAP_HOLLY:							print(string, len, "%x ACT_CLAP_HOLLY                         ", ACT_CLAP_HOLLY									);	break;
+//Wood
 		case ACT_PINCE_GAUCHE:							print(string, len, "%x ACT_PINCE_GAUCHE                       ", ACT_PINCE_GAUCHE					         	);	break;
 		case ACT_PINCE_DROITE:							print(string, len, "%x ACT_PINCE_DROITE                       ", ACT_PINCE_DROITE					         	);	break;
-		case ACT_POP_DROP_LEFT_WOOD:				    print(string, len, "%x ACT_POP_DROP_LEFT_WOOD                 ", ACT_POP_DROP_LEFT_WOOD				         	);	break;
+		case ACT_CLAP:									print(string, len, "%x ACT_CLAP                               ", ACT_CLAP										);	break;
+		case ACT_POP_DROP_LEFT_WOOD:					print(string, len, "%x ACT_POP_DROP_LEFT_WOOD                 ", ACT_POP_DROP_LEFT_WOOD							);	break;
+		case ACT_POP_DROP_RIGHT_WOOD:					print(string, len, "%x ACT_POP_DROP_RIGHT_WOOD                ", ACT_POP_DROP_RIGHT_WOOD						);	break;
 
 		case ACT_TEST_SERVO:							print(string, len, "%x ACT_TEST_SERVO                         ", ACT_TEST_SERVO									);	break;
 		case PROP_SCAN_CUP:                             print(string, len, "%x PROP_SCAN_CUP                          ", PROP_SCAN_CUP							     	);	break;

@@ -32,8 +32,8 @@
 	//	-				 			  15
 
 #define PORT_B_IO_MASK	0xF7FF
-	#define ELEVATOR_FDC			 (GPIOB->IDR0)
-	#define CUP_NIPPER_FDC			 (GPIOB->IDR1)
+	#define ELEVATOR_FDC			 !(GPIOB->IDR0)
+	#define CUP_NIPPER_FDC			 !(GPIOB->IDR1)
 	//	-				 			  1
 	//	-				 			  2
 	// - programmation -			  3
