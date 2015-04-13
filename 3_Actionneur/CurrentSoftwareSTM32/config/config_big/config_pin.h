@@ -114,9 +114,9 @@
 	#define BUTTON2_PORT		(!GPIOE->IDR13)
 	#define BUTTON3_PORT		(!GPIOE->IDR14)
 	#define BUTTON4_PORT		(!GPIOE->IDR15)
-#else
-	#define SPOT_POMPE_LEFT_SENS	GPIOE,GPIO_Pin_15
 #endif
+	#define SPOT_POMPE_LEFT_SENS	GPIOE,GPIO_Pin_15
+
 
 //--------------------Configuration des ID des actionneurs-----------------------
 

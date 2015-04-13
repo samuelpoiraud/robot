@@ -505,7 +505,7 @@ bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value){
 ////////////////////////////////////////
 
 static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
-	CREATE_MAE(
+	CREATE_MAE_WITH_VERBOSE(SM_ID_HOLLY_MAE_SPOTIX,
 		INIT,
 		COMPUTE_ORDER,
 		FAIL_COMPUTE,
