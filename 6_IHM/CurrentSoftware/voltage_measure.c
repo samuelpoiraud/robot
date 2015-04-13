@@ -20,7 +20,7 @@
 #define THRESHOLD_BATTERY_LOW		21300	//[mV] Réglage du seuil de batterie faible
 #define THRESHOLD_12V_HOKUYO_MIN	10000	//[mV] Réglage du seuil de la tension minimum hokuyo
 #define THRESHOLD_12V_HOKUYO_MAX	14000	//[mV] Réglage du seuil de la tension maximum hokuyo
-#define GAP_BETWEEN_ARU				1000	//[mV] Ecart entre le 24V permanent et la puissance(dérrière l'ARU)
+#define GAP_BETWEEN_ARU				1500	//[mV] Ecart entre le 24V permanent et la puissance(dérrière l'ARU)
 #define ACQUISITION					200		//[ms] Faire une acquisition de la batterie tous les..
 
 static Uint32 valuePerm;
