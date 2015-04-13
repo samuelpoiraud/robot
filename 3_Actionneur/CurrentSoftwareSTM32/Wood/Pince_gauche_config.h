@@ -16,12 +16,12 @@
 	#define PINCE_GAUCHE_AX12_ASSER_TIMEOUT				1000	// Si l'ax12 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en ms.
 	#define PINCE_GAUCHE_AX12_ASSER_POS_EPSILON			6		// Lorsque l'ax12 atteint sa position avec +/- POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define PINCE_GAUCHE_AX12_ASSER_POS_LARGE_EPSILON	28		// Si le déplacement de l'ax12 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
-	#define PINCE_GAUCHE_AX12_MAX_TORQUE_PERCENT		100		// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+	#define PINCE_GAUCHE_AX12_MAX_TORQUE_PERCENT		30		// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 
 //Position
-	#define PINCE_GAUCHE_AX12_CLOSE_POS					252		//en degré
-	#define PINCE_GAUCHE_AX12_MID_POS					337		//en degré 25° de diff avec IDLE POS
-	#define PINCE_GAUCHE_AX12_OPEN_POS					512 	//en degré
+	#define PINCE_GAUCHE_AX12_CLOSE_POS					298		//en degré
+	#define PINCE_GAUCHE_AX12_MID_POS					333		//en degré 35° de diff avec IDLE POS
+	#define PINCE_GAUCHE_AX12_OPEN_POS					502 	//en degré
 
 //Position initiale de l'AX12
 	#define PINCE_GAUCHE_AX12_INIT_POS					PINCE_GAUCHE_AX12_CLOSE_POS

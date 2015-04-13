@@ -327,6 +327,6 @@ void ACT_sensor_answer(CAN_msg_t* msg);
 	AX12_TORQUE_CONFIG
 	   // (0 à 100)
   */
-bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value);
+bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value);
 
 #endif /* ndef ACT_FUNCTIONS_H */
