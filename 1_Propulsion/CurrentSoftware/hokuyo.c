@@ -76,7 +76,7 @@
 	#define BEGIN_ZONE_Y1_RECT_X		778
 	#define	BEGIN_ZONE_Y1_RECT_Y		0
 	#define	BEGIN_ZONE_Y1_WIDTH			444			// Largeur en x
-	#define	BEGIN_ZONE_Y1_RECT_HEIGHT	580			// Longueur en y
+	#define	BEGIN_ZONE_Y1_RECT_HEIGHT	400			// Longueur en y
 
 	#define BEGIN_ZONE_Y2_RECT_X		840
 	#define	BEGIN_ZONE_Y2_RECT_Y		580
@@ -84,9 +84,9 @@
 	#define	BEGIN_ZONE_Y2_RECT_HEIGHT	70			// Longueur en y
 
 	#define BEGIN_ZONE_G1_RECT_X		778
-	#define	BEGIN_ZONE_G1_RECT_Y		2420
+	#define	BEGIN_ZONE_G1_RECT_Y		2600
 	#define	BEGIN_ZONE_G1_WIDTH			444			// Largeur en x
-	#define	BEGIN_ZONE_G1_RECT_HEIGHT	580			// Longueur en y
+	#define	BEGIN_ZONE_G1_RECT_HEIGHT	400			// Longueur en y
 
 	#define BEGIN_ZONE_G2_RECT_X		840
 	#define	BEGIN_ZONE_G2_RECT_Y		2350
@@ -713,22 +713,10 @@ void hokuyo_find_valid_points(void){
 						&& y_absolute < BEGIN_ZONE_Y1_RECT_Y + BEGIN_ZONE_Y1_RECT_HEIGHT) 	//zones de départ jaune partie basse
 						point_filtered = TRUE;	//on refuse les points
 
-				if(x_absolute > BEGIN_ZONE_Y2_RECT_X
-						&& x_absolute < BEGIN_ZONE_Y2_RECT_X + BEGIN_ZONE_Y2_WIDTH
-						&& y_absolute > BEGIN_ZONE_Y2_RECT_Y
-						&& y_absolute < BEGIN_ZONE_Y2_RECT_Y + BEGIN_ZONE_Y2_RECT_HEIGHT) 	//zones de départ jaune partie haute
-						point_filtered = TRUE;	//on refuse les points
-
 				if(x_absolute > BEGIN_ZONE_G1_RECT_X
 						&& x_absolute < BEGIN_ZONE_G1_RECT_X + BEGIN_ZONE_G1_WIDTH
 						&& y_absolute > BEGIN_ZONE_G1_RECT_Y
 						&& y_absolute < BEGIN_ZONE_G1_RECT_Y + BEGIN_ZONE_G1_RECT_HEIGHT) 	//zones de départ verte partie basse
-						point_filtered = TRUE;	//on refuse les points
-
-				if(x_absolute > BEGIN_ZONE_G2_RECT_X
-						&& x_absolute < BEGIN_ZONE_G2_RECT_X + BEGIN_ZONE_G2_WIDTH
-						&& y_absolute > BEGIN_ZONE_G2_RECT_Y
-						&& y_absolute < BEGIN_ZONE_G2_RECT_Y + BEGIN_ZONE_G2_RECT_HEIGHT) 	//zones de départ verte partie haute
 						point_filtered = TRUE;	//on refuse les points
 
 				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
