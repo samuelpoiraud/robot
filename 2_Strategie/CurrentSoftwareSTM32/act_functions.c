@@ -353,17 +353,18 @@ bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
 //////////////// COMMON ////////////////
 ////////////////////////////////////////
 
-bool_e ACT_config(Uint16 sid, Uint8 cmd, Uint16 value){
+bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value){
 	QUEUE_arg_t args;
 	queue_id_e queue_id;
 	ACT_can_msg_t msg;
 
 	msg.sid = sid;
 	msg.data[0]=ACT_CONFIG;
-	msg.data[1]=cmd;
-	msg.data[2]=LOWINT(value);
-	msg.data[3]=HIGHINT(value);
-	msg.size = 4;
+	msg.data[1]=sub_act;
+	msg.data[2]=cmd;
+	msg.data[3]=LOWINT(value);
+	msg.data[4]=HIGHINT(value);
+	msg.size = 5;
 
 	ACT_arg_init_with_msg(&args, msg);
 	ACT_arg_set_timeout(&args, 0);
