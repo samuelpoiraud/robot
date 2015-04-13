@@ -15,11 +15,12 @@
 #include "QS/QS_outputlog.h"
 
 // Temps pour les buttons externes pour un appuie long
-#define TIME_LONG_PUSH  1000	// (en ms) Va attendre 1s avant d'executer le long push
+#define TIME_LONG_PUSH  1000	// (en ms) Va attendre 1s avant d'executer le long push et le premier long push
 #define TIME_REPEAT		200		// (en ms) Une fois le long push effectué, il se répete tous les 200ms
 
 // Pour les buttons qui communiquent avec le monde extérieure
 static bool_e buttons[BP_NUMBER_IHM]; // Pour détecter les appuies long, pour la répitition évite de rentrer dans directe push à la fin de l'appuie
+static bool_e buttons_first_long[BP_NUMBER_IHM]; // Pour le premier long push appuye plus rapide par la suite
 static Sint16 push_time[BP_NUMBER_IHM]={0};
 
 // Au démarrage, n'envoyera pas de messsage CAN sur l'état des boutons
@@ -34,6 +35,7 @@ void BUTTONS_init(){
 	// Init buttons du monde extérieure
 	for(i=0;i<BP_NUMBER_IHM;i++){
 		buttons[i] = FALSE;
+		buttons_first_long[i] = FALSE;
 	}
 
 	initialized = TRUE;
@@ -101,13 +103,19 @@ void BUTTONS_update(){
 		if(buttons_falling_edge & (1<<i)){ // Détecte les fronts descendant sur chaque bouton
 			push_time[i] = TIME_LONG_PUSH;
 			buttons[i] = FALSE;
+			buttons_first_long[i] = FALSE;
 		}
 		else{
 			buttons_rising_edge = (~buttons_were_pressed) & buttons_pressed;
 
 			if((((~buttons_pressed) & (1<<i)) && push_time[i] <= 0) && initialized){// long push
+				if(!buttons_first_long[i]){ // First long push
+					buttons_first_long[i] = TRUE;
+					push_time[i] = TIME_LONG_PUSH;
+				}else
+					push_time[i] = TIME_REPEAT;
+
 				buttons[i] = TRUE;
-				push_time[i] = TIME_REPEAT;
 				BUTTONS_send_msg(i,TRUE);
 			}else if((buttons_rising_edge & (1<<i)) && initialized && !buttons[i]) // direct push
 				BUTTONS_send_msg(i,FALSE);
