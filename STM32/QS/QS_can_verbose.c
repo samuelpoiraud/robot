@@ -219,12 +219,13 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
-		case IHM_SET_LED:								print(string, len, "%x IHM_SET_LED                            ", IHM_SET_LED									);	break;
-		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                             ", IHM_BUTTON										);	break;
-		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                             ", IHM_SWITCH										);	break;
-		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL									);	break;
-		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                              ", IHM_POWER										);	break;
-		case IHM_BIROUTE_IS_REMOVED:					print(string, len, "%.3x IHM_BIROUTE_IS_REMOVED                 ",IHM_BIROUTE_IS_REMOVED							);	break;
+		case IHM_SET_LED:								print(string, len, "%x IHM_SET_LED                            ", IHM_SET_ERROR									);	break;
+		case IHM_SET_ERROR:								print(string, len, "%x IHM_SET_ERROR                          ",IHM_BIROUTE_IS_REMOVED							);	break;
+		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                             ", IHM_BUTTON									);	break;
+		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                             ", IHM_SWITCH									);	break;
+		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL								);	break;
+		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                              ", IHM_POWER									);	break;
+		case IHM_BIROUTE_IS_REMOVED:					print(string, len, "%.3x IHM_BIROUTE_IS_REMOVED                 ",IHM_BIROUTE_IS_REMOVED						);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
 	}
@@ -270,6 +271,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_GET_SWITCH:					print_ihm_result(msg, &string, &len);			break;
 		case IHM_POWER:							print_ihm_result(msg, &string, &len);			break;
 		case IHM_SET_LED:						print_ihm_result(msg, &string, &len);			break;
+		case IHM_SET_ERROR:						print(string, len, "error type : %d     state : %s\n",u8(0), (u8(1))?"set":"reset");	break;
+
 
 		default:								print(string, len, "|\n");						break;
 	}

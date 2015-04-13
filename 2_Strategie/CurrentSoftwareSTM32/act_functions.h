@@ -107,8 +107,8 @@ typedef enum {
 
 typedef enum {
 	ACT_carpet_launcher_left_idle = ACT_CARPET_LAUNCHER_LEFT_IDLE,
-	ACT_carpet_launcher_right_launch = ACT_CARPET_LAUNCHER_LEFT_LAUNCH,
-	ACT_carpet_launcher_right_loading = ACT_CARPET_LAUNCHER_LEFT_LOADING,
+	ACT_carpet_launcher_left_launch = ACT_CARPET_LAUNCHER_LEFT_LAUNCH,
+	ACT_carpet_launcher_left_loading = ACT_CARPET_LAUNCHER_LEFT_LOADING,
 	ACT_carpet_launcher_left_stop = ACT_CARPET_LAUNCHER_LEFT_STOP
 } ACT_carpet_launcher_left_cmd_e;
 
