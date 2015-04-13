@@ -85,7 +85,6 @@
 	#define AX12_STATUS_RETURN_CHECK_CHECKSUM
 	#define AX12_UART_ID 3
 	#define AX12_RX24_UART_ID 2
-	//#define AX12_DEBUG_PACKETS
 
 
 //Test et inclusion des configs spécifiques au robot
