@@ -80,7 +80,7 @@ bool_e SPOT_POMPE_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST) {
-		SELFTEST_set_actions(&SPOT_POMPE_RIGHT_run_command, 28, 3, (SELFTEST_action_t[]){
+		SELFTEST_set_actions(&SPOT_POMPE_RIGHT_run_command, 11, 3, (SELFTEST_action_t[]){
 								 {ACT_SPOT_POMPE_RIGHT_NORMAL,  100, QUEUE_ACT_SPOT_POMPE_RIGHT},
 								 {ACT_SPOT_POMPE_RIGHT_REVERSE, 100, QUEUE_ACT_SPOT_POMPE_RIGHT},
 								 {ACT_SPOT_POMPE_RIGHT_STOP, 0, QUEUE_ACT_SPOT_POMPE_RIGHT}

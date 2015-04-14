@@ -212,7 +212,7 @@ bool_e ELEVATOR_CAN_process_msg(CAN_msg_t* msg) {
 		SELFTEST_set_actions(&ELEVATOR_run_command, 0, 3, (SELFTEST_action_t[]){
 								 {ACT_ELEVATOR_BOT,		0,  QUEUE_ACT_ELEVATOR},
 								 {ACT_ELEVATOR_TOP,		0,  QUEUE_ACT_ELEVATOR},
-								 {ACT_ELEVATOR_BOT,		0,  QUEUE_ACT_ELEVATOR}
+								 {ACT_ELEVATOR_MID,		0,  QUEUE_ACT_ELEVATOR}
 							 });
 	}
 	return FALSE;
