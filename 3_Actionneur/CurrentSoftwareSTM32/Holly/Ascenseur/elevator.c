@@ -80,6 +80,7 @@ void ELEVATOR_state_machine(){
 		RUN
 	}state_e;
 	static state_e state = INIT, last_state = -1;
+	static time32_t begin_detection = 0;
 	Uint8 result, error_code;
 	Uint16 line;
 	bool_e entrance = (state != last_state)? TRUE : FALSE;
@@ -95,16 +96,22 @@ void ELEVATOR_state_machine(){
 			DCM_setWayDirection(ELEVATOR_ID, TRUE);
 			GPIO_ResetBits(ELEVATOR_DCM_SENS);
 			PWM_run(30, ELEVATOR_PWM_NUM);
+			begin_detection = 0;
 			state = WAIT_FDC;
 			break;
 
 		case WAIT_FDC:
-			if(ELEVATOR_FDC){
+			if(ELEVATOR_FDC && begin_detection == 0){
+				begin_detection = global.absolute_time;
+			}
+			if(ELEVATOR_FDC && begin_detection != 0 && global.absolute_time - begin_detection > 200){
 				PWM_run(0, ELEVATOR_PWM_NUM);
 				QEI1_set_count(0);
 				encoder_ready = TRUE;
 				state = INIT_POS;
 			}
+			if(!ELEVATOR_FDC)
+				begin_detection = 0;
 			break;
 
 		case INIT_POS:

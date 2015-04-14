@@ -91,13 +91,8 @@
 	#define LED_USER 			GPIOD,GPIO_Pin_15	// Led bleue carte STM
 		#define LED_BLEU			LED_USER
 
-#ifdef FDP_2014
-	#define PORT_E_IO_MASK	0xFFFF
-#else
+
 	#define PORT_E_IO_MASK	0xFFFE
-#endif
-
-
 	//	-				 			  0
 	//	-				 			  1
 	// - programmation -			  2
@@ -109,12 +104,9 @@
 	//	-							  9
 	//	-							  10
 	//	-							  11
-#ifdef FDP_2014
-	#define BUTTON1_PORT		(!GPIOE->IDR12)
-	#define BUTTON2_PORT		(!GPIOE->IDR13)
-	#define BUTTON3_PORT		(!GPIOE->IDR14)
-	#define BUTTON4_PORT		(!GPIOE->IDR15)
-#endif
+	//	-							  12
+	//	-							  13
+	//	-							  14
 	#define SPOT_POMPE_LEFT_SENS	GPIOE,GPIO_Pin_15
 
 
