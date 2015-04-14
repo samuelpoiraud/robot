@@ -241,6 +241,60 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 												print(string, len, "ERRs:0x%2x 0x%2x|",u8(0), u8(4));
 												print(string, len, "angleR1=%3d |dR1=%3dcm |angleR2=%3d |dR2=%3dcm \n", angle_deg(1,2), (Uint16)(u8(3)),angle_deg(5,6), (Uint16)(u8(7)));	break;
 
+		case ACT_RESULT:
+			print(string,len, "| act0x%x : ", u8(0));
+			switch(u8(0))
+			{
+				case (Uint8)ACT_TEST_SERVO:				print(string,len, "ACT_TEST_SERVO ");			break;
+				case (Uint8)ACT_POP_COLLECT_LEFT:		print(string,len, "ACT_POP_COLLECT_LEFT ");		break;
+				case (Uint8)ACT_POP_COLLECT_RIGHT:		print(string,len, "ACT_POP_COLLECT_RIGHT ");	break;
+				case (Uint8)ACT_POP_DROP_LEFT:			print(string,len, "ACT_POP_DROP_LEFT ");		break;
+				case (Uint8)ACT_POP_DROP_RIGHT:			print(string,len, "ACT_POP_DROP_RIGHT ");		break;
+				case (Uint8)ACT_ELEVATOR:				print(string,len, "ACT_ELEVATOR ");				break;
+				case (Uint8)ACT_PINCEMI_RIGHT:			print(string,len, "ACT_PINCEMI_RIGHT ");		break;
+				case (Uint8)ACT_PINCEMI_LEFT:			print(string,len, "ACT_PINCEMI_LEFT ");			break;
+				case (Uint8)ACT_STOCK_RIGHT:			print(string,len, "ACT_STOCK_RIGHT ");			break;
+				case (Uint8)ACT_STOCK_LEFT:				print(string,len, "ACT_STOCK_LEFT ");			break;
+				case (Uint8)ACT_CUP_NIPPER:				print(string,len, "ACT_CUP_NIPPER ");			break;
+				case (Uint8)ACT_CUP_NIPPER_ELEVATOR:	print(string,len, "ACT_CUP_NIPPER_ELEVATOR ");	break;
+				case (Uint8)ACT_BACK_SPOT_RIGHT:		print(string,len, "ACT_BACK_SPOT_RIGHT ");		break;
+				case (Uint8)ACT_BACK_SPOT_LEFT:			print(string,len, "ACT_BACK_SPOT_LEFT ");		break;
+				case (Uint8)ACT_SPOT_POMPE_LEFT:		print(string,len, "ACT_SPOT_POMPE_LEFT ");		break;
+				case (Uint8)ACT_SPOT_POMPE_RIGHT:		print(string,len, "ACT_SPOT_POMPE_RIGHT ");		break;
+				case (Uint8)ACT_CARPET_LAUNCHER_RIGHT:	print(string,len, "ACT_CARPET_LAUNCHER_RIGHT ");break;
+				case (Uint8)ACT_CARPET_LAUNCHER_LEFT:	print(string,len, "ACT_CARPET_LAUNCHER_LEFT ");	break;
+				case (Uint8)ACT_CLAP_HOLLY:				print(string,len, "ACT_CLAP_HOLLY ");			break;
+				case (Uint8)ACT_PINCE_GAUCHE:			print(string,len, "ACT_PINCE_GAUCHE ");			break;
+				case (Uint8)ACT_PINCE_DROITE:			print(string,len, "ACT_PINCE_DROITE ");			break;
+				case (Uint8)ACT_CLAP:					print(string,len, "ACT_CLAP ");					break;
+				case (Uint8)ACT_POP_DROP_LEFT_WOOD:		print(string,len, "ACT_POP_DROP_LEFT_WOOD ");	break;
+				case (Uint8)ACT_POP_DROP_RIGHT_WOOD:	print(string,len, "ACT_POP_DROP_RIGHT_WOOD ");	break;
+				default:								print(string,len, "UNKNOW ACT -> complete verbose !");		break;
+			}
+
+			//Todo ajouter la commande dont on envoie le résultat (data 1) ???
+			switch(u8(2))
+			{
+				case ACT_RESULT_DONE:			print(string,len, "| DONE | ");			break;
+				case ACT_RESULT_FAILED:			print(string,len, "| FAILED | ");		break;
+				case ACT_RESULT_NOT_HANDLED:	print(string,len, "| NOT_HANDLED | ");	break;
+				default:						print(string,len, "| UNKNOW status | ");		break;
+			}
+
+			switch(u8(3))
+			{
+				case ACT_RESULT_ERROR_OK:			if(u8(1) != ACT_RESULT_DONE)	print(string,len, "NO ERROR ");		break;
+				case ACT_RESULT_ERROR_TIMEOUT:		print(string,len, "TIMEOUT ");					break;
+				case ACT_RESULT_ERROR_OTHER:		print(string,len, "OTHER ");					break;
+				case ACT_RESULT_ERROR_NOT_HERE:		print(string,len, "ACTUATOR NO RESPONDING !");	break;
+				case ACT_RESULT_ERROR_LOGIC:		print(string,len, "SOFTWARE ERROR !");			break;
+				case ACT_RESULT_ERROR_NO_RESOURCES:	print(string,len, "NOT ENOUGH RESOURCES !");	break;
+				case ACT_RESULT_ERROR_INVALID_ARG:	print(string,len, "INVALID ARG ! ");			break;
+				case ACT_RESULT_ERROR_CANCELED:		print(string,len, "ACTION CANCELED ");			break;
+				default:							print(string,len, "UNKNOW ERROR !");			break;
+			}
+			print(string,len, "\n");
+			break;
 		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", u8(0),u32(1,2,3,4));	break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%d\n", u16(0,1));								break;
