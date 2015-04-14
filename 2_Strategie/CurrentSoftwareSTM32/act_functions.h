@@ -182,12 +182,14 @@ typedef enum {
 //////////////// WOOD //////////////////
 ////////////////////////////////////////
 typedef enum {
+	ACT_pince_gauche_idle_pos = ACT_PINCE_GAUCHE_IDLE_POS,
 	ACT_pince_gauche_closed = ACT_PINCE_GAUCHE_CLOSED,
 	ACT_pince_gauche_open = ACT_PINCE_GAUCHE_OPEN,
 	ACT_pince_gauche_mid_pos = ACT_PINCE_GAUCHE_MID_POS,
 	ACT_pince_gauche_stop = ACT_PINCE_GAUCHE_STOP
 } ACT_pince_gauche_cmd_e;
 typedef enum {
+	ACT_pince_droite_idle_pos = ACT_PINCE_DROITE_IDLE_POS,
 	ACT_pince_droite_closed = ACT_PINCE_DROITE_CLOSED,
 	ACT_pince_droite_mid_pos = ACT_PINCE_DROITE_MID_POS,
 	ACT_pince_droite_open = ACT_PINCE_DROITE_OPEN,

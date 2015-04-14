@@ -112,6 +112,7 @@ bool_e PINCE_DROITE_CAN_process_msg(CAN_msg_t* msg) {
 		PINCE_DROITE_initAX12();
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
+			case ACT_PINCE_DROITE_IDLE_POS:
 			case ACT_PINCE_DROITE_OPEN :
 			case ACT_PINCE_DROITE_MID_POS :
 			case ACT_PINCE_DROITE_CLOSED :
@@ -131,9 +132,9 @@ bool_e PINCE_DROITE_CAN_process_msg(CAN_msg_t* msg) {
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
 		SELFTEST_set_actions(&PINCE_DROITE_run_command, 3, 3, (SELFTEST_action_t[]){
-								 {ACT_PINCE_DROITE_CLOSED,		0,  QUEUE_ACT_AX12_PINCE_DROITE},
+								 {ACT_PINCE_DROITE_IDLE_POS,		0,  QUEUE_ACT_AX12_PINCE_DROITE},
 								 {ACT_PINCE_DROITE_OPEN,		0,  QUEUE_ACT_AX12_PINCE_DROITE},
-								 {ACT_PINCE_DROITE_CLOSED,		0,  QUEUE_ACT_AX12_PINCE_DROITE}
+								 {ACT_PINCE_DROITE_IDLE_POS,		0,  QUEUE_ACT_AX12_PINCE_DROITE}
 							 });
 	}
 	return FALSE;
@@ -164,6 +165,7 @@ static void PINCE_DROITE_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
+		case ACT_PINCE_DROITE_IDLE_POS : *ax12_goalPosition = PINCE_DROITE_AX12_IDLE_POS; break;
 		case ACT_PINCE_DROITE_CLOSED : *ax12_goalPosition = PINCE_DROITE_AX12_CLOSE_POS; break;
 		case ACT_PINCE_DROITE_OPEN : *ax12_goalPosition = PINCE_DROITE_AX12_OPEN_POS; break;
 		case ACT_PINCE_DROITE_MID_POS : *ax12_goalPosition = PINCE_DROITE_AX12_MID_POS; break;
