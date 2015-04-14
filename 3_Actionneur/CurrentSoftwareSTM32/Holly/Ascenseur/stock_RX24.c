@@ -77,15 +77,15 @@ static void STOCK_initRX24() {
 	for(i=0;i<8;i++){
 		if(stock_act[i].is_initialized == FALSE && AX12_is_ready(stock_act[i].servo_id) == TRUE) {
 			stock_act[i].is_initialized = TRUE;
-			AX12_config_set_highest_voltage(stock_act[i].servo_id, 136);
-			AX12_config_set_lowest_voltage(stock_act[i].servo_id, 70);
+			AX12_config_set_lowest_voltage(stock_act[i].servo_id, AX12_MIN_VOLTAGE);
+			AX12_config_set_highest_voltage(stock_act[i].servo_id, AX12_MAX_VOLTAGE);
 			AX12_set_torque_limit(stock_act[i].servo_id, STOCK_RX24_MAX_TORQUE_PERCENT);
 
 			AX12_config_set_maximal_angle(stock_act[i].servo_id, STOCK_RX24_MAX_VALUE);
 			AX12_config_set_minimal_angle(stock_act[i].servo_id, STOCK_RX24_MIN_VALUE);
 
-			AX12_config_set_error_before_led(stock_act[i].servo_id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
-			AX12_config_set_error_before_shutdown(stock_act[i].servo_id, AX12_ERROR_OVERHEATING);
+			AX12_config_set_error_before_led(stock_act[i].servo_id, AX12_BEFORE_LED);
+			AX12_config_set_error_before_shutdown(stock_act[i].servo_id, AX12_BEFORE_SHUTDOWN);
 			debug_printf("Init config rx24(%d) DONE\n", stock_act[i].servo_id);
 
 			if(i > 3)

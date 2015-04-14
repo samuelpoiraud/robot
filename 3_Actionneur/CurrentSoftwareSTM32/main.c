@@ -43,24 +43,25 @@
 
 
 static void MAIN_onButton0();
-static void MAIN_onButton0LongPush();
 static void MAIN_onButton1();
-static void MAIN_onButton1LongPush();
 static void MAIN_onButton2();
-static void MAIN_onButton2LongPush();
 static void MAIN_onButton3();
-static void MAIN_onButton3LongPush();
 static void MAIN_onButton4();
-static void MAIN_onButton4LongPush();
-static void MAIN_onButton5();
-static void MAIN_onButton5LongPush();
-static void MAIN_onButton6();
+#ifdef I_AM_ROBOT_BIG
+	static void MAIN_onButton5();
+	static void MAIN_onButton6();
+	static void MAIN_onButton0LongPush();
+	static void MAIN_onButton1LongPush();
+	static void MAIN_onButton2LongPush();
+	static void MAIN_onButton3LongPush();
+	static void MAIN_onButton4LongPush();
+	static void MAIN_onButton5LongPush();
+#endif
 static void MAIN_global_var_init();
 static void MAIN_sensor_test();
 
 int main (void)
 {
-	Sint8 lastSwitchState[2] = {-1, -1};
 	CAN_msg_t msg;
 	/*-------------------------------------
 		Démarrage
