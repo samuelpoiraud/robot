@@ -46,7 +46,7 @@
 #define USE_PROP_AVOIDANCE		//Activation de l'évitement en propulsion
 
 //#define FDP_2014				//Define Temporaire pour l'ancien FDP
-
+#define BELGIQUE	1
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
 //#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN
