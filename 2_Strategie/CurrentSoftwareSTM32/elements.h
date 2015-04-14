@@ -66,6 +66,7 @@
 		WOOD_STORAGE_LEFT_CUP,					//WOOD ONLY
 		WOOD_STORAGE_RIGHT_CUP,					//WOOD ONLY
 		STORAGE_POPCORNS,
+		HOLLY_START_MATCH,
 		HOLLY_LEFT_REAR_SUCKER_FULL,		//Un pied dans la ventouse arrière gauche
 		HOLLY_RIGHT_REAR_SUCKER_FULL,		//Un pied dans la ventouse arrière droite
 		HOLLY_DISPOSED_CUP_IN_START_ZONE,
