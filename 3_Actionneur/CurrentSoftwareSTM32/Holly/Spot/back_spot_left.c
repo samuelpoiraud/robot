@@ -128,7 +128,7 @@ bool_e BACK_SPOT_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&BACK_SPOT_LEFT_run_command, 24, 3, (SELFTEST_action_t[]){
+		SELFTEST_set_actions(&BACK_SPOT_LEFT_run_command, 10, 3, (SELFTEST_action_t[]){
 								 {ACT_BACK_SPOT_LEFT_CLOSED,		0,  QUEUE_ACT_AX12_BACK_SPOT_LEFT},
 								 {ACT_BACK_SPOT_LEFT_OPEN,			0,  QUEUE_ACT_AX12_BACK_SPOT_LEFT},
 								 {ACT_BACK_SPOT_LEFT_CLOSED,		0,  QUEUE_ACT_AX12_BACK_SPOT_LEFT}

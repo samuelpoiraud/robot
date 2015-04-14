@@ -114,7 +114,7 @@ bool_e CLAP_HOLLY_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&CLAP_HOLLY_run_command, 12, 3, (SELFTEST_action_t[]){
+		SELFTEST_set_actions(&CLAP_HOLLY_run_command, 6, 3, (SELFTEST_action_t[]){
 								 {ACT_CLAP_HOLLY_LEFT,		0,  QUEUE_ACT_CLAP_HOLLY},
 								 {ACT_CLAP_HOLLY_RIGHT,		0,  QUEUE_ACT_CLAP_HOLLY},
 								 {ACT_CLAP_HOLLY_IDLE,		0,  QUEUE_ACT_CLAP_HOLLY}
