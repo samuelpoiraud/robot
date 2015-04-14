@@ -187,7 +187,7 @@ void ACTMGR_config_AX12(Uint8 id_servo, CAN_msg_t* msg){
 			break;
 
 		case AX12_TORQUE_CONFIG : // Configuration du couple
-			AX12_set_torque_limit(id_servo, msg->data[2]);
+			AX12_set_torque_limit(id_servo, msg->data[3]);
 			debug_printf("Configuration du couple de l'AX12 %d avec une valeur de %d\n", id_servo, msg->data[3]);
 			break;
 
