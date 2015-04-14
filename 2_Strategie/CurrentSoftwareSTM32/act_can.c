@@ -7,6 +7,7 @@
 #include "QS/QS_who_am_i.h"
 
 #define ACT_DONT_TRY_FALLBACK_ON_SMALL
+#define ACT_DONT_TRY_FALLBACK_ON_BIG
 
 //Info sur la gestion d'erreur des actionneurs:
 //La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT

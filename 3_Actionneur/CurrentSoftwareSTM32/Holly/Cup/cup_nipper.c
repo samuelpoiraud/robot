@@ -256,11 +256,13 @@ bool_e CUP_NIPPER_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&CUP_NIPPER_run_command, 18, 6, (SELFTEST_action_t[]){
+		SELFTEST_set_actions(&CUP_NIPPER_run_command, 15, 3, (SELFTEST_action_t[]){
 								 {ACT_CUP_NIPPER_OPEN,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
 								 {ACT_CUP_NIPPER_CLOSE,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
 								 {ACT_CUP_NIPPER_OPEN,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
+							 });
 
+		SELFTEST_set_actions(&CUP_NIPPER_run_command, 15, 3, (SELFTEST_action_t[]){
 								 {ACT_CUP_NIPPER_ELEVATOR_IDLE,		0,  QUEUE_ACT_DCM_CUP_NIPPER},
 								 {ACT_CUP_NIPPER_ELEVATOR_UP,		0,  QUEUE_ACT_DCM_CUP_NIPPER},
 								 {ACT_CUP_NIPPER_ELEVATOR_IDLE,		0,  QUEUE_ACT_DCM_CUP_NIPPER}
@@ -356,32 +358,32 @@ static void CUP_NIPPER_AX12_command_init(queue_id_t queueId) {
 
 		case ACT_CUP_NIPPER_STOP :
 			AX12_set_torque_enabled(CUP_NIPPER_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
-			QUEUE_next(queueId, QUEUE_ACT_AX12_CUP_NIPPER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+			QUEUE_next(queueId, ACT_CUP_NIPPER, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			return;
 
 		default: {
 			error_printf("Invalid exemple command: %u, code is broken !\n", command);
-			QUEUE_next(queueId, QUEUE_ACT_AX12_CUP_NIPPER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+			QUEUE_next(queueId, ACT_CUP_NIPPER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 			return;
 		}
 	}
 
 	if(ax12_is_initialized == FALSE){
 		error_printf("Impossible de mettre l'actionneur en position il n'est pas initialisé\n");
-		QUEUE_next(queueId, QUEUE_ACT_AX12_CUP_NIPPER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+		QUEUE_next(queueId, ACT_CUP_NIPPER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
 
 	if(*ax12_goalPosition == 0xFFFF) {
 		error_printf("Invalid ax12 position for command: %u, code is broken !\n", command);
-		QUEUE_next(queueId, QUEUE_ACT_AX12_CUP_NIPPER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+		QUEUE_next(queueId, ACT_CUP_NIPPER, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
 
 	AX12_reset_last_error(CUP_NIPPER_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	if(!AX12_set_position(CUP_NIPPER_AX12_ID, *ax12_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(CUP_NIPPER_AX12_ID).error);
-		QUEUE_next(queueId, QUEUE_ACT_AX12_CUP_NIPPER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+		QUEUE_next(queueId, ACT_CUP_NIPPER, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
 	//La commande a été envoyée et l'AX12 l'a bien reçu
@@ -394,7 +396,7 @@ static void CUP_NIPPER_AX12_command_run(queue_id_t queueId) {
 	Uint16 line;
 
 	if(ACTQ_check_status_ax12(queueId, CUP_NIPPER_AX12_ID, QUEUE_get_arg(queueId)->param, CUP_NIPPER_AX12_ASSER_POS_EPSILON, CUP_NIPPER_AX12_ASSER_TIMEOUT, CUP_NIPPER_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
-		QUEUE_next(queueId, QUEUE_ACT_AX12_CUP_NIPPER, result, errorCode, line);
+		QUEUE_next(queueId, ACT_CUP_NIPPER, result, errorCode, line);
 }
 
 #endif

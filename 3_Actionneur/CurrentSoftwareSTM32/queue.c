@@ -420,7 +420,7 @@ void QUEUE_wait_time(queue_id_t queueId, bool_e init){
 
 	if(init)
 		QUEUE_get_arg(queueId)->param = (Sint16)(global.absolute_time/100);
-	else if(global.absolute_time - QUEUE_get_arg(queueId)->param > QUEUE_get_arg(queueId)->canCommand*100)
+	else if(global.absolute_time - QUEUE_get_arg(queueId)->param > QUEUE_get_arg(queueId)->canCommand*250)
 		QUEUE_next(queueId, 0, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 
 }
