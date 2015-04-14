@@ -126,18 +126,18 @@
 
 
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
-	#define SMALL_KD_TRANSLATION 	(12) //0x80
+	#define SMALL_KD_TRANSLATION 	(0x22) //0x80
 	#define BIG_KD_TRANSLATION 	(0x26) //0x80
 
-	#define SMALL_KP_TRANSLATION 	(34)
+	#define SMALL_KP_TRANSLATION 	(0x25)
 	#define BIG_KP_TRANSLATION 	(0x30)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
-	#define SMALL_KD_ROTATION 	(288) //0x800
+	#define SMALL_KD_ROTATION 	(0x200) //0x800
 	#define BIG_KD_ROTATION 	(0x200) //0x800
 
-	#define SMALL_KP_ROTATION 	(130)//40 //0x80
+	#define SMALL_KP_ROTATION 	(0x40)//40 //0x80
 	#define BIG_KP_ROTATION 	(0xFF) //0x80
 
 	//Ordre de grandeur :
