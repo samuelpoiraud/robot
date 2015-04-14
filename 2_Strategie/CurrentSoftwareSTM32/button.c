@@ -64,8 +64,18 @@ void BUTTON_init()
 #endif
 }
 
+
 void BUTTON_update()
 {
+#ifdef FDP_2014
+	static bool_e last_biroute = TRUE;
+	bool_e current_biroute;
+	current_biroute = PORT_BIROUTE;
+
+	if(current_biroute && !last_biroute)
+		global.env.ask_start = TRUE;
+	last_biroute = current_biroute;
+#endif
 	BUTTONS_update();
 	BUTTON_verbose();
 }
