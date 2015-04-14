@@ -96,7 +96,7 @@
 		#define BLUE_LEDS			GPIOD,GPIO_Pin_4
 		//	-	usb led red				  5
 		#define SWITCH_COLOR_PORT	GPIOD->IDR6
-		#define BIROUTE_PORT		(!GPIOD->IDR7)	//La biroute doit être par défaut dans l'état NON par défaut... pour qu'on soit sur qu'elle est là.
+		#define PORT_BIROUTE		(GPIOD->IDR7)	//La biroute doit être par défaut dans l'état NON par défaut... pour qu'on soit sur qu'elle est là.
 		//	HOKUYO U3TX					  8
 		//	HOKUYO U3RX					  9
 		#define LED_ERROR 			GPIOD,GPIO_Pin_10
