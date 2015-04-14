@@ -1243,16 +1243,20 @@ volatile static spotix_order_id_t last_order_id = -1;
 error_e ACT_MAE_holly_spotix_bloquing(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
 	static bool_e entrance = TRUE;
 	static spotix_order_id_t spotix_order_id;
-	if(entrance){
-		if(global.env.color == YELLOW)
-			spotix_order_id = ACT_MAE_holly_spotix_do_order(ACT_MAE_SPOTIX_TAKE, ACT_MAE_SPOTIX_LEFT);
-		else
-			spotix_order_id = ACT_MAE_holly_spotix_do_order(ACT_MAE_SPOTIX_TAKE, ACT_MAE_SPOTIX_RIGHT);
+
+	if(entrance)
+		spotix_order_id = ACT_MAE_holly_spotix_do_order(order, who);
+
+	if(spotix_order_id == -1){
+		entrance = TRUE;
+		return NOT_HANDLED;
 	}
+
 	if(ACT_MAE_holly_wait_end_order(spotix_order_id)){
 		entrance = TRUE;
 		return ACT_holly_spotix_get_last_error();
 	}
+
 	entrance = FALSE;
 	return IN_PROGRESS;
 }
