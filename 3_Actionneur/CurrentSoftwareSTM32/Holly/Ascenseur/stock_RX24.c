@@ -87,6 +87,10 @@ static void STOCK_initRX24() {
 			AX12_config_set_error_before_led(stock_act[i].servo_id, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
 			AX12_config_set_error_before_shutdown(stock_act[i].servo_id, AX12_ERROR_OVERHEATING);
 			debug_printf("Init config rx24(%d) DONE\n", stock_act[i].servo_id);
+
+			if(i > 3)
+				AX12_set_torque_response(stock_act[i].servo_id, 32, 10, 10, 32);
+
 		}else if(stock_act[i].is_initialized == FALSE)
 			debug_printf("Init config rx24(%d) FAIL\n", stock_act[i].servo_id);
 	}
