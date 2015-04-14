@@ -904,17 +904,19 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 
 	/////////////////PINCE GAUCHE//////////////////
 	ACT_PINCE_GAUCHE = (ACT_FILTER | 0x30),
-		#define ACT_PINCE_GAUCHE_CLOSED				0x11
-		#define ACT_PINCE_GAUCHE_MID_POS			0x12
-		#define ACT_PINCE_GAUCHE_OPEN				0x13
-		#define ACT_PINCE_GAUCHE_STOP				0x14
+		#define ACT_PINCE_GAUCHE_IDLE_POS			0x11
+		#define ACT_PINCE_GAUCHE_CLOSED				0x12
+		#define ACT_PINCE_GAUCHE_MID_POS			0x13
+		#define ACT_PINCE_GAUCHE_OPEN				0x14
+		#define ACT_PINCE_GAUCHE_STOP				0x15
 
 	/////////////////PINCE DROITE//////////////////
 	ACT_PINCE_DROITE = (ACT_FILTER | 0x31),
-		#define ACT_PINCE_DROITE_OPEN				0x11
-		#define ACT_PINCE_DROITE_MID_POS			0x12
-		#define ACT_PINCE_DROITE_CLOSED				0x13
-		#define ACT_PINCE_DROITE_STOP				0x14
+		#define ACT_PINCE_DROITE_IDLE_POS			0x11
+		#define ACT_PINCE_DROITE_OPEN				0x12
+		#define ACT_PINCE_DROITE_MID_POS			0x13
+		#define ACT_PINCE_DROITE_CLOSED				0x14
+		#define ACT_PINCE_DROITE_STOP				0x15
 
 	//////////////////CLAP/////////////////////////
 	ACT_CLAP = (ACT_FILTER | 0x33),

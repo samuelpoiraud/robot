@@ -20,7 +20,7 @@
 #include "../selftest.h"
 #include "../ActManager.h"
 
-#include "pince_gauche_config.h"
+#include "Pince_gauche_config.h"
 
 // Les différents define pour le verbose sur uart
 #define LOG_PREFIX "Pince_gauche.c : "
@@ -112,6 +112,7 @@ bool_e PINCE_GAUCHE_CAN_process_msg(CAN_msg_t* msg) {
 		PINCE_GAUCHE_initAX12();
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
+			case ACT_PINCE_GAUCHE_IDLE_POS:
 			case ACT_PINCE_GAUCHE_CLOSED :
 			case ACT_PINCE_GAUCHE_OPEN :
 			case ACT_PINCE_GAUCHE_MID_POS :
@@ -131,9 +132,9 @@ bool_e PINCE_GAUCHE_CAN_process_msg(CAN_msg_t* msg) {
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
 		SELFTEST_set_actions(&PINCE_GAUCHE_run_command, 6, 3, (SELFTEST_action_t[]){
-								 {ACT_PINCE_GAUCHE_CLOSED,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
+								 {ACT_PINCE_GAUCHE_IDLE_POS,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
 								 {ACT_PINCE_GAUCHE_OPEN,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE},
-								 {ACT_PINCE_GAUCHE_CLOSED,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE}
+								 {ACT_PINCE_GAUCHE_IDLE_POS,		0,  QUEUE_ACT_AX12_PINCE_GAUCHE}
 							 });
 	}
 	return FALSE;
@@ -164,6 +165,7 @@ static void PINCE_GAUCHE_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
+		case ACT_PINCE_GAUCHE_IDLE_POS : *ax12_goalPosition = PINCE_GAUCHE_AX12_IDLE_POS; break;
 		case ACT_PINCE_GAUCHE_CLOSED : *ax12_goalPosition = PINCE_GAUCHE_AX12_CLOSE_POS; break;
 		case ACT_PINCE_GAUCHE_OPEN : *ax12_goalPosition = PINCE_GAUCHE_AX12_OPEN_POS; break;
 		case ACT_PINCE_GAUCHE_MID_POS : *ax12_goalPosition = PINCE_GAUCHE_AX12_MID_POS; break;
