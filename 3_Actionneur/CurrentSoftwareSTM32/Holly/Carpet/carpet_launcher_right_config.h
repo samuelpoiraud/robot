@@ -19,9 +19,9 @@
 	#define CARPET_LAUNCHER_RIGHT_AX12_MAX_TORQUE_PERCENT			70				// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 
 //Position
-	#define CARPET_LAUNCHER_RIGHT_AX12_IDLE_POS						512				//en degré
-	#define CARPET_LAUNCHER_RIGHT_AX12_LOADING_POS					512				//en degré
-	#define CARPET_LAUNCHER_RIGHT_AX12_LAUNCH_POS					512				//en degré
+	#define CARPET_LAUNCHER_RIGHT_AX12_IDLE_POS						557				//en degré
+	#define CARPET_LAUNCHER_RIGHT_AX12_LOADING_POS					450				//en degré
+	#define CARPET_LAUNCHER_RIGHT_AX12_LAUNCH_POS					430				//en degré
 
 //Position initiale de l'AX12
 	#define CARPET_LAUNCHER_RIGHT_AX12_INIT_POS						CARPET_LAUNCHER_RIGHT_AX12_IDLE_POS

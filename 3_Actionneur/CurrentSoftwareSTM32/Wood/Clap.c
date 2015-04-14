@@ -61,15 +61,15 @@ void CLAP_reset_config(){
 static void CLAP_initAX12() {
 	if(ax12_is_initialized == FALSE && AX12_is_ready(CLAP_AX12_ID) == TRUE) {
 		ax12_is_initialized = TRUE;
-		AX12_config_set_highest_voltage(CLAP_AX12_ID, 136);
-		AX12_config_set_lowest_voltage(CLAP_AX12_ID, 70);
+		AX12_config_set_lowest_voltage(CLAP_AX12_ID, AX12_MIN_VOLTAGE);
+		AX12_config_set_highest_voltage(CLAP_AX12_ID, AX12_MAX_VOLTAGE);
 		AX12_set_torque_limit(CLAP_AX12_ID, CLAP_AX12_MAX_TORQUE_PERCENT);
 
 		AX12_config_set_maximal_angle(CLAP_AX12_ID, CLAP_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(CLAP_AX12_ID, CLAP_AX12_MIN_VALUE);
 
-		AX12_config_set_error_before_led(CLAP_AX12_ID, AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE);
-		AX12_config_set_error_before_shutdown(CLAP_AX12_ID, AX12_ERROR_OVERHEATING);
+		AX12_config_set_error_before_led(CLAP_AX12_ID, AX12_BEFORE_LED);
+		AX12_config_set_error_before_shutdown(CLAP_AX12_ID, AX12_BEFORE_SHUTDOWN);
 		debug_printf("Init config DONE\n");
 	}else if(ax12_is_initialized == FALSE)
 		debug_printf("Init config FAIL\n");

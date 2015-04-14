@@ -13,6 +13,7 @@
 #ifndef QS_AX12_H
 #define QS_AX12_H
 
+
 //Les defines ici ne sont que pour la documentation et ne sont pas effectif (grace au #undef)
 //Le premier undef permet de ne pas avoir d'erreur sur le define, ceci perd la définission de la constante, mais QS_all.h est re-inclu après qui inclu Global_config.h qui redéfinira ces constantes
 
@@ -991,6 +992,13 @@
 	 * @see AX12_get_punch_torque_percentage
 	 */
 	bool_e AX12_set_punch_torque_percentage(Uint8 id_servo, Uint8 percentage);
+
+
+	#define AX12_BEFORE_SHUTDOWN	(AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD)
+	#define AX12_BEFORE_LED			(AX12_ERROR_ANGLE | AX12_ERROR_CHECKSUM | AX12_ERROR_INSTRUCTION | AX12_ERROR_OVERHEATING | AX12_ERROR_OVERLOAD | AX12_ERROR_RANGE | AX12_ERROR_VOLTAGE)
+	#define AX12_MIN_VOLTAGE		70
+	#define AX12_MAX_VOLTAGE		136
+
 
 #endif /* def USE_AX12_SERVO */
 #endif /* ndef QS_AX12_H */
