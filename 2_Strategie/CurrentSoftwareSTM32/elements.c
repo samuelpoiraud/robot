@@ -3,6 +3,7 @@
 #define LOG_PREFIX "element: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ELEMENTS
 #include "QS/QS_outputlog.h"
+#include "QS/QS_IHM.h"
 
 
 volatile ELEMENTS_element_t ELEMENTS_spot[NB_SPOT];
@@ -201,6 +202,14 @@ void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
  ELEMENTS_state_s ELEMENTS_get_cup(Uint8 number){
 	return ELEMENTS_cup[number].state;
 }
+
+ void send_start_rotation(){
+	 CAN_msg_t msg;
+	 msg.sid = PROP_START_ROTATION;
+	 msg.data[0] = IHM_switchs_get(SWITCH_STRAT_1);
+	 msg.size = 1;
+	 CAN_send(&msg);
+ }
 
  void collect_cup_coord(CAN_msg_t *msg){
 	 if( msg->data[0] & 0x04){  //pas de gobelets de détectés

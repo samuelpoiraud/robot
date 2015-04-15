@@ -22,6 +22,7 @@
 #include "QS/QS_can_over_xbee.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_IHM.h"
 #include "Supervision/Supervision.h"
 
 #include "strats_2015/actions_both_2015.h"
@@ -158,7 +159,8 @@ void any_match(void)
 		{
 			CAN_msg_t msg;
 			msg.sid = PROP_CALIBRATION;
-			msg.size = 0;
+			msg.data[0] = IHM_switchs_get(SWITCH_STRAT_1);// Modification calibration
+			msg.size = 1;
 			CAN_send(&msg);
 		}
 

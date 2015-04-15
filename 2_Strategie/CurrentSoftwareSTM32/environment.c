@@ -384,7 +384,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case PROP_ROBOT_CALIBRE:
 			global.env.prop.calibrated = TRUE;
-
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
 			//if(QS_WHO_AM_I_get() == SMALL_ROBOT)
 			//	PROP_set_correctors(FALSE, FALSE);
@@ -431,6 +430,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case STRAT_CUP_POSITION:
 			collect_cup_coord(incoming_msg);
+			break;
+
+		case STRAT_PROP_START_ROTATION:
+			send_start_rotation();
 			break;
 
 //****************************** Messages de la carte actionneur *************************/

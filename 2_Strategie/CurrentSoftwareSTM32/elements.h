@@ -131,5 +131,7 @@ void ELEMENTS_get_dispenser_state(elements_flags_e dispenser_id, bool_e * dispen
 //Message CAN de récupération du centre des gobelets
 void collect_cup_coord( CAN_msg_t *msg);
 
+void send_start_rotation();
+
 
 #endif // ELEMENTS_H

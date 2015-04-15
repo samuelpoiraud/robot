@@ -238,7 +238,12 @@ int main (void)
 		{
 			flag_calibration_asked = FALSE;
 			debug_printf("BP calibration pressed\n");
-			SEQUENCES_calibrate();
+			if(QS_WHO_AM_I_get() == SMALL_ROBOT){
+				SECRETARY_ask_start_rotation();
+			}else{
+				SEQUENCES_calibrate();
+			}
+
 		}
 
 		if(flag_selftest_asked)
