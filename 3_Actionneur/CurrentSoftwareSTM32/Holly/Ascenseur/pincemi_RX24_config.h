@@ -21,7 +21,7 @@
 
 //Position
 
-	// Pince droite, mord droit
+	// Pince droite, mord droit			ID : 26
 	#define PINCEMIR_RIGHT_CLOSE									600
 	#define PINCEMIR_RIGHT_CLOSE_INNER								512
 	#define PINCEMIR_RIGHT_LOCK										518
@@ -29,7 +29,7 @@
 	#define PINCEMIR_RIGHT_OPEN										445
 	#define PINCEMIR_RIGHT_OPEN_GREAT								445
 
-	// Pince droite, mord gauche
+	// Pince droite, mord gauche		ID : 25
 	#define PINCEMIR_LEFT_CLOSE										425
 	#define PINCEMIR_LEFT_CLOSE_INNER								375
 	#define PINCEMIR_LEFT_LOCK										506
@@ -37,18 +37,18 @@
 	#define PINCEMIR_LEFT_OPEN										530
 	#define PINCEMIR_LEFT_OPEN_GREAT								580
 
-	// Pince gauche, mord droit
+	// Pince gauche, mord droit			ID : 23
 	#define PINCEMIL_RIGHT_CLOSE									599
 	#define PINCEMIL_RIGHT_CLOSE_INNER								649
-	#define PINCEMIL_RIGHT_LOCK										542
+	#define PINCEMIL_RIGHT_LOCK										512
 	#define PINCEMIL_RIGHT_UNLOCK									514
 	#define PINCEMIL_RIGHT_OPEN										494
 	#define PINCEMIL_RIGHT_OPEN_GREAT								444
 
-	// Pince gauche, mord gauche
+	// Pince gauche, mord gauche		ID : 24
 	#define PINCEMIL_LEFT_CLOSE										424
 	#define PINCEMIL_LEFT_CLOSE_INNER								512
-	#define PINCEMIL_LEFT_LOCK										506
+	#define PINCEMIL_LEFT_LOCK										498
 	#define PINCEMIL_LEFT_UNLOCK									510
 	#define PINCEMIL_LEFT_OPEN										580
 	#define PINCEMIL_LEFT_OPEN_GREAT								580
