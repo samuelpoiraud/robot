@@ -14,6 +14,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "roadmap.h"
 
+
 	void SEQUENCES_border_calibration(Sint16 angle, way_e direction, acknowledge_e acknowledge, Sint32 far_point_x, Sint32 far_point_y);
 
 	void SEQUENCES_border_calibration_update_position(void);
@@ -25,5 +26,7 @@
 	void SEQUENCES_selftest(void);
 
 	void SEQUENCES_trajectory_for_test_coefs(void);
+
+	void START_ROTATION_canMsg(CAN_msg_t *msg);
 
 #endif /*def _SEQUENCES_H*/

@@ -479,6 +479,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			#endif
 			break;
 
+		case PROP_START_ROTATION:
+			START_ROTATION_canMsg(msg); // Modification calibration
+			break;
+
 		case DEBUG_HOKUYO_ADD_POINT:
 		case DEBUG_HOKUYO_RESET:
 			#ifdef CAN_SEND_OVER_UART
@@ -686,6 +690,18 @@ void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, b
 	msg.size = 5;
 	SECRETARY_send_canmsg_from_it(&msg);
 }
+
+void SECRETARY_ask_start_rotation()  // Modification calibration
+{
+	CAN_msg_t msg;
+
+	//		0		: Rotation ou non
+
+	msg.sid = STRAT_PROP_START_ROTATION;
+	msg.size = 0;
+	SECRETARY_send_canmsg_from_it(&msg);
+}
+
 #endif
 
 
