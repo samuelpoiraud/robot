@@ -28,4 +28,6 @@
 //Activation de define pour l'affichage de debug
 //#define DEBUG_POLYGON
 
+#define DEBUG_MAE_SPOTIX
+
 #endif /* CONFIG_DEBUG_H */
