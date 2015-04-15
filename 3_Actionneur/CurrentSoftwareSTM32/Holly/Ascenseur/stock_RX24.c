@@ -80,6 +80,7 @@ static void STOCK_initRX24() {
 			AX12_config_set_lowest_voltage(stock_act[i].servo_id, AX12_MIN_VOLTAGE);
 			AX12_config_set_highest_voltage(stock_act[i].servo_id, AX12_MAX_VOLTAGE);
 			AX12_set_torque_limit(stock_act[i].servo_id, STOCK_RX24_MAX_TORQUE_PERCENT);
+			AX12_config_set_temperature_limit(stock_act[i].servo_id, PINCEMI_RX24_MAX_TEMPERATURE);
 
 			AX12_config_set_maximal_angle(stock_act[i].servo_id, STOCK_RX24_MAX_VALUE);
 			AX12_config_set_minimal_angle(stock_act[i].servo_id, STOCK_RX24_MIN_VALUE);

@@ -65,6 +65,7 @@ static void POP_DROP_LEFT_initAX12() {
 		AX12_config_set_lowest_voltage(POP_DROP_LEFT_AX12_ID, AX12_MIN_VOLTAGE);
 		AX12_config_set_highest_voltage(POP_DROP_LEFT_AX12_ID, AX12_MAX_VOLTAGE);
 		AX12_set_torque_limit(POP_DROP_LEFT_AX12_ID, POP_DROP_LEFT_AX12_MAX_TORQUE_PERCENT);
+		AX12_config_set_temperature_limit(POP_DROP_LEFT_AX12_ID, POP_DROP_LEFT_AX12_MAX_TEMPERATURE);
 
 		AX12_config_set_maximal_angle(POP_DROP_LEFT_AX12_ID, POP_DROP_LEFT_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(POP_DROP_LEFT_AX12_ID, POP_DROP_LEFT_AX12_MIN_VALUE);
