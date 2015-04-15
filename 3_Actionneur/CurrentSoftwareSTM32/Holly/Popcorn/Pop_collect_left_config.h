@@ -17,6 +17,7 @@
 	#define POP_COLLECT_LEFT_AX12_ASSER_POS_EPSILON			6				// Lorsque l'ax12 atteint sa position avec +/- POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define POP_COLLECT_LEFT_AX12_ASSER_POS_LARGE_EPSILON	28				// Si le déplacement de l'ax12 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define POP_COLLECT_LEFT_AX12_MAX_TORQUE_PERCENT		100				// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+	#define POP_COLLECT_LEFT_AX12_MAX_TEMPERATURE           60				// Température maximale en degré
 
 //Position
 	#define POP_COLLECT_LEFT_AX12_IDLE_POS					512				//en degré

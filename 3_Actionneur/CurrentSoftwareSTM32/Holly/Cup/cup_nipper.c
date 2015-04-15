@@ -175,6 +175,7 @@ static void CUP_NIPPER_initAX12() {
 		AX12_config_set_lowest_voltage(CUP_NIPPER_AX12_ID, AX12_MIN_VOLTAGE);
 		AX12_config_set_highest_voltage(CUP_NIPPER_AX12_ID, AX12_MAX_VOLTAGE);
 		AX12_set_torque_limit(CUP_NIPPER_AX12_ID, CUP_NIPPER_AX12_MAX_TORQUE_PERCENT);
+		AX12_config_set_temperature_limit(CUP_NIPPER_AX12_ID, CUP_NIPPER_AX12_MAX_TEMPERATURE);
 
 		AX12_config_set_maximal_angle(CUP_NIPPER_AX12_ID, CUP_NIPPER_AX12_MAX_VALUE);
 		AX12_config_set_minimal_angle(BACK_SPOT_LEFT_AX12_ID, CUP_NIPPER_AX12_MIN_VALUE);
