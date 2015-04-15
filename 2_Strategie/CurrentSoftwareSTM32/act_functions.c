@@ -591,7 +591,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 				case ACT_MAE_SPOTIX_OPEN_GREAT:
 					if(who != ACT_MAE_SPOTIX_BOTH)
-						state = OPEN_GREAT_FEET;
+						state = MOVE_OTHER_NIPPER;
 					else
 						state = FAIL_COMPUTE;
 					break;
