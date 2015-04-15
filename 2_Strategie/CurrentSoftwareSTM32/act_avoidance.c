@@ -28,20 +28,19 @@ void ACT_AVOIDANCE_init(){
 
 	//ACT_AVOID_TORCH_LOCKER
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
-		//init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Lock, ACT_TORCH_Locker_Lock,		0, 0, 60, 0);
-		//init_new_offset(ACT_AVOID_TORCH_LOCKER, ACT_AVOID_TORCH_Locker_Unlock, ACT_TORCH_Locker_Unlock, 0, 0, 50, 0);
-		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Open, ACT_pop_collect_left_open, 60, 0, 0, 60);
-		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Mid, ACT_pop_collect_left_mid, 30, 0, 0, 30);
-		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_RIGHT_Open, ACT_pop_collect_right_open, 0, 60, 0, 60);
-		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_RIGHT_Mid, ACT_pop_collect_right_mid, 0, 30, 0, 30);
-		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_LEFT_Open, ACT_pop_drop_left_open, 0, 0, 0, 60);
-		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_RIGHT_Open, ACT_pop_drop_right_open, 0, 0, 0, 60);
-		init_new_offset(ACT_AVOID_BACK_SPOT_RIGHT, ACT_AVOID_BACK_SPOT_RIGHT_Open, ACT_back_spot_right_open, 0, 40, 0, 0);
-		init_new_offset(ACT_AVOID_BACK_SPOT_LEFT, ACT_AVOID_BACK_SPOT_LEFT_Open, ACT_back_spot_left_open, 40, 0, 0, 0);
-		init_new_offset(ACT_AVOID_CUP_NIPPER, ACT_AVOID_CUP_NIPPER_Open, ACT_cup_nipper_open, 0, 0, 45, 0);
-		init_new_offset(ACT_AVOID_CUP_NIPPER, ACT_AVOID_CUP_NIPPER_Lock, ACT_cup_nipper_lock, 0, 0, 30, 0);
-		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Left, ACT_clap_holly_left, 250, 0, 0, 0);
-		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Right, ACT_clap_holly_right, 0, 250, 0, 0);
+		//----------------------------------------------------------------------------------------------------------left-----right----front---back
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Open, ACT_pop_collect_left_open,			60,		0,		0,		60);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Mid, ACT_pop_collect_left_mid,			30,		0,		0,		30);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_RIGHT_Open, ACT_pop_collect_right_open,		0,		60,		0,		60);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_RIGHT_Mid, ACT_pop_collect_right_mid,			0,		30,		0,		30);
+		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_LEFT_Open, ACT_pop_drop_left_open,					0,		0,		0,		60);
+		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_RIGHT_Open, ACT_pop_drop_right_open,				0,		0,		0,		60);
+		init_new_offset(ACT_AVOID_BACK_SPOT_RIGHT, ACT_AVOID_BACK_SPOT_RIGHT_Open, ACT_back_spot_right_open,			0,		80,		0,		0);
+		init_new_offset(ACT_AVOID_BACK_SPOT_LEFT, ACT_AVOID_BACK_SPOT_LEFT_Open, ACT_back_spot_left_open,				80,		0,		0,		0);
+		init_new_offset(ACT_AVOID_CUP_NIPPER, ACT_AVOID_CUP_NIPPER_Open, ACT_cup_nipper_open,							0,		0,		45,		0);
+		init_new_offset(ACT_AVOID_CUP_NIPPER, ACT_AVOID_CUP_NIPPER_Lock, ACT_cup_nipper_lock,							0,		0,		30,		0);
+		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Left, ACT_clap_holly_left,							250,	0,		0,		0);
+		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Right, ACT_clap_holly_right,							0,		250,	0,		0);
 	}
 }
 
