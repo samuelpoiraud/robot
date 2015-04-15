@@ -505,7 +505,11 @@ bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value){
 ////////////////////////////////////////
 
 static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_HOLLY_MAE_SPOTIX,
+#ifdef DEBUG_MAE_SPOTIX
+	CREATE_MAE_WITH_VERBOSE(SM_ID_HOLLY_MANAGE_MAE_SPOTIX,
+#else
+	CREATE_MAE(
+#endif
 		INIT,
 		COMPUTE_ORDER,
 		FAIL_COMPUTE,
@@ -1333,7 +1337,11 @@ spotix_order_id_t ACT_MAE_holly_spotix_do_order(ACT_MAE_holly_spotix_e order, AC
 
 
 void ACT_MAE_holly_spotix_process_main(){
+#ifdef DEBUG_MAE_SPOTIX
 	CREATE_MAE_WITH_VERBOSE(SM_ID_HOLLY_MANAGE_MAE_SPOTIX,
+#else
+	CREATE_MAE(
+#endif
 		INIT,
 		WAIT_ORDER,
 		DO_ORDER
