@@ -205,7 +205,7 @@ void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
 
  void send_start_rotation(){
 	 CAN_msg_t msg;
-	 msg.sid = PROP_START_ROTATION;
+	 msg.sid = PROP_CALIBRATION;
 	 msg.data[0] = IHM_switchs_get(SWITCH_STRAT_1);
 	 msg.size = 1;
 	 CAN_send(&msg);

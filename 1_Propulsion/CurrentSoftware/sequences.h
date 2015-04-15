@@ -21,12 +21,11 @@
 
 	void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed, acknowledge_e acquittement, Sint32 consigne_point_eloigne_x, Sint32 consigne_point_eloigne_y, border_mode_e border_mode, corrector_e corrector);
 
-	void SEQUENCES_calibrate();
+	void SEQUENCES_calibrate(bool_e seeing_south_at_the_end);
 
 	void SEQUENCES_selftest(void);
 
 	void SEQUENCES_trajectory_for_test_coefs(void);
 
-	void START_ROTATION_canMsg(CAN_msg_t *msg);
 
 #endif /*def _SEQUENCES_H*/
