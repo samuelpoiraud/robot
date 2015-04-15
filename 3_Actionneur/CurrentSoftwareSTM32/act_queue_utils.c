@@ -123,7 +123,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*error_code = ACT_RESULT_ERROR_LOGIC;
 		*line = 0x0200;
 	} else if(error & AX12_ERROR_TIMEOUT) {
-		AX12_set_torque_enabled(ax12Id, FALSE);
+		//AX12_set_torque_enabled(ax12Id, FALSE);
 		*result = ACT_RESULT_FAILED;
 		*error_code = ACT_RESULT_ERROR_NOT_HERE;
 		*line = 0x0300;
