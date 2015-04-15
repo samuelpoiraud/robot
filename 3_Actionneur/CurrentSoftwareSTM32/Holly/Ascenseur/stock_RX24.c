@@ -402,7 +402,7 @@ static void STOCK_command_run(queue_id_t queueId) {
 	Uint16 line_left[2], line_right[2];
 	Uint16 rx24_goalPosition_left_floor1 = 0xFFFF, rx24_goalPosition_right_floor1 = 0xFFFF;
 	Uint16 rx24_goalPosition_left_floor2 = 0xFFFF, rx24_goalPosition_right_floor2 = 0xFFFF;
-	static bool_e done_right[2] = {FALSE, FALSE}, done_left[2] = {FALSE, FALSE};
+	static bool_e done_right[4] = {FALSE, FALSE, FALSE, FALSE}, done_left[4] = {FALSE, FALSE, FALSE, FALSE};
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_STOCK_RIGHT){
 
@@ -446,27 +446,34 @@ static void STOCK_command_run(queue_id_t queueId) {
 		STOCK_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right_floor1, &rx24_goalPosition_left_floor1,
 																					   &rx24_goalPosition_right_floor2, &rx24_goalPosition_left_floor2);
 
-		if(done_right[0] == FALSE)
-			done_right[0] = ACTQ_check_status_ax12(queueId, stock_act[2].servo_id, rx24_goalPosition_right_floor1,
-					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_right[0]), &(errorCode_right[0]), &(line_right[0]));
+		//done_right[2] = TRUE;
+		//done_left[2] = TRUE;
+		done_right[3] = TRUE;
+		done_left[3] = TRUE;
 
-		if(done_left[0] == FALSE)
-			done_left[0] = ACTQ_check_status_ax12(queueId, stock_act[3].servo_id, rx24_goalPosition_left_floor1,
-					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_left[0]), &(errorCode_left[0]), &(line_left[0]));
 
-		if(done_right[1] == FALSE)
-			done_right[1] = ACTQ_check_status_ax12(queueId, stock_act[6].servo_id, rx24_goalPosition_right_floor2,
+		if(done_right[3] == FALSE)
+			done_right[3] = ACTQ_check_status_ax12(queueId, stock_act[6].servo_id, rx24_goalPosition_right_floor2,
 					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_right[1]), &(errorCode_right[1]), &(line_right[1]));
 
-		if(done_left[1] == FALSE)
-			done_left[1] = ACTQ_check_status_ax12(queueId, stock_act[7].servo_id, rx24_goalPosition_left_floor2,
+		if(done_left[3] == FALSE)
+			done_left[3] = ACTQ_check_status_ax12(queueId, stock_act[7].servo_id, rx24_goalPosition_left_floor2,
 					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_left[1]), &(errorCode_left[1]), &(line_left[1]));
 
-		if(done_right[0] && done_left[0] && done_right[1] && done_left[1]){
-			done_right[0] = FALSE;
-			done_left[0] = FALSE;
-			done_right[1] = FALSE;
-			done_left[1] = FALSE;
+		if(done_right[2] == FALSE)
+			done_right[2] = ACTQ_check_status_ax12(queueId, stock_act[2].servo_id, rx24_goalPosition_right_floor1,
+					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_right[0]), &(errorCode_right[0]), &(line_right[0]));
+
+		if(done_left[2] == FALSE)
+			done_left[2] = ACTQ_check_status_ax12(queueId, stock_act[3].servo_id, rx24_goalPosition_left_floor1,
+					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_left[0]), &(errorCode_left[0]), &(line_left[0]));
+
+
+		if(done_right[2] && done_left[2] && done_right[3] && done_left[3]){
+			done_right[2] = FALSE;
+			done_left[2] = FALSE;
+			done_right[3] = FALSE;
+			done_left[3] = FALSE;
 			if(result_right[0] == ACT_RESULT_DONE && result_left[0] == ACT_RESULT_DONE && result_right[1] == ACT_RESULT_DONE && result_left[1] == ACT_RESULT_DONE)
 				QUEUE_next(queueId, ACT_STOCK_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
 			else if(result_right[0] != ACT_RESULT_DONE)

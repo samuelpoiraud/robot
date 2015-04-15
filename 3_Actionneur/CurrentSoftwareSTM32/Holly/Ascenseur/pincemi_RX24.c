@@ -353,23 +353,23 @@ static void PINCEMI_command_run(queue_id_t queueId) {
 	Uint8 result_left, result_right, errorCode_left, errorCode_right;
 	Uint16 line_left, line_right;
 	Uint16 rx24_goalPosition_left = 0xFFFF, rx24_goalPosition_right = 0xFFFF;
-	static bool_e done_right = FALSE, done_left = FALSE;
+	static bool_e done_right[2] = {FALSE, FALSE}, done_left[2] = {FALSE, FALSE};
 
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_PINCEMI_RIGHT){
 
 		PINCEMI_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 
-		if(done_right == FALSE)
-			done_right = ACTQ_check_status_ax12(queueId, pincemi_act[0].servo_id, rx24_goalPosition_right,
+		if(done_right[0] == FALSE)
+			done_right[0] = ACTQ_check_status_ax12(queueId, pincemi_act[0].servo_id, rx24_goalPosition_right,
 					PINCEMI_RX24_ASSER_POS_EPSILON, PINCEMI_RX24_ASSER_TIMEOUT, PINCEMI_RX24_ASSER_POS_LARGE_EPSILON, &result_right, &errorCode_right, &line_right);
 
-		if(done_left == FALSE)
-			done_left = ACTQ_check_status_ax12(queueId, pincemi_act[1].servo_id, rx24_goalPosition_left,
+		if(done_left[0] == FALSE)
+			done_left[0] = ACTQ_check_status_ax12(queueId, pincemi_act[1].servo_id, rx24_goalPosition_left,
 					PINCEMI_RX24_ASSER_POS_EPSILON, PINCEMI_RX24_ASSER_TIMEOUT, PINCEMI_RX24_ASSER_POS_LARGE_EPSILON, &result_left, &errorCode_left, &line_left);
 
-		if(done_right && done_left){
-			done_right = FALSE;
-			done_left = FALSE;
+		if(done_right[0] && done_left[0]){
+			done_right[0] = FALSE;
+			done_left[0] = FALSE;
 			if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE)
 				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
 			else if(result_right != ACT_RESULT_DONE)
@@ -381,17 +381,17 @@ static void PINCEMI_command_run(queue_id_t queueId) {
 	}else{
 		PINCEMI_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 
-		if(done_right == FALSE)
-			done_right = ACTQ_check_status_ax12(queueId, pincemi_act[2].servo_id, rx24_goalPosition_right,
+		if(done_right[1] == FALSE)
+			done_right[1] = ACTQ_check_status_ax12(queueId, pincemi_act[2].servo_id, rx24_goalPosition_right,
 					PINCEMI_RX24_ASSER_POS_EPSILON, PINCEMI_RX24_ASSER_TIMEOUT, PINCEMI_RX24_ASSER_POS_LARGE_EPSILON, &result_right, &errorCode_right, &line_right);
 
-		if(done_left == FALSE)
-			done_left = ACTQ_check_status_ax12(queueId, pincemi_act[3].servo_id, rx24_goalPosition_left,
+		if(done_left[1] == FALSE)
+			done_left[1] = ACTQ_check_status_ax12(queueId, pincemi_act[3].servo_id, rx24_goalPosition_left,
 					PINCEMI_RX24_ASSER_POS_EPSILON, PINCEMI_RX24_ASSER_TIMEOUT, PINCEMI_RX24_ASSER_POS_LARGE_EPSILON, &result_left, &errorCode_left, &line_left);
 
-		if(done_right && done_left){
-			done_right = FALSE;
-			done_left = FALSE;
+		if(done_right[1] && done_left[1]){
+			done_right[1] = FALSE;
+			done_left[1] = FALSE;
 			if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE)
 				QUEUE_next(queueId, ACT_PINCEMI_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
 			else if(result_right != ACT_RESULT_DONE)
