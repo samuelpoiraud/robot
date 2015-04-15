@@ -1339,7 +1339,6 @@ void ACT_MAE_holly_spotix_process_main(){
 		DO_ORDER
 	);
 
-	static state_e state;
 	error_e result_sub;
 
 	switch(state){
