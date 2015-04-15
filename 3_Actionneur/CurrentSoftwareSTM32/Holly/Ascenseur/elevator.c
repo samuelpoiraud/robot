@@ -104,7 +104,7 @@ void ELEVATOR_state_machine(){
 			if(ELEVATOR_FDC && begin_detection == 0){
 				begin_detection = global.absolute_time;
 			}
-			if(ELEVATOR_FDC && begin_detection != 0 && global.absolute_time - begin_detection > 200){
+			if(ELEVATOR_FDC && begin_detection != 0 && global.absolute_time - begin_detection > 500){
 				PWM_run(0, ELEVATOR_PWM_NUM);
 				QEI1_set_count(0);
 				encoder_ready = TRUE;

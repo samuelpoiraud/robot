@@ -144,7 +144,8 @@ typedef enum {
 	ACT_pincemi_right_close = ACT_PINCEMI_RIGHT_CLOSE,
 	ACT_pincemi_right_close_inner = ACT_PINCEMI_RIGHT_CLOSE_INNER,
 	ACT_pincemi_right_lock = ACT_PINCEMI_RIGHT_LOCK,
-	ACT_pincemi_right_unlock = ACT_PINCEMI_RIGHT_LOCK,
+	ACT_pincemi_right_lock_ball = ACT_PINCEMI_RIGHT_LOCK_BALL,
+	ACT_pincemi_right_unlock = ACT_PINCEMI_RIGHT_UNLOCK,
 	ACT_pincemi_right_open = ACT_PINCEMI_RIGHT_OPEN,
 	ACT_pincemi_right_open_great = ACT_PINCEMI_RIGHT_OPEN_GREAT,
 	ACT_pincemi_right_stop = ACT_PINCEMI_RIGHT_STOP
@@ -154,7 +155,8 @@ typedef enum {
 	ACT_pincemi_left_close = ACT_PINCEMI_LEFT_CLOSE,
 	ACT_pincemi_left_close_inner = ACT_PINCEMI_LEFT_CLOSE_INNER,
 	ACT_pincemi_left_lock = ACT_PINCEMI_LEFT_LOCK,
-	ACT_pincemi_left_unlock = ACT_PINCEMI_LEFT_LOCK,
+	ACT_pincemi_left_lock_ball = ACT_PINCEMI_LEFT_LOCK_BALL,
+	ACT_pincemi_left_unlock = ACT_PINCEMI_LEFT_UNLOCK,
 	ACT_pincemi_left_open = ACT_PINCEMI_LEFT_OPEN,
 	ACT_pincemi_left_open_great = ACT_PINCEMI_LEFT_OPEN_GREAT,
 	ACT_pincemi_left_stop = ACT_PINCEMI_LEFT_STOP
@@ -188,6 +190,7 @@ typedef enum {
 	ACT_pince_gauche_mid_pos = ACT_PINCE_GAUCHE_MID_POS,
 	ACT_pince_gauche_stop = ACT_PINCE_GAUCHE_STOP
 } ACT_pince_gauche_cmd_e;
+
 typedef enum {
 	ACT_pince_droite_idle_pos = ACT_PINCE_DROITE_IDLE_POS,
 	ACT_pince_droite_closed = ACT_PINCE_DROITE_CLOSED,
@@ -195,6 +198,7 @@ typedef enum {
 	ACT_pince_droite_open = ACT_PINCE_DROITE_OPEN,
 	ACT_pince_droite_stop = ACT_PINCE_DROITE_STOP
 } ACT_pince_droite_cmd_e;
+
 typedef enum {
 	ACT_clap_closed = ACT_CLAP_CLOSED,
 	ACT_clap_open = ACT_CLAP_OPEN,
@@ -267,6 +271,7 @@ bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd);
 typedef enum{
 	ACT_MAE_SPOTIX_OPEN,
 	ACT_MAE_SPOTIX_TAKE,
+	ACT_MAE_SPOTIX_TAKE_BALL,
 	ACT_MAE_SPOTIX_OPEN_GREAT,
 	ACT_MAE_SPOTIX_STOCK_AND_STAY,
 	ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN,

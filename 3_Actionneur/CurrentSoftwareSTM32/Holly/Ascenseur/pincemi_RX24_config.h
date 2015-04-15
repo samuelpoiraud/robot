@@ -16,7 +16,7 @@
 	#define PINCEMI_RX24_ASSER_TIMEOUT								1000			// Si l'ax12 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en ms.
 	#define PINCEMI_RX24_ASSER_POS_EPSILON							6				// Lorsque l'ax12 atteint sa position avec +/- POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define PINCEMI_RX24_ASSER_POS_LARGE_EPSILON					28				// Si le déplacement de l'ax12 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
-	#define PINCEMI_RX24_MAX_TORQUE_PERCENT							30				// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
+	#define PINCEMI_RX24_MAX_TORQUE_PERCENT							70				// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 	#define PINCEMI_RX24_MAX_TEMPERATURE							60				// Température maximale en degré
 
 //Position
@@ -25,6 +25,7 @@
 	#define PINCEMIR_RIGHT_CLOSE									600
 	#define PINCEMIR_RIGHT_CLOSE_INNER								512
 	#define PINCEMIR_RIGHT_LOCK										518
+	#define PINCEMIR_RIGHT_LOCK_BALL								542
 	#define PINCEMIR_RIGHT_UNLOCK									514
 	#define PINCEMIR_RIGHT_OPEN										445
 	#define PINCEMIR_RIGHT_OPEN_GREAT								445
@@ -33,6 +34,7 @@
 	#define PINCEMIR_LEFT_CLOSE										425
 	#define PINCEMIR_LEFT_CLOSE_INNER								375
 	#define PINCEMIR_LEFT_LOCK										506
+	#define PINCEMIR_LEFT_LOCK_BALL									518
 	#define PINCEMIR_LEFT_UNLOCK									510
 	#define PINCEMIR_LEFT_OPEN										530
 	#define PINCEMIR_LEFT_OPEN_GREAT								580
@@ -41,6 +43,7 @@
 	#define PINCEMIL_RIGHT_CLOSE									599
 	#define PINCEMIL_RIGHT_CLOSE_INNER								649
 	#define PINCEMIL_RIGHT_LOCK										512
+	#define PINCEMIL_RIGHT_LOCK_BALL								512
 	#define PINCEMIL_RIGHT_UNLOCK									514
 	#define PINCEMIL_RIGHT_OPEN										494
 	#define PINCEMIL_RIGHT_OPEN_GREAT								444
@@ -49,6 +52,7 @@
 	#define PINCEMIL_LEFT_CLOSE										424
 	#define PINCEMIL_LEFT_CLOSE_INNER								512
 	#define PINCEMIL_LEFT_LOCK										498
+	#define PINCEMIL_LEFT_LOCK_BALL									498
 	#define PINCEMIL_LEFT_UNLOCK									510
 	#define PINCEMIL_LEFT_OPEN										580
 	#define PINCEMIL_LEFT_OPEN_GREAT								580

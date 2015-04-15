@@ -446,19 +446,6 @@ static void STOCK_command_run(queue_id_t queueId) {
 		STOCK_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right_floor1, &rx24_goalPosition_left_floor1,
 																					   &rx24_goalPosition_right_floor2, &rx24_goalPosition_left_floor2);
 
-		//done_right[2] = TRUE;
-		//done_left[2] = TRUE;
-		done_right[3] = TRUE;
-		done_left[3] = TRUE;
-
-
-		if(done_right[3] == FALSE)
-			done_right[3] = ACTQ_check_status_ax12(queueId, stock_act[6].servo_id, rx24_goalPosition_right_floor2,
-					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_right[1]), &(errorCode_right[1]), &(line_right[1]));
-
-		if(done_left[3] == FALSE)
-			done_left[3] = ACTQ_check_status_ax12(queueId, stock_act[7].servo_id, rx24_goalPosition_left_floor2,
-					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_left[1]), &(errorCode_left[1]), &(line_left[1]));
 
 		if(done_right[2] == FALSE)
 			done_right[2] = ACTQ_check_status_ax12(queueId, stock_act[2].servo_id, rx24_goalPosition_right_floor1,
@@ -467,6 +454,14 @@ static void STOCK_command_run(queue_id_t queueId) {
 		if(done_left[2] == FALSE)
 			done_left[2] = ACTQ_check_status_ax12(queueId, stock_act[3].servo_id, rx24_goalPosition_left_floor1,
 					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_left[0]), &(errorCode_left[0]), &(line_left[0]));
+
+		if(done_right[3] == FALSE)
+			done_right[3] = ACTQ_check_status_ax12(queueId, stock_act[6].servo_id, rx24_goalPosition_right_floor2,
+					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_right[1]), &(errorCode_right[1]), &(line_right[1]));
+
+		if(done_left[3] == FALSE)
+			done_left[3] = ACTQ_check_status_ax12(queueId, stock_act[7].servo_id, rx24_goalPosition_left_floor2,
+					STOCK_RX24_ASSER_POS_EPSILON, STOCK_RX24_ASSER_TIMEOUT, STOCK_RX24_ASSER_POS_LARGE_EPSILON, &(result_left[1]), &(errorCode_left[1]), &(line_left[1]));
 
 
 		if(done_right[2] && done_left[2] && done_right[3] && done_left[3]){
@@ -478,8 +473,8 @@ static void STOCK_command_run(queue_id_t queueId) {
 				QUEUE_next(queueId, ACT_STOCK_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
 			else if(result_right[0] != ACT_RESULT_DONE)
 				QUEUE_next(queueId, ACT_STOCK_LEFT, result_right[0], errorCode_right[0], line_right[0]);
-			else if(result_left[0] != ACT_RESULT_DONE)
-				QUEUE_next(queueId, ACT_STOCK_LEFT, result_left[0], errorCode_left[0], line_left[0]);
+			else if(result_left[1] != ACT_RESULT_DONE)
+				QUEUE_next(queueId, ACT_STOCK_LEFT, result_left[0], errorCode_left[1], line_left[1]);
 			else if(result_right[1] != ACT_RESULT_DONE)
 				QUEUE_next(queueId, ACT_STOCK_LEFT, result_right[1], errorCode_right[1], line_right[1]);
 			else
