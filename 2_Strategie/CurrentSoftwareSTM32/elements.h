@@ -6,6 +6,12 @@
 	#define NB_SPOT		16
 	#define NB_CUP		5
 
+	#define CUP_NORTH_YELLOW	0
+	#define CUP_SOUTH_YELLOW	1
+	#define CUP_MIDDLE			2
+	#define CUP_NORTH_GREEN		3
+	#define CUP_SOUTH_GREEN		4
+	#define NO_SECOND_CUP       5
 
 
 	typedef enum{
