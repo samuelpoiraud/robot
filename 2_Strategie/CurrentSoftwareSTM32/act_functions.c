@@ -735,9 +735,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 						ACT_pincemi_left(ACT_pincemi_left_lock_ball);
 				}
 
-				if(state1 == TAKE_FEET && who != ACT_MAE_SPOTIX_LEFT)
+				if(state1 == TAKE_BALL && who != ACT_MAE_SPOTIX_LEFT)
 					state1 = check_act_status(ACT_QUEUE_PinceMi_right, state, WIN_TAKE_BALL, FAIL_TAKE_BALL);
-				if(state2 == TAKE_FEET && who != ACT_MAE_SPOTIX_RIGHT)
+				if(state2 == TAKE_BALL && who != ACT_MAE_SPOTIX_RIGHT)
 					state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_TAKE_BALL, FAIL_TAKE_BALL);
 
 				if((who == ACT_MAE_SPOTIX_BOTH && state1 != TAKE_BALL && state2 != TAKE_BALL)
@@ -1318,8 +1318,10 @@ bool_e ACT_MAE_holly_wait_end_order(spotix_order_id_t id){
 
 spotix_order_id_t ACT_MAE_holly_spotix_do_order(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
 
-	if(((spotix_write + 1) % 10) == spotix_read) // Buffer plein
+	if(((spotix_write + 1) % 10) == spotix_read){ // Buffer plein
+		error_printf("ACT_MAE_holly_spotix_do_order : buffer full\n");
 		return -1;
+	}
 
 	spotix_order_queue[spotix_write].order = order;
 	spotix_order_queue[spotix_write].who = who;
@@ -1331,11 +1333,11 @@ spotix_order_id_t ACT_MAE_holly_spotix_do_order(ACT_MAE_holly_spotix_e order, AC
 
 
 void ACT_MAE_holly_spotix_process_main(){
-	typedef enum{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_HOLLY_MANAGE_MAE_SPOTIX,
 		INIT,
 		WAIT_ORDER,
 		DO_ORDER
-	}state_e;
+	);
 
 	static state_e state;
 	error_e result_sub;
