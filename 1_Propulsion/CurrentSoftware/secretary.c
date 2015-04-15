@@ -287,7 +287,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		break;
 
 		case PROP_CALIBRATION:	//Autocalage !
-			SEQUENCES_calibrate();
+			SEQUENCES_calibrate(msg->data[0]);
 
 		break;
 
@@ -477,10 +477,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			#ifdef SCAN_CUP
 				SCAN_CUP_canMsg(msg);
 			#endif
-			break;
-
-		case PROP_START_ROTATION:
-			START_ROTATION_canMsg(msg); // Modification calibration
 			break;
 
 		case DEBUG_HOKUYO_ADD_POINT:

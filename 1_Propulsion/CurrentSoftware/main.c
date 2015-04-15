@@ -241,7 +241,7 @@ int main (void)
 			if(QS_WHO_AM_I_get() == SMALL_ROBOT){
 				SECRETARY_ask_start_rotation();
 			}else{
-				SEQUENCES_calibrate();
+				SEQUENCES_calibrate(FALSE);
 			}
 
 		}

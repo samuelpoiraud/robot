@@ -686,8 +686,6 @@
 	#define PROP_SCAN_CUP						0x113
 	// A compléter !
 
-	#define PROP_START_ROTATION					0x114
-
 	#define PROP_DEBUG_FORCED_FOE				0x118
 	// Message CAN pour forcer la détection d'un adversaire
 
