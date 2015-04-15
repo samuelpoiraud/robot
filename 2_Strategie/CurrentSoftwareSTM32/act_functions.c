@@ -520,6 +520,11 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		WIN_TAKE,
 		FAIL_TAKE,
 
+		// Take ball
+		TAKE_BALL,
+		WIN_TAKE_BALL,
+		FAIL_TAKE_BALL,
+
 		// Open great
 		MOVE_OTHER_NIPPER,
 		OPEN_GREAT_FEET,
@@ -578,6 +583,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 				case ACT_MAE_SPOTIX_TAKE:
 					state = TAKE_FEET;
+					break;
+
+				case ACT_MAE_SPOTIX_TAKE_BALL:
+					state = TAKE_BALL;
 					break;
 
 				case ACT_MAE_SPOTIX_OPEN_GREAT:
@@ -714,6 +723,45 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			RESET_MAE();
 			ret = NOT_HANDLED;
 			break;
+
+//--------------------------------------- Take ball
+
+		case TAKE_BALL:
+				if(entrance){
+					state1 = state2 = TAKE_BALL;
+					if(who != ACT_MAE_SPOTIX_LEFT)
+						ACT_pincemi_right(ACT_pincemi_right_lock_ball);
+					if(who != ACT_MAE_SPOTIX_RIGHT)
+						ACT_pincemi_left(ACT_pincemi_left_lock_ball);
+				}
+
+				if(state1 == TAKE_FEET && who != ACT_MAE_SPOTIX_LEFT)
+					state1 = check_act_status(ACT_QUEUE_PinceMi_right, state, WIN_TAKE_BALL, FAIL_TAKE_BALL);
+				if(state2 == TAKE_FEET && who != ACT_MAE_SPOTIX_RIGHT)
+					state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_TAKE_BALL, FAIL_TAKE_BALL);
+
+				if((who == ACT_MAE_SPOTIX_BOTH && state1 != TAKE_BALL && state2 != TAKE_BALL)
+						|| (who == ACT_MAE_SPOTIX_LEFT && state2 != TAKE_BALL)
+						|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != TAKE_BALL))
+					state = WIN_TAKE_BALL;
+
+				break;
+
+			case WIN_TAKE_BALL:
+				RESET_MAE();
+				ret = END_OK;
+				break;
+
+			case FAIL_TAKE_BALL:
+				if(left_error)
+					ACT_pincemi_left(ACT_pincemi_left_open);
+
+				if(right_error)
+					ACT_pincemi_right(ACT_pincemi_right_open);
+
+				RESET_MAE();
+				ret = NOT_HANDLED;
+				break;
 
 
 //--------------------------------------- Take great feet

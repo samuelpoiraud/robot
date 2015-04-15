@@ -820,20 +820,22 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_PINCEMI_RIGHT_CLOSE				0x11
 		#define ACT_PINCEMI_RIGHT_CLOSE_INNER		0x12
 		#define ACT_PINCEMI_RIGHT_LOCK				0x13
-		#define ACT_PINCEMI_RIGHT_UNLOCK			0x14
-		#define ACT_PINCEMI_RIGHT_OPEN				0x15
-		#define ACT_PINCEMI_RIGHT_OPEN_GREAT		0x16
-		#define ACT_PINCEMI_RIGHT_STOP				0x17
+		#define ACT_PINCEMI_RIGHT_LOCK_BALL			0x14
+		#define ACT_PINCEMI_RIGHT_UNLOCK			0x15
+		#define ACT_PINCEMI_RIGHT_OPEN				0x16
+		#define ACT_PINCEMI_RIGHT_OPEN_GREAT		0x17
+		#define ACT_PINCEMI_RIGHT_STOP				0x18
 
 	/////////////////PINCEMI LEFT//////////////////
 	ACT_PINCEMI_LEFT = (ACT_FILTER | 0x08),
 		#define ACT_PINCEMI_LEFT_CLOSE				0x21
 		#define ACT_PINCEMI_LEFT_CLOSE_INNER		0x22
 		#define ACT_PINCEMI_LEFT_LOCK				0x23
-		#define ACT_PINCEMI_LEFT_UNLOCK				0x24
-		#define ACT_PINCEMI_LEFT_OPEN				0x25
-		#define ACT_PINCEMI_LEFT_OPEN_GREAT			0x26
-		#define ACT_PINCEMI_LEFT_STOP				0x27
+		#define ACT_PINCEMI_LEFT_LOCK_BALL			0x24
+		#define ACT_PINCEMI_LEFT_UNLOCK				0x25
+		#define ACT_PINCEMI_LEFT_OPEN				0x26
+		#define ACT_PINCEMI_LEFT_OPEN_GREAT			0x27
+		#define ACT_PINCEMI_LEFT_STOP				0x28
 
 	/////////////////STOCK RIGHT///////////////////
 	ACT_STOCK_RIGHT = (ACT_FILTER | 0x09),
