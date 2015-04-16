@@ -22,7 +22,7 @@
 	#define AX12_DIRECTION_PORT_RX24 GPIOA,GPIO_Pin_5
 	//	-				 			  6
 	//	-				 			  7
-	#define ELEVATOR_DCM_SENS		 GPIOA,GPIO_Pin_8
+	#define CUP_NIPPER_DCM_SENS		 GPIOA,GPIO_Pin_8
 	//	-	usb			 			  9
 	//	-	usb			 			  10
 	//	-	usb			 			  11
@@ -61,9 +61,9 @@
 	//  -							  7
 	//	-				 			  8
 	//	-				 			  9
-	#define CUP_NIPPER_DCM_SENS		GPIOC,GPIO_Pin_10
-	#define SPOT_POMPE_RIGHT_SENS	GPIOC,GPIO_Pin_11
-	#define CLAP_GOLLY_DCM_SENS		GPIOC,GPIO_Pin_12
+	#define ELEVATOR_DCM_SENS		GPIOC,GPIO_Pin_10
+	#define CLAP_GOLLY_DCM_SENS		GPIOC,GPIO_Pin_11
+	#define SPOT_POMPE_RIGHT_SENS	GPIOC,GPIO_Pin_12
 	//	-				 			  13
 	//	-	OSC32_in 			  	  14
 	//	-	OSC32_out 			  	  15
@@ -141,7 +141,7 @@
 #define STOCKL_R_F2_RX24_ID				31
 #define STOCKL_L_F2_RX24_ID				32
 
-#define SPOT_POMPE_RIGHT_PWM_NUM		3
+#define SPOT_POMPE_RIGHT_PWM_NUM		4
 //#define SPOT_POMPE_LEFT_PWM_NUM		CUSTOM ! Laisser les en commentaires
 
 #define ELEVATOR_ID						0
