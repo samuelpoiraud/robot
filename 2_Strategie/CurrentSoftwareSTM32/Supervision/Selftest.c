@@ -266,8 +266,11 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_PROP_UNREACHABLE);
 				if(!beacon_ping_ok)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_BEACON_UNREACHABLE);
-				if(!ihm_ping_ok)
+#ifndef FDP_2014
+				if(!ihm_ping_ok){
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_IHM_UNREACHABLE);
+				}
+#endif
 			}
 			break;
 		case SELFTEST_ACT:
@@ -312,7 +315,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					state = SELFTEST_IHM;
 
 				// Lever erreur si switch_asser n'est actif
-				if(IHM_switchs_get(SWITCH_ASSER))
+				if(!IHM_switchs_get(SWITCH_ASSER))
 					SELFTEST_declare_errors(NULL,SELFTEST_PROP_SWITCH_ASSER_DISABLE);
 			}
 			if(CAN_msg_received != NULL)
@@ -591,14 +594,14 @@ error_e SELFTEST_strategy(bool_e reset)
 			break;
 
 		case TEST_SWITCHS:
-
-			if(IHM_switchs_get(SWITCH_DISABLE_POPCORN))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_POPCORN_DISABLED);
-			if(IHM_switchs_get(SWITCH_DISABLE_LEFT_PUMP))	SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED);
-			if(IHM_switchs_get(SWITCH_DISABLE_RIGHT_PUMP))	SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED);
-			if(IHM_switchs_get(SWITCH_DISABLE_CLAPS))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CLAPS_DISABLED);
-			if(IHM_switchs_get(SWITCH_DISABLE_CARPETS))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CARPETS_DISABLED);
-			if(IHM_switchs_get(SWITCH_DISABLE_LIFT))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LIFT_DISABLED);
-
+			if(QS_WHO_AM_I_get()==BIG_ROBOT){
+				if(IHM_switchs_get(SWITCH_DISABLE_POPCORN))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_POPCORN_DISABLED);
+				if(IHM_switchs_get(SWITCH_DISABLE_LEFT_PUMP))	SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED);
+				if(IHM_switchs_get(SWITCH_DISABLE_RIGHT_PUMP))	SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED);
+				if(IHM_switchs_get(SWITCH_DISABLE_CLAPS))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CLAPS_DISABLED);
+				if(IHM_switchs_get(SWITCH_DISABLE_CARPETS))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CARPETS_DISABLED);
+				if(IHM_switchs_get(SWITCH_DISABLE_LIFT))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LIFT_DISABLED);
+			}
 			state = TEST_SD_CARD;
 			break;
 
