@@ -16,6 +16,10 @@ typedef enum{
 	ACT_AVOID_BACK_SPOT_LEFT,
 	ACT_AVOID_CUP_NIPPER,
 	ACT_AVOID_CLAP_HOLLY,
+	ACT_AVOID_PINCE_DROITE,
+	ACT_AVOID_PINCE_GAUCHE,
+	ACT_AVOID_CARPET_RIGHT,
+	ACT_AVOID_CARPET_LEFT,
 	ACT_AVOID_NB
 }act_avoid_e;
 
@@ -34,10 +38,6 @@ typedef struct{
 
 #define ACT_AVOID_NB_MAX_CMD		5
 
-/*typedef enum {
-	ACT_AVOID_TORCH_Locker_Lock,
-	ACT_AVOID_TORCH_Locker_Unlock
-} ACT_AVOID_TORCH_LOCKER_CMD;*/
 
 typedef enum {
 	ACT_AVOID_POP_COLLECT_LEFT_Open,
@@ -74,6 +74,22 @@ typedef enum {
 	ACT_AVOID_CLAP_HOLLY_Left,
 	ACT_AVOID_CLAP_HOLLY_Right
 } ACT_AVOID_CLAP_HOLLY_CMD;
+
+typedef enum {
+	ACT_AVOID_PINCE_GAUCHE_Open
+} ACT_AVOID_PINCE_GAUCHE_CMD;
+
+typedef enum {
+	ACT_AVOID_PINCE_DROITE_Open
+} ACT_AVOID_PINCE_DROITE_CMD;
+
+typedef enum {
+	ACT_AVOID_CARPET_LEFT_Launch
+} ACT_AVOID_CARPET_LEFT_CMD;
+
+typedef enum {
+	ACT_AVOID_CARPET_RIGHT_Launch
+} ACT_AVOID_CARPET_RIGHT_CMD;
 
 void ACT_AVOIDANCE_init();
 void ACT_AVOIDANCE_new_action(act_avoid_e act_avoid_id, Uint8 cmd, bool_e state);

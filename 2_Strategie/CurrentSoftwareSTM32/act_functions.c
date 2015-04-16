@@ -191,6 +191,8 @@ bool_e ACT_carpet_launcher_right(ACT_carpet_launcher_right_cmd_e cmd){
 
 	debug_printf("Pushing carpet launcher right Run cmd\n");
 
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_CARPET_RIGHT, cmd);
+
 	return ACT_push_operation(ACT_QUEUE_Carpet_launcher_right, &args);
 }
 
@@ -202,6 +204,8 @@ bool_e ACT_carpet_launcher_left(ACT_carpet_launcher_left_cmd_e cmd){
 	ACT_arg_set_fallbackmsg(&args, ACT_CARPET_LAUNCHER_LEFT,  ACT_CARPET_LAUNCHER_LEFT_STOP);
 
 	debug_printf("Pushing carpet launcher left Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_CARPET_LEFT, cmd);
 
 	return ACT_push_operation(ACT_QUEUE_Carpet_launcher_left, &args);
 }
@@ -310,6 +314,8 @@ bool_e ACT_pince_gauche(ACT_pince_gauche_cmd_e cmd) {
 	ACT_arg_init(&args, ACT_PINCE_GAUCHE, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_PINCE_GAUCHE,  ACT_PINCE_GAUCHE_STOP);
 
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_PINCE_GAUCHE, cmd);
+
 	return ACT_push_operation(ACT_QUEUE_Pince_Gauche, &args);
 }
 
@@ -318,6 +324,8 @@ bool_e ACT_pince_droite(ACT_pince_droite_cmd_e cmd) {
 
 	ACT_arg_init(&args, ACT_PINCE_DROITE, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_PINCE_DROITE,  ACT_PINCE_DROITE_STOP);
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_PINCE_DROITE, cmd);
 
 	return ACT_push_operation(ACT_QUEUE_Pince_Droite, &args);
 }
