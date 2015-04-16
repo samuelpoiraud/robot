@@ -36,7 +36,7 @@
 
 	// Pince gauche, mord droit		ID:27
 	#define STOCKL_RIGHT_F1_CLOSE									426
-	#define STOCKL_RIGHT_F1_LOCK									474
+	#define STOCKL_RIGHT_F1_LOCK									490
 	#define STOCKL_RIGHT_F1_UNLOCK									525
 	#define STOCKL_RIGHT_F1_OPEN									538
 
