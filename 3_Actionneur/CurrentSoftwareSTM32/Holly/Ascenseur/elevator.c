@@ -113,8 +113,8 @@ void ELEVATOR_state_machine(){
 				QEI1_set_count(0);
 				encoder_ready = TRUE;
 				state = INIT_POS;
-			}else if(global.absolute_time - begin_wait > 3000)
-				state = DEACTIVATE;
+			}/*else if(global.absolute_time - begin_wait > 3000)
+				state = DEACTIVATE;*/
 			if(!ELEVATOR_FDC)
 				begin_detection = 0;
 			break;
@@ -145,6 +145,9 @@ void ELEVATOR_state_machine(){
 			break;
 
 		case DEACTIVATE:
+			if(entrance)
+				PWM_run(0, ELEVATOR_PWM_NUM);
+
 			break;
 	}
 }
