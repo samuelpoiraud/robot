@@ -688,8 +688,8 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			}
 
 			if((who == ACT_MAE_SPOTIX_BOTH && state1 != OPEN_ALL && state2 != OPEN_ALL && state3 != OPEN_ALL && state4 != OPEN_ALL)
-					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != OPEN_ALL && state2 != OPEN_ALL)
-					|| (who == ACT_MAE_SPOTIX_RIGHT && state3 != OPEN_ALL && state4 != OPEN_ALL))
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != OPEN_ALL && state2 != OPEN_ALL)
+					|| (who == ACT_MAE_SPOTIX_LEFT && state3 != OPEN_ALL && state4 != OPEN_ALL))
 				state = WIN_OPEN_ALL;
 			break;
 
@@ -721,8 +721,8 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			}
 
 			if((who == ACT_MAE_SPOTIX_BOTH && state1 != OPEN_NIPPER && state2 != OPEN_NIPPER)
-					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != OPEN_NIPPER )
-					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != OPEN_NIPPER ))
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != OPEN_NIPPER )
+					|| (who == ACT_MAE_SPOTIX_LEFT && state2 != OPEN_NIPPER ))
 				state = WIN_OPEN_NIPPER;
 			break;
 
@@ -1124,8 +1124,8 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			}
 
 			if((who == ACT_MAE_SPOTIX_BOTH && state1 != UNLOCK_SPOT && state2 != UNLOCK_SPOT && state3 != UNLOCK_SPOT && state4 != UNLOCK_SPOT)
-					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != UNLOCK_SPOT && state2 != UNLOCK_SPOT)
-					|| (who == ACT_MAE_SPOTIX_RIGHT && state3 != UNLOCK_SPOT && state4 != UNLOCK_SPOT))
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != UNLOCK_SPOT && state2 != UNLOCK_SPOT)
+					|| (who == ACT_MAE_SPOTIX_LEFT && state3 != UNLOCK_SPOT && state4 != UNLOCK_SPOT))
 				state = RELEASE_SPOT;
 			break;
 
@@ -1157,8 +1157,8 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			}
 
 			if((who == ACT_MAE_SPOTIX_BOTH && state1 != RELEASE_SPOT && state2 != RELEASE_SPOT && state3 != RELEASE_SPOT && state4 != RELEASE_SPOT)
-					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != RELEASE_SPOT && state2 != RELEASE_SPOT)
-					|| (who == ACT_MAE_SPOTIX_RIGHT && state3 != RELEASE_SPOT && state4 != RELEASE_SPOT))
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != RELEASE_SPOT && state2 != RELEASE_SPOT)
+					|| (who == ACT_MAE_SPOTIX_LEFT && state3 != RELEASE_SPOT && state4 != RELEASE_SPOT))
 				state = WIN_RELEASE;
 			break;
 
