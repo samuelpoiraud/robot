@@ -518,6 +518,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		OPEN_ALL,
 		WIN_OPEN_ALL,
 
+		// Open
+		OPEN_NIPPER,
+		WIN_OPEN_NIPPER,
+
 		// Take feet
 		TAKE_FEET,
 		CHECK_PRESENCE_FEET,
@@ -560,6 +564,11 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		WIN_GO_UP,
 		FAIL_GO_UP,
 
+		// Go mid
+		ELEVATOR_GO_MID,
+		WIN_GO_MID,
+		FAIL_GO_MID,
+
 		// Release spot
 		UNLOCK_SPOT,
 		RELEASE_SPOT,
@@ -583,6 +592,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 				case ACT_MAE_SPOTIX_OPEN:
 					state = OPEN_ALL;
+					break;
+
+				case ACT_MAE_SPOTIX_OPEN_NIPPER:
+					state = OPEN_NIPPER;
 					break;
 
 				case ACT_MAE_SPOTIX_TAKE:
@@ -615,6 +628,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 				case ACT_MAE_SPOTIX_GO_UP:
 					state = ELEVATOR_GO_UP;
+					break;
+
+				case ACT_MAE_SPOTIX_GO_MID:
+					state = ELEVATOR_GO_MID;
 					break;
 
 				case ACT_MAE_SPOTIX_RELEASE_STOCK:
@@ -669,6 +686,39 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			break;
 
 		case WIN_OPEN_ALL:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+//--------------------------------------- Open Nipper
+		case OPEN_NIPPER:
+			if(entrance){
+				state1 = state2 = OPEN_NIPPER;
+				if(who != ACT_MAE_SPOTIX_LEFT){
+					ACT_pincemi_right(ACT_pincemi_right_open);
+				}
+				if(who != ACT_MAE_SPOTIX_RIGHT){
+					ACT_pincemi_left(ACT_pincemi_left_open);
+				}
+			}
+
+			if(who != ACT_MAE_SPOTIX_LEFT){ // Gestion Droite
+				if(state1 == OPEN_NIPPER)
+					state1 = check_act_status(ACT_QUEUE_PinceMi_right, state,WIN_OPEN_NIPPER, WIN_OPEN_NIPPER);
+			}
+
+			if(who != ACT_MAE_SPOTIX_RIGHT){ // Gestion Gauche
+				if(state2 == OPEN_NIPPER)
+					state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_OPEN_NIPPER, WIN_OPEN_NIPPER);
+			}
+
+			if((who == ACT_MAE_SPOTIX_BOTH && state1 != OPEN_NIPPER && state2 != OPEN_NIPPER)
+					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != OPEN_NIPPER )
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != OPEN_NIPPER ))
+				state = WIN_OPEN_NIPPER;
+			break;
+
+		case WIN_OPEN_NIPPER:
 			RESET_MAE();
 			ret = END_OK;
 			break;
@@ -1014,6 +1064,24 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			break;
 
 		case FAIL_GO_UP:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//--------------------------------------- Go middle
+
+		case ELEVATOR_GO_MID:
+			if(entrance)
+				ACT_elevator(ACT_elevator_mid);
+			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_GO_MID, FAIL_GO_MID);
+			break;
+
+		case WIN_GO_MID:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_GO_MID:
 			RESET_MAE();
 			ret = NOT_HANDLED;
 			break;
