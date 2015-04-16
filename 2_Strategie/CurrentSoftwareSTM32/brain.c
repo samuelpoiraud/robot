@@ -24,6 +24,7 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_IHM.h"
 #include "Supervision/Supervision.h"
+#include "Supervision/Buzzer.h"
 
 #include "strats_2015/actions_both_2015.h"
 #include "strats_2015/actions_wood.h"
@@ -179,7 +180,7 @@ void any_match(void)
 				global.env.match_over = TRUE;
 				STACKS_flush_all();
 				QUEUE_reset_all();
-
+				BUZZER_play(500,NOTE_SOL,2);
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
 			}
 			else
