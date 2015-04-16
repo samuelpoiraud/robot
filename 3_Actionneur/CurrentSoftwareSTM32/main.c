@@ -404,13 +404,16 @@ static void MAIN_onButton5LongPush() {
 		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
 		msg2.data[0] = ACT_CARPET_LAUNCHER_LEFT_IDLE;
 	}else if(state == 1){
-		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_LAUNCH;
+		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
 		msg2.data[0] = ACT_CARPET_LAUNCHER_LEFT_LAUNCH;
+	}else if(state == 2){
+		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_LAUNCH;
+		msg2.data[0] = ACT_CARPET_LAUNCHER_LEFT_IDLE;
 	}
 
 	CAN_process_msg(&msg1);
 	CAN_process_msg(&msg2);
-	state = (state == 1)? 0 : state + 1;
+	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton6() {
