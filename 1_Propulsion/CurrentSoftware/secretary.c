@@ -479,6 +479,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			#endif
 			break;
 
+		case PROP_START_ROTATION:
+			START_ROTATION_canMsg(msg); // Modification calibration
+			break;
+
 		case DEBUG_HOKUYO_ADD_POINT:
 		case DEBUG_HOKUYO_RESET:
 			#ifdef CAN_SEND_OVER_UART

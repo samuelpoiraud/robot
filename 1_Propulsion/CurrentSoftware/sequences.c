@@ -39,7 +39,9 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed
 
 // Calibration de PIERRE ET GUY
 
-
+void START_ROTATION_canMsg(CAN_msg_t *msg){
+	SEQUENCES_calibrate(msg->data[0]);
+}
 
 void SEQUENCES_calibrate(bool_e seeing_south_at_the_end)
 {

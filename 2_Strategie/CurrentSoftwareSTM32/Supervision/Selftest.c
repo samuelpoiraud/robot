@@ -332,33 +332,37 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			break;
 
 		case SELFTEST_IHM:
-			if(entrance)
-			{
-				flag_timeout = FALSE;
-				if(ihm_ping_ok)
+			if(QS_WHO_AM_I_get()== SMALL_ROBOT){
+				state=SELFTEST_BEACON_IR;
+			}else{
+				if(entrance)
 				{
-					CAN_send_sid(IHM_DO_SELFTEST);
-					watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_IHM, (bool_e*) &(flag_timeout));
-					debug_printf("SELFTEST IHM\r\n");
-				}
-				else
-					state = SELFTEST_BEACON_IR;
-			}
-
-			if(CAN_msg_received != NULL)
-				if(CAN_msg_received->sid == STRAT_IHM_SELFTEST_DONE)
-				{
-					//Retour de la carte IHM
-					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
-					if(!flag_timeout)
-						WATCHDOG_stop(watchdog_id);
-					state = SELFTEST_BEACON_IR;
+					flag_timeout = FALSE;
+					if(ihm_ping_ok)
+					{
+						CAN_send_sid(IHM_DO_SELFTEST);
+						watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_IHM, (bool_e*) &(flag_timeout));
+						debug_printf("SELFTEST IHM\r\n");
+					}
+					else
+						state = SELFTEST_BEACON_IR;
 				}
 
-			if(flag_timeout)	//Timeout
-			{
-				debug_printf("SELFTEST IHM TIMEOUT\r\n");
-				state = SELFTEST_BEACON_IR;
+				if(CAN_msg_received != NULL)
+					if(CAN_msg_received->sid == STRAT_IHM_SELFTEST_DONE)
+					{
+						//Retour de la carte IHM
+						SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
+						if(!flag_timeout)
+							WATCHDOG_stop(watchdog_id);
+						state = SELFTEST_BEACON_IR;
+					}
+
+				if(flag_timeout)	//Timeout
+				{
+					debug_printf("SELFTEST IHM TIMEOUT\r\n");
+					state = SELFTEST_BEACON_IR;
+				}
 			}
 			break;
 
