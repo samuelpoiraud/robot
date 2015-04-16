@@ -31,9 +31,9 @@
 	#define CUP_NIPPER_KI2								10
 	#define CUP_NIPPER_KD2								10
 
-	#define CUP_NIPPER_PWM_NUM							2
-	#define CUP_NIPPER_PORT_WAY							GPIOC
-	#define CUP_NIPPER_PORT_WAY_BIT						10
+	#define CUP_NIPPER_PWM_NUM							1
+	#define CUP_NIPPER_PORT_WAY							GPIOA
+	#define CUP_NIPPER_PORT_WAY_BIT						GPIO_Pin_8
 	#define CUP_NIPPER_MAX_PWM_WAY0						80
 	#define CUP_NIPPER_MAX_PWM_WAY1						80
 	#define CUP_NIPPER_QEI_COEF							0x0BFF			// Random à faire !

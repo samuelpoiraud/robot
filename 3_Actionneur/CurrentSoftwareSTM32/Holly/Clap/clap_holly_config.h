@@ -17,9 +17,9 @@
 #define CLAP_HOLLY_KI						10
 #define CLAP_HOLLY_KD						10
 
-#define CLAP_HOLLY_PWM_NUM					4
+#define CLAP_HOLLY_PWM_NUM					3
 #define CLAP_HOLLY_PORT_WAY					GPIOC
-#define CLAP_HOLLY_PORT_WAY_BIT				12
+#define CLAP_HOLLY_PORT_WAY_BIT				GPIO_Pin_11
 #define CLAP_HOLLY_MAX_PWM_WAY0				80
 #define CLAP_HOLLY_MAX_PWM_WAY1				80
 
