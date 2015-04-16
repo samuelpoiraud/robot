@@ -124,7 +124,7 @@ static void refresh_total_offset_avoid(){
 			}
 		}
 	}
-
+	debug_printf("New total avoid offset : L:%d R:%d F:%d B:%d\n", total_offset_avoid.Xleft, total_offset_avoid.Xright, total_offset_avoid.Yfront, total_offset_avoid.Yback);
 	send_total_offset_avoid();
 }
 
@@ -159,6 +159,6 @@ void ACT_AVOIDANCE_new_classic_cmd(act_avoid_e act_avoid_id, Uint8 act_cmd){
 			return;
 		}
 	}
-
-
+	refresh_total_offset_avoid();
+	debug_printf("Act : %d reset avoidance\n", act_avoid_id);
 }
