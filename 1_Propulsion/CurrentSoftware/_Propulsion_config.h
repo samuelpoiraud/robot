@@ -61,7 +61,7 @@
 	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	81 		//distance entre le 'centre' du robot et l'avant en calage
 
 	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	146 		//distance entre le 'centre' du robot et l'arrière en calage
-	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	111 		//distance entre le 'centre' du robot et l'avant en calage
+	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	100 		//distance entre le 'centre' du robot et l'avant en calage
 
 	#define BIG_CALIBRATION_WIDTH					 	292 		//largeur du robot
 
