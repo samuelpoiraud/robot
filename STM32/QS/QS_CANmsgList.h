@@ -303,6 +303,7 @@
 		  * bit0 cup north yellow
 		  */
 	#define XBEE_HOLLY_START_MATCH			0x5C3
+	#define XBEE_WOOD_CAN_DO_CLAP			0x5C4
 
 	#define XBEE_CAN_WOOD_ACCESS_SCAN		0x5B0
 	#define XBEE_WOOD_ACCESS_SCAN			0x5B1	//Réponse...

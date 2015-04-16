@@ -494,6 +494,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_HOLLY_START_MATCH:
 			holly_start_match(incoming_msg);
 			break;
+		case XBEE_WOOD_CAN_DO_CLAP:
+			Wood_can_do_our_clap(incoming_msg);
+			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
