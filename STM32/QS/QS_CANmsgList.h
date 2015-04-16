@@ -689,6 +689,8 @@
 	#define PROP_DEBUG_FORCED_FOE				0x118
 	// Message CAN pour forcer la détection d'un adversaire
 
+	#define PROP_START_ROTATION					0x114
+
 	#define PROP_WOOD_PROTECT_ZONE				0x120
 		/*	Le rectangle dans lequel HOLLY doit ignorer les adversaires est indiqué ainsi
 		 * data[0-1] : Sint16 : x1
