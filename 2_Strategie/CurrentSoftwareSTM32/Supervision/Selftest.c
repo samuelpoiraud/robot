@@ -582,13 +582,13 @@ error_e SELFTEST_strategy(bool_e reset)
 			break;
 
 		case TEST_ESTRADE_SENSOR_RIGHT:
-			if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT > 15))
+			if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 15)
 				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT);
 			state = TEST_SWITCHS;
 			break;
 
 		case TEST_ESTRADE_SENSOR_LEFT:
-			if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT > 15))
+			if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 15)
 				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_LEFT);
 			state = TEST_SWITCHS;
 			break;
