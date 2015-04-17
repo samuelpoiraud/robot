@@ -79,8 +79,8 @@ int main (void)
 	GPIO_SetBits(LED_CAN);
 
 #ifdef I_AM_ROBOT_BIG
-	PORTS_set_pull(CLAP_FDP_LEFT, GPIO_PuPd_UP);
-	PORTS_set_pull(CLAP_FDP_RIGHT, GPIO_PuPd_UP);
+	PORTS_set_pull(CLAP_FDP_LEFT, GPIO_PuPd_DOWN);
+	PORTS_set_pull(CLAP_FDP_RIGHT, GPIO_PuPd_DOWN);
 #endif
 
 	// Initialisation des périphériques
