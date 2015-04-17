@@ -13,6 +13,7 @@
 #include "detection.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_maths.h"
+#include "QS/QS_who_am_i.h"
 #include "environment.h"
 #include "Supervision/Buzzer.h"
 
@@ -308,6 +309,18 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				beacon_ir_objects[i].x = global.env.pos.x + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle))}/(4096*4096)));
 				beacon_ir_objects[i].y = global.env.pos.y + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle))}/(4096*4096)));
 			}
+#ifdef INVERSE_BALISE_BIG
+			if(QS_WHO_AM_I_get() == BIG_ROBOT){
+				for(i=0; i<MAX_BEACON_FOES; i++){
+					if(beacon_ir_objects[i].enable){
+						if(beacon_ir_objects[i].angle < 32768 - PI4096)
+							beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(beacon_ir_objects[i].angle + PI4096);
+						else
+							beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(beacon_ir_objects[i].angle - PI4096);
+					}
+				}
+			}
+#endif
 
 			DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);	//On prévient l'algo COMPUTE.
 
