@@ -45,8 +45,8 @@
 	//	-			 	  			  9
 	//	-			 	  			  10
 	#define AX12_DIRECTION_PORT_AX12 GPIOB,GPIO_Pin_11
-	//	-			 	  			  12
-	//	-			 	  			  13
+	#define CLAP_FDP_LEFT			 GPIOB,GPIO_Pin_12
+	#define CLAP_FDP_RIGHT			 GPIOB,GPIO_Pin_13
 	//	-			 	  			  14
 	//	-			 	  			  15
 
