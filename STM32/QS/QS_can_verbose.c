@@ -186,8 +186,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case XBEE_REACH_POINT_GET_OUT_INIT:				print(string, len, "%x XBEE_REACH_POINT_GET_OUT_INIT          ", XBEE_REACH_POINT_GET_OUT_INIT					);	break;
 		case XBEE_HOLLY_ASK_PROTECT:					print(string, len, "%x XBEE_HOLLY_ASK_PROTECT				  ", XBEE_HOLLY_ASK_PROTECT							);	break;
 		case XBEE_WOOD_PROTECT_ZONE:					print(string, len, "%x XBEE_WOOD_PROTECT_ZONE				  ", XBEE_WOOD_PROTECT_ZONE							);	break;
-		case XBEE_WOOD_TAKE_CUP:						print(string, len, "%x XBEE_WOOD_TAKE_CUP					 ", XBEE_WOOD_TAKE_CUP						    	);	break;
-		case XBEE_HOLLY_START_MATCH:					print(string, len, "%x XBEE_HOLLY_START_MATCH				 ", XBEE_HOLLY_START_MATCH						    );	break;
+		case XBEE_WOOD_TAKE_CUP:						print(string, len, "%x XBEE_WOOD_TAKE_CUP					  ", XBEE_WOOD_TAKE_CUP						    	);	break;
+		case XBEE_HOLLY_START_MATCH:					print(string, len, "%x XBEE_HOLLY_START_MATCH				  ", XBEE_HOLLY_START_MATCH						    );	break;
+		case XBEE_WOOD_CAN_DO_CLAP:					    print(string, len, "%x XBEE_WOOD_CAN_DO_CLAP				  ", XBEE_WOOD_CAN_DO_CLAP						    );	break;
 		case PROP_WOOD_PROTECT_ZONE:					print(string, len, "%x PROP_WOOD_PROTECT_ZONE				  ", PROP_WOOD_PROTECT_ZONE							);	break;
 		case ACT_RESULT:								print(string, len, "%x ACT_RESULT                             ", ACT_RESULT										);	break;
 // Holly
