@@ -45,8 +45,10 @@
 	//	-			 	  			  9
 	//	-			 	  			  10
 	#define AX12_DIRECTION_PORT_AX12 GPIOB,GPIO_Pin_11
-	#define CLAP_FDP_LEFT			 GPIOB,GPIO_Pin_12
-	#define CLAP_FDP_RIGHT			 GPIOB,GPIO_Pin_13
+	#define CLAP_FDP_LEFT_CONF			 GPIOB,GPIO_Pin_12
+	#define CLAP_FDP_RIGHT_CONF			 GPIOB,GPIO_Pin_13
+	#define CLAP_FDP_LEFT			 (GPIOB->IDR12)
+	#define CLAP_FDP_RIGHT			 (GPIOB->IDR13)
 	//	-			 	  			  14
 	//	-			 	  			  15
 
@@ -54,8 +56,8 @@
 	//  -							  0
 	#define PRESENCE_GOBELET_CENTRAL (GPIOC->IDR1)
 	//	-				 			  2
-	//	-				 			  3
-	//	-				 			  4
+	#define CLAP_SENSOR_R			(GPIOC->IDR3)
+	#define CLAP_SENSOR_L			(GPIOC->IDR4)
 	//	-				 			  5
 	//	-				 			  6
 	//  -							  7
