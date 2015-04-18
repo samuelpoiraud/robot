@@ -105,9 +105,13 @@ void ELEVATOR_state_machine(){
 				begin_detection = 0;
 				begin_wait = 0;
 			}
-			if(ELEVATOR_FDC && begin_detection == 0){
+
+			/*if(global.alim && begin_wait == 0)
+				begin_wait = global.absolute_time;*/
+
+			if(ELEVATOR_FDC && begin_detection == 0)
 				begin_detection = global.absolute_time;
-			}
+
 			if(ELEVATOR_FDC && begin_detection != 0 && global.absolute_time - begin_detection > 500){
 				PWM_run(0, ELEVATOR_PWM_NUM);
 				QEI1_set_count(0);
@@ -115,6 +119,7 @@ void ELEVATOR_state_machine(){
 				state = INIT_POS;
 			}/*else if(global.absolute_time - begin_wait > 3000)
 				state = DEACTIVATE;*/
+
 			if(!ELEVATOR_FDC)
 				begin_detection = 0;
 			break;
