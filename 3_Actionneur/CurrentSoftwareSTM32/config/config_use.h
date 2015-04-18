@@ -47,7 +47,7 @@
 	#define CPU_EXTERNAL_CLOCK_HZ 8000000	//8Mhz, Fréquence de l'horloge externe
 
 /* Clock */
-	//#define CLOCK_USE_WATCHDOG
+	#define CLOCK_USE_WATCHDOG
 	#define CLOCK_TIMER_ID 4
 	#define CLOCK_UPDATE_BUTTONS_PRESS_TIME
 

@@ -42,6 +42,10 @@ void CLAP_HOLLY_run_command(queue_id_t queueId, bool_e init);
 
 void CLAP_HOLLY_reset_config();
 
+Sint16 CLAP_get_position();
+
+void CLAP_process_it();
+
 #endif	/* CLAP_HOLLY_H */
 
 #endif
