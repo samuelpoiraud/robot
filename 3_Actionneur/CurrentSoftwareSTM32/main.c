@@ -79,8 +79,8 @@ int main (void)
 	GPIO_SetBits(LED_CAN);
 
 #ifdef I_AM_ROBOT_BIG
-	PORTS_set_pull(CLAP_FDP_LEFT, GPIO_PuPd_DOWN);
-	PORTS_set_pull(CLAP_FDP_RIGHT, GPIO_PuPd_DOWN);
+	PORTS_set_pull(CLAP_FDP_LEFT_CONF, GPIO_PuPd_UP);
+	PORTS_set_pull(CLAP_FDP_RIGHT_CONF, GPIO_PuPd_UP);
 #endif
 
 	// Initialisation des périphériques
@@ -119,6 +119,10 @@ int main (void)
 	//Init actioneurs
 	ACTMGR_init();
 	TERMINAL_init();
+
+#ifdef FDP_2014
+	BUTTONS_define_actions(BUTTON0, &MAIN_onButton0,NULL,1);
+#endif
 
 	#if defined(I_AM_ROBOT_BIG)
 		IHM_define_act_button(BP_0_IHM, &MAIN_onButton0, &MAIN_onButton0LongPush);
@@ -188,22 +192,19 @@ int main (void)
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton0() {
 	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
-	msg1.sid = ACT_STOCK_RIGHT;
-	msg2.sid = ACT_STOCK_LEFT;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_CLAP_HOLLY;
 
 	if(state == 0){
-		msg1.data[0] = ACT_STOCK_RIGHT_LOCK;
-		msg2.data[0] = ACT_STOCK_LEFT_LOCK;
+		msg.data[0] = ACT_CLAP_HOLLY_IDLE;
 	}else if(state == 1){
-		msg1.data[0] = ACT_STOCK_RIGHT_OPEN;
-		msg2.data[0] = ACT_STOCK_LEFT_OPEN;
+		msg.data[0] = ACT_CLAP_HOLLY_RIGHT;
 	}
 
-	CAN_process_msg(&msg1);
-	CAN_process_msg(&msg2);
+	debug_printf("Appui Bouton \n");
+
+	CAN_process_msg(&msg);
 	state = (state == 1)? 0 : state + 1;
 }
 
