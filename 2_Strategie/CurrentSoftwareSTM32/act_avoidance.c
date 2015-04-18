@@ -52,7 +52,11 @@ void ACT_AVOIDANCE_init(){
 	}else{
 		init_new_offset(ACT_AVOID_PINCE_DROITE, ACT_AVOID_PINCE_DROITE_Open, ACT_pince_droite_open,						0,		60,		0,		0);
 
+		init_new_offset(ACT_AVOID_PINCE_DROITE, ACT_AVOID_PINCE_DROITE_Close, ACT_pince_droite_closed,					0,		90,		0,		0);
+
 		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_PINCE_GAUCHE_Open, ACT_pince_gauche_open,						60,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_PINCE_GAUCHE_Close, ACT_pince_gauche_closed,					90,		0,		0,		0);
 	}
 }
 
