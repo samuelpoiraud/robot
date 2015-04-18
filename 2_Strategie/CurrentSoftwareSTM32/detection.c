@@ -312,12 +312,8 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 #ifdef INVERSE_BALISE_BIG
 			if(QS_WHO_AM_I_get() == BIG_ROBOT){
 				for(i=0; i<MAX_BEACON_FOES; i++){
-					if(beacon_ir_objects[i].enable){
-						if(beacon_ir_objects[i].angle < 32768 - PI4096)
-							beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(beacon_ir_objects[i].angle + PI4096);
-						else
-							beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(beacon_ir_objects[i].angle - PI4096);
-					}
+					if(beacon_ir_objects[i].enable)
+							beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(beacon_ir_objects[i].angle + PI4096/2);
 				}
 			}
 #endif

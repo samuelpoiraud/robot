@@ -63,6 +63,8 @@
 
 //	#define FDP_2014					//Define Temporaire pour l'ancien FDP
 
+#define INVERSE_BALISE_BIG
+
 	#define SCAN_CUP
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS

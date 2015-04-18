@@ -16,6 +16,7 @@
 #include "QS/QS_can.h"
 #include "QS/QS_timer.h"
 #include "QS/QS_maths.h"
+#include "QS/QS_who_am_i.h"
 #include "hokuyo.h"
 #include "../config/config_pin.h"
 #include "com_xbee.h"
@@ -219,6 +220,14 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					adversaries[HOKUYO_MAX_FOES+i].update_time = global.absolute_time;
 				}
 			}
+#ifdef INVERSE_BALISE_BIG
+			if(QS_WHO_AM_I_get() == BIG_ROBOT){
+				for(i=0; i<BEACON_MAX_FOES; i++){
+					if(adversaries[HOKUYO_MAX_FOES+i].enable)
+							adversaries[HOKUYO_MAX_FOES+i].angle = GEOMETRY_modulo_angle(adversaries[HOKUYO_MAX_FOES+i].angle + PI4096/2);
+				}
+			}
+#endif
 		}
 	}
 	if(adv != NULL)
