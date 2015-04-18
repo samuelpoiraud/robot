@@ -10,6 +10,8 @@
 #ifndef ACCELEROMETRE_H
 #define ACCELEROMETRE_H
 
+//rere 
+
 #include "QS_types.h"
 
 //Procédure initialisant l'accéléromètre
