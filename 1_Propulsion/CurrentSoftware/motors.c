@@ -85,6 +85,12 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 
 		if (duty_left > MAX_PWM_BORDER_MODE)
 			duty_left = MAX_PWM_BORDER_MODE;
+			
+		if (duty_right < -MAX_PWM_BORDER_MODE)
+			duty_right = -MAX_PWM_BORDER_MODE;
+
+		if (duty_left < -MAX_PWM_BORDER_MODE)
+			duty_left = -MAX_PWM_BORDER_MODE;
 	}
 #endif
 	/////////////////////////////////////////////////////////
