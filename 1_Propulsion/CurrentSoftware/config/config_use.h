@@ -63,7 +63,9 @@
 
 //	#define FDP_2014					//Define Temporaire pour l'ancien FDP
 
-#define INVERSE_BALISE_BIG
+	#define INVERSE_BALISE_BIG
+
+	#define LIMITATION_PWM_BORDER_MODE
 
 	#define SCAN_CUP
 

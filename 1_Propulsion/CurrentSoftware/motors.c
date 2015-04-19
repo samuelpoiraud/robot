@@ -18,6 +18,10 @@
 #include "QS/QS_pwm.h"
 #include "QS/QS_IHM.h"
 
+#define MAX_PWM_BORDER_MODE				60
+
+volatile bool_e border_mode = 0;
+
 void MOTORS_init(void)
 {
 	PWM_init();
@@ -73,7 +77,16 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 		GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_FORWARD);
 
 	/////////////////////////////////////////////////////////
+#ifdef LIMITATION_PWM_BORDER_MODE
+	// Ecretage de sécurité batterie border mode
+	if(border_mode){
+		if (duty_right > MAX_PWM_BORDER_MODE)
+			duty_right = MAX_PWM_BORDER_MODE;
 
+		if (duty_left > MAX_PWM_BORDER_MODE)
+			duty_left = MAX_PWM_BORDER_MODE;
+	}
+#endif
 	/////////////////////////////////////////////////////////
 	//Commande de la PWM avec écretage de sécurité
 	if (duty_right>CLIPPING_DUTY)
@@ -84,5 +97,9 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 		duty_left=CLIPPING_DUTY;
 	PWM_run( (Sint8)duty_left, PWM_MOTEUR_2);
 	/////////////////////////////////////////////////////////
+}
+
+void MOTORS_set_border_mode(bool_e border_mode_wanted){
+	border_mode = border_mode_wanted;
 }
 
