@@ -23,6 +23,8 @@
 
 	void MOTORS_reset(void);
 
+	void MOTORS_set_border_mode(bool_e border_mode_wanted);
+
 
 
 #endif

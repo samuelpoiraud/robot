@@ -15,6 +15,7 @@
 #include "buffer.h"
 #include "supervisor.h"
 #include "pilot.h"
+#include "motors.h"
 #include "calculator.h"
 #include "odometry.h"
 #include "QS/QS_maths.h"
@@ -86,6 +87,13 @@ void COPILOT_process_it(void)
 		PILOT_set_speed(SLOW);
 	else
 		PILOT_set_speed(current_order.speed);
+
+	// Mise à jours du mode bordure afin que les moteurs se limite en PWM pour ne pas faire partir en sécurité la batterie
+	if(current_order.border_mode == BORDER_MODE)
+		MOTORS_set_border_mode(TRUE);
+	else
+		MOTORS_set_border_mode(FALSE);
+
 
 	if(arrived !=ARRIVED)
 	{
