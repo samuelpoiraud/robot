@@ -52,10 +52,10 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 			break;
 		case FOE_IN_PATH:
 		case NOT_HANDLED:
+		case END_WITH_TIMEOUT:
 			return fail_state;
 			break;
 		case END_OK:
-		case END_WITH_TIMEOUT:
 		default:
 			return success_state;
 			break;
