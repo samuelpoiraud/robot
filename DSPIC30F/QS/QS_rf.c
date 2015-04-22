@@ -180,7 +180,7 @@ static void RF_putc(Uint8 c)
 			Uint32 temps;
 			for(temps = 0; FIFO_isFull(&fifo_tx) && temps < (Uint32)(500000) ; temps++);
 			if(temps == 500000) {
-				debug_printf("Prob: %d, left %d\n", canTransmitData, FIFO_availableElements(&fifo_tx));
+				//debug_printf("Prob: %d, left %d\n", canTransmitData, FIFO_availableElements(&fifo_tx));
 				RF_TX_Interrupt_();
 			}
 			//while(FIFO_isFull(&fifo_tx));	//ON BLOQUE ICI
@@ -195,7 +195,7 @@ static void RF_putc(Uint8 c)
 				FIFO_insertData(&fifo_tx, &c);
 				byte_sent = TRUE;
 			} else {
-				printf("bug %d \n", canTransmitData);
+				//printf("bug %d \n", canTransmitData);
 			}
 			//Si en fait c'est toujours full (une IT qui a fait un putc pendant ce putc), on retentera
 
@@ -418,8 +418,8 @@ void RF_TX_Interrupt_() {
 			c = (Uint8*)FIFO_getData(&fifo_tx);
 			if(c)
 				UART_IMPL_write(RF_UART, *c);
-			else
-				printf("er");
+			//else
+			//	printf("er");
 
 		} else if(FIFO_isEmpty(&fifo_tx)) {
 			UART_IMPL_setTxItEnabled(RF_UART, FALSE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
