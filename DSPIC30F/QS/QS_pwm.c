@@ -173,6 +173,8 @@ void PWM_run(Uint8 duty /* en pourcent */, Uint8 channel)
 			SetDCMCPWM(channel, duty * 20, 0);
 		#elif defined FREQ_PWM_20KHZ
 			SetDCMCPWM(channel, duty * 10, 0);
+		#elif defined FREQ_PWM_40KHZ
+			SetDCMCPWM(channel, duty * 5, 0);	
 		#else /* if defined FREQ_PWM_50KHZ */
 			SetDCMCPWM(channel, duty*4, 0);
 		#endif /* def FREQ_PWM */
