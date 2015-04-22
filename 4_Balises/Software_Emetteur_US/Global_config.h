@@ -15,7 +15,7 @@
 	#define GLOBAL_CONFIG_H
 	#include "QS/QS_types.h"
 
-	#define NUMERO_BALISE_EMETTRICE 	(2)	//ATTENTION : 1 ou 2... !!!
+	#define NUMERO_BALISE_EMETTRICE 	(1)	//ATTENTION : 1 ou 2... !!!
 	#define NOMBRE_BALISES_EMETTRICES 	(2)
 
 	/* Le mode verbeux active debug_printf */
@@ -77,14 +77,6 @@
 	#define USE_RF
 	#define RF_UART UART2_ID
 	#define RF_TIMER_ID 2
-
-
-// Définissions des messages CAN
-#define STRAT_BALISE_BATTERY_GET_STATE		0x248
-#define STRAT_BALISE_BATTERY_STATE			0x247
-			// data 0 : id balise
-			// data 1 : state battery, 1 si plein ou 0 si faible
-
 
  //RF_MODULE doit être défini a quelque chose de l'enum RF_module_e dans QS_rf.h
 #if NUMERO_BALISE_EMETTRICE == 1

@@ -13,9 +13,6 @@
 #ifndef GLOBAL_VARS_H
 	#define GLOBAL_VARS_H
 
-	bool_e mode_double_emetteurs;
-	bool_e is_synchronized;
-
 	#ifndef QS_GLOBAL_VARS_H
 		#error "Il est interdit d'inclure directement Global_vars.h, lire le CQS."
 	#endif
