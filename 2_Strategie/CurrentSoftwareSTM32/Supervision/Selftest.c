@@ -35,7 +35,6 @@
 #define TIMEOUT_SELFTEST_PROP			10000	// en ms
 #define TIMEOUT_SELFTEST_STRAT			5000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_IR		1000	// en ms
-#define TIMEOUT_SELFTEST_BEACON_BATTERY	1000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_US		1000	// en ms
 #define TIMEOUT_SELFTEST_AVOIDANCE		5000	// en ms
 #define TIMEOUT_SELFTEST_IHM			1000	// en ms
@@ -420,54 +419,23 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			break;
 
 		case SELFTEST_BEACON_BATTERY:
-			if(entrance){
-				flag_timeout = FALSE;
-				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_BEACON_BATTERY, (bool_e*) &(flag_timeout));
-				debug_printf("SELFTEST BEACON BATTERY\r\n");
-			}
+			if(entrance)
+				debug_printf("SELFTEST BEACON ADV\r\n");
 
+			if(get_warner_foe1_is_rf_unreacheable())
+				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV1_RF_UNREACHABLE);
 
-			if(CAN_msg_received != NULL)
-				if(CAN_msg_received->sid == STRAT_BALISE_BATTERY_STATE){
+			if(get_warner_foe2_is_rf_unreacheable())
+				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV2_RF_UNREACHABLE);
 
-					if(CAN_msg_received->data[0] == BIG_BALISE){
-						if(!CAN_msg_received->data[1])
-							SELFTEST_declare_errors(NULL,SELFTEST_BEACON_BATTERY_BIG_LOW);
+			if(get_warner_low_battery_on_foe1())
+				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV1_BATTERY_LOW);
 
-						receiveBigBalise = TRUE;
+			if(get_warner_low_battery_on_foe2())
+				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV2_BATTERY_LOW);
 
-					}else{
-						if(!CAN_msg_received->data[1])
-							SELFTEST_declare_errors(NULL,SELFTEST_BEACON_BATTERY_SMALL_LOW);
+			state = SELFTEST_END;
 
-						receiveSmallBalise = TRUE;
-					}
-
-					if(receiveBigBalise && receiveSmallBalise){ // Fin du test
-						if(!flag_timeout)
-								WATCHDOG_stop(watchdog_id);
-						state = SELFTEST_END;
-
-						receiveBigBalise = FALSE;
-						receiveSmallBalise = FALSE;
-					}
-				}
-
-			if(flag_timeout) // Fin du test
-			{
-				if(!receiveBigBalise && !receiveSmallBalise)
-					debug_printf("SELFTEST BEACON BATTERY 2 BALISES TIMEOUT\r\n");
-				else if(!receiveBigBalise)
-					debug_printf("SELFTEST BEACON BATTERY BIG(1) TIMEOUT\r\n");
-				else if(!receiveSmallBalise)
-					debug_printf("SELFTEST BEACON BATTERY SMALL(2) TIMEOUT\r\n");
-
-				receiveBigBalise = FALSE;
-				receiveSmallBalise = FALSE;
-
-
-				state = SELFTEST_END;
-			}
 			break;
 
 		case SELFTEST_END:
@@ -654,8 +622,10 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_BEACON_ADV1_NOT_SEEN:				debug_printf("SELFTEST_BEACON_ADV1_NOT_SEEN");					break;
 				case SELFTEST_BEACON_ADV2_NOT_SEEN:				debug_printf("SELFTEST_BEACON_ADV2_NOT_SEEN");					break;
 				case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		debug_printf("SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED");			break;
-				case SELFTEST_BEACON_BATTERY_BIG_LOW:			debug_printf("SELFTEST_BEACON_BATTERY_BIG_LOW");				break;
-				case SELFTEST_BEACON_BATTERY_SMALL_LOW:			debug_printf("SELFTEST_BEACON_BATTERY_SMALL_LOW");				break;
+				case SELFTEST_BEACON_ADV1_BATTERY_LOW:			debug_printf("SELFTEST_BEACON_ADV1_BATTERY_LOW");				break;
+				case SELFTEST_BEACON_ADV2_BATTERY_LOW:			debug_printf("SELFTEST_BEACON_ADV2_BATTERY_LOW");				break;
+				case SELFTEST_BEACON_ADV1_RF_UNREACHABLE:		debug_printf("SELFTEST_BEACON_ADV1_RF_UNREACHABLE");			break;
+				case SELFTEST_BEACON_ADV2_RF_UNREACHABLE:		debug_printf("SELFTEST_BEACON_ADV2_RF_UNREACHABLE");			break;
 
 				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");									break;
 				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");					break;
@@ -966,8 +936,10 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_BEACON_ADV1_NOT_SEEN:				return "IR Adv1 not seen";		break;
 		case SELFTEST_BEACON_ADV2_NOT_SEEN:				return "IR Adv2 not seen";		break;
 		case SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED:		return "IR not synchronized";	break;
-		case SELFTEST_BEACON_BATTERY_BIG_LOW:			return "Beac BAT BIG LOW";		break;
-		case SELFTEST_BEACON_BATTERY_SMALL_LOW:			return "Beac BAT SMALL LOW";	break;
+		case SELFTEST_BEACON_ADV1_BATTERY_LOW:			return "Beacon 1 bat low";		break;
+		case SELFTEST_BEACON_ADV2_BATTERY_LOW:			return "Beacon 2 bat low";		break;
+		case SELFTEST_BEACON_ADV1_RF_UNREACHABLE:		return "Beacon 1 RF unreach";	break;
+		case SELFTEST_BEACON_ADV2_RF_UNREACHABLE:		return "Beacon 2 RF unreach";	break;
 
 		case SELFTEST_PROP_FAILED:						return "PROP failed";			break;
 		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";			break;

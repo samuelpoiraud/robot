@@ -186,6 +186,31 @@ static void rf_can_received_callback(CAN_msg_t *msg) {
 	}
 }
 
+static bool_e warner_foe1_is_rf_unreacheable = FALSE;
+static bool_e warner_foe2_is_rf_unreacheable = FALSE;
+static bool_e warner_low_battery_on_foe1 = FALSE;
+static bool_e warner_low_battery_on_foe2 = FALSE;
+
+bool_e get_warner_foe1_is_rf_unreacheable(void)
+{
+	return warner_foe1_is_rf_unreacheable;
+}
+
+bool_e get_warner_foe2_is_rf_unreacheable(void)
+{
+	return warner_foe2_is_rf_unreacheable;
+}
+
+bool_e get_warner_low_battery_on_foe1(void)
+{
+	return warner_low_battery_on_foe1;
+}
+
+bool_e get_warner_low_battery_on_foe2(void)
+{
+	return warner_low_battery_on_foe2;
+}
+
 static void update_rfmodule_here()
 {
 	static time32_t low_battery_on_foe1_printed_time = 0;
@@ -193,12 +218,28 @@ static void update_rfmodule_here()
 
 	Uint8 module_id;
 	bool_e someone_not_here = FALSE;
+	warner_foe1_is_rf_unreacheable = FALSE;	//on suppose qu'on a un soucis avec la liaison RF FOE1
+	warner_foe2_is_rf_unreacheable = FALSE;	//on suppose qu'on a un soucis avec la liaison RF FOE2
 
-	for(module_id = 0; module_id < RF_MODULE_COUNT; module_id++) {
+	for(module_id = 0; module_id < RF_MODULE_COUNT; module_id++)
+	{
 		//On est nous même là
-		if(RF_get_module_id() != module_id) {
-			if(last_activity_time[module_id] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time) {
+		if(RF_get_module_id() != module_id)
+		{
+			if(last_activity_time[module_id] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time)
+			{
 				someone_not_here = TRUE;
+				switch(module_id)
+				{
+					case RF_FOE1:
+						warner_foe1_is_rf_unreacheable = TRUE;
+						break;
+					case RF_FOE2:
+						warner_foe2_is_rf_unreacheable = TRUE;
+						break;
+					default:
+						break;
+				}
 			}
 		}
 	}
@@ -208,14 +249,16 @@ static void update_rfmodule_here()
 	else
 		GPIO_ResetBits(LED_BEACON_IR_RED);
 
+	warner_low_battery_on_foe1 = (pwm_on_foe1 > PWM_THRESHOLD_ON_FOE_BEACON)?TRUE:FALSE;
+	warner_low_battery_on_foe2 = (pwm_on_foe2 > PWM_THRESHOLD_ON_FOE_BEACON)?TRUE:FALSE;
 
 	//Surveillance niveau PWM sur balises.
-	if((global.env.absolute_time > low_battery_on_foe1_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON) && pwm_on_foe1 > PWM_THRESHOLD_ON_FOE_BEACON)
+	if(warner_low_battery_on_foe1 && (global.env.absolute_time > low_battery_on_foe1_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON))
 	{
 		low_battery_on_foe1_printed_time = global.env.absolute_time;
 		debug_printf("Beacon 1 has low bat : pwm=%d", pwm_on_foe1);
 	}
-	if((global.env.absolute_time > low_battery_on_foe2_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON) && pwm_on_foe2 > PWM_THRESHOLD_ON_FOE_BEACON)
+	if(warner_low_battery_on_foe2 && (global.env.absolute_time > low_battery_on_foe2_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON))
 	{
 		low_battery_on_foe2_printed_time = global.env.absolute_time;
 		debug_printf("Beacon 2 has low bat : pwm=%d", pwm_on_foe2);
