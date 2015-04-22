@@ -16,57 +16,35 @@
 
 
 #if NUMERO_BALISE_EMETTRICE == 1
-	#warning "Vous compilez pour la balise émettrice no1"
+	#warning "Vous compilez pour la balise emettrice no1"
 #endif
 #if NUMERO_BALISE_EMETTRICE == 2
-	#warning "Vous compilez pour la balise émettrice no2"
+	#warning "Vous compilez pour la balise emettrice no2"
 #endif
-
-static volatile bool_e bt = TRUE;
-static volatile bool_e bt_prec = TRUE;
 
 
 int main (void)
-{		
-	Uint32 temps;
+{
+	Uint32 t;
 	OSCCONbits.NOSC  = 0b001;
 	PORTS_init();
 	UART_init();
-	MOTOR_init();
-	
-	global.mode_double_emetteurs = FALSE;
+
 	LED_RUN = 1;
 	LED_CAN = 0;
 	LED_USER2 = 0;
 
 	debug_printf(".RST\r\n");
 
-
 	//Tempo, pour éviter une détection du bouton au démarrage (car chargement condo lent !)
-	//Et pour éviter une détection de synchro qui n'en est pas une...
-	for(temps = 0; temps < (Uint32)(1000000) ; temps++);	//Ordre de grandeur 100ms...
+	for(t = 0; t < (Uint32)(1000000) ; t++);	//Ordre de grandeur 100ms...
 
+	MOTOR_init();
 	EmissionIR_init();
-	SYNCRF_init();
-	
-	/*-------------------------------------
-		Boucle principale
-	-------------------------------------*/	
+	SYNCRF_init();		//le lancement de l'IT timer se fait ici.
+
 	while(1)
 	{
-		bt = !PUSHBUTTON;
-		
-		if(bt && !bt_prec)
-			MOTOR_togle_enable();
-		
-		bt_prec = bt;
-		
-		if(SWITCH_MULTI_EMETTEURS)
-			global.mode_double_emetteurs = TRUE;
-		else
-			global.mode_double_emetteurs = FALSE;
-			
-		MOTOR_process_main();
 		SYNCRF_process_main();
 	}
 	return 0;

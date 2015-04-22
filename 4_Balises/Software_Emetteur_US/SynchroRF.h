@@ -7,6 +7,10 @@
 #define TIME_BASE_UNIT 100 //en [us]
 #define DUREE_STEP     2000	//Durée d'un step [us]
 
+#define PERIODE_FLASH	50		//Période de répétition des flashs [nombre de step]	//Période du flash en µs = PERIODE_FLASH * DUREE_STEP
+#define FLASH_CYCLE (PERIODE_FLASH*NOMBRE_BALISES_EMETTRICES) //Un cycle d'émission des N balises
+#define NO_FLASH_TIME 4  //[nb de step] 8ms ou on emet rien au début et à la fin, pour avoir donc 8 ms entre la fin de l'émission d'un balise et le début de l'autre
+
 #define TIME_PER_MODULE 50 //en [step]
 #define TIME_WHEN_SYNCHRO TIME_PER_MODULE*RF_MODULE  //[nombre de step]
 #define TOTAL_STEP_COUNT (RF_MODULE_COUNT*TIME_PER_MODULE)  //[nombre de step] step_ir ¤ [0; TOTAL_STEP_COUNT[
@@ -16,6 +20,7 @@
 #define SYNCHRO_TIMEOUT 10000 //en [nombre de step], 10000 = 20s
 
 void SYNCRF_init();
+bool_e SYNCRF_is_synchronized(void);
 void SYNCRF_process_main();
 void SYNCRF_sendRequest();
 

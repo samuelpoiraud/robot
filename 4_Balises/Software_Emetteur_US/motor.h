@@ -14,14 +14,10 @@
 	
 	#include "QS/QS_all.h"
 
-	
 	void MOTOR_init(void);
 
-	void MOTOR_togle_enable(void);
+        void MOTOR_process_it(void);    //Doit être appelé toutes les 2ms
 
-	void MOTOR_process_main(void);
-
-	void MOTOR_send_bat_state(void);
-	
+        Uint8 MOTOR_get_duty_filtered(void);
 	
 #endif /* ndef MOTOR_H */
