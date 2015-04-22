@@ -14,7 +14,9 @@
 
 #include "impl/QS_uart_impl.h"
 #ifdef STM32F40XX
-#include "stm32f4xx_gpio.h"
+	#include "stm32f4xx_gpio.h"
+#else
+	#include "../motor.h"
 #endif
 #include "QS_buffer_fifo.h"
 #include "QS_outputlog.h"
@@ -119,7 +121,7 @@ typedef enum {
 #define RF_CAN_MIN_SIZE 1
 #define RF_CAN_MAX_DATA_SIZE 10
 
-static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size);
+static void RF_send(RF_packet_type_e type, RF_module_e target_id, Uint8 *data, Uint8 size);
 static void RF_putc(Uint8 c);
 static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size);
 void RF_TX_Interrupt_();
@@ -204,7 +206,7 @@ static void RF_putc(Uint8 c)
 	UART_IMPL_setTxItPaused(RF_UART, FALSE);
 }
 
-static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size) {
+static void RF_send(RF_packet_type_e type, RF_module_e target_id, Uint8 *data, Uint8 size) {
 	RF_header_t packet_header;
 	Uint8 i, crc = 0;
 
@@ -252,7 +254,13 @@ void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
 }
 
 void RF_synchro_request(RF_module_e target_id) {
+#ifdef STM32F40XX
 	RF_send(RF_PT_SynchroRequest, target_id, NULL, 0);
+#else
+	Uint8 duty_filtered;
+	duty_filtered = MOTOR_get_duty_filtered();
+	RF_send(RF_PT_SynchroRequest, target_id, &duty_filtered, 1);
+#endif
 }
 
 void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset) {

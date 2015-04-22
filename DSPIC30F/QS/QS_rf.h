@@ -3,7 +3,7 @@
  *
  *  $Id$
  *
- *  Package : Qualité Soft
+ *  Package : Qualite Soft
  *  Description : Module RF: synchro + envoi messages CAN (attention c'est très lent ! 4,8kbits/sec, 13 octets/paquet + nos données)
  *  Auteur : amurzeau
  */
@@ -21,8 +21,6 @@ typedef enum {
 	RF_BIG,
 	RF_FOE1,
 	RF_FOE2,
-	RF_GUY = RF_SMALL,
-	RF_PIERRE = RF_BIG,
 	RF_BROADCAST = 7
 } RF_module_e;
 #define RF_MODULE_COUNT 4
