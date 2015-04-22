@@ -25,7 +25,8 @@
 #define LAST_REPLY_TIMEOUT 10000  //[ms] temps avant de considérer le robot maitre (BIG) comme éteint (dans ce cas, SMALL passe en maitre)
 #define LAST_SYNCHRO_TIMEOUT 1000  //[ms] temps avant de considérer un problème d'un module quand on ne detecte plus rien de lui pendant ce temps
 
-
+#define PWM_THRESHOLD_ON_FOE_BEACON		50		//Au delà ce % de PWM, on considère que la batterie est faible sur les balises.
+#define PERIOD_PRINT_LOW_BAT_ON_BEACON	10000	//[ms]
 static bool_e canmsg_received;
 static CAN_msg_t canmsg_pending;
 
@@ -39,6 +40,11 @@ static bool_e SEND_REQ;
 static bool_e REPLY_REQ;
 
 static Uint16 time_base = 0;
+
+volatile static Uint8 pwm_on_foe1 = 0;
+volatile static Uint8 pwm_on_foe2 = 0;
+
+
 
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
 static void rf_can_received_callback(CAN_msg_t *msg);
@@ -86,13 +92,13 @@ void SYNCHRO_init() {
 	TIMER_SRC_TIMER_start_us(COMPTEUR_USEC_PER_TICK);
 }
 
+
+
 void SYNCHRO_process_main()
 {
 	//Message CAN reçu => passage à environnement.c
 	if(canmsg_received) {
-		//ENV_process_can_msg(&canmsg_pending);
 		ENV_process_can_msg(&canmsg_pending, TRUE, TRUE, FALSE, FALSE); //Renvoi sur le bus CAN et U1
-
 		canmsg_received = FALSE;
 	}
 
@@ -121,6 +127,10 @@ static Sint16 wrap_timebase(Sint16 val) {
 	return val + COMPTEUR_MAX;
 }
 
+
+
+
+
 static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
 	if(header.type == RF_PT_SynchroRequest) {
 		if(REPLY_REQ && for_me) {
@@ -131,6 +141,16 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 
 			RF_synchro_response(header.sender_id, offset);
 			toggle_led(LED_BEACON_IR_GREEN);
+
+
+			//Surveillance niveau batterie via la PWM du moteur balise... si elle est transmise
+			if(size >= 1)
+			{
+				if(header.sender_id == RF_FOE1)
+					pwm_on_foe1 = data[0];
+				else if(header.sender_id == RF_FOE2)
+					pwm_on_foe2 = data[0];
+			}
 		}
 	} else if(QS_WHO_AM_I_get() == SMALL_ROBOT && header.type == RF_PT_SynchroResponse) {
 		//BIG_ROBOT nous à répondu, on maj notre base de temps
@@ -166,7 +186,11 @@ static void rf_can_received_callback(CAN_msg_t *msg) {
 	}
 }
 
-static void update_rfmodule_here() {
+static void update_rfmodule_here()
+{
+	static time32_t low_battery_on_foe1_printed_time = 0;
+	static time32_t low_battery_on_foe2_printed_time = 0;
+
 	Uint8 module_id;
 	bool_e someone_not_here = FALSE;
 
@@ -183,4 +207,17 @@ static void update_rfmodule_here() {
 		GPIO_SetBits(LED_BEACON_IR_RED);
 	else
 		GPIO_ResetBits(LED_BEACON_IR_RED);
+
+
+	//Surveillance niveau PWM sur balises.
+	if((global.env.absolute_time > low_battery_on_foe1_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON) && pwm_on_foe1 > PWM_THRESHOLD_ON_FOE_BEACON)
+	{
+		low_battery_on_foe1_printed_time = global.env.absolute_time;
+		debug_printf("Beacon 1 has low bat : pwm=%d", pwm_on_foe1);
+	}
+	if((global.env.absolute_time > low_battery_on_foe2_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON) && pwm_on_foe2 > PWM_THRESHOLD_ON_FOE_BEACON)
+	{
+		low_battery_on_foe2_printed_time = global.env.absolute_time;
+		debug_printf("Beacon 2 has low bat : pwm=%d", pwm_on_foe2);
+	}
 }
