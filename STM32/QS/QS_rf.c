@@ -115,7 +115,7 @@ typedef enum {
 #define RF_CAN_SID  1
 #define RF_CAN_DATA 3
 
-#define RF_SYNCHRO_REQUEST_SIZE 0
+#define RF_SYNCHRO_REQUEST_SIZE 1
 #define RF_SYNCHRO_RESPONSE_SIZE 2
 #define RF_CAN_MIN_SIZE 1
 #define RF_CAN_MAX_DATA_SIZE 10
@@ -249,7 +249,8 @@ void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
 }
 
 void RF_synchro_request(RF_module_e target_id) {
-	RF_send(RF_PT_SynchroRequest, target_id, NULL, 0);
+	Uint8 trash = 0;
+	RF_send(RF_PT_SynchroRequest, target_id, &trash, 1);
 }
 
 void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset) {
