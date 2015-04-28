@@ -533,6 +533,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		// Take feet
 		TAKE_FEET,
 		CHECK_PRESENCE_FEET,
+		WAIT_CLOSE_NIPPER,
 		WIN_TAKE,
 		FAIL_TAKE,
 
@@ -549,14 +550,13 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		// Stock
 		INIT_STOCK,
-		ELEVATOR_PRE_UP,
-		FAIL_ELEVATOR_PRE_UP,
 		STOCK_UNLOCK,
 		ELEVATOR_UP,
 		FAIL_ELEVATOR_UP_1,
 		FAIL_ELEVATOR_UP_2,
 		STOCK_LOCK,
 		ELEVATOR_DOWN,
+		WAIT_NIPPER,
 		NIPPER_OPEN,
 		WIN_STOCK,
 		FAIL_STOCK,
@@ -762,13 +762,18 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 				left_error = TRUE;
 			if(who != ACT_MAE_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
 				right_error = TRUE;
-
+			debug_printf("pied_gauche=%d   pied_gauche=%d\n", !PRESENCE_PIED_PINCE_GAUCHE_HOLLY, !PRESENCE_PIED_PINCE_DROITE_HOLLY);
+			debug_printf("left_error=%d    right_error=%d\n", left_error, right_error);
 			if(left_error || right_error)
 				state = FAIL_TAKE;
 			else
-				state = WIN_TAKE;
+				state = WAIT_CLOSE_NIPPER;
 #endif
 		break;
+
+		case WAIT_CLOSE_NIPPER:
+			state = wait_time(200, WAIT_CLOSE_NIPPER, WIN_TAKE);
+			break;
 
 		case WIN_TAKE:
 			RESET_MAE();
@@ -889,19 +894,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			if(left_error && right_error)
 				state = FAIL_STOCK;
 			else
-				state = ELEVATOR_PRE_UP;
-			break;
-
-		case ELEVATOR_PRE_UP:
-			if(entrance)
-				ACT_elevator(ACT_elevator_pre_top);
-			state = check_act_status(ACT_QUEUE_Elevator, state, STOCK_UNLOCK, FAIL_STOCK);
-			break;
-
-		case FAIL_ELEVATOR_PRE_UP:
-			if(entrance)
-				ACT_elevator(ACT_elevator_bot);
-			state = check_act_status(ACT_QUEUE_Elevator, state, FAIL_STOCK, FAIL_STOCK);
+				state = STOCK_UNLOCK;
 			break;
 
 		case STOCK_UNLOCK:
@@ -975,8 +968,12 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 				if(order == ACT_MAE_SPOTIX_STOCK_AND_STAY)
 					state = WIN_STOCK;
 				else
-					state = NIPPER_OPEN;
+					state = WAIT_NIPPER;
 			}
+			break;
+
+		case WAIT_NIPPER:
+			state=wait_time(3000, WAIT_NIPPER, NIPPER_OPEN);
 			break;
 
 		// Question gestion d'erreur sur le fait de fail le lock ?
