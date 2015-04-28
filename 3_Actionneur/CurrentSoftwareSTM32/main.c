@@ -296,11 +296,14 @@ static void MAIN_onButton3() {
 	msg2.sid = ACT_POP_COLLECT_LEFT;
 
 	if(state == 0){
-		msg1.data[0] = ACT_POP_COLLECT_RIGHT_CLOSED;
-		msg2.data[0] = ACT_POP_COLLECT_LEFT_CLOSED;
-	}else if(state == 1){
 		msg1.data[0] = ACT_POP_COLLECT_RIGHT_OPEN;
 		msg2.data[0] = ACT_POP_COLLECT_LEFT_OPEN;
+	}else if(state == 1){
+		msg1.data[0] = ACT_POP_COLLECT_RIGHT_MID;
+		msg2.data[0] = ACT_POP_COLLECT_LEFT_MID;
+	}else if(state == 2){
+		msg1.data[0] = ACT_POP_COLLECT_RIGHT_CLOSED;
+		msg2.data[0] = ACT_POP_COLLECT_LEFT_CLOSED;
 	}
 
 	CAN_process_msg(&msg1);
