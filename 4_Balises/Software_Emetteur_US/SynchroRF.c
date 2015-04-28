@@ -99,6 +99,11 @@ static void SyncRF_next_step(void)
 	//On compte de 0 à TOTAL_STEP_COUNT
 	step_ir = (step_ir >= TOTAL_STEP_COUNT - 1)? 0: step_ir+1;
 
+	if(step_ir < TOTAL_STEP_COUNT/2 && is_synchronized)
+		LED_RUN = 1;
+	else
+		LED_RUN = 0;
+
 	//Effectue une demande de synchro
 	if(step_ir == TIME_WHEN_SYNCHRO)
 		SYNCRF_sendRequest();
@@ -129,17 +134,13 @@ static void SyncRF_next_step(void)
 
 
 
-
-
-
-
 void SYNCRF_sendRequest() {
 	RF_synchro_request(RF_BROADCAST);
 
 	//Verif de la synchro précédente (on fait la demande avant, au plus près de l'IT, la réponse reviendra dans assez longtemps (80ms), on a le temps
 	if(synchro_received)
 	{
-		LED_RUN = !LED_RUN;
+		//LED_RUN = !LED_RUN; -> on fait clignoter la led_run (mais en IT, pour être au rythme de la synchro)
 		LED_USER = 0;
 		failed_synchro_count = 0;
 		is_synchronized = TRUE; //Synchro reçue
@@ -147,7 +148,6 @@ void SYNCRF_sendRequest() {
 	else if(failed_synchro_count < (SYNCHRO_TIMEOUT/TOTAL_STEP_COUNT))
 	{
 		LED_USER = !LED_USER;
-		LED_RUN = 0;
 		failed_synchro_count++;
 	} 
 	else
@@ -155,7 +155,6 @@ void SYNCRF_sendRequest() {
 		//Si on a fail trop de fois à suivre, on indique qu'on est plus synchro (et donc passage en mode 1 adversaire, on emet des IR tout le temps)
 		is_synchronized = FALSE;
 		LED_USER = !LED_USER;
-		LED_RUN = 0;
 	}
 	synchro_received = FALSE;
 }
