@@ -31,7 +31,7 @@
 static error_e AVOIDANCE_watch_prop_stack();
 static error_e extraction_of_foe(PROP_speed_e speed);
 static error_e goto_extract_with_avoidance(const displacement_t displacements);
-static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type);
+static error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type);
 static error_e wait_move_and_wait_foe();
 
 
@@ -288,7 +288,7 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
  * return NOT_HANDLED : Action impossible, ou timeout normal
  * return END_WITH_TIMEOUT : Adversaire rencontré, mais on est arrivé à destination
  */
-static error_e wait_move_and_scan_foe2(avoidance_type_e avoidance_type) {
+static error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type) {
 	enum state_e
 	{
 		INITIALIZATION = 0,
