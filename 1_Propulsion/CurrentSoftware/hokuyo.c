@@ -140,7 +140,10 @@
 	#define ECART_HOKUYO_A_DROITE 20 //matérialise le fait que l'hokuyo est décalé d'une certaine distance à doite par rapport au centre du robot
 	#define ECART_BALISE 200
 	HOKUYO_point_position points_beacons_valid[NB_DETECTED_VALID_POINTS]__attribute__((section(".ccm")));
-	static Uint8 nb_valid_points_beacons=0;
+
+	#ifdef USE_COMMAND_ME
+		static Uint8 nb_valid_points_beacons=0;
+	#endif
 
 	#ifdef TRIANGULATION
 		void Hokuyo_validPointsAndBeacons();
@@ -492,59 +495,12 @@ void hokuyo_find_valid_points(void){
 			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_x;
 			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_y;
 
-
-			if(		x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					y_absolute 	< 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					y_absolute 	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
-			{		//Un point est retenu s'il est sur le terrain
-				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
-
-
-				if(x_absolute < MARCHE_RECT_X + MARCHE_RECT_WIDTH + MARGIN
-						&& y_absolute > MARCHE_RECT_Y
-						&& y_absolute < MARCHE_RECT_Y + MARCHE_RECT_HEIGHT + MARGIN) 	//zones des marches
-						point_filtered = TRUE;	//on refuse les points
-
-				if(x_absolute > BEGIN_ZONE_Y1_RECT_X
-						&& x_absolute < BEGIN_ZONE_Y1_RECT_X + BEGIN_ZONE_Y1_WIDTH
-						&& y_absolute > BEGIN_ZONE_Y1_RECT_Y
-						&& y_absolute < BEGIN_ZONE_Y1_RECT_Y + BEGIN_ZONE_Y1_RECT_HEIGHT) 	//zones de départ jaune partie basse
-						point_filtered = TRUE;	//on refuse les points
-
-				if(x_absolute > BEGIN_ZONE_Y2_RECT_X
-						&& x_absolute < BEGIN_ZONE_Y2_RECT_X + BEGIN_ZONE_Y2_WIDTH
-						&& y_absolute > BEGIN_ZONE_Y2_RECT_Y
-						&& y_absolute < BEGIN_ZONE_Y2_RECT_Y + BEGIN_ZONE_Y2_RECT_HEIGHT) 	//zones de départ jaune partie haute
-						point_filtered = TRUE;	//on refuse les points
-
-				if(x_absolute > BEGIN_ZONE_G1_RECT_X
-						&& x_absolute < BEGIN_ZONE_G1_RECT_X + BEGIN_ZONE_G1_WIDTH
-						&& y_absolute > BEGIN_ZONE_G1_RECT_Y
-						&& y_absolute < BEGIN_ZONE_G1_RECT_Y + BEGIN_ZONE_G1_RECT_HEIGHT) 	//zones de départ verte partie basse
-						point_filtered = TRUE;	//on refuse les points
-
-				if(x_absolute > BEGIN_ZONE_G2_RECT_X
-						&& x_absolute < BEGIN_ZONE_G2_RECT_X + BEGIN_ZONE_G2_WIDTH
-						&& y_absolute > BEGIN_ZONE_G2_RECT_Y
-						&& y_absolute < BEGIN_ZONE_G2_RECT_Y + BEGIN_ZONE_G2_RECT_HEIGHT) 	//zones de départ verte partie haute
-						point_filtered = TRUE;	//on refuse les points
-
-				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
-					point_filtered = TRUE;
-
-				if(point_filtered == FALSE)
-				{
-					detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
-					detected_valid_points[nb_valid_points].coordX = x_absolute;
-					detected_valid_points[nb_valid_points].coordY = y_absolute;
-
-					power_intensity = ((((Sint32)(d)-0x30)<<12) + ((((Sint32)(e)-0x30)&0x3f)<<6) +((((Sint32)(f)-0x30)&0x3f))) >> 3; // Décale de 3, car 18 bits(16 bits ici) et bit de signe
-					detected_valid_points[nb_valid_points].power_intensity = (power_intensity > 0)?power_intensity : -1;
-
-					if(nb_valid_points < NB_DETECTED_VALID_POINTS)
-						nb_valid_points++;
-				}
+			if(angle >= 100*5 && angle <= 100*265 && filter_adversary_position(x_absolute, y_absolute) == FALSE){
+				detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
+				detected_valid_points[nb_valid_points].coordX = x_absolute;
+				detected_valid_points[nb_valid_points].coordY = y_absolute;
+				if(nb_valid_points < NB_DETECTED_VALID_POINTS)
+					nb_valid_points++;
 			}
 
 			//filtrage des points correspondant aux balises extérieures
@@ -646,7 +602,6 @@ void hokuyo_find_valid_points(void){
 	Sint16 cos;
 	Sint16 sin;
 	Sint32 to_close_distance;
-	bool_e point_filtered;
 	nb_valid_points = 0;	//RAZ des points valides.
 
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
@@ -689,47 +644,12 @@ void hokuyo_find_valid_points(void){
 			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_x;
 			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_y;
 
-			if(		x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					y_absolute 	< 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					y_absolute 	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
-			{		//Un point est retenu s'il est sur le terrain
-
-				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
-
-				//On va éliminer certaines zones volontairement.
-				if(x_absolute > FIELD_SIZE_X - MARGIN || x_absolute < MARGIN || absolute(x_absolute - FIELD_SIZE_X/2) < MARGIN)
-					if(y_absolute < MARGIN || y_absolute > FIELD_SIZE_Y - MARGIN)	//Les 4 coins et deux balises fixes
-						point_filtered = TRUE;	//on refuse les points
-
-				if(x_absolute < MARCHE_RECT_X + MARCHE_RECT_WIDTH + MARGIN
-						&& y_absolute > MARCHE_RECT_Y
-						&& y_absolute < MARCHE_RECT_Y + MARCHE_RECT_HEIGHT + MARGIN) 	//zones des marches
-						point_filtered = TRUE;	//on refuse les points
-
-				if(x_absolute > BEGIN_ZONE_Y1_RECT_X
-						&& x_absolute < BEGIN_ZONE_Y1_RECT_X + BEGIN_ZONE_Y1_WIDTH
-						&& y_absolute > BEGIN_ZONE_Y1_RECT_Y
-						&& y_absolute < BEGIN_ZONE_Y1_RECT_Y + BEGIN_ZONE_Y1_RECT_HEIGHT) 	//zones de départ jaune partie basse
-						point_filtered = TRUE;	//on refuse les points
-
-				if(x_absolute > BEGIN_ZONE_G1_RECT_X
-						&& x_absolute < BEGIN_ZONE_G1_RECT_X + BEGIN_ZONE_G1_WIDTH
-						&& y_absolute > BEGIN_ZONE_G1_RECT_Y
-						&& y_absolute < BEGIN_ZONE_G1_RECT_Y + BEGIN_ZONE_G1_RECT_HEIGHT) 	//zones de départ verte partie basse
-						point_filtered = TRUE;	//on refuse les points
-
-				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
-					point_filtered = TRUE;
-
-				if(point_filtered == FALSE)
-				{
-					detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
-					detected_valid_points[nb_valid_points].coordX = x_absolute;
-					detected_valid_points[nb_valid_points].coordY = y_absolute;
-					if(nb_valid_points < NB_DETECTED_VALID_POINTS)
-						nb_valid_points++;
-				}
+			if(angle >= 100*5 && angle <= 100*265 && filter_adversary_position(x_absolute, y_absolute) == FALSE){
+				detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
+				detected_valid_points[nb_valid_points].coordX = x_absolute;
+				detected_valid_points[nb_valid_points].coordY = y_absolute;
+				if(nb_valid_points < NB_DETECTED_VALID_POINTS)
+					nb_valid_points++;
 			}
 		}
 		angle+=25;	//Centième de degré
@@ -1001,36 +921,12 @@ void Hokuyo_validPointsAndBeacons(){
 			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x;
 			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y;
 
-			if(		(x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&     //Un point est retenu s'il est sur le terrain
-					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					y_absolute 	< 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					y_absolute 	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
-					|| (color==BOT_COLOR && x_absolute<ECART_BALISE && x_absolute>-(62+ECART_BALISE) && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )  //un point est retenu s'il fait partie d'une balise fixe de sa couleur sur le bord du terrain
-					|| (color==BOT_COLOR && x_absolute<2062+ECART_BALISE && x_absolute>2000-ECART_BALISE && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )
-					|| (color==BOT_COLOR && x_absolute<1031+ECART_BALISE && x_absolute>979+ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )
-					|| (color==TOP_COLOR && x_absolute<ECART_BALISE && x_absolute>-62+ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )  //un point est retenu s'il fait partie d'une balise fixe de sa couleur sur le bord du terrain
-					|| (color==TOP_COLOR && x_absolute<2062+ECART_BALISE && x_absolute>2000-ECART_BALISE && y_absolute<3062+ECART_BALISE && y_absolute>3000-ECART_BALISE )
-					|| (color==TOP_COLOR && x_absolute<1031+ECART_BALISE && x_absolute>979+ECART_BALISE && y_absolute<ECART_BALISE && y_absolute>-(62+ECART_BALISE) )
-				)
-			{
-
-				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
-
-				//if((x_absolute < 500 && x_absolute	> 50) && ((y_absolute < 400 && y_absolute >50) || (y_absolute < 2950 && y_absolute >2600)))
-				//		point_filtered = TRUE;	//on refuse les points de la zone de départ...
-
-
-				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
-					point_filtered = TRUE;
-
-				if(point_filtered == FALSE)
-				{
-					detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
-					detected_valid_points[nb_valid_points].coordX = x_absolute;
-					detected_valid_points[nb_valid_points].coordY = y_absolute;
-					if(nb_valid_points < NB_DETECTED_VALID_POINTS)
-						nb_valid_points++;
-				}
+			if(angle >= 100*5 && angle <= 100*265 && filter_adversary_position(x_absolute, y_absolute) == FALSE){
+				detected_valid_points[nb_valid_points].teta = teta_relative;	//L'angle enregistré permet l'évitement, c'est l'angle relatif !!!!!
+				detected_valid_points[nb_valid_points].coordX = x_absolute;
+				detected_valid_points[nb_valid_points].coordY = y_absolute;
+				if(nb_valid_points < NB_DETECTED_VALID_POINTS)
+					nb_valid_points++;
 			}
 		}
 		angle+=25;	//Centième de degré
@@ -1799,3 +1695,40 @@ void find_beacons_centres(){
 
 
 #endif
+
+// Retour si le point doit êter filtré ou non
+bool_e filter_adversary_position(Sint16 x, Sint16 y){
+	if(	x 	> 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE
+			&& x	<	HOKUYO_MARGIN_FIELD_SIDE_IGNORE
+			&& y 	> 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE
+			&& y 	<	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
+		return TRUE;	//on refuse les points
+
+	//On va éliminer certaines zones volontairement.
+	if((x > FIELD_SIZE_X - MARGIN
+			|| x < MARGIN
+			|| absolute(x - FIELD_SIZE_X/2) < MARGIN)
+		&&
+			(y < MARGIN
+			|| y > FIELD_SIZE_Y - MARGIN))										//Les 4 coins et deux balises fixes
+		return TRUE;	//on refuse les points
+
+	if(x < MARCHE_RECT_X + MARCHE_RECT_WIDTH + MARGIN
+			&& y > MARCHE_RECT_Y
+			&& y < MARCHE_RECT_Y + MARCHE_RECT_HEIGHT + MARGIN)					//zones des marches
+		return TRUE;	//on refuse les points
+
+	if(x > BEGIN_ZONE_Y1_RECT_X
+			&& y < BEGIN_ZONE_Y1_RECT_X + BEGIN_ZONE_Y1_WIDTH
+			&& y > BEGIN_ZONE_Y1_RECT_Y
+			&& y < BEGIN_ZONE_Y1_RECT_Y + BEGIN_ZONE_Y1_RECT_HEIGHT)			//zones de départ jaune partie basse
+		return TRUE;	//on refuse les points
+
+	if(x > BEGIN_ZONE_G1_RECT_X
+			&& x < BEGIN_ZONE_G1_RECT_X + BEGIN_ZONE_G1_WIDTH
+			&& y > BEGIN_ZONE_G1_RECT_Y
+			&& y < BEGIN_ZONE_G1_RECT_Y + BEGIN_ZONE_G1_RECT_HEIGHT)			//zones de départ verte partie basse
+		return TRUE;	//on refuse les points
+
+	return FALSE;
+}
