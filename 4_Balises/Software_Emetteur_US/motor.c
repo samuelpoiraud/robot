@@ -33,8 +33,7 @@
 										//2048*(nb_tour*1000/temps_emission) pas par secondes
 										//(nb_tour*1000/temps_emission) tours par seconde
 
-#define FILTER_BATTERY			8
-static volatile Uint16 duty_filtered = 0;
+volatile Uint16 duty_filtered;
 
 #define NB_IT_PER_TURN			(Uint8)(30)	//it = 2ms, 1 tour = 60ms => 30 it par tour.
 #define	NB_ENCODER_STEP_PER_IT	(Uint8)(68)	
@@ -43,6 +42,7 @@ void MOTOR_init(void)
 {
 	QEI_init();
 	PWM_init();
+	duty_filtered = 0;
 }
 
 //A appeler toutes les 2 ms.
@@ -87,17 +87,17 @@ void MOTOR_process_it(void)
 	//duty est en [0 à 500]
 	//on veut un nombre de [0 à 100] (c'est le plus simple...et mieux pour la RF) -> on divise par 5.
 	//puis, on filtre en prenant 8/128 de la valeur actuelle    +    120/128 de la valeur précédente.
-	duty_filtered = (duty_filtered*(128-FILTER_BATTERY) + (Uint16)(duty/5)*FILTER_BATTERY)  /  128;
-	
+	duty_filtered = (duty_filtered*120 + duty*8)>>7;	
+
 	//Vérification de non débordement avec les valeurs max :
-					//(	100 * 120    +    ( 500/5  * 8  )   )		/   128
-					//				12800							/	128
+					//( 500 * 120    +    ( 500  * 8  )   )		/   128
+					//				64000						/	128
 					//				c'est bon !
 }	
 
 
 Uint8 MOTOR_get_duty_filtered(void)
 {
-	return (Uint8)(duty_filtered);	//[de 0 à 100]
+	return (Uint8)(duty_filtered/5);	//[de 0 à 100]
 }
 
