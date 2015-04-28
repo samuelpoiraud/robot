@@ -632,15 +632,15 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
  * @param success_state : Etat à retourner si le déplacement s'est terminé correctement
  * @param fail_state : Etat à retourner si le déplacement ne s'est pas terminé correctement
  *
- * @param way : Sens de déplacement
  * @param speed : Vitesse de la  trajectoire selon l'enum PROP_speed_e ou la fonction PROP_custom_speed_convertor(Uint16 speed);
+ * @param way : Sens de déplacement
  * @param avoidance : Type d'evitement à faire
  *			DODGE_AND_WAIT / DODGE_AND_NO_WAIT : lorsqu'un adversaire est détecté, l'évittement est tenté en recalculant une alternative.
  * @param end_condition : Comportement du robot en fin de trajectoire
  *
  * @return le state rentré en argument
  */
-Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, PROP_speed_e speed, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
+Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	error_e sub_action;
 	static displacement_curve_t displacements[PATHFIND_NODE_NB];

@@ -30,6 +30,7 @@
 #include "RTC.h"
 #include "Buzzer.h"
 #include "LCD_interface.h"
+#include "Synchro_balises.h"
 
 #define TIMEOUT_SELFTEST_ACT			20000	// en ms
 #define TIMEOUT_SELFTEST_PROP			10000	// en ms
@@ -147,7 +148,6 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 	static bool_e prop_ping_ok = FALSE;
 	static bool_e beacon_ping_ok = FALSE;
 	static bool_e ihm_ping_ok = FALSE;
-	static bool_e receiveBigBalise = FALSE, receiveSmallBalise = FALSE;
 
 	typedef enum
 	{
