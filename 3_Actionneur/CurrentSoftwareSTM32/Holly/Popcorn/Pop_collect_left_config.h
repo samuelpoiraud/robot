@@ -22,7 +22,7 @@
 //Position
 	#define POP_COLLECT_LEFT_AX12_IDLE_POS					512				//en degré
 	#define POP_COLLECT_LEFT_AX12_MID_POS					512				//en degré
-	#define POP_COLLECT_LEFT_AX12_DEPLOYED_POS				512				//en degré
+	#define POP_COLLECT_LEFT_AX12_OPEN_POS				512				//en degré
 
 //Position initiale de l'AX12
 	#define POP_COLLECT_LEFT_AX12_INIT_POS					POP_COLLECT_LEFT_AX12_IDLE_POS

@@ -167,7 +167,7 @@ static void POP_COLLECT_RIGHT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_POP_COLLECT_RIGHT_CLOSED : *ax12_goalPosition = POP_COLLECT_RIGHT_AX12_IDLE_POS; break;
-		case ACT_POP_COLLECT_RIGHT_OPEN : *ax12_goalPosition = POP_COLLECT_RIGHT_AX12_DEPLOYED_POS; break;
+		case ACT_POP_COLLECT_RIGHT_OPEN : *ax12_goalPosition = POP_COLLECT_RIGHT_AX12_OPEN_POS; break;
 		case ACT_POP_COLLECT_RIGHT_MID : *ax12_goalPosition = POP_COLLECT_RIGHT_AX12_MID_POS; break;
 
 		case ACT_POP_COLLECT_RIGHT_STOP :
