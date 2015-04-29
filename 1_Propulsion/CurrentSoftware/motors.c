@@ -18,9 +18,12 @@
 #include "QS/QS_pwm.h"
 #include "QS/QS_IHM.h"
 
-#define MAX_PWM_BORDER_MODE				45
+#define MAX_PWM_BORDER_MODE		45
+#define MAX_STEP_OF_PWM			10
 
 volatile bool_e border_mode = 0;
+static Uint8 last_duty_left = 0;
+static Uint8 last_duty_right = 0;
 
 void MOTORS_init(void)
 {
@@ -30,9 +33,10 @@ void MOTORS_init(void)
 
 void MOTORS_reset(void)
 {
-	//on ne peut pas mettre 0 (car utilisation des PWM L)
-	PWM_run(1, PWM_MOTEUR_1);
-	PWM_run(1, PWM_MOTEUR_2);
+	PWM_run(0, PWM_MOTEUR_1);
+	PWM_run(0, PWM_MOTEUR_2);
+	last_duty_left = 0;
+	last_duty_right = 0;
 }
 
 
@@ -91,10 +95,22 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 	//Commande de la PWM avec écretage de sécurité
 	if (duty_right>CLIPPING_DUTY)
 		duty_right=CLIPPING_DUTY;	/*vitesse max*/
-	PWM_run( (Sint8)duty_right, PWM_MOTEUR_1);
 
 	if (duty_left>CLIPPING_DUTY)
 		duty_left=CLIPPING_DUTY;
+
+
+	//Si la PWM demandée est ELOIGNEE de la précédente... on y va mollo !
+	if(duty_left > last_duty_left + MAX_STEP_OF_PWM)
+		duty_left = last_duty_left + MAX_STEP_OF_PWM;
+
+	if(duty_right > last_duty_right + MAX_STEP_OF_PWM)
+		duty_right = last_duty_right + MAX_STEP_OF_PWM;
+
+	last_duty_left = duty_left;
+	last_duty_right = duty_right;
+
+	PWM_run( (Sint8)duty_right, PWM_MOTEUR_1);
 	PWM_run( (Sint8)duty_left, PWM_MOTEUR_2);
 	/////////////////////////////////////////////////////////
 }
