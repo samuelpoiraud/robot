@@ -20,7 +20,7 @@
 #include "QS_CANmsgList.h"
 
 
-	#define PWM_LIMIT_ON_CHANGE		20
+	#define MAX_STEP_OF_PWM		20   //[%/10ms]
 
 
 	typedef enum
@@ -41,6 +41,7 @@
 		Sint32 integrator;			// Integrateur pour le PID
 		Uint16 cmd_time;			// temps depuis la reception de la commande, en ms
 		Uint8 posToGo;				// consigne, en numero de position actionneur
+		Uint8 last_cmd;				// commande PWM précédente
 		Uint8 current_cmd;			// commande PWM actuelle
 		Uint16 wanted_pos;			// Position voulue
 		Sint16 previous_error;		// valeur de l'erreur à l'appel précédent du PID, pour calcul du terme derivé
@@ -94,6 +95,7 @@ void DCM_config (Uint8 dc_motor_id, DCMotor_config_t* config)
 	this->cmd_time=0;
 	this->posToGo=0;
 	this->current_cmd=0;
+	this->last_cmd=0;
 	this->wanted_pos=0;
 	this->previous_error=0;
 
@@ -152,6 +154,7 @@ void DCM_goToPos(Uint8 dc_motor_id, Uint8 pos)
 {
 	DCMotor_t* this = &(DCMotors[dc_motor_id]);
 	assert((this->init_state == INITIALIZED) || (this->init_state==STOPPED));
+	this->time_waiting_limit_pwm = DCM_TIME_PERIOD*5;
 	this->posToGo = pos;
 	this->cmd_time = 0;
 	this->cmd_state = DCM_WORKING;
@@ -337,7 +340,7 @@ void DCM_restart(Uint8 dc_motor_id)
 		this->init_state = INITIALIZED;
 		this->wanted_pos = this->config.sensor_read();
 	}
-	this->time_waiting_limit_pwm = DCM_TIME_PERIOD*5;
+
 }
 
 /*-----------------------------------------
@@ -491,17 +494,27 @@ void DCM_process_it()
 
 				// application de la commande
 
+
 				Uint8 real_pwm;
-				if(this->time_waiting_limit_pwm == 0 || this->current_cmd < PWM_LIMIT_ON_CHANGE)		// Si la limite de pwm est passé on applique la commande
-					real_pwm = this->current_cmd;
-				else
-					real_pwm = PWM_LIMIT_ON_CHANGE;
+
+				real_pwm = this->current_cmd;	//On suppose qu'on va prendre la PWM souhaitée.
+
+				if(this->time_waiting_limit_pwm != 0)	//on est en 'début d'ordre', une nouvelle consigne est récemment arrivée
+				{
+					if(absolute(this->current_cmd - this->last_cmd) > MAX_STEP_OF_PWM)
+					{		//Si la dernière PWM est LOIN de la PWM souhaitée... alors on s'en rapproche DOUCEMENT.
+						if(this->current_cmd > this->last_cmd)
+							real_pwm = this->last_cmd + MAX_STEP_OF_PWM;		//Ca monte.. On s'en rapproche en montant.
+						else
+							real_pwm = this->last_cmd - MAX_STEP_OF_PWM;		//Ca descend..On s'en rapproche en descendant.
+					}
+				}
 
 				if(this->time_waiting_limit_pwm > DCM_TIME_PERIOD)
 					this->time_waiting_limit_pwm -= DCM_TIME_PERIOD;
 				else
 					this->time_waiting_limit_pwm = 0;
-
+				this->last_cmd = real_pwm;
 				PWM_run(real_pwm, config->pwm_number);
 			}
 		}
