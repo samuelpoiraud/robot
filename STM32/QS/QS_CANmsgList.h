@@ -775,19 +775,17 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 
 	///////////COLLECT POPCORN LEFT////////////////
 	ACT_POP_COLLECT_LEFT = (ACT_FILTER | 0x02),
-		#define ACT_POP_COLLECT_LEFT_IDLE			0x11
-		#define ACT_POP_COLLECT_LEFT_OPEN			0x12
-		#define ACT_POP_COLLECT_LEFT_MID			0x13
-		#define ACT_POP_COLLECT_LEFT_CLOSED			0x14
-		#define ACT_POP_COLLECT_LEFT_STOP			0x15
+		#define ACT_POP_COLLECT_LEFT_OPEN			0x11
+		#define ACT_POP_COLLECT_LEFT_MID			0x12
+		#define ACT_POP_COLLECT_LEFT_CLOSED			0x13
+		#define ACT_POP_COLLECT_LEFT_STOP			0x14
 
 	///////////COLLECT POPCORN RIGHT///////////////
 	ACT_POP_COLLECT_RIGHT = (ACT_FILTER | 0x03),
-		#define ACT_POP_COLLECT_RIGHT_IDLE			0x11
-		#define ACT_POP_COLLECT_RIGHT_OPEN			0x12
-		#define ACT_POP_COLLECT_RIGHT_MID			0x13
-		#define ACT_POP_COLLECT_RIGHT_CLOSED		0x14
-		#define ACT_POP_COLLECT_RIGHT_STOP			0x15
+		#define ACT_POP_COLLECT_RIGHT_OPEN			0x11
+		#define ACT_POP_COLLECT_RIGHT_MID			0x12
+		#define ACT_POP_COLLECT_RIGHT_CLOSED		0x13
+		#define ACT_POP_COLLECT_RIGHT_STOP			0x14
 
 	//////////////DROP POPCORN LEFT////////////////
 	ACT_POP_DROP_LEFT = (ACT_FILTER | 0x04),
