@@ -79,6 +79,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	WOOD_SUB_OUR_POPCORN,
 	WOOD_SUB_TAKE_FEET,
 	WOOD_SUB_COLLECT_CUP_GLOBAL,
+	WOOD_SUB_CHOOSE_ACTION,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
