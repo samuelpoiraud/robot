@@ -20,6 +20,9 @@
 #include "QS_CANmsgList.h"
 
 
+	#define PWM_LIMIT_ON_CHANGE		20
+
+
 	typedef enum
 	{
 		INITIALIZED,
@@ -42,6 +45,7 @@
 		Uint16 wanted_pos;			// Position voulue
 		Sint16 previous_error;		// valeur de l'erreur à l'appel précédent du PID, pour calcul du terme derivé
 		init_state_e init_state;	// flag indiquant si le moteur a été configuré
+		Uint8 time_waiting_limit_pwm;// temps en multiple de DCM_TIME_PERIOD qu'on attend avant de relacher la limite de pwm
 	}DCMotor_t;
 
 	static DCMotor_t DCMotors[DCM_NUMBER];
@@ -333,6 +337,7 @@ void DCM_restart(Uint8 dc_motor_id)
 		this->init_state = INITIALIZED;
 		this->wanted_pos = this->config.sensor_read();
 	}
+	this->time_waiting_limit_pwm = DCM_TIME_PERIOD*5;
 }
 
 /*-----------------------------------------
@@ -483,8 +488,21 @@ void DCM_process_it()
 					else this->current_cmd = (Uint8)computed_cmd;
 				}
 
+
 				// application de la commande
-				PWM_run(this->current_cmd, config->pwm_number);
+
+				Uint8 real_pwm;
+				if(this->time_waiting_limit_pwm == 0 || this->current_cmd < PWM_LIMIT_ON_CHANGE)		// Si la limite de pwm est passé on applique la commande
+					real_pwm = this->current_cmd;
+				else
+					real_pwm = PWM_LIMIT_ON_CHANGE;
+
+				if(this->time_waiting_limit_pwm > DCM_TIME_PERIOD)
+					this->time_waiting_limit_pwm -= DCM_TIME_PERIOD;
+				else
+					this->time_waiting_limit_pwm = 0;
+
+				PWM_run(real_pwm, config->pwm_number);
 			}
 		}
 	}

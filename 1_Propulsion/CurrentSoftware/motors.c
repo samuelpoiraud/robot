@@ -18,7 +18,7 @@
 #include "QS/QS_pwm.h"
 #include "QS/QS_IHM.h"
 
-#define MAX_PWM_BORDER_MODE				60
+#define MAX_PWM_BORDER_MODE				45
 
 volatile bool_e border_mode = 0;
 
