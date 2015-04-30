@@ -251,8 +251,8 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		case ACT_POP_DROP_RIGHT & 0xFF:			originalSidStr = "Pop_drop_right";			break;
 		case ACT_BACK_SPOT_RIGHT & 0xFF:		originalSidStr = "Back_spot_right";			break;
 		case ACT_BACK_SPOT_LEFT & 0xFF:			originalSidStr = "Back_spot_left";			break;
-		case ACT_SPOT_POMPE_RIGHT & 0xFF:		originalSidStr = "Spot_pompe_left";			break;
-		case ACT_SPOT_POMPE_LEFT & 0xFF:		originalSidStr = "Spot_pompe_right";		break;
+		case ACT_SPOT_POMPE_RIGHT & 0xFF:		originalSidStr = "Spot_pompe_right";		break;
+		case ACT_SPOT_POMPE_LEFT & 0xFF:		originalSidStr = "Spot_pompe_left";			break;
 		case ACT_CARPET_LAUNCHER_RIGHT & 0xFF:	originalSidStr = "Carpet_launcher_right";	break;
 		case ACT_CARPET_LAUNCHER_LEFT & 0xFF:	originalSidStr = "Carpet_launcher_left";	break;
 		case ACT_PINCEMI_RIGHT & 0xFF:			originalSidStr = "Pincemi_right";			break;
