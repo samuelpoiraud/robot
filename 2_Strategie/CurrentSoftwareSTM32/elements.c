@@ -212,18 +212,21 @@ void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
  }
 
  void collect_cup_coord(CAN_msg_t *msg){
-	 if( msg->data[0] & 0x04){  //pas de gobelets de détectés
+	 debug_printf("\n\nCoordonnées reçues\n");
+	 if(!msg->data[0] & 0x04){  //pas de gobelets de détectés
 		  end_transmission_cup=TRUE;
 		  nb_cup=0;
 	 }else{  //si on a des gobelets de détectés
 		 cup[nb_cup].x=U16FROMU8(msg->data[1],msg->data[2]);
 		 cup[nb_cup].y=U16FROMU8(msg->data[3],msg->data[4]);
+		 debug_printf("(%d,%d)\n\n",cup[nb_cup].x,cup[nb_cup].y);
 		 nb_cup++;
 		 if(msg->data[0] & 0x01)  //dernier gobelet détecté ?
 			 end_transmission_cup=TRUE;
 		 else
 			 end_transmission_cup=FALSE;
 	 }
+
  }
 
  bool_e get_cup_transmission(void){

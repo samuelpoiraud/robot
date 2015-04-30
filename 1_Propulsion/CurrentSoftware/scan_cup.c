@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------------ Macro
 
 #define square(x) ((float)(x)*(float)(x))
-#define conversion_capteur(x) ((Sint32)(703)*(x)/1000 - 117)
+#define conversion_capteur(x) ((Sint32)(560)*(x)/1000 - 68)
 
 //------------------------------------------------------------------------------------ Define
 
@@ -35,13 +35,12 @@
 #define NB_POINT_MIN		4
 #define NB_POINT_ELIM       3		// Nombre de points que l'on élimine à chaque extrémitée
 #define BORDER				30
-#define MARGE				10
-#define ECART_MAX			10
+#define MARGE				-10
+#define ECART_MAX			8
 #define ONE_CUP				48
 #define TWO_CUP				79
 #define ZERO_CUP			20
 #define DEBUG				1
-
 
 
 //------------------------------------------------------------------------------------ Définition des structures et énumerations
