@@ -13,7 +13,7 @@
 #define	PINCEMI_RX24_CONFIG_H
 
 // Augmenter l'offset pour serrer plus
-	#define OFFSET_LOCK_SPOT										0
+	#define OFFSET_LOCK_SPOT										4
 
 //Config
 	#define PINCEMI_RX24_ASSER_TIMEOUT								1000			// Si l'ax12 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en ms.
@@ -27,7 +27,7 @@
 	// Pince droite, mord droit			ID : 26
 	#define PINCEMIR_RIGHT_CLOSE									600
 	#define PINCEMIR_RIGHT_CLOSE_INNER								512
-	#define PINCEMIR_RIGHT_LOCK										(533 + OFFSET_LOCK_SPOT)
+	#define PINCEMIR_RIGHT_LOCK										(529 + OFFSET_LOCK_SPOT)
 	#define PINCEMIR_RIGHT_LOCK_BALL								485
 	#define PINCEMIR_RIGHT_UNLOCK									514
 	#define PINCEMIR_RIGHT_OPEN										445
@@ -36,7 +36,7 @@
 	// Pince droite, mord gauche		ID : 25
 	#define PINCEMIR_LEFT_CLOSE										425
 	#define PINCEMIR_LEFT_CLOSE_INNER								375
-	#define PINCEMIR_LEFT_LOCK										(491 - OFFSET_LOCK_SPOT)
+	#define PINCEMIR_LEFT_LOCK										(494 - OFFSET_LOCK_SPOT)
 	#define PINCEMIR_LEFT_LOCK_BALL									499
 	#define PINCEMIR_LEFT_UNLOCK									510
 	#define PINCEMIR_LEFT_OPEN										530
