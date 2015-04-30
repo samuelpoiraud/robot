@@ -556,6 +556,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		FAIL_ELEVATOR_UP_2,
 		STOCK_LOCK,
 		ELEVATOR_DOWN,
+		LOCK_FULL_STOCK,
 		WAIT_NIPPER,
 		NIPPER_OPEN,
 		WIN_STOCK,
@@ -952,9 +953,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case STOCK_LOCK:
 			if(entrance){
 				state1 = state2 = STOCK_LOCK;
-				if(who != ACT_MAE_SPOTIX_LEFT && !right_error)
+				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && (ELEMENTS_get_holly_right_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY ))
 					ACT_stock_right(ACT_stock_right_lock);
-				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error)
+				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY ))
 					ACT_stock_left(ACT_stock_left_lock);
 			}
 			if(state1 == STOCK_LOCK && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
@@ -981,9 +982,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case NIPPER_OPEN:
 			if(entrance){
 				state1 = state2 = NIPPER_OPEN;
-				if(who != ACT_MAE_SPOTIX_LEFT)
+				if(who != ACT_MAE_SPOTIX_LEFT && ELEMENTS_get_holly_right_spot_level() < 4)
 					ACT_pincemi_right(ACT_pincemi_right_open);
-				if(who != ACT_MAE_SPOTIX_RIGHT)
+				if(who != ACT_MAE_SPOTIX_RIGHT && ELEMENTS_get_holly_left_spot_level() < 4)
 					ACT_pincemi_left(ACT_pincemi_left_open);
 			}
 			if(state1 == NIPPER_OPEN && who != ACT_MAE_SPOTIX_LEFT)
@@ -1000,7 +1001,30 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case ELEVATOR_DOWN:
 			if(entrance)
 				ACT_elevator(ACT_elevator_bot);
-			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_STOCK, FAIL_STOCK);
+			if(ELEMENTS_get_holly_right_spot_level() >= 3 || ELEMENTS_get_holly_left_spot_level() >= 3)
+				state = check_act_status(ACT_QUEUE_Elevator, state, LOCK_FULL_STOCK, FAIL_STOCK);
+			else
+				state = check_act_status(ACT_QUEUE_Elevator, state, WIN_STOCK, FAIL_STOCK);
+			break;
+
+		case LOCK_FULL_STOCK:
+			if(entrance){
+				state1 = state2 = LOCK_FULL_STOCK;
+				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && ELEMENTS_get_holly_right_spot_level() >= 3)
+					ACT_stock_right(ACT_stock_right_lock);
+				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && ELEMENTS_get_holly_left_spot_level() >= 3)
+					ACT_stock_left(ACT_stock_left_lock);
+			}
+			if(state1 == STOCK_LOCK && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
+				state1 = check_act_status(ACT_QUEUE_Stock_left, state,WIN_STOCK, FAIL_TAKE);
+			if(state2 == STOCK_LOCK && who != ACT_MAE_SPOTIX_LEFT && !right_error)
+				state2 = check_act_status(ACT_QUEUE_Stock_right, state, WIN_STOCK, FAIL_TAKE);
+
+			if((who == ACT_MAE_SPOTIX_BOTH && state1 != STOCK_LOCK && state2 != LOCK_FULL_STOCK)
+					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != LOCK_FULL_STOCK)
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != LOCK_FULL_STOCK)){
+					state = WIN_STOCK;
+			}
 			break;
 
 		case WIN_STOCK:
