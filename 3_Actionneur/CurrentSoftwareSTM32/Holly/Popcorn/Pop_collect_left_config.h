@@ -20,9 +20,9 @@
 	#define POP_COLLECT_LEFT_AX12_MAX_TEMPERATURE           60				// Température maximale en degré
 
 //Position
-	#define POP_COLLECT_LEFT_AX12_IDLE_POS					716				//en degré
-	#define POP_COLLECT_LEFT_AX12_MID_POS					435				//en degré
-	#define POP_COLLECT_LEFT_AX12_OPEN_POS				    299				//en degré
+	#define POP_COLLECT_LEFT_AX12_IDLE_POS					692				//en degré
+	#define POP_COLLECT_LEFT_AX12_MID_POS					450				//en degré
+	#define POP_COLLECT_LEFT_AX12_OPEN_POS				    292				//en degré
 
 //Position initiale de l'AX12
 	#define POP_COLLECT_LEFT_AX12_INIT_POS					POP_COLLECT_LEFT_AX12_IDLE_POS
