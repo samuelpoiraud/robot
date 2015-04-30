@@ -231,6 +231,7 @@ static void MAIN_onButton1() {
 
 	if(state == 0){
 		msg.data[0] = ACT_SPOT_POMPE_LEFT_NORMAL;
+		msg.data[1] = 255;
 	}else if(state == 1){
 		msg.data[0] = ACT_SPOT_POMPE_LEFT_STOP;
 	}
@@ -263,6 +264,7 @@ static void MAIN_onButton2() {
 
 	if(state == 0){
 		msg.data[0] = ACT_SPOT_POMPE_RIGHT_NORMAL;
+		msg.data[1] = 255;
 	}else if(state == 1){
 		msg.data[0] = ACT_SPOT_POMPE_RIGHT_STOP;
 	}

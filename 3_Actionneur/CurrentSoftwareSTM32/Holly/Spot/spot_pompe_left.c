@@ -67,14 +67,14 @@ static void SPOT_POMPE_LEFT_initDCM() {
 	GPInit.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 	GPInit.GPIO_Pin = GPIO_Pin_14;
 	GPIO_Init(GPIOE, &GPInit);
-	GPIO_PinAFConfig(GPIOE, GPIO_PinSource14, GPIO_AF_TIM8);
+	GPIO_PinAFConfig(GPIOE, GPIO_PinSource14, GPIO_AF_TIM1);
 
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
 	TIM_TimeBaseStructure.TIM_Period        = PWM_HIGH_SPEED_DUTY - 1;	//Le timer compte de 0 à period inclus
 	TIM_TimeBaseStructure.TIM_Prescaler     = (TIM_CLK2_FREQUENCY_HZ / PWM_FREQ / PWM_HIGH_SPEED_DUTY) - 1;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
@@ -85,11 +85,11 @@ static void SPOT_POMPE_LEFT_initDCM() {
 	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset;
 	TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
 
-	TIM_OC4Init(TIM8, &TIM_OCInitStructure);
-	TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
+	TIM_OC4Init(TIM1, &TIM_OCInitStructure);
+	TIM_OC4PreloadConfig(TIM1, TIM_OCPreload_Enable);
 
-	TIM_Cmd(TIM8, ENABLE);
-	TIM_CtrlPWMOutputs(TIM8, ENABLE);
+	TIM_Cmd(TIM1, ENABLE);
+	TIM_CtrlPWMOutputs(TIM1, ENABLE);
 	PWM_initialized = TRUE;
 #endif
 
