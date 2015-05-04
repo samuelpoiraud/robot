@@ -16,14 +16,16 @@
 
 	typedef enum
 	{
-		NOW=0x00,
+		NOW=0x00,				//Facultatif... (par défaut)
 		END_OF_BUFFER=0x10,
-		NO_MULTIPOINT=0x00,
+		NO_MULTIPOINT=0x00,		//Facultatif... (par défaut)
 		MULTIPOINT=0x20,
-		ABSOLUTE=0x00,
-		RELATIVE=0x0F,
+		ABSOLUTE=0x00,			//Facultatif... (par défaut)
+		RELATIVE=0x01,
 		BORDER_MODE=0x02,
-		NO_BORDER_MODE=0x00
+		NO_ACKNOWLEDGE=0x40,	//On peut demander qu'il n'y ait pas d'acquittement
+		ACKNOWLEDGE=0x00,		//Facultatif... (par défaut)
+		NO_BORDER_MODE=0x00		//Facultatif... (par défaut)
 	} PROP_mode_e;
 
 

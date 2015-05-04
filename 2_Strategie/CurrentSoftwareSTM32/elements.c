@@ -203,13 +203,6 @@ void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
 	return ELEMENTS_cup[number].state;
 }
 
- void send_start_rotation(){
-	 CAN_msg_t msg;
-	 msg.sid = PROP_START_ROTATION;
-	 msg.data[0] = IHM_switchs_get(SWITCH_STRAT_1);
-	 msg.size = 1;
-	 CAN_send(&msg);
- }
 
  void collect_cup_coord(CAN_msg_t *msg){
 	 debug_printf("\n\nCoordonnées reçues\n");

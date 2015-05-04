@@ -373,8 +373,6 @@
 	#define STRAT_PROP_SELFTEST_DONE 				0x2E1
 	#define STRAT_PROP_PONG							0x216
 	#define STRAT_CUP_POSITION                      0x219
-	#define STRAT_PROP_START_ROTATION				0x220
-		//Data[0] contient l'ID du robot (WHO_AM_I)
 
 	/* Carte IHM vers Strat */
 	#define STRAT_IHM_SELFTEST_DONE 				0x2E6
@@ -557,7 +555,10 @@
 	/* carte stratégie vers carte propulsion */
 	#define PROP_GO_POSITION					0x155
 	/* arguments :
-		CONFIG	: Uint8	=>	|..0. .... - ordre non multipoint
+		CONFIG	: Uint8	=>
+							|.0.. .... - aqcuittement demandé normalement (par défaut)
+							|.1.. .... - demande de NON acquittement de l'ordre
+							|..0. .... - ordre non multipoint
 							|..1. .... - ou multipoint
 							|
 							|...0 .... - ordre a executer maintenant
@@ -590,7 +591,10 @@
 	*/
 	#define PROP_GO_ANGLE						0x177
 	/* argument :
-			CONFIG : Uint8	=>	|..0. .... - ordre non multipoint
+			CONFIG : Uint8	=>
+								|.0.. .... - aqcuittement demandé normalement (par défaut)
+								|.1.. .... - demande de NON acquittement de l'ordre
+								|..0. .... - ordre non multipoint
 								|..1. .... - ou multipoint
 								|
 								|...0 .... - ordre a executer maintenant

@@ -160,8 +160,7 @@ void any_match(void)
 		{
 			CAN_msg_t msg;
 			msg.sid = PROP_CALIBRATION;
-			msg.data[0] = IHM_switchs_get(SWITCH_STRAT_1);// Modification calibration
-			msg.size = 1;
+			msg.size = 0;
 			CAN_send(&msg);
 		}
 

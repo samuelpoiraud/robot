@@ -384,9 +384,39 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case PROP_ROBOT_CALIBRE:
 			global.env.prop.calibrated = TRUE;
+			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+			{
+				CAN_msg_t msg;
+				Sint16 teta;
+
+				//TODO enrichir en fonction des différentes stratégies prévues...
+				/*
+				 * - se rendre au sud...
+				 * - se rendre tout droit pour ramassage gobelet
+				 * - viser le rush gobelet central (cette position est probablement différente pour gagner du temps ?)
+				 * => autre avantage, ca nous permet de savoir ce que va faire le robot (contrôle supplémentaire de l'état des switchs)
+				 */
+				if(IHM_switchs_get(SWITCH_STRAT_1))
+					teta = 0;							//On vise le sud...
+				else
+					teta = COLOR_ANGLE(-PI4096/2);		//On vise le centre du terrain
+
+				msg.sid = PROP_GO_ANGLE;
+				msg.size = 8;
+				msg.data[0] = NO_ACKNOWLEDGE | NOW | ABSOLUTE | NO_MULTIPOINT;	//Demande spécifique de NON Acquittement.
+				msg.data[1] = HIGHINT(teta);	//teta high
+				msg.data[2] = LOWINT(teta);		//teta low
+				msg.data[3] = 0;				//RFU
+				msg.data[4] = 0;				//RFU
+				msg.data[5] = SLOW;				//
+				msg.data[6] = ANY_WAY;			//
+				msg.data[7] = 0;				//RFU
+				CAN_send(&msg);
+
+			}
+
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
-			//if(QS_WHO_AM_I_get() == SMALL_ROBOT)
-			//	PROP_set_correctors(FALSE, FALSE);
+				//PROP_set_correctors(FALSE, FALSE);
 			break;
 		case DEBUG_PROPULSION_COEF_IS:
 			if(incoming_msg->data[0] < PROPULSION_NUMBER_COEFS)
@@ -430,10 +460,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case STRAT_CUP_POSITION:
 			collect_cup_coord(incoming_msg);
-			break;
-
-		case STRAT_PROP_START_ROTATION:
-			send_start_rotation();
 			break;
 
 //****************************** Messages de la carte actionneur *************************/

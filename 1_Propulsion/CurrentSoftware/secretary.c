@@ -255,7 +255,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								(msg->data[0] & 0x20)?MULTIPOINT:NO_MULTIPOINT, 	//mode multi points
 								//NOT_MULTIPOINT,
 								msg->data[5],						//Vitesse
-								ACKNOWLEDGE_ASKED,
+								(msg->data[0] & 0x40)?NO_ACKNOWLEDGE:ACKNOWLEDGE_ASKED,	//Demande spécifique de NON acquittement
 								(corrector_e)((msg->data[0] & 0x0C)>>2),
 								AVOID_DISABLED
 							);
@@ -280,14 +280,14 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								(msg->data[0] & 0x02)?BORDER_MODE:NOT_BORDER_MODE,	//mode bordure
 								(msg->data[0] & 0x20)?MULTIPOINT:NO_MULTIPOINT, //mode multipoints
 								msg->data[5],						//Vitesse
-								ACKNOWLEDGE_ASKED,
+								(msg->data[0] & 0x40)?NO_ACKNOWLEDGE:ACKNOWLEDGE_ASKED,	//Demande spécifique de NON acquittement,
 								(corrector_e)((msg->data[0] & 0x0C)>>2),
 								(avoidance_e)((msg->data[7] & 0xF0)>>4)
 							);
 		break;
 
 		case PROP_CALIBRATION:	//Autocalage !
-			SEQUENCES_calibrate(msg->data[0]);
+			SEQUENCES_calibrate();
 
 		break;
 
@@ -477,10 +477,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			#ifdef SCAN_CUP
 				SCAN_CUP_canMsg(msg);
 			#endif
-			break;
-
-		case PROP_START_ROTATION:
-			START_ROTATION_canMsg(msg); // Modification calibration
 			break;
 
 		case DEBUG_HOKUYO_ADD_POINT:
@@ -691,16 +687,6 @@ void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, b
 	SECRETARY_send_canmsg_from_it(&msg);
 }
 
-void SECRETARY_ask_start_rotation()  // Modification calibration
-{
-	CAN_msg_t msg;
-
-	//		0		: Rotation ou non
-
-	msg.sid = STRAT_PROP_START_ROTATION;
-	msg.size = 0;
-	SECRETARY_send_canmsg_from_it(&msg);
-}
 
 #endif
 
