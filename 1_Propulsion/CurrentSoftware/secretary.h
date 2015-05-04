@@ -41,7 +41,6 @@
 
 	void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, bool_e cup_detected, Sint16 x, Sint16 y);
 
-	void SECRETARY_ask_start_rotation();
 
 	#ifdef LCD_TOUCH
 		void SECRETARY_send_friend_position(Sint16 x, Sint16 y);
