@@ -94,7 +94,7 @@
 		#define LED_BLEU			LED_USER
 
 
-	#define PORT_E_IO_MASK	0xFFFE
+	#define PORT_E_IO_MASK	0x7FFF
 	//	-				 			  0
 	//	-				 			  1
 	// - programmation -			  2
