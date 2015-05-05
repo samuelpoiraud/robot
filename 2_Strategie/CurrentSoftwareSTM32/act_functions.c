@@ -986,7 +986,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			break;
 
 		case WAIT_NIPPER:
-			state=wait_time(3000, WAIT_NIPPER, NIPPER_OPEN);
+			state=wait_time(500, WAIT_NIPPER, NIPPER_OPEN);
 			break;
 
 		// Question gestion d'erreur sur le fait de fail le lock ?
@@ -1113,11 +1113,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		case UNLOCK_SPOT_TO_MID:
 			if(order == ACT_MAE_SPOTIX_GO_MID){
-				if(entrance){
 					if(entrance){
 						state1 = state2 = UNLOCK_SPOT_TO_MID;
 						if(who != ACT_MAE_SPOTIX_LEFT){
-							ACT_stock_right(ACT_stock_right_lock);
+							ACT_stock_right(ACT_stock_right_unlock);
 						}
 						if(who != ACT_MAE_SPOTIX_RIGHT){
 							ACT_stock_left(ACT_stock_left_unlock);
@@ -1150,7 +1149,6 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		case LOCK_SPOT_TO_MID:
 			if(entrance){
-				if(entrance){
 					state1 = state2 = LOCK_SPOT_TO_MID;
 					if(who != ACT_MAE_SPOTIX_LEFT){
 						ACT_stock_right(ACT_stock_right_lock);
