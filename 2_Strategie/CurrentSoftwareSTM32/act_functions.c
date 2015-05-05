@@ -888,10 +888,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		case INIT_STOCK:
 #ifndef ROBOT_VIRTUEL_PARFAIT
-			if(who != ACT_MAE_SPOTIX_RIGHT && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
+			/*if(who != ACT_MAE_SPOTIX_RIGHT) //&& !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
 				left_error = TRUE;
-			if(who != ACT_MAE_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
-				right_error = TRUE;
+			if(who != ACT_MAE_SPOTIX_LEFT) // && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
+				right_error = TRUE;*/
 #endif
 			if(left_error && right_error)
 				state = FAIL_STOCK;
