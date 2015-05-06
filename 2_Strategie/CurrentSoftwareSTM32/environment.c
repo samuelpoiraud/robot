@@ -396,10 +396,12 @@ void CAN_update (CAN_msg_t* incoming_msg)
 				 * - viser le rush gobelet central (cette position est probablement différente pour gagner du temps ?)
 				 * => autre avantage, ca nous permet de savoir ce que va faire le robot (contrôle supplémentaire de l'état des switchs)
 				 */
+				teta = COLOR_ANGLE(-PI4096/2);
+
 				if(IHM_switchs_get(SWITCH_STRAT_1))
-					teta = 0;							//On vise le sud...
-				else
-					teta = COLOR_ANGLE(-PI4096/2);		//On vise le centre du terrain
+					teta = COLOR_ANGLE((-PI4096*68)/180);		  //On vise le gobelet nord
+				else if(IHM_switchs_get(SWITCH_STRAT_2))
+					teta = 0;									 //On vise le gobelet sud
 
 				msg.sid = PROP_GO_ANGLE;
 				msg.size = 8;
@@ -522,6 +524,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case XBEE_WOOD_CAN_DO_CLAP:
 			Wood_can_do_our_clap(incoming_msg);
+			break;
+		case XBEE_WOOD_CAN_GO:
+			ELEMENTS_set_flag(ELEMENTS_WOOD_CAN_GO, TRUE);
 			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/
