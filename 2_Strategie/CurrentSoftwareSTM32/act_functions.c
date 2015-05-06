@@ -1011,8 +1011,12 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			break;
 
 		case ELEVATOR_DOWN:
-			if(entrance)
-				ACT_elevator(ACT_elevator_bot);
+			if(entrance){
+				if(ELEMENTS_get_holly_right_spot_level() == 4 || ELEMENTS_get_holly_left_spot_level() == 4)
+					ACT_elevator(ACT_elevator_mid);
+				else
+					ACT_elevator(ACT_elevator_bot);
+			}
 			if(ELEMENTS_get_holly_right_spot_level() >= 3 || ELEMENTS_get_holly_left_spot_level() >= 3)
 				state = check_act_status(ACT_QUEUE_Elevator, state, LOCK_FULL_STOCK, FAIL_STOCK);
 			else
