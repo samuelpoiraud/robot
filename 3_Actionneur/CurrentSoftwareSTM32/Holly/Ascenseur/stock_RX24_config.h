@@ -12,8 +12,8 @@
 #ifndef STOCK_RX24_CONFIG_H
 #define	STOCK_RX24_CONFIG_H
 
-#define OFFSET  6  // Augmenter cette valeur permet de moins serrer
-#define OFFSET_EN_V  5 //Augmenter cette valeur permet d'accroitre le phénomène en V
+#define OFFSET			16	// Augmenter cette valeur permet de serrer moins
+#define OFFSET_EN_V		0	//Augmenter cette valeur permet d'accroitre le phénomène en V
 
 
 //Config
@@ -30,25 +30,25 @@
 	#define STOCKR_RIGHT_F1_CLOSE									426
 	#define STOCKR_RIGHT_F1_LOCK									493 + OFFSET
 	#define STOCKR_RIGHT_F1_UNLOCK									540
-	#define STOCKR_RIGHT_F1_OPEN									548
+	#define STOCKR_RIGHT_F1_OPEN									587
 
 	// Pince droite, mord gauche	ID:30
 	#define STOCKR_LEFT_F1_CLOSE									597
 	#define STOCKR_LEFT_F1_LOCK										537 - OFFSET
 	#define STOCKR_LEFT_F1_UNLOCK									495
-	#define STOCKR_LEFT_F1_OPEN										482
+	#define STOCKR_LEFT_F1_OPEN										466
 
 	// Pince gauche, mord droit		ID:27
 	#define STOCKL_RIGHT_F1_CLOSE									426
 	#define STOCKL_RIGHT_F1_LOCK									490 + OFFSET
 	#define STOCKL_RIGHT_F1_UNLOCK									540
-	#define STOCKL_RIGHT_F1_OPEN									548
+	#define STOCKL_RIGHT_F1_OPEN									550
 
 	// Pince gauche, mord gauche	ID:28
 	#define STOCKL_LEFT_F1_CLOSE									597
 	#define STOCKL_LEFT_F1_LOCK										524 - OFFSET
 	#define STOCKL_LEFT_F1_UNLOCK									495
-	#define STOCKL_LEFT_F1_OPEN										482
+	#define STOCKL_LEFT_F1_OPEN										436
 
 
 // Etage 2
@@ -56,25 +56,25 @@
 	#define STOCKR_RIGHT_F2_CLOSE									426
 	#define STOCKR_RIGHT_F2_LOCK									495 + OFFSET + OFFSET_EN_V
 	#define STOCKR_RIGHT_F2_UNLOCK									540
-	#define STOCKR_RIGHT_F2_OPEN									548
+	#define STOCKR_RIGHT_F2_OPEN									590
 
 	// Pince droite, mord gauche	ID:34
 	#define STOCKR_LEFT_F2_CLOSE									597
 	#define STOCKR_LEFT_F2_LOCK										545 - OFFSET - OFFSET_EN_V
 	#define STOCKR_LEFT_F2_UNLOCK									495
-	#define STOCKR_LEFT_F2_OPEN										482
+	#define STOCKR_LEFT_F2_OPEN										466
 
 	// Pince gauche, mord droit		ID:31
 	#define STOCKL_RIGHT_F2_CLOSE									370
 	#define STOCKL_RIGHT_F2_LOCK									442 + OFFSET + OFFSET_EN_V
 	#define STOCKL_RIGHT_F2_UNLOCK									487
-	#define STOCKL_RIGHT_F2_OPEN									492
+	#define STOCKL_RIGHT_F2_OPEN									495
 
 	// Pince gauche, mord gauche	ID:32
 	#define STOCKL_LEFT_F2_CLOSE									597
 	#define STOCKL_LEFT_F2_LOCK										543 - OFFSET - OFFSET_EN_V
 	#define STOCKL_LEFT_F2_UNLOCK									495
-	#define STOCKL_LEFT_F2_OPEN										482
+	#define STOCKL_LEFT_F2_OPEN										447
 
 //Position initiale du RX24
 	#define STOCKR_RIGHT_F1_INIT_POS								STOCKR_RIGHT_F1_OPEN
