@@ -25,6 +25,8 @@
 	#include "../Holly/Carpet/carpet_launcher_right_config.h"
 	#include "../Holly/Ascenseur/elevator.h"
 	#include "../Holly/Ascenseur/elevator_config.h"
+	#include "../Holly/Clap/clap_holly.h"
+	#include "../Holly/Clap/clap_holly_config.h"
 #else
 	#include "../Wood/Pince_gauche_config.h"
 	#include "../Wood/Pince_droite_config.h"
@@ -78,7 +80,8 @@ terminal_motor_s terminal_motor[] = {
 		DECLARE_PWM(2, '7', SPOT_POMPE_RIGHT),
 		DECLARE_AX12_RX24(2, '8', CARPET_LAUNCHER_LEFT_AX12),
 		DECLARE_AX12_RX24(2, '9', CARPET_LAUNCHER_RIGHT_AX12),
-		DECLARE_MOTOR(50, 'A', ELEVATOR, &ELEVATOR_get_position)
+		DECLARE_MOTOR(50, 'A', CLAP, &CLAP_HOLLY_get_position),
+		DECLARE_MOTOR(50, 'B', ELEVATOR, &ELEVATOR_get_position)
 	#else
 		DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12),
 		DECLARE_AX12_RX24(2, '1', PINCE_DROITE_AX12),

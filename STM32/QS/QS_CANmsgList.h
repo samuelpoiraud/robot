@@ -908,7 +908,9 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 		#define ACT_CLAP_HOLLY_IDLE					0x11
 		#define ACT_CLAP_HOLLY_LEFT					0x12
 		#define ACT_CLAP_HOLLY_RIGHT				0x13
-		#define ACT_CLAP_HOLLY_STOP					0x14
+		#define ACT_CLAP_HOLLY_MIDDLE_RIGHT			0x14
+		#define ACT_CLAP_HOLLY_MIDDLE_LEFT			0x15
+		#define ACT_CLAP_HOLLY_STOP					0x16
 
 
 

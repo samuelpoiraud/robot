@@ -149,6 +149,6 @@
 #define ELEVATOR_ID						0
 #define CUP_NIPPER_ID					1
 #define CLAP_HOLLY_ID					2
-#define CLAP_HOLLY_ADC_SENSOR			ADC_11
+#define CLAP_HOLLY_ADC_SENSOR			ADC_13
 
 #endif /* BIG_CONFIG_PIN_H */
