@@ -415,7 +415,8 @@ void DCM_process_it()
 			}
 
 			//Gestion des actions dans les états
-			if(this->cmd_state == DCM_TIMEOUT) {
+			if(this->cmd_state == DCM_TIMEOUT ||
+			   this->cmd_state == DCM_IDLE) {
 				PWM_stop(config->pwm_number);
 			} else {
 

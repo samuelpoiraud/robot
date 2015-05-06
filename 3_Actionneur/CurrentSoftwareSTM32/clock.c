@@ -52,7 +52,6 @@ void TIMER_SRC_TIMER_interrupt()
 	#ifdef I_AM_ROBOT_BIG
 		ELEVATOR_process_it();
 		CUP_NIPPER_process_it();
-		CLAP_process_it();
 	#endif
 
 	#ifdef USE_DCMOTOR2

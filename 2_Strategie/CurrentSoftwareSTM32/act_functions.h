@@ -129,6 +129,8 @@ typedef enum {
 	ACT_clap_holly_idle = ACT_CLAP_HOLLY_IDLE,
 	ACT_clap_holly_left = ACT_CLAP_HOLLY_LEFT,
 	ACT_clap_holly_right = ACT_CLAP_HOLLY_RIGHT,
+	ACT_clap_holly_middle_left = ACT_CLAP_HOLLY_MIDDLE_LEFT,
+	ACT_clap_holly_middle_right = ACT_CLAP_HOLLY_MIDDLE_RIGHT,
 	ACT_clap_holly_stop = ACT_CLAP_HOLLY_STOP
 } ACT_clap_holly_cmd_e;
 

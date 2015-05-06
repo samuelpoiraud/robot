@@ -405,6 +405,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						case (Uint8)ACT_CLAP_HOLLY_IDLE:	print(string,len, "| ACT_CLAP_HOLLY_IDLE |");		break;
 						case (Uint8)ACT_CLAP_HOLLY_LEFT:	print(string,len, "| ACT_CLAP_HOLLY_LEFT |");		break;
 						case (Uint8)ACT_CLAP_HOLLY_RIGHT:	print(string,len, "| ACT_CLAP_HOLLY_RIGHT |");		break;
+						case (Uint8)ACT_CLAP_HOLLY_MIDDLE_LEFT:		print(string,len, "| ACT_CLAP_HOLLY_MIDDLE_LEFT |");		break;
+						case (Uint8)ACT_CLAP_HOLLY_MIDDLE_RIGHT	:	print(string,len, "| ACT_CLAP_HOLLY_MIDDLE_RIGHT |");		break;
 						case (Uint8)ACT_CLAP_HOLLY_STOP:	print(string,len, "| ACT_CLAP_HOLLY_STOP |");		break;
 					}
 				break;
