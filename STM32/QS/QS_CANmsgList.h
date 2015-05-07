@@ -305,6 +305,7 @@
 	#define XBEE_HOLLY_START_MATCH			0x5C3
 	#define XBEE_WOOD_CAN_DO_CLAP			0x5C4
 	#define XBEE_WOOD_CAN_GO                0x5C5
+	#define XBEE_HOLLY_TAKE_MIDDLE_FEET     0x5C6
 
 	#define XBEE_CAN_WOOD_ACCESS_SCAN		0x5B0
 	#define XBEE_WOOD_ACCESS_SCAN			0x5B1	//Réponse...
