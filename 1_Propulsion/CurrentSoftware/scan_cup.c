@@ -143,7 +143,7 @@ void SCAN_CUP_process_it(){
 		case SCAN_LINEAR:
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
 				Sint16 ADC_Value = ADC_getValue(SCAN_CUP_SENSOR_LEFT);
-				debug_printf("\tValeur mesuree = %d\n",ADC_Value);
+				//debug_printf("\tValeur mesuree = %d\n",ADC_Value);
 				mesure_en_cours.dist = conversion_capteur(ADC_Value);
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;
@@ -555,123 +555,5 @@ void SCAN_CUP_canMsg(CAN_msg_t *msg){
 			break;
 	}
 }
-
-
-//---------------------------------------------------------------------------------------------------------------
-//											Anciennes fonctions
-//---------------------------------------------------------------------------------------------------------------
-
-/*
-static void inArea(scan_result_t * objet){
-	//debug_printf("###############################################################################\n");
-	//debug_printf("\tPoint avant modif {%d,%d}\n",objet->robot.x,objet->robot.y);
-	GEOMETRY_point_t cup;
-	if(color==YELLOW){
-		cup.x = objet->robot.x - 55;
-		cup.y = objet->robot.y-objet->dist-100;	//Modifier la distance suivant emplacement capteur (+constante)
-	}else{
-		cup.y = objet->robot.y+objet->dist+100;	//Modifier la distance suivant emplacement capteur (+constante)
-		cup.x = objet->robot.x + 55;
-	}
-	salleDebug[nbPointDebug].x=cup.x;
-	salleDebug[nbPointDebug].y=cup.y;
-	nbPointDebug++;
-	//debug_printf("\tPoint après modif {%d,%d}\n",cup.x,cup.y);
-	//debug_printf("###############################################################################\n");
-		if(color){
-		if(cup.x>=X1 && cup.x<=X2 && cup.y>=Y3 && cup.y<=Y4-BORDER){ //Salle de cinema du haut
-			if(nbPointH<=NB_POINT_MAX){
-				salleH[nbPointH] = cup;
-				nbPointH++;
-			}
-		}
-		if(cup.x>=X3 && cup.x<=X4 && cup.y>=Y3 && cup.y<=Y4-BORDER){ //Salle de cinema du bas
-			if(nbPointB<=NB_POINT_MAX){
-				salleB[nbPointB] = cup;
-				nbPointB++;
-			}
-		}
-	}else{
-		if(cup.x>=X1 && cup.x<=X2 && cup.y>=Y1+BORDER && cup.y<=Y2){ //Salle de cinema du haut
-			if(nbPointH<=NB_POINT_MAX){
-				salleH[nbPointH] = cup;
-				nbPointH++;
-			}
-		}
-		if(cup.x>=X3 && cup.x<=X4 && cup.y>=Y1+BORDER && cup.y<=Y2){ //Salle de cinema du bas
-			if(nbPointB<=NB_POINT_MAX){
-				salleB[nbPointB] = cup;
-				nbPointB++;
-			}
-		}
-	}
-}
-
-void SCAN_CUP_calculate(void){
-	if(run_calcul){
-		Sint16 first, i;
-		nb_cup = 0;
-
-		// Analyse de la salle du haut
-		if(nbPointH>=NB_POINT_MIN){
-			first = 0;
-			coorCup[nb_cup].x = first;
-			for(i=1;i<nbPointH;i++){
-				if(puissance(salleH[first].x-salleH[i].x,2) > RADIUS_CUP*RADIUS_CUP){
-					coorCup[nb_cup].y = i-1;
-					first = i;
-					nb_cup++;      // /!\ Mettre une protection si le nombre de dépasse 5
-					coorCup[nb_cup].x = first;
-				}
-			}
-			coorCup[nb_cup].y = nbPointH-1;
-			nb_cup++;
-			// On cherche le(s) centre(s)
-			for(i=0;i<nb_cup;i++){
-				GEOMETRY_point_t p = determine_center(salleH,coorCup[i].y-coorCup[i].x-NB_POINT_ELIM,coorCup[i].x+NB_POINT_ELIM);
-				coorCup[i].x = p.x;
-				coorCup[i].y = p.y;
-			}
-		}
-		Uint8 nb_cup_prec = nb_cup;
-
-		// Analyse de la salle du bas
-		if(nbPointB>=NB_POINT_MIN){
-			first = 0;
-			coorCup[nb_cup].x = first;
-			for(i=1;i<nbPointB;i++){
-				if(puissance(salleB[first].x-salleB[i].x,2) > RADIUS_CUP*RADIUS_CUP){
-					coorCup[nb_cup].y = i-1;
-					first = i;
-					nb_cup++;      // /!\ Mettre une protection si le nombre de dépasse 5
-					coorCup[nb_cup].x = first;
-				}
-			}
-			coorCup[nb_cup].y = nbPointB-1;
-			nb_cup++;
-			// On cherche le(s) centre(s)
-			for(i=nb_cup_prec;i<nb_cup;i++){
-				GEOMETRY_point_t p = determine_center(salleB,coorCup[i].y-coorCup[i].x-NB_POINT_ELIM,coorCup[i].x+NB_POINT_ELIM);
-				coorCup[i].x = p.x;
-				coorCup[i].y = p.y;
-			}
-		}
-	}
-	run_calcul = FALSE;
-	debug_printf("###############################################################################\n");
-	debug_printf("\tnbPointB = %d\n",nbPointB);
-	debug_printf("\tnbPointH = %d\n",nbPointH);
-	debug_printf("\tnb_cup = %d\n",nb_cup);
-	int i;
-	debug_printf("###############################################################################\n");
-	debug_printf("\tnbPointH = %d\n",nbPointH);
-	for(i=0;i<nbPointH;i++){
-		debug_printf("{%d,%d} ",salleH[i].x,salleH[i].y);
-	}
-	debug_printf("###############################################################################\n");
-}
-
-*/
-
 
 #endif
