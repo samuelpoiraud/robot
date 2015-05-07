@@ -529,7 +529,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ELEMENTS_set_flag(ELEMENTS_WOOD_CAN_GO, TRUE);
 			break;
 		case XBEE_HOLLY_TAKE_MIDDLE_FEET:
-			ELEMENTS_set_flag(ELEMENTS_MIDDLE_FEET_TOOK);
+			ELEMENTS_set_flag(ELEMENTS_MIDDLE_FEET_TOOK, TRUE);
 			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/
