@@ -42,7 +42,9 @@
 			Uint16 way_bit_number;			// numero du bit de sens dans le port
 			Uint16 timeout;					// timeout en ms, si la position demandée n'est pas atteinte avant ce temps, l'asservissement est arreté (évite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
 			Uint16 epsilon;					// epsilon, si l'erreur devient inférieur à cette variable, la position est considéré comme atteinte
+			Uint16 large_epsilon;
 			bool_e inverseDirection;		// Inverser la pin de sens du controle du moteur
+			bool_e stop_on_idle;
 		} DCMotor_config_t;
 
 		/*-------------------------------------

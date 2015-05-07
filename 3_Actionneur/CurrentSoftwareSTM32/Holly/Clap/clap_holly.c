@@ -59,9 +59,10 @@ void CLAP_HOLLY_init() {
 	dcconfig.way1_max_duty = CLAP_HOLLY_MAX_PWM_WAY1;
 	dcconfig.timeout = CLAP_HOLLY_ASSER_TIMEOUT;
 	dcconfig.epsilon = CLAP_HOLLY_ASSER_POS_EPSILON;
+	dcconfig.inverseDirection = TRUE;
+	dcconfig.stop_on_idle = TRUE;
 	DCM_config(CLAP_HOLLY_ID, &dcconfig);
 	DCM_stop(CLAP_HOLLY_ID);
-	DCM_setWayDirection(CLAP_HOLLY_ID, TRUE);
 
 	ADC_init();
 }

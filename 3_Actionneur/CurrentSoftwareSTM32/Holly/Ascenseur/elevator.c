@@ -66,7 +66,9 @@ void ELEVATOR_init() {
 	dcconfig.way1_max_duty = ELEVATOR_MAX_PWM_WAY1;
 	dcconfig.timeout = ELEVATOR_ASSER_TIMEOUT;
 	dcconfig.epsilon = ELEVATOR_ASSER_POS_EPSILON;
+	dcconfig.large_epsilon = ELEVATOR_ASSER_POS_LARGE_EPSILON;
 	dcconfig.inverseDirection = FALSE;
+	dcconfig.stop_on_idle = FALSE;
 	DCM_config(ELEVATOR_ID, &dcconfig);
 	DCM_stop(ELEVATOR_ID);
 }

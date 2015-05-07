@@ -14,7 +14,7 @@
 
 // Configuration de l'asservissement PID
 #define ELEVATOR_KP							90
-#define ELEVATOR_KI							12
+#define ELEVATOR_KI							15
 #define ELEVATOR_KD							1
 #define ELEVATOR_KP2						0
 #define ELEVATOR_KI2						0
@@ -28,14 +28,15 @@
 #define ELEVATOR_QEI_COEF					0x0001
 
 #define ELEVATOR_ASSER_TIMEOUT				2000
-#define ELEVATOR_ASSER_POS_EPSILON			250
+#define ELEVATOR_ASSER_POS_EPSILON			150
+#define ELEVATOR_ASSER_POS_LARGE_EPSILON	500
 
 #define ELEVATOR_MAX_VALUE					8000
-#define ELEVATOR_MIN_VALUE					30
+#define ELEVATOR_MIN_VALUE					50
 
 
 // Position
-#define ACT_ELEVATOR_BOT_POS				30
+#define ACT_ELEVATOR_BOT_POS				50
 #define ACT_ELEVATOR_MID_POS				2325
 #define ACT_ELEVATOR_PRE_TOP_POS			5000
 #define ACT_ELEVATOR_TOP_POS				7890
