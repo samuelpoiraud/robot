@@ -72,7 +72,9 @@ typedef enum {
 
 typedef enum {
 	ACT_AVOID_CLAP_HOLLY_Left,
-	ACT_AVOID_CLAP_HOLLY_Right
+	ACT_AVOID_CLAP_HOLLY_Right,
+	ACT_AVOID_CLAP_HOLLY_Left_Mid,
+	ACT_AVOID_CLAP_HOLLY_Right_Mid
 } ACT_AVOID_CLAP_HOLLY_CMD;
 
 typedef enum {

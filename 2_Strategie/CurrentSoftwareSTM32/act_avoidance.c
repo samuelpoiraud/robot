@@ -45,6 +45,8 @@ void ACT_AVOIDANCE_init(){
 
 		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Left, ACT_clap_holly_left,							240,	0,		0,		0);
 		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Right, ACT_clap_holly_right,							0,		240,	0,		0);
+		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Left_Mid, ACT_clap_holly_middle_left,				150,	0,		0,		0);
+		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Right_Mid, ACT_clap_holly_middle_right,				0,		150,	0,		0);
 
 		init_new_offset(ACT_AVOID_CARPET_LEFT, ACT_AVOID_CARPET_LEFT_Launch, ACT_carpet_launcher_left_launch,			0,		0,		250,	0);
 
