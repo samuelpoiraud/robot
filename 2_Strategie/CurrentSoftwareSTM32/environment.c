@@ -528,6 +528,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_WOOD_CAN_GO:
 			ELEMENTS_set_flag(ELEMENTS_WOOD_CAN_GO, TRUE);
 			break;
+		case XBEE_HOLLY_TAKE_MIDDLE_FEET:
+			ELEMENTS_set_flag(ELEMENTS_MIDDLE_FEET_TOOK);
+			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
