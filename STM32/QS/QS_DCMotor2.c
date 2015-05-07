@@ -21,6 +21,7 @@
 
 
 	#define MAX_STEP_OF_PWM		20   //[%/10ms]
+	#define SPEED_DETECT_LARGE_EPSILON	2
 
 
 	typedef enum
@@ -43,7 +44,8 @@
 		Uint8 posToGo;				// consigne, en numero de position actionneur
 		Uint8 last_cmd;				// commande PWM précédente
 		Uint8 current_cmd;			// commande PWM actuelle
-		Uint16 wanted_pos;			// Position voulue
+		Sint16 last_pos;			// dernière position
+		Sint16 wanted_pos;			// Position voulue
 		Sint16 previous_error;		// valeur de l'erreur à l'appel précédent du PID, pour calcul du terme derivé
 		init_state_e init_state;	// flag indiquant si le moteur a été configuré
 		Uint8 time_waiting_limit_pwm;// temps en multiple de DCM_TIME_PERIOD qu'on attend avant de relacher la limite de pwm
@@ -370,6 +372,7 @@ void DCM_process_it()
 	Sint32 differential;
 	Sint32 computed_cmd;
 	Sint16 error;
+	Sint16 pos, speed;
 
 	for (dc_motor_id = 0; dc_motor_id < DCM_NUMBER; dc_motor_id++)
 	{
@@ -392,13 +395,16 @@ void DCM_process_it()
 			}
 
 			// Acquisition de la position pour la détection de l'arrêt du moteur
-			error = this->wanted_pos-(config->sensor_read)();
+			pos = (config->sensor_read)();
+			error = this->wanted_pos-pos;
 
 			//Gestion des changements d'états
 			switch(this->cmd_state) {
 				case DCM_WORKING:
 					this->cmd_time += DCM_TIME_PERIOD;
 					if(absolute(error) < (Sint16)config->epsilon && absolute(this->previous_error) < (Sint16)config->epsilon)
+						this->cmd_state = DCM_IDLE;
+					else if(absolute(speed) < SPEED_DETECT_LARGE_EPSILON && absolute(error) < (Sint16)config->large_epsilon && absolute(this->previous_error) < (Sint16)config->large_epsilon)
 						this->cmd_state = DCM_IDLE;
 					else if(config->timeout && this->cmd_time >= config->timeout)
 						this->cmd_state = DCM_TIMEOUT;
@@ -416,7 +422,7 @@ void DCM_process_it()
 
 			//Gestion des actions dans les états
 			if(this->cmd_state == DCM_TIMEOUT ||
-			   this->cmd_state == DCM_IDLE) {
+			   this->cmd_state == DCM_IDLE && config->stop_on_idle) {
 				PWM_stop(config->pwm_number);
 			} else {
 
@@ -518,6 +524,7 @@ void DCM_process_it()
 				this->last_cmd = real_pwm;
 				PWM_run(real_pwm, config->pwm_number);
 			}
+
 		}
 	}
 }

@@ -73,6 +73,9 @@ void CUP_NIPPER_init() {
 	dcconfig.way1_max_duty = CUP_NIPPER_MAX_PWM_WAY1;
 	dcconfig.timeout = CUP_NIPPER_DCM_ASSER_TIMEOUT;
 	dcconfig.epsilon = CUP_NIPPER_DCM_ASSER_POS_EPSILON;
+	dcconfig.large_epsilon = CUP_NIPPER_DCM_ASSER_LARGE_EPSILON;
+	dcconfig.inverseDirection = FALSE;
+	dcconfig.stop_on_idle = FALSE;
 	DCM_config(CUP_NIPPER_ID, &dcconfig);
 	DCM_stop(CUP_NIPPER_ID);
 }

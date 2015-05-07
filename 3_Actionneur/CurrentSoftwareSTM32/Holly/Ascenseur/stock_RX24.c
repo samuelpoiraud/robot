@@ -90,7 +90,7 @@ static void STOCK_initRX24() {
 			debug_printf("Init config rx24(%d) DONE\n", stock_act[i].servo_id);
 
 			if(i > 3)
-				AX12_set_torque_response(stock_act[i].servo_id, 32, 20, 20, 32);
+				AX12_set_torque_response(stock_act[i].servo_id, 32, 10, 10, 32);
 
 		}else if(stock_act[i].is_initialized == FALSE)
 			debug_printf("Init config rx24(%d) FAIL\n", stock_act[i].servo_id);
