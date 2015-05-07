@@ -36,7 +36,6 @@
 	void HOKUYO_process_it(Uint8 ms);
 	bool_e HOKUYO_is_working_well(void);
 	void refresh_adversaries(void);
-	bool_e filter_adversary_position(Sint16 x, Sint16 y);
 
 	#ifdef TRIANGULATION
 	typedef struct{       //position des balises

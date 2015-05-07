@@ -170,8 +170,6 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 																				(GEOMETRY_point_t){adversaries[adversary_nb].x, adversaries[adversary_nb].y}
 																				);
 				}
-				if(filter_adversary_position(adversaries[adversary_nb].x, adversaries[adversary_nb].y))
-					adversaries[adversary_nb].enable = FALSE;
 
 			}
 			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
