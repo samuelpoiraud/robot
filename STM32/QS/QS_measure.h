@@ -36,4 +36,9 @@
 #define SMALL_ROBOT_DIST_MIN_SPEED_SLOW					550		//Distance à laquelle on ralentie s'il ya un adversaire [mm]
 #define BIG_ROBOT_DIST_MIN_SPEED_SLOW					750		//Distance à laquelle on ralentie s'il ya un adversaire [mm]
 
+
+	#define ANGLE_FOOT_IN_RIGHT_SUCKER				(-3*PI4096/4)	//[rad4096]
+	#define ANGLE_FOOT_IN_LEFT_SUCKER				(3*PI4096/4)	//[rad4096]
+	#define DISTANCE_REAR_FOOT_TO_ROBOT_CENTER		(200)	//TODO !!!!
+
 #endif /* ndef QS_MEASURE_H */
