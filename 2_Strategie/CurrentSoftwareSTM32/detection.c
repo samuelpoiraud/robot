@@ -294,8 +294,13 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				else
 					beacon_ir_objects[i].enable = FALSE;
 
-
-				beacon_ir_objects[i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
+#ifdef NOUS_AVONS_REMONTE_GUY
+				if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+					beacon_ir_objects[i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
+				else
+#else
+				beacon_ir_objects[i].angle = GEOMETRY_modulo_angle((Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i])) + PI4096/2);
+#endif
 				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*20;
 
 				if(beacon_ir_objects[i].fiability_error & TACHE_TROP_GRANDE)
@@ -309,14 +314,6 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				beacon_ir_objects[i].x = global.env.pos.x + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle))}/(4096*4096)));
 				beacon_ir_objects[i].y = global.env.pos.y + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle))}/(4096*4096)));
 			}
-#ifdef INVERSE_BALISE_BIG
-			if(QS_WHO_AM_I_get() == BIG_ROBOT){
-				for(i=0; i<MAX_BEACON_FOES; i++){
-					if(beacon_ir_objects[i].enable)
-							beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(beacon_ir_objects[i].angle + PI4096/2);
-				}
-			}
-#endif
 
 			DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);	//On prévient l'algo COMPUTE.
 
