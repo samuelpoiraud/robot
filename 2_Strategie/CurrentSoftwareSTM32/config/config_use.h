@@ -47,7 +47,10 @@
 
 //#define FDP_2014				//Define Temporaire pour l'ancien FDP
 //#define BELGIQUE	1
-#define INVERSE_BALISE_BIG
+
+//#define NOUS_AVONS_REMONTE_GUY	//Ce define concerne l'angle de la balise différent en 2014...
+//ATTENTION, il y a un autre define en PROP !
+
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
 //#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN

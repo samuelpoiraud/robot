@@ -189,7 +189,14 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 
 					//Extraction des données du msg.
 					adversaries[HOKUYO_MAX_FOES+i].fiability_error = msg->data[0+4*i];
-					adversaries[HOKUYO_MAX_FOES+i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
+
+#ifdef ON_A_REMONTE_GUY
+					if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+						adversaries[HOKUYO_MAX_FOES+i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
+					else
+#else
+					adversaries[HOKUYO_MAX_FOES+i].angle = GEOMETRY_modulo_angle((Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i])) + PI4096/2);
+#endif
 					adversaries[HOKUYO_MAX_FOES+i].dist = (Uint16)(msg->data[3+4*i])*20;
 
 					//enable ou pas ?
@@ -220,14 +227,6 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					adversaries[HOKUYO_MAX_FOES+i].update_time = global.absolute_time;
 				}
 			}
-#ifdef INVERSE_BALISE_BIG
-			if(QS_WHO_AM_I_get() == BIG_ROBOT){
-				for(i=0; i<BEACON_MAX_FOES; i++){
-					if(adversaries[HOKUYO_MAX_FOES+i].enable)
-							adversaries[HOKUYO_MAX_FOES+i].angle = GEOMETRY_modulo_angle(adversaries[HOKUYO_MAX_FOES+i].angle + PI4096/2);
-				}
-			}
-#endif
 		}
 	}
 	if(adv != NULL)

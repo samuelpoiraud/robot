@@ -477,10 +477,13 @@ void hokuyo_find_valid_points(void){
 		if(distance	> to_close_distance)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
 			Sint32 offset;
-			if(QS_WHO_AM_I_get() == BIG_ROBOT)
-				offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
-			else
+#ifdef ON_A_REMONTE_GUY
+			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
 				offset = HOKUYO_OFFSET_ANGLE_RAD4096;
+			else
+#endif
+				offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
+
 			teta_relative = ((((Sint32)(angle))*183)>>8) + offset;	//Angle relatif au robot, du point en cours, en rad4096
 			teta_relative = CALCULATOR_modulo_angle(teta_relative);
 			teta_absolute = CALCULATOR_modulo_angle(teta_relative + robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
@@ -673,10 +676,13 @@ void hokuyo_find_valid_points(void){
 		if(distance	> to_close_distance)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
 			Sint32 offset;
-			if(QS_WHO_AM_I_get() == BIG_ROBOT)
-				offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
-			else
+#ifdef ON_A_REMONTE_GUY
+			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
 				offset = HOKUYO_OFFSET_ANGLE_RAD4096;
+			else
+#endif
+				offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
+
 			teta_relative = ((((Sint32)(angle))*183)>>8) + offset;	//Angle relatif au robot, du point en cours, en rad4096
 			teta_relative = CALCULATOR_modulo_angle(teta_relative);
 			teta_absolute = CALCULATOR_modulo_angle(teta_relative + robot_position_during_measurement.teta);				//angle absolu par rapport au terrain, pour le pt en cours, en rad4096
