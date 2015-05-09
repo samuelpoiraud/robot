@@ -273,16 +273,16 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 																				(GEOMETRY_point_t){adversaries[adversary_nb].x, adversaries[adversary_nb].y}
 																				);
 				}
+				if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
+				{
+					if(adversary_nb == 0 && !fiability)
+						hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
+					else
+						hokuyo_objects_number = adversary_nb + 1;
+					DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
+				}
+			}
 
-			}
-			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
-			{
-				if(adversary_nb == 0 && !fiability)
-					hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
-				else
-					hokuyo_objects_number = adversary_nb + 1;
-				DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION);
-			}
 			break;
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 
