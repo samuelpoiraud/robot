@@ -125,15 +125,15 @@ void BUTTON_verbose(void)
 						(IHM_switchs_get(SWITCH_COLOR)	<< 9) 	|
 						(IHM_switchs_get(BIROUTE)		<< 10) 	|
 						(IHM_switchs_get(SWITCH_LCD)		<< 11) 	|
-						(IHM_switchs_get(SWITCH_EVIT)	<< 12) 	|
-						(IHM_switchs_get(SWITCH_STRAT_1)	<< 13) 	|
-						(IHM_switchs_get(SWITCH_STRAT_2)	<< 14) 	|
-						(IHM_switchs_get(SWITCH_STRAT_3)	<< 15)
+						(IHM_switchs_get(SWITCH_EVIT)	<< 12)
 
 				#ifndef FDP_2014
 						;
 				#else
-						|
+ 						|
+						(IHM_switchs_get(SWITCH_STRAT_1)	<< 13) 	|
+						(IHM_switchs_get(SWITCH_STRAT_2)	<< 14) 	|
+						(IHM_switchs_get(SWITCH_STRAT_3)	<< 15)	|
 						(BUTTON1_PORT	<< 16) 	|	//Selftest
 						(BUTTON2_PORT	<< 17) 	|	//LCD OK
 						(BUTTON3_PORT	<< 18) 	|	//LCD Menu +

@@ -229,9 +229,6 @@ void test_bp_switchs(void)
 		if(IHM_switchs_get(SWITCH_COLOR) 	!= sw_color		)	{	sw_color 		= IHM_switchs_get(SWITCH_COLOR);	debug_printf("sw_color = %s\n"		, (sw_color		)?"ON":"OFF");	 }
 		if(IHM_switchs_get(SWITCH_LCD) 		!= sw_lcd		)	{	sw_lcd	 		= IHM_switchs_get(SWITCH_LCD);		debug_printf("sw_lcd = %s\n"		, (sw_lcd		)?"ON":"OFF");	 }
 		if(IHM_switchs_get(SWITCH_EVIT) 	!= sw_evit		)	{	sw_evit 		= IHM_switchs_get(SWITCH_EVIT);		debug_printf("sw_evit = %s\n"		, (sw_evit		)?"ON":"OFF");	 }
-		if(IHM_switchs_get(SWITCH_STRAT_1) 	!= sw_strat1	)	{	sw_strat1 		= IHM_switchs_get(SWITCH_STRAT_1);	debug_printf("sw_strat1 = %s\n"		, (sw_strat1	)?"ON":"OFF");	 }
-		if(IHM_switchs_get(SWITCH_STRAT_2) 	!= sw_strat2	)	{	sw_strat2 		= IHM_switchs_get(SWITCH_STRAT_2);	debug_printf("sw_strat2 = %s\n"		, (sw_strat2	)?"ON":"OFF");	 }
-		if(IHM_switchs_get(SWITCH_STRAT_3) 	!= sw_strat3	)	{	sw_strat3 		= IHM_switchs_get(SWITCH_STRAT_3);	debug_printf("sw_strat3 = %s\n"		, (sw_strat3	)?"ON":"OFF");	 }
 		if(IHM_switchs_get(BIROUTE) 		!= biroute		)	{	biroute 	   	= IHM_switchs_get(BIROUTE);			debug_printf("biroute = %s\n"		, (biroute		)?"ON":"OFF");	 }
 		if(BUTTON0_PORT 					!= bp_run_match	)	{	bp_run_match   	= BUTTON0_PORT;						debug_printf("bp_run_match = %s\n"	, (bp_run_match	)?"ON":"OFF");	 }
 		if(PORT_ROBOT_ID 					!= port_robot_id)	{	port_robot_id  	= PORT_ROBOT_ID;					debug_printf("port_robot_id = %s\n"	, (port_robot_id)?"ON":"OFF");	 }
@@ -242,6 +239,10 @@ void test_bp_switchs(void)
 		if(BUTTON3_PORT 	!= bp_menu_p	)	{	bp_menu_p 		= BUTTON3_PORT;		debug_printf("bp_menu_p = %s\n"		, (bp_menu_p	)?"ON":"OFF");	 }
 		if(BUTTON4_PORT 	!= bp_menu_m	)	{	bp_menu_m 		= BUTTON4_PORT;		debug_printf("bp_menu_m = %s\n"		, (bp_menu_m	)?"ON":"OFF");	 }
 		if(BUTTON5_PORT 	!= bp_print_match)	{	bp_print_match 	= BUTTON5_PORT;		debug_printf("bp_print_match = %s\n", (bp_print_match)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_STRAT_1) 	!= sw_strat1	)	{	sw_strat1 		= IHM_switchs_get(SWITCH_STRAT_1);	debug_printf("sw_strat1 = %s\n"		, (sw_strat1	)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_STRAT_2) 	!= sw_strat2	)	{	sw_strat2 		= IHM_switchs_get(SWITCH_STRAT_2);	debug_printf("sw_strat2 = %s\n"		, (sw_strat2	)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_STRAT_3) 	!= sw_strat3	)	{	sw_strat3 		= IHM_switchs_get(SWITCH_STRAT_3);	debug_printf("sw_strat3 = %s\n"		, (sw_strat3	)?"ON":"OFF");	 }
+
 #endif
 	}
 }
