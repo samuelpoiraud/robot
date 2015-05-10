@@ -214,10 +214,10 @@ void test_leds(void){
 void test_bp_switchs(void)
 {
 	debug_printf("Test des Entrées BP et Switch\n");
-	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_save=2, sw_color=2, sw_lcd=2, sw_evit=2, sw_strat1=2, sw_strat2=2, sw_strat3=2, port_robot_id=2, biroute=2, bp_run_match=2;
+	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_save=2, sw_color=2, sw_lcd=2, sw_evit=2, port_robot_id=2, biroute=2, bp_run_match=2;
 
 #ifdef FDP_2014
-	Uint8 bp_selftest=2, bp_calibration=2, bp_menu_m=2, bp_menu_p=2, bp_print_match=2;
+	Uint8 bp_selftest=2, bp_calibration=2, bp_menu_m=2, bp_menu_p=2, bp_print_match=2, sw_strat1=2, sw_strat2=2, sw_strat3=2;
 #endif
 
 	while(1)
