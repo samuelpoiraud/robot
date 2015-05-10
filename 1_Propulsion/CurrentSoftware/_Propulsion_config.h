@@ -11,6 +11,7 @@
 #ifndef _PROPULSION_CONFIG_H
 	#define _PROPULSION_CONFIG_H
 
+	#include "QS/QS_measure.h"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///ODOMETRIE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,14 +57,6 @@
 	#define SMALL_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
 	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
 
-	//à regler avec éléments mécaniques de blocages extrèmement parallèles à l'axe des codeurs !
-	#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE 	81		//distance entre le 'centre' du robot et l'arrière en calage
-	#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE 	81 		//distance entre le 'centre' du robot et l'avant en calage
-
-	#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE	146 		//distance entre le 'centre' du robot et l'arrière en calage
-	#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE 	100 		//distance entre le 'centre' du robot et l'avant en calage
-
-	#define BIG_CALIBRATION_WIDTH					 	292 		//largeur du robot
 
 	#define FIELD_SIZE_Y 3000	//[mm]
 	#define FIELD_SIZE_X 2000	//[mm]
@@ -84,12 +77,12 @@
 
 	//BIG
 		//BOT_COLOR
-		#define BIG_BOT_COLOR_CALIBRATION_X  		(1200-BIG_CALIBRATION_WIDTH/2)
+		#define BIG_BOT_COLOR_CALIBRATION_X  		(1200-BIG_ROBOT_WIDTH/2)
 		#define BIG_BOT_COLOR_CALIBRATION_Y  		(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE + 70)
 		#define BIG_BOT_COLOR_CALIBRATION_TETA		(-PI4096/2)
 
 		//TOP_COLOR
-		#define BIG_TOP_COLOR_CALIBRATION_X  		(1200-BIG_CALIBRATION_WIDTH/2)
+		#define BIG_TOP_COLOR_CALIBRATION_X  		(1200-BIG_ROBOT_WIDTH/2)
 		#define BIG_TOP_COLOR_CALIBRATION_Y  		(3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE - 70)
 		#define BIG_TOP_COLOR_CALIBRATION_TETA 		(PI4096/2)
 
