@@ -397,7 +397,7 @@ bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size)
 bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition)
 {
 	i2c_bus_error = FALSE;
-	watchdog_id = WATCHDOG_create_flag(100, &timeout);	//10ms max for the I2C frame !
+	watchdog_id = WATCHDOG_create_flag(10, &timeout);	//10ms max for the I2C frame !
 	if(watchdog_id == 0xFF)
 	{
 		debug_printf("Watchdog_create fail - I2C write exited\n");
