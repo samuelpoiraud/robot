@@ -53,12 +53,12 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_AVOID_CARPET_RIGHT, ACT_AVOID_CARPET_RIGHT_Launch, ACT_carpet_launcher_right_launch,		0,		0,		250,	0);
 	}else{
 		init_new_offset(ACT_AVOID_PINCE_DROITE, ACT_AVOID_PINCE_DROITE_Open, ACT_pince_droite_open,						0,		60,		0,		0);
-
 		init_new_offset(ACT_AVOID_PINCE_DROITE, ACT_AVOID_PINCE_DROITE_Close, ACT_pince_droite_closed,					0,		90,		0,		0);
 
 		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_PINCE_GAUCHE_Open, ACT_pince_gauche_open,						60,		0,		0,		0);
-
 		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_PINCE_GAUCHE_Close, ACT_pince_gauche_closed,					90,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_CLAP_WOOD_Open, ACT_clap_open,								0,		0,		100,	0);
 	}
 }
 

@@ -327,7 +327,6 @@ error_e ACT_holly_spotix_get_last_error();
  */
 error_e ACT_sensor_gobelet_right_wood();
 error_e ACT_sensor_gobelet_left_wood();
-error_e ACT_sensor_gobelet_front_wood();
 error_e ACT_sensor_gobelet_holly();
 
 void ACT_sensor_answer(CAN_msg_t* msg);

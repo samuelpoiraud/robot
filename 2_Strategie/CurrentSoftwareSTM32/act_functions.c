@@ -37,7 +37,6 @@ typedef struct{
 
 static volatile act_sensor_e gobelet_right_wood_answer = ACT_SENSOR_WAIT;
 static volatile act_sensor_e gobelet_left_wood_answer = ACT_SENSOR_WAIT;
-static volatile act_sensor_e gobelet_front_wood_answer = ACT_SENSOR_WAIT;
 static volatile act_sensor_e gobelet_holly_answer = ACT_SENSOR_WAIT;
 
 static volatile act_mae_real_time_t act_mae_real_time = {END_OK, FALSE};
@@ -315,6 +314,8 @@ bool_e ACT_pince_gauche(ACT_pince_gauche_cmd_e cmd) {
 	ACT_arg_init(&args, ACT_PINCE_GAUCHE, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_PINCE_GAUCHE,  ACT_PINCE_GAUCHE_STOP);
 
+	debug_printf("Pushing pince gauche Run cmd\n");
+
 	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_PINCE_GAUCHE, cmd);
 
 	return ACT_push_operation(ACT_QUEUE_Pince_Gauche, &args);
@@ -325,6 +326,8 @@ bool_e ACT_pince_droite(ACT_pince_droite_cmd_e cmd) {
 
 	ACT_arg_init(&args, ACT_PINCE_DROITE, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_PINCE_DROITE,  ACT_PINCE_DROITE_STOP);
+
+	debug_printf("Pushing pince droite Run cmd\n");
 
 	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_PINCE_DROITE, cmd);
 
@@ -337,6 +340,10 @@ bool_e ACT_clap(ACT_clap_cmd_e cmd) {
 	ACT_arg_init(&args, ACT_CLAP, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_CLAP,  ACT_CLAP_STOP);
 
+	debug_printf("Pushing clap Run cmd\n");
+
+	ACT_AVOIDANCE_new_classic_cmd(ACT_AVOID_CLAP_WOOD, cmd);
+
 	return ACT_push_operation(ACT_QUEUE_Clap, &args);
 }
 
@@ -346,6 +353,8 @@ bool_e ACT_pop_drop_left_Wood(ACT_pop_drop_left_Wood_cmd_e cmd) {
 	ACT_arg_init(&args, ACT_POP_DROP_LEFT_WOOD, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_POP_DROP_LEFT_WOOD,  ACT_POP_DROP_LEFT_WOOD_STOP);
 
+	debug_printf("Pushing pop drop left Run cmd\n");
+
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_left_Wood, &args);
 }
 
@@ -354,6 +363,8 @@ bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
 
 	ACT_arg_init(&args, ACT_POP_DROP_RIGHT_WOOD, cmd);
 	ACT_arg_set_fallbackmsg(&args, ACT_POP_DROP_RIGHT_WOOD,  ACT_POP_DROP_RIGHT_WOOD_STOP);
+
+	debug_printf("Pushing pop drop right Run cmd\n");
 
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_right_Wood, &args);
 }
@@ -1613,36 +1624,6 @@ error_e ACT_sensor_gobelet_left_wood(){
 	return IN_PROGRESS;
 }
 
-error_e ACT_sensor_gobelet_front_wood(){
-	CREATE_MAE(SEND,
-				WAIT);
-
-	static time32_t begin_time;
-
-	switch(state){
-		case SEND:
-			gobelet_front_wood_answer = ACT_SENSOR_WAIT;
-			begin_time = global.env.absolute_time;
-			CAN_direct_send(ACT_ASK_SENSOR, 1, (Uint8 []){GOBELET_DEVANT_WOOD});
-			state = WAIT;
-			break;
-
-		case WAIT:
-			if(global.env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
-				RESET_MAE();
-				return END_WITH_TIMEOUT;
-			}else if(gobelet_front_wood_answer== ACT_SENSOR_PRESENT){
-				RESET_MAE();
-				return END_OK;
-			}else if(gobelet_front_wood_answer == ACT_SENSOR_ABSENT){
-				RESET_MAE();
-				return NOT_HANDLED;
-			}
-			break;
-	}
-	return IN_PROGRESS;
-}
-
 error_e ACT_sensor_gobelet_holly(){
 	CREATE_MAE(SEND,
 				WAIT);
@@ -1684,10 +1665,6 @@ void ACT_sensor_answer(CAN_msg_t* msg){
 
 		case PINCE_GOBELET_GAUCHE:
 			act_answer = &gobelet_left_wood_answer;
-			break;
-
-		case GOBELET_DEVANT_WOOD:
-			act_answer = &gobelet_front_wood_answer;
 			break;
 
 		case GOBELET_HOLLY:
