@@ -205,19 +205,26 @@ void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
 
 
  void collect_cup_coord(CAN_msg_t *msg){
-	 debug_printf("\n\nCoordonnées reçues\n");
-	 if(!msg->data[0] & 0x04){  //pas de gobelets de détectés
-		  end_transmission_cup=TRUE;
-		  nb_cup=0;
-	 }else{  //si on a des gobelets de détectés
-		 cup[nb_cup].x=U16FROMU8(msg->data[1],msg->data[2]);
-		 cup[nb_cup].y=U16FROMU8(msg->data[3],msg->data[4]);
-		 debug_printf("(%d,%d)\n\n",cup[nb_cup].x,cup[nb_cup].y);
-		 nb_cup++;
-		 if(msg->data[0] & 0x01)  //dernier gobelet détecté ?
-			 end_transmission_cup=TRUE;
-		 else
-			 end_transmission_cup=FALSE;
+	 /*		0:0		: Indique si c'est le dernier gobelet
+	  *		0:1		: Indique s'il y a eu une erreur lors du scan
+	  *		0:2		: Est à 1 s'il y a un ou des gobelets de détecté(s)
+	  * 	1		: x HIGH bit
+	  * 	2		: x LOW bit
+	  * 	3		: y HIGH bit
+	  *		4		: y LOW bit
+	  */
+
+	 if(msg->data[0] & (1<<2)){	// Si l'on a trouvé un gobelet dans une salle
+		  cup[nb_cup].x=U16FROMU8(msg->data[1],msg->data[2]);
+		  cup[nb_cup].y=U16FROMU8(msg->data[3],msg->data[4]);
+		  nb_cup++;
+		  if(msg->data[0] & 0x01) // On regarde si c'est la fin de la transmission
+			  end_transmission_cup=TRUE;
+		  else
+			  end_transmission_cup=FALSE;
+	 }else{
+		 end_transmission_cup=TRUE;
+		 nb_cup=0;
 	 }
 
  }

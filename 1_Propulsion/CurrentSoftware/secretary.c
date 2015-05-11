@@ -669,9 +669,9 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout){
 void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, bool_e cup_detected, Sint16 x, Sint16 y)
 {
 	CAN_msg_t msg;
-	/*		0:7		: Indique si c'est le dernier gobelet
-	 *		0:6		: Indique s'il y a eu une erreur lors du scan
-	 *		0:5		: Est à 1 s'il y a un ou des gobelets de détecté(s)
+	/*		0:0		: Indique si c'est le dernier gobelet
+	 *		0:1		: Indique s'il y a eu une erreur lors du scan
+	 *		0:2		: Est à 1 s'il y a un ou des gobelets de détecté(s)
 	 * 		1		: x HIGH bit
 	 * 		2		: x LOW bit
 	 * 		3		: y HIGH bit
