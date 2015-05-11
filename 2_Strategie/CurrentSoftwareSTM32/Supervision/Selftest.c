@@ -314,7 +314,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					state = SELFTEST_IHM;
 
 				// Lever erreur si switch_asser n'est actif
-				if(!IHM_switchs_get(SWITCH_ASSER))
+				if(IHM_switchs_get(SWITCH18_DISABLE_ASSER))
 					SELFTEST_declare_errors(NULL,SELFTEST_PROP_SWITCH_ASSER_DISABLE);
 			}
 			if(CAN_msg_received != NULL)

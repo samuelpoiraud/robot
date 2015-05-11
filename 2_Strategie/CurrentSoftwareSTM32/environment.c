@@ -310,9 +310,6 @@ void ENV_update(void)
 	}
 #endif
 
-#ifndef FDP_2014
-	ENV_warning_switch();
-#endif
 
 	/* Récupération des données des boutons */
 	BUTTON_update();
@@ -561,6 +558,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case IHM_SWITCH:
 		case IHM_POWER:
 			IHM_process_main(incoming_msg);
+			#ifndef FDP_2014
+				ENV_warning_switch();
+			#endif
 			break;
 		case IHM_BIROUTE_IS_REMOVED:
 			global.env.ask_start = TRUE;
@@ -651,21 +651,12 @@ void ENV_set_color(color_e color)
 }
 
 void ENV_warning_switch(){
-	static bool_e init = FALSE;
-	static bool_e asser_switch;
+	static bool_e previous_asser_switch = FALSE;
+	bool_e current_asser_switch;
 
-	if(!init){
-		init = TRUE;
-		asser_switch = IHM_switchs_get(SWITCH_ASSER);
-	}
-
-	if(IHM_switchs_get(SWITCH_ASSER) != asser_switch){
-		if(IHM_switchs_get(SWITCH_ASSER))
-			CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, FALSE});
-		else
-			CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, TRUE});
-
-		asser_switch = IHM_switchs_get(SWITCH_ASSER);
-	}
+	current_asser_switch = IHM_switchs_get(SWITCH18_DISABLE_ASSER);
+	if(current_asser_switch != previous_asser_switch)
+		CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, current_asser_switch});
+	previous_asser_switch = current_asser_switch;
 }
 

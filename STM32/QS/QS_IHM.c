@@ -48,7 +48,7 @@ void IHM_init(){
 	switchs[SWITCH_XBEE] = TRUE;		// Activation Xbee
 	switchs[SWITCH_SAVE] = TRUE;		// Activation Save
 	switchs[SWITCH_EVIT] = TRUE;		// Activation Evit
-	switchs[SWITCH_ASSER] = TRUE;		// Activation Asser
+	switchs[SWITCH18_DISABLE_ASSER] = FALSE;		// Activation Asser
 
 }
 
