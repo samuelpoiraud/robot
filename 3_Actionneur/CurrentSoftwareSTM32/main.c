@@ -47,16 +47,15 @@ static void MAIN_onButton1();
 static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
-#ifdef I_AM_ROBOT_BIG
-	static void MAIN_onButton5();
-	static void MAIN_onButton6();
-	static void MAIN_onButton0LongPush();
-	static void MAIN_onButton1LongPush();
-	static void MAIN_onButton2LongPush();
-	static void MAIN_onButton3LongPush();
-	static void MAIN_onButton4LongPush();
-	static void MAIN_onButton5LongPush();
-#endif
+static void MAIN_onButton5();
+static void MAIN_onButton6();
+static void MAIN_onButton0LongPush();
+static void MAIN_onButton1LongPush();
+static void MAIN_onButton2LongPush();
+static void MAIN_onButton3LongPush();
+static void MAIN_onButton4LongPush();
+static void MAIN_onButton5LongPush();
+
 static void MAIN_global_var_init();
 static void MAIN_sensor_test();
 
@@ -115,21 +114,13 @@ int main (void)
 	ACTMGR_init();
 	TERMINAL_init();
 
-	#if defined(I_AM_ROBOT_BIG)
-		IHM_define_act_button(BP_0_IHM, &MAIN_onButton0, &MAIN_onButton0LongPush);
-		IHM_define_act_button(BP_1_IHM, &MAIN_onButton1, &MAIN_onButton1LongPush);
-		IHM_define_act_button(BP_2_IHM, &MAIN_onButton2, &MAIN_onButton2LongPush);
-		IHM_define_act_button(BP_3_IHM, &MAIN_onButton3, &MAIN_onButton3LongPush);
-		IHM_define_act_button(BP_4_IHM, &MAIN_onButton4, &MAIN_onButton4LongPush);
-		IHM_define_act_button(BP_5_IHM, &MAIN_onButton5, &MAIN_onButton5LongPush);
-		IHM_define_act_button(BP_RFU_IHM, &MAIN_onButton6, NULL);
-	#elif defined(I_AM_ROBOT_SMALL)
-		BUTTONS_define_actions(BUTTON0, &MAIN_onButton0, NULL, 1);
-		BUTTONS_define_actions(BUTTON1, &MAIN_onButton1, NULL, 1);
-		BUTTONS_define_actions(BUTTON2, &MAIN_onButton2, NULL, 1);
-		BUTTONS_define_actions(BUTTON3, &MAIN_onButton3, NULL, 1);
-		BUTTONS_define_actions(BUTTON4, &MAIN_onButton4, NULL, 1);
-	#endif
+	IHM_define_act_button(BP_0_IHM, &MAIN_onButton0, &MAIN_onButton0LongPush);
+	IHM_define_act_button(BP_1_IHM, &MAIN_onButton1, &MAIN_onButton1LongPush);
+	IHM_define_act_button(BP_2_IHM, &MAIN_onButton2, &MAIN_onButton2LongPush);
+	IHM_define_act_button(BP_3_IHM, &MAIN_onButton3, &MAIN_onButton3LongPush);
+	IHM_define_act_button(BP_4_IHM, &MAIN_onButton4, &MAIN_onButton4LongPush);
+	IHM_define_act_button(BP_5_IHM, &MAIN_onButton5, &MAIN_onButton5LongPush);
+	IHM_define_act_button(BP_RFU_IHM, &MAIN_onButton6, NULL);
 
 
 	debug_printf("---   ACT Ready    ---\n");
@@ -449,10 +440,10 @@ static void MAIN_onButton6() {
 
 #else // ROBOT_SMALL
 
-static void MAIN_onButton0() {
-}
+static void MAIN_onButton0(){}
+static void MAIN_onButton0LongPush(){}
 
-static void MAIN_onButton1() {
+static void MAIN_onButton1(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 1;
@@ -462,12 +453,16 @@ static void MAIN_onButton1() {
 		msg.data[0] = ACT_PINCE_GAUCHE_OPEN	;
 	else if(state == 1)
 		msg.data[0] = ACT_PINCE_GAUCHE_CLOSED;
+	else if(state == 2)
+		msg.data[0] = ACT_PINCE_GAUCHE_IDLE_POS;
 
 	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
+	state = (state == 2)? 0 : state + 1;
 }
 
-static void MAIN_onButton2() {
+static void MAIN_onButton1LongPush(){}
+
+static void MAIN_onButton2(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 1;
@@ -477,16 +472,37 @@ static void MAIN_onButton2() {
 		msg.data[0] = ACT_PINCE_DROITE_OPEN	;
 	else if(state == 1)
 		msg.data[0] = ACT_PINCE_DROITE_CLOSED;
+	else if(state == 2)
+		msg.data[0] = ACT_PINCE_DROITE_IDLE_POS;
+
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+}
+
+static void MAIN_onButton2LongPush(){}
+
+static void MAIN_onButton3(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_CLAP;
+
+	if(state == 0)
+		msg.data[0] = ACT_CLAP_OPEN;
+	else if(state == 1)
+		msg.data[0] = ACT_CLAP_CLOSED;
 
 	CAN_process_msg(&msg);
 	state = (state == 1)? 0 : state + 1;
 }
 
-static void MAIN_onButton3() {
-}
+static void MAIN_onButton3LongPush(){}
+static void MAIN_onButton4(){}
+static void MAIN_onButton4LongPush(){}
+static void MAIN_onButton5(){}
+static void MAIN_onButton5LongPush(){}
+static void MAIN_onButton6(){}
 
-static void MAIN_onButton4() {
-}
 #endif // ROBOT_BIG et ROBOT_SMALL
 
 static void MAIN_global_var_init(){
@@ -512,7 +528,7 @@ static void MAIN_sensor_test(){
 			led_on = FALSE;
 		}
 #else
-		if(WT100_GOBELET_RIGHT || WT100_GOBELET_LEFT || WT100_GOBELET_FRONT){
+		if(WT100_GOBELET_RIGHT || WT100_GOBELET_LEFT){
 			if(led_on == FALSE){
 				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 				led_on = TRUE;
