@@ -127,13 +127,6 @@ void CAN_process_msg(CAN_msg_t* msg) {
 					else
 						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
 					break;
-
-				case GOBELET_DEVANT_WOOD:
-					if(WT100_GOBELET_FRONT)
-						answer.data[1] = STRAT_INFORM_CAPTEUR_PRESENT;
-					else
-						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
-					break;
 #endif
 				default:
 					found = FALSE;
