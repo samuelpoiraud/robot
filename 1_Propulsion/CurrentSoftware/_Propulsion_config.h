@@ -19,7 +19,7 @@
 //POUR REGLER L'ODOMETRIE:
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
-	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C0F
+	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BF0
 	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BC7  //Théorique pour 60mm : 0x0C10
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
@@ -30,10 +30,10 @@
 	//Si le robot va trop loin, il faut augmenter le coeff et vice versa
 
 
-	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT (-50)//(0x0010)
+	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0x31A
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0)
 
-	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00010DD0	//Guy : 92mm entre roue codeuse et centre
+	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00011350	//Guy : 89mm entre roue codeuse et centre
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000AD00  	//Holly : 278mm ENVIRON entre roues codeuses...
 																	// - 1% (estimation à l'arrache-mètre) -> B63D
 															//Pierre : 138mm entre roue codeuse et centre - théorique : B308
