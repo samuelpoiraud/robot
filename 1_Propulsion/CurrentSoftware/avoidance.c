@@ -30,7 +30,7 @@
 
 static Sint16 ecretage_debug_rect(Sint16 val);
 
-adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
+static adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
 
 typedef struct{
 	Uint16 Xleft;

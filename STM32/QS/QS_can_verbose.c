@@ -82,6 +82,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 #ifdef I_AM_CARTE_PROP			// Message ignoré par la propulsion
 		case BROADCAST_ADVERSARIES_POSITION:
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 #endif
 
 #ifdef I_AM_CARTE_ACT			// Message ignoré par l'actionneur
@@ -91,6 +92,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 #endif
 
 #ifdef I_AM_CARTE_IHM			// Message ignoré par l'IHM
+		case BROADCAST_POSITION_ROBOT:
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 #endif
 

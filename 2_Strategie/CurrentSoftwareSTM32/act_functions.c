@@ -560,6 +560,12 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		WIN_OPEN_GREAT,
 		FAIL_OPEN_GREAT,
 
+		// Stock unlock
+		UNLOCK_JUST_STOCK,
+		WIN_UNLOCK_JUST_STOCK,
+		FAIL_UNLOCK_JUST_STOCK,
+
+
 		// Stock
 		INIT_STOCK,
 		STOCK_UNLOCK,
@@ -613,7 +619,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case COMPUTE_ORDER:
 			switch(order){
 
-				case ACT_MAE_SPOTIX_OPEN:
+				case ACT_MAE_SPOTIX_OPEN_ALL:
 					state = OPEN_ALL;
 					break;
 
@@ -660,6 +666,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 				case ACT_MAE_SPOTIX_RELEASE_STOCK:
 					state = UNLOCK_SPOT;
+					break;
+
+				case ACT_MAE_SPOTIX_UNLOCK_STOCK:
+					state = UNLOCK_JUST_STOCK;
 					break;
 
 				default :
@@ -893,6 +903,36 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 				ACT_pincemi_right(ACT_pincemi_right_open);
 				ACT_pincemi_left(ACT_pincemi_left_open);
 			}
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//--------------------------------------- Stock unlock
+		case UNLOCK_JUST_STOCK:
+			if(entrance){
+				state1 = state2 = UNLOCK_JUST_STOCK;
+				if(who != ACT_MAE_SPOTIX_LEFT && !right_error)
+					ACT_stock_right(ACT_stock_right_unlock);
+				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error)
+					ACT_stock_left(ACT_stock_left_unlock);
+			}
+			if(state1 == STOCK_UNLOCK && who != ACT_MAE_SPOTIX_LEFT && !right_error)
+				state1 = check_act_status(ACT_QUEUE_Stock_right, state, ELEVATOR_UP, FAIL_TAKE);
+			if(state2 == STOCK_UNLOCK && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
+				state2 = check_act_status(ACT_QUEUE_Stock_left, state, ELEVATOR_UP, FAIL_TAKE);
+
+			if((state1 != STOCK_UNLOCK && state2 != UNLOCK_JUST_STOCK)
+					|| (who == ACT_MAE_SPOTIX_LEFT && state2 != UNLOCK_JUST_STOCK)
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != UNLOCK_JUST_STOCK))
+				state = WIN_UNLOCK_JUST_STOCK;
+			break;
+
+		case WIN_UNLOCK_JUST_STOCK:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_UNLOCK_JUST_STOCK:
 			RESET_MAE();
 			ret = NOT_HANDLED;
 			break;
