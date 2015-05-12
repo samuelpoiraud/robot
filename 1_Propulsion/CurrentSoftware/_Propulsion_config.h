@@ -173,7 +173,7 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 
 	// de combien on accelere à chaque boucle d'asser
-	#define SMALL_ACCELERATION_NORMAL	48	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define SMALL_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
 	#define SMALL_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 
 	#define BIG_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
@@ -196,9 +196,9 @@
 		*/
 	// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
 	#define SMALL_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
-	#define SMALL_TRANSLATION_SPEED_MAX 		(Sint32)(20448)		 	//environ = 5[mm/5ms] = 1,0m/s
-	#define SMALL_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
-	#define SMALL_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
+	#define SMALL_TRANSLATION_SPEED_MAX 		(Sint32)(20480)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define SMALL_TRANSLATION_SPEED_LOW 		(Sint32)(10240)			//environ = 2,5[mm/5ms] = 0,5m/s
+	#define SMALL_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(5120)
 	#define SMALL_TRANSLATION_SPEED_SNAIL		(Sint32)(516)
 
 	//Une vitesse de 1024[rad/4096/1024/5ms] en rotation correspond à un déplacement des roues de 80[mm/4096/5ms]
