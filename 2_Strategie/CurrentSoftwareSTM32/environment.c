@@ -402,6 +402,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 					else
 						teta = COLOR_ANGLE(-PI4096/2);
 				}else{
+					if(IHM_switchs_get(SWITCH_CUP_SOUTH_OUR))
+						teta = 0;
+					else
 						teta = COLOR_ANGLE(-PI4096/2);
 				}
 
