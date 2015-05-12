@@ -84,6 +84,7 @@ void ELEVATOR_state_machine(){
 	}state_e;
 	static state_e state = INIT, last_state = -1;
 	static time32_t begin_detection = 0, begin_wait = 0;
+	static bool_e last_alim = FALSE;
 	Uint8 result, error_code;
 	Uint16 line;
 	bool_e entrance = (state != last_state)? TRUE : FALSE;
@@ -105,11 +106,11 @@ void ELEVATOR_state_machine(){
 		case WAIT_FDC:
 			if(entrance){
 				begin_detection = 0;
-				begin_wait = 0;
 			}
 
-			/*if(global.alim && begin_wait == 0)
-				begin_wait = global.absolute_time;*/
+			if(!last_alim && global.alim)
+					begin_wait = global.absolute_time;
+			last_alim = global.alim;
 
 			if(ELEVATOR_FDC && begin_detection == 0)
 				begin_detection = global.absolute_time;
@@ -119,8 +120,8 @@ void ELEVATOR_state_machine(){
 				QEI1_set_count(0);
 				encoder_ready = TRUE;
 				state = INIT_POS;
-			}/*else if(global.absolute_time - begin_wait > 3000)
-				state = DEACTIVATE;*/
+			}else if(global.alim && global.absolute_time - begin_wait > ELEVATOR_ASSER_TIMEOUT+1000)
+				state = DEACTIVATE;
 
 			if(!ELEVATOR_FDC)
 				begin_detection = 0;
