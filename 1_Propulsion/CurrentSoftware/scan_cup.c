@@ -17,7 +17,9 @@
 //------------------------------------------------------------------------------------ Macro
 
 #define square(x) ((float)(x)*(float)(x))
-#define conversion_capteur(x) ((Sint32)(560)*(x)/1000 - 68)
+#define conversion_capteur_LEFT(x) ((Sint32)(550)*(x)/1000 - 69)
+#define conversion_capteur_RIGHT(x) ((Sint32)(551)*(x)/1000 - 63)
+
 
 //------------------------------------------------------------------------------------ Define
 
@@ -142,9 +144,25 @@ void SCAN_CUP_process_it(){
 
 		case SCAN_LINEAR:
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
-				Sint16 ADC_Value = ADC_getValue(SCAN_CUP_SENSOR_LEFT);
+				Sint16 teta = global.position.teta;
 				//debug_printf("\tValeur mesuree = %d\n",ADC_Value);
-				mesure_en_cours.dist = conversion_capteur(ADC_Value);
+				if(color==YELLOW){
+					if(teta < PI4096/2 && teta > -PI4096/2){ //L'angle vaut 0
+						mesure_en_cours.dist = conversion_capteur_RIGHT(ADC_getValue(SCAN_CUP_SENSOR_RIGHT));
+						debug_printf("\n\nCouleur jaune : capteur droite\n\n");
+					}else{ // L'angle vaut Pi
+						mesure_en_cours.dist = conversion_capteur_LEFT(ADC_getValue(SCAN_CUP_SENSOR_LEFT));
+						debug_printf("\n\nCouleur jaune : capteur gauche\n\n");
+					}
+				}else{
+					if(teta < PI4096/2 && teta > -PI4096/2){ //L'angle vaut 0
+						mesure_en_cours.dist = conversion_capteur_LEFT(ADC_getValue(SCAN_CUP_SENSOR_LEFT));
+						debug_printf("\n\nCouleur vert : capteur gauche\n\n");
+					}else{ // L'angle vaut Pi
+						mesure_en_cours.dist = conversion_capteur_RIGHT(ADC_getValue(SCAN_CUP_SENSOR_RIGHT));
+						debug_printf("\n\nCouleur vert : capteur droite\n\n");
+					}
+				}
 				mesure_en_cours.robot.x = global.position.x;
 				mesure_en_cours.robot.y = global.position.y;
 				old_measure = global.position.x;
@@ -231,11 +249,11 @@ void SCAN_CUP_process_it(){
 static void inArea(scan_result_t * objet){
 	GEOMETRY_point_t cup;
 	if(color==YELLOW){
-		cup.x = objet->robot.x - 55;
-		cup.y = objet->robot.y-objet->dist-100;
+		cup.x = objet->robot.x + 76;
+		cup.y = objet->robot.y-objet->dist -100;
 	}else{
-		cup.y = objet->robot.y+objet->dist+100;
-		cup.x = objet->robot.x + 55;
+		cup.y = objet->robot.y+objet->dist - 76;
+		cup.x = objet->robot.x + 100;
 	}
 	if(DEBUG){
 		salleDebug[nbPointDebug].x=cup.x;
