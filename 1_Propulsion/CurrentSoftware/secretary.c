@@ -92,6 +92,8 @@ void SECRETARY_init(void)
 	mailbox_out_index_read = 0;
 	mailbox_out_index_write = 0;
 	mailbox_out_index_nb = 0;
+
+	IHM_define_act_button(BP_CALIBRATION_IHM,&SEQUENCES_calibrate,NULL);
 }
 
 void SECRETARY_process_main(void)
