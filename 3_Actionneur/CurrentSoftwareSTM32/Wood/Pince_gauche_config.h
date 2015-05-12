@@ -21,7 +21,7 @@
 
 //Position
 	#define PINCE_GAUCHE_AX12_IDLE_POS					830
-	#define PINCE_GAUCHE_AX12_CLOSE_POS					292		//en degré
+	#define PINCE_GAUCHE_AX12_CLOSE_POS					306		//en degré
 	#define PINCE_GAUCHE_AX12_MID_POS					327		//en degré 35° de diff avec IDLE POS
 	#define PINCE_GAUCHE_AX12_OPEN_POS					502 	//en degré
 

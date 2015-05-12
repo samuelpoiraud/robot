@@ -19,15 +19,15 @@
 	#define CLAP_AX12_MAX_TORQUE_PERCENT		100		// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 
 //Position
-	#define CLAP_AX12_OPEN_POS					204		//en degré
-	#define CLAP_AX12_CLOSE_POS					614		//en degré
+	#define CLAP_AX12_OPEN_POS					512		//en degré
+	#define CLAP_AX12_CLOSE_POS					216		//en degré
 
 //Position initiale de l'AX12
-	#define CLAP_AX12_INIT_POS					CLAP_AX12_OPEN_POS
+	#define CLAP_AX12_INIT_POS					CLAP_AX12_CLOSE_POS
 
 //Extremum valeur
-	#define CLAP_AX12_MIN_VALUE					0
-	#define CLAP_AX12_MAX_VALUE					1024
+	#define CLAP_AX12_MIN_VALUE					216
+	#define CLAP_AX12_MAX_VALUE					512
 
 #endif	/* CLAP_CONFIG_H */
 
