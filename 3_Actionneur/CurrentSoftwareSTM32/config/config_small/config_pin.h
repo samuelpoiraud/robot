@@ -30,8 +30,8 @@
 	//	-				 			  15
 
 #define PORT_B_IO_MASK	0xF7FF
-	#define WT100_GOBELET_RIGHT		(GPIOB->IDR0)
-	#define WT100_GOBELET_LEFT		(GPIOB->IDR1)
+	#define WT100_GOBELET_RIGHT		(!(GPIOB->IDR0))
+	#define WT100_GOBELET_LEFT		(!(GPIOB->IDR1))
 	//	-				 			  2
 	// - programmation -			  3
 	//	-				 			  4

@@ -536,7 +536,10 @@ error_e SELFTEST_strategy(bool_e reset)
 #ifdef FDP_2014
 			state = TEST_MEASURE24;
 #else
-			state = TEST_ESTRADE_SENSOR_RIGHT;
+			if(QS_WHO_AM_I_get() == BIG_ROBOT)
+				state = TEST_ESTRADE_SENSOR_RIGHT;
+			else
+				state = TEST_SWITCHS;
 #endif
 			break;
 		case TEST_MEASURE24:
@@ -546,7 +549,10 @@ error_e SELFTEST_strategy(bool_e reset)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_NO_24V);
 			else if(battery_level < THRESHOLD_BATTERY_LOW)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_LOW);
-			state = TEST_ESTRADE_SENSOR_RIGHT;
+			if(QS_WHO_AM_I_get() == BIG_ROBOT)
+				state = TEST_ESTRADE_SENSOR_RIGHT;
+			else
+				state = TEST_SWITCHS;
 			break;
 
 		case TEST_ESTRADE_SENSOR_RIGHT:

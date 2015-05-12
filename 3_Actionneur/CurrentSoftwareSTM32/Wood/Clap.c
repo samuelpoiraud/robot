@@ -166,8 +166,8 @@ static void CLAP_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_CLAP_CLOSED : *ax12_goalPosition = CLAP_AX12_OPEN_POS; break;
-		case ACT_CLAP_OPEN : *ax12_goalPosition = CLAP_AX12_CLOSE_POS; break;
+		case ACT_CLAP_CLOSED : *ax12_goalPosition = CLAP_AX12_CLOSE_POS; break;
+		case ACT_CLAP_OPEN : *ax12_goalPosition = CLAP_AX12_OPEN_POS; break;
 
 		case ACT_CLAP_STOP :
 			AX12_set_torque_enabled(CLAP_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

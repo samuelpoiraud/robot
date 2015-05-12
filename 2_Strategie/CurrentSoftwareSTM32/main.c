@@ -274,8 +274,8 @@ static void MAIN_sensor_test(){
 	if(!global.env.match_started){
 		if(QS_WHO_AM_I_get() == BIG_ROBOT){
 			if(RECALAGE_AR_G || RECALAGE_AR_D || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY
-					|| ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 5 || ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 50
-					|| ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 5 || ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) < 50){
+					/*|| ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 5 || ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 50
+					|| ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 5 || ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) < 50*/){
 				if(led_on == FALSE){
 					IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 					led_on = TRUE;
