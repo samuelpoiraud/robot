@@ -117,6 +117,7 @@ bool_e CLAP_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CLAP_OPEN :
 			case ACT_CLAP_CLOSED:
+			case ACT_CLAP_TAKE_CUP:
 			case ACT_CLAP_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CLAP, &CLAP_run_command, 0,TRUE);
 				break;
@@ -135,6 +136,7 @@ bool_e CLAP_CAN_process_msg(CAN_msg_t* msg) {
 		SELFTEST_set_actions(&CLAP_run_command, 0, 3, (SELFTEST_action_t[]){
 								 {ACT_CLAP_CLOSED,		0,  QUEUE_ACT_AX12_CLAP},
 								 {ACT_CLAP_OPEN,		0,  QUEUE_ACT_AX12_CLAP},
+								 {ACT_CLAP_TAKE_CUP,	0,  QUEUE_ACT_AX12_CLAP},
 								 {ACT_CLAP_CLOSED,		0,  QUEUE_ACT_AX12_CLAP}
 							 });
 	}
@@ -168,6 +170,7 @@ static void CLAP_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_CLAP_CLOSED : *ax12_goalPosition = CLAP_AX12_CLOSE_POS; break;
 		case ACT_CLAP_OPEN : *ax12_goalPosition = CLAP_AX12_OPEN_POS; break;
+		case ACT_CLAP_TAKE_CUP : *ax12_goalPosition = CLAP_AX12_TAKE_CUP_POS; break;
 
 		case ACT_CLAP_STOP :
 			AX12_set_torque_enabled(CLAP_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

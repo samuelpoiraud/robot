@@ -204,6 +204,7 @@ typedef enum {
 typedef enum {
 	ACT_clap_closed = ACT_CLAP_CLOSED,
 	ACT_clap_open = ACT_CLAP_OPEN,
+	ACT_clap_take_cup = ACT_CLAP_TAKE_CUP,
 	ACT_clap_stop = ACT_CLAP_STOP
 } ACT_clap_cmd_e;
 
