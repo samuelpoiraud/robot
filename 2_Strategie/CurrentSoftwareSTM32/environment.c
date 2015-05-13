@@ -393,19 +393,21 @@ void CAN_update (CAN_msg_t* incoming_msg)
 				 * - viser le rush gobelet central (cette position est probablement différente pour gagner du temps ?)
 				 * => autre avantage, ca nous permet de savoir ce que va faire le robot (contrôle supplémentaire de l'état des switchs)
 				 */
-				teta = COLOR_ANGLE(-PI4096/2);
-				if(!ELEMENTS_get_flag(SWITCH_ATTACK_FIRST)){
-					if(IHM_switchs_get(SWITCH_CUP_NORTH_OUR))
+
+				if(!IHM_switchs_get(SWITCH_ATTACK_FIRST)){
+					if(IHM_switchs_get(SWITCH_CUP_NORTH_OUR)){
 						teta = COLOR_ANGLE(-PI4096/2);
-					else if(IHM_switchs_get(SWITCH_CUP_SOUTH_OUR))
+					}else if(IHM_switchs_get(SWITCH_CUP_SOUTH_OUR)){
 						teta = 0;
-					else
+					}else{
 						teta = COLOR_ANGLE(-PI4096/2);
+					}
 				}else{
-					if(IHM_switchs_get(SWITCH_CUP_SOUTH_OUR))
+					if(IHM_switchs_get(SWITCH_CUP_SOUTH_OUR)){
 						teta = 0;
-					else
+					}else{
 						teta = COLOR_ANGLE(-PI4096/2);
+					}
 				}
 
 
