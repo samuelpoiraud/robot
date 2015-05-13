@@ -20,6 +20,7 @@
 
 //Position
 	#define CLAP_AX12_OPEN_POS					512		//en degré
+	#define CLAP_AX12_TAKE_CUP_POS				216		//en degré
 	#define CLAP_AX12_CLOSE_POS					216		//en degré
 
 //Position initiale de l'AX12
