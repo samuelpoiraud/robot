@@ -571,6 +571,7 @@ error_e SELFTEST_strategy(bool_e reset)
 				if(IHM_switchs_get(SWITCH_DISABLE_CLAPS))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CLAPS_DISABLED);
 				if(IHM_switchs_get(SWITCH_DISABLE_CARPETS))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CARPETS_DISABLED);
 				if(IHM_switchs_get(SWITCH_DISABLE_LIFT))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LIFT_DISABLED);
+				if(IHM_switchs_get(SWITCH_DISABLE_CUP))			SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CUP_DISABLED);
 			}
 			state = TEST_SD_CARD;
 			break;
@@ -654,6 +655,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_CLAPS_DISABLED");			break;
 				case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_CARPETS_DISABLED");			break;
 				case SELFTEST_STRAT_SWITCH_LIFT_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_LIFT_DISABLED");			break;
+				case SELFTEST_STRAT_SWITCH_CUP_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_CUP_DISABLED");			break;
 
 				case SELFTEST_IHM_BATTERY_NO_24V:				debug_printf("SELFTEST_IHM_BATTERY_NO_24V");					break;
 				case SELFTEST_IHM_BATTERY_LOW:					debug_printf("SELFTEST_IHM_BATTERY_LOW");						break;
@@ -968,6 +970,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		return "Claps Disabled";		break;
 		case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	return "Carpets Disabled";		break;
 		case SELFTEST_STRAT_SWITCH_LIFT_DISABLED:		return "Lift Disabled";			break;
+		case SELFTEST_STRAT_SWITCH_CUP_DISABLED:		return "Cup Disabled";			break;
 
 		case SELFTEST_IHM_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_IHM_BATTERY_LOW:					return "BATTERY LOW";			break;

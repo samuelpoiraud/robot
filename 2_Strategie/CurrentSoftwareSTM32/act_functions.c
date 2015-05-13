@@ -574,7 +574,6 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		FAIL_ELEVATOR_UP_2,
 		STOCK_LOCK,
 		ELEVATOR_DOWN,
-		LOCK_FULL_STOCK,
 		WAIT_NIPPER,
 		NIPPER_OPEN,
 		WIN_STOCK,
@@ -605,7 +604,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		FAIL_RELEASE
 	);
 
-	static bool_e right_error = FALSE, left_error = FALSE, flag_wait = FALSE;
+	static bool_e right_error = FALSE, left_error = FALSE;
 	static enum state_e state1, state2, state3, state4;
 	error_e ret = IN_PROGRESS;
 
