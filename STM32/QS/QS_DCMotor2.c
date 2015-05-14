@@ -342,7 +342,6 @@ void DCM_restart(Uint8 dc_motor_id)
 		this->init_state = INITIALIZED;
 		this->wanted_pos = this->config.sensor_read();
 	}
-
 }
 
 /*-----------------------------------------
@@ -529,6 +528,15 @@ void DCM_process_it()
 	}
 }
 
+void DCM_reset_integrator(){
+	Uint8 i;
+	for (i=0;i<DCM_NUMBER;i++)
+	{
+		DCMotor_t* this = &(DCMotors[i]);
+		this->integrator = 0;
+		this->cmd_time = 0;
+	}
+}
 
 /*-----------------------------------------
 Envoie un retour CAN / signal de fin de parcours
