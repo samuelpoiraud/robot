@@ -87,10 +87,10 @@ void SUPERVISION_send_pos_over_xbee(void)
 {
 	CAN_msg_t msg;
 	msg.sid = XBEE_MY_POSITION_IS;
-	msg.data[0] = HIGHINT(global.env.pos.x);
-	msg.data[1] = LOWINT(global.env.pos.x);
-	msg.data[2] = HIGHINT(global.env.pos.y);
-	msg.data[3] = LOWINT(global.env.pos.y);
+	msg.data[0] = HIGHINT(env.pos.x);
+	msg.data[1] = LOWINT(env.pos.x);
+	msg.data[2] = HIGHINT(env.pos.y);
+	msg.data[3] = LOWINT(env.pos.y);
 	msg.data[4] = QS_WHO_AM_I_get();
 	msg.size = 5;
 

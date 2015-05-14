@@ -37,6 +37,10 @@
 #include "Supervision/LCD_interface.h"
 #include "QS/QS_ports.h"
 
+//Variable globale :
+volatile environment_t env;
+
+
 /* met à jour l'environnement en fonction du message CAN reçu */
 void CAN_update (CAN_msg_t* incoming_msg);
 
@@ -62,33 +66,33 @@ void ENV_init(void)
 	DETECTION_init();
 
 	ENV_clean();
-	global.env.wanted_color=COLOR_INIT_VALUE;
-	global.env.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
-	global.env.color_updated = TRUE;
-	global.env.match_started = FALSE;
-	global.env.match_over = FALSE;
+	env.wanted_color=COLOR_INIT_VALUE;
+	env.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
+	env.color_updated = TRUE;
+	env.match_started = FALSE;
+	env.match_over = FALSE;
 	for(i=0;i<MAX_NB_FOES;i++)
 	{
-		global.env.foe[i].fiability_error = 0;
-		global.env.foe[i].enable = FALSE;
-		global.env.foe[i].update_time = 0;
+		env.foe[i].fiability_error = 0;
+		env.foe[i].enable = FALSE;
+		env.foe[i].update_time = 0;
 	}
-	global.env.foes_updated_for_lcd = FALSE;
-	global.env.match_time = 0;
-	global.env.pos.dist = 0;
-	global.env.ask_start = FALSE;
-	global.env.prop.calibrated = FALSE;
-	global.env.prop.current_way = ANY_WAY;
-	global.env.prop.is_in_translation = FALSE;
-	global.env.prop.is_in_rotation = FALSE;
-	global.env.prop.current_status = NO_ERROR;
-	global.env.alim = FALSE;
-	global.env.alim_value = 0;
-	global.env.destination = (GEOMETRY_point_t){0,0};
+	env.foes_updated_for_lcd = FALSE;
+	env.match_time = 0;
+	env.pos.dist = 0;
+	env.ask_start = FALSE;
+	env.prop.calibrated = FALSE;
+	env.prop.current_way = ANY_WAY;
+	env.prop.is_in_translation = FALSE;
+	env.prop.is_in_rotation = FALSE;
+	env.prop.current_status = NO_ERROR;
+	env.alim = FALSE;
+	env.alim_value = 0;
+	env.destination = (GEOMETRY_point_t){0,0};
 	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
-		global.env.propulsion_coefs[i] = 0;
-	global.env.com.reach_point_get_out_init = FALSE;
-	global.env.initial_position_received = FALSE;
+		env.propulsion_coefs[i] = 0;
+	env.com.reach_point_get_out_init = FALSE;
+	env.initial_position_received = FALSE;
 
 	FIX_BEACON_init();
 }
@@ -113,8 +117,8 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 				//On ne propage pas les messages de BROADCAST_POSITION_ROBOT (dans le cas où les raisons ne sont pas des WARN).
 				*bSAVE_filter = FALSE;
 				//Traitement spécial pour les messages d'asser position : maxi 1 par seconde !
-				if(global.env.absolute_time-1000>filter_broadcast_position) //global.compteur_de_secondes est incrémenté toutes les 250 ms ...
-					filter_broadcast_position=global.env.absolute_time;
+				if(env.absolute_time-1000>filter_broadcast_position)
+					filter_broadcast_position=env.absolute_time;
 				else
 					*bUART_filter = FALSE;	//Ca passe pas...
 			}
@@ -125,8 +129,8 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 			*bSAVE_filter = FALSE;	//Pas d'enregistrement non plus	(mieux vaut carrément sauver 	ponctuellement les infos qui découlent de ce message)
 			break;
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
-			//if(global.env.absolute_time-1000>filter_beacon_ir) //global.compteur_de_secondes est incrémenté toutes les 250 ms ...
-			//	filter_beacon_ir=global.env.absolute_time;
+			//if(env.absolute_time-1000>filter_beacon_ir)
+			//	filter_beacon_ir=env.absolute_time;
 			//else
 			*bUART_filter = FALSE;	//Ca passe pas...
 			*bSAVE_filter = FALSE;
@@ -267,9 +271,9 @@ void ENV_update(void)
 	// RAZ des drapeaux temporaires pour la prochaine itération
 	ENV_clean();
 
-	if(global.env.initial_position_received == FALSE && last_time_tell_position != 0 && global.env.absolute_time - last_time_tell_position > 500){
+	if(env.initial_position_received == FALSE && last_time_tell_position != 0 && env.absolute_time - last_time_tell_position > 500){
 		CAN_send_sid(PROP_TELL_POSITION);
-		last_time_tell_position = global.env.absolute_time;
+		last_time_tell_position = env.absolute_time;
 	}
 
 	// Récuperation de l'évolution de l'environnement renseignee par les messages CAN
@@ -365,22 +369,22 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 //****************************** Messages carte propulsion/asser *************************/
 		case STRAT_TRAJ_FINIE:
-			global.env.prop.ended = TRUE;
+			env.prop.ended = TRUE;
 			break;
 		case STRAT_PROP_FOE_DETECTED:
 			set_prop_detected_foe(incoming_msg);
 			break;
 		case STRAT_PROP_ERREUR:
-			global.env.prop.erreur = TRUE;
-			global.env.prop.vitesse_translation_erreur =
+			env.prop.erreur = TRUE;
+			env.prop.vitesse_translation_erreur =
 				((Sint32)U16FROMU8(incoming_msg->data[1],incoming_msg->data[0]) << 16)
 					+ U16FROMU8(incoming_msg->data[3],incoming_msg->data[2]);
-			global.env.prop.vitesse_rotation_erreur =
+			env.prop.vitesse_rotation_erreur =
 				((Sint32)U16FROMU8(incoming_msg->data[5],incoming_msg->data[4]) << 16)
 					+ U16FROMU8(incoming_msg->data[7],incoming_msg->data[6]);
 			break;
 		case PROP_ROBOT_CALIBRE:
-			global.env.prop.calibrated = TRUE;
+			env.prop.calibrated = TRUE;
 			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
 			{
 				CAN_msg_t msg;
@@ -431,8 +435,8 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case DEBUG_PROPULSION_COEF_IS:
 			if(incoming_msg->data[0] < PROPULSION_NUMBER_COEFS)
 			{
-				global.env.propulsion_coefs_updated |=  (Uint32)(1) << incoming_msg->data[0];
-				global.env.propulsion_coefs[incoming_msg->data[0]] = (Sint32)(U32FROMU8(incoming_msg->data[1],incoming_msg->data[2],incoming_msg->data[3],incoming_msg->data[4]));
+				env.propulsion_coefs_updated |=  (Uint32)(1) << incoming_msg->data[0];
+				env.propulsion_coefs[incoming_msg->data[0]] = (Sint32)(U32FROMU8(incoming_msg->data[1],incoming_msg->data[2],incoming_msg->data[3],incoming_msg->data[4]));
 			}
 			break;
 		case BROADCAST_POSITION_ROBOT:
@@ -441,28 +445,28 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 			if(incoming_msg->data[6] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 			{
-				global.env.prop.reach_x = TRUE;
+				env.prop.reach_x = TRUE;
 				debug_printf("Rx\n");
 			}
 
 			if(incoming_msg->data[6] & WARNING_REACH_Y)	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
 			{
-				global.env.prop.reach_y = TRUE;
+				env.prop.reach_y = TRUE;
 				debug_printf("Ry\n");
 			}
 			if(incoming_msg->data[6] & WARNING_REACH_TETA)	//Nous venons d'atteindre une position en Teta pour laquelle on a demandé une surveillance à la propulsion.
 			{
-				global.env.prop.reach_teta = TRUE;
+				env.prop.reach_teta = TRUE;
 				debug_printf("Rt\n");
 			}
 
 			break;
 		case STRAT_ROBOT_FREINE:
-			global.env.prop.freine = TRUE;
+			env.prop.freine = TRUE;
 
 			break;
 		case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
-			global.env.duration_trajectory_for_test_coefs = U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]);
+			env.duration_trajectory_for_test_coefs = U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]);
 			break;
 		case STRAT_SEND_REPORT:
 			LCD_printf(1, TRUE, FALSE, "Dist:%d", U16FROMU8(incoming_msg->data[4], incoming_msg->data[5]) << 1);
@@ -470,6 +474,11 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case STRAT_CUP_POSITION:
 			collect_cup_coord(incoming_msg);
+			break;
+
+
+		case DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY:
+			BUZZER_play(1000,DEFAULT_NOTE,1);
 			break;
 
 //****************************** Messages de la carte actionneur *************************/
@@ -492,8 +501,8 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case XBEE_START_MATCH:
-			if(QS_WHO_AM_I_get() == BIG_ROBOT || global.env.prop.calibrated)	//Vérification pour éviter de lancer un match si on est pas "sur le terrain"...et près à partir.
-				global.env.ask_start = TRUE;	//Inconvénient : il FAUT être calibré pour lancer un match à partir de l'autre robot.
+			if(QS_WHO_AM_I_get() == BIG_ROBOT || env.prop.calibrated)	//Vérification pour éviter de lancer un match si on est pas "sur le terrain"...et près à partir.
+				env.ask_start = TRUE;	//Inconvénient : il FAUT être calibré pour lancer un match à partir de l'autre robot.
 			break;
 		case XBEE_PING:
 			//On recoit un ping, on répond par un PONG.
@@ -504,7 +513,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			//On reçoit un pong, tant mieux, le lien est établi
 			break;
 		case DEBUG_DETECT_FOE:
-			global.env.debug_force_foe = TRUE;
+			env.debug_force_foe = TRUE;
 			break;
 
 		case XBEE_ZONE_COMMAND:
@@ -512,7 +521,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 		case XBEE_REACH_POINT_GET_OUT_INIT:
-			global.env.com.reach_point_get_out_init = TRUE;
+			env.com.reach_point_get_out_init = TRUE;
 			break;
 
 		case XBEE_HOLLY_ASK_PROTECT:
@@ -575,7 +584,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			#endif
 			break;
 		case IHM_BIROUTE_IS_REMOVED:
-			global.env.ask_start = TRUE;
+			env.ask_start = TRUE;
 			break;
 
 		default:
@@ -589,24 +598,24 @@ void CAN_update (CAN_msg_t* incoming_msg)
 void ENV_pos_update (CAN_msg_t* msg)
 {
 	Sint16 cosinus, sinus;
-	global.env.pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
-	global.env.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
-	global.env.pos.translation_speed = ((Uint16)(msg->data[0] >> 5))*250;	// [mm/sec]
-//	if(global.env.pos.translation_speed > 1500)
+	env.pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
+	env.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
+	env.pos.translation_speed = ((Uint16)(msg->data[0] >> 5))*250;	// [mm/sec]
+//	if(env.pos.translation_speed > 1500)
 //		debug_printf("");
-	global.env.pos.rotation_speed =	((Uint16)(msg->data[2] >> 5));		// [rad/sec]
-	global.env.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
-	COS_SIN_4096_get(global.env.pos.angle, &cosinus, &sinus);
-	global.env.pos.cosAngle = cosinus;
-	global.env.pos.sinAngle = sinus;
-	global.env.prop.last_time_pos_updated = global.env.match_time;
-	global.env.prop.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
-	global.env.prop.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
-	global.env.prop.is_in_translation = (((msg->data[7] >> 5) & 0x07) >> 2) & 1;
-	global.env.prop.is_in_rotation = (((msg->data[7] >> 5) & 0x07) >> 1) & 1;
+	env.pos.rotation_speed =	((Uint16)(msg->data[2] >> 5));		// [rad/sec]
+	env.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
+	COS_SIN_4096_get(env.pos.angle, &cosinus, &sinus);
+	env.pos.cosAngle = cosinus;
+	env.pos.sinAngle = sinus;
+	env.prop.last_time_pos_updated = env.match_time;
+	env.prop.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
+	env.prop.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
+	env.prop.is_in_translation = (((msg->data[7] >> 5) & 0x07) >> 2) & 1;
+	env.prop.is_in_rotation = (((msg->data[7] >> 5) & 0x07) >> 1) & 1;
 
-	global.env.initial_position_received = TRUE;
-	global.env.pos.updated = TRUE;
+	env.initial_position_received = TRUE;
+	env.pos.updated = TRUE;
 			/*msg->data[7] : 8 bits  : T R x W W E E E
 				 T : TRUE si robot en translation
 				 R : TRUE si robot en rotation
@@ -631,20 +640,20 @@ void ENV_clean (void)
 {
 	STACKS_clear_timeouts();
 	DETECTION_clean();
-	global.env.propulsion_coefs_updated = 0x00000000;
-	if(global.env.color == global.env.wanted_color)
-		global.env.color_updated = FALSE;
-	global.env.prop.ended = FALSE;
-	global.env.prop.erreur = FALSE;
-	global.env.prop.freine = FALSE;
-	global.env.prop.reach_x = FALSE;
-	global.env.prop.reach_y = FALSE;
-	global.env.prop.reach_teta = FALSE;
-		//global.env.prop.last_time_pos_updated = 0;
-	global.env.pos.updated = FALSE;
-	global.env.ask_prop_calibration = FALSE;
-	global.env.debug_force_foe = FALSE;
-	global.env.duration_trajectory_for_test_coefs = 0;
+	env.propulsion_coefs_updated = 0x00000000;
+	if(env.color == env.wanted_color)
+		env.color_updated = FALSE;
+	env.prop.ended = FALSE;
+	env.prop.erreur = FALSE;
+	env.prop.freine = FALSE;
+	env.prop.reach_x = FALSE;
+	env.prop.reach_y = FALSE;
+	env.prop.reach_teta = FALSE;
+		//env.prop.last_time_pos_updated = 0;
+	env.pos.updated = FALSE;
+	env.ask_prop_calibration = FALSE;
+	env.debug_force_foe = FALSE;
+	env.duration_trajectory_for_test_coefs = 0;
 	FIX_BEACON_clean();	//Doit être après le any_match !
 }
 
@@ -652,12 +661,12 @@ void ENV_clean (void)
 void ENV_set_color(color_e color)
 {
 	/* changer la couleur */
-	global.env.color = color;
+	env.color = color;
 
 	/* indiquer au monde la nouvelle couleur */
 	CAN_msg_t msg;
 	msg.sid=BROADCAST_COULEUR;
-	msg.data[0]=global.env.color;
+	msg.data[0]=env.color;
 	msg.size=1;
 	CAN_send(&msg);
 }

@@ -71,7 +71,7 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 			me = ((QS_WHO_AM_I_get() == BIG_ROBOT)? ZIS_BIG : ZIS_SMALL);
 
 			last_try_time = 0;
-			begin_lock_time = global.env.match_time;
+			begin_lock_time = env.match_time;
 			if(zones[zone].owner == me ) {  // Si la zone est occupé par moi-même
 				state = TL_LOCKED;
 			} else {
@@ -80,7 +80,7 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 			break;
 
 		case TL_SEND_REQUEST: // Nous avons envoyer un message de prise de zone, nous attendons mnt la réponse de l'autre
-			last_try_time = global.env.match_time;
+			last_try_time = env.match_time;
 
 			if(zones[zone].owner == ZIS_Free && zones[zone].state == ZS_Free){ // Si c'est une zone libre non prise
 				zones[zone].state = ZS_OwnedByMe;
@@ -102,15 +102,15 @@ error_e ZONE_try_lock(map_zone_e zone, Uint16 timeout_ms) {
 			if(zones[zone].state == ZS_OwnedByMe) {		//C'est bon, on a verrouillé la zone pour nous
 				state = TL_LOCKED;
 
-			} else if(zones[zone].state == ZS_Acquiring && global.env.match_time >= begin_lock_time + RESPONSE_WAIT_TIMEOUT) {
+			} else if(zones[zone].state == ZS_Acquiring && env.match_time >= begin_lock_time + RESPONSE_WAIT_TIMEOUT) {
 				//On a pas eu de réponse depuis trop de temps, l'autre robot ne répond pas ...
 				state = TL_NO_RESPONSE;
 
-			} else if(zones[zone].state == ZS_Acquiring && global.env.match_time >= last_try_time + RETRY_TIMEOUT) {
+			} else if(zones[zone].state == ZS_Acquiring && env.match_time >= last_try_time + RETRY_TIMEOUT) {
 				//La zone est verrouillée par l'autre robot, on retente
 				state = TL_SEND_REQUEST;
 
-			}else if(timeout_ms && global.env.match_time >= begin_lock_time + timeout_ms) {
+			}else if(timeout_ms && env.match_time >= begin_lock_time + timeout_ms) {
 				//On est en train de tenter de verrouiller la zone depuis trop longtemps
 				state = TL_TIMEOUT;
 			}

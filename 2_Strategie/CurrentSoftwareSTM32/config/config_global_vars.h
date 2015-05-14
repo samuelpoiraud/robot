@@ -20,7 +20,7 @@
 	 *	(position, fin de mouvement, ...)
 	 */
 
-	environment_t env;
+	//environment_t env;
 		
 	volatile Uint8 chrono_long_push; //compteur des quarts de seconde pout détecté un appui égal à 2 secondes
 #endif /* ndef CONFIG_GLOBAL_VARS_H */

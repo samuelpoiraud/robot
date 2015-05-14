@@ -34,8 +34,8 @@ void CLOCK_init()
 	TIMER_init();
 	TIMER1_stop();
 	CLOCK_run();	//Lancement du timer pour utilisation avant le début du match.
-	global.env.match_time = 0;
-	global.env.absolute_time = 0;
+	env.match_time = 0;
+	env.absolute_time = 0;
 }
 
 void CLOCK_run()
@@ -47,16 +47,16 @@ void show_color_on_leds()
 {
 #ifndef FDP_2014
 	static color_e local_color = -1;
-	if(global.env.color != local_color)
+	if(env.color != local_color)
 	{
-		if(global.env.color == BOT_COLOR)
+		if(env.color == BOT_COLOR)
 			IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, LED_COLOR_YELLOW});
 		else
 			IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, LED_COLOR_GREEN});
-		local_color = global.env.color;
+		local_color = env.color;
 	}
 #else
-	if(global.env.color == BOT_COLOR)
+	if(env.color == BOT_COLOR)
 	{
 		GPIO_ResetBits(BLUE_LEDS);
 		GPIO_SetBits(GREEN_LEDS);
@@ -83,14 +83,14 @@ void _ISR _T1Interrupt()
 {
 	static Uint16 local_time = 0;
 	static Uint16 count_1sec = 0;
-	global.env.absolute_time++;
+	env.absolute_time++;
 
-	if(global.env.match_started && !global.env.match_over)	//Match commencé et NON terminé
+	if(env.match_started && !env.match_over)	//Match commencé et NON terminé
 	{
 		//Pendant le match.
-		global.env.match_time++;
+		env.match_time++;
 
-		if(global.env.match_time & 0x100)
+		if(env.match_time & 0x100)
 			toggle_led(LED_USER);
 	}
 

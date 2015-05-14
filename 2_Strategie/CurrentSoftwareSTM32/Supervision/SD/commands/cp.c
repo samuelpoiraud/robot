@@ -35,7 +35,7 @@ int term_cmd_cp(int argc, const char *argv[]) {
 	}
 
 	debug_printf("Copying file...\n");
-	start_time = global.env.absolute_time;
+	start_time = env.absolute_time;
 	total_copied = 0;
 
 	for (;;) {
@@ -52,7 +52,7 @@ int term_cmd_cp(int argc, const char *argv[]) {
 			break;
 		}
 	}
-	debug_printf("%u bytes copied with %lu kB/sec.\n", total_copied, total_copied / (global.env.absolute_time - start_time));
+	debug_printf("%u bytes copied with %lu kB/sec.\n", total_copied, total_copied / (env.absolute_time - start_time));
 
 	f_close(&file_dst);
 	f_close(&file_src);

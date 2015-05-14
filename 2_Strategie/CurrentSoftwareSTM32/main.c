@@ -47,13 +47,13 @@ static void MAIN_sensor_test();
 void process_measure_loop_duration(void)
 {
 	static time32_t previous_time = 0;
-	if(global.env.match_time > 0)
+	if(env.match_time > 0)
 	{
 		//Décommenter ce printf pour afficher la mesure de la durée de la boucle.
 		//ATTENTION, cet affichage est hors de la mesure... (donc elle impacte le code hors de cette mesure).
-		if(global.env.match_time-previous_time > 5)
-			debug_printf("L%d\n",(Uint16)(global.env.match_time-previous_time));
-		previous_time = global.env.match_time;
+		if(env.match_time-previous_time > 5)
+			debug_printf("L%d\n",(Uint16)(env.match_time-previous_time));
+		previous_time = env.match_time;
 	}
 }
 
@@ -271,7 +271,7 @@ void RCON_read(void)
 
 static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
-	if(!global.env.match_started){
+	if(!env.match_started){
 		if(QS_WHO_AM_I_get() == BIG_ROBOT){
 			if(RECALAGE_AR_G || RECALAGE_AR_D /*|| PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY
 					|| ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 5 || ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 50

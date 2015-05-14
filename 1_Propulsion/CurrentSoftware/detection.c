@@ -93,6 +93,8 @@ static Sint16 beacon_ir_distance_filter(bool_e enable, Uint8 foe_id, Sint16 new_
 			return new_distance;
 		}
 	}
+	else
+		return 0;	//should never happen.
 }
 
 

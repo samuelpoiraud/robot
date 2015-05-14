@@ -142,7 +142,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 
 		case FAST_ROTATE:
 			if(entrance){
-				angle = atan2(y-global.env.pos.y, x-global.env.pos.x)*4096;
+				angle = atan2(y-env.pos.y, x-env.pos.x)*4096;
 				if(angle > 0)
 					angle -= (way == BACKWARD)? PI4096 : 0;
 				else
@@ -203,10 +203,10 @@ Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fai
 
 	switch(state){
 		case COMPUTE :
-			COS_SIN_4096_get((way == FORWARD)? global.env.pos.angle:global.env.pos.angle+PI4096, &cos, &sin);
+			COS_SIN_4096_get((way == FORWARD)? env.pos.angle:env.pos.angle+PI4096, &cos, &sin);
 
-			point.x = (Sint32)cos*dist/4096 + global.env.pos.x;
-			point.y = (Sint32)sin*dist/4096 + global.env.pos.y;
+			point.x = (Sint32)cos*dist/4096 + env.pos.x;
+			point.y = (Sint32)sin*dist/4096 + env.pos.y;
 			state = GO;
 			break;
 
@@ -302,7 +302,7 @@ static error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type) {
 	static time32_t last_match_time;
 	static bool_e debug_foe_forced = FALSE;
 	static time32_t no_foe_count;
-	time32_t current_match_time = global.env.match_time;
+	time32_t current_match_time = env.match_time;
 
 	bool_e timeout;
 	error_e ret = IN_PROGRESS;
@@ -344,13 +344,13 @@ static error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type) {
 
 			case NO_FOE:
 
-				if(global.env.debug_force_foe)	//Evitement manuel forcé !
+				if(env.debug_force_foe)	//Evitement manuel forcé !
 				{
 					STACKS_flush(PROP);
 					debug_foe_reason(FORCED_BY_USER, 0, 0);
 					PROP_push_stop();
 					state = WAIT_STOP;
-					global.env.debug_force_foe = FALSE;
+					env.debug_force_foe = FALSE;
 					debug_foe_forced = TRUE;	//Nous allons juste attendre le stop.. et puis on retournera un FOE_IN_PATH.
 				}
 				else
@@ -358,13 +358,13 @@ static error_e wait_move_and_scan_foe(avoidance_type_e avoidance_type) {
 					//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
 					//Necessaire pour que l'angle de detection de l'adversaire soit valide (car sinon on ne pointe pas forcément vers notre point d'arrivé ...)
 					//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
-		//			if((global.env.prop.current_trajectory != TRAJECTORY_TRANSLATION && global.env.prop.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
+		//			if((env.prop.current_trajectory != TRAJECTORY_TRANSLATION && env.prop.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
 		//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
 		//				debug_printf("Not in translation but foe in path\n");
 
-					if(global.env.prop.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
+					if(env.prop.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
 					{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
-						//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
+						//debug_foe_reason(foe, env.foe[foe].angle, env.foe[foe].dist);
 						//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 						BUZZER_play(20, DEFAULT_NOTE, 3);
 						switch(avoidance_type)
@@ -600,7 +600,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 		case LOAD_MOVE:
 			timeout = FALSE;
 			clear_prop_detected_foe();
-			global.env.destination = displacements[nb_displacements-1].point;
+			env.destination = displacements[nb_displacements-1].point;
 			for(i=nb_displacements-1;i>=1;i--)
 			{
 				if(displacements)
@@ -649,7 +649,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					timeout = TRUE;
 					debug_printf("wait_move_and_scan_foe -- timeout\n");
 					SD_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
-					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
+					env.destination = (GEOMETRY_point_t){env.pos.x, env.pos.y};
 					state = DONE;
 					break;
 
@@ -662,7 +662,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					#else
 						state = CHECK_SCAN_FOE;
 					#endif
-					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
+					env.destination = (GEOMETRY_point_t){env.pos.x, env.pos.y};
 					return NOT_HANDLED;
 					break;
 
@@ -679,7 +679,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 						#else
 							state = CHECK_SCAN_FOE;
 						#endif
-						global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
+						env.destination = (GEOMETRY_point_t){env.pos.x, env.pos.y};
 						return FOE_IN_PATH;			//Pas d'extraction demandée... on retourne tel quel FOE_IN_PATH !
 					}
 					break;
@@ -693,7 +693,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					#else
 						state = CHECK_SCAN_FOE;
 					#endif
-					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
+					env.destination = (GEOMETRY_point_t){env.pos.x, env.pos.y};
 					return NOT_HANDLED;
 					break;
 			}
@@ -709,7 +709,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					#else
 						state = CHECK_SCAN_FOE;
 					#endif
-					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
+					env.destination = (GEOMETRY_point_t){env.pos.x, env.pos.y};
 					return FOE_IN_PATH;
 					break;
 
@@ -723,7 +723,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					#else
 						state = CHECK_SCAN_FOE;
 					#endif
-					global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
+					env.destination = (GEOMETRY_point_t){env.pos.x, env.pos.y};
 					return NOT_HANDLED;
 					break;
 			}
@@ -746,7 +746,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			#else
 				state = CHECK_SCAN_FOE;
 			#endif
-			global.env.destination = (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y};
+			env.destination = (GEOMETRY_point_t){env.pos.x, env.pos.y};
 			return NOT_HANDLED;
 	}
 	return IN_PROGRESS;
@@ -777,7 +777,7 @@ bool_e foe_in_path(bool_e verbose)
 	Sint32 avoidance_rectangle_max_x;
 	Sint32 avoidance_rectangle_width_y;
 
-	move_way = global.env.prop.current_way;	//TODO cracra.. a nettoyer ultérieurement.
+	move_way = env.prop.current_way;	//TODO cracra.. a nettoyer ultérieurement.
 
 	in_path = FALSE;	//On suppose que pas d'adversaire dans le chemin
 
@@ -799,7 +799,7 @@ bool_e foe_in_path(bool_e verbose)
 	 */
 
 	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_ACCELERATION_NORMAL:BIG_ROBOT_ACCELERATION_NORMAL;
-	current_speed = (Uint32)(absolute(global.env.pos.translation_speed)*1);
+	current_speed = (Uint32)(absolute(env.pos.translation_speed)*1);
 	break_distance = current_speed*current_speed/(2*breaking_acceleration);	//distance que l'on va parcourir si l'on décide de freiner maintenant.
 	respect_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
 
@@ -818,18 +818,18 @@ bool_e foe_in_path(bool_e verbose)
 
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		if (global.env.foe[i].enable)
+		if (env.foe[i].enable)
 		{
-			COS_SIN_4096_get(global.env.foe[i].angle, &cosinus, &sinus);
-			relative_foe_x = (((Sint32)(cosinus)) * global.env.foe[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
-			relative_foe_y = (((Sint32)(sinus))   * global.env.foe[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
+			COS_SIN_4096_get(env.foe[i].angle, &cosinus, &sinus);
+			relative_foe_x = (((Sint32)(cosinus)) * env.foe[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
+			relative_foe_y = (((Sint32)(sinus))   * env.foe[i].dist) >> 12;		//[rad/4096] * [mm] / 4096 = [mm]
 
 			if(		relative_foe_y > -avoidance_rectangle_width_y/2 	&& 	relative_foe_y < avoidance_rectangle_width_y/2
 				&& 	relative_foe_x > avoidance_rectangle_min_x 		&& 	relative_foe_x < avoidance_rectangle_max_x)
 				{
 					in_path = TRUE;	//On est dans le rectangle d'évitement !!!
 					if(verbose)
-						SD_printf("FOE[%d]_IN_PATH|%c|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, (global.env.foe[i].from == DETECTION_FROM_BEACON_IR)?'B':'H',global.env.foe[i].dist, global.env.foe[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
+						SD_printf("FOE[%d]_IN_PATH|%c|d:%d|a:%d|rel_x%ld|rel_y%ld   RECT:[%ld>%ld][%ld>%ld]\n", i, (env.foe[i].from == DETECTION_FROM_BEACON_IR)?'B':'H',env.foe[i].dist, env.foe[i].angle, relative_foe_x, relative_foe_y,avoidance_rectangle_min_x,avoidance_rectangle_max_x,-avoidance_rectangle_width_y/2,avoidance_rectangle_width_y/2);
 				}
 		}
 	}
@@ -843,11 +843,11 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traje
 	Sint32 a, b, c; // avec a, b et c les coefficients de la droite entre nous et la cible
 	Sint32 NCx, NCy, NAx, NAy;
 
-	a = y - global.env.pos.y;
-	b = -(x - global.env.pos.x);
-	c = -(Sint32)global.env.pos.x*y + (Sint32)global.env.pos.y*x;
+	a = y - env.pos.y;
+	b = -(x - env.pos.x);
+	c = -(Sint32)env.pos.x*y + (Sint32)env.pos.y*x;
 
-	if(global.env.pos.x == x && global.env.pos.y == y)
+	if(env.pos.x == x && env.pos.y == y)
 		return FALSE;
 
 
@@ -855,34 +855,34 @@ bool_e foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traje
 
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		if (global.env.foe[i].enable){
+		if (env.foe[i].enable){
 			// d(D, A) < L
 			// D : droite que le robot empreinte pour aller au point
 			// A : Point adversaire
 			// L : Largeur du robot maximum * 2
 			if(verbose)
-				debug_printf("Nous x:%d y:%d / ad x:%d y:%d / destination x:%d y:%d /\n ", global.env.pos.x, global.env.pos.y, global.env.foe[i].x, global.env.foe[i].y,x,y);
+				debug_printf("Nous x:%d y:%d / ad x:%d y:%d / destination x:%d y:%d /\n ", env.pos.x, env.pos.y, env.foe[i].x, env.foe[i].y,x,y);
 
-			if((QS_WHO_AM_I_get() == BIG_ROBOT && absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_BIG_ROBOT)
-					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && absolute((Sint32)a*global.env.foe[i].x + (Sint32)b*global.env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_SMALL_ROBOT)){
+			if((QS_WHO_AM_I_get() == BIG_ROBOT && absolute((Sint32)a*env.foe[i].x + (Sint32)b*env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_BIG_ROBOT)
+					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && absolute((Sint32)a*env.foe[i].x + (Sint32)b*env.foe[i].y + c) / (Sint32)sqrt((Sint32)a*a + (Sint32)b*b) < MARGE_COULOIR_EVITEMENT_STATIC_SMALL_ROBOT)){
 				// /NC./NA ¤ [0,NC*d]
 				// /NC : Vecteur entre nous et le point cible
 				// /NA : Vecteur entre nous et l'adversaire
 				// NC : Distance entre nous et le point cible
 				// d : Distance d'évitement de l'adversaire (longueur couloir)
 
-				NCx = x - global.env.pos.x;
-				NCy = y - global.env.pos.y;
+				NCx = x - env.pos.x;
+				NCy = y - env.pos.y;
 
-				NAx = global.env.foe[i].x - global.env.pos.x;
-				NAy = global.env.foe[i].y - global.env.pos.y;
+				NAx = env.foe[i].x - env.pos.x;
+				NAy = env.foe[i].y - env.pos.y;
 
 
-				if((NCx*NAx + NCy*NAy) >= (Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*100
+				if((NCx*NAx + NCy*NAy) >= (Sint32)dist_point_to_point(env.pos.x, env.pos.y, x, y)*100
 						&& (
-							(!check_on_all_traject &&(NCx*NAx + NCy*NAy) < (Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC)
+							(!check_on_all_traject &&(NCx*NAx + NCy*NAy) < (Sint32)dist_point_to_point(env.pos.x, env.pos.y, x, y)*DISTANCE_EVITEMENT_STATIC)
 							||
-							(check_on_all_traject &&(NCx*NAx + NCy*NAy) < SQUARE((Sint32)dist_point_to_point(global.env.pos.x, global.env.pos.y, x, y))))){
+							(check_on_all_traject &&(NCx*NAx + NCy*NAy) < SQUARE((Sint32)dist_point_to_point(env.pos.x, env.pos.y, x, y))))){
 					inZone = TRUE;
 					if(verbose)
 						debug_printf("DETECTED\n");
@@ -905,12 +905,12 @@ bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
 	Uint8 i;
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		if (global.env.foe[i].enable)
+		if (env.foe[i].enable)
 		{
-			if(is_in_square(x1,x2,y1,y2,(GEOMETRY_point_t){global.env.foe[i].x,global.env.foe[i].y}))
+			if(is_in_square(x1,x2,y1,y2,(GEOMETRY_point_t){env.foe[i].x,env.foe[i].y}))
 			{
 				if(verbose)
-					SD_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,global.env.foe[i].x,global.env.foe[i].y,x1,x2,y1,y2);
+					SD_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,env.foe[i].x,env.foe[i].y,x1,x2,y1,y2);
 				return TRUE;
 			}
 		}
@@ -981,7 +981,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 			remaining_try--;
 
 			adversary_to_close_distance = (QS_WHO_AM_I_get() == BIG_ROBOT)? 500 : 400;
-			i_can_turn_in_my_position = is_possible_point_for_rotation(&((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}));
+			i_can_turn_in_my_position = is_possible_point_for_rotation(&((GEOMETRY_point_t){env.pos.x,env.pos.y}));
 
 			bestPoint = 0xFF;
 			bestPoint_distance2_with_nearest_foe = 0;
@@ -992,9 +992,9 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 				if(i_can_turn_in_my_position || i <= 1 || (i >=5 && i<=7) || i>=11)
 				{
 					//Calcul des coordonnées du point.
-					COS_SIN_4096_get((PI4096*30*i + global.env.pos.angle)/180,&cos,&sin);
-					pointEx[i].x = ((Sint32)(cos)*EXTRACTION_DISTANCE)/4096 + global.env.pos.x;
-					pointEx[i].y = ((Sint32)(sin)*EXTRACTION_DISTANCE)/4096 + global.env.pos.y;
+					COS_SIN_4096_get((PI4096*30*i + env.pos.angle)/180,&cos,&sin);
+					pointEx[i].x = ((Sint32)(cos)*EXTRACTION_DISTANCE)/4096 + env.pos.x;
+					pointEx[i].y = ((Sint32)(sin)*EXTRACTION_DISTANCE)/4096 + env.pos.y;
 
 					if(is_possible_point_for_rotation(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
 					{
@@ -1002,8 +1002,8 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 						//On recherche la distance minimale entre le point 'i' et l'adversaire le plus proche.
 						for(foe = 0; foe < MAX_NB_FOES; foe++)		//Pour tout les adversaires obsersés
 						{
-							if(global.env.foe[foe].enable){
-								distance2_between_point_and_foe = (pointEx[i].x-global.env.foe[foe].x)*(pointEx[i].x-global.env.foe[foe].x) + (pointEx[i].y-global.env.foe[foe].y)*(pointEx[i].y-global.env.foe[foe].y);
+							if(env.foe[foe].enable){
+								distance2_between_point_and_foe = (pointEx[i].x-env.foe[foe].x)*(pointEx[i].x-env.foe[foe].x) + (pointEx[i].y-env.foe[foe].y)*(pointEx[i].y-env.foe[foe].y);
 								if(distance2_between_point_and_foe < distance2_between_point_and_foe_min){	//Si l'adversaire en cours est plus proche du point que les autres, on le prend en compte.
 									distance2_between_point_and_foe_min = distance2_between_point_and_foe;
 								}
@@ -1028,27 +1028,27 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 				//Pour gerer un cas d'erreur, si nous somme trop prêt d'un adversaire, un point derrière peut être supprimé alors que l'adversaire est devant nous
 				for(foe = 0; foe < MAX_NB_FOES; foe++)
 				{// Si nous sommes encercle par deux ennemis, on peut pas se permettre de comparer seulement avec l'ennemis le plus proche du point
-					if(global.env.foe[foe].enable)
+					if(env.foe[foe].enable)
 					{
-						distance2_between_point_and_foe = (pointEx[bestPoint].x-global.env.foe[foe].x)*(pointEx[bestPoint].x-global.env.foe[foe].x) + (pointEx[bestPoint].y-global.env.foe[foe].y)*(pointEx[bestPoint].y-global.env.foe[foe].y);
+						distance2_between_point_and_foe = (pointEx[bestPoint].x-env.foe[foe].x)*(pointEx[bestPoint].x-env.foe[foe].x) + (pointEx[bestPoint].y-env.foe[foe].y)*(pointEx[bestPoint].y-env.foe[foe].y);
 
 						if(distance2_between_point_and_foe < adversary_to_close_distance*adversary_to_close_distance)
 						{ // Si le point est pres de l'adveraire, on regarde où il se situe par rapport à nous et l'adversaire
 							//Calcul du point sur le bord du robot en direction de l'adversaire de façon à offrir un point de plus pour la sortie si il est encerclée
-							Uint16 norm = GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){global.env.foe[foe].x,global.env.foe[foe].y});
+							Uint16 norm = GEOMETRY_distance((GEOMETRY_point_t){env.pos.x,env.pos.y},(GEOMETRY_point_t){env.foe[foe].x,env.foe[foe].y});
 
-							float coefx = (global.env.foe[foe].x-global.env.pos.x)/(norm*1.);
-							float coefy = (global.env.foe[foe].y-global.env.pos.y)/(norm*1.);
+							float coefx = (env.foe[foe].x-env.pos.x)/(norm*1.);
+							float coefy = (env.foe[foe].y-env.pos.y)/(norm*1.);
 
 							GEOMETRY_point_t center; // Le centre d'où nous allons faire le produit scalaire
 							Uint8 widthRobot;
 							widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
 
-							center.x = global.env.pos.x + widthRobot*coefx;
-							center.y = global.env.pos.y + widthRobot*coefy;
+							center.x = env.pos.x + widthRobot*coefx;
+							center.y = env.pos.y + widthRobot*coefy;
 
-							Sint32 vecAdX = global.env.foe[foe].x-center.x;
-							Sint32 vecAdY = global.env.foe[foe].y-center.y;
+							Sint32 vecAdX = env.foe[foe].x-center.x;
+							Sint32 vecAdY = env.foe[foe].y-center.y;
 							Sint32 vecPointX = pointEx[bestPoint].x-center.x;
 							Sint32 vecPointY = pointEx[bestPoint].y-center.y;
 
@@ -1082,14 +1082,14 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 			if(entrance)
 			{
 				//BUZZER_play(500, NOTE_LA, 10);
-				begin_time = global.env.match_time;
+				begin_time = env.match_time;
 			}
 
-			if(global.env.match_time > begin_time + 1000)
+			if(env.match_time > begin_time + 1000)
 			{
 				if(remaining_try)
 					state = COMPUTE;
-				else if(is_possible_point_for_rotation(&((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y}))){
+				else if(is_possible_point_for_rotation(&((GEOMETRY_point_t){env.pos.x,env.pos.y}))){
 					state = sens;
 				}else
 					state = COMPUTE;
@@ -1099,7 +1099,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 
 		case TURN_TRIGO:
 			remaining_try = 3;
-			state = try_go_angle(global.env.pos.angle + PI4096/2,TURN_TRIGO,COMPUTE,TURN_HORAIRE,FAST);
+			state = try_go_angle(env.pos.angle + PI4096/2,TURN_TRIGO,COMPUTE,TURN_HORAIRE,FAST);
 
 			if(state == TURN_HORAIRE)
 				sens = TURN_HORAIRE;
@@ -1107,7 +1107,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 
 		case TURN_HORAIRE:
 			remaining_try = 3;
-			state = try_go_angle(global.env.pos.angle - PI4096/2,TURN_HORAIRE,COMPUTE,TURN_TRIGO,FAST);
+			state = try_go_angle(env.pos.angle - PI4096/2,TURN_HORAIRE,COMPUTE,TURN_TRIGO,FAST);
 
 			if(state == TURN_TRIGO)
 				sens = TURN_TRIGO;
@@ -1160,7 +1160,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 
 		case LOAD_MOVE:
 			clear_prop_detected_foe();
-			global.env.destination = displacements.point;
+			env.destination = displacements.point;
 			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, PROP_NO_BORDER_MODE, TRUE);
 			debug_printf("goto_extract_with_avoidance : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
@@ -1207,12 +1207,12 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 				return FOE_IN_PATH;
 			}
 #else
-			if(global.env.debug_force_foe)	//Evitement manuel forcé !
+			if(env.debug_force_foe)	//Evitement manuel forcé !
 			{
 				STACKS_flush(PROP);
 				debug_foe_reason(FORCED_BY_USER, 0, 0);
 				PROP_push_stop();
-				global.env.debug_force_foe = FALSE;
+				env.debug_force_foe = FALSE;
 				state = CHECK_SCAN_FOE;
 				return FOE_IN_PATH;
 			}
@@ -1221,13 +1221,13 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 				//Si on effectue un translation, c'est qu'on est en direction du point voulu (si le point était sur notre gauche, on aura fait une rotation au préalable)
 				//Necessaire pour que l'angle de detection de l'adversaire soit valide (car sinon on ne pointe pas forcément vers notre point d'arrivé ...)
 				//On considère ici que si la prop faire une translation, le robot pointe vers le point d'arrivée
-	//			if((global.env.prop.current_trajectory != TRAJECTORY_TRANSLATION && global.env.prop.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
+	//			if((env.prop.current_trajectory != TRAJECTORY_TRANSLATION && env.prop.current_trajectory != TRAJECTORY_AUTOMATIC_CURVE) &&
 	//				(is_in_path[FOE_1] || is_in_path[FOE_2]))
 	//				debug_printf("Not in translation but foe in path\n");
 
-				if(global.env.prop.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
+				if(env.prop.is_in_translation && foe_in_path(TRUE))	//Si un adversaire est sur le chemin
 				{	//On ne peut pas inclure le test du type de trajectoire dans le foe_in_path car ce foe_in_path sert également à l'arrêt, une fois qu'on a vu l'adversaire.
-					//debug_foe_reason(foe, global.env.foe[foe].angle, global.env.foe[foe].dist);
+					//debug_foe_reason(foe, env.foe[foe].angle, env.foe[foe].dist);
 					//debug_printf("IN_PATH[FOE1] = %d, IN_PATH[FOE1] = %d, robotmove = %d\n", is_in_path[FOE_1], is_in_path[FOE_2], AVOIDANCE_robot_translation_move());
 					BUZZER_play(20, DEFAULT_NOTE, 3);
 					debug_printf("goto_extract_with_avoidance: foe detected\n");
@@ -1301,10 +1301,10 @@ foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id)
 {
 	assert(foe_id < MAX_NB_FOES);
 
-	if(global.env.foe[foe_id].x > 1000)
+	if(env.foe[foe_id].x > 1000)
 	{
 		// Partie SUD
-		if(COLOR_Y(global.env.foe[foe_id].y) > 1500)
+		if(COLOR_Y(env.foe[foe_id].y) > 1500)
 		{
 			return SOUTH_FOE;
 		}
@@ -1315,7 +1315,7 @@ foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id)
 	}
 	else
 	{
-		if(COLOR_Y(global.env.foe[foe_id].y) > 1500)
+		if(COLOR_Y(env.foe[foe_id].y) > 1500)
 		{
 			return NORTH_FOE;
 		}
@@ -1365,7 +1365,7 @@ static error_e AVOIDANCE_watch_prop_stack ()
 		return END_WITH_TIMEOUT;
 	}else if(action_end) // Si l'ensemble des trajectoires sont finit, on le déclare
 		return END_OK;
-	else if (global.env.prop.erreur){
+	else if (env.prop.erreur){
 		STACKS_flush(PROP);
 		return NOT_HANDLED;
 	}
@@ -1385,7 +1385,7 @@ error_e ACTION_update_position()
 	switch (state)
 	{
 		case SEND_CAN_MSG :
-			if (!global.env.pos.updated)
+			if (!env.pos.updated)
 			{
 				CAN_send_sid(PROP_TELL_POSITION);
 				state = WAIT_RECEPTION;
@@ -1398,7 +1398,7 @@ error_e ACTION_update_position()
 			break;
 
 		case WAIT_RECEPTION :
-			if (global.env.pos.updated)
+			if (env.pos.updated)
 			{
 				state = SEND_CAN_MSG;
 				return END_OK;
@@ -1422,14 +1422,14 @@ error_e ACTION_prop_stop()
 	switch (state)
 	{
 		case SEND_CAN_MSG :
-			initial_time = global.env.match_time;
+			initial_time = env.match_time;
 			STACKS_flush(PROP);
 			CAN_send_sid(PROP_STOP);
 			state = WAIT_RECEPTION;
 			break;
 
 		case WAIT_RECEPTION :
-			if (global.env.prop.ended || (global.env.match_time-initial_time > (1000/*ms*/)))
+			if (env.prop.ended || (env.match_time-initial_time > (1000/*ms*/)))
 			{
 				state = SEND_CAN_MSG;
 				return END_OK;
@@ -1440,5 +1440,5 @@ error_e ACTION_prop_stop()
 }
 
 bool_e i_am_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2){
-	return is_in_square(x1, x2, COLOR_Y(y1), COLOR_Y(y2), (GEOMETRY_point_t){global.env.pos.x, global.env.pos.y});
+	return is_in_square(x1, x2, COLOR_Y(y1), COLOR_Y(y2), (GEOMETRY_point_t){env.pos.x, env.pos.y});
 }
