@@ -412,11 +412,11 @@ error_t BRAIN_find_distance(Uint8 i)
 	//Attention, le cast en Uint8 est très utile !!! si on le met pas, le modulo est effectué sur un Sint8 (à cause du -1) et on accède en -1 dans le tableau !!!
 
 
-	if(power < 90){
+	if(power < 100){
 		//y = 0,1167x2 - 22,872x + 1430,7 pour une distance en mm
 		//y = 0,0058x2 - 1,1436x + 71,534 pour une distance en 2cm
 		// On multiplie par 2^14 pour ne pas avoir de flottant
-		distance = ((Sint32)95*(Sint32)power*(Sint32)power - (Sint32)18737*(Sint32)power + (Sint32)1172013) >> 14;
+		distance = (((Sint32)437*(Sint32)power*(Sint32)power - (Sint32)79064*(Sint32)power + (Sint32)3981414) >> 10)/20;
 				//distance = PRODUIT_DISTANCE_EVIT_PUISSANCE_EVIT/power;	//Reglé d'après la mesure. ATTENTION : unité = [2cm]...
 				//PRODUIT_DISTANCE_EVIT_PUISSANCE_EVIT = "distance d'évitement souhaitée" * "PuissanceReçue mesurée à cette distance"
 	}else

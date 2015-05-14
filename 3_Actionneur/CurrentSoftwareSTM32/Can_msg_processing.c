@@ -15,6 +15,7 @@
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_verbose.h"
+#include "QS/QS_watchdog.h"
 #include "QS/QS_IHM.h"
 #include "queue.h"
 
@@ -26,6 +27,7 @@
 #include "QS/QS_who_am_i.h"
 
 static void CAN_send_callback(CAN_msg_t* msg);
+static void break_asser_end_match(void);
 
 void CAN_process_init(){
 	CAN_init();
@@ -51,11 +53,10 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case BROADCAST_STOP_ALL :
 			global.match_started = FALSE;
 			global.match_over = TRUE;
-			QUEUE_flush_all();
-			ACTMGR_stop();
 			#ifdef USE_DCMOTOR2
 				DCM_stop_all();
 			#endif
+			WATCHDOG_create(500, &break_asser_end_match, FALSE);
 			break;
 
 		//Reprise de la partie
@@ -154,4 +155,9 @@ static void CAN_send_callback(CAN_msg_t* msg){
 	#ifdef CAN_VERBOSE_MODE
 		QS_CAN_VERBOSE_can_msg_print(msg, VERB_OUTPUT_MSG);
 	#endif
+}
+
+static void break_asser_end_match(void){
+	QUEUE_flush_all();
+	ACTMGR_stop();
 }
