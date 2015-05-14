@@ -12,6 +12,7 @@
 	#include "QS/QS_who_am_i.h"
 	#include "QS/QS_outputlog.h"
 	#include "QS/QS_CANmsgList.h"
+	#include "QS/QS_can.h"
 	#include "QS/QS_who_am_i.h"
 	#include "QS/QS_maths.h"
 	#include "QS/QS_can_over_uart.h"
@@ -208,6 +209,7 @@ void HOKUYO_process_main(void)
 	static state_e state = INIT, last_state = INIT;
 	bool_e entrance;
 	static time32_t buffer_read_time_begin = 0;
+	static bool_e i_planted = FALSE;
 
 	if((state == INIT && last_state == INIT) || state != last_state)
 		entrance = TRUE;
@@ -266,10 +268,19 @@ void HOKUYO_process_main(void)
 			else if(datas_index>2278)
 				state=ASK_NEW_MEASUREMENT;
 			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
-				state=ASK_NEW_MEASUREMENT;
+			{
+				CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY);
+				i_planted = TRUE;
+				flag_device_disconnected = TRUE;
+			}
 #endif
 		break;
 		case REMOVE_LF:
+			if(i_planted)
+			{
+				i_planted = FALSE;
+				CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_RESSUCITED_AND_THAT_IS_VERY_FUNNY);
+			}
 			hokuyo_format_data();
 			state=TREATMENT_DATA;
 		break;
