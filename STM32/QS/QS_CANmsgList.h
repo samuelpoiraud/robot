@@ -222,6 +222,9 @@
 		//data[0] : id du coef
 		//datas[1 à 4] : coef !!! sur 32 bits !!!
 
+	#define DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY	0x723
+	#define DEBUG_PROPULION_HOKUYO_HAS_RESSUCITED_AND_THAT_IS_VERY_FUNNY			0x724
+
 	#define DEBUG_RTC_GET				(0x780)
 	#define DEBUG_RTC_SET				(0x781)
 					/*	GET et SET :
