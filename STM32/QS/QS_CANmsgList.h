@@ -800,15 +800,17 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	ACT_POP_DROP_LEFT = (ACT_FILTER | 0x04),
 		#define ACT_POP_DROP_LEFT_IDLE				0x11
 		#define ACT_POP_DROP_LEFT_OPEN				0x12
-		#define ACT_POP_DROP_LEFT_CLOSED			0x13
-		#define ACT_POP_DROP_LEFT_STOP				0x14
+		#define ACT_POP_DROP_LEFT_MID				0x13
+		#define ACT_POP_DROP_LEFT_CLOSED			0x14
+		#define ACT_POP_DROP_LEFT_STOP				0x15
 
 	//////////////DROP POPCORN RIGHT///////////////
 	ACT_POP_DROP_RIGHT = (ACT_FILTER | 0x05),
 		#define ACT_POP_DROP_RIGHT_IDLE				0x11
 		#define ACT_POP_DROP_RIGHT_OPEN				0x12
-		#define ACT_POP_DROP_RIGHT_CLOSED			0x13
-		#define ACT_POP_DROP_RIGHT_STOP				0x14
+		#define ACT_POP_DROP_RIGHT_MID				0x13
+		#define ACT_POP_DROP_RIGHT_CLOSED			0x14
+		#define ACT_POP_DROP_RIGHT_STOP				0x15
 
 	///////////////////ELEVATOR////////////////////
 	ACT_ELEVATOR = (ACT_FILTER | 0x06),
