@@ -158,9 +158,11 @@ bool_e IHM_switchs_get(switch_ihm_e swit){
 	bool_e value;
 
 	switch (swit) {
+	#ifndef FDP_2014
 		case SWITCH_ASSER:
 			value = SWITCH_LEFT_PORT;
 			break;
+	#endif
 		default:
 			break;
 	}
