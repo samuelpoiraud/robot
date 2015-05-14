@@ -80,7 +80,9 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			if(msg->data[0] == ALIM_OFF){
 				global.alim = FALSE;
 			}else if(msg->data[0] == ALIM_ON){
+#ifdef USE_DCMOTOR2
 				DCM_reset_integrator();
+#endif
 				static bool_e first_on = TRUE;
 				global.alim = TRUE;
 				if(first_on)
