@@ -65,7 +65,7 @@
 	/*
 		Fonction permettant d'armer un avertisseur sur la propulsion.
 		Un message de BROACAST_POSITION avec raison |= WARNING_REACH_X sera envoyé dès que le robot atteindra cette ligne virtuelle...
-		Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_x
+		Ce message déclenchera la levée en environnement stratégie du flag env.prop.reach_x
 		@param : 0 permet de demander un désarmement de l'avertisseur.
 	*/
 	void PROP_WARNER_arm_x(Sint16 x);
@@ -73,7 +73,7 @@
 	/*
 		Fonction permettant d'armer un avertisseur sur la propulsion.
 		Un message de BROACAST_POSITION avec raison |= WARNING_REACH_Y sera envoyé dès que le robot atteindra cette ligne virtuelle...
-		Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_y
+		Ce message déclenchera la levée en environnement stratégie du flag env.prop.reach_y
 		@param : 0 permet de demander un désarmement de l'avertisseur.
 	*/
 	void PROP_WARNER_arm_y(Sint16 y);
@@ -81,7 +81,7 @@
 	/*
 		Fonction permettant d'armer un avertisseur sur la propulsion.
 		Un message de BROACAST_POSITION avec raison |= WARNING_REACH_TETA sera envoyé dès que le robot atteindra cette ligne angulaire virtuelle...
-		Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_teta
+		Ce message déclenchera la levée en environnement stratégie du flag env.prop.reach_teta
 		@param : 0 permet de demander un désarmement de l'avertisseur.
 	*/
 	void PROP_WARNER_arm_teta(Sint16 teta);

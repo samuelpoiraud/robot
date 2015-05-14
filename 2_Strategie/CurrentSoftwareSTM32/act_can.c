@@ -206,7 +206,7 @@ static void ACT_check_result(queue_id_e act_id) {
 		act_states[act_id].lastResult = ACT_FUNCTION_Done;
 		QUEUE_next(act_id);
 #else
-	if(global.env.match_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
+	if(env.match_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
 		error_printf("Operation timeout (by strat) act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
 		act_states[act_id].disabled = TRUE;
 		act_states[act_id].lastResult = ACT_FUNCTION_ActDisabled;
@@ -244,8 +244,8 @@ static void ACT_check_result(queue_id_e act_id) {
 							static time32_t waitMsCount = 0;
 							if(waitMsCount == 0) {
 								debug_printf("RetryLater, will retry 10ms later, act id: %u\n", act_id);
-								waitMsCount = global.env.match_time + 10;	//Attendre 3ms avant de ressayer
-							}else if(global.env.match_time >= waitMsCount) {  //Après un certain temps défini juste avant, renvoyer la commande en espérant que ça passe cette fois
+								waitMsCount = env.match_time + 10;	//Attendre 3ms avant de ressayer
+							}else if(env.match_time >= waitMsCount) {  //Après un certain temps défini juste avant, renvoyer la commande en espérant que ça passe cette fois
 								CAN_msg_t msg;
 
 								waitMsCount = 0;

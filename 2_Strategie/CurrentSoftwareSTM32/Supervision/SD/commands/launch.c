@@ -20,7 +20,7 @@ int term_cmd_launch(int argc, const char *argv[]) {
 	if(argc > 0)
 		return EINVAL;
 
-	global.env.match_started = 1;
+	env.match_started = 1;
 
 	return 0;
 }

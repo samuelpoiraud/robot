@@ -34,12 +34,12 @@ Uint8 wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 	switch(state){
 
 		case IDLE :
-			timeEnd = global.env.match_time + time;
+			timeEnd = env.match_time + time;
 			state = WAIT;
 			break;
 
 		case WAIT:
-			if(timeEnd <= global.env.match_time)
+			if(timeEnd <= env.match_time)
 				state = END;
 			break;
 
@@ -51,6 +51,6 @@ Uint8 wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 }
 
 void on_turning_point(){
-	if(!is_possible_point_for_rotation(&((GEOMETRY_point_t){global.env.pos.x, global.env.pos.y})))
+	if(!is_possible_point_for_rotation(&((GEOMETRY_point_t){env.pos.x, env.pos.y})))
 		debug_printf(" !! NOT ON TURNING POINT !!\n");
 }
