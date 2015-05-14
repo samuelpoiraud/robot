@@ -956,9 +956,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					ACT_stock_left(ACT_stock_left_lock);
 			}
 
-			if(state1 == TAKE_FEET && who != ACT_MAE_SPOTIX_LEFT)
+			if(state1 == LOCK_STOCK && who != ACT_MAE_SPOTIX_LEFT)
 				state1 = check_act_status(ACT_QUEUE_Stock_right, state, WIN_LOCK_STOCK, FAIL_LOCK_STOCK);
-			if(state2 == TAKE_FEET && who != ACT_MAE_SPOTIX_RIGHT)
+			if(state2 == LOCK_STOCK && who != ACT_MAE_SPOTIX_RIGHT)
 				state2 = check_act_status(ACT_QUEUE_Stock_left, state, WIN_LOCK_STOCK, FAIL_LOCK_STOCK);
 
 			if((who == ACT_MAE_SPOTIX_BOTH && state1 != LOCK_STOCK && state2 != LOCK_STOCK)
