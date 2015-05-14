@@ -525,7 +525,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 		case XBEE_WOOD_TAKE_CUP:
-			holly_recieve_cup_state(incoming_msg);
+			holly_receive_cup_state(incoming_msg);
 			break;
 		case XBEE_HOLLY_START_MATCH:
 			holly_start_match(incoming_msg);
