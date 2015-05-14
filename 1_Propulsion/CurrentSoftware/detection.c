@@ -69,28 +69,29 @@ static Sint16 beacon_ir_distance_filter(bool_e enable, Uint8 foe_id, Sint16 new_
 	static Sint16 previous_distances[BEACON_MAX_FOES][BEACON_IR_SIZE_FILTER];
 	Uint8 i;
 	Sint32 sum;
-	assert(foe_id < BEACON_MAX_FOES);
-
-	if(enable)
+	if(foe_id < BEACON_MAX_FOES)
 	{
-		assert(index[foe_id] < BEACON_IR_SIZE_FILTER);
-		previous_distances[foe_id][index[foe_id]] = new_distance;	//Ajout de la nouvelle distance dans le tableau de filtrage
-		if(nb_datas[foe_id] < BEACON_IR_SIZE_FILTER)
-			nb_datas[foe_id]++;							//le nombre de données est entre 1 et 3
-		index[foe_id] = (index[foe_id]<BEACON_IR_SIZE_FILTER-1)?index[foe_id]+1:0;	//l'index de la prochaine donnée à écrire
-		sum = 0;
-		for(i=0;i<nb_datas[foe_id];i++)
+		if(enable)
 		{
-			sum += previous_distances[foe_id][i];
+			assert(index[foe_id] < BEACON_IR_SIZE_FILTER);
+			previous_distances[foe_id][index[foe_id]] = new_distance;	//Ajout de la nouvelle distance dans le tableau de filtrage
+			if(nb_datas[foe_id] < BEACON_IR_SIZE_FILTER)
+				nb_datas[foe_id]++;							//le nombre de données est entre 1 et 3
+			index[foe_id] = (index[foe_id]<BEACON_IR_SIZE_FILTER-1)?index[foe_id]+1:0;	//l'index de la prochaine donnée à écrire
+			sum = 0;
+			for(i=0;i<nb_datas[foe_id];i++)
+			{
+				sum += previous_distances[foe_id][i];
+			}
+			assert(nb_datas[foe_id] != 0);	//n'est jamais sensé se produire.
+			return (Sint16)(sum/nb_datas[foe_id]);	//on renvoie la moyenne des distances enregistrées dans le tableau
 		}
-		assert(nb_datas[foe_id] != 0);	//n'est jamais sensé se produire.
-		return (Sint16)(sum/nb_datas[foe_id]);	//on renvoie la moyenne des distances enregistrées dans le tableau
-	}
-	else
-	{
-		index[foe_id] = 0;
-		nb_datas[foe_id] = 0;
-		return new_distance;
+		else
+		{
+			index[foe_id] = 0;
+			nb_datas[foe_id] = 0;
+			return new_distance;
+		}
 	}
 }
 
