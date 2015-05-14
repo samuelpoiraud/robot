@@ -109,10 +109,62 @@ Sint32 PILOT_get_coef(PILOT_coef_e id)
 	return coefs[id];
 }
 
+void PILOT_reset_default_coef(PILOT_coef_e id)
+{
+
+	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
+	{
+		switch(id)
+		{
+			case PILOT_ACCELERATION_NORMAL: 				coefs[id] 	= SMALL_ACCELERATION_NORMAL;		break;
+			case PILOT_ACCELERATION_ROTATION_TRANSLATION: 	coefs[id] 	= SMALL_ACCELERATION_ROTATION_TRANSLATION;	break;
+			case PILOT_TRANSLATION_SPEED_LIGHT: 			coefs[id] 	= SMALL_TRANSLATION_SPEED_LIGHT;	break;
+			case PILOT_TRANSLATION_SPEED_MAX: 				coefs[id] 	= SMALL_TRANSLATION_SPEED_MAX;	break;
+			case PILOT_TRANSLATION_SPEED_LOW: 				coefs[id] 	= SMALL_TRANSLATION_SPEED_LOW;	break;
+			case PILOT_TRANSLATION_SPEED_VERY_LOW:	 		coefs[id] 	= SMALL_TRANSLATION_SPEED_VERY_LOW;	break;
+			case PILOT_TRANSLATION_SPEED_SNAIL: 			coefs[id] 	= SMALL_TRANSLATION_SPEED_SNAIL;	break;
+			case PILOT_ROTATION_SPEED_LIGHT: 				coefs[id] 	= SMALL_ROTATION_SPEED_LIGHT;	break;
+			case PILOT_ROTATION_SPEED_MAX: 					coefs[id] 	= SMALL_ROTATION_SPEED_MAX;	break;
+			case PILOT_ROTATION_SPEED_LOW: 					coefs[id] 	= SMALL_ROTATION_SPEED_LOW;	break;
+			case PILOT_ROTATION_SPEED_VERY_LOW: 			coefs[id] 	= SMALL_ROTATION_SPEED_VERY_LOW;	break;
+			case PILOT_ROTATION_SPEED_SNAIL: 				coefs[id] 	= SMALL_ROTATION_SPEED_SNAIL;	break;
+			default:
+				break;
+		}
+
+	}
+	else
+	{
+		switch(id)
+		{
+			case PILOT_ACCELERATION_NORMAL: 				coefs[id] 		= BIG_ACCELERATION_NORMAL;	break;
+			case PILOT_ACCELERATION_ROTATION_TRANSLATION: 	coefs[id] 		= BIG_ACCELERATION_ROTATION_TRANSLATION;	break;
+			case PILOT_TRANSLATION_SPEED_LIGHT: 			coefs[id] 		= BIG_TRANSLATION_SPEED_LIGHT;	break;
+			case PILOT_TRANSLATION_SPEED_MAX: 				coefs[id] 		= BIG_TRANSLATION_SPEED_MAX;	break;
+			case PILOT_TRANSLATION_SPEED_LOW: 				coefs[id] 		= BIG_TRANSLATION_SPEED_LOW;	break;
+			case PILOT_TRANSLATION_SPEED_VERY_LOW: 			coefs[id] 		= BIG_TRANSLATION_SPEED_VERY_LOW;	break;
+			case PILOT_TRANSLATION_SPEED_SNAIL: 			coefs[id] 		= BIG_TRANSLATION_SPEED_SNAIL;	break;
+			case PILOT_ROTATION_SPEED_LIGHT: 				coefs[id] 		= BIG_ROTATION_SPEED_LIGHT;	break;
+			case PILOT_ROTATION_SPEED_MAX: 					coefs[id] 		= BIG_ROTATION_SPEED_MAX;	break;
+			case PILOT_ROTATION_SPEED_LOW: 					coefs[id] 		= BIG_ROTATION_SPEED_LOW;	break;
+			case PILOT_ROTATION_SPEED_VERY_LOW: 			coefs[id] 		= BIG_ROTATION_SPEED_VERY_LOW;	break;
+			case PILOT_ROTATION_SPEED_SNAIL: 				coefs[id] 		= BIG_ROTATION_SPEED_SNAIL;	break;
+			default:
+				break;
+		}
+	}
+
+}
+
+
 //Attention... a utiliser avec des valeurs pertinentes......
+//Pour une valeur demandée à 0 -> retour au coef par défaut.
 void PILOT_set_coef(PILOT_coef_e id, Sint32 value)
 {
-	coefs[id] = value;
+	if(value)
+		coefs[id] = value;
+	else
+		PILOT_reset_default_coef(id);
 }
 
 void PILOT_referential_init(void)
