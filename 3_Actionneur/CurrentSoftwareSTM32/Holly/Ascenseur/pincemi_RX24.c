@@ -356,8 +356,8 @@ static void PINCEMI_command_init(queue_id_t queueId) {
 
 //Gère les états pendant le mouvement de l'AX12
 static void PINCEMI_command_run(queue_id_t queueId) {
-	Uint8 result_left, result_right, errorCode_left, errorCode_right;
-	Uint16 line_left, line_right;
+	static Uint8 result_left, result_right, errorCode_left, errorCode_right;
+	static Uint16 line_left, line_right;
 	Uint16 rx24_goalPosition_left = 0xFFFF, rx24_goalPosition_right = 0xFFFF;
 	static bool_e done_right[2] = {FALSE, FALSE}, done_left[2] = {FALSE, FALSE};
 
