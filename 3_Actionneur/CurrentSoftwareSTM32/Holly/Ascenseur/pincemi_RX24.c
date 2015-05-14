@@ -202,12 +202,12 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 		case ACT_DO_SELFTEST :
 			// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
 
-			SELFTEST_set_actions(&PINCEMI_run_command, 2, 3, (SELFTEST_action_t[]){
+			SELFTEST_set_actions(&PINCEMI_run_command, 300, 3, (SELFTEST_action_t[]){
 								 {ACT_PINCEMI_RIGHT_OPEN,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT},
 								 {ACT_PINCEMI_RIGHT_CLOSE,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT},
 								 {ACT_PINCEMI_RIGHT_OPEN,		0,  QUEUE_ACT_RX24_PINCEMI_RIGHT}
 							 });
-			SELFTEST_set_actions(&PINCEMI_run_command, 2, 3, (SELFTEST_action_t[]){
+			SELFTEST_set_actions(&PINCEMI_run_command, 300, 3, (SELFTEST_action_t[]){
 								 {ACT_PINCEMI_LEFT_OPEN,		0,  QUEUE_ACT_RX24_PINCEMI_LEFT},
 								 {ACT_PINCEMI_LEFT_CLOSE,		0,  QUEUE_ACT_RX24_PINCEMI_LEFT},
 								 {ACT_PINCEMI_LEFT_OPEN,		0,  QUEUE_ACT_RX24_PINCEMI_LEFT}
