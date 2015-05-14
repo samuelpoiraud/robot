@@ -252,7 +252,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:		if(u8(0) || u8(4))
 												print(string, len, "ERRs:0x%2x 0x%2x|",u8(0), u8(4));
 												print(string, len, "angleR1=%3d |dR1=%3dcm |angleR2=%3d |dR2=%3dcm \n", angle_deg(1,2), (Uint16)(u8(3)),angle_deg(5,6), (Uint16)(u8(7)));	break;
-
+		case XBEE_WOOD_TAKE_CUP:				print(string, len, "| %s %s %s %s %s\n", ((u8(0))?"North Y":""), ((u8(1)&)?"South Y":""), ((u8(2))?"Mid":""), ((u8(3))?"North G":""), ((u8(4))?"South G":"")); break;
 		case ACT_RESULT:
 			print(string,len, "| act0x%x : ", u8(0));
 			switch(u8(0))

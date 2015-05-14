@@ -295,14 +295,13 @@
 		 * ATTENTION : Pour déclarer que l'on arrête la protection, on envoie toutes les datas à 0 !!!
 		 */
 	#define XBEE_WOOD_TAKE_CUP              0x5C2
-		 /*Wood indique à Holly si il a pris les gobelets
-		  *data[0]:
-		  * bit4 cup south green
-		  * bit3 cup north green
-		  * bit2 cup middle
-		  * bit1 cup south yellow
-		  * bit0 cup north yellow
-		  */
+	/* Wood indique à Holly si il a pris les gobelets (Si la donnée est à 1 le gobelet est prit si la donnée est à 0 le gobelet n'est pas prit)
+	* data[0]: CUP_NORTH_YELLOW
+	* data[1]: CUP_SOUTH_YELLOW
+	* data[2]: CUP_MIDDLE
+	* data[3]: CUP_NORTH_GREEN
+	* data[4]: CUP_SOUTH_GREEN
+	*/
 	#define XBEE_HOLLY_START_MATCH			0x5C3
 	#define XBEE_WOOD_CAN_DO_CLAP			0x5C4
 	#define XBEE_WOOD_CAN_GO                0x5C5
