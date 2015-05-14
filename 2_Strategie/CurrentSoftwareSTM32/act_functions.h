@@ -64,6 +64,7 @@ typedef enum {
 
 typedef enum {
 	ACT_pop_drop_left_closed = ACT_POP_DROP_LEFT_CLOSED,
+	ACT_pop_drop_left_mid = ACT_POP_DROP_LEFT_MID,
 	ACT_pop_drop_left_open = ACT_POP_DROP_LEFT_OPEN,
 	ACT_pop_drop_left_stop = ACT_POP_DROP_LEFT_STOP
 } ACT_pop_drop_left_cmd_e;
@@ -71,6 +72,7 @@ typedef enum {
 typedef enum {
 	ACT_pop_drop_right_closed = ACT_POP_DROP_RIGHT_CLOSED,
 	ACT_pop_drop_right_open = ACT_POP_DROP_RIGHT_OPEN,
+	ACT_pop_drop_right_mid = ACT_POP_DROP_RIGHT_MID,
 	ACT_pop_drop_right_stop = ACT_POP_DROP_RIGHT_STOP
 } ACT_pop_drop_right_cmd_e;
 

@@ -335,11 +335,14 @@ static void MAIN_onButton3LongPush() {
 	}else if(state == 1){
 		msg1.data[0] = ACT_POP_DROP_RIGHT_OPEN;
 		msg2.data[0] = ACT_POP_DROP_LEFT_OPEN;
+	}else if(state == 2){
+		msg1.data[0] = ACT_POP_DROP_RIGHT_MID;
+		msg2.data[0] = ACT_POP_DROP_LEFT_MID;
 	}
 
 	CAN_process_msg(&msg1);
 	CAN_process_msg(&msg2);
-	state = (state == 1)? 0 : state + 1;
+	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton4() {

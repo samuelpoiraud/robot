@@ -118,6 +118,7 @@ bool_e POP_DROP_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_POP_DROP_LEFT_CLOSED :
 			case ACT_POP_DROP_LEFT_OPEN :
+			case ACT_POP_DROP_LEFT_MID :
 			case ACT_POP_DROP_LEFT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_POP_DROP_LEFT, &POP_DROP_LEFT_run_command, 0,TRUE);
 				break;
@@ -168,6 +169,7 @@ static void POP_DROP_LEFT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_POP_DROP_LEFT_CLOSED : *ax12_goalPosition = POP_DROP_LEFT_AX12_IDLE_POS; break;
+		case ACT_POP_DROP_LEFT_MID : *ax12_goalPosition = POP_DROP_LEFT_AX12_MID_POS; break;
 		case ACT_POP_DROP_LEFT_OPEN : *ax12_goalPosition = POP_DROP_LEFT_AX12_DEPLOYED_POS; break;
 
 		case ACT_POP_DROP_LEFT_STOP :
