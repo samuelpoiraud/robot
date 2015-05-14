@@ -78,6 +78,7 @@ static const strategy_list_s list_strategy[] = {
 
 	// Pour holly
 	{"strat_inutile",		strat_inutile_holly,					MATCH_DURATION,		TRUE,					BIG},
+	{"test spot",			strat_test_holly_spotix_match,			0,					TRUE,					BIG},
 
 	// Pour wood
 	{"strat_inutile",		strat_inutile_wood,						0,					TRUE,					SMALL}
