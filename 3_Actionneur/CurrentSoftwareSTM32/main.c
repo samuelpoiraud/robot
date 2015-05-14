@@ -174,22 +174,33 @@ int main (void)
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton0() {
 	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
+	CAN_msg_t msg1, msg2, msg3, msg4;
 	msg1.size = 1;
 	msg2.size = 1;
 	msg1.sid = ACT_STOCK_RIGHT;
 	msg2.sid = ACT_STOCK_LEFT;
+	msg3.size = 1;
+	msg4.size = 1;
+	msg3.sid = ACT_PINCEMI_RIGHT;
+	msg4.sid = ACT_PINCEMI_LEFT;
+
 
 	if(state == 0){
 		msg1.data[0] = ACT_STOCK_RIGHT_LOCK;
 		msg2.data[0] = ACT_STOCK_LEFT_LOCK;
+		msg3.data[0] = ACT_PINCEMI_RIGHT_CLOSE;
+		msg4.data[0] = ACT_PINCEMI_LEFT_CLOSE;
 	}else if(state == 1){
 		msg1.data[0] = ACT_STOCK_RIGHT_OPEN;
 		msg2.data[0] = ACT_STOCK_LEFT_OPEN;
+		msg3.data[0] = ACT_PINCEMI_RIGHT_OPEN;
+		msg4.data[0] = ACT_PINCEMI_LEFT_OPEN;
 	}
 
 	CAN_process_msg(&msg1);
 	CAN_process_msg(&msg2);
+	CAN_process_msg(&msg3);
+	CAN_process_msg(&msg4);
 	state = (state == 1)? 0 : state + 1;
 }
 
@@ -307,7 +318,7 @@ static void MAIN_onButton3() {
 
 	CAN_process_msg(&msg1);
 	CAN_process_msg(&msg2);
-	state = (state == 1)? 0 : state + 1;
+	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton3LongPush() {
