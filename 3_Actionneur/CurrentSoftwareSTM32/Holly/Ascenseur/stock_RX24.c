@@ -398,8 +398,8 @@ static void STOCK_command_init(queue_id_t queueId) {
 
 //Gère les états pendant le mouvement de l'AX12
 static void STOCK_command_run(queue_id_t queueId) {
-	Uint8 result_left[2], result_right[2], errorCode_left[2], errorCode_right[2];
-	Uint16 line_left[2], line_right[2];
+	static Uint8 result_left[2], result_right[2], errorCode_left[2], errorCode_right[2];
+	static Uint16 line_left[2], line_right[2];
 	Uint16 rx24_goalPosition_left_floor1 = 0xFFFF, rx24_goalPosition_right_floor1 = 0xFFFF;
 	Uint16 rx24_goalPosition_left_floor2 = 0xFFFF, rx24_goalPosition_right_floor2 = 0xFFFF;
 	static bool_e done_right[4] = {FALSE, FALSE, FALSE, FALSE}, done_left[4] = {FALSE, FALSE, FALSE, FALSE};
