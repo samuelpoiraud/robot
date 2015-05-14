@@ -12,7 +12,7 @@
 #ifndef STOCK_RX24_CONFIG_H
 #define	STOCK_RX24_CONFIG_H
 
-#define OFFSET			16	// Augmenter cette valeur permet de serrer moins
+#define OFFSET			0	// Augmenter cette valeur permet de serrer moins
 #define OFFSET_EN_V		0	//Augmenter cette valeur permet d'accroitre le phénomène en V
 
 
@@ -21,32 +21,32 @@
 	#define STOCK_RX24_ASSER_POS_EPSILON							10				// Lorsque l'ax12 atteint sa position avec +/- POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define STOCK_RX24_ASSER_POS_LARGE_EPSILON						28				// Si le déplacement de l'ax12 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define STOCK_RX24_MAX_TORQUE_PERCENT							70				// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
-	#define PINCEMI_RX24_MAX_TEMPERATURE							60				// Température maximale en degré
+	#define PINCEMI_RX24_MAX_TEMPERATURE							65				// Température maximale en degré
 
 //Position
 
 // Etage 1
 	// Pince droite, mord droit		ID:29
 	#define STOCKR_RIGHT_F1_CLOSE									422
-	#define STOCKR_RIGHT_F1_LOCK									493 + OFFSET
+	#define STOCKR_RIGHT_F1_LOCK									(518 + OFFSET)
 	#define STOCKR_RIGHT_F1_UNLOCK									540
 	#define STOCKR_RIGHT_F1_OPEN									586
 
 	// Pince droite, mord gauche	ID:30
 	#define STOCKR_LEFT_F1_CLOSE									601
-	#define STOCKR_LEFT_F1_LOCK										537 - OFFSET
+	#define STOCKR_LEFT_F1_LOCK										(508 - OFFSET)
 	#define STOCKR_LEFT_F1_UNLOCK									495
 	#define STOCKR_LEFT_F1_OPEN										464
 
 	// Pince gauche, mord droit		ID:27
 	#define STOCKL_RIGHT_F1_CLOSE									418
-	#define STOCKL_RIGHT_F1_LOCK									490 + OFFSET
+	#define STOCKL_RIGHT_F1_LOCK									(515 + OFFSET)
 	#define STOCKL_RIGHT_F1_UNLOCK									540
 	#define STOCKL_RIGHT_F1_OPEN									548
 
 	// Pince gauche, mord gauche	ID:28
 	#define STOCKL_LEFT_F1_CLOSE									598
-	#define STOCKL_LEFT_F1_LOCK										524 - OFFSET
+	#define STOCKL_LEFT_F1_LOCK										(503 - OFFSET)
 	#define STOCKL_LEFT_F1_UNLOCK									495
 	#define STOCKL_LEFT_F1_OPEN										434
 
@@ -54,25 +54,27 @@
 // Etage 2
 	// Pince droite, mord droit		ID:33
 	#define STOCKR_RIGHT_F2_CLOSE									428
-	#define STOCKR_RIGHT_F2_LOCK									495 + OFFSET + OFFSET_EN_V
+	#define STOCKR_RIGHT_F2_LOCK									(518 + OFFSET + OFFSET_EN_V)
 	#define STOCKR_RIGHT_F2_UNLOCK									540
 	#define STOCKR_RIGHT_F2_OPEN									588
 
 	// Pince droite, mord gauche	ID:34
 	#define STOCKR_LEFT_F2_CLOSE									602
-	#define STOCKR_LEFT_F2_LOCK										545 - OFFSET - OFFSET_EN_V
+	#define STOCKR_LEFT_F2_LOCK										(508 - OFFSET - OFFSET_EN_V)
 	#define STOCKR_LEFT_F2_UNLOCK									495
 	#define STOCKR_LEFT_F2_OPEN										464
 
 	// Pince gauche, mord droit		ID:31
-	#define STOCKL_RIGHT_F2_CLOSE									362
-	#define STOCKL_RIGHT_F2_LOCK									442 + OFFSET + OFFSET_EN_V
-	#define STOCKL_RIGHT_F2_UNLOCK									487
-	#define STOCKL_RIGHT_F2_OPEN									495
+	#define OFFSET_NIPPER_LEFT_RIGHT								(-56)
+
+	#define STOCKL_RIGHT_F2_CLOSE									(428 + OFFSET_NIPPER_LEFT_RIGHT)
+	#define STOCKL_RIGHT_F2_LOCK									(518 + OFFSET + OFFSET_EN_V + OFFSET_NIPPER_LEFT_RIGHT)
+	#define STOCKL_RIGHT_F2_UNLOCK									(540 + OFFSET_NIPPER_LEFT_RIGHT)
+	#define STOCKL_RIGHT_F2_OPEN									(588 + OFFSET_NIPPER_LEFT_RIGHT)
 
 	// Pince gauche, mord gauche	ID:32
 	#define STOCKL_LEFT_F2_CLOSE									606
-	#define STOCKL_LEFT_F2_LOCK										543 - OFFSET - OFFSET_EN_V
+	#define STOCKL_LEFT_F2_LOCK										(503 - OFFSET - OFFSET_EN_V)
 	#define STOCKL_LEFT_F2_UNLOCK									495
 	#define STOCKL_LEFT_F2_OPEN										447
 
