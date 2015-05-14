@@ -492,7 +492,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 /************************************* Récupération des envois de l'autre robot ***************************/
 		case XBEE_START_MATCH:
-			if(global.env.prop.calibrated)	//Vérification pour éviter de lancer un match si on est pas "sur le terrain"...et près à partir.
+			if(QS_WHO_AM_I_get() == BIG_ROBOT || global.env.prop.calibrated)	//Vérification pour éviter de lancer un match si on est pas "sur le terrain"...et près à partir.
 				global.env.ask_start = TRUE;	//Inconvénient : il FAUT être calibré pour lancer un match à partir de l'autre robot.
 			break;
 		case XBEE_PING:
