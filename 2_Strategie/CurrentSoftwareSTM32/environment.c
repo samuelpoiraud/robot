@@ -539,6 +539,13 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_HOLLY_TAKE_MIDDLE_FEET:
 			ELEMENTS_set_flag(ELEMENTS_MIDDLE_FEET_TOOK, TRUE);
 			break;
+		case XBEE_HOLLY_DISPOSE_ON_ESTRAD:
+			ELEMENTS_set_flag(HOLLY_DISPOSED_SPOT_IN_ESTRAD, TRUE);
+			break;
+		case XBEE_HOLLY_DISPOSE_CARPETS:
+			ELEMENTS_set_flag(HOLLY_DISPOSED_FIRST_CARPET, TRUE);
+			ELEMENTS_set_flag(HOLLY_DISPOSED_SECOND_CARPET, TRUE);
+			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :

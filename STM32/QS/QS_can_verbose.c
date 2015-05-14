@@ -195,6 +195,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_RESULT:								print(string, len, "%x ACT_RESULT                             ", ACT_RESULT										);	break;
 		case XBEE_WOOD_CAN_GO:							print(string, len, "%x XBEE_WOOD_CAN_GO                       ", XBEE_WOOD_CAN_GO					            );	break;
 		case XBEE_HOLLY_TAKE_MIDDLE_FEET:				print(string, len, "%x XBEE_HOLLY_TAKE_MIDDLE_FEET            ", XBEE_HOLLY_TAKE_MIDDLE_FEET					);	break;
+		case XBEE_HOLLY_DISPOSE_CARPETS:				print(string, len, "%x XBEE_HOLLY_DISPOSE_CARPETS             ", XBEE_HOLLY_DISPOSE_CARPETS			         	);	break;
+		case XBEE_HOLLY_DISPOSE_ON_ESTRAD:				print(string, len, "%x XBEE_HOLLY_DISPOSE_ON_ESTRAD           ", XBEE_HOLLY_DISPOSE_ON_ESTRAD					);	break;
+
+
 // Holly
 		case ACT_POP_COLLECT_LEFT:						print(string, len, "%x ACT_POP_COLLECT_LEFT                   ", ACT_POP_COLLECT_LEFT							);	break;
 		case ACT_POP_COLLECT_RIGHT:						print(string, len, "%x ACT_POP_COLLECT_RIGHT                  ", ACT_POP_COLLECT_RIGHT							);	break;
