@@ -78,6 +78,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 		case BROADCAST_ALIM:
 			if(msg->data[0] == ALIM_OFF){
+				DCM_reset_integrator();
 				global.alim = FALSE;
 			}else if(msg->data[0] == ALIM_ON){
 				static bool_e first_on = TRUE;

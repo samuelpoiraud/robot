@@ -109,6 +109,8 @@
 		// Reactivation de tous les asservissements
 		void DCM_restart_all();
 
+		void DCM_reset_integrator();
+
 		//-----------------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// Fonction à appeler en it pour l'asservissement du moteur
 		void DCM_process_it();
