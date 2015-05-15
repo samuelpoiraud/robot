@@ -190,23 +190,23 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						failed_act_tests[i] = SELFTEST_ACT_CARPET_LAUNCHER_LEFT;
 						break;
 
-					/*case ACT_PINCEMI_LEFT:
+					case ACT_PINCEMI_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_PINCEMI_LEFT;
 						break;
 					case ACT_PINCEMI_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_PINCEMI_RIGHT;
-						break;*/
+						break;
 
 					case ACT_ELEVATOR:
 						failed_act_tests[i] = SELFTEST_ACT_ELEVATOR;
 						break;
 
-					/*case ACT_STOCK_LEFT:
+					case ACT_STOCK_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_STOCK_LEFT;
 						break;
 					case ACT_STOCK_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_STOCK_RIGHT;
-						break;*/
+						break;
 
 					case ACT_CUP_NIPPER:
 						failed_act_tests[i] = SELFTEST_ACT_CUP_NIPPER;

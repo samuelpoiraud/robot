@@ -29,13 +29,13 @@
 	// Pince droite, mord droit		ID:29
 	#define STOCKR_RIGHT_F1_CLOSE									422
 	#define STOCKR_RIGHT_F1_LOCK									(518 + OFFSET)
-	#define STOCKR_RIGHT_F1_UNLOCK									540
+	#define STOCKR_RIGHT_F1_UNLOCK									539
 	#define STOCKR_RIGHT_F1_OPEN									586
 
 	// Pince droite, mord gauche	ID:30
 	#define STOCKR_LEFT_F1_CLOSE									601
 	#define STOCKR_LEFT_F1_LOCK										(508 - OFFSET)
-	#define STOCKR_LEFT_F1_UNLOCK									495
+	#define STOCKR_LEFT_F1_UNLOCK									491
 	#define STOCKR_LEFT_F1_OPEN										464
 
 	// Pince gauche, mord droit		ID:27
@@ -47,7 +47,7 @@
 	// Pince gauche, mord gauche	ID:28
 	#define STOCKL_LEFT_F1_CLOSE									598
 	#define STOCKL_LEFT_F1_LOCK										(503 - OFFSET)
-	#define STOCKL_LEFT_F1_UNLOCK									495
+	#define STOCKL_LEFT_F1_UNLOCK									484
 	#define STOCKL_LEFT_F1_OPEN										434
 
 
@@ -55,13 +55,13 @@
 	// Pince droite, mord droit		ID:33
 	#define STOCKR_RIGHT_F2_CLOSE									428
 	#define STOCKR_RIGHT_F2_LOCK									(518 + OFFSET + OFFSET_EN_V)
-	#define STOCKR_RIGHT_F2_UNLOCK									540
+	#define STOCKR_RIGHT_F2_UNLOCK									544
 	#define STOCKR_RIGHT_F2_OPEN									588
 
 	// Pince droite, mord gauche	ID:34
 	#define STOCKR_LEFT_F2_CLOSE									602
 	#define STOCKR_LEFT_F2_LOCK										(508 - OFFSET - OFFSET_EN_V)
-	#define STOCKR_LEFT_F2_UNLOCK									495
+	#define STOCKR_LEFT_F2_UNLOCK									492
 	#define STOCKR_LEFT_F2_OPEN										464
 
 	// Pince gauche, mord droit		ID:31
@@ -69,13 +69,13 @@
 
 	#define STOCKL_RIGHT_F2_CLOSE									(428 + OFFSET_NIPPER_LEFT_RIGHT)
 	#define STOCKL_RIGHT_F2_LOCK									(518 + OFFSET + OFFSET_EN_V + OFFSET_NIPPER_LEFT_RIGHT)
-	#define STOCKL_RIGHT_F2_UNLOCK									(540 + OFFSET_NIPPER_LEFT_RIGHT)
+	#define STOCKL_RIGHT_F2_UNLOCK									491//(540 + OFFSET_NIPPER_LEFT_RIGHT)
 	#define STOCKL_RIGHT_F2_OPEN									(588 + OFFSET_NIPPER_LEFT_RIGHT)
 
 	// Pince gauche, mord gauche	ID:32
 	#define STOCKL_LEFT_F2_CLOSE									606
 	#define STOCKL_LEFT_F2_LOCK										(503 - OFFSET - OFFSET_EN_V)
-	#define STOCKL_LEFT_F2_UNLOCK									495
+	#define STOCKL_LEFT_F2_UNLOCK									496
 	#define STOCKL_LEFT_F2_OPEN										447
 
 //Position initiale du RX24
