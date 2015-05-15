@@ -545,7 +545,6 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		// Take feet
 		TAKE_FEET,
 		CHECK_PRESENCE_FEET,
-		WAIT_CLOSE_NIPPER,
 		WIN_TAKE,
 		FAIL_TAKE,
 
@@ -793,22 +792,18 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 #ifdef ROBOT_VIRTUEL_PARFAIT
 			state = WIN_TAKE;
 #else
-//			if(who != ACT_MAE_SPOTIX_RIGHT)// && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
-//				left_error = TRUE;
-//			if(who != ACT_MAE_SPOTIX_LEFT) // && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
-//				right_error = TRUE;
-//			debug_printf("pied_gauche=%d   pied_gauche=%d\n", !PRESENCE_PIED_PINCE_GAUCHE_HOLLY, !PRESENCE_PIED_PINCE_DROITE_HOLLY);
-//			debug_printf("left_error=%d    right_error=%d\n", left_error, right_error);
-//			if(left_error || right_error)
-//				state = FAIL_TAKE;
-//			else
-				state = WAIT_CLOSE_NIPPER;
+			if(who != ACT_MAE_SPOTIX_RIGHT && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
+				left_error = TRUE;
+			if(who != ACT_MAE_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
+				right_error = TRUE;
+			debug_printf("pied_gauche=%d   pied_gauche=%d\n", PRESENCE_PIED_PINCE_GAUCHE_HOLLY, PRESENCE_PIED_PINCE_DROITE_HOLLY);
+			debug_printf("left_error=%d    right_error=%d\n", left_error, right_error);
+			if(left_error || right_error)
+				state = FAIL_TAKE;
+			else
+				state = WIN_TAKE;
 #endif
 		break;
-
-		case WAIT_CLOSE_NIPPER:
-			state = WIN_TAKE; //wait_time(200, WAIT_CLOSE_NIPPER, WIN_TAKE);
-			break;
 
 		case WIN_TAKE:
 			RESET_MAE();
