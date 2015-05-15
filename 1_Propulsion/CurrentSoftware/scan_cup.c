@@ -55,7 +55,8 @@ typedef struct{
 
 typedef enum{
 	NO_MSG_CAN,
-	MSG_CAN_SCAN_LINEAR
+	MSG_CAN_SCAN_LINEAR,
+	MSG_CAN_SCAN_SIDE
 }receve_msg_can_e;
 
 
@@ -75,6 +76,8 @@ static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker 
 static bool_e run_calcul,end_scan;
 static bool_e error_scan;
 static bool_e cup_detected;
+static bool_e scan_linear;
+static bool_e in_north = TRUE;
 static color_e color;
 static scan_result_t mesure_en_cours;
 static receve_msg_can_e receve_msg_can;
@@ -111,6 +114,7 @@ void SCAN_CUP_process_it(){
 		INIT=0,
 		WAIT,
 		SCAN_LINEAR,
+		SCAN_SIDE,
 		SCAN_CALCUL,
 		WAIT_CALCULATE,
 		SEND_COOR_CUP,
@@ -136,6 +140,12 @@ void SCAN_CUP_process_it(){
 					old_measure = global.position.x;
 					state = SCAN_LINEAR;
 					break;
+
+				case MSG_CAN_SCAN_SIDE:
+					old_measure = global.position.y;
+					state = SCAN_SIDE;
+					break;
+
 				case NO_MSG_CAN :
 				default :
 					break;
@@ -172,6 +182,39 @@ void SCAN_CUP_process_it(){
 				state = SCAN_CALCUL;
 			}
 			break;
+
+		case SCAN_SIDE:{
+			debug_printf("%lu >= %d    ->   %s\n",(old_measure-global.position.y)*(old_measure-global.position.y),QUANTUM_MESURE*QUANTUM_MESURE,((old_measure-global.position.y)*(old_measure-global.position.y) >= QUANTUM_MESURE*QUANTUM_MESURE)?"Vrai":"Faux");
+			if((old_measure-global.position.y)*(old_measure-global.position.y) >= QUANTUM_MESURE*QUANTUM_MESURE){
+				Sint16 ADCvalue = ADC_getValue(SCAN_CUP_SENSOR_RIGHT);
+				debug_printf("SCAN_SIDE ->  ADC = %d\n",ADCvalue);
+				mesure_en_cours.dist = conversion_capteur_RIGHT(ADCvalue);
+				/*if(color==YELLOW){
+					if(is_in_square(0,800,0,1000,(GEOMETRY_point_t){global.position.x,global.position.y})){ // Il est au nord
+						mesure_en_cours.dist = conversion_capteur_LEFT(ADC_getValue(SCAN_CUP_SENSOR_LEFT));
+						debug_printf("\n\nCouleur jaune : capteur gauche\n\n");
+					}else{ // Il est au sud
+						mesure_en_cours.dist = conversion_capteur_RIGHT(ADC_getValue(SCAN_CUP_SENSOR_RIGHT));
+						debug_printf("\n\nCouleur jaune : capteur droite\n\n");
+					}
+				}else{
+					if(is_in_square(0,800,2000,3000,(GEOMETRY_point_t){global.position.x,global.position.y})){ // Il est au nord
+						mesure_en_cours.dist = conversion_capteur_RIGHT(ADC_getValue(SCAN_CUP_SENSOR_RIGHT));
+						debug_printf("\n\nCouleur vert : capteur droite\n\n");
+					}else{ // Il est au sud
+						mesure_en_cours.dist = conversion_capteur_LEFT(ADC_getValue(SCAN_CUP_SENSOR_LEFT));
+						debug_printf("\n\nCouleur vert : capteur gauche\n\n");
+					}
+				}*/
+				mesure_en_cours.robot.x = global.position.x;
+				mesure_en_cours.robot.y = global.position.y;
+				old_measure = global.position.y;
+				inArea(&mesure_en_cours);
+			}
+			if(end_scan == TRUE){		//On passe dans la phase de calcul
+				state = SCAN_CALCUL;
+			}
+		}break;
 
 		case SCAN_CALCUL:
 			run_calcul = TRUE;
@@ -254,6 +297,11 @@ static void inArea(scan_result_t * objet){
 	}else{
 		cup.y = objet->robot.y+objet->dist - 76;
 		cup.x = objet->robot.x + 100;
+	}
+	if(!scan_linear){
+		Sint16 aux = cup.x;
+		cup.x = cup.y;
+		cup.y = aux;
 	}
 	if(DEBUG){
 		salleDebug[nbPointDebug].x=cup.x;
@@ -566,11 +614,22 @@ void SCAN_CUP_canMsg(CAN_msg_t *msg){
 	switch(msg->data[0]){
 		case 1:
 			receve_msg_can=MSG_CAN_SCAN_LINEAR;
+			scan_linear = TRUE;
 			end_scan = FALSE;
 			break;
 		case 2:
 			end_scan = TRUE;
 			break;
+		case 3:
+			receve_msg_can=MSG_CAN_SCAN_SIDE;
+			scan_linear = FALSE;
+			end_scan = FALSE;
+			break;
+	}
+	if(msg->data[1]){
+		in_north = TRUE;
+	}else{
+		in_north = FALSE;
 	}
 }
 
