@@ -47,7 +47,7 @@
 	//	-				 			  14
 	//	-				 			  15
 
-#define PORT_C_IO_MASK	0xFFFF
+#define PORT_C_IO_MASK	0xEFFF
 	//	-				 			  0
 	//	-				 			  1
 	//	-				 			  2
@@ -60,7 +60,7 @@
 	//	-				 			  9
 	//	-				 			  10
 	//	-				 			  11
-	//	-				 			  12
+	#define POMPE_WOOD_SENS	GPIOC,GPIO_Pin_12
 	//	-				 			  13
 	//	-	OSC32_in 			  	  14
 	//	-	OSC32_out 			  	  15
@@ -119,5 +119,7 @@
 	#define CLAP_AX12_ID						        15
 	#define POP_DROP_LEFT_WOOD_AX12_ID                  13
 	#define POP_DROP_RIGHT_WOOD_AX12_ID                 14
+
+#define POMPE_WOOD_PWM_NUM		4
 
 #endif /* SMALL_CONFIG_PIN_H */

@@ -369,6 +369,17 @@ bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_right_Wood, &args);
 }
 
+bool_e ACT_pompe_wood(ACT_pompe_wood_cmd_e cmd){
+	QUEUE_arg_t args;
+
+	ACT_arg_init_with_param(&args, ACT_POMPE_WOOD, cmd, 100);
+	ACT_arg_set_fallbackmsg(&args, ACT_POMPE_WOOD,  ACT_POMPE_WOOD_STOP);
+
+	debug_printf("Run stop pompe wood cmd\n");
+
+	return ACT_push_operation(ACT_QUEUE_Pompe_wood, &args);
+}
+
 ////////////////////////////////////////
 //////////////// COMMON ////////////////
 ////////////////////////////////////////
@@ -595,6 +606,11 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		FAIL_GO_UP,
 
 		// Go mid
+		ELEVATOR_GO_JUST_MID,
+		WIN_GO_JUST_MID,
+		FAIL_GO_JUST_MID,
+
+		// Go mid ++
 		UNLOCK_SPOT_TO_MID,
 		ELEVATOR_GO_MID,
 		LOCK_SPOT_TO_MID,
@@ -684,12 +700,16 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					break;
 
 				case ACT_MAE_SPOTIX_GO_MID:
+					state = ELEVATOR_GO_JUST_MID;
+					break;
+
+
 				case ACT_MAE_SPOTIX_GO_MID_IN_OPENING_STOCK:
 					state = UNLOCK_SPOT_TO_MID;
 					break;
 
 				case ACT_MAE_SPOTIX_RELEASE_STOCK:
-					state = UNLOCK_SPOT; // Correction ici il faut un just unlock stock
+					state = UNLOCK_SPOT;
 					break;
 
 				case ACT_MAE_SPOTIX_UNLOCK_STOCK:
@@ -1189,6 +1209,24 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			ret = NOT_HANDLED;
 			break;
 
+//--------------------------------------- Go mid
+
+		case ELEVATOR_GO_JUST_MID:
+			if(entrance)
+				ACT_elevator(ACT_elevator_mid);
+			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_GO_JUST_MID, FAIL_GO_JUST_MID);
+			break;
+
+		case WIN_GO_JUST_MID:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_GO_JUST_MID:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
 //--------------------------------------- Go middle
 
 		case UNLOCK_SPOT_TO_MID:
@@ -1270,10 +1308,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			if(entrance){
 				state1 = state2 = UNLOCK_SPOT;
 				if(who != ACT_MAE_SPOTIX_LEFT){
-					ACT_stock_right(ACT_stock_right_unlock);
+					ACT_stock_right(ACT_stock_right_open);
 				}
 				if(who != ACT_MAE_SPOTIX_RIGHT){
-					ACT_stock_left(ACT_stock_left_unlock);
+					ACT_stock_left(ACT_stock_left_open);
 				}
 			}
 			if(who != ACT_MAE_SPOTIX_LEFT){ // Gestion Droite

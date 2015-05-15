@@ -54,6 +54,7 @@
 	#include "Wood/Pop_drop_left_Wood_config.h"
 	#include "Wood/Pop_drop_right_Wood.h"
 	#include "Wood/Pop_drop_right_Wood_config.h"
+	#include "Wood/pompe_wood.h"
 #endif
 
 
@@ -81,7 +82,8 @@ static ACTQ_functions_t actionneurs[] = {
 	#else
 		ACT_DECLARE(PINCE_GAUCHE),
 		ACT_DECLARE(PINCE_DROITE),
-		ACT_DECLARE(CLAP)
+		ACT_DECLARE(CLAP),
+		ACT_DECLARE(POMPE_WOOD)
 		//ACT_DECLARE(POP_DROP_LEFT_WOOD),
 		//ACT_DECLARE(POP_DROP_RIGHT_WOOD),
 	#endif

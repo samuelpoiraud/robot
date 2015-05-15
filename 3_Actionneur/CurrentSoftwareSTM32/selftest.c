@@ -182,6 +182,9 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 					case ACT_SPOT_POMPE_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_SPOT_POMPE_RIGHT;
 						break;
+					case ACT_POMPE_WOOD:
+						failed_act_tests[i] = SELFTEST_ACT_POMPE_WOOD;
+						break;
 
 					case ACT_CARPET_LAUNCHER_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_CARPET_LAUNCHER_RIGHT;

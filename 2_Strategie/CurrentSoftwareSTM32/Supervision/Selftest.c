@@ -695,6 +695,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_POP_DROP_LEFT_WOOD:			debug_printf("SELFTEST_ACT_POP_DROP_LEFT_WOOD");				break;
 				case SELFTEST_ACT_POP_DROP_RIGHT_WOOD:			debug_printf("SELFTEST_ACT_POP_DROP_RIGHT_WOOD");				break;
 				case SELFTEST_ACT_CLAP_HOLLY:					debug_printf("SELFTEST_ACT_CLAP_HOLLY");						break;
+				case SELFTEST_ACT_POMPE_WOOD:					debug_printf("SELFTEST_ACT_POMPE_WOOD");						break;
 
 				default:										debug_printf("UNKNOW_ERROR_CODE");								break;
 			}
@@ -1008,6 +1009,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_POP_DROP_LEFT_WOOD:			return "Act Pop Drop Left";		break;
 		case SELFTEST_ACT_POP_DROP_RIGHT_WOOD:			return "Act Pop Drop Right";	break;
 		case SELFTEST_ACT_CLAP_HOLLY:					return "Act Clap";				break;
+		case SELFTEST_ACT_POMPE_WOOD:					return "Act pompe wood";		break;
 
 		case SELFTEST_ERROR_NB:							return NULL;					break;
 		case SELFTEST_NO_ERROR:							return NULL;					break;
