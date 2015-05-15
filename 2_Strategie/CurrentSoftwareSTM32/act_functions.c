@@ -573,7 +573,6 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		FAIL_ELEVATOR_UP_2,
 		STOCK_LOCK,
 		ELEVATOR_DOWN,
-		WAIT_NIPPER,
 		NIPPER_OPEN,
 		WIN_STOCK,
 		FAIL_STOCK,
@@ -604,7 +603,6 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		// Release spot
 		UNLOCK_SPOT,
-		RELEASE_SPOT,
 		WIN_RELEASE,
 		FAIL_RELEASE
 	);
@@ -691,7 +689,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					break;
 
 				case ACT_MAE_SPOTIX_RELEASE_STOCK:
-					state = UNLOCK_SPOT;
+					state = UNLOCK_SPOT; // Correction ici il faut un just unlock stock
 					break;
 
 				case ACT_MAE_SPOTIX_UNLOCK_STOCK:
@@ -1270,38 +1268,32 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		case UNLOCK_SPOT:
 			if(entrance){
-				state1 = state2 = state3 = state4 = UNLOCK_SPOT;
+				state1 = state2 = UNLOCK_SPOT;
 				if(who != ACT_MAE_SPOTIX_LEFT){
 					ACT_stock_right(ACT_stock_right_unlock);
-					ACT_pincemi_right(ACT_pincemi_right_unlock);
 				}
 				if(who != ACT_MAE_SPOTIX_RIGHT){
 					ACT_stock_left(ACT_stock_left_unlock);
-					ACT_pincemi_left(ACT_pincemi_left_unlock);
 				}
 			}
 			if(who != ACT_MAE_SPOTIX_LEFT){ // Gestion Droite
 				if(state1 == UNLOCK_SPOT)
-					state1 = check_act_status(ACT_QUEUE_Stock_right, state, RELEASE_SPOT, FAIL_RELEASE);
-				if(state2 == UNLOCK_SPOT)
-					state2 = check_act_status(ACT_QUEUE_PinceMi_right, state, RELEASE_SPOT, FAIL_RELEASE);
+					state1 = check_act_status(ACT_QUEUE_Stock_right, state, WIN_RELEASE, FAIL_RELEASE);
 			}
 
 			if(who != ACT_MAE_SPOTIX_RIGHT){ // Gestion Gauche
-				if(state3 == UNLOCK_SPOT)
-					state3 = check_act_status(ACT_QUEUE_Stock_left, state, RELEASE_SPOT, FAIL_RELEASE);
-				if(state4 == UNLOCK_SPOT)
-					state4 = check_act_status(ACT_QUEUE_PinceMi_left, state, RELEASE_SPOT, FAIL_RELEASE);
+				if(state2 == UNLOCK_SPOT)
+					state2 = check_act_status(ACT_QUEUE_Stock_left, state, WIN_RELEASE, FAIL_RELEASE);
 			}
 
-			if((who == ACT_MAE_SPOTIX_BOTH && state1 != UNLOCK_SPOT && state2 != UNLOCK_SPOT && state3 != UNLOCK_SPOT && state4 != UNLOCK_SPOT)
-					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != UNLOCK_SPOT && state2 != UNLOCK_SPOT)
-					|| (who == ACT_MAE_SPOTIX_LEFT && state3 != UNLOCK_SPOT && state4 != UNLOCK_SPOT))
-				state = RELEASE_SPOT;
+			if((who == ACT_MAE_SPOTIX_BOTH && state1 != UNLOCK_SPOT && state2 != UNLOCK_SPOT)
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != UNLOCK_SPOT)
+					|| (who == ACT_MAE_SPOTIX_LEFT && state2 != UNLOCK_SPOT))
+				state = WIN_RELEASE;
 			break;
 
 
-		case RELEASE_SPOT:
+		/*case RELEASE_SPOT:
 			if(entrance){
 				state1 = state2 = state3 = state4 = RELEASE_SPOT;
 				if(who != ACT_MAE_SPOTIX_LEFT){
@@ -1331,7 +1323,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != RELEASE_SPOT && state2 != RELEASE_SPOT)
 					|| (who == ACT_MAE_SPOTIX_LEFT && state3 != RELEASE_SPOT && state4 != RELEASE_SPOT))
 				state = WIN_RELEASE;
-			break;
+			break;*/
 
 		case WIN_RELEASE:
 			RESET_MAE();

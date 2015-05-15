@@ -12,7 +12,7 @@
 #ifndef STOCK_RX24_CONFIG_H
 #define	STOCK_RX24_CONFIG_H
 
-#define OFFSET			0	// Augmenter cette valeur permet de serrer moins
+#define OFFSET			(-5)	// Augmenter cette valeur permet de serrer moins
 #define OFFSET_EN_V		0	//Augmenter cette valeur permet d'accroitre le phénomène en V
 
 
