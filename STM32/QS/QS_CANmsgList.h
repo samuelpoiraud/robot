@@ -485,7 +485,7 @@
  *****************************************************************/
 
 	/* carte propulsion vers carte stratégie */
-//TODO renommer ces messages pour respecter le nom es cartes (STRAT et PROP)
+
 	#define STRAT_TRAJ_FINIE			0x210
 	/*
 		X : Sint16 (mm)

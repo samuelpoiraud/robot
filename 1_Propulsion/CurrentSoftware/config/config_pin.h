@@ -111,7 +111,7 @@
 	#define SWITCH_MIDDLE_PORT	(GPIOE->IDR7)
 	#define SWITCH_LEFT_PORT	(GPIOE->IDR8)
 	#define SWITCH_RIGHT_PORT	(GPIOE->IDR9)
-	#define BUTTON1_PORT		(!GPIOE->IDR12)	//Calibration
+	//#define BUTTON1_PORT		(!GPIOE->IDR12)	//Calibration
 
 
 
