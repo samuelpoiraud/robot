@@ -222,6 +222,12 @@ typedef enum {
 	ACT_pop_drop_right_Wood_stop = ACT_POP_DROP_RIGHT_WOOD_STOP
 }ACT_pop_drop_right_Wood_cmd_e;
 
+typedef enum {
+	ACT_pompe_wood_normal = ACT_POMPE_WOOD_NORMAL,
+	ACT_pompe_wood_reverse = ACT_POMPE_WOOD_REVERSE,
+	ACT_pompe_wood_stop = ACT_POMPE_WOOD_STOP
+} ACT_pompe_wood_cmd_e;
+
 ////////////////////////////////////////
 //////////////// COMMON ////////////////
 ////////////////////////////////////////
@@ -265,6 +271,8 @@ bool_e ACT_clap(ACT_clap_cmd_e cmd);
 
 bool_e ACT_pop_drop_left_Wood(ACT_pop_drop_left_Wood_cmd_e cmd);
 bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd);
+
+bool_e ACT_pompe_wood(ACT_pompe_wood_cmd_e cmd);
 
 // Common
 

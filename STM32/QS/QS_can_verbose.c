@@ -227,6 +227,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_CLAP:									print(string, len, "%x ACT_CLAP                               ", ACT_CLAP										);	break;
 		case ACT_POP_DROP_LEFT_WOOD:					print(string, len, "%x ACT_POP_DROP_LEFT_WOOD                 ", ACT_POP_DROP_LEFT_WOOD							);	break;
 		case ACT_POP_DROP_RIGHT_WOOD:					print(string, len, "%x ACT_POP_DROP_RIGHT_WOOD                ", ACT_POP_DROP_RIGHT_WOOD						);	break;
+		case ACT_POMPE_WOOD:							print(string, len, "%x ACT_POMPE_WOOD                         ", ACT_POMPE_WOOD									);	break;
 
 		case ACT_TEST_SERVO:							print(string, len, "%x ACT_TEST_SERVO                         ", ACT_TEST_SERVO									);	break;
 		case PROP_SCAN_CUP:                             print(string, len, "%x PROP_SCAN_CUP                          ", PROP_SCAN_CUP							     	);	break;
@@ -284,6 +285,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_CLAP:					print(string,len, "ACT_CLAP ");					break;
 				case (Uint8)ACT_POP_DROP_LEFT_WOOD:		print(string,len, "ACT_POP_DROP_LEFT_WOOD ");	break;
 				case (Uint8)ACT_POP_DROP_RIGHT_WOOD:	print(string,len, "ACT_POP_DROP_RIGHT_WOOD ");	break;
+				case (Uint8)ACT_POMPE_WOOD:				print(string,len, "ACT_POMPE_WOOD ");			break;
 				default:								print(string,len, "UNKNOW ACT -> complete verbose !");		break;
 			}
 
@@ -441,6 +443,13 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						case (Uint8)ACT_CONFIG:					print(string,len, "| ACT_CONFIG |");				break;
 					}
 					break;
+				case (Uint8)ACT_POMPE_WOOD:
+					switch(u8(1)){
+						case (Uint8)ACT_POMPE_WOOD_NORMAL:	print(string,len, "| ACT_SPOT_POMPE_LEFT_NORMAL |");	  break;
+						case (Uint8)ACT_POMPE_WOOD_REVERSE:	print(string,len, "| ACT_SPOT_POMPE_LEFT_REVERSE |");  break;
+						case (Uint8)ACT_POMPE_WOOD_STOP:	print(string,len, "| ACT_SPOT_POMPE_LEFT_STOP |");	       break;
+					}
+				break;
 
 			}
 

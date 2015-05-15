@@ -48,6 +48,7 @@ typedef enum {
 	ACT_QUEUE_Clap,
 	ACT_QUEUE_Pop_drop_left_Wood,
 	ACT_QUEUE_Pop_drop_right_Wood,
+	ACT_QUEUE_Pompe_wood,
 	//Common
 
 	NB_QUEUE
