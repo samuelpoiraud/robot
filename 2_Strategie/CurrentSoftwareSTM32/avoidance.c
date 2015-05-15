@@ -777,7 +777,7 @@ bool_e foe_in_path(bool_e verbose)
 	Sint32 avoidance_rectangle_max_x;
 	Sint32 avoidance_rectangle_width_y;
 
-	move_way = env.prop.current_way;	//TODO cracra.. a nettoyer ultérieurement.
+	move_way = env.prop.current_way;
 
 	in_path = FALSE;	//On suppose que pas d'adversaire dans le chemin
 

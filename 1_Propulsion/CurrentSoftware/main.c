@@ -66,7 +66,7 @@
 
 
 void RCON_read(void);
-void SWITCHS_update(void);
+
 static void MAIN_global_var_init();
 static void MAIN_sensor_test();
 volatile Uint8 t_ms = 0;
@@ -130,7 +130,6 @@ void initialisation(void)
 		SCAN_CUP_init();
 	#endif
 	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
-	BUTTONS_define_actions(BUTTON1,&calibration_button_action, NULL, 1);
 
 	DETECTION_init();
 	#ifdef USE_HOKUYO
@@ -215,7 +214,6 @@ int main (void)
 		{
 			t_ms = 0;
 			BUTTONS_update();			//Gestion des boutons
-			SWITCHS_update();			//Surveillance des switchs
 		}
 
 
@@ -275,33 +273,7 @@ void RCON_read(void)
 #endif
 }
 
-void SWITCHS_update(void)
-{
-	static bool_e previous_switch_left = FALSE;
-	static bool_e previous_switch_middle = FALSE;
-	static bool_e previous_switch_right = FALSE;
-	bool_e current_switch_left;
-	bool_e current_switch_middle;
-	bool_e current_switch_right;
 
-	current_switch_left 	= SWITCH_LEFT_PORT;
-	current_switch_middle 	= SWITCH_MIDDLE_PORT;
-	current_switch_right 	= SWITCH_RIGHT_PORT;
-
-	if(current_switch_left 		&& !previous_switch_left) 	debug_printf("SW ASSER enabled\n");
-	if(current_switch_middle 	&& !previous_switch_middle) debug_printf("SW middle enabled\n");
-	if(current_switch_right 	&& !previous_switch_right)	debug_printf("SW right enabled\n");
-
-	if(!current_switch_left 	&& previous_switch_left) 	debug_printf("SW ASSER disabled\n");
-	if(!current_switch_middle 	&& previous_switch_middle) 	debug_printf("SW middle disabled\n");
-	if(!current_switch_right 	&& previous_switch_right)	debug_printf("SW right disabled\n");
-
-	previous_switch_left 	= current_switch_left;
-	previous_switch_middle 	= current_switch_middle;
-	previous_switch_right 	= current_switch_right;
-
-	//TODO quelles actions associer à ces switchs......?
-}
 
 void MAIN_process_it(Uint8 ms)
 {
