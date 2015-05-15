@@ -188,7 +188,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 			for(i = 0; i<BEACON_MAX_FOES; i++)
 			{
 
-				if((msg->data[0+4*i] & ~SIGNAL_INSUFFISANT & ~TACHE_TROP_GRANDE) == AUCUNE_ERREUR){
+				if((msg->data[0+4*i] & ~TACHE_TROP_GRANDE) == AUCUNE_ERREUR){
 
 					//Extraction des données du msg.
 					adversaries[HOKUYO_MAX_FOES+i].fiability_error = msg->data[0+4*i];
