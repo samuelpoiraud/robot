@@ -20,9 +20,9 @@
 	#define CARPET_LAUNCHER_LEFT_AX12_MAX_TEMPERATURE               60				// Température maximale en degré
 
 //Position
-	#define CARPET_LAUNCHER_LEFT_AX12_IDLE_POS						799				//en degré
-	#define CARPET_LAUNCHER_LEFT_AX12_LOADING_POS					730				//en degré
-	#define CARPET_LAUNCHER_LEFT_AX12_LAUNCH_POS					449				//en degré
+	#define CARPET_LAUNCHER_LEFT_AX12_IDLE_POS						740
+	#define CARPET_LAUNCHER_LEFT_AX12_LOADING_POS					720
+	#define CARPET_LAUNCHER_LEFT_AX12_LAUNCH_POS					360
 
 //Position initiale de l'AX12
 	#define CARPET_LAUNCHER_LEFT_AX12_INIT_POS						CARPET_LAUNCHER_LEFT_AX12_IDLE_POS
