@@ -735,7 +735,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					state4 = check_act_status(ACT_QUEUE_PinceMi_left, state, WIN_OPEN_ALL, WIN_OPEN_ALL);
 			}
 
-			if((who == ACT_MAE_SPOTIX_BOTH && state1 != OPEN_ALL && state2 != OPEN_ALL && state3 != OPEN_ALL && state4 != OPEN_ALL)
+			if((who == ACT_MAE_SPOTIX_BOTH && (state1 != OPEN_ALL && state2 != OPEN_ALL) && state3 != OPEN_ALL && state4 != OPEN_ALL)
 					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != OPEN_ALL && state2 != OPEN_ALL)
 					|| (who == ACT_MAE_SPOTIX_LEFT && state3 != OPEN_ALL && state4 != OPEN_ALL))
 				state = WIN_OPEN_ALL;
@@ -1014,19 +1014,15 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					ACT_stock_right(ACT_stock_right_unlock);
 				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error)
 					ACT_stock_left(ACT_stock_left_unlock);
-
-				//flag_wait = FALSE;
-				//WATCHDOG_create_flag(1000, &flag_wait);
 			}
 			if(state1 == STOCK_UNLOCK && who != ACT_MAE_SPOTIX_LEFT && !right_error)
 				state1 = check_act_status(ACT_QUEUE_Stock_right, state, ELEVATOR_UP, FAIL_TAKE);
 			if(state2 == STOCK_UNLOCK && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
 				state2 = check_act_status(ACT_QUEUE_Stock_left, state, ELEVATOR_UP, FAIL_TAKE);
 
-			if((state1 != STOCK_UNLOCK && state2 != STOCK_UNLOCK)
+			if((who == ACT_MAE_SPOTIX_BOTH && (state1 != STOCK_UNLOCK || right_error) && (state2 != STOCK_UNLOCK || left_error))
 					|| (who == ACT_MAE_SPOTIX_LEFT && state2 != STOCK_UNLOCK)
-					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != STOCK_UNLOCK)
-					/*|| flag_wait*/)
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != STOCK_UNLOCK))
 				state = ELEVATOR_UP;
 			break;
 
@@ -1051,7 +1047,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			if(state2 == FAIL_ELEVATOR_UP_1 && who != ACT_MAE_SPOTIX_LEFT && !right_error)
 				state2 = check_act_status(ACT_QUEUE_Stock_right, state, FAIL_ELEVATOR_UP_2, FAIL_ELEVATOR_UP_2);
 
-			if((who == ACT_MAE_SPOTIX_BOTH && state1 != FAIL_ELEVATOR_UP_1 && state2 != FAIL_ELEVATOR_UP_1)
+			if((who == ACT_MAE_SPOTIX_BOTH && (state1 != FAIL_ELEVATOR_UP_1 || left_error) && (state2 != FAIL_ELEVATOR_UP_1 || right_error))
 					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != FAIL_ELEVATOR_UP_1)
 					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != FAIL_ELEVATOR_UP_1))
 				state = FAIL_ELEVATOR_UP_2;
@@ -1070,28 +1066,20 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					ACT_stock_right(ACT_stock_right_lock);
 				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
 					ACT_stock_left(ACT_stock_left_lock);
-
-				//flag_wait = FALSE;
-				//WATCHDOG_create_flag(1000, &flag_wait);
 			}
 			if(state1 == STOCK_LOCK && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
 				state1 = check_act_status(ACT_QUEUE_Stock_left, state, NIPPER_OPEN, FAIL_TAKE);
 			if(state2 == STOCK_LOCK && who != ACT_MAE_SPOTIX_LEFT && !right_error)
 				state2 = check_act_status(ACT_QUEUE_Stock_right, state, NIPPER_OPEN, FAIL_TAKE);
 
-			if((state1 != STOCK_LOCK && state2 != STOCK_LOCK)
+			if((who == ACT_MAE_SPOTIX_BOTH && (state1 != STOCK_LOCK || left_error) && (state2 != STOCK_LOCK || right_error))
 					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != STOCK_LOCK)
-					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != STOCK_LOCK)
-					/*|| flag_wait*/){
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != STOCK_LOCK)){
 				if(order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE)
 					state = WIN_STOCK;
 				else
 					state = NIPPER_OPEN;
 			}
-			break;
-
-		case WAIT_NIPPER:
-			state=NIPPER_OPEN;//wait_time(500, WAIT_NIPPER, NIPPER_OPEN);
 			break;
 
 		// Question gestion d'erreur sur le fait de fail le lock ?
