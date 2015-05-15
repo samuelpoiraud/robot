@@ -478,7 +478,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 
 		case DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY:
-			BUZZER_play(1000,DEFAULT_NOTE,1);
+			//BUZZER_play(1000,DEFAULT_NOTE,1);
 			break;
 
 //****************************** Messages de la carte actionneur *************************/
