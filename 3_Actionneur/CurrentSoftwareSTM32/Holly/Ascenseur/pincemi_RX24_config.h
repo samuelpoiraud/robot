@@ -35,7 +35,7 @@
 
 	// Pince droite, mord gauche		ID : 25
 	#define PINCEMIR_LEFT_CLOSE										425
-	#define PINCEMIR_LEFT_CLOSE_INNER								375
+	#define PINCEMIR_LEFT_CLOSE_INNER								512
 	#define PINCEMIR_LEFT_LOCK										(494 - OFFSET_LOCK_SPOT)
 	#define PINCEMIR_LEFT_LOCK_BALL									499
 	#define PINCEMIR_LEFT_UNLOCK									510
@@ -44,7 +44,7 @@
 
 	// Pince gauche, mord droit			ID : 23
 	#define PINCEMIL_RIGHT_CLOSE									599
-	#define PINCEMIL_RIGHT_CLOSE_INNER								649
+	#define PINCEMIL_RIGHT_CLOSE_INNER								512
 	#define PINCEMIL_RIGHT_LOCK										(529 + OFFSET_LOCK_SPOT)
 	#define PINCEMIL_RIGHT_LOCK_BALL								485
 	#define PINCEMIL_RIGHT_UNLOCK									514
