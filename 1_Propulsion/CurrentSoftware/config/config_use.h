@@ -64,8 +64,6 @@
 //	#define FDP_2014					//Define Temporaire pour l'ancien FDP
 
 
-	//#define NOUS_AVONS_REMONTE_GUY	//Ce define concerne l'angle de la balise différent en 2014...
-	//ATTENTION, il y a un autre define en STRAT !
 
 //	#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
