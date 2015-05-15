@@ -611,6 +611,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 	static bool_e right_error = FALSE, left_error = FALSE;
 	static enum state_e state1, state2, state3, state4;
+	static bool_e check_presence = FALSE;
 	error_e ret = IN_PROGRESS;
 
 	switch(state){
@@ -631,7 +632,13 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					state = OPEN_NIPPER;
 					break;
 
-				case ACT_MAE_SPOTIX_TAKE:
+				case ACT_MAE_SPOTIX_TAKE_WITH_PRESENCE:
+					check_presence = TRUE;
+					state = TAKE_FEET;
+					break;
+
+				case ACT_MAE_SPOTIX_TAKE_WITHOUT_PRESENCE:
+					check_presence = FALSE;
 					state = TAKE_FEET;
 					break;
 
@@ -646,8 +653,15 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 						state = FAIL_COMPUTE;
 					break;
 
-				case ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN:
-				case ACT_MAE_SPOTIX_STOCK_AND_STAY:
+				case ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN_WITH_PRESENCE:
+				case ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE:
+					check_presence = TRUE;
+					state = INIT_STOCK;
+					break;
+
+				case ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN_WITHOUT_PRESENCE:
+				case ACT_MAE_SPOTIX_STOCK_AND_STAY_WITHOUT_PRESENCE:
+					check_presence = FALSE;
 					state = INIT_STOCK;
 					break;
 
@@ -792,16 +806,20 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 #ifdef ROBOT_VIRTUEL_PARFAIT
 			state = WIN_TAKE;
 #else
-			if(who != ACT_MAE_SPOTIX_RIGHT && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
-				left_error = TRUE;
-			if(who != ACT_MAE_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
-				right_error = TRUE;
-			debug_printf("pied_gauche=%d   pied_gauche=%d\n", PRESENCE_PIED_PINCE_GAUCHE_HOLLY, PRESENCE_PIED_PINCE_DROITE_HOLLY);
-			debug_printf("left_error=%d    right_error=%d\n", left_error, right_error);
-			if(left_error || right_error)
-				state = FAIL_TAKE;
-			else
+			if(check_presence){
+				if(who != ACT_MAE_SPOTIX_RIGHT && !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
+					left_error = TRUE;
+				if(who != ACT_MAE_SPOTIX_LEFT && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
+					right_error = TRUE;
+				debug_printf("pied_gauche=%d   pied_gauche=%d\n", PRESENCE_PIED_PINCE_GAUCHE_HOLLY, PRESENCE_PIED_PINCE_DROITE_HOLLY);
+				debug_printf("left_error=%d    right_error=%d\n", left_error, right_error);
+				if(left_error || right_error)
+					state = FAIL_TAKE;
+				else
+					state = WIN_TAKE;
+			}else{
 				state = WIN_TAKE;
+			}
 #endif
 		break;
 
@@ -978,10 +996,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		case INIT_STOCK:
 #ifndef ROBOT_VIRTUEL_PARFAIT
-			/*if(who != ACT_MAE_SPOTIX_RIGHT) //&& !PRESENCE_PIED_PINCE_GAUCHE_HOLLY)
+			if(who != ACT_MAE_SPOTIX_RIGHT && (!PRESENCE_PIED_PINCE_GAUCHE_HOLLY && check_presence))
 				left_error = TRUE;
-			if(who != ACT_MAE_SPOTIX_LEFT) // && !PRESENCE_PIED_PINCE_DROITE_HOLLY)
-				right_error = TRUE;*/
+			if(who != ACT_MAE_SPOTIX_LEFT && (!PRESENCE_PIED_PINCE_DROITE_HOLLY && check_presence))
+				right_error = TRUE;
 #endif
 			if(left_error && right_error)
 				state = FAIL_STOCK;
@@ -1048,9 +1066,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case STOCK_LOCK:
 			if(entrance){
 				state1 = state2 = STOCK_LOCK;
-				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && (ELEMENTS_get_holly_right_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY ))
+				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && (ELEMENTS_get_holly_right_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
 					ACT_stock_right(ACT_stock_right_lock);
-				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY ))
+				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
 					ACT_stock_left(ACT_stock_left_lock);
 
 				//flag_wait = FALSE;
@@ -1065,7 +1083,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != STOCK_LOCK)
 					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != STOCK_LOCK)
 					/*|| flag_wait*/){
-				if(order == ACT_MAE_SPOTIX_STOCK_AND_STAY)
+				if(order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE)
 					state = WIN_STOCK;
 				else
 					state = NIPPER_OPEN;
