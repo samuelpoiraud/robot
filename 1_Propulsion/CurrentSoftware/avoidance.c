@@ -30,7 +30,8 @@
 
 static Sint16 ecretage_debug_rect(Sint16 val);
 
-static adversary_t *adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
+static adversary_t adversary; // adversaire détecté stocké dans cette variable pour pouvoir envoyer l'information à la stratégie
+static bool_e adv_hokuyo;
 
 typedef struct{
 	Uint16 Xleft;
@@ -74,7 +75,7 @@ void AVOIDANCE_process_it(){
 
 				// Puis on avertie la stratégie qu'il y a eu évitement
 
-				SECRETARY_send_foe_detected(adversary->x, adversary->y, FALSE);
+				SECRETARY_send_foe_detected(adversary.x, adversary.y, adversary.dist, adversary.angle, adv_hokuyo, FALSE);
 
 			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
 
@@ -134,7 +135,7 @@ void AVOIDANCE_process_it(){
 								AVOID_DISABLED
 							);
 
-			SECRETARY_send_foe_detected(adversary->x, adversary->y, TRUE);
+			SECRETARY_send_foe_detected(adversary.x, adversary.y, adversary.dist, adversary.angle, adv_hokuyo, TRUE);
 
 		}else if(AVOIDANCE_target_safe(buffer_order->way, FALSE) == FALSE){
 			//debug_printf("t : %ld      free !\n", global.absolute_time);
@@ -291,7 +292,8 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 				&& 	relative_foe_x > avoidance_rectangle_min_x 		 && 	relative_foe_x < avoidance_rectangle_max_x)
 				{
 					in_path = TRUE;	//On est dans le rectangle d'évitement !!!
-					adversary = &adversaries[i]; // On sauvegarde l'adversaire nous ayant fait évité
+					adversary = adversaries[i]; // On sauvegarde l'adversaire nous ayant fait évité
+					adv_hokuyo = i < HOKUYO_MAX_FOES;
 				}
 		}
 	}
@@ -484,7 +486,8 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 							||
 							(check_on_all_traject &&(NCx*NAx + NCy*NAy) < SQUARE((Sint32)dist_point_to_point(px, py, x, y))))){
 
-					adversary = &adversaries[i]; // On sauvegarde l'adversaire nous ayant fait évité
+					adversary = adversaries[i]; // On sauvegarde l'adversaire nous ayant fait évité
+					adv_hokuyo = i < HOKUYO_MAX_FOES;
 					inZone = TRUE;
 				}
 			}
@@ -494,7 +497,7 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 }
 
 void AVOIDANCE_said_foe_detected(){
-	SECRETARY_send_foe_detected(adversary->x, adversary->y, FALSE);
+	SECRETARY_send_foe_detected(adversary.x, adversary.y, adversary.dist, adversary.angle, adv_hokuyo, FALSE);
 }
 
 void AVOIDANCE_process_CAN_msg(CAN_msg_t *msg){

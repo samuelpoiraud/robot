@@ -654,15 +654,18 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 #endif
 
 //Fonction appelée uniquement en IT.
-void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout){
+void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, bool_e adv_hokuyo, bool_e timeout){
 	CAN_msg_t msg;
 		msg.sid = STRAT_PROP_FOE_DETECTED;
-		msg.size = 5;
+		msg.size = 8;
 		msg.data[0] = HIGHINT(x);
 		msg.data[1] = LOWINT(x);
 		msg.data[2] = HIGHINT(y);
 		msg.data[3] = LOWINT(y);
-		msg.data[4] = timeout;
+		msg.data[4] = ((timeout)?0x01:0) + ((adv_hokuyo)?0x02:0);
+		msg.data[5] = (Uint8)(dist/20);
+		msg.data[6] = HIGHINT(angle);
+		msg.data[7] = LOWINT(angle);
 	SECRETARY_send_canmsg_from_it(&msg);
 }
 

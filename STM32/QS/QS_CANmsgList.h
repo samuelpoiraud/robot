@@ -541,7 +541,11 @@
 	/* Message CAN envoyé par la propulsion vers la stratégie lors de la détection du adversaire dans le déplacement demandé
 	 *	0/1 : x
 	 *  2/3 : y
-	 *  4 : timeout (si l'évitement a eu lieu avec un timeout ou directement)
+	 *  4 : (masquage)
+	 *		0x01 : timeout (si l'évitement a eu lieu avec un timeout ou directement)
+	 *		0x02 : adversary hokuyo
+	 *	5 : dist (mm/20)
+	 *	6/7 : angle
 	 */
 
 	#define STRAT_SEND_REPORT		0x217
