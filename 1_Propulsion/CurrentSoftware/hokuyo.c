@@ -266,7 +266,11 @@ void HOKUYO_process_main(void)
 			if(datas_index > 1 && HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
 				state=REMOVE_LF;
 			else if(datas_index>2278)
+			{
+				CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY);
+				i_planted = TRUE;
 				state=ASK_NEW_MEASUREMENT;
+			}
 			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
 			{
 				CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY);
@@ -488,12 +492,7 @@ void hokuyo_find_valid_points(void){
 		if(distance	> to_close_distance)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
 			Sint32 offset;
-#ifdef ON_A_REMONTE_GUY
-			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
-				offset = HOKUYO_OFFSET_ANGLE_RAD4096;
-			else
-#endif
-				offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
+			offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
 
 			teta_relative = ((((Sint32)(angle))*183)>>8) + offset;	//Angle relatif au robot, du point en cours, en rad4096
 			teta_relative = CALCULATOR_modulo_angle(teta_relative);
@@ -687,12 +686,7 @@ void hokuyo_find_valid_points(void){
 		if(distance	> to_close_distance)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
 			Sint32 offset;
-#ifdef ON_A_REMONTE_GUY
-			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
-				offset = HOKUYO_OFFSET_ANGLE_RAD4096;
-			else
-#endif
-				offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
+			offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
 
 			teta_relative = ((((Sint32)(angle))*183)>>8) + offset;	//Angle relatif au robot, du point en cours, en rad4096
 			teta_relative = CALCULATOR_modulo_angle(teta_relative);

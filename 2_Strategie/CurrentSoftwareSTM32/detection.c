@@ -294,13 +294,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				else
 					beacon_ir_objects[i].enable = FALSE;
 
-#ifdef NOUS_AVONS_REMONTE_GUY
-				if(QS_WHO_AM_I_get() == SMALL_ROBOT)
-					beacon_ir_objects[i].angle = (Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i]));
-				else
-#else
 				beacon_ir_objects[i].angle = GEOMETRY_modulo_angle((Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i])) + PI4096/2);
-#endif
 				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*20;
 
 				if(beacon_ir_objects[i].fiability_error & TACHE_TROP_GRANDE)
