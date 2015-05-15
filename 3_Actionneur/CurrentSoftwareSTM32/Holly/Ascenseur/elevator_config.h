@@ -37,7 +37,7 @@
 
 // Position
 #define ACT_ELEVATOR_BOT_POS				50
-#define ACT_ELEVATOR_MID_POS				2325
+#define ACT_ELEVATOR_MID_POS				2225
 #define ACT_ELEVATOR_PRE_TOP_POS			5000
 #define ACT_ELEVATOR_TOP_POS				7700
 
