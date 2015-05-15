@@ -49,6 +49,7 @@
 //#define BELGIQUE	1
 
 #define DONT_TAKE_OUR_ZONE_TENIS_BALL
+#define DISABLED_PRESENCE_FEET_SENSOR
 
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.

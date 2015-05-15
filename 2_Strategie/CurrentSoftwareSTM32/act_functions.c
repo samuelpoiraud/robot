@@ -633,7 +633,11 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 					break;
 
 				case ACT_MAE_SPOTIX_TAKE_WITH_PRESENCE:
+#ifdef DISABLED_PRESENCE_FEET_SENSOR
+					check_presence = FALSE;
+#else
 					check_presence = TRUE;
+#endif
 					state = TAKE_FEET;
 					break;
 
@@ -655,7 +659,11 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 				case ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN_WITH_PRESENCE:
 				case ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE:
+#ifdef DISABLED_PRESENCE_FEET_SENSOR
+					check_presence = FALSE;
+#else
 					check_presence = TRUE;
+#endif
 					state = INIT_STOCK;
 					break;
 

@@ -166,6 +166,7 @@ void pull_bp_and_switch(void)
 	//En mode simulation, on indique une valeur par défaut des boutons et des switchs..... par l'ajout d'un pull up ou pull down.
 	//PORTS_set_pull(GPIOA, GPIO_Pin_7, GPIO_PuPd_DOWN);	//Verbose : Verbose = 0/ Bin = 1
 	//La présence de laccelermetre empeche le PD d'etre prepondérent sur la broche
+#ifdef FDP_2014
 	PORTS_set_pull(GPIOA, GPIO_Pin_1, GPIO_PuPd_UP);	//Switch debug : can+debug on = 1 / Rien(sauf certains printf) = 0
 	PORTS_set_pull(GPIOB, GPIO_Pin_4, GPIO_PuPd_DOWN);	//XBee OFF
 	PORTS_set_pull(GPIOB, GPIO_Pin_5, GPIO_PuPd_DOWN);	//Save OFF
@@ -183,6 +184,7 @@ void pull_bp_and_switch(void)
 	PORTS_set_pull(GPIOE, GPIO_Pin_14, GPIO_PuPd_UP);	//BP Menu lcd +
 	PORTS_set_pull(GPIOE, GPIO_Pin_15, GPIO_PuPd_UP);	//BP Menu lcd -
 	PORTS_set_pull(GPIOE, GPIO_Pin_7, GPIO_PuPd_DOWN);	//XBee OFF
+#endif
 }
 
 
