@@ -35,7 +35,7 @@
 
 	void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability);
 
-	void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, bool_e timeout);
+	void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, bool_e adv_hokuyo, bool_e timeout);
 
 	void SECRETARY_send_trajectory_for_test_coefs_finished(Uint16 duration);
 
