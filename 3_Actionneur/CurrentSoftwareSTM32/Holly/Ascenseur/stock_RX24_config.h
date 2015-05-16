@@ -32,25 +32,25 @@
 
 // Etage 1
 	// Pince droite, mord droit		ID:29
-	#define STOCKR_RIGHT_F1_CLOSE									422
+	#define STOCKR_RIGHT_F1_CLOSE									(512 + OFFSET_LOCK)
 	#define STOCKR_RIGHT_F1_LOCK									(512 + OFFSET_LOCK)
 	#define STOCKR_RIGHT_F1_UNLOCK									(512 + OFFSET_UNLOCK)
 	#define STOCKR_RIGHT_F1_OPEN									605
 
 	// Pince droite, mord gauche	ID:30
-	#define STOCKR_LEFT_F1_CLOSE									590
+	#define STOCKR_LEFT_F1_CLOSE									(512 - OFFSET_LOCK)
 	#define STOCKR_LEFT_F1_LOCK										(512 - OFFSET_LOCK)
 	#define STOCKR_LEFT_F1_UNLOCK									(512 - OFFSET_UNLOCK)
 	#define STOCKR_LEFT_F1_OPEN										464
 
 	// Pince gauche, mord droit		ID:27
-	#define STOCKL_RIGHT_F1_CLOSE									422
+	#define STOCKL_RIGHT_F1_CLOSE									(512 + OFFSET_LOCK)
 	#define STOCKL_RIGHT_F1_LOCK									(512 + OFFSET_LOCK)
 	#define STOCKL_RIGHT_F1_UNLOCK									(512 + OFFSET_UNLOCK)
 	#define STOCKL_RIGHT_F1_OPEN									565
 
 	// Pince gauche, mord gauche	ID:28
-	#define STOCKL_LEFT_F1_CLOSE									590
+	#define STOCKL_LEFT_F1_CLOSE									(512 - OFFSET_LOCK)
 	#define STOCKL_LEFT_F1_LOCK										(512 - OFFSET_LOCK)
 	#define STOCKL_LEFT_F1_UNLOCK									(512 - OFFSET_UNLOCK)
 	#define STOCKL_LEFT_F1_OPEN										432
@@ -58,13 +58,13 @@
 
 // Etage 2
 	// Pince droite, mord droit		ID:33
-	#define STOCKR_RIGHT_F2_CLOSE									422
+	#define STOCKR_RIGHT_F2_CLOSE									(512 + OFFSET_LOCK)
 	#define STOCKR_RIGHT_F2_LOCK									(512 + OFFSET_LOCK)
 	#define STOCKR_RIGHT_F2_UNLOCK									(512 + OFFSET_UNLOCK)
 	#define STOCKR_RIGHT_F2_OPEN									605
 
 	// Pince droite, mord gauche	ID:34
-	#define STOCKR_LEFT_F2_CLOSE									590
+	#define STOCKR_LEFT_F2_CLOSE									(512 - OFFSET_LOCK)
 	#define STOCKR_LEFT_F2_LOCK										(512 - OFFSET_LOCK)
 	#define STOCKR_LEFT_F2_UNLOCK									(512 - OFFSET_UNLOCK)
 	#define STOCKR_LEFT_F2_OPEN										464
@@ -72,13 +72,13 @@
 	// Pince gauche, mord droit		ID:31
 	#define OFFSET_NIPPER_LEFT_RIGHT								(-56)
 
-	#define STOCKL_RIGHT_F2_CLOSE									379
+	#define STOCKL_RIGHT_F2_CLOSE									(470 + OFFSET_LOCK)
 	#define STOCKL_RIGHT_F2_LOCK									(470 + OFFSET_LOCK)
 	#define STOCKL_RIGHT_F2_UNLOCK									(470 + OFFSET_UNLOCK)
 	#define STOCKL_RIGHT_F2_OPEN									516
 
 	// Pince gauche, mord gauche	ID:32
-	#define STOCKL_LEFT_F2_CLOSE									598
+	#define STOCKL_LEFT_F2_CLOSE									(524 - OFFSET_LOCK)
 	#define STOCKL_LEFT_F2_LOCK										(524 - OFFSET_LOCK)
 	#define STOCKL_LEFT_F2_UNLOCK									(524 - OFFSET_UNLOCK)
 	#define STOCKL_LEFT_F2_OPEN										443
