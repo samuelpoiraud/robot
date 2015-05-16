@@ -190,6 +190,13 @@ void ELEVATOR_reset_config(){}
 // Dans le cas de multiple actionneur appartenant à un même actionneur, ajouter des defines dans QS_CANmsgList.h afin de pouvoir les choisirs facilement depuis la stratégie
 void ELEVATOR_config(CAN_msg_t* msg){
 	switch(msg->data[1]){
+		case 0:
+			if(msg->data[2] != 0)
+				DCM_setPwmWay(ELEVATOR_ID, msg->data[2], msg->data[2]);
+			else
+				DCM_setPwmWay(ELEVATOR_ID, ELEVATOR_MAX_PWM_WAY0, ELEVATOR_MAX_PWM_WAY1);
+			break;
+
 		default :
 			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data[1]);
 	}

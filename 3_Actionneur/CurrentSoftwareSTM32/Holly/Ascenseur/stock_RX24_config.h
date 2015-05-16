@@ -17,7 +17,7 @@
 
 
 
-#define OFFSET_LOCK			(18)	// Augmenter cette valeur permet de serrer moins
+#define OFFSET_LOCK			(8)	// Augmenter cette valeur permet de serrer moins
 #define OFFSET_UNLOCK		(33)	// Augmenter cette valeur permet de serrer moins
 #define OFFSET_OPEN			(0)	// Augmenter cette valeur permet de serrer moins
 
