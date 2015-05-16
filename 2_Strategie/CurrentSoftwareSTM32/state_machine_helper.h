@@ -74,6 +74,7 @@ typedef enum {
 	SM_ID_SUB_HOLLY_END_OF_MATCH			= 0x0213,
 	SM_ID_HOLLY_GO_TO_NORTH                 = 0x0214,
 	SM_ID_SUB_HOLLY_OUR_CLAP                = 0x0215,
+	SM_ID_SUB_DO_SPOT_WITH_MIDDLE_FEET      = 0x0216,
 
 	SM_ID_SUB_BOTH_WAIT						= 0x0230,
 	SM_ID_SUB_TRY_RUSH						= 0x0231,
