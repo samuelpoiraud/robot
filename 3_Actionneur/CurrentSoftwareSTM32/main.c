@@ -223,21 +223,26 @@ static void MAIN_onButton0LongPush() {
 
 static void MAIN_onButton1() {
 	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_SPOT_POMPE_LEFT;
+	CAN_msg_t msg1, msg2;
+	msg1.size = 1;
+	msg2.size = 1;
+	msg1.sid = ACT_STOCK_RIGHT;
+	msg2.sid = ACT_STOCK_LEFT;
+
 
 	if(state == 0){
-		msg.data[0] = ACT_SPOT_POMPE_LEFT_NORMAL;
-		msg.data[1] = 255;
+		msg1.data[0] = ACT_STOCK_RIGHT_UNLOCK;
+		msg2.data[0] = ACT_STOCK_LEFT_UNLOCK;
 	}else if(state == 1){
-		msg.data[0] = ACT_SPOT_POMPE_LEFT_REVERSE;
-		msg.data[1] = 255;
+		msg1.data[0] = ACT_STOCK_RIGHT_LOCK;
+		msg2.data[0] = ACT_STOCK_LEFT_LOCK;
 	}else if(state == 2){
-		msg.data[0] = ACT_SPOT_POMPE_LEFT_STOP;
+		msg1.data[0] = ACT_STOCK_RIGHT_OPEN;
+		msg2.data[0] = ACT_STOCK_LEFT_OPEN;
 	}
 
-	CAN_process_msg(&msg);
+	CAN_process_msg(&msg1);
+	CAN_process_msg(&msg2);
 	state = (state == 2)? 0 : state + 1;
 }
 
@@ -450,7 +455,24 @@ static void MAIN_onButton6() {
 
 #else // ROBOT_SMALL
 
-static void MAIN_onButton0(){}
+static void MAIN_onButton0(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_POMPE_WOOD;
+
+
+	if(state == 0){
+		msg.data[0] = ACT_POMPE_WOOD_NORMAL;
+	}else if(state == 1){
+		msg.data[0] = ACT_POMPE_WOOD_REVERSE;
+	}else if(state == 2){
+		msg.data[0] = ACT_POMPE_WOOD_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+}
 static void MAIN_onButton0LongPush(){}
 
 static void MAIN_onButton1(){
