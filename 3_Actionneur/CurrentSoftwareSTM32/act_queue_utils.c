@@ -262,6 +262,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		case ACT_STOCK_RIGHT & 0xFF:			originalSidStr = "Stock_right";				break;
 		case ACT_POP_DROP_LEFT_WOOD & 0xFF:		originalSidStr = "Pop_drop_left_Wood";		break;
 		case ACT_POP_DROP_RIGHT_WOOD & 0xFF:	originalSidStr = "Pop_drop_right_Wood";		break;
+		case ACT_POMPE_WOOD & 0xFF:				originalSidStr = "Pompe_Wood";				break;
 		default:								originalSidStr = "Unknown";					break;
 	}
 	switch(result) {
