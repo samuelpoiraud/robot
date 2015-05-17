@@ -267,15 +267,16 @@ void HOKUYO_process_main(void)
 				state=REMOVE_LF;
 			else if(datas_index>2278)
 			{
-				CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY);
-				i_planted = TRUE;
+				//CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY);
+				//i_planted = TRUE;
 				state=ASK_NEW_MEASUREMENT;
 			}
 			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
 			{
-				CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY);
-				i_planted = TRUE;
-				flag_device_disconnected = TRUE;
+				//CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY);
+				//i_planted = TRUE;
+				state=ASK_NEW_MEASUREMENT;
+				//flag_device_disconnected = TRUE;
 			}
 #endif
 		break;
