@@ -53,6 +53,10 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			LEDS_get_msg(msg);
 			break;
 
+		case IHM_SET_LED_COLOR:
+			LEDS_set_COLOR((led_color_e)msg->data[0]);
+			break;
+
 		case IHM_LCD_BIT_RESET:
 			GPIO_WriteBit(LCD_RESET_PORT, msg->data[0]);
 			break;

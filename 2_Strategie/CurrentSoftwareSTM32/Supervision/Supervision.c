@@ -100,7 +100,11 @@ void SUPERVISION_send_pos_over_xbee(void)
 
 void Supervision_process_main(void)
 {
+	static color_e local_color = -1;
 	static bool_e first_second_elapsed = FALSE;
+	static bool_e end_of_blink_sent = FALSE;
+	bool_e current_destination_reachable;
+	bool_e led_color_initialize = FALSE;
 
 	if(flag_1sec)
 	{
@@ -109,6 +113,7 @@ void Supervision_process_main(void)
 		//Au bout de la première seconde.
 		if(!first_second_elapsed)
 		{
+			led_color_initialize = TRUE;
 			//Si on rajoute pas ce délai d'une seconde, la RTC n'est pas prête quand on vient la lire.
 			first_second_elapsed = TRUE;
 			SD_init();
@@ -137,9 +142,30 @@ void Supervision_process_main(void)
 
 	#ifdef USE_XBEE
 		if(IHM_switchs_get(SWITCH_XBEE))
+		{
 			CAN_over_XBee_process_main();
+			current_destination_reachable = XBee_is_destination_reachable();
+
+			if(led_color_initialize || (current_destination_reachable && !end_of_blink_sent))
+			{
+				if(current_destination_reachable)
+				{
+					IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, ON});
+					end_of_blink_sent = TRUE;
+				}
+				else
+					IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, SPEED_BLINK_4HZ});
+			}
+			//Si on a pas de lien XBEE avec l'autre Robot : les leds clignotent.
+			//ATTENTION, si l'on désactive après allumage le XBEE sur l'un des robot... l'autre robot qui a eu le temps de dialoguer en XBEE ne clignotera pas !
+		}
 	#endif
 
+	if(env.color != local_color || led_color_initialize)
+	{
+		IHM_set_led_color((env.color == BOT_COLOR)?LED_COLOR_YELLOW:LED_COLOR_GREEN);
+		local_color = env.color;
+	}
 
 	/* Mise à jour des informations affichées à l'écran*/
 	#ifdef USE_LCD

@@ -78,6 +78,17 @@ void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 	CAN_send(&msg);
 }
 
+
+void IHM_set_led_color(led_color_e color)
+{
+	CAN_msg_t msg;
+	msg.sid = IHM_SET_LED_COLOR;
+	msg.size = 1;
+	msg.data[0] = (Uint8)color;
+	CAN_send(&msg);
+}
+
+
 void switchs_update(CAN_msg_t * msg){
 	Uint8 i;
 

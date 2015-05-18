@@ -1058,6 +1058,9 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 // data 1 ->	TRUE	-> set
 //				FALSE	-> reset
 
+#define IHM_SET_LED_COLOR	0x605		//Impose la couleur de la LED color
+// data 0 : valeur issue de l'enum : led_color_e
+
 
 typedef enum{
 	IHM_ERROR_HOKUYO	= 0b00000001,

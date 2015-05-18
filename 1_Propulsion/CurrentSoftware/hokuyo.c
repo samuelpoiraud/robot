@@ -36,7 +36,7 @@
 
 
 
-
+#define USE_HOKUYO	//Pour eclipse....
 #ifdef USE_HOKUYO
 
 // Temps d'acquisition
