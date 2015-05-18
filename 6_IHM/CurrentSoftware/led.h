@@ -20,5 +20,7 @@ void LEDS_init();
 void LEDS_process_it(Uint8 ms);
 void LEDS_get_msg(CAN_msg_t *msg);
 void LEDS_set_error(ihm_error_e ihm_error, bool_e state);
+void LEDS_set_COLOR(led_color_e color);
+
 
 #endif /* ndef LED_H */

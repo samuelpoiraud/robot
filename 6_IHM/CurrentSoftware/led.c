@@ -33,10 +33,12 @@ typedef struct{
 }LED_t;
 
 static LED_t leds[LED_NUMBER_IHM];
+static led_color_e led_color = LED_COLOR_BLACK;	//Default color.
 
 void set_LED(led_ihm_e led, bool_e stateUP);
 Uint16 get_blink_state(blinkLED_ihm_e blink);
-void set_COLOR(led_color_e led_color);
+void write_color_in_color_led(led_color_e led_color);
+
 
 void LEDS_init(){
 	static bool_e initialized = FALSE;
@@ -52,7 +54,7 @@ void LEDS_init(){
 		leds[i].blink = OFF;
 	}
 
-	set_COLOR(LED_COLOR_RED);
+	LEDS_set_COLOR(LED_COLOR_RED);
 
 	initialized = TRUE;
 }
@@ -111,6 +113,9 @@ void set_LED(led_ihm_e led, bool_e stateUP){
 			GPIO_WriteBit(LED5_PORT, stateUP);
 			break;
 #endif
+		case LED_COLOR_IHM:
+			write_color_in_color_led( (stateUP)?led_color:LED_COLOR_BLACK);
+			break;
 		default:
 			break;
 	}
@@ -120,7 +125,7 @@ void LEDS_process_it(Uint8 ms){
 	Uint8 i; // Compteur pour la fréquence
 
 	for(i=0;i<LED_NUMBER_IHM;i++){
-		if(leds[i].blink == OFF || i == LED_COLOR_IHM) // Si led non active
+		if(leds[i].blink == OFF) // Si led non active
 			continue;
 
 		// Led active
@@ -147,17 +152,14 @@ void LEDS_get_msg(CAN_msg_t *msg){
 		id = msg->data[i] & LED_ID;
 		blink = msg->data[i] >> 5;
 
-		if(id == LED_COLOR_IHM)
-			set_COLOR(blink);
-		else{
-			leds[id].stateUp = (blink == OFF)?FALSE:TRUE;
-			leds[id].blink = blink;
-			leds[id].counter = get_blink_state(blink);
+		leds[id].stateUp = (blink == OFF)?FALSE:TRUE;
+		leds[id].blink = blink;
+		leds[id].counter = get_blink_state(blink);
 
-			set_LED(id, leds[id].stateUp);
-		}
+		set_LED(id, leds[id].stateUp);
 	}
 }
+
 
 Uint16 get_blink_state(blinkLED_ihm_e blink){
 	Uint16 value;
@@ -182,7 +184,40 @@ Uint16 get_blink_state(blinkLED_ihm_e blink){
 	return value;
 }
 
-void set_COLOR(led_color_e led_color){
+
+void LEDS_set_COLOR(led_color_e color){
+	led_color = color;
+	set_LED(LED_COLOR_IHM,TRUE);
+}
+
+void LEDS_set_error(ihm_error_e ihm_error, bool_e state){
+	static ihm_error_e flags = 0;
+	CAN_msg_t msg;
+	led_ihm_t led;
+
+	if(state)
+		flags |= ihm_error;
+	else
+		flags &= ~ihm_error;
+
+	if(flags){
+		led = (led_ihm_t){LED_WARNING, SPEED_BLINK_4HZ};
+		msg.sid = IHM_SET_LED;
+		msg.size = 1;
+		msg.data[0] = (led.blink << 5) | led.id;
+		LEDS_get_msg(&msg);
+	}else{
+		led = (led_ihm_t){LED_WARNING, OFF};
+		msg.sid = IHM_SET_LED;
+		msg.size = 1;
+		msg.data[0] = (led.blink << 5) | led.id;
+		LEDS_get_msg(&msg);
+	}
+}
+
+
+
+void write_color_in_color_led(led_color_e led_color){
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -225,29 +260,3 @@ void set_COLOR(led_color_e led_color){
 		GPIO_Init(GPIOD, &GPIO_InitStructure);
 	}
 }
-
-void LEDS_set_error(ihm_error_e ihm_error, bool_e state){
-	static ihm_error_e flags = 0;
-	CAN_msg_t msg;
-	led_ihm_t led;
-
-	if(state)
-		flags |= ihm_error;
-	else
-		flags &= ~ihm_error;
-
-	if(flags){
-		led = (led_ihm_t){LED_WARNING, SPEED_BLINK_4HZ};
-		msg.sid = IHM_SET_LED;
-		msg.size = 1;
-		msg.data[0] = (led.blink << 5) | led.id;
-		LEDS_get_msg(&msg);
-	}else{
-		led = (led_ihm_t){LED_WARNING, OFF};
-		msg.sid = IHM_SET_LED;
-		msg.size = 1;
-		msg.data[0] = (led.blink << 5) | led.id;
-		LEDS_get_msg(&msg);
-	}
-}
-

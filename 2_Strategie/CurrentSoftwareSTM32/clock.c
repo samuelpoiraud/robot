@@ -43,39 +43,11 @@ void CLOCK_run()
 	TIMER1_run_us(1000);
 }
 
-void show_color_on_leds()
-{
-#ifndef FDP_2014
-	static color_e local_color = -1;
-	if(env.color != local_color)
-	{
-		if(env.color == BOT_COLOR)
-			IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, LED_COLOR_YELLOW});
-		else
-			IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, LED_COLOR_GREEN});
-		local_color = env.color;
-	}
-#else
-	if(env.color == BOT_COLOR)
-	{
-		GPIO_ResetBits(BLUE_LEDS);
-		GPIO_SetBits(GREEN_LEDS);
-		GPIO_SetBits(RED_LEDS);
-	}
-	else
-	{
-		GPIO_ResetBits(BLUE_LEDS);
-		GPIO_SetBits(GREEN_LEDS);
-		GPIO_ResetBits(RED_LEDS);
-	}
-#endif
-}
 
 void CLOCK_run_match()
 {
 	TIMER1_stop();
 	TIMER1_run_us(1000);
-	show_color_on_leds();	//On fixe la couleur sur les leds avant le début du match.. -> plus de clignotement.
 }
 
 
@@ -95,20 +67,10 @@ void _ISR _T1Interrupt()
 	}
 
 	local_time++;
-	if(local_time == 250)
-		show_color_on_leds();	//Màj de la couleur des LEDS + clignotement ON si nécessaire.
+
 	if(local_time == 500)
 	{
 		local_time = 0;
-		#ifdef FDP_2014
-		if(XBee_is_destination_reachable() == FALSE || IHM_switchs_get(SWITCH_XBEE) == FALSE)
-		{	//On a pas de lien XBEE avec l'autre Robot : les leds clignotent.
-			//ATTENTION, si l'on désactive après allumage le XBEE sur l'un des robot... l'autre robot qui a eu le temps de dialoguer en XBEE ne clignotera pas !
-			GPIO_ResetBits(BLUE_LEDS);
-			GPIO_ResetBits(GREEN_LEDS);
-			GPIO_ResetBits(RED_LEDS);
-		}
-		#endif
 		SELFTEST_process_500ms();
 	}
 
