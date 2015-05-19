@@ -327,7 +327,7 @@ void HOKUYO_process_main(void)
 				time_since_last_sent_adversaries_datas = 0;
 				send_adversaries_datas();
 			}
-			//refresh_adversaries();
+			refresh_adversaries();
 			state=ASK_NEW_MEASUREMENT;
 			break;
 		case ERROR:	//Never Happen !!!
