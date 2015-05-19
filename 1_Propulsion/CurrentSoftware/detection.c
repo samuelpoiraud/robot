@@ -199,8 +199,8 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					//enable ou pas ?
 					adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 					if	(global.absolute_time - hokuyo_update_time > FOE_DATA_LIFETIME
-							|| 	(		adversaries[HOKUYO_MAX_FOES+i].angle > PI4096/2-PI4096/3		//Angle entre 30° et 150° --> angle mort hokuyo + marge de 15° de chaque coté.
-									&& 	adversaries[HOKUYO_MAX_FOES+i].angle < PI4096/2+PI4096/3 )
+							|| 	(		adversaries[HOKUYO_MAX_FOES+i].angle < -(PI4096/2-PI4096/3)		//Angle entre 30° et 150° --> angle mort hokuyo + marge de 15° de chaque coté.
+									&& 	adversaries[HOKUYO_MAX_FOES+i].angle > -(PI4096/2+PI4096/3) )
 						)
 					{
 						adversaries[HOKUYO_MAX_FOES+i].enable = TRUE;
