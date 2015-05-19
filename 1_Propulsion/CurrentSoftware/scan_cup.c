@@ -41,8 +41,9 @@
 #define ECART_MAX			8
 #define ONE_CUP				48
 #define TWO_CUP				79
-#define ZERO_CUP			20
+#define ZERO_CUP			10
 #define DEBUG				1
+#define ECART_MAX_Y			2
 
 
 //------------------------------------------------------------------------------------ Définition des structures et énumerations
@@ -58,6 +59,13 @@ typedef enum{
 	MSG_CAN_SCAN_LINEAR,
 	MSG_CAN_SCAN_SIDE
 }receve_msg_can_e;
+
+typedef struct{
+	bool_e scan_linear;			// 1 : scan linéaire	0 : scan sur le coté
+	bool_e is_in_North;			// 1 : salle nord		0 : salle sud
+	color_e color;				// 1 : couleur verte	0 : couleur jaune
+	bool_e is_right_sensor;		// 1 : capteur droite   0 : capteur gauche
+}proporties_scan;
 
 
 //------------------------------------------------------------------------------------ Variables Globales
@@ -76,11 +84,9 @@ static GEOMETRY_point_t coorCup[5];			//Dans un premier temps il sert à stocker 
 static bool_e run_calcul,end_scan;
 static bool_e error_scan;
 static bool_e cup_detected;
-static bool_e scan_linear;
-static bool_e in_north = TRUE;
-static color_e color;
 static scan_result_t mesure_en_cours;
 static receve_msg_can_e receve_msg_can;
+static proporties_scan info_scan;
 
 
 //------------------------------------------------------------------------------------ Prototype des fonctions local
@@ -129,7 +135,8 @@ void SCAN_CUP_process_it(){
 	switch(state){
 
 		case INIT :
-			color = ODOMETRY_get_color();
+			//info_scan.color = ODOMETRY_get_color();
+			//debug_printf("Couleur : %s",(info_scan.color)?"vert":"jaune");
 			receve_msg_can = NO_MSG_CAN;
 			state = WAIT;
 			break;
@@ -155,22 +162,30 @@ void SCAN_CUP_process_it(){
 		case SCAN_LINEAR:
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
 				Sint16 teta = global.position.teta;
-				//debug_printf("\tValeur mesuree = %d\n",ADC_Value);
-				if(color==YELLOW){
+				debug_printf("Scan Linear -> Couleur : %s",(info_scan.color)?"vert":"jaune");
+				if(info_scan.color==YELLOW){
 					if(teta < PI4096/2 && teta > -PI4096/2){ //L'angle vaut 0
 						mesure_en_cours.dist = conversion_capteur_RIGHT(ADC_getValue(SCAN_CUP_SENSOR_RIGHT));
-						debug_printf("\n\nCouleur jaune : capteur droite\n\n");
+						info_scan.is_right_sensor = TRUE;
+						//debug_printf("\n\nCouleur jaune : capteur droite\n\n");
+						//debug_printf("\tValeur mesuree = %d\n",mesure_en_cours.dist);
 					}else{ // L'angle vaut Pi
 						mesure_en_cours.dist = conversion_capteur_LEFT(ADC_getValue(SCAN_CUP_SENSOR_LEFT));
-						debug_printf("\n\nCouleur jaune : capteur gauche\n\n");
+						info_scan.is_right_sensor = FALSE;
+						//debug_printf("\n\nCouleur jaune : capteur gauche\n\n");
+						//debug_printf("\tValeur mesuree = %d\n",mesure_en_cours.dist);
 					}
 				}else{
 					if(teta < PI4096/2 && teta > -PI4096/2){ //L'angle vaut 0
 						mesure_en_cours.dist = conversion_capteur_LEFT(ADC_getValue(SCAN_CUP_SENSOR_LEFT));
-						debug_printf("\n\nCouleur vert : capteur gauche\n\n");
+						info_scan.is_right_sensor = FALSE;
+						//debug_printf("\n\nCouleur vert : capteur gauche\n\n");
+						//debug_printf("\tValeur mesuree = %d\n",mesure_en_cours.dist);
 					}else{ // L'angle vaut Pi
 						mesure_en_cours.dist = conversion_capteur_RIGHT(ADC_getValue(SCAN_CUP_SENSOR_RIGHT));
-						debug_printf("\n\nCouleur vert : capteur droite\n\n");
+						info_scan.is_right_sensor = TRUE;
+						//debug_printf("\n\nCouleur vert : capteur droite\n\n");
+						//debug_printf("\tValeur mesuree = %d\n",mesure_en_cours.dist);
 					}
 				}
 				mesure_en_cours.robot.x = global.position.x;
@@ -248,7 +263,6 @@ void SCAN_CUP_process_it(){
 			break;
 
 		case SEND_COOR_CUP:
-
 			if(nb_cup==0){
 				state = END;
 				SECRETARY_send_cup_position(1,0,0,0,0);
@@ -291,45 +305,62 @@ void SCAN_CUP_process_it(){
 
 static void inArea(scan_result_t * objet){
 	GEOMETRY_point_t cup;
-	if(color==YELLOW){
-		cup.x = objet->robot.x + 76;
+	//debug_printf("in Area -> Couleur : %s",(info_scan.color)?"vert":"jaune");
+	if(info_scan.color==YELLOW){
+		if(info_scan.is_right_sensor){
+			cup.x = objet->robot.x - 60;
+		}else{
+			cup.x = objet->robot.x + 76;
+		}
 		cup.y = objet->robot.y-objet->dist -100;
 	}else{
-		cup.y = objet->robot.y+objet->dist - 76;
-		cup.x = objet->robot.x + 100;
+		if(info_scan.is_right_sensor){
+			cup.x = objet->robot.x + 60;
+		}else{
+			cup.x = objet->robot.x - 76;
+		}
+		cup.y = 3000 - (objet->robot.y+objet->dist + 100);
 	}
-	if(!scan_linear){
+	if(!info_scan.scan_linear){
 		Sint16 aux = cup.x;
 		cup.x = cup.y;
 		cup.y = aux;
 	}
+
+
 	if(DEBUG){
 		salleDebug[nbPointDebug].x=cup.x;
 		salleDebug[nbPointDebug].y=cup.y;
 		nbPointDebug++;
 	}
-	if(color){
+	if(0/*info_scan.color*/){
+		//debug_printf("InArea Couleur est vert\n");
 		if(cup.x>=X1-MARGE && cup.x<=X2+MARGE && cup.y>=Y3-MARGE && cup.y<=Y4+MARGE){ //Salle de cinema du haut
 			if(nbPointH<=NB_POINT_MAX){
+				//debug_printf("Vert et haut (%d)\n",nbPointH);
 				salleH[nbPointH] = cup;
 				nbPointH++;
 			}
 		}
 		if(cup.x>=X3-MARGE && cup.x<=X4+MARGE && cup.y>=Y3-MARGE && cup.y<=Y4+MARGE){ //Salle de cinema du bas
 			if(nbPointB<=NB_POINT_MAX){
+				//debug_printf("Vert et bas (%d)\n",nbPointB);
 				salleB[nbPointB] = cup;
 				nbPointB++;
 			}
 		}
 	}else{
+		//debug_printf("InArea Couleur est jaune\n");
 		if(cup.x>=X1-MARGE && cup.x<=X2+MARGE && cup.y>=Y1-MARGE && cup.y<=Y2+MARGE){ //Salle de cinema du haut
 			if(nbPointH<=NB_POINT_MAX){
+				//debug_printf("Jaune et haut (%d)\n",nbPointH);
 				salleH[nbPointH] = cup;
 				nbPointH++;
 			}
 		}
 		if(cup.x>=X3-MARGE && cup.x<=X4+MARGE && cup.y>=Y1-MARGE && cup.y<=Y2+MARGE){ //Salle de cinema du bas
 			if(nbPointB<=NB_POINT_MAX){
+				//debug_printf("Jaune et bas (%d)\n", nbPointB);
 				salleB[nbPointB] = cup;
 				nbPointB++;
 			}
@@ -374,6 +405,9 @@ GEOMETRY_point_t determine_center(GEOMETRY_point_t tab[], Uint8 end, Uint8 first
 
 static void removeWrongPoints(GEOMETRY_point_t tab[],Uint8 *nb_points){
 	Uint8 i, nbPointSalle = 0;
+	Uint8 pointDepart = 0;
+	/*Uint8 pointDepart = NB_POINT_ELIM;
+	(*nb_points) = (*nb_points) - (2*NB_POINT_ELIM);*/
 	GEOMETRY_point_t salle[NB_POINT_MAX];
 	if((*nb_points) > 1){
 		// Cas particulier du premier point
@@ -381,10 +415,14 @@ static void removeWrongPoints(GEOMETRY_point_t tab[],Uint8 *nb_points){
 			salle[nbPointSalle] = tab[0];
 			nbPointSalle++;
 		}
-		for(i=1;i<(*nb_points)-1;i++){
+		for(i=pointDepart;i<(*nb_points)-1;i++){
 			if(GEOMETRY_distance(tab[i-1],tab[i]) < ECART_MAX || GEOMETRY_distance(tab[i],tab[i+1]) < ECART_MAX){
-				salle[nbPointSalle] = tab[i];
-				nbPointSalle++;
+				if(i<(*nb_points)-2){
+					if((tab[i-1].y-tab[i+2].y)*(tab[i-1].y-tab[i+2].y) >= ECART_MAX_Y){
+						salle[nbPointSalle] = tab[i];
+						nbPointSalle++;
+					}
+				}
 			}
 		}
 		// Cas particulier du dernier point
@@ -417,6 +455,9 @@ static void cupNumber(){
 		nb_cupB = 2;
 	if(nbPointB > TWO_CUP)
 		nb_cupB = 3;
+
+	debug_printf("Nombre de gobelet haut : %d\n",nb_cupH);
+	debug_printf("Nombre de gobelet bas : %d\n",nb_cupB);
 }
 
 static void detectCenterONE_CUP(GEOMETRY_point_t salle[], Uint8 nbPoint){
@@ -540,7 +581,7 @@ static void detectCenter(){
 static void detectMaxMinY(GEOMETRY_point_t salle[], Uint8 nbPoint, Uint8 *iMax, Uint8 *iMin){
 	Uint8 i;
 	Sint16 max,min;
-	if(color){
+	if(info_scan.color){
 		max = 3200;
 		min = 2500;
 		for(i=0;i<nbPoint;i++){
@@ -580,6 +621,10 @@ void SCAN_CUP_calculate(void){
 	if(run_calcul){
 		removeWrongPoints(salleH,&nbPointH);
 		removeWrongPoints(salleB,&nbPointB);
+		removeWrongPoints(salleH,&nbPointH);
+		removeWrongPoints(salleB,&nbPointB);
+		removeWrongPoints(salleH,&nbPointH);
+		removeWrongPoints(salleB,&nbPointB);
 		cupNumber();
 		detectCenter();
 	}
@@ -614,7 +659,7 @@ void SCAN_CUP_canMsg(CAN_msg_t *msg){
 	switch(msg->data[0]){
 		case 1:
 			receve_msg_can=MSG_CAN_SCAN_LINEAR;
-			scan_linear = TRUE;
+			info_scan.scan_linear = TRUE;
 			end_scan = FALSE;
 			break;
 		case 2:
@@ -622,14 +667,19 @@ void SCAN_CUP_canMsg(CAN_msg_t *msg){
 			break;
 		case 3:
 			receve_msg_can=MSG_CAN_SCAN_SIDE;
-			scan_linear = FALSE;
+			info_scan.scan_linear = FALSE;
 			end_scan = FALSE;
 			break;
 	}
 	if(msg->data[1]){
-		in_north = TRUE;
+		info_scan.is_in_North = TRUE;
 	}else{
-		in_north = FALSE;
+		info_scan.is_in_North = FALSE;
+	}
+	if(msg->data[2]){
+		info_scan.color = 1;
+	}else{
+		info_scan.color = 0;
 	}
 }
 

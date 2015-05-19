@@ -523,9 +523,11 @@ static void MAIN_onButton3(){
 		msg.data[0] = ACT_CLAP_OPEN;
 	else if(state == 1)
 		msg.data[0] = ACT_CLAP_CLOSED;
+	else if(state == 2)
+		msg.data[0] = ACT_CLAP_POP_CORN;
 
 	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
+	state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton3LongPush(){}
