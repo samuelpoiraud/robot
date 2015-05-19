@@ -19,7 +19,7 @@
 //POUR REGLER L'ODOMETRIE:
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
-	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BF0
+	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BED
 	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BC7  //Théorique pour 60mm : 0x0C10
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
@@ -33,7 +33,7 @@
 	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0x31A
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0)
 
-	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x00011350	//Guy : 89mm entre roue codeuse et centre
+	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x000113A0	//Guy : 89mm entre roue codeuse et centre
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000AD00  	//Holly : 278mm ENVIRON entre roues codeuses...
 																	// - 1% (estimation à l'arrache-mètre) -> B63D
 															//Pierre : 138mm entre roue codeuse et centre - théorique : B308
