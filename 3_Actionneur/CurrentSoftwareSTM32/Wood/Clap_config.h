@@ -22,13 +22,14 @@
 	#define CLAP_AX12_OPEN_POS					512		//en degré
 	#define CLAP_AX12_TAKE_CUP_POS				216		//en degré
 	#define CLAP_AX12_CLOSE_POS					216		//en degré
+	#define CLAP_AX12_POP_CORN					545		//en degré
 
 //Position initiale de l'AX12
 	#define CLAP_AX12_INIT_POS					CLAP_AX12_CLOSE_POS
 
 //Extremum valeur
 	#define CLAP_AX12_MIN_VALUE					216
-	#define CLAP_AX12_MAX_VALUE					512
+	#define CLAP_AX12_MAX_VALUE					545
 
 #endif	/* CLAP_CONFIG_H */
 
