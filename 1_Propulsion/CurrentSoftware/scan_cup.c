@@ -39,8 +39,8 @@
 #define BORDER				30
 #define MARGE				-10
 #define ECART_MAX			8
-#define ONE_CUP				48
-#define TWO_CUP				79
+#define ONE_CUP				30      // Initialement : 48
+#define TWO_CUP				60		// Initialement : 79
 #define ZERO_CUP			10
 #define DEBUG				1
 #define ECART_MAX_Y			2
