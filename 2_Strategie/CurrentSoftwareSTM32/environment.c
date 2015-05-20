@@ -555,6 +555,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ELEMENTS_set_flag(HOLLY_DISPOSED_FIRST_CARPET, TRUE);
 			ELEMENTS_set_flag(HOLLY_DISPOSED_SECOND_CARPET, TRUE);
 			break;
+		case XBEE_CAN_WOOD_ACCESS_SCAN:
+			holly_can_wood_access_scan(incoming_msg);
+			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
