@@ -80,6 +80,9 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	WOOD_SUB_CHOOSE_ACTION,
 	WOOD_SUB_WAITING_TO_GO,
 	WOOD_SUB_GO_POSITION_END_OF_MATCH,
+	WOOD_SUB_SCAN_NORTH,
+	WOOD_SUB_SCAN_SOUTH,
+	WOOD_SUB_CHOOSE_SCAN,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
