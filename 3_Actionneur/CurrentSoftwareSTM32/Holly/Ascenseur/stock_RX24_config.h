@@ -17,7 +17,7 @@
 
 
 
-#define OFFSET_LOCK			(8)	// Augmenter cette valeur permet de serrer moins
+#define OFFSET_LOCK			(16)	// Augmenter cette valeur permet de serrer moins
 #define OFFSET_UNLOCK		(33)	// Augmenter cette valeur permet de serrer moins
 #define OFFSET_OPEN			(0)	// Augmenter cette valeur permet de serrer moins
 
@@ -72,9 +72,9 @@
 	// Pince gauche, mord droit		ID:31
 	#define OFFSET_NIPPER_LEFT_RIGHT								(-56)
 
-	#define STOCKL_RIGHT_F2_CLOSE									(470 + OFFSET_LOCK)
-	#define STOCKL_RIGHT_F2_LOCK									(470 + OFFSET_LOCK)
-	#define STOCKL_RIGHT_F2_UNLOCK									(470 + OFFSET_UNLOCK)
+	#define STOCKL_RIGHT_F2_CLOSE									(460 + OFFSET_LOCK)
+	#define STOCKL_RIGHT_F2_LOCK									(460 + OFFSET_LOCK)
+	#define STOCKL_RIGHT_F2_UNLOCK									(460 + OFFSET_UNLOCK)
 	#define STOCKL_RIGHT_F2_OPEN									516
 
 	// Pince gauche, mord gauche	ID:32
