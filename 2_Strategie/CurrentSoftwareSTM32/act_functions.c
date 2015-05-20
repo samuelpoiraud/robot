@@ -23,7 +23,7 @@
 #include "state_machine_helper.h"
 
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
-
+#define ULU_TIME                        300
 typedef enum{
 	ACT_SENSOR_WAIT,
 	ACT_SENSOR_ABSENT,
@@ -585,6 +585,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		STOCK_LOCK,
 		ELEVATOR_DOWN,
 		NIPPER_OPEN,
+		STOCK_LOCK_FULL,
 		WIN_STOCK,
 		FAIL_STOCK,
 
@@ -620,7 +621,16 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		// Release spot
 		UNLOCK_SPOT,
 		WIN_RELEASE,
-		FAIL_RELEASE
+		FAIL_RELEASE,
+
+		//Unlock_Lock_Unlock
+		ULU_UNLOCK_1,
+		ULU_WAIT_1,
+		ULU_LOCK,
+		ULU_WAIT_2,
+		ULU_UNLOCK_2,
+		ULU_WAIT_3,
+		ULU_WIN
 	);
 
 	static bool_e right_error = FALSE, left_error = FALSE;
@@ -718,6 +728,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 				case ACT_MAE_SPOTIX_LOCK_STOCK:
 					state = LOCK_STOCK;
+					break;
+
+				case ACT_MAE_SPOTIX_ULU:
+					state = ULU_UNLOCK_1;
 					break;
 
 				default :
@@ -1088,9 +1102,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case STOCK_LOCK:
 			if(entrance){
 				state1 = state2 = STOCK_LOCK;
-				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && (ELEMENTS_get_holly_right_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
+				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && (ELEMENTS_get_holly_right_spot_level() < 3 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
 					ACT_stock_right(ACT_stock_right_lock);
-				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() < 4 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
+				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() < 3 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
 					ACT_stock_left(ACT_stock_left_lock);
 			}
 			if(state1 == STOCK_LOCK && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
@@ -1113,9 +1127,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case NIPPER_OPEN:
 			if(entrance){
 				state1 = state2 = NIPPER_OPEN;
-				if(who != ACT_MAE_SPOTIX_LEFT && ELEMENTS_get_holly_right_spot_level() < 4)
+				if(who != ACT_MAE_SPOTIX_LEFT && ELEMENTS_get_holly_right_spot_level() < 3)
 					ACT_pincemi_right(ACT_pincemi_right_open);
-				if(who != ACT_MAE_SPOTIX_RIGHT && ELEMENTS_get_holly_left_spot_level() < 4)
+				if(who != ACT_MAE_SPOTIX_RIGHT && ELEMENTS_get_holly_left_spot_level() < 3)
 					ACT_pincemi_left(ACT_pincemi_left_open);
 			}
 			if(state1 == NIPPER_OPEN && who != ACT_MAE_SPOTIX_LEFT)
@@ -1131,12 +1145,32 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		case ELEVATOR_DOWN:
 			if(entrance){
-				if(ELEMENTS_get_holly_right_spot_level() == 4 || ELEMENTS_get_holly_left_spot_level() == 4)
+				if(ELEMENTS_get_holly_right_spot_level() >= 3 || ELEMENTS_get_holly_left_spot_level() >= 3)
 					ACT_elevator(ACT_elevator_mid);
 				else
 					ACT_elevator(ACT_elevator_bot);
 			}
-			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_STOCK, FAIL_STOCK);
+			state = check_act_status(ACT_QUEUE_Elevator, state, (order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE)? WIN_STOCK:STOCK_LOCK_FULL, FAIL_STOCK);
+			break;
+
+		case STOCK_LOCK_FULL:
+			if(entrance){
+				state1 = state2 = STOCK_LOCK_FULL;
+				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && (ELEMENTS_get_holly_right_spot_level() >= 3 && order == ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN_WITH_PRESENCE ))
+					ACT_stock_right(ACT_stock_right_lock);
+				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() >= 3 && order == ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN_WITH_PRESENCE ))
+					ACT_stock_left(ACT_stock_left_lock);
+			}
+			if(state1 == STOCK_LOCK_FULL && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
+				state1 = check_act_status(ACT_QUEUE_Stock_left, state, WIN_STOCK, FAIL_TAKE);
+			if(state2 == STOCK_LOCK_FULL && who != ACT_MAE_SPOTIX_LEFT && !right_error)
+				state2 = check_act_status(ACT_QUEUE_Stock_right, state, WIN_STOCK, FAIL_TAKE);
+
+			if((who == ACT_MAE_SPOTIX_BOTH && (state1 != STOCK_LOCK_FULL || left_error) && (state2 != STOCK_LOCK_FULL || right_error))
+					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != STOCK_LOCK_FULL)
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != STOCK_LOCK_FULL)){
+				state = WIN_STOCK;
+			}
 			break;
 
 		case WIN_STOCK:
@@ -1371,6 +1405,53 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case FAIL_RELEASE:
 			RESET_MAE();
 			ret = NOT_HANDLED;
+			break;
+
+//---------------------------UNLOCK_LOCK_UNLOCK------------------------------------------------------------
+		case ULU_UNLOCK_1:
+			if(who != ACT_MAE_SPOTIX_LEFT){
+				ACT_stock_right(ACT_stock_right_unlock);
+			}
+			if(who != ACT_MAE_SPOTIX_RIGHT){
+				ACT_stock_left(ACT_stock_left_unlock);
+			}
+			state=ULU_WAIT_1;
+			break;
+
+		case ULU_WAIT_1:
+			state = wait_time(ULU_TIME,ULU_WAIT_1,ULU_LOCK);
+			break;
+
+		case ULU_LOCK:
+			if(who != ACT_MAE_SPOTIX_LEFT){
+				ACT_stock_right(ACT_stock_right_lock);
+			}
+			if(who != ACT_MAE_SPOTIX_RIGHT){
+				ACT_stock_left(ACT_stock_left_lock);
+			}
+			state=ULU_WAIT_2;
+			break;
+
+		case ULU_WAIT_2:
+			state = wait_time(ULU_TIME,ULU_WAIT_2,ULU_UNLOCK_2);
+			break;
+
+		case ULU_UNLOCK_2:
+			if(who != ACT_MAE_SPOTIX_LEFT){
+				ACT_stock_right(ACT_stock_right_unlock);
+			}
+			if(who != ACT_MAE_SPOTIX_RIGHT){
+				ACT_stock_left(ACT_stock_left_unlock);
+			}
+			state=ULU_WAIT_3;
+			break;
+		case ULU_WAIT_3:
+			state = wait_time(ULU_TIME,ULU_WAIT_3,ULU_WIN);
+			break;
+
+		case ULU_WIN:
+			RESET_MAE();
+			ret = END_OK;
 			break;
 	}
 
