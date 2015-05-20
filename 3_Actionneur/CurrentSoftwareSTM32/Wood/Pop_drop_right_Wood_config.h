@@ -24,6 +24,7 @@
 //Position
 	#define POP_DROP_RIGHT_WOOD_AX12_OPEN_POS					375				//en degré
 	#define POP_DROP_RIGHT_WOOD_AX12_CLOSE_POS					556				//en degré
+	#define POP_DROP_RIGHT_WOOD_AX12_MID_POS					556				//en degré
 
 //Position initiale de l'AX12
 	#define POP_DROP_RIGHT_WOOD_AX12_INIT_POS        POP_DROP_RIGHT_WOOD_AX12_CLOSE_POS		/** Position initiale de l'AX12. Doit être un define du type POP_DROP_RIGHT_WOOD_AX12_* */
