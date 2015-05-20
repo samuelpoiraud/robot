@@ -42,7 +42,7 @@
 #define ONE_CUP				30      // Initialement : 48
 #define TWO_CUP				60		// Initialement : 79
 #define ZERO_CUP			10
-#define DEBUG				1
+#define DEBUG				0
 #define ECART_MAX_Y			2
 
 
@@ -162,7 +162,7 @@ void SCAN_CUP_process_it(){
 		case SCAN_LINEAR:
 			if((old_measure-global.position.x)*(old_measure-global.position.x) >= QUANTUM_MESURE*QUANTUM_MESURE){
 				Sint16 teta = global.position.teta;
-				debug_printf("Scan Linear -> Couleur : %s",(info_scan.color)?"vert":"jaune");
+				//debug_printf("Scan Linear -> Couleur : %s",(info_scan.color)?"vert":"jaune");
 				if(info_scan.color==YELLOW){
 					if(teta < PI4096/2 && teta > -PI4096/2){ //L'angle vaut 0
 						mesure_en_cours.dist = conversion_capteur_RIGHT(ADC_getValue(SCAN_CUP_SENSOR_RIGHT));
@@ -199,10 +199,10 @@ void SCAN_CUP_process_it(){
 			break;
 
 		case SCAN_SIDE:{
-			debug_printf("%lu >= %d    ->   %s\n",(old_measure-global.position.y)*(old_measure-global.position.y),QUANTUM_MESURE*QUANTUM_MESURE,((old_measure-global.position.y)*(old_measure-global.position.y) >= QUANTUM_MESURE*QUANTUM_MESURE)?"Vrai":"Faux");
+			//debug_printf("%lu >= %d    ->   %s\n",(old_measure-global.position.y)*(old_measure-global.position.y),QUANTUM_MESURE*QUANTUM_MESURE,((old_measure-global.position.y)*(old_measure-global.position.y) >= QUANTUM_MESURE*QUANTUM_MESURE)?"Vrai":"Faux");
 			if((old_measure-global.position.y)*(old_measure-global.position.y) >= QUANTUM_MESURE*QUANTUM_MESURE){
 				Sint16 ADCvalue = ADC_getValue(SCAN_CUP_SENSOR_RIGHT);
-				debug_printf("SCAN_SIDE ->  ADC = %d\n",ADCvalue);
+				//debug_printf("SCAN_SIDE ->  ADC = %d\n",ADCvalue);
 				mesure_en_cours.dist = conversion_capteur_RIGHT(ADCvalue);
 				/*if(color==YELLOW){
 					if(is_in_square(0,800,0,1000,(GEOMETRY_point_t){global.position.x,global.position.y})){ // Il est au nord
@@ -274,9 +274,11 @@ void SCAN_CUP_process_it(){
 					last_point=TRUE;
 					state = END;
 				}
-				debug_printf("###############################################################################\n");
-				debug_printf("\tCentre : {%d,%d}\n",coorCup[i].x,coorCup[i].y);
-				debug_printf("###############################################################################\n");
+				if(DEBUG){
+					debug_printf("###############################################################################\n");
+					debug_printf("\tCentre : {%d,%d}\n",coorCup[i].x,coorCup[i].y);
+					debug_printf("###############################################################################\n");
+				}
 				SECRETARY_send_cup_position(last_point,0,1,coorCup[i].x, coorCup[i].y);
 			}
 			break;
@@ -315,11 +317,24 @@ static void inArea(scan_result_t * objet){
 		cup.y = objet->robot.y-objet->dist -100;
 	}else{
 		if(info_scan.is_right_sensor){
-			cup.x = objet->robot.x + 60;
+			if(info_scan.is_in_North){
+				cup.x = objet->robot.x + 59;
+				cup.y = 3000 - (objet->robot.y+objet->dist + 86);
+			}else{
+				cup.x = objet->robot.x + 18;
+				cup.y = 3000 - (objet->robot.y+objet->dist + 116);
+			}
 		}else{
-			cup.x = objet->robot.x - 76;
+			if(info_scan.is_in_North){
+				cup.x = objet->robot.x - 76;
+				cup.y = 3000 - (objet->robot.y+objet->dist + 116);
+			}else{
+				cup.x = objet->robot.x + 40;  // 18
+				cup.y = 3000 - (objet->robot.y+objet->dist + 104);  // 116
+			}
+
 		}
-		cup.y = 3000 - (objet->robot.y+objet->dist + 100);
+
 	}
 	if(!info_scan.scan_linear){
 		Sint16 aux = cup.x;
@@ -456,8 +471,8 @@ static void cupNumber(){
 	if(nbPointB > TWO_CUP)
 		nb_cupB = 3;
 
-	debug_printf("Nombre de gobelet haut : %d\n",nb_cupH);
-	debug_printf("Nombre de gobelet bas : %d\n",nb_cupB);
+	//debug_printf("Nombre de gobelet haut : %d\n",nb_cupH);
+	//debug_printf("Nombre de gobelet bas : %d\n",nb_cupB);
 }
 
 static void detectCenterONE_CUP(GEOMETRY_point_t salle[], Uint8 nbPoint){
