@@ -153,7 +153,7 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
  * return sucess_state si le robot est arrivé au point voulue OU qu'il c'est bloqué dans un obstacle
  * return fail_state si le robot à du arrêter ça trajectoire à cause d'un ennemie
  */
-Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance);
+Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, bool_e force_rotate);
 
 /*
  * Avance d'une distance dist à partir de la position actuelle et en fonction du sens donné.
