@@ -29,5 +29,6 @@
 //#define DEBUG_POLYGON
 
 #define DEBUG_MAE_SPOTIX
+#define DEBUG_MAE_CUP
 
 #endif /* CONFIG_DEBUG_H */

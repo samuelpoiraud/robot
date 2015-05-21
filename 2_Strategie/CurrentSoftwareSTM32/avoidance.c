@@ -122,7 +122,7 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 }
 
 // Fait avancer le robot vers un points jusqu'a ce qu'il rencontre un enemie ou un obstacle
-Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance){
+Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, bool_e force_rotate){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_TRY_RUSH,
 			IDLE,
 			FAST_ROTATE,
@@ -137,7 +137,10 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 
 	switch(state){
 		case IDLE :
-			state = FAST_ROTATE;
+			if(force_rotate)
+				state = FAST_ROTATE;
+			else
+				state = INIT_COEF;
 			break;
 
 		case FAST_ROTATE:
