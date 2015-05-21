@@ -552,7 +552,7 @@ static void MAIN_global_var_init(){
 static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 #ifdef I_AM_ROBOT_BIG
-	if(/*CUP_NIPPER_FDC || */ELEVATOR_FDC /*|| PRESENCE_GOBELET_CENTRAL*/){
+	if(CUP_NIPPER_FDC || ELEVATOR_FDC /*|| PRESENCE_GOBELET_CENTRAL*/){
 		if(led_on == FALSE){
 			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 			led_on = TRUE;

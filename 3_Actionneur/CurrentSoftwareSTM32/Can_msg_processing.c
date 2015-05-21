@@ -111,12 +111,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			answer.data[0] = msg->data[0];
 			switch(msg->data[0]){
 #ifdef I_AM_ROBOT_BIG
-				case GOBELET_HOLLY:
-					if(PRESENCE_GOBELET_CENTRAL)
-						answer.data[1] = STRAT_INFORM_CAPTEUR_PRESENT;
-					else
-						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
-					break;
+
 #else
 				case PINCE_GOBELET_DROITE:
 					if(WT100_GOBELET_RIGHT)

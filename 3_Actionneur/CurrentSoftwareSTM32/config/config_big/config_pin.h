@@ -33,7 +33,6 @@
 
 #define PORT_B_IO_MASK	0xF7FF
 	#define ELEVATOR_FDC			 !(GPIOB->IDR0)
-	#define CUP_NIPPER_FDC			 !(GPIOB->IDR1)
 	//	-				 			  1
 	//	-				 			  2
 	// - programmation -			  3
@@ -54,7 +53,7 @@
 
 #define PORT_C_IO_MASK	0xE3FF
 	//  -							  0
-	#define PRESENCE_GOBELET_CENTRAL (GPIOC->IDR1)
+	#define CUP_NIPPER_FDC			 !(GPIOC->IDR1)
 	//	-				 			  2
 	#define CLAP_SENSOR_R			(GPIOC->IDR3)
 	#define CLAP_SENSOR_L			(GPIOC->IDR4)

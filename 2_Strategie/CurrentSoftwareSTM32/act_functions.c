@@ -1891,36 +1891,6 @@ error_e ACT_sensor_gobelet_left_wood(){
 	return IN_PROGRESS;
 }
 
-error_e ACT_sensor_gobelet_holly(){
-	CREATE_MAE(SEND,
-				WAIT);
-
-	static time32_t begin_time;
-
-	switch(state){
-		case SEND:
-			gobelet_holly_answer = ACT_SENSOR_WAIT;
-			begin_time = env.absolute_time;
-			CAN_direct_send(ACT_ASK_SENSOR, 1, (Uint8 []){GOBELET_HOLLY});
-			state = WAIT;
-			break;
-
-		case WAIT:
-			if(env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
-				RESET_MAE();
-				return END_WITH_TIMEOUT;
-			}else if(gobelet_holly_answer== ACT_SENSOR_PRESENT){
-				RESET_MAE();
-				return END_OK;
-			}else if(gobelet_holly_answer == ACT_SENSOR_ABSENT){
-				RESET_MAE();
-				return NOT_HANDLED;
-			}
-			break;
-	}
-	return IN_PROGRESS;
-}
-
 
 void ACT_sensor_answer(CAN_msg_t* msg){
 	volatile act_sensor_e *act_answer;
@@ -1932,10 +1902,6 @@ void ACT_sensor_answer(CAN_msg_t* msg){
 
 		case PINCE_GOBELET_GAUCHE:
 			act_answer = &gobelet_left_wood_answer;
-			break;
-
-		case GOBELET_HOLLY:
-			act_answer = &gobelet_holly_answer;
 			break;
 	}
 
