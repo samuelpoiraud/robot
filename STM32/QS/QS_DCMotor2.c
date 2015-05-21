@@ -371,7 +371,7 @@ void DCM_process_it()
 	Sint32 differential;
 	Sint32 computed_cmd;
 	Sint16 error;
-	Sint16 pos, speed = 0;
+	Sint16 pos;//, speed;
 
 	for (dc_motor_id = 0; dc_motor_id < DCM_NUMBER; dc_motor_id++)
 	{
@@ -403,8 +403,8 @@ void DCM_process_it()
 					this->cmd_time += DCM_TIME_PERIOD;
 					if(absolute(error) < (Sint16)config->epsilon && absolute(this->previous_error) < (Sint16)config->epsilon)
 						this->cmd_state = DCM_IDLE;
-					else if(absolute(speed) < SPEED_DETECT_LARGE_EPSILON && absolute(error) < (Sint16)config->large_epsilon && absolute(this->previous_error) < (Sint16)config->large_epsilon)
-						this->cmd_state = DCM_IDLE;
+					/*else if(absolute(speed) < SPEED_DETECT_LARGE_EPSILON && absolute(error) < (Sint16)config->large_epsilon && absolute(this->previous_error) < (Sint16)config->large_epsilon)
+						this->cmd_state = DCM_IDLE;*/
 					else if(config->timeout && this->cmd_time >= config->timeout)
 						this->cmd_state = DCM_TIMEOUT;
 					break;

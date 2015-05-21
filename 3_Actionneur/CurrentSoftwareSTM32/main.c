@@ -381,11 +381,13 @@ static void MAIN_onButton4LongPush() {
 	}else if(state == 1){
 		msg.data[0] = ACT_CLAP_HOLLY_LEFT;
 	}else if(state == 2){
+		msg.data[0] = ACT_CLAP_HOLLY_IDLE;
+	}else if(state == 3){
 		msg.data[0] = ACT_CLAP_HOLLY_RIGHT;
 	}
 
 	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
+	state = (state == 3)? 0 : state + 1;
 }
 
 static void MAIN_onButton5() {
@@ -569,7 +571,7 @@ static void MAIN_global_var_init(){
 static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 #ifdef I_AM_ROBOT_BIG
-	if(CUP_NIPPER_FDC || ELEVATOR_FDC /*|| PRESENCE_GOBELET_CENTRAL*/){
+	if(CUP_NIPPER_FDC || ELEVATOR_FDC){
 		if(led_on == FALSE){
 			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 			led_on = TRUE;
