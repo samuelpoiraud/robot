@@ -362,10 +362,10 @@ bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd) {
 	return ACT_push_operation(ACT_QUEUE_Pop_drop_right_Wood, &args);
 }
 
-bool_e ACT_pompe_wood(ACT_pompe_wood_cmd_e cmd){
+bool_e ACT_pompe_wood(ACT_pompe_wood_cmd_e cmd, Uint8 param){
 	QUEUE_arg_t args;
 
-	ACT_arg_init_with_param(&args, ACT_POMPE_WOOD, cmd, 100);
+	ACT_arg_init_with_param(&args, ACT_POMPE_WOOD, cmd, param);
 	ACT_arg_set_fallbackmsg(&args, ACT_POMPE_WOOD,  ACT_POMPE_WOOD_STOP);
 
 	debug_printf("Run stop pompe wood cmd\n");

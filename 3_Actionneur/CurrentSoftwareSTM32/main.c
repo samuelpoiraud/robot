@@ -532,9 +532,26 @@ static void MAIN_onButton3(){
 }
 
 static void MAIN_onButton3LongPush(){}
+
 static void MAIN_onButton4(){}
+
 static void MAIN_onButton4LongPush(){}
-static void MAIN_onButton5(){}
+static void MAIN_onButton5(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_POP_DROP_LEFT_WOOD;
+
+	if(state == 0)
+		msg.data[0] = ACT_POP_DROP_LEFT_WOOD_MID;
+	else if(state == 1)
+		msg.data[0] = ACT_POP_DROP_LEFT_WOOD_OPEN;
+	else if(state == 2)
+		msg.data[0] = ACT_POP_DROP_LEFT_WOOD_CLOSED;
+
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+}
 static void MAIN_onButton5LongPush(){}
 static void MAIN_onButton6(){}
 
