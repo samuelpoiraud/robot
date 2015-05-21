@@ -458,8 +458,9 @@ static void MAIN_onButton6() {
 static void MAIN_onButton0(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 1;
+	msg.size = 2;
 	msg.sid = ACT_POMPE_WOOD;
+	msg.data[1] = 100;
 
 
 	if(state == 0){
