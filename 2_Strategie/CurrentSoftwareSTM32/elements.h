@@ -2,6 +2,7 @@
 #define ELEMENTS_H
 
 #include "QS/QS_all.h"
+#include "Supervision/SD/SD.h"
 
 	#define NB_SPOT		16
 	#define NB_CUP		5

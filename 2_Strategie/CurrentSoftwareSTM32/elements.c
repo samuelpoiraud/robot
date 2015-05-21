@@ -168,11 +168,13 @@ Uint8 ELEMENTS_get_holly_left_spot_level(void)
 void ELEMENTS_inc_holly_left_spot_level(void)
 {
 	holly_left_spot_level++;
+	SD_printf("INC LEFT SPOT LEVEL = %d pieds\n",holly_left_spot_level);
 }
 
 //Indiquer le vidage de l'ascenceur de gauche
 void ELEMENTS_reset_holly_left_spot_level(void)
 {
+	SD_printf("RESET LEFT SPOT LEVEL\n");
 	holly_left_spot_level = 0;
 }
 
@@ -186,11 +188,13 @@ Uint8 ELEMENTS_get_holly_right_spot_level(void)
 void ELEMENTS_inc_holly_right_spot_level(void)
 {
 	holly_right_spot_level++;
+	SD_printf("INC RIGHT SPOT LEVEL = %d pieds\n",holly_right_spot_level);
 }
 
 //Indiquer le vidage de l'ascenceur de droite
 void ELEMENTS_reset_holly_right_spot_level(void)
 {
+	SD_printf("RESET LEFT SPOT LEVEL\n");
 	holly_right_spot_level = 0;
 }
 
