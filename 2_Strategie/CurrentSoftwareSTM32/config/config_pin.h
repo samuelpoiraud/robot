@@ -178,7 +178,7 @@
 		#define	USB_POWER_ON	 	GPIOC,GPIO_Pin_0
 		#define RECALAGE_AV_G		!GPIOC->IDR1
 		#define RECALAGE_AV_D		!GPIOC->IDR2
-		//								3
+		#define WT100_GOBELET_FRONT	(!(GPIOC->IDR3))
 		//								4
 		#define RECALAGE_AR_G		!GPIOC->IDR5
 		#define LED_BEACON_IR_GREEN	GPIOC,GPIO_Pin_6

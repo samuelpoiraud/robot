@@ -76,10 +76,6 @@ int main (void)
 	SYS_init();		// Init système
 	PORTS_init();	// Config des ports
 
-	// Activation des pulls UP des capteurs de recalage
-	PORTS_set_pull(GPIOC, GPIO_Pin_1, GPIO_PuPd_UP);
-	PORTS_set_pull(GPIOC, GPIO_Pin_2, GPIO_PuPd_UP);
-
 	#ifdef MODE_SIMULATION
 		pull_bp_and_switch();
 	#endif
@@ -152,6 +148,7 @@ int main (void)
 
 		MAIN_sensor_test();
 		ACT_MAE_holly_spotix_process_main();
+		ACT_MAE_holly_cup_process_main();
 
 		any_match();
 
@@ -276,7 +273,7 @@ void RCON_read(void)
 static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
-		if(RECALAGE_AR_G || RECALAGE_AR_D || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY){
+		if(RECALAGE_AR_G || RECALAGE_AR_D || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY || RECALAGE_AV_G || RECALAGE_AV_D){
 				//|| (ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 5 && ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 350)
 				//|| (ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 5 && ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) < 200)){
 			if(led_on == FALSE){
@@ -288,7 +285,7 @@ static void MAIN_sensor_test(){
 			led_on = FALSE;
 		}
 	}else{
-		if(RECALAGE_AV_G || RECALAGE_AV_D){
+		if(RECALAGE_AV_G || RECALAGE_AV_D || WT100_GOBELET_FRONT || 1){
 			if(led_on == FALSE){
 				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 				led_on = TRUE;
