@@ -123,6 +123,7 @@ typedef enum {
 
 typedef enum {
 	ACT_cup_nipper_elevator_idle = ACT_CUP_NIPPER_ELEVATOR_IDLE,
+	ACT_cup_nipper_elevator_mid = ACT_CUP_NIPPER_ELEVATOR_MID,
 	ACT_cup_nipper_elevator_up = ACT_CUP_NIPPER_ELEVATOR_UP,
 	ACT_cup_nipper_elevator_stop = ACT_CUP_NIPPER_ELEVATOR_STOP
 } ACT_cup_nipper_elevator_cmd_e;
@@ -305,7 +306,7 @@ typedef enum{
 	ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN_WITHOUT_PRESENCE,
 	ACT_MAE_SPOTIX_RELEASE_NIPPER_AND_GO_DOWN,
 	ACT_MAE_SPOTIX_GO_MID_IN_OPENING_STOCK,
-	ACT_MAE_SPOTIX_ULU,
+	ACT_MAE_SPOTIX_ULU
 }ACT_MAE_holly_spotix_e;
 
 typedef enum{
@@ -316,24 +317,31 @@ typedef enum{
 
 typedef enum{
 	ACT_MAE_CUP_TAKE,
-	ACT_MAE_CUP_TAKE_AND_UP,
-	ACT_MAE_CUP_DOWN_AND_RELEASE,
-	ACT_MAE_CUP_CLOSE
+	ACT_MAE_CUP_RELEASE,
+	ACT_MAE_CUP_UP,
+	ACT_MAE_CUP_MID,
+	ACT_MAE_CUP_DOWN
 }ACT_MAE_holly_cup_e;
 
 typedef Sint16 spotix_order_id_t;
+typedef Sint16 cup_order_id_t;
 
 // MAE Standart
-error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order);
+error_e ACT_MAE_holly_cup_bloquing(ACT_MAE_holly_cup_e order);
 error_e ACT_MAE_holly_spotix_bloquing(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who);
 
 // Envoyé un ordre sans attente de retour
+cup_order_id_t ACT_MAE_holly_cup_do_order(ACT_MAE_holly_cup_e order);
 spotix_order_id_t ACT_MAE_holly_spotix_do_order(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who);
 
 // Fonction pour avoir les retours de l'ordre en background
-bool_e ACT_MAE_holly_wait_end_order(spotix_order_id_t id);
+bool_e ACT_MAE_holly_spotix_wait_end_order(spotix_order_id_t id);
 void ACT_MAE_holly_spotix_process_main();
 error_e ACT_holly_spotix_get_last_error();
+
+bool_e ACT_MAE_holly_cup_wait_end_order(cup_order_id_t id);
+void ACT_MAE_holly_cup_process_main();
+error_e ACT_holly_cup_get_last_error();
 
 // Wood
 

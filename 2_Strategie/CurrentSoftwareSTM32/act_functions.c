@@ -30,19 +30,12 @@ typedef enum{
 	ACT_SENSOR_PRESENT
 }act_sensor_e;
 
-typedef struct{
-	ACT_MAE_holly_spotix_e order;
-	ACT_MAE_holly_spotix_side_e who;
-}act_mae_real_time_t;
-
 static volatile act_sensor_e gobelet_right_wood_answer = ACT_SENSOR_WAIT;
 static volatile act_sensor_e gobelet_left_wood_answer = ACT_SENSOR_WAIT;
 static volatile act_sensor_e gobelet_holly_answer = ACT_SENSOR_WAIT;
 
-static volatile act_mae_real_time_t act_mae_real_time = {END_OK, FALSE};
-static volatile FIFO_t FIFO_MAE_spotix;
-
 static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who);
+static error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order);
 
 /* Pile contenant les arguments d'une demande d'opération
  * Contient les messages CAN à envoyer à la carte actionneur pour exécuter l'action.
@@ -585,6 +578,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		STOCK_LOCK,
 		ELEVATOR_DOWN,
 		NIPPER_OPEN,
+		ELEVATOR_MID,
 		STOCK_LOCK_FULL,
 		WIN_STOCK,
 		FAIL_STOCK,
@@ -1062,8 +1056,13 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 			if((who == ACT_MAE_SPOTIX_BOTH && (state1 != STOCK_UNLOCK || right_error) && (state2 != STOCK_UNLOCK || left_error))
 					|| (who == ACT_MAE_SPOTIX_LEFT && state2 != STOCK_UNLOCK)
-					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != STOCK_UNLOCK))
-				state = ELEVATOR_UP;
+					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != STOCK_UNLOCK)){
+				if(ELEMENTS_get_holly_left_spot_level() >= 3 || ELEMENTS_get_holly_right_spot_level() >= 3)
+					state = ELEVATOR_MID;
+				else
+					state = ELEVATOR_UP;
+			}
+
 			break;
 
 		// Question gestion d'erreur sur le fait de fail l'unlock ?
@@ -1102,9 +1101,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case STOCK_LOCK:
 			if(entrance){
 				state1 = state2 = STOCK_LOCK;
-				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && (ELEMENTS_get_holly_right_spot_level() < 3 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
+				if(who != ACT_MAE_SPOTIX_LEFT && !right_error)
 					ACT_stock_right(ACT_stock_right_lock);
-				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() < 3 || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE ))
+				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error)
 					ACT_stock_left(ACT_stock_left_lock);
 			}
 			if(state1 == STOCK_LOCK && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
@@ -1115,7 +1114,8 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			if((who == ACT_MAE_SPOTIX_BOTH && (state1 != STOCK_LOCK || left_error) && (state2 != STOCK_LOCK || right_error))
 					|| (who == ACT_MAE_SPOTIX_LEFT && state1 != STOCK_LOCK)
 					|| (who == ACT_MAE_SPOTIX_RIGHT && state2 != STOCK_LOCK)){
-				if(order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE)
+
+				if(order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE || order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITHOUT_PRESENCE)
 					state = WIN_STOCK;
 				else
 					state = NIPPER_OPEN;
@@ -1127,9 +1127,9 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		case NIPPER_OPEN:
 			if(entrance){
 				state1 = state2 = NIPPER_OPEN;
-				if(who != ACT_MAE_SPOTIX_LEFT && ELEMENTS_get_holly_right_spot_level() < 3)
+				if(who != ACT_MAE_SPOTIX_LEFT)
 					ACT_pincemi_right(ACT_pincemi_right_open);
-				if(who != ACT_MAE_SPOTIX_RIGHT && ELEMENTS_get_holly_left_spot_level() < 3)
+				if(who != ACT_MAE_SPOTIX_RIGHT)
 					ACT_pincemi_left(ACT_pincemi_left_open);
 			}
 			if(state1 == NIPPER_OPEN && who != ACT_MAE_SPOTIX_LEFT)
@@ -1144,21 +1144,23 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			break;
 
 		case ELEVATOR_DOWN:
-			if(entrance){
-				if(ELEMENTS_get_holly_right_spot_level() >= 3 || ELEMENTS_get_holly_left_spot_level() >= 3)
-					ACT_elevator(ACT_elevator_mid);
-				else
-					ACT_elevator(ACT_elevator_bot);
-			}
-			state = check_act_status(ACT_QUEUE_Elevator, state, (order == ACT_MAE_SPOTIX_STOCK_AND_STAY_WITH_PRESENCE)? WIN_STOCK:STOCK_LOCK_FULL, FAIL_STOCK);
+			if(entrance)
+				ACT_elevator(ACT_elevator_bot);
+			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_STOCK, FAIL_STOCK);
+			break;
+
+		case ELEVATOR_MID:
+			if(entrance)
+				ACT_elevator(ACT_elevator_mid);
+			state = check_act_status(ACT_QUEUE_Elevator, state, STOCK_LOCK_FULL, FAIL_STOCK);
 			break;
 
 		case STOCK_LOCK_FULL:
 			if(entrance){
 				state1 = state2 = STOCK_LOCK_FULL;
-				if(who != ACT_MAE_SPOTIX_LEFT && !right_error && (ELEMENTS_get_holly_right_spot_level() >= 3 && order == ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN_WITH_PRESENCE ))
+				if(who != ACT_MAE_SPOTIX_LEFT && !right_error)
 					ACT_stock_right(ACT_stock_right_lock);
-				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error && (ELEMENTS_get_holly_left_spot_level() >= 3 && order == ACT_MAE_SPOTIX_STOCK_AND_GO_DOWN_WITH_PRESENCE ))
+				if(who != ACT_MAE_SPOTIX_RIGHT && !left_error)
 					ACT_stock_left(ACT_stock_left_lock);
 			}
 			if(state1 == STOCK_LOCK_FULL && who != ACT_MAE_SPOTIX_RIGHT && !left_error)
@@ -1459,181 +1461,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 	return ret;
 }
 
-error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order){
-	CREATE_MAE_WITH_VERBOSE(0,
-		INIT,
-		COMPUTE_ORDER,
-		FAIL_COMPUTE,
 
-		// Init pos
-		INIT_POS,
-		WIN_INIT,
-		FAIL_INIT,
-
-		// Cup take
-		TAKE_CUP,
-		CHECK_PRESENCE_CUP,
-		ELEVATOR_UP,
-		WIN_TAKE,
-		FAIL_TAKE,
-
-		// Down and release
-		ELEVATOR_DOWN,
-		RELEASE_CUP,
-		WIN_RELEASE,
-		FAIL_RELEASE,
-
-		// Close
-		ELEVATOR_DOWN_FOR_CLOSE,
-		CLOSE,
-		WIN_CLOSE,
-		FAIL_CLOSE
-	);
-
-	static bool_e init = FALSE;
-	error_e ret = IN_PROGRESS;
-
-	switch(state){
-		case INIT:
-			state = COMPUTE_ORDER;
-			break;
-
-		case COMPUTE_ORDER:
-			switch(order){
-
-				case ACT_MAE_CUP_TAKE:
-				case ACT_MAE_CUP_TAKE_AND_UP:
-					state = TAKE_CUP;
-					break;
-
-				case ACT_MAE_CUP_DOWN_AND_RELEASE:
-					state = ELEVATOR_DOWN;
-					break;
-
-				case ACT_MAE_CUP_CLOSE:
-					state = ELEVATOR_DOWN_FOR_CLOSE;
-					break;
-
-				default :
-					state = FAIL_COMPUTE;
-					break;
-			}
-			if(init == FALSE)
-				state = INIT_POS;
-			break;
-
-		case FAIL_COMPUTE:
-			RESET_MAE();
-			ret = NOT_HANDLED;
-			break;
-
-//----------------------------------------- Init
-		case INIT_POS:
-			if(entrance)
-				ACT_cup_nipper(ACT_cup_nipper_open);
-			state = check_act_status(ACT_QUEUE_Cup_Nipper, state, WIN_INIT, FAIL_INIT);
-			break;
-
-		case WIN_INIT:
-			init = TRUE;
-			state = COMPUTE_ORDER;
-			break;
-
-		case FAIL_INIT:
-			RESET_MAE();
-			ret = NOT_HANDLED;
-			break;
-
-
-//----------------------------------------- Take cup
-		case TAKE_CUP:
-			if(entrance)
-				ACT_cup_nipper(ACT_cup_nipper_lock);
-			state = check_act_status(ACT_QUEUE_Cup_Nipper, state, CHECK_PRESENCE_CUP, FAIL_TAKE);
-			break;
-
-		case CHECK_PRESENCE_CUP:{
-#ifdef ROBOT_VIRTUEL_PARFAIT
-			state = ELEVATOR_UP;
-#else
-			static enum state_e sucess_state;
-			if(entrance){
-				if(order == ACT_MAE_CUP_TAKE)
-					sucess_state = WIN_TAKE;
-				else
-					sucess_state = FAIL_TAKE;
-			}
-			state = check_sub_action_result(ACT_sensor_gobelet_holly(), state, sucess_state, FAIL_TAKE);
-#endif
-		}break;
-
-		case ELEVATOR_UP:
-			if(entrance)
-				ACT_cup_nipper_elevator(ACT_cup_nipper_elevator_up);
-			state = check_act_status(ACT_QUEUE_Cup_Nipper_Elevator, state, WIN_TAKE, FAIL_TAKE);
-			break;
-
-		case WIN_TAKE:
-			RESET_MAE();
-			ret = END_OK;
-			break;
-
-		case FAIL_TAKE:
-			RESET_MAE();
-			ret = NOT_HANDLED;
-			break;
-
-//----------------------------------------- Down and release
-		case ELEVATOR_DOWN:
-			if(entrance)
-				ACT_cup_nipper_elevator(ACT_cup_nipper_elevator_idle);
-			state = check_act_status(ACT_QUEUE_Cup_Nipper_Elevator, state, RELEASE_CUP, FAIL_RELEASE);
-			break;
-
-		case RELEASE_CUP:
-			if(entrance)
-				ACT_cup_nipper(ACT_cup_nipper_open);
-			state = check_act_status(ACT_QUEUE_Cup_Nipper, state, WIN_RELEASE, FAIL_RELEASE);
-			break;
-
-		case WIN_RELEASE:
-			RESET_MAE();
-			ret = END_OK;
-			break;
-
-		case FAIL_RELEASE:
-			RESET_MAE();
-			ret = NOT_HANDLED;
-			break;
-
-//------------------------------------------- Close
-		case ELEVATOR_DOWN_FOR_CLOSE:
-			if(entrance)
-				ACT_cup_nipper_elevator(ACT_cup_nipper_elevator_idle);
-			state = check_act_status(ACT_QUEUE_Cup_Nipper_Elevator, state, CLOSE, FAIL_CLOSE);
-			break;
-
-		case CLOSE:
-			if(entrance)
-				ACT_cup_nipper(ACT_cup_nipper_close);
-			state = check_act_status(ACT_QUEUE_Cup_Nipper, state, WIN_CLOSE, FAIL_CLOSE);
-			if(ON_LEAVING(CLOSE))
-				init = FALSE;
-			break;
-
-		case WIN_CLOSE:
-			RESET_MAE();
-			ret = END_OK;
-			break;
-
-		case FAIL_CLOSE:
-			RESET_MAE();
-			ret = NOT_HANDLED;
-			break;
-
-	}
-	return ret;
-}
 
 typedef struct{
 	ACT_MAE_holly_spotix_e order;
@@ -1648,7 +1476,7 @@ volatile static Uint8 spotix_read;
 volatile static Uint8 spotix_write;
 
 volatile static spotix_order_id_t spotix_order_counter = 0;
-volatile static spotix_order_id_t last_order_id = -1;
+volatile static spotix_order_id_t last_spotix_order_id = -1;
 
 error_e ACT_MAE_holly_spotix_bloquing(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_spotix_side_e who){
 	static bool_e entrance = TRUE;
@@ -1662,7 +1490,7 @@ error_e ACT_MAE_holly_spotix_bloquing(ACT_MAE_holly_spotix_e order, ACT_MAE_holl
 		return NOT_HANDLED;
 	}
 
-	if(ACT_MAE_holly_wait_end_order(spotix_order_id)){
+	if(ACT_MAE_holly_spotix_wait_end_order(spotix_order_id)){
 		entrance = TRUE;
 		return ACT_holly_spotix_get_last_error();
 	}
@@ -1671,8 +1499,8 @@ error_e ACT_MAE_holly_spotix_bloquing(ACT_MAE_holly_spotix_e order, ACT_MAE_holl
 	return IN_PROGRESS;
 }
 
-bool_e ACT_MAE_holly_wait_end_order(spotix_order_id_t id){
-	if(last_order_id >= id)
+bool_e ACT_MAE_holly_spotix_wait_end_order(spotix_order_id_t id){
+	if(last_spotix_order_id >= id)
 		return TRUE;
 	else
 		return FALSE;
@@ -1725,7 +1553,7 @@ void ACT_MAE_holly_spotix_process_main(){
 			if(result_sub != IN_PROGRESS){
 				state = WAIT_ORDER;
 				last_spotix_error = result_sub;
-				last_order_id = spotix_order_queue[spotix_read].order_id;
+				last_spotix_order_id = spotix_order_queue[spotix_read].order_id;
 				spotix_read = (spotix_read + 1) % 10;
 			}
 			break;
@@ -1735,6 +1563,267 @@ void ACT_MAE_holly_spotix_process_main(){
 
 error_e ACT_holly_spotix_get_last_error(){
 	return last_spotix_error;
+}
+
+
+static error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order){
+	CREATE_MAE_WITH_VERBOSE(0,
+		INIT,
+		COMPUTE_ORDER,
+		FAIL_COMPUTE,
+
+		// Cup take
+		TAKE_CUP,
+		WIN_TAKE,
+		FAIL_TAKE,
+
+		// Cup release
+		RELEASE_CUP,
+		WIN_RELEASE,
+		FAIL_RELEASE,
+
+		// Cup up
+		UP_CUP,
+		WIN_UP,
+		FAIL_UP,
+
+		// Cup mid
+		MID_CUP,
+		WIN_MID,
+		FAIL_MID,
+
+		// Cup down
+		DOWN_CUP,
+		WIN_DOWN,
+		FAIL_DOWN
+	);
+
+	error_e ret = IN_PROGRESS;
+
+	switch(state){
+		case INIT:
+			state = COMPUTE_ORDER;
+			break;
+
+		case COMPUTE_ORDER:
+			switch(order){
+
+				case ACT_MAE_CUP_TAKE:
+					state = TAKE_CUP;
+					break;
+
+				case ACT_MAE_CUP_RELEASE:
+					state = RELEASE_CUP;
+					break;
+
+				case ACT_MAE_CUP_UP:
+					state = UP_CUP;
+					break;
+
+				case ACT_MAE_CUP_DOWN:
+					state = DOWN_CUP;
+					break;
+
+
+				default :
+					state = FAIL_COMPUTE;
+					break;
+			}
+			break;
+
+		case FAIL_COMPUTE:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//----------------------------------------- Take cup
+		case TAKE_CUP:
+			if(entrance)
+				ACT_spot_pompe_right(ACT_SPOT_POMPE_RIGHT_REVERSE);
+			state = check_act_status(ACT_QUEUE_Spot_pompe_right, state, WIN_TAKE, FAIL_TAKE);
+			break;
+
+		case WIN_TAKE:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_TAKE:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+
+//----------------------------------------- Release cup
+		case RELEASE_CUP:
+			if(entrance)
+				ACT_spot_pompe_right(ACT_SPOT_POMPE_RIGHT_STOP);
+			state = check_act_status(ACT_QUEUE_Spot_pompe_right, state, WIN_RELEASE, FAIL_RELEASE);
+			break;
+
+		case WIN_RELEASE:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_RELEASE:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//----------------------------------------- Up
+		case UP_CUP:
+			if(entrance)
+				ACT_cup_nipper_elevator(ACT_cup_nipper_elevator_up);
+			state = check_act_status(ACT_QUEUE_Cup_Nipper_Elevator, state, WIN_UP, FAIL_UP);
+		break;
+
+		case WIN_UP:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_UP:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//----------------------------------------- Mid
+		case MID_CUP:
+			if(entrance)
+				ACT_cup_nipper_elevator(ACT_cup_nipper_elevator_mid);
+			state = check_act_status(ACT_QUEUE_Cup_Nipper_Elevator, state, WIN_MID, FAIL_MID);
+		break;
+
+		case WIN_MID:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_MID:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//----------------------------------------- Down
+		case DOWN_CUP:
+			if(entrance)
+				ACT_cup_nipper_elevator(ACT_cup_nipper_elevator_idle);
+			state = check_act_status(ACT_QUEUE_Cup_Nipper_Elevator, state, WIN_DOWN, FAIL_DOWN);
+		break;
+
+		case WIN_DOWN:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_DOWN:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+	}
+	return ret;
+}
+
+
+typedef struct{
+	ACT_MAE_holly_cup_e order;
+	Uint16 order_id;
+}cup_order_queue_t;
+
+volatile static cup_order_queue_t cup_order_queue[10];
+volatile static error_e last_cup_error;
+
+volatile static Uint8 cup_read;
+volatile static Uint8 cup_write;
+
+volatile static spotix_order_id_t cup_order_counter = 0;
+volatile static spotix_order_id_t last_order_cup_id = -1;
+
+error_e ACT_MAE_holly_cup_bloquing(ACT_MAE_holly_cup_e order){
+	static bool_e entrance = TRUE;
+	static cup_order_id_t cup_order_id;
+
+	if(entrance)
+		cup_order_id = ACT_MAE_holly_cup_do_order(order);
+
+	if(cup_order_id == -1){
+		entrance = TRUE;
+		return NOT_HANDLED;
+	}
+
+	if(ACT_MAE_holly_cup_wait_end_order(cup_order_id)){
+		entrance = TRUE;
+		return ACT_holly_cup_get_last_error();
+	}
+
+	entrance = FALSE;
+	return IN_PROGRESS;
+}
+
+bool_e ACT_MAE_holly_cup_wait_end_order(cup_order_id_t id){
+	if(last_order_cup_id >= id)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+cup_order_id_t ACT_MAE_holly_cup_do_order(ACT_MAE_holly_cup_e order){
+
+	if(((cup_write + 1) % 10) == cup_read){ // Buffer plein
+		error_printf("ACT_MAE_holly_cup_do_order : buffer full\n");
+		return -1;
+	}
+
+	cup_order_queue[cup_write].order = order;
+	cup_order_queue[cup_write].order_id = cup_order_counter;
+
+	cup_write = (cup_write + 1) % 10;
+	return cup_order_counter++;
+}
+
+
+void ACT_MAE_holly_cup_process_main(){
+#ifdef DEBUG_MAE_SPOTIX
+	CREATE_MAE_WITH_VERBOSE(SM_ID_HOLLY_MANAGE_MAE_CUP,
+#else
+	CREATE_MAE(
+#endif
+		INIT,
+		WAIT_ORDER,
+		DO_ORDER
+	);
+
+	error_e result_sub;
+
+	switch(state){
+		case INIT:
+			cup_read = 0;
+			cup_write = 0;
+			state = WAIT_ORDER;
+			break;
+
+		case WAIT_ORDER:
+			if(cup_read != cup_write)
+				state = DO_ORDER;
+			break;
+
+		case DO_ORDER:
+			result_sub = ACT_MAE_holly_cup(cup_order_queue[cup_read].order);
+
+			if(result_sub != IN_PROGRESS){
+				state = WAIT_ORDER;
+				last_cup_error = result_sub;
+				last_order_cup_id = cup_order_queue[cup_read].order_id;
+				cup_read = (cup_read + 1) % 10;
+			}
+			break;
+
+	}
+}
+
+error_e ACT_holly_cup_get_last_error(){
+	return last_cup_error;
 }
 
 
