@@ -343,8 +343,9 @@ static void inArea(scan_result_t * objet){
 				cup.x = objet->robot.x - 76;
 				cup.y = 3000 - (objet->robot.y+objet->dist + 116);
 			}else{
-				cup.x = objet->robot.x + 40;  // 18
-				cup.y = 3000 - (objet->robot.y+objet->dist + 104);  // 116
+				debug_printf("Salle jaune sud\n");
+				cup.x = objet->robot.x - 60;  // 40  pour 1500
+				cup.y = 3000 - (objet->robot.y+objet->dist + 68);  // 104 pour 174
 			}
 
 		}
