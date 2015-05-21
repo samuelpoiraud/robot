@@ -1057,7 +1057,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			if((who == ACT_MAE_SPOTIX_BOTH && (state1 != STOCK_UNLOCK || right_error) && (state2 != STOCK_UNLOCK || left_error))
 					|| (who == ACT_MAE_SPOTIX_LEFT && state2 != STOCK_UNLOCK)
 					|| (who == ACT_MAE_SPOTIX_RIGHT && state1 != STOCK_UNLOCK)){
-				if( (ELEMENTS_get_holly_left_spot_level() >= 3 who != ACT_MAE_SPOTIX_RIGHT) || (ELEMENTS_get_holly_right_spot_level() >= 3 && who != ACT_MAE_SPOTIX_LEFT ))
+				if( (ELEMENTS_get_holly_left_spot_level() >= 3 && who != ACT_MAE_SPOTIX_RIGHT) || (ELEMENTS_get_holly_right_spot_level() >= 3 && who != ACT_MAE_SPOTIX_LEFT ))
 					state = ELEVATOR_MID;
 				else
 					state = ELEVATOR_UP;
