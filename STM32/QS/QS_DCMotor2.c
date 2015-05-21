@@ -371,7 +371,7 @@ void DCM_process_it()
 	Sint32 differential;
 	Sint32 computed_cmd;
 	Sint16 error;
-	Sint16 pos, speed;
+	Sint16 pos, speed = 0;
 
 	for (dc_motor_id = 0; dc_motor_id < DCM_NUMBER; dc_motor_id++)
 	{

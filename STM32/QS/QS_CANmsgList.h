@@ -875,8 +875,9 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	///////////////CUP NIPPER ELEVATOR////////////////
 	ACT_CUP_NIPPER_ELEVATOR = (ACT_FILTER | 0x0C),
 		#define ACT_CUP_NIPPER_ELEVATOR_IDLE		0x11
-		#define ACT_CUP_NIPPER_ELEVATOR_UP			0x12
-		#define ACT_CUP_NIPPER_ELEVATOR_STOP		0x13
+		#define ACT_CUP_NIPPER_ELEVATOR_MID			0x12
+		#define ACT_CUP_NIPPER_ELEVATOR_UP			0x13
+		#define ACT_CUP_NIPPER_ELEVATOR_STOP		0x14
 
 	///////////////BACK SPOT RIGHT/////////////////
 	ACT_BACK_SPOT_RIGHT = (ACT_FILTER | 0x0D),
