@@ -215,7 +215,8 @@ typedef enum {
 typedef enum {
 	ACT_pop_drop_left_Wood_closed = ACT_POP_DROP_LEFT_WOOD_CLOSED,
 	ACT_pop_drop_left_Wood_open = ACT_POP_DROP_LEFT_WOOD_OPEN,
-	ACT_pop_drop_left_Wood_stop = ACT_POP_DROP_LEFT_WOOD_STOP
+	ACT_pop_drop_left_Wood_stop = ACT_POP_DROP_LEFT_WOOD_STOP,
+	ACT_pop_drop_left_Wood_mid = ACT_POP_DROP_LEFT_WOOD_MID
 }ACT_pop_drop_left_Wood_cmd_e;
 
 typedef enum {
@@ -275,7 +276,7 @@ bool_e ACT_clap(ACT_clap_cmd_e cmd);
 bool_e ACT_pop_drop_left_Wood(ACT_pop_drop_left_Wood_cmd_e cmd);
 bool_e ACT_pop_drop_right_Wood(ACT_pop_drop_right_Wood_cmd_e cmd);
 
-bool_e ACT_pompe_wood(ACT_pompe_wood_cmd_e cmd);
+bool_e ACT_pompe_wood(ACT_pompe_wood_cmd_e cmd, Uint8 param);
 
 // Common
 

@@ -42,7 +42,7 @@
 #define ONE_CUP				30      // Initialement : 48
 #define TWO_CUP				60		// Initialement : 79
 #define ZERO_CUP			10
-#define DEBUG				0
+#define DEBUG				1
 #define ECART_MAX_Y			2
 
 
@@ -310,16 +310,30 @@ static void inArea(scan_result_t * objet){
 	//debug_printf("in Area -> Couleur : %s",(info_scan.color)?"vert":"jaune");
 	if(info_scan.color==YELLOW){
 		if(info_scan.is_right_sensor){
-			cup.x = objet->robot.x - 60;
+			if(info_scan.is_in_North){
+				cup.x = objet->robot.x - 60;
+				cup.y = objet->robot.y-objet->dist -100;
+			}else{
+				cup.x = objet->robot.x - 60;
+				cup.y = objet->robot.y-objet->dist -100;
+			}
+
 		}else{
-			cup.x = objet->robot.x + 76;
+				if(info_scan.is_in_North){
+					debug_printf("Salle verte nord\n");
+					cup.x = objet->robot.x + 54;
+					cup.y = objet->robot.y-objet->dist -60;  // -100  position 159
+				}else{
+					cup.x = objet->robot.x - 60;
+					cup.y = objet->robot.y-objet->dist -100;
+				}
 		}
-		cup.y = objet->robot.y-objet->dist -100;
 	}else{
 		if(info_scan.is_right_sensor){
 			if(info_scan.is_in_North){
-				cup.x = objet->robot.x + 59;
-				cup.y = 3000 - (objet->robot.y+objet->dist + 86);
+				debug_printf("Salle jaune nord\n");
+				cup.x = objet->robot.x + 50;      //Pour diminuer x, augmenter l'offset
+				cup.y = 3000 - (objet->robot.y+objet->dist + 70);		//Pour daugmenter y, diminuer l'offset
 			}else{
 				cup.x = objet->robot.x + 18;
 				cup.y = 3000 - (objet->robot.y+objet->dist + 116);

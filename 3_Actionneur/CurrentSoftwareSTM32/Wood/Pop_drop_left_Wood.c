@@ -136,6 +136,7 @@ bool_e POP_DROP_LEFT_WOOD_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_POP_DROP_LEFT_WOOD_OPEN :
+			case ACT_POP_DROP_LEFT_WOOD_MID :
 			case ACT_POP_DROP_LEFT_WOOD_CLOSED :
 			case ACT_POP_DROP_LEFT_WOOD_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_POP_DROP_LEFT_WOOD, &POP_DROP_LEFT_WOOD_run_command, 0,TRUE);
@@ -154,6 +155,7 @@ bool_e POP_DROP_LEFT_WOOD_CAN_process_msg(CAN_msg_t* msg) {
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
 		SELFTEST_set_actions(&POP_DROP_LEFT_WOOD_run_command, 9, 3, (SELFTEST_action_t[]){
 								 {ACT_POP_DROP_LEFT_WOOD_CLOSED,		0,  QUEUE_ACT_AX12_POP_DROP_LEFT_WOOD},
+								 {ACT_POP_DROP_LEFT_WOOD_MID,		    0,  QUEUE_ACT_AX12_POP_DROP_LEFT_WOOD},
 								 {ACT_POP_DROP_LEFT_WOOD_OPEN,		    0,  QUEUE_ACT_AX12_POP_DROP_LEFT_WOOD},
 								 {ACT_POP_DROP_LEFT_WOOD_CLOSED,		0,  QUEUE_ACT_AX12_POP_DROP_LEFT_WOOD}
 							 });
@@ -187,6 +189,8 @@ static void POP_DROP_LEFT_WOOD_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_POP_DROP_LEFT_WOOD_OPEN : *ax12_goalPosition = POP_DROP_LEFT_WOOD_AX12_OPEN_POS; break;
+
+		case ACT_POP_DROP_LEFT_WOOD_MID : *ax12_goalPosition = POP_DROP_LEFT_WOOD_AX12_MID_POS; break;
 		case ACT_POP_DROP_LEFT_WOOD_CLOSED : *ax12_goalPosition = POP_DROP_LEFT_WOOD_AX12_CLOSE_POS; break;
 
 		case ACT_POP_DROP_LEFT_WOOD_STOP :
