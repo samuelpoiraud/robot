@@ -45,6 +45,7 @@
 
 // Position moteur DCM
 	#define CUP_NIPPER_DCM_IDLE_POS						10
+	#define CUP_NIPPER_DCM_MID_POS						10
 	#define CUP_NIPPER_DCM_UP_POS						10
 
 // Position AX12

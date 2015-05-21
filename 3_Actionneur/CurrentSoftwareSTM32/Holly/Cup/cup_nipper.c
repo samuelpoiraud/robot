@@ -35,12 +35,13 @@ static volatile bool_e encoder_ready = FALSE;
 static volatile bool_e ax12_is_initialized = FALSE;
 static volatile Sint16 CUP_NIPPER_position = 0;
 
-static void CUP_NIPPER_DCM_command_run(queue_id_t queueId);
+
 static void CUP_NIPPER_DCM_command_init(queue_id_t queueId);
-static void CUP_NIPPER_AX12_command_run(queue_id_t queueId);
-static void CUP_NIPPER_AX12_command_init(queue_id_t queueId);
+static void CUP_NIPPER_DCM_command_run(queue_id_t queueId);
+//static void CUP_NIPPER_AX12_command_run(queue_id_t queueId);
+//static void CUP_NIPPER_AX12_command_init(queue_id_t queueId);
 static Sint16 CUP_NIPPER_get_position();
-static void CUP_NIPPER_initAX12();
+//static void CUP_NIPPER_initAX12();
 
 // Fonction appellée au lancement de la carte (via ActManager)
 void CUP_NIPPER_init() {
@@ -51,8 +52,8 @@ void CUP_NIPPER_init() {
 		return;
 	initialized = TRUE;
 
-	AX12_init();
-	CUP_NIPPER_initAX12();
+	//AX12_init();
+	//CUP_NIPPER_initAX12();
 
 	PWM_init();
 	DCM_init();
@@ -166,13 +167,13 @@ static Sint16 CUP_NIPPER_get_position(){
 
 // Fonction appellée si la carte IHM a détecté une grosse chutte de la tension d'alimentation des servos
 // Pour éviter les problèmes d'utilisation de servo non initialisé
-void CUP_NIPPER_reset_config(){
+/*void CUP_NIPPER_reset_config(){
 	ax12_is_initialized = FALSE;
 	CUP_NIPPER_initAX12();
-}
+}*/
 
 //Initialise l'AX12 s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
-static void CUP_NIPPER_initAX12() {
+/*static void CUP_NIPPER_initAX12() {
 	if(ax12_is_initialized == FALSE && AX12_is_ready(CUP_NIPPER_AX12_ID) == TRUE) {
 		ax12_is_initialized = TRUE;
 		AX12_config_set_lowest_voltage(CUP_NIPPER_AX12_ID, AX12_MIN_VOLTAGE);
@@ -188,11 +189,11 @@ static void CUP_NIPPER_initAX12() {
 		debug_printf("Init config DONE\n");
 	}else if(ax12_is_initialized == FALSE)
 		debug_printf("Init config FAIL\n");
-}
+}*/
 
 // Fonction appellée pour la modification des configurations de l'ax12 telle que la vitesse et le couple (via ActManager)
 // Dans le cas de multiple actionneur appartenant à un même actionneur, ajouter des defines dans QS_CANmsgList.h afin de pouvoir les choisirs facilement depuis la stratégie
-void CUP_NIPPER_config(CAN_msg_t* msg){
+/*void CUP_NIPPER_config(CAN_msg_t* msg){
 	switch(msg->data[1]){
 		case 0 :
 			ACTMGR_config_AX12(CUP_NIPPER_AX12_ID, msg);
@@ -201,17 +202,17 @@ void CUP_NIPPER_config(CAN_msg_t* msg){
 		default :
 			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data[1]);
 	}
-}
+}*/
 
 // Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
-void CUP_NIPPER_init_pos(){
+/*void CUP_NIPPER_init_pos(){
 	CUP_NIPPER_initAX12();
 
 	if(ax12_is_initialized == FALSE)
 		return;
 
 
-}
+}*/
 
 // Fonction appellée à la fin du match (via ActManager)
 void CUP_NIPPER_stop(){
@@ -221,7 +222,7 @@ void CUP_NIPPER_stop(){
 
 // fonction appellée à la réception d'un message CAN (via ActManager)
 bool_e CUP_NIPPER_CAN_process_msg(CAN_msg_t* msg) {
-	if(msg->sid == ACT_CUP_NIPPER){
+	/*if(msg->sid == ACT_CUP_NIPPER){
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CUP_NIPPER_OPEN :
@@ -240,10 +241,11 @@ bool_e CUP_NIPPER_CAN_process_msg(CAN_msg_t* msg) {
 				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
 		}
 		return TRUE;
-	}else if(msg->sid == ACT_CUP_NIPPER_ELEVATOR){
+	}else */if(msg->sid == ACT_CUP_NIPPER_ELEVATOR){
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CUP_NIPPER_ELEVATOR_IDLE :
+			case ACT_CUP_NIPPER_ELEVATOR_MID :
 			case ACT_CUP_NIPPER_ELEVATOR_UP :
 			case ACT_CUP_NIPPER_ELEVATOR_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_DCM_CUP_NIPPER, &CUP_NIPPER_run_command, 0, TRUE);
@@ -260,11 +262,11 @@ bool_e CUP_NIPPER_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&CUP_NIPPER_run_command, 15, 3, (SELFTEST_action_t[]){
+		/*SELFTEST_set_actions(&CUP_NIPPER_run_command, 15, 3, (SELFTEST_action_t[]){
 								 {ACT_CUP_NIPPER_OPEN,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
 								 {ACT_CUP_NIPPER_CLOSE,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
 								 {ACT_CUP_NIPPER_OPEN,				0,  QUEUE_ACT_AX12_CUP_NIPPER},
-							 });
+							 });*/
 
 		SELFTEST_set_actions(&CUP_NIPPER_run_command, 15, 3, (SELFTEST_action_t[]){
 								 {ACT_CUP_NIPPER_ELEVATOR_IDLE,		0,  QUEUE_ACT_DCM_CUP_NIPPER},
@@ -282,12 +284,12 @@ void CUP_NIPPER_run_command(queue_id_t queueId, bool_e init) {
 		return;
 	}
 
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_CUP_NIPPER) {    // Gestion des mouvements de l'AX12 CUP_NIPPER
+	/*if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_CUP_NIPPER) {    // Gestion des mouvements de l'AX12 CUP_NIPPER
 		if(init)
 			CUP_NIPPER_AX12_command_init(queueId);
 		else
 			CUP_NIPPER_AX12_command_run(queueId);
-	}else if(QUEUE_get_act(queueId) == QUEUE_ACT_DCM_CUP_NIPPER) {    // Gestion des mouvements du moteur CUP_NIPPER
+	}else */if(QUEUE_get_act(queueId) == QUEUE_ACT_DCM_CUP_NIPPER) {    // Gestion des mouvements du moteur CUP_NIPPER
 		if(init)
 			CUP_NIPPER_DCM_command_init(queueId);
 		else
@@ -305,6 +307,7 @@ static void CUP_NIPPER_DCM_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_CUP_NIPPER_ELEVATOR_IDLE :		*dcm_goalPosition = CUP_NIPPER_DCM_IDLE_POS; break;
+		case ACT_CUP_NIPPER_ELEVATOR_MID :		*dcm_goalPosition = CUP_NIPPER_DCM_MID_POS; break;
 		case ACT_CUP_NIPPER_ELEVATOR_UP :		*dcm_goalPosition = CUP_NIPPER_DCM_UP_POS; break;
 
 		case ACT_CUP_NIPPER_STOP :
@@ -347,7 +350,7 @@ static void CUP_NIPPER_DCM_command_run(queue_id_t queueId) {
 }
 
 //Initialise une commande
-static void CUP_NIPPER_AX12_command_init(queue_id_t queueId) {
+/*static void CUP_NIPPER_AX12_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 	Sint16* ax12_goalPosition = &QUEUE_get_arg(queueId)->param;
 
@@ -401,6 +404,6 @@ static void CUP_NIPPER_AX12_command_run(queue_id_t queueId) {
 
 	if(ACTQ_check_status_ax12(queueId, CUP_NIPPER_AX12_ID, QUEUE_get_arg(queueId)->param, CUP_NIPPER_AX12_ASSER_POS_EPSILON, CUP_NIPPER_AX12_ASSER_TIMEOUT, CUP_NIPPER_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_CUP_NIPPER, result, errorCode, line);
-}
+}*/
 
 #endif
