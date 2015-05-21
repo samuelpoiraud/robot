@@ -760,7 +760,6 @@
 		// Dans data[0]
 		#define PINCE_GOBELET_DROITE		(0b000000000)
 		#define PINCE_GOBELET_GAUCHE		(0b000000001)
-		#define GOBELET_HOLLY				(0b000000010)
 
 // Code des SID des messages: 0x30x = message pour Holly, 0x33x = message pour Wood.
 // Le SID 0x300 est reservé pour le self_test
