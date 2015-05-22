@@ -130,7 +130,7 @@
 	#define SMALL_KD_ROTATION 	(0x200) //0x800
 	#define BIG_KD_ROTATION 	(0x200) //0x800
 
-	#define SMALL_KP_ROTATION 	(0x40)//40 //0x80
+	#define SMALL_KP_ROTATION 	(0x80)//40 //0x80
 	#define BIG_KP_ROTATION 	(0xFF) //0x80
 
 	//Ordre de grandeur :
