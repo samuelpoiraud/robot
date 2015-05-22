@@ -38,11 +38,12 @@
 #define NB_POINT_ELIM       3		// Nombre de points que l'on élimine à chaque extrémitée
 #define BORDER				30
 #define MARGE				-10
+#define MARGE_EXT			50
 #define ECART_MAX			8
 #define ONE_CUP				30      // Initialement : 48
 #define TWO_CUP				60		// Initialement : 79
 #define ZERO_CUP			10
-#define DEBUG				0
+#define DEBUG				1
 #define ECART_MAX_Y			2
 
 
@@ -321,7 +322,7 @@ static void inArea(scan_result_t * objet){
 		}else{
 				if(info_scan.is_in_North){
 					debug_printf("Salle verte nord\n");
-					cup.x = objet->robot.x + 54;
+					cup.x = objet->robot.x + 64;  //54
 					cup.y = objet->robot.y-objet->dist -60;  // -100  position 159
 				}else{
 					cup.x = objet->robot.x - 60;
@@ -332,7 +333,7 @@ static void inArea(scan_result_t * objet){
 		if(info_scan.is_right_sensor){
 			if(info_scan.is_in_North){
 				debug_printf("Salle jaune nord\n");
-				cup.x = objet->robot.x + 50;      //Pour diminuer x, augmenter l'offset
+				cup.x = objet->robot.x + 60;      //Pour diminuer x, augmenter l'offset
 				cup.y = 3000 - (objet->robot.y+objet->dist + 70);		//Pour daugmenter y, diminuer l'offset
 			}else{
 				cup.x = objet->robot.x + 18;
@@ -359,13 +360,18 @@ static void inArea(scan_result_t * objet){
 
 
 	if(DEBUG){
-		salleDebug[nbPointDebug].x=cup.x;
-		salleDebug[nbPointDebug].y=cup.y;
-		nbPointDebug++;
+		if(nbPointDebug<=NB_POINT_MAX){
+			salleDebug[nbPointDebug].x=cup.x;
+			salleDebug[nbPointDebug].y=cup.y;
+			nbPointDebug++;
+		}else{
+			debug_printf("\n Attention nombre de points max atteint\n\n");
+		}
+
 	}
 	if(0/*info_scan.color*/){
 		//debug_printf("InArea Couleur est vert\n");
-		if(cup.x>=X1-MARGE && cup.x<=X2+MARGE && cup.y>=Y3-MARGE && cup.y<=Y4+MARGE){ //Salle de cinema du haut
+		if(cup.x>=X1-MARGE_EXT && cup.x<=X2+MARGE && cup.y>=Y3-MARGE && cup.y<=Y4+MARGE){ //Salle de cinema du haut
 			if(nbPointH<=NB_POINT_MAX){
 				//debug_printf("Vert et haut (%d)\n",nbPointH);
 				salleH[nbPointH] = cup;
@@ -381,14 +387,14 @@ static void inArea(scan_result_t * objet){
 		}
 	}else{
 		//debug_printf("InArea Couleur est jaune\n");
-		if(cup.x>=X1-MARGE && cup.x<=X2+MARGE && cup.y>=Y1-MARGE && cup.y<=Y2+MARGE){ //Salle de cinema du haut
+		if(cup.x>=X1-MARGE_EXT && cup.x<=X2+MARGE && cup.y>=Y1-MARGE && cup.y<=Y2+MARGE){ //Salle de cinema du haut
 			if(nbPointH<=NB_POINT_MAX){
 				//debug_printf("Jaune et haut (%d)\n",nbPointH);
 				salleH[nbPointH] = cup;
 				nbPointH++;
 			}
 		}
-		if(cup.x>=X3-MARGE && cup.x<=X4+MARGE && cup.y>=Y1-MARGE && cup.y<=Y2+MARGE){ //Salle de cinema du bas
+		if(cup.x>=X3-MARGE && cup.x<=X4+MARGE_EXT && cup.y>=Y1-MARGE && cup.y<=Y2+MARGE){ //Salle de cinema du bas
 			if(nbPointB<=NB_POINT_MAX){
 				//debug_printf("Jaune et bas (%d)\n", nbPointB);
 				salleB[nbPointB] = cup;
