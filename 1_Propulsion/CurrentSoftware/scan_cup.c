@@ -43,7 +43,7 @@
 #define ONE_CUP				30      // Initialement : 48
 #define TWO_CUP				60		// Initialement : 79
 #define ZERO_CUP			10
-#define DEBUG				1
+#define DEBUG				0
 #define ECART_MAX_Y			2
 
 
