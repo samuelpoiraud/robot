@@ -558,7 +558,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case XBEE_CAN_WOOD_ACCESS_SCAN:
 			holly_can_wood_access_scan(incoming_msg);
 			break;
-
+		case XBEE_WOOD_ACCESS_SCAN:
+			sub_wood_ask_if_i_can_access_scan(NULL,NULL,NULL,incoming_msg);
+			break;
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_IR_SELFTEST_DONE :
 		case STRAT_BEACON_US_SELFTEST_DONE :
