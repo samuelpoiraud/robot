@@ -39,6 +39,8 @@
 #define USE_HOKUYO	//Pour eclipse....
 #ifdef USE_HOKUYO
 
+#define VERBOSE_DEBUG_HOKUYO
+
 // Temps d'acquisition
 // MS : 45 - 50  ms
 // ME : 70 - 100 ms
@@ -125,7 +127,7 @@
 
 	void hokuyo_write_command(Uint8 tab[]);
 	int hokuyo_write_uart_manually(void);
-	void hokuyo_read_buffer(void);
+	bool_e hokuyo_read_buffer(void);
 	void hokuyo_format_data(void);
 	void hokuyo_find_valid_points(void);
 	Sint32 hokuyo_dist_min(Uint16 compt);
@@ -253,9 +255,27 @@ void HOKUYO_process_main(void)
 		case BUFFER_READ:
 			if(entrance)
 				buffer_read_time_begin = global.absolute_time;
-			hokuyo_read_buffer();
+			if(hokuyo_read_buffer())
+			{
+				if(datas_index>=2257)//2274)
+					state = REMOVE_LF;
+				else
+				{
+					Uint8 i;
+#ifdef VERBOSE_DEBUG_HOKUYO
+					/*debug_printf("datas_index = %ld\n",datas_index);
+					for(i=0;i<datas_index;i++)
+					{
+						debug_printf("%c",HOKUYO_datas[i]);
+					}*/
+					debug_printf("ec%d\n",HOKUYO_datas[17]);
+#endif
+					state=ASK_NEW_MEASUREMENT;
+				}
+			}
 
 #ifdef USE_COMMAND_ME
+#warning "le code ci dessous, dans le mode ME n'est pas débogué... il est dégeu."
 			if(datas_index > 1 && HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=6730) // 0x0A -> LF (en ASCII)
 				state=REMOVE_LF;
 			else if(datas_index>6738)
@@ -263,7 +283,7 @@ void HOKUYO_process_main(void)
 			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
 				state=ASK_NEW_MEASUREMENT;
 #else
-			if(datas_index > 1 && HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
+			/*if(datas_index > 1 && HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=2274)
 				state=REMOVE_LF;
 			else if(datas_index>2278)
 			{
@@ -271,6 +291,7 @@ void HOKUYO_process_main(void)
 				//i_planted = TRUE;
 				state=ASK_NEW_MEASUREMENT;
 			}
+			*/
 			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
 			{
 				//CAN_send_sid(DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY);
@@ -412,16 +433,24 @@ int hokuyo_write_uart_manually(void)
 }
 
 //Fonction qui permet de lire le buffer
-void hokuyo_read_buffer(void)
+bool_e hokuyo_read_buffer(void)
 {
+	static Uint8 previous_data = 0;
+	Uint8 data;
 	while(!UART_USB_isRxEmpty())
 	{
-		HOKUYO_datas[datas_index] = UART_USB_read();
+		data = UART_USB_read();
+		HOKUYO_datas[datas_index] = data;
 		if(datas_index < NB_BYTES_FROM_HOKUYO)
 			datas_index++;
 		else
 			fatal_printf("HOKUYO : overflow in hokuyo_read_buffer !\n");
+		if(data == 0x0A && previous_data == 0x0A)	//On interrompt la réception des octets lorsque l'on reçoit deux LF consécutifs.
+			return TRUE;
+		previous_data = data;	//On sauvegarde la data pour le prochain passage dans cette boucle.
+			//NB : cette sauvegarde n'est pas faite, mais est inutile si on a effectué le return TRUE. (inutile car previous_data vaut déjà 0x0A)
 	}
+	return FALSE;
 }
 
 //Fonction qui formate les données afin d'etre traitées.
@@ -674,9 +703,9 @@ void hokuyo_find_valid_points(void){
 	}
 
 	//TODO mesurer la durée d'exécution de cet algo...
-	for(i = 47; i<datas_index-3;)	//Les données commencent  l'octet 47...
+	for(i = 26; i<datas_index-3;)	//Les données commencent  l'octet 47...
 	{
-		if(HOKUYO_datas[i+1] == '\n')
+		if(HOKUYO_datas[i+1] == '\n')	//FIN d'une ligne... on saute le dernier otet de la ligne ET le '\n'
 			i+=2;
 		if(HOKUYO_datas[i] == '\n')	//FIN DES DONNEES !!
 			break;
@@ -684,7 +713,7 @@ void hokuyo_find_valid_points(void){
 		b = (Uint16)HOKUYO_datas[i++];
 
 		distance = ((a-0x30)<<6)+((b-0x30)&0x3f);	//cf datasheet de l'hokuyo... pour comprendre comment les données sont codées.
-		if(distance	> to_close_distance)	//On élimine est distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
+		if(distance	> to_close_distance)	//On élimine des distances trop petites (ET LES CAS DE REFLEXIONS TORP GRANDE OU LE CAPTEUR RENVOIE 1 !)
 		{
 			Sint32 offset;
 			offset = HOKUYO_OFFSET_ANGLE_RAD4096_2015;
