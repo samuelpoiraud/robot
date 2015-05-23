@@ -185,6 +185,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 		}
 		else if(msg->sid == BROADCAST_BEACON_ADVERSARY_POSITION_IR)
 		{
+#ifndef	DISABLED_BALISE_AVOIDANCE
 			for(i = 0; i<BEACON_MAX_FOES; i++)
 			{
 
@@ -224,6 +225,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					adversaries[HOKUYO_MAX_FOES+i].update_time = global.absolute_time;
 				}
 			}
+#endif
 		}
 	}
 	if(adv != NULL)
