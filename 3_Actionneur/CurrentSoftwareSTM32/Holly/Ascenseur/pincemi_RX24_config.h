@@ -13,7 +13,7 @@
 #define	PINCEMI_RX24_CONFIG_H
 
 // Augmenter l'offset pour serrer plus
-	#define OFFSET_LOCK_SPOT										4
+	#define OFFSET_LOCK_SPOT										-1
 
 //Config
 	#define PINCEMI_RX24_ASSER_TIMEOUT								1000			// Si l'ax12 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en ms.
