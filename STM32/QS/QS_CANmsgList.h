@@ -821,10 +821,12 @@ typedef enum { //SEUL les SID des actionneurs doivent être mis comme enum, le re
 	///////////////////ELEVATOR////////////////////
 	ACT_ELEVATOR = (ACT_FILTER | 0x06),
 		#define ACT_ELEVATOR_BOT					0x11
-		#define ACT_ELEVATOR_MID					0x12
-		#define ACT_ELEVATOR_PRE_TOP				0x13
-		#define ACT_ELEVATOR_TOP					0x14
-		#define ACT_ELEVATOR_STOP					0x15
+		#define ACT_ELEVATOR_MID_LOW				0x12
+		#define ACT_ELEVATOR_MID					0x13
+		#define ACT_ELEVATOR_ESTRAD					0x14
+		#define ACT_ELEVATOR_PRE_TOP				0x15
+		#define ACT_ELEVATOR_TOP					0x16
+		#define ACT_ELEVATOR_STOP					0x17
 
 	/////////////////PINCEMI RIGHT//////////////////
 	ACT_PINCEMI_RIGHT = (ACT_FILTER | 0x07),

@@ -140,6 +140,8 @@ typedef enum {
 typedef enum {
 	ACT_elevator_bot = ACT_ELEVATOR_BOT,
 	ACT_elevator_mid = ACT_ELEVATOR_MID,
+	ACT_elevator_mid_low = ACT_ELEVATOR_MID_LOW,
+	ACT_elevator_estrad = ACT_ELEVATOR_ESTRAD,
 	ACT_elevator_pre_top = ACT_ELEVATOR_PRE_TOP,
 	ACT_elevator_top = ACT_ELEVATOR_TOP,
 	ACT_elevator_stop = ACT_ELEVATOR_STOP
@@ -295,6 +297,7 @@ typedef enum{
 	ACT_MAE_SPOTIX_TAKE_BALL,
 	ACT_MAE_SPOTIX_GO_DOWN,
 	ACT_MAE_SPOTIX_GO_UP,
+	ACT_MAE_SPOTIX_GO_DISPOSE,
 	ACT_MAE_SPOTIX_GO_MID,
 	ACT_MAE_SPOTIX_RELEASE_STOCK,
 	ACT_MAE_SPOTIX_UNLOCK_STOCK,
