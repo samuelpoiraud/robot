@@ -71,6 +71,8 @@
 
 	#define SCAN_CUP
 
+	//#define DISABLED_BALISE_AVOIDANCE		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Désactivation de l'évitement balise
+
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
 
 	//#define XBEE_SIMULATION			//Simulation : afin de simuler les messages XBEE entre les robots, activer XBEE_SIMULATION en strat
