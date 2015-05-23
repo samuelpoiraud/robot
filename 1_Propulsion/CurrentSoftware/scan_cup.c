@@ -334,7 +334,7 @@ static void inArea(scan_result_t * objet){
 			if(info_scan.is_in_North){
 				debug_printf("Salle jaune nord\n");
 				cup.x = objet->robot.x + 60;      //Pour diminuer x, augmenter l'offset
-				cup.y = 3000 - (objet->robot.y+objet->dist + 70);		//Pour daugmenter y, diminuer l'offset
+				cup.y = 3000 - (objet->robot.y+objet->dist + 116);		//Pour daugmenter y, diminuer l'offset
 			}else{
 				cup.x = objet->robot.x + 18;
 				cup.y = 3000 - (objet->robot.y+objet->dist + 116);
@@ -346,7 +346,7 @@ static void inArea(scan_result_t * objet){
 			}else{
 				debug_printf("Salle jaune sud\n");
 				cup.x = objet->robot.x - 60;  // 40  pour 1500
-				cup.y = 3000 - (objet->robot.y+objet->dist + 68);  // 104 pour 174
+				cup.y = 3000 - (objet->robot.y+objet->dist + 116);  // 104 pour 174
 			}
 
 		}
