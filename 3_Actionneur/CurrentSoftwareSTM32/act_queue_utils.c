@@ -134,7 +134,8 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 			*error_code = ACT_RESULT_ERROR_OK;
 			*line = 0x0400;
 		} else {
-			AX12_set_torque_enabled(ax12Id, FALSE);
+#warning ATTENTION MISE EN COMMENTAIRE DE LA PROTECTION DES AX12 SUR TIMEOUT (coté act)
+			//AX12_set_torque_enabled(ax12Id, FALSE);
 			*result = ACT_RESULT_FAILED;
 			*error_code = ACT_RESULT_ERROR_TIMEOUT;
 			*line = 0x0500;
