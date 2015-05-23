@@ -605,6 +605,11 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 		WIN_GO_JUST_MID,
 		FAIL_GO_JUST_MID,
 
+		// Go estrad
+		ELEVATOR_GO_ESTRAD,
+		WIN_GO_ESTRAD,
+		FAIL_GO_ESTRAD,
+
 		// Go mid ++
 		UNLOCK_SPOT_TO_MID,
 		ELEVATOR_GO_MID,
@@ -715,6 +720,10 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 				case ACT_MAE_SPOTIX_RELEASE_STOCK:
 					state = UNLOCK_SPOT;
 					break;
+
+				case ACT_MAE_SPOTIX_GO_DISPOSE:
+					state = ELEVATOR_GO_ESTRAD;
+				break;
 
 				case ACT_MAE_SPOTIX_UNLOCK_STOCK:
 					state = UNLOCK_JUST_STOCK;
@@ -1151,7 +1160,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 
 		case ELEVATOR_MID:
 			if(entrance)
-				ACT_elevator(ACT_elevator_mid);
+				ACT_elevator(ACT_elevator_mid_low);
 			state = check_act_status(ACT_QUEUE_Elevator, state, STOCK_LOCK_FULL, FAIL_STOCK);
 			break;
 
@@ -1241,6 +1250,24 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 			break;
 
 		case FAIL_GO_UP:
+			RESET_MAE();
+			ret = NOT_HANDLED;
+			break;
+
+//--------------------------------------- Go up
+
+		case ELEVATOR_GO_ESTRAD:
+			if(entrance)
+				ACT_elevator(ACT_elevator_estrad);
+			state = check_act_status(ACT_QUEUE_Elevator, state, WIN_GO_ESTRAD, FAIL_GO_ESTRAD);
+			break;
+
+		case WIN_GO_ESTRAD:
+			RESET_MAE();
+			ret = END_OK;
+			break;
+
+		case FAIL_GO_ESTRAD:
 			RESET_MAE();
 			ret = NOT_HANDLED;
 			break;
