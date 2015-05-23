@@ -52,5 +52,6 @@
 	bool_e get_warning_bat();
 	void clean_warning_bat();
 
+	void Selftest_print_sd_hokuyo_lost(void);
 
 #endif

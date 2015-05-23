@@ -17,6 +17,7 @@
 #include "clock.h"
 #include "button.h"	//pour SWITCH_change_color
 #include "environment.h"
+#include "Supervision/Selftest.h"
 #include "Pathfind.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"
@@ -176,6 +177,7 @@ void any_match(void)
 			if(match_duration != 0 && (env.match_time >= (match_duration)))
 			{
 				//MATCH QUI SE TERMINE
+				Selftest_print_sd_hokuyo_lost();
 				CAN_send_sid(BROADCAST_STOP_ALL);
 				env.match_over = TRUE;
 				STACKS_flush_all();

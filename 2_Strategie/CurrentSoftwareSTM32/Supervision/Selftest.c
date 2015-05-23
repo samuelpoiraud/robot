@@ -64,6 +64,7 @@ volatile SELFTEST_error_code_e errors[MAX_ERRORS_NUMBER];
 volatile Uint8 errors_index = 0;
 volatile Uint8 t500ms = 0;	//Minuteur [500ms]
 static bool_e warning_bat = FALSE;
+static Uint16 hokuyo_lost_counter = 0;
 
 
 error_e SELFTEST_strategy(bool_e reset);
@@ -914,11 +915,12 @@ void SELFTEST_check_hokuyo(){
 	time32_t delta_time = DETECTION_get_last_time_since_hokuyo_date();
 	if(delta_time > 250 && alarmed == FALSE){
 		BUZZER_play(15, DEFAULT_NOTE, 5);
-		LCD_printf(3, TRUE, TRUE, "HOKUYO LOST !");
+		LCD_printf(3, FALSE, TRUE, "HOKUYO LOST !");
+		hokuyo_lost_counter++;
 		CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, TRUE});
 		alarmed = TRUE;
 	}else if(delta_time <= 250 && alarmed == TRUE){
-		LCD_printf(3, TRUE, TRUE, "HOKUYO IS ALIVE !");
+		LCD_printf(3, FALSE, TRUE, "HOKUYO IS ALIVE !");
 		CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, FALSE});
 		alarmed = FALSE;
 	}
@@ -1043,3 +1045,8 @@ bool_e get_warning_bat(){
 void clean_warning_bat(){
 	warning_bat = FALSE;
 }
+
+void Selftest_print_sd_hokuyo_lost(void){
+	SD_printf("Hokuyo lost count : %d\n", hokuyo_lost_counter);
+}
+
