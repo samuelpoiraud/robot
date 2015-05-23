@@ -50,14 +50,38 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		//Fin de la partie
-		case BROADCAST_STOP_ALL :
+		case BROADCAST_STOP_ALL :{
 			global.match_started = FALSE;
 			global.match_over = TRUE;
 			#ifdef USE_DCMOTOR2
 				DCM_stop_all();
 			#endif
+			QUEUE_flush_all();
+
+			CAN_msg_t msg;
+			msg.size = 1;
+
+			msg.sid = ACT_STOCK_RIGHT;
+			msg.data[0] = ACT_STOCK_RIGHT_OPEN;
+			CAN_process_msg(&msg);
+
+
+			msg.sid = ACT_STOCK_LEFT;
+			msg.data[0] = ACT_STOCK_LEFT_OPEN;
+			CAN_process_msg(&msg);
+
+
+			msg.sid = ACT_PINCEMI_LEFT;
+			msg.data[0] = ACT_PINCEMI_LEFT_OPEN;
+			CAN_process_msg(&msg);
+
+
+			msg.sid = ACT_PINCEMI_RIGHT;
+			msg.data[0] = ACT_PINCEMI_RIGHT_OPEN;
+			CAN_process_msg(&msg);
+
 			WATCHDOG_create(500, &break_asser_end_match, FALSE);
-			break;
+			}break;
 
 		//Reprise de la partie
 		case BROADCAST_START :
@@ -156,6 +180,5 @@ static void CAN_send_callback(CAN_msg_t* msg){
 }
 
 static void break_asser_end_match(void){
-	QUEUE_flush_all();
 	ACTMGR_stop();
 }
