@@ -86,6 +86,16 @@
 #define FOREACH_61(macro, val, ...) macro(val), FOREACH_60(macro, ##__VA_ARGS__)
 #define FOREACH_62(macro, val, ...) macro(val), FOREACH_61(macro, ##__VA_ARGS__)
 #define FOREACH_63(macro, val, ...) macro(val), FOREACH_62(macro, ##__VA_ARGS__)
+#define FOREACH_64(macro, val, ...) macro(val), FOREACH_63(macro, ##__VA_ARGS__)
+#define FOREACH_65(macro, val, ...) macro(val), FOREACH_64(macro, ##__VA_ARGS__)
+#define FOREACH_66(macro, val, ...) macro(val), FOREACH_65(macro, ##__VA_ARGS__)
+#define FOREACH_67(macro, val, ...) macro(val), FOREACH_66(macro, ##__VA_ARGS__)
+#define FOREACH_68(macro, val, ...) macro(val), FOREACH_67(macro, ##__VA_ARGS__)
+#define FOREACH_69(macro, val, ...) macro(val), FOREACH_68(macro, ##__VA_ARGS__)
+#define FOREACH_70(macro, val, ...) macro(val), FOREACH_69(macro, ##__VA_ARGS__)
+#define FOREACH_71(macro, val, ...) macro(val), FOREACH_70(macro, ##__VA_ARGS__)
+#define FOREACH_72(macro, val, ...) macro(val), FOREACH_71(macro, ##__VA_ARGS__)
+#define FOREACH_73(macro, val, ...) macro(val), FOREACH_72(macro, ##__VA_ARGS__)
 
 
 #define CONCATENATE(arg1, arg2)   CONCATENATE1(arg1, arg2)
