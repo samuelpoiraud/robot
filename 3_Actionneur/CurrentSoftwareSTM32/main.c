@@ -223,26 +223,20 @@ static void MAIN_onButton0LongPush() {
 
 static void MAIN_onButton1() {
 	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
-	msg1.sid = ACT_STOCK_RIGHT;
-	msg2.sid = ACT_STOCK_LEFT;
-
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_SPOT_POMPE_LEFT;
+	msg.data[1] = 100;
 
 	if(state == 0){
-		msg1.data[0] = ACT_STOCK_RIGHT_UNLOCK;
-		msg2.data[0] = ACT_STOCK_LEFT_UNLOCK;
+		msg.data[0] = ACT_SPOT_POMPE_LEFT_NORMAL;
 	}else if(state == 1){
-		msg1.data[0] = ACT_STOCK_RIGHT_LOCK;
-		msg2.data[0] = ACT_STOCK_LEFT_LOCK;
+		msg.data[0] = ACT_SPOT_POMPE_LEFT_REVERSE;
 	}else if(state == 2){
-		msg1.data[0] = ACT_STOCK_RIGHT_OPEN;
-		msg2.data[0] = ACT_STOCK_LEFT_OPEN;
+		msg.data[0] = ACT_SPOT_POMPE_LEFT_STOP;
 	}
 
-	CAN_process_msg(&msg1);
-	CAN_process_msg(&msg2);
+	CAN_process_msg(&msg);
 	state = (state == 2)? 0 : state + 1;
 }
 
@@ -267,13 +261,12 @@ static void MAIN_onButton2() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_SPOT_POMPE_RIGHT;
+	msg.data[1] = 100;
 
 	if(state == 0){
 		msg.data[0] = ACT_SPOT_POMPE_RIGHT_NORMAL;
-		msg.data[1] = 255;
 	}else if(state == 1){
-		msg.data[0] = ACT_SPOT_POMPE_LEFT_REVERSE;
-		msg.data[1] = 255;
+		msg.data[0] = ACT_SPOT_POMPE_RIGHT_REVERSE;
 	}else if(state == 2){
 		msg.data[0] = ACT_SPOT_POMPE_RIGHT_STOP;
 	}

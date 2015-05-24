@@ -103,6 +103,7 @@ void Supervision_process_main(void)
 	static color_e local_color = -1;
 	static bool_e first_second_elapsed = FALSE;
 	static bool_e end_of_blink_sent = FALSE;
+	static bool_e disable_already_said = FALSE;
 	bool_e current_destination_reachable;
 	bool_e led_color_initialize = FALSE;
 
@@ -143,6 +144,7 @@ void Supervision_process_main(void)
 	#ifdef USE_XBEE
 		if(IHM_switchs_get(SWITCH_XBEE))
 		{
+			disable_already_said = FALSE;
 			CAN_over_XBee_process_main();
 			current_destination_reachable = XBee_is_destination_reachable();
 
@@ -158,6 +160,12 @@ void Supervision_process_main(void)
 			}
 			//Si on a pas de lien XBEE avec l'autre Robot : les leds clignotent.
 			//ATTENTION, si l'on désactive après allumage le XBEE sur l'un des robot... l'autre robot qui a eu le temps de dialoguer en XBEE ne clignotera pas !
+		}else{
+			if(disable_already_said == FALSE){
+				disable_already_said = TRUE;
+				end_of_blink_sent = FALSE;
+				IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, SPEED_BLINK_4HZ});
+			}
 		}
 	#endif
 
