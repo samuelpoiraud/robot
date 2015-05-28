@@ -30,11 +30,6 @@
 #include "gyroscope.h"
 #include "scan_cup.h"
 
-#ifdef LCD_TOUCH
-	#include "LCDTouch/LCD.h"
-	#include "LCDTouch/zone.h"
-#endif
-
 typedef enum{
 	IT_STATE_NONE = 0,
 	IT_STATE_ODOMETRY,
@@ -100,9 +95,6 @@ void _ISR _T2Interrupt()
 	static Uint16 led_display_it = 0;
 	time32_t begin_it_time = global.absolute_time;
 	bool_e first_overtime = FALSE;
-#ifdef LCD_TOUCH
-	static Uint8 count = 0;
-#endif
 	GPIO_ResetBits(LED_USER); //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 	TIMER2_AckIT(); /* interruption traitée */
 
@@ -161,16 +153,6 @@ void _ISR _T2Interrupt()
 		DEBUG_process_it();
 	#endif
 	IT_test_state(begin_it_time, IT_STATE_DEBUG, &first_overtime);
-
-	#ifdef LCD_TOUCH
-		if(count == 1){
-			count = 0;
-			//ZONE_process_10ms();
-			LCD_process_10ms();
-		}
-		count++;
-	#endif
-	IT_test_state(begin_it_time, IT_STATE_LCD, &first_overtime);
 
 	// Affichage des leds toutes les 500ms
 	led_display_it++;

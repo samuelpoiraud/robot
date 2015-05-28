@@ -90,16 +90,9 @@
 	#define LED_ERROR 			GPIOD,GPIO_Pin_10
 	#define LED_SELFTEST 		GPIOD,GPIO_Pin_11
 	#define LED_RUN  			GPIOD,GPIO_Pin_12
-
-#ifdef LCD_TOUCH // Pour éviter les conflits avec les ports de l'écran
-	#define LED_CAN  			LED_RUN
-	#define LED_UART 			LED_RUN
-	#define LED_USER 			LED_RUN
-#else
 	#define LED_CAN  			GPIOD,GPIO_Pin_13
 	#define LED_UART 			GPIOD,GPIO_Pin_14
 	#define LED_USER 			GPIOD,GPIO_Pin_15
-#endif
 
 // Pour les leds inclues sur la carte STM32
 	#define LED_GREEN 			LED_RUN

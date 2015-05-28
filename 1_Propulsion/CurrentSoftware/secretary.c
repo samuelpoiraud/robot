@@ -33,7 +33,6 @@
 #include "copilot.h"
 #include "supervisor.h"
 #include "joystick.h"
-#include "LCDTouch/LCD.h"
 #include "hokuyo.h"
 #include "supervisor.h"
 #include "detection.h"
@@ -116,17 +115,7 @@ void SECRETARY_process_main(void)
 		toggle_led(LED_UART);
 		#if defined(STM32F40XX)
 			if(u1rxToCANmsg(&receivedCanMsg_over_uart, UART1_get_next_msg()))
-			{
-
-				#ifdef LCD_TOUCH
-				if(	global.disable_virtual_perfect_robot == FALSE 				||	//Si le robot virtuel est actif, je laisse passer le message
-					receivedCanMsg_over_uart.sid == BROADCAST_POSITION_ROBOT 	||	//Sinon, je laisse passer les messages de position et de position adverse.
-					receivedCanMsg_over_uart.sid == BROADCAST_ADVERSARIES_POSITION	||
-					receivedCanMsg_over_uart.sid == BROADCAST_COULEUR
-					)
-				#endif
-					SECRETARY_mailbox_in_add(&receivedCanMsg_over_uart, FROM_UART);
-			}
+				SECRETARY_mailbox_in_add(&receivedCanMsg_over_uart, FROM_UART);
 		#else
 			if(u1rxToCANmsg(&receivedCanMsg_over_uart))
 				SECRETARY_mailbox_add(&receivedCanMsg_over_uart, FROM_UART);
@@ -450,17 +439,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			AVOIDANCE_process_CAN_msg(msg);
 			break;
 
-		#ifdef LCD_TOUCH
-		case BROADCAST_POSITION_ROBOT:
-			//On a reçu une position robot... on la prend... et on ne bouge plus par nous même.
-			global.disable_virtual_perfect_robot = TRUE;
-			ODOMETRY_set(
-							(U16FROMU8(msg->data[0],msg->data[1]))&0x1FFF,	//x
-							(U16FROMU8(msg->data[2],msg->data[3]))&0x1FFF, //y
-							(U16FROMU8(msg->data[4],msg->data[5]))	//teta
-						);
-		break;
-		#endif
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			#ifdef CAN_SEND_OVER_UART
 				CANmsgToU1tx(msg);
@@ -564,9 +542,6 @@ void SECRETARY_send_selftest_result(bool_e result)
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
 		msg.data[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
 	#endif
-	#ifdef LCD_TOUCH
-		msg.data[i++] = SELFTEST_PROP_IN_LCD_TOUCH_MODE;
-	#endif
 
 	for(;i<8;i++)
 		msg.data[i] = SELFTEST_NO_ERROR;
@@ -640,18 +615,6 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 	msg.size = 8;
 	SECRETARY_send_canmsg(&msg);
 }
-
-#ifdef LCD_TOUCH
-	void SECRETARY_send_friend_position(Sint16 x, Sint16 y)
-	{
-		CAN_msg_t msg;
-		msg.sid = STRAT_FRIEND_FORCE_POSITION;
-		msg.data[0] = x/2;
-		msg.data[1] = y/2;
-		msg.size = 2;
-		SECRETARY_send_canmsg(&msg);
-	}
-#endif
 
 //Fonction appelée uniquement en IT.
 void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, bool_e adv_hokuyo, bool_e timeout){

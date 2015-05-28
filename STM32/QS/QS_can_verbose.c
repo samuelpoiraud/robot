@@ -29,8 +29,7 @@ char *it_state_name[] = {
 	"HOKUYO",
 	"DETECTION",
 	"SCAN_CUP",
-	"DEBUG",
-	"LCD"
+	"DEBUG"
 };
 
 static void print_ir_result(CAN_msg_t * msg, char ** string, int * len);

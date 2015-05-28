@@ -40,21 +40,13 @@
 #include "detection.h"
 #include "scan_cup.h"
 
-#if defined (LCD_TOUCH)
-	#include "LCDTouch/stm32f4_discovery_lcd.h"
-	#include "LCDTouch/LCDTouch_Display.h"
-	#include "LCDTouch/LCD.h"
-	#include "LCDTouch/zone.h"
-#endif
-
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
 #endif
 
 
 
-#if  defined (LCD_TOUCH)			||					\
-	 defined(SIMULATION_VIRTUAL_PERFECT_ROBOT) ||		\
+#if	 defined(SIMULATION_VIRTUAL_PERFECT_ROBOT) ||		\
 	 defined(MODE_PRINTF_TABLEAU) ||					\
 	 defined(MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT) ||	\
 	 defined(SUPERVISOR_DISABLE_ERROR_DETECTION) ||		\
@@ -136,10 +128,6 @@ void initialisation(void)
 		GYRO_init();
 	#endif
 
-	#if defined (LCD_TOUCH)
-		LCD_init();
-	#endif
-
 	IT_init();
 
 	// Demande des états initiaux des switchs
@@ -216,10 +204,6 @@ int main (void)
 		SECRETARY_process_main();	//Communication avec l'extérieur. (Réception des messages)
 
 		WARNER_process_main();		//Communication avec l'extérieur. (Envois des messages)
-
-#if defined (LCD_TOUCH)
-		LCD_process_main();
-#endif
 
 		#ifdef USE_HOKUYO
 			HOKUYO_process_main();
