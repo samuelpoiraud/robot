@@ -403,8 +403,6 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 //PRECONDITION STRICTE : ce qu'on me demande est possible !!!
 void COPILOT_do_order(order_t * order)
 {
-
-	#ifdef USE_PROP_AVOIDANCE
 	if((order->trajectory == TRAJECTORY_AUTOMATIC_CURVE || order->trajectory == TRAJECTORY_TRANSLATION) &&
 			order->avoidance != AVOID_DISABLED &&
 			AVOIDANCE_target_safe(order->way, FALSE)){ // Fonction différente à faire pour une trajectoire en courbe automatique
@@ -457,15 +455,11 @@ void COPILOT_do_order(order_t * order)
 		}
 
 	}else{
-	#endif
 
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
 		current_order = *order;
-
-	#ifdef USE_PROP_AVOIDANCE
 	}
-	#endif
 
 	//MAJ Vitesse
 	PILOT_set_speed(current_order.speed);
