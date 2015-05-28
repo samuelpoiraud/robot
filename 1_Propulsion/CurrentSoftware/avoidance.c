@@ -21,7 +21,6 @@
 #include "buffer.h"
 #include "secretary.h"
 #include "pilot.h"
-#include "LCDTouch/stm32f4_discovery_lcd.h"
 
 #define WAIT_TIME_DISPLAY_AVOID		50
 #define NB_SAMPLE					30
@@ -406,18 +405,6 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 
 	return in_path;
 }*/
-
-void AVOIDANCE_refresh_avoid_poly(){
-	Point avoid[5];
-
-	avoid[0] = (Point){avoid_poly[0].y*299/3000, avoid_poly[0].x*199/2000};
-	avoid[1] = (Point){avoid_poly[1].y*299/3000, avoid_poly[1].x*199/2000};
-	avoid[2] = (Point){avoid_poly[2].y*299/3000, avoid_poly[2].x*199/2000};
-	avoid[3] = (Point){avoid_poly[3].y*299/3000, avoid_poly[3].x*199/2000};
-	avoid[4] = (Point){avoid_poly[0].y*299/3000, avoid_poly[0].x*199/2000};
-
-	LCD_PolyLine(avoid, 5);
-}
 
 // Retourne si un adversaire est dans la chemin entre nous et la position
 bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject){

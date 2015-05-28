@@ -613,7 +613,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_FAILED:						debug_printf("PROP_FAILED");									break;
 				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");					break;
 				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");				break;
-				case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			debug_printf("SELFTEST_PROP_IN_LCD_TOUCH_MODE");				break;
 				case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		debug_printf("SELFTEST_PROP_SWITCH_ASSER_DISABLE");				break;
 				case SELFTEST_PROP_SENSOR_CUP_RIGHT:			debug_printf("SELFTEST_PROP_SENSOR_CUP_RIGHT");					break;
 				case SELFTEST_PROP_SENSOR_CUP_LEFT:				debug_printf("SELFTEST_PROP_SENSOR_CUP_LEFT");					break;
@@ -930,7 +929,6 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_PROP_FAILED:						return "PROP failed";			break;
 		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";			break;
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
-		case SELFTEST_PROP_IN_LCD_TOUCH_MODE:			return "PROP in LCD T mode"; 	break;
 		case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		return "Asser Switch disable"; 	break;
 		case SELFTEST_PROP_SENSOR_CUP_RIGHT:			return "PROP Sensor Cup right";	break;
 		case SELFTEST_PROP_SENSOR_CUP_LEFT:				return "PROP Sensor Cup left";	break;
