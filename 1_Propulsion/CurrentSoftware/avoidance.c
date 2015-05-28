@@ -46,7 +46,6 @@ void AVOIDANCE_init(){
 }
 
 void AVOIDANCE_process_it(){
-#ifdef USE_PROP_AVOIDANCE
 	order_t current_order = COPILOT_get_current_order();
 	volatile order_t *buffer_order;
 
@@ -144,8 +143,6 @@ void AVOIDANCE_process_it(){
 			ROADMAP_launch_next_order();
 		}
 	}
-
-#endif
 }
 
 GEOMETRY_point_t avoid_poly[4];

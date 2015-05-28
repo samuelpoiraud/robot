@@ -43,8 +43,6 @@
 
 #define SD_ENABLE				//Activation de la carte SD
 
-#define USE_PROP_AVOIDANCE		//Activation de l'évitement en propulsion
-
 //#define BELGIQUE	1
 
 //#define DONT_TAKE_OUR_ZONE_TENIS_BALL

@@ -161,7 +161,6 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		SELFTEST_BEACON_IR,
 		SELFTEST_BEACON_US,
 		SELFTEST_STRAT,
-		SELFTEST_AVOIDANCE,
 		SELFTEST_BEACON_BATTERY,
 		SELFTEST_END
 	}state_e;
@@ -374,7 +373,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					debug_printf("SELFTEST BEACON\r\n");
 				}
 				else
-					state = SELFTEST_AVOIDANCE;
+					state = SELFTEST_BEACON_BATTERY;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_BEACON_IR_SELFTEST_DONE)
@@ -383,32 +382,11 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					if(!flag_timeout)
 						WATCHDOG_stop(watchdog_id);
-					state = SELFTEST_AVOIDANCE;
+					state = SELFTEST_BEACON_BATTERY;
 				}
 			if(flag_timeout)	//Timeout
 			{
 				debug_printf("SELFTEST BEACON TIMEOUT\r\n");
-				state = SELFTEST_AVOIDANCE;
-			}
-			break;
-
-		case SELFTEST_AVOIDANCE:
-			if(entrance){
-				flag_timeout = FALSE;
-				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_AVOIDANCE, (bool_e*) &(flag_timeout));
-				debug_printf("SELFTEST AVOIDANCE\r\n");
-			}
-			if(env.color == BOT_COLOR){
-				if(foe_in_zone(FALSE, env.pos.x, env.pos.y+500, FALSE))
-					BUZZER_play(30, NOTE_LA, 5);
-			}else{
-				if(foe_in_zone(FALSE, env.pos.x, env.pos.y-500, FALSE))
-					BUZZER_play(30, NOTE_LA, 5);
-			}
-
-			if(flag_timeout) // Fin du test
-			{
-				debug_printf("SELFTEST AVOIDANCE END\r\n");
 				state = SELFTEST_BEACON_BATTERY;
 			}
 			break;

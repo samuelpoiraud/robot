@@ -426,12 +426,8 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
-#ifdef USE_PROP_AVOIDANCE
 			if ((env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
 				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
-#else
-			if ((env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
-#endif
 			{
 				debug_printf("\nPROP_goto : timeout(GOTO)\n");
 				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);
@@ -470,12 +466,8 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
-#ifdef USE_PROP_AVOIDANCE
 			if ((env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
 				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
-#else
-			if ((env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
-#endif
 			{
 				debug_printf("\nPROP_goto_until_break : timeout(GOTO)\n");
 				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);
@@ -517,10 +509,8 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
-		#ifdef USE_PROP_AVOIDANCE
 		if(prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT)
 			timeout += WAIT_ADD_TIMEOUT_TIME;
-		#endif
 
 			/*
 			 * On s'arrête quand le haut de la pile n'est plus un PROP_multi_point_goto,
@@ -601,10 +591,8 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
-		#ifdef USE_PROP_AVOIDANCE
 		if(prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT)
 			timeout += WAIT_ADD_TIMEOUT_TIME;
-		#endif
 
 			/*
 			 * On s'arrête quand le haut de la pile n'est plus un PROP_multi_point_goto,
@@ -817,12 +805,8 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
-#ifdef USE_PROP_AVOIDANCE
 			if ((env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
 				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
-#else
-			if ((env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME)))
-#endif
 			{
 				debug_printf("\nPROP_relative_goto : timeout(GOTO)\n");
 				STACKS_set_timeout(stack_id,GOTO_TIMEOUT);

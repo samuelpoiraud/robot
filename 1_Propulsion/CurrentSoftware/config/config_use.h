@@ -50,8 +50,6 @@
 
 	//#define USE_GYROSCOPE				//Activation du gyroscope
 
-	#define USE_PROP_AVOIDANCE			//Activation de la gestion de l'évitement en propulsion
-
 	#define USE_ACT_AVOID				//Activation de la modification du rectangle d'évitement en fonction des actionneurs
 
 	#define FAST_COS_SIN				//Calcul rapide des cos et sin à l'aide d'un GRAND tableau de valeur
