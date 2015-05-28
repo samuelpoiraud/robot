@@ -584,9 +584,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case IHM_SWITCH:
 		case IHM_POWER:
 			IHM_process_main(incoming_msg);
-			#ifndef FDP_2014
-				ENV_warning_switch();
-			#endif
+			ENV_warning_switch();
 			break;
 		case IHM_BIROUTE_IS_REMOVED:
 			env.ask_start = TRUE;

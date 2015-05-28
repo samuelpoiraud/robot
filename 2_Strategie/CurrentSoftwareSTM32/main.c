@@ -83,9 +83,7 @@ int main (void)
 	UART_init();
 	//RCON_read();
 
-	#ifndef FDP_2014
-		IHM_init();
-	#endif
+	IHM_init();
 
 	ENV_init();	//Pour être réceptif aux éventuels messages CAN envoyés très tôt...
 
@@ -122,10 +120,8 @@ int main (void)
 	ACT_AVOIDANCE_init();
 	ELEMENTS_init();
 
-#ifndef FDP_2014
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
-#endif
 
 	while(1)
 	{
@@ -163,25 +159,7 @@ void pull_bp_and_switch(void)
 	//En mode simulation, on indique une valeur par défaut des boutons et des switchs..... par l'ajout d'un pull up ou pull down.
 	//PORTS_set_pull(GPIOA, GPIO_Pin_7, GPIO_PuPd_DOWN);	//Verbose : Verbose = 0/ Bin = 1
 	//La présence de laccelermetre empeche le PD d'etre prepondérent sur la broche
-#ifdef FDP_2014
-	PORTS_set_pull(GPIOA, GPIO_Pin_1, GPIO_PuPd_UP);	//Switch debug : can+debug on = 1 / Rien(sauf certains printf) = 0
-	PORTS_set_pull(GPIOB, GPIO_Pin_4, GPIO_PuPd_DOWN);	//XBee OFF
-	PORTS_set_pull(GPIOB, GPIO_Pin_5, GPIO_PuPd_DOWN);	//Save OFF
-	PORTS_set_pull(GPIOB, GPIO_Pin_0, GPIO_PuPd_DOWN);	//Mesure du 24V
-	PORTS_set_pull(GPIOC, GPIO_Pin_13, GPIO_PuPd_UP);	//Who Am I : gros robot
-	PORTS_set_pull(GPIOD, GPIO_Pin_6, GPIO_PuPd_UP);	//Color (1)
-	PORTS_set_pull(GPIOD, GPIO_Pin_7, GPIO_PuPd_UP);	//Biroute OFF (1)
-	PORTS_set_pull(GPIOE, GPIO_Pin_7, GPIO_PuPd_UP);	//Sw LCD
-	PORTS_set_pull(GPIOE, GPIO_Pin_8, GPIO_PuPd_UP);	//Sw evit
-	PORTS_set_pull(GPIOE, GPIO_Pin_9, GPIO_PuPd_UP);	//Sw Strat
-	PORTS_set_pull(GPIOE, GPIO_Pin_10, GPIO_PuPd_UP);	//Sw Strat
-	PORTS_set_pull(GPIOE, GPIO_Pin_11, GPIO_PuPd_UP);	//Sw Strat
-	PORTS_set_pull(GPIOE, GPIO_Pin_12, GPIO_PuPd_UP);	//BP Selftest
-	PORTS_set_pull(GPIOE, GPIO_Pin_13, GPIO_PuPd_UP);	//BP Menu lcd ok
-	PORTS_set_pull(GPIOE, GPIO_Pin_14, GPIO_PuPd_UP);	//BP Menu lcd +
-	PORTS_set_pull(GPIOE, GPIO_Pin_15, GPIO_PuPd_UP);	//BP Menu lcd -
-	PORTS_set_pull(GPIOE, GPIO_Pin_7, GPIO_PuPd_DOWN);	//XBee OFF
-#endif
+
 }
 
 
@@ -217,10 +195,6 @@ void test_bp_switchs(void)
 	debug_printf("Test des Entrées BP et Switch\n");
 	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_save=2, sw_color=2, sw_lcd=2, sw_evit=2, port_robot_id=2, biroute=2, bp_run_match=2;
 
-#ifdef FDP_2014
-	Uint8 bp_selftest=2, bp_calibration=2, bp_menu_m=2, bp_menu_p=2, bp_print_match=2, sw_strat1=2, sw_strat2=2, sw_strat3=2;
-#endif
-
 	while(1)
 	{
 		if(IHM_switchs_get(SWITCH_DEBUG) 	!= sw_debug		)	{	sw_debug 		= IHM_switchs_get(SWITCH_DEBUG);	debug_printf("sw_debug = %s\n"		, (sw_debug		)?"ON":"OFF");	 }
@@ -233,18 +207,6 @@ void test_bp_switchs(void)
 		if(IHM_switchs_get(BIROUTE) 		!= biroute		)	{	biroute 	   	= IHM_switchs_get(BIROUTE);			debug_printf("biroute = %s\n"		, (biroute		)?"ON":"OFF");	 }
 		if(BUTTON0_PORT 					!= bp_run_match	)	{	bp_run_match   	= BUTTON0_PORT;						debug_printf("bp_run_match = %s\n"	, (bp_run_match	)?"ON":"OFF");	 }
 		if(PORT_ROBOT_ID 					!= port_robot_id)	{	port_robot_id  	= PORT_ROBOT_ID;					debug_printf("port_robot_id = %s\n"	, (port_robot_id)?"ON":"OFF");	 }
-
-#ifdef FDP_2014
-		if(BUTTON1_PORT 	!= bp_selftest	)	{	bp_selftest    	= BUTTON1_PORT;		debug_printf("bp_selftest = %s\n"	, (bp_selftest	)?"ON":"OFF");	 }
-		if(BUTTON2_PORT 	!= bp_calibration)	{	bp_calibration 	= BUTTON2_PORT;		debug_printf("bp_calibration = %s\n", (bp_calibration)?"ON":"OFF");	 }
-		if(BUTTON3_PORT 	!= bp_menu_p	)	{	bp_menu_p 		= BUTTON3_PORT;		debug_printf("bp_menu_p = %s\n"		, (bp_menu_p	)?"ON":"OFF");	 }
-		if(BUTTON4_PORT 	!= bp_menu_m	)	{	bp_menu_m 		= BUTTON4_PORT;		debug_printf("bp_menu_m = %s\n"		, (bp_menu_m	)?"ON":"OFF");	 }
-		if(BUTTON5_PORT 	!= bp_print_match)	{	bp_print_match 	= BUTTON5_PORT;		debug_printf("bp_print_match = %s\n", (bp_print_match)?"ON":"OFF");	 }
-		if(IHM_switchs_get(SWITCH_STRAT_1) 	!= sw_strat1	)	{	sw_strat1 		= IHM_switchs_get(SWITCH_STRAT_1);	debug_printf("sw_strat1 = %s\n"		, (sw_strat1	)?"ON":"OFF");	 }
-		if(IHM_switchs_get(SWITCH_STRAT_2) 	!= sw_strat2	)	{	sw_strat2 		= IHM_switchs_get(SWITCH_STRAT_2);	debug_printf("sw_strat2 = %s\n"		, (sw_strat2	)?"ON":"OFF");	 }
-		if(IHM_switchs_get(SWITCH_STRAT_3) 	!= sw_strat3	)	{	sw_strat3 		= IHM_switchs_get(SWITCH_STRAT_3);	debug_printf("sw_strat3 = %s\n"		, (sw_strat3	)?"ON":"OFF");	 }
-
-#endif
 	}
 }
 

@@ -45,7 +45,6 @@
 
 #define USE_PROP_AVOIDANCE		//Activation de l'évitement en propulsion
 
-//#define FDP_2014				//Define Temporaire pour l'ancien FDP
 //#define BELGIQUE	1
 
 //#define DONT_TAKE_OUR_ZONE_TENIS_BALL

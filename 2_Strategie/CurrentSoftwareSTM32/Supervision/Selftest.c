@@ -266,11 +266,9 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_PROP_UNREACHABLE);
 				if(!beacon_ping_ok)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_BEACON_UNREACHABLE);
-#ifndef FDP_2014
 				if(!ihm_ping_ok){
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_IHM_UNREACHABLE);
 				}
-#endif
 			}
 			break;
 		case SELFTEST_ACT:
@@ -465,7 +463,6 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
 		TEST_RTC,
-		TEST_MEASURE24,
 		TEST_ESTRADE_SENSOR_RIGHT,
 		TEST_ESTRADE_SENSOR_LEFT,
 		TEST_SWITCHS,
@@ -481,7 +478,6 @@ error_e SELFTEST_strategy(bool_e reset)
 	Uint8 nb_written;
 	date_t date;
 	Uint8 status;
-	Uint16 battery_level;
 
 	entrance = (state != previous_state)?TRUE:FALSE;
 	previous_state = state;
@@ -530,28 +526,11 @@ error_e SELFTEST_strategy(bool_e reset)
 			if(!status)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_RTC);
 
-#ifdef FDP_2014
-			state = TEST_MEASURE24;
-#else
-			if(QS_WHO_AM_I_get() == BIG_ROBOT)
-				state = TEST_ESTRADE_SENSOR_RIGHT;
-			else
-				state = TEST_SWITCHS;
-#endif
-			break;
-		case TEST_MEASURE24:
-			battery_level = SELFTEST_measure24_mV();
-			debug_printf("Mesure du 24V : %dmV\n",battery_level);
-			if(battery_level < THRESHOLD_BATTERY_OFF)
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_NO_24V);
-			else if(battery_level < THRESHOLD_BATTERY_LOW)
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_BATTERY_LOW);
 			if(QS_WHO_AM_I_get() == BIG_ROBOT)
 				state = TEST_ESTRADE_SENSOR_RIGHT;
 			else
 				state = TEST_SWITCHS;
 			break;
-
 		case TEST_ESTRADE_SENSOR_RIGHT:
 			if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 15)
 				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT);

@@ -128,20 +128,11 @@ void LCD_clear_display(void)
 void LCD_init(void){
 	volatile Uint32 i;
 	for(i=0;i<100000;i++);
+	LCD_bitsReset(FALSE);
 
-#ifdef FDP_2014
-	GPIO_ResetBits(LCD_RESET_PORT);
-	LCD_bitsReset(FALSE);
-#else
-	LCD_bitsReset(FALSE);
-#endif
 	for(i=0;i<100000;i++);	//Delay > 10ms.
-#ifdef FDP_2014
-	GPIO_SetBits(LCD_RESET_PORT);
 	LCD_bitsReset(TRUE);
-#else
-	LCD_bitsReset(TRUE);
-#endif
+
 	for(i=0;i<10000;i++);	//Delay > 1ms
 
 	LCD_send_command(COMMAND_CLEAR_DISPLAY);	//Clear display

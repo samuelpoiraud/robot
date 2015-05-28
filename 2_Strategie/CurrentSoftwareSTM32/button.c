@@ -37,45 +37,17 @@ void BUTTON_init()
 	BUTTONS_init();
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 
-#ifndef FDP_2014
 	IHM_define_act_button(BP_SELFTEST,SELFTEST_ask_launch, NULL);
 	IHM_define_act_button(BP_OK,LCD_button_ok, NULL);
 	IHM_define_act_button(BP_UP,LCD_button_up, LCD_button_up);
 	IHM_define_act_button(BP_DOWN,LCD_button_down, LCD_button_down);
-
-	#ifdef EEPROM_CAN_MSG_ENABLE
-		IHM_define_act_button(BP_PRINTMATCH,EEPROM_CAN_MSG_verbose_previous_match, NULL);
-	#else
-		IHM_define_act_button(BP_PRINTMATCH,SD_print_previous_match, NULL);
-	#endif
+	IHM_define_act_button(BP_PRINTMATCH,SD_print_previous_match, NULL);
 	IHM_define_act_button(BP_SET,LCD_button_set, NULL);
-#else
-	BUTTONS_define_actions(BUTTON1,SELFTEST_ask_launch, NULL, 0);
-	BUTTONS_define_actions(BUTTON2,LCD_button_ok, NULL, 1);
-	BUTTONS_define_actions(BUTTON3,LCD_button_up, NULL, 1);
-	BUTTONS_define_actions(BUTTON4,LCD_button_down, NULL, 1);
-
-	#ifdef EEPROM_CAN_MSG_ENABLE
-		BUTTONS_define_actions(BUTTON5,EEPROM_CAN_MSG_verbose_previous_match, NULL, 0);
-	#else
-		BUTTONS_define_actions(BUTTON5,SD_print_previous_match, NULL, 0);
-	#endif
-	BUTTONS_define_actions(BUTTON6,LCD_button_set, NULL, 1);
-#endif
 }
 
 
 void BUTTON_update()
 {
-#ifdef FDP_2014
-	static bool_e last_biroute = TRUE;
-	bool_e current_biroute;
-	current_biroute = PORT_BIROUTE;
-
-	if(current_biroute && !last_biroute)
-		env.ask_start = TRUE;
-	last_biroute = current_biroute;
-#endif
 	BUTTONS_update();
 	BUTTON_verbose();
 }
@@ -117,30 +89,15 @@ void BUTTON_verbose(void)
 	Uint32 current_state = 0x00, up, down;
 	bool_e change;
 
-	current_state = 	(BUTTON0_PORT	<< 0) 	|	//Run match
-						(IHM_switchs_get(SWITCH_DEBUG)	<< 1) 	|
+	current_state = 	(BUTTON0_PORT						<< 0) 	|	//Run match
+						(IHM_switchs_get(SWITCH_DEBUG)		<< 1) 	|
 						(IHM_switchs_get(SWITCH_VERBOSE)	<< 2) 	|
-						(IHM_switchs_get(SWITCH_XBEE)	<< 4) 	|
-						(IHM_switchs_get(SWITCH_SAVE)	<< 5) 	|
-						(IHM_switchs_get(SWITCH_COLOR)	<< 9) 	|
-						(IHM_switchs_get(BIROUTE)		<< 10) 	|
+						(IHM_switchs_get(SWITCH_XBEE)		<< 4) 	|
+						(IHM_switchs_get(SWITCH_SAVE)		<< 5) 	|
+						(IHM_switchs_get(SWITCH_COLOR)		<< 9) 	|
+						(IHM_switchs_get(BIROUTE)			<< 10) 	|
 						(IHM_switchs_get(SWITCH_LCD)		<< 11) 	|
-						(IHM_switchs_get(SWITCH_EVIT)	<< 12)
-
-				#ifndef FDP_2014
-						;
-				#else
- 						|
-						(IHM_switchs_get(SWITCH_STRAT_1)	<< 13) 	|
-						(IHM_switchs_get(SWITCH_STRAT_2)	<< 14) 	|
-						(IHM_switchs_get(SWITCH_STRAT_3)	<< 15)	|
-						(BUTTON1_PORT	<< 16) 	|	//Selftest
-						(BUTTON2_PORT	<< 17) 	|	//LCD OK
-						(BUTTON3_PORT	<< 18) 	|	//LCD Menu +
-						(BUTTON4_PORT	<< 19)	|	//LCD Menu
-						(BUTTON5_PORT	<< 3) 	|	//Print match
-						(BUTTON6_PORT	<< 8);	//BP Set
-				#endif
+						(IHM_switchs_get(SWITCH_EVIT)		<< 12);
 
 	up = ~previous_state & current_state;
 	down = previous_state & ~current_state;
