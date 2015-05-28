@@ -89,11 +89,7 @@ static bool_e initialized = FALSE;
 /// INIT
 
 bool_e init_LCD_interface(void){
-	#ifndef FDP_2014
-	if(GPIO_ReadInputDataBit(IHM_IS_READY))	//Si la carte IHM est présente... on initialise le LCD...
-	#else
-	if(!initialized)
-	#endif
+	if(GPIO_ReadInputDataBit(IHM_IS_READY) && !initialized)	//Si la carte IHM est présente... on initialise le LCD...
 	{
 		LCD_I2C_init();
 		LCD_init();
@@ -202,14 +198,7 @@ void IHM_LEDS(bool_e led_set, bool_e led_down, bool_e led_up, bool_e led_ok){
 
 	if(send_to_ihm)
 	{
-		#ifdef FDP_2014
-			GPIO_WriteBit(LED_IHM_SET, led_set);
-			GPIO_WriteBit(LED_IHM_DOWN, led_down);
-			GPIO_WriteBit(LED_IHM_UP, led_up);
-			GPIO_WriteBit(LED_IHM_OK, led_ok);
-		#else
-			IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
-		#endif
+		IHM_leds_send_msg(4,(led_ihm_t){LED_SET_IHM,led_set},(led_ihm_t){LED_DOWN_IHM,led_down},(led_ihm_t){LED_UP_IHM,led_up},(led_ihm_t){LED_OK_IHM,led_ok});
 		previous_led_set 	= led_set;
 		previous_led_down 	= led_down;
 		previous_led_up 	= led_up;

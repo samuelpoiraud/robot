@@ -121,69 +121,7 @@ void button_update(CAN_msg_t * msg){
 }
 
 bool_e IHM_switchs_get(switch_ihm_e swit){
-#ifdef FDP_2014
-	#ifdef I_AM_CARTE_STRAT
-	bool_e value;
-
-	switch (swit) {
-		case BIROUTE:
-			value = !PORT_BIROUTE;
-			break;
-		case SWITCH_DEBUG:
-			value = SWITCH_DEBUG_PORT;
-			break;
-		case SWITCH_VERBOSE:
-			value = SWITCH_VERBOSE_PORT;
-			break;
-		case SWITCH_XBEE:
-			value = SWITCH_XBEE_PORT;
-			break;
-		case SWITCH_SAVE:
-			value = SWITCH_SAVE_PORT;
-			break;
-		case SWITCH_COLOR:
-			value = SWITCH_COLOR_PORT;
-			break;
-		case SWITCH_LCD:
-			value = SWITCH_LCD_PORT;
-			break;
-		case SWITCH_EVIT:
-			value = SWITCH_EVIT_PORT;
-			break;
-		case SWITCH_STRAT_1:
-			value = SWITCH_STRAT_1_PORT;
-			break;
-		case SWITCH_STRAT_2:
-			value = SWITCH_STRAT_2_PORT;
-			break;
-		case SWITCH_STRAT_3:
-			value = SWITCH_STRAT_3_PORT;
-			break;
-		default:
-			break;
-	}
-
-	return value;
-
-	#elif defined(I_AM_CARTE_PROP)
-	bool_e value;
-
-	switch (swit) {
-	#ifndef FDP_2014
-		case SWITCH_ASSER:
-			value = SWITCH_LEFT_PORT;
-			break;
-	#endif
-		default:
-			break;
-	}
-
-	return value;
-	#endif
-
-#else
 	return switchs[swit];
-#endif
 
 }
 

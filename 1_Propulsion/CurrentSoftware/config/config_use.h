@@ -61,9 +61,6 @@
 
 	//#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
 
-//	#define FDP_2014					//Define Temporaire pour l'ancien FDP
-
-
 
 //	#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
