@@ -23,7 +23,8 @@
 	#define I2C2_I2C_CLOCK  RCC_APB1Periph_I2C2
 
 	#ifdef USE_I2C1
-
+		bool_e I2C1_read(Uint8 address, Uint8 * data, Uint8 size);
+		bool_e I2C1_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition);
 	#endif /* def USE_I2C1 */
 
 	#ifdef USE_I2C2
