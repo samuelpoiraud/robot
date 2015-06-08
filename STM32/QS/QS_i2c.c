@@ -24,6 +24,20 @@
 void I2C_init(void)
 {
 	I2C_InitTypeDef I2C_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	#ifdef USE_I2C1
+		/* Enable IOE_I2C and IOE_I2C_GPIO_PORT & Alternate Function clocks */
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+		/* Reset I2C1 */
+		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
+
+		/* Release reset signal of I2C1 */
+		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
+	#endif
 
 	#ifdef USE_I2C2
 		/* Enable IOE_I2C and IOE_I2C_GPIO_PORT & Alternate Function clocks */
@@ -50,7 +64,21 @@ void I2C_init(void)
 
 
 	#ifdef USE_I2C1
-		#warning "I2C1 not implemented"
+		I2C_Init(I2C1_I2C_HANDLE, &I2C_InitStructure);
+		I2C_Cmd(I2C1_I2C_HANDLE, ENABLE);
+		I2C_ITConfig(I2C1_I2C_HANDLE,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
+
+		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+
+		//I2C ERROR : activation des IRQ
+		NVIC_InitStructure.NVIC_IRQChannel = I2C2_ER_IRQn;
+		NVIC_Init(&NVIC_InitStructure);
+
+		//I2C Event : pas d'activation des IRQ.
+		//NVIC_InitStructure.NVIC_IRQChannel = I2C2_EV_IRQn;
+		//NVIC_Init(&NVIC_InitStructure);
 	#endif /* def USE_I2C1 */
 
 	#ifdef USE_I2C2
@@ -58,7 +86,6 @@ void I2C_init(void)
 		I2C_Cmd(I2C2_I2C_HANDLE, ENABLE);
 		I2C_ITConfig(I2C2_I2C_HANDLE,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
 
-		NVIC_InitTypeDef NVIC_InitStructure;
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
 		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -74,6 +101,12 @@ void I2C_init(void)
 }
 
 #endif  /* defined(USE_I2C1) || defined(USE_I2C2) */
+
+
+#ifdef USE_I2C1
+
+#endif
+
 
 #ifdef USE_I2C2
 
@@ -128,9 +161,19 @@ void error_exit(void)
 }
 
 void I2C_reset(void){
+
+#ifdef USE_I2C1
+	I2C_SoftwareResetCmd(I2C1_I2C_HANDLE,ENABLE);
+	I2C_SoftwareResetCmd(I2C1_I2C_HANDLE,DISABLE);
+	I2C_DeInit(I2C1_I2C_HANDLE);
+#endif
+
+#ifdef USE_I2C2
 	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,ENABLE);
 	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,DISABLE);
 	I2C_DeInit(I2C2_I2C_HANDLE);
+#endif
+
 	I2C_init();
 }
 

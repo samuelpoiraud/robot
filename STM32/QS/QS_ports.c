@@ -361,8 +361,8 @@ void PORTS_i2c_init(void) {
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C);
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
 	#endif
 	#ifdef USE_I2C2
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
