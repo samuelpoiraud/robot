@@ -14,9 +14,7 @@
 #ifdef USE_DCMOTOR2
 
 #include "QS_pwm.h"
-#ifdef USE_CAN
-	#include "QS_can.h"
-#endif
+#include "QS_can.h"
 #include "QS_CANmsgList.h"
 
 
@@ -61,8 +59,6 @@
 	// Accesseur
 	static void DCM_setWay(Uint8 dc_motor_id, Uint8 value);
 	static Uint8 DCM_getWay(Uint8 dc_motor_id);
-	// Envoie un message CAN pour informer de la position des ascenseurs
-	//static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 error);
 	// Baisse les drapeaux d'initialisation des moteurs
 	static void DCM_uninitialize_all();
 /*-----------------------------------------
@@ -537,26 +533,5 @@ void DCM_reset_integrator(){
 		this->cmd_time = 0;
 	}
 }
-
-/*-----------------------------------------
-Envoie un retour CAN / signal de fin de parcours
------------------------------------------*/
-//Désactivé
-/*
-static void DCM_sendCAN(Uint8 dc_motor_id, Uint8 pos, Uint16 posInUnits, Uint16 error)
-{
-	#ifdef USE_CAN
-		// Préparation
-		CAN_msg_t msg;
-		msg.sid = ACT_DCM_POS;
-		msg.data[0] = dc_motor_id;
-		msg.data[1] = pos;
-		msg.size = 2;
-		// Envoi
-		CAN_send(&msg);
-	#endif
-
-}
-//*/
 
 #endif /* def USE_DCMOTOR2 */
