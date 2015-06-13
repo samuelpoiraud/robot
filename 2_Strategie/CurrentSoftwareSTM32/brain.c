@@ -128,7 +128,7 @@ void any_match(void)
 {
 
 
-	if (!env.match_started)
+	if (!global.env.match_started)
 	{
 		// Initialisation à FALSE des machines à état principale pour que les autres stratégie n'ai pas d'influence
 		// Variable mise à TRUE au lancement d'une stratégie principale
@@ -137,9 +137,9 @@ void any_match(void)
 
 		/* we are before the match */
 		/* regarder si le match doit commencer */
-		if (env.ask_start && strategy != NULL)
+		if (global.env.ask_start && strategy != NULL)
 		{
-			env.match_started = TRUE;
+			global.env.match_started = TRUE;
 			CLOCK_run_match();
 			XBEE_send_sid(XBEE_START_MATCH, TRUE);				//URGENT : on lance le match sur notre robot AMI...
 			CAN_send_sid(BROADCAST_START);
@@ -152,13 +152,13 @@ void any_match(void)
 		SWITCH_change_color();	//Check the Color switch
 
 		/* accepter et prévenir des mises à jour de couleur (TOP_COLOR par défaut) */
-		if(env.color_updated && !env.prop.calibrated && !env.ask_prop_calibration)
+		if(global.env.color_updated && !global.env.prop.calibrated && !global.env.ask_prop_calibration)
 		{
-			ENV_set_color(env.wanted_color);
+			ENV_set_color(global.env.wanted_color);
 		}
 
 		/* demande de calibration */
-		if(env.ask_prop_calibration && !env.prop.calibrated)
+		if(global.env.ask_prop_calibration && !global.env.prop.calibrated)
 		{
 			CAN_msg_t msg;
 			msg.sid = PROP_CALIBRATION;
@@ -172,14 +172,14 @@ void any_match(void)
 	else
 	{
 		/* we are in match*/
-		if(!env.match_over)
+		if(!global.env.match_over)
 		{
-			if(match_duration != 0 && (env.match_time >= (match_duration)))
+			if(match_duration != 0 && (global.env.match_time >= (match_duration)))
 			{
 				//MATCH QUI SE TERMINE
 				Selftest_print_sd_hokuyo_lost();
 				CAN_send_sid(BROADCAST_STOP_ALL);
-				env.match_over = TRUE;
+				global.env.match_over = TRUE;
 				STACKS_flush_all();
 				QUEUE_reset_all();
 				BUZZER_play(500,NOTE_SOL,2);
@@ -212,7 +212,7 @@ bool_e BRAIN_get_strat_updated(void)
 
 
 void BRAIN_set_strategy_index(Uint8 i){
-	if(env.match_started == FALSE){
+	if(global.env.match_started == FALSE){
 		assert(i >= 0 && i < number_of_displayed_strategy);
 		strategy = list_displayed_strategy[i]->function;
 		strategy_name = list_displayed_strategy[i]->name;

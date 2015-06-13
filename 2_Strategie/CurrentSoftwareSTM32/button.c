@@ -55,27 +55,27 @@ void BUTTON_update()
 void BUTTON_start()
 {
 	debug_printf("START\r\n");
-	env.ask_start = TRUE;
+	global.env.ask_start = TRUE;
 }
 
 void BUTTON_calibration()
 {
 	debug_printf("CALIBRATION\r\n");
-	env.ask_prop_calibration = TRUE;
+	global.env.ask_prop_calibration = TRUE;
 }
 
 void BUTTON_change_color()
 {
 	debug_printf("COLOR\r\n");
-	env.color_updated = TRUE;
-	env.wanted_color = ((env.color!=BOT_COLOR)?BOT_COLOR:TOP_COLOR);
+	global.env.color_updated = TRUE;
+	global.env.wanted_color = ((global.env.color!=BOT_COLOR)?BOT_COLOR:TOP_COLOR);
 }
 
 void SWITCH_change_color()
 {
-	if((IHM_switchs_get(SWITCH_COLOR) != (env.color == 1)? TRUE:FALSE) || env.color == COLOR_INIT_VALUE){
-		env.color_updated = TRUE;
-		env.wanted_color = ((IHM_switchs_get(SWITCH_COLOR)==1)?TOP_COLOR:BOT_COLOR);
+	if((IHM_switchs_get(SWITCH_COLOR) != (global.env.color == 1)? TRUE:FALSE) || global.env.color == COLOR_INIT_VALUE){
+		global.env.color_updated = TRUE;
+		global.env.wanted_color = ((IHM_switchs_get(SWITCH_COLOR)==1)?TOP_COLOR:BOT_COLOR);
 		debug_printf("COLOR\r\n");
 	}
 

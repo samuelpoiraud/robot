@@ -15,7 +15,7 @@
 #ifndef GENERIC_FUNCTIONS_H
 	#define GENERIC_FUNCTIONS_H
 
-	typedef action_fun_t generic_fun_t;
+	#include "Stacks.h"
 
 	void wait_forever (stack_id_e stack_id, bool_e init);
 

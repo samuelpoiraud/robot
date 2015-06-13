@@ -36,10 +36,10 @@
 	#include "../config/config_use.h"
 	#include "../config/config_debug.h"
 	#include "../config/config_pin.h"
+	#include "../config/config_global_vars.h"
 
-	#include "QS_types.h"					/*	Nos types										*/
-	#include "QS_macro.h"					/*	quelques macro pratiques						*/
-	#include "QS_global_vars.h"				/*	Les variables globales (notamment les drapeaux) */
+	#include "QS_types.h"					/* Nos types										*/
+	#include "QS_macro.h"					/* Quelques macros pratiques						*/
 	#include "QS_measure.h"					/* Les defines importants							*/
 
 	#ifdef VERBOSE_MODE

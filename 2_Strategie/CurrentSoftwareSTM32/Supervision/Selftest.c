@@ -89,7 +89,7 @@ void SELFTEST_init(void)
 void SELFTEST_ask_launch(void)
 {
 	//On accepte une demande de selftest seulement avant ou après le match. pas pendant.
-	if((!env.match_started || env.match_over))
+	if((!global.env.match_started || global.env.match_over))
 	{
 		ask_launch_selftest = TRUE;
 		selftest_is_running = FALSE;
@@ -783,7 +783,7 @@ void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 	switch(can_msg->sid)
 	{
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
-			if(env.match_started == TRUE)
+			if(global.env.match_started == TRUE)
 				//Enregistrement du type d'erreur
 				error_counters_update(can_msg);
 			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
@@ -816,52 +816,52 @@ void SELFTEST_check_alim(){
 	CAN_msg_t msg;
 
 	if(begin_time == 0)
-		begin_time = env.absolute_time;
+		begin_time = global.env.absolute_time;
 
-	if((int)((env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE) < NB_AVERAGED_VALUE)
-		values[(int)((env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE)] = SELFTEST_measure24_mV();
+	if((int)((global.env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE) < NB_AVERAGED_VALUE)
+		values[(int)((global.env.absolute_time-begin_time)/TIME_TO_TAKE_VALUE)] = SELFTEST_measure24_mV();
 
 	for(i=0;i<NB_AVERAGED_VALUE;i++)
 		average += values[i];
 
 	average /= NB_AVERAGED_VALUE;
-	env.alim_value = average;
+	global.env.alim_value = average;
 
-	if(env.absolute_time-begin_time >= TIME_TO_REFRESH_BAT){
-		begin_time = env.absolute_time;
+	if(global.env.absolute_time-begin_time >= TIME_TO_REFRESH_BAT){
+		begin_time = global.env.absolute_time;
 	}
 
-	if(env.absolute_time-last_display_time >= REFRESH_DISPLAY_BAT){
-		last_display_time = env.absolute_time;
+	if(global.env.absolute_time-last_display_time >= REFRESH_DISPLAY_BAT){
+		last_display_time = global.env.absolute_time;
 
-		if(state == ALIM_On && env.alim_value < THRESHOLD_BATTERY_LOW && env.alim_value > THRESHOLD_BATTERY_OFF){
+		if(state == ALIM_On && global.env.alim_value < THRESHOLD_BATTERY_LOW && global.env.alim_value > THRESHOLD_BATTERY_OFF){
 			BUZZER_play(40, DEFAULT_NOTE, 10);
-			LCD_printf(3, TRUE, TRUE, "CHANGE BAT : %d", env.alim_value);
+			LCD_printf(3, TRUE, TRUE, "CHANGE BAT : %d", global.env.alim_value);
 			warning_bat = TRUE;
 		}
 
 		if(!warning_bat)
-			LCD_printf(3, FALSE, FALSE, "VBAT : %d  N°%d", env.alim_value, SD_get_match_id());
+			LCD_printf(3, FALSE, FALSE, "VBAT : %d  N°%d", global.env.alim_value, SD_get_match_id());
 	}
 
-	if(env.alim_value > THRESHOLD_BATTERY_OFF && state != ALIM_On){
+	if(global.env.alim_value > THRESHOLD_BATTERY_OFF && state != ALIM_On){
 		msg.sid = BROADCAST_ALIM;
 		msg.data[0] = ALIM_ON;
-		msg.data[1] = (Uint8)((env.alim_value >> 8) & 0x00FF);
-		msg.data[2] = (Uint8)(env.alim_value & 0x00FF);
+		msg.data[1] = (Uint8)((global.env.alim_value >> 8) & 0x00FF);
+		msg.data[2] = (Uint8)(global.env.alim_value & 0x00FF);
 		msg.size = 3;
 		CAN_send(&msg);
 		state = ALIM_On;
-		env.alim = TRUE;
-	}else if(env.alim_value < THRESHOLD_BATTERY_OFF && state != ALIM_Off){
+		global.env.alim = TRUE;
+	}else if(global.env.alim_value < THRESHOLD_BATTERY_OFF && state != ALIM_Off){
 		msg.sid = BROADCAST_ALIM;
 		msg.data[0] = ALIM_OFF;
-		msg.data[1] = (Uint8)((env.alim_value >> 8) & 0x00FF);
-		msg.data[2] = (Uint8)(env.alim_value & 0x00FF);
+		msg.data[1] = (Uint8)((global.env.alim_value >> 8) & 0x00FF);
+		msg.data[2] = (Uint8)(global.env.alim_value & 0x00FF);
 		msg.size = 3;
 		CAN_send(&msg);
 		state = ALIM_Off;
-		env.alim = FALSE;
+		global.env.alim = FALSE;
 	}
 
 }

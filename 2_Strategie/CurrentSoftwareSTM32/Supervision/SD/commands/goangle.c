@@ -29,10 +29,10 @@ int term_cmd_goangle(int argc, const char *argv[]) {
 	if(!argtolong(argv[0], 0, &teta))
 		return EINVAL;
 
-	if(env.pos.x < 200 || env.pos.x > 1800)
+	if(global.env.pos.x < 200 || global.env.pos.x > 1800)
 		return EINVAL;
 
-	if(env.pos.y < 200 || env.pos.y > 2800)
+	if(global.env.pos.y < 200 || global.env.pos.y > 2800)
 			return EINVAL;
 
 	if(teta > 180){

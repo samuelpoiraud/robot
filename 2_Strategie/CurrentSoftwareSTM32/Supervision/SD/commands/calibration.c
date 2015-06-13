@@ -20,7 +20,7 @@ int term_cmd_calibration(int argc, const char *argv[]) {
 	if(argc > 0)
 		return EINVAL;
 
-	if(!env.prop.calibrated)
+	if(!global.env.prop.calibrated)
 	{
 		CAN_msg_t msg;
 		msg.sid = PROP_CALIBRATION;

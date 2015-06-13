@@ -12,22 +12,33 @@
 #ifndef CONFIG_GLOBAL_VARS_H
 	#define CONFIG_GLOBAL_VARS_H
 
-	#ifndef QS_GLOBAL_VARS_H
-		#error "Il est interdit d'inclure directement config_global_vars.h, lire le CQS."
-	#endif
+	#include "../QS/QS_types.h"
+	#include "config_global_vars_types.h"
 
-	bool_e match_over;
-	bool_e match_started;
-	bool_e alim;
-	Uint16 alim_value;			// en mV
-	time32_t absolute_time;
 
-	bool_e PTorchErrorLastCode;
+	typedef struct{
+		bool_e flag_for_compile;
+	}flag_list_t;
 
-	struct {
-		volatile Sint16 angle;
-		volatile Sint16 x;
-		volatile Sint16 y;
-	}pos;				// position robot
+	typedef struct{
+		/* les drapeaux */
+		volatile flag_list_t flags;
+
+		bool_e match_over;
+		bool_e match_started;
+		bool_e alim;
+		Uint16 alim_value;			// en mV
+		time32_t absolute_time;
+
+		bool_e PTorchErrorLastCode;
+
+		struct {
+			volatile Sint16 angle;
+			volatile Sint16 x;
+			volatile Sint16 y;
+		}pos;				// position robot
+	}global_data_storage_t;
+
+	extern global_data_storage_t global;
 
 #endif /* ndef CONFIG_GLOBAL_VARS_H */
