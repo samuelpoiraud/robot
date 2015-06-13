@@ -11,6 +11,7 @@
 
 #include "../QS/QS_i2c.h"
 #include "../QS/QS_outputlog.h"
+#include "../QS/QS_can.h"
 #include "LCD_MIDAS_4x20.h"
 #include <stdio.h>
 

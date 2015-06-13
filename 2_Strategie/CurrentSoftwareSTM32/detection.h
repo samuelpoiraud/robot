@@ -24,6 +24,10 @@ trajectoire pour l'information de position de l'adversaire */
 #ifndef DETECTION_H
 	#define DETECTION_H
 
+	#define MAX_BEACON_FOES	2
+	#define	MAX_HOKUYO_FOES	16
+	#define MAX_NB_FOES	(MAX_HOKUYO_FOES  + MAX_BEACON_FOES)	//Nombre max d'aversaires  (16 pour l'hokuyo + 2 pour la balise IR)
+
 	#define BEACON_IR(f)	((f == FOE_1) ? BEACON_IR_FOE_1 : BEACON_IR_FOE_2)
 	#define BEACON_US(f)	((f == FOE_1) ? BEACON_US_FOE_1 : BEACON_US_FOE_2)
 

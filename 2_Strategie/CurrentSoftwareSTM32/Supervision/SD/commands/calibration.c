@@ -9,6 +9,7 @@
 #include "../term_commands_utils.h"
 #include "../../../QS/QS_all.h"
 #include "../../../QS/QS_CANmsgList.h"
+#include "../../../QS/QS_can.h"
 
 const char term_cmd_calibration_brief[] = "Déclenche la calibration via un message CAN à la carte propulsion";
 const char term_cmd_calibration_help[] =

@@ -6,6 +6,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../QS/impl/QS_uart_impl.h"
 #include "../QS/QS_ports.h"
+#include "../environment.h"
 
 #ifdef SYNCHROBALISE_TIMER
 	#define TIMER_SRC_TIMER_ID SYNCHROBALISE_TIMER

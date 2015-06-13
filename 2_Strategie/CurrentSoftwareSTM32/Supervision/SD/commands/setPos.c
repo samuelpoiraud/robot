@@ -9,6 +9,7 @@
 #include "../term_commands_utils.h"
 #include "../../../QS/QS_all.h"
 #include "../../../QS/QS_CANmsgList.h"
+#include "../../../QS/QS_can.h"
 
 const char term_cmd_setPos_brief[] = "Redefinis la position du robot via un message CAN à la carte propulsion";
 const char term_cmd_setPos_help[] =
