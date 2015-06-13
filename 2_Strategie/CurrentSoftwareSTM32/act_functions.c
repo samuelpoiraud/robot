@@ -1894,13 +1894,13 @@ error_e ACT_sensor_gobelet_right_wood(){
 	switch(state){
 		case SEND:
 			gobelet_right_wood_answer = ACT_SENSOR_WAIT;
-			begin_time = env.absolute_time;
+			begin_time = global.env.absolute_time;
 			CAN_direct_send(ACT_ASK_SENSOR, 1, (Uint8 []){PINCE_GOBELET_DROITE});
 			state = WAIT;
 			break;
 
 		case WAIT:
-			if(env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
+			if(global.env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
 				RESET_MAE();
 				return END_WITH_TIMEOUT;
 			}else if(gobelet_right_wood_answer == ACT_SENSOR_PRESENT){
@@ -1924,13 +1924,13 @@ error_e ACT_sensor_gobelet_left_wood(){
 	switch(state){
 		case SEND:
 			gobelet_left_wood_answer = ACT_SENSOR_WAIT;
-			begin_time = env.absolute_time;
+			begin_time = global.env.absolute_time;
 			CAN_direct_send(ACT_ASK_SENSOR, 1, (Uint8 []){PINCE_GOBELET_GAUCHE});
 			state = WAIT;
 			break;
 
 		case WAIT:
-			if(env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
+			if(global.env.absolute_time - begin_time > ACT_SENSOR_ANSWER_TIMEOUT){
 				RESET_MAE();
 				return END_WITH_TIMEOUT;
 			}else if(gobelet_left_wood_answer == ACT_SENSOR_PRESENT){

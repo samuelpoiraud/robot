@@ -270,8 +270,8 @@
 			polygon_printf("opponentPolygon NULL dans POLYGON_create_opponent_polygon\r\n");
 		}
 
-		x_opponent = env.foe.x;
-		y_opponent = env.foe.y;
+		x_opponent = global.env.foe.x;
+		y_opponent = global.env.foe.y;
 
 		(*opponent_polygon).point[0].x = x_opponent+OPPONENT_POINT_A_X;
 		(*opponent_polygon).point[0].y = y_opponent+OPPONENT_POINT_A_Y;
@@ -323,33 +323,33 @@
 		switch(type_elements)
 		{
 			case ALL_ELEMENTS:
-				for(i=0; i<env.nb_elements; i++)
+				for(i=0; i<global.env.nb_elements; i++)
 				{
-					if(env.nb_elements)
-					POLYGON_create_polygon(&((*polygons_list).polygon[(*polygons_list).polygonsNumber]),env.elements_list[i].x, env.elements_list[i].y);	//poly2
+					if(global.env.nb_elements)
+					POLYGON_create_polygon(&((*polygons_list).polygon[(*polygons_list).polygonsNumber]),global.env.elements_list[i].x, global.env.elements_list[i].y);	//poly2
 					(*polygons_list).polygonsNumber++;
 				}
 				break;
 
 			case OUR_AND_OPPONENT_ELEMENTS:
-				for(i=0; i<env.nb_elements; i++)
+				for(i=0; i<global.env.nb_elements; i++)
 				{
 					// On vérifie si l'élement est à nous ou à l'adversaire , si oui, on l'ajoute
 					if(ELEMENTS_belonging_type(i) == US || ELEMENTS_belonging_type(i) == ADVERSARY)
 					{
-						POLYGON_create_polygon(&((*polygons_list).polygon[(*polygons_list).polygonsNumber]),env.elements_list[i].x, env.elements_list[i].y);	//poly2
+						POLYGON_create_polygon(&((*polygons_list).polygon[(*polygons_list).polygonsNumber]),global.env.elements_list[i].x, global.env.elements_list[i].y);	//poly2
 						(*polygons_list).polygonsNumber++;
 					}
 				}
 				break;
 
 			case OUR_ELEMENTS:
-				for(i=0; i<env.nb_elements; i++)
+				for(i=0; i<global.env.nb_elements; i++)
 				{
 					// On vérifie si l'élement est à nous, si oui, on l'ajoute
 					if(ELEMENTS_belonging_type(i) == US)
 					{
-						POLYGON_create_polygon(&((*polygons_list).polygon[(*polygons_list).polygonsNumber]),env.elements_list[i].x, env.elements_list[i].y);	//poly2
+						POLYGON_create_polygon(&((*polygons_list).polygon[(*polygons_list).polygonsNumber]),global.env.elements_list[i].x, global.env.elements_list[i].y);	//poly2
 						(*polygons_list).polygonsNumber++;
 					}
 				}

@@ -100,7 +100,7 @@ void STACKS_push(stack_id_e stack_id, generic_fun_t command, bool_e run)
 	stacks_t* stack=&stacks[stack_id];
 	assert(stack->stack_top < STACKS_SIZE - 1);
 	stack->action[++stack->stack_top].action_function=command;
-	stack->action[stack->stack_top].initial_time=env.match_time;
+	stack->action[stack->stack_top].initial_time=global.env.match_time;
 	if(run)
 	{
 		command(stack_id,TRUE);
@@ -111,7 +111,7 @@ void STACKS_pull(stack_id_e stack_id)
 {
 	stacks_t* stack=&stacks[stack_id];
 	assert(stack->stack_top > 0);
-	stack->action[--stack->stack_top].initial_time=env.match_time;
+	stack->action[--stack->stack_top].initial_time=global.env.match_time;
 	stack->action[stack->stack_top].action_function(stack_id,TRUE);
 
 }

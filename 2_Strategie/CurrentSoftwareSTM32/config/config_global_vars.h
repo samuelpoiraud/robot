@@ -12,15 +12,21 @@
 #ifndef CONFIG_GLOBAL_VARS_H
 	#define CONFIG_GLOBAL_VARS_H
 
-	#ifndef QS_GLOBAL_VARS_H
-		#error "Il est interdit d'inclure directement config_global_vars.h, lire le CQS."
-	#endif
+	#include "../QS/QS_types.h"
+	#include "config_global_vars_types.h"
 
-	/*	Structure sauvegardant l'evolution de l'environnement 
-	 *	(position, fin de mouvement, ...)
-	 */
+	typedef struct{
+		bool_e flag_for_compile;
+	}flag_list_t;
 
-	//environment_t env;
-		
-	volatile Uint8 chrono_long_push; //compteur des quarts de seconde pout détecté un appui égal à 2 secondes
+	typedef struct{
+		/* les drapeaux */
+		volatile flag_list_t flags;
+
+		volatile Uint8 chrono_long_push; //compteur des quarts de seconde pout détecté un appui égal à 2 secondes
+		volatile environment_t env;
+	}global_data_storage_t;
+
+	extern global_data_storage_t global;
+
 #endif /* ndef CONFIG_GLOBAL_VARS_H */

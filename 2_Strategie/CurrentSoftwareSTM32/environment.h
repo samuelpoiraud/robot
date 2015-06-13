@@ -14,8 +14,8 @@
 #ifndef ENVIRONMENT_H
 	#define ENVIRONMENT_H
 // Macros permettant de symétriser le terrain
-	#define COLOR_Y(y)		((env.color == BOT_COLOR) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
-	#define COLOR_ANGLE(a)	((env.color == BOT_COLOR) ? (a) : (-(a)))
+	#define COLOR_Y(y)		((global.env.color == BOT_COLOR) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
+	#define COLOR_ANGLE(a)	((global.env.color == BOT_COLOR) ? (a) : (-(a)))
 
 
 	#include "QS/QS_CANmsgList.h"

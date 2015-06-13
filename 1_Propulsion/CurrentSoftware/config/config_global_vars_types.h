@@ -9,10 +9,6 @@
  *  Auteur : Jacen
  */
 
-#ifndef QS_GLOBAL_VARS_H
-	#error "config_global_vars_types est inclu par la QS, ne l'incluez pas vous meme"
-#endif
-
 typedef struct {
 		Sint16 x;		//[mm]
 		Sint16 y;		//[mm]

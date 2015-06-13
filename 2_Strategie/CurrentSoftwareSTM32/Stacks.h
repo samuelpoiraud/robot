@@ -31,6 +31,7 @@ typedef enum {
 /* ATTENTION toute action contenant des variables statiques doit être
    utilisée avec un seul actionneur */
 typedef void (*action_fun_t)(stack_id_e this, bool_e init);
+typedef void (*generic_fun_t)(stack_id_e this, bool_e init);
 
 /*
 *  Commentaire laissé pour la forme (la stack ne s'occupe plus des actionneurs cette tâche à été donnée à la queue (queue.c/.h)
