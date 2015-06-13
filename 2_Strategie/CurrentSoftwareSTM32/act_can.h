@@ -2,6 +2,7 @@
 #define ACT_CAN_H
 
 #include "QS/QS_all.h"
+#include "QS/QS_can.h"
 #include "queue.h"
 #include "avoidance.h"
 

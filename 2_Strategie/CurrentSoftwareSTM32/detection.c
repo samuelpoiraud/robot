@@ -14,6 +14,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_can.h"
 #include "environment.h"
 #include "Supervision/Buzzer.h"
 

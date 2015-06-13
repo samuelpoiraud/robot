@@ -21,6 +21,7 @@
 #include "QS/QS_buffer_fifo.h"
 #include "QS/QS_watchdog.h"
 #include "state_machine_helper.h"
+#include "Generic_functions.h"
 
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
 #define ULU_TIME                        300
