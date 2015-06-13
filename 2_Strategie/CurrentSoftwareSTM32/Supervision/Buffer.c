@@ -42,7 +42,7 @@ void BUFFER_add(CAN_msg_t * m)
 {
 	//Enregistrement du message dans le buffer...
 	(buffer.tab[buffer.indiceFin]).message = *m;
-	(buffer.tab[buffer.indiceFin]).temps =  (Uint16)(global.env.match_time/2); //le timer boucle toutes les 250 ms
+	(buffer.tab[buffer.indiceFin]).temps =  (Uint16)(global.match_time/2); //le timer boucle toutes les 250 ms
 	buffer.indiceFin++;
 
 	if (buffer.indiceFin >= BUFFER_SIZE-1)		//Si jamais on dépasse la taille du buffer, on écrase le dernier message reçu, BUFFER_SIZE -1 car on incrémente si la condition est vraie

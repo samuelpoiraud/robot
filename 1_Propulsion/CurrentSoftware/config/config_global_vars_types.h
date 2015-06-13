@@ -9,13 +9,18 @@
  *  Auteur : Jacen
  */
 
-typedef struct {
+#ifndef CONFIG_GLOBAL_VARS_TYPES_H
+	#define CONFIG_GLOBAL_VARS_TYPES_H
+
+	#include "../QS/QS_types.h"
+
+	typedef struct {
 		Sint16 x;		//[mm]
 		Sint16 y;		//[mm]
 		Sint16 teta;	//[rad/4096]
-}position_t;
+	}position_t;
 
-typedef enum {
+	typedef enum {
 		NO_ACKNOWLEDGE = 0,	 //Aucun acquittement demandé
 		ACKNOWLEDGE_ASKED,   //Acquittement demandé
 		BRAKE_ACKNOWLEDGED,  //Acquittement du freinage fourni
@@ -24,27 +29,36 @@ typedef enum {
 		ACKNOWLEDGE_TRAJECTORY_FOR_TEST_COEFS,
 		ACKNOWLEDGED,		 //Acquittement complet fourni
 		INTERN_ACKNOWLEDGE	 //Acquittement interne pour fonction de la propulsion
-}acknowledge_e;
+	}acknowledge_e;
 
-typedef enum {
+	typedef enum {
 		NOT_NOW = 0,
 		NOW
-}now_e;
+	}now_e;
 
-typedef enum {
+	typedef enum {
 		NOT_BORDER_MODE = 0,
 		BORDER_MODE,
 		BORDER_MODE_WITH_UPDATE_POSITION
-}border_mode_e;
+	}border_mode_e;
 
-typedef enum {
+	typedef enum {
 		NO_MULTIPOINT = 0,
 		MULTIPOINT
-}multipoint_e;
+	}multipoint_e;
 
-typedef enum {
+	typedef enum {
 		NOT_RELATIVE = 0,
 		RELATIVE
-}relative_e;
+	}relative_e;
 
+	typedef struct{
+		volatile bool_e foe_forced;
+		volatile bool_e mode_best_effort_enable;
 
+		volatile bool_e recouvrement_IT;
+		volatile time32_t recouvrement_IT_time;
+		volatile char recouvrement_section;
+	}debug_t;
+
+#endif /* ndef CONFIG_GLOBAL_VARS_TYPES_H */

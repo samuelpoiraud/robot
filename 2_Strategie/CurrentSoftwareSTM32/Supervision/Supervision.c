@@ -87,10 +87,10 @@ void SUPERVISION_send_pos_over_xbee(void)
 {
 	CAN_msg_t msg;
 	msg.sid = XBEE_MY_POSITION_IS;
-	msg.data[0] = HIGHINT(global.env.pos.x);
-	msg.data[1] = LOWINT(global.env.pos.x);
-	msg.data[2] = HIGHINT(global.env.pos.y);
-	msg.data[3] = LOWINT(global.env.pos.y);
+	msg.data[0] = HIGHINT(global.pos.x);
+	msg.data[1] = LOWINT(global.pos.x);
+	msg.data[2] = HIGHINT(global.pos.y);
+	msg.data[3] = LOWINT(global.pos.y);
 	msg.data[4] = QS_WHO_AM_I_get();
 	msg.size = 5;
 
@@ -169,10 +169,10 @@ void Supervision_process_main(void)
 		}
 	#endif
 
-	if(global.env.color != local_color || led_color_initialize)
+	if(global.color != local_color || led_color_initialize)
 	{
-		IHM_set_led_color((global.env.color == BOT_COLOR)?LED_COLOR_YELLOW:LED_COLOR_GREEN);
-		local_color = global.env.color;
+		IHM_set_led_color((global.color == BOT_COLOR)?LED_COLOR_YELLOW:LED_COLOR_GREEN);
+		local_color = global.color;
 	}
 
 	/* Mise à jour des informations affichées à l'écran*/

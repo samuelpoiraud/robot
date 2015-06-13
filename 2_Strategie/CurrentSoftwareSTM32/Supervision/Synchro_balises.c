@@ -73,7 +73,7 @@ void SYNCHRO_init() {
 
 	canmsg_received = FALSE;
 	offset = 0x0FFF;
-	last_received_reply = global.env.absolute_time;
+	last_received_reply = global.absolute_time;
 
 	GPIO_SetBits(PIN_RF_CONFIG);
 
@@ -104,7 +104,7 @@ void SYNCHRO_process_main()
 	}
 
 	//Si on voit pas de réponse pendant plus de LAST_REPLY_TIMEOUT ms, on répond au demandes de synchro (si BIG_ROBOT pas là)
-	if(REPLY_REQ == FALSE && RF_get_module_id() == RF_SMALL && last_received_reply + LAST_REPLY_TIMEOUT <= global.env.absolute_time) {
+	if(REPLY_REQ == FALSE && RF_get_module_id() == RF_SMALL && last_received_reply + LAST_REPLY_TIMEOUT <= global.absolute_time) {
 		REPLY_REQ = TRUE;
 		debug_printf("La derniere réponse reçu de BIG_ROBOT est trop vieille, passage en maitre\n");
 	}
@@ -169,12 +169,12 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			REPLY_REQ = FALSE;
 			debug_printf("Réponse reçue de BIG_ROBOT, passage en esclave\n");
 		}
-		last_received_reply = global.env.absolute_time;
+		last_received_reply = global.absolute_time;
 	}
 
 	//Même si le message n'est pas pour nous, il suffit de voir qu'un module est actif pour l'enregistrer
 	if(header.sender_id < RF_MODULE_COUNT)
-		last_activity_time[header.sender_id] = global.env.absolute_time;
+		last_activity_time[header.sender_id] = global.absolute_time;
 }
 
 static void rf_can_received_callback(CAN_msg_t *msg) {
@@ -227,7 +227,7 @@ static void update_rfmodule_here()
 		//On est nous même là
 		if(RF_get_module_id() != module_id)
 		{
-			if(last_activity_time[module_id] + LAST_SYNCHRO_TIMEOUT >= global.env.absolute_time)
+			if(last_activity_time[module_id] + LAST_SYNCHRO_TIMEOUT >= global.absolute_time)
 			{
 				someone_not_here = TRUE;
 				switch(module_id)
@@ -254,14 +254,14 @@ static void update_rfmodule_here()
 	warner_low_battery_on_foe2 = (pwm_on_foe2 > PWM_THRESHOLD_ON_FOE_BEACON)?TRUE:FALSE;
 
 	//Surveillance niveau PWM sur balises.
-	if(warner_low_battery_on_foe1 && (global.env.absolute_time > low_battery_on_foe1_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON))
+	if(warner_low_battery_on_foe1 && (global.absolute_time > low_battery_on_foe1_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON))
 	{
-		low_battery_on_foe1_printed_time = global.env.absolute_time;
+		low_battery_on_foe1_printed_time = global.absolute_time;
 		debug_printf("Beacon 1 has low bat : pwm=%d", pwm_on_foe1);
 	}
-	if(warner_low_battery_on_foe2 && (global.env.absolute_time > low_battery_on_foe2_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON))
+	if(warner_low_battery_on_foe2 && (global.absolute_time > low_battery_on_foe2_printed_time + PERIOD_PRINT_LOW_BAT_ON_BEACON))
 	{
-		low_battery_on_foe2_printed_time = global.env.absolute_time;
+		low_battery_on_foe2_printed_time = global.absolute_time;
 		debug_printf("Beacon 2 has low bat : pwm=%d", pwm_on_foe2);
 	}
 }

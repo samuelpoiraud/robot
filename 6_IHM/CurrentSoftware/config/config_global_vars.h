@@ -12,10 +12,19 @@
 #ifndef CONFIG_GLOBAL_VARS_H
 	#define CONFIG_GLOBAL_VARS_H
 
-	#ifndef QS_GLOBAL_VARS_H
-		#error "Il est interdit d'inclure directement config_global_vars.h, lire le CQS."
-	#endif
+#include "../QS/QS_types.h"
+#include "config_global_vars_types.h"
 
-	time32_t absolute_time;
+typedef struct{
+	volatile bool_e flag_for_compile;
+}flag_list_t;
+
+typedef struct{
+	volatile flag_list_t flags;				// Les flags
+
+	volatile time32_t absolute_time;		// Temps depuis le lancement de la STM32
+}global_data_storage_t;
+
+extern global_data_storage_t global;
 
 #endif /* ndef CONFIG_GLOBAL_VARS_H */

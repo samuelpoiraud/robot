@@ -97,7 +97,7 @@ void COPILOT_process_it(void)
 
 	if(arrived !=ARRIVED)
 	{
-		if(global.mode_best_effort_enable)
+		if(global.debug.mode_best_effort_enable)
 		{
 			//Ce mode est utilisé pour les réglages de coefs... c'est un mode de débogage.
 			//Dans ce mode, le robot ne suit pas un point qui a toujours la même trajectoire...
@@ -124,7 +124,7 @@ void COPILOT_process_it(void)
 	COPILOT_update_arrived();
 	COPILOT_update_brake_state();
 
-	if(current_order.trajectory == TRAJECTORY_STOP && arrived == ARRIVED && global.match_over == TRUE && id_end_enslavement == 0xFF)
+	if(current_order.trajectory == TRAJECTORY_STOP && arrived == ARRIVED && global.flags.match_over == TRUE && id_end_enslavement == 0xFF)
 		id_end_enslavement = WATCHDOG_create_flag(1500, &flag_end_enslavement);
 
 	if(flag_end_enslavement)

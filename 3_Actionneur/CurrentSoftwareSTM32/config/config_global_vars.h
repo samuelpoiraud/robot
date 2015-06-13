@@ -17,26 +17,20 @@
 
 
 	typedef struct{
-		bool_e flag_for_compile;
+		volatile bool_e match_over;
+		volatile bool_e match_started;
+
+		volatile bool_e alim;
 	}flag_list_t;
 
 	typedef struct{
-		/* les drapeaux */
 		volatile flag_list_t flags;
 
-		bool_e match_over;
-		bool_e match_started;
-		bool_e alim;
-		Uint16 alim_value;			// en mV
-		time32_t absolute_time;
+		volatile Uint16 alim_value;				// en mV
 
-		bool_e PTorchErrorLastCode;
+		volatile time32_t absolute_time;
 
-		struct {
-			volatile Sint16 angle;
-			volatile Sint16 x;
-			volatile Sint16 y;
-		}pos;				// position robot
+		volatile position_t pos;				//Position du robot
 	}global_data_storage_t;
 
 	extern global_data_storage_t global;

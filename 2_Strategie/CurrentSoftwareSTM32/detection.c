@@ -76,7 +76,7 @@ void DETECTION_clean(void)
 {
 	//Necessaire pour des match infini de test, on reactive les balises toutes les 90sec
 	static time32_t next_beacon_activate_msg = 1000;	//Prochain instant d'envoi de message.
-	if(!global.env.match_over && global.env.absolute_time > next_beacon_activate_msg)
+	if(!global.flags.match_over && global.absolute_time > next_beacon_activate_msg)
 	{
 		next_beacon_activate_msg += 90000;
 		CAN_send_sid(BEACON_ENABLE_PERIODIC_SENDING);
@@ -132,46 +132,46 @@ static void DETECTION_compute(detection_reason_e reason)
 	switch(reason)
 	{
 		case DETECTION_REASON_PROCESS_MAIN:		//CLEAN
-			global.env.foes_updated_for_lcd = FALSE;
+			global.flags.foes_updated_for_lcd = FALSE;
 			for(i=0;i<MAX_NB_FOES;i++)
 			{
-				global.env.foe[i].updated = FALSE;		//On baisse le flag updated à chaque tour de boucle.
+				global.foe[i].updated = FALSE;		//On baisse le flag updated à chaque tour de boucle.
 
-				if((global.env.foe[i].enable == TRUE) && (global.env.absolute_time - global.env.foe[i].update_time > FOE_DATA_LIFETIME))
+				if((global.foe[i].enable == TRUE) && (global.absolute_time - global.foe[i].update_time > FOE_DATA_LIFETIME))
 				{
-					global.env.foes_updated_for_lcd = TRUE;
-					global.env.foe[i].enable = FALSE;
+					global.flags.foes_updated_for_lcd = TRUE;
+					global.foe[i].enable = FALSE;
 				}
 			}
 			break;
 		case DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR:
-			global.env.foes_updated_for_lcd = TRUE;
+			global.flags.foes_updated_for_lcd = TRUE;
 			for(i=0;i<MAX_BEACON_FOES;i++)
 			{
-				global.env.foe[MAX_HOKUYO_FOES+i].fiability_error = beacon_ir_objects[i].fiability_error;
+				global.foe[MAX_HOKUYO_FOES+i].fiability_error = beacon_ir_objects[i].fiability_error;
 				if(beacon_ir_objects[i].enable)	//Si les données sont cohérentes... (signal vu...)
 				{
 					//Si je n'ai pas de données en provenance de la propulsion depuis un moment... j'utilise les données de la BEACON_IR.
 					// Ou bien si l'objet observé est dans l'angle mort de l'hokuyo...
-					if	(global.env.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME
+					if	(global.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME
 						|| 	(		beacon_ir_objects[i].angle > PI4096/2-PI4096/3		//Angle entre 30° et 150° --> angle mort hokuyo + marge de 15° de chaque coté.
 								&& 	beacon_ir_objects[i].angle < PI4096/2+PI4096/3 )
 						)
 					{
-						global.env.foe[MAX_HOKUYO_FOES+i].x 			= beacon_ir_objects[i].x;
-						global.env.foe[MAX_HOKUYO_FOES+i].y 			= beacon_ir_objects[i].y;
-						global.env.foe[MAX_HOKUYO_FOES+i].angle 		= beacon_ir_objects[i].angle;
-						global.env.foe[MAX_HOKUYO_FOES+i].dist 			= beacon_ir_objects[i].dist;
-						global.env.foe[MAX_HOKUYO_FOES+i].update_time 	= beacon_ir_objects[i].update_time;
-						global.env.foe[MAX_HOKUYO_FOES+i].enable 		= TRUE;
-						global.env.foe[MAX_HOKUYO_FOES+i].updated 		= TRUE;
-						global.env.foe[MAX_HOKUYO_FOES+i].from 			= DETECTION_FROM_BEACON_IR;
+						global.foe[MAX_HOKUYO_FOES+i].x 			= beacon_ir_objects[i].x;
+						global.foe[MAX_HOKUYO_FOES+i].y 			= beacon_ir_objects[i].y;
+						global.foe[MAX_HOKUYO_FOES+i].angle 		= beacon_ir_objects[i].angle;
+						global.foe[MAX_HOKUYO_FOES+i].dist 			= beacon_ir_objects[i].dist;
+						global.foe[MAX_HOKUYO_FOES+i].update_time 	= beacon_ir_objects[i].update_time;
+						global.foe[MAX_HOKUYO_FOES+i].enable 		= TRUE;
+						global.foe[MAX_HOKUYO_FOES+i].updated 		= TRUE;
+						global.foe[MAX_HOKUYO_FOES+i].from 			= DETECTION_FROM_BEACON_IR;
 					}
 				}
 				else
 				{
-					global.env.foe[MAX_HOKUYO_FOES+i].enable = FALSE;
-					global.env.foe[MAX_HOKUYO_FOES+i].updated = FALSE;
+					global.foe[MAX_HOKUYO_FOES+i].enable = FALSE;
+					global.foe[MAX_HOKUYO_FOES+i].updated = FALSE;
 				}
 
 			}
@@ -179,12 +179,12 @@ static void DETECTION_compute(detection_reason_e reason)
 
 			break;
 		case DETECTION_REASON_DATAS_RECEIVED_FROM_PROPULSION:		//Cette source d'info est prioritaire...
-			global.env.foes_updated_for_lcd = TRUE;
+			global.flags.foes_updated_for_lcd = TRUE;
 			// Emet un bip sonore lors de la premiere initialisation de l'hokuyo (réception des premières données)
-			if(global.env.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME
-			   && global.env.match_started == FALSE)
+			if(global.absolute_time - data_from_propulsion_update_time > FOE_DATA_LIFETIME
+			   && global.flags.match_started == FALSE)
 				BUZZER_play(1000, DEFAULT_NOTE, 1);
-			data_from_propulsion_update_time = global.env.absolute_time;
+			data_from_propulsion_update_time = global.absolute_time;
 			//debug_printf("Compute :");
 			for(j = 0; j < hokuyo_objects_number; j++)
 				objects_chosen[j] = FALSE;			//init, aucun des objets n'est choisi
@@ -204,18 +204,18 @@ static void DETECTION_compute(detection_reason_e reason)
 				if(j_min != 0xFF)									//Si on a trouvé un objet
 				{
 					objects_chosen[j_min] = TRUE;					//On "consomme" cet objet
-					global.env.foe[i].x 			= adversaries[j_min].x;	//On enregistre cet objet à la case i.
-					global.env.foe[i].y 			= adversaries[j_min].y;
-					global.env.foe[i].angle 		= adversaries[j_min].angle;
-					global.env.foe[i].dist 			= adversaries[j_min].dist;
-					global.env.foe[i].update_time 	= adversaries[j_min].update_time;
-					global.env.foe[i].enable 		= TRUE;
-					global.env.foe[i].updated 		= TRUE;
-					global.env.foe[i].from 			= DETECTION_FROM_PROPULSION;
+					global.foe[i].x 			= adversaries[j_min].x;	//On enregistre cet objet à la case i.
+					global.foe[i].y 			= adversaries[j_min].y;
+					global.foe[i].angle 		= adversaries[j_min].angle;
+					global.foe[i].dist 			= adversaries[j_min].dist;
+					global.foe[i].update_time 	= adversaries[j_min].update_time;
+					global.foe[i].enable 		= TRUE;
+					global.foe[i].updated 		= TRUE;
+					global.foe[i].from 			= DETECTION_FROM_PROPULSION;
 					//debug_printf("%d:x=%4d\ty=%4d\ta=%5d\td=%4d\t|", i, hokuyo_objects[j_min].x, hokuyo_objects[j_min].y, hokuyo_objects[j_min].angle, hokuyo_objects[j_min].dist);
 				}
 				else
-					global.env.foe[i].enable = FALSE;				//Plus d'objet dispo... on vide la case i.
+					global.foe[i].enable = FALSE;				//Plus d'objet dispo... on vide la case i.
 
 				//TODO le tableau de foe devrait plutot contenir d'autres types d'infos utiles..... revoir leur type..
 			}
@@ -250,7 +250,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				if(fiability)
 				{
 					adversaries[adversary_nb].enable = TRUE;
-					adversaries[adversary_nb].update_time = global.env.absolute_time;
+					adversaries[adversary_nb].update_time = global.absolute_time;
 				}
 				else
 					adversaries[adversary_nb].enable = FALSE;
@@ -264,13 +264,13 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 						adversaries[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
 					else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
 					{
-						adversaries[adversary_nb].angle = GEOMETRY_viewing_angle(global.env.pos.x, global.env.pos.y,adversaries[adversary_nb].x, adversaries[adversary_nb].y);
-						adversaries[adversary_nb].angle = GEOMETRY_modulo_angle(adversaries[adversary_nb].angle - global.env.pos.angle);
+						adversaries[adversary_nb].angle = GEOMETRY_viewing_angle(global.pos.x, global.pos.y,adversaries[adversary_nb].x, adversaries[adversary_nb].y);
+						adversaries[adversary_nb].angle = GEOMETRY_modulo_angle(adversaries[adversary_nb].angle - global.pos.angle);
 					}
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
 						adversaries[adversary_nb].dist = ((Sint16)msg->data[5])*20;
 					else	//je dois calculer moi-même la distance de l'adversaire
-						adversaries[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.env.pos.x, global.env.pos.y},
+						adversaries[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.pos.x, global.pos.y},
 																				(GEOMETRY_point_t){adversaries[adversary_nb].x, adversaries[adversary_nb].y}
 																				);
 				}
@@ -304,10 +304,10 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				//filtrage de la distance
 				beacon_ir_objects[i].dist = beacon_ir_distance_filter(beacon_ir_objects[i].enable,i,beacon_ir_objects[i].dist);
 
-				beacon_ir_objects[i].update_time = global.env.absolute_time;
+				beacon_ir_objects[i].update_time = global.absolute_time;
 				COS_SIN_4096_get(beacon_ir_objects[i].angle, &cosinus, &sinus);
-				beacon_ir_objects[i].x = global.env.pos.x + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.env.pos.sinAngle))}/(4096*4096)));
-				beacon_ir_objects[i].y = global.env.pos.y + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.env.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.env.pos.cosAngle))}/(4096*4096)));
+				beacon_ir_objects[i].x = global.pos.x + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.pos.cosAngle) - (Sint32)(sinus) * (Sint32)(global.pos.sinAngle))}/(4096*4096)));
+				beacon_ir_objects[i].y = global.pos.y + (beacon_ir_objects[i].dist * ((float){((Sint32)(cosinus) * (Sint32)(global.pos.sinAngle) + (Sint32)(sinus) * (Sint32)(global.pos.cosAngle))}/(4096*4096)));
 			}
 
 			DETECTION_compute(DETECTION_REASON_DATAS_RECEIVED_FROM_BEACON_IR);	//On prévient l'algo COMPUTE.
@@ -319,26 +319,26 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 			if((msg->data[0] & 0xFE) == AUCUNE_ERREUR)	//Si l'octet de fiabilité vaut SIGNAL_INSUFFISANT, on le laisse passer quand même
 			{
 				//slashn = TRUE;
-				global.env.sensor[BEACON_IR_FOE_1].angle = U16FROMU8(msg->data[1],msg->data[2]);
+				global.sensor[BEACON_IR_FOE_1].angle = U16FROMU8(msg->data[1],msg->data[2]);
 				// Pour gérer l'inversion de la balise
-				//global.env.sensor[BEACON_IR_FOE_1].angle += (global.env.sensor[BEACON_IR_FOE_1].angle > 0)?-PI4096:PI4096;
-				global.env.sensor[BEACON_IR_FOE_1].distance = (Uint16)(msg->data[3])*10;
-				global.env.sensor[BEACON_IR_FOE_1].update_time = global.env.match_time;
-				global.env.sensor[BEACON_IR_FOE_1].updated = TRUE;
-				//debug_printf("IR1=%dmm", global.env.sensor[BEACON_IR_FOE_1].distance);
-				//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_1].angle))*180/PI4096))));
+				//global.sensor[BEACON_IR_FOE_1].angle += (global.sensor[BEACON_IR_FOE_1].angle > 0)?-PI4096:PI4096;
+				global.sensor[BEACON_IR_FOE_1].distance = (Uint16)(msg->data[3])*10;
+				global.sensor[BEACON_IR_FOE_1].update_time = global.match_time;
+				global.sensor[BEACON_IR_FOE_1].updated = TRUE;
+				//debug_printf("IR1=%dmm", global.sensor[BEACON_IR_FOE_1].distance);
+				//debug_printf("|%d", ((Sint16)((((Sint32)(global.sensor[BEACON_IR_FOE_1].angle))*180/PI4096))));
 			} //else debug_printf("NO IR 1 err %d!\n", msg->data[0]);
 			if((msg->data[4] & 0xFE) == AUCUNE_ERREUR)
 			{
 				//slashn = TRUE;
-				global.env.sensor[BEACON_IR_FOE_2].angle = (Sint16)(U16FROMU8(msg->data[5],msg->data[6]));
+				global.sensor[BEACON_IR_FOE_2].angle = (Sint16)(U16FROMU8(msg->data[5],msg->data[6]));
 				// Pour gérer l'inversion de la balise
-				//global.env.sensor[BEACON_IR_FOE_2].angle += (global.env.sensor[BEACON_IR_FOE_2].angle > 0)?-PI4096:PI4096;
-				global.env.sensor[BEACON_IR_FOE_2].distance = (Uint16)(msg->data[7])*10;
-				global.env.sensor[BEACON_IR_FOE_2].update_time = global.env.match_time;
-				global.env.sensor[BEACON_IR_FOE_2].updated = TRUE;
-				//debug_printf(" IR2=%dmm", global.env.sensor[BEACON_IR_FOE_2].distance);
-				//debug_printf("|%d", ((Sint16)((((Sint32)(global.env.sensor[BEACON_IR_FOE_2].angle))*180/PI4096))));
+				//global.sensor[BEACON_IR_FOE_2].angle += (global.sensor[BEACON_IR_FOE_2].angle > 0)?-PI4096:PI4096;
+				global.sensor[BEACON_IR_FOE_2].distance = (Uint16)(msg->data[7])*10;
+				global.sensor[BEACON_IR_FOE_2].update_time = global.match_time;
+				global.sensor[BEACON_IR_FOE_2].updated = TRUE;
+				//debug_printf(" IR2=%dmm", global.sensor[BEACON_IR_FOE_2].distance);
+				//debug_printf("|%d", ((Sint16)((((Sint32)(global.sensor[BEACON_IR_FOE_2].angle))*180/PI4096))));
 			} //else debug_printf("NO IR 2 err %d!\n", msg->data[4]);
 			if(slashn)
 				debug_printf("\n");
@@ -350,7 +350,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 }
 
 time32_t DETECTION_get_last_time_since_hokuyo_date(){
-	return global.env.absolute_time - data_from_propulsion_update_time;
+	return global.absolute_time - data_from_propulsion_update_time;
 }
 
 
@@ -365,19 +365,19 @@ time32_t DETECTION_get_last_time_since_hokuyo_date(){
 	Uint8 foe_id;
 	 for (foe_id = 0; foe_id < MAX_NB_FOES; foe_id++)
 	{
-		if((global.env.match_time - global.env.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
-		   (global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
-		   (global.env.match_started == TRUE) &&
+		if((global.match_time - global.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
+		   (global.match_time - global.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION) &&
+		   (global.match_started == TRUE) &&
 		   (ultrasonic_fiable == TRUE))
 		{
-			if(absolute(global.env.sensor[BEACON_IR(foe_id)].distance - global.env.sensor[BEACON_US(foe_id)].distance) > 1000) {
+			if(absolute(global.sensor[BEACON_IR(foe_id)].distance - global.sensor[BEACON_US(foe_id)].distance) > 1000) {
 				ultrasonic_fiable = FALSE;
 				CAN_msg_t msg;
 				msg.sid = DEBUG_US_NOT_RELIABLE;
-				msg.data[0] = HIGHINT(global.env.sensor[BEACON_IR(foe_id)].distance);
-				msg.data[1] = LOWINT(global.env.sensor[BEACON_IR(foe_id)].distance);
-				msg.data[2] = HIGHINT(global.env.sensor[BEACON_US(foe_id)].distance);
-				msg.data[3] = LOWINT(global.env.sensor[BEACON_US(foe_id)].distance);
+				msg.data[0] = HIGHINT(global.sensor[BEACON_IR(foe_id)].distance);
+				msg.data[1] = LOWINT(global.sensor[BEACON_IR(foe_id)].distance);
+				msg.data[2] = HIGHINT(global.sensor[BEACON_US(foe_id)].distance);
+				msg.data[3] = LOWINT(global.sensor[BEACON_US(foe_id)].distance);
 				msg.data[4] = foe_id;
 				msg.size = 4;
 				CAN_send(&msg);
@@ -386,59 +386,59 @@ time32_t DETECTION_get_last_time_since_hokuyo_date(){
 #warning "DESACTIVATION MANUELLE DES US !!!"
 		ultrasonic_fiable = FALSE;
 
-		if(global.env.sensor[BEACON_IR(foe_id)].updated)
+		if(global.sensor[BEACON_IR(foe_id)].updated)
 		{
 			update_dist_by_ir = FALSE;
 
-			if(global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time > MAXIMUM_TIME_FOR_BEACON_REFRESH ||
+			if(global.match_time - global.sensor[BEACON_US(foe_id)].update_time > MAXIMUM_TIME_FOR_BEACON_REFRESH ||
 				ultrasonic_fiable == FALSE) //Si la balise US n'a rien reçu depuis 500ms
 			{
-				global.env.foe[foe_id].dist = global.env.sensor[BEACON_IR(foe_id)].distance; //On met à jour la distance par infrarouge
+				global.foe[foe_id].dist = global.sensor[BEACON_IR(foe_id)].distance; //On met à jour la distance par infrarouge
 				update_dist_by_ir = TRUE;
 			}
-			if(global.env.match_time - global.env.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION || update_dist_by_ir)
+			if(global.match_time - global.sensor[BEACON_US(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION || update_dist_by_ir)
 			{
 				//L'ancienne distance est conservee
-				beacon_foe_x = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.cosAngle
-					- (global.env.foe[foe_id].dist * sin4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.sinAngle + global.env.pos.x;
+				beacon_foe_x = (global.foe[foe_id].dist * cos4096(global.sensor[BEACON_IR(foe_id)].angle)) * global.pos.cosAngle
+					- (global.foe[foe_id].dist * sin4096(global.sensor[BEACON_IR(foe_id)].angle)) * global.pos.sinAngle + global.pos.x;
 
-				beacon_foe_y  = (global.env.foe[foe_id].dist * cos4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.sinAngle
-					+ (global.env.foe[foe_id].dist * sin4096(global.env.sensor[BEACON_IR(foe_id)].angle)) * global.env.pos.cosAngle + global.env.pos.y;
+				beacon_foe_y  = (global.foe[foe_id].dist * cos4096(global.sensor[BEACON_IR(foe_id)].angle)) * global.pos.sinAngle
+					+ (global.foe[foe_id].dist * sin4096(global.sensor[BEACON_IR(foe_id)].angle)) * global.pos.cosAngle + global.pos.y;
 
 				if(ENV_game_zone_filter(beacon_foe_x,beacon_foe_y,BORDER_DELTA))
 				{
-					global.env.foe[foe_id].x = beacon_foe_x;
-					global.env.foe[foe_id].y = beacon_foe_y;
-					global.env.foe[foe_id].update_time = global.env.match_time;
-					global.env.foe[foe_id].enable = TRUE;
+					global.foe[foe_id].x = beacon_foe_x;
+					global.foe[foe_id].y = beacon_foe_y;
+					global.foe[foe_id].update_time = global.match_time;
+					global.foe[foe_id].enable = TRUE;
 				}
 			}
-			global.env.foe[foe_id].angle = global.env.sensor[BEACON_IR(foe_id)].angle;
-			//debug_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist, ((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
+			global.foe[foe_id].angle = global.sensor[BEACON_IR(foe_id)].angle;
+			//debug_printf("IR Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.foe[foe_id].x, global.foe[foe_id].y, global.foe[foe_id].dist, ((Sint16)(((Sint32)(global.foe[foe_id].angle))*180/PI4096)));
 		}
 
-		if(global.env.sensor[BEACON_US(foe_id)].updated && ultrasonic_fiable == TRUE)
+		if(global.sensor[BEACON_US(foe_id)].updated && ultrasonic_fiable == TRUE)
 		{
 			// L'ancien angle est conserve
-			if(global.env.match_time - global.env.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION)
+			if(global.match_time - global.sensor[BEACON_IR(foe_id)].update_time < MINIMUM_TIME_FOR_BEACON_SYNCRONIZATION)
 			{
-				beacon_foe_x = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.cosAngle
-					- (global.env.sensor[BEACON_US(foe_id)].distance * sin4096(global.env.foe[foe_id].angle)) * global.env.pos.sinAngle + global.env.pos.x;
+				beacon_foe_x = (global.sensor[BEACON_US(foe_id)].distance * cos4096(global.foe[foe_id].angle)) * global.pos.cosAngle
+					- (global.sensor[BEACON_US(foe_id)].distance * sin4096(global.foe[foe_id].angle)) * global.pos.sinAngle + global.pos.x;
 
-				beacon_foe_y  = (global.env.sensor[BEACON_US(foe_id)].distance * cos4096(global.env.foe[foe_id].angle)) * global.env.pos.sinAngle
-					+ (global.env.sensor[BEACON_US(foe_id)].distance * sin4096(global.env.foe[foe_id].angle)) * global.env.pos.cosAngle + global.env.pos.y;
+				beacon_foe_y  = (global.sensor[BEACON_US(foe_id)].distance * cos4096(global.foe[foe_id].angle)) * global.pos.sinAngle
+					+ (global.sensor[BEACON_US(foe_id)].distance * sin4096(global.foe[foe_id].angle)) * global.pos.cosAngle + global.pos.y;
 
 				if(ENV_game_zone_filter(beacon_foe_x,beacon_foe_y,BORDER_DELTA))
 				{
-					global.env.foe[foe_id].x = beacon_foe_x;
-					global.env.foe[foe_id].y = beacon_foe_y;
-					global.env.foe[foe_id].update_time = global.env.match_time;
-					global.env.foe[foe_id].enable = TRUE;
+					global.foe[foe_id].x = beacon_foe_x;
+					global.foe[foe_id].y = beacon_foe_y;
+					global.foe[foe_id].update_time = global.match_time;
+					global.foe[foe_id].enable = TRUE;
 				}
 			}
 			// On mets a jour la distance
-			global.env.foe[foe_id].dist = global.env.sensor[BEACON_US(foe_id)].distance;
-			//debug_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.env.foe[foe_id].x, global.env.foe[foe_id].y, global.env.foe[foe_id].dist,((Sint16)(((Sint32)(global.env.foe[foe_id].angle))*180/PI4096)));
+			global.foe[foe_id].dist = global.sensor[BEACON_US(foe_id)].distance;
+			//debug_printf("US Foe_%d is x:%d y:%d d:%d a:%d\r\n",foe_id, global.foe[foe_id].x, global.foe[foe_id].y, global.foe[foe_id].dist,((Sint16)(((Sint32)(global.foe[foe_id].angle))*180/PI4096)));
 		}
 	}
 

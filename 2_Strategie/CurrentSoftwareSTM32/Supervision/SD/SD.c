@@ -122,7 +122,7 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 	Uint32 written = 0;
 
 	//Dater l'évènement dans le match
-	time32_t time_ms = global.env.match_time;
+	time32_t time_ms = global.match_time;
 
 	if(sd_ready == FALSE || file_opened == FALSE)
 		return;	//Nothing todo...

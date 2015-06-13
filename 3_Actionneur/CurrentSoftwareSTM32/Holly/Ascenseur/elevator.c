@@ -108,9 +108,9 @@ void ELEVATOR_state_machine(){
 				begin_detection = 0;
 			}
 
-			if(!last_alim && global.alim)
+			if(!last_alim && global.flags.alim)
 					begin_wait = global.absolute_time;
-			last_alim = global.alim;
+			last_alim = global.flags.alim;
 
 			if(ELEVATOR_FDC && begin_detection == 0)
 				begin_detection = global.absolute_time;
@@ -120,7 +120,7 @@ void ELEVATOR_state_machine(){
 				QEI1_set_count(0);
 				encoder_ready = TRUE;
 				state = INIT_POS;
-			}else if(global.alim && global.absolute_time - begin_wait > ELEVATOR_ASSER_TIMEOUT+1000)
+			}else if(global.flags.alim && global.absolute_time - begin_wait > ELEVATOR_ASSER_TIMEOUT+1000)
 				state = DEACTIVATE;
 
 			if(!ELEVATOR_FDC)
@@ -216,10 +216,10 @@ bool_e ELEVATOR_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_ELEVATOR){
 		switch(msg->data[0]) {
 			// Listing de toutes les positions de l'actionneur possible
-            case ACT_ELEVATOR_BOT :
-            case ACT_ELEVATOR_MID :
-            case ACT_ELEVATOR_MID_LOW :
-            case ACT_ELEVATOR_ESTRAD :
+			case ACT_ELEVATOR_BOT :
+			case ACT_ELEVATOR_MID :
+			case ACT_ELEVATOR_MID_LOW :
+			case ACT_ELEVATOR_ESTRAD :
 			case ACT_ELEVATOR_PRE_TOP :
 			case ACT_ELEVATOR_TOP :
 			case ACT_ELEVATOR_STOP :
@@ -270,12 +270,12 @@ static void ELEVATOR_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-        case ACT_ELEVATOR_BOT :		*dcm_goalPosition = ACT_ELEVATOR_BOT_POS; break;
-        case ACT_ELEVATOR_MID_LOW :	*dcm_goalPosition = ACT_ELEVATOR_MID_LOW_POS; break;
-        case ACT_ELEVATOR_MID :		*dcm_goalPosition = ACT_ELEVATOR_MID_POS; break;
+		case ACT_ELEVATOR_BOT :		*dcm_goalPosition = ACT_ELEVATOR_BOT_POS; break;
+		case ACT_ELEVATOR_MID_LOW :	*dcm_goalPosition = ACT_ELEVATOR_MID_LOW_POS; break;
+		case ACT_ELEVATOR_MID :		*dcm_goalPosition = ACT_ELEVATOR_MID_POS; break;
 		case ACT_ELEVATOR_PRE_TOP : *dcm_goalPosition = ACT_ELEVATOR_PRE_TOP_POS; break;
-        case ACT_ELEVATOR_TOP :		*dcm_goalPosition = ACT_ELEVATOR_TOP_POS; break;
-        case ACT_ELEVATOR_ESTRAD :  *dcm_goalPosition = ACT_ELEVATOR_ESTRAD_POS; break;
+		case ACT_ELEVATOR_TOP :		*dcm_goalPosition = ACT_ELEVATOR_TOP_POS; break;
+		case ACT_ELEVATOR_ESTRAD :  *dcm_goalPosition = ACT_ELEVATOR_ESTRAD_POS; break;
 
 		case ACT_ELEVATOR_STOP :
 			DCM_stop(ELEVATOR_ID);

@@ -152,7 +152,7 @@ bool_e QUEUE_add(queue_id_e queue_id, action_function_t action, QUEUE_arg_t arg)
 	{
 		//on l'initialise
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
-		this->initial_time_of_current_action = global.env.match_time;
+		this->initial_time_of_current_action = global.match_time;
 		action(queue_id, TRUE);
 	}
 
@@ -172,7 +172,7 @@ void QUEUE_next(queue_id_e queue_id)
 	{
 		//on initialise l'action suivante
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
-		this->initial_time_of_current_action = global.env.match_time;
+		this->initial_time_of_current_action = global.match_time;
 		(this->action[this->end_index])(queue_id, TRUE);
 	} else {
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");

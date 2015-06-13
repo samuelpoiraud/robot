@@ -51,8 +51,8 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 		//Fin de la partie
 		case BROADCAST_STOP_ALL :{
-			global.match_started = FALSE;
-			global.match_over = TRUE;
+			global.flags.match_started = FALSE;
+			global.flags.match_over = TRUE;
 			#ifdef USE_DCMOTOR2
 				DCM_stop_all();
 			#endif
@@ -85,7 +85,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 		//Reprise de la partie
 		case BROADCAST_START :
-			global.match_started = TRUE;
+			global.flags.match_started = TRUE;
 			break;
 
 		case BROADCAST_POSITION_ROBOT:
@@ -102,13 +102,13 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 		case BROADCAST_ALIM:
 			if(msg->data[0] == ALIM_OFF){
-				global.alim = FALSE;
+				global.flags.alim = FALSE;
 			}else if(msg->data[0] == ALIM_ON){
 #ifdef USE_DCMOTOR2
 				DCM_reset_integrator();
 #endif
 				static bool_e first_on = TRUE;
-				global.alim = TRUE;
+				global.flags.alim = TRUE;
 				if(first_on)
 					first_on = FALSE;
 				else

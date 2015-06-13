@@ -47,13 +47,13 @@ static void MAIN_sensor_test();
 void process_measure_loop_duration(void)
 {
 	static time32_t previous_time = 0;
-	if(global.env.match_time > 0)
+	if(global.match_time > 0)
 	{
 		//Décommenter ce printf pour afficher la mesure de la durée de la boucle.
 		//ATTENTION, cet affichage est hors de la mesure... (donc elle impacte le code hors de cette mesure).
-		if(global.env.match_time-previous_time > 5)
-			debug_printf("L%d\n",(Uint16)(global.env.match_time-previous_time));
-		previous_time = global.env.match_time;
+		if(global.match_time-previous_time > 5)
+			debug_printf("L%d\n",(Uint16)(global.match_time-previous_time));
+		previous_time = global.match_time;
 	}
 }
 

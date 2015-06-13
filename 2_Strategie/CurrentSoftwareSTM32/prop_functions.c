@@ -163,7 +163,7 @@ void PROP_push_rush_in_the_wall (way_e way, bool_e prop_rotate,Sint16 angle, boo
 /*
 	Fonction permettant d'armer un avertisseur sur la propulsion.
 	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_X sera envoyé dès que le robot atteindra cette ligne virtuelle...
-	Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_x
+	Ce message déclenchera la levée en environnement stratégie du flag global.prop.reach_x
 	@param : 0 permet de demander un désarmement de l'avertisseur.
 */
 void PROP_WARNER_arm_x(Sint16 x)
@@ -179,7 +179,7 @@ void PROP_WARNER_arm_x(Sint16 x)
 /*
 	Fonction permettant d'armer un avertisseur sur la propulsion.
 	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_Y sera envoyé dès que le robot atteindra cette ligne virtuelle...
-	Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_y
+	Ce message déclenchera la levée en environnement stratégie du flag global.prop.reach_y
 	@param : 0 permet de demander un désarmement de l'avertisseur.
 */
 void PROP_WARNER_arm_y(Sint16 y)
@@ -195,7 +195,7 @@ void PROP_WARNER_arm_y(Sint16 y)
 /*
 	Fonction permettant d'armer un avertisseur sur la propulsion.
 	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_TETA sera envoyé dès que le robot atteindra cette ligne angulaire virtuelle...
-	Ce message déclenchera la levée en environnement stratégie du flag global.env.prop.reach_teta
+	Ce message déclenchera la levée en environnement stratégie du flag global.prop.reach_teta
 	@param : 0 permet de demander un désarmement de l'avertisseur.
 */
 void PROP_WARNER_arm_teta(Sint16 teta)
@@ -299,8 +299,8 @@ bool_e PROP_near_destination()
 {
 	Sint16 x1, x2, y1, y2;
 
-	x1 = (Sint16) global.env.pos.x;
-	y1 = (Sint16) global.env.pos.y;
+	x1 = (Sint16) global.pos.x;
+	y1 = (Sint16) global.pos.y;
 	x2 = (Sint16) prop_args[STACKS_get_top(PROP)].x;
 	y2 = (Sint16) prop_args[STACKS_get_top(PROP)].y;
 	return ((absolute(y2-y1)+absolute(x2-x1))<100); /* mm */
@@ -311,7 +311,7 @@ bool_e PROP_near_destination_angle()
 {
 	Sint16 angle1, angle2;
 
-	angle1 = (Sint16) global.env.pos.angle;
+	angle1 = (Sint16) global.pos.angle;
 	angle2 = (Sint16) prop_args[STACKS_get_top(PROP)].angle;
 	return (absolute(angle1-angle2)<PI4096/90);
 }
@@ -409,7 +409,7 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.prop.ended)
+		if (global.prop.ended)
 		{
 			if (PROP_near_destination())
 			{
@@ -426,7 +426,7 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
+			if ((global.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
 				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
 			{
 				debug_printf("\nPROP_goto : timeout(GOTO)\n");
@@ -459,14 +459,14 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.prop.ended || global.env.prop.freine)
+		if (global.prop.ended || global.prop.freine)
 		{
 			debug_printf("\nPROP_goto_until_break : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
+			if ((global.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
 				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
 			{
 				debug_printf("\nPROP_goto_until_break : timeout(GOTO)\n");
@@ -486,8 +486,8 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 
 	if (init)
 	{
-		global.env.pos.nb_points_reached = 0;
-		timeout = global.env.match_time + 2000;
+		global.pos.nb_points_reached = 0;
+		timeout = global.match_time + 2000;
 		save_stack_top = STACKS_get_top(stack_id);
 
 		/* On envoie tous les multi points à l'asser */
@@ -505,7 +505,7 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 			order.data[RAYONCRB]=args->curve | (args->avoidance << 4);
 			order.size=8;
 			CAN_send(&order);
-			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){args->x,args->y});
+			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.pos.x,global.pos.y},(GEOMETRY_point_t){args->x,args->y});
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
@@ -525,17 +525,17 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.prop.ended)
+		if (global.prop.ended)
 		{
 			debug_printf("PROP_multi_point : freine dernier point\n");
-			global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
+			global.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 			// Par sécurité, on met le pointeur de pile à la fin des multi-points
 			STACKS_set_top(stack_id,save_stack_bottom);
 			STACKS_pull(PROP);
 		}
-		else if (global.env.prop.freine)
+		else if (global.prop.freine)
 		{
-			global.env.pos.nb_points_reached++;
+			global.pos.nb_points_reached++;
 			//La réception d'un message de freinage nous permet de considérer que la propulsion à changé de point.
 			//On dépile alors l'ordre MULTIPOINT SI il ne s'agit pas du dernier point.
 			if(STACKS_get_top(stack_id) != save_stack_bottom)	//S'il ne s'agit pas du dernier point...
@@ -546,14 +546,14 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
-			if (global.env.match_time > timeout)
+			if (global.match_time > timeout)
 			{
 				debug_printf("\nPROP_goto_multi_point : timeout(GOTO_MULTI_POINT)\n");
 				STACKS_set_timeout(stack_id,GOTO_MULTI_POINT_TIMEOUT);
 			}
 		}
 	}
-	//debug_printf("nb_points: %d\n", global.env.pos.nb_points_reached);
+	//debug_printf("nb_points: %d\n", global.pos.nb_points_reached);
 }
 
 //Execute une courbe multipoint et fini quand on freine sur le dernier point.
@@ -568,8 +568,8 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 
 	if (init)
 	{
-		global.env.pos.nb_points_reached = 0;
-		timeout = global.env.match_time + 2000;
+		global.pos.nb_points_reached = 0;
+		timeout = global.match_time + 2000;
 		save_stack_top = STACKS_get_top(stack_id);
 
 		/* On envoie tous les multi points à l'asser */
@@ -587,7 +587,7 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 			order.data[RAYONCRB]=args->curve | (args->avoidance << 4);
 			order.size=8;
 			CAN_send(&order);
-			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.env.pos.x,global.env.pos.y},(GEOMETRY_point_t){args->x,args->y});
+			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.pos.x,global.pos.y},(GEOMETRY_point_t){args->x,args->y});
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
 		}
@@ -608,17 +608,17 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 	else
 	{
 		//Si on à fini avant de freiner ... (on est déjà arrivé à destination avant de démarrer ?)
-		if (global.env.prop.ended)
+		if (global.prop.ended)
 		{
 			debug_printf("PROP_multi_point : fini dernier point\n");
-			global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
+			global.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 			// Par sécurité, on met le pointeur de pile à la fin des multi-points
 			STACKS_set_top(stack_id,save_stack_bottom);
 			STACKS_pull(PROP);
 		}
-		else if (global.env.prop.freine)
+		else if (global.prop.freine)
 		{
-			global.env.pos.nb_points_reached++;
+			global.pos.nb_points_reached++;
 			//La réception d'un message de freinage nous permet de considérer que la propulsion à changé de point.
 			//On dépile alors l'ordre MULTIPOINT.
 			if(STACKS_get_top(stack_id) != save_stack_bottom)	//S'il ne s'agit pas du dernier point, on dépile sans initialiser la point suivant (ils ont déjà tous été envoyés)
@@ -627,13 +627,13 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 				debug_printf("PROP_multi_point : new_point STACK TOP = %d\n",STACKS_get_top(PROP));
 			} else {	//Dernier point et on freine => on à fini
 				debug_printf("PROP_multi_point : freine dernier point\n");
-				global.env.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
+				global.pos.nb_points_reached = save_stack_top - save_stack_bottom + 1;
 				STACKS_pull(PROP);
 			}
 		}
 		else
 		{
-			if (global.env.match_time > timeout)
+			if (global.match_time > timeout)
 			{
 				debug_printf("\nPROP_goto_multi_point_until_break : timeout(GOTO_MULTI_POINT)\n");
 				STACKS_set_timeout(stack_id,GOTO_MULTI_POINT_TIMEOUT);
@@ -649,7 +649,7 @@ static void PROP_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 
 	if (init)
 	{
-		timeout = global.env.match_time;
+		timeout = global.match_time;
 		/* On envoie tous les multi points à l'asser */
 		for( ; STACKS_get_action(PROP,STACKS_get_top(stack_id)) == &PROP_relative_goangle_multi_point ; STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1))
 		{
@@ -676,14 +676,14 @@ static void PROP_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.prop.ended/* || (global.env.prop.freine && PROP_near_destination_angle())*/)
+		if (global.prop.ended/* || (global.prop.freine && PROP_near_destination_angle())*/)
 		{
 			debug_printf("\nPROP_relative_goangle_multi_point : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
-			if (global.env.match_time > timeout)
+			if (global.match_time > timeout)
 			{
 				debug_printf("\nPROP_relative_goangle_multi_point : timeout(RELATIVE_GOANGLE_MULTI_POINT)\n");
 				STACKS_set_timeout(stack_id,RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT);
@@ -713,14 +713,14 @@ static void PROP_goangle (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.prop.ended)
+		if (global.prop.ended)
 		{
 			debug_printf("\nPROP_goangle : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOANGLE_TIMEOUT_TIME)))
+			if ((global.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOANGLE_TIMEOUT_TIME)))
 			{
 				debug_printf("\nPROP_goangle : timeout(GOANGLE)\n");
 				STACKS_set_timeout(stack_id,GOANGLE_TIMEOUT);
@@ -750,14 +750,14 @@ static void PROP_relative_goangle (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.prop.ended)
+		if (global.prop.ended)
 		{
 			debug_printf("\nPROP_relative_goangle : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOANGLE_TIMEOUT_TIME)))
+			if ((global.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOANGLE_TIMEOUT_TIME)))
 			{
 				debug_printf("\nPROP_relative_goangle : timeout(GOANGLE)\n");
 				STACKS_set_timeout(stack_id,GOANGLE_TIMEOUT);
@@ -788,7 +788,7 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.prop.ended)
+		if (global.prop.ended)
 		{
 			if (PROP_near_destination())
 			{
@@ -805,7 +805,7 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 		}
 		else
 		{
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
+			if ((global.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (GOTO_TIMEOUT_TIME) +
 				 (prop_args[STACKS_get_top(stack_id)].avoidance == AVOID_ENABLED_AND_WAIT) ? WAIT_ADD_TIMEOUT_TIME : 0))
 			{
 				debug_printf("\nPROP_relative_goto : timeout(GOTO)\n");
@@ -838,14 +838,14 @@ static void PROP_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.env.prop.ended || global.env.prop.erreur)
+		if (global.prop.ended || global.prop.erreur)
 		{
 			debug_printf("\nPROP_rush_in_the_wal : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(stack_id)) >= (RUSH_TIMEOUT_TIME)))
+			if ((global.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(stack_id)) >= (RUSH_TIMEOUT_TIME)))
 			{
 				debug_printf("\nPROP_rush_in_the_wal : timeout(RUSH)\n");
 				STACKS_set_timeout(stack_id,RUSH_TIMEOUT);
@@ -863,14 +863,14 @@ static void PROP_stop(stack_id_e stack_id, bool_e init) {
 		msg.size = 0;
 		CAN_send(&msg);
 	} else {
-		if (global.env.prop.ended)
+		if (global.prop.ended)
 		{
 			debug_printf("\nPROP_stop : fini\n");
 			STACKS_pull(PROP);
 		}
 		else
 		{
-			if ((global.env.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (STOP_TIMEOUT_TIME)))
+			if ((global.match_time - STACKS_get_action_initial_time(stack_id,STACKS_get_top(PROP)) >= (STOP_TIMEOUT_TIME)))
 			{
 				debug_printf("\nPROP_stop : timeout(STOP)\n");
 				STACKS_set_timeout(stack_id,STOP_TIMEOUT);

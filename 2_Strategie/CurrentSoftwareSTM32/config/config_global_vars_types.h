@@ -89,31 +89,11 @@
 		bool_e reach_point_get_out_init;
 	}communication_t;
 
-	typedef struct
-	{
-		Uint8 nb_elements;
-		color_e	color;
-		color_e	wanted_color;
-		bool_e color_updated;
-		bool_e ask_prop_calibration;
-		bool_e ask_start;
-		bool_e initial_position_received;
-		bool_e alim;
-		Uint16 alim_value;		// en mV
-		prop_env_t prop;
-		position_t pos;					//comme son nom l'indique, c'est la position de notre robot
-		foe_t foe[MAX_NB_FOES];		//l'ensemble des adversaires vus sur le terrain - ces données concernent plus l'évitement que le zoning !
-		bool_e foes_updated_for_lcd;
-			//Attention, un même adversaire peut être mis à jour sur plusieurs cases différents du tableau de foe !
-		bool_e match_started, match_over;
-		time32_t match_time; //temps de match en ms.
-		time32_t absolute_time; //temps depuis le lancement du module clock en ms.
-		bool_e debug_force_foe;
-		Uint16 duration_trajectory_for_test_coefs;
-		GEOMETRY_point_t destination;
-		Sint32 propulsion_coefs[PROPULSION_NUMBER_COEFS];
-		Uint32 propulsion_coefs_updated;	//par soucis de compacité mémoire et temporel, les flags d'updated sont concaténés ici dans un seul entier...
-		communication_t com;
-	}environment_t;
+	typedef struct{
+		volatile bool_e force_foe;
+		volatile Sint32 propulsion_coefs[PROPULSION_NUMBER_COEFS];
+		volatile Uint32 propulsion_coefs_updated;	//par soucis de compacité mémoire et temporel, les flags d'updated sont concaténés ici dans un seul entier...
+		volatile Uint16 duration_trajectory_for_test_coefs;
+	}debug_t;
 
 #endif /* ndef CONFIG_GLOBAL_VARS_TYPES_H */
