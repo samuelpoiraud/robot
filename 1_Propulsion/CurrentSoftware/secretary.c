@@ -290,7 +290,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			#ifdef CAN_SEND_OVER_UART
 				CANmsgToU1tx(msg);
 			#endif
-			if(global.disable_virtual_perfect_robot == FALSE)
+			if(global.flags.disable_virtual_perfect_robot == FALSE)
 				SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
 
@@ -311,7 +311,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		//Stop tout
 		case BROADCAST_STOP_ALL:
 			//debug_printf("Broadcast_stop\n");
-			global.match_over = TRUE;
+			global.flags.match_over = TRUE;
 			ROADMAP_add_order(  TRAJECTORY_STOP,
 								0,
 								0,
@@ -335,7 +335,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		case BROADCAST_START:
 			//debug_printf("Broadcast_start, \n");
-			global.match_started = TRUE;
+			global.flags.match_started = TRUE;
 		break;
 
 		case BROADCAST_ALIM :
@@ -408,7 +408,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		break;
 		case DEBUG_ENABLE_MODE_BEST_EFFORT:
 			#ifndef MODE_SIMULATION
-				global.mode_best_effort_enable = TRUE;
+				global.debug.mode_best_effort_enable = TRUE;
 			#endif
 		break;
 		case DEBUG_SET_ERROR_TRESHOLD_TRANSLATION:

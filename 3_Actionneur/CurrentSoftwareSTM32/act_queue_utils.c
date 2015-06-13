@@ -51,7 +51,7 @@ void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t a
 void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode) {
 	CAN_msg_t resultMsg;
 
-	if(global.match_started == TRUE) {
+	if(global.flags.match_started == TRUE) {
 		resultMsg.sid = ACT_RESULT;
 		resultMsg.data[0] = originalSid & 0xFF;
 		resultMsg.data[1] = originalCommand;

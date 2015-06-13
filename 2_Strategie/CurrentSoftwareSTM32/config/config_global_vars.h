@@ -16,15 +16,41 @@
 	#include "config_global_vars_types.h"
 
 	typedef struct{
-		bool_e flag_for_compile;
+		volatile bool_e initial_position_received;
+
+		volatile bool_e ask_prop_calibration;
+		volatile bool_e ask_start;
+
+		volatile bool_e color_updated;
+
+		volatile bool_e match_started;
+		volatile bool_e match_over;
+
+		volatile bool_e alim;
+
+		volatile bool_e foes_updated_for_lcd;
 	}flag_list_t;
 
 	typedef struct{
-		/* les drapeaux */
-		volatile flag_list_t flags;
+		volatile flag_list_t flags;				// Les flags
 
-		volatile Uint8 chrono_long_push; //compteur des quarts de seconde pout détecté un appui égal à 2 secondes
-		volatile environment_t env;
+		volatile color_e color;
+		volatile color_e wanted_color;
+
+		volatile Uint16 alim_value;				// en mV
+
+		volatile foe_t foe[MAX_NB_FOES];		//l'ensemble des adversaires vus sur le terrain
+		//Attention, un même adversaire peut être mis à jour sur plusieurs cases différents du tableau de foe !
+
+		volatile GEOMETRY_point_t destination;
+		volatile communication_t com;
+
+		volatile time32_t match_time;			//temps de match en ms.
+		volatile time32_t absolute_time;		//temps depuis le lancement de la STM32
+
+		volatile debug_t debug;
+		volatile prop_env_t prop;
+		volatile position_t pos;
 	}global_data_storage_t;
 
 	extern global_data_storage_t global;

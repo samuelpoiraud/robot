@@ -9,7 +9,9 @@
  *  Auteur : Jacen
  */
 
-#ifndef QS_GLOBAL_VARS_H
-	#error "config_global_vars_types est inclu par la QS, ne l'incluez pas vous meme"
-#endif
+#ifndef CONFIG_GLOBAL_VARS_TYPES_H
+	#define CONFIG_GLOBAL_VARS_TYPES_H
 
+	#include "../QS/QS_types.h"
+
+#endif /* ndef CONFIG_GLOBAL_VARS_TYPES_H */

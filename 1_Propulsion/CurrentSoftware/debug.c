@@ -84,15 +84,15 @@ void DEBUG_init(void)
 void DEBUG_process_main(void)
 {
 	CAN_msg_t msg;
-	if(global.flag_recouvrement_IT)
+	if(global.debug.recouvrement_IT)
 	{
-		global.flag_recouvrement_IT = FALSE;
+		global.debug.recouvrement_IT = FALSE;
 		debug_printf("#");//debug_printf("prévenez samuelp5@gmail.com, recouvrement IT !");//Fuck, il y a des IT trop longues... on remonte l'info au développeur !
 		msg.sid = DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT;
 		msg.size = 3;
-		msg.data[0] = HIGHINT(global.recouvrement_IT_time);
-		msg.data[1] = LOWINT(global.recouvrement_IT_time);
-		msg.data[2] = global.recouvrement_section;
+		msg.data[0] = HIGHINT(global.debug.recouvrement_IT_time);
+		msg.data[1] = LOWINT(global.debug.recouvrement_IT_time);
+		msg.data[2] = global.debug.recouvrement_section;
 		CAN_send(&msg);
 	}
 

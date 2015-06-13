@@ -62,7 +62,7 @@ void IT_init(void)
 		TIMER1_run_us(1000);		// IT du gyro
 	#endif
 	TIMER2_run_us(1000*PERIODE_IT_ASSER);			//IT trajectoire et Correcteur
-	global.flag_recouvrement_IT = FALSE;
+	global.debug.recouvrement_IT = FALSE;
 }
 
 
@@ -163,8 +163,8 @@ void _ISR _T2Interrupt()
 
 	g2 = global;
 	if(TIMER2_getITStatus()){	//L'IT est trop longue ! il y a recouvrement !!!
-		global.flag_recouvrement_IT = TRUE;
-		global.recouvrement_IT_time = global.absolute_time - begin_it_time;
+		global.debug.recouvrement_IT = TRUE;
+		global.debug.recouvrement_IT_time = global.absolute_time - begin_it_time;
 	}
 	GPIO_SetBits(LED_USER);  //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 }
@@ -249,7 +249,7 @@ void IT_test_state(time32_t time_begin, it_state_e it_state, bool_e* over_time){
 		return;
 
 	if(global.absolute_time - time_begin > 5){
-		global.recouvrement_section = it_state;
+		global.debug.recouvrement_section = it_state;
 		*over_time = TRUE;
 	}
 }

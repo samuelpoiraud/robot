@@ -554,9 +554,9 @@ static void MAIN_onButton6(){}
 
 static void MAIN_global_var_init(){
 	// Initialisation de la variable global
-	global.match_started = FALSE;
-	global.match_over = FALSE;
-	global.alim = FALSE;
+	global.flags.match_started = FALSE;
+	global.flags.match_over = FALSE;
+	global.flags.alim = FALSE;
 	global.alim_value = 0;
 	global.absolute_time = 0;
 }

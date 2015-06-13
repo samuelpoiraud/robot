@@ -297,10 +297,10 @@ static void LCD_menu_infos(bool_e init)
 		cursor = CURSOR_OFF;
 	}
 
-	if(init || global.env.pos.updated)
+	if(init || global.pos.updated)
 		display_pos(0);
 
-	if(init || global.env.foes_updated_for_lcd)
+	if(init || global.flags.foes_updated_for_lcd)
 		display_beacon(1);
 
 	if(init || BRAIN_get_strat_updated())	//Temporaire !	//TODO add updated
@@ -773,9 +773,9 @@ void LCD_button_set(void)
 static void display_pos(Uint8 line)
 {
 	Sint16 x,y,t;
-	x = global.env.pos.x;
-	y = global.env.pos.y;
-	t = global.env.pos.angle;
+	x = global.pos.x;
+	y = global.pos.y;
+	t = global.pos.angle;
 
 	//Ecretages...
 	x = MIN(x,9999);
@@ -803,21 +803,21 @@ static void display_beacon(Uint8 line)
 	//Les deux objets balises, s'ils sont actifs, sont les objets MAX_HOKUYO_FOES et MAX_HOKUYO_FOES+1
 	index = 0;
 	str[1] = ' ';
-	if(global.env.foe[0].enable || global.env.foe[1].enable)
+	if(global.foe[0].enable || global.foe[1].enable)
 	{
 		foe_id1 = 0;
-		if(global.env.foe[1].enable)
+		if(global.foe[1].enable)
 			foe_id2 = 1;
 		else
 		{	//1 seul adversaire hokuyo... on voit l'autre avec la balise...
 			//On prend l'adversaire balise le plus proche, indépendamment de leur état d'activation/fiabilité...
-			if(global.env.foe[MAX_HOKUYO_FOES].dist < global.env.foe[MAX_HOKUYO_FOES+1].dist)
+			if(global.foe[MAX_HOKUYO_FOES].dist < global.foe[MAX_HOKUYO_FOES+1].dist)
 				foe_id2 = MAX_HOKUYO_FOES;
 			else
 				foe_id2 = MAX_HOKUYO_FOES + 1;
 		}
 	}
-	else if(global.env.foe[MAX_HOKUYO_FOES].enable || global.env.foe[MAX_HOKUYO_FOES+1].enable)
+	else if(global.foe[MAX_HOKUYO_FOES].enable || global.foe[MAX_HOKUYO_FOES+1].enable)
 	{
 		foe_id1 = MAX_HOKUYO_FOES;
 		foe_id2 = MAX_HOKUYO_FOES + 1;
@@ -832,17 +832,17 @@ static void display_beacon(Uint8 line)
 	{
 		foe_id = (i==0)?foe_id1:foe_id2;
 		assert(foe_id < MAX_NB_FOES);
-		index += sprintf(str+index,"%c",(global.env.foe[foe_id].from == DETECTION_FROM_BEACON_IR)?'B':((global.env.foe[foe_id].from == DETECTION_FROM_PROPULSION)?'H':'?'));
-		if(global.env.foe[foe_id].enable)
+		index += sprintf(str+index,"%c",(global.foe[foe_id].from == DETECTION_FROM_BEACON_IR)?'B':((global.foe[foe_id].from == DETECTION_FROM_PROPULSION)?'H':'?'));
+		if(global.foe[foe_id].enable)
 		{
-			dist = global.env.foe[foe_id].dist/10;
-			angle = (((Sint32)(global.env.foe[foe_id].angle))*180)/PI4096;
+			dist = global.foe[foe_id].dist/10;
+			angle = (((Sint32)(global.foe[foe_id].angle))*180)/PI4096;
 			index += sprintf(str+index, "%3d %3d° ", dist, angle);
 		}
 		else
 		{
-			if(global.env.foe[foe_id].fiability_error)
-				index += sprintf(str+index, "ERROR %2x ",global.env.foe[foe_id].fiability_error);
+			if(global.foe[foe_id].fiability_error)
+				index += sprintf(str+index, "ERROR %2x ",global.foe[foe_id].fiability_error);
 			else
 				index += sprintf(str+index, "OBSOLATE ");
 		}

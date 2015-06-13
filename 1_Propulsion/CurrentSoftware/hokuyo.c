@@ -261,7 +261,7 @@ void HOKUYO_process_main(void)
 					state = REMOVE_LF;
 				else
 				{
-					Uint8 i;
+					//Uint8 i;
 #ifdef VERBOSE_DEBUG_HOKUYO
 					/*debug_printf("datas_index = %ld\n",datas_index);
 					for(i=0;i<datas_index;i++)

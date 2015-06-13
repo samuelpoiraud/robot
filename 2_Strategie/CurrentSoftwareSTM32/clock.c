@@ -34,8 +34,8 @@ void CLOCK_init()
 	TIMER_init();
 	TIMER1_stop();
 	CLOCK_run();	//Lancement du timer pour utilisation avant le début du match.
-	global.env.match_time = 0;
-	global.env.absolute_time = 0;
+	global.match_time = 0;
+	global.absolute_time = 0;
 }
 
 void CLOCK_run()
@@ -55,14 +55,14 @@ void _ISR _T1Interrupt()
 {
 	static Uint16 local_time = 0;
 	static Uint16 count_1sec = 0;
-	global.env.absolute_time++;
+	global.absolute_time++;
 
-	if(global.env.match_started && !global.env.match_over)	//Match commencé et NON terminé
+	if(global.flags.match_started && !global.flags.match_over)	//Match commencé et NON terminé
 	{
 		//Pendant le match.
-		global.env.match_time++;
+		global.match_time++;
 
-		if(global.env.match_time & 0x100)
+		if(global.match_time & 0x100)
 			toggle_led(LED_USER);
 	}
 

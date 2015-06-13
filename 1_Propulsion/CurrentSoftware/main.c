@@ -262,9 +262,9 @@ void MAIN_process_it(Uint8 ms)
 
 static void MAIN_global_var_init(){
 	// Initialisation de la variable global
-	global.mode_best_effort_enable = FALSE;
-	global.match_started = FALSE;
-	global.match_over = FALSE;
+	global.debug.mode_best_effort_enable = FALSE;
+	global.flags.match_started = FALSE;
+	global.flags.match_over = FALSE;
 	global.absolute_time = 0;
 }
 

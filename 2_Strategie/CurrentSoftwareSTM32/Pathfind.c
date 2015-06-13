@@ -152,7 +152,7 @@ static pathfind_node_list_t closedList;
  *		Fonction mettant à jours le pathfind en fonction de la couleur au démarrage du match
  */
 void PATHFIND_MAJ_COLOR(){
-	if(global.env.color == BOT_COLOR){
+	if(global.color == BOT_COLOR){
 		nodes[Z0].neighbors &= ~(1<<1);
 		nodes[Z1].neighbors = 0;
 		nodes[Z2].neighbors = 0;
@@ -344,9 +344,9 @@ pathfind_node_id_t PATHFIND_closestNodeWithoutAdversary(Sint16 x, Sint16 y, Uint
 	for(i=0;i<MAX_NB_FOES;i++){
 		for(n = 0; n < 4; n++){
 			if(closestNodes[i] != NOT_IN_NODE){
-				dist = dist_point_to_point(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y);
+				dist = dist_point_to_point(nodes[n].x, nodes[n].y, global.foe[i].x, global.foe[i].y);
 				if(dist < DISTANCE_CONSIDERE_ADVERSARY)
-					nodeValue[n] = dist_point_to_point(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y);
+					nodeValue[n] = dist_point_to_point(nodes[n].x, nodes[n].y, global.foe[i].x, global.foe[i].y);
 			}
 		}
 	}
@@ -402,9 +402,9 @@ static Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool
 
 		for(i=0; i<MAX_NB_FOES; i++)
 		{
-			if(global.env.foe[i].enable	&& global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
+			if(global.foe[i].enable	&& global.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Si l'adversaire est proche de nous...
 			{
-				dist = dist_point_to_point(nodes[from].x, nodes[from].y, global.env.foe[i].x, global.env.foe[i].y);
+				dist = dist_point_to_point(nodes[from].x, nodes[from].y, global.foe[i].x, global.foe[i].y);
 				if (dist < ((Uint32)900))	//Si l'adversaire proche de nous est proche du noeud en question... on allourdi sérieusement le coût de ce noeud.
 					cost += (((Uint32)900) - dist);
 			}
@@ -439,18 +439,18 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 	adversaries_nodes = 0;
 	for(i=0;i<MAX_NB_FOES;i++)
 	{
-		if(global.env.foe[i].enable && global.env.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
+		if(global.foe[i].enable && global.foe[i].dist < DISTANCE_CONSIDERE_ADVERSARY)	//Pour chaque adversaire situé proche de nous...
 		{
 			for(n = 0; n < PATHFIND_NODE_NB; n++)	//Pour chaque noeud
 			{	//Si l'adversaire en question est proche du noeud : on ajoute le noeud dans la liste des noeuds innaccessibles.
 
-				if(PATHFIND_manhattan_dist(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y)<MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY)
+				if(PATHFIND_manhattan_dist(nodes[n].x, nodes[n].y, global.foe[i].x, global.foe[i].y)<MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY)
 				{
 					PATHFIND_SET_NODE_IN(n,adversaries_nodes);
 					SD_printf("Adv%d in node %d\n",i,n);
 				}
 			}
-			dist = dist_point_to_point(nodes[n].x, nodes[n].y, global.env.foe[i].x, global.env.foe[i].y);
+			dist = dist_point_to_point(nodes[n].x, nodes[n].y, global.foe[i].x, global.foe[i].y);
 			if(dist < closestAdv)
 				closestAdv = dist;
 		}
@@ -487,7 +487,7 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 	openList = 0;
 	closedList = 0;
 
-	if(global.env.color == TOP_COLOR)
+	if(global.color == TOP_COLOR)
 		closedList = closedList | (1<<1)|(1<<2); // Supprime les nodes au près du spawn Jaune
 	else
 		closedList = closedList | (1<<20)|(1<<21); // Supprime les nodes au près du spawn Vert
@@ -679,9 +679,9 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 		case COMPUTE:
 			debug_printf("Compute\n");
 			//Calcul d'un chemin pour atteindre l'objectif.
-			if(PATHFIND_compute(displacements, &nb_displacements, global.env.pos.x, global.env.pos.y, node_wanted) != END_OK)
+			if(PATHFIND_compute(displacements, &nb_displacements, global.pos.x, global.pos.y, node_wanted) != END_OK)
 			{
-				SD_printf("I cannot find any path. x=%d y=%d to node %d\n",global.env.pos.x, global.env.pos.y, node_wanted);
+				SD_printf("I cannot find any path. x=%d y=%d to node %d\n",global.pos.x, global.pos.y, node_wanted);
 				state = FAIL;
 			}
 			else
@@ -766,7 +766,7 @@ Sint16 PATHFIND_get_node_y (pathfind_node_id_t n) {
  * @return le node symétrique à ce node SI la couleur actuelle est TOP... sinon, retourne le node lui-même...
  */
 Uint16 PATHFING_get_symetric(pathfind_node_id_t n){
-	if(global.env.color == TOP_COLOR){
+	if(global.color == TOP_COLOR){
 		if(n<4)
 			return n+19;
 		if(n<7 && n>3)
@@ -793,8 +793,8 @@ Uint16 PATHFING_get_symetric(pathfind_node_id_t n){
  * @return l'id du node le plus proche de notre position
  */
 pathfind_node_id_t min_node_dist(pathfind_node_id_t n1,pathfind_node_id_t n2){
-	if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(n1),PATHFIND_get_node_y(n1),global.env.pos.x,global.env.pos.y)
-			< PATHFIND_manhattan_dist(PATHFIND_get_node_x(n2),PATHFIND_get_node_y(n2),global.env.pos.x,global.env.pos.y))
+	if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(n1),PATHFIND_get_node_y(n1),global.pos.x,global.pos.y)
+			< PATHFIND_manhattan_dist(PATHFIND_get_node_x(n2),PATHFIND_get_node_y(n2),global.pos.x,global.pos.y))
 		return n1;
 	else
 		return n2;
@@ -862,9 +862,9 @@ void PATHFIND_updateOpponentPosition(Uint8 foe_id)
 {
 	assert(foe_id < MAX_NB_FOES);
 	//On desactive l'evitement pour trouver le noeud le plus proche de l'adversaire
-	pathfind_node_id_t node = PATHFIND_closestNode(global.env.foe[foe_id].x, global.env.foe[foe_id].y, 0);
+	pathfind_node_id_t node = PATHFIND_closestNode(global.foe[foe_id].x, global.foe[foe_id].y, 0);
 	//si on est trop loin
-	int dist = GEOMETRY_squared_distance((GEOMETRY_point_t){nodes[node].x,nodes[node].y},(GEOMETRY_point_t){global.env.foe[foe_id].x,global.env.foe[foe_id].y});
+	int dist = GEOMETRY_squared_distance((GEOMETRY_point_t){nodes[node].x,nodes[node].y},(GEOMETRY_point_t){global.foe[foe_id].x,global.foe[foe_id].y});
 	if(dist>220)
 	{
 		nodeOpponent[foe_id] = NOT_IN_NODE;//invalid

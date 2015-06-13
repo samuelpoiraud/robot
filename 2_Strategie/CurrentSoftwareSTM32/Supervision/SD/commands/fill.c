@@ -37,7 +37,7 @@ int term_cmd_fill(int argc, const char *argv[]) {
 	memset(term_common_buffer, '0', term_common_buffer_size);
 
 	debug_printf("Filling file...\n");
-	start_time = global.env.absolute_time;
+	start_time = global.absolute_time;
 	total_copied = 0;
 
 	for (;total_copied < taille;) {
@@ -48,7 +48,7 @@ int term_cmd_fill(int argc, const char *argv[]) {
 			break;
 		}
 	}
-	debug_printf("%u bytes copied with %lu kB/sec.\n", total_copied, total_copied / (global.env.absolute_time - start_time));
+	debug_printf("%u bytes copied with %lu kB/sec.\n", total_copied, total_copied / (global.absolute_time - start_time));
 
 	f_close(&file_dst);
 
