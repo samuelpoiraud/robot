@@ -1442,7 +1442,7 @@ void AX12_init() {
 
 	for(i=0; i<AX12_NUMBER; i++) {
 		AX12_on_the_robot[i].angle_limit[0] = 0;
-		AX12_on_the_robot[i].angle_limit[1] = 300;
+		AX12_on_the_robot[i].angle_limit[1] = 1023;
 
 		AX12_on_the_robot[i].is_wheel_enabled = FALSE;
 		AX12_instruction_reset_last_status(i);
@@ -1453,24 +1453,13 @@ void AX12_init() {
 
 //Configuration de l'AX12, perdure après mise hors tension sauf pour le verouillage de la config (lock).
 //Unités:
-// Angles en degrés
-// Vitesse en degrée par seconde
+// Angles sur 300° de 0 à 1023
+// Vitesse en pourcentage de la vitesse max
 // Voltage en dixième de volt (50 => 5.0V)
 // Température en degrée celcius
 // Pourcentage entre 0 et 100
 
-//Angle max: 360°
-#define AX12_MAX_ANGLE 1024
-#define AX12_ANGLE_TO_DEGRE(angle) ((((Uint32)(angle))*75) >> 8) // >> 8 <=> / 256, 75/256 = 300/1024 = 0.29296875
-#define AX12_DEGRE_TO_ANGLE(angle) ((((Uint32)(angle)) << 8) / 75)	//L'utilisation d'entier 32bits est nécessaire, l'angle max 360° * 256 donne un nombre supérieur à 65535
-//Aproximation pour eviter les entier 32bits (le dspic30F est 16bits), une unité d'angle vaut 0.296875°, perte de précision de 1,3%, AX12_DEGRE_TO_ANGLE(300) donne un angle réel de 296°, soit une perte de 4° pour un angle de 300°
-//#define AX12_DEGRE_TO_ANGLE(angle) ((((Uint16)(angle)) << 7) / 38)
-
-//Vitesse max: 500°/seconde (83 tours/minute) (maximum supporté par la macro)
-//Le max de l'AX12/RX24 indiqué par la datasheet est de environ 360°/s (60 tr/min)
-#define AX12_MAX_DPS 500
-#define AX12_SPEED_TO_DPS(angle_speed) ((((Uint16)(angle_speed))*85) >> 7) // >> 7 <=> / 128, 85/256 = 0.664 degres per second ~= 0.111 rpm (tours par minute)
-#define AX12_DPS_TO_SPEED(angle_speed) ((((Uint16)(angle_speed)) << 7) / 85)
+#define AX12_MAX_ANGLE 1023
 
 //Poucentage max: 100% (tout le monde le savait ça, mais c'est bien de le repréciser :) )
 #define AX12_MAX_PERCENTAGE 100
@@ -1675,22 +1664,22 @@ Uint16 AX12_get_position(Uint8 id_servo) {
 	return AX12_instruction_read16(id_servo, AX12_PRESENT_POSITION_L, NULL);
 }
 
-Sint16 AX12_get_move_to_position_speed(Uint8 id_servo) {
+Sint8 AX12_get_move_to_position_speed(Uint8 id_servo) {
 	bool_e isBackward;
-	Uint16 speed;
+	Uint16 speedPercentage;
 
 	if(AX12_on_the_robot[id_servo].is_wheel_enabled) {
 		debug_printf("AX12: AX12_get_move_to_position_speed while in wheel mode, use AX12_get_speed_percentage instead.\n");
 		return 0;
 	}
 
-	speed = AX12_instruction_read16(id_servo, AX12_PRESENT_SPEED_L, NULL);
+	speedPercentage = AX12_instruction_read16(id_servo, AX12_PRESENT_SPEED_L, NULL);
 
-	isBackward = (speed & 0x400) != 0;
-	speed = AX12_SPEED_TO_DPS(speed & 0x3FF);
+	isBackward = (speedPercentage & 0x400) != 0;
+	speedPercentage = AX12_1024_TO_PERCENTAGE(speedPercentage & 0x3FF);
 	if(isBackward)
-		return -(Sint16)speed;
-	return (Sint16)speed;
+		return -(Sint8)speedPercentage;
+	return (Sint8)speedPercentage;
 }
 
 Sint8 AX12_get_speed_percentage(Uint8 id_servo) {
@@ -1859,14 +1848,16 @@ bool_e AX12_set_position(Uint8 id_servo, Uint16 angle) {
 	return AX12_instruction_write16(id_servo, AX12_GOAL_POSITION_L, angle);
 }
 
-bool_e AX12_set_move_to_position_speed(Uint8 id_servo, Uint16 degre_per_sec) {
+bool_e AX12_set_move_to_position_speed(Uint8 id_servo, Uint8 percentage) {
 	if(AX12_on_the_robot[id_servo].is_wheel_enabled) {
 		debug_printf("AX12: AX12_set_move_to_position_speed while in wheel mode, use AX12_set_speed_percentage instead.\n");
 		return FALSE;
 	}
 
-	if(degre_per_sec > AX12_MAX_DPS) degre_per_sec = AX12_MAX_DPS;
-	return AX12_instruction_write16(id_servo, AX12_GOAL_SPEED_L, AX12_DPS_TO_SPEED(degre_per_sec));
+	if(percentage > AX12_MAX_PERCENTAGE) percentage = AX12_MAX_PERCENTAGE;
+	Uint16 realValue = AX12_PERCENTAGE_TO_1024(percentage);
+
+	return AX12_instruction_write16(id_servo, AX12_GOAL_SPEED_L, realValue);
 }
 
 bool_e AX12_set_speed_percentage(Uint8 id_servo, Sint8 percentage) {
