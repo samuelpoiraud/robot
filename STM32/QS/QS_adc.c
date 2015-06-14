@@ -11,11 +11,9 @@
 
 #include "QS_adc.h"
 #include "QS_ports.h"
-#include "QS_all.h"
 #include "QS_outputlog.h"
 #include "stm32f4xx_adc.h"
 #include "stm32f4xx_dma.h"
-#include "../config/config_use.h"
 
 #define MAX_ADC_CHANNELS 16
 
