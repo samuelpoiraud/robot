@@ -107,8 +107,6 @@
 	//	-							  14
 	//	-							  15
 
-#endif
-
 //--------------------Configuration des ID des actionneurs-----------------------
 
 /* ID des différents AX12 */
