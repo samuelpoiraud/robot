@@ -379,7 +379,7 @@
 	 * Retourne l'angle minimal autorisé (mode asservissement en position seulement).
 	 *
 	 * @param id_servo numéro du servo à questionner
-	 * @return Angle minimal en degrés
+	 * @return Angle minimal sur 300° de 0 à 1023
 	 * @see AX12_config_set_minimal_angle
 	 */
 	Uint16 AX12_config_get_minimal_angle(Uint8 id_servo);
@@ -388,7 +388,7 @@
 	 * Retourne l'angle maximal autorisé (mode asservissement en position seulement).
 	 *
 	 * @param id_servo numéro du servo à questionner
-	 * @return Angle maximal en degrés
+	 * @return Angle maximal sur 300° de 0 à 1023
 	 * @see AX12_config_set_maximal_angle
 	 */
 	Uint16 AX12_config_get_maximal_angle(Uint8 id_servo);
@@ -517,11 +517,9 @@
 	/**
 	 * Défini l'angle minimal autorisé (mode asservissement en position seulement).
 	 *
-	 * L'angle doit être entre 0 et 300°. Si la valeur degre est en dehors de ces limites, la valeur prise en compte sera la limite correspondante.
-	 * (Par exemple, AX12_config_set_minimal_angle(500) sera équivalent à AX12_config_set_minimal_angle(300))
-	 * L'angle effectif peut avoir 1,3% d'erreur, l'angle défini réel de AX12_config_set_minimal_angle(300) est un angle limite de 296°.
+	 * L'angle doit être entre 0 et 300° soit 0 à 1023. Si la valeur degre est en dehors de ces limites, la valeur prise en compte sera la limite correspondante.
 	 * @param id_servo numéro du servo à régler
-	 * @param degre angle en degrés
+	 * @param degre angle sur 300° de 0 à 1023
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
 	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
@@ -532,9 +530,8 @@
 	/**
 	 * Défini l'angle maximal autorisé (mode asservissement en position seulement).
 	 *
-	 * L'angle effectif peut avoir 1,3% d'erreur, l'angle défini réel de AX12_config_set_minimal_angle(300) est un angle limite de 296°.
 	 * @param id_servo numéro du servo à régler
-	 * @param degre angle en degrés
+	 * @param degre angle sur 300° de 0 à 1023
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
 	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
@@ -725,15 +722,15 @@
 	 *
 	 * Position des angles et vue de devant:
 	 * <pre>\verbatim
-	 *           | 150°
-	 *           |
-	 *           +
-	 *          / \
-	 *    300° /   \ 0°
+	 *              | 511(150°)
+	 *              |
+	 *              +
+	 *             / \
+	 *  1023(300°)/   \ 0(0°)
 	 * \endverbatim
 	 * </pre>
 	 * @param id_servo numéro du servo à questionner
-	 * @return position actuelle en degrés
+	 * @return position actuelle sur 300° de 0 à 1023
 	 * @see AX12_set_position
 	 */
 	Uint16 AX12_get_position(Uint8 id_servo);
@@ -744,19 +741,19 @@
 	 * Cette valeur n'est utilisé qu'en mode d'asservissement en position.
 	 * Position des angles et vue de devant:
 	 * <pre>\verbatim
-	 *         |    | 150°
+	 *         |    | 511
 	 *    Sens |    |        |
 	 * positif |    +        | Sens négatif
 	 *         v   / \       |
-	 *       300° /   \ 0°   v
+	 *       1023 /   \ 0    v
 	 * \endverbatim
 	 * </pre>
 	 * @param id_servo numéro du servo à questionner
-	 * @return vitesse en degrés par seconde, positif dans le sens trigonométrique, négatif sinon
+	 * @return pourcentage de couple par rapport au couple maximal possible dépendant de l'alimentation
 	 * @see AX12_set_move_to_position_speed
 	 * @see AX12_set_wheel_mode_enabled
 	 */
-	Sint16 AX12_get_move_to_position_speed(Uint8 id_servo);
+	Sint8 AX12_get_move_to_position_speed(Uint8 id_servo);
 
 	/**
 	 * Retourne le pourcentage de couple appliquée a la sortie du servo en mode asservissement en couple.
@@ -922,9 +919,8 @@
 	 * Change la position du servo.
 	 *
 	 * Cette fonction n'est effective qu'en mode d'asservissement en position.
-	 * L'angle effectif peut avoir 1,3% d'erreur, l'angle défini réel de AX12_config_set_minimal_angle(300) est un angle limite de 296°.
 	 * @param id_servo numéro du servo à contrôler
-	 * @param degre angle demandé en degrés
+	 * @param degre angle demandé sur 300° de 0 à 1023
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
 	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
@@ -938,14 +934,14 @@
 	 *
 	 * Ne fait rien si le servo n'est pas en mode asservissement en position.
 	 * @param id_servo numéro du servo à contrôler
-	 * @param degre_per_sec vitesse en degrés par seconde, maximum: 500
+	 * @param percentage pourcentage de vitesse
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
 	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
 	 * @see AX12_get_move_to_position_speed
 	 * @see AX12_set_wheel_mode_enabled
 	 */
-	bool_e AX12_set_move_to_position_speed(Uint8 id_servo, Uint16 degre_per_sec);
+	bool_e AX12_set_move_to_position_speed(Uint8 id_servo, Uint8 percentage);
 
 	/**
 	 * Défini le pourcentage de couple à appliquer à la sortie pour définir sa vitesse.
