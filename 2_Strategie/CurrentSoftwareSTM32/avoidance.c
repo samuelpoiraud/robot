@@ -189,36 +189,14 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 	return in_progress;
 }
 
+GEOMETRY_point_t compute_advance_point(Uint16 dist, way_e way){
+	GEOMETRY_point_t point;
+	Sint16 cos, sin;
+	COS_SIN_4096_get((way == FORWARD)? global.pos.angle:global.pos.angle+PI4096, &cos, &sin);
 
-//Action qui gere un déplacement en avance ou arrière et renvoi le state rentré en arg.
-Uint8 try_advance(Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
-{
-	static GEOMETRY_point_t point;
-	enum state_e{
-		COMPUTE,
-		GO
-	};
-
-	Sint16 cos,sin;
-	static enum state_e state = COMPUTE;
-	Uint8 return_state = in_progress;
-
-	switch(state){
-		case COMPUTE :
-			COS_SIN_4096_get((way == FORWARD)? global.pos.angle:global.pos.angle+PI4096, &cos, &sin);
-
-			point.x = (Sint32)cos*dist/4096 + global.pos.x;
-			point.y = (Sint32)sin*dist/4096 + global.pos.y;
-			state = GO;
-			break;
-
-		case GO :
-			return_state = try_going(point.x, point.y, in_progress, success_state, fail_state, speed, way, avoidance, end_condition);
-			if(return_state != in_progress)
-				state = COMPUTE;
-			break;
-	}
-	return return_state;
+	point.x = (Sint32)cos*dist/4096 + global.pos.x;
+	point.y = (Sint32)sin*dist/4096 + global.pos.y;
+	return point;
 }
 
 //Action qui gere l'arret du robot et renvoi le state rentré en arg.
