@@ -164,7 +164,27 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
  * param way			Sens de déplacement
  * return le point calculé
  */
-GEOMETRY_point_t compute_advance_point(Uint16 dist, way_e way);
+void compute_advance_point(Uint16 dist, way_e way, GEOMETRY_point_t *point);
+
+/*
+ * Avance d'une distance dist à partir de la position actuelle et en fonction du sens donné.
+ *
+ * pre	: la position du robot doit être à jour
+ * post   : la pile asser est vidée
+ *
+ * param point			Variable option dans le cas d'un calcul externe de la distance
+ * param dist			Distance à se déplacer.
+ * param way			Sens de déplacement
+ * param avoidance		Type d'evitement à faire
+ * param end_condition  Comportement du robot en fin de trajectoire
+ * param in_progress	Etat en cours
+ * param success_state  Etat à retourner si le déplacement s'est terminé correctement
+ * param fail_state		Etat à retourner si le déplacement ne s'est pas terminé correctement
+ *
+ * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
+ */
+Uint8 try_advance(GEOMETRY_point_t *point, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+
 
 /*
  * Arrete le robot
