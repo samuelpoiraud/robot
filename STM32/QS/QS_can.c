@@ -254,7 +254,7 @@
 
 		void CAN_direct_send(Uint11 sid, Uint8 size, Uint8 arg[]){
 			Uint8 i;
-			assert(size <= 7);
+			assert(size <= 8);
 			CAN_msg_t msg;
 			msg.sid = sid;
 			msg.size = size;

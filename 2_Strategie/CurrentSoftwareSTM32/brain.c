@@ -18,6 +18,8 @@
 #include "button.h"	//pour SWITCH_change_color
 #include "environment.h"
 #include "Supervision/Selftest.h"
+#include "Supervision/RTC.h"
+#include "Supervision/SD/SD.h"
 #include "Pathfind.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"
@@ -142,7 +144,19 @@ void any_match(void)
 			global.flags.match_started = TRUE;
 			CLOCK_run_match();
 			XBEE_send_sid(XBEE_START_MATCH, TRUE);				//URGENT : on lance le match sur notre robot AMI...
-			CAN_send_sid(BROADCAST_START);
+			date_t date;
+			Uint16 matchId = SD_get_match_id();
+			RTC_get_local_time(&date);
+			CAN_direct_send(BROADCAST_START, 8, (Uint8 []){
+								HIGHINT(matchId),
+								LOWINT(matchId),
+								date.seconds,
+								date.minutes,
+								date.hours,
+								date.date,
+								date.month,
+								date.year
+							});
 			Supervision_send_periodically_pos(20,PI4096/45);	//Demande d'envoi de la position : tout les 20 mm et tout les 4°
 			XBEE_ping_pong_enable(FALSE);						//Désactive le ping/pong... c'est trop tard pour ça...
 			PATHFIND_MAJ_COLOR();								// Configuration du pathfind spécifique à la couleur
