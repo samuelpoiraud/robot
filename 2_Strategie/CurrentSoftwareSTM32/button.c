@@ -90,10 +90,9 @@ void BUTTON_verbose(void)
 	bool_e change;
 
 	current_state = 	(BUTTON0_PORT						<< 0) 	|	//Run match
-						(IHM_switchs_get(SWITCH_DEBUG)		<< 1) 	|
+						(IHM_switchs_get(SWITCH_RAW_DATA)		<< 1) 	|
 						(IHM_switchs_get(SWITCH_VERBOSE)	<< 2) 	|
 						(IHM_switchs_get(SWITCH_XBEE)		<< 4) 	|
-						(IHM_switchs_get(SWITCH_SAVE)		<< 5) 	|
 						(IHM_switchs_get(SWITCH_COLOR)		<< 9) 	|
 						(IHM_switchs_get(BIROUTE)			<< 10) 	|
 						(IHM_switchs_get(SWITCH_LCD)		<< 11) 	|

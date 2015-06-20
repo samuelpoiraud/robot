@@ -193,14 +193,13 @@ void test_leds(void){
 void test_bp_switchs(void)
 {
 	debug_printf("Test des Entrées BP et Switch\n");
-	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_save=2, sw_color=2, sw_lcd=2, sw_evit=2, port_robot_id=2, biroute=2, bp_run_match=2;
+	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_color=2, sw_lcd=2, sw_evit=2, port_robot_id=2, biroute=2, bp_run_match=2;
 
 	while(1)
 	{
-		if(IHM_switchs_get(SWITCH_DEBUG) 	!= sw_debug		)	{	sw_debug 		= IHM_switchs_get(SWITCH_DEBUG);	debug_printf("sw_debug = %s\n"		, (sw_debug		)?"ON":"OFF");	 }
+		if(IHM_switchs_get(SWITCH_RAW_DATA) != sw_debug		)	{	sw_debug 		= IHM_switchs_get(SWITCH_RAW_DATA);	debug_printf("sw_raw_data = %s\n"		, (sw_debug		)?"ON":"OFF");	 }
 		if(IHM_switchs_get(SWITCH_VERBOSE) 	!= sw_verbose	)	{	sw_verbose 		= IHM_switchs_get(SWITCH_VERBOSE);	debug_printf("sw_verbose = %s\n"	, (sw_verbose	)?"ON":"OFF");	 }
 		if(IHM_switchs_get(SWITCH_XBEE) 	!= sw_xbee		)	{	sw_xbee 		= IHM_switchs_get(SWITCH_XBEE);		debug_printf("sw_xbee = %s\n"		, (sw_xbee		)?"ON":"OFF");	 }
-		if(IHM_switchs_get(SWITCH_SAVE) 	!= sw_save		)	{	sw_save 		= IHM_switchs_get(SWITCH_SAVE);		debug_printf("sw_save = %s\n"		, (sw_save		)?"ON":"OFF");	 }
 		if(IHM_switchs_get(SWITCH_COLOR) 	!= sw_color		)	{	sw_color 		= IHM_switchs_get(SWITCH_COLOR);	debug_printf("sw_color = %s\n"		, (sw_color		)?"ON":"OFF");	 }
 		if(IHM_switchs_get(SWITCH_LCD) 		!= sw_lcd		)	{	sw_lcd	 		= IHM_switchs_get(SWITCH_LCD);		debug_printf("sw_lcd = %s\n"		, (sw_lcd		)?"ON":"OFF");	 }
 		if(IHM_switchs_get(SWITCH_EVIT) 	!= sw_evit		)	{	sw_evit 		= IHM_switchs_get(SWITCH_EVIT);		debug_printf("sw_evit = %s\n"		, (sw_evit		)?"ON":"OFF");	 }
