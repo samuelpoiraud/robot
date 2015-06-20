@@ -89,7 +89,7 @@ static bool_e initialized = FALSE;
 /// INIT
 
 bool_e init_LCD_interface(void){
-	if(GPIO_ReadInputDataBit(IHM_IS_READY) && !initialized)	//Si la carte IHM est présente... on initialise le LCD...
+	if(IHM_IS_READY && !initialized)	//Si la carte IHM est présente... on initialise le LCD...
 	{
 		LCD_I2C_init();
 		LCD_init();
