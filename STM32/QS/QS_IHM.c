@@ -43,10 +43,9 @@ void IHM_init(){
 		IHM_define_act_button((button_ihm_e)i,NULL,NULL);
 
 	switchs[BIROUTE] = TRUE;			// Activation Biroute
-	switchs[SWITCH_DEBUG] = TRUE;		// Activation Debug
+	switchs[SWITCH_RAW_DATA] = TRUE;		// Activation Debug
 	switchs[SWITCH_VERBOSE] = TRUE;		// Activation Verbose
 	switchs[SWITCH_XBEE] = TRUE;		// Activation Xbee
-	switchs[SWITCH_SAVE] = TRUE;		// Activation Save
 	switchs[SWITCH_EVIT] = TRUE;		// Activation Evit
 	switchs[SWITCH18_DISABLE_ASSER] = FALSE;		// Activation Asser
 
