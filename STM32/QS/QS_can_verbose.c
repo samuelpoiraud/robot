@@ -249,6 +249,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 	// L'information ajouté par défaut est un retour à la ligne
 	switch(msg->sid)
 	{
+		case BROADCAST_START:					print(string, len, "| match N°%d  %.2d:%.2d:%.2d %.2d/%.2d/20%.2d\n", u16(0,1), u8(4), u8(3), u8(2), u8(5), u8(6), u8(7));	break;
 		case BROADCAST_ALIM:				    print(string, len, "| état : %s\n", (u8(0))?"ALIM_ON":"ALIM_OFF");		break;
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (u8(0))?"VERT":"JAUNE"	);		break;
 		case BROADCAST_POSITION_ROBOT :			print(string, len, "| JeSuisEn  x=%4d y=%4d t=0x%8x=%3d° Vt=%4dmm/s Vr=%2drd/s reas=0x%2x st=0x%2x\n", u16(0,1)&0x1FFF, u16(2,3)&0x1FFF, angle_rad(4, 5), angle_deg(4, 5), ((Uint16)(u8(0)>>5))*250, u8(2)>>5, u8(6) , u8(7));								break;

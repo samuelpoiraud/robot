@@ -29,6 +29,15 @@
 						Message pour tous
 	***********************************************************/
 	#define BROADCAST_START	 			0x001
+	/*	MatchID : Uint16
+	 *	Date : (chaque entité sur 8 bits)
+	 *			seconde
+	 *			minute
+	 *			heure
+	 *			jours
+	 *			mois
+	 *			année
+	 */
 	#define BROADCAST_STOP_ALL 			0x002
 	#define BROADCAST_COULEUR			0x003			// couleur de notre robot : (Uint8):(BOT_COLOR=0, TOP_COLOR =1)
 
