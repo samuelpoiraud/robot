@@ -10,6 +10,7 @@
  */
 
 #include "QS_ports.h"
+#include "QS_all.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_adc.h"
 
@@ -36,42 +37,127 @@ void PORTS_init(void){
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
 	/* GPIOA */
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_A_IO_MASK) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
+	Uint32 port_a_mask =
+			(PORT_IO_A_0  << 0 ) |
+			(PORT_IO_A_1  << 1 ) |
+			(PORT_IO_A_2  << 2 ) |
+			(PORT_IO_A_3  << 3 ) |
+			(PORT_IO_A_4  << 4 ) |
+			(PORT_IO_A_5  << 5 ) |
+			(PORT_IO_A_6  << 6 ) |
+			(PORT_IO_A_7  << 7 ) |
+			(PORT_IO_A_8  << 8 ) |
+			(PORT_IO_A_9  << 9 ) |
+			(PORT_IO_A_10 << 10) |
+			(PORT_IO_A_11 << 11) |
+			(PORT_IO_A_12 << 12) |
+			(PORT_IO_A_13 << 13) |
+			(PORT_IO_A_14 << 14) |
+			(PORT_IO_A_15 << 15);
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_a_mask) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_A_IO_MASK)) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
+	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_a_mask)) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	/* GPIOB */
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_B_IO_MASK) & 0xFFFFFFEF; //JTDO/TRACESWO,
+	Uint32 port_b_mask =
+			(PORT_IO_B_0  << 0 ) |
+			(PORT_IO_B_1  << 1 ) |
+			(PORT_IO_B_2  << 2 ) |
+			(PORT_IO_B_3  << 3 ) |
+			(PORT_IO_B_4  << 4 ) |
+			(PORT_IO_B_5  << 5 ) |
+			(PORT_IO_B_6  << 6 ) |
+			(PORT_IO_B_7  << 7 ) |
+			(PORT_IO_B_8  << 8 ) |
+			(PORT_IO_B_9  << 9 ) |
+			(PORT_IO_B_10 << 10) |
+			(PORT_IO_B_11 << 11) |
+			(PORT_IO_B_12 << 12) |
+			(PORT_IO_B_13 << 13) |
+			(PORT_IO_B_14 << 14) |
+			(PORT_IO_B_15 << 15);
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_b_mask) & 0xFFFFFFEF; //JTDO/TRACESWO,
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_B_IO_MASK)) & 0xFFFFFFEF; //JTDO/TRACESWO
+	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_b_mask)) & 0xFFFFFFEF; //JTDO/TRACESWO
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	/* GPIOC */
-	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_C_IO_MASK;
+	Uint32 port_c_mask =
+			(PORT_IO_C_0  << 0 ) |
+			(PORT_IO_C_1  << 1 ) |
+			(PORT_IO_C_2  << 2 ) |
+			(PORT_IO_C_3  << 3 ) |
+			(PORT_IO_C_4  << 4 ) |
+			(PORT_IO_C_5  << 5 ) |
+			(PORT_IO_C_6  << 6 ) |
+			(PORT_IO_C_7  << 7 ) |
+			(PORT_IO_C_8  << 8 ) |
+			(PORT_IO_C_9  << 9 ) |
+			(PORT_IO_C_10 << 10) |
+			(PORT_IO_C_11 << 11) |
+			(PORT_IO_C_12 << 12) |
+			(PORT_IO_C_13 << 13) |
+			(PORT_IO_C_14 << 14) |
+			(PORT_IO_C_15 << 15);
+	GPIO_InitStructure.GPIO_Pin = (uint32_t)port_c_mask;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)PORT_C_IO_MASK);
+	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)port_c_mask);
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	/* GPIOD */
-	GPIO_InitStructure.GPIO_Pin = (uint32_t)PORT_D_IO_MASK;
+	Uint32 port_d_mask =
+			(PORT_IO_D_0  << 0 ) |
+			(PORT_IO_D_1  << 1 ) |
+			(PORT_IO_D_2  << 2 ) |
+			(PORT_IO_D_3  << 3 ) |
+			(PORT_IO_D_4  << 4 ) |
+			(PORT_IO_D_5  << 5 ) |
+			(PORT_IO_D_6  << 6 ) |
+			(PORT_IO_D_7  << 7 ) |
+			(PORT_IO_D_8  << 8 ) |
+			(PORT_IO_D_9  << 9 ) |
+			(PORT_IO_D_10 << 10) |
+			(PORT_IO_D_11 << 11) |
+			(PORT_IO_D_12 << 12) |
+			(PORT_IO_D_13 << 13) |
+			(PORT_IO_D_14 << 14) |
+			(PORT_IO_D_15 << 15);
+	GPIO_InitStructure.GPIO_Pin = (uint32_t)port_d_mask;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)PORT_D_IO_MASK);
+	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)port_d_mask);
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	/* GPIOE */
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)PORT_E_IO_MASK) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+	Uint32 port_e_mask =
+			(PORT_IO_E_0  << 0 ) |
+			(PORT_IO_E_1  << 1 ) |
+			(PORT_IO_E_2  << 2 ) |
+			(PORT_IO_E_3  << 3 ) |
+			(PORT_IO_E_4  << 4 ) |
+			(PORT_IO_E_5  << 5 ) |
+			(PORT_IO_E_6  << 6 ) |
+			(PORT_IO_E_7  << 7 ) |
+			(PORT_IO_E_8  << 8 ) |
+			(PORT_IO_E_9  << 9 ) |
+			(PORT_IO_E_10 << 10) |
+			(PORT_IO_E_11 << 11) |
+			(PORT_IO_E_12 << 12) |
+			(PORT_IO_E_13 << 13) |
+			(PORT_IO_E_14 << 14) |
+			(PORT_IO_E_15 << 15);
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_e_mask) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)PORT_E_IO_MASK)) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_e_mask)) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
 

@@ -19,98 +19,273 @@
  * (risque de griller ou de faire bruler le pic)
  */
 
-#define PORT_A_IO_MASK	0xFFFF
-	#define BUTTON_SELFTEST_PORT	GPIOA->IDR0
-	#define BUTTON_CALIBRATION_PORT	GPIOA->IDR1
-	//									2
-	#define BUTTON_PRINTMATCH_PORT	GPIOA->IDR3
-	#define BUTTON0_PORT			GPIOA->IDR4
-	//									5
-	//									6
-	#define BUTTON1_PORT			GPIOA->IDR7
-	//									8
-	#define BUTTON2_PORT			GPIOA->IDR9
-	#define BUTTON3_PORT			GPIOA->IDR10
-	#define BUTTON4_PORT			GPIOA->IDR11
-	#define BUTTON5_PORT			GPIOA->IDR12
-	//	-	programmation				13
-	//	-	programmation				14
-	//									15
 
-#define PORT_B_IO_MASK	0xFCFF
-	#define SWITCH_LCD_PORT			GPIOB->IDR0
-	#define BUTTON_OK_PORT			GPIOB->IDR1
-	#define BUTTON_UP_PORT			GPIOB->IDR2
-	// - programmation -				3
-	#define BUTTON_DOWN_PORT		GPIOB->IDR4
-	#define BUTTON_SET_PORT			GPIOB->IDR5
-	//	U1TX							6
-	//	U1RX							7
-	#define I_AM_READY				GPIOB,GPIO_Pin_8
-	#define LCD_RESET_PORT			GPIOB,GPIO_Pin_9
-	//	I2C RTC/LCD						10
-	//	I2C RTC/LCD						11
-	//  SPI								12
-	//  SPI								13
-	//  SPI								14
-	//  SPI								15
+#include "../QS/QS_ports.h"
+#include "../stm32f4xx/stm32f4xx_gpio.h"
 
-#define PORT_C_IO_MASK	0xFC3F
-	//									0
-	#define SWITCH16_PORT			GPIOC->IDR1
-	#define SWITCH17_PORT			GPIOC->IDR2
-	#define SWITCH18_PORT			GPIOC->IDR3
-	#define BUTTON_RFU_PORT			GPIOC->IDR4
-	#define SWITCH2_PORT			GPIOC->IDR5
-	#define LED_IHM_OK				GPIOC,GPIO_Pin_6
-	#define LED_IHM_SET				GPIOC,GPIO_Pin_7
-	#define LED_IHM_UP				GPIOC,GPIO_Pin_8
-	#define LED_IHM_DOWN			GPIOC,GPIO_Pin_9
-	//	-								10
-	//	-								11
-	//	-								12
-	#define PORT_ROBOT_ID			GPIOC->IDR13
-	//	-								14
-	//	-								15
+////////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------PORT A------------------------------------//
+////////////////////////////////////////////////////////////////////////////////////
+	#define PORT_IO_A_0			PORT_IO_INPUT
+		#define BUTTON_SELFTEST_PORT	GPIOA->IDR0
 
-#define PORT_D_IO_MASK	0x03E3
-	//	CAN_RX							0
-	//	CAN_TX							1
-	#define GREEN_LED				GPIOD,GPIO_Pin_2
-	  #define GREEN_LED_MASK		GPIO_Pin_2
-	#define RED_LED					GPIOD,GPIO_Pin_3
-		#define RED_LED_MASK		GPIO_Pin_3
-	#define BLUE_LED				GPIOD,GPIO_Pin_4
-		#define BLUE_LED_MASK		GPIO_Pin_4
-	//	-								5
-	#define SWITCH_COLOR_PORT		GPIOD->IDR6
-	#define BIROUTE_PORT			GPIOD->IDR7	//La biroute doit être par défaut dans l'état NON par défaut... pour qu'on soit sur qu'elle est là.
-	//									8
-	//									9
-	#define LED0_PORT				GPIOD,GPIO_Pin_10
-	#define LED1_PORT				GPIOD,GPIO_Pin_11
-	#define LED2_PORT				GPIOD,GPIO_Pin_12
-	#define LED3_PORT				GPIOD,GPIO_Pin_13
-	#define LED4_PORT				GPIOD,GPIO_Pin_14
-	#define LED5_PORT				GPIOD,GPIO_Pin_15
+	#define PORT_IO_A_1			PORT_IO_INPUT
+		#define BUTTON_CALIBRATION_PORT	GPIOA->IDR1
 
-#define PORT_E_IO_MASK	0xFFFF
-	#define SWITCH0_PORT			GPIOE->IDR0
-	#define SWITCH1_PORT			GPIOE->IDR1
-	// - programmation -			  2
-	#define SWITCH3_PORT			GPIOE->IDR3
-	#define SWITCH4_PORT			GPIOE->IDR4
-	#define SWITCH5_PORT			GPIOE->IDR5
-	#define SWITCH6_PORT			GPIOE->IDR6
-	#define SWITCH7_PORT			GPIOE->IDR7
-	#define SWITCH8_PORT			GPIOE->IDR8
-	#define SWITCH9_PORT			GPIOE->IDR9
-	#define SWITCH10_PORT			GPIOE->IDR10
-	#define SWITCH11_PORT			GPIOE->IDR11
-	#define SWITCH12_PORT			GPIOE->IDR12
-	#define SWITCH13_PORT			GPIOE->IDR13
-	#define SWITCH14_PORT			GPIOE->IDR14
-	#define SWITCH15_PORT			GPIOE->IDR15
+	#define PORT_IO_A_2			PORT_IO_INPUT
+		//
+
+	#define PORT_IO_A_3			PORT_IO_INPUT
+		#define BUTTON_PRINTMATCH_PORT	GPIOA->IDR3
+
+	#define PORT_IO_A_4			PORT_IO_INPUT
+		#define BUTTON0_PORT			GPIOA->IDR4
+
+	#define PORT_IO_A_5			PORT_IO_INPUT
+		//
+
+	#define PORT_IO_A_6			PORT_IO_INPUT
+		//
+
+	#define PORT_IO_A_7			PORT_IO_INPUT
+		#define BUTTON1_PORT			GPIOA->IDR7
+
+	#define PORT_IO_A_8			PORT_IO_INPUT
+		//
+
+	#define PORT_IO_A_9			PORT_IO_INPUT
+		#define BUTTON2_PORT			GPIOA->IDR9
+
+	#define PORT_IO_A_10		PORT_IO_INPUT
+		#define BUTTON3_PORT			GPIOA->IDR10
+
+	#define PORT_IO_A_11		PORT_IO_INPUT
+		#define BUTTON4_PORT			GPIOA->IDR11
+
+	#define PORT_IO_A_12		PORT_IO_INPUT
+		#define BUTTON5_PORT			GPIOA->IDR12
+
+	#define PORT_IO_A_13		PORT_IO_INPUT
+		// Programmation
+
+	#define PORT_IO_A_14		PORT_IO_INPUT
+		// Programmation
+
+	#define PORT_IO_A_15		PORT_IO_INPUT
+		//
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------PORT B------------------------------------//
+////////////////////////////////////////////////////////////////////////////////////
+	#define PORT_IO_B_0			PORT_IO_INPUT
+		#define SWITCH_LCD_PORT			GPIOB->IDR0
+
+	#define PORT_IO_B_1			PORT_IO_INPUT
+		#define BUTTON_OK_PORT			GPIOB->IDR1
+
+	#define PORT_IO_B_2			PORT_IO_INPUT
+		#define BUTTON_UP_PORT			GPIOB->IDR2
+
+	#define PORT_IO_B_3			PORT_IO_INPUT
+		// Programmation
+
+	#define PORT_IO_B_4			PORT_IO_INPUT
+		#define BUTTON_DOWN_PORT		GPIOB->IDR4
+
+	#define PORT_IO_B_5			PORT_IO_INPUT
+		#define BUTTON_SET_PORT			GPIOB->IDR5
+
+	#define PORT_IO_B_6			PORT_IO_INPUT
+		// U1TX
+
+	#define PORT_IO_B_7			PORT_IO_INPUT
+		// U1RX
+
+	#define PORT_IO_B_8			PORT_IO_OUTPUT
+		#define I_AM_READY				GPIOB,GPIO_Pin_8
+
+	#define PORT_IO_B_9			PORT_IO_OUTPUT
+		#define LCD_RESET_PORT			GPIOB,GPIO_Pin_9
+
+	#define PORT_IO_B_10		PORT_IO_INPUT
+		// I2C
+
+	#define PORT_IO_B_11		PORT_IO_INPUT
+		// I2C
+
+	#define PORT_IO_B_12		PORT_IO_INPUT
+		// SPI
+
+	#define PORT_IO_B_13		PORT_IO_INPUT
+		// SPI
+
+	#define PORT_IO_B_14		PORT_IO_INPUT
+		// SPI
+
+	#define PORT_IO_B_15		PORT_IO_INPUT
+		// SPI
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------PORT C------------------------------------//
+////////////////////////////////////////////////////////////////////////////////////
+	#define PORT_IO_C_0			PORT_IO_INPUT
+		//
+
+	#define PORT_IO_C_1			PORT_IO_INPUT
+		#define SWITCH16_PORT			GPIOC->IDR1
+
+	#define PORT_IO_C_2			PORT_IO_INPUT
+		#define SWITCH17_PORT			GPIOC->IDR2
+
+	#define PORT_IO_C_3			PORT_IO_INPUT
+		#define SWITCH18_PORT			GPIOC->IDR3
+
+	#define PORT_IO_C_4			PORT_IO_INPUT
+		#define BUTTON_RFU_PORT			GPIOC->IDR4
+
+	#define PORT_IO_C_5			PORT_IO_INPUT
+		#define SWITCH2_PORT			GPIOC->IDR5
+
+	#define PORT_IO_C_6			PORT_IO_OUTPUT
+		#define LED_IHM_OK				GPIOC,GPIO_Pin_6
+
+	#define PORT_IO_C_7			PORT_IO_OUTPUT
+		#define LED_IHM_SET				GPIOC,GPIO_Pin_7
+
+	#define PORT_IO_C_8			PORT_IO_OUTPUT
+		#define LED_IHM_UP				GPIOC,GPIO_Pin_8
+
+	#define PORT_IO_C_9			PORT_IO_OUTPUT
+		#define LED_IHM_DOWN			GPIOC,GPIO_Pin_9
+
+	#define PORT_IO_C_10		PORT_IO_INPUT
+		//
+
+	#define PORT_IO_C_11		PORT_IO_INPUT
+		//
+
+	#define PORT_IO_C_12		PORT_IO_INPUT
+		//
+
+	#define PORT_IO_C_13		PORT_IO_INPUT
+		#define PORT_ROBOT_ID			GPIOC->IDR13
+
+	#define PORT_IO_C_14		PORT_IO_INPUT
+		// OSC32_in
+
+	#define PORT_IO_C_15		PORT_IO_INPUT
+		// OSC32_out
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------PORT D------------------------------------//
+////////////////////////////////////////////////////////////////////////////////////
+	#define PORT_IO_D_0			PORT_IO_INPUT
+		// CAN_RX
+
+	#define PORT_IO_D_1			PORT_IO_INPUT
+		// CAN_TX
+
+	#define PORT_IO_D_2			PORT_IO_OUTPUT
+		#define GREEN_LED				GPIOD,GPIO_Pin_2
+		#define GREEN_LED_MASK			GPIO_Pin_2
+
+	#define PORT_IO_D_3			PORT_IO_OUTPUT
+		#define RED_LED					GPIOD,GPIO_Pin_3
+		#define RED_LED_MASK			GPIO_Pin_3
+
+	#define PORT_IO_D_4			PORT_IO_OUTPUT
+		#define BLUE_LED				GPIOD,GPIO_Pin_4
+		#define BLUE_LED_MASK			GPIO_Pin_4
+
+	#define PORT_IO_D_5			PORT_IO_INPUT
+		//
+
+	#define PORT_IO_D_6			PORT_IO_INPUT
+		#define SWITCH_COLOR_PORT		GPIOD->IDR6
+
+	#define PORT_IO_D_7			PORT_IO_INPUT
+		#define BIROUTE_PORT			GPIOD->IDR7	//La biroute doit être par défaut dans l'état NON par défaut... pour qu'on soit sur qu'elle est là.
+
+	#define PORT_IO_D_8			PORT_IO_INPUT
+		// U3TX
+
+	#define PORT_IO_D_9			PORT_IO_INPUT
+		// U3RX
+
+	#define PORT_IO_D_10		PORT_IO_OUTPUT
+		#define LED0_PORT				GPIOD,GPIO_Pin_10
+
+	#define PORT_IO_D_11		PORT_IO_OUTPUT
+		#define LED1_PORT				GPIOD,GPIO_Pin_11
+
+	#define PORT_IO_D_12		PORT_IO_OUTPUT
+		#define LED2_PORT				GPIOD,GPIO_Pin_12
+
+	#define PORT_IO_D_13		PORT_IO_OUTPUT
+		#define LED3_PORT				GPIOD,GPIO_Pin_13
+
+	#define PORT_IO_D_14		PORT_IO_OUTPUT
+		#define LED4_PORT				GPIOD,GPIO_Pin_14
+
+	#define PORT_IO_D_15		PORT_IO_OUTPUT
+		#define LED5_PORT				GPIOD,GPIO_Pin_15
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------PORT E------------------------------------//
+////////////////////////////////////////////////////////////////////////////////////
+	#define PORT_IO_E_0			PORT_IO_INPUT
+		#define SWITCH0_PORT			GPIOE->IDR0
+
+	#define PORT_IO_E_1			PORT_IO_INPUT
+		#define SWITCH1_PORT			GPIOE->IDR1
+
+	#define PORT_IO_E_2			PORT_IO_INPUT
+		// Programmation
+
+	#define PORT_IO_E_3			PORT_IO_INPUT
+		#define SWITCH3_PORT			GPIOE->IDR3
+
+	#define PORT_IO_E_4			PORT_IO_INPUT
+		#define SWITCH4_PORT			GPIOE->IDR4
+
+	#define PORT_IO_E_5			PORT_IO_INPUT
+		#define SWITCH5_PORT			GPIOE->IDR5
+
+	#define PORT_IO_E_6			PORT_IO_INPUT
+		#define SWITCH6_PORT			GPIOE->IDR6
+
+	#define PORT_IO_E_7			PORT_IO_INPUT
+		#define SWITCH7_PORT			GPIOE->IDR7
+
+	#define PORT_IO_E_8			PORT_IO_INPUT
+		#define SWITCH8_PORT			GPIOE->IDR8
+
+	#define PORT_IO_E_9			PORT_IO_INPUT
+		#define SWITCH9_PORT			GPIOE->IDR9
+
+	#define PORT_IO_E_10		PORT_IO_INPUT
+		#define SWITCH10_PORT			GPIOE->IDR10
+
+	#define PORT_IO_E_11		PORT_IO_INPUT
+		#define SWITCH11_PORT			GPIOE->IDR11
+
+	#define PORT_IO_E_12		PORT_IO_INPUT
+		#define SWITCH12_PORT			GPIOE->IDR12
+
+	#define PORT_IO_E_13		PORT_IO_INPUT
+		#define SWITCH13_PORT			GPIOE->IDR13
+
+	#define PORT_IO_E_14		PORT_IO_INPUT
+		#define SWITCH14_PORT			GPIOE->IDR14
+
+	#define PORT_IO_E_15		PORT_IO_INPUT
+		#define SWITCH15_PORT			GPIOE->IDR15
 
 
 #endif /* CONFIG_PIN_H */

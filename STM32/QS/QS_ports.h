@@ -12,8 +12,11 @@
 #ifndef QS_PORTS_H
 	#define QS_PORTS_H
 
-	#include "QS_all.h"
+	#include "QS_types.h"
 	#include "stm32f4xx_gpio.h"
+
+	#define PORT_IO_INPUT	((Uint32)1)
+	#define PORT_IO_OUTPUT	((Uint32)0)
 
 	#define toggle_led_2(port, pin)   GPIO_WriteBit(port, pin,(GPIO_ReadOutputDataBit(port, pin)?Bit_RESET:Bit_SET))
 	#define toggle_led(port_comma_pin)   GPIO_WriteBit(port_comma_pin,(GPIO_ReadOutputDataBit(port_comma_pin)?Bit_RESET:Bit_SET))
