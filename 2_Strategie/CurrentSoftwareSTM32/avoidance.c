@@ -189,16 +189,8 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 	return in_progress;
 }
 
-void compute_advance_point(Uint16 dist, way_e way, GEOMETRY_point_t *point){
-	Sint16 cos, sin;
-	COS_SIN_4096_get((way == FORWARD)? global.pos.angle:global.pos.angle+PI4096, &cos, &sin);
-
-	point->x = (Sint32)cos*dist/4096 + global.pos.x;
-	point->y = (Sint32)sin*dist/4096 + global.pos.y;
-}
-
 //Action qui gere un déplacement en avance ou arrière et renvoi le state rentré en arg.
-Uint8 try_advance(GEOMETRY_point_t *point, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
+Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	static GEOMETRY_point_t compute_point;
 	enum state_e{
@@ -212,16 +204,33 @@ Uint8 try_advance(GEOMETRY_point_t *point, Uint16 dist, Uint8 in_progress, Uint8
 
 	switch(state){
 		case COMPUTE :
-			if(point != NULL){
-				compute_point.x = point->x;
-				compute_point.y = point->y;
-			}else{
-				COS_SIN_4096_get((way == FORWARD)? global.pos.angle:global.pos.angle+PI4096, &cos, &sin);
+			COS_SIN_4096_get((way == FORWARD)? global.pos.angle:global.pos.angle+PI4096, &cos, &sin);
+
+			if(compute){
 
 				compute_point.x = (Sint32)cos*dist/4096 + global.pos.x;
 				compute_point.y = (Sint32)sin*dist/4096 + global.pos.y;
-				state = GO;
+
+				if(point != NULL){
+					point->x = compute_point.x;
+					point->y = compute_point.y;
+				}
+
+			}else if(point != NULL){
+
+				compute_point.x = point->x;
+				compute_point.y = point->y;
+
+			}else{			/// !!!!!!!!!!!!! Ne dois jamais ce produire !!!!!!!!!!!!!!!
+
+				BUZZER_play(200, DEFAULT_NOTE, 3);
+				error_printf("Attention compute du try_advance sans lui demander et sans lui donner de point !!! \n");
+				compute_point.x = (Sint32)cos*dist/4096 + global.pos.x;
+				compute_point.y = (Sint32)sin*dist/4096 + global.pos.y;
+
 			}
+
+			state = GO;
 			break;
 
 		case GO :

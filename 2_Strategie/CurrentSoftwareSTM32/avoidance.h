@@ -173,6 +173,7 @@ void compute_advance_point(Uint16 dist, way_e way, GEOMETRY_point_t *point);
  * post   : la pile asser est vidée
  *
  * param point			Variable option dans le cas d'un calcul externe de la distance
+ * param compute		Variable permettant de savoir si l'ont veut compute ou alors prendre le point en paramètre (lors du compute le point est mise à jours)
  * param dist			Distance à se déplacer.
  * param way			Sens de déplacement
  * param avoidance		Type d'evitement à faire
@@ -183,7 +184,7 @@ void compute_advance_point(Uint16 dist, way_e way, GEOMETRY_point_t *point);
  *
  * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
  */
-Uint8 try_advance(GEOMETRY_point_t *point, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
 
 /*
