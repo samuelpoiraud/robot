@@ -11,9 +11,7 @@
 #ifndef CONFIG_GLOBAL_H
 #define CONFIG_GLOBAL_H
 
-#ifndef __dsPIC30F__
-#	define STM32F40XX
-#endif
+#define STM32F40XX
 
 /** Choix du robot cible. Une seule définition n'est possible, commentez l'autre.
  * Si I_AM_ROBOT_BIG est défini, le code spécifique au robot est pris dans le dossier BIG.
