@@ -472,10 +472,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		case IHM_POWER:
 			if(from == FROM_UART) // Le message vient de la simulation sur pc, le message doit être répété pour les autres cartes
 				CAN_send(msg);
-
+			else if(from == FROM_CAN){
 #ifdef CAN_SEND_OVER_UART
-	CANmsgToU1tx(msg);
+				CANmsgToU1tx(msg);
 #endif
+			}
 
 			IHM_process_main(msg);
 			break;
