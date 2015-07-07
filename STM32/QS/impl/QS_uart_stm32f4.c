@@ -187,7 +187,7 @@ __attribute__((weak)) void USART2_IRQHandler() {
 		UART2_TX_Interrupt();
 }
 
-__attribute__((weak)) void USART3_IRQHandler() {
+void USART3_IRQHandler() {
 	if(USART_GetITStatus(USART3, USART_IT_RXNE))
 		UART3_RX_Interrupt();
 	if(USART_GetITStatus(USART3, USART_IT_TXE))
