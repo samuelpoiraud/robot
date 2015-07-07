@@ -69,9 +69,9 @@ void OUTPUTLOG_set_callback_vargs(OUTPUTLOG_CallbackV callback) {
 	vcallback = callback;
 }
 
-void OUTPUTLOG_set_callback(OUTPUTLOG_Callback callback) {
+void OUTPUTLOG_set_callback(OUTPUTLOG_Callback new_callback) {
 	vcallback = NULL;
-	callback = callback;
+	callback = new_callback;
 }
 
 // prec indique la précison (nb de chiffrers après la virgule) 0 pour avoir le maximum
