@@ -23,8 +23,6 @@ junction.exe R_D\HokuyoUTM30LX\Software\QS STM32\QS
 junction.exe R_D\HokuyoUTM30LX\Software\stm32f4xx STM32\stm32f4xx
 junction.exe R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\QS STM32\QS
 junction.exe R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\stm32f4xx STM32\stm32f4xx
-junction.exe R_D\projet_lcd\QS STM32\QS
-junction.exe R_D\projet_lcd\stm32f4xx STM32\stm32f4xx
 junction.exe R_D\projet_matrice_led\CurrentSoftware\QS STM32\QS
 junction.exe R_D\projet_matrice_led\CurrentSoftware\stm32f4xx STM32\stm32f4xx
 
