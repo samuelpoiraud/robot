@@ -51,7 +51,7 @@ void DEBUG_init(void)
 		}
 	#endif
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-		global.disable_virtual_perfect_robot = FALSE;
+		global.flags.disable_virtual_perfect_robot = FALSE;
 	#endif
 		//ODOMETRY_set(0,0,0);
 //		SEQUENCES_calibrate(BACKWARD);
@@ -214,7 +214,7 @@ void affichage_global(void)
 			//Le robot semble "parfait"............c'est un robot virtuel qui se déplace
 		void DEBUG_envoi_point_fictif_alteration_coordonnees_reelles(void)
 		{
-			if(global.disable_virtual_perfect_robot)
+			if(global.flags.disable_virtual_perfect_robot)
 			{
 				//Robot virtuel parfait désactivé, car on a reçu des message de position venant d'une autre propulsion !
 				//(on est donc très probablement relié à un robot, virtuel ou réel...)
