@@ -186,10 +186,13 @@ __attribute__((weak)) void USART2_IRQHandler() {
 	if(USART_GetITStatus(USART2, USART_IT_TXE))
 		UART2_TX_Interrupt();
 }
-
+#ifndef USE_UART3
+#if AX12_UART_ID != 3
 void USART3_IRQHandler() {
 	if(USART_GetITStatus(USART3, USART_IT_RXNE))
 		UART3_RX_Interrupt();
 	if(USART_GetITStatus(USART3, USART_IT_TXE))
 		UART3_TX_Interrupt();
 }
+#endif
+#endif
