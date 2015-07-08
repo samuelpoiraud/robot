@@ -134,7 +134,7 @@ void ASTAR_add_node_to_list(astar_ptr_node_t node, astar_list_t *list);
 void ASTAR_delete_node_to_list(astar_ptr_node_t node, astar_list_t *list);
 GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2);
 Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t end_node);
-
+bool_e ASTAR_is_in_list(astar_ptr_node_t node, astar_list_t list);
 
 
 //------------------------------------------------- Fonctions d'affichage ---------------------------------------------
@@ -143,7 +143,7 @@ void print_path(astar_path_t path);
 void print_list(astar_list_t list);
 void print_opened_list();
 void print_closed_list();
-
+void ASTAR_print_neighbors();
 
 #else
 	//L'algorithme A* n'est pas activé.
