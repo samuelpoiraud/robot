@@ -10,7 +10,7 @@
  *	Version 20150001
  */
 
-#define _ASTAR_H_
+//#define _ASTAR_H_
 #ifdef _ASTAR_H_
 
 #include "avoidance.h"
@@ -19,6 +19,7 @@
 #include "QS/QS_outputlog.h"
 #include <stdarg.h>
 //#include <stdlib.h>
+#include "state_machine_helper.h"
 
 //--------------------------------------------------- Définitions des macros ----------------------------------------------------------
 
@@ -43,7 +44,7 @@
 
 	//Rayon (ou demie-largeur) du robot adverse par défaut
 	//En considérant que c'est un hexagone donc 6 côtés et que le périmètre déployé est de 1500
-	#define DEFAULT_FOE_RADIUS  1500/6
+	#define DEFAULT_FOE_RADIUS  450
 
 	//Marge entre le centre du robot et un obstacle
 	#define MARGIN_TO_OBSTACLE (ROBOT_WIDTH/2 + 50)
@@ -56,6 +57,9 @@
 
 	//Pour spécifier qu'un noeud (node) n'a pas de polygonId
 	#define NO_POLYGON_ID 255
+
+	//Nombre de déplacements maximal
+	#define NB_MAX_DISPLACEMENTS  20
 
 
 //------------------------------------------------- Définitions des types structrés ---------------------------------------------------
@@ -118,13 +122,15 @@ void ASTAR_create_foe_polygon(Uint8 *currentId);
 void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...);
 bool_e ASTAR_node_enable(astar_ptr_node_t nodeTested, bool_e withPolygons);
 bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t nodeTested);
-void ASTAR_generate_polygon_list();
-void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination);
-void ASTAR_pathfind(astar_path_t *path);
+void ASTAR_generate_polygon_list(Uint8 *currentNodeId);
+void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint8 *currentNodeId);
+void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination);
 void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination);
+bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination);
 void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t from, astar_ptr_node_t destination);
 void ASTAR_make_the_path(astar_path_t *path);
-
+void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displacements[], Uint8 *nbDisplacements, PROP_speed_e speed);
+Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
 //------------------------------------------------- Fonctions annexes -------------------------------------------------
 void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t neighbor);

@@ -12,6 +12,8 @@
 
 #include "astar.h"
 
+#ifdef _ASTAR_H_
+
 //**********************************************  Variables globales  ********************************************
 //La liste des polygones
 astar_polygon_list_t polygon_list;
@@ -25,21 +27,25 @@ astar_list_t closed_list;
 //***************************************************  Fonctions  ************************************************
 //Fonctions pour créer les polygones correspondant aux robots adverses
 void ASTAR_create_foe_polygon(Uint8 *currentId){
-	int i = 0;
+	int i, j;
 	int nbFoes = 0;
 	GEOMETRY_point_t foe;
 	Uint16 dist;
 	Uint16 dist_sin, dist_cos;
 
 	for(i=0; i<MAX_NB_FOES ; i++){
+		debug_printf("MAX_NB_FOES=%d  Foe %d   enable= %d\n", MAX_NB_FOES, i, global.foe[i].enable);
 		if(global.foe[i].enable){
 			foe.x = global.foe[i].x;
 			foe.y = global.foe[i].y;
 
+			debug_printf("Foe in position x=%d   y=%d\n", foe.x, foe.y);
+
 			//Si le petit robot adverse est très petit, inutile de surdimensionné l'hexagone
-			dist = MIN(DEFAULT_FOE_RADIUS, GEOMETRY_distance(foe, (GEOMETRY_point_t){global.pos.x, global.pos.y})- ROBOT_WIDTH/2);
-			dist_sin = dist*sin(30);
-			dist_cos = dist*cos(30);
+			dist = MIN(DEFAULT_FOE_RADIUS, GEOMETRY_distance(foe, (GEOMETRY_point_t){global.pos.x, global.pos.y}));
+			dist_sin = dist*sin4096(PI4096/6);
+			dist_cos = dist*cos4096(PI4096/6);
+			debug_printf("Polygon Foe  dist= %d  dist_sin= %d   dist_cos= %d\n", dist, dist_sin, dist_cos);
 
 			polygon_list.polygons[nbFoes].summits[0].pos.x = foe.x + dist;
 			polygon_list.polygons[nbFoes].summits[0].pos.y = foe.y;
@@ -63,7 +69,7 @@ void ASTAR_create_foe_polygon(Uint8 *currentId){
 			polygon_list.polygons[nbFoes].nbSummits = 6;
 			polygon_list.polygons[nbFoes].enable = TRUE;
 
-			for(i=0; i< 6; i++){
+			for(j=0; j< 6; j++){
 				polygon_list.polygons[nbFoes].summits[i].id = *currentId + i;
 				polygon_list.polygons[nbFoes].summits[i].polygonId = polygon_list.polygons[nbFoes].id;
 				polygon_list.polygons[nbFoes].summits[i].enable = TRUE;
@@ -149,17 +155,16 @@ bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t node
 
 
 //Fonction générant la liste de polygones (adversaires + éléments ou zones de jeu)
-void ASTAR_generate_polygon_list(){
-	Uint8 currentNodeId = 0;
+void ASTAR_generate_polygon_list(Uint8 *currentNodeId){
 	polygon_list.nbPolygons = 0;  //réinitialisation du nombre de polygones
 
 	//Attention, les nodes doivent être écartés au maximum de 250mm sur un même segment
 
 	//Polygones des robots adverses
-	ASTAR_create_foe_polygon(&currentNodeId);
+	ASTAR_create_foe_polygon(currentNodeId);
 
 	//Notre zone de départ
-	ASTAR_create_element_polygon(&currentNodeId, 7, (GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(0)},
+	ASTAR_create_element_polygon(currentNodeId, 7, (GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(0)},
 									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(MARGIN_TO_OBSTACLE)},
 									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE/1.4,COLOR_Y(400+MARGIN_TO_OBSTACLE/1.4)},
 									(GEOMETRY_point_t){1000,COLOR_Y(400+MARGIN_TO_OBSTACLE)},
@@ -168,7 +173,7 @@ void ASTAR_generate_polygon_list(){
 									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(0)});
 
 	//Zone de départ adverses
-	ASTAR_create_element_polygon(&currentNodeId, 9, (GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000)},
+	ASTAR_create_element_polygon(currentNodeId, 9, (GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000)},
 									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000-MARGIN_TO_OBSTACLE)},
 									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(2500)},
 									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE/1.4,COLOR_Y(2450-MARGIN_TO_OBSTACLE/1.4)},
@@ -179,7 +184,7 @@ void ASTAR_generate_polygon_list(){
 									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(3000)});
 
 	//Zones des marches
-	ASTAR_create_element_polygon(&currentNodeId, 11, (GEOMETRY_point_t){0, 967-MARGIN_TO_OBSTACLE},
+	ASTAR_create_element_polygon(currentNodeId, 11, (GEOMETRY_point_t){0, 967-MARGIN_TO_OBSTACLE},
 									(GEOMETRY_point_t){MARGIN_TO_OBSTACLE, 967-MARGIN_TO_OBSTACLE},
 									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE/1.4,967-MARGIN_TO_OBSTACLE/1.4},
 									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE,1000},
@@ -192,7 +197,7 @@ void ASTAR_generate_polygon_list(){
 									(GEOMETRY_point_t){0,2033+MARGIN_TO_OBSTACLE});
 
 	//Zones de l'estrade
-	ASTAR_create_element_polygon(&currentNodeId, 9, (GEOMETRY_point_t){1900-MARGIN_TO_OBSTACLE/1.4, 1200-MARGIN_TO_OBSTACLE/1.4},
+	ASTAR_create_element_polygon(currentNodeId, 9, (GEOMETRY_point_t){1900-MARGIN_TO_OBSTACLE/1.4, 1200-MARGIN_TO_OBSTACLE/1.4},
 									(GEOMETRY_point_t){2000-MARGIN_TO_OBSTACLE,1200-MARGIN_TO_OBSTACLE},
 									(GEOMETRY_point_t){2000,1200-MARGIN_TO_OBSTACLE},
 									(GEOMETRY_point_t){2000,1800+MARGIN_TO_OBSTACLE},
@@ -207,13 +212,13 @@ void ASTAR_generate_polygon_list(){
 
 
 //Fonction permettant de générer le graphe
-void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination){
+void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint8 *currentNodeId){
 	Uint8 i, j;
 
 	debug_printf("From x=%d  y=%d\n", from.x, from.y);
 
 	//Création du node de départ
-	path->from.id = 100;  /// TODO Modifier id
+	path->from.id = (*currentNodeId)++;
 	path->from.polygonId = NO_POLYGON_ID;
 	path->from.pos = from;
 	path->from.enable = TRUE; //On considère que la position de départ du robot est valide.
@@ -224,7 +229,7 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
 	path->from.nbNeighbors = 0;
 
 	//Création du node d'arrivée
-	path->destination.id = 101; /// TODO Modifier id
+	path->destination.id = (*currentNodeId)++; /// TODO Modifier id
 	path->destination.polygonId = NO_POLYGON_ID;
 	path->destination.pos = destination;
 	path->destination.enable = ASTAR_node_enable(&(path->destination), FALSE);
@@ -266,12 +271,21 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
 
 
 //Fonction qui effectue l'algorithme A*
-void ASTAR_pathfind(astar_path_t *path){
+void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination){
 	//Déclaration des variables
 	bool_e  destination_is_in_closed_list = FALSE;
 	Uint16 minimal_cost; //Cout minimal ie cout entre le node de départ et le node courant
 	astar_ptr_node_t current = NULL; //Le node courant
 	Uint8 i; // Variable de parcours
+	Uint8 currentNodeId = 0;
+
+	//Génération de la liste de polygones
+	ASTAR_generate_polygon_list(&currentNodeId);
+
+	print_polygon_list();
+
+	//Génération du graphe
+	ASTAR_generate_graph(path, from, destination, &currentNodeId);
 
 	//Nettoyage des différentes listes
 	ASTAR_clean_list(&(path->list)); //La liste contenant le chemin
@@ -316,83 +330,37 @@ void ASTAR_pathfind(astar_path_t *path){
 		}
 
 		debug_printf("\n\n\nNode current x=%d  y=%d  -------------------------------------------------------------\n", current->pos.x, current->pos.y);
-		print_closed_list();
-		print_opened_list();
+		//print_closed_list();
+		//print_opened_list();
 
 	}
 
 	//Reconstitution du chemin
-	//ASTAR_make_the_path(path);
+	ASTAR_make_the_path(path);
+	print_path(*path);
 }
 
 void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination){
-	Uint16 minimal_dist = MAX_COST;
 	Uint16 test_cost;
-	Uint16 test_dist;
-	Uint8 i, j, k;
-	GEOMETRY_segment_t reference = {from->pos, destination->pos};
-	GEOMETRY_segment_t test;
+	Uint8  k;
 	astar_ptr_node_t nodeAnswer1 = NULL, nodeAnswer2 = NULL;
 	bool_e is_in_closed_list = FALSE;
 	bool_e is_in_opened_list = FALSE;
 
 	//Ajout des voisins de from à la liste ouverte
 	for(k=0; k<from->nbNeighbors; k++){
-		debug_printf("Tentative d' ajout\n");
+		//debug_printf("Tentative d' ajout\n");
 		if(from->neighbors[k]->enable && !ASTAR_is_in_list(from->neighbors[k], opened_list) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
 			ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
 			from->neighbors[k]->parent = from;
 			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
-			debug_printf("neighbors added: x=%d  y=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y);
+			//debug_printf("neighbors added: x=%d  y=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y);
 		}
 	}
 
-	for(i=0; i<polygon_list.nbPolygons; i++){
-		if(polygon_list.polygons[i].enable && polygon_list.polygons[i].id != destination->polygonId){ //Le test n'est réalisé que si le polygone est "enable"
-			for(j=0; j<polygon_list.polygons[i].nbSummits-1; j++){
-				//On vérifie  si il y a une intersection avec chaque segment de polygone excepté le polygone auquel le node appartient
-				//Le test n'est réalisé que si au moins une des deux extrémités est "enable".
-				if((polygon_list.polygons[i].summits[j].enable || polygon_list.polygons[i].summits[j+1].enable) && polygon_list.polygons[i].summits[j].id != from->id && polygon_list.polygons[i].summits[j+1].id != from->id){
-					//Vérification de l'intersection
-					test.a = polygon_list.polygons[i].summits[j].pos;
-					test.b = polygon_list.polygons[i].summits[j+1].pos;
-					//debug_printf("Test intersection (%d , %d ) et (%d , %d)\n", test.a.x, test.a.y, test.b.x, test.b.y);
-					if(GEOMETRY_segments_intersects(reference, test)){
-						//Si il y a intersection, on calcule le point d'intersecsection
-						//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
-						test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-						//debug_printf("Finish with dist = %d\n", test_dist);
-						if(test_dist < minimal_dist){
-							debug_printf("minimal_dist affected to %d\n", test_dist);
-							minimal_dist = test_dist;
-							nodeAnswer1 = &(polygon_list.polygons[i].summits[j]);
-							nodeAnswer2 = &(polygon_list.polygons[i].summits[j+1]);
-						}
-					}
-				}
-			}
-			//Vérification du segment entre le premier et le dernier node de chaque polygone
-			if((polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].enable || polygon_list.polygons[i].summits[0].enable) && polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].id != from->id && polygon_list.polygons[i].summits[0].id != from->id){
-				//Vérification de l'intersection
-				test.a = polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].pos;
-				test.b = polygon_list.polygons[i].summits[0].pos;
-				if(GEOMETRY_segments_intersects(reference, test)){
-					//Si il y a intersection, on calcule le point d'intersecsection
-					//debug_printf("Calcul intersection ....");
-					//debug_printf("Finish\n");
-					test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-					if(test_dist < minimal_dist){
-						debug_printf("minimal_dist affected\n");
-						minimal_dist = test_dist;
-						*nodeAnswer1 = polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1];
-						*nodeAnswer2 = polygon_list.polygons[i].summits[0];
-					}
-				}
-			}
-		}
-	}
+	bool_e answer = ASTAR_node_is_visible(&nodeAnswer1, &nodeAnswer2, from, destination);
 
-	debug_printf("Link nodes for x=%d  y=%d : nodeAnswer1  NULL=%d, nodeAnswer2 NULL=%d\n", destination->pos.x, destination->pos.y,((nodeAnswer1==NULL)? 1:0), ((nodeAnswer2==NULL)? 1:0) );
+	debug_printf("Link nodes for x=%d  y=%d : answer=%d  nodeAnswer1  NULL=%d, nodeAnswer2 NULL=%d\n", destination->pos.x, destination->pos.y,answer,((nodeAnswer1==NULL)? 1:0), ((nodeAnswer2==NULL)? 1:0) );
 
 	//On regarde ensuite le résultat obtenu
 	//Si les deux nodes answers sont NULL, alors le node destination peut être ajouté à la liste ouverte
@@ -443,6 +411,65 @@ void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destinatio
 	}
 }
 
+bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
+	Uint16 minimal_dist = MAX_COST;
+	Uint16 test_dist;
+	Uint8 i, j;
+	GEOMETRY_segment_t reference = {from->pos, destination->pos};
+	GEOMETRY_segment_t test;
+
+	*nodeAnswer1 = NULL;
+	*nodeAnswer2 = NULL;
+	for(i=0; i<polygon_list.nbPolygons; i++){
+		if(polygon_list.polygons[i].enable && polygon_list.polygons[i].id != destination->polygonId){ //Le test n'est réalisé que si le polygone est "enable"
+			for(j=0; j<polygon_list.polygons[i].nbSummits-1; j++){
+				//On vérifie  si il y a une intersection avec chaque segment de polygone excepté le polygone auquel le node appartient
+				///Le test n'est réalisé que si au moins une des deux extrémités est "enable". //ce n'est plus le cas
+				if(polygon_list.polygons[i].summits[j].id != from->id && polygon_list.polygons[i].summits[j+1].id != from->id){
+					//Vérification de l'intersection
+					test.a = polygon_list.polygons[i].summits[j].pos;
+					test.b = polygon_list.polygons[i].summits[j+1].pos;
+					//debug_printf("Test intersection (%d , %d ) et (%d , %d)\n", test.a.x, test.a.y, test.b.x, test.b.y);
+					if(GEOMETRY_segments_intersects(reference, test)){
+						//Si il y a intersection, on calcule le point d'intersecsection
+						//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
+						test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
+						//debug_printf("Finish with dist = %d\n", test_dist);
+						if(test_dist < minimal_dist){
+							debug_printf("minimal_dist affected to %d\n", test_dist);
+							minimal_dist = test_dist;
+							*nodeAnswer1 = &(polygon_list.polygons[i].summits[j]);
+							*nodeAnswer2 = &(polygon_list.polygons[i].summits[j+1]);
+						}
+					}
+				}
+			}
+			//Vérification du segment entre le premier et le dernier node de chaque polygone
+			if(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].id != from->id && polygon_list.polygons[i].summits[0].id != from->id){
+				//Vérification de l'intersection
+				test.a = polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].pos;
+				test.b = polygon_list.polygons[i].summits[0].pos;
+				if(GEOMETRY_segments_intersects(reference, test)){
+					//Si il y a intersection, on calcule le point d'intersecsection
+					//debug_printf("Calcul intersection ....");
+					//debug_printf("Finish\n");
+					test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
+					if(test_dist < minimal_dist){
+						debug_printf("minimal_dist affected\n");
+						minimal_dist = test_dist;
+						*nodeAnswer1 = &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]);
+						*nodeAnswer2 = &(polygon_list.polygons[i].summits[0]);
+					}
+				}
+			}
+		}
+	}
+	if(*nodeAnswer1 == NULL && *nodeAnswer2 == NULL)
+		return TRUE;
+	else
+		return FALSE;
+}
+
 
 //Fonction pour la mise à jour des coûts des nodes qui ont pour parent from (le point de départ qui est en fait le node current)
 void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t parent, astar_ptr_node_t destination){
@@ -458,11 +485,12 @@ void ASTAR_make_the_path(astar_path_t *path){
 	//Liste auxiliaire
 	astar_list_t aux;
 	Sint16 i;
+	Uint8 indexDebut;
 
-	debug_printf("Make the path: ..........");
+	//debug_printf("Make the path: ..........");
 
 	//Nettoyage de la liste (Vaut mieux deux fois qu'une)
-	ASTAR_clean_list(&(path->list));
+	//ASTAR_clean_list(&(path->list));
 	ASTAR_clean_list(&aux);
 
 	debug_printf("Lists clean\n");
@@ -475,16 +503,109 @@ void ASTAR_make_the_path(astar_path_t *path){
 		debug_printf("Node added 1\n");
 	}
 
+	debug_printf("PRINT LIST AUX in Make the path\n");
+	print_list(aux);
+
+	//Vérification de l'utilité du premier point. Parfois le premier point est inutile, le chemin pourrait directement commencer au second.
+	//On regarde donc si le second point est visible du point de départ
+	if(ASTAR_node_is_visible(NULL, NULL, &(path->from), aux.list[aux.nbNodes-3])){
+		debug_printf("Node 1 deleted because useless \n");
+		indexDebut = aux.nbNodes-3;
+	}else{
+		indexDebut = aux.nbNodes-2;
+	}
+
 	debug_printf("\n\nReconstruction à l'endroit\n");
 	debug_printf("aux.nbNodes =%d\n", aux.nbNodes);
 
 	//On reconstruit de chemin à l'endroit: du départ vers la destination voulue
-	for(i=aux.nbNodes-1; i>=0; i--){
+	for(i=indexDebut; i>=0; i--){
 		ASTAR_add_node_to_list(aux.list[i],  &(path->list));
-		debug_printf("i=%d  aux.nbNodes=%d Node added 2\n", aux.nbNodes, i);
+		debug_printf("i=%d  aux.nbNodes=%d Node x=%d  y=%d  added \n", i, aux.nbNodes, aux.list[i]->pos.x, aux.list[i]->pos.y);
 	}
 	debug_printf("Finish\n");
 }
+
+void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displacements[], Uint8 *nbDisplacements, PROP_speed_e speed){
+	Uint8 i;
+	*nbDisplacements = path.list.nbNodes;
+	debug_printf("MAKE DISPLACEMENTS\n nbDisplacements = %d\n", *nbDisplacements);
+	for(i=0; i<path.list.nbNodes; i++){
+		displacements[i].point = path.list.list[i]->pos;
+		debug_printf("path x=%d  y=%d\n", path.list.list[i]->pos.x, path.list.list[i]->pos.y);
+		debug_printf("displacement x=%d  y=%d\n", displacements[i].point.x, displacements[i].point.y);
+		displacements[i].speed = speed;
+		displacements[i].curve = TRUE;
+	}
+}
+
+Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition){
+	error_e sub_action;
+	static displacement_curve_t displacements[NB_MAX_DISPLACEMENTS];
+	static Uint8 nbDisplacements;
+	static astar_path_t path;
+
+	CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
+							INIT,
+							COMPUTE,
+							DISPLACEMENT,
+							FAIL,
+							SUCCESS
+							);
+	Uint8 i;
+
+	switch(state)
+	{
+		case INIT:
+			debug_printf("ASTAR_try_going ------------------------------------------------------------\n");
+			ASTAR_pathfind(&path, (GEOMETRY_point_t){global.pos.x, global.pos.y}, (GEOMETRY_point_t){x, y});
+			state = COMPUTE;
+			break;
+
+		case COMPUTE:
+			debug_printf("Compute for try_going\n");
+			ASTAR_make_displacements(path, displacements, &nbDisplacements, speed);
+			debug_printf("%d displacements annouced\n", nbDisplacements);
+			state = DISPLACEMENT;
+			break;
+
+		case DISPLACEMENT:
+			/*debug_printf("Displacement try going %d displacements:\n", nbDisplacements);
+			for(i=0; i<nbDisplacements; i++){
+				debug_printf("Displacement x=%d  y=%d\n", displacements[i].point.x, displacements[i].point.y);
+			}*/
+			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nbDisplacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+			switch(sub_action)
+			{
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					debug_printf("Displacement for try_going....success");
+					state = SUCCESS;
+					break;
+				case FOE_IN_PATH:
+				case NOT_HANDLED:
+				case END_WITH_TIMEOUT:
+				default:
+					debug_printf("Displacement for try_going....fail");
+					state = FAIL;
+					break;
+			}
+			break;
+		case FAIL:
+			debug_printf("Finish by Fail\n");
+			state = INIT;
+			return fail_state;
+			break;
+		case SUCCESS:
+			debug_printf("Finish by Success\n");
+			state = INIT;
+			return success_state;
+			break;
+	}
+	return in_progress;
+}
+
 
 //-------------------------------------------------- Fonctions Annexes  ------------------------------------------------------
 
@@ -615,7 +736,6 @@ void print_polygon_list(){
 	debug_printf("MARGIN_TO_OBSTACLE = %d\n", MARGIN_TO_OBSTACLE);
 	debug_printf("MARGIN_TO_BORDER = %d\n", MARGIN_TO_BORDER);
 	debug_printf("Liste des nodes \n\n");
-	ASTAR_generate_polygon_list();
 	for(i=0; i< polygon_list.nbPolygons; i++){
 		//debug_printf("polygone[%d]: \n", i);
 		if(polygon_list.polygons[i].enable){
@@ -673,7 +793,7 @@ void ASTAR_print_neighbors(){
 }
 
 
-
+#endif _ASTAR_H_
 
 
 
