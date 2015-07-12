@@ -44,7 +44,7 @@
 
 	//Rayon (ou demie-largeur) du robot adverse par défaut
 	//En considérant que c'est un hexagone donc 6 côtés et que le périmètre déployé est de 1500
-	#define DEFAULT_FOE_RADIUS  450
+	#define DEFAULT_FOE_RADIUS  580
 
 	//Marge entre le centre du robot et un obstacle
 	#define MARGIN_TO_OBSTACLE (ROBOT_WIDTH/2 + 50)
@@ -150,6 +150,7 @@ void print_list(astar_list_t list);
 void print_opened_list();
 void print_closed_list();
 void ASTAR_print_neighbors();
+void ASTAR_print_polygon_list_details();
 
 #else
 	//L'algorithme A* n'est pas activé.
