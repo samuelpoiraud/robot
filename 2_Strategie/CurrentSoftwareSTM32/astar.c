@@ -69,18 +69,21 @@ void ASTAR_create_foe_polygon(Uint8 *currentId){
 			polygon_list.polygons[nbFoes].nbSummits = 6;
 			polygon_list.polygons[nbFoes].enable = TRUE;
 
-			for(j=0; j< 6; j++){
-				polygon_list.polygons[nbFoes].summits[i].id = *currentId + i;
-				polygon_list.polygons[nbFoes].summits[i].polygonId = polygon_list.polygons[nbFoes].id;
-				polygon_list.polygons[nbFoes].summits[i].enable = TRUE;
-				polygon_list.polygons[nbFoes].summits[i].cost.total = MAX_COST;
-				polygon_list.polygons[nbFoes].summits[i].cost.heuristic = MAX_COST;
-				polygon_list.polygons[nbFoes].summits[i].cost.step = MAX_COST;
-				polygon_list.polygons[nbFoes].summits[i].parent = NULL ;
-				polygon_list.polygons[nbFoes].summits[i].nbNeighbors = 0;
+			for(j=0; j<6; j++){
+				polygon_list.polygons[nbFoes].summits[j].id = ((*currentId)++);
+				polygon_list.polygons[nbFoes].summits[j].polygonId = nbFoes;
+				polygon_list.polygons[nbFoes].summits[j].enable = TRUE;
+				polygon_list.polygons[nbFoes].summits[j].cost.total = MAX_COST;
+				polygon_list.polygons[nbFoes].summits[j].cost.heuristic = MAX_COST;
+				polygon_list.polygons[nbFoes].summits[j].cost.step = MAX_COST;
+				polygon_list.polygons[nbFoes].summits[j].parent = NULL ;
+				polygon_list.polygons[nbFoes].summits[j].nbNeighbors = 0;
+
+				//*currentId = *currentId + 1;
+				//debug_printf("Foe_polgon currentId=%d\n", *currentId);
 			}
 			nbFoes++;
-			*currentId = *currentId + 6;
+			//*currentId = *currentId + 6;
 		}
 	}
 	polygon_list.nbPolygons += nbFoes;
@@ -138,18 +141,24 @@ bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t node
 	for(i=0; i<polygon.nbSummits-1; i++){
 		GEOMETRY_segment_t seg2 = {polygon.summits[i].pos, polygon.summits[i+1].pos};
 		nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
-		//debug_printf("polygon.summits[%d].pos: x=%d   y=%d \n", i, polygon.summits[i].pos.x, polygon.summits[i].pos.y);
-		//debug_printf("polygon.summits[%d].pos: x=%d   y=%d \n", i+1, polygon.summits[i+1].pos.x, polygon.summits[i+1].pos.y);
+	/*	if(GEOMETRY_segments_intersects(seg1, seg2)){
+			debug_printf("Intersection\n");
+			debug_printf("polygon.summits[%d].pos: x=%d   y=%d \n", i, polygon.summits[i].pos.x, polygon.summits[i].pos.y);
+			debug_printf("polygon.summits[%d].pos: x=%d   y=%d \n", i+1, polygon.summits[i+1].pos.x, polygon.summits[i+1].pos.y);
 		//debug_printf("nbIntersections = %d\n", nbIntersections );
+		}*/
 	}
 
 	//Test de l'intersection avec le dernier segment
 	GEOMETRY_segment_t seg2 = {polygon.summits[polygon.nbSummits-1].pos, polygon.summits[0].pos};
 	nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
-	//debug_printf("polygon.summits[%d].pos: x=%d   y=%d \n", polygon.nbSummits-1, polygon.summits[polygon.nbSummits-1].pos.x, polygon.summits[polygon.nbSummits-1].pos.y);
-	//debug_printf("polygon.summits[%d].pos: x=%d   y=%d \n", 0, polygon.summits[0].pos.x, polygon.summits[0].pos.y);
-	//debug_printf("nbIntersections = %d\n", nbIntersections );
-	//debug_printf("Point_out_of_polygon = %d\n", (nbIntersections%2 == 0));
+	/*if(GEOMETRY_segments_intersects(seg1, seg2)){
+		debug_printf("Intersection\n");
+		debug_printf("polygon.summits[%d].pos: x=%d   y=%d \n", polygon.nbSummits-1, polygon.summits[polygon.nbSummits-1].pos.x, polygon.summits[polygon.nbSummits-1].pos.y);
+		debug_printf("polygon.summits[%d].pos: x=%d   y=%d \n", 0, polygon.summits[0].pos.x, polygon.summits[0].pos.y);
+	}
+	debug_printf("nbIntersections = %d\n", nbIntersections );
+	debug_printf("Point_out_of_polygon = %d\n", (nbIntersections%2 == 0));*/
 	return  (nbIntersections%2 == 0);
 }
 
@@ -244,15 +253,16 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
 	for(i=0; i< polygon_list.nbPolygons; i++){
 		if(polygon_list.polygons[i].enable){
 			for(j=0; j< polygon_list.polygons[i].nbSummits; j++){
-				//debug_printf("NodeTested  polygon[%d] node[%d] \n", i, j);
+				//debug_printf("NodeTested  polygon[%d] node[%d] pos x=%d   y=%d \n", i, j, polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y);
 				polygon_list.polygons[i].summits[j].enable = ASTAR_node_enable(&(polygon_list.polygons[i].summits[j]), TRUE);
+				//debug_printf("Enable = %d\n",  ASTAR_node_enable(&(polygon_list.polygons[i].summits[j]), TRUE) );
 			}
 		}
 	}
 
 	//Création des liens entre les noeuds d'un même polygone (cela revient à dessiner les polygônes)
 	for(i=0; i<polygon_list.nbPolygons; i++){
-		debug_printf("Affectation neighbors polygon %d\n", i);
+		//debug_printf("Affectation neighbors polygon %d\n", i);
 		//Affectation du premier sommet (on lui affecte le second sommet et le dermier comme voisins)
 		ASTAR_add_neighbor_to_node(&(polygon_list.polygons[i].summits[0]), &(polygon_list.polygons[i].summits[1]));
 		ASTAR_add_neighbor_to_node(&(polygon_list.polygons[i].summits[0]), &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]));
@@ -272,6 +282,7 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
 
 //Fonction qui effectue l'algorithme A*
 void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination){
+	debug_printf("Pathfind Begin\n");
 	//Déclaration des variables
 	bool_e  destination_is_in_closed_list = FALSE;
 	Uint16 minimal_cost; //Cout minimal ie cout entre le node de départ et le node courant
@@ -286,6 +297,9 @@ void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t 
 
 	//Génération du graphe
 	ASTAR_generate_graph(path, from, destination, &currentNodeId);
+
+	ASTAR_print_polygon_list_details();
+	debug_printf("\n\n");
 
 	//Nettoyage des différentes listes
 	ASTAR_clean_list(&(path->list)); //La liste contenant le chemin
@@ -307,6 +321,7 @@ void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t 
 				current = opened_list.list[i];
 			}
 		}
+
 
 		//Ajout du noeud courant dans la closed_list et suppression de celui_ci dans l'opened_list
 		ASTAR_add_node_to_list(current, &closed_list);
@@ -338,9 +353,12 @@ void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t 
 	//Reconstitution du chemin
 	ASTAR_make_the_path(path);
 	print_path(*path);
+
+	debug_printf("Pathfind end\n");
 }
 
 void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination){
+	debug_printf("Link Begin\n");
 	Uint16 test_cost;
 	Uint8  k;
 	astar_ptr_node_t nodeAnswer1 = NULL, nodeAnswer2 = NULL;
@@ -360,7 +378,7 @@ void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destinatio
 
 	bool_e answer = ASTAR_node_is_visible(&nodeAnswer1, &nodeAnswer2, from, destination);
 
-	debug_printf("Link nodes for x=%d  y=%d : answer=%d  nodeAnswer1  NULL=%d, nodeAnswer2 NULL=%d\n", destination->pos.x, destination->pos.y,answer,((nodeAnswer1==NULL)? 1:0), ((nodeAnswer2==NULL)? 1:0) );
+	debug_printf("Link nodes for x=%d  y=%d : answer=%d  \n", destination->pos.x, destination->pos.y,answer );
 
 	//On regarde ensuite le résultat obtenu
 	//Si les deux nodes answers sont NULL, alors le node destination peut être ajouté à la liste ouverte
@@ -398,7 +416,6 @@ void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destinatio
 				}
 			}
 
-
 		}
 	}
 	else  //On fait de la récursivité pour trouver d'autres voisins et être sur qu'on puisse les atteindre
@@ -409,9 +426,11 @@ void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destinatio
 		if(nodeAnswer2 != NULL && nodeAnswer2->enable && nodeAnswer2->polygonId != from->polygonId)
 			ASTAR_link_nodes_on_path(from, nodeAnswer2);
 	}
+	debug_printf("Link End\n");
 }
 
 bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
+	debug_printf("Visible Begin\n");
 	Uint16 minimal_dist = MAX_COST;
 	Uint16 test_dist;
 	Uint8 i, j;
@@ -468,6 +487,7 @@ bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *no
 		return TRUE;
 	else
 		return FALSE;
+	debug_printf("Visible End\n");
 }
 
 
@@ -485,7 +505,7 @@ void ASTAR_make_the_path(astar_path_t *path){
 	//Liste auxiliaire
 	astar_list_t aux;
 	Sint16 i;
-	Uint8 indexDebut;
+	Sint16 indexDebut;
 
 	//debug_printf("Make the path: ..........");
 
@@ -508,10 +528,14 @@ void ASTAR_make_the_path(astar_path_t *path){
 
 	//Vérification de l'utilité du premier point. Parfois le premier point est inutile, le chemin pourrait directement commencer au second.
 	//On regarde donc si le second point est visible du point de départ
-	if(ASTAR_node_is_visible(NULL, NULL, &(path->from), aux.list[aux.nbNodes-3])){
+	astar_ptr_node_t answer1, answer2;
+	//bool_e answer = ASTAR_node_is_visible(&answer1, &answer2, &(path->from), aux.list[aux.nbNodes-3]);
+	//debug_printf("NODE VISIBLE answer=%d  answer1 x=%d  y=%d   answer2 x=%d  y=%d\n", answer, answer1->pos.x,  answer1->pos.y,  answer2->pos.x,  answer2->pos.y);
+	if(aux.nbNodes>=3 && ASTAR_node_is_visible(&answer1, &answer2, &(path->from), aux.list[aux.nbNodes-3])){
 		debug_printf("Node 1 deleted because useless \n");
 		indexDebut = aux.nbNodes-3;
 	}else{
+		debug_printf("Node 1 NOT deleted \n");
 		indexDebut = aux.nbNodes-2;
 	}
 
@@ -524,6 +548,8 @@ void ASTAR_make_the_path(astar_path_t *path){
 		debug_printf("i=%d  aux.nbNodes=%d Node x=%d  y=%d  added \n", i, aux.nbNodes, aux.list[i]->pos.x, aux.list[i]->pos.y);
 	}
 	debug_printf("Finish\n");
+
+
 }
 
 void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displacements[], Uint8 *nbDisplacements, PROP_speed_e speed){
@@ -535,7 +561,7 @@ void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displaceme
 		debug_printf("path x=%d  y=%d\n", path.list.list[i]->pos.x, path.list.list[i]->pos.y);
 		debug_printf("displacement x=%d  y=%d\n", displacements[i].point.x, displacements[i].point.y);
 		displacements[i].speed = speed;
-		displacements[i].curve = TRUE;
+		displacements[i].curve = FALSE;
 	}
 }
 
@@ -552,7 +578,6 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 							FAIL,
 							SUCCESS
 							);
-	Uint8 i;
 
 	switch(state)
 	{
@@ -748,6 +773,23 @@ void print_polygon_list(){
 		}
 	}
 	debug_printf("%d nodes written \n", nb);
+}
+
+void ASTAR_print_polygon_list_details(){
+	int i, j;
+	int nb=0;
+	debug_printf("Liste des nodes \n\n");
+	for(i=0; i< polygon_list.nbPolygons; i++){
+		debug_printf("polygone[%d]: polygonId=%d \n", i,polygon_list.polygons[i].id );
+		if(polygon_list.polygons[i].enable){
+			for(j=0; j< polygon_list.polygons[i].nbSummits; j++){
+				debug_printf("\tnode id=%d   x=%d   y=%d  polygonId=%d enable=%d\n", polygon_list.polygons[i].summits[j].id, polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y, polygon_list.polygons[i].summits[j].polygonId, polygon_list.polygons[i].summits[j].enable);
+				nb++;
+			}
+		}
+	}
+	debug_printf("%d nodes written \n", nb);
+
 }
 
 void print_path(astar_path_t path){
