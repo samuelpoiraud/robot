@@ -44,7 +44,7 @@
 
 	//Rayon (ou demie-largeur) du robot adverse par défaut
 	//En considérant que c'est un hexagone donc 6 côtés et que le périmètre déployé est de 1500
-	#define DEFAULT_FOE_RADIUS  580
+	#define DEFAULT_FOE_RADIUS  600
 
 	//Marge entre le centre du robot et un obstacle
 	#define MARGIN_TO_OBSTACLE (ROBOT_WIDTH/2 + 50)
@@ -61,8 +61,16 @@
 	//Nombre de déplacements maximal
 	#define NB_MAX_DISPLACEMENTS  20
 
+	//Nombre d'essais consécutifs avec du DODGE en évitement
+	#define NB_TRY_WHEN_DODGE 3
+
 
 //------------------------------------------------- Définitions des types structrés ---------------------------------------------------
+//Type structuré du node entré par l'utilisateur
+typedef struct{
+	Uint16 x, y;
+	bool_e curve;
+}astar_user_node_t;
 
 //Type structuré coût d'un noeud
 typedef struct{
@@ -82,6 +90,7 @@ struct astar_node{
 
 	//Ses propriétés
 	bool_e enable;
+	bool_e curve;
 	astar_node_cost_t cost;
 	struct astar_node *parent;
 	struct astar_node *neighbors[NB_MAX_NEIGHBORS];
