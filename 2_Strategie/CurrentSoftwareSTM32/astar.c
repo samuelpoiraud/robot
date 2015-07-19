@@ -26,8 +26,8 @@ astar_list_t closed_list;
 
 //***************************************************  Fonctions  ************************************************
 //Fonctions pour créer les polygones correspondant aux robots adverses
-void ASTAR_create_foe_polygon(Uint8 *currentId){
-	Uint8 i, j;
+void ASTAR_create_foe_polygon(Uint8 *currentId, Uint16 foeRadius){
+	Uint8 i, j, nbFoes =0;
 	Uint8 index = polygon_list.nbPolygons;
 	GEOMETRY_point_t foe;
 	Uint16 dist;
@@ -42,8 +42,8 @@ void ASTAR_create_foe_polygon(Uint8 *currentId){
 			debug_printf("Foe in position x=%d   y=%d\n", foe.x, foe.y);
 
 			//Si le petit robot adverse est très petit, inutile de surdimensionné l'hexagone
-			dist = MIN(DEFAULT_FOE_RADIUS, GEOMETRY_distance(foe, (GEOMETRY_point_t){global.pos.x, global.pos.y}));
-			dist_sin = dist*sin4096(PI4096/6);
+			dist = MIN(foeRadius, GEOMETRY_distance(foe, (GEOMETRY_point_t){global.pos.x, global.pos.y}));
+			dist_sin = dist*sin4096(PI4096/6);  //+ 200
 			dist_cos = dist*cos4096(PI4096/6);
 			debug_printf("Polygon Foe  dist= %d  dist_sin= %d   dist_cos= %d\n", dist, dist_sin, dist_cos);
 
@@ -73,6 +73,7 @@ void ASTAR_create_foe_polygon(Uint8 *currentId){
 				polygon_list.polygons[index].summits[j].id = ((*currentId)++);
 				polygon_list.polygons[index].summits[j].polygonId = index;
 				polygon_list.polygons[index].summits[j].enable = TRUE;
+				polygon_list.polygons[index].summits[j].curve = TRUE;
 				polygon_list.polygons[index].summits[j].cost.total = MAX_COST;
 				polygon_list.polygons[index].summits[j].cost.heuristic = MAX_COST;
 				polygon_list.polygons[index].summits[j].cost.step = MAX_COST;
@@ -82,13 +83,14 @@ void ASTAR_create_foe_polygon(Uint8 *currentId){
 				//*currentId = *currentId + 1;
 				//debug_printf("Foe_polgon currentId=%d\n", *currentId);
 			}
+			nbFoes++;
 			index++;
 			//*currentId = *currentId + 6;
 		}
 	}
 
 	debug_printf("nbFoes = %d\n",index-polygon_list.nbPolygons);
-	polygon_list.nbPolygons += index;
+	polygon_list.nbPolygons += nbFoes;
 }
 
 
@@ -98,13 +100,14 @@ void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...){
 	int index = polygon_list.nbPolygons;
 	va_list listePoints;
 	va_start(listePoints, nbSummits);
-	GEOMETRY_point_t point;
+	astar_user_node_t point;
 	for(i=0; i< nbSummits; i++){
-		point = va_arg(listePoints, GEOMETRY_point_t);
+		point = va_arg(listePoints, astar_user_node_t);
 		polygon_list.polygons[index].summits[i].id = ((*currentId)++);
 		polygon_list.polygons[index].summits[i].polygonId = index;
-		polygon_list.polygons[index].summits[i].pos = point;
+		polygon_list.polygons[index].summits[i].pos = (GEOMETRY_point_t){point.x, point.y};
 		polygon_list.polygons[index].summits[i].enable = TRUE;
+		polygon_list.polygons[index].summits[i].curve = point.curve;
 		polygon_list.polygons[index].summits[i].cost.total = MAX_COST;
 		polygon_list.polygons[index].summits[i].cost.heuristic = MAX_COST;
 		polygon_list.polygons[index].summits[i].cost.step = MAX_COST;
@@ -121,14 +124,14 @@ void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...){
 bool_e ASTAR_node_enable(astar_ptr_node_t nodeTested, bool_e withPolygons){
 	int i;
 	if(nodeTested->pos.x < MARGIN_TO_BORDER || nodeTested->pos.x > PLAYGROUND_WIDTH-MARGIN_TO_BORDER || nodeTested->pos.y < MARGIN_TO_BORDER || nodeTested->pos.y > PLAYGROUND_HEIGHT-MARGIN_TO_BORDER){
-		//debug_printf("Node x=%d y=%d return FALSE because out of area\n", nodeTested->pos.x, nodeTested->pos.y);
+		debug_printf("Node x=%d y=%d return FALSE because out of area\n", nodeTested->pos.x, nodeTested->pos.y);
 		return FALSE;
 	}
 
 	if(withPolygons){
 		for(i=0; i<polygon_list.nbPolygons; i++){
 			if(polygon_list.polygons[i].enable && polygon_list.polygons[i].id != nodeTested->polygonId && !ASTAR_point_out_of_polygon(polygon_list.polygons[i], nodeTested->pos)){
-				//debug_printf("Node x=%d y=%d return FALSE because in polygon\n", nodeTested->pos.x, nodeTested->pos.y);
+				debug_printf("Node x=%d y=%d return FALSE because in polygon id=%d\n", nodeTested->pos.x, nodeTested->pos.y, i);
 				return FALSE;
 			}
 		}
@@ -141,7 +144,7 @@ bool_e ASTAR_node_enable(astar_ptr_node_t nodeTested, bool_e withPolygons){
 bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t nodeTested){
 	int nbIntersections=0;
 	int i;
-	GEOMETRY_segment_t seg1 = {nodeTested, (GEOMETRY_point_t){2200, 3200}};
+	GEOMETRY_segment_t seg1 = {nodeTested, (GEOMETRY_point_t){3000, 4000}};
 	//debug_printf("x=%d   y=%d\n", nodeTested.x, nodeTested.y);
 	for(i=0; i<polygon.nbSummits-1; i++){
 		GEOMETRY_segment_t seg2 = {polygon.summits[i].pos, polygon.summits[i+1].pos};
@@ -169,57 +172,57 @@ bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t node
 
 
 //Fonction générant la liste de polygones (adversaires + éléments ou zones de jeu)
-void ASTAR_generate_polygon_list(Uint8 *currentNodeId){
+void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 	polygon_list.nbPolygons = 0;  //réinitialisation du nombre de polygones
 
 	//Attention, les nodes doivent être écartés au maximum de 250mm sur un même segment
 
 	//Polygon[0]: Notre zone de départ (Node 0 -> 6)
-	ASTAR_create_element_polygon(currentNodeId, 7, (GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(0)},
-									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(MARGIN_TO_OBSTACLE)},
-									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE/1.4,COLOR_Y(400+MARGIN_TO_OBSTACLE/1.4)},
-									(GEOMETRY_point_t){1000,COLOR_Y(400+MARGIN_TO_OBSTACLE)},
-									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE/1.4,COLOR_Y(400+MARGIN_TO_OBSTACLE/1.4)},
-									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(MARGIN_TO_OBSTACLE)},
-									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(0)});
+	ASTAR_create_element_polygon(currentNodeId, 7, (astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(0), TRUE},
+									(astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){778-MARGIN_TO_OBSTACLE/1.4,COLOR_Y(400+MARGIN_TO_OBSTACLE/1.4), TRUE},
+									(astar_user_node_t){1000,COLOR_Y(400+MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE/1.4,COLOR_Y(400+MARGIN_TO_OBSTACLE/1.4), TRUE},
+									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(0), TRUE});
 
 	//Polygon[1]:Zone de départ adverses (Node 7 -> 15)
-	ASTAR_create_element_polygon(currentNodeId, 9, (GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000)},
-									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000-MARGIN_TO_OBSTACLE)},
-									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(2500)},
-									(GEOMETRY_point_t){778-MARGIN_TO_OBSTACLE/1.4,COLOR_Y(2450-MARGIN_TO_OBSTACLE/1.4)},
-									(GEOMETRY_point_t){1000,COLOR_Y(2400-MARGIN_TO_OBSTACLE)},
-									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE/1.4,COLOR_Y(2450-MARGIN_TO_OBSTACLE/1.4)},
-									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(2500)},
-									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(3000-MARGIN_TO_OBSTACLE)},
-									(GEOMETRY_point_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(3000)});
+	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000), TRUE},
+									(astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000-MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(2500), TRUE},
+									(astar_user_node_t){778-MARGIN_TO_OBSTACLE/1.4,COLOR_Y(2450-MARGIN_TO_OBSTACLE/1.4), TRUE},
+									(astar_user_node_t){1000,COLOR_Y(2400-MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE/1.4,COLOR_Y(2450-MARGIN_TO_OBSTACLE/1.4), TRUE},
+									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(2500), TRUE},
+									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(3000-MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(3000), TRUE});
 
 	//Polygon[2]:Zones des marches (Node 16 -> 26)
-	ASTAR_create_element_polygon(currentNodeId, 11, (GEOMETRY_point_t){0, 967-MARGIN_TO_OBSTACLE},
-									(GEOMETRY_point_t){MARGIN_TO_OBSTACLE, 967-MARGIN_TO_OBSTACLE},
-									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE/1.4,967-MARGIN_TO_OBSTACLE/1.4},
-									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE,1000},
-									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE,1250},
-									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE,1500},
-									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE,1750},
-									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE,2000},
-									(GEOMETRY_point_t){580+MARGIN_TO_OBSTACLE/1.4,2033+MARGIN_TO_OBSTACLE/1.4},
-									(GEOMETRY_point_t){MARGIN_TO_OBSTACLE, 2033+MARGIN_TO_OBSTACLE},
-									(GEOMETRY_point_t){0,2033+MARGIN_TO_OBSTACLE});
+	ASTAR_create_element_polygon(currentNodeId, 11, (astar_user_node_t){0, 967-MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){MARGIN_TO_OBSTACLE, 967-MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){580+MARGIN_TO_OBSTACLE/1.4,967-MARGIN_TO_OBSTACLE/1.4, FALSE},
+									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1000, FALSE},
+									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1250, TRUE},
+									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1500, TRUE},
+									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1750, TRUE},
+									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,2000, FALSE},
+									(astar_user_node_t){580+MARGIN_TO_OBSTACLE/1.4,2033+MARGIN_TO_OBSTACLE/1.4, FALSE},
+									(astar_user_node_t){MARGIN_TO_OBSTACLE, 2033+MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){0,2033+MARGIN_TO_OBSTACLE, TRUE});
 
 	//Polygon[3]:Zones de l'estrade (Node 27 -> 35)
-	ASTAR_create_element_polygon(currentNodeId, 9, (GEOMETRY_point_t){1900-MARGIN_TO_OBSTACLE/1.4, 1200-MARGIN_TO_OBSTACLE/1.4},
-									(GEOMETRY_point_t){2000-MARGIN_TO_OBSTACLE,1200-MARGIN_TO_OBSTACLE},
-									(GEOMETRY_point_t){2000,1200-MARGIN_TO_OBSTACLE},
-									(GEOMETRY_point_t){2000,1800+MARGIN_TO_OBSTACLE},
-									(GEOMETRY_point_t){2000-MARGIN_TO_OBSTACLE,1800+MARGIN_TO_OBSTACLE},
-									(GEOMETRY_point_t){1900-MARGIN_TO_OBSTACLE/1.4,1800+MARGIN_TO_OBSTACLE/1.4},
-									(GEOMETRY_point_t){1900-MARGIN_TO_OBSTACLE,1750},
-									(GEOMETRY_point_t){1900-MARGIN_TO_OBSTACLE,1500},
-									(GEOMETRY_point_t){1900-MARGIN_TO_OBSTACLE,1250});
+	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){1900-MARGIN_TO_OBSTACLE/1.4, 1200-MARGIN_TO_OBSTACLE/1.4, FALSE},
+									(astar_user_node_t){2000-MARGIN_TO_OBSTACLE,1200-MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){2000,1200-MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){2000,1800+MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){2000-MARGIN_TO_OBSTACLE,1800+MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){1900-MARGIN_TO_OBSTACLE/1.4,1800+MARGIN_TO_OBSTACLE/1.4, FALSE},
+									(astar_user_node_t){1900-MARGIN_TO_OBSTACLE,1750, TRUE},
+									(astar_user_node_t){1900-MARGIN_TO_OBSTACLE,1500, TRUE},
+									(astar_user_node_t){1900-MARGIN_TO_OBSTACLE,1250, TRUE});
 
 	//Polygones des robots adverses
-	ASTAR_create_foe_polygon(currentNodeId);
+	ASTAR_create_foe_polygon(currentNodeId, foeRadius);
 
 
 }
@@ -258,9 +261,9 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
 	for(i=0; i< polygon_list.nbPolygons; i++){
 		if(polygon_list.polygons[i].enable){
 			for(j=0; j< polygon_list.polygons[i].nbSummits; j++){
-				//debug_printf("NodeTested  polygon[%d] node[%d] pos x=%d   y=%d \n", i, j, polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y);
+				debug_printf("NodeTested  polygon[%d] node[%d] pos x=%d   y=%d \n", i, j, polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y);
 				polygon_list.polygons[i].summits[j].enable = ASTAR_node_enable(&(polygon_list.polygons[i].summits[j]), TRUE);
-				//debug_printf("Enable = %d\n",  polygon_list.polygons[i].summits[j].enable);
+				debug_printf("Enable = %d\n",  polygon_list.polygons[i].summits[j].enable);
 			}
 		}
 	}
@@ -286,7 +289,7 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
 
 
 //Fonction qui effectue l'algorithme A*
-void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination){
+void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint16 foeRadius){
 	debug_printf("Pathfind Begin\n");
 	//Déclaration des variables
 	bool_e  destination_is_in_closed_list = FALSE;
@@ -296,7 +299,7 @@ void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t 
 	Uint8 currentNodeId = 0;
 
 	//Génération de la liste de polygones
-	ASTAR_generate_polygon_list(&currentNodeId);
+	ASTAR_generate_polygon_list(&currentNodeId, foeRadius);
 
 	print_polygon_list();
 
@@ -315,13 +318,19 @@ void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t 
 	//Ajout du noeud de départ à la liste ouverte
 	ASTAR_add_node_to_list(&(path->from), &opened_list);
 
+	debug_printf("BEGIN  état des listes : \n");
+	print_closed_list();
+	print_opened_list();
+
 	//////// Boucle de l'algorithme A* ////////
 	//Tant que la liste ouverte n'est pas vide et que le node de destination n'a pas été ajouté à la liste fermé
 	while(!ASTAR_list_is_empty(opened_list) && !destination_is_in_closed_list){
 
 		//Recherche dans la liste ouverte du node avec le cout le plus faible
-		minimal_cost = MAX_COST;
-		for(i=0; i<opened_list.nbNodes; i++){
+		//minimal_cost = MAX_COST;
+		minimal_cost = opened_list.list[0]->cost.total;
+		current = opened_list.list[0];
+		for(i=1; i<opened_list.nbNodes; i++){
 			if(opened_list.list[i]->cost.total <= minimal_cost){
 				minimal_cost = opened_list.list[i]->cost.total;
 				current = opened_list.list[i];
@@ -499,6 +508,75 @@ bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *no
 }
 
 
+bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
+	debug_printf("Reachable between x=%d  y=%d  et  x=%d y=%d\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
+	Uint16 minimal_dist = MAX_COST;
+	Uint16 test_dist;
+	Uint8 i, j;
+	GEOMETRY_segment_t reference = {from->pos, destination->pos};
+	GEOMETRY_segment_t test;
+
+	*nodeAnswer1 = NULL;
+	*nodeAnswer2 = NULL;
+	for(i=0; i<polygon_list.nbPolygons; i++){
+		if(polygon_list.polygons[i].enable){ //Le test n'est réalisé que si le polygone est "enable"
+			for(j=0; j<polygon_list.polygons[i].nbSummits-1; j++){
+				//On vérifie  si il y a une intersection avec chaque segment de polygone excepté le polygone auquel le node appartient
+				///Le test n'est réalisé que si au moins une des deux extrémités est "enable". //ce n'est plus le cas
+				if(polygon_list.polygons[i].summits[j].id != from->id && polygon_list.polygons[i].summits[j+1].id != from->id
+					   && polygon_list.polygons[i].summits[j].id != destination->id && polygon_list.polygons[i].summits[j+1].id != destination->id){
+					//Vérification de l'intersection
+					test.a = polygon_list.polygons[i].summits[j].pos;
+					test.b = polygon_list.polygons[i].summits[j+1].pos;
+					//debug_printf("Test intersection (%d , %d ) et (%d , %d)\n", test.a.x, test.a.y, test.b.x, test.b.y);
+					if(GEOMETRY_segments_intersects(reference, test)){
+						//Si il y a intersection, on calcule le point d'intersecsection
+						debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
+						test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
+						debug_printf("Finish with dist = %d\n", test_dist);
+						if(test_dist < minimal_dist){
+							debug_printf("minimal_dist affected to %d\n", test_dist);
+							minimal_dist = test_dist;
+							*nodeAnswer1 = &(polygon_list.polygons[i].summits[j]);
+							*nodeAnswer2 = &(polygon_list.polygons[i].summits[j+1]);
+						}
+					}
+				}
+			}
+			//Vérification du segment entre le premier et le dernier node de chaque polygone
+			if(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].id != from->id && polygon_list.polygons[i].summits[0].id != from->id
+				   && polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].id != destination->id && polygon_list.polygons[i].summits[0].id != destination->id){
+				//Vérification de l'intersection
+				test.a = polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].pos;
+				test.b = polygon_list.polygons[i].summits[0].pos;
+				if(GEOMETRY_segments_intersects(reference, test)){
+					//Si il y a intersection, on calcule le point d'intersecsection
+					//debug_printf("Calcul intersection ....");
+					//debug_printf("Finish\n");
+					debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
+					test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
+					debug_printf("Finish with dist = %d\n", test_dist);
+					if(test_dist < minimal_dist){
+						debug_printf("minimal_dist affected\n");
+						minimal_dist = test_dist;
+						*nodeAnswer1 = &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]);
+						*nodeAnswer2 = &(polygon_list.polygons[i].summits[0]);
+					}
+				}
+			}
+		}
+	}
+	if(*nodeAnswer1 == NULL && *nodeAnswer2 == NULL){
+		debug_printf("Reachable x=%d  y=%d  et  x=%d y=%d  is TRUE\n\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
+		return TRUE;
+	}else{
+		debug_printf("Reachable x=%d  y=%d  et  x=%d y=%d  is FALSE\n\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
+		return FALSE;
+	}
+	//debug_printf("Recheable End\n");
+}
+
+
 //Fonction pour la mise à jour des coûts des nodes qui ont pour parent from (le point de départ qui est en fait le node current)
 void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t parent, astar_ptr_node_t destination){
 	Uint8 i;
@@ -512,8 +590,9 @@ void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t parent, astar_ptr_n
 void ASTAR_make_the_path(astar_path_t *path){
 	//Liste auxiliaire
 	astar_list_t aux;
-	Sint16 i;
-	Sint16 indexDebut;
+	Sint16 i,j;
+	//Sint16 indexDebut;
+	astar_ptr_node_t answer1, answer2;
 
 	//debug_printf("Make the path: ..........");
 
@@ -536,9 +615,25 @@ void ASTAR_make_the_path(astar_path_t *path){
 
 	//Vérification de l'utilité du premier point. Parfois le premier point est inutile, le chemin pourrait directement commencer au second.
 	//On regarde donc si le second point est visible du point de départ
-	astar_ptr_node_t answer1, answer2;
+	//i est l'indice de parcours et j l'indice d'e parcours d'ajout dans la liste du path
+
 	//bool_e answer = ASTAR_node_is_visible(&answer1, &answer2, &(path->from), aux.list[aux.nbNodes-3]);
 	//debug_printf("NODE VISIBLE answer=%d  answer1 x=%d  y=%d   answer2 x=%d  y=%d\n", answer, answer1->pos.x,  answer1->pos.y,  answer2->pos.x,  answer2->pos.y);
+	i=aux.nbNodes-1;
+	j= i-2;
+	while(i>0){
+		while(j>=0 && ASTAR_node_is_reachable(&answer1, &answer2, aux.list[i], aux.list[j]) && (aux.list[i]->polygonId != aux.list[j]->polygonId)){
+		   j--;
+		   debug_printf("Décrément: i.id=%d   j.id=%d\n",aux.list[i]->polygonId, aux.list[j]->polygonId);
+		}
+		i = j+1;
+		if(i != aux.nbNodes-1){
+			ASTAR_add_node_to_list(aux.list[i],  &(path->list));
+			debug_printf("i=%d  aux.nbNodes=%d Node x=%d  y=%d  added \n", i, aux.nbNodes, aux.list[i]->pos.x, aux.list[i]->pos.y);
+			j--;
+		}
+	}
+/*
 	if(aux.nbNodes>=3 && ASTAR_node_is_visible(&answer1, &answer2, &(path->from), aux.list[aux.nbNodes-3])){
 		debug_printf("Node 1 deleted because useless \n");
 		indexDebut = aux.nbNodes-3;
@@ -555,6 +650,8 @@ void ASTAR_make_the_path(astar_path_t *path){
 		ASTAR_add_node_to_list(aux.list[i],  &(path->list));
 		debug_printf("i=%d  aux.nbNodes=%d Node x=%d  y=%d  added \n", i, aux.nbNodes, aux.list[i]->pos.x, aux.list[i]->pos.y);
 	}
+
+	*/
 	debug_printf("Finish\n");
 
 
@@ -569,7 +666,10 @@ void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displaceme
 		debug_printf("path x=%d  y=%d\n", path.list.list[i]->pos.x, path.list.list[i]->pos.y);
 		debug_printf("displacement x=%d  y=%d\n", displacements[i].point.x, displacements[i].point.y);
 		displacements[i].speed = speed;
-		displacements[i].curve = TRUE;
+		if(i!=0 && path.list.list[i]->curve == FALSE && GEOMETRY_distance(path.list.list[i-1]->pos, path.list.list[i]->pos) < 300)
+			displacements[i].curve = TRUE;
+		else
+			displacements[i].curve = path.list.list[i]->curve;
 	}
 }
 
@@ -578,6 +678,9 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 	static displacement_curve_t displacements[NB_MAX_DISPLACEMENTS];
 	static Uint8 nbDisplacements;
 	static astar_path_t path;
+	static Uint8 nbTry;
+	static bool_e successPossible;
+	static Uint16 foeRadius;
 
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
 							INIT_PARAMETERS,
@@ -587,9 +690,6 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 							FAIL,
 							SUCCESS
 							);
-
-	static Uint8 nbTry;
-	static bool_e successPossible;
 
 	switch(state)
 	{
@@ -604,12 +704,15 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 					nbTry = 1;
 					break;
 			}
+			foeRadius = DEFAULT_FOE_RADIUS;
 			state = INIT;
 			break;
 
 		case INIT:
+
 			debug_printf("ASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
-			ASTAR_pathfind(&path, (GEOMETRY_point_t){global.pos.x, global.pos.y}, (GEOMETRY_point_t){x, y});
+			debug_printf("foeRadius = %d\n", foeRadius);
+			ASTAR_pathfind(&path, (GEOMETRY_point_t){global.pos.x, global.pos.y}, (GEOMETRY_point_t){x, y}, foeRadius);
 			state = COMPUTE;
 			break;
 
@@ -644,6 +747,9 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 							state = FAIL;
 						else
 							state = INIT;
+
+						if(nbTry == 1)  //&& nbDisplacements < 3
+							foeRadius -= 100;
 					}
 					break;
 				case FOE_IN_PATH:
@@ -657,6 +763,9 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 					else
 						state = INIT;
 					break;
+
+					if(nbTry == 1)  //&& nbDisplacements < 3
+						foeRadius -= 100;
 			}
 			break;
 		case FAIL:
@@ -838,7 +947,7 @@ void print_path(astar_path_t path){
 	Uint8 i;
 	debug_printf("\nPath is:\n");
 	for(i=0; i<path.list.nbNodes; i++){
-		debug_printf("Node: pos x=%d  y=%d \n", path.list.list[i]->pos.x, path.list.list[i]->pos.y);
+		debug_printf("Node: pos x=%d  y=%d curve=%d\n", path.list.list[i]->pos.x, path.list.list[i]->pos.y, path.list.list[i]->curve);
 	}
 }
 
@@ -876,7 +985,7 @@ void ASTAR_print_neighbors(){
 	debug_printf("\n\n");
 }
 
-#endif _ASTAR_H_
+#endif //_ASTAR_H_
 
 
 
