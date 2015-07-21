@@ -179,6 +179,21 @@ bool_e GEOMETRY_segments_intersects(
 	return TRUE;
 }
 
+bool_e GEOMETRY_segments_parallel(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2){
+	if(seg1.a.x == seg1.b.x && seg2.a.x == seg2.b.x)
+		return TRUE;
+
+	if(seg1.a.y == seg1.b.y && seg2.a.y == seg2.b.y)
+		return TRUE;
+
+	Sint32 pente1 = (seg1.b.y - seg1.a.y)/(seg1.b.x - seg1.a.x);
+	Sint32 pente2 = (seg1.b.y - seg1.a.y)/(seg1.b.x - seg1.a.x);
+	if(pente1==pente2)
+		return TRUE;
+
+	return FALSE;
+}
+
 GEOMETRY_circle_t GEOMETRY_circle_from_diameter(GEOMETRY_segment_t diameter)
 {
 	GEOMETRY_circle_t c;
