@@ -191,7 +191,7 @@ void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000-MARGIN_TO_OBSTACLE), TRUE},
 									(astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(2500), TRUE},
 									(astar_user_node_t){778-MARGIN_TO_OBSTACLE/1.4,COLOR_Y(2450-MARGIN_TO_OBSTACLE/1.4), TRUE},
-									(astar_user_node_t){1000,COLOR_Y(2400-MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){1000,COLOR_Y(2300-MARGIN_TO_OBSTACLE),FALSE},
 									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE/1.4,COLOR_Y(2450-MARGIN_TO_OBSTACLE/1.4), TRUE},
 									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(2500), TRUE},
 									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(3000-MARGIN_TO_OBSTACLE), TRUE},
@@ -353,7 +353,7 @@ void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t 
 
 		if(!destination_is_in_closed_list){
 			//Recherche des nodes adjacents (ou voisins) au node current. On ajoute ces nodes à la liste ouverte.
-			ASTAR_link_nodes_on_path(current, &(path->destination));
+			ASTAR_link_nodes_on_path(current, &(path->destination), 10);
 
 			//Mise à jour des coûts des noeuds qui ont pour parent current
 			ASTAR_update_cost(minimal_cost, current, &(path->destination));
@@ -372,18 +372,19 @@ void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t 
 	debug_printf("Pathfind end\n");
 }
 
-void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination){
+void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 recursivityOrder){
 	debug_printf("Link Begin\n");
 	Uint16 test_cost;
 	Uint8  k;
-	astar_ptr_node_t nodeAnswer1 = NULL, nodeAnswer2 = NULL;
+	astar_ptr_node_t nodeAnswer1 = NULL, nodeAnswer2 = NULL, nodeAnswer3 = NULL, nodeAnswer4 = NULL;
 	bool_e is_in_closed_list = FALSE;
 	bool_e is_in_opened_list = FALSE;
 
 	//Ajout des voisins de from à la liste ouverte
 	for(k=0; k<from->nbNeighbors; k++){
 		debug_printf("Tentative d' ajout\n");
-		if(from->neighbors[k]->enable && !ASTAR_is_in_list(from->neighbors[k], opened_list) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
+		//debug_printf("INTERSECTION FOUND = %d\n", ASTAR_neighbors_intersection(from, from->neighbors[k]) );
+		if(from->neighbors[k]->enable /*&& !ASTAR_neighbors_intersection(from, from->neighbors[k])*/ &&  !ASTAR_is_in_list(from->neighbors[k], opened_list) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
 			ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
 			from->neighbors[k]->parent = from;
 			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
@@ -397,7 +398,11 @@ void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destinatio
 
 	//On regarde ensuite le résultat obtenu
 	//Si les deux nodes answers sont NULL, alors le node destination peut être ajouté à la liste ouverte
-	if(nodeAnswer1 == NULL && nodeAnswer2 == NULL){
+	if(recursivityOrder==0){ //On arrete tout
+		//nothing
+		nodeAnswer1 = NULL;
+		nodeAnswer2 = NULL;
+	}else if(nodeAnswer1 == NULL && nodeAnswer2 == NULL){
 		k = 0;
 		is_in_closed_list = FALSE;
 		while(k<closed_list.nbNodes && !is_in_closed_list){  //On vérifie qu'il n'est pas déjà dans la liste fermée
@@ -437,9 +442,9 @@ void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destinatio
 	{
 		debug_printf("Link nodes: Recursivité engagé\n");
 		if(nodeAnswer1 != NULL && nodeAnswer1->enable && nodeAnswer1->polygonId != from->polygonId)
-			ASTAR_link_nodes_on_path(from, nodeAnswer1);
+			ASTAR_link_nodes_on_path(from, nodeAnswer1, recursivityOrder-1);
 		if(nodeAnswer2 != NULL && nodeAnswer2->enable && nodeAnswer2->polygonId != from->polygonId)
-			ASTAR_link_nodes_on_path(from, nodeAnswer2);
+			ASTAR_link_nodes_on_path(from, nodeAnswer2, recursivityOrder-1);
 	}
 	debug_printf("Link End\n");
 }
@@ -633,6 +638,26 @@ void ASTAR_make_the_path(astar_path_t *path){
 			j--;
 		}
 	}
+
+	if(path->list.nbNodes>0 && path->destination.id != path->list.list[path->list.nbNodes-1]->id){
+		Uint16 min = GEOMETRY_squared_distance(path->list.list[0]->pos, path->destination.pos);
+		Uint16 test;
+		Uint8 index=0;
+		for(i=1; i<path->list.nbNodes; i++){
+			test = GEOMETRY_squared_distance(path->list.list[0]->pos, path->destination.pos);
+			if(test < min){
+				min = test;
+				index = i;
+			}
+		}
+		/*if(index < path->list.nbNodes - 1)
+			path->list.nbNodes = index + 2;
+		else*/
+			path->list.nbNodes = index + 1;
+		debug_printf("PATHFIND fail, nb Nodes limited to node x=%d  y=%d because nerest node is x=%d  y=%d\n", path->list.list[path->list.nbNodes-1]->pos.x, path->list.list[path->list.nbNodes-1]->pos.y, path->list.list[index]->pos.x, path->list.list[index]->pos.y);
+	}
+
+
 /*
 	if(aux.nbNodes>=3 && ASTAR_node_is_visible(&answer1, &answer2, &(path->from), aux.list[aux.nbNodes-3])){
 		debug_printf("Node 1 deleted because useless \n");
@@ -709,7 +734,10 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 			break;
 
 		case INIT:
-
+			if(nbTry == 1)  //&& nbDisplacements < 3
+				foeRadius = 450;
+			else if(nbTry == 2)
+				foeRadius = 500;
 			debug_printf("ASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
 			debug_printf("foeRadius = %d\n", foeRadius);
 			ASTAR_pathfind(&path, (GEOMETRY_point_t){global.pos.x, global.pos.y}, (GEOMETRY_point_t){x, y}, foeRadius);
@@ -732,7 +760,11 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 			for(i=0; i<nbDisplacements; i++){
 				debug_printf("Displacement x=%d  y=%d\n", displacements[i].point.x, displacements[i].point.y);
 			}*/
-			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nbDisplacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+			if(successPossible)
+				sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nbDisplacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+			else
+				sub_action = NOT_HANDLED;
+
 			switch(sub_action)
 			{
 				case IN_PROGRESS:
@@ -747,9 +779,6 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 							state = FAIL;
 						else
 							state = INIT;
-
-						if(nbTry == 1)  //&& nbDisplacements < 3
-							foeRadius -= 100;
 					}
 					break;
 				case FOE_IN_PATH:
@@ -763,18 +792,15 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 					else
 						state = INIT;
 					break;
-
-					if(nbTry == 1)  //&& nbDisplacements < 3
-						foeRadius -= 100;
 			}
 			break;
 		case FAIL:
-			debug_printf("Finish by Fail\n");
+			debug_printf("Finish by Fail nbTry=%d\n", nbTry);
 			state = INIT;
 			return fail_state;
 			break;
 		case SUCCESS:
-			debug_printf("Finish by Success\n");
+			debug_printf("Finish by Success nbTry=%d\n", nbTry);
 			state = INIT;
 			return success_state;
 			break;
@@ -873,7 +899,27 @@ GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment
 	return intersection;
 }
 
-
+bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neighbor){
+	Uint8 i=0, j=0;
+	bool_e intersection = FALSE;
+	GEOMETRY_segment_t reference = {from->pos, neighbor->pos};
+	GEOMETRY_segment_t test;
+	while(i < polygon_list.nbPolygons && !intersection){
+		if(polygon_list.polygons[i].enable){
+			j=0;
+			while(j < polygon_list.polygons[i].nbSummits && !intersection ){
+				test = (GEOMETRY_segment_t){polygon_list.polygons[i].summits[i].pos, polygon_list.polygons[i].summits[(i+1)%polygon_list.polygons[i].nbSummits].pos};
+				if(GEOMETRY_segments_intersects(reference, test) && !GEOMETRY_segments_parallel(reference, test)){
+					debug_printf("Neighbor Intersection from (%d , %d) neighbor(%d , %d)  with: (%d , %d)  (%d, %d)", from->pos.x, from->pos.y, neighbor->pos.x, neighbor->pos.y, test.a.x, test.a.y, test.b.x, test.b.y);
+					intersection = TRUE;
+				}
+				j++;
+			}
+		}
+		i++;
+	}
+	return intersection;
+}
 
 //Calcul du cout entre deux points par une distance de manhattan
 Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t end_node)

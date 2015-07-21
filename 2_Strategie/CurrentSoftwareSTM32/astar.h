@@ -10,7 +10,7 @@
  *	Version 20150001
  */
 
-#define _ASTAR_H_
+//#define _ASTAR_H_
 #ifdef _ASTAR_H_
 
 #include "avoidance.h"
@@ -134,7 +134,7 @@ bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t node
 void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius);
 void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint8 *currentNodeId);
 void ASTAR_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint16 foeRadius);
-void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination);
+void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 recursivityOrder);
 bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination);
 bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination);
 void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t from, astar_ptr_node_t destination);
@@ -149,6 +149,7 @@ bool_e ASTAR_list_is_empty(astar_list_t list);
 void ASTAR_add_node_to_list(astar_ptr_node_t node, astar_list_t *list);
 void ASTAR_delete_node_to_list(astar_ptr_node_t node, astar_list_t *list);
 GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2);
+bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neighbor);
 Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t end_node);
 bool_e ASTAR_is_in_list(astar_ptr_node_t node, astar_list_t list);
 
