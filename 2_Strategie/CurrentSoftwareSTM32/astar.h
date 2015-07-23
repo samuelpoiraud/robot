@@ -10,7 +10,7 @@
  *	Version 20150001
  */
 
-//#define _ASTAR_H_
+#define _ASTAR_H_
 #ifdef _ASTAR_H_
 
 #include "avoidance.h"
@@ -56,13 +56,13 @@
 	#define MAX_COST 65535
 
 	//Pour spécifier qu'un noeud (node) n'a pas de polygonId
-	#define NO_POLYGON_ID 255
+	#define NO_ID 255
 
 	//Nombre de déplacements maximal
 	#define NB_MAX_DISPLACEMENTS  20
 
 	//Nombre d'essais consécutifs avec du DODGE en évitement
-	#define NB_TRY_WHEN_DODGE 3
+	#define NB_TRY_WHEN_DODGE 6
 
 
 //------------------------------------------------- Définitions des types structrés ---------------------------------------------------

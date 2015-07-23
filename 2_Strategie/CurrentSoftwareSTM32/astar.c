@@ -42,7 +42,7 @@ void ASTAR_create_foe_polygon(Uint8 *currentId, Uint16 foeRadius){
 			debug_printf("Foe in position x=%d   y=%d\n", foe.x, foe.y);
 
 			//Si le petit robot adverse est très petit, inutile de surdimensionné l'hexagone
-			dist = MIN(foeRadius, GEOMETRY_distance(foe, (GEOMETRY_point_t){global.pos.x, global.pos.y}));
+			dist = MIN(foeRadius, GEOMETRY_distance(foe, (GEOMETRY_point_t){global.pos.x, global.pos.y}) + 50);
 			dist_sin = dist*sin4096(PI4096/6);  //+ 200
 			dist_cos = dist*cos4096(PI4096/6);
 			debug_printf("Polygon Foe  dist= %d  dist_sin= %d   dist_cos= %d\n", dist, dist_sin, dist_cos);
@@ -236,7 +236,7 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
 
 	//Création du node de départ
 	path->from.id = (*currentNodeId)++;
-	path->from.polygonId = NO_POLYGON_ID;
+	path->from.polygonId = NO_ID;
 	path->from.pos = from;
 	path->from.enable = TRUE; //On considère que la position de départ du robot est valide.
 	path->from.cost.total = 0; //Ca ne coute rien d'aller de from vers from
@@ -247,7 +247,7 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
 
 	//Création du node d'arrivée
 	path->destination.id = (*currentNodeId)++; /// TODO Modifier id
-	path->destination.polygonId = NO_POLYGON_ID;
+	path->destination.polygonId = NO_ID;
 	path->destination.pos = destination;
 	path->destination.enable = ASTAR_node_enable(&(path->destination), FALSE);
 	path->destination.cost.total = MAX_COST; //On lui affecte un cout maximal
@@ -379,12 +379,28 @@ void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destinatio
 	astar_ptr_node_t nodeAnswer1 = NULL, nodeAnswer2 = NULL, nodeAnswer3 = NULL, nodeAnswer4 = NULL;
 	bool_e is_in_closed_list = FALSE;
 	bool_e is_in_opened_list = FALSE;
+	GEOMETRY_segment_t seg;
+	//GEOMETRY_point_t middle = GEOMETRY_segment_middle(seg);
+	astar_ptr_node_t nodeMid = NULL;
 
 	//Ajout des voisins de from à la liste ouverte
 	for(k=0; k<from->nbNeighbors; k++){
+		seg = (GEOMETRY_segment_t){from->pos, from->neighbors[k]->pos};
 		debug_printf("Tentative d' ajout\n");
-		//debug_printf("INTERSECTION FOUND = %d\n", ASTAR_neighbors_intersection(from, from->neighbors[k]) );
-		if(from->neighbors[k]->enable /*&& !ASTAR_neighbors_intersection(from, from->neighbors[k])*/ &&  !ASTAR_is_in_list(from->neighbors[k], opened_list) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
+		debug_printf("Middle of (%d , %d)  et (%d , %d)\n", seg.a.x , seg.a.y, seg.b.x, seg.b.y);
+		Sint16 xCoord = (seg.a.x + seg.b.x);
+		Sint16 yCoord = (seg.a.y + seg.b.y);
+		nodeMid->pos.x = xCoord;
+		nodeMid->pos.y = yCoord;
+		debug_printf("Node middle x=%d, y=%d\n",xCoord, yCoord);
+		debug_printf("Node middle x=%d, y=%d\n", nodeMid->pos.x, nodeMid->pos.y);
+		nodeMid->id = NO_ID;
+		nodeMid->polygonId = NO_ID;
+		nodeMid->enable = TRUE;
+		nodeMid->nbNeighbors = 0;
+		nodeMid->parent = NULL;
+		debug_printf("Node ENABLE to add neighbor = %d\n", ASTAR_node_enable(nodeMid, TRUE));
+		if(from->neighbors[k]->enable /*&& ASTAR_node_enable(nodeMid, TRUE)*/ &&  !ASTAR_is_in_list(from->neighbors[k], opened_list) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
 			ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
 			from->neighbors[k]->parent = from;
 			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
@@ -610,9 +626,10 @@ void ASTAR_make_the_path(astar_path_t *path){
 	//Quelque soit le résultat de A*, on reconstruit le chemin même si il est incomplet. On verra plus tard ce qu'on décide de faire.
 	//Le chemin est reconstruit de la destination vers le point de départ
 	ASTAR_add_node_to_list(closed_list.list[closed_list.nbNodes-1], &aux);
+	debug_printf("### added node to path x=%d  y=%d\n", closed_list.list[closed_list.nbNodes-1]->pos.x, closed_list.list[closed_list.nbNodes-1]->pos.y);
 	while(aux.list[aux.nbNodes-1] != &(path->from)){  //Tant qu'on a pas atteint le point de départ
 		ASTAR_add_node_to_list(aux.list[aux.nbNodes-1]->parent, &aux);
-		debug_printf("Node added 1\n");
+		//debug_printf("Node added 1\n");
 	}
 
 	debug_printf("PRINT LIST AUX in Make the path\n");
@@ -640,7 +657,9 @@ void ASTAR_make_the_path(astar_path_t *path){
 	}
 
 	if(path->list.nbNodes>0 && path->destination.id != path->list.list[path->list.nbNodes-1]->id){
-		Uint16 min = GEOMETRY_squared_distance(path->list.list[0]->pos, path->destination.pos);
+
+		///arret au point le plus proche de l'arrivée
+		/*Uint16 min = GEOMETRY_squared_distance(path->list.list[0]->pos, path->destination.pos);
 		Uint16 test;
 		Uint8 index=0;
 		for(i=1; i<path->list.nbNodes; i++){
@@ -650,11 +669,12 @@ void ASTAR_make_the_path(astar_path_t *path){
 				index = i;
 			}
 		}
-		/*if(index < path->list.nbNodes - 1)
-			path->list.nbNodes = index + 2;
-		else*/
 			path->list.nbNodes = index + 1;
 		debug_printf("PATHFIND fail, nb Nodes limited to node x=%d  y=%d because nerest node is x=%d  y=%d\n", path->list.list[path->list.nbNodes-1]->pos.x, path->list.list[path->list.nbNodes-1]->pos.y, path->list.list[index]->pos.x, path->list.list[index]->pos.y);
+	  */
+
+	 ///solution d'un déplacement
+		path->list.nbNodes = 1;
 	}
 
 
@@ -718,7 +738,14 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 
 	switch(state)
 	{
-		case INIT_PARAMETERS:
+		case INIT_PARAMETERS:{
+			GEOMETRY_segment_t reference = (GEOMETRY_segment_t){(GEOMETRY_point_t){760, 2100}, (GEOMETRY_point_t){840, 1900}};
+			GEOMETRY_segment_t test1 = (GEOMETRY_segment_t){(GEOMETRY_point_t){800, 1250}, (GEOMETRY_point_t){800, 1500}};
+			GEOMETRY_segment_t test2 = (GEOMETRY_segment_t){(GEOMETRY_point_t){800, 1750}, (GEOMETRY_point_t){800, 2500}};
+			GEOMETRY_segment_t test3 = (GEOMETRY_segment_t){(GEOMETRY_point_t){800, 1000}, (GEOMETRY_point_t){800, 1250}};
+			debug_printf("### TEST INTERSECTION 1 (non)= %d\n", GEOMETRY_segments_intersects(reference, test1));
+			debug_printf("### TEST INTERSECTION 2 (oui) = %d\n", GEOMETRY_segments_intersects(reference, test2));
+			debug_printf("### TEST INTERSECTION 3 (paralelle) = %d\n", GEOMETRY_segments_intersects(reference, test2));
 			switch(avoidance)
 			{
 				case DODGE_AND_WAIT:
@@ -731,13 +758,15 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 			}
 			foeRadius = DEFAULT_FOE_RADIUS;
 			state = INIT;
-			break;
+		}break;
 
 		case INIT:
-			if(nbTry == 1)  //&& nbDisplacements < 3
+			if(nbTry == 4 ||  nbTry==1)  //&& nbDisplacements < 3
 				foeRadius = 450;
-			else if(nbTry == 2)
+			else if(nbTry == 5 ||  nbTry==2)
 				foeRadius = 500;
+			else
+				foeRadius = DEFAULT_FOE_RADIUS;
 			debug_printf("ASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
 			debug_printf("foeRadius = %d\n", foeRadius);
 			ASTAR_pathfind(&path, (GEOMETRY_point_t){global.pos.x, global.pos.y}, (GEOMETRY_point_t){x, y}, foeRadius);
@@ -760,7 +789,7 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 			for(i=0; i<nbDisplacements; i++){
 				debug_printf("Displacement x=%d  y=%d\n", displacements[i].point.x, displacements[i].point.y);
 			}*/
-			if(successPossible)
+			if(successPossible || nbTry==4 || nbTry==1)
 				sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nbDisplacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
 			else
 				sub_action = NOT_HANDLED;
