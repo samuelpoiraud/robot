@@ -51,16 +51,15 @@ void CLAP_HOLLY_init() {
 	dcconfig.Ki = CLAP_HOLLY_KI;
 	dcconfig.Kd = CLAP_HOLLY_KD;
 	dcconfig.pos[0] = 0;
-	dcconfig.speed[0] = 0;
 	dcconfig.pwm_number = CLAP_HOLLY_PWM_NUM;
 	dcconfig.way_latch = CLAP_HOLLY_PORT_WAY;
 	dcconfig.way_bit_number = CLAP_HOLLY_PORT_WAY_BIT;
 	dcconfig.way0_max_duty = CLAP_HOLLY_MAX_PWM_WAY0;
 	dcconfig.way1_max_duty = CLAP_HOLLY_MAX_PWM_WAY1;
 	dcconfig.timeout = CLAP_HOLLY_ASSER_TIMEOUT;
+	dcconfig.dead_zone = CLAP_HOLLY_ASSER_DEAD_ZONE;
 	dcconfig.epsilon = CLAP_HOLLY_ASSER_POS_EPSILON;
-	dcconfig.inverseDirection = TRUE;
-	dcconfig.stop_on_idle = TRUE;
+	dcconfig.inverse_way = TRUE;
 	DCM_config(CLAP_HOLLY_ID, &dcconfig);
 	DCM_stop(CLAP_HOLLY_ID);
 
@@ -86,7 +85,7 @@ void CLAP_HOLLY_config(CAN_msg_t* msg){
 
 // Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
 void CLAP_HOLLY_init_pos(){
-	DCM_setPosValue(CLAP_HOLLY_ID, 0, ACT_CLAP_HOLLY_INIT_POS, ACT_CLAP_HOLLY_SPEED);
+	DCM_setPosValue(CLAP_HOLLY_ID, 0, ACT_CLAP_HOLLY_INIT_POS);
 	DCM_goToPos(CLAP_HOLLY_ID, 0);
 	DCM_restart(CLAP_HOLLY_ID);
 }
@@ -177,7 +176,7 @@ static void CLAP_HOLLY_command_init(queue_id_t queueId) {
 		return;
 	}
 
-	DCM_setPosValue(CLAP_HOLLY_ID, 0, *dcm_goalPosition, ACT_CLAP_HOLLY_SPEED);
+	DCM_setPosValue(CLAP_HOLLY_ID, 0, *dcm_goalPosition);
 	DCM_goToPos(CLAP_HOLLY_ID, 0);
 	DCM_restart(CLAP_HOLLY_ID);
 	debug_printf("Placement en position %d du moteur DC lancé\n", *dcm_goalPosition);
