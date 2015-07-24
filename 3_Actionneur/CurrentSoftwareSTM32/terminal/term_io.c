@@ -176,7 +176,7 @@ void TERMINAL_uart_checker(unsigned char c){
 		PWM_run(position, terminal_motor[state].id);
 #ifdef USE_DCMOTOR2
 	else{
-		DCM_setPosValue(terminal_motor[state].id, 0, position, 0);
+		DCM_setPosValue(terminal_motor[state].id, 0, position);
 		DCM_goToPos(terminal_motor[state].id, 0);
 		DCM_restart(terminal_motor[state].id);
 	}
