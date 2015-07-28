@@ -9,6 +9,12 @@
  *	Version 20100421
  */
 
+
+/** ----------------  Defines possibles  --------------------
+ *	Aucun
+ */
+
+
 #ifndef QS_SYSTICK_H
 	#define QS_SYSTICK_H
 

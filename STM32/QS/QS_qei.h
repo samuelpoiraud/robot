@@ -11,9 +11,14 @@
  *	Version 20100620
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	USE_QUEI1					: Activation du module QUEI 1
+ *	USE_QUEI2					: Activation du module QUEI 2
+ */
+
 #ifndef QS_QEI_H
-#define QS_QEI_H
-#include "QS_all.h"
+	#define QS_QEI_H
+	#include "QS_all.h"
 
 	// Initialisation de l'interface
 	void QEI_init();

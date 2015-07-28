@@ -8,6 +8,17 @@
  *  Version 20130603
  */
 
-#include "QS_all.h"
 
-void dump_trap_info(Uint32 stack_ptr[], Uint32 lr);
+/** ----------------  Defines possibles  --------------------
+ *	Aucun
+ */
+
+#ifndef QS_TRAP_HANDLER_H
+	#define QS_TRAP_HANDLER_H
+
+	#include "QS_all.h"
+
+	void dump_trap_info(Uint32 stack_ptr[], Uint32 lr);
+
+#endif /* ndef QS_TRAP_HANDLER_H */
+

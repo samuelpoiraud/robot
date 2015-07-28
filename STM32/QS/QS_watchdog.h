@@ -10,6 +10,13 @@
  *  Version 20100620
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	USE_WATCHDOG				: Activation de QS_watchdog
+ *	WATCHDOG_TIMER				: Numéro du timer choisi pour ce module
+ *	WATCHDOG_MAX_COUNT			: Nombre de watchdog max
+ *	WATCHDOG_QUANTUM			: Quantum du watchdog voulu [ms]
+ */
+
 /* 	Ce module ne supporte les créations de Watchdog en IT que sur les IT :
 	INT0 IC1 IC2 OC1 OC2 T1 T2 T3 SPI1 U1RX U1TX AD NVM SI2C MI2C et CN */
 
@@ -20,43 +27,43 @@
 
 	#ifdef USE_WATCHDOG	
 	
-	/* Types */
-	typedef Uint16 timeout_t;
-	typedef Uint8 watchdog_id_t;
-	typedef void(*watchdog_callback_fun_t)(void);
-	
-	
-	/* Initialise les watchdogs */
-	void WATCHDOG_init(void);
-	
-	
-	/** Ajoute un watchdog :
-		* param t Temps avant exécution, en millisecondes, avec t > QUANTUM
-		* param g Fonction appellée au timeout, de prototype void foobar(void);
-		* return Identifiant du watchdog pour désarmement, 255 si échec
-	 **/
-	watchdog_id_t WATCHDOG_create(timeout_t t, watchdog_callback_fun_t f, bool_e is_periodic);
+		/* Types */
+		typedef Uint16 timeout_t;
+		typedef Uint8 watchdog_id_t;
+		typedef void(*watchdog_callback_fun_t)(void);
 
-	/** Ajoute un watchdog :
-		* param t Temps avant exécution, en millisecondes, avec t > QUANTUM
-		* param g Flag mis à "TRUE" au timeout, de type bool_e
-		* return Identifiant du watchdog pour désarmement, 254 si échec
-	 **/
-	watchdog_id_t WATCHDOG_create_flag(timeout_t t, volatile bool_e* f);
 
-	/** Désarme un watchdog
-		* param id Identifiant du watchdog à annuler
-	 **/
-	void WATCHDOG_stop(watchdog_id_t id);
+		/* Initialise les watchdogs */
+		void WATCHDOG_init(void);
 
-	/** Desactive le déclenchement du watchdog lors d'un timeout.
-	 * Le declenchement est effectué lorsqu'il sera réactivé si le timeout arrive alors que le watchdog est désactivé
-	 */
-	void WATCHDOG_disable_timeout(watchdog_id_t id);
 
-	/** Réactive le declenchement du watchdog lors d'un timeout.
-	 */
-	void WATCHDOG_enable_timeout(watchdog_id_t id);
+		/** Ajoute un watchdog :
+			* param t Temps avant exécution, en millisecondes, avec t > QUANTUM
+			* param g Fonction appellée au timeout, de prototype void foobar(void);
+			* return Identifiant du watchdog pour désarmement, 255 si échec
+		 **/
+		watchdog_id_t WATCHDOG_create(timeout_t t, watchdog_callback_fun_t f, bool_e is_periodic);
+
+		/** Ajoute un watchdog :
+			* param t Temps avant exécution, en millisecondes, avec t > QUANTUM
+			* param g Flag mis à "TRUE" au timeout, de type bool_e
+			* return Identifiant du watchdog pour désarmement, 254 si échec
+		 **/
+		watchdog_id_t WATCHDOG_create_flag(timeout_t t, volatile bool_e* f);
+
+		/** Désarme un watchdog
+			* param id Identifiant du watchdog à annuler
+		 **/
+		void WATCHDOG_stop(watchdog_id_t id);
+
+		/** Desactive le déclenchement du watchdog lors d'un timeout.
+		 * Le declenchement est effectué lorsqu'il sera réactivé si le timeout arrive alors que le watchdog est désactivé
+		 */
+		void WATCHDOG_disable_timeout(watchdog_id_t id);
+
+		/** Réactive le declenchement du watchdog lors d'un timeout.
+		 */
+		void WATCHDOG_enable_timeout(watchdog_id_t id);
 	
 	#endif /* def USE_WATCHDOG */
 #endif

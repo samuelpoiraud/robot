@@ -17,8 +17,6 @@
 
 	#include "QS_all.h"
 
-	#include "../config/config_pin.h"
-
 	#if !defined(HCLK_FREQUENCY_HZ) || HCLK_FREQUENCY_HZ > 168000000
 		#error "Une frequence d'horloge HCLK < 168Mhz doit être selectionnée"
 	#endif

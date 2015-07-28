@@ -9,7 +9,13 @@
  *  Licence : CeCILL-C (voir LICENCE.txt)
  *	Version 20100929
  */
- 
+
+/** ----------------  Defines possibles  --------------------
+ *	USE_SPI1					: Activation de l'SPI 1
+ *	USE_SPI2					: Activation de l'SPI 2
+ */
+
+
  #ifndef QS_SPI_H
 	#define QS_SPI_H
 	#include "QS_all.h"

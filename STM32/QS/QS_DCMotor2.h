@@ -10,6 +10,18 @@
  *  Version 20100620
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	USE_DCMOTOR2				: Activation de QS_DCMotor2
+ *	DCM_NUMBER					: Définit le nombre d'actionneurs asservis
+ *	DCM_TIME_PERIOD				: Période d'asserisement [ms]
+ *	DCMOTOR_NB_POS				: Nombre maximum de positions à gérer par moteur
+ *
+ * ----------------  Choses à savoir  --------------------
+ * La fonction DCM_process_it() doit être appellé périodiquement par l'utilisateur
+ *	et sa période doit être indiqué dans DCM_TIME_PERIOD
+ */
+
+
 #ifndef QS_DCMOTOR2_H
 	#define QS_DCMOTOR2_H
 

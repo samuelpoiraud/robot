@@ -11,6 +11,24 @@
  *	Version 20100620
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	USE_PWM1					: Activation de la PWM numéro 1
+ *	USE_PWM2					: Activation de la PWM numéro 2
+ *	USE_PWM3					: Activation de la PWM numéro 3
+ *	USE_PWM4					: Activation de la PWM numéro 4
+ *
+ *	Choix d'une fréquence définir l'une des constances suivantes :
+ *		- FREQ_PWM_200KHZ
+ *		- FREQ_PWM_50KHZ
+ *		- FREQ_PWM_20KHZ
+ *		- FREQ_PWM_10KHZ
+ *		- FREQ_PWM_1KHZ
+ *		- FREQ_PWM_50HZ
+ *
+ * ----------------  Choses à savoir  --------------------
+ *	VERBOSE_MODE				: Verbosité des modifications des commandes des PWMs
+ */
+
 #ifndef QS_PWM_H
 	#define QS_PWM_H
 	#include "QS_all.h"
@@ -73,13 +91,13 @@
 	Uint8 PWM_get_duty(Uint8 channel);
 
 	#define PWM_FINE_DUTY 25000
-#if PWM_FREQ <= (TIM_CLK2_FREQUENCY_HZ / PWM_FINE_DUTY)
-	/**
-	 * Lance une PWM avec un rapport cyclique donné
-	 * @param duty rapport cyclique en pour 25000, duty = 25000 <=> rapport cyclique = 100%
-	 * @param channel numéro de la PWM
-	 */
-	void PWM_run_fine (Uint16 duty, Uint8 channel);
-#endif
+	#if PWM_FREQ <= (TIM_CLK2_FREQUENCY_HZ / PWM_FINE_DUTY)
+		/**
+		 * Lance une PWM avec un rapport cyclique donné
+		 * @param duty rapport cyclique en pour 25000, duty = 25000 <=> rapport cyclique = 100%
+		 * @param channel numéro de la PWM
+		 */
+		void PWM_run_fine (Uint16 duty, Uint8 channel);
+	#endif
 
 #endif /* ndef QS_PWM_H */

@@ -153,36 +153,36 @@ void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
 
 
 #ifdef USE_UART1
-#ifdef USE_UART2
+	#ifdef USE_UART2
 
-void CANmsgToU1txAndU2tx (CAN_msg_t* src)									
-{																			
-	/*	Ecrit le contenu du message CAN passé en argument sur
-	 *	l'uart2																
-	 */																		
-	Uint8 i;																
-	/* Envoi de l'octet SOH cf : protocole de communication QS */			
-	UART1_putc(SOH);			
-	UART2_putc(SOH);	
-	UART1_putc((Uint8)(src->sid >>8));								
-	UART2_putc((Uint8)(src->sid >>8));
-	UART1_putc((Uint8)src->sid);		
-	UART2_putc((Uint8)src->sid);	
-	for (i=0; i<src->size && i<8; i++)
-	{
-		UART1_putc(src->data[i]);	
-		UART2_putc(src->data[i]);		
-	}
-	for (i=src->size; i<8; i++)												
-	{
-		UART1_putc(0xFF);											
-		UART2_putc(0xFF);											
-	}
-	UART1_putc(src->size);		//Si par erreur la size est >8, on l'affiche quand même telle qu'elle pour que l'erreur soit vue !
-	UART2_putc(src->size);
-	/* Envoi de l'octet EOT cf : protocole de communication QS */			
-	UART1_putc(EOT);	
-	UART2_putc(EOT);		
-}
-#endif	/* def USE_UART1*/
+		void CANmsgToU1txAndU2tx (CAN_msg_t* src)
+		{
+			/*	Ecrit le contenu du message CAN passé en argument sur
+			 *	l'uart2
+			 */
+			Uint8 i;
+			/* Envoi de l'octet SOH cf : protocole de communication QS */
+			UART1_putc(SOH);
+			UART2_putc(SOH);
+			UART1_putc((Uint8)(src->sid >>8));
+			UART2_putc((Uint8)(src->sid >>8));
+			UART1_putc((Uint8)src->sid);
+			UART2_putc((Uint8)src->sid);
+			for (i=0; i<src->size && i<8; i++)
+			{
+				UART1_putc(src->data[i]);
+				UART2_putc(src->data[i]);
+			}
+			for (i=src->size; i<8; i++)
+			{
+				UART1_putc(0xFF);
+				UART2_putc(0xFF);
+			}
+			UART1_putc(src->size);		//Si par erreur la size est >8, on l'affiche quand même telle qu'elle pour que l'erreur soit vue !
+			UART2_putc(src->size);
+			/* Envoi de l'octet EOT cf : protocole de communication QS */
+			UART1_putc(EOT);
+			UART2_putc(EOT);
+		}
+	#endif	/* def USE_UART1*/
 #endif	/* def USE_UART2*/

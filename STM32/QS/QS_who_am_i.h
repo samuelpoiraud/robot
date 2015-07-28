@@ -11,9 +11,17 @@
  *	Version 201302
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	PORT_ROBOT_ID				: Port servant à l'identification du robot
+ *	DISABLE_WHO_AM_I			: A définir pour désactiver l'identification automatique et mettre la valeur voulue dedans
+ *
+ * ----------------  Choses à savoir  --------------------
+ * Dans le cas de beacon eye PORT_ROBOT_ID n'est pas utilisé
+ */
+
 #ifndef QS_WHO_AM_I_H
-#define QS_WHO_AM_I_H
-#include "QS_all.h"
+	#define QS_WHO_AM_I_H
+	#include "QS_all.h"
 
 	typedef enum
 	{
@@ -49,29 +57,5 @@
 	 * @return un boolean de si on est le petit robot ou pas
 	 */
 	bool_e I_AM_SMALL();
-
-
-	/*
-		Exemple de définition pour global_config, conforme à _PORTS.xlsx à l'heure où j'écris ces lignes.
-		#define LAT_ROBOT_ID_OUTPUT		LATEbits.LATE7
-		#define TRIS_ROBOT_ID_OUTPUT	TRISEbits.TRISE7
-		#define PORT_ROBOT_ID_INPUT		PORTEbits.RE5
-		#define TRIS_ROBOT_ID_INPUT		TRISEbits.TRISE5
-
-	*/
-	/*
-	#ifndef	LAT_ROBOT_ID_OUTPUT
-		#warning "vous devez définir LAT_ROBOT_ID_OUTPUT : le port de sortie permettant au module WHO_AM_I de trouver sur quel robot est branchée la carte facto qui exécute ce code"
-	#endif
-	#ifndef	TRIS_ROBOT_ID_OUTPUT
-		#warning "vous devez définir TRIS_ROBOT_ID_OUTPUT : le port de sortie permettant au module WHO_AM_I de trouver sur quel robot est branchée la carte facto qui exécute ce code"
-	#endif
-
-	#ifndef	PORT_ROBOT_ID_INPUT
-		#warning "vous devez définir PORT_ROBOT_ID_INPUT : le port de sortie permettant au module WHO_AM_I de trouver sur quel robot est branchée la carte facto qui exécute ce code"
-	#endif
-	#ifndef	TRIS_ROBOT_ID_INPUT
-		#warning "vous devez définir TRIS_ROBOT_ID_INPUT : le port de sortie permettant au module WHO_AM_I de trouver sur quel robot est branchée la carte facto qui exécute ce code"
-	#endif*/
 
 #endif /* QS_WHO_AM_I_H */
