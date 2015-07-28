@@ -10,6 +10,30 @@
  *	Version 20121110
  */
 
+/*
+	 Servomoteurs AX12/AX12+
+		//! Attention ! Ce module utilise l'UART2 du PIC, il est donc interdit de définir USE_UART2 ...
+		// utilisation du module dédié à la gestion des servomoteurs AX12/AX12+
+		//Pour utiliser l'AX12, vous devez définir USE_AX12_SERVO
+	#define USE_AX12_SERVO
+		//Et indiquer leur nombre en définissant AX12_NUMBER
+		//Exemple pour gérer 4 AX12:
+	#define AX12_NUMBER 4
+		//Port du PIC dédié à la gestion de l'UART en half-duplex pour indiquer le sens du bus voulu
+		//Exemple pour le pour le pin RG8 (Port G, bit 8)
+	#define AX12_DIRECTION_PORT PORTGBITS.RG8
+		//Vous devez choisir un timer qui sera utilisé pour définir un timeout lors de l'attente du paquet de status envoyé par l'AX12
+		//Exemple pour utiliser le timer 1:
+	#define AX12_TIMER_ID 1
+		//Le choix du temps avant timeout est fait avec AX12_STATUS_RETURN_TIMEOUT (recommandé, non obligatoire, valeur par défaut: 5ms)
+		//Exemple pour une attente de maximum 50ms:
+	#define AX12_STATUS_RETURN_TIMEOUT 50
+		//Pour choisir le baudrate utilisé par les AX12 à commander, définissez AX12_UART_BAUDRATE
+		//Exemple pour une vitesse de 56700 bauds:
+	#define AX12_UART_BAUDRATE 56700
+		//Pour d'autre options de l'AX12, voir QS_ax12.h
+*/
+
 #ifndef QS_AX12_H
 #define QS_AX12_H
 
