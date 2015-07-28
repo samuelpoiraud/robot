@@ -8,6 +8,10 @@
  *  Version 20130518
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	FAST_COS_SIN				: Calcul rapide des cos et sin à l'aide d'un GRAND tableau de valeur
+ */
+
 #include "QS_all.h"
 
 #ifndef QS_MATHS_H

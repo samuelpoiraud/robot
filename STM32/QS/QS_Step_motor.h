@@ -10,6 +10,20 @@
  *	Version 20090220
  */
  
+/** ----------------  Defines possibles  --------------------
+ *	USE_STEP_MOTOR				: Activation de QS_Step_motor
+ *	STEP_MOTOR_TIMER			: Numéro du timer choisi pour ce module
+ *	STEP_MOTOR_USE_WATCHDOG		: Utiliser un watchdog pour gérer ce module
+ *
+ *	STEP_MOTOR1					: Mettre l'identifiant de la pin 1
+ *	STEP_MOTOR2					: Mettre l'identifiant de la pin 2
+ *	STEP_MOTOR3					: Mettre l'identifiant de la pin 3
+ *	STEP_MOTOR4					: Mettre l'identifiant de la pin 4
+ *
+ * ----------------  Choses à savoir  --------------------
+ * Il faut obligatoirement définir STEP_MOTOR_TIMER ou STEP_MOTOR_USE_WATCHDOG
+ */
+
 /*	Notes d'exploitation :
  *	Ce module a pour fonction de controler un moteur pas à pas
  *	En appliquant les niveaux de tension adéquats.

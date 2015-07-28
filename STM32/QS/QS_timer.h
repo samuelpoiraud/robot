@@ -10,6 +10,18 @@
  *  Version 20100620
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	TIMER_1_PRIORITY			: Priorité du timer 1
+ *	TIMER_2_PRIORITY			: Priorité du timer 2
+ *	TIMER_3_PRIORITY			: Priorité du timer 3
+ *	TIMER_4_PRIORITY			: Priorité du timer 4
+ *	TIMER_5_PRIORITY			: Priorité du timer 5
+ *
+ * ----------------  Choses à savoir  --------------------
+ * Plus la priorité est base plus elle est prioritaire
+ * Les priorité vont de 0 à 255
+ */
+
 #ifndef QS_TIMER_H
 	#define QS_TIMER_H
 

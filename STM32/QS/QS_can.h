@@ -10,7 +10,7 @@
  *  Version 27032011
  */
 
-/** ----------------  Define possible  --------------------
+/** ----------------  Defines possibles  --------------------
  *
  *	USE_CAN						: Activation du bus CAN 1 et des fonctions en rapport
  *	USE_CAN2					: Non implémenté
@@ -20,7 +20,7 @@
  *	QS_CAN_RX_IT_PRI			: Modification de la priorité de l'IT de réception du bus CAN				Par défaut à 1
  *
  *
- *  ----------------  Chose à savoir  --------------------
+ *  ----------------  Choses à savoir  --------------------
  *	MODE_SIMULATION				: A pour effet de supprimer l'envoi de message CAN
  */
 

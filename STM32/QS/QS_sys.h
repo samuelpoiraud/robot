@@ -9,6 +9,13 @@
  *	Version 20100421
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	STDOUT_USART				: USART sur lequel sort le flux STDOUT		Par défaut à 1 (sur l'UART1)
+ *	STDERR_USART				: USART sur lequel sort le flux STDERR		Par défaut à 1 (sur l'UART1)
+ *	STDIN_USART					: USART sur lequel rentre le flux STDIN		Par défaut à 1 (sur l'UART1)
+ */
+
+
 #ifndef QS_SYS_H
 	#define QS_SYS_H
 	

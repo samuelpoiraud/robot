@@ -9,8 +9,6 @@
  *	Version 20100421
  */
 
-#define QS_SYS_C
-
 #include "QS_sys.h"
 #include "stm32f4xx_usart.h"
 #include "stm32f4xx_flash.h"
@@ -21,15 +19,15 @@
 #include <stdio.h>
 
 #ifndef STDOUT_USART
-#define STDOUT_USART 1
+	#define STDOUT_USART 1
 #endif
 
 #ifndef STDERR_USART
-#define STDERR_USART 1
+	#define STDERR_USART 1
 #endif
 
 #ifndef STDIN_USART
-#define STDIN_USART 1
+	#define STDIN_USART 1
 #endif
 
 #define HCLK_CHOOSEN_DIV  1
@@ -40,99 +38,99 @@
 
 #if 1      //Pour pouvoir fold le code dessous (car long et utile que en cas de problème ...)
 
-//Vérification des valeurs, si elles sont bien celles voulu par l'utilisateur
+	//Vérification des valeurs, si elles sont bien celles voulu par l'utilisateur
 
-#define HCLK_DIV	FORCED_HCLK_DIV	//HCLK = SYSCLK_HZ / HCLK_DIV
-#define PCLK1_DIV	(HCLK_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ)	//PCLK1 = HCLK_DIV / PCLK1_DIV
-#define PCLK2_DIV	(HCLK_FREQUENCY_HZ/PCLK2_FREQUENCY_HZ)	//PCLK2 = HCLK_DIV / PCLK2_DIV
+	#define HCLK_DIV	FORCED_HCLK_DIV	//HCLK = SYSCLK_HZ / HCLK_DIV
+	#define PCLK1_DIV	(HCLK_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ)	//PCLK1 = HCLK_DIV / PCLK1_DIV
+	#define PCLK2_DIV	(HCLK_FREQUENCY_HZ/PCLK2_FREQUENCY_HZ)	//PCLK2 = HCLK_DIV / PCLK2_DIV
 
-//VCO_INPUT_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM
-//VCO_OUTPUT_HZ = VCO_INPUT_HZ * PLLN
-//SYSCLK_HZ = VCO_OUTPUT_HZ / PLLP
-//USB_RNG_SDIO_CLK_HZ = SYSCLK_HZ / PLLQ
-//SYSCLK = CPU_FREQUENCY_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM * PLLN / PLLP
+	//VCO_INPUT_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM
+	//VCO_OUTPUT_HZ = VCO_INPUT_HZ * PLLN
+	//SYSCLK_HZ = VCO_OUTPUT_HZ / PLLP
+	//USB_RNG_SDIO_CLK_HZ = SYSCLK_HZ / PLLQ
+	//SYSCLK = CPU_FREQUENCY_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM * PLLN / PLLP
 
 
-#define PLLM (CPU_EXTERNAL_CLOCK_HZ / VCO_INPUT_HZ)
-#define PLLN (VCO_OUTPUT_HZ  / CPU_EXTERNAL_CLOCK_HZ * PLLM)	//On utilise pas directement VCO_INPUT_HZ car il peut ne pas pouvoir être exact
-#define PLLP FORCED_PLLP
-#define PLLQ (VCO_OUTPUT_HZ / USB_RNG_SDIO_CLK_HZ)
+	#define PLLM (CPU_EXTERNAL_CLOCK_HZ / VCO_INPUT_HZ)
+	#define PLLN (VCO_OUTPUT_HZ  / CPU_EXTERNAL_CLOCK_HZ * PLLM)	//On utilise pas directement VCO_INPUT_HZ car il peut ne pas pouvoir être exact
+	#define PLLP FORCED_PLLP
+	#define PLLQ (VCO_OUTPUT_HZ / USB_RNG_SDIO_CLK_HZ)
 
-#define FLASH_WAIT_CYCLES (HCLK_FREQUENCY_HZ / 30000000)	//Voir page 62 du manuel de réference RM0090
+	#define FLASH_WAIT_CYCLES (HCLK_FREQUENCY_HZ / 30000000)	//Voir page 62 du manuel de réference RM0090
 
-#if HCLK_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV)
-#warning "Computed HCLK frequency is not exactly HCLK_FREQUENCY_HZ"
-#endif
+	#if HCLK_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV)
+		#warning "Computed HCLK frequency is not exactly HCLK_FREQUENCY_HZ"
+	#endif
 
-#if PCLK1_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK1_DIV)
-#warning "Computed PCLK1 frequency is not exactly PCLK1_FREQUENCY_HZ"
-#endif
+	#if PCLK1_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK1_DIV)
+		#warning "Computed PCLK1 frequency is not exactly PCLK1_FREQUENCY_HZ"
+	#endif
 
-#if PCLK2_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK2_DIV)
-#warning "Computed PCLK2 frequency is not exactly PCLK2_FREQUENCY_HZ"
-#endif
+	#if PCLK2_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK2_DIV)
+		#warning "Computed PCLK2 frequency is not exactly PCLK2_FREQUENCY_HZ"
+	#endif
 
-#if USB_RNG_SDIO_CLK_HZ != (((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLQ)
-#warning "USB Frequency is not exactly USB_RNG_SDIO_CLK_HZ"
-#endif
+	#if USB_RNG_SDIO_CLK_HZ != (((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLQ)
+		#warning "USB Frequency is not exactly USB_RNG_SDIO_CLK_HZ"
+	#endif
 
-#if VCO_INPUT_HZ < 1000000
-#error "VCO_INPUT_HZ must be >= 1Mhz"
-#elif VCO_INPUT_HZ > 2000000
-#error "VCO_INPUT_HZ must <= 2Mhz"
-#endif
+	#if VCO_INPUT_HZ < 1000000
+		#error "VCO_INPUT_HZ must be >= 1Mhz"
+	#elif VCO_INPUT_HZ > 2000000
+		#error "VCO_INPUT_HZ must <= 2Mhz"
+	#endif
 
-#if VCO_OUTPUT_HZ < 192000000
-#error "VCO_OUTPUT_HZ must be >= 192Mhz"
-#elif VCO_OUTPUT_HZ > 432000000
-#error "VCO_OUTPUT_HZ must be <= 432Mhz"
-#endif
+	#if VCO_OUTPUT_HZ < 192000000
+		#error "VCO_OUTPUT_HZ must be >= 192Mhz"
+	#elif VCO_OUTPUT_HZ > 432000000
+		#error "VCO_OUTPUT_HZ must be <= 432Mhz"
+	#endif
 
-#if PLLM < 0 || PLLM > 63
-#error "PLLM be be a unsigned integer <= 63"
-#endif
+	#if PLLM < 0 || PLLM > 63
+		#error "PLLM be be a unsigned integer <= 63"
+	#endif
 
-#if PLLN < 192 || PLLN > 432
-#error "PLLN must be >= 192 and <= 432"
-#endif
+	#if PLLN < 192 || PLLN > 432
+		#error "PLLN must be >= 192 and <= 432"
+	#endif
 
-#if PLLP != 2 && PLLP != 4 && PLLP != 6 && PLLP != 8
-#error "PLLP must be either 2, 4, 6 or 8"
-#endif
+	#if PLLP != 2 && PLLP != 4 && PLLP != 6 && PLLP != 8
+		#error "PLLP must be either 2, 4, 6 or 8"
+	#endif
 
-#if PLLQ < 4 || PLLQ > 15
-#error "PLLQ must be >= 4 and <= 15"
-#endif
+	#if PLLQ < 4 || PLLQ > 15
+		#error "PLLQ must be >= 4 and <= 15"
+	#endif
 
-#if HCLK_DIV != HCLK_CHOOSEN_DIV
-#warning "HCLK_DIV is not HCLK_CHOOSEN_DIV"
-#endif
+	#if HCLK_DIV != HCLK_CHOOSEN_DIV
+		#warning "HCLK_DIV is not HCLK_CHOOSEN_DIV"
+	#endif
 
-#if PCLK1_DIV != PCLK1_CHOOSEN_DIV
-#warning "PCLK1_DIV is not PCLK1_CHOOSEN_DIV"
-#endif
+	#if PCLK1_DIV != PCLK1_CHOOSEN_DIV
+		#warning "PCLK1_DIV is not PCLK1_CHOOSEN_DIV"
+	#endif
 
-#if PCLK2_DIV != PCLK2_CHOOSEN_DIV
-#warning "PCLK2_DIV is not PCLK2_CHOOSEN_DIV"
-#endif
+	#if PCLK2_DIV != PCLK2_CHOOSEN_DIV
+		#warning "PCLK2_DIV is not PCLK2_CHOOSEN_DIV"
+	#endif
 
-#if (SYSCLK_HZ / HCLK_DIV) > 168000000
-#error "HCLK Frequency is too high, increase HCLK_DIV"
-#endif
+	#if (SYSCLK_HZ / HCLK_DIV) > 168000000
+		#error "HCLK Frequency is too high, increase HCLK_DIV"
+	#endif
 
-#if (SYSCLK_HZ / HCLK_DIV / PCLK1_DIV) > 42000000
-#error "PCLK1 Frequency is too high, increase PCLK1_DIV"
-#endif
+	#if (SYSCLK_HZ / HCLK_DIV / PCLK1_DIV) > 42000000
+		#error "PCLK1 Frequency is too high, increase PCLK1_DIV"
+	#endif
 
-#if (SYSCLK_HZ / HCLK_DIV / PCLK2_DIV) > 84000000
-#error "PCLK2 Frequency is too high, increase PCLK2_DIV"
-#endif
+	#if (SYSCLK_HZ / HCLK_DIV / PCLK2_DIV) > 84000000
+		#error "PCLK2 Frequency is too high, increase PCLK2_DIV"
+	#endif
 
-#if FLASH_WAIT_CYCLES > 7
-	#warning "FLASH_WAIT_CYCLES > 7, HCLK_FREQUENCY_HZ est plus grand que 168Mhz ?"
-	#undef FLASH_WAIT_CYCLES
-	#define FLASH_WAIT_CYCLES 7
-#endif
+	#if FLASH_WAIT_CYCLES > 7
+		#warning "FLASH_WAIT_CYCLES > 7, HCLK_FREQUENCY_HZ est plus grand que 168Mhz ?"
+		#undef FLASH_WAIT_CYCLES
+		#define FLASH_WAIT_CYCLES 7
+	#endif
 
 #endif
 

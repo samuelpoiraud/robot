@@ -15,133 +15,133 @@
 
 #ifdef USE_STEP_MOTOR
 
-#include "QS_timer.h"
-#include "QS_ports.h"
+	#include "QS_timer.h"
+	#include "QS_ports.h"
 
-#include "../config/config_pin.h"
+	#include "../config/config_pin.h"
 
-/*variables globales pour le moteur pas à pas */
-static volatile Sint16 m_order;
-
-
-/* pour fonctionnement interne */
-static void STEP_MOTOR_apply_step(Uint8 step);
-
-#define STEP_SEQUENCE_SIZE	8
-
-#ifdef STEP_MOTOR_TIMER
-#define TIMER_SRC_TIMER_ID STEP_MOTOR_TIMER
-#endif
-#ifdef STEP_MOTOR_USE_WATCHDOG
-#define TIMER_SRC_USE_WATCHDOG
-#endif
-
-#include "QS_setTimerSource.h"
+	/*variables globales pour le moteur pas à pas */
+	static volatile Sint16 m_order;
 
 
-void STEP_MOTOR_init()
-{
-	static bool_e initialized = FALSE;
-	if(initialized)
-		return;
-	initialized = TRUE;
+	/* pour fonctionnement interne */
+	static void STEP_MOTOR_apply_step(Uint8 step);
 
-	m_order =0;
-	TIMER_SRC_TIMER_init();
+	#define STEP_SEQUENCE_SIZE	8
 
-	TIMER_SRC_TIMER_start_ms(STEP_MOTOR_MS_PER_STEP);
-}
+	#ifdef STEP_MOTOR_TIMER
+		#define TIMER_SRC_TIMER_ID STEP_MOTOR_TIMER
+	#endif
+	#ifdef STEP_MOTOR_USE_WATCHDOG
+		#define TIMER_SRC_USE_WATCHDOG
+	#endif
 
-void STEP_MOTOR_add_steps(Sint8 nb_of_steps)
-{
-	m_order += nb_of_steps;
-}
-
-void TIMER_SRC_TIMER_interrupt()
-{
-	static Uint8 current_step =0;
-	static Sint16 STEP_MOTOR_position = 0;
+	#include "QS_setTimerSource.h"
 
 
-	if (STEP_MOTOR_position < m_order)
+	void STEP_MOTOR_init()
 	{
-		current_step ++; current_step %=STEP_SEQUENCE_SIZE;
-		STEP_MOTOR_apply_step(current_step);
-		STEP_MOTOR_position++;
-	}
-	else if (STEP_MOTOR_position > m_order)
-	{
-		current_step += STEP_SEQUENCE_SIZE -1;
-		current_step %=STEP_SEQUENCE_SIZE;
-		STEP_MOTOR_apply_step(current_step);
-		STEP_MOTOR_position--;
+		static bool_e initialized = FALSE;
+		if(initialized)
+			return;
+		initialized = TRUE;
+
+		m_order =0;
+		TIMER_SRC_TIMER_init();
+
+		TIMER_SRC_TIMER_start_ms(STEP_MOTOR_MS_PER_STEP);
 	}
 
-	/*pour eviter les dépassements : */
-	if (m_order > 30000)
+	void STEP_MOTOR_add_steps(Sint8 nb_of_steps)
 	{
-		STEP_MOTOR_position -= m_order;
-		m_order=0;
-	}
-	else if (m_order < -30000)
-	{
-		STEP_MOTOR_position += m_order;
-		m_order=0;
+		m_order += nb_of_steps;
 	}
 
-	TIMER_SRC_TIMER_resetFlag();
-}
+	void TIMER_SRC_TIMER_interrupt()
+	{
+		static Uint8 current_step =0;
+		static Sint16 STEP_MOTOR_position = 0;
 
 
-static void STEP_MOTOR_apply_step(Uint8 step)
-{
+		if (STEP_MOTOR_position < m_order)
+		{
+			current_step ++; current_step %=STEP_SEQUENCE_SIZE;
+			STEP_MOTOR_apply_step(current_step);
+			STEP_MOTOR_position++;
+		}
+		else if (STEP_MOTOR_position > m_order)
+		{
+			current_step += STEP_SEQUENCE_SIZE -1;
+			current_step %=STEP_SEQUENCE_SIZE;
+			STEP_MOTOR_apply_step(current_step);
+			STEP_MOTOR_position--;
+		}
 
-	/* sequence des demi pas d'un moteur pas à pas */
-	static const Uint8 step_sequence[STEP_SEQUENCE_SIZE] =
-	{
-		0b1000, 0b1100, 0b0100, 0b0110,
-		0b0010, 0b0011, 0b0001, 0b1001
-	};
-	if (BIT_TEST(step_sequence[step], 1))
-	{
-		STEP_MOTOR1 = 1;
-		nop();
+		/*pour eviter les dépassements : */
+		if (m_order > 30000)
+		{
+			STEP_MOTOR_position -= m_order;
+			m_order=0;
+		}
+		else if (m_order < -30000)
+		{
+			STEP_MOTOR_position += m_order;
+			m_order=0;
+		}
+
+		TIMER_SRC_TIMER_resetFlag();
 	}
-	else
+
+
+	static void STEP_MOTOR_apply_step(Uint8 step)
 	{
-		STEP_MOTOR1 = 0;
-		nop();
+
+		/* sequence des demi pas d'un moteur pas à pas */
+		static const Uint8 step_sequence[STEP_SEQUENCE_SIZE] =
+		{
+			0b1000, 0b1100, 0b0100, 0b0110,
+			0b0010, 0b0011, 0b0001, 0b1001
+		};
+		if (BIT_TEST(step_sequence[step], 1))
+		{
+			STEP_MOTOR1 = 1;
+			nop();
+		}
+		else
+		{
+			STEP_MOTOR1 = 0;
+			nop();
+		}
+		if (BIT_TEST(step_sequence[step], 2))
+		{
+			STEP_MOTOR2 = 1;
+			nop();
+		}
+		else
+		{
+			STEP_MOTOR2 = 0;
+			nop();
+		}
+		if (BIT_TEST(step_sequence[step], 3))
+		{
+			STEP_MOTOR3 = 1;
+			nop();
+		}
+		else
+		{
+			STEP_MOTOR3 = 0;
+			nop();
+		}
+		if (BIT_TEST(step_sequence[step], 4))
+		{
+			STEP_MOTOR4 = 1;
+			nop();
+		}
+		else
+		{
+			STEP_MOTOR4 = 0;
+			nop();
+		}
 	}
-	if (BIT_TEST(step_sequence[step], 2))
-	{
-		STEP_MOTOR2 = 1;
-		nop();
-	}
-	else
-	{
-		STEP_MOTOR2 = 0;
-		nop();
-	}
-	if (BIT_TEST(step_sequence[step], 3))
-	{
-		STEP_MOTOR3 = 1;
-		nop();
-	}
-	else
-	{
-		STEP_MOTOR3 = 0;
-		nop();
-	}
-	if (BIT_TEST(step_sequence[step], 4))
-	{
-		STEP_MOTOR4 = 1;
-		nop();
-	}
-	else
-	{
-		STEP_MOTOR4 = 0;
-		nop();
-	}
-}
 
 #endif /* def USE_STEP_MOTOR */

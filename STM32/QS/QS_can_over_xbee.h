@@ -11,101 +11,113 @@
  *	Version 20120224
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	USE_XBEE					: Active QS_can_over_xbee
+ *	XBEE_PLUGGED_ON_UART1		: Configuration de l'XBEE via l'UART 1
+ *	XBEE_PLUGGED_ON_UART2		: Configuration de l'XBEE via l'UART 2
+ *	XBEE_SIMULATION				: Envoi des messages CAN du XBEE sur le CAN
+ *
+ * ----------------  Choses à savoir  --------------------
+ *	Il faut définir XBEE_PLUGGED_ON_UART1 ou 2 obligatoirement
+ *	SD_ENABLE					: Sauvegarde sur la SD des messages transités sur le XBEE	(Ne marche que sur la carte stratégie ayant une SD)
+ */
+
+
 #include "QS_all.h"
 
 #ifndef QS_CAN_OVER_XBEE_H
-#define	QS_CAN_OVER_XBEE_H
+	#define	QS_CAN_OVER_XBEE_H
 
-#ifdef USE_XBEE
+	#ifdef USE_XBEE
 
-#if !(defined XBEE_PLUGGED_ON_UART1 || defined XBEE_PLUGGED_ON_UART2)
-	#error "Vous devez définir l'UART où est branché le XBEE"
-	#error "Pour cela, définissez XBEE_PLUGGED_ON_UART1 ou XBEE_PLUGGED_ON_UART2"
-#endif
+		#if !(defined XBEE_PLUGGED_ON_UART1 || defined XBEE_PLUGGED_ON_UART2)
+			#error "Vous devez définir l'UART où est branché le XBEE"
+			#error "Pour cela, définissez XBEE_PLUGGED_ON_UART1 ou XBEE_PLUGGED_ON_UART2"
+		#endif
 
-#define SOH 0x01
-#define EOT 0x04
-#define STX 0x02
-#define ETX 0x03
+		#define SOH 0x01
+		#define EOT 0x04
+		#define STX 0x02
+		#define ETX 0x03
 
-	//Listez ici l'ensemble des modules utilisés
-	typedef enum
-	{
-		MODULE_C = 0,	//Coordinateur.
-		MODULE_1,
-		MODULE_2,
-		MODULE_3,
-		MODULE_NUMBER	//nombre de module... = forcément le nombre suivant dans l'énumération !
-	}module_id_e;
+		//Listez ici l'ensemble des modules utilisés
+		typedef enum
+		{
+			MODULE_C = 0,	//Coordinateur.
+			MODULE_1,
+			MODULE_2,
+			MODULE_3,
+			MODULE_NUMBER	//nombre de module... = forcément le nombre suivant dans l'énumération !
+		}module_id_e;
 
-	typedef void(*CAN_over_XBee_callback_action_t)(CAN_msg_t * can_msg);
-	
-	#ifdef QS_CAN_OVER_XBEE_C
-		//ADRESSES PHYSIQUE DES MODULES XBEE UTILISES !!! (= numéro de série = on ne peut pas le changer)
-		//Attention, l'ordre doit correspondre à l'énumération module_id_e !
-		//L'ajout d'une gomette numérotée sur chaque module est vivement conseillé !!!
-		const Uint8 module_address[MODULE_NUMBER][8] =
-			{{0x00, 0x13, 0xA2, 0x00, 0x40, 0x61, 0x49, 0x66},	//COORDINATEUR
-			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xFB, 0x8D},	//MODULE 1
-			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xF9, 0xFB},	//MODULE 2
-			 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x9E, 0xAF, 0xA1}	//MODULE 3
-			};
-	#endif		
+		typedef void(*CAN_over_XBee_callback_action_t)(CAN_msg_t * can_msg);
 
-
-	//Possibilité pour faire correspondre l'applicatif aux modules utilisés :
-	#define BIG_ROBOT_MODULE	MODULE_C
-	#define SMALL_ROBOT_MODULE	MODULE_1
-	#define BALISE_MERE			MODULE_2
-	
-	void CAN_over_XBee_init(module_id_e me, module_id_e destination);
-	
-	/*
-	@function	permettant de recevoir des messages CAN via une liaison ZigBee, et en provenance de notre module XBee
-	@param		dest est un pointeur vers le message CAN à recevoir
-	@return 	un booléen qui indique si un message a été reçu. (si TRUE, on peut lire *dest sinon, *dest ne vaut rien d'intéressant !!!)
-	@pre		AU PLUS SOUVENT : on peut appeler cette fonction en boucle infinie
-	@pre		AU MOINS SOUVENT : il faut appeler cette fonction à chaque caractère reçu sur l'UARTxbee
-	@post		Si une frame correcte est reçue, cette fonction tente d'y trouver le message CAN.
-	*/
-	bool_e XBeeToCANmsg (CAN_msg_t* dest);
-	
-	
-	/*
-	@function 	permettant d'envoyer un message CAN via une liaison ZigBee au module XBee de destination par défaut, ou a l'ensemble des modules joignables.
-	@note		les messages CAN transmis respectent le protocole définit pour le transfert de message CAN over UART (SOH, EOT, et nombre de data constantes !)
-				intérêt : c'est plus simple !
-	@param		src est un pointeur vers le message CAN à envoyer
-	@param		broadcast : si TRUE, le msg est envoyé à tout les modules joignables, si FALSE, seulement au module par défaut (configuré dans l'init)
-	@post		cette fonction ne peut pas garantir que le message à été envoyé. Mais elle a tenté de transmettre la demande d'envoi au module XBee !
-	@pre		le module XBee doit être allumé, et en état de fonctionnement réseau. (une attente de quelques secondes après reset est conseillée avant d'envoyer des messages)
-	*/
-	void CANMsgToXbee(CAN_msg_t * src, bool_e broadcast);
-
-	void XBEE_send_sid(Uint11 sid, bool_e broadcast);
+		#ifdef QS_CAN_OVER_XBEE_C
+			//ADRESSES PHYSIQUE DES MODULES XBEE UTILISES !!! (= numéro de série = on ne peut pas le changer)
+			//Attention, l'ordre doit correspondre à l'énumération module_id_e !
+			//L'ajout d'une gomette numérotée sur chaque module est vivement conseillé !!!
+			const Uint8 module_address[MODULE_NUMBER][8] =
+				{{0x00, 0x13, 0xA2, 0x00, 0x40, 0x61, 0x49, 0x66},	//COORDINATEUR
+				 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xFB, 0x8D},	//MODULE 1
+				 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x5D, 0xF9, 0xFB},	//MODULE 2
+				 {0x00, 0x13, 0xA2, 0x00, 0x40, 0x9E, 0xAF, 0xA1}	//MODULE 3
+				};
+		#endif
 
 
-	/*
-	@function 	permettant d'envoyer un message CAN via une liaison ZigBee à un autre module XBee DONT LA DESTINATION EST CONNUE.
-	@note		les messages CAN transmis respectent le protocole définit pour le transfert de message CAN over UART (SOH, EOT, et nombre de data constantes !)
-				intérêt : c'est plus simple !
-	@param		src est un pointeur vers le message CAN à envoyer
-	@param		module_dest est l'un des modules de destination connu. Voir QS_can_over_xbee.h pour une liste des modules connus !
-	@post		cette fonction ne peut pas garantir que le message à été envoyé. Mais elle a tenté de transmettre la demande d'envoi au module XBee !
-	@pre		le module XBee doit être allumé, et en état de fonctionnement réseau. (une attente de quelques secondes après reset est conseillée avant d'envoyer des messages)
-	*/
-	void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e destination);
+		//Possibilité pour faire correspondre l'applicatif aux modules utilisés :
+		#define BIG_ROBOT_MODULE	MODULE_C
+		#define SMALL_ROBOT_MODULE	MODULE_1
+		#define BALISE_MERE			MODULE_2
 
-	void CAN_over_XBee_process_main(void);
-	void CAN_over_XBee_process_ms(void);
-	bool_e XBee_is_destination_reachable(void);
-	bool_e XBee_is_module_reachable(module_id_e module);
-	void XBEE_ping_pong_enable(bool_e enable);
+		void CAN_over_XBee_init(module_id_e me, module_id_e destination);
 
-	//Enregistre un pointeur sur fonction qui sera appelé à chaque message CAN envoyé.
-	void CAN_over_XBee_set_send_callback(CAN_over_XBee_callback_action_t action);
+		/*
+		@function	permettant de recevoir des messages CAN via une liaison ZigBee, et en provenance de notre module XBee
+		@param		dest est un pointeur vers le message CAN à recevoir
+		@return 	un booléen qui indique si un message a été reçu. (si TRUE, on peut lire *dest sinon, *dest ne vaut rien d'intéressant !!!)
+		@pre		AU PLUS SOUVENT : on peut appeler cette fonction en boucle infinie
+		@pre		AU MOINS SOUVENT : il faut appeler cette fonction à chaque caractère reçu sur l'UARTxbee
+		@post		Si une frame correcte est reçue, cette fonction tente d'y trouver le message CAN.
+		*/
+		bool_e XBeeToCANmsg (CAN_msg_t* dest);
 
-	
-#endif // def USE_XBEE
+
+		/*
+		@function 	permettant d'envoyer un message CAN via une liaison ZigBee au module XBee de destination par défaut, ou a l'ensemble des modules joignables.
+		@note		les messages CAN transmis respectent le protocole définit pour le transfert de message CAN over UART (SOH, EOT, et nombre de data constantes !)
+					intérêt : c'est plus simple !
+		@param		src est un pointeur vers le message CAN à envoyer
+		@param		broadcast : si TRUE, le msg est envoyé à tout les modules joignables, si FALSE, seulement au module par défaut (configuré dans l'init)
+		@post		cette fonction ne peut pas garantir que le message à été envoyé. Mais elle a tenté de transmettre la demande d'envoi au module XBee !
+		@pre		le module XBee doit être allumé, et en état de fonctionnement réseau. (une attente de quelques secondes après reset est conseillée avant d'envoyer des messages)
+		*/
+		void CANMsgToXbee(CAN_msg_t * src, bool_e broadcast);
+
+		void XBEE_send_sid(Uint11 sid, bool_e broadcast);
+
+
+		/*
+		@function 	permettant d'envoyer un message CAN via une liaison ZigBee à un autre module XBee DONT LA DESTINATION EST CONNUE.
+		@note		les messages CAN transmis respectent le protocole définit pour le transfert de message CAN over UART (SOH, EOT, et nombre de data constantes !)
+					intérêt : c'est plus simple !
+		@param		src est un pointeur vers le message CAN à envoyer
+		@param		module_dest est l'un des modules de destination connu. Voir QS_can_over_xbee.h pour une liste des modules connus !
+		@post		cette fonction ne peut pas garantir que le message à été envoyé. Mais elle a tenté de transmettre la demande d'envoi au module XBee !
+		@pre		le module XBee doit être allumé, et en état de fonctionnement réseau. (une attente de quelques secondes après reset est conseillée avant d'envoyer des messages)
+		*/
+		void CANMsgToXBeeDestination(CAN_msg_t * src, module_id_e destination);
+
+		void CAN_over_XBee_process_main(void);
+		void CAN_over_XBee_process_ms(void);
+		bool_e XBee_is_destination_reachable(void);
+		bool_e XBee_is_module_reachable(module_id_e module);
+		void XBEE_ping_pong_enable(bool_e enable);
+
+		//Enregistre un pointeur sur fonction qui sera appelé à chaque message CAN envoyé.
+		void CAN_over_XBee_set_send_callback(CAN_over_XBee_callback_action_t action);
+
+
+	#endif // def USE_XBEE
 
 #endif /* ifndef QS_CAN_OVER_XBEE_H */

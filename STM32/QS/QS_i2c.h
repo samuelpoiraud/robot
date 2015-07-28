@@ -10,6 +10,11 @@
  *	Version 201308
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	USE_I2C1					: Activation de l'I2C 1
+ *	USE_I2C2					: Activation de l'I2C 2
+ */
+
  #ifndef QS_I2C_H
 	#define QS_I2C_H
 	#include "QS_all.h"
