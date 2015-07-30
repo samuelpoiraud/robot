@@ -13,14 +13,6 @@
  *	RF_TIMER_ID					: Numéro du timer choisi pour ce module
  *	RF_USE_WATCHDOG				: Utiliser watchdog plutôt qu'un timer pour le fonctionnement de ce module
  *	RF_UART						: Définir l'UART sur lequel est branché le module RF
- *
- *	STEP_MOTOR1					: Mettre l'identifiant de la pin 1
- *	STEP_MOTOR2					: Mettre l'identifiant de la pin 2
- *	STEP_MOTOR3					: Mettre l'identifiant de la pin 3
- *	STEP_MOTOR4					: Mettre l'identifiant de la pin 4
- *
- * ----------------  Choses à savoir  --------------------
- * Il faut obligatoirement définir STEP_MOTOR_TIMER ou STEP_MOTOR_USE_WATCHDOG
  */
 
 #ifndef QS_RF_H
