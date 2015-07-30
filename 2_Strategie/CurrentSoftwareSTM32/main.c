@@ -9,38 +9,37 @@
  *	Version 2012/01/14
  */
 
-#define MAIN_C
 #include "main.h"
-	#include "QS/QS_ports.h"
-	#include "QS/QS_uart.h"
-	#include "queue.h"
-	#include "Stacks.h"
-	#include "environment.h"
-	#include "brain.h"
-	#include "clock.h"
-	#include "zone_mutex.h"
-	#include "QS/QS_who_am_i.h"
-	#include "QS/QS_outputlog.h"
-	#include "queue.h"
-	#include "QS/QS_buttons.h"
-	#include "Supervision/Supervision.h"
-	#include "act_functions.h"
-	#ifdef STM32F40XX
-		#include "QS/QS_sys.h"
-		#include "stm32f4xx.h"
-		#include "stm32f4xx_gpio.h"
-		#include "stm32f4xx_rcc.h"
-	#endif
+
+#ifdef STM32F40XX
+	#include "QS/QS_sys.h"
+	#include "stm32f4xx.h"
+	#include "stm32f4xx_gpio.h"
+#endif
+#include "QS/QS_ports.h"
+#include "QS/QS_uart.h"
+#include "QS/QS_who_am_i.h"
+#include "QS/QS_outputlog.h"
+#include "QS/QS_buttons.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_adc.h"
+#include "QS/QS_rcc.h"
+#include "queue.h"
+#include "Stacks.h"
+#include "environment.h"
+#include "brain.h"
+#include "clock.h"
+#include "zone_mutex.h"
+#include "queue.h"
+#include "act_functions.h"
 #include "act_avoidance.h"
+#include "Supervision/Supervision.h"
 #include "strats_2015/actions_both_2015.h"
 
 
 void test_bp_switchs(void);
 void test_leds(void);
 void pull_bp_and_switch(void);
-void RCON_read(void);
 static void MAIN_sensor_test();
 
 
@@ -67,12 +66,12 @@ void tests(void)
 
 int main (void)
 {
-	volatile Uint16 i, j;
 	// Commandes pour EVE
 	#ifdef USE_QSx86
 		// Initialisation des variables utiles
 		EVE_manager_card_init();
 	#endif // USE_QSx86
+
 	SYS_init();		// Init système
 	PORTS_init();	// Config des ports
 
@@ -81,7 +80,7 @@ int main (void)
 	#endif
 
 	UART_init();
-	//RCON_read();
+	//RCC_read();
 
 	IHM_init();
 
@@ -100,13 +99,14 @@ int main (void)
 
 	// Si le démarrage de la carte n'est pas consécutif à l'arrivée de l'alimentation
 	//		On reset les autres cartes
-	if(RCC_GetFlagStatus(RCC_FLAG_PORRST) == RESET)
+	if(RCC_board_just_reboot())
 		CAN_send_sid(BROADCAST_RESET);
 
 	CLOCK_init();
 	debug_printf("\n-------\nWaiting for other boards ready\n-------\n");
 	//retard pour attendre l'initialisation des autres cartes
 	// voir si on peut faire mieux
+	volatile Uint16 i, j;
 	for(j=0;j<100;j++)
 	{
 		for(i=1;i;i++);
@@ -131,6 +131,7 @@ int main (void)
 		#ifdef USE_QSx86
 			EVE_manager_card();
 		#endif // USE_QSx86
+
 		/* mise à jour de l'environnement */
 		ENV_update();
 
@@ -184,8 +185,6 @@ void test_leds(void){
 		toggle_led(LED_USER);				big_delay();
 		toggle_led(LED_BEACON_IR_GREEN);	big_delay();
 		toggle_led(LED_BEACON_IR_RED);		big_delay();
-		//toggle_led(LED_BEACON_US_GREEN);	big_delay();
-		//toggle_led(LED_BEACON_US_RED);	big_delay();
 	}
 }
 
@@ -207,28 +206,6 @@ void test_bp_switchs(void)
 		if(BUTTON0_PORT 					!= bp_run_match	)	{	bp_run_match   	= BUTTON0_PORT;						debug_printf("bp_run_match = %s\n"	, (bp_run_match	)?"ON":"OFF");	 }
 		if(PORT_ROBOT_ID 					!= port_robot_id)	{	port_robot_id  	= PORT_ROBOT_ID;					debug_printf("port_robot_id = %s\n"	, (port_robot_id)?"ON":"OFF");	 }
 	}
-}
-
-void RCON_read(void)
-{
-#if defined(STM32F40XX)
-	debug_printf("STM32F4xx reset source :\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_LPWRRST))
-		debug_printf("- Low power management\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_WWDGRST))
-		debug_printf("- Window watchdog time-out\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_IWDGRST))
-		debug_printf("- Independent watchdog time-out\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_SFTRST))
-		debug_printf("- Software reset\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_PORRST))
-		debug_printf("- POR\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_PINRST))
-		debug_printf("- Pin NRST\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_BORRST))
-		debug_printf("- POR or BOR\n");
-	RCC_ClearFlag();
-#endif
 }
 
 static void MAIN_sensor_test(){
