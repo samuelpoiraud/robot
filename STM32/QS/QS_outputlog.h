@@ -35,8 +35,9 @@
 	#include <stdio.h>
 
 	/* Macro de d'affichage d'une expression rapide */
-	#define display(x) debug_printf("%s : %ld\n", #x, (Sint32)(x))
-	#define display_float(x) {unsigned char var_ftoa[30];  debug_printf("%s : %s\n", #x, ftoa(x, var_ftoa, 3, 'f'));}
+	#define display(x)				debug_printf("%s : %ld\n", #x, (Sint32)(x))
+	#define display_float(x)		{unsigned char var_ftoa[30];  debug_printf("%s : %s\n", #x, ftoa(x, var_ftoa, 3, 'f'));}
+	#define display_p(x, format)	debug_printf("%s : "format"\n", #x, x)		// Par exemple display_p(ma_chaine, "%s");
 
 
 	// prec indique la précison (nb de chiffrers après la virgule) 0 pour avoir le maximum
