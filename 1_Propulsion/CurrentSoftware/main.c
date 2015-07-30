@@ -24,6 +24,7 @@
 #include "QS/QS_systick.h"
 #include "QS/QS_adc.h"
 #include "QS/QS_IHM.h"
+#include "QS/QS_rcc.h"
 #include "odometry.h"
 #include "copilot.h"
 #include "pilot.h"
@@ -96,7 +97,7 @@ void initialisation(void)
 	GPIO_ResetBits(LED_RUN);
 	UART_init();
 
-	RCON_read();
+	RCC_read();
 
 	//Doit se faire AVANT ODOMETRY_init() !!!
 
@@ -229,30 +230,6 @@ int main (void)
 	}
 	return 0;
 }
-
-
-void RCON_read(void)
-{
-#if defined(STM32F40XX)
-	debug_printf("STM32F4xx reset source :\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_LPWRRST))
-		debug_printf("- Low power management\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_WWDGRST))
-		debug_printf("- Window watchdog time-out\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_IWDGRST))
-		debug_printf("- Independent watchdog time-out\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_SFTRST))
-		debug_printf("- Software reset\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_PORRST))
-		debug_printf("- POR\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_PINRST))
-		debug_printf("- Pin NRST\n");
-	if(RCC_GetFlagStatus(RCC_FLAG_BORRST))
-		debug_printf("- POR or BOR\n");
-	RCC_ClearFlag();
-#endif
-}
-
 
 
 void MAIN_process_it(Uint8 ms)

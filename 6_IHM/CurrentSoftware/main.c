@@ -32,12 +32,10 @@ volatile Uint8 t_ms_biroute = 0;
 static void MAIN_global_var_init();
 
 void initialisation(void){
-	// Initialisation du système
-	SYS_init();				// Init système
-	SYSTICK_init((time32_t*)&(global.absolute_time));
-	PORTS_init();			// Config des ports
-	MAIN_global_var_init();	// Init variable globale
-
+	SYS_init();											// Initialisation du système
+	MAIN_global_var_init();								// Init variable globale
+	SYSTICK_init((time32_t*)&(global.absolute_time));	// Init du compteur de temps
+	PORTS_init();
 	UART_init();
 	CAN_process_init();
 	BUTTONS_init();

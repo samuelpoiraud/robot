@@ -68,10 +68,10 @@ int main (void)
 
 	//Initialisation du système
 	SYS_init();				// Init système
+	MAIN_global_var_init();	// Init variable globale
 	SYSTICK_init((time32_t*)&(global.absolute_time));
 	PORTS_init();			// Config des ports
 	PORTS_pwm_init();
-	MAIN_global_var_init();	// Init variable globale
 
 	GPIO_SetBits(LED_RUN);
 	GPIO_ResetBits(LED_USER);
