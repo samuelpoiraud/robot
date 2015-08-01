@@ -49,7 +49,6 @@ void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 	//Attention, les nodes doivent être écartés au maximum de 250mm sur un même segment
 
 	//Polygon[0]: Notre zone de départ (Node 0 -> 6)
-	#define OUR_START_ZONE 0
 	ASTAR_create_element_polygon(currentNodeId, 7, (astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(0), TRUE},
 									(astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(MARGIN_TO_OBSTACLE), TRUE},
 									(astar_user_node_t){778-CORNER_MARGIN_TO_OBSTACLE,COLOR_Y(400+CORNER_MARGIN_TO_OBSTACLE), TRUE},
@@ -59,7 +58,6 @@ void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(0), TRUE});
 
 	//Polygon[1]:Zone de départ adverses (Node 7 -> 15)
-	#define FOE_START_ZONE 1
 	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000), TRUE},
 									(astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(3000-MARGIN_TO_OBSTACLE), TRUE},
 									(astar_user_node_t){778-MARGIN_TO_OBSTACLE,COLOR_Y(2500), TRUE},
@@ -71,7 +69,6 @@ void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(3000), TRUE});
 
 	//Polygon[2]:Zones des marches (Node 16 -> 26)
-	#define STAIRS_ZONE 2
 	ASTAR_create_element_polygon(currentNodeId, 11, (astar_user_node_t){0, 967-MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){MARGIN_TO_OBSTACLE, 967-MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){580+CORNER_MARGIN_TO_OBSTACLE,967-CORNER_MARGIN_TO_OBSTACLE, FALSE},
@@ -85,7 +82,6 @@ void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){0,2033+MARGIN_TO_OBSTACLE, TRUE});
 
 	//Polygon[3]:Zones de l'estrade (Node 27 -> 35)
-	#define ESTRAD_ZONE 3
 	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){1900-CORNER_MARGIN_TO_OBSTACLE, 1200-CORNER_MARGIN_TO_OBSTACLE, FALSE},
 									(astar_user_node_t){2000-MARGIN_TO_OBSTACLE,1200-MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){2000,1200-MARGIN_TO_OBSTACLE, TRUE},
@@ -98,6 +94,18 @@ void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 
 	//Polygones des robots adverses
 	ASTAR_create_foe_polygon(currentNodeId, foeRadius);
+}
+
+
+
+/** @brief ASTAR_init
+ *		Procédure permettant de réaliser les initialisations nécessaires
+ */
+void ASTAR_init(void){
+	Uint8 i;
+	for(i=0; i<NB_MAX_POLYGONS; i++){
+		polygon_list.enableByUser[i] = TRUE;
+	}
 }
 
 
@@ -130,7 +138,7 @@ void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...){
 
 	polygon_list.polygons[index].id = index;
 	polygon_list.polygons[index].nbSummits = nbSummits;
-	polygon_list.polygons[index].enable = TRUE;
+	polygon_list.polygons[index].enable = polygon_list.enableByUser[index];
 	polygon_list.nbPolygons++;
 }
 
@@ -298,7 +306,11 @@ void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_
 	//Génération du graphe
 	ASTAR_generate_graph(path, from, destination, &currentNodeId);
 
+	//Affichage de la liste de polygones en détails
+	//ASTAR_print_polygon_list_details();
+
 	//if de protection afin que l'algorithme soit lancé uniquement si le point de destination est valide
+	debug_printf("\nTest du point de destination \n");
 	if(ASTAR_node_enable(&(path->destination), TRUE, FALSE)){
 
 		//Affichage de certains détails
@@ -619,7 +631,7 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 				foeRadius = DEFAULT_FOE_RADIUS - 100;
 			else
 				foeRadius = DEFAULT_FOE_RADIUS;
-			debug_printf("ASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
+			debug_printf("\n\n\nASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
 			debug_printf("foeRadius = %d\n", foeRadius);
 			ASTAR_compute_pathfind(&path, (GEOMETRY_point_t){global.pos.x, global.pos.y}, (GEOMETRY_point_t){x, y}, foeRadius);
 			state = COMPUTE;
@@ -737,11 +749,17 @@ bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t node
 	for(i=0; i<polygon.nbSummits-1; i++){
 		GEOMETRY_segment_t seg2 = {polygon.summits[i].pos, polygon.summits[i+1].pos};
 		nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
+		//if(GEOMETRY_segments_intersects(seg1, seg2)){
+		//	debug_printf("Intersection of node (%d, %d) with seg (%d, %d)   (%d, %d)\n", nodeTested.x, nodeTested.y, seg2.a.x, seg2.a.y, seg2.b.x, seg2.b.y);
+		//}
 	}
 
 	//Test de l'intersection avec le dernier segment
 	GEOMETRY_segment_t seg2 = {polygon.summits[polygon.nbSummits-1].pos, polygon.summits[0].pos};
 	nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
+	//if(GEOMETRY_segments_intersects(seg1, seg2)){
+	//	debug_printf("Intersection of node (%d, %d) with seg (%d, %d)   (%d, %d)\n", nodeTested.x, nodeTested.y, seg2.a.x, seg2.a.y, seg2.b.x, seg2.b.y);
+	//}
 
 	//Le point est à l'extérieur du polygone si le nombre d'intersections avec chacun des côté du polygone est un nombre pair.
 	//Si le nombre d'intersection est un nombre impair, le node est donc à l'intérieur du polygone.
@@ -1154,7 +1172,7 @@ void ASTAR_print_polygon_list_details(){
 	int nb=0;
 	debug_printf("Liste des nodes \n\n");
 	for(i=0; i< polygon_list.nbPolygons; i++){
-		debug_printf("polygone[%d]: polygonId=%d \n", i,polygon_list.polygons[i].id );
+		debug_printf("polygone[%d]: polygonId=%d enable=%d\n", i, polygon_list.polygons[i].id, polygon_list.polygons[i].enable);
 		if(polygon_list.polygons[i].enable){
 			for(j=0; j< polygon_list.polygons[i].nbSummits; j++){
 				debug_printf("\tnode id=%d   x=%d   y=%d  polygonId=%d enable=%d\n", polygon_list.polygons[i].summits[j].id, polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y, polygon_list.polygons[i].summits[j].polygonId, polygon_list.polygons[i].summits[j].enable);
@@ -1243,8 +1261,7 @@ void ASTAR_print_path(astar_path_t path){
  *  @param polygonNumber : le numéro du polygon concerné
  */
 void ASTAR_enable_polygon(Uint8 polygonNumber){
-	assert(polygonNumber < polygon_list.nbPolygons);
-	polygon_list.polygons[polygonNumber].enable = TRUE;
+	polygon_list.enableByUser[polygonNumber] = TRUE;
 }
 
 
@@ -1254,8 +1271,8 @@ void ASTAR_enable_polygon(Uint8 polygonNumber){
  *  @param polygonNumber : le numéro du polygon concerné
  */
 void ASTAR_disable_polygon(Uint8 polygonNumber){
-	assert(polygonNumber < polygon_list.nbPolygons);
-	polygon_list.polygons[polygonNumber].enable = FALSE;
+	debug_printf("ASTAR_disable_polygon :  polygonNumber = %d    polygon_list.nbPolygons = %d\n", polygonNumber, polygon_list.nbPolygons);
+	polygon_list.enableByUser[polygonNumber] = FALSE;
 }
 
 #endif //_ASTAR_H_

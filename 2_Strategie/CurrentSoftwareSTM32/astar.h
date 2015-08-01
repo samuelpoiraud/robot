@@ -30,6 +30,12 @@
 	//Nombre d'essais consécutifs avec du DODGE en évitement
 	#define NB_TRY_WHEN_DODGE 6
 
+	//Indices des polygones
+	#define OUR_START_ZONE 0
+	#define FOE_START_ZONE 1
+	#define STAIRS_ZONE 2
+	#define ESTRAD_ZONE 3
+
 	//Nombre maximum de noeud voisins pour un noeud donné
 	#define NB_MAX_NEIGHBORS 20
 
@@ -119,6 +125,7 @@ typedef struct{
 typedef struct{
 	astar_polygon_t polygons[NB_MAX_POLYGONS];
 	Uint8 nbPolygons;
+	bool_e enableByUser[NB_MAX_POLYGONS];
 }astar_polygon_list_t;
 
 //Type structuré liste de nodes (pour l'opened_list et la closed_list)
@@ -141,6 +148,9 @@ typedef struct{
 
 //Fonction générant la liste de polygones (adversaires + éléments ou zones de jeu)
 void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius);
+
+//Procédure permettant de réaliser les initialisations nécessaires
+void ASTAR_init(void);
 
 //Fonction pour créer les polygones correspondant aux zones ou éléments du terrain constituant des obstacles
 void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...);
