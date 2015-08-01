@@ -35,6 +35,7 @@
 #include "act_avoidance.h"
 #include "Supervision/Supervision.h"
 #include "strats_2015/actions_both_2015.h"
+#include "astar.h"
 
 
 void test_bp_switchs(void);
@@ -119,6 +120,7 @@ int main (void)
 	BRAIN_init();
 	ACT_AVOIDANCE_init();
 	ELEMENTS_init();
+	ASTAR_init();
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
