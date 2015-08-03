@@ -220,7 +220,7 @@
 	//			((Uint32*)TxMsg.Data)[1] = ((Uint32*)can_msg->data)[1];
 
 				for(i = 0; i < 8; i++) {
-					TxMsg.Data[i] = can_msg->data[i];
+					TxMsg.Data[i] = can_msg->data.raw_data[i];
 				}
 
 				TxMsg.DLC = can_msg->size;
@@ -252,17 +252,6 @@
 			CAN_send(&msg);
 		}
 
-		void CAN_direct_send(Uint11 sid, Uint8 size, Uint8 arg[]){
-			Uint8 i;
-			assert(size <= 8);
-			CAN_msg_t msg;
-			msg.sid = sid;
-			msg.size = size;
-			for(i=0;i<size;i++)
-				msg.data[i] = arg[i];
-			CAN_send(&msg);
-		}
-
 		static void CAN_receive(CAN_msg_t* can_msg)
 		{
 			CanRxMsg msg;
@@ -289,7 +278,7 @@
 			can_msg->size = msg.DLC;
 
 			for(i = 0; i < 8; i++) {
-				can_msg->data[i] = msg.Data[i];
+				can_msg->data.raw_data[i] = msg.Data[i];
 			}
 		}
 
@@ -320,7 +309,7 @@
 				//assure que le flag est baissé
 				m_canrx=FALSE;
 				// renvoie d'un message invalide.
-				return (CAN_msg_t) {0, "\0\0\0\0\0\0\0", 0};
+				return (CAN_msg_t) {0};
 			}
 		}
 

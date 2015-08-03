@@ -23,10 +23,7 @@ int term_cmd_calibration(int argc, const char *argv[]) {
 
 	if(!global.prop.calibrated)
 	{
-		CAN_msg_t msg;
-		msg.sid = PROP_CALIBRATION;
-		msg.size = 0;
-		CAN_send(&msg);
+		CAN_send_sid(PROP_CALIBRATION);
 	}
 
 	return 0;

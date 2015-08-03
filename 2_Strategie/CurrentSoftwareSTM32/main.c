@@ -116,6 +116,14 @@ int main (void)
 	}
 	debug_printf("\n");
 
+
+	display(sizeof(msg_can_formated_u));
+	if(sizeof(msg_can_formated_u) > 8){
+		printf("Bloquage du main pour un dépassement de taille des données formatées !!!\n");
+		while(1);
+	}
+
+
 	Supervision_init();
 	BRAIN_init();
 	ACT_AVOIDANCE_init();

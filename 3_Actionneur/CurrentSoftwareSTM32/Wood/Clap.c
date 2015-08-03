@@ -79,13 +79,13 @@ static void CLAP_initAX12() {
 // Fonction appellée pour la modification des configurations de l'ax12 telle que la vitesse et le couple (via ActManager)
 // Dans le cas de multiple actionneur appartenant à un même actionneur, ajouter des defines dans QS_CANmsgList.h afin de pouvoir les choisirs facilement depuis la stratégie
 void CLAP_config(CAN_msg_t* msg){
-	switch(msg->data[1]){
-		case 0 : // Premier élement de l'actionneur
+	switch(msg->data.act_msg.act_data.act_config.sub_act_id){
+		case DEFAULT_MONO_ACT : // Premier élement de l'actionneur
 			ACTMGR_config_AX12(CLAP_AX12_ID, msg);
 			break;
 
 		default :
-			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data[1]);
+			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data.act_msg.act_data.act_config.sub_act_id);
 	}
 }
 
@@ -113,7 +113,7 @@ void CLAP_stop(){
 bool_e CLAP_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_CLAP){
 		CLAP_initAX12();
-		switch(msg->data[0]) {
+		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CLAP_OPEN :
 			case ACT_CLAP_CLOSED:
@@ -129,7 +129,7 @@ bool_e CLAP_CAN_process_msg(CAN_msg_t* msg) {
 
 
 			default:
-				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){

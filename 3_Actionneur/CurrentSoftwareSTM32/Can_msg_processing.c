@@ -13,7 +13,6 @@
 #include "Can_msg_processing.h"
 #include "QS/QS_DCMotor2.h"
 #include "QS/QS_can.h"
-#include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_verbose.h"
 #include "QS/QS_watchdog.h"
 #include "QS/QS_IHM.h"
@@ -37,7 +36,7 @@ void CAN_process_init(){
 void CAN_process_msg(CAN_msg_t* msg) {
 	CAN_msg_t answer;
 	if(ACTMGR_process_msg(msg)) {
-		component_printf(LOG_LEVEL_Debug, "Act Msg SID: 0x%03x, cmd: 0x%x(%u), size: %d\n", msg->sid, msg->data[0], msg->data[0], msg->size);
+		component_printf(LOG_LEVEL_Debug, "Act Msg SID: 0x%03x, cmd: 0x%x(%u), size: %d\n", msg->sid, msg->data.act_msg.order, msg->data.act_msg.order, msg->size);
 		return;  //Le message a déja été géré
 	}
 
@@ -62,22 +61,22 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			msg.size = 1;
 
 			msg.sid = ACT_STOCK_RIGHT;
-			msg.data[0] = ACT_STOCK_RIGHT_OPEN;
+			msg.data.act_msg.order = ACT_STOCK_RIGHT_OPEN;
 			CAN_process_msg(&msg);
 
 
 			msg.sid = ACT_STOCK_LEFT;
-			msg.data[0] = ACT_STOCK_LEFT_OPEN;
+			msg.data.act_msg.order = ACT_STOCK_LEFT_OPEN;
 			CAN_process_msg(&msg);
 
 
 			msg.sid = ACT_PINCEMI_LEFT;
-			msg.data[0] = ACT_PINCEMI_LEFT_OPEN;
+			msg.data.act_msg.order = ACT_PINCEMI_LEFT_OPEN;
 			CAN_process_msg(&msg);
 
 
 			msg.sid = ACT_PINCEMI_RIGHT;
-			msg.data[0] = ACT_PINCEMI_RIGHT_OPEN;
+			msg.data.act_msg.order = ACT_PINCEMI_RIGHT_OPEN;
 			CAN_process_msg(&msg);
 
 			WATCHDOG_create(500, &break_asser_end_match, FALSE);
@@ -89,9 +88,9 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		case BROADCAST_POSITION_ROBOT:
-				global.pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
-				global.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
-				global.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
+				global.pos.x = msg->data.broadcast_position_robot.x;
+				global.pos.y = msg->data.broadcast_position_robot.y;
+				global.pos.angle = msg->data.broadcast_position_robot.angle;
 			break;
 
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
@@ -101,9 +100,9 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		case BROADCAST_ALIM:
-			if(msg->data[0] == ALIM_OFF){
+			if(msg->data.broadcast_alim.state == FALSE){
 				global.flags.alim = FALSE;
-			}else if(msg->data[0] == ALIM_ON){
+			}else{
 #ifdef USE_DCMOTOR2
 				DCM_reset_integrator();
 #endif
@@ -114,16 +113,16 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				else
 					ACTMGR_reset_config();
 			}
-			global.alim_value = (((Uint16)(msg->data[1]) << 8) & 0xFF00) | ((Uint16)(msg->data[2]) & 0x00FF);
+			global.alim_value = msg->data.broadcast_alim.value;
 			break;
 
 		case ACT_PING:
 			answer.sid = STRAT_ACT_PONG;
-			answer.size = 1;
+			answer.size = SIZE_STRAT_ACT_PONG;
 			#ifdef I_AM_ROBOT_BIG
-				answer.data[0] = BIG_ROBOT;
+				answer.data.strat_act_pong.robot_id = BIG_ROBOT;
 			#else
-				answer.data[0] = SMALL_ROBOT;
+				answer.data.strat_act_pong.robot_id = SMALL_ROBOT;
 			#endif
 			CAN_send(&answer);
 			break;
@@ -131,24 +130,18 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case ACT_ASK_SENSOR:{
 			bool_e found = TRUE;
 			answer.sid = STRAT_INFORM_CAPTEUR;
-			answer.size = 2;
-			answer.data[0] = msg->data[0];
-			switch(msg->data[0]){
+			answer.size = SIZE_STRAT_INFORM_CAPTEUR;
+			answer.data.strat_inform_capteur.sensor_id = msg->data.act_ask_sensor.act_sensor_id;
+			switch(msg->data.act_ask_sensor.act_sensor_id){
 #ifdef I_AM_ROBOT_BIG
 
 #else
-				case PINCE_GOBELET_DROITE:
-					if(WT100_GOBELET_RIGHT)
-						answer.data[1] = STRAT_INFORM_CAPTEUR_PRESENT;
-					else
-						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
+				case ACT_SENSOR_ID_PINCE_GOBELET_DROITE:
+					answer.data.strat_inform_capteur.present = WT100_GOBELET_RIGHT;
 					break;
 
-				case PINCE_GOBELET_GAUCHE:
-					if(WT100_GOBELET_LEFT)
-						answer.data[1] = STRAT_INFORM_CAPTEUR_PRESENT;
-					else
-						answer.data[1] = STRAT_INFORM_CAPTEUR_ABSENT;
+				case ACT_SENSOR_ID_PINCE_GOBELET_GAUCHE:
+					answer.data.strat_inform_capteur.present = WT100_GOBELET_LEFT;
 					break;
 #endif
 				default:

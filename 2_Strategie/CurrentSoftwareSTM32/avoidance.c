@@ -390,18 +390,18 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			for(i=nb_displacements-1;i>=1;i--)
 			{
 				if(displacements)
-					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, border_mode, FALSE);
+					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVE, avoidance_type, PROP_END_OF_BUFFER, end_condition, border_mode, FALSE);
 				else if(displacements_curve && displacements_curve[i].curve)
-					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, border_mode, FALSE);
+					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, PROP_CURVE, avoidance_type, PROP_END_OF_BUFFER, end_condition, border_mode, FALSE);
 				else
-					PROP_push_goto(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, 0, avoidance_type, end_condition, border_mode, FALSE);
+					PROP_push_goto(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, PROP_NO_CURVE, avoidance_type, end_condition, border_mode, FALSE);
 			}
 			if(displacements)
-				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, border_mode, TRUE);
+				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVE, avoidance_type, PROP_END_OF_BUFFER, end_condition, border_mode, TRUE);
 			else if(displacements_curve && displacements_curve[0].curve)
-				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, PROP_CURVES, avoidance_type, END_OF_BUFFER, end_condition, border_mode, TRUE);
+				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, PROP_CURVE, avoidance_type, PROP_END_OF_BUFFER, end_condition, border_mode, TRUE);
 			else
-				PROP_push_goto(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, 0, avoidance_type, end_condition, border_mode, TRUE);
+				PROP_push_goto(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, PROP_NO_CURVE, avoidance_type, end_condition, border_mode, TRUE);
 
 			debug_printf("goto_pos_with_scan_foe : load_move\n");
 			if(displacements || displacements_curve)
@@ -758,7 +758,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 		case LOAD_MOVE:
 			clear_prop_detected_foe();
 			global.destination = displacements.point;
-			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVES, AVOID_ENABLED, END_OF_BUFFER, END_AT_LAST_POINT, PROP_NO_BORDER_MODE, TRUE);
+			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVE, AVOID_ENABLED, PROP_END_OF_BUFFER, END_AT_LAST_POINT, PROP_NO_BORDER_MODE, TRUE);
 			debug_printf("goto_extract_with_avoidance : load_move\n");
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
@@ -849,12 +849,10 @@ foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id)
 void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
 	CAN_msg_t msg_to_send;
 	msg_to_send.sid = DEBUG_FOE_REASON;
-	msg_to_send.size = 5;
-	msg_to_send.data[0] = origin;
-	msg_to_send.data[1] = angle >> 8;
-	msg_to_send.data[2] = angle & 0xFF;
-	msg_to_send.data[3] = distance >> 8;
-	msg_to_send.data[4] = distance & 0xFF;
+	msg_to_send.size = SIZE_DEBUG_FOE_REASON;
+	msg_to_send.data.debug_foe_reason.foe_origine = origin;
+	msg_to_send.data.debug_foe_reason.angle = angle;
+	msg_to_send.data.debug_foe_reason.dist = distance;
 	CAN_send(&msg_to_send);
 }
 

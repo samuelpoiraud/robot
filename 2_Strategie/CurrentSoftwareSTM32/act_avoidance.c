@@ -28,37 +28,37 @@ void ACT_AVOIDANCE_init(){
 
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
 		//----------------------------------------------------------------------------------------------------------left-----right----front---back
-		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Open, ACT_pop_collect_left_open,			60,		0,		0,		60);
-		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Mid, ACT_pop_collect_left_mid,			30,		0,		0,		30);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Open, ACT_POP_COLLECT_LEFT_OPEN,			60,		0,		0,		60);
+		init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Mid, ACT_POP_COLLECT_LEFT_MID,			30,		0,		0,		30);
 
-		init_new_offset(ACT_AVOID_POP_COLLECT_RIGHT, ACT_AVOID_POP_COLLECT_RIGHT_Open, ACT_pop_collect_right_open,		0,		60,		0,		60);
-		init_new_offset(ACT_AVOID_POP_COLLECT_RIGHT, ACT_AVOID_POP_COLLECT_RIGHT_Mid, ACT_pop_collect_right_mid,		0,		30,		0,		30);
+		init_new_offset(ACT_AVOID_POP_COLLECT_RIGHT, ACT_AVOID_POP_COLLECT_RIGHT_Open, ACT_POP_COLLECT_RIGHT_OPEN,		0,		60,		0,		60);
+		init_new_offset(ACT_AVOID_POP_COLLECT_RIGHT, ACT_AVOID_POP_COLLECT_RIGHT_Mid, ACT_POP_COLLECT_RIGHT_MID,		0,		30,		0,		30);
 
-		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_LEFT_Open, ACT_pop_drop_left_open,					0,		0,		0,		60);
-		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_RIGHT_Open, ACT_pop_drop_right_open,				0,		0,		0,		60);
+		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_LEFT_Open, ACT_POP_DROP_LEFT_OPEN,					0,		0,		0,		60);
+		init_new_offset(ACT_AVOID_POP_DROP_LEFT, ACT_AVOID_POP_DROP_RIGHT_Open, ACT_POP_DROP_RIGHT_OPEN,				0,		0,		0,		60);
 
-		init_new_offset(ACT_AVOID_BACK_SPOT_RIGHT, ACT_AVOID_BACK_SPOT_RIGHT_Open, ACT_back_spot_right_open,			0,		80,		0,		0);
-		init_new_offset(ACT_AVOID_BACK_SPOT_LEFT, ACT_AVOID_BACK_SPOT_LEFT_Open, ACT_back_spot_left_open,				80,		0,		0,		0);
+		init_new_offset(ACT_AVOID_BACK_SPOT_RIGHT, ACT_AVOID_BACK_SPOT_RIGHT_Open, ACT_BACK_SPOT_RIGHT_OPEN,			0,		80,		0,		0);
+		init_new_offset(ACT_AVOID_BACK_SPOT_LEFT, ACT_AVOID_BACK_SPOT_LEFT_Open, ACT_BACK_SPOT_LEFT_OPEN,				80,		0,		0,		0);
 
-		init_new_offset(ACT_AVOID_CUP_NIPPER, ACT_AVOID_CUP_NIPPER_Open, ACT_cup_nipper_open,							0,		0,		45,		0);
-		init_new_offset(ACT_AVOID_CUP_NIPPER, ACT_AVOID_CUP_NIPPER_Lock, ACT_cup_nipper_lock,							0,		0,		30,		0);
+		init_new_offset(ACT_AVOID_CUP_NIPPER, ACT_AVOID_CUP_NIPPER_Open, ACT_CUP_NIPPER_OPEN,							0,		0,		45,		0);
+		init_new_offset(ACT_AVOID_CUP_NIPPER, ACT_AVOID_CUP_NIPPER_Lock, ACT_CUP_NIPPER_LOCK,							0,		0,		30,		0);
 
-		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Left, ACT_clap_holly_left,							240,	0,		0,		0);
-		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Right, ACT_clap_holly_right,							0,		240,	0,		0);
-		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Left_Mid, ACT_clap_holly_middle_left,				150,	0,		0,		0);
-		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Right_Mid, ACT_clap_holly_middle_right,				0,		150,	0,		0);
+		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Left, ACT_CLAP_HOLLY_LEFT,							240,	0,		0,		0);
+		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Right, ACT_CLAP_HOLLY_RIGHT,							0,		240,	0,		0);
+		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Left_Mid, ACT_CLAP_HOLLY_MIDDLE_LEFT,				150,	0,		0,		0);
+		init_new_offset(ACT_AVOID_CLAP_HOLLY, ACT_AVOID_CLAP_HOLLY_Right_Mid, ACT_CLAP_HOLLY_MIDDLE_RIGHT,				0,		150,	0,		0);
 
-		init_new_offset(ACT_AVOID_CARPET_LEFT, ACT_AVOID_CARPET_LEFT_Launch, ACT_carpet_launcher_left_launch,			0,		0,		250,	0);
+		init_new_offset(ACT_AVOID_CARPET_LEFT, ACT_AVOID_CARPET_LEFT_Launch, ACT_CARPET_LAUNCHER_LEFT_LAUNCH,			0,		0,		250,	0);
 
-		init_new_offset(ACT_AVOID_CARPET_RIGHT, ACT_AVOID_CARPET_RIGHT_Launch, ACT_carpet_launcher_right_launch,		0,		0,		250,	0);
+		init_new_offset(ACT_AVOID_CARPET_RIGHT, ACT_AVOID_CARPET_RIGHT_Launch, ACT_CARPET_LAUNCHER_RIGHT_LAUNCH,		0,		0,		250,	0);
 	}else{
-		init_new_offset(ACT_AVOID_PINCE_DROITE, ACT_AVOID_PINCE_DROITE_Open, ACT_pince_droite_open,						0,		60,		0,		0);
-		init_new_offset(ACT_AVOID_PINCE_DROITE, ACT_AVOID_PINCE_DROITE_Close, ACT_pince_droite_closed,					0,		90,		0,		0);
+		init_new_offset(ACT_AVOID_PINCE_DROITE, ACT_AVOID_PINCE_DROITE_Open, ACT_PINCE_DROITE_OPEN,						0,		60,		0,		0);
+		init_new_offset(ACT_AVOID_PINCE_DROITE, ACT_AVOID_PINCE_DROITE_Close, ACT_PINCE_DROITE_CLOSED,					0,		90,		0,		0);
 
-		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_PINCE_GAUCHE_Open, ACT_pince_gauche_open,						60,		0,		0,		0);
-		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_PINCE_GAUCHE_Close, ACT_pince_gauche_closed,					90,		0,		0,		0);
+		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_PINCE_GAUCHE_Open, ACT_PINCE_GAUCHE_OPEN,						60,		0,		0,		0);
+		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_PINCE_GAUCHE_Close, ACT_PINCE_GAUCHE_CLOSED,					90,		0,		0,		0);
 
-		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_CLAP_WOOD_Open, ACT_clap_open,								0,		0,		100,	0);
+		init_new_offset(ACT_AVOID_PINCE_GAUCHE, ACT_AVOID_CLAP_WOOD_Open, ACT_CLAP_OPEN,								0,		0,		100,	0);
 	}
 }
 
@@ -137,15 +137,11 @@ static void refresh_total_offset_avoid(){
 static void send_total_offset_avoid(){
 	CAN_msg_t msg;
 	msg.sid = PROP_OFFSET_AVOID;
-	msg.size = 8;
-	msg.data[0] = HIGHINT(total_offset_avoid.Xleft);
-	msg.data[1] = LOWINT(total_offset_avoid.Xleft);
-	msg.data[2] = HIGHINT(total_offset_avoid.Xright);
-	msg.data[3] = LOWINT(total_offset_avoid.Xright);
-	msg.data[4] = HIGHINT(total_offset_avoid.Yfront);
-	msg.data[5] = LOWINT(total_offset_avoid.Yfront);
-	msg.data[6] = HIGHINT(total_offset_avoid.Yback);
-	msg.data[7] = LOWINT(total_offset_avoid.Yback);
+	msg.size = SIZE_PROP_OFFSET_AVOID;
+	msg.data.prop_offset_avoid.x_left = total_offset_avoid.Xleft;
+	msg.data.prop_offset_avoid.x_right = total_offset_avoid.Xright;
+	msg.data.prop_offset_avoid.y_front = total_offset_avoid.Yfront;
+	msg.data.prop_offset_avoid.y_back = total_offset_avoid.Yback;
 	CAN_send(&msg);
 }
 

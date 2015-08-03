@@ -25,10 +25,10 @@ void holly_receive_wood_position(CAN_msg_t * msg)
 		watchdog_position_id = 255;
 	}
 
-	infoWood.x1=U16FROMU8(msg->data[0],msg->data[1]);
-	infoWood.x2=U16FROMU8(msg->data[2],msg->data[3]);
-	infoWood.y1=U16FROMU8(msg->data[4],msg->data[5]);
-	infoWood.y2=U16FROMU8(msg->data[6],msg->data[7]);
+	infoWood.x1=msg->data.prop_wood_protect_zone.x1;
+	infoWood.x2=msg->data.prop_wood_protect_zone.x2;
+	infoWood.y1=msg->data.prop_wood_protect_zone.y1;
+	infoWood.y2=msg->data.prop_wood_protect_zone.y2;
 
 	if(infoWood.x1 || infoWood.x2 || infoWood.y1 || infoWood.y2)
 	{	//Le rectangle de protection est non nul : wood protège

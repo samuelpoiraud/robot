@@ -20,8 +20,8 @@
 		Sint16 x;	//[mm]
 		Sint16 y;	//[mm]
 		Sint16 teta;		//[rad/4096]
-		relative_e relative;
-		multipoint_e multipoint;
+		prop_referential_e relative;
+		prop_multipoint_e multipoint;
 		border_mode_e border_mode;
 		way_e way;
 		PROP_speed_e speed;
@@ -36,11 +36,11 @@
 						Sint16 x,
 						Sint16 y,
 						Sint16 teta,
-						relative_e relative,
-						now_e now,
+						prop_referential_e relative,
+						prop_buffer_mode_e now,
 						way_e way,
 						border_mode_e border_mode,
-						multipoint_e multipoint,
+						prop_multipoint_e multipoint,
 						PROP_speed_e speed,
 						acknowledge_e acknowledge,
 						corrector_e corrector,

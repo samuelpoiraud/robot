@@ -13,6 +13,7 @@
 #define	ACT_QUEUE_UTILS_H
 	#include "QS/QS_all.h"
 	#include "queue.h"
+	#include "QS/QS_CANmsgList.h"
 
 	typedef void (*ACT_OnInit)();
 	typedef void (*ACT_OnInitPos)();

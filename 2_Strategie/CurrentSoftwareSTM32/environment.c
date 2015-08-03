@@ -106,7 +106,7 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 		//FILTRAGE POUR NE PAS ETRE SPAMMES PAR LE MESSAGE DE POSITION_ROBOT....
 		case BROADCAST_POSITION_ROBOT:
 			//si le message est porteur d'un warning, on ne le filtre pas.
-			if((msg->data[6] & (WARNING_TRANSLATION | WARNING_ROTATION | WARNING_TIMER)) || !msg->data[0])	//Si le message ne porte pas de warning : on filtre.
+			if((msg->data.broadcast_position_robot.reason & (WARNING_TRANSLATION | WARNING_ROTATION | WARNING_TIMER)))	//Si le message ne porte pas de warning : on filtre.
 			{
 				//On ne propage pas les messages de BROADCAST_POSITION_ROBOT (dans le cas où les raisons ne sont pas des WARN).
 				*bSAVE_filter = FALSE;
@@ -333,13 +333,13 @@ void CAN_update (CAN_msg_t* incoming_msg)
 	{
 //****************************** Messages venant des geeks du club robot  *************************/
 		case DEBUG_RTC_SET:
-			date.seconds 	= incoming_msg->data[0];
-			date.minutes 	= incoming_msg->data[1];
-			date.hours 		= incoming_msg->data[2];
-			date.day 		= incoming_msg->data[3];
-			date.date 		= incoming_msg->data[4];
-			date.month 		= incoming_msg->data[5];
-			date.year 		= incoming_msg->data[6];	//13 pour 2013...
+			date.seconds 	= incoming_msg->data.debug_rtc_set.seconde;
+			date.minutes 	= incoming_msg->data.debug_rtc_set.minute;
+			date.hours 		= incoming_msg->data.debug_rtc_set.heure;
+			date.day 		= incoming_msg->data.debug_rtc_set.journee;
+			date.date 		= incoming_msg->data.debug_rtc_set.jour;
+			date.month 		= incoming_msg->data.debug_rtc_set.mois;
+			date.year 		= incoming_msg->data.debug_rtc_set.annee;
 			RTC_set_time(&date);
 			RTC_print_time();
 			RTC_can_send();	//Retour ... pour vérifier que ca a fonctionné..
@@ -355,9 +355,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			SELFTEST_ask_launch();
 			break;
 		case STRAT_BUZZER_PLAY:
-			BUZZER_play(U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]),
-						BUZZER_convert_enum_QS(incoming_msg->data[2]),
-						incoming_msg->data[3]);
+			BUZZER_play(incoming_msg->data.strat_buffer_play.duration,
+						BUZZER_convert_enum_QS(incoming_msg->data.strat_buffer_play.note),
+						incoming_msg->data.strat_buffer_play.nb_bip);
 			break;
 //****************************** Messages carte propulsion/asser *************************/
 		case STRAT_TRAJ_FINIE:
@@ -368,12 +368,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case STRAT_PROP_ERREUR:
 			global.prop.erreur = TRUE;
-			global.prop.vitesse_translation_erreur =
-				((Sint32)U16FROMU8(incoming_msg->data[1],incoming_msg->data[0]) << 16)
-					+ U16FROMU8(incoming_msg->data[3],incoming_msg->data[2]);
-			global.prop.vitesse_rotation_erreur =
-				((Sint32)U16FROMU8(incoming_msg->data[5],incoming_msg->data[4]) << 16)
-					+ U16FROMU8(incoming_msg->data[7],incoming_msg->data[6]);
 			break;
 		case PROP_ROBOT_CALIBRE:
 			global.prop.calibrated = TRUE;
@@ -408,15 +402,14 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 
 				msg.sid = PROP_GO_ANGLE;
-				msg.size = 8;
-				msg.data[0] = NO_ACKNOWLEDGE | NOW | ABSOLUTE | NO_MULTIPOINT;	//Demande spécifique de NON Acquittement.
-				msg.data[1] = HIGHINT(teta);	//teta high
-				msg.data[2] = LOWINT(teta);		//teta low
-				msg.data[3] = 0;				//RFU
-				msg.data[4] = 0;				//RFU
-				msg.data[5] = SLOW;				//
-				msg.data[6] = ANY_WAY;			//
-				msg.data[7] = 0;				//RFU
+				msg.size = SIZE_PROP_GO_ANGLE;
+				msg.data.prop_go_angle.acknowledge = PROP_NO_ACKNOWLEDGE;
+				msg.data.prop_go_angle.buffer_mode = PROP_NOW;
+				msg.data.prop_go_angle.referential = PROP_ABSOLUTE;
+				msg.data.prop_go_angle.multipoint = PROP_NO_MULTIPOINT;
+				msg.data.prop_go_angle.teta = teta;
+				msg.data.prop_go_angle.speed = SLOW;
+				msg.data.prop_go_angle.way = ANY_WAY;
 				CAN_send(&msg);
 
 			}
@@ -425,28 +418,28 @@ void CAN_update (CAN_msg_t* incoming_msg)
 				//PROP_set_correctors(FALSE, FALSE);
 			break;
 		case DEBUG_PROPULSION_COEF_IS:
-			if(incoming_msg->data[0] < PROPULSION_NUMBER_COEFS)
+			if(incoming_msg->data.debug_propulsion_coef_is.id < PROPULSION_NUMBER_COEFS)
 			{
-				global.debug.propulsion_coefs_updated |=  (Uint32)(1) << incoming_msg->data[0];
-				global.debug.propulsion_coefs[incoming_msg->data[0]] = (Sint32)(U32FROMU8(incoming_msg->data[1],incoming_msg->data[2],incoming_msg->data[3],incoming_msg->data[4]));
+				global.debug.propulsion_coefs_updated |=  (Uint32)(1) << incoming_msg->data.debug_propulsion_coef_is.id;
+				global.debug.propulsion_coefs[incoming_msg->data.debug_propulsion_coef_is.id] = incoming_msg->data.debug_propulsion_coef_is.value;
 			}
 			break;
 		case BROADCAST_POSITION_ROBOT:
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
 
-			if(incoming_msg->data[6] & WARNING_REACH_X)		//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
+			if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_X)	//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 			{
 				global.prop.reach_x = TRUE;
 				debug_printf("Rx\n");
 			}
 
-			if(incoming_msg->data[6] & WARNING_REACH_Y)	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
+			if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_Y)	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
 			{
 				global.prop.reach_y = TRUE;
 				debug_printf("Ry\n");
 			}
-			if(incoming_msg->data[6] & WARNING_REACH_TETA)	//Nous venons d'atteindre une position en Teta pour laquelle on a demandé une surveillance à la propulsion.
+			if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_TETA)	//Nous venons d'atteindre une position en Teta pour laquelle on a demandé une surveillance à la propulsion.
 			{
 				global.prop.reach_teta = TRUE;
 				debug_printf("Rt\n");
@@ -458,19 +451,14 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 			break;
 		case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
-			global.debug.duration_trajectory_for_test_coefs = U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]);
+			global.debug.duration_trajectory_for_test_coefs = incoming_msg->data.debug_trajectory_for_test_coefs_done.duration;
 			break;
 		case STRAT_SEND_REPORT:
-			LCD_printf(1, TRUE, FALSE, "Dist:%d", U16FROMU8(incoming_msg->data[4], incoming_msg->data[5]) << 1);
-			LCD_printf(2, TRUE, FALSE, "Rot :%4ld MRot:%4ld", ((Sint32)((Sint16)(U16FROMU8(incoming_msg->data[0], incoming_msg->data[1]))) << 3)*180/PI4096, ((Sint32)((Sint16)(U16FROMU8(incoming_msg->data[2], incoming_msg->data[3]))) << 3)*180/PI4096);
+			LCD_printf(1, TRUE, FALSE, "Dist:%d", incoming_msg->data.strat_send_report.actual_trans << 1);
+			LCD_printf(2, TRUE, FALSE, "Rot :%4d MRot:%4d", (incoming_msg->data.strat_send_report.actual_rot << 3)*180/PI4096, (incoming_msg->data.strat_send_report.max_rot << 3)*180/PI4096);
 			break;
 		case STRAT_CUP_POSITION:
 			collect_cup_coord(incoming_msg);
-			break;
-
-
-		case DEBUG_PROPULION_HOKUYO_HAS_PLANTED_AND_THAT_IS_NOT_VERY_FUNNY:
-			//BUZZER_play(1000,DEFAULT_NOTE,1);
 			break;
 
 //****************************** Messages de la carte actionneur *************************/
@@ -554,8 +542,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			sub_wood_ask_if_i_can_access_scan(NULL,NULL,NULL,incoming_msg);
 			break;
 /************************************* Récupération des messages liés au selftest ***************************/
-		case STRAT_BEACON_IR_SELFTEST_DONE :
-		case STRAT_BEACON_US_SELFTEST_DONE :
+		case STRAT_BEACON_SELFTEST_DONE :
 		case STRAT_ACT_SELFTEST_DONE :
 		case STRAT_PROP_SELFTEST_DONE :
 		case STRAT_IHM_SELFTEST_DONE:
@@ -593,39 +580,22 @@ void CAN_update (CAN_msg_t* incoming_msg)
 void ENV_pos_update (CAN_msg_t* msg)
 {
 	Sint16 cosinus, sinus;
-	global.pos.x = U16FROMU8(msg->data[0],msg->data[1]) & 0x1FFF;
-	global.pos.y = U16FROMU8(msg->data[2],msg->data[3]) & 0x1FFF;
-	global.pos.translation_speed = ((Uint16)(msg->data[0] >> 5))*250;	// [mm/sec]
-//	if(global.pos.translation_speed > 1500)
-//		debug_printf("");
-	global.pos.rotation_speed =	((Uint16)(msg->data[2] >> 5));		// [rad/sec]
-	global.pos.angle = U16FROMU8(msg->data[4],msg->data[5]);
+	global.pos.x = msg->data.broadcast_position_robot.x;
+	global.pos.y = msg->data.broadcast_position_robot.y;
+	global.pos.translation_speed = msg->data.broadcast_position_robot.speed_trans*250;	// [mm/sec]
+	global.pos.rotation_speed =	msg->data.broadcast_position_robot.speed_rot >> 5;		// [rad/sec]
+	global.pos.angle = msg->data.broadcast_position_robot.angle;
 	COS_SIN_4096_get(global.pos.angle, &cosinus, &sinus);
 	global.pos.cosAngle = cosinus;
 	global.pos.sinAngle = sinus;
 	global.prop.last_time_pos_updated = global.match_time;
-	global.prop.current_way = (way_e)((msg->data[7] >> 3) & 0x03);
-	global.prop.current_status = (SUPERVISOR_error_source_e)((msg->data[7]) & 0x07);
-	global.prop.is_in_translation = (((msg->data[7] >> 5) & 0x07) >> 2) & 1;
-	global.prop.is_in_rotation = (((msg->data[7] >> 5) & 0x07) >> 1) & 1;
+	global.prop.current_way = msg->data.broadcast_position_robot.way;
+	global.prop.current_status = msg->data.broadcast_position_robot.error;
+	global.prop.is_in_translation = msg->data.broadcast_position_robot.in_translation;
+	global.prop.is_in_rotation = msg->data.broadcast_position_robot.in_rotation;
 
 	global.flags.initial_position_received = TRUE;
 	global.pos.updated = TRUE;
-			/*msg->data[7] : 8 bits  : T R x W W E E E
-				 T : TRUE si robot en translation
-				 R : TRUE si robot en rotation
-				 x : non utilisé
-				 WW : Way, sens actuel
-					ANY_WAY						= 0,
-					BACKWARD					= 1,
-					FORWARD						= 2,
-				 EEE : Erreur
-					SUPERVISOR_INIT				= 0,
-					SUPERVISOR_IDLE				= 1,		//Rien à faire
-					SUPERVISOR_TRAJECTORY		= 2,		//Trajectoire en cours
-					SUPERVISOR_ERROR			= 3,		//Carte en erreur - attente d'un nouvel ordre pour en sortir
-					SUPERVISOR_MATCH_ENDED		= 4			//Match terminé
-				*/
 }
 
 
@@ -660,9 +630,9 @@ void ENV_set_color(color_e color)
 
 	/* indiquer au monde la nouvelle couleur */
 	CAN_msg_t msg;
-	msg.sid=BROADCAST_COULEUR;
-	msg.data[0]=global.color;
-	msg.size=1;
+	msg.sid = BROADCAST_COULEUR;
+	msg.size = SIZE_BROADCAST_COULEUR;
+	msg.data.broadcast_couleur.color = color;
 	CAN_send(&msg);
 }
 
@@ -671,8 +641,14 @@ void ENV_warning_switch(){
 	bool_e current_asser_switch;
 
 	current_asser_switch = IHM_switchs_get(SWITCH18_DISABLE_ASSER);
-	if(current_asser_switch != previous_asser_switch)
-		CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, current_asser_switch});
+	if(current_asser_switch != previous_asser_switch){
+		CAN_msg_t msg;
+		msg.sid = IHM_SET_ERROR;
+		msg.size = SIZE_IHM_SET_ERROR;
+		msg.data.ihm_set_error.error = IHM_ERROR_ASSER;
+		msg.data.ihm_set_error.state = current_asser_switch;
+		CAN_send(&msg);
+	}
 	previous_asser_switch = current_asser_switch;
 }
 

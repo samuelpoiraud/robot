@@ -277,21 +277,21 @@ static bool_e SELFTEST_check_end(queue_id_t queueId) {
 		msg.size = 0;
 
 		if(act_test_done_num != expected_act_num) {
-			msg.data[msg.size] = SELFTEST_ACT_MISSING_TEST;
-			OUTPUTLOG_printf(LOG_LEVEL_Debug, "%3d ", msg.data[msg.size]);
+			msg.data.strat_act_selftest_done.error_code[msg.size] = SELFTEST_ACT_MISSING_TEST;
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, "%3d ", msg.data.strat_act_selftest_done.error_code[msg.size]);
 			msg.size++;
 		}
 
 		for(i = 0; i < MAX_NB_ACT && msg.size < 8; i++) {
 			if(failed_act_tests[i] != SELFTEST_NOT_DONE) {
-				msg.data[msg.size] = failed_act_tests[i];
+				msg.data.strat_act_selftest_done.error_code[msg.size] = failed_act_tests[i];
 				msg.size++;
 			}
 		}
 
 		debug_printf("Resultat: %d/%d réponses, erreurs: ", act_test_done_num, expected_act_num);
 		for(i = 0; i < msg.size; i++)
-			OUTPUTLOG_printf(LOG_LEVEL_Debug, "%3d ", msg.data[i]);
+			OUTPUTLOG_printf(LOG_LEVEL_Debug, "%3d ", msg.data.strat_act_selftest_done.error_code[i]);
 		OUTPUTLOG_printf(LOG_LEVEL_Debug, "\n");
 		CAN_send(&msg);
 		return TRUE;

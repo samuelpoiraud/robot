@@ -65,11 +65,13 @@ void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 	va_list va;
 	va_start(va, led);
 
-	msg.data[0] = (led.blink << 5) | led.id;
+	msg.data.ihm_set_led.led[0].id = led.id;
+	msg.data.ihm_set_led.led[0].blink = led.blink;
 
 	for (i = 1; i < size; i++){
 		led = va_arg(va, led_ihm_t);
-		msg.data[i] = (led.blink << 5) | led.id;
+		msg.data.ihm_set_led.led[i].id = led.id;
+		msg.data.ihm_set_led.led[i].blink = led.blink;
 	}
 
 	va_end(va);
@@ -83,7 +85,7 @@ void IHM_set_led_color(led_color_e color)
 	CAN_msg_t msg;
 	msg.sid = IHM_SET_LED_COLOR;
 	msg.size = 1;
-	msg.data[0] = (Uint8)color;
+	msg.data.ihm_set_led_color.led_color = (Uint8)color;
 	CAN_send(&msg);
 }
 
@@ -91,23 +93,24 @@ void IHM_set_led_color(led_color_e color)
 void switchs_update(CAN_msg_t * msg){
 	Uint8 i;
 
+
 	for(i=0; i<msg->size; i++)
-		switchs[msg->data[i] & IHM_SWITCH_MASK] = (msg->data[i] >> 7) & 1;
+		switchs[msg->data.ihm_switch.switchs[i].id] = msg->data.ihm_switch.switchs[i].state;
 }
 
 void switchs_update_all(CAN_msg_t * msg){
 	Uint8 i;
-	Uint32 swit = U32FROMU8(msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
+	Uint32 swit = msg->data.ihm_switch_all.switch_mask;
 
 	for(i=0;i<SWITCHS_NUMBER_IHM;i++)
 		switchs[i] = (swit >> i) & 1;
 }
 
 void button_update(CAN_msg_t * msg){
-	ihm_button_t* button = &(buttons[msg->data[0]]);
+	ihm_button_t* button = &(buttons[msg->data.ihm_button.id]);
 	ihm_button_action_t action;
 
-	if(msg->data[1] == FALSE) { // direct push
+	if(msg->data.ihm_button.long_push == FALSE) { // direct push
 		action = button->direct_push;
 		if(action != NULL)
 			(*action)();

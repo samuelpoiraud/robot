@@ -109,15 +109,15 @@ void SPOT_POMPE_LEFT_init_pos(){
 bool_e SPOT_POMPE_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_SPOT_POMPE_LEFT) {
 		SPOT_POMPE_LEFT_initDCM();
-		switch(msg->data[0]) {
+		switch(msg->data.act_msg.order) {
 			case ACT_SPOT_POMPE_LEFT_NORMAL:
 			case ACT_SPOT_POMPE_LEFT_REVERSE:
 			case ACT_SPOT_POMPE_LEFT_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_SPOT_POMPE_LEFT, &SPOT_POMPE_LEFT_run_command, msg->data[1],TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_SPOT_POMPE_LEFT, &SPOT_POMPE_LEFT_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
 				break;
 
 			default:
-				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST) {

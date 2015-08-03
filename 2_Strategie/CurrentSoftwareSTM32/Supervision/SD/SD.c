@@ -175,7 +175,7 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 		string[n++] = HIGHINT(can_msg->sid);
 		string[n++] = LOWINT(can_msg->sid);
 		for (i=0; i<can_msg->size && i<8; i++)
-			string[n++] = can_msg->data[i];
+			string[n++] = can_msg->data.raw_data[i];
 		for (i=can_msg->size; i<8; i++)
 			string[n++] = 0xFF;
 		string[n++] = can_msg->size;
@@ -471,7 +471,7 @@ void SD_print_match(Uint16 nb_match){
 								break;
 							default:	//datas...
 								if(i < 10)
-									msg.data[i-2] = read_byte;
+									msg.data.raw_data[i-2] = read_byte;
 								else
 									debug_printf("Bad CAN_MSG format, i is invalid: %d\n", i);
 								break;

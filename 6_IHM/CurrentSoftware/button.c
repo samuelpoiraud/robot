@@ -127,10 +127,10 @@ void BUTTONS_update(){
 
 void BUTTONS_send_msg(button_ihm_e button_id,bool_e push_long){
 	CAN_msg_t msg;
-	msg.size = 2;
 	msg.sid = IHM_BUTTON;
-	msg.data[0] = button_id;
-	msg.data[1] = push_long;
+	msg.size = SIZE_IHM_BUTTON;
+	msg.data.ihm_button.id = button_id;
+	msg.data.ihm_button.long_push = push_long;
 	CAN_send(&msg);
 }
 

@@ -68,10 +68,10 @@ void FIX_BEACON_zone_enable(zone_e zone, zone_event_t events)
 {
 	CAN_msg_t msg;
 	msg.sid = ENABLE_WATCHING_ZONE;
-	msg.data[0] = zone;
-	msg.data[1] = QS_WHO_AM_I_get();
-	msg.data[2] = events;
-	msg.size = 3;
+	msg.size = SIZE_ENABLE_WATCHING_ZONE;
+	msg.data.enable_watching_zone.zone = zone;
+	msg.data.enable_watching_zone.robot = QS_WHO_AM_I_get();
+	msg.data.enable_watching_zone.event = events;
 	CANMsgToXBeeDestination(&msg,BALISE_MERE);
 }
 
@@ -79,9 +79,9 @@ void FIX_BEACON_zone_disable(zone_e zone)
 {
 	CAN_msg_t msg;
 	msg.sid = DISABLE_WATCHING_ZONES;
-	msg.data[0] = zone;
-	msg.data[1] = QS_WHO_AM_I_get();
-	msg.size = 2;
+	msg.size = SIZE_DISABLE_WATCHING_ZONES;
+	msg.data.disable_watching_zone.zone = zone;
+	msg.data.disable_watching_zone.robot = QS_WHO_AM_I_get();
 	CANMsgToXBeeDestination(&msg,BALISE_MERE);
 }
 
@@ -89,9 +89,9 @@ static void FIX_BEACON_ask_infos(zone_e zone)
 {
 	CAN_msg_t msg;
 	msg.sid = GET_ZONE_INFOS;
-	msg.data[0] = zone;
-	msg.data[1] = QS_WHO_AM_I_get();
-	msg.size = 2;
+	msg.size = SIZE_GET_ZONE_INFOS;
+	msg.data.get_zone_infos.zone = zone;
+	msg.data.get_zone_infos.robot = QS_WHO_AM_I_get();
 	CANMsgToXBeeDestination(&msg,BALISE_MERE);
 }
 
@@ -118,7 +118,7 @@ error_e FIX_BEACON_get_infos(zone_e zone, CAN_msg_t * msg)
 		return NOT_HANDLED;
 	if(msg != NULL && state == WAIT_ANSWER)
 	{
-		if(msg->data[0] == current_zone)
+		if(msg->data.get_zone_infos.zone == current_zone)
 		{
 			//TODO sauvegarder les infos...
 			state = ANSWER_RECEIVED;
@@ -169,7 +169,8 @@ error_e FIX_BEACON_get_infos(zone_e zone, CAN_msg_t * msg)
 //Traitement du message STRAT_ZONE_INFOS
 void FIX_BEACON_process_msg(CAN_msg_t * msg)
 {
-	zone_e i;
+#warning SOUCIS DE COHERENCE ICI
+	/*zone_e i;
 	if(!initialized)
 		return;
 	if(msg->sid != STRAT_ZONE_INFOS)
@@ -184,6 +185,6 @@ void FIX_BEACON_process_msg(CAN_msg_t * msg)
 		zones[i].presence_duration	= msg->data[6];	//Temps de présence dans la zone des objets qui s'y trouvent où qui en sont sortis.
 		zones[i].updated = TRUE;
 		zones_updated = TRUE;	//Pour éviter d'avoir à scruter les updated de chaque zone pour savoir si qch a changé.
-	}
+	}*/
 }
 

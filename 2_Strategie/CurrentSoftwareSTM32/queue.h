@@ -56,18 +56,11 @@ typedef enum {
 
 #define ACT_ARG_NOTIMEOUT ((time32_t)-1)
 
-//Version allégé pour nos besoin d'un message CAN, histoire de pas prendre trop de RAM dans la variable act_args ...
-typedef struct {
-	Uint11 sid;
-	Uint8 data[8];
-	Uint8 size;
-} ACT_can_msg_t;
-
 //Pour timeout: utiliser ACT_ARG_NOTIMEOUT pour ne pas mettre de timeout
 typedef struct {
 	Uint16 timeout;         //Temps avant timeout de l'action en ms (relatif au démarrage de l'execution de l'action).
-	ACT_can_msg_t msg;          //Message à envoyer pour executer l'action
-	ACT_can_msg_t fallbackMsg;  //Quand on ne peut pas aller a la position demandé, envoyer ce message. Utilisé pour ACT_BEHAVIOR_GoalUnreachable. Si le SID est ACT_ARG_NOFALLBACK_SID, aucun message de sera envoyé et l'erreur indiqué au code de strat sera de reessayer la la strat qui utilise cette commande plus tard (ACT_FUNCTION_RetryLater).
+	CAN_msg_t msg;          //Message à envoyer pour executer l'action
+	CAN_msg_t fallbackMsg;  //Quand on ne peut pas aller a la position demandé, envoyer ce message. Utilisé pour ACT_BEHAVIOR_GoalUnreachable. Si le SID est ACT_ARG_NOFALLBACK_SID, aucun message de sera envoyé et l'erreur indiqué au code de strat sera de reessayer la la strat qui utilise cette commande plus tard (ACT_FUNCTION_RetryLater).
 } QUEUE_arg_t;
 
 /*

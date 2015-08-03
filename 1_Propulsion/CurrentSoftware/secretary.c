@@ -221,11 +221,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								0,
 								0,
 								0,					//teta
-								NOT_RELATIVE,		//relative
-								NOW,			//maintenant
-								ANY_WAY,	//sens de marche
+								PROP_ABSOLUTE,		//relative
+								PROP_NOW,			//maintenant
+								ANY_WAY,			//sens de marche
 								NOT_BORDER_MODE,	//mode bordure
-								NO_MULTIPOINT, 	//mode multipoints
+								PROP_NO_MULTIPOINT, //mode multipoints
 								FAST,				//Vitesse
 								ACKNOWLEDGE_ASKED,
 								CORRECTOR_ENABLE,
@@ -238,16 +238,16 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			ROADMAP_add_order( 	TRAJECTORY_ROTATION,							// type trajectoire
 								0,									//x
 								0,									//y
-								(U16FROMU8(msg->data[1],msg->data[2])),	//teta
-								(msg->data[0] & 0x01)?RELATIVE:NOT_RELATIVE,	//relative
-								(msg->data[0] & 0x10)?NOT_NOW:NOW,//maintenant
+								msg->data.prop_go_angle.teta,	//teta
+								msg->data.prop_go_angle.referential,	//relative
+								msg->data.prop_go_angle.buffer_mode,//maintenant
 								ANY_WAY,					//sens de marche
 								NOT_BORDER_MODE,					//mode bordure
-								(msg->data[0] & 0x20)?MULTIPOINT:NO_MULTIPOINT, 	//mode multi points
+								msg->data.prop_go_angle.multipoint, 	//mode multi points
 								//NOT_MULTIPOINT,
-								msg->data[5],						//Vitesse
-								(msg->data[0] & 0x40)?NO_ACKNOWLEDGE:ACKNOWLEDGE_ASKED,	//Demande spécifique de NON acquittement
-								(corrector_e)((msg->data[0] & 0x0C)>>2),
+								msg->data.prop_go_angle.speed,						//Vitesse
+								(msg->data.prop_go_angle.acknowledge == PROP_ACKNOWLEDGE)? NO_ACKNOWLEDGE:ACKNOWLEDGE_ASKED,	//Demande spécifique de NON acquittement
+								CORRECTOR_ENABLE,
 								AVOID_DISABLED
 							);
 		break;
@@ -256,24 +256,24 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			//debug_printf("Receveid new go_position : x -> %d, y -> %d\n", U16FROMU8(msg->data[1],msg->data[2]), U16FROMU8(msg->data[3],msg->data[4]));
 
 			//Réglage sens:
-			if ((msg->data[6] == BACKWARD) || (msg->data[6] == FORWARD))
-				sens_marche = msg->data[6];	//LE SENS EST imposé
+			if ((msg->data.prop_go_position.way == BACKWARD) || (msg->data.prop_go_position.way == FORWARD))
+				sens_marche = msg->data.prop_go_position.way;	//LE SENS EST imposé
 			else
 				sens_marche = ANY_WAY;	//ON SE FICHE DU SENS
 
-			ROADMAP_add_order(  ((msg->data[7]&0x0F) != 0)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
-								(U16FROMU8(msg->data[1],msg->data[2])),	//x
-								(U16FROMU8(msg->data[3],msg->data[4])),	//y
+			ROADMAP_add_order(  (msg->data.prop_go_position.curve == PROP_CURVE)?TRAJECTORY_AUTOMATIC_CURVE:TRAJECTORY_TRANSLATION,
+								msg->data.prop_go_position.x,	//x
+								msg->data.prop_go_position.y,	//y
 								0,									//teta
-								(msg->data[0] & 0x01)?RELATIVE:NOT_RELATIVE,	//relative
-								(msg->data[0] & 0x10)?NOT_NOW:NOW,//maintenant
+								msg->data.prop_go_position.referential,	//relative
+								msg->data.prop_go_position.buffer_mode,//maintenant
 								sens_marche,						//sens de marche
-								(msg->data[0] & 0x02)?BORDER_MODE:NOT_BORDER_MODE,	//mode bordure
-								(msg->data[0] & 0x20)?MULTIPOINT:NO_MULTIPOINT, //mode multipoints
-								msg->data[5],						//Vitesse
-								(msg->data[0] & 0x40)?NO_ACKNOWLEDGE:ACKNOWLEDGE_ASKED,	//Demande spécifique de NON acquittement,
-								(corrector_e)((msg->data[0] & 0x0C)>>2),
-								(avoidance_e)((msg->data[7] & 0xF0)>>4)
+								(msg->data.prop_go_position.border_mode == PROP_BORDER_MODE)?BORDER_MODE:NOT_BORDER_MODE,	//mode bordure
+								msg->data.prop_go_position.multipoint, //mode multipoints
+								msg->data.prop_go_position.speed,						//Vitesse
+								(msg->data.prop_go_angle.acknowledge == PROP_ACKNOWLEDGE)? NO_ACKNOWLEDGE:ACKNOWLEDGE_ASKED,	//Demande spécifique de NON acquittement,
+								CORRECTOR_ENABLE,
+								msg->data.prop_go_position.avoidance
 							);
 		break;
 
@@ -285,7 +285,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		// Modifie la position de départ en fonction de la couleur
 		case BROADCAST_COULEUR :
 			//Le type couleur est normalisé en QS...
-			ODOMETRY_set_color((color_e)(msg->data[0]));
+			ODOMETRY_set_color(msg->data.broadcast_couleur.color);
 			//Propagation sur UART (pour un éventuel robot virtuel branché sur notre UART)
 			#ifdef CAN_SEND_OVER_UART
 				CANmsgToU1tx(msg);
@@ -297,15 +297,15 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		// Impose une position (uniquement pour les tests !!!)
 		case PROP_SET_POSITION:
 			ODOMETRY_set(
-							(U16FROMU8(msg->data[0],msg->data[1])),	//x
-							(U16FROMU8(msg->data[2],msg->data[3])), 	//y
-							(U16FROMU8(msg->data[4],msg->data[5]))	//teta
+							msg->data.prop_set_position.x,	//x
+							msg->data.prop_set_position.y, 	//y
+							msg->data.prop_set_position.teta	//teta
 						);
 			COPILOT_reset_absolute_destination();
 
 		break;
 		case PROP_RUSH_IN_THE_WALL:
-			SEQUENCES_rush_in_the_wall((U16FROMU8(msg->data[2],msg->data[3])), msg->data[0], SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data[1])?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
+			SEQUENCES_rush_in_the_wall(msg->data.prop_rush_in_the_wall.teta, msg->data.prop_rush_in_the_wall.way, SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data.prop_rush_in_the_wall.asser_rot)?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
 		break;
 
 		//Stop tout
@@ -316,11 +316,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								0,
 								0,
 								0,					//teta
-								NOT_RELATIVE,		//relative
-								NOW,			//maintenant
+								PROP_ABSOLUTE,		//relative
+								PROP_NOW,			//maintenant
 								ANY_WAY,	//sens de marche
 								NOT_BORDER_MODE,	//mode bordure
-								NO_MULTIPOINT, 	//mode multipoints
+								PROP_NO_MULTIPOINT, 	//mode multipoints
 								FAST,				//Vitesse
 								ACKNOWLEDGE_ASKED,
 								CORRECTOR_ENABLE,
@@ -339,7 +339,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		break;
 
 		case BROADCAST_ALIM :
-			global.alim_value = (((Uint16)(msg->data[1]) << 8) & 0xFF00) | ((Uint16)(msg->data[2]) & 0x00FF);
+			global.alim_value = msg->data.broadcast_alim.value;
 			break;
 
 		//Carte stratégie demande la position
@@ -347,16 +347,16 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
 		case PROP_SET_CORRECTORS:
-			if(msg->data[0])	//Rotation
+			if(msg->data.prop_set_correctors.rot_corrector)	//Rotation
 			{
-				if(msg->data[1])	//Translation
+				if(msg->data.prop_set_correctors.trans_corrector)	//Translation
 					CORRECTOR_PD_enable(CORRECTOR_ENABLE);
 				else
 					CORRECTOR_PD_enable(CORRECTOR_ROTATION_ONLY);
 			}
 			else
 			{
-				if(msg->data[1])	//Translation
+				if(msg->data.prop_set_correctors.trans_corrector)	//Translation
 					CORRECTOR_PD_enable(CORRECTOR_TRANSLATION_ONLY);
 				else
 					CORRECTOR_PD_enable(CORRECTOR_DISABLE);
@@ -364,47 +364,47 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		break;
 		//Une carte nous demande de l'avertir lorsque nous serons en approche d'une position...
 		case PROP_WARN_ANGLE:
-			WARNER_arm_teta(U16FROMU8(msg->data[0],msg->data[1]));
+			WARNER_arm_teta(msg->data.prop_warn_angle.angle);
 		break;
 		case PROP_WARN_X:
-			WARNER_arm_x(U16FROMU8(msg->data[0],msg->data[1]));
+			WARNER_arm_x(msg->data.prop_warn_x.x);
 		break;
 		case PROP_WARN_Y:
-			WARNER_arm_y(U16FROMU8(msg->data[0],msg->data[1]));
+			WARNER_arm_y(msg->data.prop_warn_y.y);
 		break;
 		case PROP_SEND_PERIODICALLY_POSITION:
-			WARNER_arm_timer(U16FROMU8(msg->data[0],msg->data[1]));
-			WARNER_arm_translation(U16FROMU8(msg->data[2],msg->data[3]));
-			WARNER_arm_rotation(U16FROMU8(msg->data[4],msg->data[5]));
+			WARNER_arm_timer(msg->data.prop_send_periodically_position.period);
+			WARNER_arm_translation(msg->data.prop_send_periodically_position.translation);
+			WARNER_arm_rotation(msg->data.prop_send_periodically_position.rotation);
 		break;
 
 		case PROP_JOYSTICK:
-			JOYSTICK_enable(100, (Sint8)msg->data[0], (Sint8)msg->data[1], (bool_e)msg->data[2], (bool_e)msg->data[3]);
+			JOYSTICK_enable(100, msg->data.prop_joystick.duty_left, msg->data.prop_joystick.duty_right, msg->data.prop_joystick.buttonA, msg->data.prop_joystick.buttonB);
 						//durée d'activation du joystick en ms
 		break;
 
 		//REGLAGES DES COEFFICIENTS !!!!!!!!
 		case DEBUG_PROPULSION_SET_ACCELERATION:
-			if(U16FROMU8(msg->data[0], msg->data[1]) < 200)	//Sécurité...
-				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, (Sint32)(U16FROMU8(msg->data[0], msg->data[1])));
+			if(msg->data.debug_propulsion_set_acceleration.acceleration_coef < 200)	//Sécurité...
+				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, msg->data.debug_propulsion_set_acceleration.acceleration_coef);
 		break;
 
 		case DEBUG_PROPULSION_GET_COEFS:
 			SECRETARY_send_all_coefs();
 		break;
 		case DEBUG_PROPULSION_SET_COEF:
-			if(msg->data[0] < PROPULSION_NUMBER_COEFS && msg->size >= 5)
+			if(msg->data.debug_propulsion_set_coef.id < PROPULSION_NUMBER_COEFS && msg->size >= SIZE_DEBUG_PROPULSION_SET_COEF)
 			{
-				if(msg->data[0] <= ODOMETRY_COEF_CENTRIFUGAL)
-					ODOMETRY_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
-				else if(msg->data[0] == GYRO_COEF_GAIN)
-					GYRO_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
+				if(msg->data.debug_propulsion_set_coef.id <= ODOMETRY_COEF_CENTRIFUGAL)
+					ODOMETRY_set_coef(msg->data.debug_propulsion_set_coef.id, msg->data.debug_propulsion_set_coef.value);
+				else if(msg->data.debug_propulsion_set_coef.id == GYRO_COEF_GAIN)
+					GYRO_set_coef(msg->data.debug_propulsion_set_coef.id, msg->data.debug_propulsion_set_coef.value);
 				else
-					CORRECTOR_set_coef(msg->data[0], (Sint32)(U32FROMU8(msg->data[1], msg->data[2], msg->data[3], msg->data[4])));
+					CORRECTOR_set_coef(msg->data.debug_propulsion_set_coef.id, msg->data.debug_propulsion_set_coef.value);
 			}
 			else
 				debug_printf("WARNING : bad datas in DEBUG_PROPULSION_SET_COEF message received\n");
-			SECRETARY_send_coef(msg->data[0]);	//feedback
+			SECRETARY_send_coef(msg->data.debug_propulsion_set_coef.id);	//feedback
 		break;
 		case DEBUG_ENABLE_MODE_BEST_EFFORT:
 			#ifndef MODE_SIMULATION
@@ -412,14 +412,14 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			#endif
 		break;
 		case DEBUG_SET_ERROR_TRESHOLD_TRANSLATION:
-			SUPERVISOR_set_treshold_error_translation(msg->data[0]);
+			SUPERVISOR_set_treshold_error_translation(msg->data.debug_set_error_treshold_translation.error_treshold_trans);
 			break;
 
 		case DEBUG_PROP_MOVE_POSITION:
 			ODOMETRY_set(
-							global.position.x + (U16FROMU8(msg->data[0],msg->data[1])),	//x
-							global.position.y + (U16FROMU8(msg->data[2],msg->data[3])), 	//y
-							GEOMETRY_modulo_angle(global.position.teta + (U16FROMU8(msg->data[4],msg->data[5])))	//teta
+							global.position.x + msg->data.debug_prop_move_position.xOffset,	//x
+							global.position.y + msg->data.debug_prop_move_position.yOffset, 	//y
+							GEOMETRY_modulo_angle(global.position.teta + msg->data.debug_prop_move_position.tetaOffset)	//teta
 						);
 			COPILOT_reset_absolute_destination();
 			break;
@@ -502,7 +502,7 @@ void SECRETARY_send_canmsg(CAN_msg_t * msg)
 
 	Uint8 i;
 	for(i=msg->size;i<8;i++)
-		msg->data[i]=0xFF;		//On remplace les données hors size par des FF (notamment pour verbose et envoi sur uart)
+		msg->data.raw_data[i]=0xFF;		//On remplace les données hors size par des FF (notamment pour verbose et envoi sur uart)
 
 	CAN_send(msg);
 
@@ -534,14 +534,14 @@ void SECRETARY_send_selftest_result(bool_e result)
 	msg.size = 8;
 	i = 0;
 	if(result == FALSE)
-		msg.data[i++] = SELFTEST_PROP_FAILED;
+		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_FAILED;
 	if(HOKUYO_is_working_well() == FALSE)
-		msg.data[i++] = SELFTEST_PROP_HOKUYO_FAILED;
+		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_HOKUYO_FAILED;
 	if(QS_WHO_AM_I_get() == SMALL_ROBOT){
 		if(ADC_getValue(SCAN_CUP_SENSOR_LEFT) > 15)
-			msg.data[i++] = SELFTEST_PROP_SENSOR_CUP_LEFT;
+			msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_SENSOR_CUP_LEFT;
 		if(ADC_getValue(SCAN_CUP_SENSOR_RIGHT) > 15)
-			msg.data[i++] = SELFTEST_PROP_SENSOR_CUP_RIGHT;
+			msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_SENSOR_CUP_RIGHT;
 	}
 
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
@@ -549,7 +549,7 @@ void SECRETARY_send_selftest_result(bool_e result)
 	#endif
 
 	for(;i<8;i++)
-		msg.data[i] = SELFTEST_NO_ERROR;
+		msg.data.strat_prop_selftest_done.error_code[i] = SELFTEST_NO_ERROR;
 
 	SECRETARY_send_canmsg(&msg);
 }
@@ -558,9 +558,8 @@ void SECRETARY_send_trajectory_for_test_coefs_finished(Uint16 duration)
 {
 	CAN_msg_t msg;
 	msg.sid = DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE;
-	msg.data[0] = HIGHINT(duration);
-	msg.data[1] = LOWINT(duration);
-	msg.size = 2;
+	msg.size = SIZE_DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE;
+	msg.data.debug_trajectory_for_test_coefs_done.duration = duration;
 	SECRETARY_send_canmsg(&msg);
 }
 
@@ -568,56 +567,41 @@ void SECRETARY_send_trajectory_for_test_coefs_finished(Uint16 duration)
 void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 adversary_number, Uint16 x, Uint16 y, Sint16 teta, Uint16 distance, Uint8 fiability)
 {
 	CAN_msg_t msg;
-//force pos adversaries
-	/*		0 : ADVERSARY_NUMBER	//de 0 à n, il peut y avoir plus de deux adversaires si l'on inclut notre ami...
-	 * 		1 :  x [2cm]
-	 * 		2 :  y [2cm]
-	 * 		3-4 : teta
-	 * 		5 : distance [2cm]
-	 * 		6 : fiability	:    "0 0 0 0 d t y x" (distance, teta, y, x) : 1 si fiable, 0 sinon.
-	 */
 	msg.sid = BROADCAST_ADVERSARIES_POSITION;
-	msg.data[0] = adversary_number | ((it_is_the_last_adversary)?IT_IS_THE_LAST_ADVERSARY:0);	//n° de l'ADVERSARY  + bit de poids fort si c'est le dernier adversaire
-	msg.data[1] = x/20;	//X [2cm]
-	msg.data[2] = y/20;	//Y [2cm]
-	msg.data[3] = HIGHINT(teta);	//teta
-	msg.data[4] = LOWINT(teta);	//teta
-	msg.data[5] = distance/20;	//distance [2cm]
-	msg.data[6] = fiability;	//fiability : x et y fiables
-	msg.size = 7;
+	msg.size = SIZE_BROADCAST_ADVERSARIES_POSITION;
+	msg.data.broadcast_adversaries_position.adversary_number = adversary_number;
+	msg.data.broadcast_adversaries_position.last_adversary = it_is_the_last_adversary;
+	msg.data.broadcast_adversaries_position.x = x/20;
+	msg.data.broadcast_adversaries_position.y = y/20;
+	msg.data.broadcast_adversaries_position.dist = distance/20;
+	msg.data.broadcast_adversaries_position.teta = teta;
+	msg.data.broadcast_adversaries_position.fiability = fiability;
+
 	SECRETARY_send_canmsg(&msg);
 	//debug_printf("Adv%d\t%4d\t%4d\t%5d\t%4d\n%s",adversary_number,x,y,teta,distance,((it_is_the_last_adversary)?"\n":""));
 }
 
 
-void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
+void SECRETARY_process_send(Uint11 sid, prop_warning_reason_e reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
 {
 	CAN_msg_t msg;
-	Uint8 error_byte;
 	Sint32 rot_speed;
-	Uint8 trajectory_status; //3 bits
-
-	trajectory_status = (global.vitesse_translation != 0) << 2 | (global.vitesse_rotation != 0) << 1;
-	error_byte = ((Uint8)(trajectory_status) << 5) | (Uint8)(COPILOT_get_way()) << 3 | (Uint8)(error_source & 0x07);
 
 	msg.sid = sid;
-	msg.data[0] = (HIGHINT(global.position.x) & 0x1F) | (((absolute(global.real_speed_translation)>>10)/5) << 5);	//Vitesse sur 3 bits forts, en [250mm/s]
-	msg.data[1] = LOWINT(global.position.x);
+	msg.size = SIZE_BROADCAST_POSITION_ROBOT;
+	msg.data.broadcast_position_robot.x = global.position.x;
+	msg.data.broadcast_position_robot.y = global.position.y;
+	msg.data.broadcast_position_robot.speed_trans = (absolute(global.real_speed_translation)>>10)/5;
 	rot_speed = ((absolute(global.real_speed_rotation)>>10)*200)>>12;
 	if(rot_speed > 7)
 		rot_speed = 7;	//ecretage pour tenir sur 3 bits
-	msg.data[2] = (HIGHINT(global.position.y) & 0x1F) | ((Uint8)(rot_speed) << 5);	//Vitesse angulaire en radians
-	msg.data[3] = LOWINT(global.position.y);
-	msg.data[4] = HIGHINT(global.position.teta);
-	msg.data[5] = LOWINT(global.position.teta);
-	msg.data[6] = reason;
-	msg.data[7] = error_byte;	//Octet d'erreur... voir warner.c qui rempli cet octet d'erreur...
-			/*	Octet d'erreur :   0bTTTWWEEE
-								 TTT = trajectory_e
-								 WW  = way_e
-								 EEE = SUPERVISOR_error_source_e
-									*/
-	msg.size = 8;
+	msg.data.broadcast_position_robot.speed_rot = rot_speed;
+	msg.data.broadcast_position_robot.angle = global.position.teta;
+	msg.data.broadcast_position_robot.reason = reason;
+	msg.data.broadcast_position_robot.error = error_source;
+	msg.data.broadcast_position_robot.way = COPILOT_get_way();
+	msg.data.broadcast_position_robot.in_rotation = global.vitesse_rotation != 0;
+	msg.data.broadcast_position_robot.in_translation = global.vitesse_translation != 0;
 	SECRETARY_send_canmsg(&msg);
 }
 
@@ -625,15 +609,13 @@ void SECRETARY_process_send(Uint11 sid, Uint8 reason, SUPERVISOR_error_source_e 
 void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, bool_e adv_hokuyo, bool_e timeout){
 	CAN_msg_t msg;
 		msg.sid = STRAT_PROP_FOE_DETECTED;
-		msg.size = 8;
-		msg.data[0] = HIGHINT(x);
-		msg.data[1] = LOWINT(x);
-		msg.data[2] = HIGHINT(y);
-		msg.data[3] = LOWINT(y);
-		msg.data[4] = ((timeout)?0x01:0) + ((adv_hokuyo)?0x02:0);
-		msg.data[5] = (Uint8)(dist/20);
-		msg.data[6] = HIGHINT(angle);
-		msg.data[7] = LOWINT(angle);
+		msg.size = SIZE_STRAT_PROP_FOE_DETECTED;
+		msg.data.strat_prop_foe_detected.x = x;
+		msg.data.strat_prop_foe_detected.y = y;
+		msg.data.strat_prop_foe_detected.dist = dist/20;
+		msg.data.strat_prop_foe_detected.angle = angle;
+		msg.data.strat_prop_foe_detected.timeout = timeout;
+		msg.data.strat_prop_foe_detected.hokuyo_detection = adv_hokuyo;
 	SECRETARY_send_canmsg_from_it(&msg);
 }
 
@@ -642,21 +624,13 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, 
 void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, bool_e cup_detected, Sint16 x, Sint16 y)
 {
 	CAN_msg_t msg;
-	/*		0:0		: Indique si c'est le dernier gobelet
-	 *		0:1		: Indique s'il y a eu une erreur lors du scan
-	 *		0:2		: Est à 1 s'il y a un ou des gobelets de détecté(s)
-	 * 		1		: x HIGH bit
-	 * 		2		: x LOW bit
-	 * 		3		: y HIGH bit
-	 *		4		: y LOW bit
-	 */
 	msg.sid = STRAT_CUP_POSITION;
-	msg.data[0] = ((it_is_the_last_cup)?1:0) | (((error_scan)?1:0) << 1) | (((cup_detected)?1:0) << 2);
-	msg.data[1] = HIGHINT(x);
-	msg.data[2] = LOWINT(x);
-	msg.data[3] = HIGHINT(y);
-	msg.data[4] = LOWINT(y);
-	msg.size = 5;
+	msg.size = SIZE_STRAT_CUP_POSITION;
+	msg.data.strat_cup_position.x = x;
+	msg.data.strat_cup_position.y = y;
+	msg.data.strat_cup_position.cup_detected = cup_detected;
+	msg.data.strat_cup_position.last_cup = it_is_the_last_cup;
+	msg.data.strat_cup_position.scan_error = error_scan;
 	SECRETARY_send_canmsg_from_it(&msg);
 }
 
@@ -730,13 +704,10 @@ static void SECRETARY_mailbox_out_process_main(void)	 //Fonction appelée en tâch
 static void SECRETARY_send_report(){
 	CAN_msg_t msg;
 	msg.sid = STRAT_SEND_REPORT;
-	msg.size = 6;
-	msg.data[0] = HIGHINT(ODOMETRY_get_total_teta() >> 3);
-	msg.data[1] = LOWINT(ODOMETRY_get_total_teta() >> 3);
-	msg.data[2] = HIGHINT(ODOMETRY_get_max_total_teta() >> 3);
-	msg.data[3] = LOWINT(ODOMETRY_get_max_total_teta() >> 3);
-	msg.data[4] = HIGHINT(ODOMETRY_get_total_dist() >> 1);
-	msg.data[5] = LOWINT(ODOMETRY_get_total_dist() >> 1);
+	msg.size = SIZE_STRAT_SEND_REPORT;
+	msg.data.strat_send_report.actual_rot = ODOMETRY_get_total_teta() >> 3;
+	msg.data.strat_send_report.actual_trans = ODOMETRY_get_total_dist() >> 1;
+	msg.data.strat_send_report.max_rot = ODOMETRY_get_max_total_teta() >> 3;
 	CAN_send(&msg);
 }
 
@@ -763,8 +734,8 @@ static void SECRETARY_send_pong(void)
 {
 	CAN_msg_t msg;
 	msg.sid = STRAT_PROP_PONG;
-	msg.size = 1;
-	msg.data[0] = QS_WHO_AM_I_get();
+	msg.size = SIZE_STRAT_PROP_PONG;
+	msg.data.strat_prop_pong.robot_id = QS_WHO_AM_I_get();
 	SECRETARY_send_canmsg(&msg);
 }
 
@@ -794,12 +765,9 @@ static void SECRETARY_send_coef(PROPULSION_coef_e i)
 		else
 			coef = CORRECTOR_get_coef(i);
 		msg.sid = DEBUG_PROPULSION_COEF_IS;
-		msg.data[0] = i;
-		msg.data[1] = (Uint8)((coef >> 24) & 0xFF);
-		msg.data[2] = (Uint8)((coef >> 16) & 0xFF);
-		msg.data[3] = (Uint8)((coef >> 8) & 0xFF);
-		msg.data[4] = (Uint8)((coef 	) & 0xFF);
-		msg.size = 5;
+		msg.size = SIZE_DEBUG_PROPULSION_COEF_IS;
+		msg.data.debug_propulsion_coef_is.id = i;
+		msg.data.debug_propulsion_coef_is.value = coef;
 		debug_printf("Coef %d:%s is %ld\n",i,PROPULSION_coefs_strings[i],coef);
 		SECRETARY_send_canmsg(&msg);
 	}

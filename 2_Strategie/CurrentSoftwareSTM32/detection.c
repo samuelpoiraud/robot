@@ -243,10 +243,10 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 	switch(msg->sid)
 	{
 		case BROADCAST_ADVERSARIES_POSITION:
-			adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
+			adversary_nb = msg->data.broadcast_adversaries_position.adversary_number;
 			if(adversary_nb < MAX_HOKUYO_FOES)
 			{
-				fiability = msg->data[6];
+				fiability = msg->data.broadcast_adversaries_position.fiability;
 				if(fiability)
 				{
 					adversaries[adversary_nb].enable = TRUE;
@@ -255,26 +255,26 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				else
 					adversaries[adversary_nb].enable = FALSE;
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
-					adversaries[adversary_nb].x = ((Sint16)msg->data[1])*20;
+					adversaries[adversary_nb].x = ((Sint16)msg->data.broadcast_adversaries_position.x)*20;
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
-					adversaries[adversary_nb].y = ((Sint16)msg->data[2])*20;
+					adversaries[adversary_nb].y = ((Sint16)msg->data.broadcast_adversaries_position.y)*20;
 				if(fiability)
 				{
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
-						adversaries[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
+						adversaries[adversary_nb].angle = msg->data.broadcast_adversaries_position.teta;
 					else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
 					{
 						adversaries[adversary_nb].angle = GEOMETRY_viewing_angle(global.pos.x, global.pos.y,adversaries[adversary_nb].x, adversaries[adversary_nb].y);
 						adversaries[adversary_nb].angle = GEOMETRY_modulo_angle(adversaries[adversary_nb].angle - global.pos.angle);
 					}
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
-						adversaries[adversary_nb].dist = ((Sint16)msg->data[5])*20;
+						adversaries[adversary_nb].dist = ((Sint16)msg->data.broadcast_adversaries_position.dist)*20;
 					else	//je dois calculer moi-même la distance de l'adversaire
 						adversaries[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.pos.x, global.pos.y},
 																				(GEOMETRY_point_t){adversaries[adversary_nb].x, adversaries[adversary_nb].y}
 																				);
 				}
-				if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
+				if(msg->data.broadcast_adversaries_position.last_adversary)
 				{
 					if(adversary_nb == 0 && !fiability)
 						hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
@@ -289,14 +289,14 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 
 			for(i = 0; i<MAX_BEACON_FOES; i++)
 			{
-				beacon_ir_objects[i].fiability_error = msg->data[0+4*i];
+				beacon_ir_objects[i].fiability_error = msg->data.broadcast_beacon_adversary_position_ir.adv[i].error;
 				if((beacon_ir_objects[i].fiability_error & ~SIGNAL_INSUFFISANT & ~TACHE_TROP_GRANDE) == AUCUNE_ERREUR)	//Si je n'ai pas d'autre erreur que SIGNAL_INSUFFISANT... c'est bon
 					beacon_ir_objects[i].enable = TRUE;
 				else
 					beacon_ir_objects[i].enable = FALSE;
 
-				beacon_ir_objects[i].angle = GEOMETRY_modulo_angle((Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i])) + PI4096/2);
-				beacon_ir_objects[i].dist = (Uint16)(msg->data[3+4*i])*20;
+				beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(msg->data.broadcast_beacon_adversary_position_ir.adv[i].angle + PI4096/2);
+				beacon_ir_objects[i].dist = (Uint16)(msg->data.broadcast_beacon_adversary_position_ir.adv[i].dist)*20;
 
 				if(beacon_ir_objects[i].fiability_error & TACHE_TROP_GRANDE)
 					beacon_ir_objects[i].dist = 250;	//Lorsque l'on reçoit l'erreur TACHE TROP GRANDE, la distance est fausse, mais l'adversaire est probablement très proche. On impose 25cm.

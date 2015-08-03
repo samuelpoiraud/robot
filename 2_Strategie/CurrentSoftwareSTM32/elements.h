@@ -26,11 +26,6 @@ typedef enum
 	}ELEMENTS_state_s;
 
 	typedef enum{
-		NORTH,
-		SOUTH
-	}ELEMENTS_order_s;
-
-	typedef enum{
 		ACTIVATE,
 		DISABLE_SEND,
 		AUTO_SEND,
@@ -131,7 +126,7 @@ Uint8 ELEMENTS_get_holly_right_spot_level(void);
 void ELEMENTS_inc_holly_right_spot_level(void);
 void ELEMENTS_reset_holly_right_spot_level(void);
 void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup);
-ELEMENTS_state_s ELEMENTS_get_cup(Uint8 number);
+ELEMENTS_state_s ELEMENTS_get_cup(CUP_id_e id);
 bool_e get_cup_transmission(void);
 Uint8 get_number_cup(void);
 void copy_cup_position(ELEMENTS_position cup_copy[]);

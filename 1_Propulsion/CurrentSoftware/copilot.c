@@ -64,7 +64,7 @@ void COPILOT_init(void)
 {
 	arrived = ARRIVED;
 	COPILOT_reset_absolute_destination();
-	current_order = (order_t){TRAJECTORY_NONE, 0,0,0, NOT_RELATIVE, NO_MULTIPOINT, NOT_BORDER_MODE, FORWARD, FAST, ACKNOWLEDGED, 0};
+	current_order = (order_t){TRAJECTORY_NONE, 0,0,0, PROP_ABSOLUTE, PROP_NO_MULTIPOINT, NOT_BORDER_MODE, FORWARD, FAST, ACKNOWLEDGED, 0};
 	braking = NOT_BRAKING;
 	braking_translation = NOT_BRAKING;
 	braking_rotation = NOT_BRAKING;
@@ -153,7 +153,7 @@ bool_e COPILOT_decision_change_order(bool_e * change_order_in_multipoint_without
 	if(current_order.trajectory == WAIT_FOREVER)
 		return FALSE;
 
-	if(current_order.multipoint == MULTIPOINT)
+	if(current_order.multipoint == PROP_MULTIPOINT)
 	{
 		if(arrived == ARRIVED)
 		{
@@ -255,7 +255,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 	}
 
 
-	if(order->relative == RELATIVE) //Si l'ordre est relatif, c'est maintenant qu'il doit devenir absolu !
+	if(order->relative == PROP_RELATIVE) //Si l'ordre est relatif, c'est maintenant qu'il doit devenir absolu !
 	{
 			//REMARQUE : si on est en multipoint, et qu'on vient de changer d'ordre à l'instant du freinage, sans avoir atteint la position visée,
 			//La relativité doit alors être calculée sur la destination visée, et non pas sur la position actuelle !!!!!!
@@ -272,7 +272,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 			order->teta += global.position.teta;
 			order->teta = CALCULATOR_modulo_angle(order->teta);
 
-			order->relative = NOT_RELATIVE; 	//Ce n'est PLUS relatif !!!!!!!!
+			order->relative = PROP_ABSOLUTE; 	//Ce n'est PLUS relatif !!!!!!!!
 					//Note : si la trajectoire est remise en buffer pour une rotation préalable par exemple, les nouvelles coordonnées non relatives seront prises en compte !
 	}
 
@@ -319,7 +319,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 					BUFFER_add_begin(order);
 
 					//Les rotations préalables pourraient se faire en mode multipoints.
-					order->multipoint = NO_MULTIPOINT;
+					order->multipoint = PROP_NO_MULTIPOINT;
 
 					//on ne prévient pas la carte P sur rotation préalable ajoutée par nos soins.
 					order->acknowledge = NO_ACKNOWLEDGE;
@@ -331,7 +331,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 				case TRAJECTORY_STOP:
 					BUFFER_add_begin(order);
 					//on ne prévient pas la carte P sur arrêt préalable ajoutée par nos soins.
-					order->multipoint = NO_MULTIPOINT;
+					order->multipoint = PROP_NO_MULTIPOINT;
 					order->acknowledge = NO_ACKNOWLEDGE;
 					order->trajectory = TRAJECTORY_STOP;
 										order->x = 0;
@@ -372,7 +372,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 					BUFFER_add_begin(order);
 
 					//Les rotations préalables pourraient se faire en mode multipoints.
-					order->multipoint = NO_MULTIPOINT;
+					order->multipoint = PROP_NO_MULTIPOINT;
 					order->acknowledge = NO_ACKNOWLEDGE;
 					//on ne prévient pas la carte stratégie sur rotation préalable ajoutée par nos soins.
 
@@ -415,10 +415,10 @@ void COPILOT_do_order(order_t * order)
 				supp.x = 0;
 				supp.y = 0;
 				supp.teta = 0;
-				supp.relative = NOT_RELATIVE;
+				supp.relative = PROP_ABSOLUTE;
 				supp.way = ANY_WAY;
 				supp.border_mode = NOT_BORDER_MODE;
-				supp.multipoint = NO_MULTIPOINT;
+				supp.multipoint = PROP_NO_MULTIPOINT;
 				supp.speed = FAST;
 				supp.acknowledge = NO_ACKNOWLEDGE;
 				supp.corrector = CORRECTOR_ENABLE;
@@ -437,10 +437,10 @@ void COPILOT_do_order(order_t * order)
 				supp.x = 0;
 				supp.y = 0;
 				supp.teta = 0;
-				supp.relative = NOT_RELATIVE;
+				supp.relative = PROP_ABSOLUTE;
 				supp.way = ANY_WAY;
 				supp.border_mode = NOT_BORDER_MODE;
-				supp.multipoint = NO_MULTIPOINT;
+				supp.multipoint = PROP_NO_MULTIPOINT;
 				supp.speed = FAST;
 				supp.acknowledge = NO_ACKNOWLEDGE;
 				supp.corrector = CORRECTOR_ENABLE;

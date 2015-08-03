@@ -26,8 +26,8 @@
 		Sint16 angle;
 		PROP_speed_e speed;
 		way_e way;
-		Uint8 curve;
-		Uint8 priority_order;
+		prop_curve_e curve;
+		prop_buffer_mode_e priority_order;
 		avoidance_e avoidance;
 		prop_border_mode_e border_mode;
 	}prop_arg_t;
@@ -109,7 +109,7 @@
 	//Modifie l'état des correcteurs de la propulsion. (attention, les correcteurs sont remis à un bon fonctionnement à chaque nouvel ordre de déplacement !)
 	//Cela permet notamment de désasservir le robot lorsqu'on le souhaite...
 
-	void PROP_set_acceleration(Uint8 acceleration);
+	void PROP_set_acceleration(Uint16 acceleration);
 
 	/* Demande un envoi par la propulsion de l'ensemble de ses coefs */
 	void PROP_ask_propulsion_coefs(void);

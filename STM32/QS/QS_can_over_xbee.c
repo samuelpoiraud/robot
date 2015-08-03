@@ -95,8 +95,8 @@
 		if(module >= MODULE_NUMBER)
 			return;
 		msg.sid = XBEE_PONG;
-		msg.data[0] = XBee_i_am_module;
-		msg.size = 1;
+		msg.size = SIZE_XBEE_PONG;
+		msg.data.xbee_pong.module_id = XBee_i_am_module;
 		CANMsgToXBeeDestination(&msg, module);
 	}
 
@@ -106,8 +106,8 @@
 		if(module >= MODULE_NUMBER)
 			return;
 		msg.sid = XBEE_PING;
-		msg.data[0] = XBee_i_am_module;
-		msg.size = 1;
+		msg.size = SIZE_XBEE_PING;
+		msg.data.xbee_ping.module_id = XBee_i_am_module;
 		CANMsgToXBeeDestination(&msg, module);
 	}
 
@@ -209,16 +209,16 @@
 		switch(msg->sid)	//Messages CAN reçus, premier filtrage.
 		{
 			case XBEE_PONG:
-				if(msg->data[0] < MODULE_NUMBER)
-					module_reachable[msg->data[0]] = TRUE;
+				if(msg->data.xbee_pong.module_id < MODULE_NUMBER)
+					module_reachable[msg->data.xbee_pong.module_id] = TRUE;
 				return FALSE;	//Le message ne sera pas transmis au reste du code.
 			break;
 			case XBEE_PING:
-				if(msg->data[0] < MODULE_NUMBER)
+				if(msg->data.xbee_ping.module_id < MODULE_NUMBER)
 				{
-					module_reachable[msg->data[0]] = TRUE;
-					XBee_Pong(msg->data[0]);
-					debug_printf("pong %d->%d\n",XBee_i_am_module, msg->data[0]);
+					module_reachable[msg->data.xbee_ping.module_id] = TRUE;
+					XBee_Pong(msg->data.xbee_ping.module_id);
+					debug_printf("pong %d->%d\n",XBee_i_am_module, msg->data.xbee_ping.module_id);
 				}
 				return FALSE;	//Le message ne sera pas transmis au reste du code.
 			break;
@@ -281,7 +281,7 @@
 					break;
 
 				default:	/*lecture d'un octet de data */
-					dest->data[next_byte_to_read - DATA0]=byte_read;
+					dest->data.raw_data[next_byte_to_read - DATA0]=byte_read;
 					break;
 			}
 		}
@@ -465,7 +465,7 @@
 		SEND((Uint8)src->sid);
 		for (i=0; i<src->size && i<8; i++)
 		{	//Les accollades sont importantes (à cause du fait que SEND est une macro à deux instructions.
-			SEND(src->data[i]);
+			SEND(src->data.raw_data[i]);
 		}
 		for (i=src->size; i<8; i++)
 		{	//Les accollades sont importantes (à cause du fait que SEND est une macro à deux instructions.

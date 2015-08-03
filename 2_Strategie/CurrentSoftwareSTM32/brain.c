@@ -147,16 +147,18 @@ void any_match(void)
 			date_t date;
 			Uint16 matchId = SD_get_match_id();
 			RTC_get_local_time(&date);
-			CAN_direct_send(BROADCAST_START, 8, (Uint8 []){
-								HIGHINT(matchId),
-								LOWINT(matchId),
-								date.seconds,
-								date.minutes,
-								date.hours,
-								date.date,
-								date.month,
-								date.year
-							});
+			CAN_msg_t msg;
+			msg.sid = BROADCAST_START;
+			msg.size = SIZE_BROADCAST_START;
+			msg.data.broadcast_start.matchId = matchId;
+			msg.data.broadcast_start.seconde = date.seconds;
+			msg.data.broadcast_start.minute = date.minutes;
+			msg.data.broadcast_start.heure = date.hours;
+			msg.data.broadcast_start.jour = date.date;
+			msg.data.broadcast_start.mois = date.month;
+			msg.data.broadcast_start.annee = date.year;
+			msg.data.broadcast_start.journee = date.day;
+			CAN_send(&msg);
 			Supervision_send_periodically_pos(20,PI4096/45);	//Demande d'envoi de la position : tout les 20 mm et tout les 4°
 			XBEE_ping_pong_enable(FALSE);						//Désactive le ping/pong... c'est trop tard pour ça...
 			PATHFIND_MAJ_COLOR();								// Configuration du pathfind spécifique à la couleur

@@ -200,12 +200,12 @@ void ELEMENTS_reset_holly_right_spot_level(void)
 }
 
 //Indiquer qu'un gobelet a été pris
-void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
-	ELEMENTS_cup[number].state = stateCup;
+void ELEMENTS_set_cup(CUP_id_e id, ELEMENTS_state_s stateCup){
+	ELEMENTS_cup[id].state = stateCup;
 }
 
- ELEMENTS_state_s ELEMENTS_get_cup(Uint8 number){
-	return ELEMENTS_cup[number].state;
+ ELEMENTS_state_s ELEMENTS_get_cup(CUP_id_e id){
+	return ELEMENTS_cup[id].state;
 }
 
 
@@ -218,12 +218,11 @@ void ELEMENTS_set_cup(Uint8 number, ELEMENTS_state_s stateCup){
 	  * 	3		: y HIGH bit
 	  *		4		: y LOW bit
 	  */
-
-	 if(msg->data[0] & (1<<2)){	// Si l'on a trouvé un gobelet dans une salle
-		  cup[nb_cup].x=U16FROMU8(msg->data[1],msg->data[2]);
-		  cup[nb_cup].y=U16FROMU8(msg->data[3],msg->data[4]);
+	 if(msg->data.strat_cup_position.cup_detected){	// Si l'on a trouvé un gobelet dans une salle
+		  cup[nb_cup].x=msg->data.strat_cup_position.x;
+		  cup[nb_cup].y=msg->data.strat_cup_position.y;
 		  nb_cup++;
-		  if(msg->data[0] & 0x01) // On regarde si c'est la fin de la transmission
+		  if(msg->data.strat_cup_position.last_cup) // On regarde si c'est la fin de la transmission
 			  end_transmission_cup=TRUE;
 		  else
 			  end_transmission_cup=FALSE;
