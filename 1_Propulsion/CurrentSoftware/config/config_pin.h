@@ -165,7 +165,7 @@
 	#define PORT_IO_C_10		PORT_IO_INPUT
 		//
 
-	#define PORT_IO_C_11		PORT_IO_INPUT
+	#define PORT_IO_C_11		PORT_IO_OUTPUT
 		#define SENS_MOTEUR_1 	GPIOC,GPIO_Pin_11
 
 	#define PORT_IO_C_12		PORT_IO_OUTPUT
