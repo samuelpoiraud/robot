@@ -145,9 +145,9 @@ void ZONE_unlock(map_zone_e zone) {
 	if(zones[zone].state == ZS_OwnedByMe) {
 		CAN_msg_t msg;
 		msg.sid = XBEE_ZONE_COMMAND;
-		msg.data[0] = XBEE_ZONE_UNLOCK;
-		msg.data[1] = zone;
-		msg.size = 2;
+		msg.size = SIZE_XBEE_ZONE_COMMAND;
+		msg.data.xbee_zone_command.order = XBEE_ZONE_UNLOCK;
+		msg.data.xbee_zone_command.zone = zone;
 		CANMsgToXbee(&msg,FALSE);
 		zones[zone].state = ZS_Free; // Remets la zone que j'ai prise en libre
 		zones[zone].accept_donate = FALSE;
@@ -167,36 +167,36 @@ zone_state_e ZONE_get_status(map_zone_e zone) {
 void ZONE_CAN_process_msg(CAN_msg_t *msg) {
 	assert(msg->sid == XBEE_ZONE_COMMAND);	//Si le SID correspond à une commande liée aux zones
 
-	if(msg->data[1] >= ZONE_MUTEX_NUMBER) {
-		debug_printf("zone: unknown zone %d !!!\n", msg->data[1]);
+	if(msg->data.xbee_zone_command.zone >= ZONE_MUTEX_NUMBER) {
+		debug_printf("zone: unknown zone %d !!!\n", msg->data.xbee_zone_command.zone);
 		return;
 	}
 
 
-	switch(msg->data[0]) {
+	switch(msg->data.xbee_zone_command.order) {
 		case XBEE_ZONE_LOCK_RESULT:
 
-			if(msg->data[2] == TRUE) // La zone peut-être prise par celui qui l'a demandé
-				zones[msg->data[1]].state = ZS_OwnedByMe;
+			if(msg->data.xbee_zone_command.lock == TRUE) // La zone peut-être prise par celui qui l'a demandé
+				zones[msg->data.xbee_zone_command.zone].state = ZS_OwnedByMe;
 
 			break;
 
 		case XBEE_ZONE_TRY_LOCK:
 
-			if(zones[msg->data[1]].owner == ((QS_WHO_AM_I_get() == BIG_ROBOT)? ZIS_BIG : ZIS_SMALL)){
-				zones[msg->data[1]].state = ZS_OtherTryLock;
-				ZONE_send_lock_response(msg->data[1]);
+			if(zones[msg->data.xbee_zone_command.zone].owner == ((QS_WHO_AM_I_get() == BIG_ROBOT)? ZIS_BIG : ZIS_SMALL)){
+				zones[msg->data.xbee_zone_command.zone].state = ZS_OtherTryLock;
+				ZONE_send_lock_response(msg->data.xbee_zone_command.zone);
 
-			}else if(zones[msg->data[1]].owner == ZIS_Free)				// Si l'autre robot prend une zone libre
-				zones[msg->data[1]].state = ZS_OwnedByOther; // Ne renvois pas de message le premier à la demander gagne
+			}else if(zones[msg->data.xbee_zone_command.zone].owner == ZIS_Free)				// Si l'autre robot prend une zone libre
+				zones[msg->data.xbee_zone_command.zone].state = ZS_OwnedByOther; // Ne renvois pas de message le premier à la demander gagne
 
 
 			break;
 
 		case XBEE_ZONE_UNLOCK:
-			if(zones[msg->data[1]].state == ZS_OwnedByOther){
-				zones[msg->data[1]].state = ZS_Free;
-				zones[msg->data[1]].accept_donate = FALSE;
+			if(zones[msg->data.xbee_zone_command.zone].state == ZS_OwnedByOther){
+				zones[msg->data.xbee_zone_command.zone].state = ZS_Free;
+				zones[msg->data.xbee_zone_command.zone].accept_donate = FALSE;
 			}
 			break;
 	}
@@ -206,9 +206,9 @@ static void ZONE_send_lock_request(map_zone_e zone) {
 	CAN_msg_t msg;
 
 	msg.sid = XBEE_ZONE_COMMAND;
-	msg.data[0] = XBEE_ZONE_TRY_LOCK;
-	msg.data[1] = zone;
-	msg.size = 2;
+	msg.size = SIZE_XBEE_ZONE_COMMAND;
+	msg.data.xbee_zone_command.order = XBEE_ZONE_TRY_LOCK;
+	msg.data.xbee_zone_command.zone = zone;
 
 	CANMsgToXbee(&msg,FALSE);
 }
@@ -221,26 +221,25 @@ static void ZONE_send_lock_response(map_zone_e zone) {
 	CAN_msg_t msg;
 
 	msg.sid = XBEE_ZONE_COMMAND;
-	msg.data[0] = XBEE_ZONE_LOCK_RESULT;
-	msg.data[1] = zone;
+	msg.size = SIZE_XBEE_ZONE_COMMAND;
+	msg.data.xbee_zone_command.order = XBEE_ZONE_LOCK_RESULT;
+	msg.data.xbee_zone_command.zone = zone;
 
 
 	if(zones[zone].state == ZS_OtherTryLock) {  // L'autre robot veut aller dans une de nos zones
 		if(ZONE_validate(zone)){ // Fonction de demande de prise de zone
-				msg.data[2] = TRUE;
+				msg.data.xbee_zone_command.lock = TRUE;
 				zones[zone].state = ZS_OwnedByOther;  // Si nous avons renvoyer TRUE, l'autre robot va donc occuper cette zone
 			}else{
-				msg.data[2] = FALSE;
+				msg.data.xbee_zone_command.lock = FALSE;
 				zones[zone].state = ZS_Free; // La zone nous appartient pas donc repasse en libre
 				zones[zone].accept_donate = FALSE;
 			}
 
 	}else{
-		msg.data[2] = FALSE;
+		msg.data.xbee_zone_command.lock = FALSE;
 		zones[zone].state = ZS_Free;
 	}
-
-	msg.size = 3;
 
 	CANMsgToXbee(&msg,FALSE);
 }

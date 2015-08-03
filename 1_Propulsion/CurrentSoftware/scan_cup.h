@@ -2,6 +2,7 @@
 
 #ifdef SCAN_CUP
 	#include "QS/QS_all.h"
+	#include "QS/QS_can.h"
 
 	void SCAN_CUP_init(void);
 	void SCAN_CUP_process_it();

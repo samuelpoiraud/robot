@@ -12,7 +12,6 @@
 
 #include "QS/QS_ports.h"
 
-#define LED_ID 0b00011111
 #define TIME_BLINK_OFF 	0
 #define TIME_BLINK_1HZ 	1000
 #define TIME_BLINK_4HZ 	250
@@ -27,7 +26,7 @@
 
 
 typedef struct{
-	blinkLED_ihm_e blink; // Temps de clignotement *10 en ms. Si 50, va clignoter toutes les 500ms
+	blinkLED_e blink; // Temps de clignotement *10 en ms. Si 50, va clignoter toutes les 500ms
 	Uint16 counter;
 	bool_e stateUp;
 }LED_t;
@@ -36,7 +35,7 @@ static LED_t leds[LED_NUMBER_IHM];
 static led_color_e led_color = LED_COLOR_BLACK;	//Default color.
 
 void set_LED(led_ihm_e led, bool_e stateUP);
-Uint16 get_blink_state(blinkLED_ihm_e blink);
+Uint16 get_blink_state(blinkLED_e blink);
 void write_color_in_color_led(led_color_e led_color);
 
 
@@ -149,8 +148,8 @@ void LEDS_get_msg(CAN_msg_t *msg){
 	Uint8 i,id,blink;
 
 	for(i = 0; i < msg->size; i++){
-		id = msg->data[i] & LED_ID;
-		blink = msg->data[i] >> 5;
+		id = msg->data.ihm_set_led.led[i].id;
+		blink = msg->data.ihm_set_led.led[i].blink;
 
 		leds[id].stateUp = (blink == OFF)?FALSE:TRUE;
 		leds[id].blink = blink;
@@ -161,7 +160,7 @@ void LEDS_get_msg(CAN_msg_t *msg){
 }
 
 
-Uint16 get_blink_state(blinkLED_ihm_e blink){
+Uint16 get_blink_state(blinkLED_e blink){
 	Uint16 value;
 
 	switch(blink){
@@ -204,13 +203,15 @@ void LEDS_set_error(ihm_error_e ihm_error, bool_e state){
 		led = (led_ihm_t){LED_WARNING, SPEED_BLINK_4HZ};
 		msg.sid = IHM_SET_LED;
 		msg.size = 1;
-		msg.data[0] = (led.blink << 5) | led.id;
+		msg.data.ihm_set_led.led[0].id = led.id;
+		msg.data.ihm_set_led.led[0].blink = led.blink;
 		LEDS_get_msg(&msg);
 	}else{
 		led = (led_ihm_t){LED_WARNING, OFF};
 		msg.sid = IHM_SET_LED;
 		msg.size = 1;
-		msg.data[0] = (led.blink << 5) | led.id;
+		msg.data.ihm_set_led.led[0].id = led.id;
+		msg.data.ihm_set_led.led[0].blink = led.blink;
 		LEDS_get_msg(&msg);
 	}
 }

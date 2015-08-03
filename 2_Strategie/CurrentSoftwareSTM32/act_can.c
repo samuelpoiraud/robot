@@ -5,6 +5,7 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "QS/QS_outputlog.h"
 #include "QS/QS_who_am_i.h"
+#include "act_functions.h"
 
 #define ACT_DONT_TRY_FALLBACK_ON_SMALL
 #define ACT_DONT_TRY_FALLBACK_ON_BIG
@@ -40,10 +41,10 @@ typedef enum {
 typedef struct {
 	bool_e disabled;	//TRUE si l'actionneur est désactivé car inutilisable
 	act_result_e operationResult;	//Resultat de la derrnière opération faite
-	Uint8 paramResult[4];
+	Uint32 paramResult;
 	act_error_recommended_behavior_e recommendedBehavior;		//Quoi faire suite à l'opération faite
 	ACT_function_result_e lastResult;
-	Uint8 lastParamResult[4];
+	Uint32 lastParamResult;
 } act_state_info_t;
 
 static act_state_info_t act_states[NB_QUEUE];  //Info lié a chaque actionneur
@@ -63,13 +64,13 @@ ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id) {
 	return act_states[act_id].lastResult;
 }
 
-Uint8 ACT_get_result_param(queue_id_e act_id, Uint8 i_param){
-	return act_states[act_id].lastParamResult[i_param];
+Uint32 ACT_get_result_param(queue_id_e act_id){
+	return act_states[act_id].lastParamResult;
 }
 
 void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
 	arg->msg.sid = sid;
-	arg->msg.data[0] = cmd;
+	arg->msg.data.act_msg.order = cmd;
 	arg->msg.size = 1;
 	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
@@ -77,15 +78,14 @@ void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
 
 void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param)  {
 	arg->msg.sid = sid;
-	arg->msg.data[0] = cmd;
-	arg->msg.data[1] = LOWINT(param);
-	arg->msg.data[2] = HIGHINT(param);
-	arg->msg.size = 3;
+	arg->msg.data.act_msg.order = cmd;
+	arg->msg.data.act_msg.act_data.act_optionnal_data[0] = param;
+	arg->msg.size = 2;
 	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
 }
 
-void ACT_arg_init_with_msg(QUEUE_arg_t* arg, ACT_can_msg_t msg){
+void ACT_arg_init_with_msg(QUEUE_arg_t* arg, CAN_msg_t msg){
 	arg->msg = msg;
 	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
@@ -162,26 +162,14 @@ bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* args) {
 //Cette fonction est appelée par le module QUEUE, QUEUE_run en particulié quand init vaut FALSE
 static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 	if(init) {
-		ACT_can_msg_t* command = &(QUEUE_get_arg(act_id)->msg);
-		CAN_msg_t msg;
+		CAN_msg_t* msg = &(QUEUE_get_arg(act_id)->msg);
 
 		act_states[act_id].operationResult = ACT_RESULT_Working;
 		act_states[act_id].lastResult = ACT_FUNCTION_InProgress;
 
-		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, data[0]: 0x%x, data[1]: 0x%x, data[2]: 0x%x\n", act_id, command->sid, command->size, command->data[0], command->data[1], command->data[2]);
+		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, data[0]: 0x%x, data[1]: 0x%x, data[2]: 0x%x\n", act_id, msg->sid, msg->size, msg->data[0], msg->data[1], msg->data[2]);
 
-		//Copie des élements de notre structure à celle accepté par CAN_send, la notre est plus petite pour économiser la RAM
-		msg.sid     = command->sid;
-		msg.data[0] = command->data[0];
-		msg.data[1] = command->data[1];
-		msg.data[2] = command->data[2];
-		msg.data[3] = command->data[3];
-		msg.data[4] = command->data[4];
-		msg.data[5] = command->data[5];
-		msg.data[6] = command->data[6];
-		msg.data[7] = command->data[7];
-		msg.size    = command->size;
-		CAN_send(&msg);
+		CAN_send(msg);
 
 	} else {
 		ACT_check_result(act_id);
@@ -219,17 +207,11 @@ static void ACT_check_result(queue_id_e act_id) {
 
 					case ACT_BEHAVIOR_GoalUnreachable:	//Envoyer le message fallback, s'il redonne une erreur, ACT_process_result s'occupera de désactiver l'actionneur
 						if(argument->fallbackMsg.sid != ACT_ARG_NOFALLBACK_SID) {
-							CAN_msg_t msg;
 
 							act_states[act_id].operationResult = ACT_RESULT_Working;
 							debug_printf("GoalUnreachable, sending fallback message, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->fallbackMsg.sid, argument->fallbackMsg.data[0]);
 
-							msg.sid     = argument->fallbackMsg.sid;
-							msg.data[0] = argument->fallbackMsg.data[0];
-							msg.data[1] = argument->fallbackMsg.data[1];
-							msg.data[2] = argument->fallbackMsg.data[2];
-							msg.size    = argument->fallbackMsg.size;
-							CAN_send(&msg);
+							CAN_send(&argument->fallbackMsg);
 							//On ne change pas act_states[act_id] car on n'a pas encore terminé avec l'opération
 						} else {	//Si on n'a pas de message fallback, (car par exemple, ça aurait été le même message) on déclare une erreur indiquant d'essayer plus tard
 							debug_printf("GoalUnreachable, no fallback message to send, disabling act, act id: %u\n", act_id);
@@ -246,18 +228,12 @@ static void ACT_check_result(queue_id_e act_id) {
 								debug_printf("RetryLater, will retry 10ms later, act id: %u\n", act_id);
 								waitMsCount = global.match_time + 10;	//Attendre 3ms avant de ressayer
 							}else if(global.match_time >= waitMsCount) {  //Après un certain temps défini juste avant, renvoyer la commande en espérant que ça passe cette fois
-								CAN_msg_t msg;
 
 								waitMsCount = 0;
 								act_states[act_id].operationResult = ACT_RESULT_Working;
 								debug_printf("RetryLater, time to resend message, act id: %u\n", act_id);
 
-								msg.sid     = argument->msg.sid;
-								msg.data[0] = argument->msg.data[0];
-								msg.data[1] = argument->msg.data[1];
-								msg.data[2] = argument->msg.data[2];
-								msg.size    = argument->msg.size;
-								CAN_send(&msg);
+								CAN_send(&argument->msg);
 							}	//On ne change pas act_states[act_id] car on n'a pas encore terminé avec l'opération
 						}
 						break;
@@ -274,10 +250,7 @@ static void ACT_check_result(queue_id_e act_id) {
 						QUEUE_next(act_id);
 						break;
 				}
-				act_states[act_id].lastParamResult[0] = act_states[act_id].paramResult[0];
-				act_states[act_id].lastParamResult[1] = act_states[act_id].paramResult[1];
-				act_states[act_id].lastParamResult[2] = act_states[act_id].paramResult[2];
-				act_states[act_id].lastParamResult[3] = act_states[act_id].paramResult[3];
+				act_states[act_id].lastParamResult = act_states[act_id].paramResult;
 				break;
 
 			case ACT_RESULT_Ok:
@@ -293,10 +266,7 @@ static void ACT_check_result(queue_id_e act_id) {
 					act_states[act_id].lastResult = ACT_FUNCTION_Done;
 					QUEUE_next(act_id);
 				}
-				act_states[act_id].lastParamResult[0] = act_states[act_id].paramResult[0];
-				act_states[act_id].lastParamResult[1] = act_states[act_id].paramResult[1];
-				act_states[act_id].lastParamResult[2] = act_states[act_id].paramResult[2];
-				act_states[act_id].lastParamResult[3] = act_states[act_id].paramResult[3];
+				act_states[act_id].lastParamResult = act_states[act_id].paramResult;
 				break;
 
 			case ACT_RESULT_Working:	//Pas encore fini l'opération, on a pas reçu de message de la carte actionneur
@@ -326,84 +296,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	act_states[act_id].operationResult = ACT_RESULT_Ok;
 #else
 
-	switch(msg->data[0]) {
-
-		// Holly
-		case ACT_POP_COLLECT_LEFT & 0xFF:
-					act_id = ACT_QUEUE_Pop_collect_left;
-					break;
-		case ACT_POP_COLLECT_RIGHT & 0xFF:
-					act_id = ACT_QUEUE_Pop_collect_right;
-					break;
-		case ACT_POP_DROP_LEFT & 0xFF:
-					act_id = ACT_QUEUE_Pop_drop_left;
-					break;
-		case ACT_POP_DROP_RIGHT & 0xFF:
-					act_id = ACT_QUEUE_Pop_drop_right;
-					break;
-		case ACT_ELEVATOR & 0xFF:
-					act_id = ACT_QUEUE_Elevator;
-					break;
-		case ACT_PINCEMI_RIGHT & 0xFF:
-					act_id = ACT_QUEUE_PinceMi_right;
-					break;
-		case ACT_PINCEMI_LEFT & 0xFF:
-					act_id = ACT_QUEUE_PinceMi_left;
-					break;
-		case ACT_STOCK_RIGHT & 0xFF:
-					act_id = ACT_QUEUE_Stock_right;
-					break;
-		case ACT_STOCK_LEFT & 0xFF:
-					act_id = ACT_QUEUE_Stock_left;
-					break;
-		case ACT_CUP_NIPPER & 0xFF:
-					act_id = ACT_QUEUE_Cup_Nipper;
-					break;
-		case ACT_CUP_NIPPER_ELEVATOR & 0xFF:
-					act_id = ACT_QUEUE_Cup_Nipper_Elevator;
-					break;
-		case ACT_BACK_SPOT_RIGHT & 0xFF:
-					act_id = ACT_QUEUE_Back_spot_right;
-					break;
-		case ACT_BACK_SPOT_LEFT & 0xFF:
-					act_id = ACT_QUEUE_Back_spot_left;
-					break;
-		case ACT_SPOT_POMPE_LEFT & 0xFF:
-					act_id = ACT_QUEUE_Spot_pompe_left;
-					break;
-		case ACT_SPOT_POMPE_RIGHT & 0xFF:
-					act_id = ACT_QUEUE_Spot_pompe_right;
-					break;
-		case ACT_CARPET_LAUNCHER_RIGHT & 0xFF:
-					act_id = ACT_QUEUE_Carpet_launcher_right;
-					break;
-		case ACT_CARPET_LAUNCHER_LEFT & 0xFF:
-					act_id = ACT_QUEUE_Carpet_launcher_left;
-					break;
-		case ACT_CLAP_HOLLY & 0xFF:
-					act_id = ACT_QUEUE_Clap_Holly;
-					break;
-
-		// Wood
-		case ACT_PINCE_GAUCHE & 0xFF:
-					act_id = ACT_QUEUE_Pince_Gauche;
-					break;
-		case ACT_PINCE_DROITE & 0xFF:
-					act_id = ACT_QUEUE_Pince_Droite;
-					break;
-		case ACT_CLAP & 0xFF:
-					act_id = ACT_QUEUE_Clap;
-					break;
-		case ACT_POP_DROP_LEFT_WOOD & 0xFF:
-					act_id = ACT_QUEUE_Pop_drop_left_Wood;
-					break;
-		case ACT_POP_DROP_RIGHT_WOOD & 0xFF:
-					act_id = ACT_QUEUE_Pop_drop_right_Wood;
-					break;
-		// Common
-
-
-	}
+	act_id = act_link_SID_Queue[ACT_search_link_SID_Queue(msg->data.act_result.sid)].queue_id;
 
 	if(act_id >= NB_QUEUE) {
 		error_printf("Unknown act result, can_act_id: 0x%x, can_result: %u. Pour gérer cet act, il faut ajouter un case dans le switch juste au dessus de ce printf\n", msg->data[0], msg->data[2]);
@@ -416,7 +309,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		return;
 	}
 
-	switch(msg->data[2]) {
+	switch(msg->data.act_result.result) {
 		case ACT_RESULT_DONE:
 			//On n'affecte pas act_states[act_id].recommendedBehavior pour garder une trace des erreurs précédentes (dans le cas ou on a renvoyé une commande par exemple, permet de savoir l'erreur d'origine)
 			//act_states[act_id].recommendedBehavior est affecté à ACT_BEHAVIOR_Ok dans
@@ -426,7 +319,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 
 		default:	//ACT_RESULT_NOT_HANDLED et ACT_RESULT_FAILED (et les autres si ajouté)
 			act_states[act_id].operationResult = ACT_RESULT_Failed;
-			switch(msg->data[3]) {
+			switch(msg->data.act_result.error_code) {
 				case ACT_RESULT_ERROR_OK:
 					error_printf("Reason Ok with result Failed, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);
 					break;
@@ -481,10 +374,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			}
 			break;
 	}
-	act_states[act_id].paramResult[0] = msg->data[4];
-	act_states[act_id].paramResult[1] = msg->data[5];
-	act_states[act_id].paramResult[2] = msg->data[6];
-	act_states[act_id].paramResult[3] = msg->data[7];
+	act_states[act_id].paramResult = msg->data.act_result.param;
 
 #endif /* not def ACT_NO_ERROR_HANDLING */
 }

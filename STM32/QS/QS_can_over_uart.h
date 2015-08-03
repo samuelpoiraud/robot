@@ -20,10 +20,11 @@
  *	USE_UART2RXINTERRUPT		: Créer la fonction pour recevoir un message CAN sur l'UART 2
  */
 
-#include "QS_all.h"
-
 #ifndef QS_CAN_OVER_UART_H
 	#define	QS_CAN_OVER_UART_H
+
+	#include "QS_all.h"
+	#include "QS_CANmsgList.h"
 
 	#define SOH 0x01
 	#define EOT 0x04

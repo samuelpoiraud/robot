@@ -30,12 +30,6 @@
 	#include "polygon.h"
 #endif
 
-
-// Macro permettant d'utiliser les courbes ou pas selon USE_PROP_MULTI_POINT
-// En effet, on ne fait des courbes que si l'on est en multi-poinrs car sinon
-// il est plus rapide de faire une rotation puis une translation
-#define PROP_CURVES	1
-
 //-------------------------------------------------------------------Enumerations
 
 typedef enum
@@ -58,13 +52,6 @@ typedef enum
 	NO_AVOIDANCE// désactive l'évitement
 }avoidance_type_e;
 
-/*Type d'evitement pour construction du message de debug*/
-typedef enum {
-	FORCED_BY_USER = 0,
-	FOE1,
-	FOE2
-}foe_origin_e;
-
 /* Définition du type déplacement */
 typedef struct
 {
@@ -80,11 +67,7 @@ typedef struct
 	bool_e curve;
 }displacement_curve_t;
 
-/* Définition du type mode de bordure qui permet la gestion de bordure fictive en propulsion */
-typedef enum{
-	PROP_NO_BORDER_MODE,
-	PROP_BORDER_MODE
-}prop_border_mode_e;
+
 
 //------------------------------------------------------------------- Machines à états de déplacements
 

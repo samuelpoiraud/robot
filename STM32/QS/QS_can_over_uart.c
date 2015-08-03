@@ -56,7 +56,7 @@ bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fie
 				tmp_can_msg[0]= dest->sid >> 8;
 				tmp_can_msg[1]= dest->sid & 0xFF;
 				for (i=0; i<8;i++)
-					tmp_can_msg[2+i]=dest->data[i];
+					tmp_can_msg[2+i]=dest->data.raw_data[i];
 				tmp_can_msg[10]=dest->size;
 				tmp_can_msg[CAN_MSG_LENGTH]=byte_read;
 
@@ -84,7 +84,7 @@ bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fie
 								dest->size = tmp_can_msg[start+i];
 								break;
 							default:	/*lecture d'un octet de data */
-								dest->data[i-3] = tmp_can_msg[start+i];
+								dest->data.raw_data[i-3] = tmp_can_msg[start+i];
 								break;
 						}
 					}
@@ -101,7 +101,7 @@ bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fie
 			break;
 
 		default:	/*lecture d'un octet de data */
-			dest->data[*next_byte_to_read - DATA0]=byte_read;
+			dest->data.raw_data[*next_byte_to_read - DATA0]=byte_read;
 			break;
 	}
 	*next_byte_to_read = *next_byte_to_read + 1;																														\
@@ -120,7 +120,7 @@ void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
 	UART##uartId##_putc((Uint8)(src->sid >>8));								\
 	UART##uartId##_putc((Uint8)src->sid);									\
 	for (i=0; i<src->size && i<8; i++)										\
-		UART##uartId##_putc(src->data[i]);									\
+		UART##uartId##_putc(src->data.raw_data[i]);									\
 	for (i=src->size; i<8; i++)												\
 		UART##uartId##_putc(0xFF);											\
 	UART##uartId##_putc(src->size);											\
@@ -170,8 +170,8 @@ void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
 			UART2_putc((Uint8)src->sid);
 			for (i=0; i<src->size && i<8; i++)
 			{
-				UART1_putc(src->data[i]);
-				UART2_putc(src->data[i]);
+				UART1_putc(src->data.raw_data[i]);
+				UART2_putc(src->data.raw_data[i]);
 			}
 			for (i=src->size; i<8; i++)
 			{

@@ -99,7 +99,7 @@ int main (void)
 		{
 			debug_printf("ATTENTION ! Vous avez programmé la carte actionneur de %s avec le code de %s\n", QS_WHO_AM_I_get_name(), ROBOT_CODE_NAME);
 			msg.sid = STRAT_ACT_SELFTEST_DONE;
-			msg.data[0] = SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME;
+			msg.data.strat_act_selftest_done.error_code[0] = SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME;
 			msg.size = 1;
 			CAN_send(&msg);
 			GPIO_SetBits(LED_ERROR);
@@ -182,17 +182,17 @@ static void MAIN_onButton0() {
 
 
 	if(state == 0){
-		msg1.data[0] = ACT_STOCK_RIGHT_OPEN;
-		msg2.data[0] = ACT_STOCK_LEFT_LOCK;
+		msg1.data.act_msg.order = ACT_STOCK_RIGHT_OPEN;
+		msg2.data.act_msg.order = ACT_STOCK_LEFT_LOCK;
 	}else if(state == 1){
-		msg1.data[0] = ACT_STOCK_RIGHT_LOCK;
-		msg2.data[0] = ACT_STOCK_LEFT_OPEN;
+		msg1.data.act_msg.order = ACT_STOCK_RIGHT_LOCK;
+		msg2.data.act_msg.order = ACT_STOCK_LEFT_OPEN;
 	}else if(state == 2){
-		msg1.data[0] = ACT_STOCK_RIGHT_LOCK;
-		msg2.data[0] = ACT_STOCK_LEFT_LOCK;
+		msg1.data.act_msg.order = ACT_STOCK_RIGHT_LOCK;
+		msg2.data.act_msg.order = ACT_STOCK_LEFT_LOCK;
 	}else if(state == 3){
-		msg1.data[0] = ACT_STOCK_RIGHT_OPEN;
-		msg2.data[0] = ACT_STOCK_LEFT_OPEN;
+		msg1.data.act_msg.order = ACT_STOCK_RIGHT_OPEN;
+		msg2.data.act_msg.order = ACT_STOCK_LEFT_OPEN;
 	}
 
 	CAN_process_msg(&msg1);
@@ -209,11 +209,11 @@ static void MAIN_onButton0LongPush() {
 	msg2.sid = ACT_PINCEMI_LEFT;
 
 	if(state == 0){
-		msg1.data[0] = ACT_PINCEMI_RIGHT_LOCK;
-		msg2.data[0] = ACT_PINCEMI_LEFT_LOCK;
+		msg1.data.act_msg.order = ACT_PINCEMI_RIGHT_LOCK;
+		msg2.data.act_msg.order = ACT_PINCEMI_LEFT_LOCK;
 	}else if(state == 1){
-		msg1.data[0] = ACT_PINCEMI_RIGHT_OPEN;
-		msg2.data[0] = ACT_PINCEMI_LEFT_OPEN;
+		msg1.data.act_msg.order = ACT_PINCEMI_RIGHT_OPEN;
+		msg2.data.act_msg.order = ACT_PINCEMI_LEFT_OPEN;
 	}
 
 	CAN_process_msg(&msg1);
@@ -226,14 +226,14 @@ static void MAIN_onButton1() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_SPOT_POMPE_LEFT;
-	msg.data[1] = 100;
+	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 
 	if(state == 0){
-		msg.data[0] = ACT_SPOT_POMPE_LEFT_NORMAL;
+		msg.data.act_msg.order = ACT_SPOT_POMPE_LEFT_NORMAL;
 	}else if(state == 1){
-		msg.data[0] = ACT_SPOT_POMPE_LEFT_REVERSE;
+		msg.data.act_msg.order = ACT_SPOT_POMPE_LEFT_REVERSE;
 	}else if(state == 2){
-		msg.data[0] = ACT_SPOT_POMPE_LEFT_STOP;
+		msg.data.act_msg.order = ACT_SPOT_POMPE_LEFT_STOP;
 	}
 
 	CAN_process_msg(&msg);
@@ -247,9 +247,9 @@ static void MAIN_onButton1LongPush() {
 	msg.sid = ACT_BACK_SPOT_LEFT;
 
 	if(state == 0){
-		msg.data[0] = ACT_BACK_SPOT_LEFT_CLOSED;
+		msg.data.act_msg.order = ACT_BACK_SPOT_LEFT_CLOSED;
 	}else if(state == 1){
-		msg.data[0] = ACT_BACK_SPOT_LEFT_OPEN;
+		msg.data.act_msg.order = ACT_BACK_SPOT_LEFT_OPEN;
 	}
 
 	CAN_process_msg(&msg);
@@ -261,14 +261,14 @@ static void MAIN_onButton2() {
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_SPOT_POMPE_RIGHT;
-	msg.data[1] = 100;
+	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 
 	if(state == 0){
-		msg.data[0] = ACT_SPOT_POMPE_RIGHT_NORMAL;
+		msg.data.act_msg.order = ACT_SPOT_POMPE_RIGHT_NORMAL;
 	}else if(state == 1){
-		msg.data[0] = ACT_SPOT_POMPE_RIGHT_REVERSE;
+		msg.data.act_msg.order = ACT_SPOT_POMPE_RIGHT_REVERSE;
 	}else if(state == 2){
-		msg.data[0] = ACT_SPOT_POMPE_RIGHT_STOP;
+		msg.data.act_msg.order = ACT_SPOT_POMPE_RIGHT_STOP;
 	}
 
 	CAN_process_msg(&msg);
@@ -282,9 +282,9 @@ static void MAIN_onButton2LongPush() {
 	msg.sid = ACT_BACK_SPOT_RIGHT;
 
 	if(state == 0){
-		msg.data[0] = ACT_BACK_SPOT_RIGHT_CLOSED;
+		msg.data.act_msg.order = ACT_BACK_SPOT_RIGHT_CLOSED;
 	}else if(state == 1){
-		msg.data[0] = ACT_BACK_SPOT_RIGHT_OPEN;
+		msg.data.act_msg.order = ACT_BACK_SPOT_RIGHT_OPEN;
 	}
 
 	CAN_process_msg(&msg);
@@ -300,14 +300,14 @@ static void MAIN_onButton3() {
 	msg2.sid = ACT_POP_COLLECT_LEFT;
 
 	if(state == 0){
-		msg1.data[0] = ACT_POP_COLLECT_RIGHT_OPEN;
-		msg2.data[0] = ACT_POP_COLLECT_LEFT_OPEN;
+		msg1.data.act_msg.order = ACT_POP_COLLECT_RIGHT_OPEN;
+		msg2.data.act_msg.order = ACT_POP_COLLECT_LEFT_OPEN;
 	}else if(state == 1){
-		msg1.data[0] = ACT_POP_COLLECT_RIGHT_MID;
-		msg2.data[0] = ACT_POP_COLLECT_LEFT_MID;
+		msg1.data.act_msg.order = ACT_POP_COLLECT_RIGHT_MID;
+		msg2.data.act_msg.order = ACT_POP_COLLECT_LEFT_MID;
 	}else if(state == 2){
-		msg1.data[0] = ACT_POP_COLLECT_RIGHT_CLOSED;
-		msg2.data[0] = ACT_POP_COLLECT_LEFT_CLOSED;
+		msg1.data.act_msg.order = ACT_POP_COLLECT_RIGHT_CLOSED;
+		msg2.data.act_msg.order = ACT_POP_COLLECT_LEFT_CLOSED;
 	}
 
 	CAN_process_msg(&msg1);
@@ -324,14 +324,14 @@ static void MAIN_onButton3LongPush() {
 	msg2.sid = ACT_POP_DROP_LEFT;
 
 	if(state == 0){
-		msg1.data[0] = ACT_POP_DROP_RIGHT_CLOSED;
-		msg2.data[0] = ACT_POP_DROP_LEFT_CLOSED;
+		msg1.data.act_msg.order = ACT_POP_DROP_RIGHT_CLOSED;
+		msg2.data.act_msg.order = ACT_POP_DROP_LEFT_CLOSED;
 	}else if(state == 1){
-		msg1.data[0] = ACT_POP_DROP_RIGHT_OPEN;
-		msg2.data[0] = ACT_POP_DROP_LEFT_OPEN;
+		msg1.data.act_msg.order = ACT_POP_DROP_RIGHT_OPEN;
+		msg2.data.act_msg.order = ACT_POP_DROP_LEFT_OPEN;
 	}else if(state == 2){
-		msg1.data[0] = ACT_POP_DROP_RIGHT_MID;
-		msg2.data[0] = ACT_POP_DROP_LEFT_MID;
+		msg1.data.act_msg.order = ACT_POP_DROP_RIGHT_MID;
+		msg2.data.act_msg.order = ACT_POP_DROP_LEFT_MID;
 	}
 
 	CAN_process_msg(&msg1);
@@ -348,14 +348,14 @@ static void MAIN_onButton4() {
 	msg2.sid = ACT_CUP_NIPPER_ELEVATOR;
 
 	if(state == 0){
-		msg1.data[0] = ACT_CUP_NIPPER_OPEN;
-		msg2.data[0] = ACT_CUP_NIPPER_ELEVATOR_IDLE;
+		msg1.data.act_msg.order = ACT_CUP_NIPPER_OPEN;
+		msg2.data.act_msg.order = ACT_CUP_NIPPER_ELEVATOR_IDLE;
 	}else if(state == 1){
-		msg1.data[0] = ACT_CUP_NIPPER_CLOSE;
-		msg2.data[0] = ACT_CUP_NIPPER_ELEVATOR_IDLE;
+		msg1.data.act_msg.order = ACT_CUP_NIPPER_CLOSE;
+		msg2.data.act_msg.order = ACT_CUP_NIPPER_ELEVATOR_IDLE;
 	}else if(state == 2){
-		msg1.data[0] = ACT_CUP_NIPPER_CLOSE;
-		msg2.data[0] = ACT_CUP_NIPPER_ELEVATOR_UP;
+		msg1.data.act_msg.order = ACT_CUP_NIPPER_CLOSE;
+		msg2.data.act_msg.order = ACT_CUP_NIPPER_ELEVATOR_UP;
 	}
 
 	CAN_process_msg(&msg1);
@@ -370,13 +370,13 @@ static void MAIN_onButton4LongPush() {
 	msg.sid = ACT_CLAP_HOLLY;
 
 	if(state == 0){
-		msg.data[0] = ACT_CLAP_HOLLY_IDLE;
+		msg.data.act_msg.order = ACT_CLAP_HOLLY_IDLE;
 	}else if(state == 1){
-		msg.data[0] = ACT_CLAP_HOLLY_LEFT;
+		msg.data.act_msg.order = ACT_CLAP_HOLLY_LEFT;
 	}else if(state == 2){
-		msg.data[0] = ACT_CLAP_HOLLY_IDLE;
+		msg.data.act_msg.order = ACT_CLAP_HOLLY_IDLE;
 	}else if(state == 3){
-		msg.data[0] = ACT_CLAP_HOLLY_RIGHT;
+		msg.data.act_msg.order = ACT_CLAP_HOLLY_RIGHT;
 	}
 
 	CAN_process_msg(&msg);
@@ -392,11 +392,11 @@ static void MAIN_onButton5() {
 	msg2.sid = ACT_CARPET_LAUNCHER_LEFT;
 
 	if(state == 0){
-		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
-		msg2.data[0] = ACT_CARPET_LAUNCHER_LEFT_IDLE;
+		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
+		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_IDLE;
 	}else if(state == 1){
-		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_LOADING;
-		msg2.data[0] = ACT_CARPET_LAUNCHER_LEFT_LOADING;
+		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_LOADING;
+		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_LOADING;
 	}
 
 	CAN_process_msg(&msg1);
@@ -413,14 +413,14 @@ static void MAIN_onButton5LongPush() {
 	msg2.sid = ACT_CARPET_LAUNCHER_LEFT;
 
 	if(state == 0){
-		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
-		msg2.data[0] = ACT_CARPET_LAUNCHER_LEFT_IDLE;
+		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
+		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_IDLE;
 	}else if(state == 1){
-		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
-		msg2.data[0] = ACT_CARPET_LAUNCHER_LEFT_LAUNCH;
+		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
+		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_LAUNCH;
 	}else if(state == 2){
-		msg1.data[0] = ACT_CARPET_LAUNCHER_RIGHT_LAUNCH;
-		msg2.data[0] = ACT_CARPET_LAUNCHER_LEFT_IDLE;
+		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_LAUNCH;
+		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_IDLE;
 	}
 
 	CAN_process_msg(&msg1);
@@ -435,13 +435,13 @@ static void MAIN_onButton6() {
 	msg.sid = ACT_ELEVATOR;
 
 	if(state == 0){
-		msg.data[0] = ACT_ELEVATOR_BOT;
+		msg.data.act_msg.order = ACT_ELEVATOR_BOT;
 	}else if(state == 1){
-		msg.data[0] = ACT_ELEVATOR_MID;
+		msg.data.act_msg.order = ACT_ELEVATOR_MID;
 	}else if(state == 2){
-		msg.data[0] = ACT_ELEVATOR_PRE_TOP;
+		msg.data.act_msg.order = ACT_ELEVATOR_PRE_TOP;
 	}else if(state == 3){
-		msg.data[0] = ACT_ELEVATOR_TOP;
+		msg.data.act_msg.order = ACT_ELEVATOR_TOP;
 	}
 
 	CAN_process_msg(&msg);
@@ -455,15 +455,15 @@ static void MAIN_onButton0(){
 	CAN_msg_t msg;
 	msg.size = 2;
 	msg.sid = ACT_POMPE_WOOD;
-	msg.data[1] = 100;
+	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 
 
 	if(state == 0){
-		msg.data[0] = ACT_POMPE_WOOD_NORMAL;
+		msg.data.act_msg.order = ACT_POMPE_WOOD_NORMAL;
 	}else if(state == 1){
-		msg.data[0] = ACT_POMPE_WOOD_REVERSE;
+		msg.data.act_msg.order = ACT_POMPE_WOOD_REVERSE;
 	}else if(state == 2){
-		msg.data[0] = ACT_POMPE_WOOD_STOP;
+		msg.data.act_msg.order = ACT_POMPE_WOOD_STOP;
 	}
 
 	CAN_process_msg(&msg);
@@ -478,11 +478,11 @@ static void MAIN_onButton1(){
 	msg.sid = ACT_PINCE_GAUCHE;
 
 	if(state == 0)
-		msg.data[0] = ACT_PINCE_GAUCHE_OPEN	;
+		msg.data.act_msg.order = ACT_PINCE_GAUCHE_OPEN	;
 	else if(state == 1)
-		msg.data[0] = ACT_PINCE_GAUCHE_CLOSED;
+		msg.data.act_msg.order = ACT_PINCE_GAUCHE_CLOSED;
 	else if(state == 2)
-		msg.data[0] = ACT_PINCE_GAUCHE_IDLE_POS;
+		msg.data.act_msg.order = ACT_PINCE_GAUCHE_IDLE_POS;
 
 	CAN_process_msg(&msg);
 	state = (state == 2)? 0 : state + 1;
@@ -497,11 +497,11 @@ static void MAIN_onButton2(){
 	msg.sid = ACT_PINCE_DROITE;
 
 	if(state == 0)
-		msg.data[0] = ACT_PINCE_DROITE_OPEN	;
+		msg.data.act_msg.order = ACT_PINCE_DROITE_OPEN	;
 	else if(state == 1)
-		msg.data[0] = ACT_PINCE_DROITE_CLOSED;
+		msg.data.act_msg.order = ACT_PINCE_DROITE_CLOSED;
 	else if(state == 2)
-		msg.data[0] = ACT_PINCE_DROITE_IDLE_POS;
+		msg.data.act_msg.order = ACT_PINCE_DROITE_IDLE_POS;
 
 	CAN_process_msg(&msg);
 	state = (state == 2)? 0 : state + 1;
@@ -516,11 +516,11 @@ static void MAIN_onButton3(){
 	msg.sid = ACT_CLAP;
 
 	if(state == 0)
-		msg.data[0] = ACT_CLAP_OPEN;
+		msg.data.act_msg.order = ACT_CLAP_OPEN;
 	else if(state == 1)
-		msg.data[0] = ACT_CLAP_CLOSED;
+		msg.data.act_msg.order = ACT_CLAP_CLOSED;
 	else if(state == 2)
-		msg.data[0] = ACT_CLAP_POP_CORN;
+		msg.data.act_msg.order = ACT_CLAP_POP_CORN;
 
 	CAN_process_msg(&msg);
 	state = (state == 2)? 0 : state + 1;
@@ -538,11 +538,11 @@ static void MAIN_onButton5(){
 	msg.sid = ACT_POP_DROP_LEFT_WOOD;
 
 	if(state == 0)
-		msg.data[0] = ACT_POP_DROP_LEFT_WOOD_MID;
+		msg.data.act_msg.order = ACT_POP_DROP_LEFT_WOOD_MID;
 	else if(state == 1)
-		msg.data[0] = ACT_POP_DROP_LEFT_WOOD_OPEN;
+		msg.data.act_msg.order = ACT_POP_DROP_LEFT_WOOD_OPEN;
 	else if(state == 2)
-		msg.data[0] = ACT_POP_DROP_LEFT_WOOD_CLOSED;
+		msg.data.act_msg.order = ACT_POP_DROP_LEFT_WOOD_CLOSED;
 
 	CAN_process_msg(&msg);
 	state = (state == 2)? 0 : state + 1;

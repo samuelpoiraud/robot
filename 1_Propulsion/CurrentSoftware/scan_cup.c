@@ -692,7 +692,7 @@ void SCAN_CUP_calculate(void){
 //---------------------------------------------------------------------------------------------------------------
 
 void SCAN_CUP_canMsg(CAN_msg_t *msg){
-	switch(msg->data[0]){
+	switch(msg->data.prop_scan_cup.type){
 		case 1:
 			receve_msg_can=MSG_CAN_SCAN_LINEAR;
 			info_scan.scan_linear = TRUE;
@@ -707,12 +707,12 @@ void SCAN_CUP_canMsg(CAN_msg_t *msg){
 			end_scan = FALSE;
 			break;
 	}
-	if(msg->data[1]){
+	if(msg->data.prop_scan_cup.is_in_north){
 		info_scan.is_in_North = TRUE;
 	}else{
 		info_scan.is_in_North = FALSE;
 	}
-	if(msg->data[2]){
+	if(msg->data.prop_scan_cup.color){
 		info_scan.color = 1;
 	}else{
 		info_scan.color = 0;

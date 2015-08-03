@@ -39,13 +39,10 @@ int term_cmd_setPos(int argc, const char *argv[]) {
 	{
 		CAN_msg_t msg;
 		msg.sid = PROP_SET_POSITION;
-		msg.data[0]=HIGHINT((Sint16)(x));
-		msg.data[1]=LOWINT((Sint16)(x));
-		msg.data[2]=HIGHINT((Sint16)(y));
-		msg.data[3]=LOWINT((Sint16)(y));
-		msg.data[4]=HIGHINT((Sint16)(teta));
-		msg.data[5]=LOWINT((Sint16)(teta));
-		msg.size=6;
+		msg.size = SIZE_PROP_SET_POSITION;
+		msg.data.prop_set_position.x = x;
+		msg.data.prop_set_position.y = x;
+		msg.data.prop_set_position.teta = teta;
 		CAN_send(&msg);
 	}
 

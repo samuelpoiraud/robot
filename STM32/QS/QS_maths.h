@@ -20,6 +20,7 @@
 	#include "math.h"
 
 	#define SQUARE(x)		((x)*(x))
+	#define RAD_TO_DEG(x)	((x)*180/PI4096)
 
 	Sint32 dist_point_to_point(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2);
 

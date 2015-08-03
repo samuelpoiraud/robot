@@ -72,13 +72,10 @@ void Supervision_process_1ms(void)
 void Supervision_send_periodically_pos(Uint16 dist, Sint16 angle){
 	CAN_msg_t msg;
 	msg.sid = PROP_SEND_PERIODICALLY_POSITION;
-	msg.data[0] = 0;
-	msg.data[1] = 0; 					//toutes les XX ms -> si 0, pas de msg en fonction du temps.
-	msg.data[2] = HIGHINT(dist);
-	msg.data[3] = LOWINT(dist);
-	msg.data[4] = HIGHINT(angle);
-	msg.data[5] = LOWINT(angle);
-	msg.size = 6;
+	msg.size = SIZE_PROP_SEND_PERIODICALLY_POSITION;
+	msg.data.prop_send_periodically_position.translation = dist;
+	msg.data.prop_send_periodically_position.rotation = angle;
+	msg.data.prop_send_periodically_position.period = 0;
 	CAN_send(&msg);
 }
 
@@ -87,15 +84,11 @@ void SUPERVISION_send_pos_over_xbee(void)
 {
 	CAN_msg_t msg;
 	msg.sid = XBEE_MY_POSITION_IS;
-	msg.data[0] = HIGHINT(global.pos.x);
-	msg.data[1] = LOWINT(global.pos.x);
-	msg.data[2] = HIGHINT(global.pos.y);
-	msg.data[3] = LOWINT(global.pos.y);
-	msg.data[4] = QS_WHO_AM_I_get();
-	msg.size = 5;
-
+	msg.size = SIZE_XBEE_MY_POSITION_IS;
+	msg.data.xbee_my_position_is.x = global.pos.x;
+	msg.data.xbee_my_position_is.y = global.pos.y;
+	msg.data.xbee_my_position_is.robot_id = QS_WHO_AM_I_get();
 	CANMsgToXbee(&msg, TRUE);	//Envoi en BROADCAST...aux modules PINGés
-
 }
 
 void Supervision_process_main(void)

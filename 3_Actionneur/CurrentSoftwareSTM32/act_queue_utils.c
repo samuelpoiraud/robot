@@ -37,13 +37,13 @@ void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t a
 
 		// Si nous voulons, nous envoyer des messages nous-même sans avertir les autres cartes
 		if(sendResult == TRUE)
-			QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data[0], param, &ACTQ_finish_SendResult}, act_id);
+			QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data.act_msg.order, param, &ACTQ_finish_SendResult}, act_id);
 		else
-			QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data[0], param, &ACTQ_finish_SendNothing}, act_id);
+			QUEUE_add(queueId, act_function_ptr, (QUEUE_arg_t){msg->data.act_msg.order, param, &ACTQ_finish_SendNothing}, act_id);
 
 		QUEUE_add(queueId, &QUEUE_give_sem, (QUEUE_arg_t){0, 0, NULL}, act_id);
 	} else {	//on indique qu'on a pas géré la commande
-		ACTQ_sendResult(msg->sid, msg->data[0], ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
+		ACTQ_sendResult(msg->sid, msg->data.act_msg.order, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_NO_RESOURCES);
 	}
 }
 
@@ -53,11 +53,11 @@ void ACTQ_sendResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Ui
 
 	if(global.flags.match_started == TRUE) {
 		resultMsg.sid = ACT_RESULT;
-		resultMsg.data[0] = originalSid & 0xFF;
-		resultMsg.data[1] = originalCommand;
-		resultMsg.data[2] = result;
-		resultMsg.data[3] = errorCode;
-		resultMsg.size = 4;
+		resultMsg.size = SIZE_ACT_RESULT;
+		resultMsg.data.act_result.sid = originalSid & 0xFF;
+		resultMsg.data.act_result.cmd = originalCommand;
+		resultMsg.data.act_result.result = result;
+		resultMsg.data.act_result.error_code = errorCode;
 		CAN_send(&resultMsg);
 	}
 
@@ -69,15 +69,12 @@ void ACTQ_sendResultWithParam(Uint11 originalSid, Uint8 originalCommand, Uint8 r
 	CAN_msg_t resultMsg;
 
 	resultMsg.sid = ACT_RESULT;
-	resultMsg.data[0] = originalSid & 0xFF;
-	resultMsg.data[1] = originalCommand;
-	resultMsg.data[2] = result;
-	resultMsg.data[3] = errorCode;
-	resultMsg.data[4] = (param & 0x000000FF);
-	resultMsg.data[5] = (param & 0x0000FF00) >> 8;
-	resultMsg.data[6] = (param & 0x00FF0000) >> 16;
-	resultMsg.data[7] = (param & 0xFF000000) >> 24;
-	resultMsg.size = 6;
+	resultMsg.size = SIZE_ACT_RESULT;
+	resultMsg.data.act_result.sid = originalSid & 0xFF;
+	resultMsg.data.act_result.cmd = originalCommand;
+	resultMsg.data.act_result.result = result;
+	resultMsg.data.act_result.error_code = errorCode;
+	resultMsg.data.act_result.param = param;
 	CAN_send(&resultMsg);
 
 	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Normal, param, TRUE);
@@ -88,13 +85,12 @@ void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, U
 	CAN_msg_t resultMsg;
 
 	resultMsg.sid = ACT_RESULT;
-	resultMsg.data[0] = originalSid & 0xFF;
-	resultMsg.data[1] = originalCommand;
-	resultMsg.data[2] = result;
-	resultMsg.data[3] = errorCode;
-	resultMsg.data[4] = LOWINT(line);
-	resultMsg.data[5] = HIGHINT(line);
-	resultMsg.size = 6;
+	resultMsg.size = SIZE_ACT_RESULT;
+	resultMsg.data.act_result.sid = originalSid & 0xFF;
+	resultMsg.data.act_result.cmd = originalCommand;
+	resultMsg.data.act_result.result = result;
+	resultMsg.data.act_result.error_code = errorCode;
+	resultMsg.data.act_result.param = line;
 	CAN_send(&resultMsg);
 
 	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Line, line, TRUE);

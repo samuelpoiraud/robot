@@ -12,6 +12,7 @@
 #ifndef CAN_MSG_PROCESSING_H
 	#define CAN_MSG_PROCESSING_H
 	#include "QS/QS_all.h"
+	#include "QS/QS_CANmsgList.h"
 
 	void CAN_process_init();
 

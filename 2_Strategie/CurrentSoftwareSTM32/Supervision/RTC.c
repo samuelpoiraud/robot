@@ -246,14 +246,14 @@ void RTC_can_send(void)
 	date_t date;
 	RTC_get_local_time(&date);
 	msg.sid = DEBUG_RTC_TIME;
-	msg.size = 7;
-	msg.data[0] = date.seconds;
-	msg.data[1] = date.minutes;
-	msg.data[2] = date.hours;
-	msg.data[3] = date.day;
-	msg.data[4] = date.date;
-	msg.data[5] = date.month;
-	msg.data[6] = date.year;
+	msg.size = SIZE_DEBUG_RTC_TIME;
+	msg.data.debug_rtc_time.seconde = date.seconds;
+	msg.data.debug_rtc_time.minute = date.minutes;
+	msg.data.debug_rtc_time.heure = date.hours;
+	msg.data.debug_rtc_time.journee = date.day;
+	msg.data.debug_rtc_time.jour = date.date;
+	msg.data.debug_rtc_time.mois = date.month;
+	msg.data.debug_rtc_time.annee = date.year;
 	CAN_send(&msg);
 }
 

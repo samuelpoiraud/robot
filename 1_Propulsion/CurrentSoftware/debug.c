@@ -89,10 +89,9 @@ void DEBUG_process_main(void)
 		global.debug.recouvrement_IT = FALSE;
 		debug_printf("#");//debug_printf("prévenez samuelp5@gmail.com, recouvrement IT !");//Fuck, il y a des IT trop longues... on remonte l'info au développeur !
 		msg.sid = DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT;
-		msg.size = 3;
-		msg.data[0] = HIGHINT(global.debug.recouvrement_IT_time);
-		msg.data[1] = LOWINT(global.debug.recouvrement_IT_time);
-		msg.data[2] = global.debug.recouvrement_section;
+		msg.size = SIZE_DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT;
+		msg.data.debug_propulsion_erreur_recouvrement_it.duration = global.debug.recouvrement_IT_time;
+		msg.data.debug_propulsion_erreur_recouvrement_it.id_it_state_name = global.debug.recouvrement_section;
 		CAN_send(&msg);
 	}
 

@@ -14,7 +14,13 @@
 #ifndef QS_TYPES_H
 	#define QS_TYPES_H
 
-	/* Type de base pour le dsPIC */
+	/**********************************************************************************************************************
+	 **********************************************************************************************************************
+	 **													Types basiques													 **
+	 **********************************************************************************************************************
+	 *********************************************************************************************************************/
+
+	/* Type de base pour le STM32 */
 	typedef unsigned char Uint8;
 	typedef signed char Sint8;
 	typedef unsigned short Uint16;
@@ -30,33 +36,28 @@
 	// time_t à l'origine, mais modifié pour être compatible avec le simulateur EVE
 	typedef Uint32 time32_t;
 
-#ifdef FALSE
-#undef FALSE
-#endif
-#ifdef TRUE
-#undef TRUE
-#endif
+	#ifdef FALSE
+		#undef FALSE
+	#endif
+
+	#ifdef TRUE
+		#undef TRUE
+	#endif
+
 	typedef enum
 	{
 		FALSE=0,
 		TRUE
 	} bool_e;
 
-#define TOP_COLOR_NAME "GREEN"
-#define BOT_COLOR_NAME "YELLOW"
+	#define TOP_COLOR_NAME "GREEN"
+	#define BOT_COLOR_NAME "YELLOW"
 
 	typedef enum
 	{
 		BOT_COLOR = 0, YELLOW=0,
 		TOP_COLOR = 1, GREEN=1
 	} color_e;
-
-	typedef struct
-	{
-		Uint11 sid;
-		Uint8 data[8];
-		Uint8 size;
-	}CAN_msg_t;
 
 	typedef enum
 	{
@@ -76,6 +77,37 @@
 		BEACON_ID_ROBOT_2 = 4,
 		BEACONS_NUMBER
 	} beacon_id_e;
+
+
+	/**********************************************************************************************************************
+	 **********************************************************************************************************************
+	 **											Types associés à la stratégie											 **
+	 **********************************************************************************************************************
+	 *********************************************************************************************************************/
+
+
+	typedef enum{
+		BUZZER_DEFAULT_NOTE = 0,	//DO : c'est la note qui fait le plus de bruit (le buzzer crache 90dB à 10cm, 4,2kHz, 3V)
+		BUZZER_NOTE_DO0,
+		BUZZER_NOTE_RE0,
+		BUZZER_NOTE_MI0,
+		BUZZER_NOTE_FA,
+		BUZZER_NOTE_SOL,
+		BUZZER_NOTE_LA,
+		BUZZER_NOTE_SI,
+		BUZZER_NOTE_DO,
+		BUZZER_NOTE_RE,
+		BUZZER_NOTE_MI
+	} buzzer_play_note_e;
+
+
+
+	/**********************************************************************************************************************
+	 **********************************************************************************************************************
+	 **											Types associés à la propulsion											 **
+	 **********************************************************************************************************************
+	 *********************************************************************************************************************/
+
 
 	/*sens de trajectoire - utilisé dans le code propulsion et partagé pour la stratégie... */
 	typedef enum {
@@ -122,5 +154,568 @@
 		EXTREMELY_VERY_SLOW,
 		CUSTOM	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
 	 } PROP_speed_e;
+
+	typedef enum{
+		PROP_NO_BORDER_MODE = 0,
+		PROP_BORDER_MODE
+	}prop_border_mode_e;
+
+	typedef enum{
+		PROP_NO_CURVE = 0,
+		PROP_CURVE
+	}prop_curve_e;
+
+	typedef enum{
+		PROP_NO_MULTIPOINT = 0,
+		PROP_MULTIPOINT
+	}prop_multipoint_e;
+
+	typedef enum{
+		PROP_ABSOLUTE = 0,
+		PROP_RELATIVE
+	}prop_referential_e;
+
+	typedef enum{
+		PROP_NOW = 0,
+		PROP_END_OF_BUFFER
+	}prop_buffer_mode_e;
+
+	typedef enum{
+		PROP_NO_ACKNOWLEDGE = 0,
+		PROP_ACKNOWLEDGE
+	}prop_acknowledge_e;
+
+	typedef enum{
+		WARNING_NO =				(0b00000000),
+		WARNING_TIMER =				(0b00000010),
+		WARNING_TRANSLATION =		(0b00000100),
+		WARNING_ROTATION =			(0b00001000),
+		WARNING_REACH_X =			(0b00010000),
+		WARNING_REACH_Y =			(0b00100000),
+		WARNING_REACH_TETA =		(0b01000000),
+		WARNING_NEW_TRAJECTORY =	(0b10000000)
+	}prop_warning_reason_e;
+
+	typedef enum
+	{
+		ODOMETRY_COEF_TRANSLATION = 0,
+		ODOMETRY_COEF_SYM,
+		ODOMETRY_COEF_ROTATION,
+		ODOMETRY_COEF_CENTRIFUGAL,		//attention, la valeur de ODOMETRY_COEF_CENTRIFUGAL est utilisé comme borne dans le code de propulsion, il faut le laisser en dernier dans les coefs d'odométrie !
+		CORRECTOR_COEF_KP_TRANSLATION,
+		CORRECTOR_COEF_KD_TRANSLATION,
+		CORRECTOR_COEF_KV_TRANSLATION,
+		CORRECTOR_COEF_KA_TRANSLATION,
+		CORRECTOR_COEF_KP_ROTATION,
+		CORRECTOR_COEF_KD_ROTATION,
+		CORRECTOR_COEF_KV_ROTATION,
+		CORRECTOR_COEF_KA_ROTATION,
+		GYRO_COEF_GAIN,
+		PROPULSION_NUMBER_COEFS
+	}PROPULSION_coef_e;
+
+
+	typedef enum{
+		 ACCESS_NORTH_GRANTED = 1,
+		 ACCESS_SOUTH_GRANTED = 2
+	}access_scan_e;
+
+
+	/**********************************************************************************************************************
+	 **********************************************************************************************************************
+	 **												Types associés à l'évitement										 **
+	 **********************************************************************************************************************
+	 *********************************************************************************************************************/
+
+
+	/*Type d'evitement pour construction du message de debug*/
+	typedef enum {
+		FORCED_BY_USER = 0,
+		FOE1,
+		FOE2
+	}foe_origin_e;
+
+	typedef enum{
+		ADVERSARY_DETECTION_FIABILITY_X			= 0b0001,
+		ADVERSARY_DETECTION_FIABILITY_Y			= 0b0010,
+		ADVERSARY_DETECTION_FIABILITY_TETA		= 0b0100,
+		ADVERSARY_DETECTION_FIABILITY_DISTANCE	= 0b1000,
+		ADVERSARY_DETECTION_FIABILITY_ALL		= 0b1111
+	}adversary_detection_fiability_e;
+
+
+	typedef enum{	// Plusieurs erreurs peuvent se cumuler
+		AUCUNE_ERREUR				= 0b00000000,	//COMPORTEMENT : le résultat délivré semble bon, il peut être utilisé.
+
+		AUCUN_SIGNAL				= 0b00000001,	//survenue de l'interruption timer 3 car strictement aucun signal reçu depuis au moins deux tours moteurs
+													//cette erreur peut se produire si l'on est très loin
+													//COMPORTEMENT : pas d'évittement par balise, prise en compte des télémètres !
+
+		SIGNAL_INSUFFISANT			= 0b00000010,	//il peut y avoir un peu de signal, mais pas assez pour estimer une position fiable (se produit typiquement si l'on est trop loin)
+													//cette erreur n'est pas grave, on peut considérer que le robot est LOIN !
+													//COMPORTEMENT : pas d'évittement, pas de prise en compte des télémètres !
+
+		TACHE_TROP_GRANDE			= 0b00000100,	//Ce cas se produit si trop de récepteurs ont vu du signal.
+													// Ce seuil est STRICTEMENT supérieur au cas normal d'un robot très pret. Il y a donc probablement un autre émetteur quelque part, ou on est entouré de miroir.
+													//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
+
+		TROP_DE_SIGNAL				= 0b00001000,	//Le récepteur ayant reçu le plus de signal en à trop recu
+													//	cas 1, peu probable, le moteur est bloqué (cas de test facile pour vérifier cette fonctionnalité !)
+													//	cas 2, probable, il y a un autre émetteur quelque part !!!
+													// 	cas 3, on est dans une enceinte fermée et on capte trop
+													//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
+
+		ERREUR_POSITION_INCOHERENTE = 0b00010000,	//La position obtenue en x/y est incohérente, le robot semble être franchement hors du terrain
+													//COMPORTEMENT : si la position obtenue indique qu'il est loin, on ne fait pas d'évitement !
+													//sinon, on fait confiance à nos télémètres (?)
+
+		OBSOLESCENCE				= 0b10000000	//La position adverse connue est obsolète compte tenu d'une absence de résultat valide depuis un certain temps.
+													//COMPORTEMENT : La position obtenue n'est pas fiable, il faut se référer aux télémètres...
+	}beacon_ir_error_e;
+
+
+
+	/**********************************************************************************************************************
+	 **********************************************************************************************************************
+	 **											Types associés à la communication XBEE									 **
+	 **********************************************************************************************************************
+	 *********************************************************************************************************************/
+
+	typedef enum{
+		XBEE_ZONE_TRY_LOCK = 0,		// La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT
+		XBEE_ZONE_LOCK_RESULT,		// La réponse dans data[2]: TRUE/FALSE suivant si le verouillage à été accepté ou non
+		XBEE_ZONE_UNLOCK			// Libère une zone qui a été verouillée
+	}xbee_zone_order_e;
+
+
+
+	//Différentes zone ou les 2 robots passent
+	typedef enum {
+		MZ_MAMMOUTH_OUR = 0,
+		MZ_FRUIT_TRAY,		//Zone du bac à fruit
+		MZ_ZONE_LIBRE,
+		ZONE_MUTEX_NUMBER
+	} map_zone_e;
+
+	typedef enum{
+		EVENT_NO_EVENT	= 0b00000000,
+		EVENT_GET_IN	= 0b00000001,
+		EVENT_GET_OUT	= 0b00000010,
+		EVENT_TIME_IN	= 0b00000100,
+		EVENT_SPECIAL	= 0b00001000
+	}zone_event_t;
+
+	typedef enum{
+		ZONE_NUMBER		//Nombre de zones...
+	}zone_e;
+
+	typedef enum{
+		NO_AREA = 0,
+		AREA_NORTH,
+		AREA_SOUTH
+	}protect_area_xbee_e;
+
+
+	/**********************************************************************************************************************
+	 **********************************************************************************************************************
+	 **												Types associés à l'IHM												 **
+	 **********************************************************************************************************************
+	 *********************************************************************************************************************/
+
+
+	typedef enum{
+		BATTERY_OFF = 0,
+		BATTERY_LOW,
+		ARU_ENABLE,
+		ARU_DISABLE,
+		HOKUYO_POWER_FAIL
+	} IHM_power_e;
+
+	// Switch de la carte IHM, pour rajouter des switchs (voir IHM switch.c/h)
+	typedef enum{
+		BIROUTE_IHM = 0,
+		SWITCH_COLOR_IHM,
+		SWITCH_LCD_IHM,
+		SWITCH0_IHM,
+		SWITCH1_IHM,
+		SWITCH2_IHM,
+		SWITCH3_IHM,
+		SWITCH4_IHM,
+		SWITCH5_IHM,
+		SWITCH6_IHM,
+		SWITCH7_IHM,
+		SWITCH8_IHM,
+		SWITCH9_IHM,
+		SWITCH10_IHM,
+		SWITCH11_IHM,
+		SWITCH12_IHM,
+		SWITCH13_IHM,
+		SWITCH14_IHM,
+		SWITCH15_IHM,
+		SWITCH16_IHM,
+		SWITCH17_IHM,
+		SWITCH18_IHM,
+		SWITCHS_NUMBER_IHM
+	}switch_ihm_e;
+
+	// Button de la carte ihm
+	typedef enum{
+		BP_OK_IHM=0,
+		BP_UP_IHM,
+		BP_DOWN_IHM,
+		BP_SET_IHM,
+		BP_SELFTEST_IHM,
+		BP_CALIBRATION_IHM,
+		BP_PRINTMATCH_IHM,
+		BP_RFU_IHM,
+		BP_0_IHM,
+		BP_1_IHM,
+		BP_2_IHM,
+		BP_3_IHM,
+		BP_4_IHM,
+		BP_5_IHM,
+		BP_NUMBER_IHM
+	}button_ihm_e;
+
+	// Leds de la carte IHM
+	typedef enum{
+		LED_OK_IHM=0,
+		LED_UP_IHM,
+		LED_DOWN_IHM,
+		LED_SET_IHM,
+		LED_COLOR_IHM,
+		LED_0_IHM,
+		LED_1_IHM,
+		LED_2_IHM,
+		LED_3_IHM,
+		LED_4_IHM,
+		LED_5_IHM,
+		LED_NUMBER_IHM
+	}led_ihm_e;
+
+	// Ne mettre que 8 états max
+	// Si rajout état le faire aussi dans la fonction get_blink_state de led.c de la carte IHM
+	typedef enum{
+		OFF=0,
+		ON,
+		BLINK_1HZ,
+		SPEED_BLINK_4HZ,
+		FLASH_BLINK_10MS
+	}blinkLED_e;
+
+	typedef enum{
+		LED_COLOR_BLACK =		0b000,
+		LED_COLOR_BLUE =		0b001,
+		LED_COLOR_GREEN =		0b010,
+		LED_COLOR_CYAN =		0b011,
+		LED_COLOR_RED =			0b100,
+		LED_COLOR_MAGENTA =		0b101,
+		LED_COLOR_YELLOW =		0b110,
+		LED_COLOR_WHITE =		0b111
+	}led_color_e;
+
+	typedef struct{
+		led_ihm_e id;
+		blinkLED_e blink;
+	}led_ihm_t;
+
+	typedef enum{
+		IHM_ERROR_HOKUYO	= 0b00000001,
+		IHM_ERROR_ASSER		= 0b00000010
+	}ihm_error_e;
+
+	/**********************************************************************************************************************
+	 **********************************************************************************************************************
+	 **												Types associés au selftest											 **
+	 **********************************************************************************************************************
+	 *********************************************************************************************************************/
+
+	typedef enum{
+		SELFTEST_NOT_DONE = 0,
+		SELFTEST_FAIL_UNKNOW_REASON,
+		SELFTEST_TIMEOUT,
+
+		SELFTEST_BEACON_ADV1_NOT_SEEN,				//Ne rien mettre avant ceci sans synchroniser le QS_CANmsgList dsPIC pour la balise !!!
+		SELFTEST_BEACON_ADV2_NOT_SEEN,
+		SELFTEST_BEACON_SYNCHRO_NOT_RECEIVED,
+		SELFTEST_BEACON_ADV1_BATTERY_LOW,
+		SELFTEST_BEACON_ADV2_BATTERY_LOW,
+		SELFTEST_BEACON_ADV1_RF_UNREACHABLE,
+		SELFTEST_BEACON_ADV2_RF_UNREACHABLE,
+
+		SELFTEST_PROP_FAILED,
+		SELFTEST_PROP_HOKUYO_FAILED,
+		SELFTEST_PROP_IN_SIMULATION_MODE,
+		SELFTEST_PROP_SWITCH_ASSER_DISABLE,
+		SELFTEST_PROP_SENSOR_CUP_LEFT,
+		SELFTEST_PROP_SENSOR_CUP_RIGHT,
+
+		SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE,
+		SELFTEST_STRAT_XBEE_SWITCH_DISABLE,
+		SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE,
+		SELFTEST_STRAT_RTC,
+		SELFTEST_STRAT_BATTERY_NO_24V,
+		SELFTEST_STRAT_BATTERY_LOW,
+		SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME,
+		SELFTEST_STRAT_BIROUTE_FORGOTTEN,
+		SELFTEST_STRAT_SD_WRITE_FAIL,
+		SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT,
+		SELFTEST_STRAT_ESTRADE_SENSOR_LEFT,
+		SELFTEST_STRAT_SWITCH_POPCORN_DISABLED,
+		SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED,
+		SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED,
+		SELFTEST_STRAT_SWITCH_CLAPS_DISABLED,
+		SELFTEST_STRAT_SWITCH_CARPETS_DISABLED,
+		SELFTEST_STRAT_SWITCH_LIFT_DISABLED,
+		SELFTEST_STRAT_SWITCH_CUP_DISABLED,
+
+		SELFTEST_IHM_BATTERY_NO_24V,
+		SELFTEST_IHM_BATTERY_LOW,
+		SELFTEST_IHM_BIROUTE_FORGOTTEN,
+		SELFTEST_IHM_POWER_HOKUYO_FAILED,
+
+		SELFTEST_ACT_UNREACHABLE,
+		SELFTEST_PROP_UNREACHABLE,
+		SELFTEST_BEACON_UNREACHABLE,
+		SELFTEST_IHM_UNREACHABLE,
+
+		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
+		SELFTEST_ACT_MISSING_TEST,	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
+		SELFTEST_ACT_UNKNOWN_ACT,	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
+		SELFTEST_ACT_POP_COLLECT_LEFT,
+		SELFTEST_ACT_POP_COLLECT_RIGHT,
+		SELFTEST_ACT_POP_DROP_LEFT,
+		SELFTEST_ACT_POP_DROP_RIGHT,
+		SELFTEST_ACT_BACK_SPOT_LEFT,
+		SELFTEST_ACT_BACK_SPOT_RIGHT,
+		SELFTEST_ACT_SPOT_POMPE_LEFT,
+		SELFTEST_ACT_SPOT_POMPE_RIGHT,
+		SELFTEST_ACT_POMPE_WOOD,
+		SELFTEST_ACT_CARPET_LAUNCHER_LEFT,
+		SELFTEST_ACT_CARPET_LAUNCHER_RIGHT,
+		SELFTEST_ACT_PINCEMI_RIGHT,
+		SELFTEST_ACT_PINCEMI_LEFT,
+		SELFTEST_ACT_ELEVATOR,
+		SELFTEST_ACT_STOCK_RIGHT,
+		SELFTEST_ACT_STOCK_LEFT,
+		SELFTEST_ACT_CUP_NIPPER,
+		SELFTEST_ACT_CUP_NIPPER_ELEVATOR,
+		SELFTEST_ACT_CLAP,
+		SELFTEST_ACT_PINCE_DROITE,
+		SELFTEST_ACT_PINCE_GAUCHE,
+		SELFTEST_ACT_POP_DROP_LEFT_WOOD,
+		SELFTEST_ACT_POP_DROP_RIGHT_WOOD,
+		SELFTEST_ACT_CLAP_HOLLY,
+
+		SELFTEST_ERROR_NB,
+		SELFTEST_NO_ERROR = 0xFF
+		//... ajouter ici d'éventuels nouveaux code d'erreur.
+	}SELFTEST_error_code_e;
+
+
+/**********************************************************************************************************************
+ **********************************************************************************************************************
+ **											Types associés à l'actionneur											 **
+ **********************************************************************************************************************
+ *********************************************************************************************************************/
+
+	typedef enum{
+		ACT_SENSOR_ID_PINCE_GOBELET_DROITE	= 0,
+		ACT_SENSOR_ID_PINCE_GOBELET_GAUCHE,
+		NB_ACT_SENSOR
+	}act_sensor_id_e;
+
+// Mettre toujours l'ordre de STOP à la valeur 0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	typedef enum {
+
+// Ne pas toucher
+
+		ACT_DEFAULT_STOP = 0,
+		ACT_CONFIG = 0xFF,
+
+// Holly
+
+		ACT_POP_COLLECT_LEFT_STOP = 0,
+		ACT_POP_COLLECT_LEFT_CLOSED,
+		ACT_POP_COLLECT_LEFT_OPEN,
+		ACT_POP_COLLECT_LEFT_MID,
+
+		ACT_POP_COLLECT_RIGHT_STOP = 0,
+		ACT_POP_COLLECT_RIGHT_CLOSED,
+		ACT_POP_COLLECT_RIGHT_OPEN,
+		ACT_POP_COLLECT_RIGHT_MID,
+
+		ACT_POP_DROP_LEFT_STOP = 0,
+		ACT_POP_DROP_LEFT_OPEN,
+		ACT_POP_DROP_LEFT_MID,
+		ACT_POP_DROP_LEFT_CLOSED,
+
+		ACT_POP_DROP_RIGHT_STOP = 0,
+		ACT_POP_DROP_RIGHT_OPEN,
+		ACT_POP_DROP_RIGHT_MID,
+		ACT_POP_DROP_RIGHT_CLOSED,
+
+		ACT_BACK_SPOT_RIGHT_STOP = 0,
+		ACT_BACK_SPOT_RIGHT_OPEN,
+		ACT_BACK_SPOT_RIGHT_CLOSED,
+
+		ACT_BACK_SPOT_LEFT_STOP = 0,
+		ACT_BACK_SPOT_LEFT_OPEN,
+		ACT_BACK_SPOT_LEFT_CLOSED,
+
+		ACT_SPOT_POMPE_LEFT_STOP = 0,
+		ACT_SPOT_POMPE_LEFT_NORMAL,
+		ACT_SPOT_POMPE_LEFT_REVERSE,
+
+		ACT_SPOT_POMPE_RIGHT_STOP = 0,
+		ACT_SPOT_POMPE_RIGHT_NORMAL,
+		ACT_SPOT_POMPE_RIGHT_REVERSE,
+
+		ACT_CARPET_LAUNCHER_LEFT_STOP = 0,
+		ACT_CARPET_LAUNCHER_LEFT_IDLE,
+		ACT_CARPET_LAUNCHER_LEFT_LAUNCH,
+		ACT_CARPET_LAUNCHER_LEFT_LOADING,
+
+		ACT_CARPET_LAUNCHER_RIGHT_STOP = 0,
+		ACT_CARPET_LAUNCHER_RIGHT_IDLE,
+		ACT_CARPET_LAUNCHER_RIGHT_LAUNCH,
+		ACT_CARPET_LAUNCHER_RIGHT_LOADING,
+
+		ACT_CUP_NIPPER_STOP = 0,
+		ACT_CUP_NIPPER_OPEN,
+		ACT_CUP_NIPPER_CLOSE,
+		ACT_CUP_NIPPER_LOCK,
+
+		ACT_CUP_NIPPER_ELEVATOR_STOP = 0,
+		ACT_CUP_NIPPER_ELEVATOR_IDLE,
+		ACT_CUP_NIPPER_ELEVATOR_MID,
+		ACT_CUP_NIPPER_ELEVATOR_UP,
+
+		ACT_CLAP_HOLLY_STOP = 0,
+		ACT_CLAP_HOLLY_IDLE,
+		ACT_CLAP_HOLLY_LEFT,
+		ACT_CLAP_HOLLY_RIGHT,
+		ACT_CLAP_HOLLY_MIDDLE_LEFT,
+		ACT_CLAP_HOLLY_MIDDLE_RIGHT,
+
+		ACT_ELEVATOR_STOP = 0,
+		ACT_ELEVATOR_BOT,
+		ACT_ELEVATOR_MID,
+		ACT_ELEVATOR_MID_LOW,
+		ACT_ELEVATOR_ESTRAD,
+		ACT_ELEVATOR_PRE_TOP,
+		ACT_ELEVATOR_TOP,
+
+		ACT_PINCEMI_RIGHT_STOP = 0,
+		ACT_PINCEMI_RIGHT_CLOSE,
+		ACT_PINCEMI_RIGHT_CLOSE_INNER,
+		ACT_PINCEMI_RIGHT_LOCK,
+		ACT_PINCEMI_RIGHT_LOCK_BALL,
+		ACT_PINCEMI_RIGHT_UNLOCK,
+		ACT_PINCEMI_RIGHT_OPEN,
+		ACT_PINCEMI_RIGHT_OPEN_GREAT,
+
+		ACT_PINCEMI_LEFT_STOP = 0,
+		ACT_PINCEMI_LEFT_CLOSE,
+		ACT_PINCEMI_LEFT_CLOSE_INNER,
+		ACT_PINCEMI_LEFT_LOCK,
+		ACT_PINCEMI_LEFT_LOCK_BALL,
+		ACT_PINCEMI_LEFT_UNLOCK,
+		ACT_PINCEMI_LEFT_OPEN,
+		ACT_PINCEMI_LEFT_OPEN_GREAT,
+
+		ACT_STOCK_RIGHT_STOP = 0,
+		ACT_STOCK_RIGHT_CLOSE,
+		ACT_STOCK_RIGHT_LOCK,
+		ACT_STOCK_RIGHT_UNLOCK,
+		ACT_STOCK_RIGHT_OPEN,
+
+		ACT_STOCK_LEFT_STOP = 0,
+		ACT_STOCK_LEFT_CLOSE,
+		ACT_STOCK_LEFT_LOCK,
+		ACT_STOCK_LEFT_UNLOCK,
+		ACT_STOCK_LEFT_OPEN,
+
+// Wood
+
+		ACT_PINCE_GAUCHE_STOP = 0,
+		ACT_PINCE_GAUCHE_IDLE_POS,
+		ACT_PINCE_GAUCHE_CLOSED,
+		ACT_PINCE_GAUCHE_OPEN,
+		ACT_PINCE_GAUCHE_MID_POS,
+
+		ACT_PINCE_DROITE_STOP = 0,
+		ACT_PINCE_DROITE_IDLE_POS,
+		ACT_PINCE_DROITE_CLOSED,
+		ACT_PINCE_DROITE_MID_POS,
+		ACT_PINCE_DROITE_OPEN,
+
+		ACT_CLAP_STOP = 0,
+		ACT_CLAP_CLOSED,
+		ACT_CLAP_OPEN,
+		ACT_CLAP_TAKE_CUP,
+		ACT_CLAP_POP_CORN,
+
+		ACT_POP_DROP_LEFT_WOOD_STOP = 0,
+		ACT_POP_DROP_LEFT_WOOD_CLOSED,
+		ACT_POP_DROP_LEFT_WOOD_OPEN,
+		ACT_POP_DROP_LEFT_WOOD_MID,
+
+		ACT_POP_DROP_RIGHT_WOOD_STOP = 0,
+		ACT_POP_DROP_RIGHT_WOOD_CLOSED,
+		ACT_POP_DROP_RIGHT_WOOD_OPEN,
+		ACT_POP_DROP_RIGHT_WOOD_MID_POS,
+
+		ACT_POMPE_WOOD_STOP = 0,
+		ACT_POMPE_WOOD_NORMAL,
+		ACT_POMPE_WOOD_REVERSE
+
+	} ACT_order_e;
+
+	typedef enum{
+		ACT_RESULT_DONE = 0,			//Tout s'est bien passé
+		ACT_RESULT_FAILED,				//La commande s'est mal passé et on ne sait pas dans quel état est l'actionneur (par: les capteurs ne fonctionnent plus)
+		ACT_RESULT_NOT_HANDLED			//La commande ne s'est pas effectué correctement et on sait que l'actionneur n'a pas bougé (ou quand la commande a été ignorée)
+	}act_result_state_e;
+
+	typedef enum{
+		ACT_RESULT_ERROR_OK = 0,		//Quand pas d'erreur
+		ACT_RESULT_ERROR_TIMEOUT,		//Il y a eu timeout, par ex l'asservissement prend trop de temps
+		ACT_RESULT_ERROR_OTHER,			//La commande était lié à une autre qui ne s'est pas effectué correctement, utilisé avec ACT_RESULT_NOT_HANDLED
+		ACT_RESULT_ERROR_NOT_HERE,		//L'actionneur ou le capteur ne répond plus (on le sait par un autre moyen que le timeout, par exemple l'AX12 ne renvoie plus d'info après l'envoi d'une commande.)
+		ACT_RESULT_ERROR_LOGIC,			//Erreur de logique interne à la carte actionneur, probablement une erreur de codage (par exemple un état qui n'aurait jamais dû arrivé)
+		ACT_RESULT_ERROR_NO_RESOURCES,	//La carte n'a pas assez de resource pour gérer la commande. Commande à renvoyer plus tard.
+		ACT_RESULT_ERROR_INVALID_ARG,	//La commande ne peut pas être effectuée, l'argument n'est pas valide ou est en dehors des valeurs acceptés
+		ACT_RESULT_ERROR_CANCELED,		//L'action a été annulé
+
+		ACT_RESULT_ERROR_UNKNOWN = 255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
+
+	}act_result_error_code_e;
+
+	typedef enum{
+		SPEED_CONFIG = 0,
+		TORQUE_CONFIG
+	}act_config_e;
+
+	typedef enum{
+		DEFAULT_MONO_ACT = 0,
+
+		PINCEMIR_R,
+		PINCEMIR_L,
+		PINCEMIL_R,
+		PINCEMIL_L,
+
+		STOCKR_R_F1,
+		STOCKR_L_F1,
+		STOCKL_R_F1,
+		STOCKL_L_F1,
+
+		STOCKR_R_F2,
+		STOCKR_L_F2,
+		STOCKL_R_F2,
+		STOCKL_L_F2
+
+	}act_sub_act_id_e;
+
 
 #endif /* ndef QS_TYPES_H */

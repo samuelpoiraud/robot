@@ -176,24 +176,24 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 }
 
 void ACTMGR_config_AX12(Uint8 id_servo, CAN_msg_t* msg){
-	switch(msg->data[2]){
-		case AX12_SPEED_CONFIG : // Configuration de la vitesse
+	switch(msg->data.act_msg.act_data.act_config.config){
+		case SPEED_CONFIG : // Configuration de la vitesse
 			if(AX12_is_wheel_mode_enabled(id_servo)){
-				AX12_set_speed_percentage(id_servo, msg->data[3]);
-				debug_printf("Configuration de la vitesse (wheel mode) de l'AX12 %d avec une valeur de %d\n", id_servo, msg->data[3]);
+				AX12_set_speed_percentage(id_servo, msg->data.act_msg.act_data.act_config.data_config.speed_wheel);
+				debug_printf("Configuration de la vitesse (wheel mode) de l'AX12 %d avec une valeur de %d\n", id_servo, msg->data.act_msg.act_data.act_config.data_config.speed_wheel);
 			}else{
-				AX12_set_move_to_position_speed(id_servo, msg->data[3]);
-				debug_printf("Configuration de la vitesse (position mode) de l'AX12 %d avec une valeur de %d\n", id_servo, msg->data[3]);
+				AX12_set_move_to_position_speed(id_servo, msg->data.act_msg.act_data.act_config.data_config.speed_position);
+				debug_printf("Configuration de la vitesse (position mode) de l'AX12 %d avec une valeur de %d\n", id_servo, msg->data.act_msg.act_data.act_config.data_config.speed_position);
 			}
 
 			break;
 
-		case AX12_TORQUE_CONFIG : // Configuration du couple
-			AX12_set_torque_limit(id_servo, msg->data[3]);
-			debug_printf("Configuration du couple de l'AX12 %d avec une valeur de %d\n", id_servo, msg->data[3]);
+		case TORQUE_CONFIG : // Configuration du couple
+			AX12_set_torque_limit(id_servo, msg->data.act_msg.act_data.act_config.data_config.torque);
+			debug_printf("Configuration du couple de l'AX12 %d avec une valeur de %d\n", id_servo, msg->data.act_msg.act_data.act_config.data_config.torque);
 			break;
 
 		default :
-			warn_printf("invalid CAN msg data[2]=%u (configuration impossible)!\n", msg->data[2]);
+			warn_printf("invalid CAN msg data[2]=%u (configuration impossible)!\n", msg->data.act_msg.act_data.act_config.config);
 	}
 }

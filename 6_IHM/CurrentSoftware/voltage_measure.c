@@ -98,8 +98,8 @@ Uint16 VOLTAGE_MEASURE_measure24_mV(adc_id_e id){
 static void send_msgCAN(IHM_power_e state){
 	CAN_msg_t msg;
 	msg.sid = IHM_POWER;
-	msg.data[0] = state;
-	msg.size = 1;
+	msg.size = SIZE_IHM_POWER;
+	msg.data.ihm_power.state = state;
 	CAN_send(&msg);
 }
 

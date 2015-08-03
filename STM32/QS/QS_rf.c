@@ -240,7 +240,7 @@
 		data[RF_CAN_SID+1] = msg->sid >> 8;
 
 		for(i = 0; i < msg->size; i++) {
-			data[RF_CAN_DATA+i] = msg->data[i];
+			data[RF_CAN_DATA+i] = msg->data.raw_data[i];
 		}
 		for(; i < 8; i++)
 			data[RF_CAN_DATA+i] = 0;
@@ -369,10 +369,10 @@
 				msg.sid = (Uint16)data[RF_CAN_SID] | (Uint16)data[RF_CAN_SID+1] << 8;
 
 				for(i = 0; i < msg.size; i++) {
-					msg.data[i] = data[RF_CAN_DATA+i];
+					msg.data.raw_data[i] = data[RF_CAN_DATA+i];
 				}
 				for(; i < 8; i++)
-					msg.data[i] = 0;
+					msg.data.raw_data[i] = 0;
 				(*canmsg_received_fct)(&msg);
 			}
 		} else if(header.type != RF_PT_Can) {

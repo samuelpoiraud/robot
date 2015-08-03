@@ -346,7 +346,7 @@ static void LCD_handle_i2c_result(bool_e result) {
 void LCD_bitsReset(bool_e set){
 	CAN_msg_t msg;
 	msg.sid = IHM_LCD_BIT_RESET;
-	msg.data[0] = set;
-	msg.size = 1;
+	msg.size = SIZE_IHM_LCD_BIT_RESET;
+	msg.data.ihm_lcd_bit_reset.state_set = set;
 	CAN_send(&msg);
 }

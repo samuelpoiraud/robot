@@ -46,7 +46,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		case IHM_SET_ERROR:
-			LEDS_set_error(msg->data[0], msg->data[1]);
+			LEDS_set_error(msg->data.ihm_set_error.error, msg->data.ihm_set_error.state);
 			break;
 
 		case IHM_SET_LED:
@@ -54,11 +54,11 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		case IHM_SET_LED_COLOR:
-			LEDS_set_COLOR((led_color_e)msg->data[0]);
+			LEDS_set_COLOR(msg->data.ihm_set_led_color.led_color);
 			break;
 
 		case IHM_LCD_BIT_RESET:
-			GPIO_WriteBit(LCD_RESET_PORT, msg->data[0]);
+			GPIO_WriteBit(LCD_RESET_PORT, msg->data.ihm_lcd_bit_reset.state_set);
 			break;
 
 		case IHM_PING:
@@ -84,8 +84,8 @@ static void CAN_send_callback(CAN_msg_t* msg){
 static void CAN_send_pong(void){
 	CAN_msg_t msg;
 	msg.sid = STRAT_IHM_PONG;
-	msg.size = 1;
-	msg.data[0] = QS_WHO_AM_I_get();
+	msg.size = SIZE_STRAT_IHM_PONG;
+	msg.data.strat_ihm_pong.robot_id = QS_WHO_AM_I_get();
 	CAN_send(&msg);
 }
 
@@ -95,18 +95,18 @@ static void CAN_send_selftest(void){
 	msg.sid = STRAT_IHM_SELFTEST_DONE;
 
 	if(!SWITCHS_get(BIROUTE_IHM))
-		msg.data[i++] = SELFTEST_IHM_BIROUTE_FORGOTTEN;
+		msg.data.strat_ihm_selftest_done.error_code[i++] = SELFTEST_IHM_BIROUTE_FORGOTTEN;
 
 	if(!VOLTAGE_MEASURE_get_state_hokuyo())
-		msg.data[i++] = SELFTEST_IHM_POWER_HOKUYO_FAILED;
+		msg.data.strat_ihm_selftest_done.error_code[i++] = SELFTEST_IHM_POWER_HOKUYO_FAILED;
 
 	if(!VOLTAGE_MEASURE_get_state_battery())
-		msg.data[i++] = SELFTEST_IHM_BATTERY_LOW;
+		msg.data.strat_ihm_selftest_done.error_code[i++] = SELFTEST_IHM_BATTERY_LOW;
 
 	if(VOLTAGE_MEASURE_get_state_ARU())
-		msg.data[i++] = SELFTEST_IHM_BATTERY_NO_24V;
+		msg.data.strat_ihm_selftest_done.error_code[i++] = SELFTEST_IHM_BATTERY_NO_24V;
 
-	msg.data[i++] = SELFTEST_NO_ERROR;
+	msg.data.strat_ihm_selftest_done.error_code[i++] = SELFTEST_NO_ERROR;
 	msg.size = i;
 	CAN_send(&msg);
 }

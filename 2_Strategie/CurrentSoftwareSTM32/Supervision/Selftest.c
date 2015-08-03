@@ -36,7 +36,6 @@
 #define TIMEOUT_SELFTEST_PROP			10000	// en ms
 #define TIMEOUT_SELFTEST_STRAT			5000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_IR		1000	// en ms
-#define TIMEOUT_SELFTEST_BEACON_US		1000	// en ms
 #define TIMEOUT_SELFTEST_AVOIDANCE		5000	// en ms
 #define TIMEOUT_SELFTEST_IHM			1000	// en ms
 #define MAX_ERRORS_NUMBER				200
@@ -113,10 +112,10 @@ void SELFTEST_declare_errors(CAN_msg_t * msg, SELFTEST_error_code_e error)
 	{
 		for(i=0;i<msg->size;i++)
 		{
-			if(msg->data[i] != SELFTEST_NO_ERROR)
+			if(msg->data.strat_prop_selftest_done.error_code[i] != SELFTEST_NO_ERROR)
 			{
 				//Récupération des codes d'erreurs envoyés.
-				errors[errors_index] = msg->data[i];
+				errors[errors_index] = msg->data.strat_prop_selftest_done.error_code[i];
 				if(errors_index < MAX_ERRORS_NUMBER - 1)
 					errors_index++;
 			}
@@ -159,7 +158,6 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		SELFTEST_PROP,
 		SELFTEST_IHM,
 		SELFTEST_BEACON_IR,
-		SELFTEST_BEACON_US,
 		SELFTEST_STRAT,
 		SELFTEST_BEACON_BATTERY,
 		SELFTEST_END
@@ -227,19 +225,19 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			{
 				if(CAN_msg_received->sid == STRAT_ACT_PONG)
 				{
-					if(CAN_msg_received->data[0] != QS_WHO_AM_I_get())
+					if(CAN_msg_received->data.strat_act_pong.robot_id != QS_WHO_AM_I_get())
 						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
 					act_ping_ok = TRUE;
 				}
 				if(CAN_msg_received->sid == STRAT_PROP_PONG)
 				{
-					if(CAN_msg_received->data[0] != QS_WHO_AM_I_get())
+					if(CAN_msg_received->data.strat_prop_pong.robot_id != QS_WHO_AM_I_get())
 						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
 					prop_ping_ok = TRUE;
 				}
 				if(CAN_msg_received->sid == STRAT_IHM_PONG)
 				{
-					if(CAN_msg_received->data[0] != QS_WHO_AM_I_get())
+					if(CAN_msg_received->data.strat_ihm_pong.robot_id != QS_WHO_AM_I_get())
 						SELFTEST_declare_errors(NULL,SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME);
 					ihm_ping_ok = TRUE;
 				}
@@ -376,7 +374,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					state = SELFTEST_BEACON_BATTERY;
 			}
 			if(CAN_msg_received != NULL)
-				if(CAN_msg_received->sid == STRAT_BEACON_IR_SELFTEST_DONE)
+				if(CAN_msg_received->sid == STRAT_BEACON_SELFTEST_DONE)
 				{
 					//Retour de la carte Beacon IR
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
@@ -716,53 +714,37 @@ void led_ir_update(selftest_beacon_e state)
 
 volatile static struct {
 	Uint8 beacon_error_ir_counter[8];
-	Uint8 beacon_error_us_counter[8];
 	Uint16 report_counter;
-}beacon_error_report = {{0},{0}, 0};
+}beacon_error_report = {{0}, 0};
 
 void SELFTEST_beacon_counter_init(){
 	Uint8 i;
 	for(i=0;i<8;i++)
 		beacon_error_report.beacon_error_ir_counter[i] = 0;
-	for(i=0;i<8;i++)
-		beacon_error_report.beacon_error_us_counter[i] = 0;
 	beacon_error_report.report_counter = 0;
 }
 
 void error_counters_update(CAN_msg_t * msg){
+	Uint8 i;
 	switch(msg->sid){
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
-			if(msg->data[0] & 0b0)
-				beacon_error_report.beacon_error_ir_counter[msg->data[0]]++;
-			if(msg->data[0] & 0b00000001)
-				beacon_error_report.beacon_error_ir_counter[msg->data[1]]++;
-			if(msg->data[0] & 0b00000010)
-				beacon_error_report.beacon_error_ir_counter[msg->data[2]]++;
-			if(msg->data[0] & 0b00000100)
-				beacon_error_report.beacon_error_ir_counter[msg->data[3]]++;
-			if(msg->data[0] & 0b00001000)
-				beacon_error_report.beacon_error_ir_counter[msg->data[4]]++;
-			if(msg->data[0] & 0b00010000)
-				beacon_error_report.beacon_error_ir_counter[msg->data[5]]++;
-			if(msg->data[0] & 0b10000000)
-				beacon_error_report.beacon_error_ir_counter[msg->data[6]]++;
 
-			if(msg->data[4] & 0b0)
-				beacon_error_report.beacon_error_ir_counter[msg->data[0]]++;
-			if(msg->data[4] & 0b00000001)
-				beacon_error_report.beacon_error_ir_counter[msg->data[1]]++;
-			if(msg->data[4] & 0b00000010)
-				beacon_error_report.beacon_error_ir_counter[msg->data[2]]++;
-			if(msg->data[4] & 0b00000100)
-				beacon_error_report.beacon_error_ir_counter[msg->data[3]]++;
-			if(msg->data[4] & 0b00001000)
-				beacon_error_report.beacon_error_ir_counter[msg->data[4]]++;
-			if(msg->data[4] & 0b00010000)
-				beacon_error_report.beacon_error_ir_counter[msg->data[5]]++;
-			if(msg->data[4] & 0b10000000)
-				beacon_error_report.beacon_error_ir_counter[msg->data[6]]++;
-
-
+			for(i=0;i<2;i++){
+				if(msg->data.broadcast_beacon_adversary_position_ir.adv[i].error == AUCUNE_ERREUR)
+					beacon_error_report.beacon_error_ir_counter[0]++;
+				if(msg->data.broadcast_beacon_adversary_position_ir.adv[i].error & AUCUN_SIGNAL)
+					beacon_error_report.beacon_error_ir_counter[1]++;
+				if(msg->data.broadcast_beacon_adversary_position_ir.adv[i].error & SIGNAL_INSUFFISANT)
+					beacon_error_report.beacon_error_ir_counter[2]++;
+				if(msg->data.broadcast_beacon_adversary_position_ir.adv[i].error & TACHE_TROP_GRANDE)
+					beacon_error_report.beacon_error_ir_counter[3]++;
+				if(msg->data.broadcast_beacon_adversary_position_ir.adv[i].error & TROP_DE_SIGNAL)
+					beacon_error_report.beacon_error_ir_counter[4]++;
+				if(msg->data.broadcast_beacon_adversary_position_ir.adv[i].error & ERREUR_POSITION_INCOHERENTE)
+					beacon_error_report.beacon_error_ir_counter[5]++;
+				if(msg->data.broadcast_beacon_adversary_position_ir.adv[i].error & OBSOLESCENCE)
+					beacon_error_report.beacon_error_ir_counter[6]++;
+			}
 			beacon_error_report.report_counter++;
 			break;
 		default:
@@ -775,7 +757,7 @@ void SELFTEST_get_match_report_IR(CAN_msg_t * msg){
 	msg->sid = IR_ERROR_RESULT;
 	msg->size = 8;
 	for(i=0;i<8;i++)
-		msg->data[i] = beacon_error_report.beacon_error_ir_counter[i];
+		msg->data.ir_error_result.error_counter[i] = beacon_error_report.beacon_error_ir_counter[i];
 }
 
 void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
@@ -787,9 +769,9 @@ void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 				//Enregistrement du type d'erreur
 				error_counters_update(can_msg);
 			//Si le message d'erreur n'est pas nul autrement dit si il y a une erreur quelconque
-			if(can_msg->data[0] || can_msg->data[4])
+			if(can_msg->data.broadcast_beacon_adversary_position_ir.adv[0].error || can_msg->data.broadcast_beacon_adversary_position_ir.adv[1].error)
 				led_ir_update(BEACON_ERROR);
-			else if(can_msg->data[3] < 102 || can_msg->data[7] < 102) //Distance IR en cm
+			else if(can_msg->data.broadcast_beacon_adversary_position_ir.adv[0].dist < 102 || can_msg->data.broadcast_beacon_adversary_position_ir.adv[1].dist < 102) //Distance IR en cm
 				led_ir_update(BEACON_NEAR);
 			else
 				led_ir_update(BEACON_FAR);
@@ -846,19 +828,17 @@ void SELFTEST_check_alim(){
 
 	if(global.alim_value > THRESHOLD_BATTERY_OFF && state != ALIM_On){
 		msg.sid = BROADCAST_ALIM;
-		msg.data[0] = ALIM_ON;
-		msg.data[1] = (Uint8)((global.alim_value >> 8) & 0x00FF);
-		msg.data[2] = (Uint8)(global.alim_value & 0x00FF);
-		msg.size = 3;
+		msg.size = SIZE_BROADCAST_ALIM;
+		msg.data.broadcast_alim.state = TRUE;
+		msg.data.broadcast_alim.value = global.alim_value;
 		CAN_send(&msg);
 		state = ALIM_On;
 		global.flags.alim = TRUE;
 	}else if(global.alim_value < THRESHOLD_BATTERY_OFF && state != ALIM_Off){
 		msg.sid = BROADCAST_ALIM;
-		msg.data[0] = ALIM_OFF;
-		msg.data[1] = (Uint8)((global.alim_value >> 8) & 0x00FF);
-		msg.data[2] = (Uint8)(global.alim_value & 0x00FF);
-		msg.size = 3;
+		msg.size = SIZE_BROADCAST_ALIM;
+		msg.data.broadcast_alim.state = FALSE;
+		msg.data.broadcast_alim.value = global.alim_value;
 		CAN_send(&msg);
 		state = ALIM_Off;
 		global.flags.alim = FALSE;
@@ -869,15 +849,22 @@ void SELFTEST_check_alim(){
 void SELFTEST_check_hokuyo(){
 	static bool_e alarmed = FALSE;
 	time32_t delta_time = DETECTION_get_last_time_since_hokuyo_date();
+	CAN_msg_t msg;
+	msg.sid = IHM_SET_ERROR;
+	msg.size = SIZE_IHM_SET_ERROR;
+	msg.data.ihm_set_error.error = IHM_ERROR_ASSER;
+
 	if(delta_time > 250 && alarmed == FALSE){
 		BUZZER_play(15, DEFAULT_NOTE, 5);
 		LCD_printf(3, FALSE, TRUE, "HOKUYO LOST !");
 		hokuyo_lost_counter++;
-		CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, TRUE});
+		msg.data.ihm_set_error.state = TRUE;
+		CAN_send(&msg);
 		alarmed = TRUE;
 	}else if(delta_time <= 250 && alarmed == TRUE){
 		LCD_printf(3, FALSE, TRUE, "HOKUYO IS ALIVE !");
-		CAN_direct_send(IHM_SET_ERROR, 2, (Uint8[]){IHM_ERROR_ASSER, FALSE});
+		msg.data.ihm_set_error.state = FALSE;
+		CAN_send(&msg);
 		alarmed = FALSE;
 	}
 }

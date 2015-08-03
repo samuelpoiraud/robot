@@ -141,47 +141,45 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 	{
 		if (msg->sid == BROADCAST_ADVERSARIES_POSITION)
 		{
-			adversary_nb = msg->data[0] & (~IT_IS_THE_LAST_ADVERSARY);
+			adversary_nb = msg->data.broadcast_adversaries_position.adversary_number;
 			if(adversary_nb < HOKUYO_MAX_FOES)
 			{
-				fiability = msg->data[6];
+				fiability = msg->data.broadcast_adversaries_position.fiability;
 				if(fiability)
 				{
 					adversaries[adversary_nb].enable = TRUE;
 					adversaries[adversary_nb].update_time = global.absolute_time;
 				}
-				else{
+				else
 					adversaries[adversary_nb].enable = FALSE;
-				}
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_X)
-					adversaries[adversary_nb].x = ((Sint16)msg->data[1])*20;
+					adversaries[adversary_nb].x = ((Sint16)msg->data.broadcast_adversaries_position.x)*20;
 				if(fiability & ADVERSARY_DETECTION_FIABILITY_Y)
-					adversaries[adversary_nb].y = ((Sint16)msg->data[2])*20;
+					adversaries[adversary_nb].y = ((Sint16)msg->data.broadcast_adversaries_position.y)*20;
 				if(fiability)
 				{
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_TETA)
-						adversaries[adversary_nb].angle = (Sint16)(U16FROMU8(msg->data[3],msg->data[4]));
+						adversaries[adversary_nb].angle = msg->data.broadcast_adversaries_position.teta;
 					else	//je dois calculer moi-même l'angle de vue relatif de l'adversaire
 					{
 						adversaries[adversary_nb].angle = GEOMETRY_viewing_angle(global.position.x, global.position.y,adversaries[adversary_nb].x, adversaries[adversary_nb].y);
 						adversaries[adversary_nb].angle = GEOMETRY_modulo_angle(adversaries[adversary_nb].angle - global.position.teta);
 					}
 					if(fiability & ADVERSARY_DETECTION_FIABILITY_DISTANCE)
-						adversaries[adversary_nb].dist = ((Sint16)msg->data[5])*20;
+						adversaries[adversary_nb].dist = ((Sint16)msg->data.broadcast_adversaries_position.dist)*20;
 					else	//je dois calculer moi-même la distance de l'adversaire
 						adversaries[adversary_nb].dist = GEOMETRY_distance(	(GEOMETRY_point_t){global.position.x, global.position.y},
 																				(GEOMETRY_point_t){adversaries[adversary_nb].x, adversaries[adversary_nb].y}
 																				);
 				}
-
-			}
-			if(msg->data[0] & IT_IS_THE_LAST_ADVERSARY)
-			{
-				if(adversary_nb == 0 && !fiability)
-					hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
-				else
-					hokuyo_objects_number = adversary_nb + 1;
-			}
+				if(msg->data.broadcast_adversaries_position.last_adversary)
+				{
+					if(adversary_nb == 0 && !fiability)
+						hokuyo_objects_number = 0;				//On a des données, qui nous disent qu'aucun adversaire n'est vu...
+					else
+						hokuyo_objects_number = adversary_nb + 1;
+				}
+			}adversary_nb = msg->data.broadcast_adversaries_position.adversary_number;
 		}
 		else if(msg->sid == BROADCAST_BEACON_ADVERSARY_POSITION_IR)
 		{
@@ -189,13 +187,13 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 			for(i = 0; i<BEACON_MAX_FOES; i++)
 			{
 
-				if((msg->data[0+4*i] & ~TACHE_TROP_GRANDE) == AUCUNE_ERREUR){
+				if((msg->data.broadcast_beacon_adversary_position_ir.adv[i].error & ~TACHE_TROP_GRANDE) == AUCUNE_ERREUR){
 
 					//Extraction des données du msg.
-					adversaries[HOKUYO_MAX_FOES+i].fiability_error = msg->data[0+4*i];
+					adversaries[HOKUYO_MAX_FOES+i].fiability_error = msg->data.broadcast_beacon_adversary_position_ir.adv[i].error;
 
-					adversaries[HOKUYO_MAX_FOES+i].angle = GEOMETRY_modulo_angle((Sint16)(U16FROMU8(msg->data[1+4*i],msg->data[2+4*i])) + PI4096/2);
-					adversaries[HOKUYO_MAX_FOES+i].dist = (Uint16)(msg->data[3+4*i])*20;
+					adversaries[HOKUYO_MAX_FOES+i].angle = GEOMETRY_modulo_angle((Sint16)(msg->data.broadcast_beacon_adversary_position_ir.adv[i].angle + PI4096/2));
+					adversaries[HOKUYO_MAX_FOES+i].dist = (Uint16)(msg->data.broadcast_beacon_adversary_position_ir.adv[i].dist)*20;
 
 					//enable ou pas ?
 					adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;

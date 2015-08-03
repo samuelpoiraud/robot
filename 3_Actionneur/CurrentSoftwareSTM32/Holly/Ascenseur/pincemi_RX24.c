@@ -96,28 +96,28 @@ static void PINCEMI_initRX24() {
 // Dans le cas de multiple actionneur appartenant à un même actionneur, ajouter des defines dans QS_CANmsgList.h afin de pouvoir les choisirs facilement depuis la stratégie
 void PINCEMI_config(CAN_msg_t* msg){
 	if(msg->sid == ACT_PINCEMI_RIGHT){
-		switch(msg->data[1]){
-			case 0 :
+		switch(msg->data.act_msg.act_data.act_config.sub_act_id){
+			case PINCEMIR_R :
 				ACTMGR_config_AX12(PINCEMIR_R_RX24_ID, msg);
 				break;
 
-			case 1 :
+			case PINCEMIR_L :
 				ACTMGR_config_AX12(PINCEMIR_L_RX24_ID, msg);
 				break;
 			default :
-				warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data[1]);
+				warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data.act_msg.act_data.act_config.sub_act_id);
 		}
 	}else if(msg->sid == ACT_PINCEMI_LEFT){
-		switch(msg->data[1]){
-			case 0 :
+		switch(msg->data.act_msg.act_data.act_config.sub_act_id){
+			case PINCEMIL_R :
 				ACTMGR_config_AX12(PINCEMIL_R_RX24_ID, msg);
 				break;
 
-			case 1 :
+			case PINCEMIL_L :
 				ACTMGR_config_AX12(PINCEMIL_L_RX24_ID, msg);
 				break;
 			default :
-				warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data[1]);
+				warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data.act_msg.act_data.act_config.sub_act_id);
 		}
 	}
 }
@@ -151,7 +151,7 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 	switch(msg->sid){
 		case ACT_PINCEMI_RIGHT :
 			PINCEMI_initRX24();
-			switch(msg->data[0]) {
+			switch(msg->data.act_msg.order) {
 				// Listing de toutes les positions de l'actionneur possible
 				case ACT_PINCEMI_RIGHT_CLOSE :
 				case ACT_PINCEMI_RIGHT_CLOSE_INNER :
@@ -170,13 +170,13 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 
 
 				default:
-					component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+					component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 			}
 			return TRUE;
 
 		case ACT_PINCEMI_LEFT :
 			PINCEMI_initRX24();
-			switch(msg->data[0]) {
+			switch(msg->data.act_msg.order) {
 				// Listing de toutes les positions de l'actionneur possible
 				case ACT_PINCEMI_LEFT_CLOSE :
 				case ACT_PINCEMI_LEFT_CLOSE_INNER :
@@ -195,7 +195,7 @@ bool_e PINCEMI_CAN_process_msg(CAN_msg_t* msg) {
 
 
 				default:
-					component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+					component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 			}
 			return TRUE;
 
@@ -241,46 +241,31 @@ static void PINCEMI_command_init(queue_id_t queueId) {
 
 	PINCEMI_initRX24();
 
-	switch(command) {
-		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_PINCEMI_LEFT_CLOSE :
-		case ACT_PINCEMI_LEFT_CLOSE_INNER :
-		case ACT_PINCEMI_LEFT_LOCK :
-		case ACT_PINCEMI_LEFT_LOCK_BALL :
-		case ACT_PINCEMI_LEFT_UNLOCK :
-		case ACT_PINCEMI_LEFT_OPEN :
-		case ACT_PINCEMI_LEFT_OPEN_GREAT :
-		case ACT_PINCEMI_RIGHT_CLOSE :
-		case ACT_PINCEMI_RIGHT_CLOSE_INNER :
-		case ACT_PINCEMI_RIGHT_LOCK :
-		case ACT_PINCEMI_RIGHT_LOCK_BALL :
-		case ACT_PINCEMI_RIGHT_UNLOCK :
-		case ACT_PINCEMI_RIGHT_OPEN :
-		case ACT_PINCEMI_RIGHT_OPEN_GREAT :
-			PINCEMI_get_position(QUEUE_get_act(queueId), command, &rx24_goalPosition_right, &rx24_goalPosition_left);
-			break;
-
-		case ACT_PINCEMI_LEFT_STOP :
-			AX12_set_torque_enabled(PINCEMIL_R_RX24_ID, FALSE);
-			AX12_set_torque_enabled(PINCEMIL_L_RX24_ID, FALSE);
-			QUEUE_next(queueId, ACT_PINCEMI_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
-			return;
-		case ACT_PINCEMI_RIGHT_STOP :
-			AX12_set_torque_enabled(PINCEMIL_R_RX24_ID, FALSE);
-			AX12_set_torque_enabled(PINCEMIL_L_RX24_ID, FALSE);
-			QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
-			return;
-
-		default:
-			error_printf("Invalid exemple command: %u, code is broken !\n", command);
-			if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_PINCEMI_RIGHT)
-				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
-			else
-				QUEUE_next(queueId, ACT_PINCEMI_LEFT, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
-			return;
-	}
-
 	if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_PINCEMI_RIGHT){
+
+		switch(command) {
+			// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
+			case ACT_PINCEMI_RIGHT_CLOSE :
+			case ACT_PINCEMI_RIGHT_CLOSE_INNER :
+			case ACT_PINCEMI_RIGHT_LOCK :
+			case ACT_PINCEMI_RIGHT_LOCK_BALL :
+			case ACT_PINCEMI_RIGHT_UNLOCK :
+			case ACT_PINCEMI_RIGHT_OPEN :
+			case ACT_PINCEMI_RIGHT_OPEN_GREAT :
+				PINCEMI_get_position(QUEUE_get_act(queueId), command, &rx24_goalPosition_right, &rx24_goalPosition_left);
+				break;
+			case ACT_PINCEMI_RIGHT_STOP :
+				AX12_set_torque_enabled(PINCEMIL_R_RX24_ID, FALSE);
+				AX12_set_torque_enabled(PINCEMIL_L_RX24_ID, FALSE);
+				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+				return;
+
+			default:
+				error_printf("Invalid exemple command: %u, code is broken !\n", command);
+				QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+				return;
+		}
+
 		if(pincemi_act[0].is_initialized == FALSE || pincemi_act[1].is_initialized == FALSE){
 			error_printf("Impossible de mettre l'actionneur en position il n'est pas initialisé\n");
 			QUEUE_next(queueId, ACT_PINCEMI_RIGHT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
@@ -317,6 +302,30 @@ static void PINCEMI_command_init(queue_id_t queueId) {
 		}
 
 	}else{
+
+		switch(command) {
+			// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
+			case ACT_PINCEMI_LEFT_CLOSE :
+			case ACT_PINCEMI_LEFT_CLOSE_INNER :
+			case ACT_PINCEMI_LEFT_LOCK :
+			case ACT_PINCEMI_LEFT_LOCK_BALL :
+			case ACT_PINCEMI_LEFT_UNLOCK :
+			case ACT_PINCEMI_LEFT_OPEN :
+			case ACT_PINCEMI_LEFT_OPEN_GREAT :
+				PINCEMI_get_position(QUEUE_get_act(queueId), command, &rx24_goalPosition_right, &rx24_goalPosition_left);
+				break;
+			case ACT_PINCEMI_LEFT_STOP :
+				AX12_set_torque_enabled(PINCEMIL_R_RX24_ID, FALSE);
+				AX12_set_torque_enabled(PINCEMIL_L_RX24_ID, FALSE);
+				QUEUE_next(queueId, ACT_PINCEMI_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+				return;
+
+			default:
+				error_printf("Invalid exemple command: %u, code is broken !\n", command);
+				QUEUE_next(queueId, ACT_PINCEMI_LEFT, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+				return;
+		}
+
 		if(pincemi_act[2].is_initialized == FALSE || pincemi_act[3].is_initialized == FALSE){
 			error_printf("Impossible de mettre l'actionneur en position il n'est pas initialisé\n");
 			QUEUE_next(queueId, ACT_PINCEMI_LEFT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);

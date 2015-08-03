@@ -11,17 +11,8 @@
  *	Version 201302
  */
 
-/** ----------------  Defines possibles  --------------------
- *	PORT_ROBOT_ID				: Port servant à l'identification du robot
- *	DISABLE_WHO_AM_I			: A définir pour désactiver l'identification automatique et mettre la valeur voulue dedans
- *
- * ----------------  Choses à savoir  --------------------
- * Dans le cas de beacon eye PORT_ROBOT_ID n'est pas utilisé
- */
-
 #ifndef QS_WHO_AM_I_H
 	#define QS_WHO_AM_I_H
-	#include "QS_all.h"
 
 	typedef enum
 	{
@@ -31,6 +22,8 @@
 		SMALL_ROBOT = WOOD,
 		BEACON_EYE
 	}robot_id_e;
+
+	#include "QS_all.h"
 
 	/** @brief  Cette fonction doit être appelée lors de l'initialisation.
 	 *  @pre    Le fond de panier sur lequel la carte est branché doit être cablé conformément à "_PORTS.xlsx"

@@ -22,9 +22,6 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PROP_FUNCTION
 #include "QS/QS_outputlog.h"
 
-typedef enum
-{CONFIG, XMSB, XLSB, YMSB, YLSB, VITESSE, MARCHE, RAYONCRB} PROP_CAN_msg_bytes_e;
-
 // Timeout en ms
 #define GOTO_TIMEOUT_TIME							5000	// On n'attend que 3 secondes sur les PROP_push_goto cette année
 															// car on ne fait pas de gros déplacements sur le terrain
@@ -170,9 +167,8 @@ void PROP_WARNER_arm_x(Sint16 x)
 {
 	CAN_msg_t msg;
 	msg.sid = PROP_WARN_X;
-	msg.data[0] = HIGHINT(x);
-	msg.data[1] = LOWINT(x);
-	msg.size = 2;
+	msg.size = SIZE_PROP_WARN_X;
+	msg.data.prop_warn_x.x = x;
 	CAN_send(&msg);
 }
 
@@ -186,9 +182,8 @@ void PROP_WARNER_arm_y(Sint16 y)
 {
 	CAN_msg_t msg;
 	msg.sid = PROP_WARN_Y;
-	msg.data[0] = HIGHINT(y);
-	msg.data[1] = LOWINT(y);
-	msg.size = 2;
+	msg.size = SIZE_PROP_WARN_Y;
+	msg.data.prop_warn_y.y = y;
 	CAN_send(&msg);
 }
 
@@ -202,9 +197,8 @@ void PROP_WARNER_arm_teta(Sint16 teta)
 {
 	CAN_msg_t msg;
 	msg.sid = PROP_WARN_ANGLE;
-	msg.data[0] = HIGHINT(teta);
-	msg.data[1] = LOWINT(teta);
-	msg.size = 2;
+	msg.size = SIZE_PROP_WARN_ANGLE;
+	msg.data.prop_warn_angle.angle = teta;
 	CAN_send(&msg);
 }
 
@@ -223,7 +217,14 @@ Uint8 PROP_custom_speed_convertor(Uint16 speed){ // en mm/s
 }
 
 void PROP_debug_move_position(Sint16 x, Sint16 y, Sint16 teta){
-	CAN_direct_send(DEBUG_PROP_MOVE_POSITION, 6, (Uint8[]){HIGHINT(x), LOWINT(x), HIGHINT(y), LOWINT(y), HIGHINT(teta), LOWINT(teta)});
+	CAN_msg_t msg;
+	msg.sid = DEBUG_PROP_MOVE_POSITION;
+	msg.size = SIZE_DEBUG_PROP_MOVE_POSITION;
+	msg.data.debug_prop_move_position.xOffset = x;
+	msg.data.debug_prop_move_position.yOffset = y;
+	msg.data.debug_prop_move_position.tetaOffset = teta;
+	msg.data.prop_warn_angle.angle = teta;
+	CAN_send(&msg);
 }
 
 /* Accesseur en lecture sur les arguments de la pile PROP */
@@ -242,54 +243,47 @@ void PROP_set_threshold_error_translation(Uint8 value, bool_e reset)
 {
 	CAN_msg_t msg;
 	msg.sid = DEBUG_SET_ERROR_TRESHOLD_TRANSLATION;
+	msg.size = SIZE_DEBUG_SET_ERROR_TRESHOLD_TRANSLATION;
 	if(reset)
-		msg.data[0] = 0;
+		msg.data.debug_set_error_treshold_translation.error_treshold_trans = 0;
 	else
-		msg.data[0] = value;
-	msg.size = 1;
+		msg.data.debug_set_error_treshold_translation.error_treshold_trans = value;
 	CAN_send(&msg);
 }
 //Impose une position à la propulsion... (A ne pas faire en match !!!!!)
 void PROP_set_position(Sint16 x, Sint16 y, Sint16 teta)
 {
 	CAN_msg_t msg;
-	msg.sid=PROP_SET_POSITION;
-	msg.data[0]=HIGHINT(x);
-	msg.data[1]=LOWINT(x);
-	msg.data[2]=HIGHINT(y);
-	msg.data[3]=LOWINT(y);
-	msg.data[4]=HIGHINT(teta);
-	msg.data[5]=LOWINT(teta);
-	msg.size=6;
+	msg.sid = PROP_SET_POSITION;
+	msg.size = SIZE_PROP_SET_POSITION;
+	msg.data.prop_set_position.x = x;
+	msg.data.prop_set_position.y = y;
+	msg.data.prop_set_position.teta = teta;
 	CAN_send(&msg);
 }
 
 //Acceleration en mm/4096/5ms/5ms..
-void PROP_set_acceleration(Uint8 acceleration)
+void PROP_set_acceleration(Uint16 acceleration)
 {
 	CAN_msg_t msg;
 	msg.sid = DEBUG_PROPULSION_SET_ACCELERATION;
-	msg.data[0] = 0x00;
-	msg.data[1] = acceleration;
-	msg.size = 2;
+	msg.size = SIZE_DEBUG_PROPULSION_SET_ACCELERATION;
+	msg.data.debug_propulsion_set_acceleration.acceleration_coef = acceleration;
 	CAN_send(&msg);
 }
 
 void PROP_ask_propulsion_coefs(void)
 {
-	CAN_msg_t msg;
-	msg.sid = DEBUG_PROPULSION_GET_COEFS;
-	msg.size = 0;
-	CAN_send(&msg);
+	CAN_send_sid(DEBUG_PROPULSION_GET_COEFS);
 }
 
 void PROP_set_correctors(bool_e corrector_rotation, bool_e corrector_translation)
 {
 	CAN_msg_t msg;
 	msg.sid = PROP_SET_CORRECTORS;
-	msg.data[0] = corrector_rotation;
-	msg.data[1] = corrector_translation;
-	msg.size = 2;
+	msg.size = SIZE_PROP_SET_CORRECTORS;
+	msg.data.prop_set_correctors.rot_corrector = corrector_rotation;
+	msg.data.prop_set_correctors.trans_corrector = corrector_translation;
 	CAN_send(&msg);
 }
 
@@ -365,8 +359,8 @@ void PROP_dump_stack ()
 			default			: way = "undefined"; break;
 		}
 		switch (args.priority_order) {
-			case NOW 			: priority_order = "NOW"; break;
-			case END_OF_BUFFER 	: priority_order = "END_OF_BUFFER"; break;
+			case PROP_NOW 			: priority_order = "NOW"; break;
+			case PROP_END_OF_BUFFER 	: priority_order = "END_OF_BUFFER"; break;
 			default				: priority_order = "undefined"; break;
 		}
 
@@ -396,16 +390,19 @@ static void PROP_goto (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
-		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
-		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
-		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);
-		order.data[YLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].y);
-		order.data[VITESSE]=prop_args[STACKS_get_top(stack_id)].speed;
-		order.data[MARCHE]=prop_args[STACKS_get_top(stack_id)].way;
-		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve | (prop_args[STACKS_get_top(stack_id)].avoidance << 4);
-		order.size = 8;
-		CAN_send (&order);
+		order.size = SIZE_PROP_GO_POSITION;
+		order.data.prop_go_position.buffer_mode = PROP_NOW;
+		order.data.prop_go_position.multipoint = PROP_NO_MULTIPOINT;
+		order.data.prop_go_position.border_mode = prop_args[STACKS_get_top(stack_id)].border_mode;
+		order.data.prop_go_position.referential = PROP_ABSOLUTE;
+		order.data.prop_go_position.acknowledge = PROP_ACKNOWLEDGE;
+		order.data.prop_go_position.x = prop_args[STACKS_get_top(stack_id)].x;
+		order.data.prop_go_position.y = prop_args[STACKS_get_top(stack_id)].y;
+		order.data.prop_go_position.speed = prop_args[STACKS_get_top(stack_id)].speed;
+		order.data.prop_go_position.way = prop_args[STACKS_get_top(stack_id)].way;
+		order.data.prop_go_position.curve = prop_args[STACKS_get_top(stack_id)].curve;
+		order.data.prop_go_position.avoidance = prop_args[STACKS_get_top(stack_id)].avoidance;
+		CAN_send(&order);
 	}
 	else
 	{
@@ -446,16 +443,19 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE | ((prop_args[STACKS_get_top(stack_id)].border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
-		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
-		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
-		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);
-		order.data[YLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].y);
-		order.data[VITESSE]=prop_args[STACKS_get_top(stack_id)].speed;
-		order.data[MARCHE]=prop_args[STACKS_get_top(stack_id)].way;
-		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve | (prop_args[STACKS_get_top(stack_id)].avoidance << 4);
-		order.size = 8;
-		CAN_send (&order);
+		order.size = SIZE_PROP_GO_POSITION;
+		order.data.prop_go_position.buffer_mode = PROP_NOW;
+		order.data.prop_go_position.multipoint = PROP_NO_MULTIPOINT;
+		order.data.prop_go_position.border_mode = prop_args[STACKS_get_top(stack_id)].border_mode;
+		order.data.prop_go_position.referential = PROP_ABSOLUTE;
+		order.data.prop_go_position.acknowledge = PROP_ACKNOWLEDGE;
+		order.data.prop_go_position.x = prop_args[STACKS_get_top(stack_id)].x;
+		order.data.prop_go_position.y = prop_args[STACKS_get_top(stack_id)].y;
+		order.data.prop_go_position.speed = prop_args[STACKS_get_top(stack_id)].speed;
+		order.data.prop_go_position.way = prop_args[STACKS_get_top(stack_id)].way;
+		order.data.prop_go_position.curve = prop_args[STACKS_get_top(stack_id)].curve;
+		order.data.prop_go_position.avoidance = prop_args[STACKS_get_top(stack_id)].avoidance;
+		CAN_send(&order);
 	}
 	else
 	{
@@ -494,16 +494,20 @@ static void PROP_goto_multi_point (stack_id_e stack_id, bool_e init)
 		for( ; STACKS_get_action(PROP,STACKS_get_top(stack_id)) == &PROP_goto_multi_point ; STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1))
 		{
 			args=&prop_args[STACKS_get_top(stack_id)];
+
 			order.sid = PROP_GO_POSITION;
-			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((args->border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
-			order.data[XMSB]=HIGHINT(args->x);
-			order.data[XLSB]=LOWINT(args->x);
-			order.data[YMSB]=HIGHINT(args->y);
-			order.data[YLSB]=LOWINT(args->y);
-			order.data[VITESSE]=args->speed;
-			order.data[MARCHE]=args->way;
-			order.data[RAYONCRB]=args->curve | (args->avoidance << 4);
-			order.size=8;
+			order.size = SIZE_PROP_GO_POSITION;
+			order.data.prop_go_position.buffer_mode = args->priority_order;
+			order.data.prop_go_position.multipoint = PROP_MULTIPOINT;
+			order.data.prop_go_position.border_mode = args->border_mode;
+			order.data.prop_go_position.referential = PROP_ABSOLUTE;
+			order.data.prop_go_position.acknowledge = PROP_ACKNOWLEDGE;
+			order.data.prop_go_position.x = args->x;
+			order.data.prop_go_position.y = args->y;
+			order.data.prop_go_position.speed = args->speed;
+			order.data.prop_go_position.way = args->way;
+			order.data.prop_go_position.curve = args->curve;
+			order.data.prop_go_position.avoidance = args->avoidance;
 			CAN_send(&order);
 			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.pos.x,global.pos.y},(GEOMETRY_point_t){args->x,args->y});
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
@@ -576,17 +580,22 @@ static void PROP_goto_multi_point_until_break(stack_id_e stack_id, bool_e init)
 		for( ; STACKS_get_action(PROP,STACKS_get_top(stack_id)) == &PROP_goto_multi_point_until_break ; STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1))
 		{
 			args=&prop_args[STACKS_get_top(stack_id)];
+
 			order.sid = PROP_GO_POSITION;
-			order.data[CONFIG]=args->priority_order | MULTIPOINT | ABSOLUTE | ((args->border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
-			order.data[XMSB]=HIGHINT(args->x);
-			order.data[XLSB]=LOWINT(args->x);
-			order.data[YMSB]=HIGHINT(args->y);
-			order.data[YLSB]=LOWINT(args->y);
-			order.data[VITESSE]=args->speed;
-			order.data[MARCHE]=args->way;
-			order.data[RAYONCRB]=args->curve | (args->avoidance << 4);
-			order.size=8;
+			order.size = SIZE_PROP_GO_POSITION;
+			order.data.prop_go_position.buffer_mode = args->priority_order;
+			order.data.prop_go_position.multipoint = PROP_MULTIPOINT;
+			order.data.prop_go_position.border_mode = args->border_mode;
+			order.data.prop_go_position.referential = PROP_ABSOLUTE;
+			order.data.prop_go_position.acknowledge = PROP_ACKNOWLEDGE;
+			order.data.prop_go_position.x = args->x;
+			order.data.prop_go_position.y = args->y;
+			order.data.prop_go_position.speed = args->speed;
+			order.data.prop_go_position.way = args->way;
+			order.data.prop_go_position.curve = args->curve;
+			order.data.prop_go_position.avoidance = args->avoidance;
 			CAN_send(&order);
+
 			//distance=GEOMETRY_distance((GEOMETRY_point_t){global.pos.x,global.pos.y},(GEOMETRY_point_t){args->x,args->y});
 			//timeout += distance * (args->speed == FAST?COEFF_TIMEOUT_GOTO_MULTI_POINT_FAST:COEFF_TIMEOUT_GOTO_MULTI_POINT_SLOW);
 			timeout += GOTO_MULTI_POINT_TIMEOUT_TIME;
@@ -654,16 +663,15 @@ static void PROP_relative_goangle_multi_point (stack_id_e stack_id, bool_e init)
 		for( ; STACKS_get_action(PROP,STACKS_get_top(stack_id)) == &PROP_relative_goangle_multi_point ; STACKS_set_top(stack_id,STACKS_get_top(stack_id)-1))
 		{
 			order.sid = PROP_GO_ANGLE;
-			order.data[CONFIG]=END_OF_BUFFER | MULTIPOINT | RELATIVE;
-			order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].angle);
-			order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].angle);
-			order.data[YLSB]=0x0;
-			order.data[YLSB]=0x0;
-			order.data[VITESSE]=(prop_args[STACKS_get_top(stack_id)].speed);
-			order.data[MARCHE]=0x00;
-			order.data[RAYONCRB]=0x00;
-			order.size = 8;
-			CAN_send (&order);
+			order.size = SIZE_PROP_GO_ANGLE;
+			order.data.prop_go_angle.buffer_mode = PROP_END_OF_BUFFER;
+			order.data.prop_go_angle.multipoint = PROP_NO_MULTIPOINT;
+			order.data.prop_go_angle.referential = PROP_RELATIVE;
+			order.data.prop_go_angle.acknowledge = PROP_ACKNOWLEDGE;
+			order.data.prop_go_angle.speed = prop_args[STACKS_get_top(stack_id)].speed;
+			order.data.prop_go_angle.teta = prop_args[STACKS_get_top(stack_id)].angle;
+			CAN_send(&order);
+
 			timeout += (RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME);
 		}
 
@@ -700,16 +708,14 @@ static void PROP_goangle (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_ANGLE;
-		order.data[CONFIG]=NOW | NO_MULTIPOINT | ABSOLUTE;
-		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].angle);
-		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].angle);
-		order.data[YLSB]=0x0;
-		order.data[YLSB]=0x0;
-		order.data[VITESSE]=(prop_args[STACKS_get_top(stack_id)].speed);
-		order.data[MARCHE]=0x00;
-		order.data[RAYONCRB]=0x00;
-		order.size = 8;
-		CAN_send (&order);
+		order.size = SIZE_PROP_GO_ANGLE;
+		order.data.prop_go_angle.buffer_mode = PROP_NOW;
+		order.data.prop_go_angle.multipoint = PROP_NO_MULTIPOINT;
+		order.data.prop_go_angle.referential = PROP_ABSOLUTE;
+		order.data.prop_go_angle.acknowledge = PROP_ACKNOWLEDGE;
+		order.data.prop_go_angle.speed = prop_args[STACKS_get_top(stack_id)].speed;
+		order.data.prop_go_angle.teta = prop_args[STACKS_get_top(stack_id)].angle;
+		CAN_send(&order);
 	}
 	else
 	{
@@ -737,16 +743,14 @@ static void PROP_relative_goangle (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_ANGLE;
-		order.data[CONFIG]=END_OF_BUFFER | NO_MULTIPOINT | RELATIVE;
-		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].angle);
-		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].angle);
-		order.data[YLSB]=0x0;
-		order.data[YLSB]=0x0;
-		order.data[VITESSE]=(prop_args[STACKS_get_top(stack_id)].speed);
-		order.data[MARCHE]=0x00;
-		order.data[RAYONCRB]=0x00;
-		order.size = 8;
-		CAN_send (&order);
+		order.size = SIZE_PROP_GO_ANGLE;
+		order.data.prop_go_angle.buffer_mode = PROP_END_OF_BUFFER;
+		order.data.prop_go_angle.multipoint = PROP_NO_MULTIPOINT;
+		order.data.prop_go_angle.referential = PROP_RELATIVE;
+		order.data.prop_go_angle.acknowledge = PROP_ACKNOWLEDGE;
+		order.data.prop_go_angle.speed = prop_args[STACKS_get_top(stack_id)].speed;
+		order.data.prop_go_angle.teta = prop_args[STACKS_get_top(stack_id)].angle;
+		CAN_send(&order);
 	}
 	else
 	{
@@ -775,16 +779,19 @@ static void PROP_relative_goto (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_GO_POSITION;
-		order.data[CONFIG]=NOW | NO_MULTIPOINT | RELATIVE | ((prop_args[STACKS_get_top(stack_id)].border_mode == PROP_BORDER_MODE)? BORDER_MODE : NO_BORDER_MODE);
-		order.data[XMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].x);
-		order.data[XLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].x);
-		order.data[YMSB]=HIGHINT(prop_args[STACKS_get_top(stack_id)].y);
-		order.data[YLSB]=LOWINT(prop_args[STACKS_get_top(stack_id)].y);
-		order.data[VITESSE]=prop_args[STACKS_get_top(stack_id)].speed;
-		order.data[MARCHE]=prop_args[STACKS_get_top(stack_id)].way;
-		order.data[RAYONCRB]=prop_args[STACKS_get_top(stack_id)].curve | (prop_args[STACKS_get_top(stack_id)].avoidance << 4);
-		order.size = 8;
-		CAN_send (&order);
+		order.size = SIZE_PROP_GO_POSITION;
+		order.data.prop_go_position.buffer_mode = PROP_NOW;
+		order.data.prop_go_position.multipoint = PROP_NO_MULTIPOINT;
+		order.data.prop_go_position.border_mode = prop_args[STACKS_get_top(stack_id)].border_mode;
+		order.data.prop_go_position.referential = PROP_RELATIVE;
+		order.data.prop_go_position.acknowledge = PROP_ACKNOWLEDGE;
+		order.data.prop_go_position.x = prop_args[STACKS_get_top(stack_id)].x;
+		order.data.prop_go_position.y = prop_args[STACKS_get_top(stack_id)].y;
+		order.data.prop_go_position.speed = prop_args[STACKS_get_top(stack_id)].speed;
+		order.data.prop_go_position.way = prop_args[STACKS_get_top(stack_id)].way;
+		order.data.prop_go_position.curve = prop_args[STACKS_get_top(stack_id)].curve;
+		order.data.prop_go_position.avoidance = prop_args[STACKS_get_top(stack_id)].avoidance;
+		CAN_send(&order);
 	}
 	else
 	{
@@ -823,17 +830,10 @@ static void PROP_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 	if (init)
 	{
 		order.sid = PROP_RUSH_IN_THE_WALL;
-
-				//way
-				order.data[0]= prop_args[STACKS_get_top(stack_id)].way;
-				//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
-				order.data[1]=prop_args[STACKS_get_top(stack_id)].speed;
-		order.data[2]= HIGHINT(prop_args[STACKS_get_top(stack_id)].angle) ;
-				order.data[3]= LOWINT(prop_args[STACKS_get_top(stack_id)].angle);
-
-		//speed est utilisé pour indiquer si l'asservissement en rotation doit etre actif.
-//		order.data[1]=prop_args[STACKS_get_top(stack_id)].speed;
-		order.size = 4;
+		order.size = SIZE_PROP_RUSH_IN_THE_WALL;
+		order.data.prop_rush_in_the_wall.teta = prop_args[STACKS_get_top(stack_id)].angle;
+		order.data.prop_rush_in_the_wall.way = prop_args[STACKS_get_top(stack_id)].way;
+		order.data.prop_rush_in_the_wall.asser_rot = prop_args[STACKS_get_top(stack_id)].speed;
 		CAN_send (&order);
 	}
 	else
@@ -857,11 +857,7 @@ static void PROP_rush_in_the_wall (stack_id_e stack_id, bool_e init)
 /* Arrete le robot. L'opération se termine lorsque le robot est arreté */
 static void PROP_stop(stack_id_e stack_id, bool_e init) {
 	if(init) {
-		CAN_msg_t msg;
-
-		msg.sid = PROP_STOP;
-		msg.size = 0;
-		CAN_send(&msg);
+		CAN_send_sid(PROP_STOP);
 	} else {
 		if (global.prop.ended)
 		{

@@ -16,7 +16,6 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_maths.h"
-#include "QS/QS_can.h"
 #include "copilot.h"
 #include "buffer.h"
 #include "secretary.h"
@@ -60,11 +59,11 @@ void AVOIDANCE_process_it(){
 									0,
 									0,
 									0,					//teta
-									NOT_RELATIVE,		//relative
-									NOW,			//maintenant
-									ANY_WAY,	//sens de marche
+									PROP_ABSOLUTE,		//relative
+									PROP_NOW,			//maintenant
+									ANY_WAY,			//sens de marche
 									NOT_BORDER_MODE,	//mode bordure
-									NO_MULTIPOINT, 	//mode multipoints
+									PROP_NO_MULTIPOINT, //mode multipoints
 									FAST,				//Vitesse
 									NO_ACKNOWLEDGE,
 									CORRECTOR_ENABLE,
@@ -90,10 +89,10 @@ void AVOIDANCE_process_it(){
 					supp.x = 0;
 					supp.y = 0;
 					supp.teta = 0;
-					supp.relative = NOT_RELATIVE;
+					supp.relative = PROP_ABSOLUTE;
 					supp.way = ANY_WAY;
 					supp.border_mode = NOT_BORDER_MODE;
-					supp.multipoint = NO_MULTIPOINT;
+					supp.multipoint = PROP_NO_MULTIPOINT;
 					supp.speed = FAST;
 					supp.acknowledge = NO_ACKNOWLEDGE;
 					supp.corrector = CORRECTOR_ENABLE;
@@ -122,11 +121,11 @@ void AVOIDANCE_process_it(){
 								0,
 								0,
 								0,					//teta
-								NOT_RELATIVE,		//relative
-								NOW,			//maintenant
+								PROP_ABSOLUTE,		//relative
+								PROP_NOW,			//maintenant
 								ANY_WAY,	//sens de marche
 								NOT_BORDER_MODE,	//mode bordure
-								NO_MULTIPOINT, 	//mode multipoints
+								PROP_NO_MULTIPOINT, 	//mode multipoints
 								FAST,				//Vitesse
 								NO_ACKNOWLEDGE,
 								CORRECTOR_ENABLE,
@@ -232,45 +231,45 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 				Uint16 max = AROUND_UP((nb_point+1)/3.);
 				CAN_msg_t msg;
 				msg.sid = DEBUG_AVOIDANCE_POLY;
-				msg.size = 8;
+				msg.size = SIZE_DEBUG_AVOIDANCE_POLY;
 				for(i=0;i<max;i++){
 					Uint8 num = 0;
 					if(i==0)
-						msg.data[0] = TRUE;
+						msg.data.debug_avoidance_poly.new_polugone = TRUE;
 					else
-						msg.data[0] = FALSE;
+						msg.data.debug_avoidance_poly.new_polugone = FALSE;
 
 					if(i*3 < nb_point){
 						num++;
-						msg.data[2] = (Uint8)(avoid_poly[i*3].x >> 4);
-						msg.data[3] = (Uint8)(avoid_poly[i*3].y >> 4);
+						msg.data.debug_avoidance_poly.point[0].x = (Uint8)(avoid_poly[i*3].x >> 4);
+						msg.data.debug_avoidance_poly.point[0].y = (Uint8)(avoid_poly[i*3].y >> 4);
 					}else if(i*3 == nb_point){
 						num++;
-						msg.data[2] = (Uint8)(avoid_poly[0].x >> 4);
-						msg.data[3] = (Uint8)(avoid_poly[0].y >> 4);
+						msg.data.debug_avoidance_poly.point[0].x = (Uint8)(avoid_poly[0].x >> 4);
+						msg.data.debug_avoidance_poly.point[0].y = (Uint8)(avoid_poly[0].y >> 4);
 					}
 
 					if(i*3+1 < nb_point){
 						num++;
-						msg.data[4] = (Uint8)(avoid_poly[i*3+1].x >> 4);
-						msg.data[5] = (Uint8)(avoid_poly[i*3+1].y >> 4);
+						msg.data.debug_avoidance_poly.point[1].x = (Uint8)(avoid_poly[i*3+1].x >> 4);
+						msg.data.debug_avoidance_poly.point[1].y = (Uint8)(avoid_poly[i*3+1].y >> 4);
 					}else if(i*3+1 == nb_point){
 						num++;
-						msg.data[4] = (Uint8)(avoid_poly[0].x >> 4);
-						msg.data[5] = (Uint8)(avoid_poly[0].y >> 4);
+						msg.data.debug_avoidance_poly.point[1].x = (Uint8)(avoid_poly[0].x >> 4);
+						msg.data.debug_avoidance_poly.point[1].y = (Uint8)(avoid_poly[0].y >> 4);
 					}
 
 					if(i*3+2 < nb_point){
 						num++;
-						msg.data[6] = (Uint8)(avoid_poly[i*3+2].x >> 4);
-						msg.data[7] = (Uint8)(avoid_poly[i*3+2].y >> 4);
+						msg.data.debug_avoidance_poly.point[2].x = (Uint8)(avoid_poly[i*3+2].x >> 4);
+						msg.data.debug_avoidance_poly.point[2].y = (Uint8)(avoid_poly[i*3+2].y >> 4);
 					}else if(i*3+2 == nb_point){
 						num++;
-						msg.data[6] = (Uint8)(avoid_poly[0].x >> 4);
-						msg.data[7] = (Uint8)(avoid_poly[0].y >> 4);
+						msg.data.debug_avoidance_poly.point[2].x = (Uint8)(avoid_poly[0].x >> 4);
+						msg.data.debug_avoidance_poly.point[2].y = (Uint8)(avoid_poly[0].y >> 4);
 					}
 
-					msg.data[1] = num;
+					msg.data.debug_avoidance_poly.first_point_number = num;
 					SECRETARY_send_canmsg_from_it(&msg);
 				}
 
@@ -486,10 +485,10 @@ void AVOIDANCE_said_foe_detected(){
 
 void AVOIDANCE_process_CAN_msg(CAN_msg_t *msg){
 #ifdef USE_ACT_AVOID
-	offset_avoid.Xleft = U16FROMU8(msg->data[0], msg->data[1]);
-	offset_avoid.Xright = U16FROMU8(msg->data[2], msg->data[3]);
-	offset_avoid.Yfront = U16FROMU8(msg->data[4], msg->data[5]);
-	offset_avoid.Yback = U16FROMU8(msg->data[6], msg->data[7]);
+	offset_avoid.Xleft = msg->data.prop_offset_avoid.x_left;
+	offset_avoid.Xright = msg->data.prop_offset_avoid.x_right;
+	offset_avoid.Yfront = msg->data.prop_offset_avoid.y_front;
+	offset_avoid.Yback = msg->data.prop_offset_avoid.y_back;
 #endif
 }
 

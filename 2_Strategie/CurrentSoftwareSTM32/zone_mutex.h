@@ -16,14 +16,6 @@
 #include "avoidance.h"
 #include "QS/QS_who_am_i.h"
 
-//Différentes zone ou les 2 robots passent
-typedef enum {
-	MZ_MAMMOUTH_OUR,
-	MZ_FRUIT_TRAY,		//Zone du bac à fruit
-	MZ_ZONE_LIBRE
-} map_zone_e;
-#define ZONE_MUTEX_NUMBER 3
-
 typedef enum {
 	ZIS_Free,		//La zone est initialement libre
 	ZIS_BIG,		//La zone appartient au BIG_ROBOT

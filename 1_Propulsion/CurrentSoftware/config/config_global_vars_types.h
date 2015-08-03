@@ -32,25 +32,10 @@
 	}acknowledge_e;
 
 	typedef enum {
-		NOT_NOW = 0,
-		NOW
-	}now_e;
-
-	typedef enum {
 		NOT_BORDER_MODE = 0,
 		BORDER_MODE,
 		BORDER_MODE_WITH_UPDATE_POSITION
 	}border_mode_e;
-
-	typedef enum {
-		NO_MULTIPOINT = 0,
-		MULTIPOINT
-	}multipoint_e;
-
-	typedef enum {
-		NOT_RELATIVE = 0,
-		RELATIVE
-	}relative_e;
 
 	typedef struct{
 		volatile bool_e foe_forced;

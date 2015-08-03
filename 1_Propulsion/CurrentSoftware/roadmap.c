@@ -25,11 +25,11 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 						Sint16 x,
 						Sint16 y,
 						Sint16 teta,
-						relative_e relative,
-						now_e now,
+						prop_referential_e relative,
+						prop_buffer_mode_e now,
 						way_e way,
 						border_mode_e border_mode,
-						multipoint_e multipoint,
+						prop_multipoint_e multipoint,
 						PROP_speed_e speed,
 						acknowledge_e acknowledge,
 						corrector_e corrector,
@@ -51,7 +51,7 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 	order.avoidance = avoidance;
 	order.total_wait_time = 0;
 
-	if(now == NOW)
+	if(now == PROP_NOW)
 	{
 		BUFFER_enable(FALSE);	//Ordre à prendre en compte dès maintenant !
 		new_prioritary_order = TRUE;	//L'ordre ajouté est prioritaire ! (le copilot ira donc le chercher dès que possible)

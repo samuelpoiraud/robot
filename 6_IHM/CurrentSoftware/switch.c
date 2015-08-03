@@ -139,7 +139,8 @@ void SWITCHS_send_msg(switch_ihm_e switch_id){
 	CAN_msg_t msg;
 	msg.size = 1;
 	msg.sid = IHM_SWITCH;
-	msg.data[0] = (((Uint8)(SWITCHS_get(switch_id))<< 7) | ((Uint8)switch_id & SWITCH_ID));
+	msg.data.ihm_switch.switchs[0].id = switch_id;
+	msg.data.ihm_switch.switchs[0].state = SWITCHS_get(switch_id);
 	CAN_send(&msg);
 }
 
@@ -151,10 +152,13 @@ void SWITCHS_answer(CAN_msg_t *send){
 	CAN_msg_t msg;
 	Uint8 i;
 
-	for(i = 0; i < send->size; ++i)
-		msg.data[i] = (((Uint8)(SWITCHS_get(send->data[i]))<< 7) | (send->data[i] & SWITCH_ID));
-
 	msg.sid = IHM_SWITCH;
+
+	for(i = 0; i < send->size; ++i){
+		msg.data.ihm_switch.switchs[i].id = send->data.ihm_get_switch.id[i];
+		msg.data.ihm_switch.switchs[i].state = SWITCHS_get(send->data.ihm_get_switch.id[i]);
+	}
+
 	msg.size = send->size;
 	CAN_send(&msg);
 }
@@ -163,9 +167,6 @@ void SWITCHS_send_all(){
 	CAN_msg_t msg;
 	msg.sid = IHM_SWITCH_ALL;
 	msg.size = 4;
-	msg.data[0] = (Uint8)(switchs >> 24);
-	msg.data[1] = (Uint8)(switchs >> 16);
-	msg.data[2] = (Uint8)(switchs >> 8);
-	msg.data[3] = (Uint8)(switchs);
+	msg.data.ihm_switch_all.switch_mask = switchs;
 	CAN_send(&msg);
 }

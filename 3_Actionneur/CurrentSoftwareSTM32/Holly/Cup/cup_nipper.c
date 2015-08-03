@@ -241,7 +241,7 @@ bool_e CUP_NIPPER_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	}else */if(msg->sid == ACT_CUP_NIPPER_ELEVATOR){
-		switch(msg->data[0]) {
+		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CUP_NIPPER_ELEVATOR_IDLE :
 			case ACT_CUP_NIPPER_ELEVATOR_MID :
@@ -251,12 +251,12 @@ bool_e CUP_NIPPER_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 			case ACT_CONFIG :
-				warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data[1]);
+				warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data.act_msg.act_data.act_config.sub_act_id);
 				break;
 
 
 			default:
-				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){

@@ -68,15 +68,15 @@ void POMPE_WOOD_init_pos(){
 bool_e POMPE_WOOD_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_POMPE_WOOD) {
 		POMPE_WOOD_initDCM();
-		switch(msg->data[0]) {
+		switch(msg->data.act_msg.order) {
 			case ACT_POMPE_WOOD_NORMAL:
 			case ACT_POMPE_WOOD_REVERSE:
 			case ACT_POMPE_WOOD_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_WOOD, &POMPE_WOOD_run_command, msg->data[1],TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_WOOD, &POMPE_WOOD_run_command, msg->data.act_msg.act_data.act_optionnal_data[0],TRUE);
 				break;
 
 			default:
-				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data[0]);
+				component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST) {

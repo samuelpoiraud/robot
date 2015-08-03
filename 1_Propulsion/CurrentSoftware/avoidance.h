@@ -11,6 +11,7 @@
 #ifndef _AVOIDANCE_H
 	#define _AVOIDANCE_H
 	#include "QS/QS_all.h"
+	#include "QS/QS_can.h"
 
 	void AVOIDANCE_init();
 
