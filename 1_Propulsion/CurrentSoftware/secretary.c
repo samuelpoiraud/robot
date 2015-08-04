@@ -372,6 +372,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		case PROP_WARN_Y:
 			WARNER_arm_y(msg->data.prop_warn_y.y);
 		break;
+		case PROP_WARN_DISTANCE:
+			WARNER_arm_distance(msg->data.prop_warn_distance.distance, msg->data.prop_warn_distance.x, msg->data.prop_warn_distance.y);
+		break;
 		case PROP_SEND_PERIODICALLY_POSITION:
 			WARNER_arm_timer(msg->data.prop_send_periodically_position.period);
 			WARNER_arm_translation(msg->data.prop_send_periodically_position.translation);
@@ -545,7 +548,7 @@ void SECRETARY_send_selftest_result(bool_e result)
 	}
 
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.
-		msg.data[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
+		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
 	#endif
 
 	for(;i<8;i++)

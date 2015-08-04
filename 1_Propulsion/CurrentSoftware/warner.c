@@ -14,6 +14,7 @@
 #include "warner.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_timer.h"
+#include "QS/QS_maths.h"
 #include "secretary.h"
 #include "calculator.h"
 #include "copilot.h"
@@ -49,6 +50,7 @@ volatile Uint16 warnings;
 volatile Sint16 warner_teta;
 volatile Sint16 warner_x;
 volatile Sint16 warner_y;
+volatile Uint16 warner_distance, warner_distance_x, warner_distance_y;
 static Uint32 warner_translation;
 static Sint16 warner_rotation;
 static Uint16 warner_timer;
@@ -77,6 +79,9 @@ void WARNER_init()
 	warner_teta = 0;
 	warner_x = 0;
 	warner_y = 0;
+	warner_distance = 0;
+	warner_distance_x = 0;
+	warner_distance_y = 0;
 	warner_timer=0;
 	warner_translation = 0;
 	warner_rotation = 0;
@@ -216,6 +221,13 @@ void WARNER_arm_y(Sint16 y)
 	warner_y = y;
 }
 
+void WARNER_arm_distance(Uint16 distance, Uint16 x, Uint16 y)
+{
+	warner_distance = distance;
+	warner_x = x;
+	warner_y = y;
+}
+
 void WARNER_arm_timer(Uint16 duree) //Duree en [ms]
 {
 	warner_timer = duree;
@@ -280,6 +292,23 @@ void WARNER_process_it(void)
 		{
 			warner_y = 0;
 			warnings |= WARNING_REACH_Y;
+		}
+	}
+
+	if(warner_distance)
+	{
+		GEOMETRY_point_t pos_robot;
+		pos_robot.x = (Sint16) global.position.x;
+		pos_robot.y = (Sint16) global.position.y;
+		GEOMETRY_point_t point;
+		point.x = warner_distance_x;
+		point.y = warner_distance_y;
+		if( GEOMETRY_squared_distance(pos_robot, point) < warner_distance*warner_distance )
+		{
+			warner_distance = 0;
+			warner_distance_x = 0;
+			warner_distance_y = 0;
+			warnings |= (WARNING_REACH_X | WARNING_REACH_Y);
 		}
 	}
 

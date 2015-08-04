@@ -428,17 +428,24 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
 
-			if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_X)	//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
-			{
-				global.prop.reach_x = TRUE;
-				debug_printf("Rx\n");
+			if(incoming_msg->data.broadcast_position_robot.reason & (WARNING_REACH_X | WARNING_REACH_Y)){ //Nous venons d'atteindre une position en END_AT_DISTANCE (ie la position à 100mm près) pour laquelle on a demandé une surveillance à la propulsion.
+				global.prop.reach_distance = TRUE;
+				debug_printf("Rd\n");
+				//debug_printf("PROP_DISTANCE_REACH RECEIVED\n");
+			}else{
+				if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_X)	//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
+				{
+					global.prop.reach_x = TRUE;
+					debug_printf("Rx\n");
+				}
+
+				if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_Y)	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
+				{
+					global.prop.reach_y = TRUE;
+					debug_printf("Ry\n");
+				}
 			}
 
-			if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_Y)	//Nous venons d'atteindre une position en Y pour laquelle on a demandé une surveillance à la propulsion.
-			{
-				global.prop.reach_y = TRUE;
-				debug_printf("Ry\n");
-			}
 			if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_TETA)	//Nous venons d'atteindre une position en Teta pour laquelle on a demandé une surveillance à la propulsion.
 			{
 				global.prop.reach_teta = TRUE;

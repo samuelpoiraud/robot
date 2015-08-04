@@ -589,7 +589,20 @@
 				Sint16 y					:16;		// [mm]
 			}prop_warn_y;
 
-		#define PROP_SET_CORRECTORS			0x10F
+		/*
+		 * 0 pour demander un désarmement !!!
+		 * ATTENTION, pas d'armement possible en 0
+		 */
+		#define PROP_WARN_DISTANCE			0x10F
+		#define SIZE_PROP_WARN_DISTANCE		6
+			struct{
+				Uint16 distance				:16;		// [mm]
+				Sint16 x                    :16;        // [mm]
+				Sint16 y                    :16;        // [mm]
+			}prop_warn_distance;
+
+
+		#define PROP_SET_CORRECTORS			0x110
 		#define SIZE_PROP_SET_CORRECTORS	1
 			struct{
 				bool_e rot_corrector		:1;
