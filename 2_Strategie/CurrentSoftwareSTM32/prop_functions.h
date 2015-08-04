@@ -116,7 +116,11 @@
 
 	/* fonction retournant si on se situe à moins de 15 cm de la destination.
 	Fonctionne en distance Manhattan */
-	bool_e PROP_near_destination();
+	bool_e PROP_near_destination_manhattan();
+
+	/* fonction retournant si on se situe à moins d'une certaine distance de la destination.
+	   Fonctionne en distance euclidienne */
+	bool_e PROP_near_destination_euclidienne(Uint16 distance, GEOMETRY_point_t point);
 
 	/* fonction retournant si on se situe à moins de 2 degrés cm de la destination. */
 	bool_e PROP_near_destination_angle();
@@ -126,5 +130,9 @@
 
 	/* Affiche le contenu formaté de la pile asser, le haut de la pile en premier */
 	void PROP_dump_stack ();
+
+	//Définition de l'accesseur en lecture et en écriture de distance_to_reach
+	void PROP_set_distance_to_reach(Uint16 dist);
+	Uint16 PROP_get_distance_to_reach(void);
 
 #endif /* ndef PROP_FUNCTIONS_H */

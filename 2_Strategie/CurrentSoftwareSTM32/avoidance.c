@@ -44,7 +44,10 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
-	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+	if(end_condition == END_AT_LAST_POINT || end_condition == END_AT_BREAK)
+		sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+	else
+		sub_action = goto_pos_curve_with_avoidance_and_break((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -66,7 +69,11 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	error_e sub_action;
-	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+	if(end_condition == END_AT_LAST_POINT || end_condition == END_AT_BREAK)
+		sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+	else
+		sub_action = goto_pos_curve_with_avoidance_and_break(displacements, NULL, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -503,6 +510,171 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 	return IN_PROGRESS;
 }
 
+
+/*
+ * Fonction qui réalise un PROP_push_goto tout simple avec la gestion de l'évitement (en courbe)
+ * Fonction très semblable à goto_pos_curve_with_avoidance mais le changement de point de destination se fait lorsque le robot
+ * est arrivé à une certaine distance du point de destination précédent.
+ *
+ * pre : Etre sur le terrain
+ * post : Robot aux coordonnées voulues
+ *
+ * param displacements : deplacements de la trajectoire
+ * param nb_displacement : nombre de deplacements de la trajectoire
+ * param way : sens de déplacement
+ * end_condition : END_AT_DISTANCE
+ *
+ * return IN_PROGRESS : En cours
+ * return END_OK : Terminé
+ * return NOT_HANDLED : Action impossible
+ * return END_WITH_TIMEOUT : Timeout
+ * return FOE_IN_PATH : un adversaire nous bloque
+ */
+error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode)
+{
+	enum state_e
+	{
+		INIT = 0,
+		NEXT_MOVE,
+		LOAD_MOVE,
+		WAIT_MOVE_AND_SCAN_FOE,
+		EXTRACT,
+		DONE
+	};
+	static enum state_e state = INIT;
+
+	static bool_e timeout = FALSE;
+	static error_e sub_action;
+
+	static Sint16 i;
+
+	//Si nouveau déplacement et qu'aucun point n'est donné, on a rien a faire
+	if(state == INIT && nb_displacements == 0)
+		return END_OK;
+
+	switch(state)
+	{
+		case INIT:
+			timeout = FALSE;
+			clear_prop_detected_foe();
+			global.destination = displacements[nb_displacements-1].point;
+			i = -1;
+			state = NEXT_MOVE;
+			break;
+
+		case NEXT_MOVE:
+			i++;
+			debug_printf("Next move i=%d\n", i);
+			state = LOAD_MOVE;
+			break;
+
+		case LOAD_MOVE:
+			if(i >= nb_displacements){ //Tous les mouvements ont été éffectués
+				state = DONE;
+				debug_printf("Tous les déplacements ont ete effectues avec succes\n");
+			}else if(!displacements && !displacements_curve){ //Si aucun mouvement n'a été défini, on renvoie une erreur
+				state = LOAD_MOVE;
+				debug_printf("Aucun mouvement défini, return NOT HANDLED\n");
+				return NOT_HANDLED;
+			}else{ //Si il reste des mouvements à éffectuer
+					PROP_push_goto(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVE, avoidance_type, end_condition, border_mode, TRUE);
+					debug_printf("Move goto to x=%d  y=%d push NOW\n", displacements[i].point.x, displacements[i].point.y);
+					state = WAIT_MOVE_AND_SCAN_FOE;
+			}
+			debug_printf("goto_pos_with_scan_foe : load_move\n");
+			break;
+
+		case WAIT_MOVE_AND_SCAN_FOE:
+
+			sub_action = wait_move_and_wait_foe();
+
+			switch(sub_action)
+			{
+				case END_OK:
+					debug_printf("wait_move_and_scan_foe -- fini\n");
+					state = NEXT_MOVE;
+					break;
+
+				case END_WITH_TIMEOUT:
+					timeout = TRUE;
+					debug_printf("wait_move_and_scan_foe -- timeout\n");
+					SD_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
+					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+					state = DONE;
+					break;
+
+				case NOT_HANDLED:
+					debug_printf("wait_move_and_scan_foe -- probleme\n");
+					SD_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
+					wait_timeout = WAIT_TIME_DETECTION;
+					state = INIT;
+					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+					return NOT_HANDLED;
+					break;
+
+				case FOE_IN_PATH:
+					debug_printf("wait_move_and_scan_foe -- foe in path\n");
+					SD_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
+					wait_timeout = WAIT_TIME_DETECTION;
+					if(avoidance_type == DODGE_AND_WAIT || avoidance_type == DODGE_AND_NO_WAIT)
+						state = EXTRACT;
+					else
+					{
+						state = INIT;
+						global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+						return FOE_IN_PATH;			//Pas d'extraction demandée... on retourne tel quel FOE_IN_PATH !
+					}
+					break;
+
+				case IN_PROGRESS:
+					break;
+
+				default:
+					state = INIT;
+					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case EXTRACT:
+			sub_action = extraction_of_foe(FAST);//SLOW_TRANSLATION_AND_FAST_ROTATION);
+			switch(sub_action)
+			{
+				case END_OK:
+					state = INIT;
+					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+					debug_printf("Extraction success\n");
+					return FOE_IN_PATH;
+					break;
+
+				case IN_PROGRESS:
+					break;
+
+				case NOT_HANDLED:
+				default:
+					state = INIT;
+					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+					debug_printf("Extraction fail\n");
+					return NOT_HANDLED;
+					break;
+			}
+			break;
+
+		case DONE:
+			wait_timeout = WAIT_TIME_DETECTION;
+			state = INIT;
+			return timeout?END_WITH_TIMEOUT:END_OK;
+			break;
+
+		default:
+			debug_printf("Cas Default state, panique !!!\n");
+			state = INIT;
+			global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+			return NOT_HANDLED;
+	}
+	return IN_PROGRESS;
+}
 
 
 /* ----------------------------------------------------------------------------- */

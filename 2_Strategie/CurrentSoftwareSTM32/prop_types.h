@@ -17,7 +17,8 @@
 	typedef enum
 	{
 		END_AT_LAST_POINT = 0,
-		END_AT_BREAK
+		END_AT_BREAK,
+		END_AT_DISTANCE
 	} PROP_end_condition_e;
 
 #endif /* ndef PROP_TYPES_H */
