@@ -86,6 +86,16 @@
 	*/
 	void PROP_WARNER_arm_teta(Sint16 teta);
 
+	/*
+		Fonction permettant d'armer un avertisseur sur la propulsion.
+		Un message de BROACAST_POSITION avec raison |= WARNING_REACH_DISTANCE sera envoyé dès que le robot atteindra ce cercle virtuelle autour du point de destination...
+		C'est à dire que dès que le robot entre dans le cercle de rayon la  distnce donnée et de centre le point de destination donné,
+		le message BROADCAST_POSITION sera envoyé
+		Ce message déclenchera la levée en environnement stratégie du flag global.prop.reach_distance
+		@param : 0 permet de demander un désarmement de l'avertisseur.
+	*/
+	void PROP_WARNER_arm_distance(Uint16 distance, Sint16 x, Sint16 y);
+
 
 // ---------------------------------------------------------------------------- Fonctions autres
 

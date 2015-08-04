@@ -26,6 +26,7 @@
 		volatile bool_e reach_x;
 		volatile bool_e reach_y;
 		volatile bool_e reach_teta;
+		volatile bool_e reach_distance;
 		volatile way_e						current_way;
 		volatile SUPERVISOR_error_source_e	current_status;
 		volatile bool_e is_in_translation;  //TRUE si le robot est en translation

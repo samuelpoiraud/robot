@@ -519,7 +519,7 @@ static void PROP_goto_until_distance_reached (stack_id_e stack_id, bool_e init)
 	}
 	else
 	{
-		if (global.prop.ended || PROP_near_destination_euclidienne(distance_to_reach, current))
+		if (global.prop.ended || PROP_near_destination_euclidienne(distance_to_reach, current) /*global.prop.reach_distance*/)
 		{
 			debug_printf("\nPROP_goto_until_distance_reached : fini\n");
 			STACKS_pull(PROP);

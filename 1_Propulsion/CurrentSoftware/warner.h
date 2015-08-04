@@ -30,6 +30,8 @@
 
 	void WARNER_arm_y(Sint16 y);			//Position [mm]
 
+	void WARNER_arm_distance(Uint16 distance, Uint16 x, Uint16 y);			//Position [mm]
+
 	void WARNER_arm_timer(Uint16 duree); 	//Duree en [ms]
 
 	void WARNER_arm_translation(Uint32 translation);	//distance en mm
