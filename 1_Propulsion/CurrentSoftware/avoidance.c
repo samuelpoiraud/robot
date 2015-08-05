@@ -235,9 +235,9 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 				for(i=0;i<max;i++){
 					Uint8 num = 0;
 					if(i==0)
-						msg.data.debug_avoidance_poly.new_polugone = TRUE;
+						msg.data.debug_avoidance_poly.new_polygone = TRUE;
 					else
-						msg.data.debug_avoidance_poly.new_polugone = FALSE;
+						msg.data.debug_avoidance_poly.new_polygone = FALSE;
 
 					if(i*3 < nb_point){
 						num++;
