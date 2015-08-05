@@ -431,7 +431,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			if(incoming_msg->data.broadcast_position_robot.reason & (WARNING_REACH_X | WARNING_REACH_Y)){ //Nous venons d'atteindre une position en END_AT_DISTANCE (ie la position à 100mm près) pour laquelle on a demandé une surveillance à la propulsion.
 				global.prop.reach_distance = TRUE;
 				debug_printf("Rd\n");
-				//debug_printf("PROP_DISTANCE_REACH RECEIVED\n");
 			}else{
 				if(incoming_msg->data.broadcast_position_robot.reason & WARNING_REACH_X)	//Nous venons d'atteindre une position en X pour laquelle on a demandé une surveillance à la propulsion.
 				{
@@ -621,6 +620,7 @@ void ENV_clean (void)
 	global.prop.reach_x = FALSE;
 	global.prop.reach_y = FALSE;
 	global.prop.reach_teta = FALSE;
+	global.prop.reach_distance = FALSE;
 		//global.prop.last_time_pos_updated = 0;
 	global.pos.updated = FALSE;
 	global.flags.ask_prop_calibration = FALSE;

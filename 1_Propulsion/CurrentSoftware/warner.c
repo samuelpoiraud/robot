@@ -224,8 +224,8 @@ void WARNER_arm_y(Sint16 y)
 void WARNER_arm_distance(Uint16 distance, Uint16 x, Uint16 y)
 {
 	warner_distance = distance;
-	warner_x = x;
-	warner_y = y;
+	warner_distance_x = x;
+	warner_distance_y = y;
 }
 
 void WARNER_arm_timer(Uint16 duree) //Duree en [ms]
@@ -308,7 +308,7 @@ void WARNER_process_it(void)
 			warner_distance = 0;
 			warner_distance_x = 0;
 			warner_distance_y = 0;
-			warnings |= (WARNING_REACH_X | WARNING_REACH_Y);
+			warnings = warnings | WARNING_REACH_X | WARNING_REACH_Y;
 		}
 	}
 

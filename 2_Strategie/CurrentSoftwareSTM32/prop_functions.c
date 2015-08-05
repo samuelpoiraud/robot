@@ -214,6 +214,25 @@ void PROP_WARNER_arm_teta(Sint16 teta)
 	CAN_send(&msg);
 }
 
+/*
+	Fonction permettant d'armer un avertisseur sur la propulsion.
+	Un message de BROACAST_POSITION avec raison |= WARNING_REACH_DISTANCE sera envoyé dès que le robot atteindra ce cercle virtuelle autour du point de destination...
+	C'est à dire que dès que le robot entre dans le cercle de rayon la  distnce donnée et de centre le point de destination donné,
+	le message BROADCAST_POSITION sera envoyé
+	Ce message déclenchera la levée en environnement stratégie du flag global.prop.reach_distance
+	@param : 0 permet de demander un désarmement de l'avertisseur.
+*/
+void PROP_WARNER_arm_distance(Uint16 distance, Sint16 x, Sint16 y)
+{
+	CAN_msg_t msg;
+	msg.sid = PROP_WARN_DISTANCE;
+	msg.size = SIZE_PROP_WARN_DISTANCE;
+	msg.data.prop_warn_distance.distance = distance;
+	msg.data.prop_warn_distance.x = x;
+	msg.data.prop_warn_distance.y = y;
+	CAN_send(&msg);
+	debug_printf("Warner send at pos x=%d  y=%d  distance=%d\n", x, y, distance);
+}
 
 // ---------------------------------------------------------------------------- Fonctions autres
 
@@ -514,12 +533,14 @@ static void PROP_goto_until_distance_reached (stack_id_e stack_id, bool_e init)
 		order.data.prop_go_position.avoidance = prop_args[STACKS_get_top(stack_id)].avoidance;
 		CAN_send(&order);
 
+		PROP_WARNER_arm_distance(distance_to_reach, prop_args[STACKS_get_top(stack_id)].x, prop_args[STACKS_get_top(stack_id)].y);
+
 		current.x = prop_args[STACKS_get_top(stack_id)].x ;
 		current.y = prop_args[STACKS_get_top(stack_id)].y;
 	}
 	else
 	{
-		if (global.prop.ended || PROP_near_destination_euclidienne(distance_to_reach, current) /*global.prop.reach_distance*/)
+		if (global.prop.ended || global.prop.reach_distance) /*PROP_near_destination_euclidienne(distance_to_reach, current)*/
 		{
 			debug_printf("\nPROP_goto_until_distance_reached : fini\n");
 			STACKS_pull(PROP);
