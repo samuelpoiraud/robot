@@ -841,7 +841,7 @@
 					Uint8 y					:8;			// [mm/16]
 				}point[3];
 				Uint8 first_point_number	:8;
-				bool_e new_polugone			:1;
+				bool_e new_polygone			:1;
 			}debug_avoidance_poly;
 
 
