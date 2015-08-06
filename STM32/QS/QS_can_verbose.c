@@ -518,14 +518,14 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 			break;
 		case IHM_BUTTON:
 			switch(msg->data.ihm_button.id){
-				case BP_SELFTEST_IHM:		print(*string, *len, "| bp_selftest");			break;
-				case BP_CALIBRATION_IHM:	print(*string, *len, "| bp_calibration");		break;
-				case BP_PRINTMATCH_IHM:		print(*string, *len, "| bp_print_match");		break;
-				case BP_OK_IHM:				print(*string, *len, "| bp_ok");				break;
-				case BP_UP_IHM:				print(*string, *len, "| bp_up");				break;
-				case BP_DOWN_IHM:			print(*string, *len, "| bp_down");				break;
-				case BP_SET_IHM:			print(*string, *len, "| bp_set");				break;
-				case BP_RFU_IHM	:			print(*string, *len, "| bp_rfu");				break;
+				case BP_SELFTEST_IHM:				print(*string, *len, "| bp_selftest");			break;
+				case BP_CALIBRATION_IHM:			print(*string, *len, "| bp_calibration");		break;
+				case BP_PRINTMATCH_IHM:				print(*string, *len, "| bp_print_match");		break;
+				case BP_OK_IHM:						print(*string, *len, "| bp_ok");				break;
+				case BP_UP_IHM:						print(*string, *len, "| bp_up");				break;
+				case BP_DOWN_IHM:					print(*string, *len, "| bp_down");				break;
+				case BP_SET_IHM:					print(*string, *len, "| bp_set");				break;
+				case BP_SUSPEND_RESUME_MATCH_IHM:	print(*string, *len, "| bp_suspende_resume");	break;
 				default:					print(*string, *len, "| Button %d active", msg->data.ihm_button.id);
 			}
 			print(*string, *len, ", %s\n",(msg->data.ihm_button.long_push)?"long push" : "direct push");

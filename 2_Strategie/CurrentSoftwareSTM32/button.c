@@ -30,6 +30,7 @@ static void BUTTON_TEST_button4();
 static void BUTTON_TEST_button6();
 */
 void BUTTON_verbose(void);
+static void BUTTON_suspend_resume_match();
 
 void BUTTON_init()
 {
@@ -82,7 +83,7 @@ void SWITCH_change_color()
 
 }
 
-void BUTTON_suspend_resume_match(){
+static void BUTTON_suspend_resume_match(){
 	static time32_t last_switch = 0;
 
 	if(global.absolute_time - last_switch < 1000){
