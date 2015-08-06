@@ -57,7 +57,7 @@ void _ISR _T1Interrupt()
 	static Uint16 count_1sec = 0;
 	global.absolute_time++;
 
-	if(global.flags.match_started && !global.flags.match_over)	//Match commencé et NON terminé
+	if(global.flags.match_started && !global.flags.match_over && !global.flags.match_suspended)	//Match commencé et NON terminé
 	{
 		//Pendant le match.
 		global.match_time++;

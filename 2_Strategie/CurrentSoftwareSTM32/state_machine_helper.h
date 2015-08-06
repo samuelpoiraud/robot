@@ -92,7 +92,8 @@ typedef enum {
 	SM_ID_HOLLY_MAE_SPOTIX					= 0x0408,
 	SM_ID_HOLLY_MANAGE_MAE_SPOTIX			= 0x0409,
 	SM_ID_HOLLY_MANAGE_MAE_CUP				= 0x040A,
-	SM_ID_ASTAR_TRY_GOING                   = 0x040B
+	SM_ID_ASTAR_TRY_GOING                   = 0x040B,
+	SM_ID_STRAT_STOP_ROBOT					= 0x04BC
 } UTILS_state_machine_id_e;
 
 
