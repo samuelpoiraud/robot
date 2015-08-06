@@ -120,7 +120,6 @@ int main (void)
 	IHM_define_act_button(BP_3_IHM, &MAIN_onButton3, &MAIN_onButton3LongPush);
 	IHM_define_act_button(BP_4_IHM, &MAIN_onButton4, &MAIN_onButton4LongPush);
 	IHM_define_act_button(BP_5_IHM, &MAIN_onButton5, &MAIN_onButton5LongPush);
-	IHM_define_act_button(BP_RFU_IHM, &MAIN_onButton6, NULL);
 
 
 	debug_printf("---   ACT Ready    ---\n");
