@@ -20,11 +20,15 @@
 
 		volatile bool_e ask_prop_calibration;
 		volatile bool_e ask_start;
+		volatile bool_e ask_suspend_match;
+		volatile bool_e ask_resume_match;
+
 
 		volatile bool_e color_updated;
 
 		volatile bool_e match_started;
 		volatile bool_e match_over;
+		volatile bool_e match_suspended;
 
 		volatile bool_e alim;
 

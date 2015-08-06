@@ -43,6 +43,7 @@ void BUTTON_init()
 	IHM_define_act_button(BP_DOWN,LCD_button_down, LCD_button_down);
 	IHM_define_act_button(BP_PRINTMATCH,SD_print_previous_match, NULL);
 	IHM_define_act_button(BP_SET,LCD_button_set, NULL);
+	IHM_define_act_button(BP_SUSPEND_RESUME_MATCH, BUTTON_suspend_resume_match, NULL);
 }
 
 
@@ -79,6 +80,21 @@ void SWITCH_change_color()
 		debug_printf("COLOR\r\n");
 	}
 
+}
+
+void BUTTON_suspend_resume_match(){
+	static time32_t last_switch = 0;
+
+	if(global.absolute_time - last_switch < 1000){
+		// Ne rien faire temps trop court entre deux changement d'état du match
+	}else if(global.flags.match_started){
+		if(!global.flags.match_suspended)
+			global.flags.ask_suspend_match = TRUE;
+		else
+			global.flags.ask_resume_match = TRUE;
+	}
+
+	last_switch = global.absolute_time;
 }
 
 

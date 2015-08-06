@@ -9,8 +9,6 @@
  *	Version 2012/01/14
  */
 
-#define BRAIN_C
-
 #include "brain.h"
 
 #include "Stacks.h"
@@ -184,14 +182,30 @@ void any_match(void)
 
 		if(strategy == high_level_strat)	//Liste ici les stratégie qui doivent être appelées même avant le début du match
 			high_level_strat();
-	}
-	else
-	{
-		/* we are in match*/
-		if(!global.flags.match_over)
-		{
-			if(match_duration != 0 && (global.match_time >= (match_duration)))
-			{
+	} else {
+
+		if(global.flags.ask_suspend_match){
+			global.flags.match_suspended = TRUE;
+			CAN_send_sid(BROADCAST_PAUSE_ALL);
+			STACKS_flush_all();
+			QUEUE_reset_all();
+			BUZZER_play(150, NOTE_RE, 2);
+		}
+
+		if(global.flags.ask_resume_match){
+			global.flags.match_suspended = FALSE;
+			CAN_send_sid(BROADCAST_RESUME_ALL);
+			STACKS_flush_all();
+			QUEUE_reset_all();
+			BUZZER_play(150, NOTE_RE, 2);
+		}
+
+		if(global.flags.match_suspended){
+
+			strat_stop_robot();
+
+		}else if (!global.flags.match_over && !global.flags.match_suspended) {
+			if (match_duration != 0 && (global.match_time >= (match_duration))) {
 				//MATCH QUI SE TERMINE
 				Selftest_print_sd_hokuyo_lost();
 				CAN_send_sid(BROADCAST_STOP_ALL);

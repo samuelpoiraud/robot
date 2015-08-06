@@ -62,31 +62,36 @@ void ENV_init(void)
 	ENV_clean();
 	global.wanted_color=COLOR_INIT_VALUE;
 	global.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
+
 	global.flags.color_updated = TRUE;
 	global.flags.match_started = FALSE;
 	global.flags.match_over = FALSE;
+	global.flags.match_suspended = FALSE;
+	global.flags.ask_prop_calibration = FALSE;
+	global.flags.ask_suspend_match = FALSE;
+	global.flags.ask_start = FALSE;
+	global.flags.foes_updated_for_lcd = FALSE;
+	global.flags.initial_position_received = FALSE;
+	global.flags.alim = FALSE;
+
 	for(i=0;i<MAX_NB_FOES;i++)
 	{
 		global.foe[i].fiability_error = 0;
 		global.foe[i].enable = FALSE;
 		global.foe[i].update_time = 0;
 	}
-	global.flags.foes_updated_for_lcd = FALSE;
 	global.match_time = 0;
 	global.pos.dist = 0;
-	global.flags.ask_start = FALSE;
 	global.prop.calibrated = FALSE;
 	global.prop.current_way = ANY_WAY;
 	global.prop.is_in_translation = FALSE;
 	global.prop.is_in_rotation = FALSE;
 	global.prop.current_status = NO_ERROR;
-	global.flags.alim = FALSE;
 	global.alim_value = 0;
 	global.destination = (GEOMETRY_point_t){0,0};
 	for(i=0;i<PROPULSION_NUMBER_COEFS;i++)
 		global.debug.propulsion_coefs[i] = 0;
 	global.com.reach_point_get_out_init = FALSE;
-	global.flags.initial_position_received = FALSE;
 
 	FIX_BEACON_init();
 }
@@ -614,6 +619,9 @@ void ENV_clean (void)
 	global.debug.propulsion_coefs_updated = 0x00000000;
 	if(global.color == global.wanted_color)
 		global.flags.color_updated = FALSE;
+	global.flags.ask_prop_calibration = FALSE;
+	global.flags.ask_start = FALSE;
+	global.flags.ask_suspend_match = FALSE;
 	global.prop.ended = FALSE;
 	global.prop.erreur = FALSE;
 	global.prop.freine = FALSE;
@@ -623,7 +631,6 @@ void ENV_clean (void)
 	global.prop.reach_distance = FALSE;
 		//global.prop.last_time_pos_updated = 0;
 	global.pos.updated = FALSE;
-	global.flags.ask_prop_calibration = FALSE;
 	global.debug.force_foe = FALSE;
 	global.debug.duration_trajectory_for_test_coefs = 0;
 	FIX_BEACON_clean();	//Doit être après le any_match !

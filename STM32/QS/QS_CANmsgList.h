@@ -69,6 +69,9 @@
 
 		#define BROADCAST_STOP_ALL			0x002
 
+		#define BROADCAST_PAUSE_ALL			0x007
+		#define BROADCAST_RESUME_ALL		0x008
+
 		#define BROADCAST_COULEUR			0x003
 		#define SIZE_BROADCAST_COULEUR		1
 			struct{
