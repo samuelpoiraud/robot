@@ -37,6 +37,8 @@
 //#define USE_POLYGON			//Utilise le mode de déplacement avec les polygones
 	//Si cette ligne est commentée, on utilise par défaut le mode de déplacement avec pathfind
 
+#define USE_ASTAR				//Activation de l'algorithme ASTAR, avec pathfind par polygones
+
 #define USE_PROP_MULTI_POINT	//Utilise le buffer de l'asser pour les trajectoires multi-points et permet d'utiliser les courbes
 
 #define PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION	//Les PROP_TRAJECTOIRE_FINIE dépilent les asser goto meme si on est loin de la destination
