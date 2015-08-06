@@ -11,6 +11,11 @@
  */
 
 #include "astar.h"
+#include "QS/QS_all.h"
+#include "QS/QS_measure.h"
+#include "QS/QS_maths.h"
+#include <stdarg.h>
+#include "state_machine_helper.h"
 
 #ifdef _ASTAR_H_
 
@@ -18,19 +23,127 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ASTAR
 #include "QS/QS_outputlog.h"
 
+//--------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------- Macros ---------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------
+
+		//Rayon du polygone d'évitement pour les robots adverses
+		#define DEFAULT_FOE_RADIUS  600
+
+		//Nombre d'essais consécutifs avec du DODGE en évitement
+		#define NB_TRY_WHEN_DODGE 6
+
+		//Dimension du terrain
+		#define PLAYGROUND_WIDTH 2000
+		#define PLAYGROUND_HEIGHT 3000
+
+		//Largeur du robot
+		#define ROBOT_WIDTH ((QS_WHO_AM_I_get()== BIG_ROBOT)? BIG_ROBOT_WIDTH:SMALL_ROBOT_WIDTH)
+
+		//Marge entre le centre du robot et un obstacle
+		#define MARGIN_TO_OBSTACLE (ROBOT_WIDTH/2 + 50)
+
+		//Marge entre le centre du robot et le coin d'un obstacle
+		#define CORNER_MARGIN_TO_OBSTACLE  MARGIN_TO_OBSTACLE/1.4
+
+		//Marge entre le centre du robot et la bordure (Les nodes dans cette zone sont supprimés)
+		#define MARGIN_TO_BORDER (MARGIN_TO_OBSTACLE - 10)
+
+		//Cout maximal
+		#define MAX_COST 65535
+
+		//Pour spécifier qu'un noeud (node) n'a pas de polygonId
+		#define NO_ID 255
+
+//--------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------- Fonctions importantes de l'algo A* (internes au programme)-------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------
+
+		//Fonction générant la liste de polygones (adversaires + éléments ou zones de jeu)
+		static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius);
+
+		//Fonction pour créer les polygones correspondant aux zones ou éléments du terrain constituant des obstacles
+		static void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits, ...);
+
+		//Fonction pour créer les polygones correspondant aux 2 robots adverses
+		static void ASTAR_create_foe_polygon(Uint8 *currentId, Uint16 foeRadius);
+
+		//Fonction permettant de générer le graphe de nodes
+		static void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint8 *currentNodeId);
+
+		//Fonction qui effectue l'algorithme A* (un algorithme de recherche de chemin dans un graphe)
+		static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint16 foeRadius);
+
+		//Fonction qui recherche et affecte des nodes en tant que "voisins" du node courant
+		static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 recursivityOrder);
+
+		//Fonction d'optimisation de la trajectoire afin d'éliminer les nodes inutiles pour gagner du temps quand on le peut.
+		static void ASTAR_make_the_path(astar_path_t *path);
+
+		//Fonction transformant la trajectoire de nodes en trjaectoire de points.
+		static void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displacements[], Uint8 *nbDisplacements, PROP_speed_e speed);
+
+		//Fonction qui recherche si un node est visible à partir d'un autre node. En cas d'échec, cette fonction retourne
+		//les nodes consitituant les extrémités du segment le plus proche de lui et qui empêche l'accès au node d'arrivée.
+		static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination);
+
+		//Fonction qui recherche si un node est atteignable à partir d'un autre node. En cas d'échec, cette fonction retourne
+		//les nodes consitituant les extrémités du segment le plus proche de lui et qui empêche l'accès au node d'arrivée.
+		//Cette  foçnction est très similaire à ASTAR_node_is_visible mais sans "l'aspect voisin". On cherche à savoir si le
+		//node est atteignable et non pas si il doit être pris en compte comme point éventuel dans la trajectoire du robot.
+		//Cette fonction est utilisé pour optimiser la trajectoire du robot.
+		static bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination);
+
+		//Fonction pour la mise à jour des coûts des nodes qui ont pour parent "parent" (parent = le node current)
+		static void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t from, astar_ptr_node_t destination);
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------- Fonctions annexes (internes au programme) --------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------
+
+		//Procédure permettant de nettoyer un liste (RAZ du nombre d'éléments qu'elle contient)
+		static void ASTAR_clean_list(astar_list_t *list);
+
+		//Fonction indiquant si une liste est vide
+		static bool_e ASTAR_list_is_empty(astar_list_t list);
+
+		//Procédure d'ajout d'un node à une liste
+		static void ASTAR_add_node_to_list(astar_ptr_node_t node, astar_list_t *list);
+
+		//Procédure de suppression d'un node dans une liste
+		static void ASTAR_delete_node_to_list(astar_ptr_node_t node, astar_list_t *list);
+
+		//Fonction recherchant si un node est présent dans une liste
+		static bool_e ASTAR_is_in_list(astar_ptr_node_t node, astar_list_t list);
+
+		//Procédure ajoutant un voisin à un node
+		static void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t neighbor);
+
+		//Fonction retournant l'intersection de deux segements (NOT USED)
+		//static GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2);
+
+		//Fonction retournant si il y a une intersection entre un point et un de ses voisins avec un autre polygone (NOT USED)
+		//static bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neighbor);
+
+		//Calcul du cout entre deux points par une distance de manhattan
+		static Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t end_node);
+
+
+
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------- Variables globales ---------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-//La liste des polygones
-astar_polygon_list_t polygon_list;
+		//La liste des polygones
+		astar_polygon_list_t polygon_list;
 
-//La liste ouverte pour l'algo A*
-astar_list_t opened_list;
+		//La liste ouverte pour l'algo A*
+		astar_list_t opened_list;
 
-//La liste fermée pour l'algo A*
-astar_list_t closed_list;
+		//La liste fermée pour l'algo A*
+		astar_list_t closed_list;
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------
@@ -43,7 +156,7 @@ astar_list_t closed_list;
  * @param currentNodeId : le numéro d'identité des nodes afin de ne pas donner le même id à deux nodes
  * @param foeRadius : la distance caractéristique des polygones modélisant les robots  adverses
  */
-void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
+static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 	polygon_list.nbPolygons = 0;  //réinitialisation du nombre de polygones
 
 	//Attention, les nodes doivent être écartés au maximum de 250mm sur un même segment
@@ -115,7 +228,7 @@ void ASTAR_init(void){
  * @param currentId : le numéro d'identité auquel on est rendu
  * @param nbSummits : le nombre de sommets du polygone crée
  */
-void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...){
+static void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...){
 	int i;
 	int index = polygon_list.nbPolygons;
 	va_list listePoints;
@@ -149,7 +262,7 @@ void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...){
  * @param currentId : le numéro d'identité auquel on est rendu
  * @param foeRadius : la distance caractéristique du polygone créé (environ égale au rayon)
  */
-void ASTAR_create_foe_polygon(Uint8 *currentId, Uint16 foeRadius){
+static void ASTAR_create_foe_polygon(Uint8 *currentId, Uint16 foeRadius){
 	Uint8 i, j, nbFoes =0;
 	Uint8 index = polygon_list.nbPolygons;
 	GEOMETRY_point_t foe;
@@ -224,7 +337,7 @@ void ASTAR_create_foe_polygon(Uint8 *currentId, Uint16 foeRadius){
  * @destination : les coordonnées du point d'arrivée
  * @param currentNodeId : le numéro d'identité des nodes afin de ne pas donner le même id à deux nodes
  */
-void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint8 *currentNodeId){
+static void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint8 *currentNodeId){
 	Uint8 i, j;
 
 	debug_printf("From x=%d  y=%d\n", from.x, from.y);
@@ -287,7 +400,7 @@ void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_po
  * @param destination : les coordonnées du point d'arrivée
  * @param currentNodeId : le numéro d'identité des nodes afin de ne pas donner le même id à deux nodes
  */
-void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint16 foeRadius){
+static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint16 foeRadius){
 	debug_printf("Pathfind Begin\n");
 
 	//Déclaration des variables
@@ -389,7 +502,7 @@ void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_
  * @param recursivityOrder : l'ordre de récursivité afin d'éviter les boucles infinies.
  *		Le premier appel de cet fonction ne peut s'appeller elle-même que recursivityOrder fois.
  */
-void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 recursivityOrder){
+static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 recursivityOrder){
 	debug_printf("\n\n\nLink Begin\n");
 	Uint16 test_cost;
 	Uint8  k;
@@ -491,7 +604,7 @@ void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destinatio
  *		Fonction d'optimisation de la trajectoire afin d'éliminer les nodes inutiles pour gagner du temps quand on le peut.
  * @param path : la trajectoire du robot contenant le node de départ, le node d'arrivée et les nodes consituant la trajectoire
  */
-void ASTAR_make_the_path(astar_path_t *path){
+static void ASTAR_make_the_path(astar_path_t *path){
 	astar_list_t aux; //Liste auxiliaire
 	Sint16 i,j;
 	astar_ptr_node_t answer1, answer2;
@@ -556,7 +669,7 @@ void ASTAR_make_the_path(astar_path_t *path){
  * @param nbDisplacements : le nombre de déplacements
  * @speed : la vitesse du robot
  */
-void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displacements[], Uint8 *nbDisplacements, PROP_speed_e speed){
+static void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displacements[], Uint8 *nbDisplacements, PROP_speed_e speed){
 	Uint8 i;
 	*nbDisplacements = path.list.nbNodes;
 	debug_printf("MAKE DISPLACEMENTS\n nbDisplacements = %d\n", *nbDisplacements);
@@ -777,7 +890,7 @@ bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t node
  * @param destination : le node d'arrivée
  * @return le booléen indiquant si le node destination est visible par le node from
  */
-bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
+static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
 	debug_printf("Visible Begin\n");
 	Uint16 minimal_dist = MAX_COST;
 	Uint16 test_dist;
@@ -851,7 +964,7 @@ bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *no
  * @param destination : le node d'arrivée
  * @return le booléen indiquant si le node destination est atteignable par le node from
  */
-bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
+static bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
 	debug_printf("Reachable between x=%d  y=%d  et  x=%d y=%d\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
 	Uint16 minimal_dist = MAX_COST;
 	Uint16 test_dist;
@@ -922,7 +1035,7 @@ bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *
  * @param parent : le node parent
  * @param destination : le node d'arrivée
  */
-void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t parent, astar_ptr_node_t destination){
+static void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t parent, astar_ptr_node_t destination){
 	Uint8 i;
 	for(i=0; i<opened_list.nbNodes; i++){
 		opened_list.list[i]->cost.heuristic = ASTAR_pathfind_cost(opened_list.list[i], destination);
@@ -942,7 +1055,7 @@ void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t parent, astar_ptr_n
  *		Procédure permettant de nettoyer un liste (RAZ du nombre d'éléments qu'elle contient)
  * @param list : la liste concernée
  */
-void ASTAR_clean_list(astar_list_t *list){
+static void ASTAR_clean_list(astar_list_t *list){
 	list->nbNodes = 0;
 }
 
@@ -953,7 +1066,7 @@ void ASTAR_clean_list(astar_list_t *list){
  * @param list : la liste concernée
  * @return le booléen indiquant si la liste est vide
  */
-bool_e ASTAR_list_is_empty(astar_list_t list){
+static bool_e ASTAR_list_is_empty(astar_list_t list){
 	return (list.nbNodes == 0);
 }
 
@@ -964,7 +1077,7 @@ bool_e ASTAR_list_is_empty(astar_list_t list){
  * @param node : le node à ajouter
  * @param list : la liste concernée
  */
-void ASTAR_add_node_to_list(astar_ptr_node_t node, astar_list_t *list){
+static void ASTAR_add_node_to_list(astar_ptr_node_t node, astar_list_t *list){
 	list->list[list->nbNodes] = node;
 	list->nbNodes = list->nbNodes + 1;
 }
@@ -976,7 +1089,7 @@ void ASTAR_add_node_to_list(astar_ptr_node_t node, astar_list_t *list){
  * @param node : le node à supprimer
  * @param list : la liste concernée
  */
-void ASTAR_delete_node_to_list(astar_ptr_node_t node, astar_list_t *list){
+static void ASTAR_delete_node_to_list(astar_ptr_node_t node, astar_list_t *list){
 	if(list == NULL){
 		debug_printf("list = NULL in ASTAR_delete_node_to_list\n");
 	}else if(node == NULL){
@@ -1011,7 +1124,7 @@ void ASTAR_delete_node_to_list(astar_ptr_node_t node, astar_list_t *list){
  * @param list : la liste de recherche
  * @return un booléen indiquant si le node est présent (TRUE) dans la liste ou non (FALSE)
  */
-bool_e ASTAR_is_in_list(astar_ptr_node_t node, astar_list_t list){
+static bool_e ASTAR_is_in_list(astar_ptr_node_t node, astar_list_t list){
 	bool_e is_in_list = FALSE;
 	Uint8 i=0;
 	while(i<list.nbNodes && !is_in_list){
@@ -1030,7 +1143,7 @@ bool_e ASTAR_is_in_list(astar_ptr_node_t node, astar_list_t list){
  * @param node : le node auquel on doit ajouter un voisin
  * @param neighbor : le node voisin à ajouter
  */
-void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t neighbor){
+static void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t neighbor){
 	node->neighbors[node->nbNeighbors] = neighbor;
 	node->nbNeighbors = node->nbNeighbors + 1;
 }
@@ -1043,7 +1156,7 @@ void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t neighbor
  * @param seg2 : les coordonnées des extrémités du second segment
  * @return les coordonnées du point d'intersection
  */
-GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2){
+/*static GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2){
 	double a=1, b=1, c=1, d=1;
 	bool_e verticale1= FALSE, verticale2 = FALSE;
 	//Equation de la droite du segment 1: Y = aX + b
@@ -1080,7 +1193,7 @@ GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment
 		debug_printf("Problème dans ASTAR_intersection\n");
 	}
 	return intersection;
-}
+}*/
 
 
 
@@ -1090,7 +1203,7 @@ GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment
  * @param neighbor : le node voisin
  * @return le booléen indiquant si il y a intersection (TRUE) ou non (FALSE)
  */
-bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neighbor){
+/*static bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neighbor){
 	Uint8 i=0, j=0;
 	bool_e intersection = FALSE;
 	GEOMETRY_segment_t reference = {from->pos, neighbor->pos};
@@ -1110,7 +1223,7 @@ bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neig
 		i++;
 	}
 	return intersection;
-}
+}*/
 
 
 
@@ -1120,7 +1233,7 @@ bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neig
  * @param end_node: le node d'arrivée
  * @return le cout entre les deux nodes passés en paramètre
  */
-Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t end_node)
+static Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t end_node)
 {
 	if(start_node == NULL)
 	{
