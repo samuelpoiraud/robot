@@ -61,12 +61,20 @@
 
 	typedef enum
 	{
-		CARTE_PROP,
-		CARTE_ACT,
-		CARTE_P,
-		CARTE_SUPER,
-		CARTE_BALISE
-	} cartes_e;
+		SLOT_PROP = 0,
+		SLOT_ACT,
+		SLOT_STRAT,
+		SLOT_INCONNU
+	} slot_id_e;
+
+
+	typedef enum
+	{
+		CODE_PROP = 0,
+		CODE_ACT,
+		CODE_STRAT,
+		CODE_BALISE
+	} code_id_e;
 
 	typedef enum
 	{

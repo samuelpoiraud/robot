@@ -38,6 +38,7 @@
 	#define toggle_led(port_comma_pin)   GPIO_WriteBit(port_comma_pin,(GPIO_ReadOutputDataBit(port_comma_pin)?Bit_RESET:Bit_SET))
 
 	void PORTS_init(void);
+	bool_e PORTS_secure_init(void);
 
 	Uint8 PORTS_adc_init(void* adc_handle, Uint8 ADC_sampleTime);
 	void PORTS_pwm_init();

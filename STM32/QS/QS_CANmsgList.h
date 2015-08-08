@@ -72,6 +72,13 @@
 		#define BROADCAST_PAUSE_ALL			0x007
 		#define BROADCAST_RESUME_ALL		0x008
 
+		#define BROADCAST_I_AM_AND_I_AM_HERE	0x009
+		#define SIZE_BROADCAST_I_AM_AND_I_AM_HERE	1
+			struct{
+				slot_id_e slot_id				:4;
+				code_id_e code_id				:4;
+			}broadcast_i_am_and_i_am_where;
+
 		#define BROADCAST_COULEUR			0x003
 		#define SIZE_BROADCAST_COULEUR		1
 			struct{
