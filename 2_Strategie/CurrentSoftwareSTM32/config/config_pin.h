@@ -260,7 +260,8 @@
 		// Programmation
 
 	#define PORT_IO_E_7			PORT_IO_INPUT
-		//
+		#define PORT_I_AM_STRAT		GPIOE,GPIO_Pin_7
+		#define	READ_I_AM_STRAT		GPIOE->IDR8
 
 	#define PORT_IO_E_8			PORT_IO_INPUT
 		#define ACT_IS_READY			GPIOE->IDR8

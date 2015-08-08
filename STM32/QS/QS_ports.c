@@ -11,11 +11,106 @@
 
 #include "QS_ports.h"
 #include "QS_all.h"
+#include "QS_can.h"
+#include "QS_uart.h"
+#include "QS_outputlog.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_adc.h"
 
 #include "../config/config_pin.h"
 
+
+bool_e PORTS_secure_init(void){
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+	/* GPIOE */
+	Uint32 port_e_mask =
+			(1  << 7 ) |
+			(1  << 8 ) |
+			(1  << 9 );
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_e_mask) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+	UART_init();
+	CAN_init();
+
+	bool_e i_can_run = FALSE;
+
+	CAN_msg_t msg;
+
+	msg.sid = BROADCAST_I_AM_AND_I_AM_HERE;
+	msg.size = SIZE_BROADCAST_I_AM_AND_I_AM_HERE;
+
+	#ifdef I_AM_CARTE_STRAT
+		PORTS_set_pull(PORT_I_AM_STRAT, GPIO_PuPd_UP);
+		#ifdef I_AM_CARTE_PROP || I_AM_CARTE_ACT
+			PORTS_set_pull(PORT_I_AM_PROP, GPIO_PuPd_UP);
+			PORTS_set_pull(PORT_I_AM_ACT, GPIO_PuPd_UP);
+		#endif
+	#endif
+
+	#ifdef I_AM_CARTE_STRAT
+		if(READ_I_AM_STRAT)
+			i_can_run = TRUE;
+		else{
+			i_can_run = FALSE;
+			error_printf("!!! Code Stratégie sur un emplacement inconnu !!!\n");
+			msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_INCONNU;
+			msg.data.broadcast_i_am_and_i_am_where.code_id = CODE_STRAT;
+		}
+	#elif I_AM_CARTE_ACT
+		if(READ_I_AM_ACT)
+			i_can_run = TRUE;
+		else{
+			i_can_run = FALSE;
+			msg.data.broadcast_i_am_and_i_am_where.code_id = CODE_ACT;
+			if(READ_I_AM_STRAT){
+				error_printf("!!! Code Actionneur sur l'emplacement Stratégie !!!\n");
+				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_STRAT;
+			}else if(READ_I_AM_PROP){
+				error_printf("!!! Code Actionneur sur l'emplacement Propulsion !!!\n");
+				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_PROP;
+			}else{
+				error_printf("!!! Code Actionneur sur un emplacement inconnu !!!\n");
+				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_INCONNU;
+			}
+		}
+	#elif I_AM_CARTE_PROP
+		if(READ_I_AM_ACT)
+			i_can_run = TRUE;
+		else{
+			i_can_run = FALSE;
+			msg.data.broadcast_i_am_and_i_am_where.code_id = CODE_PROP;
+			if(READ_I_AM_STRAT){
+				error_printf("!!! Code Propulsion sur l'emplacement Stratégie !!!\n");
+				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_STRAT;
+			}else if(READ_I_AM_ACT){
+				error_printf("!!! Code Propulsion sur l'emplacement Actionneur !!!\n");
+				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_ACT;
+			}else{
+				error_printf("!!! Code Propulsion sur un emplacement inconnu !!!\n");
+				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_INCONNU;
+			}
+		}
+	#else
+		i_can_run = TRUE;
+	#endif
+
+	if(i_can_run == FALSE){
+		CAN_send(&msg);
+		return FALSE;
+	}
+
+	PORTS_init();
+	return TRUE;
+}
 
 void PORTS_init(void){
 	static bool_e initialized = FALSE;
@@ -344,6 +439,7 @@ void PORTS_pwm_init() {
 }
 
 void PORTS_uarts_init() {
+
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_USART1);	//U1TX
@@ -358,26 +454,32 @@ void PORTS_uarts_init() {
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 
-	//USART1 TX
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	//USART1 RX
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	#ifdef USE_UART1
+		//USART1 TX
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		//USART1 RX
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+	#endif
 
-	//USART2 TX
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	//USART2 RX
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	#ifdef USE_UART2
+		//USART2 TX
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
+		//USART2 RX
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
+	#endif
 
-	//USART3 TX
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
-	//USART3 RX
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
+	#ifdef USE_UART3
+		//USART3 TX
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+		GPIO_Init(GPIOD, &GPIO_InitStructure);
+		//USART3 RX
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+		GPIO_Init(GPIOD, &GPIO_InitStructure);
+	#endif
 }
 
 void PORTS_qei_init() {

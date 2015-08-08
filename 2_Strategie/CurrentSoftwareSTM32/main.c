@@ -74,7 +74,15 @@ int main (void)
 	#endif // USE_QSx86
 
 	SYS_init();		// Init système
+
+#ifndef FDP_2016
 	PORTS_init();	// Config des ports
+#else
+	if(PORTS_secure_init() == FALSE){
+		error_printf("Blocage car le code ne démarre pas sur le bon slot !\n");
+		while(1);
+	}
+#endif
 
 	#ifdef MODE_SIMULATION
 		pull_bp_and_switch();
