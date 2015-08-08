@@ -87,7 +87,16 @@ void initialisation(void)
 
 	// Initialisation du système
 	SYS_init();				// Init système
-	PORTS_init();			// Config des ports
+
+	#ifndef FDP_2016
+		PORTS_init();	// Config des ports
+	#else
+		if(PORTS_secure_init() == FALSE){
+			error_printf("Blocage car le code ne démarre pas sur le bon slot !\n");
+			while(1);
+		}
+	#endif
+
 	MAIN_global_var_init();	// Init variable globale
 	SYSTICK_init((time32_t*)&(global.absolute_time));
 

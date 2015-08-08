@@ -262,13 +262,16 @@
 		// Programmation
 
 	#define PORT_IO_E_7			PORT_IO_INPUT
-		//
+		#define PORT_I_AM_STRAT		GPIOE,GPIO_Pin_7
+		#define	READ_I_AM_STRAT		GPIOE->IDR7
 
 	#define PORT_IO_E_8			PORT_IO_INPUT
-		//
+		#define PORT_I_AM_ACT		GPIOE,GPIO_Pin_8
+		#define	READ_I_AM_ACT		GPIOE->IDR8
 
 	#define PORT_IO_E_9			PORT_IO_INPUT
-		//
+		#define PORT_I_AM_PROP		GPIOE,GPIO_Pin_9
+		#define	READ_I_AM_PROP		GPIOE->IDR9
 
 	#define PORT_IO_E_10		PORT_IO_INPUT
 		//
