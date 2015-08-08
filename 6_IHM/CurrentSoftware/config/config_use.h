@@ -24,8 +24,7 @@
 //----------------------------QS--------------------------------//
 //////////////////////////////////////////////////////////////////
 
-/* ID de la carte: cf le type cartes_e de QS_types.h */
-	#define I_AM CARTE_IHM
+/* Define pour identifier la carte */
 	#define I_AM_CARTE_IHM
 
 /* Il faut choisir à quelle frequence on fait tourner le PIC */

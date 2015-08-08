@@ -96,8 +96,7 @@
 //----------------------------QS--------------------------------//
 //////////////////////////////////////////////////////////////////
 
-/* ID de la carte: cf le type cartes_e de QS_types.h */
-	#define I_AM CARTE_PROP		//A voir avec Gwenn pour changer
+/* Define pour identifier la carte */
 	#define I_AM_CARTE_PROP
 
 /* Il faut choisir à quelle frequence on fait tourner la STM32 */

@@ -36,8 +36,7 @@
 // Définir les configurations QS propre à chaque robot dans config_big/config_use.h ou config_small/config_use.h !
 
 
-/* ID de la carte: cf le type cartes_e de QS_types.h */
-	#define I_AM CARTE_ACT		//A voir avec Gwenn pour changer
+/* Define pour identifier la carte */
 	#define I_AM_CARTE_ACT
 
 /* Il faut choisir à quelle frequence on fait tourner le PIC */
@@ -54,17 +53,17 @@
 /* UART */
 	#define USE_UART
 
-/* CAN */
-	#define USE_CAN
-	#define CAN_BUF_SIZE	32
-	#define CAN_SEND_TIMEOUT_ENABLE
-	#define QS_CAN_RX_IT_PRI 2
-
 /* Réglages UART */
 	#define USE_UART1
 	#define UART1_BAUDRATE		230400
 	#define USE_UART1RXINTERRUPT
 	#define UART_RX_BUF_SIZE	12
+
+/* CAN */
+	#define USE_CAN
+	#define CAN_BUF_SIZE	32
+	#define CAN_SEND_TIMEOUT_ENABLE
+	#define QS_CAN_RX_IT_PRI 2
 
 /* Bouton */
 	#define I_ASSUME_I_WILL_CALL_BUTTONS_PROCESS_IT_ON_MY_OWN //Fait par clock.h/c
