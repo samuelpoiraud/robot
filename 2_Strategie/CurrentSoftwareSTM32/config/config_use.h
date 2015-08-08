@@ -65,8 +65,7 @@
 //----------------------------QS--------------------------------//
 //////////////////////////////////////////////////////////////////
 
-/* ID de la carte: cf le type cartes_e de QS_types.h */
-	#define I_AM CARTE_STRAT
+/* Define pour identifier la carte */
 	#define I_AM_CARTE_STRAT
 
 /* Il faut choisir à quelle frequence on fait tourner la STM32 */
