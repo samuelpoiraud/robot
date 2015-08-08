@@ -70,7 +70,16 @@ int main (void)
 	SYS_init();				// Init système
 	MAIN_global_var_init();	// Init variable globale
 	SYSTICK_init((time32_t*)&(global.absolute_time));
-	PORTS_init();			// Config des ports
+
+	#ifndef FDP_2016
+		PORTS_init();	// Config des ports
+	#else
+		if(PORTS_secure_init() == FALSE){
+			error_printf("Blocage car le code ne démarre pas sur le bon slot !\n");
+			while(1);
+		}
+	#endif
+
 	PORTS_pwm_init();
 
 	GPIO_SetBits(LED_RUN);

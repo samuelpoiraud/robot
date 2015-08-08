@@ -65,7 +65,7 @@ bool_e PORTS_secure_init(void){
 			msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_INCONNU;
 			msg.data.broadcast_i_am_and_i_am_where.code_id = CODE_STRAT;
 		}
-	#elif I_AM_CARTE_ACT
+	#elif defined(I_AM_CARTE_ACT)
 		if(READ_I_AM_ACT)
 			i_can_run = TRUE;
 		else{
@@ -82,8 +82,8 @@ bool_e PORTS_secure_init(void){
 				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_INCONNU;
 			}
 		}
-	#elif I_AM_CARTE_PROP
-		if(READ_I_AM_ACT)
+	#elif defined(I_AM_CARTE_PROP)
+		if(READ_I_AM_PROP)
 			i_can_run = TRUE;
 		else{
 			i_can_run = FALSE;

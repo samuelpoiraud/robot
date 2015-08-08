@@ -117,6 +117,11 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:	print(string, len, "%.3x BROADCAST_BEACON_ADVERSARY_POS_IR      ", BROADCAST_BEACON_ADVERSARY_POSITION_IR		);	break;
 		case BROADCAST_ADVERSARIES_POSITION:			print(string, len, "%.3x BROADCAST_ADVERSARIES_POSITION         ", BROADCAST_ADVERSARIES_POSITION				);	break;
 		case BROADCAST_RESET:							print(string, len, "%.3x BROADCAST_RESET                        ", BROADCAST_RESET								);	break;
+		case BROADCAST_PAUSE_ALL:						print(string, len, "%.3x BROADCAST_PAUSE_ALL                    ", BROADCAST_PAUSE_ALL							);	break;
+		case BROADCAST_RESUME_ALL:						print(string, len, "%.3x BROADCAST_RESUME_ALL                   ", BROADCAST_RESUME_ALL							);	break;
+		case BROADCAST_I_AM_AND_I_AM_HERE:				print(string, len, "%.3x BROADCAST_I_AM_AND_I_AM_HERE           ", BROADCAST_I_AM_AND_I_AM_HERE					);	break;
+
+
 
 		case DEBUG_FOE_POS:								print(string, len, "%x DEBUG_FOE_POS                          ", DEBUG_FOE_POS									);	break;
 		case DEBUG_PROPULSION_MAILBOX_IN_IS_FULL:		print(string, len, "%x DEBUG_PROPULSION_MAILBOX_IN_IS_FULL    ", DEBUG_PROPULSION_MAILBOX_IN_IS_FULL			);  break;
@@ -242,6 +247,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:		if(msg->data.broadcast_beacon_adversary_position_ir.adv[0].error || msg->data.broadcast_beacon_adversary_position_ir.adv[1].error)
 																print(string, len, "ERRs:0x%2x 0x%2x|",msg->data.broadcast_beacon_adversary_position_ir.adv[0].error, msg->data.broadcast_beacon_adversary_position_ir.adv[1].error);
 															print(string, len, "angleR1=%3d |dR1=%3dcm |angleR2=%3d |dR2=%3dcm \n", RAD_TO_DEG(msg->data.broadcast_beacon_adversary_position_ir.adv[0].angle), msg->data.broadcast_beacon_adversary_position_ir.adv[0].dist, RAD_TO_DEG(msg->data.broadcast_beacon_adversary_position_ir.adv[1].angle), msg->data.broadcast_beacon_adversary_position_ir.adv[1].dist);	break;
+
+		case BROADCAST_I_AM_AND_I_AM_HERE:			print(string, len, "| Code %s sur emplacement %d !!!\n", (msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_PROP)?"Prop":"Act"),  (msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_PROP)?"Prop":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_ACT)?"Act":"Inconnu"))); break;
 
 		case XBEE_WOOD_TAKE_CUP:				print(string, len, "| %s %s %s %s %s\n", ((msg->data.xbee_wood_take_cup.cup_north_yellow)?"North Y":""), ((msg->data.xbee_wood_take_cup.cup_south_yellow)?"South Y":""), ((msg->data.xbee_wood_take_cup.cup_middle)?"Mid":""), ((msg->data.xbee_wood_take_cup.cup_north_green)?"North G":""), ((msg->data.xbee_wood_take_cup.cup_south_green)?"South G":"")); break;
 		case ACT_RESULT:
