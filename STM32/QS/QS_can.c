@@ -21,17 +21,15 @@
 #define MASK_CAN_S			0x000 /* 0b00000000000 */
 /* on filtre les messages nous meme en aval */
 
-#if defined I_AM_CARTE_PROP	//if (I_AM == CARTE_PROP)
+#if defined I_AM_CARTE_PROP
 	#define MY_FILTER	PROP_FILTER
-#elif defined I_AM_CARTE_ACT	//(I_AM == CARTE_ACT)
+#elif defined I_AM_CARTE_ACT
 	#define MY_FILTER	ACT_FILTER
-#elif defined I_AM_CARTE_STRAT	//(I_AM == CARTE_STRAT)
+#elif defined I_AM_CARTE_STRAT
 	#define MY_FILTER	STRAT_FILTER
-#elif defined I_AM_CARTE_SUPER	//(I_AM == CARTE_SUPER)
-	#define MY_FILTER	SUPER_FILTER
-#elif defined I_AM_CARTE_BALISE	//(I_AM == CARTE_BALISE)
+#elif defined I_AM_CARTE_BALISE
 	#define MY_FILTER	BALISE_FILTER
-#elif defined I_AM_CARTE_IHM	//(I_AM == I_AM_CARTE_IHM)
+#elif defined I_AM_CARTE_IHM
 	#define MY_FILTER	IHM_FILTER
 #elif defined I_AM_CARTE_BEACON_EYE	//(I_AM == I_AM_CARTE_BEACON_EYE)
 
