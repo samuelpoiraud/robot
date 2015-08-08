@@ -116,14 +116,17 @@
 
 	#if (SYSCLK_HZ / HCLK_DIV) > 168000000
 		#error "HCLK Frequency is too high, increase HCLK_DIV"
+		#error "Une frequence d'horloge HCLK < 168Mhz doit être selectionnée"
 	#endif
 
 	#if (SYSCLK_HZ / HCLK_DIV / PCLK1_DIV) > 42000000
 		#error "PCLK1 Frequency is too high, increase PCLK1_DIV"
+		#error "Une frequence d'horloge PCLK1 < 42Mhz doit être selectionnée"
 	#endif
 
 	#if (SYSCLK_HZ / HCLK_DIV / PCLK2_DIV) > 84000000
 		#error "PCLK2 Frequency is too high, increase PCLK2_DIV"
+		#error "Une frequence d'horloge PCLK2 < 84Mhz doit être selectionnée"
 	#endif
 
 	#if FLASH_WAIT_CYCLES > 7
