@@ -943,11 +943,11 @@ static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_nod
 			}
 		}
 	}
+	debug_printf("Visible End\n");
 	if(*nodeAnswer1 == NULL && *nodeAnswer2 == NULL)
 		return TRUE;
 	else
 		return FALSE;
-	debug_printf("Visible End\n");
 }
 
 
