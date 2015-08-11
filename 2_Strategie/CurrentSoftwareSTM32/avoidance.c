@@ -94,13 +94,12 @@ Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displa
 //Action qui gere un changement d'angle et renvoi le state rentré en arg.
 Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed)
 {
-	enum state_e
-	{
-		EMPILE,
-		WAIT,
-		DONE
-	};
-	static enum state_e state = EMPILE;
+	CREATE_MAE(
+			EMPILE,
+			WAIT,
+			DONE
+		);
+
 	Uint8 ret;
 	static bool_e timeout;
 	ret = in_progress;
@@ -129,7 +128,7 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 
 // Fait avancer le robot vers un points jusqu'a ce qu'il rencontre un enemie ou un obstacle
 Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, bool_e force_rotate){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_TRY_RUSH,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_TRY_RUSH,
 			IDLE,
 			FAST_ROTATE,
 			INIT_COEF,
@@ -200,13 +199,13 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
 {
 	static GEOMETRY_point_t compute_point;
-	enum state_e{
-		COMPUTE,
-		GO
-	};
+
+	CREATE_MAE(
+			COMPUTE,
+			GO
+		);
 
 	Sint16 cos,sin;
-	static enum state_e state = COMPUTE;
 	Uint8 return_state = in_progress;
 
 	switch(state){
@@ -252,11 +251,10 @@ Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in
 //Action qui gere l'arret du robot et renvoi le state rentré en arg.
 Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 {
-	typedef enum{
+	CREATE_MAE(
 		STOP,
 		WAIT_AND_CHECK
-	}state_e;
-	static state_e state = STOP;
+	);
 
 	error_e subaction;
 
@@ -370,14 +368,12 @@ void AVOIDANCE_set_timeout(Uint16 msec) {
  */
 error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode)
 {
-	enum state_e
-	{
-		LOAD_MOVE = 0,
-		WAIT_MOVE_AND_SCAN_FOE,
-		EXTRACT,
-		DONE
-	};
-	static enum state_e state = LOAD_MOVE;
+	CREATE_MAE(
+			LOAD_MOVE,
+			WAIT_MOVE_AND_SCAN_FOE,
+			EXTRACT,
+			DONE
+		);
 
 	static bool_e timeout = FALSE;
 	static error_e sub_action;
@@ -532,16 +528,14 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
  */
 error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode)
 {
-	enum state_e
-	{
-		INIT = 0,
-		NEXT_MOVE,
-		LOAD_MOVE,
-		WAIT_MOVE_AND_SCAN_FOE,
-		EXTRACT,
-		DONE
-	};
-	static enum state_e state = INIT;
+	CREATE_MAE(
+			INIT,
+			NEXT_MOVE,
+			LOAD_MOVE,
+			WAIT_MOVE_AND_SCAN_FOE,
+			EXTRACT,
+			DONE
+		);
 
 	static bool_e timeout = FALSE;
 	static error_e sub_action;
@@ -913,14 +907,12 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 
 static error_e goto_extract_with_avoidance(const displacement_t displacements)
 {
-	enum state_e
-	{
-		LOAD_MOVE = 0,
-		WAIT_MOVE_AND_SCAN_FOE,
-		DONE
-	};
+	CREATE_MAE(
+			LOAD_MOVE,
+			WAIT_MOVE_AND_SCAN_FOE,
+			DONE
+		);
 
-	static enum state_e state = LOAD_MOVE;
 	static bool_e timeout = FALSE;
 	error_e prop_stack_state;
 
@@ -1066,11 +1058,10 @@ static error_e AVOIDANCE_watch_prop_stack ()
 /* Action qui update la position */
 error_e ACTION_update_position()
 {
-	enum state_e {
-		SEND_CAN_MSG,
-		WAIT_RECEPTION
-	};
-	static enum state_e state;
+	CREATE_MAE(
+			SEND_CAN_MSG,
+			WAIT_RECEPTION
+		);
 
 	switch (state)
 	{
@@ -1101,11 +1092,10 @@ error_e ACTION_update_position()
 /* Action qui arrête le robot, met la position à jour */
 error_e ACTION_prop_stop()
 {
-	enum state_e {
-		SEND_CAN_MSG,
-		WAIT_RECEPTION
-	};
-	static enum state_e state;
+	CREATE_MAE(
+			SEND_CAN_MSG,
+			WAIT_RECEPTION
+		);
 
 	static time32_t initial_time;
 
