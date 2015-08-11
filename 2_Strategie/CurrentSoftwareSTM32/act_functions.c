@@ -868,7 +868,7 @@ static error_e ACT_MAE_holly_spotix(ACT_MAE_holly_spotix_e order, ACT_MAE_holly_
 				if(who != ACT_MAE_SPOTIX_RIGHT)
 					ACT_push_order(ACT_PINCEMI_LEFT, ACT_PINCEMI_LEFT_OPEN);
 			}
-			if(state1 == RELEASE_NIPPER && who != ACT_MAE_SPOTIX_LEFT);
+			if(state1 == RELEASE_NIPPER && who != ACT_MAE_SPOTIX_LEFT)
 				state1 = check_act_status(ACT_QUEUE_PinceMi_right, state, ELEVATOR_GO_DOWN, ELEVATOR_GO_DOWN);
 			if(state2 == RELEASE_NIPPER && who != ACT_MAE_SPOTIX_RIGHT)
 				state2 = check_act_status(ACT_QUEUE_PinceMi_left, state, ELEVATOR_GO_DOWN, ELEVATOR_GO_DOWN);
