@@ -25,5 +25,9 @@ junction.exe R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\QS STM32\QS
 junction.exe R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\stm32f4xx STM32\stm32f4xx
 junction.exe R_D\projet_matrice_led\CurrentSoftware\QS STM32\QS
 junction.exe R_D\projet_matrice_led\CurrentSoftware\stm32f4xx STM32\stm32f4xx
+junction.exe R_D\Balise_Emettrice\CurrentSoftware\QS STM32\QS
+junction.exe R_D\Balise_Emettrice\CurrentSoftware\stm32f4xx STM32\stm32f4xx
+junction.exe R_D\Balise_Receptrice\CurrentSoftware\QS STM32\QS
+junction.exe R_D\Balise_Receptrice\CurrentSoftware\stm32f4xx STM32\stm32f4xx
 
 pause
