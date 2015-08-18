@@ -339,13 +339,13 @@
 	 * Les bloc de commande permettent une synchronisation de plusieurs servo lors de l'exécution de commande
 	 * comme par exemple le mouvement simultané de plusieurs servos.
 	 * Une seule commande peut être préparée par un servo.
-	 * Seule les commandes d'écriture AX12_set* serons préparée. Les autres fonctionnerons comme avant l'appel à cette fonction.
+	 * Seule les commandes d'écriture AX12_set* seront préparées. Les autres fonctionneront comme avant l'appel à cette fonction.
 	 * @see AX12_end_command_block
 	 */
 	void AX12_start_command_block();
 
 	/**
-	 * Termine le bloc de préparation de commande et exécute-les.
+	 * Termine le bloc de préparation de commande et les exécute.
 	 *
 	 * Les commandes précédement préparée sont exécutée en même temps.
 	 * @see AX12_start_command_block
@@ -511,7 +511,7 @@
 	 * @param id_servo numéro du servo à verrouiller
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_is_locked
 	 */
 	bool_e AX12_config_lock(Uint8 id_servo);
@@ -533,7 +533,7 @@
 	 * @param delay_us délai en microsecondes
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_set_return_delay_time
 	 */
 	bool_e AX12_config_set_return_delay_time(Uint8 id_servo, Uint16 delay_us);
@@ -546,7 +546,7 @@
 	 * @param degre angle sur 300° de 0 à 1023
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_minimal_angle
 	 */
 	bool_e AX12_config_set_minimal_angle(Uint8 id_servo, Uint16 degre);
@@ -558,7 +558,7 @@
 	 * @param degre angle sur 300° de 0 à 1023
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_maximal_angle
 	 */
 	bool_e AX12_config_set_maximal_angle(Uint8 id_servo, Uint16 degre);
@@ -570,7 +570,7 @@
 	 * @param temperature température en degré celsius
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_temperature_limit
 	 */
 	bool_e AX12_config_set_temperature_limit(Uint8 id_servo, Uint8 temperature);
@@ -584,7 +584,7 @@
 	 * @param voltage tension en dixième de Volts (Une valeur de 76 correspond à 7.6V)
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_lowest_voltage
 	 */
 	bool_e AX12_config_set_lowest_voltage(Uint8 id_servo, Uint8 voltage);
@@ -598,7 +598,7 @@
 	 * @param voltage tension en dixième de Volts (Une valeur de 76 correspond à 7.6V)
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_highest_voltage
 	 */
 	bool_e AX12_config_set_highest_voltage(Uint8 id_servo, Uint8 voltage);
@@ -611,7 +611,7 @@
 	 * @param percentage Pourcentage de couple utilisable (entre 0 et 100)
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_maximum_torque_percentage
 	 */
 	bool_e AX12_config_set_maximum_torque_percentage(Uint8 id_servo, Uint8 percentage);
@@ -631,7 +631,7 @@
 	 * </ul>
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_status_return_mode
 	 */
 	bool_e AX12_config_set_status_return_mode(Uint8 id_servo, Uint8 mode);
@@ -645,7 +645,7 @@
 	 * @param error_type Masque d'erreurs constitué de AX12_ERROR*
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_error_before_led
 	 * @see AX12_config_set_error_before_shutdown
 	 * @see AX12_set_led_enabled
@@ -663,7 +663,7 @@
 	 * @param error_type Masque d'erreurs constitué de AX12_ERROR*
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_config_get_error_before_shutdown
 	 * @see AX12_config_set_error_before_led
 	 * @see AX12_set_torque_limit
@@ -872,7 +872,7 @@
 	 * @param enabled TRUE pour utiliser le mode d'asservissement en couple, ou FALSE pour l'asservissement en position
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_is_wheel_mode_enabled
 	 * @see AX12_set_position
 	 * @see AX12_set_speed_percentage
@@ -888,7 +888,7 @@
 	 * @param enabled FALSE pour laisser libre l'arbre de sortie, sinon TRUE
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_get_torque_enabled
 	 */
 	bool_e AX12_set_torque_enabled(Uint8 id_servo, bool_e enabled);
@@ -900,7 +900,7 @@
 	 * @param enabled TRUE pour l'allumer, sinon FALSE
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_get_led_enabled
 	 */
 	bool_e AX12_set_led_enabled(Uint8 id_servo, bool_e enabled);
@@ -993,7 +993,7 @@
 	 * @param percentage pourcentage du couple maximum
 	 * @return TRUE si l'opération s'est bien déroulé, sinon FALSE.
 	 * Si la fonction retourne FALSE, aucune conclusion n'est possible quand à
-	 * l'état de l'opération demandée, il ce peut qu'elle soit quand même exécutée.
+	 * l'état de l'opération demandée, il se peut qu'elle soit quand même exécutée.
 	 * @see AX12_get_torque_limit
 	 * @see AX12_config_set_error_before_shutdown
 	 * @see AX12_config_set_torque_limit

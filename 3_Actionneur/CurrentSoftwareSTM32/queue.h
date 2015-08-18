@@ -82,10 +82,10 @@ void QUEUE_behead(queue_id_t queue_id);
 /* Appelle la fonction OperationFinishedCallback et passe à la fonction suivante. Voir en haut du .h */
 void QUEUE_next(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
 
-/* Indique qu'une erreur est survenue lors de l'execution d'une fonction dans la file indiquée. Les fonctions suivant dans la file pourront agir en conséquence. */
+/* Indique qu'une erreur est survenue lors de l'execution d'une fonction dans la file indiquée. Les fonctions suivantes dans la file pourront agir en conséquence. */
 void QUEUE_set_error(queue_id_t queue_id);
 
-/* Retourne TRUE si une erreur est survenue lors de l'execution d'un fonction dans la file indiquée. */
+/* Retourne TRUE si une erreur est survenue lors de l'execution d'une fonction dans la file indiquée. */
 bool_e QUEUE_has_error(queue_id_t queue_id);
 
 /* Retourne le nombre d'action dans la file (celle courante + celles en attentes ou 0 si la file est inactive) */
