@@ -76,57 +76,41 @@
 		CAN_InitStructure.CAN_TXFP = ENABLE;
 		CAN_Init(CAN1, &CAN_InitStructure);
 
-		#ifndef I_AM_CARTE_SUPER	//La carte super reçoi tout => pas de filtrage
-			//Message pour la carte & message de debug sur FIFO 0
-			CAN_FilterInitStructure.CAN_FilterNumber = 0;
-			CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
-			CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
-			CAN_FilterInitStructure.CAN_FilterIdHigh = MY_FILTER << 5;
-			CAN_FilterInitStructure.CAN_FilterIdLow  = 0x0700 << 5;
-			CAN_FilterInitStructure.CAN_FilterMaskIdHigh = MASK_BITS << 5;
-			CAN_FilterInitStructure.CAN_FilterMaskIdLow  = MASK_BITS << 5;
-			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO0;
-			CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-			CAN_FilterInit(&CAN_FilterInitStructure);
+		//Message pour la carte & message de debug sur FIFO 0
+		CAN_FilterInitStructure.CAN_FilterNumber = 0;
+		CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
+		CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
+		CAN_FilterInitStructure.CAN_FilterIdHigh = MY_FILTER << 5;
+		CAN_FilterInitStructure.CAN_FilterIdLow  = 0x0700 << 5;
+		CAN_FilterInitStructure.CAN_FilterMaskIdHigh = MASK_BITS << 5;
+		CAN_FilterInitStructure.CAN_FilterMaskIdLow  = MASK_BITS << 5;
+		CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO0;
+		CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+		CAN_FilterInit(&CAN_FilterInitStructure);
 
-			//Message en broadcast (qui peuvent flood) sur FIFO 1
-			CAN_FilterInitStructure.CAN_FilterNumber = 1;
+		//Message en broadcast (qui peuvent flood) sur FIFO 1
+		CAN_FilterInitStructure.CAN_FilterNumber = 1;
+		CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
+		CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
+		CAN_FilterInitStructure.CAN_FilterIdHigh = BROADCAST_FILTER << 5;
+		CAN_FilterInitStructure.CAN_FilterIdLow  = BROADCAST_FILTER << 5;
+		CAN_FilterInitStructure.CAN_FilterMaskIdHigh = MASK_BITS << 5;
+		CAN_FilterInitStructure.CAN_FilterMaskIdLow  = MASK_BITS << 5;
+		CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO1;
+		CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+		CAN_FilterInit(&CAN_FilterInitStructure);
+
+		#ifdef XBEE_SIMULATION
+			//Message en broadcast (qui peuvent flood) sur FIFO 2
+			CAN_FilterInitStructure.CAN_FilterNumber = 2;
 			CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
 			CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
-			CAN_FilterInitStructure.CAN_FilterIdHigh = BROADCAST_FILTER << 5;
-			CAN_FilterInitStructure.CAN_FilterIdLow  = BROADCAST_FILTER << 5;
+			CAN_FilterInitStructure.CAN_FilterIdHigh = XBEE_FILTER << 5;
+			CAN_FilterInitStructure.CAN_FilterIdLow  = 0x0700 << 5;
 			CAN_FilterInitStructure.CAN_FilterMaskIdHigh = MASK_BITS << 5;
 			CAN_FilterInitStructure.CAN_FilterMaskIdLow  = MASK_BITS << 5;
 			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO1;
 			CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-			CAN_FilterInit(&CAN_FilterInitStructure);
-
-			#ifdef XBEE_SIMULATION
-				//Message en broadcast (qui peuvent flood) sur FIFO 2
-				CAN_FilterInitStructure.CAN_FilterNumber = 2;
-				CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
-				CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
-				CAN_FilterInitStructure.CAN_FilterIdHigh = XBEE_FILTER << 5;
-				CAN_FilterInitStructure.CAN_FilterIdLow  = 0x0700 << 5;
-				CAN_FilterInitStructure.CAN_FilterMaskIdHigh = MASK_BITS << 5;
-				CAN_FilterInitStructure.CAN_FilterMaskIdLow  = MASK_BITS << 5;
-				CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO1;
-				CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-				CAN_FilterInit(&CAN_FilterInitStructure);
-			#endif
-
-		#else
-			//Message pour la carte & message de debug sur FIFO 0
-			CAN_FilterInitStructure.CAN_FilterNumber = 0;
-			CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
-			CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
-			CAN_FilterInitStructure.CAN_FilterIdHigh = 0;
-			CAN_FilterInitStructure.CAN_FilterIdLow  = 0;
-			CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0;
-			CAN_FilterInitStructure.CAN_FilterMaskIdLow  = 0;
-			CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-
-			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
 			CAN_FilterInit(&CAN_FilterInitStructure);
 		#endif
 
