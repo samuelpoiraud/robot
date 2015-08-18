@@ -19,6 +19,7 @@
 	#define QS_RF_H
 
 	#include "QS_all.h"
+	#include "QS_CANmsgList.h"
 
 	#ifdef USE_RF
 
