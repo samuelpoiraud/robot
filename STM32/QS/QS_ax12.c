@@ -31,7 +31,7 @@
 		#error "Vous devez definir un nombre de servo sur le robot (AX12_NUMBER) (254 max)"
 	#endif /* ndef AX12_NUMBER */
 
-	//#define AX12_DEBUG_PACKETS: si défini, les paquets envoyé sont écrit sur la sortie uart en utilisant debug_printf (attention, debug_printf n'est pas réentrante)
+	//#define AX12_DEBUG_PACKETS: si défini, les paquets envoyés sont écrits sur la sortie uart en utilisant debug_printf (attention, debug_printf n'est pas réentrante)
 
 //	#ifndef AX12_UART_ID
 //		#define AX12_UART_ID 2
@@ -131,10 +131,10 @@
 	#define INST_REG_WRITE 			0x04
 	#define INST_ACTION 			0x05
 	//Instructions non utilisées
-	//#define INST_RESET 				0x06
-	//#define INST_DIGITAL_RESET 		0x07
+	//#define INST_RESET 			0x06
+	//#define INST_DIGITAL_RESET 	0x07
 	//#define INST_SYSTEM_READ 		0x0C
-	//#define INST_SYSTEM_WRITE 		0x0D
+	//#define INST_SYSTEM_WRITE 	0x0D
 	//#define INST_SYNC_WRITE 		0x83
 	//#define INST_SYNC_REG_WRITE 	0x84
 
@@ -896,7 +896,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 		TIMER_SRC_TIMER_DisableIT();
 	}
 
-//Si une IT arrive avec event == AX12_SME_TxInterrupt, elle n'aura un effet que dans l'état AX12_SMS_Sending (et cette interruption ne devrai être lancée que après le putcUART2 dans AX12_SMS_ReadyToSend et pas dans AX12_SMS_Sending car une interruption n'est pas prioritaire sur elle-même)
+//Si une IT arrive avec event == AX12_SME_TxInterrupt, elle n'aura un effet que dans l'état AX12_SMS_Sending (et cette interruption ne devrait être lancée que après le putcUART2 dans AX12_SMS_ReadyToSend et pas dans AX12_SMS_Sending car une interruption n'est pas prioritaire sur elle-même)
 //Si une IT arrive avec event == AX12_SME_RxInterrupt, elle n'aura un effet que dans l'état AX12_SMS_WaitingAnswer. Elle ne peut être lancée que si le timer n'a pas eu d'interruption et désactive l'interruption du timer
 
 	switch(state_machine.state)

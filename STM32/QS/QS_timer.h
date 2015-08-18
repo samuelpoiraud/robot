@@ -18,7 +18,7 @@
  *	TIMER_5_PRIORITY			: Priorité du timer 5
  *
  * ----------------  Choses à savoir  --------------------
- * Plus la priorité est base plus elle est prioritaire
+ * Plus la priorité est basse plus elle est prioritaire
  * Les priorité vont de 0 à 255
  */
 

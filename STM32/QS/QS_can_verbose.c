@@ -492,6 +492,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_WARN_ANGLE:					if(msg->data.prop_warn_angle.angle) print(string, len, "| avertisseur en teta=0x%d=%d°\n", msg->data.prop_warn_angle.angle, RAD_TO_DEG(msg->data.prop_warn_angle.angle)); else print(string, len, "désactivation de l'avertisseur en angle\n");	break;
 		case PROP_WARN_X:						if(msg->data.prop_warn_x.x) print(string, len, "| avertisseur en x=%d\n", msg->data.prop_warn_x.x);                                  else print(string, len, "désactivation de l'avertisseur en X\n");		break;
 		case PROP_WARN_Y:						if(msg->data.prop_warn_y.y) print(string, len, "| avertisseur en y=%d\n", msg->data.prop_warn_y.y);                                  else print(string, len, "désactivation de l'avertisseur en Y\n");		break;
+		case PROP_WARN_DISTANCE:                if(msg->data.prop_warn_distance.distance) print(string, len, "| avertisseur au point x=%d  y=%d  distance=%d\n", msg->data.prop_warn_distance.x, msg->data.prop_warn_distance.y, msg->data.prop_warn_distance.distance);            else print(string, len, "désactivation de l'avertisseur en distance\n");		break;
 		case DEBUG_PROP_MOVE_POSITION:			print(string, len, "| offset d'aleration x : %d    y : %d    teta : %d\n", msg->data.debug_prop_move_position.xOffset, msg->data.debug_prop_move_position.yOffset, msg->data.debug_prop_move_position.tetaOffset);	break;
 
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
