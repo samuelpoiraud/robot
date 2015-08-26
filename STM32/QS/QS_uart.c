@@ -382,7 +382,7 @@ int _write(int file, char *ptr, int len)
 				return;					//Si printf en IT pendant un printf, on abandonne le caractère du printf en IT..
 
 			reentrance_detection = TRUE;
-			if(USART_GetFlagStatus(USART1, USART_IT_TXE))
+			if(USART_GetITStatus(USART1, USART_IT_TXE))
 				USART_SendData(USART1, c);
 			else
 			{
@@ -513,7 +513,7 @@ int _write(int file, char *ptr, int len)
 
 		void UART2_putc(Uint8 c)
 		{
-			if(USART_GetFlagStatus(USART2, USART_IT_TXE))
+			if(USART_GetITStatus(USART2, USART_IT_TXE))
 				USART_SendData(USART2, c);
 			else
 			{
