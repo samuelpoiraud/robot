@@ -86,6 +86,7 @@
 			}broadcast_couleur;
 
 		#define BROADCAST_POSITION_ROBOT		0x004
+		#define SIZE_BROADCAST_POSITION_ROBOT	SIZE_PROP_TRAJ_MSG
 			prop_traj_msg_t broadcast_position_robot;
 
 		/*
