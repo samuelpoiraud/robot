@@ -33,6 +33,9 @@
 		//Nombre d'essais consécutifs avec du DODGE en évitement
 		#define NB_TRY_WHEN_DODGE 6
 
+		//Distance minimale entre deux point consécutifs
+		#define MIN_DISTANCE_BETWEEN_2_POINTS  400
+
 		//Dimension du terrain
 		#define PLAYGROUND_WIDTH 2000
 		#define PLAYGROUND_HEIGHT 3000
@@ -41,7 +44,7 @@
 		#define ROBOT_WIDTH ((QS_WHO_AM_I_get()== BIG_ROBOT)? BIG_ROBOT_WIDTH:SMALL_ROBOT_WIDTH)
 
 		//Marge entre le centre du robot et un obstacle
-		#define MARGIN_TO_OBSTACLE (ROBOT_WIDTH/2 + 50)
+		#define MARGIN_TO_OBSTACLE (ROBOT_WIDTH/2 + 100)
 
 		//Marge entre le centre du robot et le coin d'un obstacle
 		#define CORNER_MARGIN_TO_OBSTACLE  MARGIN_TO_OBSTACLE/1.4
@@ -190,7 +193,7 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1500, TRUE},
 									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1750, TRUE},
 									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,2000, FALSE},
-									(astar_user_node_t){580+CORNER_MARGIN_TO_OBSTACLE,2033+CORNER_MARGIN_TO_OBSTACLE, FALSE},
+									(astar_user_node_t){580+CORNER_MARGIN_TO_OBSTACLE -50,2033+CORNER_MARGIN_TO_OBSTACLE - 50, FALSE},
 									(astar_user_node_t){MARGIN_TO_OBSTACLE, 2033+MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){0,2033+MARGIN_TO_OBSTACLE, TRUE});
 
@@ -605,12 +608,15 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
  * @param path : la trajectoire du robot contenant le node de départ, le node d'arrivée et les nodes consituant la trajectoire
  */
 static void ASTAR_make_the_path(astar_path_t *path){
-	astar_list_t aux; //Liste auxiliaire
-	Sint16 i,j;
+	astar_list_t aux, auxOptimized; //Liste auxiliaire
+	Sint16 i, j, k;
 	astar_ptr_node_t answer1, answer2;
+	bool_e lastNodeNotAdded;
 
 	//Nettoyage de la liste (Vaut mieux deux fois qu'une)
 	ASTAR_clean_list(&aux);
+	ASTAR_clean_list(&auxOptimized);
+
 
 	//Quelque soit le résultat de A*, on reconstruit le chemin même si il est incomplet. On verra plus tard ce qu'on décide de faire.
 	//Le chemin est reconstruit de la destination vers le point de départ
@@ -635,10 +641,33 @@ static void ASTAR_make_the_path(astar_path_t *path){
 		}
 		i = j+1;
 		if(i != aux.nbNodes-1){
+			ASTAR_add_node_to_list(aux.list[i], &auxOptimized);
 			ASTAR_add_node_to_list(aux.list[i],  &(path->list));
 			j--;
 		}
 	}
+
+
+	/*debug_printf("PATH BEFORE MODIF IN MAKE THE PATH\n");
+	ASTAR_print_list(auxOptimized);
+
+	ASTAR_add_node_to_list(auxOptimized.list[0],  &(path->list));
+	for(k=1; k<auxOptimized.nbNodes-1; k++){
+		debug_printf("Passage boucle for\n");
+		if(GEOMETRY_squared_distance(auxOptimized.list[k]->pos, auxOptimized.list[k-1]->pos) > MIN_DISTANCE_BETWEEN_2_POINTS * MIN_DISTANCE_BETWEEN_2_POINTS  || lastNodeNotAdded){
+			ASTAR_add_node_to_list(auxOptimized.list[k],  &(path->list));
+			lastNodeNotAdded = FALSE;
+		}else{
+			lastNodeNotAdded = TRUE;
+			debug_printf("node x=%d  y=%d to close of node x=%d  y=%d for being added\n", auxOptimized.list[k]->pos.x, auxOptimized.list[k]->pos.y, auxOptimized.list[k-1]->pos.x, auxOptimized.list[k-1]->pos.y);
+		}
+	}
+	if(auxOptimized.nbNodes > 1)
+		ASTAR_add_node_to_list(auxOptimized.list[auxOptimized.nbNodes-1],  &(path->list));
+
+	debug_printf("PATH AFTER MODIF IN MAKE THE PATH : %d deplacements\n", path->list.nbNodes);
+	ASTAR_print_list(path->list);
+	*/
 
 	if(path->list.nbNodes>0 && path->destination.id != path->list.list[path->list.nbNodes-1]->id){
 
