@@ -454,6 +454,7 @@ void PORTS_uarts_init() {
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 
+#ifdef I_AM_CARTE_ACT
 	//Activation de l'UART AX_12
 	#if AX12_UART_ID==1
 		#ifndef USE_UART1
@@ -487,6 +488,7 @@ void PORTS_uarts_init() {
 	#else
 		#warning "Aucun UART n'a ete selectionne pour les RX_24"
 	#endif
+#endif
 
 	#ifdef USE_UART1
 		//USART1 TX
