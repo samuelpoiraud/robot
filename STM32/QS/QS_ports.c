@@ -454,6 +454,40 @@ void PORTS_uarts_init() {
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 
+	//Activation de l'UART AX_12
+	#if AX12_UART_ID==1
+		#ifndef USE_UART1
+			#define USE_UART1
+		#endif
+	#elif AX12_UART_ID==2
+		#ifndef USE_UART2
+			#define USE_UART2
+		#endif
+	#elif AX12_UART_ID==3
+		#ifndef USE_UART3
+			#define USE_UART3
+		#endif
+	#else
+		#warning "Aucun UART n'a ete selectionne pour les AX_12"
+	#endif
+
+	//Activation de l'UART RX_24
+	#if AX12_RX24_UART_ID==1
+		#ifndef USE_UART1
+			#define USE_UART1
+		#endif
+	#elif AX12_RX24_UART_ID==2
+		#ifndef USE_UART2
+			#define USE_UART2
+		#endif
+	#elif AX12_RX24_UART_ID==3
+		#ifndef USE_UART3
+			#define USE_UART3
+		#endif
+	#else
+		#warning "Aucun UART n'a ete selectionne pour les RX_24"
+	#endif
+
 	#ifdef USE_UART1
 		//USART1 TX
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
