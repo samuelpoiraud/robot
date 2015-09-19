@@ -167,7 +167,7 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 		act_states[act_id].operationResult = ACT_RESULT_Working;
 		act_states[act_id].lastResult = ACT_FUNCTION_InProgress;
 
-		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, data[0]: 0x%x, data[1]: 0x%x, data[2]: 0x%x\n", act_id, msg->sid, msg->size, msg->data[0], msg->data[1], msg->data[2]);
+		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x,  data[2]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_optionnal_data[0], msg->data.act_msg.act_data.act_optionnal_data[1], msg->data.act_msg.act_data.act_optionnal_data[2]);
 
 		CAN_send(msg);
 
@@ -184,7 +184,7 @@ static void ACT_check_result(queue_id_e act_id) {
 	//L'opération est terminée mais on passe encore ici, ya t-il un bug ?
 	//Si ce bug arrive, il est probablement lié à l'init de l'action (qui définie lastResult à ACT_FUNCTION_InProgress)
 	if(act_states[act_id].lastResult != ACT_FUNCTION_InProgress) {
-		fatal_printf("Begin check but not in ACT_FUNCTION_InProgress state, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+		fatal_printf("Begin check but not in ACT_FUNCTION_InProgress state, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data.act_result.cmd);
 		QUEUE_next(act_id);
 		return;
 	}
@@ -195,7 +195,7 @@ static void ACT_check_result(queue_id_e act_id) {
 		QUEUE_next(act_id);
 #else
 	if(global.match_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
-		error_printf("Operation timeout (by strat) act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+		error_printf("Operation timeout (by strat) act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data.act_result.cmd);
 		act_states[act_id].disabled = TRUE;
 		act_states[act_id].lastResult = ACT_FUNCTION_ActDisabled;
 		QUEUE_set_error(act_id, TRUE);
@@ -209,7 +209,7 @@ static void ACT_check_result(queue_id_e act_id) {
 						if(argument->fallbackMsg.sid != ACT_ARG_NOFALLBACK_SID) {
 
 							act_states[act_id].operationResult = ACT_RESULT_Working;
-							debug_printf("GoalUnreachable, sending fallback message, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->fallbackMsg.sid, argument->fallbackMsg.data[0]);
+							debug_printf("GoalUnreachable, sending fallback message, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->fallbackMsg.sid, argument->fallbackMsg.data.act_result.cmd);
 
 							CAN_send(&argument->fallbackMsg);
 							//On ne change pas act_states[act_id] car on n'a pas encore terminé avec l'opération
@@ -239,11 +239,11 @@ static void ACT_check_result(queue_id_e act_id) {
 						break;
 
 					default:	//Cas inexistant
-						error_printf("Operation failed but behavior is Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+						error_printf("Operation failed but behavior is Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data.act_result.cmd);
 						//pas de break ici, si la raison n'est pas connue de ce code, considerer l'erreur comme grave et desactiver l'actionneur
 						//no break
 					case ACT_BEHAVIOR_DisableAct:
-						warn_printf("Bad act behavior, act disabled, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+						warn_printf("Bad act behavior, act disabled, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data.act_result.cmd);
 						act_states[act_id].disabled = TRUE;
 						act_states[act_id].lastResult = ACT_FUNCTION_ActDisabled;
 						QUEUE_set_error(act_id, TRUE);
@@ -255,13 +255,13 @@ static void ACT_check_result(queue_id_e act_id) {
 
 			case ACT_RESULT_Ok:
 				if(act_states[act_id].recommendedBehavior == ACT_BEHAVIOR_GoalUnreachable) {	//Dans ce cas, le result_ok  est en fait celui de la commande de déplacement a la position fallback, donc indiquer qu'il y a eu un problème pour atteindre la position et de reessayer plus tard
-					debug_printf("Fallback position Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->fallbackMsg.sid, argument->fallbackMsg.data[0]);
+					debug_printf("Fallback position Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->fallbackMsg.sid, argument->fallbackMsg.data.act_result.cmd);
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
 					act_states[act_id].lastResult = ACT_FUNCTION_RetryLater;
 					QUEUE_set_error(act_id, TRUE);
 					QUEUE_next(act_id);
 				} else {	//Sinon c'est bien la commande voulue qui s'est bien terminée
-					debug_printf("Operation Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data[0]);
+					debug_printf("Operation Ok, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data.act_result.cmd);
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
 					act_states[act_id].lastResult = ACT_FUNCTION_Done;
 					QUEUE_next(act_id);
@@ -274,7 +274,7 @@ static void ACT_check_result(queue_id_e act_id) {
 
 			case ACT_RESULT_Idle:		//Ne devrait jamais arriver, sinon erreur dans le code
 			default:
-				error_printf("Warning: act should be in working/finished mode but wasn't, mode: %d, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_states[act_id].operationResult, act_id, argument->msg.sid, argument->msg.data[0]);
+				error_printf("Warning: act should be in working/finished mode but wasn't, mode: %d, act id: %u, sid: 0x%x, cmd: 0x%x\n", act_states[act_id].operationResult, act_id, argument->msg.sid, argument->msg.data.act_result.cmd);
 				QUEUE_set_error(act_id, TRUE);
 				QUEUE_next(act_id);
 				break;
@@ -289,7 +289,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 
 	assert(msg->sid == ACT_RESULT);
 
-	debug_printf("Received result: act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
+	debug_printf("Received result: act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->data.act_result.sid, msg->data.act_result.cmd, msg->data.act_result.result, msg->data.act_result.error_code);
 
 #ifdef ACT_NO_ERROR_HANDLING
 	act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
@@ -299,13 +299,13 @@ void ACT_process_result(const CAN_msg_t* msg) {
 	act_id = act_link_SID_Queue[ACT_search_link_SID_Queue(msg->data.act_result.sid)].queue_id;
 
 	if(act_id >= NB_QUEUE) {
-		error_printf("Unknown act result, can_act_id: 0x%x, can_result: %u. Pour gérer cet act, il faut ajouter un case dans le switch juste au dessus de ce printf\n", msg->data[0], msg->data[2]);
+		error_printf("Unknown act result, can_act_id: 0x%x, can_result: %u. Pour gérer cet act, il faut ajouter un case dans le switch juste au dessus de ce printf\n", msg->data.act_result.sid, msg->data.act_result.result);
 		return;
 	}
 
 	//Erreur de codage, ça ne devrait jamais arriver sauf si la commande en question a été lancé par quelqu'un d'autre que la strategie (par exemple via un bouton pour debug)
 	if(act_states[act_id].operationResult != ACT_RESULT_Working) {
-		warn_printf("act is not in working mode but received result, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data[0], msg->data[1], msg->data[2], msg->data[3], act_states[act_id].operationResult);
+		warn_printf("act is not in working mode but received result, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data.act_result.sid, msg->data.act_result.cmd, msg->data.act_result.result, msg->data.act_result.error_code, act_states[act_id].operationResult);
 		return;
 	}
 
@@ -314,14 +314,14 @@ void ACT_process_result(const CAN_msg_t* msg) {
 			//On n'affecte pas act_states[act_id].recommendedBehavior pour garder une trace des erreurs précédentes (dans le cas ou on a renvoyé une commande par exemple, permet de savoir l'erreur d'origine)
 			//act_states[act_id].recommendedBehavior est affecté à ACT_BEHAVIOR_Ok dans
 			act_states[act_id].operationResult = ACT_RESULT_Ok;
-			debug_printf("Reason Ok, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);
+			debug_printf("Reason Ok, act_id: 0x%x, cmd: 0x%x\n", msg->data.act_result.sid, msg->data.act_result.cmd);
 			break;
 
 		default:	//ACT_RESULT_NOT_HANDLED et ACT_RESULT_FAILED (et les autres si ajouté)
 			act_states[act_id].operationResult = ACT_RESULT_Failed;
 			switch(msg->data.act_result.error_code) {
 				case ACT_RESULT_ERROR_OK:
-					error_printf("Reason Ok with result Failed, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);
+					error_printf("Reason Ok with result Failed, act_id: 0x%x, cmd: 0x%x\n", msg->data.act_result.sid, msg->data.act_result.cmd);
 					break;
 
 				case ACT_RESULT_ERROR_OTHER: //Keep last error, do nothing
@@ -333,7 +333,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 						act_states[act_id].disabled = TRUE;
 						act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					} else act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_GoalUnreachable;
-					warn_printf("Goal unreachable ! act_id: 0x%x, cmd: 0x%x, reason: %u\n", msg->data[0], msg->data[1], msg->data[3]);
+					warn_printf("Goal unreachable ! act_id: 0x%x, cmd: 0x%x, reason: %u\n", msg->data.act_result.sid, msg->data.act_result.cmd, msg->data.act_result.error_code);
 					break;
 
 				case ACT_RESULT_ERROR_NO_RESOURCES:
@@ -341,36 +341,36 @@ void ACT_process_result(const CAN_msg_t* msg) {
 						act_states[act_id].disabled = TRUE;
 						act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
 					} else act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_RetryLater;
-					warn_printf("NoResource error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//Notifier le cas, il faudra par la suite augmenter les resources dispo ...
+					warn_printf("NoResource error ! act_id: 0x%x, cmd: 0x%x\n", msg->data.act_result.sid, msg->data.act_result.cmd);	//Notifier le cas, il faudra par la suite augmenter les resources dispo ...
 					break;
 
 				case ACT_RESULT_ERROR_CANCELED:
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_RetryLater;
-					warn_printf("Operation canceled, act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//L'opération à été volontairement annulée
+					warn_printf("Operation canceled, act_id: 0x%x, cmd: 0x%x\n", msg->data.act_result.sid, msg->data.act_result.cmd);	//L'opération à été volontairement annulée
 					break;
 
 				case ACT_RESULT_ERROR_LOGIC:
 					act_states[act_id].disabled = TRUE;
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
-					error_printf("Logic error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
+					error_printf("Logic error ! act_id: 0x%x, cmd: 0x%x\n", msg->data.act_result.sid, msg->data.act_result.cmd);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 					break;
 
 				case ACT_RESULT_ERROR_INVALID_ARG:
 					act_states[act_id].disabled = TRUE;
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
-					error_printf("Invalid argument ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);	//Argument invalide utilisé, bug coté strat
+					error_printf("Invalid argument ! act_id: 0x%x, cmd: 0x%x\n", msg->data.act_result.sid, msg->data.act_result.cmd);	//Argument invalide utilisé, bug coté strat
 					break;
 
 				case ACT_RESULT_ERROR_UNKNOWN:
 					act_states[act_id].disabled = TRUE;
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
-					error_printf("Unknown error ! act_id: 0x%x, cmd: 0x%x\n", msg->data[0], msg->data[1]);  //Erreur inconnu envoyé comme tel par la carte actionneur
+					error_printf("Unknown error ! act_id: 0x%x, cmd: 0x%x\n", msg->data.act_result.sid, msg->data.act_result.cmd);  //Erreur inconnu envoyé comme tel par la carte actionneur
 					break;
 					//Autres erreurs utilisées mais non gérées dans ce switch, il faut ajouter un case ACT_RESULT_ERROR_????? pour la gérer
 				default:
 					act_states[act_id].disabled = TRUE;
 					act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_DisableAct;
-					error_printf("Unknown error value %u for act_id: 0x%x, cmd: 0x%x, Pour gérer l'erreur, il faut ajouter un case dans le switch qui contient ce printf\n", msg->data[3], msg->data[0], msg->data[1]);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
+					error_printf("Unknown error value %u for act_id: 0x%x, cmd: 0x%x, Pour gérer l'erreur, il faut ajouter un case dans le switch qui contient ce printf\n", msg->data.act_result.error_code, msg->data.act_result.sid, msg->data.act_result.cmd);	//Ceci est un moment WTF. A résoudre le plus rapidement possible.
 			}
 			break;
 	}
