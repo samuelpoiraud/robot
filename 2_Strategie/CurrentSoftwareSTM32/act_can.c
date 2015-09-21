@@ -71,7 +71,7 @@ Uint32 ACT_get_result_param(queue_id_e act_id){
 void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
 	arg->msg.sid = sid;
 	arg->msg.data.act_msg.order = cmd;
-	arg->msg.size = 1;
+	arg->msg.size = SIZE_ACT_MSG;
 	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
 }
@@ -80,7 +80,7 @@ void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 par
 	arg->msg.sid = sid;
 	arg->msg.data.act_msg.order = cmd;
 	arg->msg.data.act_msg.act_data.act_optionnal_data[0] = param;
-	arg->msg.size = 2;
+	arg->msg.size = SIZE_ACT_MSG;
 	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
 }
@@ -152,7 +152,6 @@ bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* args) {
 		return FALSE;
 	}
 #endif
-
 	QUEUE_add(act_id, &ACT_run_operation, *args);
 
 	return TRUE;
@@ -289,17 +288,17 @@ void ACT_process_result(const CAN_msg_t* msg) {
 
 	assert(msg->sid == ACT_RESULT);
 
-	debug_printf("Received result: act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->data.act_result.sid, msg->data.act_result.cmd, msg->data.act_result.result, msg->data.act_result.error_code);
+	debug_printf("Received result: sid: 0x%x, act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->sid, msg->data.act_result.sid, msg->data.act_result.cmd, msg->data.act_result.result, msg->data.act_result.error_code);
 
 #ifdef ACT_NO_ERROR_HANDLING
 	act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
 	act_states[act_id].operationResult = ACT_RESULT_Ok;
 #else
 
-	act_id = act_link_SID_Queue[ACT_search_link_SID_Queue(msg->data.act_result.sid)].queue_id;
+	act_id = act_link_SID_Queue[ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_result.sid))].queue_id;
 
 	if(act_id >= NB_QUEUE) {
-		error_printf("Unknown act result, can_act_id: 0x%x, can_result: %u. Pour gérer cet act, il faut ajouter un case dans le switch juste au dessus de ce printf\n", msg->data.act_result.sid, msg->data.act_result.result);
+		error_printf("Unknown act result, can_act_id: 0x%x, can_result: %u. Pour gérer cet act, il faut ajouter un case dans le switch juste au dessus de ce printf\n", act_id, msg->data.act_result.result);
 		return;
 	}
 

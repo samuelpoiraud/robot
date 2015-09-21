@@ -101,8 +101,9 @@ static error_e ACT_MAE_holly_cup(ACT_MAE_holly_cup_e order);
 Uint8 ACT_search_link_SID_Queue(ACT_sid_e sid){
 	Uint8 i;
 	for(i=0;i<act_link_SID_Queue_size;i++){
-		if(act_link_SID_Queue[i].sid == sid)
+		if(act_link_SID_Queue[i].sid == sid){
 			return i;
+		}
 	}
 	return 0;
 }
@@ -121,11 +122,11 @@ bool_e ACT_push_order(ACT_sid_e sid,  ACT_order_e order){
 	ACT_arg_init(&args, sid, order);
 	ACT_arg_set_fallbackmsg(&args, sid,  ACT_DEFAULT_STOP);
 
-	debug_printf("Pushing %s Run cmd (sid : %d   order : %d)\n", act_link_SID_Queue[i].name, sid, order);
+	debug_printf("Pushing %s Run cmd (sid : 0x%x   order : %d)\n", act_link_SID_Queue[i].name, sid, order);
 
 	ACT_AVOIDANCE_new_classic_cmd(act_link_SID_Queue[i].queue_id, order);
 
-	return ACT_push_operation(order, &args);
+	return ACT_push_operation(act_link_SID_Queue[i].queue_id, &args);
 }
 
 bool_e ACT_push_order_with_param(ACT_sid_e sid,  ACT_order_e order, Uint16 param){
