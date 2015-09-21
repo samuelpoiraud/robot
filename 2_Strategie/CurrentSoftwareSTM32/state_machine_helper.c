@@ -10,6 +10,10 @@ void UTILS_LOG_state_changed(const char* sm_name, UTILS_state_machine_id_e sm_id
 			sm_name, sm_id,
 			old_state_name, old_state_id,
 			new_state_name, new_state_id);
+	debug_printf("  # %s(0x%04X): %s(%d) -> %s(%d)\n",
+			sm_name, sm_id,
+			old_state_name, old_state_id,
+			new_state_name, new_state_id);
 }
 
 Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state) {
@@ -52,6 +56,9 @@ Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8
 
 void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, const char* init_state_name, Uint8 init_state_val){
 	SD_printf("  # %s(0x%04X): %s\n",
+			sm_name, sm_id,
+			init_state_name);
+	debug_printf("  # %s(0x%04X): %s\n",
 			sm_name, sm_id,
 			init_state_name);
 }
