@@ -560,7 +560,7 @@
 			}prop_set_position;
 
 		#define PROP_RUSH_IN_THE_WALL		0x109
-		#define SIZE_PROP_RUSH_IN_THE_WALL	1
+		#define SIZE_PROP_RUSH_IN_THE_WALL	3
 			struct{
 				Sint16 teta						:16;
 				way_e way						:2;
