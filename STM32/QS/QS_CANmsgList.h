@@ -712,6 +712,7 @@
 		#define SIZE_ACT_MSG				8
 		#define SIZE_ACT_CONFIG				7
 			struct{
+				ACT_order_e order					:8;
 				union{
 
 					Uint16 act_optionnal_data[3];
@@ -728,7 +729,6 @@
 					}act_config;
 
 				}act_data;
-				ACT_order_e order					:8;
 			}act_msg;
 
 		#define ACT_ASK_SENSOR				0x3FE
