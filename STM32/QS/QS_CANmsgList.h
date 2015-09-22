@@ -883,7 +883,7 @@
 		 * Cummulable par masquage
 		 */
 		#define IR_ERROR_RESULT				0x753
-		#define SIZE_IR_ERROR_RESULT		1
+		#define SIZE_IR_ERROR_RESULT		8
 			struct{
 				Uint8 error_counter[8];
 			}ir_error_result;
