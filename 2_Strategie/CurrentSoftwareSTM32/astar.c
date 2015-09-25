@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------------------------------------------
 
 		//Rayon du polygone d'évitement pour les robots adverses
-		#define DEFAULT_FOE_RADIUS  600
+		#define DEFAULT_FOE_RADIUS  530
 
 		//Nombre d'essais consécutifs avec du DODGE en évitement
 		#define NB_TRY_WHEN_DODGE 6
@@ -57,6 +57,9 @@
 
 		//Pour spécifier qu'un noeud (node) n'a pas de polygonId
 		#define NO_ID 255
+
+		//Distance entre le robot et l'adversaire pour trajectoire non réussie
+		#define DIST_TRAJECTORY_FAILED   700
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------- Fonctions importantes de l'algo A* (internes au programme)-------------------------------------------
@@ -185,28 +188,24 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){1222+MARGIN_TO_OBSTACLE,COLOR_Y(3000), TRUE});
 
 	//Polygon[2]:Zones des marches (Node 16 -> 26)
-	ASTAR_create_element_polygon(currentNodeId, 11, (astar_user_node_t){0, 967-MARGIN_TO_OBSTACLE, TRUE},
+	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){0, 967-MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){MARGIN_TO_OBSTACLE, 967-MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){580+CORNER_MARGIN_TO_OBSTACLE,967-CORNER_MARGIN_TO_OBSTACLE, FALSE},
 									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1000, FALSE},
-									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1250, TRUE},
 									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1500, TRUE},
-									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,1750, TRUE},
 									(astar_user_node_t){580+MARGIN_TO_OBSTACLE,2000, FALSE},
 									(astar_user_node_t){580+CORNER_MARGIN_TO_OBSTACLE -50,2033+CORNER_MARGIN_TO_OBSTACLE - 50, FALSE},
 									(astar_user_node_t){MARGIN_TO_OBSTACLE, 2033+MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){0,2033+MARGIN_TO_OBSTACLE, TRUE});
 
 	//Polygon[3]:Zones de l'estrade (Node 27 -> 35)
-	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){1900-CORNER_MARGIN_TO_OBSTACLE, 1200-CORNER_MARGIN_TO_OBSTACLE, FALSE},
+	ASTAR_create_element_polygon(currentNodeId, 7, (astar_user_node_t){1900-CORNER_MARGIN_TO_OBSTACLE, 1200-CORNER_MARGIN_TO_OBSTACLE, FALSE},
 									(astar_user_node_t){2000-MARGIN_TO_OBSTACLE,1200-MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){2000,1200-MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){2000,1800+MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){2000-MARGIN_TO_OBSTACLE,1800+MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){1900-CORNER_MARGIN_TO_OBSTACLE,1800+CORNER_MARGIN_TO_OBSTACLE, FALSE},
-									(astar_user_node_t){1900-MARGIN_TO_OBSTACLE,1750, TRUE},
-									(astar_user_node_t){1900-MARGIN_TO_OBSTACLE,1500, TRUE},
-									(astar_user_node_t){1900-MARGIN_TO_OBSTACLE,1250, TRUE});
+									(astar_user_node_t){1900-MARGIN_TO_OBSTACLE,1500, TRUE});
 
 	//Polygones des robots adverses
 	ASTAR_create_foe_polygon(currentNodeId, foeRadius);
@@ -626,6 +625,7 @@ static void ASTAR_make_the_path(astar_path_t *path){
 		ASTAR_add_node_to_list(aux.list[aux.nbNodes-1]->parent, &aux);
 	}
 
+	debug_printf("\n\nTrajectoire sans optimisation\n");
 	ASTAR_print_list(aux);
 
 	//Vérification de l'utilité de chacun des points. Parfois un des points est inutile,
@@ -647,48 +647,66 @@ static void ASTAR_make_the_path(astar_path_t *path){
 		}
 	}
 
+	debug_printf("\n\nTrajectoire avec optimisation\n");
+	ASTAR_print_list(path->list);
 
-	/*debug_printf("PATH BEFORE MODIF IN MAKE THE PATH\n");
-	ASTAR_print_list(auxOptimized);
-
-	ASTAR_add_node_to_list(auxOptimized.list[0],  &(path->list));
-	for(k=1; k<auxOptimized.nbNodes-1; k++){
-		debug_printf("Passage boucle for\n");
-		if(GEOMETRY_squared_distance(auxOptimized.list[k]->pos, auxOptimized.list[k-1]->pos) > MIN_DISTANCE_BETWEEN_2_POINTS * MIN_DISTANCE_BETWEEN_2_POINTS  || lastNodeNotAdded){
-			ASTAR_add_node_to_list(auxOptimized.list[k],  &(path->list));
-			lastNodeNotAdded = FALSE;
-		}else{
-			lastNodeNotAdded = TRUE;
-			debug_printf("node x=%d  y=%d to close of node x=%d  y=%d for being added\n", auxOptimized.list[k]->pos.x, auxOptimized.list[k]->pos.y, auxOptimized.list[k-1]->pos.x, auxOptimized.list[k-1]->pos.y);
+	//Si le robot est trop proche du premier node -> risque important d'effet de bord du genre robot qui se tourne vers l'adversaire -> on reste bloqué
+	if(GEOMETRY_distance((GEOMETRY_point_t){global.pos.x, global.pos.y},path->list.list[0]->pos) <  50){
+		if(path->list.nbNodes > 0){
+			debug_printf("Fisrt Node deleted beacause too close of actual position (<50mm)\n");
+			for(i=0; i<path->list.nbNodes-1;i++){   //on écrase le premier node
+				path->list.list[i] = path->list.list[i+1];
+			}
+			path->list.nbNodes =  path->list.nbNodes - 1;
 		}
 	}
-	if(auxOptimized.nbNodes > 1)
-		ASTAR_add_node_to_list(auxOptimized.list[auxOptimized.nbNodes-1],  &(path->list));
 
-	debug_printf("PATH AFTER MODIF IN MAKE THE PATH : %d deplacements\n", path->list.nbNodes);
-	ASTAR_print_list(path->list);
-	*/
-
+	//Si la trajectoire trouvée ne va pas jusqu'à l'arrivée
 	if(path->list.nbNodes>0 && path->destination.id != path->list.list[path->list.nbNodes-1]->id){
 
-		///arret au point le plus proche de l'arrivée
-		/*Uint16 min = GEOMETRY_squared_distance(path->list.list[0]->pos, path->destination.pos);
-		Uint16 test;
-		Uint8 index=0;
-		for(i=1; i<path->list.nbNodes; i++){
-			test = GEOMETRY_squared_distance(path->list.list[0]->pos, path->destination.pos);
-			if(test < min){
-				min = test;
-				index = i;
+		///arret au point le plus proche du robot adverse (ou "l arrivée" si c'est plus pertinent)
+		bool_e go_until_foe = FALSE;
+		GEOMETRY_point_t foe1, foe2;
+		Uint16 minFoe1, minFoe2;
+		Uint16 min = 3000;
+		Sint8 index = -1;
+		for(i=0; i<path->list.nbNodes; i++){
+			foe1 = (GEOMETRY_point_t){global.foe[0].x, global.foe[0].y};
+			foe2 = (GEOMETRY_point_t){global.foe[1].x, global.foe[1].y};
+			if(global.foe[0].enable && global.foe[1].enable){
+				minFoe1 = GEOMETRY_distance(path->list.list[i]->pos, foe1);
+				minFoe2 = GEOMETRY_distance(path->list.list[i]->pos, foe2);
+				debug_printf(" Make the path : node x=%d y=%d  minFoe1=%d enable=%d  minFoe2=%d enable=%d\n", path->list.list[i]->pos.x, path->list.list[i]->pos.y, minFoe1, global.foe[0].enable, minFoe2, global.foe[1].enable);
+				if((minFoe1 < DIST_TRAJECTORY_FAILED && minFoe1 < min) || (minFoe2 < DIST_TRAJECTORY_FAILED && minFoe2 < min)){
+				   index = i;
+				   go_until_foe = TRUE;
+				}
+			}else if(global.foe[0].enable){
+				minFoe1 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe1);
+				if(minFoe1 < DIST_TRAJECTORY_FAILED && minFoe1 < min){
+					index = i;
+					go_until_foe = TRUE;
+				}
+			}else if(global.foe[1].enable){
+				minFoe2 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe2);
+				if(minFoe2 < DIST_TRAJECTORY_FAILED && minFoe2 < min){
+					index = i;
+					go_until_foe = TRUE;
+				}
 			}
+
 		}
+		debug_printf("Make the path nbNodes = %d\n", index);
+		if(index > 0)
 			path->list.nbNodes = index + 1;
-		debug_printf("PATHFIND fail, nb Nodes limited to node x=%d  y=%d because nerest node is x=%d  y=%d\n", path->list.list[path->list.nbNodes-1]->pos.x, path->list.list[path->list.nbNodes-1]->pos.y, path->list.list[index]->pos.x, path->list.list[index]->pos.y);
-		*/
+
+		debug_printf("\n\nTrajectoire avec Gestion de l'adversaire\n");
+		ASTAR_print_list(path->list);
 
 	   ///solution d'un déplacement
-	   path->list.nbNodes = 1;
+	 // path->list.nbNodes = 1;
 	}
+
 }
 
 /** @brief ASTAR_make_displacements
@@ -736,9 +754,10 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 	static displacement_curve_t displacements[NB_MAX_DISPLACEMENTS];
 	static Uint8 nbDisplacements;
 	static astar_path_t path;
-	static Uint8 nbTry;
+	static Uint8 nbTry, nbTryFalse;
 	static bool_e successPossible;
 	static Uint16 foeRadius;
+	static Uint8 nbTryExecutedFirst = 0;
 
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
 							INIT_PARAMETERS,
@@ -762,15 +781,15 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 					nbTry = 1;
 					break;
 			}
+			nbTryFalse = 0;
 			foeRadius = DEFAULT_FOE_RADIUS;
+			nbTryExecutedFirst = 0;
 			state = INIT;
 		}break;
 
 		case INIT:
-			if(nbTry == 4 ||  nbTry==1)  //&& nbDisplacements < 3
-				foeRadius = DEFAULT_FOE_RADIUS - 150;
-			else if(nbTry == 5 ||  nbTry==2)
-				foeRadius = DEFAULT_FOE_RADIUS - 100;
+			if(nbTry == 5 ||  nbTry==3 || nbTry==1)
+				foeRadius = DEFAULT_FOE_RADIUS - 80;
 			else
 				foeRadius = DEFAULT_FOE_RADIUS;
 			debug_printf("\n\n\nASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
@@ -787,14 +806,15 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 				successPossible = TRUE;
 			else
 				successPossible = FALSE;
-			state = DISPLACEMENT;
+			if(successPossible || (nbTry%2))
+			   state = DISPLACEMENT;
+			else
+				state = INIT;
+			nbTry--;
 			break;
 
 		case DISPLACEMENT:
-			if(successPossible || nbTry==4 || nbTry==1)
-				sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nbDisplacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
-			else
-				sub_action = NOT_HANDLED;
+			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nbDisplacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
 
 			switch(sub_action)
 			{
@@ -805,11 +825,17 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 					if(successPossible){
 						state = SUCCESS;
 					}else{
-						nbTry--;
-						if(nbTry == 0)
+						if(nbTry == 0){
 							state = FAIL;
-						else
+						}else{
 							state = INIT;
+							if(nbTry == 5)
+								nbTry = 4;
+							else if(nbTry == 3)
+								nbTry = 2;
+							else if(nbTry == 1)
+								state=  FAIL;
+						}
 					}
 					break;
 				case FOE_IN_PATH:
@@ -817,21 +843,26 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 				case END_WITH_TIMEOUT:
 				default:
 					debug_printf("Displacement for try_going....fail\n");
-					nbTry--;
 					if(nbTry == 0)
 						state = FAIL;
 					else
 						state = INIT;
+					if(nbTry == 5)
+						nbTry = 4;
+					else if(nbTry == 3)
+						nbTry = 2;
+					else if(nbTry == 1)
+						state=  FAIL;
 					break;
 			}
 			break;
 		case FAIL:
-			debug_printf("Finish by Fail nbTry=%d\n", nbTry);
+			debug_printf("Finish by Fail nbTry=%d\n", nbTry+1);
 			state = INIT;
 			return fail_state;
 			break;
 		case SUCCESS:
-			debug_printf("Finish by Success nbTry=%d\n", nbTry);
+			debug_printf("Finish by Success nbTry=%d \n", nbTry+1);
 			state = INIT;
 			return success_state;
 			break;
