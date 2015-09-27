@@ -511,31 +511,30 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 	astar_ptr_node_t nodeAnswer1 = NULL, nodeAnswer2 = NULL;
 	bool_e is_in_closed_list = FALSE;
 	bool_e is_in_opened_list = FALSE;
-	//GEOMETRY_segment_t seg;
+	GEOMETRY_segment_t seg;
 	//GEOMETRY_point_t middle = GEOMETRY_segment_middle(seg);
-	//astar_ptr_node_t nodeMid = NULL;
+	struct astar_node nodeMid;
+	Sint16 xmid, ymid;
 
 	//Ajout des voisins de from à la liste ouverte
 	for(k=0; k<from->nbNeighbors; k++){
 
-		//portion de code pas au point ((codé pour résoudre un bug)
-		/*seg = (GEOMETRY_segment_t){from->pos, from->neighbors[k]->pos};
+		//portion de code testant si la trajectoire est bonne (pour cela on teste le milieu de la trajectoire
+		seg = (GEOMETRY_segment_t){from->pos,from->neighbors[k]->pos};
 		debug_printf("Tentative d' ajout\n");
-		debug_printf("Middle of (%d , %d)  et (%d , %d)\n", seg.a.x , seg.a.y, seg.b.x, seg.b.y);
-		Sint16 xCoord = (seg.a.x + seg.b.x);
-		Sint16 yCoord = (seg.a.y + seg.b.y);
-		nodeMid->pos.x = xCoord;
-		nodeMid->pos.y = yCoord;
-		debug_printf("Node middle x=%d, y=%d\n",xCoord, yCoord);
-		debug_printf("Node middle x=%d, y=%d\n", nodeMid->pos.x, nodeMid->pos.y);
-		nodeMid->id = NO_ID;
-		nodeMid->polygonId = NO_ID;
-		nodeMid->enable = TRUE;
-		nodeMid->nbNeighbors = 0;
-		nodeMid->parent = NULL;
-		debug_printf("Node ENABLE to add neighbor = %d\n", ASTAR_node_enable(nodeMid, TRUE, TRUE));*/
+		debug_printf("Middle of from:(%d , %d)  et (%d , %d)\n", seg.a.x , seg.a.y, seg.b.x, seg.b.y);
+		nodeMid.pos = GEOMETRY_segment_middle(seg);
+		xmid = (seg.a.x +seg.b.x)/2;
+		ymid = (seg.a.y +seg.b.y)/2;
+		debug_printf("Node middle x=%d, y=%d  (%d, %d)\n", nodeMid.pos.x, nodeMid.pos.y, xmid, ymid);
+		nodeMid.id = NO_ID;
+		nodeMid.polygonId = from->polygonId;
+		nodeMid.enable = TRUE;
+		nodeMid.nbNeighbors = 0;
+		nodeMid.parent = NULL;
+		debug_printf("Node ENABLE to add neighbor = %d\n", ASTAR_node_enable(&nodeMid, TRUE, TRUE));
 
-		if(from->neighbors[k]->enable /*&& ASTAR_node_enable(nodeMid, TRUE, TRUE)*/ &&  !ASTAR_is_in_list(from->neighbors[k], opened_list) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
+		if(from->neighbors[k]->enable && ASTAR_node_enable(&nodeMid, TRUE, TRUE) &&  !ASTAR_is_in_list(from->neighbors[k], opened_list) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
 			ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
 			from->neighbors[k]->parent = from;
 			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
@@ -789,9 +788,9 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 
 		case INIT:
 			if(nbTry == 5 ||  nbTry==3 || nbTry==1)
-				foeRadius = DEFAULT_FOE_RADIUS - 80;
+				foeRadius = DEFAULT_FOE_RADIUS +70;
 			else
-				foeRadius = DEFAULT_FOE_RADIUS;
+				foeRadius = DEFAULT_FOE_RADIUS + 70;
 			debug_printf("\n\n\nASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
 			debug_printf("foeRadius = %d\n", foeRadius);
 			ASTAR_compute_pathfind(&path, (GEOMETRY_point_t){global.pos.x, global.pos.y}, (GEOMETRY_point_t){x, y}, foeRadius);
