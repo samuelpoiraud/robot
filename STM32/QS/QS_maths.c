@@ -119,8 +119,8 @@ Sint16 GEOMETRY_modulo_angle(Sint16 angle)
 GEOMETRY_point_t GEOMETRY_segment_middle(GEOMETRY_segment_t s)
 {
 	return (GEOMETRY_point_t){
-		x : (s.a.x + s.b.x) / 2,
-		y : (s.a.y + s.b.y) / 2
+		(s.a.x + s.b.x) / 2,
+		(s.a.y + s.b.y) / 2
 	};
 }
 
