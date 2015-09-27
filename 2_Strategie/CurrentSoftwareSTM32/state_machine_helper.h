@@ -98,7 +98,8 @@ typedef enum {
 	SM_ID_ZONE_TRY_LOCK	 							= 0x0305,
 	SM_ID_PATHFIND_TRY_GOING						= 0x0306,
 	SM_ID_EXTRACTION_OF_FOE							= 0x0307,
-	SM_ID_ASTAR_TRY_GOING							= 0x0308
+	SM_ID_ASTAR_TRY_GOING							= 0x0308,
+	SM_ID_GO_TO_START_ZONE                          = 0x0309
 } UTILS_state_machine_id_e;
 
 
