@@ -526,7 +526,7 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 			break;
 		case IHM_BUTTON:
 			switch(msg->data.ihm_button.id){
-				case BP_SELFTEST_IHM:				print(*string, *len, "| bp_selftest");			break;
+				case BP_GO_TO_HOME_IHM:				print(*string, *len, "| bp_go_to_home");		break;
 				case BP_CALIBRATION_IHM:			print(*string, *len, "| bp_calibration");		break;
 				case BP_PRINTMATCH_IHM:				print(*string, *len, "| bp_print_match");		break;
 				case BP_OK_IHM:						print(*string, *len, "| bp_ok");				break;

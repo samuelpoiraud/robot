@@ -38,7 +38,7 @@ void BUTTON_init()
 	BUTTONS_init();
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 
-	IHM_define_act_button(BP_SELFTEST,SELFTEST_ask_launch, NULL);
+	IHM_define_act_button(BP_GO_TO_HOME,BOUTTON_go_to_home, NULL);
 	IHM_define_act_button(BP_OK,LCD_button_ok, NULL);
 	IHM_define_act_button(BP_UP,LCD_button_up, LCD_button_up);
 	IHM_define_act_button(BP_DOWN,LCD_button_down, LCD_button_down);
@@ -96,6 +96,11 @@ static void BUTTON_suspend_resume_match(){
 	}
 
 	last_switch = global.absolute_time;
+}
+
+void BOUTTON_go_to_home(void){
+	debug_printf("Flag Boutton go to home activé\n");
+	global.flags.go_to_home = TRUE;
 }
 
 

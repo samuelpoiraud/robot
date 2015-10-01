@@ -33,6 +33,8 @@
 		volatile bool_e alim;
 
 		volatile bool_e foes_updated_for_lcd;
+
+		volatile bool_e go_to_home;
 	}flag_list_t;
 
 	typedef struct{
