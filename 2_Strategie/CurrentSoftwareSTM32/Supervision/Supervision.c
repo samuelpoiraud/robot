@@ -164,7 +164,7 @@ void Supervision_process_main(void)
 
 	if(global.color != local_color || led_color_initialize)
 	{
-		IHM_set_led_color((global.color == BOT_COLOR)?LED_COLOR_YELLOW:LED_COLOR_GREEN);
+		IHM_set_led_color((global.color == BOT_COLOR)?LED_COLOR_MAGENTA:LED_COLOR_GREEN);
 		local_color = global.color;
 	}
 
