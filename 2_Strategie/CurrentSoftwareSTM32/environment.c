@@ -73,6 +73,7 @@ void ENV_init(void)
 	global.flags.foes_updated_for_lcd = FALSE;
 	global.flags.initial_position_received = FALSE;
 	global.flags.alim = FALSE;
+	global.flags.go_to_home = FALSE;
 
 	for(i=0;i<MAX_NB_FOES;i++)
 	{

@@ -12,7 +12,7 @@
 #include "QS/QS_all.h"
 #include "prop_functions.h"
 
- 
+
 #ifndef BUTTON_H
 	#define BUTTON_H
 	#include "QS/QS_timer.h"
@@ -22,7 +22,7 @@
 	#include "avoidance.h"
 
 	void BUTTON_init();
-	void BUTTON_update(); 
+	void BUTTON_update();
 	void BUTTON_start();
 	void BUTTON_calibration();
 	void BUTTON_change_color();
@@ -31,5 +31,6 @@
 	void BUTTON_pi_rotation();
 	void BUTTON_translation();
 	void SWITCH_change_color(void);
-	
+	void BOUTTON_go_to_home();
+
 #endif /* ndef BUTTON_H */
