@@ -83,6 +83,9 @@
 		//Fonction qui recherche et affecte des nodes en tant que "voisins" du node courant
 		static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 recursivityOrder);
 
+		//Fonction permettant de vérifier l'ajout des nodes du polygone spécifié
+		static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 idPolygon);
+
 		//Fonction d'optimisation de la trajectoire afin d'éliminer les nodes inutiles pour gagner du temps quand on le peut.
 		static void ASTAR_make_the_path(astar_path_t *path);
 
@@ -420,6 +423,7 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 
 	//Génération du graphe
 	ASTAR_generate_graph(path, from, destination, &currentNodeId);
+	ASTAR_print_neighbors();
 
 	//Affichage de la liste de polygones en détails
 	//ASTAR_print_polygon_list_details();
@@ -444,6 +448,16 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 		debug_printf("BEGIN  état des listes : \n");
 		ASTAR_print_closed_list();
 		ASTAR_print_opened_list();
+
+		Uint8 k;
+		astar_ptr_node_t answer1=NULL, answer2=NULL;
+		for(k=0; k<polygon_list.polygons[4].nbSummits; k++){
+			if(ASTAR_node_is_reachable(&answer1, &answer2, &(path->from), &(polygon_list.polygons[4].summits[k]))){
+				debug_printf("node x=%d  y=%d is visible by start point\n", polygon_list.polygons[4].summits[k].pos.x, polygon_list.polygons[4].summits[k].pos.y);
+			}else{
+				debug_printf("node x=%d  y=%d is NOT visible by start point\n", polygon_list.polygons[4].summits[k].pos.x, polygon_list.polygons[4].summits[k].pos.y);
+			}
+		}
 
 		//////// Boucle de l'algorithme A* ////////
 		//Tant que la liste ouverte n'est pas vide et que le node de destination n'a pas été ajouté à la liste fermé
@@ -534,13 +548,39 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 		nodeMid.parent = NULL;
 		debug_printf("Node ENABLE to add neighbor = %d\n", ASTAR_node_enable(&nodeMid, TRUE, TRUE));
 
-		if(from->neighbors[k]->enable && ASTAR_node_enable(&nodeMid, TRUE, TRUE) &&  !ASTAR_is_in_list(from->neighbors[k], opened_list) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
+		if(from->neighbors[k]->enable && ASTAR_node_enable(&nodeMid, TRUE, TRUE) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
 			ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
 			from->neighbors[k]->parent = from;
 			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
 			debug_printf("neighbors added: x=%d  y=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y);
+
+			if(ASTAR_is_in_list(from->neighbors[k], opened_list)){
+				test_cost = ASTAR_pathfind_cost(from, from->neighbors[k]);
+				if(test_cost < from->neighbors[k]->cost.step){
+					destination->parent = from;
+					destination->cost.step = test_cost;
+				}
+			}else{
+				ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
+				from->neighbors[k]->parent = from;
+				from->neighbors[k]->cost.step = test_cost;
+			}
 		}
 	}
+
+	// Test d'ajout de tout les nodes à l'open_list
+	for(k=0; k<polygon_list.nbPolygons; k++){
+		ASTAR_add_nodes_specified_polygon_to_open_list(from, destination, k);
+	}
+
+	/*if((global.foe[0].enable || global.foe[1].enable) && from->polygonId != 4 && from->polygonId != 5){
+		debug_printf("TEST AJOUT DES NODES DES ROBOTS ADVERSES id = 4\n");
+		ASTAR_add_nodes_specified_polygon_to_open_list(from, destination, 4);
+	}
+	if((global.foe[0].enable && global.foe[1].enable) && from->polygonId != 4 && from->polygonId != 5){
+		debug_printf("TEST AJOUT DES NODES DES ROBOTS ADVERSES id = 5\n");
+		ASTAR_add_nodes_specified_polygon_to_open_list(from, destination, 5);
+	}*/
 
 	//on regarde si le node de destination est visible par le node de départ
 	bool_e answer = ASTAR_node_is_visible(&nodeAnswer1, &nodeAnswer2, from, destination);
@@ -552,6 +592,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 		nodeAnswer1 = NULL;
 		nodeAnswer2 = NULL;
 	}else if(answer){ 	//le node destination peut être ajouté à la liste ouverte
+		debug_printf("Link node: answer1 = (%d , %d)  answer2 = (%d , %d)\n", nodeAnswer1->pos.x, nodeAnswer1->pos.y, nodeAnswer2->pos.x, nodeAnswer2->pos.y);
 		k = 0;
 		is_in_closed_list = FALSE;
 		while(k<closed_list.nbNodes && !is_in_closed_list){  //On vérifie qu'il n'est pas déjà dans la liste fermée
@@ -588,7 +629,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 
 		}
 	}
-	else
+	/*else
 	{
 		//Si le node destination ne peut pas être atteint, on fait de la récursivité pour trouver d'autres voisins et être sur qu'on puisse les atteindre
 		debug_printf("Link nodes: Recursivité engagé\n");
@@ -596,8 +637,68 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 			ASTAR_link_nodes_on_path(from, nodeAnswer1, recursivityOrder-1);
 		if(nodeAnswer2 != NULL && nodeAnswer2->enable && nodeAnswer2->polygonId != from->polygonId)
 			ASTAR_link_nodes_on_path(from, nodeAnswer2, recursivityOrder-1);
-	}
+	}*/
 	debug_printf("Link End\n");
+}
+
+
+/** @brief ASTAR_add_nodes_specified_polygon_to_open_list
+ *		Fonction permettant de vérifier l'ajout des nodes du polygone spécifié
+ */
+static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 idPolygon){
+	Uint16 test_cost;
+	Uint8 i, k;
+	bool_e is_in_closed_list, is_in_opened_list;
+	astar_ptr_node_t answer1 = NULL, answer2 = NULL;
+
+	//interdiction d'ajouter des nodes du même polygone, on ne doit ajouter que ses voisisns mais cela est fait ultérieurement
+	if(from->polygonId == idPolygon)
+		return;
+
+	if(polygon_list.polygons[idPolygon].enable){
+		debug_printf("Polygon ENABLE\n");
+		for(i=0; i<polygon_list.polygons[idPolygon].nbSummits;i++){
+			if(polygon_list.polygons[idPolygon].summits[i].enable){
+				k = 0;
+				is_in_closed_list = FALSE;
+				while(k<closed_list.nbNodes && !is_in_closed_list){  //On vérifie qu'il n'est pas déjà dans la liste fermée
+					if(closed_list.list[k]->id == polygon_list.polygons[idPolygon].summits[i].id)
+						is_in_closed_list = TRUE;
+					else
+						k++;
+				}
+
+				if(!is_in_closed_list){
+					k=0;
+					is_in_opened_list = FALSE;
+					while(k<opened_list.nbNodes && !is_in_opened_list){  //On vérifie qu'il n'est pas déjà dans la liste ouverte
+						if(opened_list.list[k]->id == polygon_list.polygons[idPolygon].summits[i].id)
+							is_in_opened_list = TRUE;
+						else
+							k++;
+					}
+
+					if(ASTAR_node_is_reachable(&answer1, &answer2, from, &(polygon_list.polygons[idPolygon].summits[i]))){
+						//Ajout du node à la liste ouverte si il n'est pas présent dans la liste fermée et dans la liste ouverte
+						if(!is_in_opened_list){
+							debug_printf("Add node to open list x=%d  y=%d\n", polygon_list.polygons[idPolygon].summits[i].pos.x, polygon_list.polygons[idPolygon].summits[i].pos.y );
+							ASTAR_add_node_to_list(&(polygon_list.polygons[idPolygon].summits[i]), &opened_list);
+							polygon_list.polygons[idPolygon].summits[i].parent = from;
+							polygon_list.polygons[idPolygon].summits[i].cost.step = ASTAR_pathfind_cost(from, &(polygon_list.polygons[idPolygon].summits[i]));
+						}else{
+							//Si le node est déjà présent dans la liste ouverte
+							//Si le cout global est inférieur avec current en tant que parent, current devient le parent du node destination
+							test_cost = ASTAR_pathfind_cost(from, &(polygon_list.polygons[idPolygon].summits[i]));
+							if(test_cost < polygon_list.polygons[idPolygon].summits[i].cost.step){
+								polygon_list.polygons[idPolygon].summits[i].parent = from;
+								polygon_list.polygons[idPolygon].summits[i].cost.step = test_cost;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 
@@ -774,7 +875,7 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 			{
 				case DODGE_AND_WAIT:
 				case DODGE_AND_NO_WAIT:
-					nbTry = NB_TRY_WHEN_DODGE;
+					nbTry = 1; //NB_TRY_WHEN_DODGE;
 					break;
 				default:
 					nbTry = 1;
