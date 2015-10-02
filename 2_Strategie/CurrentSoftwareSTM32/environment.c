@@ -377,10 +377,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case PROP_ROBOT_CALIBRE:
 			global.prop.calibrated = TRUE;
-			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+			/*if(QS_WHO_AM_I_get() == SMALL_ROBOT)
 			{
 				CAN_msg_t msg;
-				Sint16 teta;
+				Sint16 teta;*/
 
 				//enrichir en fonction des différentes stratégies prévues...
 				/*
@@ -390,7 +390,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 				 * => autre avantage, ca nous permet de savoir ce que va faire le robot (contrôle supplémentaire de l'état des switchs)
 				 */
 
-				if(!IHM_switchs_get(SWITCH_ATTACK_FIRST)){
+				/*if(!IHM_switchs_get(SWITCH_ATTACK_FIRST)){
 					if(IHM_switchs_get(SWITCH_CUP_NORTH_OUR)){
 						teta = COLOR_ANGLE(-PI4096/2);
 					}else if(IHM_switchs_get(SWITCH_CUP_SOUTH_OUR)){
@@ -418,7 +418,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 				msg.data.prop_go_angle.way = ANY_WAY;
 				CAN_send(&msg);
 
-			}
+			}*/
 
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
 				//PROP_set_correctors(FALSE, FALSE);
