@@ -549,7 +549,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 		debug_printf("Node ENABLE to add neighbor = %d\n", ASTAR_node_enable(&nodeMid, TRUE, TRUE));
 
 		if(from->neighbors[k]->enable && ASTAR_node_enable(&nodeMid, TRUE, TRUE) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
-			ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
+			//ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
 			from->neighbors[k]->parent = from;
 			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
 			debug_printf("neighbors added: x=%d  y=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y);
@@ -629,7 +629,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 
 		}
 	}
-	/*else
+	else
 	{
 		//Si le node destination ne peut pas être atteint, on fait de la récursivité pour trouver d'autres voisins et être sur qu'on puisse les atteindre
 		debug_printf("Link nodes: Recursivité engagé\n");
@@ -637,7 +637,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 			ASTAR_link_nodes_on_path(from, nodeAnswer1, recursivityOrder-1);
 		if(nodeAnswer2 != NULL && nodeAnswer2->enable && nodeAnswer2->polygonId != from->polygonId)
 			ASTAR_link_nodes_on_path(from, nodeAnswer2, recursivityOrder-1);
-	}*/
+	}
 	debug_printf("Link End\n");
 }
 
@@ -658,7 +658,7 @@ static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from
 	if(polygon_list.polygons[idPolygon].enable){
 		debug_printf("Polygon ENABLE\n");
 		for(i=0; i<polygon_list.polygons[idPolygon].nbSummits;i++){
-			if(polygon_list.polygons[idPolygon].summits[i].enable){
+			if(polygon_list.polygons[idPolygon].summits[i].enable && GEOMETRY_distance(from->pos, polygon_list.polygons[idPolygon].summits[i].pos) < 500){
 				k = 0;
 				is_in_closed_list = FALSE;
 				while(k<closed_list.nbNodes && !is_in_closed_list){  //On vérifie qu'il n'est pas déjà dans la liste fermée
@@ -712,6 +712,12 @@ static void ASTAR_make_the_path(astar_path_t *path){
 	astar_ptr_node_t answer1, answer2;
 	bool_e lastNodeNotAdded;
 
+	bool_e go_until_foe = FALSE;
+	GEOMETRY_point_t foe1, foe2;
+	Uint16 minFoe1, minFoe2;
+	Uint16 min = 6000;
+	Sint8 index = -1;
+
 	//Nettoyage de la liste (Vaut mieux deux fois qu'une)
 	ASTAR_clean_list(&aux);
 	ASTAR_clean_list(&auxOptimized);
@@ -719,7 +725,47 @@ static void ASTAR_make_the_path(astar_path_t *path){
 
 	//Quelque soit le résultat de A*, on reconstruit le chemin même si il est incomplet. On verra plus tard ce qu'on décide de faire.
 	//Le chemin est reconstruit de la destination vers le point de départ
-	ASTAR_add_node_to_list(closed_list.list[closed_list.nbNodes-1], &aux);
+	if(closed_list.list[closed_list.nbNodes-1]->id == path->destination.id){
+		ASTAR_add_node_to_list(closed_list.list[closed_list.nbNodes-1], &aux);
+	}else{
+		min = 6000;
+		index = -1;
+		for(k=0; k<closed_list.nbNodes; k++){
+			if(global.foe[0].enable && global.foe[1].enable){
+				minFoe1 = GEOMETRY_distance(path->list.list[i]->pos, foe1);
+				minFoe2 = GEOMETRY_distance(path->list.list[i]->pos, foe2);
+				debug_printf(" Make the path : node x=%d y=%d  minFoe1=%d enable=%d  minFoe2=%d enable=%d\n", path->list.list[i]->pos.x, path->list.list[i]->pos.y, minFoe1, global.foe[0].enable, minFoe2, global.foe[1].enable);
+				if((/*minFoe1 < DIST_TRAJECTORY_FAILED &&*/ minFoe1 < min) || (/*minFoe2 < DIST_TRAJECTORY_FAILED &&*/ minFoe2 < min)){
+					index = i;
+					go_until_foe = TRUE;
+					min = (minFoe1 < minFoe2)? minFoe1:minFoe2;
+				}
+			}else if(global.foe[0].enable){
+				minFoe1 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe1);
+				if(/*minFoe1 < DIST_TRAJECTORY_FAILED &&*/ minFoe1 < min){
+					index = i;
+					go_until_foe = TRUE;
+					min = minFoe1;
+				}
+			}else if(global.foe[1].enable){
+				minFoe2 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe2);
+				if(/*minFoe2 < DIST_TRAJECTORY_FAILED &&*/ minFoe2 < min){
+					index = i;
+					go_until_foe = TRUE;
+					min = minFoe2;
+				}
+			}
+		}
+		debug_printf("Make the path: Destination not found, closest node to go is x=%d y=%d\n", closed_list.list[index]->pos.x, closed_list.list[index]->pos.y);
+		if(index != -1){
+			ASTAR_add_node_to_list(closed_list.list[index], &aux);
+		}else{
+			path->list.nbNodes = 0;
+			return;
+		}
+	}
+
+
 	debug_printf("PATH: added node to path x=%d  y=%d\n", closed_list.list[closed_list.nbNodes-1]->pos.x, closed_list.list[closed_list.nbNodes-1]->pos.y);
 	while(aux.list[aux.nbNodes-1] != &(path->from)){  //Tant qu'on a pas atteint le point de départ
 		ASTAR_add_node_to_list(aux.list[aux.nbNodes-1]->parent, &aux);
@@ -765,11 +811,8 @@ static void ASTAR_make_the_path(astar_path_t *path){
 	if(path->list.nbNodes>0 && path->destination.id != path->list.list[path->list.nbNodes-1]->id){
 
 		///arret au point le plus proche du robot adverse (ou "l arrivée" si c'est plus pertinent)
-		bool_e go_until_foe = FALSE;
-		GEOMETRY_point_t foe1, foe2;
-		Uint16 minFoe1, minFoe2;
-		Uint16 min = 3000;
-		Sint8 index = -1;
+		min = 6000;
+		index = -1;
 		for(i=0; i<path->list.nbNodes; i++){
 			foe1 = (GEOMETRY_point_t){global.foe[0].x, global.foe[0].y};
 			foe2 = (GEOMETRY_point_t){global.foe[1].x, global.foe[1].y};
@@ -777,24 +820,26 @@ static void ASTAR_make_the_path(astar_path_t *path){
 				minFoe1 = GEOMETRY_distance(path->list.list[i]->pos, foe1);
 				minFoe2 = GEOMETRY_distance(path->list.list[i]->pos, foe2);
 				debug_printf(" Make the path : node x=%d y=%d  minFoe1=%d enable=%d  minFoe2=%d enable=%d\n", path->list.list[i]->pos.x, path->list.list[i]->pos.y, minFoe1, global.foe[0].enable, minFoe2, global.foe[1].enable);
-				if((minFoe1 < DIST_TRAJECTORY_FAILED && minFoe1 < min) || (minFoe2 < DIST_TRAJECTORY_FAILED && minFoe2 < min)){
+				if((/*minFoe1 < DIST_TRAJECTORY_FAILED &&*/ minFoe1 < min) || (/*minFoe2 < DIST_TRAJECTORY_FAILED &&*/ minFoe2 < min)){
 				   index = i;
 				   go_until_foe = TRUE;
+				   min = (minFoe1 < minFoe2)? minFoe1:minFoe2;
 				}
 			}else if(global.foe[0].enable){
 				minFoe1 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe1);
-				if(minFoe1 < DIST_TRAJECTORY_FAILED && minFoe1 < min){
+				if(/*minFoe1 < DIST_TRAJECTORY_FAILED &&*/ minFoe1 < min){
 					index = i;
 					go_until_foe = TRUE;
+					min = minFoe1;
 				}
 			}else if(global.foe[1].enable){
 				minFoe2 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe2);
-				if(minFoe2 < DIST_TRAJECTORY_FAILED && minFoe2 < min){
+				if(/*minFoe2 < DIST_TRAJECTORY_FAILED &&*/ minFoe2 < min){
 					index = i;
 					go_until_foe = TRUE;
+					min = minFoe2;
 				}
 			}
-
 		}
 		debug_printf("Make the path nbNodes = %d\n", index);
 		if(index > 0)
