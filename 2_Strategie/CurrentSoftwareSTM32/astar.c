@@ -726,29 +726,38 @@ static void ASTAR_make_the_path(astar_path_t *path){
 	//Quelque soit le résultat de A*, on reconstruit le chemin même si il est incomplet. On verra plus tard ce qu'on décide de faire.
 	//Le chemin est reconstruit de la destination vers le point de départ
 	if(closed_list.list[closed_list.nbNodes-1]->id == path->destination.id){
+		debug_printf("//////////////// node destination is x=%d y=%d\n",closed_list.list[closed_list.nbNodes-1]->pos.x, closed_list.list[closed_list.nbNodes-1]->pos.y);
 		ASTAR_add_node_to_list(closed_list.list[closed_list.nbNodes-1], &aux);
 	}else{
+		debug_printf("//////////////////  Test des nodes\n");
 		min = 6000;
 		index = -1;
-		for(k=0; k<closed_list.nbNodes; k++){
+		foe1 = (GEOMETRY_point_t){global.foe[0].x, global.foe[0].y};
+		foe2 = (GEOMETRY_point_t){global.foe[1].x, global.foe[1].y};
+		for(i=0; i<closed_list.nbNodes; i++){
 			if(global.foe[0].enable && global.foe[1].enable){
-				minFoe1 = GEOMETRY_distance(path->list.list[i]->pos, foe1);
-				minFoe2 = GEOMETRY_distance(path->list.list[i]->pos, foe2);
-				debug_printf(" Make the path : node x=%d y=%d  minFoe1=%d enable=%d  minFoe2=%d enable=%d\n", path->list.list[i]->pos.x, path->list.list[i]->pos.y, minFoe1, global.foe[0].enable, minFoe2, global.foe[1].enable);
+				minFoe1 = GEOMETRY_distance(closed_list.list[i]->pos, foe1);
+				minFoe2 = GEOMETRY_distance(closed_list.list[i]->pos, foe2);
+				debug_printf("minFoe1 = %d\n", minFoe1);
+				debug_printf("minFoe2 = %d\n", minFoe2);
+				//debug_printf(" Make the path : node x=%d y=%d  minFoe1=%d enable=%d  minFoe2=%d enable=%d\n", path->list.list[i]->pos.x, path->list.list[i]->pos.y, minFoe1, global.foe[0].enable, minFoe2, global.foe[1].enable);
 				if((/*minFoe1 < DIST_TRAJECTORY_FAILED &&*/ minFoe1 < min) || (/*minFoe2 < DIST_TRAJECTORY_FAILED &&*/ minFoe2 < min)){
 					index = i;
 					go_until_foe = TRUE;
 					min = (minFoe1 < minFoe2)? minFoe1:minFoe2;
 				}
 			}else if(global.foe[0].enable){
-				minFoe1 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe1);
+				minFoe1 = GEOMETRY_distance(closed_list.list[i]->pos, foe1);
+				debug_printf("minFoe = %d\n", minFoe1);
 				if(/*minFoe1 < DIST_TRAJECTORY_FAILED &&*/ minFoe1 < min){
 					index = i;
 					go_until_foe = TRUE;
 					min = minFoe1;
+					debug_printf("min affected to %d\n", min);
 				}
 			}else if(global.foe[1].enable){
-				minFoe2 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe2);
+				minFoe2 = GEOMETRY_distance(closed_list.list[i]->pos, foe2);
+				debug_printf("minFoe = %d\n", minFoe2);
 				if(/*minFoe2 < DIST_TRAJECTORY_FAILED &&*/ minFoe2 < min){
 					index = i;
 					go_until_foe = TRUE;
@@ -760,13 +769,14 @@ static void ASTAR_make_the_path(astar_path_t *path){
 		if(index != -1){
 			ASTAR_add_node_to_list(closed_list.list[index], &aux);
 		}else{
+			debug_printf("0 nodes in Path \n");
 			path->list.nbNodes = 0;
 			return;
 		}
 	}
 
 
-	debug_printf("PATH: added node to path x=%d  y=%d\n", closed_list.list[closed_list.nbNodes-1]->pos.x, closed_list.list[closed_list.nbNodes-1]->pos.y);
+	debug_printf("PATH: added node to path x=%d  y=%d\n", closed_list.list[index]->pos.x, closed_list.list[index]->pos.y);
 	while(aux.list[aux.nbNodes-1] != &(path->from)){  //Tant qu'on a pas atteint le point de départ
 		ASTAR_add_node_to_list(aux.list[aux.nbNodes-1]->parent, &aux);
 	}
@@ -813,9 +823,9 @@ static void ASTAR_make_the_path(astar_path_t *path){
 		///arret au point le plus proche du robot adverse (ou "l arrivée" si c'est plus pertinent)
 		min = 6000;
 		index = -1;
+		foe1 = (GEOMETRY_point_t){global.foe[0].x, global.foe[0].y};
+		foe2 = (GEOMETRY_point_t){global.foe[1].x, global.foe[1].y};
 		for(i=0; i<path->list.nbNodes; i++){
-			foe1 = (GEOMETRY_point_t){global.foe[0].x, global.foe[0].y};
-			foe2 = (GEOMETRY_point_t){global.foe[1].x, global.foe[1].y};
 			if(global.foe[0].enable && global.foe[1].enable){
 				minFoe1 = GEOMETRY_distance(path->list.list[i]->pos, foe1);
 				minFoe2 = GEOMETRY_distance(path->list.list[i]->pos, foe2);
@@ -826,14 +836,14 @@ static void ASTAR_make_the_path(astar_path_t *path){
 				   min = (minFoe1 < minFoe2)? minFoe1:minFoe2;
 				}
 			}else if(global.foe[0].enable){
-				minFoe1 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe1);
+				minFoe1 = GEOMETRY_distance(path->list.list[i]->pos, foe1);
 				if(/*minFoe1 < DIST_TRAJECTORY_FAILED &&*/ minFoe1 < min){
 					index = i;
 					go_until_foe = TRUE;
 					min = minFoe1;
 				}
 			}else if(global.foe[1].enable){
-				minFoe2 = GEOMETRY_squared_distance(path->list.list[i]->pos, foe2);
+				minFoe2 = GEOMETRY_distance(path->list.list[i]->pos, foe2);
 				if(/*minFoe2 < DIST_TRAJECTORY_FAILED &&*/ minFoe2 < min){
 					index = i;
 					go_until_foe = TRUE;
@@ -920,7 +930,7 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 			{
 				case DODGE_AND_WAIT:
 				case DODGE_AND_NO_WAIT:
-					nbTry = 1; //NB_TRY_WHEN_DODGE;
+					nbTry = NB_TRY_WHEN_DODGE;
 					break;
 				default:
 					nbTry = 1;
