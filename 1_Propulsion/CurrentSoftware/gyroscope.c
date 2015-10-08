@@ -10,7 +10,7 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_ports.h"
 
-static volatile Sint32 coef_gain = 4720;
+static volatile Sint32 coef_gain = 4721;//En cas de soucis, remttre à 4720
 
 #ifdef USE_GYROSCOPE
 

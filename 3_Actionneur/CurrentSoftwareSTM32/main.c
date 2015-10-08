@@ -349,26 +349,30 @@ static void MAIN_onButton3LongPush() {
 
 static void MAIN_onButton4() {
 	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
+	CAN_msg_t msg1, msg2, msg3;
 	msg1.size = 1;
 	msg2.size = 1;
-	msg1.sid = ACT_CUP_NIPPER;
-	msg2.sid = ACT_CUP_NIPPER_ELEVATOR;
+	msg3.size = 1;
+	msg1.sid = ACT_PINCEMI_RIGHT;
+	msg2.sid = ACT_STOCK_RIGHT;
+	msg3.sid = ACT_ELEVATOR;
 
 	if(state == 0){
-		msg1.data.act_msg.order = ACT_CUP_NIPPER_OPEN;
-		msg2.data.act_msg.order = ACT_CUP_NIPPER_ELEVATOR_IDLE;
+		msg1.data.act_msg.order = ACT_PINCEMI_RIGHT_LOCK;
+		msg2.data.act_msg.order = ACT_STOCK_RIGHT_OPEN;
 	}else if(state == 1){
-		msg1.data.act_msg.order = ACT_CUP_NIPPER_CLOSE;
-		msg2.data.act_msg.order = ACT_CUP_NIPPER_ELEVATOR_IDLE;
+		msg3.data.act_msg.order = ACT_ELEVATOR_TOP;
 	}else if(state == 2){
-		msg1.data.act_msg.order = ACT_CUP_NIPPER_CLOSE;
-		msg2.data.act_msg.order = ACT_CUP_NIPPER_ELEVATOR_UP;
+		msg2.data.act_msg.order = ACT_STOCK_RIGHT_LOCK;
+	}else if(state == 3){
+		msg1.data.act_msg.order = ACT_PINCEMI_RIGHT_OPEN;
+		msg3.data.act_msg.order = ACT_ELEVATOR_BOT;
 	}
 
 	CAN_process_msg(&msg1);
 	CAN_process_msg(&msg2);
-	state = (state == 2)? 0 : state + 1;
+	CAN_process_msg(&msg3);
+	state = (state == 3)? 0 : state + 1;
 }
 
 static void MAIN_onButton4LongPush() {
