@@ -143,7 +143,7 @@
 	#define ECART_HOKUYO_A_DROITE 20 //matérialise le fait que l'hokuyo est décalé d'une certaine distance à doite par rapport au centre du robot
 	#define ECART_BALISE 200
 	HOKUYO_point_position points_beacons_valid[NB_DETECTED_VALID_POINTS]__attribute__((section(".ccm")));
-	static Uint8 nb_valid_points_beacons=0;
+	//static Uint8 nb_valid_points_beacons=0;
 
 	#ifdef TRIANGULATION
 		void Hokuyo_validPointsAndBeacons();

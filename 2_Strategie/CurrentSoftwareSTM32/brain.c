@@ -40,7 +40,7 @@
 #define DEFAULT_STRAT_BIG	high_level_strat
 
 
-#define DEFAULT_STRAT_SMALL	high_level_strat
+#define DEFAULT_STRAT_SMALL	strat_inutile_holly
 
 
 static ia_fun_t strategy;
@@ -126,7 +126,7 @@ void BRAIN_init(void){
 */
 void any_match(void)
 {
-
+	static error_e ret;
 
 	if (!global.flags.match_started)
 	{
@@ -200,7 +200,13 @@ void any_match(void)
 			BUZZER_play(150, NOTE_RE, 2);
 		}
 
-		if(global.flags.match_suspended){
+		if(global.flags.go_to_home){
+			debug_printf("Appel de la fonction go to home\n");
+			ret = func_go_to_home();
+			if(ret != IN_PROGRESS){
+				global.flags.go_to_home = FALSE;
+			}
+		}else if(global.flags.match_suspended){
 
 			strat_stop_robot();
 
