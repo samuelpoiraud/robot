@@ -54,7 +54,7 @@ static void delay_50ns(void)
 
 
 void GYRO_test(){
-	/*static bool_e init = FALSE;
+	static bool_e init = FALSE;
 	bool_e valid;
 	if(!init)
 	{
@@ -68,10 +68,10 @@ void GYRO_test(){
 		ADXRS453_GetRegisterValue(ADXRS453_REG_SN_HIGH);
 		ADXRS453_GetRegisterValue(ADXRS453_REG_SN_LOW);
 		init = TRUE;
-	}*/
-	//GYRO_GetSensorData(TRUE, &valid);
+	}
+	GYRO_GetSensorData(TRUE, &valid);
 
-	//debug_printf("Gyro temperature is %d\n", ADXRS453_GetTemperature());
+	debug_printf("Gyro temperature is %d\n", ADXRS453_GetTemperature());
 }
 
 /*
@@ -86,6 +86,7 @@ Sint32 GYRO_get_speed_rotation(bool_e * valid, bool_e reset)
 	static Uint8 nb = 0;
 	if(initialized)
 	{
+		*valid = TRUE;
 		speed = GYRO_GetSensorData(FALSE,valid);	//[°/sec/80]
 		nb++;
 		sum_speed += ((Sint32)(speed));
@@ -117,7 +118,6 @@ void GYRO_write(Uint8 *Data, Uint8 size){
 
 	delay_50ns();
 	GPIO_SetBits(GYRO_CS);		// Deselect Device
-
 }
 
 
@@ -148,9 +148,9 @@ void GYRO_read(Uint8 * Data, Uint8 size)
 void GYRO_init(void)
 {
 	Uint16 adxrs453Id = 0;
-	Uint8 try;
+	Uint8 i;
 	SPI_init();
-	for(try=0;try<3;try++)
+	for(i=0;i<3;i++)
 	{
 		/* Read the value of the ADXRS453 ID register. */
 		adxrs453Id = ADXRS453_GetRegisterValue(ADXRS453_REG_PID);

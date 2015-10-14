@@ -42,7 +42,7 @@ void SPI_init(void)
 	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;//SPI_CPOL_High;
 	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
 	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256;
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
 	SPI_InitStructure.SPI_CRCPolynomial = 7;
 
 	#ifdef USE_SPI1
@@ -134,7 +134,7 @@ void SPI2_write(Uint8 msg)
 
 Uint8 SPI2_read()
 {
-	return SPI2_exchange(0x00);
+	return  SPI2_exchange(0x00);
 }
 
 #endif /* defined(USE_SPI2) */

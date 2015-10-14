@@ -192,7 +192,7 @@ int main (void)
 */
 
 	#ifdef USE_GYROSCOPE
-		WATCHDOG_create(1000, &GYRO_test, TRUE);
+		//WATCHDOG_create(1000, &GYRO_test, TRUE);
 	#endif
 
 	while(1)
@@ -210,7 +210,6 @@ int main (void)
 			BUTTONS_update();			//Gestion des boutons
 		}
 
-
 		SECRETARY_process_main();	//Communication avec l'extérieur. (Réception des messages)
 
 		WARNER_process_main();		//Communication avec l'extérieur. (Envois des messages)
@@ -218,6 +217,7 @@ int main (void)
 		#ifdef USE_HOKUYO
 			HOKUYO_process_main();
 		#endif
+
 		DETECTION_process_main();
 
 		MAIN_sensor_test();
