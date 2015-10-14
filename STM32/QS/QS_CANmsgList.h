@@ -682,6 +682,12 @@
 
 		#define BEACON_DISABLE_PERIODIC_SENDING	0x411
 
+		#define BEACON_WARNING_LOW_BATTERY		0x412
+		#define SIZE_BEACON_WARNING_LOW_BATTERY	2
+			struct{
+				Uint16 battery_voltage		:16;
+			}beacon_warning_low_battery;
+
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
