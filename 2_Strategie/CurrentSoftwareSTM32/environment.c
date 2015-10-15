@@ -64,6 +64,7 @@ void ENV_init(void)
 	global.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
 
 	global.flags.color_updated = TRUE;
+	global.flags.go_to_start = FALSE;
 	global.flags.match_started = FALSE;
 	global.flags.match_over = FALSE;
 	global.flags.match_suspended = FALSE;
@@ -624,6 +625,7 @@ void ENV_clean (void)
 	global.flags.ask_start = FALSE;
 	global.flags.ask_suspend_match = FALSE;
 	global.prop.ended = FALSE;
+	global.flags.go_to_start = FALSE;
 	global.prop.erreur = FALSE;
 	global.prop.freine = FALSE;
 	global.prop.reach_x = FALSE;

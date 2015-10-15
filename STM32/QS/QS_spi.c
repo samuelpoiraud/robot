@@ -15,6 +15,7 @@
 #include "QS_ports.h"
 #include "QS_outputlog.h"
 #include "stm32f4xx_spi.h"
+#include "QS_timer.h"
 
 #define SPI1_SPI_HANDLE SPI1
 #define SPI1_SPI_CLOCK  RCC_APB1Periph_SPI1
@@ -113,8 +114,8 @@ Uint8 SPI2_exchange(Uint8 c)
 	}
 
 	SPI_I2S_SendData(SPI2_SPI_HANDLE, c);
-	while(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == RESET);
-
+	while(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == RESET){
+	}
 
 	//Test si erreur
 	if(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_OVR) || SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_FLAG_MODF))
