@@ -9,13 +9,13 @@
  *	Version 2015/10/14
  */
 
-#include "QS/QS_all.h"
+
 #include "QS/QS_accelero.h"
 
 #ifndef DETECTION_CHOC_H
 	#define  DETECTION_CHOC_H
 
 
-
+void DETECTION_CHOC_process_it();
 
 #endif /* ndef  DETECTION_CHOC_H */
