@@ -43,6 +43,7 @@ typedef enum{
 	IT_STATE_MAIN,
 	IT_STATE_HOKUYO,
 	IT_STATE_DETECTION,
+	IT_STATE_CHOC_DETECTION,
 	IT_STATE_SCAN_CUP,
 	IT_STATE_DEBUG,
 	IT_STATE_LCD
@@ -72,7 +73,6 @@ void _ISR _T1Interrupt(void)
 		bool_e trash;
 		GYRO_get_speed_rotation(&trash, FALSE);	//Acquisition gyro, non suivie d'une exploitation...
 	#endif
-
 	TIMER1_AckIT();
 }
 
@@ -139,6 +139,11 @@ void _ISR _T2Interrupt()
 
 	DETECTION_process_it();
 	IT_test_state(begin_it_time, IT_STATE_DETECTION, &first_overtime);
+
+	#ifdef DETECTION_CHOC
+		DETECTION_CHOC_process_it();
+		IT_test_state(begin_it_time, IT_STATE_DETECTION, &first_overtime);
+	#endif
 
 	#ifdef SCAN_CUP
 		SCAN_CUP_process_it();
