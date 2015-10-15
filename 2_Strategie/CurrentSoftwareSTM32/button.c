@@ -62,8 +62,9 @@ void BUTTON_start()
 
 void BUTTON_calibration()
 {
-	debug_printf("CALIBRATION\r\n");
-	global.flags.ask_prop_calibration = TRUE;
+	debug_printf("RETOUR AU DEBUT\r\n");
+	//global.flags.ask_prop_calibration = TRUE;
+	global.flags.go_to_start = TRUE;
 }
 
 void BUTTON_change_color()

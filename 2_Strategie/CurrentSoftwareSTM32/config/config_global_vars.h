@@ -23,6 +23,7 @@
 		volatile bool_e ask_suspend_match;
 		volatile bool_e ask_resume_match;
 
+		volatile bool_e go_to_start;
 
 		volatile bool_e color_updated;
 
@@ -39,6 +40,7 @@
 
 	typedef struct{
 		volatile flag_list_t flags;				// Les flags
+
 
 		volatile color_e color;
 		volatile color_e wanted_color;
