@@ -48,7 +48,7 @@
 
 	#define USE_HOKUYO					//Active le module HOKUYO et la détection des ennemis... !
 
-	#define USE_GYROSCOPE				//Activation du gyroscope
+	//#define USE_GYROSCOPE				//Activation du gyroscope
 
 	#define USE_ACT_AVOID				//Activation de la modification du rectangle d'évitement en fonction des actionneurs
 
