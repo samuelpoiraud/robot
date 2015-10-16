@@ -14,7 +14,7 @@
 #include "detection_choc.h"
 
 // Macros
-#define NB_POINTS 5
+#define NB_POINTS 25
 #define BANDWIDTH  60
 
 // Variables Globales
@@ -62,11 +62,11 @@ void DETECTION_CHOC_detect_choc(){
 		avg_odo_rotation =avg_odo_rotation/NB_POINTS;
 	}
 
-	debug_printf("Average rotation values are accelero = %d and odometry = %d\n", avg_acc_rotation, avg_odo_rotation);
+	debug_printf("%d             %d\n", avg_acc_rotation, ACC_getX());
 
 	//on regarde si il y a un choc
 	if(avg_acc_rotation > avg_odo_rotation + BANDWIDTH/2  || avg_acc_rotation < avg_odo_rotation - BANDWIDTH/2){
-		debug_printf("Choc détecté %d not beetween %d and %d\n", avg_acc_rotation, avg_odo_rotation - BANDWIDTH/2,avg_odo_rotation + BANDWIDTH/2 );
+		//debug_printf("Choc détecté %d not beetween %d and %d\n", avg_acc_rotation, avg_odo_rotation - BANDWIDTH/2,avg_odo_rotation + BANDWIDTH/2 );
 	}
 }
 
@@ -77,7 +77,8 @@ void DETECTION_CHOC_acc_rotation_get_value(){
 }
 
 void DETECTION_CHOC_odo_rotation_get_value(){
-	Sint8 current_speed_rotation = global.real_speed_rotation;
+	Sint32 current_speed_rotation = global.real_speed_rotation;
+//	debug_printf("speed rotation = %ld\n", current_speed_rotation);
 	acc_rotation[odo_rotation_index] = (current_speed_rotation - last_odo_speed_rotation)>>24;  //calcul de l'accélération
 	last_odo_speed_rotation = current_speed_rotation;
 	acc_rotation_index = (odo_rotation_index + 1)%NB_POINTS;
@@ -85,8 +86,11 @@ void DETECTION_CHOC_odo_rotation_get_value(){
 
 
 void DETECTION_CHOC_process_it(){
+	ACC_read();
 	DETECTION_CHOC_acc_rotation_get_value();
-	DETECTION_CHOC_odo_rotation_get_value();
+	//DETECTION_CHOC_odo_rotation_get_value();
+	DETECTION_CHOC_detect_choc();
+	//debug_printf("x=%d  y=%d  z=%d\n", ACC_getX(), ACC_getY(), ACC_getZ());
 }
 
 
