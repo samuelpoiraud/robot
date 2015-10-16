@@ -40,6 +40,7 @@
 #include "gyroscope.h"
 #include "detection.h"
 #include "scan_cup.h"
+#include "detection_choc.h"
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -136,6 +137,10 @@ void initialisation(void)
 
 	#ifdef USE_GYROSCOPE
 		GYRO_init();
+	#endif
+
+	#ifdef DETECTION_CHOC
+		DETECTION_CHOC_init();
 	#endif
 
 	IT_init();
