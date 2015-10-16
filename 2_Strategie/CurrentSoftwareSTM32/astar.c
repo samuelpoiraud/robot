@@ -419,17 +419,17 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 	ASTAR_generate_polygon_list(&currentNodeId, foeRadius);
 
 	//Affichage de la liste de polygones
-	ASTAR_print_polygon_list();
+	//ASTAR_print_polygon_list();
 
 	//Génération du graphe
 	ASTAR_generate_graph(path, from, destination, &currentNodeId);
-	ASTAR_print_neighbors();
+	//ASTAR_print_neighbors();
 
 	//Affichage de la liste de polygones en détails
 	//ASTAR_print_polygon_list_details();
 
 	//if de protection afin que l'algorithme soit lancé uniquement si le point de destination est valide
-	debug_printf("\nTest du point de destination \n");
+	//debug_printf("\nTest du point de destination \n");
 	if(ASTAR_node_enable(&(path->destination), TRUE, FALSE)){
 
 		//Affichage de certains détails
@@ -445,11 +445,11 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 		ASTAR_add_node_to_list(&(path->from), &opened_list);
 
 		//Affichage du contenu de la liste fermée et de la liste ouverte
-		debug_printf("BEGIN  état des listes : \n");
-		ASTAR_print_closed_list();
-		ASTAR_print_opened_list();
+		//debug_printf("BEGIN  état des listes : \n");
+		//ASTAR_print_closed_list();
+		//ASTAR_print_opened_list();
 
-		Uint8 k;
+		/*Uint8 k;
 		astar_ptr_node_t answer1=NULL, answer2=NULL;
 		for(k=0; k<polygon_list.polygons[4].nbSummits; k++){
 			if(ASTAR_node_is_reachable(&answer1, &answer2, &(path->from), &(polygon_list.polygons[4].summits[k]))){
@@ -457,7 +457,7 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 			}else{
 				debug_printf("node x=%d  y=%d is NOT visible by start point\n", polygon_list.polygons[4].summits[k].pos.x, polygon_list.polygons[4].summits[k].pos.y);
 			}
-		}
+		}*/
 
 		//////// Boucle de l'algorithme A* ////////
 		//Tant que la liste ouverte n'est pas vide et que le node de destination n'a pas été ajouté à la liste fermé
@@ -535,23 +535,23 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 
 		//portion de code testant si la trajectoire est bonne (pour cela on teste le milieu de la trajectoire
 		seg = (GEOMETRY_segment_t){from->pos,from->neighbors[k]->pos};
-		debug_printf("Tentative d' ajout\n");
-		debug_printf("Middle of from:(%d , %d)  et (%d , %d)\n", seg.a.x , seg.a.y, seg.b.x, seg.b.y);
+		//debug_printf("Tentative d' ajout\n");
+		//debug_printf("Middle of from:(%d , %d)  et (%d , %d)\n", seg.a.x , seg.a.y, seg.b.x, seg.b.y);
 		nodeMid.pos = GEOMETRY_segment_middle(seg);
 		xmid = (seg.a.x +seg.b.x)/2;
 		ymid = (seg.a.y +seg.b.y)/2;
-		debug_printf("Node middle x=%d, y=%d  (%d, %d)\n", nodeMid.pos.x, nodeMid.pos.y, xmid, ymid);
+		//debug_printf("Node middle x=%d, y=%d  (%d, %d)\n", nodeMid.pos.x, nodeMid.pos.y, xmid, ymid);
 		nodeMid.id = NO_ID;
 		nodeMid.polygonId = from->polygonId;
 		nodeMid.enable = TRUE;
 		nodeMid.nbNeighbors = 0;
 		nodeMid.parent = NULL;
-		debug_printf("Node ENABLE to add neighbor = %d\n", ASTAR_node_enable(&nodeMid, TRUE, TRUE));
+		//debug_printf("Node ENABLE to add neighbor = %d\n", ASTAR_node_enable(&nodeMid, TRUE, TRUE));
 
 		if(from->neighbors[k]->enable && ASTAR_node_enable(&nodeMid, TRUE, TRUE) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
 			from->neighbors[k]->parent = from;
 			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
-			debug_printf("neighbors added: x=%d  y=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y);
+			//debug_printf("neighbors added: x=%d  y=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y);
 
 			if(ASTAR_is_in_list(from->neighbors[k], opened_list)){
 				test_cost = ASTAR_pathfind_cost(from, from->neighbors[k]);
@@ -562,7 +562,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 			}else{
 				ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
 				from->neighbors[k]->parent = from;
-				from->neighbors[k]->cost.step = test_cost;
+				from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
 			}
 		}
 	}
@@ -574,7 +574,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 
 	//on regarde si le node de destination est visible par le node de départ
 	bool_e answer = ASTAR_node_is_visible(&nodeAnswer1, &nodeAnswer2, from, destination);
-	debug_printf("Link nodes for x=%d  y=%d : answer=%d  \n", destination->pos.x, destination->pos.y,answer );
+	//debug_printf("Link nodes for x=%d  y=%d : answer=%d  \n", destination->pos.x, destination->pos.y,answer );
 
 
 	if(recursivityOrder==0){ //Protection de la récursivité pour éviter les boucles infinies
@@ -582,7 +582,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 		nodeAnswer1 = NULL;
 		nodeAnswer2 = NULL;
 	}else if(answer){ 	//le node destination peut être ajouté à la liste ouverte
-		debug_printf("Link node: answer1 = (%d , %d)  answer2 = (%d , %d)\n", nodeAnswer1->pos.x, nodeAnswer1->pos.y, nodeAnswer2->pos.x, nodeAnswer2->pos.y);
+		//debug_printf("Link node: answer1 = (%d , %d)  answer2 = (%d , %d)\n", nodeAnswer1->pos.x, nodeAnswer1->pos.y, nodeAnswer2->pos.x, nodeAnswer2->pos.y);
 		k = 0;
 		is_in_closed_list = FALSE;
 		while(k<closed_list.nbNodes && !is_in_closed_list){  //On vérifie qu'il n'est pas déjà dans la liste fermée
@@ -703,8 +703,8 @@ static void ASTAR_make_the_path(astar_path_t *path){
 	bool_e lastNodeNotAdded;
 
 	bool_e go_until_foe = FALSE;
-	GEOMETRY_point_t foe1, foe2;
-	Uint16 minFoe1, minFoe2;
+	GEOMETRY_point_t foe1, foe2, foe;
+	Uint16 minFoe1, minFoe2, minFoe;
 	Uint16 min = 6000;
 	Sint8 index = -1;
 
@@ -724,16 +724,19 @@ static void ASTAR_make_the_path(astar_path_t *path){
 		index = -1;
 		foe1 = (GEOMETRY_point_t){global.foe[0].x, global.foe[0].y};
 		foe2 = (GEOMETRY_point_t){global.foe[1].x, global.foe[1].y};
+		if(global.foe[0].enable && global.foe[1].enable){
+			minFoe1 = GEOMETRY_distance(path->destination.pos, foe1);
+			minFoe2 = GEOMETRY_distance(path->destination.pos, foe2);
+			foe = (minFoe1 < minFoe2)? foe1:foe2;
+		}
 		for(i=0; i<closed_list.nbNodes; i++){
 			if(global.foe[0].enable && global.foe[1].enable){
-				minFoe1 = GEOMETRY_distance(closed_list.list[i]->pos, foe1);
-				minFoe2 = GEOMETRY_distance(closed_list.list[i]->pos, foe2);
-				debug_printf("minFoe1 = %d\n", minFoe1);
-				debug_printf("minFoe2 = %d\n", minFoe2);
-				if( minFoe1 < min || minFoe2 < min){
+				minFoe = GEOMETRY_distance(closed_list.list[i]->pos, foe);
+				debug_printf("minFoe(%d,%d) = %d\n", foe.x, foe.y, minFoe);
+				if( minFoe < min){
 					index = i;
 					go_until_foe = TRUE;
-					min = (minFoe1 < minFoe2)? minFoe1:minFoe2;
+					min = minFoe;
 				}
 			}else if(global.foe[0].enable){
 				minFoe1 = GEOMETRY_distance(closed_list.list[i]->pos, foe1);
@@ -805,49 +808,6 @@ static void ASTAR_make_the_path(astar_path_t *path){
 			path->list.nbNodes =  path->list.nbNodes - 1;
 		}
 	}
-
-	//Si la trajectoire trouvée ne va pas jusqu'à l'arrivée
-	if(path->list.nbNodes>0 && path->destination.id != path->list.list[path->list.nbNodes-1]->id){
-
-		///arret au point le plus proche du robot adverse (ou "l arrivée" si c'est plus pertinent)
-		min = 6000;
-		index = -1;
-		foe1 = (GEOMETRY_point_t){global.foe[0].x, global.foe[0].y};
-		foe2 = (GEOMETRY_point_t){global.foe[1].x, global.foe[1].y};
-		for(i=0; i<path->list.nbNodes; i++){
-			if(global.foe[0].enable && global.foe[1].enable){
-				minFoe1 = GEOMETRY_distance(path->list.list[i]->pos, foe1);
-				minFoe2 = GEOMETRY_distance(path->list.list[i]->pos, foe2);
-				debug_printf(" Make the path : node x=%d y=%d  minFoe1=%d enable=%d  minFoe2=%d enable=%d\n", path->list.list[i]->pos.x, path->list.list[i]->pos.y, minFoe1, global.foe[0].enable, minFoe2, global.foe[1].enable);
-				if(minFoe1 < min ||  minFoe2 < min){
-				   index = i;
-				   go_until_foe = TRUE;
-				   min = (minFoe1 < minFoe2)? minFoe1:minFoe2;
-				}
-			}else if(global.foe[0].enable){
-				minFoe1 = GEOMETRY_distance(path->list.list[i]->pos, foe1);
-				if(minFoe1 < min){
-					index = i;
-					go_until_foe = TRUE;
-					min = minFoe1;
-				}
-			}else if(global.foe[1].enable){
-				minFoe2 = GEOMETRY_distance(path->list.list[i]->pos, foe2);
-				if( minFoe2 < min){
-					index = i;
-					go_until_foe = TRUE;
-					min = minFoe2;
-				}
-			}
-		}
-		debug_printf("Make the path nbNodes = %d\n", index);
-		if(index > 0)
-			path->list.nbNodes = index + 1;
-
-		debug_printf("\n\nTrajectoire avec Gestion de l'adversaire\n");
-		ASTAR_print_list(path->list);
-	}
-
 }
 
 /** @brief ASTAR_make_displacements
@@ -930,7 +890,7 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 
 		case INIT:
 			if(nbTry == 5 ||  nbTry==3 || nbTry==1)
-				foeRadius = DEFAULT_FOE_RADIUS +70;
+				foeRadius = DEFAULT_FOE_RADIUS - 70;
 			else
 				foeRadius = DEFAULT_FOE_RADIUS + 70;
 			debug_printf("\n\n\nASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
@@ -1092,7 +1052,7 @@ bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t node
  * @return le booléen indiquant si le node destination est visible par le node from
  */
 static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
-	debug_printf("Visible Begin\n");
+	//debug_printf("Visible Begin\n");
 	Uint16 minimal_dist = MAX_COST;
 	Uint16 test_dist;
 	Uint8 i, j;
@@ -1112,11 +1072,11 @@ static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_nod
 					//debug_printf("Test intersection (%d , %d ) et (%d , %d)\n", test.a.x, test.a.y, test.b.x, test.b.y);
 					if(GEOMETRY_segments_intersects(reference, test)){
 						//Si il y a intersection, on calcule le point d'intersecsection
-						debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
+						//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
 						test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-						debug_printf("Finish with dist = %d\n", test_dist);
+						//debug_printf("Finish with dist = %d\n", test_dist);
 						if(test_dist < minimal_dist){ // Si la distance est inférieur, on sauvegarde les extrémités du segment
-							debug_printf("minimal_dist affected to %d\n", test_dist);
+							//debug_printf("minimal_dist affected to %d\n", test_dist);
 							minimal_dist = test_dist;
 							*nodeAnswer1 = &(polygon_list.polygons[i].summits[j]);
 							*nodeAnswer2 = &(polygon_list.polygons[i].summits[j+1]);
@@ -1131,11 +1091,11 @@ static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_nod
 				test.b = polygon_list.polygons[i].summits[0].pos;
 				if(GEOMETRY_segments_intersects(reference, test)){
 					//Si il y a intersection, on calcule le point d'intersecsection;
-					debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
+					//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
 					test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-					debug_printf("Finish with dist = %d\n", test_dist);
+					//debug_printf("Finish with dist = %d\n", test_dist);
 					if(test_dist < minimal_dist){ // Si la distance est inférieur, on sauvegarde les extrémités du segment
-						debug_printf("minimal_dist affected\n");
+						//debug_printf("minimal_dist affected\n");
 						minimal_dist = test_dist;
 						*nodeAnswer1 = &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]);
 						*nodeAnswer2 = &(polygon_list.polygons[i].summits[0]);
@@ -1144,7 +1104,7 @@ static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_nod
 			}
 		}
 	}
-	debug_printf("Visible End\n");
+	//debug_printf("Visible End\n");
 	if(*nodeAnswer1 == NULL && *nodeAnswer2 == NULL)
 		return TRUE;
 	else
@@ -1166,7 +1126,7 @@ static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_nod
  * @return le booléen indiquant si le node destination est atteignable par le node from
  */
 static bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
-	debug_printf("Reachable between x=%d  y=%d  et  x=%d y=%d\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
+	//debug_printf("Reachable between x=%d  y=%d  et  x=%d y=%d\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
 	Uint16 minimal_dist = MAX_COST;
 	Uint16 test_dist;
 	Uint8 i, j;
@@ -1186,11 +1146,11 @@ static bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_n
 					test.b = polygon_list.polygons[i].summits[j+1].pos;
 					if(GEOMETRY_segments_intersects(reference, test)){
 						//Si il y a intersection, on calcule le point d'intersecsection
-						debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
+						//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
 						test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-						debug_printf("Finish with dist = %d\n", test_dist);
+						//debug_printf("Finish with dist = %d\n", test_dist);
 						if(test_dist < minimal_dist){
-							debug_printf("minimal_dist affected to %d\n", test_dist);
+							//debug_printf("minimal_dist affected to %d\n", test_dist);
 							minimal_dist = test_dist;
 							*nodeAnswer1 = &(polygon_list.polygons[i].summits[j]);
 							*nodeAnswer2 = &(polygon_list.polygons[i].summits[j+1]);
@@ -1206,11 +1166,11 @@ static bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_n
 				test.b = polygon_list.polygons[i].summits[0].pos;
 				if(GEOMETRY_segments_intersects(reference, test)){
 					//Si il y a intersection, on calcule le point d'intersecsection
-					debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
+					//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
 					test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-					debug_printf("Finish with dist = %d\n", test_dist);
+					//debug_printf("Finish with dist = %d\n", test_dist);
 					if(test_dist < minimal_dist){
-						debug_printf("minimal_dist affected\n");
+						//debug_printf("minimal_dist affected\n");
 						minimal_dist = test_dist;
 						*nodeAnswer1 = &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]);
 						*nodeAnswer2 = &(polygon_list.polygons[i].summits[0]);
@@ -1348,83 +1308,6 @@ static void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t n
 	node->neighbors[node->nbNeighbors] = neighbor;
 	node->nbNeighbors = node->nbNeighbors + 1;
 }
-
-
-
-/** @brief ASTAR_intersection_is  (Pas opérationnelle)
- *		Fonction retournant l'intersection de deux segements
- * @param seg1 : les coordonnées des extrémités du premier segment
- * @param seg2 : les coordonnées des extrémités du second segment
- * @return les coordonnées du point d'intersection
- */
-/*static GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2){
-	double a=1, b=1, c=1, d=1;
-	bool_e verticale1= FALSE, verticale2 = FALSE;
-	//Equation de la droite du segment 1: Y = aX + b
-	if(seg1.b.x != seg1.a.x){
-		a = (seg1.b.y - seg1.a.y)/(seg1.b.x - seg1.a.x);
-		b = a * seg1.a.x - seg1.a.y;
-	}else{
-		a = 0;
-		b = seg1.a.x;
-		verticale1 = TRUE;
-	}
-
-	//Equation de la droite du segment 2: Y = cX + d
-	if(seg2.b.x != seg2.a.x){
-		c = (seg2.b.y - seg2.a.y)/(seg2.b.x - seg2.a.x);
-		d = c * seg2.a.x - seg2.a.y;
-	}else{
-		c = 0;
-		d = seg1.a.x;
-		verticale2 = TRUE;
-	}
-
-	GEOMETRY_point_t intersection;
-	if(!verticale1 && !verticale2 && c != a){
-		intersection.x = (b - d)/(c - a);
-		intersection.y = (b*c - a*d)/(c - a);
-	}else if(!verticale1 && verticale2){
-		intersection.x = d;
-		intersection.y = a*d + b;
-	}else if(verticale1 && !verticale2){
-		intersection.x = b;
-		intersection.y = c*b + d;
-	}else{
-		debug_printf("Problème dans ASTAR_intersection\n");
-	}
-	return intersection;
-}*/
-
-
-
-/** @brief ASTAR_neighbors_intersection
- *		Fonction retournant si il y a une intersection entre un point et un de ses voisins avec un autre polygone
- * @param from: le node de départ
- * @param neighbor : le node voisin
- * @return le booléen indiquant si il y a intersection (TRUE) ou non (FALSE)
- */
-/*static bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neighbor){
-	Uint8 i=0, j=0;
-	bool_e intersection = FALSE;
-	GEOMETRY_segment_t reference = {from->pos, neighbor->pos};
-	GEOMETRY_segment_t test;
-	while(i < polygon_list.nbPolygons && !intersection){
-		if(polygon_list.polygons[i].enable){
-			j=0;
-			while(j < polygon_list.polygons[i].nbSummits && !intersection ){
-				test = (GEOMETRY_segment_t){polygon_list.polygons[i].summits[i].pos, polygon_list.polygons[i].summits[(i+1)%polygon_list.polygons[i].nbSummits].pos};
-				if(GEOMETRY_segments_intersects(reference, test) && !GEOMETRY_segments_parallel(reference, test)){
-					//debug_printf("Neighbor Intersection from (%d , %d) neighbor(%d , %d)  with: (%d , %d)  (%d, %d)", from->pos.x, from->pos.y, neighbor->pos.x, neighbor->pos.y, test.a.x, test.a.y, test.b.x, test.b.y);
-					intersection = TRUE;
-				}
-				j++;
-			}
-		}
-		i++;
-	}
-	return intersection;
-}*/
 
 
 
