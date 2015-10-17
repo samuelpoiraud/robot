@@ -11,6 +11,7 @@
 
 #include "QS/QS_all.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_who_am_i.h"
 #include "detection_choc.h"
 #include "encoders.h"
 
@@ -24,7 +25,6 @@ static Sint8 acc_rotation[5];
 static Uint8 acc_rotation_index = 0;
 static Sint8 odo_rotation[5];
 static Uint8 odo_rotation_index = 0;
-static Sint32 last_odo_speed_rotation = 0;
 
 /*
 static Sint8 acc_translation[5];
@@ -79,16 +79,11 @@ void DETECTION_CHOC_acc_rotation_get_value(){
 }
 
 void DETECTION_CHOC_odo_rotation_get_value(){
-	Sint32 current_speed_rotation = global.real_speed_rotation;
-	Sint32 current_speed_translation = global.real_speed_translation;
-	Sint32 speed_left_wheel_encoder = (Sint32)((left*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4);
 //	debug_printf("speed rotation = %ld\n", current_speed_rotation);
-	ENCODERS_get(&left, &right);
-	if (robot==HOLLY)
-		acc_rotation[odo_rotation_index] =(speed_left_wheel_encoder*current_speed_rotation)>>24;  //calcul de l'accélération
+	if (I_AM_BIG())
+		acc_rotation[odo_rotation_index] = (global.real_speed_translation_for_accelero*global.real_speed_rotation)>>24;  //calcul de l'accélération
 	else
-		acc_rotation[odo_rotation_index] =(current_speed_translation*current_speed_rotation)>>24;
-	//last_odo_speed_rotation = current_speed_rotation;
+		acc_rotation[odo_rotation_index] =(global.real_speed_translation*global.real_speed_rotation)>>24;
 	acc_rotation_index = (odo_rotation_index + 1)%NB_POINTS;
 }
 
