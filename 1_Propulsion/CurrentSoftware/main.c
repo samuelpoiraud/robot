@@ -12,6 +12,7 @@
  */
 
 #include "main.h"
+#include "QS/QS_accelero.h"
 #include "QS/QS_ports.h"
 #include "QS/QS_uart.h"
 #include "QS/QS_buttons.h"
@@ -199,14 +200,15 @@ int main (void)
 	#ifdef USE_GYROSCOPE
 		//WATCHDOG_create(1000, &GYRO_test, TRUE);
 	#endif
-
+	Uint16 compteur=0;
 	while(1)
 	{
 		#ifdef USE_QSx86
 			// Update pour EVE
 			EVE_manager_card();
 		#endif	/* USE_QSx86 */
-
+		ACC_init();
+		ACC_read();
 		DEBUG_process_main();
 
 		if(t_ms > 20)	//Pour éviter les rebonds
@@ -240,6 +242,14 @@ int main (void)
 			debug_printf("BP Selftest pressed\n");
 			SEQUENCES_selftest();
 		}
+		if(compteur==1000){
+			debug_printf("\n\nX= %d\n",ACC_getX());
+			debug_printf("\n\nY= %d\n",ACC_getY());
+			debug_printf("\n\nZ= %d\n",ACC_getZ());
+			debug_printf("\n\nspeed= %d\n",(int)global.real_speed_translation);
+			compteur=0;
+		}
+
 
 	}
 	return 0;
