@@ -263,14 +263,14 @@ void ODOMETRY_update(void)
 	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
 	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
 
-
+	//calcul de la vitesse de l'accéléromètre pour le gros robot. L'accéléromètre est au dessus de la roue codeuse gauche
+	global.real_speed_translation_for_accelero = (Sint32)(((left)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4);
 
 #ifdef USE_GYROSCOPE
 	TIMER1_disableInt();
 	global.real_speed_rotation = ODOMETRY_get_speed_rotation_gyroway_corrected();
 	TIMER1_enableInt();
 #endif
-
 
 	//TODO : comparer speed avec global.real_speed_rotation produit ci-dessous
 
@@ -310,7 +310,7 @@ void ODOMETRY_update(void)
 	y32 += real_speed_y + deviation_y;				//[mm/65536]
 	global.position.x = x32 >> 16;		//[mm]
 	global.position.y = y32 >> 16;		//[mm]
-
+	//debug_printf("Position : x=%d  y=%d \n", global.position.x, global.position.y);
 	//Mise à jour de l'angle
 	teta32 += global.real_speed_rotation;	//[rad/1024/4096]
 
