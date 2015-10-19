@@ -16,6 +16,7 @@
 	#define  DETECTION_CHOC_H
 
 void DETECTION_CHOC_init();
-void DETECTION_CHOC_process_it();
+void DETECTION_CHOC_process_it_tim2();
+void DETECTION_CHOC_process_it_tim5();
 
 #endif /* ndef  DETECTION_CHOC_H */
