@@ -20,11 +20,13 @@
 #define NB_POINTS 15
 #define BANDWIDTH  60
 #define OFFSET_X  2
-
+#define OFFSET_Z  0
 // Variables Globales
 static Sint8 acc_rotation[NB_POINTS];
+static Sint8 acc_rotation_tab[4];
 static Uint8 acc_rotation_index = 0;
 static Sint32 odo_rotation[NB_POINTS];
+static Uint8 acc_rotation_index_tab = 0;
 static Uint8 odo_rotation_index = 0;
 
 
@@ -88,8 +90,18 @@ void DETECTION_CHOC_detect_choc(){
 
 
 void DETECTION_CHOC_acc_rotation_get_value(){
-	acc_rotation[acc_rotation_index] = ACC_getZ();  //C'est bien Z
-	acc_rotation_index = (acc_rotation_index + 1)%NB_POINTS;
+	acc_rotation_tab[acc_rotation_index_tab] = ACC_getZ() - OFFSET_Z;  //C'est bien Z
+	acc_rotation_index_tab = (acc_rotation_index_tab + 1)%4;
+	if(acc_rotation_index_tab == 3){
+		Uint8 i;
+		Sint32 sum = 0;
+		for(i=0; i<4; i++){
+			sum += acc_rotation_tab[i];
+		}
+		acc_rotation[acc_rotation_index] = sum/4;
+		//debug_printf("ACC:    %d\n",acc_rotation[acc_rotation_index]);
+		acc_rotation_index = (acc_rotation_index + 1)%NB_POINTS;
+	}
 }
 
 void DETECTION_CHOC_acc_translation_get_value(){
@@ -148,17 +160,3 @@ void DETECTION_CHOC_process_it_tim5(){
 	//debug_printf("ACC:         %d                   ODO:           %d\n", ACC_getX()-OFFSET_X,current_speed_translation - last_speed_translation);
 	//last_speed_translation = current_speed_translation;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
