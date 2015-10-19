@@ -62,6 +62,9 @@ void IT_init(void)
 	#ifdef USE_GYROSCOPE
 		TIMER1_run_us(1000);		// IT du gyro
 	#endif
+	#ifdef DETECTION_CHOC
+		TIMER5_run_us(20000);
+	#endif
 	TIMER2_run_us(1000*PERIODE_IT_ASSER);			//IT trajectoire et Correcteur
 	global.debug.recouvrement_IT = FALSE;
 }
@@ -76,6 +79,13 @@ void _ISR _T1Interrupt(void)
 	TIMER1_AckIT();
 }
 
+void _ISR _T5Interrupt(void)
+{
+	#ifdef DETECTION_CHOC
+	DETECTION_CHOC_process_it_tim5();
+	#endif
+	TIMER5_AckIT();
+}
 
 //TEST non concluant réalisé en 2009 : faire l'odométrie plus souvent (toute les 1ms...)
 //mais cela change la vitesse_translation_reelle mesurée... REFLECHIR...
@@ -141,8 +151,8 @@ void _ISR _T2Interrupt()
 	IT_test_state(begin_it_time, IT_STATE_DETECTION, &first_overtime);
 
 	#ifdef DETECTION_CHOC
-		DETECTION_CHOC_process_it();
-		IT_test_state(begin_it_time, IT_STATE_DETECTION, &first_overtime);
+		DETECTION_CHOC_process_it_tim2();
+		IT_test_state(begin_it_time, IT_STATE_CHOC_DETECTION, &first_overtime);
 	#endif
 
 	#ifdef SCAN_CUP
