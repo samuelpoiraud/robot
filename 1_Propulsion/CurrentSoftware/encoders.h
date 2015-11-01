@@ -14,5 +14,5 @@
 		void ENCODERS_init(void);
 
 	void ENCODERS_get(Sint32 * left, Sint32 * right);
-
+	void ENCODERS_get2(Sint32 * left, Sint32 * right);
 #endif	//def _ENCODERS_H

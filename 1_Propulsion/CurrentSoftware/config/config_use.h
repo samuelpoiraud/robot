@@ -60,7 +60,7 @@
 
 	#define LIMITATION_PWM_BORDER_MODE
 
-	//#define DETECTION_CHOC
+	#define DETECTION_CHOC
 
 	#define SCAN_CUP
 
