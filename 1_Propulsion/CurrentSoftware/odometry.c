@@ -240,6 +240,7 @@ void ODOMETRY_update(void)
 	Sint16 cos,sin; 	//[pas d'unité/4096]
 	Sint32 cos32, sin32;
 	Sint32 left, right;
+	Sint32 left2, right2;
 	//deviation occasionné par la force centrifuge
 	Sint32 deviation_x;
 	Sint32 deviation_y;
@@ -256,13 +257,13 @@ void ODOMETRY_update(void)
 	sin32 = (Sint32)(sin);
 
 	ENCODERS_get(&left, &right);
-
+	ENCODERS_get2(&left2,&right2);
 	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
 	global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
 
 	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
 	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
-
+	global.real_speed_translation2 = (Sint32)((left2*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4); //pour la detection de choc
 	//calcul de la vitesse de l'accéléromètre pour le gros robot. L'accéléromètre est au dessus de la roue codeuse gauche
 	global.real_speed_translation_for_accelero = (Sint32)(((left)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4);
 

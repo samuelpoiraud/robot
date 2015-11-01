@@ -17,8 +17,9 @@
 
 
 // Macros
-#define NB_POINTS 15
-#define BANDWIDTH  60
+#define RATIO_ODO_ACC_TRANSLATION_BIG 80
+#define NB_POINTS 10
+#define BANDWIDTH  400
 #define OFFSET_X  2
 #define OFFSET_Z  0
 // Variables Globales
@@ -72,25 +73,27 @@ void DETECTION_CHOC_detect_choc(){
 	if(NB_POINTS){  //inutile mais safe...
 		avg_acc_rotation = avg_acc_rotation/NB_POINTS;
 		avg_odo_rotation = avg_odo_rotation/NB_POINTS;
-		avg_acc_translation = avg_acc_translation/NB_POINTS;
+		avg_acc_translation = RATIO_ODO_ACC_TRANSLATION_BIG*avg_acc_translation/NB_POINTS;
 		avg_odo_translation = avg_odo_translation/NB_POINTS;
 	}
+	//debug_printf("%ld\n",/* avg_acc_translation, avg_odo_translation,*/ global.real_speed_translation_for_accelero);
 
-	debug_printf("%d                %ld                   %ld\n", avg_acc_translation, avg_odo_translation, global.vitesse_translation);
+	//debug_printf("%d                %ld                   %ld\n", avg_acc_translation, avg_odo_translation, global.real_speed_translation_for_accelero);
+	//debug_printf("%d                %ld                   %ld\n", avg_acc_translation, avg_odo_translation, global.vitesse_translation);
 	//debug_printf("%d                 %d\n", global.acceleration_translation, global.vitesse_translation);
 
 	//on regarde si il y a un choc
 	if(avg_acc_rotation > avg_odo_rotation + BANDWIDTH/2  || avg_acc_rotation < avg_odo_rotation - BANDWIDTH/2){
-		//debug_printf("Choc détecté %d not beetween %d and %d\n", avg_acc_rotation, avg_odo_rotation - BANDWIDTH/2,avg_odo_rotation + BANDWIDTH/2 );
+		//debug_printf("Choc détecté en rotation %d not beetween %ld and %ld\n", avg_acc_rotation, avg_odo_rotation - BANDWIDTH/2,avg_odo_rotation + BANDWIDTH/2 );
 	}
 	if(avg_acc_translation > avg_odo_translation + BANDWIDTH/2  || avg_acc_translation < avg_odo_translation - BANDWIDTH/2){
-		//debug_printf("Choc détecté %d not beetween %d and %d\n", avg_acc_translation, avg_odo_translation - BANDWIDTH/2,avg_odo_translation + BANDWIDTH/2 );
+		//debug_printf("Choc détecté %d not beetween %ld and %ld\n", avg_acc_translation, avg_odo_translation - BANDWIDTH/2,avg_odo_translation + BANDWIDTH/2 );
 	}
 }
 
 
 void DETECTION_CHOC_acc_rotation_get_value(){
-	acc_rotation_tab[acc_rotation_index_tab] = ACC_getZ() - OFFSET_Z;  //C'est bien Z
+	/*acc_rotation_tab[acc_rotation_index_tab] = ACC_getZ() - OFFSET_Z;  //C'est bien Z
 	acc_rotation_index_tab = (acc_rotation_index_tab + 1)%4;
 	if(acc_rotation_index_tab == 3){
 		Uint8 i;
@@ -98,14 +101,16 @@ void DETECTION_CHOC_acc_rotation_get_value(){
 		for(i=0; i<4; i++){
 			sum += acc_rotation_tab[i];
 		}
-		acc_rotation[acc_rotation_index] = sum/4;
+		acc_rotation[acc_rotation_index] = sum/4;*/
+		acc_rotation[acc_rotation_index]=ACC_getZ() - OFFSET_Z;
 		//debug_printf("ACC:    %d\n",acc_rotation[acc_rotation_index]);
 		acc_rotation_index = (acc_rotation_index + 1)%NB_POINTS;
 	}
 }
 
 void DETECTION_CHOC_acc_translation_get_value(){
-	acc_translation_tab[acc_translation_index_tab] = ACC_getX() - OFFSET_X;  //C'est bien X
+	/*acc_translation_tab[acc_translation_index_tab] = ACC_getX() - OFFSET_X;//C'est bien X
+	debug_printf("%d \n",acc_translation_tab[acc_translation_index_tab]);
 	acc_translation_index_tab = (acc_translation_index_tab + 1)%4;
 	if(acc_translation_index_tab == 3){
 		Uint8 i;
@@ -113,23 +118,29 @@ void DETECTION_CHOC_acc_translation_get_value(){
 		for(i=0; i<4; i++){
 			sum += acc_translation_tab[i];
 		}
-		acc_translation[acc_translation_index] = sum/4;
+		acc_translation[acc_translation_index] = sum/4;*/
+	acc_translation[acc_translation_index]= ACC_getX() - OFFSET_X;
 		//debug_printf("ACC:    %d\n",acc_translation[acc_translation_index]);
-		acc_translation_index = (acc_translation_index + 1)%NB_POINTS;
-	}
+	acc_translation_index = (acc_translation_index + 1)%NB_POINTS;
+
 }
 
 void DETECTION_CHOC_odo_rotation_get_value(){
 	if (I_AM_BIG())
-		acc_rotation[odo_rotation_index] = (global.real_speed_translation_for_accelero*global.real_speed_rotation);  //calcul de l'accélératio
-	else
-		acc_rotation[odo_rotation_index] = (global.real_speed_translation*global.real_speed_rotation);
-	acc_rotation_index = (odo_rotation_index + 1)%NB_POINTS;
-
+		acc_rotation[odo_rotation_index] = (global.real_speed_translation_for_accelero*global.real_speed_rotation);  //calcul de l'accélération
+	/*else
+		acc_rotation[odo_rotation_index] = (global.real_speed_translation_for_accelero*global.real_speed_rotation);
+	acc_rotation_index = (odo_rotation_index + 1)%NB_POINTS;*/
 }
+
+
+
 void DETECTION_CHOC_odo_translation_get_value(){
-	current_speed_translation = global.vitesse_translation;
+	//debug_printf("%ld\n",/* avg_acc_translation, avg_odo_translation,*/ global.real_speed_translation_for_accelero);
+
+	current_speed_translation = global.real_speed_translation_for_accelero;
 	odo_translation[odo_translation_index] = (current_speed_translation - last_speed_translation);
+	//debug_printf("%ld \n", odo_translation[odo_translation_index]);
 	last_speed_translation = current_speed_translation;
 	odo_translation_index = (odo_translation_index + 1)%NB_POINTS;
 }
@@ -138,7 +149,7 @@ void DETECTION_CHOC_process_it_tim2(){
 	ACC_read();
 	//DETECTION_CHOC_acc_rotation_get_value();
 	//DETECTION_CHOC_odo_rotation_get_value();
-	DETECTION_CHOC_acc_translation_get_value();
+	//DETECTION_CHOC_acc_translation_get_value();
 	//DETECTION_CHOC_odo_translation_get_value();
 	//DETECTION_CHOC_detect_choc();
 	//debug_printf("x=%d  y=%d  z=%d\n", ACC_getX(), ACC_getY(), ACC_getZ());
@@ -149,10 +160,9 @@ void DETECTION_CHOC_process_it_tim2(){
 
 
 void DETECTION_CHOC_process_it_tim5(){
-
-	//DETECTION_CHOC_acc_rotation_get_value();
-	//DETECTION_CHOC_odo_rotation_get_value();
-	//DETECTION_CHOC_acc_translation_get_value();
+	DETECTION_CHOC_acc_rotation_get_value();
+	DETECTION_CHOC_odo_rotation_get_value();
+	DETECTION_CHOC_acc_translation_get_value();
 	DETECTION_CHOC_odo_translation_get_value();
 	DETECTION_CHOC_detect_choc();
 	//debug_printf("x=%d  y=%d  z=%d\n", ACC_getX(), ACC_getY(), ACC_getZ());
