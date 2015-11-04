@@ -68,11 +68,13 @@ void GYRO_test(){
 		ADXRS453_GetRegisterValue(ADXRS453_REG_SN_HIGH);
 		ADXRS453_GetRegisterValue(ADXRS453_REG_SN_LOW);
 		init = TRUE;
+
 	}
 	GYRO_GetSensorData(TRUE, &valid);
 
 	debug_printf("Gyro temperature is %d\n", ADXRS453_GetTemperature());
 }
+
 
 /*
  * @brief	Cette fonction renvoie la vitesse en rotation mesurée par le gyro.
@@ -344,7 +346,8 @@ Sint16 ADXRS453_GetTemperature(void)
 	Sint32 temperature;
 
 	registerValue = ADXRS453_GetRegisterValue(ADXRS453_REG_TEM);
-	temperature = (Sint16)(registerValue >> 5) - 1598;
+	registerValue = (short)((registerValue >> 6) - 0x31F);
+	temperature = (Sint16)(registerValue / 5);
 
 	return temperature;	//[0.1°C]
 }

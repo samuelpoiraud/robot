@@ -29,6 +29,7 @@
 #include "avoidance.h"
 #include "gyroscope.h"
 #include "scan_cup.h"
+#include "detection_choc.h"
 
 typedef enum{
 	IT_STATE_NONE = 0,
