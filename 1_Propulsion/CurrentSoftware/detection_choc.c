@@ -105,7 +105,7 @@ void DETECTION_CHOC_acc_rotation_get_value(){
 		acc_rotation[acc_rotation_index]=ACC_getZ() - OFFSET_Z;
 		//debug_printf("ACC:    %d\n",acc_rotation[acc_rotation_index]);
 		acc_rotation_index = (acc_rotation_index + 1)%NB_POINTS;
-	}
+	//}
 }
 
 void DETECTION_CHOC_acc_translation_get_value(){

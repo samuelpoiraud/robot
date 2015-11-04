@@ -189,6 +189,9 @@ static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 	static Uint16 gyro_buffer_nb = 0;
 	static Sint32 sum_corrector_gyro = 0;
 	static Sint32 corrector_gyro = 0;
+	int temperature = ADXRS453_GetTemperature();
+	float decalage = 17;
+	float rapport = 4;
 
 	static Sint32 gyro_teta = 0;
 	bool_e gyro_valid = FALSE;
@@ -213,17 +216,19 @@ static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 				corrector_gyro = sum_corrector_gyro/gyro_buffer_nb;						//Mise à jour du correcteur
 		}
 
-		gyro_teta += gyro_speed - corrector_gyro;
+		gyro_teta += gyro_speed - corrector_gyro - (gyro_speed / (2*PI4096))*(temperature-decalage)*rapport;
 		degre = ((gyro_teta / PI4096)*180) >> 10;
 		if(!loop)
 		{
-			debug_printf("gspeed:%6ld\tgcorrect:%6ld,gspeed_corrected%ld,gteta:%ld\tgdegre%3d\n",gyro_speed, corrector_gyro, gyro_speed - corrector_gyro, gyro_teta, degre);
+			temperature = ADXRS453_GetTemperature();
+			//debug_printf("gspeed:%6ld\tgcorrect:%6ld,gspeed_corrected%ld,gteta:%ld\tgdegre%3d\n",gyro_speed, corrector_gyro, gyro_speed - corrector_gyro, gyro_teta, degre);
+			debug_printf("Gyro temperature is %d\n", temperature);
 			loop = 50;
 		}
 		loop--;
 
 		//Correction...
-		return gyro_speed - corrector_gyro;		//TEMPORAIRE... on fait confiance au gyro uniquement (corrigé d'une déviation estimée)
+		return gyro_speed - corrector_gyro - (gyro_speed / (2*PI4096))*(temperature-decalage)*rapport;		//TEMPORAIRE... on fait confiance au gyro uniquement (corrigé d'une déviation estimée)
 	}
 	else
 	{
@@ -263,7 +268,6 @@ void ODOMETRY_update(void)
 
 	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
 	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
-	global.real_speed_translation2 = (Sint32)((left2*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4); //pour la detection de choc
 	//calcul de la vitesse de l'accéléromètre pour le gros robot. L'accéléromètre est au dessus de la roue codeuse gauche
 	global.real_speed_translation_for_accelero = (Sint32)(((left)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4);
 
