@@ -15,46 +15,11 @@
 #include "selftest.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Holly/Popcorn/Pop_collect_left.h"
-	#include "Holly/Popcorn/Pop_collect_left_config.h"
-	#include "Holly/Popcorn/Pop_collect_right.h"
-	#include "Holly/Popcorn/Pop_collect_right_config.h"
-	#include "Holly/Popcorn/Pop_drop_left.h"
-	#include "Holly/Popcorn/Pop_drop_left_config.h"
-	#include "Holly/Popcorn/Pop_drop_right.h"
-	#include "Holly/Popcorn/Pop_drop_right_config.h"
-	#include "Holly/Spot/back_spot_left.h"
-	#include "Holly/Spot/back_spot_left_config.h"
-	#include "Holly/Spot/back_spot_right.h"
-	#include "Holly/Spot/back_spot_right_config.h"
-	#include "Holly/Spot/spot_pompe_right.h"
-	#include "Holly/Spot/spot_pompe_left.h"
-	#include "Holly/Carpet/carpet_launcher_left.h"
-	#include "Holly/Carpet/carpet_launcher_left_config.h"
-	#include "Holly/Carpet/carpet_launcher_right.h"
-	#include "Holly/Carpet/carpet_launcher_right_config.h"
-	#include "Holly/Ascenseur/pincemi_RX24.h"
-	#include "Holly/Ascenseur/pincemi_RX24_config.h"
-	#include "Holly/Ascenseur/elevator.h"
-	#include "Holly/Ascenseur/elevator_config.h"
-	#include "Holly/Ascenseur/stock_RX24.h"
-	#include "Holly/Ascenseur/stock_RX24_config.h"
-	#include "Holly/Cup/cup_nipper.h"
-	#include "Holly/Cup/cup_nipper_config.h"
-	#include "Holly/Clap/clap_holly.h"
-	#include "Holly/Clap/clap_holly_config.h"
+	/*EXEMPLE
+	#include "Holly/Popcorn/exemple.h"
+	#include "Holly/Popcorn/exemple_config.h"*/
 #else
-	#include "Wood/Pince_gauche.h"
-	#include "Wood/Pince_gauche_config.h"
-	#include "Wood/Pince_droite.h"
-	#include "Wood/Pince_droite_config.h"
-	#include "Wood/Clap.h"
-	#include "Wood/Clap_config.h"
-	#include "Wood/Pop_drop_left_Wood.h"
-	#include "Wood/Pop_drop_left_Wood_config.h"
-	#include "Wood/Pop_drop_right_Wood.h"
-	#include "Wood/Pop_drop_right_Wood_config.h"
-	#include "Wood/pompe_wood.h"
+
 #endif
 
 
@@ -63,29 +28,10 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 #define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_reset_config, &prefix##_CAN_process_msg}
 
 static ACTQ_functions_t actionneurs[] = {
-	#ifdef I_AM_ROBOT_BIG
-		ACT_DECLARE(POP_COLLECT_LEFT),
-		ACT_DECLARE(POP_COLLECT_RIGHT),
-		ACT_DECLARE(POP_DROP_LEFT),
-		ACT_DECLARE(POP_DROP_RIGHT),
-		ACT_DECLARE(BACK_SPOT_RIGHT),
-		ACT_DECLARE(BACK_SPOT_LEFT),
-		ACT_DECLARE(SPOT_POMPE_RIGHT),
-		ACT_DECLARE(SPOT_POMPE_LEFT),
-		ACT_DECLARE(CARPET_LAUNCHER_RIGHT),
-		ACT_DECLARE(CARPET_LAUNCHER_LEFT),
-		ACT_DECLARE(PINCEMI),
-		ACT_DECLARE(ELEVATOR),
-		ACT_DECLARE(STOCK),
-		//ACT_DECLARE(CUP_NIPPER),
-		ACT_DECLARE(CLAP_HOLLY)
-	#else
-		ACT_DECLARE(PINCE_GAUCHE),
-		ACT_DECLARE(PINCE_DROITE),
-		ACT_DECLARE(CLAP),
-		ACT_DECLARE(POMPE_WOOD),
-		ACT_DECLARE(POP_DROP_LEFT_WOOD)
-		//ACT_DECLARE(POP_DROP_RIGHT_WOOD),
+	#ifdef I_AM_ROBOT_BIG  //Big Robot
+		//ACT_DECLARE(POP_COLLECT_LEFT),
+	#else  //Small Robot
+
 	#endif
 };
 

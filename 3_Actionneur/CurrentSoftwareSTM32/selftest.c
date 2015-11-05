@@ -154,94 +154,9 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						break;
 #endif
 
-// Holly
-					case ACT_POP_COLLECT_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_POP_COLLECT_LEFT;
-						break;
-					case ACT_POP_COLLECT_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_POP_COLLECT_RIGHT;
-						break;
+// Black
 
-					case ACT_POP_DROP_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_POP_DROP_LEFT;
-						break;
-					case ACT_POP_DROP_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_POP_DROP_RIGHT;
-						break;
-
-					case ACT_BACK_SPOT_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_BACK_SPOT_LEFT;
-						break;
-					case ACT_BACK_SPOT_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_BACK_SPOT_RIGHT;
-						break;
-
-					case ACT_SPOT_POMPE_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_SPOT_POMPE_LEFT;
-						break;
-					case ACT_SPOT_POMPE_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_SPOT_POMPE_RIGHT;
-						break;
-					case ACT_POMPE_WOOD:
-						failed_act_tests[i] = SELFTEST_ACT_POMPE_WOOD;
-						break;
-
-					case ACT_CARPET_LAUNCHER_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_CARPET_LAUNCHER_RIGHT;
-						break;
-					case ACT_CARPET_LAUNCHER_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_CARPET_LAUNCHER_LEFT;
-						break;
-
-					case ACT_PINCEMI_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_PINCEMI_LEFT;
-						break;
-					case ACT_PINCEMI_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_PINCEMI_RIGHT;
-						break;
-
-					case ACT_ELEVATOR:
-						failed_act_tests[i] = SELFTEST_ACT_ELEVATOR;
-						break;
-
-					case ACT_STOCK_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_STOCK_LEFT;
-						break;
-					case ACT_STOCK_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_STOCK_RIGHT;
-						break;
-
-					case ACT_CUP_NIPPER:
-						failed_act_tests[i] = SELFTEST_ACT_CUP_NIPPER;
-						break;
-					case ACT_CUP_NIPPER_ELEVATOR:
-						failed_act_tests[i] = SELFTEST_ACT_CUP_NIPPER_ELEVATOR;
-						break;
-
-					case ACT_CLAP_HOLLY:
-						failed_act_tests[i] = SELFTEST_ACT_CLAP_HOLLY;
-						break;
-
-// Wood
-					case ACT_CLAP:
-						failed_act_tests[i] = SELFTEST_ACT_CLAP;
-						break;
-
-					case ACT_PINCE_DROITE:
-						failed_act_tests[i] = SELFTEST_ACT_PINCE_DROITE;
-						break;
-
-					case ACT_PINCE_GAUCHE:
-						failed_act_tests[i] = SELFTEST_ACT_PINCE_GAUCHE;
-						break;
-
-					case ACT_POP_DROP_LEFT_WOOD:
-						failed_act_tests[i] = SELFTEST_ACT_POP_DROP_LEFT_WOOD;
-						break;
-
-					case ACT_POP_DROP_RIGHT_WOOD:
-						failed_act_tests[i] = SELFTEST_ACT_POP_DROP_RIGHT_WOOD;
-						break;
+// Pearl
 
 					default:
 						warn_printf("L\'actionneur sid 0x%x n\'a pas d\'enum SELFTEST_ACT_xxx associé, utilisation de SELFTEST_ACT_UNKNOWN_ACT\n", act_sid);

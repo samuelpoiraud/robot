@@ -9,30 +9,12 @@
 #include "../clock.h"
 
 #ifdef I_AM_ROBOT_BIG
+	/*EXEMPLE
 	#include "../Holly/Popcorn/Pop_collect_left_config.h"
 	#include "../Holly/Popcorn/Pop_collect_right_config.h"
-	#include "../Holly/Popcorn/Pop_drop_left_config.h"
-	#include "../Holly/Popcorn/Pop_drop_right_config.h"
-	#include "../Holly/Spot/back_spot_left.h"
-	#include "../Holly/Spot/back_spot_left_config.h"
-	#include "../Holly/Spot/back_spot_right.h"
-	#include "../Holly/Spot/back_spot_right_config.h"
-	#include "../Holly/Spot/spot_pompe_right.h"
-	#include "../Holly/Spot/spot_pompe_left.h"
-	#include "../Holly/Carpet/carpet_launcher_left.h"
-	#include "../Holly/Carpet/carpet_launcher_left_config.h"
-	#include "../Holly/Carpet/carpet_launcher_right.h"
-	#include "../Holly/Carpet/carpet_launcher_right_config.h"
-	#include "../Holly/Ascenseur/elevator.h"
-	#include "../Holly/Ascenseur/elevator_config.h"
-	#include "../Holly/Clap/clap_holly.h"
-	#include "../Holly/Clap/clap_holly_config.h"
+	#include "../Holly/Popcorn/Pop_drop_left_config.h"*/
 #else
-	#include "../Wood/Pince_gauche_config.h"
-	#include "../Wood/Pince_droite_config.h"
-	#include "../Wood/Clap_config.h"
-	#include "../Wood/Pop_drop_left_Wood_config.h"
-	#include "../Wood/Pop_drop_right_Wood_config.h"
+
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);
@@ -71,23 +53,9 @@ terminal_motor_s terminal_motor[] = {
 	// DECLARE_AX12_RX24(2, '0', EXEMPLE_AX12),
 
 	#ifdef I_AM_ROBOT_BIG
-		DECLARE_AX12_RX24(2, '0', POP_COLLECT_LEFT_AX12),
-		DECLARE_AX12_RX24(2, '1', POP_COLLECT_RIGHT_AX12),
-		DECLARE_AX12_RX24(2, '2', POP_DROP_LEFT_AX12),
-		DECLARE_AX12_RX24(2, '3', POP_DROP_RIGHT_AX12),
-		DECLARE_AX12_RX24(2, '4', BACK_SPOT_LEFT_AX12),
-		DECLARE_AX12_RX24(2, '5', BACK_SPOT_RIGHT_AX12),
-		DECLARE_PWM(2, '7', SPOT_POMPE_RIGHT),
-		DECLARE_AX12_RX24(2, '8', CARPET_LAUNCHER_LEFT_AX12),
-		DECLARE_AX12_RX24(2, '9', CARPET_LAUNCHER_RIGHT_AX12),
-		DECLARE_MOTOR(50, 'A', CLAP, &CLAP_HOLLY_get_position),
-		DECLARE_MOTOR(50, 'B', ELEVATOR, &ELEVATOR_get_position)
+
 	#else
-		DECLARE_AX12_RX24(2, '0', PINCE_GAUCHE_AX12),
-		DECLARE_AX12_RX24(2, '1', PINCE_DROITE_AX12),
-		DECLARE_AX12_RX24(2, '3', CLAP_AX12),
-		DECLARE_AX12_RX24(2, '4', POP_DROP_LEFT_WOOD_AX12),
-		DECLARE_AX12_RX24(2, '5', POP_DROP_RIGHT_WOOD_AX12)
+
 	#endif
 };
 
