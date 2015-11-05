@@ -19,7 +19,6 @@
 #include "QS/QS_who_am_i.h"
 #include "hokuyo.h"
 #include "../config/config_pin.h"
-#include "com_xbee.h"
 
 volatile static Uint32 hokuyo_update_time = 0;
 
@@ -246,15 +245,6 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 			{
 				adversaries[i].enable = FALSE;
 			}
-		}
-	}
-
-	for(i=0;i<HOKUYO_MAX_FOES + BEACON_MAX_FOES;i++)
-	{
-		if(adversaries[i].enable)	//Pour tout les adversaires observés...
-		{
-			if(is_point_protected_by_wood((GEOMETRY_point_t){adversaries[i].x, adversaries[i].y}))
-				adversaries[i].enable = FALSE;	//On désactive cet adversaire... Soit c'est WOOD, soit c'est un ennemi dont on est protégé par Wood.
 		}
 	}
 

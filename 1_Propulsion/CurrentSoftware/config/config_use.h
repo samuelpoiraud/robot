@@ -62,8 +62,6 @@
 
 	#define DETECTION_CHOC
 
-	#define SCAN_CUP
-
 	//#define FDP_2016
 
 	//#define DISABLED_BALISE_AVOIDANCE		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Désactivation de l'évitement balise

@@ -32,7 +32,6 @@
 	#include "secretary.h"
 	#include "detection.h"
 	#include "odometry.h"
-	#include "com_xbee.h"
 
 
 
@@ -71,31 +70,26 @@
 	#define CORNER_SQUARE				150
 	#define MARGIN						100
 
-	#define MARCHE_RECT_X				0
-	#define	MARCHE_RECT_Y				967
-	#define	MARCHE_RECT_WIDTH			580			// Largeur en x
-	#define	MARCHE_RECT_HEIGHT			1066		// Longueur en y
+	#define CABANE_PURPLE_RECT_X			0
+	#define	CABANE_PURPLE_RECT_Y			250
+	#define	CABANE_PURPLE_RECT_WIDTH		100		// Largeur en x
+	#define	CABANE_PURPLE_RECT_HEIGHT		400		// Longueur en y
 
-	#define BEGIN_ZONE_Y1_RECT_X		778
-	#define	BEGIN_ZONE_Y1_RECT_Y		0
-	#define	BEGIN_ZONE_Y1_WIDTH			444			// Largeur en x
-	#define	BEGIN_ZONE_Y1_RECT_HEIGHT	400			// Longueur en y
+	#define CABANE_GREEN_RECT_X				0
+	#define	CABANE_GREEN_RECT_Y				2350
+	#define	CABANE_GREEN_RECT_WIDTH			100		// Largeur en x
+	#define	CABANE_GREEN_RECT_HEIGHT		400 	// Longueur en y
 
-	#define BEGIN_ZONE_Y2_RECT_X		840
-	#define	BEGIN_ZONE_Y2_RECT_Y		580
-	#define	BEGIN_ZONE_Y2_WIDTH			320			// Largeur en x
-	#define	BEGIN_ZONE_Y2_RECT_HEIGHT	70			// Longueur en y
+	#define PLEXI_RECT_X				    750
+	#define	PLEXI_RECT_Y					1475
+	#define	PLEXI_RECT_WIDTH				600		// Largeur en x
+	#define	PLEXI_RECT_HEIGHT				50 	// Longueur en y
 
-	#define BEGIN_ZONE_G1_RECT_X		778
-	#define	BEGIN_ZONE_G1_RECT_Y		2600
-	#define	BEGIN_ZONE_G1_WIDTH			444			// Largeur en x
-	#define	BEGIN_ZONE_G1_RECT_HEIGHT	400			// Longueur en y
-
-	#define BEGIN_ZONE_G2_RECT_X		840
-	#define	BEGIN_ZONE_G2_RECT_Y		2350
-	#define	BEGIN_ZONE_G2_WIDTH			320			// Largeur en x
-	#define	BEGIN_ZONE_G2_RECT_HEIGHT	70			// Longueur en y
-
+	//La dune pour être safe
+	#define DUNE_RECT_X				        0
+	#define	DUNE_RECT_Y				        800
+	#define	DUNE_RECT_WIDTH			        100		    // Largeur en x
+	#define	DUNE_RECT_HEIGHT		        1400 		// Longueur en y
 
 
 #ifdef USE_COMMAND_ME
@@ -541,34 +535,32 @@ void hokuyo_find_valid_points(void){
 				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
 
 
-				if(x_absolute < MARCHE_RECT_X + MARCHE_RECT_WIDTH + MARGIN
-						&& y_absolute > MARCHE_RECT_Y
-						&& y_absolute < MARCHE_RECT_Y + MARCHE_RECT_HEIGHT + MARGIN) 	//zones des marches
+				//On va éliminer certaines zones volontairement.
+				if(x_absolute > FIELD_SIZE_X - MARGIN || x_absolute < MARGIN || absolute(x_absolute - FIELD_SIZE_X/2) < MARGIN)
+					if(y_absolute < MARGIN || y_absolute > FIELD_SIZE_Y - MARGIN)	//Les 4 coins et deux balises fixes
 						point_filtered = TRUE;	//on refuse les points
 
-				if(x_absolute > BEGIN_ZONE_Y1_RECT_X
-						&& x_absolute < BEGIN_ZONE_Y1_RECT_X + BEGIN_ZONE_Y1_WIDTH
-						&& y_absolute > BEGIN_ZONE_Y1_RECT_Y
-						&& y_absolute < BEGIN_ZONE_Y1_RECT_Y + BEGIN_ZONE_Y1_RECT_HEIGHT) 	//zones de départ jaune partie basse
+				if(x_absolute < CABANE_GREEN_RECT_X + CABANE_GREEN_RECT_WIDTH
+						&& y_absolute > CABANE_GREEN_RECT_Y - MARGIN
+						&& y_absolute < CABANE_GREEN_RECT_Y + CABANE_GREEN_RECT_HEIGHT + MARGIN) 	//zone des cabanes vertes
 						point_filtered = TRUE;	//on refuse les points
 
-				if(x_absolute > BEGIN_ZONE_Y2_RECT_X
-						&& x_absolute < BEGIN_ZONE_Y2_RECT_X + BEGIN_ZONE_Y2_WIDTH
-						&& y_absolute > BEGIN_ZONE_Y2_RECT_Y
-						&& y_absolute < BEGIN_ZONE_Y2_RECT_Y + BEGIN_ZONE_Y2_RECT_HEIGHT) 	//zones de départ jaune partie haute
+				if(x_absolute < CABANE_PURPLE_RECT_X + CABANE_PURPLE_RECT_WIDTH
+						&& y_absolute > CABANE_PURPLE_RECT_Y - MARGIN
+						&& y_absolute < CABANE_PURPLE_RECT_Y + CABANE_PURPLE_RECT_HEIGHT + MARGIN) 	//zone des cabanes violettes
 						point_filtered = TRUE;	//on refuse les points
 
-				if(x_absolute > BEGIN_ZONE_G1_RECT_X
-						&& x_absolute < BEGIN_ZONE_G1_RECT_X + BEGIN_ZONE_G1_WIDTH
-						&& y_absolute > BEGIN_ZONE_G1_RECT_Y
-						&& y_absolute < BEGIN_ZONE_G1_RECT_Y + BEGIN_ZONE_G1_RECT_HEIGHT) 	//zones de départ verte partie basse
+				if(x_absolute < PLEXI_RECT_X + PLEXI_RECT_WIDTH + MARGIN
+						&& x_absolute > PLEXI_RECT_X  - MARGIN
+						&& y_absolute > PLEXI_RECT_Y - MARGIN
+						&& y_absolute < PLEXI_RECT_Y + PLEXI_RECT_HEIGHT + MARGIN) 	//zone centrale où se trouve le plexi
 						point_filtered = TRUE;	//on refuse les points
 
-				if(x_absolute > BEGIN_ZONE_G2_RECT_X
-						&& x_absolute < BEGIN_ZONE_G2_RECT_X + BEGIN_ZONE_G2_WIDTH
-						&& y_absolute > BEGIN_ZONE_G2_RECT_Y
-						&& y_absolute < BEGIN_ZONE_G2_RECT_Y + BEGIN_ZONE_G2_RECT_HEIGHT) 	//zones de départ verte partie haute
+				if(x_absolute < DUNE_RECT_X + DUNE_RECT_WIDTH
+						&& y_absolute > DUNE_RECT_Y
+						&& y_absolute < DUNE_RECT_Y + DUNE_RECT_HEIGHT) 	//zone de la dune
 						point_filtered = TRUE;	//on refuse les points
+
 
 				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
 					point_filtered = TRUE;
@@ -740,30 +732,26 @@ void hokuyo_find_valid_points(void){
 					if(y_absolute < MARGIN || y_absolute > FIELD_SIZE_Y - MARGIN)	//Les 4 coins et deux balises fixes
 						point_filtered = TRUE;	//on refuse les points
 
-				if(x_absolute < MARCHE_RECT_X + MARCHE_RECT_WIDTH + MARGIN
-						&& y_absolute > MARCHE_RECT_Y
-						&& y_absolute < MARCHE_RECT_Y + MARCHE_RECT_HEIGHT + MARGIN) 	//zones des marches
+				if(x_absolute < CABANE_GREEN_RECT_X + CABANE_GREEN_RECT_WIDTH
+						&& y_absolute > CABANE_GREEN_RECT_Y - MARGIN
+						&& y_absolute < CABANE_GREEN_RECT_Y + CABANE_GREEN_RECT_HEIGHT + MARGIN) 	//zone des cabanes vertes
 						point_filtered = TRUE;	//on refuse les points
 
-				if(x_absolute > BEGIN_ZONE_Y1_RECT_X
-						&& x_absolute < BEGIN_ZONE_Y1_RECT_X + BEGIN_ZONE_Y1_WIDTH
-						&& y_absolute > BEGIN_ZONE_Y1_RECT_Y
-						&& y_absolute < BEGIN_ZONE_Y1_RECT_Y + BEGIN_ZONE_Y1_RECT_HEIGHT) 	//zones de départ jaune partie basse
+				if(x_absolute < CABANE_PURPLE_RECT_X + CABANE_PURPLE_RECT_WIDTH
+						&& y_absolute > CABANE_PURPLE_RECT_Y - MARGIN
+						&& y_absolute < CABANE_PURPLE_RECT_Y + CABANE_PURPLE_RECT_HEIGHT + MARGIN) 	//zone des cabanes violettes
 						point_filtered = TRUE;	//on refuse les points
 
-				if(x_absolute > BEGIN_ZONE_G1_RECT_X
-						&& x_absolute < BEGIN_ZONE_G1_RECT_X + BEGIN_ZONE_G1_WIDTH
-						&& y_absolute > BEGIN_ZONE_G1_RECT_Y
-						&& y_absolute < BEGIN_ZONE_G1_RECT_Y + BEGIN_ZONE_G1_RECT_HEIGHT) 	//zones de départ verte partie basse
+				if(x_absolute < PLEXI_RECT_X + PLEXI_RECT_WIDTH + MARGIN
+						&& x_absolute > PLEXI_RECT_X  - MARGIN
+						&& y_absolute > PLEXI_RECT_Y - MARGIN
+						&& y_absolute < PLEXI_RECT_Y + PLEXI_RECT_HEIGHT + MARGIN) 	//zone centrale où se trouve le plexi
 						point_filtered = TRUE;	//on refuse les points
 
-				if(QS_WHO_AM_I_get() == BIG_ROBOT){
-					if(x_absolute > 1850 && y_absolute > 1100 && y_absolute < 1900)		// Zone de l'estrade
+				if(x_absolute < DUNE_RECT_X + DUNE_RECT_WIDTH
+						&& y_absolute > DUNE_RECT_Y
+						&& y_absolute < DUNE_RECT_Y + DUNE_RECT_HEIGHT) 	//zone de la dune
 						point_filtered = TRUE;	//on refuse les points
-
-				}
-				if(x_absolute < 170)												// Zones des distributeurs
-					point_filtered = TRUE;	//on refuse les points
 
 
 				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers

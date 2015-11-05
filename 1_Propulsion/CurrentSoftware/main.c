@@ -39,7 +39,6 @@
 #include "hokuyo.h"
 #include "gyroscope.h"
 #include "detection.h"
-#include "scan_cup.h"
 #include "detection_choc.h"
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
@@ -125,9 +124,7 @@ void initialisation(void)
 	JOYSTICK_init();
 	DEBUG_init();
 	BUTTONS_init();
-	#ifdef SCAN_CUP
-		SCAN_CUP_init();
-	#endif
+
 	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
 
 	DETECTION_init();
