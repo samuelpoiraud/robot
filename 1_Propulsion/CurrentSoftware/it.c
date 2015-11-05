@@ -28,7 +28,6 @@
 #include "detection.h"
 #include "avoidance.h"
 #include "gyroscope.h"
-#include "scan_cup.h"
 #include "detection_choc.h"
 
 typedef enum{
@@ -45,7 +44,6 @@ typedef enum{
 	IT_STATE_HOKUYO,
 	IT_STATE_DETECTION,
 	IT_STATE_CHOC_DETECTION,
-	IT_STATE_SCAN_CUP,
 	IT_STATE_DEBUG,
 	IT_STATE_LCD
 }it_state_e;
@@ -155,11 +153,6 @@ void _ISR _T2Interrupt()
 		DETECTION_CHOC_process_it_tim2();
 		IT_test_state(begin_it_time, IT_STATE_CHOC_DETECTION, &first_overtime);
 	#endif
-
-	#ifdef SCAN_CUP
-		SCAN_CUP_process_it();
-	#endif
-	IT_test_state(begin_it_time, IT_STATE_SCAN_CUP, &first_overtime);
 
 	#ifdef MODE_PRINTF_TABLEAU
 		debug_print_tableau();

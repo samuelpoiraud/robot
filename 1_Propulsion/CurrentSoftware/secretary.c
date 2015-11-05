@@ -39,8 +39,6 @@
 #include "gyroscope.h"
 #include "hokuyo.h"
 #include "avoidance.h"
-#include "scan_cup.h"
-#include "com_xbee.h"
 
 
 
@@ -455,12 +453,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			#endif
 			break;
 
-		case PROP_SCAN_CUP:
-			#ifdef SCAN_CUP
-				SCAN_CUP_canMsg(msg);
-			#endif
-			break;
-
 		case DEBUG_HOKUYO_ADD_POINT:
 		case DEBUG_HOKUYO_RESET:
 			#ifdef CAN_SEND_OVER_UART
@@ -481,10 +473,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			}
 
 			IHM_process_main(msg);
-			break;
-
-		case PROP_WOOD_PROTECT_ZONE :
-			holly_receive_wood_position(msg);
 			break;
 
 		default :
@@ -620,24 +608,6 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, 
 		msg.data.strat_prop_foe_detected.hokuyo_detection = adv_hokuyo;
 	SECRETARY_send_canmsg_from_it(&msg);
 }
-
-#ifdef SCAN_CUP
-//Fonction appelée uniquement en IT.
-void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, bool_e cup_detected, Sint16 x, Sint16 y)
-{
-	CAN_msg_t msg;
-	msg.sid = STRAT_CUP_POSITION;
-	msg.size = SIZE_STRAT_CUP_POSITION;
-	msg.data.strat_cup_position.x = x;
-	msg.data.strat_cup_position.y = y;
-	msg.data.strat_cup_position.cup_detected = cup_detected;
-	msg.data.strat_cup_position.last_cup = it_is_the_last_cup;
-	msg.data.strat_cup_position.scan_error = error_scan;
-	SECRETARY_send_canmsg_from_it(&msg);
-}
-
-
-#endif
 
 
 

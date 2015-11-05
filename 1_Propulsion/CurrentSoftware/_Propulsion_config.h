@@ -62,56 +62,7 @@
 	#define FIELD_SIZE_X 2000	//[mm]
 
 
-//POSITION 2015
-
-	//SMALL Position calibration
-		//BOT_COLOR
-		#define SMALL_BOT_COLOR_CALIBRATION_X  		972
-		#define SMALL_BOT_COLOR_CALIBRATION_Y  		525
-		#define SMALL_BOT_COLOR_CALIBRATION_TETA	(0)
-
-		//TOP_COLOR
-		#define SMALL_TOP_COLOR_CALIBRATION_X  		972
-		#define SMALL_TOP_COLOR_CALIBRATION_Y  		(3000 - 525)
-		#define SMALL_TOP_COLOR_CALIBRATION_TETA	(0)
-
-	//BIG
-		//BOT_COLOR
-		#define BIG_BOT_COLOR_CALIBRATION_X  		(1200-BIG_ROBOT_WIDTH/2)
-		#define BIG_BOT_COLOR_CALIBRATION_Y  		(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE + 70)
-		#define BIG_BOT_COLOR_CALIBRATION_TETA		(-PI4096/2)
-
-		//TOP_COLOR
-		#define BIG_TOP_COLOR_CALIBRATION_X  		(1200-BIG_ROBOT_WIDTH/2)
-		#define BIG_TOP_COLOR_CALIBRATION_Y  		(3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE - 70)
-		#define BIG_TOP_COLOR_CALIBRATION_TETA 		(PI4096/2)
-
-
-//SMALL  Position initiale
-		// BOT_COLOR
-		#define SMALL_BOT_COLOR_START_X  		(65536*SMALL_BOT_COLOR_CALIBRATION_X) 			//1000mm
-		#define SMALL_BOT_COLOR_START_Y  		(65536*(422+SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE))
-		#define SMALL_BOT_COLOR_START_TETA 		(-6588416)			//-PI/2  (il part en marche arrière...)
-
-		// TOP_COLOR
-		#define SMALL_TOP_COLOR_START_X 		(65536*SMALL_TOP_COLOR_CALIBRATION_X) 			//1000mm
-		#define SMALL_TOP_COLOR_START_Y 		(65536*(3000-(422+SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)))	//(3000-...)mm
-		#define SMALL_TOP_COLOR_START_TETA 		(6588416)				//PI/2  (il part en marche arrière...)
-
-	//BIG
-		// BOT_COLOR
-		#define BIG_BOT_COLOR_START_X  	(BIG_BOT_COLOR_CALIBRATION_X)*65536					// Calé contre le tasseau, du coté opposé aux escaliers
-		#define BIG_BOT_COLOR_START_Y  	65536 * (BIG_BOT_COLOR_CALIBRATION_Y) 	//Calé contre le bac
-		#define BIG_BOT_COLOR_START_TETA 	(-6588416)				//-PI/2  (il part en marche arrière...)
-
-		// TOP_COLOR
-		#define BIG_TOP_COLOR_START_X  (BIG_TOP_COLOR_CALIBRATION_X)*65536			// Calé contre le tasseau, du coté opposé aux escaliers
-		#define BIG_TOP_COLOR_START_Y 	65536 * (BIG_TOP_COLOR_CALIBRATION_Y) //Calé contre le bac
-		#define BIG_TOP_COLOR_START_TETA 	(6588416)			//PI/2  (il part en marche arrière...)
-
-
-
-/* POSITION 2016
+// POSITION 2016
 	//SMALL Position calibration
 		//BOT_COLOR
 		#define SMALL_BOT_COLOR_CALIBRATION_X  		1005
@@ -156,7 +107,7 @@
 		#define BIG_TOP_COLOR_START_X  (600 + BIG_ROBOT_WIDTH/2)*65536	  // Calé au bord de la serviette, coté mer
 		#define BIG_TOP_COLOR_START_Y  (3000 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536  //calé contre la bordure
 		#define BIG_TOP_COLOR_START_TETA 	(-6588416)			//-PI/2  (il part en marche avant...)
-*/
+
 
 
 /////BUFFER////////////////////////////////////////////
