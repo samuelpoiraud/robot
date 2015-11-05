@@ -284,46 +284,6 @@
 				bool_e lock						:1;
 			}xbee_zone_command;
 
-		#define XBEE_HOLLY_ASK_PROTECT			0x5C0
-		#define SIZE_XBEE_HOLLY_ASK_PROTECT		1
-			struct{
-				protect_area_xbee_e protect_area :2;
-			}xbee_holly_ask_protect;
-
-		/*
-		 * Le rectangle dans lequel HOLLY doit ignorer les adversaires est indiqué ainsi
-		 * ATTENTION : Pour déclarer que l'on arrête la protection, on envoie toutes les datas à 0 !!!
-		 */
-		#define XBEE_WOOD_PROTECT_ZONE			0x5C1
-		#define SIZE_XBEE_WOOD_PROTECT_ZONE     8
-			struct{
-				Sint16 x1						:16;		// [mm]
-				Sint16 x2						:16;		// [mm]
-				Sint16 y1						:16;		// [mm]
-				Sint16 y2						:16;		// [mm]
-			}xbee_wood_protect_zone;
-
-		#define XBEE_WOOD_TAKE_CUP				0x5C2
-		#define SIZE_XBEE_WOOD_TAKE_CUP			1
-			struct{
-				bool_e cup_north_yellow			:1;
-				bool_e cup_south_yellow			:1;
-				bool_e cup_middle				:1;
-				bool_e cup_north_green			:1;
-				bool_e cup_south_green			:1;
-			}xbee_wood_take_cup;
-
-		#define XBEE_HOLLY_START_MATCH			0x5C3
-
-		#define XBEE_WOOD_CAN_DO_CLAP			0x5C4
-
-		#define XBEE_WOOD_CAN_GO                0x5C5
-
-		#define XBEE_HOLLY_TAKE_MIDDLE_FEET     0x5C6
-
-		#define XBEE_HOLLY_DISPOSE_CARPETS      0x5C7
-
-		#define XBEE_HOLLY_DISPOSE_ON_ESTRAD    0x5C8
 
 		#define XBEE_MY_POSITION_IS				0x5FF
 		#define SIZE_XBEE_MY_POSITION_IS		5
@@ -639,37 +599,6 @@
 
 		#define PROP_DEBUG_FORCED_FOE		0x118
 
-		/*
-		 * Le rectangle dans lequel HOLLY doit ignorer les adversaires est indiqué ainsi
-		 * ATTENTION : Pour déclarer que l'on arrête la protection, on envoie toutes les datas à 0 !!!
-		 */
-		#define PROP_WOOD_PROTECT_ZONE		0x120
-		#define SIZE_PROP_WOOD_PROTECT_ZONE		8
-			struct{
-				Sint16 x1					:16;		// [mm]
-				Sint16 x2					:16;		// [mm]
-				Sint16 y1					:16;		// [mm]
-				Sint16 y2					:16;		// [mm]
-			}prop_wood_protect_zone;
-
-
-		#define STRAT_CUP_POSITION			0x219
-		#define SIZE_STRAT_CUP_POSITION		5
-			struct{
-				Sint16 x					:16;
-				Sint16 y					:16;
-				bool_e last_cup				:1;
-				bool_e scan_error			:1;
-				bool_e cup_detected			:1;
-			}strat_cup_position;
-
-		#define PROP_SCAN_CUP				0x113
-		#define SIZE_PROP_SCAN_CUP			2
-			struct{
-				Uint8 type					:8;
-				color_e color				:1;
-				bool_e is_in_north			:1;
-			}prop_scan_cup;
 
 
 	/**********************************************************************************************************************
@@ -925,36 +854,13 @@
 		//----------------------------HOLLY-----------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		ACT_POP_COLLECT_LEFT		= (ACT_FILTER | 0x02),
-		ACT_POP_COLLECT_RIGHT		= (ACT_FILTER | 0x03),
-		ACT_POP_DROP_LEFT			= (ACT_FILTER | 0x04),
-		ACT_POP_DROP_RIGHT			= (ACT_FILTER | 0x05),
-		ACT_ELEVATOR				= (ACT_FILTER | 0x06),
-		ACT_PINCEMI_RIGHT			= (ACT_FILTER | 0x07),
-		ACT_PINCEMI_LEFT			= (ACT_FILTER | 0x08),
-		ACT_STOCK_RIGHT				= (ACT_FILTER | 0x09),
-		ACT_STOCK_LEFT				= (ACT_FILTER | 0x0A),
-		ACT_CUP_NIPPER				= (ACT_FILTER | 0x0B),
-		ACT_CUP_NIPPER_ELEVATOR		= (ACT_FILTER | 0x0C),
-		ACT_BACK_SPOT_RIGHT			= (ACT_FILTER | 0x0D),
-		ACT_BACK_SPOT_LEFT			= (ACT_FILTER | 0x0E),
-		ACT_SPOT_POMPE_LEFT			= (ACT_FILTER | 0x0F),
-		ACT_SPOT_POMPE_RIGHT		= (ACT_FILTER | 0x10),
-		ACT_CARPET_LAUNCHER_RIGHT	= (ACT_FILTER | 0x11),
-		ACT_CARPET_LAUNCHER_LEFT	= (ACT_FILTER | 0x12),
-		ACT_CLAP_HOLLY				= (ACT_FILTER | 0x13),
-
+		ACT_POP_COLLECT_LEFT		= (ACT_FILTER | 0x02)   //Exemple
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------WOOD------------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		ACT_PINCE_GAUCHE			= (ACT_FILTER | 0x30),
-		ACT_PINCE_DROITE			= (ACT_FILTER | 0x31),
-		ACT_CLAP					= (ACT_FILTER | 0x33),
-		ACT_POP_DROP_LEFT_WOOD		= (ACT_FILTER | 0x40),
-		ACT_POP_DROP_RIGHT_WOOD		= (ACT_FILTER | 0x41),
-		ACT_POMPE_WOOD				= (ACT_FILTER | 0x42)
+		//ACT_PINCE_GAUCHE			= (ACT_FILTER | 0x30),
 
 	} ACT_sid_e;
 

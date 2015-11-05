@@ -34,7 +34,7 @@
 #include "act_functions.h"
 #include "act_avoidance.h"
 #include "Supervision/Supervision.h"
-#include "strats_2015/actions_both_2015.h"
+#include "strats_2016/actions_both_2016.h"
 #include "astar.h"
 
 
@@ -162,8 +162,6 @@ int main (void)
 		QUEUE_run();
 
 		MAIN_sensor_test();
-		ACT_MAE_holly_spotix_process_main();
-		ACT_MAE_holly_cup_process_main();
 
 		any_match();
 
@@ -229,7 +227,7 @@ void test_bp_switchs(void)
 static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
-		if(RECALAGE_AR_G || RECALAGE_AR_D || PRESENCE_PIED_PINCE_GAUCHE_HOLLY || PRESENCE_PIED_PINCE_DROITE_HOLLY || RECALAGE_AV_G || RECALAGE_AV_D){
+		if(RECALAGE_AR_G || RECALAGE_AR_D || RECALAGE_AV_G || RECALAGE_AV_D){
 				//|| (ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 5 && ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 350)
 				//|| (ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 5 && ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) < 200)){
 			if(led_on == FALSE){
@@ -241,7 +239,7 @@ static void MAIN_sensor_test(){
 			led_on = FALSE;
 		}
 	}else{
-		if(RECALAGE_AV_G || RECALAGE_AV_D || WT100_GOBELET_FRONT || 1){
+		if(RECALAGE_AV_G || RECALAGE_AV_D || 1){
 			if(led_on == FALSE){
 				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 				led_on = TRUE;

@@ -51,42 +51,10 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	//Peu importe l'ordre des états... (sauf en cas de priorité égale)
 
 	//--------------Sub action de holly
-	HOLLY_SUB_INITIAL,
-	HOLLY_SUB_DISPOSE_IN_START_ZONE,
-	HOLLY_SUB_DISPOSE_CARPETS,
-	HOLLY_SUB_SCAN_AND_DISPOSE_ON_ESTRAD,
-	HOLLY_SUB_DO_OUR_CLAP,
-	HOLLY_SUB_CUP_SCAN_AND_STEAL,
-	HOLLY_SUB_COLLECT_POPCORN_ADV,
-	HOLLY_SUB_TAKE_REAR_FEET_IN_LIFT,
-	HOLLY_SUB_END_OF_MATCH,
-	HOLLY_SUB_BELGIQUE_SOUTH_TRIP,
-	HOLLY_SUB_GO_TO_NORTH,
-	HOLLY_SUB_COLLECT_STAIRS_FEET,
-	HOLLY_LEROY_MERLIN_NORTH,
-	HOLLY_LEROY_MERLIN_SOUTH,
-	HOLLY_LEROY_MERLIN_DISPOSE,
-	HOLLY_LEROY_MERLIN_AVOIDANCE,
+	//HOLLY_SUB_INITIAL,
 
 	//--------------Sub action de wood
-	WOOD_SUB_INITIAL,
-	WOOD_SUB_ADV_CLAP,
-	WOOD_SUB_OUR_CLAP,
-	WOOD_SUB_ADV_POPCORN,
-	WOOD_SUB_CUP_DISPOSE,
-	WOOD_SUB_CUP_DISPOSE_NORTH,
-	WOOD_SUB_CUP_DISPOSE_SOUTH,
-	WOOD_SUB_PROTECT_POPCORN,
-	WOOD_SUB_DISPOSE_CUP_END_MATCH,
-	WOOD_SUB_OUR_POPCORN,
-	WOOD_SUB_TAKE_FEET,
-	WOOD_SUB_COLLECT_CUP_GLOBAL,
-	WOOD_SUB_CHOOSE_ACTION,
-	WOOD_SUB_WAITING_TO_GO,
-	WOOD_SUB_GO_POSITION_END_OF_MATCH,
-	WOOD_SUB_SCAN_NORTH,
-	WOOD_SUB_SCAN_SOUTH,
-	WOOD_SUB_CHOOSE_SCAN,
+
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
@@ -136,6 +104,5 @@ bool_e get_sub_act_updated_for_lcd(subaction_id_e sub_action);
 void reset_sub_act_updated_for_lcd(subaction_id_e sub_action);
 bool_e get_sub_act_ask_stop_request(subaction_id_e sub_action);
 
-void wood_acquitte_flag_protection();
 
 #endif /* HIGH_STRAT_LEVEL_H */

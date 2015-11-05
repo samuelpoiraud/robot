@@ -27,10 +27,10 @@
 #include "Supervision/Supervision.h"
 #include "Supervision/Buzzer.h"
 
-#include "strats_2015/actions_both_2015.h"
-#include "strats_2015/actions_wood.h"
-#include "strats_2015/actions_holly.h"
-#include "strats_2015/actions_tests.h"
+#include "strats_2016/actions_both_2016.h"
+#include "strats_2016/actions_pearl.h"
+#include "strats_2016/actions_black.h"
+#include "strats_2016/actions_tests.h"
 
 #include "high_level_strat.h"
 
@@ -40,7 +40,7 @@
 #define DEFAULT_STRAT_BIG	high_level_strat
 
 
-#define DEFAULT_STRAT_SMALL	strat_inutile_holly
+#define DEFAULT_STRAT_SMALL	high_level_strat
 
 
 static ia_fun_t strategy;
@@ -75,14 +75,12 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE,					BOTH},
 	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE,					BOTH},
 	{"strat_prop",			strat_reglage_prop,						0,					TRUE,					BOTH},
-	{"strat_avoidance",		strat_test_avoidance,					0,					TRUE,					BOTH},
 
-	// Pour holly
-	{"strat_inutile",		strat_inutile_holly,					MATCH_DURATION,		TRUE,					BIG},
-	{"test spot",			strat_test_holly_spotix_match,			0,					TRUE,					BIG},
+	// Pour Black
+	{"strat_inutile",		strat_inutile_black,					MATCH_DURATION,		TRUE,					BIG},
 
-	// Pour wood
-	{"strat_inutile",		strat_inutile_wood,						0,					TRUE,					SMALL}
+	// Pour Pearl
+	{"strat_inutile",		strat_inutile_pearl,					0,					TRUE,					SMALL}
 };
 
 static const strategy_list_s *list_displayed_strategy[50];

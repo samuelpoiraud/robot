@@ -10,7 +10,7 @@
  */
 
 #include "environment.h"
-#include "strats_2015/actions_both_2015.h"
+#include "strats_2016/actions_both_2016.h"
 #include "act_functions.h"
 #include "zone_mutex.h"
 #include "fix_beacon.h"
@@ -377,49 +377,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case PROP_ROBOT_CALIBRE:
 			global.prop.calibrated = TRUE;
-			/*if(QS_WHO_AM_I_get() == SMALL_ROBOT)
-			{
-				CAN_msg_t msg;
-				Sint16 teta;*/
-
-				//enrichir en fonction des différentes stratégies prévues...
-				/*
-				 * - se rendre au sud...
-				 * - se rendre tout droit pour ramassage gobelet
-				 * - viser le rush gobelet central (cette position est probablement différente pour gagner du temps ?)
-				 * => autre avantage, ca nous permet de savoir ce que va faire le robot (contrôle supplémentaire de l'état des switchs)
-				 */
-
-				/*if(!IHM_switchs_get(SWITCH_ATTACK_FIRST)){
-					if(IHM_switchs_get(SWITCH_CUP_NORTH_OUR)){
-						teta = COLOR_ANGLE(-PI4096/2);
-					}else if(IHM_switchs_get(SWITCH_CUP_SOUTH_OUR)){
-						teta = 0;
-					}else{
-						teta = COLOR_ANGLE(-PI4096/2);
-					}
-				}else{
-					if(IHM_switchs_get(SWITCH_CUP_SOUTH_OUR)){
-						teta = 0;
-					}else{
-						teta = COLOR_ANGLE(-PI4096/2);
-					}
-				}
-
-
-				msg.sid = PROP_GO_ANGLE;
-				msg.size = SIZE_PROP_GO_ANGLE;
-				msg.data.prop_go_angle.acknowledge = PROP_NO_ACKNOWLEDGE;
-				msg.data.prop_go_angle.buffer_mode = PROP_NOW;
-				msg.data.prop_go_angle.referential = PROP_ABSOLUTE;
-				msg.data.prop_go_angle.multipoint = PROP_NO_MULTIPOINT;
-				msg.data.prop_go_angle.teta = teta;
-				msg.data.prop_go_angle.speed = SLOW;
-				msg.data.prop_go_angle.way = ANY_WAY;
-				CAN_send(&msg);
-
-			}*/
-
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
 				//PROP_set_correctors(FALSE, FALSE);
 			break;
@@ -469,9 +426,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			LCD_printf(1, TRUE, FALSE, "Dist:%d", incoming_msg->data.strat_send_report.actual_trans << 1);
 			LCD_printf(2, TRUE, FALSE, "Rot :%4d MRot:%4d", (incoming_msg->data.strat_send_report.actual_rot << 3)*180/PI4096, (incoming_msg->data.strat_send_report.max_rot << 3)*180/PI4096);
 			break;
-		case STRAT_CUP_POSITION:
-			collect_cup_coord(incoming_msg);
-			break;
 
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
@@ -516,43 +470,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.com.reach_point_get_out_init = TRUE;
 			break;
 
-		case XBEE_HOLLY_ASK_PROTECT:
-			wood_receive_protect(incoming_msg);
-			break;
 
-		case XBEE_WOOD_PROTECT_ZONE:
-			incoming_msg->sid = PROP_WOOD_PROTECT_ZONE;	//On change le SID et on restransmet à la prop.
-			CAN_send(incoming_msg);
-			break;
-
-		case XBEE_WOOD_TAKE_CUP:
-			holly_receive_cup_state(incoming_msg);
-			break;
-		case XBEE_HOLLY_START_MATCH:
-			holly_start_match(incoming_msg);
-			break;
-		case XBEE_WOOD_CAN_DO_CLAP:
-			Wood_can_do_our_clap(incoming_msg);
-			break;
-		case XBEE_WOOD_CAN_GO:
-			ELEMENTS_set_flag(ELEMENTS_WOOD_CAN_GO, TRUE);
-			break;
-		case XBEE_HOLLY_TAKE_MIDDLE_FEET:
-			ELEMENTS_set_flag(ELEMENTS_MIDDLE_FEET_TOOK, TRUE);
-			break;
-		case XBEE_HOLLY_DISPOSE_ON_ESTRAD:
-			ELEMENTS_set_flag(HOLLY_DISPOSED_SPOT_IN_ESTRAD, TRUE);
-			break;
-		case XBEE_HOLLY_DISPOSE_CARPETS:
-			ELEMENTS_set_flag(HOLLY_DISPOSED_FIRST_CARPET, TRUE);
-			ELEMENTS_set_flag(HOLLY_DISPOSED_SECOND_CARPET, TRUE);
-			break;
-		case XBEE_CAN_WOOD_ACCESS_SCAN:
-			holly_can_wood_access_scan(incoming_msg);
-			break;
-		case XBEE_WOOD_ACCESS_SCAN:
-			sub_wood_ask_if_i_can_access_scan(NULL,NULL,NULL,incoming_msg);
-			break;
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_SELFTEST_DONE :
 		case STRAT_ACT_SELFTEST_DONE :

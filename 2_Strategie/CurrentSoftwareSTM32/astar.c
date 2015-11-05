@@ -528,7 +528,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 	GEOMETRY_segment_t seg;
 	//GEOMETRY_point_t middle = GEOMETRY_segment_middle(seg);
 	struct astar_node nodeMid;
-	Sint16 xmid, ymid;
+
 
 	//Ajout des voisins de from à la liste ouverte
 	for(k=0; k<from->nbNeighbors; k++){
@@ -538,9 +538,6 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 		//debug_printf("Tentative d' ajout\n");
 		//debug_printf("Middle of from:(%d , %d)  et (%d , %d)\n", seg.a.x , seg.a.y, seg.b.x, seg.b.y);
 		nodeMid.pos = GEOMETRY_segment_middle(seg);
-		xmid = (seg.a.x +seg.b.x)/2;
-		ymid = (seg.a.y +seg.b.y)/2;
-		//debug_printf("Node middle x=%d, y=%d  (%d, %d)\n", nodeMid.pos.x, nodeMid.pos.y, xmid, ymid);
 		nodeMid.id = NO_ID;
 		nodeMid.polygonId = from->polygonId;
 		nodeMid.enable = TRUE;
@@ -698,11 +695,9 @@ static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from
  */
 static void ASTAR_make_the_path(astar_path_t *path){
 	astar_list_t aux, auxOptimized; //Liste auxiliaire
-	Sint16 i, j, k;
+	Sint16 i, j;
 	astar_ptr_node_t answer1, answer2;
-	bool_e lastNodeNotAdded;
 
-	bool_e go_until_foe = FALSE;
 	GEOMETRY_point_t foe1, foe2, foe;
 	Uint16 minFoe1, minFoe2, minFoe;
 	Uint16 min = 6000;
@@ -735,7 +730,6 @@ static void ASTAR_make_the_path(astar_path_t *path){
 				debug_printf("minFoe(%d,%d) = %d\n", foe.x, foe.y, minFoe);
 				if( minFoe < min){
 					index = i;
-					go_until_foe = TRUE;
 					min = minFoe;
 				}
 			}else if(global.foe[0].enable){
@@ -743,7 +737,6 @@ static void ASTAR_make_the_path(astar_path_t *path){
 				debug_printf("minFoe = %d\n", minFoe1);
 				if( minFoe1 < min){
 					index = i;
-					go_until_foe = TRUE;
 					min = minFoe1;
 					debug_printf("min affected to %d\n", min);
 				}
@@ -752,7 +745,6 @@ static void ASTAR_make_the_path(astar_path_t *path){
 				debug_printf("minFoe = %d\n", minFoe2);
 				if(minFoe2 < min){
 					index = i;
-					go_until_foe = TRUE;
 					min = minFoe2;
 				}
 			}
@@ -855,10 +847,9 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 	static displacement_curve_t displacements[NB_MAX_DISPLACEMENTS];
 	static Uint8 nbDisplacements;
 	static astar_path_t path;
-	static Uint8 nbTry, nbTryFalse;
+	static Uint8 nbTry;
 	static bool_e successPossible;
 	static Uint16 foeRadius;
-	static Uint8 nbTryExecutedFirst = 0;
 
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
 							INIT_PARAMETERS,
@@ -882,9 +873,7 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 					nbTry = 1;
 					break;
 			}
-			nbTryFalse = 0;
 			foeRadius = DEFAULT_FOE_RADIUS;
-			nbTryExecutedFirst = 0;
 			state = INIT;
 		}break;
 
