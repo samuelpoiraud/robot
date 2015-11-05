@@ -514,7 +514,6 @@ static void PROP_goto_until_break (stack_id_e stack_id, bool_e init)
 static void PROP_goto_until_distance_reached (stack_id_e stack_id, bool_e init)
 {
 	CAN_msg_t order;
-	static GEOMETRY_point_t current;
 
 	if (init)
 	{
@@ -534,9 +533,6 @@ static void PROP_goto_until_distance_reached (stack_id_e stack_id, bool_e init)
 		CAN_send(&order);
 
 		PROP_WARNER_arm_distance(distance_to_reach, prop_args[STACKS_get_top(stack_id)].x, prop_args[STACKS_get_top(stack_id)].y);
-
-		current.x = prop_args[STACKS_get_top(stack_id)].x ;
-		current.y = prop_args[STACKS_get_top(stack_id)].y;
 	}
 	else
 	{

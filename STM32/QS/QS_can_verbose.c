@@ -179,48 +179,12 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case XBEE_PING:									print(string, len, "%x XBEE_PING                              ", XBEE_PING										);	break;
 		case XBEE_PONG:									print(string, len, "%x XBEE_PONG                              ", XBEE_PONG										);	break;
 		case XBEE_REACH_POINT_GET_OUT_INIT:				print(string, len, "%x XBEE_REACH_POINT_GET_OUT_INIT          ", XBEE_REACH_POINT_GET_OUT_INIT					);	break;
-		case XBEE_HOLLY_ASK_PROTECT:					print(string, len, "%x XBEE_HOLLY_ASK_PROTECT                 ", XBEE_HOLLY_ASK_PROTECT							);	break;
-		case XBEE_WOOD_PROTECT_ZONE:					print(string, len, "%x XBEE_WOOD_PROTECT_ZONE                 ", XBEE_WOOD_PROTECT_ZONE							);	break;
-		case XBEE_WOOD_TAKE_CUP:						print(string, len, "%x XBEE_WOOD_TAKE_CUP                     ", XBEE_WOOD_TAKE_CUP						    	);	break;
-		case XBEE_HOLLY_START_MATCH:					print(string, len, "%x XBEE_HOLLY_START_MATCH                 ", XBEE_HOLLY_START_MATCH						    );	break;
-		case XBEE_WOOD_CAN_DO_CLAP:					    print(string, len, "%x XBEE_WOOD_CAN_DO_CLAP                  ", XBEE_WOOD_CAN_DO_CLAP						    );	break;
-		case PROP_WOOD_PROTECT_ZONE:					print(string, len, "%x PROP_WOOD_PROTECT_ZONE                 ", PROP_WOOD_PROTECT_ZONE							);	break;
 		case ACT_RESULT:								print(string, len, "%x ACT_RESULT                             ", ACT_RESULT										);	break;
-		case XBEE_WOOD_CAN_GO:							print(string, len, "%x XBEE_WOOD_CAN_GO                       ", XBEE_WOOD_CAN_GO					            );	break;
-		case XBEE_HOLLY_TAKE_MIDDLE_FEET:				print(string, len, "%x XBEE_HOLLY_TAKE_MIDDLE_FEET            ", XBEE_HOLLY_TAKE_MIDDLE_FEET					);	break;
-		case XBEE_HOLLY_DISPOSE_CARPETS:				print(string, len, "%x XBEE_HOLLY_DISPOSE_CARPETS             ", XBEE_HOLLY_DISPOSE_CARPETS			         	);	break;
-		case XBEE_HOLLY_DISPOSE_ON_ESTRAD:				print(string, len, "%x XBEE_HOLLY_DISPOSE_ON_ESTRAD           ", XBEE_HOLLY_DISPOSE_ON_ESTRAD					);	break;
 
 
-// Holly
-		case ACT_POP_COLLECT_LEFT:						print(string, len, "%x ACT_POP_COLLECT_LEFT                   ", ACT_POP_COLLECT_LEFT							);	break;
-		case ACT_POP_COLLECT_RIGHT:						print(string, len, "%x ACT_POP_COLLECT_RIGHT                  ", ACT_POP_COLLECT_RIGHT							);	break;
-		case ACT_POP_DROP_LEFT:							print(string, len, "%x ACT_POP_DROP_LEFT                      ", ACT_POP_DROP_LEFT								);	break;
-		case ACT_POP_DROP_RIGHT:						print(string, len, "%x ACT_POP_DROP_RIGHT                     ", ACT_POP_DROP_RIGHT								);	break;
-		case ACT_BACK_SPOT_RIGHT:						print(string, len, "%x ACT_BACK_SPOT_RIGHT                    ", ACT_BACK_SPOT_RIGHT							);	break;
-		case ACT_BACK_SPOT_LEFT:						print(string, len, "%x ACT_BACK_SPOT_LEFT                     ", ACT_BACK_SPOT_LEFT								);	break;
-		case ACT_SPOT_POMPE_RIGHT:						print(string, len, "%x ACT_SPOT_POMPE_RIGHT                   ", ACT_SPOT_POMPE_RIGHT							);	break;
-		case ACT_SPOT_POMPE_LEFT:						print(string, len, "%x ACT_SPOT_POMPE_LEFT                    ", ACT_SPOT_POMPE_LEFT							);	break;
-		case ACT_CARPET_LAUNCHER_RIGHT:					print(string, len, "%x ACT_CARPET_LAUNCHER_RIGHT              ", ACT_CARPET_LAUNCHER_RIGHT						);	break;
-		case ACT_CARPET_LAUNCHER_LEFT:					print(string, len, "%x ACT_CARPET_LAUNCHER_LEFT               ", ACT_CARPET_LAUNCHER_LEFT						);	break;
-		case ACT_ELEVATOR:								print(string, len, "%x ACT_ELEVATOR                           ", ACT_ELEVATOR									);	break;
-		case ACT_PINCEMI_RIGHT:							print(string, len, "%x ACT_PINCEMI_RIGHT                      ", ACT_PINCEMI_RIGHT								);	break;
-		case ACT_PINCEMI_LEFT:							print(string, len, "%x ACT_PINCEMI_LEFT                       ", ACT_PINCEMI_LEFT								);	break;
-		case ACT_STOCK_RIGHT:							print(string, len, "%x ACT_STOCK_RIGHT                        ", ACT_STOCK_RIGHT								);	break;
-		case ACT_STOCK_LEFT:							print(string, len, "%x ACT_STOCK_LEFT                         ", ACT_STOCK_LEFT									);	break;
-		case ACT_CUP_NIPPER:							print(string, len, "%x ACT_CUP_NIPPER                         ", ACT_CUP_NIPPER									);	break;
-		case ACT_CUP_NIPPER_ELEVATOR:					print(string, len, "%x ACT_CUP_NIPPER_ELEVATOR                ", ACT_CUP_NIPPER_ELEVATOR				    	);	break;
-		case ACT_CLAP_HOLLY:							print(string, len, "%x ACT_CLAP_HOLLY                         ", ACT_CLAP_HOLLY									);	break;
-//Wood
-		case ACT_PINCE_GAUCHE:							print(string, len, "%x ACT_PINCE_GAUCHE                       ", ACT_PINCE_GAUCHE					         	);	break;
-		case ACT_PINCE_DROITE:							print(string, len, "%x ACT_PINCE_DROITE                       ", ACT_PINCE_DROITE					         	);	break;
-		case ACT_CLAP:									print(string, len, "%x ACT_CLAP                               ", ACT_CLAP										);	break;
-		case ACT_POP_DROP_LEFT_WOOD:					print(string, len, "%x ACT_POP_DROP_LEFT_WOOD                 ", ACT_POP_DROP_LEFT_WOOD							);	break;
-		case ACT_POP_DROP_RIGHT_WOOD:					print(string, len, "%x ACT_POP_DROP_RIGHT_WOOD                ", ACT_POP_DROP_RIGHT_WOOD						);	break;
-		case ACT_POMPE_WOOD:							print(string, len, "%x ACT_POMPE_WOOD                         ", ACT_POMPE_WOOD									);	break;
-
-		case PROP_SCAN_CUP:                             print(string, len, "%x PROP_SCAN_CUP                          ", PROP_SCAN_CUP							     	);	break;
-		case STRAT_CUP_POSITION:						print(string, len, "%x STRAT_CUP_POSITION                     ", STRAT_CUP_POSITION						        );	break;
+// Black
+		//case ACT_POP_COLLECT_LEFT:						print(string, len, "%x ACT_POP_COLLECT_LEFT                   ", ACT_POP_COLLECT_LEFT							);	break;
+// Pearl
 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
@@ -250,39 +214,17 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 		case BROADCAST_I_AM_AND_I_AM_HERE:			print(string, len, "| Code %s sur emplacement %s !!!\n", (msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_PROP)?"Prop":"Act"),  (msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_PROP)?"Prop":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_ACT)?"Act":"Inconnu"))); break;
 
-		case XBEE_WOOD_TAKE_CUP:				print(string, len, "| %s %s %s %s %s\n", ((msg->data.xbee_wood_take_cup.cup_north_yellow)?"North Y":""), ((msg->data.xbee_wood_take_cup.cup_south_yellow)?"South Y":""), ((msg->data.xbee_wood_take_cup.cup_middle)?"Mid":""), ((msg->data.xbee_wood_take_cup.cup_north_green)?"North G":""), ((msg->data.xbee_wood_take_cup.cup_south_green)?"South G":"")); break;
 		case ACT_RESULT:
 			print(string,len, "| act0x%x : ", msg->data.act_result.sid);
 			switch(msg->data.act_result.sid)
 			{
-				case (Uint8)ACT_POP_COLLECT_LEFT:		print(string,len, "ACT_POP_COLLECT_LEFT ");		break;
-				case (Uint8)ACT_POP_COLLECT_RIGHT:		print(string,len, "ACT_POP_COLLECT_RIGHT ");	break;
-				case (Uint8)ACT_POP_DROP_LEFT:			print(string,len, "ACT_POP_DROP_LEFT ");		break;
-				case (Uint8)ACT_POP_DROP_RIGHT:			print(string,len, "ACT_POP_DROP_RIGHT ");		break;
-				case (Uint8)ACT_ELEVATOR:				print(string,len, "ACT_ELEVATOR ");				break;
-				case (Uint8)ACT_PINCEMI_RIGHT:			print(string,len, "ACT_PINCEMI_RIGHT ");		break;
-				case (Uint8)ACT_PINCEMI_LEFT:			print(string,len, "ACT_PINCEMI_LEFT ");			break;
-				case (Uint8)ACT_STOCK_RIGHT:			print(string,len, "ACT_STOCK_RIGHT ");			break;
-				case (Uint8)ACT_STOCK_LEFT:				print(string,len, "ACT_STOCK_LEFT ");			break;
-				case (Uint8)ACT_CUP_NIPPER:				print(string,len, "ACT_CUP_NIPPER ");			break;
-				case (Uint8)ACT_CUP_NIPPER_ELEVATOR:	print(string,len, "ACT_CUP_NIPPER_ELEVATOR ");	break;
-				case (Uint8)ACT_BACK_SPOT_RIGHT:		print(string,len, "ACT_BACK_SPOT_RIGHT ");		break;
-				case (Uint8)ACT_BACK_SPOT_LEFT:			print(string,len, "ACT_BACK_SPOT_LEFT ");		break;
-				case (Uint8)ACT_SPOT_POMPE_LEFT:		print(string,len, "ACT_SPOT_POMPE_LEFT ");		break;
-				case (Uint8)ACT_SPOT_POMPE_RIGHT:		print(string,len, "ACT_SPOT_POMPE_RIGHT ");		break;
-				case (Uint8)ACT_CARPET_LAUNCHER_RIGHT:	print(string,len, "ACT_CARPET_LAUNCHER_RIGHT ");break;
-				case (Uint8)ACT_CARPET_LAUNCHER_LEFT:	print(string,len, "ACT_CARPET_LAUNCHER_LEFT ");	break;
-				case (Uint8)ACT_CLAP_HOLLY:				print(string,len, "ACT_CLAP_HOLLY ");			break;
-				case (Uint8)ACT_PINCE_GAUCHE:			print(string,len, "ACT_PINCE_GAUCHE ");			break;
-				case (Uint8)ACT_PINCE_DROITE:			print(string,len, "ACT_PINCE_DROITE ");			break;
-				case (Uint8)ACT_CLAP:					print(string,len, "ACT_CLAP ");					break;
-				case (Uint8)ACT_POP_DROP_LEFT_WOOD:		print(string,len, "ACT_POP_DROP_LEFT_WOOD ");	break;
-				case (Uint8)ACT_POP_DROP_RIGHT_WOOD:	print(string,len, "ACT_POP_DROP_RIGHT_WOOD ");	break;
-				case (Uint8)ACT_POMPE_WOOD:				print(string,len, "ACT_POMPE_WOOD ");			break;
+				// EXEMPLE: case (Uint8)ACT_POP_COLLECT_LEFT:		print(string,len, "ACT_POP_COLLECT_LEFT ");		break;
 				default:								print(string,len, "UNKNOW ACT -> complete verbose !");		break;
 			}
 
-			switch(msg->data.act_result.sid){
+
+			  switch(msg->data.act_result.sid){
+				/*EXEMPLE
 				case (Uint8)ACT_POP_COLLECT_LEFT:
 					switch(msg->data.act_result.cmd){
 						case (Uint8)ACT_POP_COLLECT_LEFT_CLOSED:	print(string,len, "| ACT_POP_COLLECT_LEFT_CLOSED |");	break;
@@ -291,159 +233,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						case (Uint8)ACT_POP_COLLECT_LEFT_STOP:	print(string,len, "| ACT_POP_COLLECT_LEFT_STOP |");			break;
 					}
 				break;
-				case (Uint8)ACT_POP_COLLECT_RIGHT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_POP_COLLECT_RIGHT_CLOSED:	print(string,len, "| ACT_POP_COLLECT_RIGHT_CLOSED |");	break;
-						case (Uint8)ACT_POP_COLLECT_RIGHT_OPEN:	print(string,len, "| ACT_POP_COLLECT_RIGHT_OPEN |");		break;
-						case (Uint8)ACT_POP_COLLECT_RIGHT_MID:	print(string,len, "| ACT_POP_COLLECT_RIGHT_MID |");			break;
-						case (Uint8)ACT_POP_COLLECT_RIGHT_STOP:	print(string,len, "| ACT_POP_COLLECT_RIGHT_STOP |");		break;
-					}
-				break;
-				case (Uint8)ACT_ELEVATOR:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_ELEVATOR_BOT:	print(string,len, "| ACT_ELEVATOR_BOT |");			break;
-						case (Uint8)ACT_ELEVATOR_MID:	print(string,len, "| ACT_ELEVATOR_MID |");			break;
-						case (Uint8)ACT_ELEVATOR_PRE_TOP:	print(string,len, "| ACT_ELEVATOR_PRE_TOP |");	break;
-						case (Uint8)ACT_ELEVATOR_TOP:	print(string,len, "| ACT_ELEVATOR_TOP |");			break;
-						case (Uint8)ACT_ELEVATOR_STOP:	print(string,len, "| ACT_ELEVATOR_STOP |");			break;
-					}
-				break;
-				case (Uint8)ACT_PINCEMI_RIGHT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_PINCEMI_RIGHT_CLOSE:		print(string,len, "| ACT_PINCEMI_RIGHT_CLOSE |");			break;
-						case (Uint8)ACT_PINCEMI_RIGHT_CLOSE_INNER:	print(string,len, "| ACT_PINCEMI_RIGHT_CLOSE_INNER |");		break;
-						case (Uint8)ACT_PINCEMI_RIGHT_LOCK:			print(string,len, "| ACT_PINCEMI_RIGHT_LOCK |");			break;
-						case (Uint8)ACT_PINCEMI_RIGHT_OPEN:			print(string,len, "| ACT_PINCEMI_RIGHT_OPEN |");			break;
-						case (Uint8)ACT_PINCEMI_RIGHT_OPEN_GREAT:	print(string,len, "| ACT_PINCEMI_RIGHT_OPEN_GREAT |");		break;
-						case (Uint8)ACT_PINCEMI_RIGHT_STOP:			print(string,len, "| ACT_PINCEMI_RIGHT_STOP |");			break;
-					}
-				break;
-				case (Uint8)ACT_PINCEMI_LEFT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_PINCEMI_LEFT_CLOSE:			print(string,len, "| ACT_PINCEMI_LEFT_CLOSE |");	    break;
-						case (Uint8)ACT_PINCEMI_LEFT_CLOSE_INNER:	print(string,len, "| ACT_PINCEMI_LEFT_CLOSE_INNER |");	break;
-						case (Uint8)ACT_PINCEMI_LEFT_LOCK:			print(string,len, "| ACT_PINCEMI_LEFT_LOCK |");			break;
-						case (Uint8)ACT_PINCEMI_LEFT_OPEN:			print(string,len, "| ACT_PINCEMI_LEFT_OPEN |");			break;
-						case (Uint8)ACT_PINCEMI_LEFT_OPEN_GREAT:	print(string,len, "| ACT_PINCEMI_LEFT_OPEN_GREAT |");	break;
-						case (Uint8)ACT_PINCEMI_LEFT_STOP:			print(string,len, "| ACT_PINCEMI_LEFT_STOP |");			break;
-					}
-				break;
-				case (Uint8)ACT_STOCK_RIGHT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_STOCK_RIGHT_CLOSE:	print(string,len, "| ACT_STOCK_RIGHT_CLOSE |");		break;
-						case (Uint8)ACT_STOCK_RIGHT_LOCK:	print(string,len, "| ACT_STOCK_RIGHT_LOCK |");		break;
-						case (Uint8)ACT_STOCK_RIGHT_UNLOCK:	print(string,len, "| ACT_STOCK_RIGHT_UNLOCK |");	break;
-						case (Uint8)ACT_STOCK_RIGHT_OPEN:	print(string,len, "| ACT_STOCK_RIGHT_OPEN |");		break;
-						case (Uint8)ACT_STOCK_RIGHT_STOP:	print(string,len, "| ACT_STOCK_RIGHT_STOP |");		break;
-					}
-				break;
-				case (Uint8)ACT_STOCK_LEFT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_STOCK_LEFT_CLOSE:	print(string,len, "| ACT_STOCK_LEFT_CLOSE |");		break;
-						case (Uint8)ACT_STOCK_LEFT_LOCK:	print(string,len, "| ACT_STOCK_LEFT_LOCK |");		break;
-						case (Uint8)ACT_STOCK_LEFT_UNLOCK:	print(string,len, "| ACT_STOCK_LEFT_UNLOCK |");		break;
-						case (Uint8)ACT_STOCK_LEFT_OPEN:	print(string,len, "| ACT_STOCK_LEFT_OPEN |");		break;
-						case (Uint8)ACT_STOCK_LEFT_STOP:	print(string,len, "| ACT_STOCK_LEFT_STOP |");		break;
-					}
-				break;
-				case (Uint8)ACT_CUP_NIPPER:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_CUP_NIPPER_OPEN:	print(string,len, "| ACT_CUP_NIPPER_OPEN |");		break;
-						case (Uint8)ACT_CUP_NIPPER_CLOSE:	print(string,len, "| ACT_CUP_NIPPER_CLOSE |");		break;
-						case (Uint8)ACT_CUP_NIPPER_LOCK:	print(string,len, "| ACT_CUP_NIPPER_LOCK |");		break;
-						case (Uint8)ACT_CUP_NIPPER_STOP:	print(string,len, "| ACT_CUP_NIPPER_STOP |");		break;
-					}
-				break;
-				case (Uint8)ACT_CUP_NIPPER_ELEVATOR:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_CUP_NIPPER_ELEVATOR_IDLE:	print(string,len, "| ACT_CUP_NIPPER_ELEVATOR_IDLE |");		break;
-						case (Uint8)ACT_CUP_NIPPER_ELEVATOR_UP:		print(string,len, "| ACT_CUP_NIPPER_ELEVATOR_UP |");		break;
-						case (Uint8)ACT_CUP_NIPPER_ELEVATOR_STOP:	print(string,len, "| ACT_CUP_NIPPER_ELEVATOR_STOP |");		break;
-
-					}
-				break;
-				case (Uint8)ACT_BACK_SPOT_RIGHT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_BACK_SPOT_RIGHT_CLOSED:	print(string,len, "| ACT_BACK_SPOT_RIGHT_CLOSED |");	break;
-						case (Uint8)ACT_BACK_SPOT_RIGHT_OPEN:	print(string,len, "| ACT_BACK_SPOT_RIGHT_OPEN |");		break;
-						case (Uint8)ACT_BACK_SPOT_RIGHT_STOP:	print(string,len, "| ACT_BACK_SPOT_RIGHT_STOP |");		break;
-					}
-				break;
-				case (Uint8)ACT_BACK_SPOT_LEFT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_BACK_SPOT_LEFT_CLOSED:	print(string,len, "| ACT_BACK_SPOT_LEFT_CLOSED |");	break;
-						case (Uint8)ACT_BACK_SPOT_LEFT_OPEN:	print(string,len, "| ACT_BACK_SPOT_LEFT_OPEN |");	break;
-						case (Uint8)ACT_BACK_SPOT_LEFT_STOP:	print(string,len, "| ACT_BACK_SPOT_LEFT_STOP |");	break;
-					}
-				break;
-				case (Uint8)ACT_SPOT_POMPE_LEFT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_SPOT_POMPE_LEFT_NORMAL:	print(string,len, "| ACT_SPOT_POMPE_LEFT_NORMAL |");		break;
-						case (Uint8)ACT_SPOT_POMPE_LEFT_REVERSE:	print(string,len, "| ACT_SPOT_POMPE_LEFT_REVERSE |");	break;
-						case (Uint8)ACT_SPOT_POMPE_LEFT_STOP:	print(string,len, "| ACT_SPOT_POMPE_LEFT_STOP |");			break;
-					}
-				break;
-				case (Uint8)ACT_SPOT_POMPE_RIGHT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_SPOT_POMPE_RIGHT_NORMAL:	print(string,len, "| ACT_SPOT_POMPE_LEFT_NORMAL |");	break;
-						case (Uint8)ACT_SPOT_POMPE_RIGHT_REVERSE:	print(string,len, "| ACT_SPOT_POMPE_LEFT_REVERSE |");	break;
-						case (Uint8)ACT_SPOT_POMPE_RIGHT_STOP:	print(string,len, "| ACT_SPOT_POMPE_LEFT_STOP |");			break;
-					}
-				break;
-				case (Uint8)ACT_CARPET_LAUNCHER_LEFT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_CARPET_LAUNCHER_LEFT_IDLE:	print(string,len, "| ACT_CARPET_LAUNCHER_LEFT_IDLE |");			break;
-						case (Uint8)ACT_CARPET_LAUNCHER_LEFT_LOADING:	print(string,len, "| ACT_CARPET_LAUNCHER_LEFT_LOADING |");	break;
-						case (Uint8)ACT_CARPET_LAUNCHER_LEFT_LAUNCH:	print(string,len, "| ACT_CARPET_LAUNCHER_LEFT_LAUNCH |");	break;
-						case (Uint8)ACT_CARPET_LAUNCHER_LEFT_STOP:	print(string,len, "| ACT_CARPET_LAUNCHER_LEFT_STOP |");			break;
-					}
-				break;
-				case (Uint8)ACT_CARPET_LAUNCHER_RIGHT:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_CARPET_LAUNCHER_RIGHT_IDLE:	print(string,len, "| ACT_CARPET_LAUNCHER_RIGHT_IDLE |");		break;
-						case (Uint8)ACT_CARPET_LAUNCHER_RIGHT_LOADING:	print(string,len, "| ACT_CARPET_LAUNCHER_RIGHT_LOADING |");	break;
-						case (Uint8)ACT_CARPET_LAUNCHER_RIGHT_LAUNCH:	print(string,len, "| ACT_CARPET_LAUNCHER_RIGHT_LAUNCH |");	break;
-						case (Uint8)ACT_CARPET_LAUNCHER_RIGHT_STOP:	print(string,len, "| ACT_CARPET_LAUNCHER_RIGHT_STOP |");		break;
-					}
-				break;
-				case (Uint8)ACT_CLAP_HOLLY:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_CLAP_HOLLY_IDLE:	print(string,len, "| ACT_CLAP_HOLLY_IDLE |");		break;
-						case (Uint8)ACT_CLAP_HOLLY_LEFT:	print(string,len, "| ACT_CLAP_HOLLY_LEFT |");		break;
-						case (Uint8)ACT_CLAP_HOLLY_RIGHT:	print(string,len, "| ACT_CLAP_HOLLY_RIGHT |");		break;
-						case (Uint8)ACT_CLAP_HOLLY_MIDDLE_LEFT:		print(string,len, "| ACT_CLAP_HOLLY_MIDDLE_LEFT |");		break;
-						case (Uint8)ACT_CLAP_HOLLY_MIDDLE_RIGHT	:	print(string,len, "| ACT_CLAP_HOLLY_MIDDLE_RIGHT |");		break;
-						case (Uint8)ACT_CLAP_HOLLY_STOP:	print(string,len, "| ACT_CLAP_HOLLY_STOP |");		break;
-					}
-				break;
-				case (Uint8)ACT_PINCE_GAUCHE:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_PINCE_GAUCHE_IDLE_POS:	print(string,len, "| ACT_PINCE_GAUCHE_IDLE_POS |");	break;
-						case (Uint8)ACT_PINCE_GAUCHE_CLOSED:	print(string,len, "| ACT_PINCE_GAUCHE_CLOSED |");	break;
-						case (Uint8)ACT_PINCE_GAUCHE_OPEN:		print(string,len, "| ACT_PINCE_GAUCHE_OPEN |");		break;
-						case (Uint8)ACT_PINCE_GAUCHE_MID_POS:	print(string,len, "| ACT_PINCE_GAUCHE_MID_POS |");	break;
-						case (Uint8)ACT_PINCE_GAUCHE_STOP:		print(string,len, "| ACT_PINCE_GAUCHE_STOP |");		break;
-						case (Uint8)ACT_CONFIG:					print(string,len, "| ACT_CONFIG |");				break;
-					}
-					break;
-				case (Uint8)ACT_PINCE_DROITE:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_PINCE_DROITE_IDLE_POS:	print(string,len, "| ACT_PINCE_DROITE_IDLE_POS |");	break;
-						case (Uint8)ACT_PINCE_DROITE_CLOSED:	print(string,len, "| ACT_PINCE_DROITE_CLOSED |");	break;
-						case (Uint8)ACT_PINCE_DROITE_OPEN:	print(string,len, "| ACT_PINCE_DROITE_OPEN |");			break;
-						case (Uint8)ACT_PINCE_DROITE_MID_POS:	print(string,len, "| ACT_PINCE_DROITE_MID_POS |");	break;
-						case (Uint8)ACT_PINCE_DROITE_STOP:	print(string,len, "| ACT_PINCE_DROITE_STOP |");			break;
-						case (Uint8)ACT_CONFIG:					print(string,len, "| ACT_CONFIG |");				break;
-					}
-					break;
-				case (Uint8)ACT_POMPE_WOOD:
-					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_POMPE_WOOD_NORMAL:	print(string,len, "| ACT_SPOT_POMPE_LEFT_NORMAL |");	  break;
-						case (Uint8)ACT_POMPE_WOOD_REVERSE:	print(string,len, "| ACT_SPOT_POMPE_LEFT_REVERSE |");  break;
-						case (Uint8)ACT_POMPE_WOOD_STOP:	print(string,len, "| ACT_SPOT_POMPE_LEFT_STOP |");	       break;
-					}
-				break;
-
+				*/
 			}
 
 			//Todo ajouter la commande dont on envoie le résultat (data 1) ???
