@@ -57,27 +57,6 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			#endif
 			QUEUE_flush_all();
 
-			CAN_msg_t msg;
-			msg.size = 1;
-
-			msg.sid = ACT_STOCK_RIGHT;
-			msg.data.act_msg.order = ACT_STOCK_RIGHT_OPEN;
-			CAN_process_msg(&msg);
-
-
-			msg.sid = ACT_STOCK_LEFT;
-			msg.data.act_msg.order = ACT_STOCK_LEFT_OPEN;
-			CAN_process_msg(&msg);
-
-
-			msg.sid = ACT_PINCEMI_LEFT;
-			msg.data.act_msg.order = ACT_PINCEMI_LEFT_OPEN;
-			CAN_process_msg(&msg);
-
-
-			msg.sid = ACT_PINCEMI_RIGHT;
-			msg.data.act_msg.order = ACT_PINCEMI_RIGHT_OPEN;
-			CAN_process_msg(&msg);
 
 			WATCHDOG_create(500, &break_asser_end_match, FALSE);
 			}break;
@@ -136,13 +115,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 #ifdef I_AM_ROBOT_BIG
 
 #else
-				case ACT_SENSOR_ID_PINCE_GOBELET_DROITE:
-					answer.data.strat_inform_capteur.present = WT100_GOBELET_RIGHT;
-					break;
 
-				case ACT_SENSOR_ID_PINCE_GOBELET_GAUCHE:
-					answer.data.strat_inform_capteur.present = WT100_GOBELET_LEFT;
-					break;
 #endif
 				default:
 					found = FALSE;

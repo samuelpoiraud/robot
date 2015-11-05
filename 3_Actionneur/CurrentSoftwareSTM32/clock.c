@@ -14,8 +14,6 @@
 #include "QS/QS_buttons.h"
 #include "QS/QS_DCMotor2.h"
 #include "QS/QS_ports.h"
-#include "Holly/Ascenseur/elevator.h"
-#include "Holly/Cup/cup_nipper.h"
 
 #ifdef CLOCK_TIMER_ID
 	#define TIMER_SRC_TIMER_ID CLOCK_TIMER_ID
@@ -50,8 +48,7 @@ void CLOCK_init()
 void TIMER_SRC_TIMER_interrupt()
 {
 	#ifdef I_AM_ROBOT_BIG
-		ELEVATOR_process_it();
-		CUP_NIPPER_process_it();
+
 	#endif
 
 	#ifdef USE_DCMOTOR2

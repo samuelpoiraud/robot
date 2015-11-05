@@ -35,8 +35,7 @@
 #include "Can_msg_processing.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Holly/Ascenseur/elevator.h"
-	#include "Holly/Cup/cup_nipper.h"
+
 #else
 
 #endif
@@ -48,7 +47,6 @@ static void MAIN_onButton2();
 static void MAIN_onButton3();
 static void MAIN_onButton4();
 static void MAIN_onButton5();
-static void MAIN_onButton6();
 static void MAIN_onButton0LongPush();
 static void MAIN_onButton1LongPush();
 static void MAIN_onButton2LongPush();
@@ -149,8 +147,7 @@ int main (void)
 		MAIN_sensor_test();
 
 		#ifdef I_AM_ROBOT_BIG
-			ELEVATOR_state_machine();
-			//CUP_NIPPER_state_machine();
+
 		#else
 
 		#endif
@@ -181,7 +178,8 @@ int main (void)
 
 #ifdef I_AM_ROBOT_BIG
 static void MAIN_onButton0() {
-	static Uint8 state = 0;
+	/*EXEMPLE
+	 static Uint8 state = 0;
 	CAN_msg_t msg1, msg2;
 	msg1.size = 1;
 	msg2.size = 1;
@@ -205,264 +203,36 @@ static void MAIN_onButton0() {
 
 	CAN_process_msg(&msg1);
 	CAN_process_msg(&msg2);
-	state = (state == 3)? 0 : state + 1;
+	state = (state == 3)? 0 : state + 1;*/
 }
 
-static void MAIN_onButton0LongPush() {
-	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
-	msg1.sid = ACT_PINCEMI_RIGHT;
-	msg2.sid = ACT_PINCEMI_LEFT;
+static void MAIN_onButton0LongPush() {}
 
-	if(state == 0){
-		msg1.data.act_msg.order = ACT_PINCEMI_RIGHT_LOCK;
-		msg2.data.act_msg.order = ACT_PINCEMI_LEFT_LOCK;
-	}else if(state == 1){
-		msg1.data.act_msg.order = ACT_PINCEMI_RIGHT_OPEN;
-		msg2.data.act_msg.order = ACT_PINCEMI_LEFT_OPEN;
-	}
+static void MAIN_onButton1() {}
 
-	CAN_process_msg(&msg1);
-	CAN_process_msg(&msg2);
-	state = (state == 1)? 0 : state + 1;
-}
+static void MAIN_onButton1LongPush() {}
 
-static void MAIN_onButton1() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_SPOT_POMPE_LEFT;
-	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
+static void MAIN_onButton2() {}
 
-	if(state == 0){
-		msg.data.act_msg.order = ACT_SPOT_POMPE_LEFT_NORMAL;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_SPOT_POMPE_LEFT_REVERSE;
-	}else if(state == 2){
-		msg.data.act_msg.order = ACT_SPOT_POMPE_LEFT_STOP;
-	}
+static void MAIN_onButton2LongPush() {}
 
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
-}
+static void MAIN_onButton3() {}
 
-static void MAIN_onButton1LongPush() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_BACK_SPOT_LEFT;
+static void MAIN_onButton3LongPush() {}
 
-	if(state == 0){
-		msg.data.act_msg.order = ACT_BACK_SPOT_LEFT_CLOSED;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_BACK_SPOT_LEFT_OPEN;
-	}
+static void MAIN_onButton4() {}
 
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
-}
+static void MAIN_onButton4LongPush() {}
 
-static void MAIN_onButton2() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_SPOT_POMPE_RIGHT;
-	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
+static void MAIN_onButton5() {}
 
-	if(state == 0){
-		msg.data.act_msg.order = ACT_SPOT_POMPE_RIGHT_NORMAL;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_SPOT_POMPE_RIGHT_REVERSE;
-	}else if(state == 2){
-		msg.data.act_msg.order = ACT_SPOT_POMPE_RIGHT_STOP;
-	}
+static void MAIN_onButton5LongPush() {}
 
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
-}
-
-static void MAIN_onButton2LongPush() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_BACK_SPOT_RIGHT;
-
-	if(state == 0){
-		msg.data.act_msg.order = ACT_BACK_SPOT_RIGHT_CLOSED;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_BACK_SPOT_RIGHT_OPEN;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
-}
-
-static void MAIN_onButton3() {
-	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
-	msg1.sid = ACT_POP_COLLECT_RIGHT;
-	msg2.sid = ACT_POP_COLLECT_LEFT;
-
-	if(state == 0){
-		msg1.data.act_msg.order = ACT_POP_COLLECT_RIGHT_OPEN;
-		msg2.data.act_msg.order = ACT_POP_COLLECT_LEFT_OPEN;
-	}else if(state == 1){
-		msg1.data.act_msg.order = ACT_POP_COLLECT_RIGHT_MID;
-		msg2.data.act_msg.order = ACT_POP_COLLECT_LEFT_MID;
-	}else if(state == 2){
-		msg1.data.act_msg.order = ACT_POP_COLLECT_RIGHT_CLOSED;
-		msg2.data.act_msg.order = ACT_POP_COLLECT_LEFT_CLOSED;
-	}
-
-	CAN_process_msg(&msg1);
-	CAN_process_msg(&msg2);
-	state = (state == 2)? 0 : state + 1;
-}
-
-static void MAIN_onButton3LongPush() {
-	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
-	msg1.sid = ACT_POP_DROP_RIGHT;
-	msg2.sid = ACT_POP_DROP_LEFT;
-
-	if(state == 0){
-		msg1.data.act_msg.order = ACT_POP_DROP_RIGHT_CLOSED;
-		msg2.data.act_msg.order = ACT_POP_DROP_LEFT_CLOSED;
-	}else if(state == 1){
-		msg1.data.act_msg.order = ACT_POP_DROP_RIGHT_OPEN;
-		msg2.data.act_msg.order = ACT_POP_DROP_LEFT_OPEN;
-	}else if(state == 2){
-		msg1.data.act_msg.order = ACT_POP_DROP_RIGHT_MID;
-		msg2.data.act_msg.order = ACT_POP_DROP_LEFT_MID;
-	}
-
-	CAN_process_msg(&msg1);
-	CAN_process_msg(&msg2);
-	state = (state == 2)? 0 : state + 1;
-}
-
-static void MAIN_onButton4() {
-	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2, msg3;
-	msg1.size = 1;
-	msg2.size = 1;
-	msg3.size = 1;
-	msg1.sid = ACT_PINCEMI_RIGHT;
-	msg2.sid = ACT_STOCK_RIGHT;
-	msg3.sid = ACT_ELEVATOR;
-
-	if(state == 0){
-		msg1.data.act_msg.order = ACT_PINCEMI_RIGHT_LOCK;
-		msg2.data.act_msg.order = ACT_STOCK_RIGHT_OPEN;
-	}else if(state == 1){
-		msg3.data.act_msg.order = ACT_ELEVATOR_TOP;
-	}else if(state == 2){
-		msg2.data.act_msg.order = ACT_STOCK_RIGHT_LOCK;
-	}else if(state == 3){
-		msg1.data.act_msg.order = ACT_PINCEMI_RIGHT_OPEN;
-		msg3.data.act_msg.order = ACT_ELEVATOR_BOT;
-	}
-
-	CAN_process_msg(&msg1);
-	CAN_process_msg(&msg2);
-	CAN_process_msg(&msg3);
-	state = (state == 3)? 0 : state + 1;
-}
-
-static void MAIN_onButton4LongPush() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_CLAP_HOLLY;
-
-	if(state == 0){
-		msg.data.act_msg.order = ACT_CLAP_HOLLY_IDLE;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_CLAP_HOLLY_LEFT;
-	}else if(state == 2){
-		msg.data.act_msg.order = ACT_CLAP_HOLLY_IDLE;
-	}else if(state == 3){
-		msg.data.act_msg.order = ACT_CLAP_HOLLY_RIGHT;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 3)? 0 : state + 1;
-}
-
-static void MAIN_onButton5() {
-	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
-	msg1.sid = ACT_CARPET_LAUNCHER_RIGHT;
-	msg2.sid = ACT_CARPET_LAUNCHER_LEFT;
-
-	if(state == 0){
-		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
-		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_IDLE;
-	}else if(state == 1){
-		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_LOADING;
-		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_LOADING;
-	}
-
-	CAN_process_msg(&msg1);
-	CAN_process_msg(&msg2);
-	state = (state == 1)? 0 : state + 1;
-}
-
-static void MAIN_onButton5LongPush() {
-	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
-	msg1.sid = ACT_CARPET_LAUNCHER_RIGHT;
-	msg2.sid = ACT_CARPET_LAUNCHER_LEFT;
-
-	if(state == 0){
-		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
-		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_IDLE;
-	}else if(state == 1){
-		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_IDLE;
-		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_LAUNCH;
-	}else if(state == 2){
-		msg1.data.act_msg.order = ACT_CARPET_LAUNCHER_RIGHT_LAUNCH;
-		msg2.data.act_msg.order = ACT_CARPET_LAUNCHER_LEFT_IDLE;
-	}
-
-	CAN_process_msg(&msg1);
-	CAN_process_msg(&msg2);
-	state = (state == 2)? 0 : state + 1;
-}
-
-static void MAIN_onButton6() {
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_ELEVATOR;
-
-	if(state == 0){
-		msg.data.act_msg.order = ACT_ELEVATOR_BOT;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_ELEVATOR_MID;
-	}else if(state == 2){
-		msg.data.act_msg.order = ACT_ELEVATOR_PRE_TOP;
-	}else if(state == 3){
-		msg.data.act_msg.order = ACT_ELEVATOR_TOP;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 3)? 0 : state + 1;
-}
 
 #else // ROBOT_SMALL
 
 static void MAIN_onButton0(){
+	/* EXEMPLE
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 2;
@@ -479,88 +249,29 @@ static void MAIN_onButton0(){
 	}
 
 	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
+	state = (state == 2)? 0 : state + 1;*/
 }
 static void MAIN_onButton0LongPush(){}
 
-static void MAIN_onButton1(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_PINCE_GAUCHE;
-
-	if(state == 0)
-		msg.data.act_msg.order = ACT_PINCE_GAUCHE_OPEN	;
-	else if(state == 1)
-		msg.data.act_msg.order = ACT_PINCE_GAUCHE_CLOSED;
-	else if(state == 2)
-		msg.data.act_msg.order = ACT_PINCE_GAUCHE_IDLE_POS;
-
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
-}
+static void MAIN_onButton1(){}
 
 static void MAIN_onButton1LongPush(){}
 
-static void MAIN_onButton2(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_PINCE_DROITE;
-
-	if(state == 0)
-		msg.data.act_msg.order = ACT_PINCE_DROITE_OPEN	;
-	else if(state == 1)
-		msg.data.act_msg.order = ACT_PINCE_DROITE_CLOSED;
-	else if(state == 2)
-		msg.data.act_msg.order = ACT_PINCE_DROITE_IDLE_POS;
-
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
-}
+static void MAIN_onButton2(){}
 
 static void MAIN_onButton2LongPush(){}
 
-static void MAIN_onButton3(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_CLAP;
-
-	if(state == 0)
-		msg.data.act_msg.order = ACT_CLAP_OPEN;
-	else if(state == 1)
-		msg.data.act_msg.order = ACT_CLAP_CLOSED;
-	else if(state == 2)
-		msg.data.act_msg.order = ACT_CLAP_POP_CORN;
-
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
-}
+static void MAIN_onButton3(){}
 
 static void MAIN_onButton3LongPush(){}
 
 static void MAIN_onButton4(){}
 
 static void MAIN_onButton4LongPush(){}
-static void MAIN_onButton5(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_POP_DROP_LEFT_WOOD;
 
-	if(state == 0)
-		msg.data.act_msg.order = ACT_POP_DROP_LEFT_WOOD_MID;
-	else if(state == 1)
-		msg.data.act_msg.order = ACT_POP_DROP_LEFT_WOOD_OPEN;
-	else if(state == 2)
-		msg.data.act_msg.order = ACT_POP_DROP_LEFT_WOOD_CLOSED;
+static void MAIN_onButton5(){}
 
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
-}
 static void MAIN_onButton5LongPush(){}
-static void MAIN_onButton6(){}
 
 #endif // ROBOT_BIG et ROBOT_SMALL
 
@@ -574,9 +285,10 @@ static void MAIN_global_var_init(){
 }
 
 static void MAIN_sensor_test(){
-	static bool_e led_on = FALSE;
+	//static bool_e led_on = FALSE;
 #ifdef I_AM_ROBOT_BIG
-	if(CUP_NIPPER_FDC || ELEVATOR_FDC){
+	/* EXEMPLE
+	 if(CUP_NIPPER_FDC || ELEVATOR_FDC){
 		if(led_on == FALSE){
 			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 			led_on = TRUE;
@@ -584,16 +296,8 @@ static void MAIN_sensor_test(){
 	}else if(led_on == TRUE){
 		IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
 		led_on = FALSE;
-	}
+	}*/
 #else
-	if(WT100_GOBELET_RIGHT || WT100_GOBELET_LEFT){
-		if(led_on == FALSE){
-			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
-			led_on = TRUE;
-		}
-	}else if(led_on == TRUE){
-		IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
-		led_on = FALSE;
-	}
+
 #endif
 }
