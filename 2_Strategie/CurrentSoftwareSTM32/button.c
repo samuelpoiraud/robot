@@ -38,6 +38,7 @@ void BUTTON_init()
 	BUTTONS_init();
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 
+	IHM_define_act_button(BP_0_IHM,BUTTON_rush, NULL);
 	IHM_define_act_button(BP_GO_TO_HOME,BOUTTON_go_to_home, NULL);
 	IHM_define_act_button(BP_OK,LCD_button_ok, NULL);
 	IHM_define_act_button(BP_UP,LCD_button_up, LCD_button_up);
@@ -103,6 +104,16 @@ void BOUTTON_go_to_home(void){
 	global.flags.go_to_home = TRUE;
 }
 
+void BUTTON_rush(void){
+	debug_printf("Rush\r\n");
+	CAN_msg_t order;
+	order.sid = PROP_RUSH_IN_THE_WALL;
+	order.size = SIZE_PROP_RUSH_IN_THE_WALL;
+	order.data.prop_rush_in_the_wall.teta = global.pos.angle;
+	order.data.prop_rush_in_the_wall.way = ANY_WAY;
+	order.data.prop_rush_in_the_wall.asser_rot = SLOW;
+	CAN_send (&order);
+}
 
 void BUTTON_verbose(void)
 {
