@@ -251,7 +251,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		break;
 
 		case PROP_GO_POSITION:
-			//debug_printf("Receveid new go_position : x -> %d, y -> %d\n", U16FROMU8(msg->data[1],msg->data[2]), U16FROMU8(msg->data[3],msg->data[4]));
+			//debug_printf("Receveid new go_position : x -> %d, y -> %d\n", msg->data.prop_go_position.x, msg->data.prop_go_position.y);
 			//Réglage sens:
 			if ((msg->data.prop_go_position.way == BACKWARD) || (msg->data.prop_go_position.way == FORWARD))
 				sens_marche = msg->data.prop_go_position.way;	//LE SENS EST imposé
