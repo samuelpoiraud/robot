@@ -263,7 +263,7 @@ void affichage_global(void)
 
 
 					//Spécifique terrain 2015
-					if(global.position.y > 1000 && global.position.y < 2000 && global.position.x < 580+robotSize)	//Escaliers
+					/*if(global.position.y > 1000 && global.position.y < 2000 && global.position.x < 580+robotSize)	//Escaliers
 					{
 						global.real_speed_translation = 0;
 						global.position.x = 580+robotSize;
@@ -289,7 +289,7 @@ void affichage_global(void)
 							global.position.y = 3000-robotSize;
 							we_touch_border = TRUE;
 						}
-					}
+					}*/
 				}
 			}
 			/*	en gros, la vitesse à prendre en début d'IT est l'écart entre le robot et le nouveau point fictif
