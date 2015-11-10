@@ -194,17 +194,18 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 
 	//Polygon[2]:Zone central avec le plexi (Node 10 -> 20)
 	//espacement tous les PI4096/6
-	ASTAR_create_element_polygon(currentNodeId, 11, (astar_user_node_t){750, 2100 + MARGIN_TO_OBSTACLE, TRUE},
+	ASTAR_create_element_polygon(currentNodeId, 12, (astar_user_node_t){750, 2100 + MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 2100 + CORNER_MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 2100, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 1500, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 900, TRUE},
 									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){750 - 0.5*(900 - MARGIN_TO_OBSTACLE), -0.886*(900 - MARGIN_TO_OBSTACLE), TRUE},  //-2*PI4096/6
-									(astar_user_node_t){750 - 0.886*(900 - MARGIN_TO_OBSTACLE), -0.5*(900 - MARGIN_TO_OBSTACLE), TRUE},  //-PI4096/6
-									(astar_user_node_t){1350, 1500, FALSE},                                                               // 0
-									(astar_user_node_t){750 + 0.866*(900 - MARGIN_TO_OBSTACLE), 0.5*(900 - MARGIN_TO_OBSTACLE), TRUE},  //PI4096/6
-									(astar_user_node_t){750 + 0.5*(900 - MARGIN_TO_OBSTACLE), 0.886*(900 - MARGIN_TO_OBSTACLE), TRUE}); //2*PI4096/6
+									(astar_user_node_t){750, 900 - MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){750 + 0.5*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.886*(600 + MARGIN_TO_OBSTACLE), TRUE},  //-2*PI4096/6
+									(astar_user_node_t){750 + 0.886*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.5*(600 + MARGIN_TO_OBSTACLE), TRUE},  //-PI4096/6
+									(astar_user_node_t){1350 + MARGIN_TO_OBSTACLE, 1500, FALSE},                                                               // 0
+									(astar_user_node_t){750 + 0.866*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.5*(600 + MARGIN_TO_OBSTACLE), TRUE},  //PI4096/6
+									(astar_user_node_t){750 + 0.5*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.886*(600 + MARGIN_TO_OBSTACLE), TRUE}); //2*PI4096/6
 
 	//Polygon[3]:Zone de la dune (Node 21 -> 29)
 	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){0, 800 - MARGIN_TO_OBSTACLE, TRUE},
@@ -426,7 +427,7 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 	ASTAR_generate_polygon_list(&currentNodeId, foeRadius);
 
 	//Affichage de la liste de polygones
-	//ASTAR_print_polygon_list();
+	ASTAR_print_polygon_list();
 
 	//Génération du graphe
 	ASTAR_generate_graph(path, from, destination, &currentNodeId);
@@ -1346,7 +1347,7 @@ void ASTAR_print_polygon_list(){
 		if(polygon_list.polygons[i].enable){
 			for(j=0; j< polygon_list.polygons[i].nbSummits; j++){
 				if(polygon_list.polygons[i].summits[j].enable){
-					debug_printf("%d       %d\n", polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y);
+					debug_printf("%d \t            %d\n", polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y);
 					nb++;
 				}
 			}
