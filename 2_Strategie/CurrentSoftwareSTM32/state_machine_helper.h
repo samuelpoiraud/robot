@@ -28,6 +28,7 @@ typedef enum {
 
 	SM_ID_STRAT_PEARL_INUTILE						= 0x0120,
 
+
 	//0x200 SUBACTIONS
 	SM_ID_SUB_RECALAGE_X							= 0x0201,
 	SM_ID_SUB_RECALAGE_Y							= 0x0202,
@@ -39,7 +40,8 @@ typedef enum {
 	SM_ID_PATHFIND_TRY_GOING						= 0x0306,
 	SM_ID_EXTRACTION_OF_FOE							= 0x0307,
 	SM_ID_ASTAR_TRY_GOING							= 0x0308,
-	SM_ID_GO_TO_START_ZONE                          = 0x0309
+	SM_ID_GO_TO_START_ZONE							= 0x0309,
+	SM_ID_GO_TO_POISSON								= 0x0310
 } UTILS_state_machine_id_e;
 
 

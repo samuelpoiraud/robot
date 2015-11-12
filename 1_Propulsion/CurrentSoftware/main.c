@@ -194,7 +194,7 @@ int main (void)
 */
 
 	#ifdef USE_GYROSCOPE
-		//WATCHDOG_create(1000, &GYRO_test, TRUE);
+//WATCHDOG_create(1000, &GYRO_test, TRUE);
 	#endif
 
 	while(1)
