@@ -35,11 +35,12 @@ typedef enum{
 
 const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{0,							NB_QUEUE,						""},
-	{ACT_FISH_BRUSH,			ACT_QUEUE_Fish_brush,			"Fish Brush"}
-	// Holly
-	//EXEMPLE : {ACT_POP_COLLECT_LEFT,		ACT_QUEUE_Pop_collect_left,		"Pop collect left"}
 
-	// Wood
+	// Black
+	{ACT_FISH_BRUSH,			ACT_QUEUE_Fish_brush,			    "Fish Brush"},
+	{ACT_FISH_MAGNETIC_ARM,		ACT_QUEUE_Fish_magnetic_arm,		"Fish Magnetic arm"}
+
+	// Pearl
 
 };
 

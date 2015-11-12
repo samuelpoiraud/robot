@@ -17,6 +17,8 @@
 #ifdef I_AM_ROBOT_BIG
 	#include "Black/Fishs/fish_brush.h"
 	#include "Black/Fishs/fish_brush_config.h"
+	#include "Black/Fishs/fish_magnetic_arm.h"
+	#include "Black/Fishs/fish_magnetic_arm_config.h"
 #else
 
 #endif
@@ -28,7 +30,8 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 static ACTQ_functions_t actionneurs[] = {
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
-		ACT_DECLARE(FISH_BRUSH)
+		ACT_DECLARE(FISH_BRUSH),
+		ACT_DECLARE(FISH_MAGNETIC_ARM)
 	#else  //Small Robot
 
 	#endif

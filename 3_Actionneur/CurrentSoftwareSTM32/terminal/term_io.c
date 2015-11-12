@@ -10,6 +10,7 @@
 
 #ifdef I_AM_ROBOT_BIG
 	#include "../Black/Fishs/fish_brush_config.h"
+	#include "../Black/Fishs/fish_magnetic_arm_config.h"
 #else
 
 #endif
@@ -47,10 +48,9 @@ typedef struct{
 #define DECLARE_PWM(inc, char, prefix) {term_PWM, inc, char, #prefix, prefix##_PWM_NUM, 0, 100, 0, NULL, prefix##_SENS}
 
 terminal_motor_s terminal_motor[] = {
-	// DECLARE_AX12_RX24(2, '0', EXEMPLE_AX12),
-
 	#ifdef I_AM_ROBOT_BIG
-		DECLARE_AX12_RX24(2, '0', FISH_BRUSH_AX12)
+		DECLARE_AX12_RX24(2, '0', FISH_BRUSH_AX12),
+		DECLARE_AX12_RX24(2, '1', FISH_MAGNETIC_ARM_AX12)
 	#else
 
 	#endif
