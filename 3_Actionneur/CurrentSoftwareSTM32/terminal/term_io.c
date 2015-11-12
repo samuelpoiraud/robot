@@ -9,10 +9,7 @@
 #include "../clock.h"
 
 #ifdef I_AM_ROBOT_BIG
-	/*EXEMPLE
-	#include "../Holly/Popcorn/Pop_collect_left_config.h"
-	#include "../Holly/Popcorn/Pop_collect_right_config.h"
-	#include "../Holly/Popcorn/Pop_drop_left_config.h"*/
+	#include "../Black/Fishs/fish_brush_config.h"
 #else
 
 #endif
@@ -53,7 +50,7 @@ terminal_motor_s terminal_motor[] = {
 	// DECLARE_AX12_RX24(2, '0', EXEMPLE_AX12),
 
 	#ifdef I_AM_ROBOT_BIG
-
+		DECLARE_AX12_RX24(2, '0', FISH_BRUSH_AX12)
 	#else
 
 	#endif

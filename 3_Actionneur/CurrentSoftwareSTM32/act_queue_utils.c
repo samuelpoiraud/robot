@@ -238,6 +238,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
 		// case ACT_EXEMPLE & 0xFF:				originalSidStr = "Exemple";					break;
+		   case ACT_FISH_BRUSH & 0xFF:				originalSidStr = "FishBrush";					break;
 		default:								originalSidStr = "Unknown";					break;
 	}
 	switch(result) {
