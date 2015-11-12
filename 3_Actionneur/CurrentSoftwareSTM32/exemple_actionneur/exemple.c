@@ -21,13 +21,12 @@
 // Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
 // Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
 // Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
-// Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFEST)
+// Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFTEST)
 // Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor
 // Un define EXEMPLE_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
 
 // En stratégie
 // ajout des fonctions actionneurs dans act_functions.c/h
-// ajout des fonctions actionneurs dans act_can.c (fonction ACT_process_result)
 // ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
 // ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
 // ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)

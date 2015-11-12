@@ -15,9 +15,8 @@
 #include "selftest.h"
 
 #ifdef I_AM_ROBOT_BIG
-	/*EXEMPLE
-	#include "Holly/Popcorn/exemple.h"
-	#include "Holly/Popcorn/exemple_config.h"*/
+	#include "Black/Fishs/fish_brush.h"
+	#include "Black/Fishs/fish_brush_config.h"
 #else
 
 #endif
@@ -29,7 +28,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 static ACTQ_functions_t actionneurs[] = {
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
-		//ACT_DECLARE(POP_COLLECT_LEFT),
+		ACT_DECLARE(FISH_BRUSH)
 	#else  //Small Robot
 
 	#endif
@@ -102,9 +101,9 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	} else {
 		bool_e isReady = FALSE, responseReceived = FALSE;
 		#ifdef I_AM_ROBOT_BIG
-				responseReceived = AX12_async_is_ready(POP_COLLECT_LEFT_AX12_ID, &isReady);
+				responseReceived = AX12_async_is_ready(FISH_BRUSH_AX12_ID, &isReady);
 		#else
-				responseReceived = AX12_async_is_ready(PINCE_GAUCHE_AX12_ID, &isReady);
+				//responseReceived = AX12_async_is_ready(PINCE_GAUCHE_AX12_ID, &isReady);
 		#endif
 
 		if((responseReceived && isReady) || global.flags.alim) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
