@@ -24,8 +24,9 @@ typedef Uint8 queue_size_t;
 typedef enum {
 	//Black
 	ACT_QUEUE_Fish_brush,
+	ACT_QUEUE_Fish_magnetic_arm,
 
-	//Wood
+	//Pearl
 
 	//Common
 

@@ -1,59 +1,59 @@
 /*  Club Robot ESEO 2015 - 2016
  *	BIG
  *
- *	Fichier : exemple.h
+ *	Fichier : FISH_MAGNETIC_ARM.h
  *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur exemple
- *  Auteur :
+ *	Description : Gestion de l'actionneur FISH_MAGNETIC_ARM
+ *  Auteur : Valentin
  *  Version 2016
  *  Robot : BIG
  */
 
-#ifndef EXEMPLE_H
-	#define	EXEMPLE_H
+#ifndef FISH_MAGNETIC_ARM_H
+	#define	FISH_MAGNETIC_ARM_H
 
 	#include "../QS/QS_all.h"
 	#include "../QS/QS_CANmsgList.h"
 
 	#include "../queue.h"
 
-	/** Initialisation du gestionnaire de EXEMPLE.
+	/** Initialisation du gestionnaire de FISH_MAGNETIC_ARM.
 	 *
 	 * Configure l'asservissement de l'AX12
 	 */
-	void EXEMPLE_init();
+	void FISH_MAGNETIC_ARM_init();
 
-	/** Initialisation en position du gestionnaire de EXEMPLE.
+	/** Initialisation en position du gestionnaire de FISH_MAGNETIC_ARM.
 	 *
 	 * Initialise la position de l'AX12
 	 */
-	void EXEMPLE_init_pos();
+	void FISH_MAGNETIC_ARM_init_pos();
 
 	/** Stoppe l'actionneur.
 	 *
 	 * Cette fonction est appelée en fin de match
 	 */
-	void EXEMPLE_stop();
+	void FISH_MAGNETIC_ARM_stop();
 
-	/** Gère les messages CAN liés à la EXEMPLE.
+	/** Gère les messages CAN liés à la FISH_MAGNETIC_ARM.
 	 *
 	 * Cette fonction s'occupe toute seule de gérer la queue et d'agir en conséquence.
 	 * @param msg le message CAN
 	 * @return TRUE si le message CAN a été géré par cet actionneur, FALSE sinon
 	 */
-	bool_e EXEMPLE_CAN_process_msg(CAN_msg_t* msg);
+	bool_e FISH_MAGNETIC_ARM_CAN_process_msg(CAN_msg_t* msg);
 
 	/** Gère les commandes demandées.
 	 *
 	 * Fonction à mettre sur la file pour demander une action.
 	 */
-	void EXEMPLE_run_command(queue_id_t queueId, bool_e init);
+	void FISH_MAGNETIC_ARM_run_command(queue_id_t queueId, bool_e init);
 
 
 	/**
 	 * Réinitialise la configuration de l'AX12
 	 */
-	void EXEMPLE_reset_config();
+	void FISH_MAGNETIC_ARM_reset_config();
 
-#endif	/* EXEMPLE_H */
+#endif	/* FISH_MAGNETIC_ARM_H */
 

@@ -25,6 +25,7 @@ typedef enum {
 	SM_ID_STRAT_STOP_ROBOT							= 0x0109,
 
 	SM_ID_STRAT_BLACK_INUTILE						= 0x0111,
+	SM_ID_GO_TO_POISSON								= 0x0112,
 
 	SM_ID_STRAT_PEARL_INUTILE						= 0x0120,
 
@@ -40,8 +41,8 @@ typedef enum {
 	SM_ID_PATHFIND_TRY_GOING						= 0x0306,
 	SM_ID_EXTRACTION_OF_FOE							= 0x0307,
 	SM_ID_ASTAR_TRY_GOING							= 0x0308,
-	SM_ID_GO_TO_START_ZONE							= 0x0309,
-	SM_ID_GO_TO_POISSON								= 0x0310
+	SM_ID_GO_TO_START_ZONE							= 0x0309
+
 } UTILS_state_machine_id_e;
 
 

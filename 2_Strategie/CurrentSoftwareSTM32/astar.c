@@ -192,22 +192,24 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){2000 - 0.5*(250 + MARGIN_TO_OBSTACLE), 3000 - 0.886*(250 + MARGIN_TO_OBSTACLE), TRUE},
 									(astar_user_node_t){2000, 2750 - MARGIN_TO_OBSTACLE, TRUE});
 
-	//Polygon[2]:Zone central avec le plexi (Node 10 -> 20)
+	//Polygon[2]:Zone central avec le plexi (Node 10 -> 23)
 	//espacement tous les PI4096/6
-	ASTAR_create_element_polygon(currentNodeId, 12, (astar_user_node_t){750, 2100 + MARGIN_TO_OBSTACLE, TRUE},
+	ASTAR_create_element_polygon(currentNodeId, 14, (astar_user_node_t){750, 2100 + MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 2100 + CORNER_MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 2100, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 1500, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 900, TRUE},
 									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750, 900 - MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){750 + 0.5*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.886*(600 + MARGIN_TO_OBSTACLE), TRUE},  //-2*PI4096/6
-									(astar_user_node_t){750 + 0.886*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.5*(600 + MARGIN_TO_OBSTACLE), TRUE},  //-PI4096/6
-									(astar_user_node_t){1350 + MARGIN_TO_OBSTACLE, 1500, FALSE},                                                               // 0
-									(astar_user_node_t){750 + 0.866*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.5*(600 + MARGIN_TO_OBSTACLE), TRUE},  //PI4096/6
-									(astar_user_node_t){750 + 0.5*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.886*(600 + MARGIN_TO_OBSTACLE), TRUE}); //2*PI4096/6
+									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE},  //-3*PI4096/8
+									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},    //-2*PI4096/8
+									(astar_user_node_t){750 + 0.93*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //-PI4096/8
+									(astar_user_node_t){1350 + MARGIN_TO_OBSTACLE - 10, 1500, TRUE},                                                 // 0
+									(astar_user_node_t){750 + 0.93*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //PI4096/8
+									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},    //2*PI4096/8
+									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE}); //3*PI4096/8
 
-	//Polygon[3]:Zone de la dune (Node 21 -> 29)
+	//Polygon[3]:Zone de la dune (Node 24 -> 32)
 	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){0, 800 - MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){200, 800-MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){200 + CORNER_MARGIN_TO_OBSTACLE,800 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
@@ -217,6 +219,16 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){200 + CORNER_MARGIN_TO_OBSTACLE,2200+CORNER_MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){200, 2200 + MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){0, 2200 + MARGIN_TO_OBSTACLE, TRUE});
+
+	//Polygon[4]:Zone de départ adverse (Node 33 -> 40)
+	ASTAR_create_element_polygon(currentNodeId, 8, (astar_user_node_t){1100 + MARGIN_TO_OBSTACLE, COLOR_Y(3000), TRUE},
+									(astar_user_node_t){1100 + MARGIN_TO_OBSTACLE, COLOR_Y(2700) , TRUE},
+									(astar_user_node_t){1100 + CORNER_MARGIN_TO_OBSTACLE, COLOR_Y(2700 - CORNER_MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){1100, COLOR_Y(2700 - MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){600, COLOR_Y(2700 - MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){600 - CORNER_MARGIN_TO_OBSTACLE, COLOR_Y(2700 - CORNER_MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(2700), TRUE},
+									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(3000), TRUE});
 
 	//Polygones des robots adverses
 	ASTAR_create_foe_polygon(currentNodeId, foeRadius);
