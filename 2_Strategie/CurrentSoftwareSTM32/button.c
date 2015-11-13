@@ -110,7 +110,7 @@ void BUTTON_rush(void){
 	order.sid = PROP_RUSH_IN_THE_WALL;
 	order.size = SIZE_PROP_RUSH_IN_THE_WALL;
 	order.data.prop_rush_in_the_wall.teta = global.pos.angle;
-	order.data.prop_rush_in_the_wall.way = ANY_WAY;
+	order.data.prop_rush_in_the_wall.way = BACKWARD;
 	order.data.prop_rush_in_the_wall.asser_rot = SLOW;
 	CAN_send (&order);
 }
