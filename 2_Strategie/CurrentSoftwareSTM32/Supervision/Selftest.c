@@ -627,30 +627,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");						break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
 
-				case SELFTEST_ACT_POP_COLLECT_LEFT:				debug_printf("SELFTEST_ACT_POP_COLLECT_LEFT");					break;
-				case SELFTEST_ACT_POP_COLLECT_RIGHT:			debug_printf("SELFTEST_ACT_POP_COLLECT_RIGHT");					break;
-				case SELFTEST_ACT_POP_DROP_LEFT:				debug_printf("SELFTEST_ACT_POP_DROP_LEFT");						break;
-				case SELFTEST_ACT_POP_DROP_RIGHT:				debug_printf("SELFTEST_ACT_POP_DROP_RIGHT");					break;
-				case SELFTEST_ACT_BACK_SPOT_LEFT:				debug_printf("SELFTEST_ACT_BACK_SPOT_LEFT");					break;
-				case SELFTEST_ACT_BACK_SPOT_RIGHT:				debug_printf("SELFTEST_ACT_BACK_SPOT_RIGHT");					break;
-				case SELFTEST_ACT_SPOT_POMPE_LEFT:				debug_printf("SELFTEST_ACT_SPOT_POMPE_LEFT");					break;
-				case SELFTEST_ACT_SPOT_POMPE_RIGHT:				debug_printf("SELFTEST_ACT_SPOT_POMPE_RIGHT");					break;
-				case SELFTEST_ACT_CARPET_LAUNCHER_RIGHT:		debug_printf("SELFTEST_ACT_CARPET_LAUNCHER_RIGHT");				break;
-				case SELFTEST_ACT_CARPET_LAUNCHER_LEFT:			debug_printf("SELFTEST_ACT_CARPET_LAUNCHER_LEFT");				break;
-				case SELFTEST_ACT_PINCEMI_LEFT:					debug_printf("SELFTEST_ACT_PINCEMI_LEFT");						break;
-				case SELFTEST_ACT_PINCEMI_RIGHT:				debug_printf("SELFTEST_ACT_PINCEMI_RIGHT");						break;
-				case SELFTEST_ACT_ELEVATOR:						debug_printf("SELFTEST_ACT_ELEVATOR");							break;
-				case SELFTEST_ACT_STOCK_LEFT:					debug_printf("SELFTEST_ACT_STOCK_LEFT");						break;
-				case SELFTEST_ACT_STOCK_RIGHT:					debug_printf("SELFTEST_ACT_STOCK_RIGHT");						break;
-				case SELFTEST_ACT_CUP_NIPPER:					debug_printf("SELFTEST_ACT_CUP_NIPPER");						break;
-				case SELFTEST_ACT_CUP_NIPPER_ELEVATOR:			debug_printf("SELFTEST_ACT_CUP_NIPPER_ELEVATOR");				break;
-				case SELFTEST_ACT_CLAP:							debug_printf("SELFTEST_ACT_CLAP");								break;
-				case SELFTEST_ACT_PINCE_DROITE:					debug_printf("SELFTEST_ACT_PINCE_DROITE");						break;
-				case SELFTEST_ACT_PINCE_GAUCHE:					debug_printf("SELFTEST_ACT_PINCE_GAUCHE");						break;
-				case SELFTEST_ACT_POP_DROP_LEFT_WOOD:			debug_printf("SELFTEST_ACT_POP_DROP_LEFT_WOOD");				break;
-				case SELFTEST_ACT_POP_DROP_RIGHT_WOOD:			debug_printf("SELFTEST_ACT_POP_DROP_RIGHT_WOOD");				break;
-				case SELFTEST_ACT_CLAP_HOLLY:					debug_printf("SELFTEST_ACT_CLAP_HOLLY");						break;
-				case SELFTEST_ACT_POMPE_WOOD:					debug_printf("SELFTEST_ACT_POMPE_WOOD");						break;
+				//case SELFTEST_ACT_POP_COLLECT_LEFT:				debug_printf("SELFTEST_ACT_POP_COLLECT_LEFT");					break;
+
 
 				default:										debug_printf("UNKNOW_ERROR_CODE");								break;
 			}
@@ -930,30 +908,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
 
-		case SELFTEST_ACT_POP_COLLECT_LEFT:				return "ACT Pop collect Left";	break;
-		case SELFTEST_ACT_POP_COLLECT_RIGHT:			return "ACT Pop collect Right";	break;
-		case SELFTEST_ACT_POP_DROP_LEFT:				return "ACT Pop Drop Left";		break;
-		case SELFTEST_ACT_POP_DROP_RIGHT:				return "ACT Pop Drop Right";	break;
-		case SELFTEST_ACT_BACK_SPOT_LEFT:				return "ACT Back Spot Right";	break;
-		case SELFTEST_ACT_BACK_SPOT_RIGHT:				return "ACT Back Spot Left";	break;
-		case SELFTEST_ACT_SPOT_POMPE_LEFT:				return "ACT Pompe Left";		break;
-		case SELFTEST_ACT_SPOT_POMPE_RIGHT:				return "ACT Pompe Right";		break;
-		case SELFTEST_ACT_CARPET_LAUNCHER_RIGHT:		return "ACT Carpet Right";		break;
-		case SELFTEST_ACT_CARPET_LAUNCHER_LEFT:			return "ACT Carpet Left";		break;
-		case SELFTEST_ACT_PINCEMI_LEFT:					return "ACT Pincemi Left";		break;
-		case SELFTEST_ACT_PINCEMI_RIGHT:				return "ACT Pincemi Right";		break;
-		case SELFTEST_ACT_ELEVATOR:						return "ACT Elevator";			break;
-		case SELFTEST_ACT_STOCK_LEFT:					return "ACT Stock Left";		break;
-		case SELFTEST_ACT_STOCK_RIGHT:					return "ACT Stock Right";		break;
-		case SELFTEST_ACT_CUP_NIPPER:					return "ACT Cup Nipper";		break;
-		case SELFTEST_ACT_CUP_NIPPER_ELEVATOR:			return "ACT Cup Nipper elev";	break;
-		case SELFTEST_ACT_CLAP:							return "ACT Clap";				break;
-		case SELFTEST_ACT_PINCE_DROITE:					return "ACT Pince Droite";		break;
-		case SELFTEST_ACT_PINCE_GAUCHE:					return "ACT Pince Gauche";		break;
-		case SELFTEST_ACT_POP_DROP_LEFT_WOOD:			return "Act Pop Drop Left";		break;
-		case SELFTEST_ACT_POP_DROP_RIGHT_WOOD:			return "Act Pop Drop Right";	break;
-		case SELFTEST_ACT_CLAP_HOLLY:					return "Act Clap";				break;
-		case SELFTEST_ACT_POMPE_WOOD:					return "Act pompe wood";		break;
+		//case SELFTEST_ACT_POP_COLLECT_LEFT:			return "ACT Pop collect Left";	break;
+
 
 		case SELFTEST_ERROR_NB:							return NULL;					break;
 		case SELFTEST_NO_ERROR:							return NULL;					break;
