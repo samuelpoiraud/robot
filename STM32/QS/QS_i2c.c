@@ -102,11 +102,8 @@ void I2C_init(void)
 	#endif /* def USE_I2C2 */
 }
 
-#endif  /* defined(USE_I2C1) || defined(USE_I2C2) */
 
 
-
-#ifdef USE_I2C2
 
 volatile watchdog_id_t watchdog_id = 0xFF;
 volatile bool_e timeout = FALSE;
@@ -371,6 +368,7 @@ bool_e I2C_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_con
 		WATCHDOG_stop(watchdog_id);
 	return FALSE;
 }
+#endif  /* defined(USE_I2C1) || defined(USE_I2C2) */
 
 #ifdef USE_I2C1
 //Interruption appelée en cas d'erreur de communication sur le Bus.
@@ -383,11 +381,11 @@ void I2C1_ER_IRQHandler(void)
 }
 
 bool_e I2C1_read(Uint8 address, Uint8 * data, Uint8 size){
-	return I2C_read(address, &data, size);
+	return I2C_read(address, data, size);
 }
 
 bool_e I2C21write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition){
-	return I2C_write(address, &data, size, enable_stop_condition);
+	return I2C_write(address, data, size, enable_stop_condition);
 }
 #endif
 
@@ -402,11 +400,11 @@ void I2C2_ER_IRQHandler(void)
 }
 
 bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size){
-	return I2C_read(address, &data, size);
+	return I2C_read(address, data, size);
 }
 
 bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition){
-	return I2C_write(address, &data, size, enable_stop_condition);
+	return I2C_write(address, data, size, enable_stop_condition);
 }
 #endif
 
