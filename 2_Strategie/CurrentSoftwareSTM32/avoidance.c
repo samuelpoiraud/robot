@@ -702,13 +702,15 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
 	widthRobot += 100;	//Marge !
 
+	// Spécifique Terrain 2016
 	if(
-			!is_in_square(50+(widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p)		// Hors Terrain - la zone proche distributeurs...
-		|| 	is_in_square(0-(widthRobot), 500+(widthRobot), 950-(widthRobot), 2050+(widthRobot),*p)			// Escaliers
-		||  is_in_square(1800-(widthRobot), 2000+(widthRobot), 1100-(widthRobot), 1900+(widthRobot),*p)		// zone de dépose "Estrade".
-		||	is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){1000, COLOR_Y(2500)}, 125+widthRobot})	// Zone de départ adverse
-		||	is_in_square(770-(widthRobot), 1230+(widthRobot), COLOR_Y(2600-widthRobot), COLOR_Y(3000+widthRobot),*p) // Zone de départ adverse
-		||	is_in_square(770-(widthRobot), 1230+(widthRobot), COLOR_Y(0-widthRobot), COLOR_Y(400+widthRobot),*p) // Zone de départ
+			!is_in_square(50 + (widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p)	// Hors Terrain - la zone des portes de cabanes...
+		|| 	is_in_square(0, 200+(widthRobot), 800-(widthRobot), 940+(widthRobot),*p)			        // Tasseau de la dune côté violet + carré de 8 cubes
+		||  is_in_square(0, 200+(widthRobot), 2060-(widthRobot), 2200+(widthRobot),*p)		            // Tasseau de la dune côté vert + carré de 8 cubes
+		||	is_in_square(750-(widthRobot), 1350+(widthRobot), 1460-(widthRobot), 1530+(widthRobot),*p)  // Tasseau verticale de la zone centrale
+		||	is_in_square(750-(widthRobot), 780+(widthRobot), 900-(widthRobot), 2100+(widthRobot),*p)	// Tasseau horizontale de la zone centrale
+		||	is_in_square(1950-(widthRobot), 2000, 910-(widthRobot), 960+(widthRobot),*p)                // Attache filet côté vert
+		||	is_in_square(1950-(widthRobot), 2000, 2040-(widthRobot), 2090+(widthRobot),*p)                // Attache filet côté violet
 	  )
 		return FALSE;
 
@@ -729,7 +731,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 	static Uint8 remaining_try;
 	static Uint8 sens = TURN_TRIGO;							//Si il arrive pas à trouver un point au bout de 3 coups tourne sur lui-même pour permettre à l'hokuyo de voir partout
 	static Uint8 bestPoint;									//Indice du meilleur point dans le tableau
-	Uint32 bestPoint_distance2_with_nearest_foe;		//Distance entre le meilleur point et l'adversaire qui en est le plus proche
+	Uint32 bestPoint_distance2_with_nearest_foe;		    //Distance entre le meilleur point et l'adversaire qui en est le plus proche
 	Uint32 adversary_to_close_distance;						//Distance minimale exigée entre un adversaire et un point candidat
 	static GEOMETRY_point_t pointEx[12];					//Incroyable mais VRAI, idée de GRAVOUILLE d'utliser un tableau au lieu de calcul d'angle
 	Uint8 i,foe;
