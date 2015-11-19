@@ -32,7 +32,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 static ACTQ_functions_t actionneurs[] = {
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
 		ACT_DECLARE(FISH_BRUSH),
-		ACT_DECLARE(FISH_MAGNETIC_ARM)?
+		ACT_DECLARE(FISH_MAGNETIC_ARM)
 	#else  //Small Robot
 		ACT_DECLARE(LEFT_ARM)
 	#endif

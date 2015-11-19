@@ -281,6 +281,4 @@
 /* ID des différents AX12 */
 	#define LEFT_ARM_AX12_ID                       11
 
-#define POMPE_WOOD_PWM_NUM		4
-
 #endif /* SMALL_CONFIG_PIN_H */
