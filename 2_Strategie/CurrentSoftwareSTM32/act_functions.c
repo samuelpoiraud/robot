@@ -38,9 +38,11 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 
 	// Black
 	{ACT_FISH_BRUSH,			ACT_QUEUE_Fish_brush,			    "Fish Brush"},
-	{ACT_FISH_MAGNETIC_ARM,		ACT_QUEUE_Fish_magnetic_arm,		"Fish Magnetic arm"}
+	{ACT_FISH_MAGNETIC_ARM,		ACT_QUEUE_Fish_magnetic_arm,		"Fish Magnetic arm"},
 
 	// Pearl
+	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Left_arm,                 "Left Arm"},
+
 
 };
 
