@@ -261,35 +261,33 @@ void affichage_global(void)
 						we_touch_border = TRUE;
 					}
 
+					//Spécifique terrain 2016
+					if(global.position.x > 750 && global.position.x < 1350 && global.position.y  > 1476 - robotSize  && global.position.y  < 1500 - robotSize)	//plaque centrale en plexi
+					{
+						global.real_speed_translation = 0;
+						global.position.y = 1476-robotSize;
+						we_touch_border = TRUE;
+					}
+					if(global.position.x > 750 && global.position.x < 1350 && global.position.y < 1524 + robotSize  && global.position.y > 1500 + robotSize)	//plaque centrale en plexi
+					{
+						global.real_speed_translation = 0;
+						global.position.y = 1524+robotSize;
+						we_touch_border = TRUE;
+					}
+					if(global.position.y > 900 && global.position.y < 2100 && global.position.x > 750 - robotSize && global.position.x < 766 - robotSize)	//Tasseau horizontal de la zone de construction au nord
+					{
+						global.real_speed_translation = 0;
+						global.position.x = 750-robotSize;
+						we_touch_border = TRUE;
+					}
 
-					//Spécifique terrain 2015
-					/*if(global.position.y > 1000 && global.position.y < 2000 && global.position.x < 580+robotSize)	//Escaliers
+					if(global.position.y > 900 && global.position.y < 2100 && global.position.x < 777 + robotSize && global.position.x > 766 + robotSize)	//Tasseau horizontal de la zone de construction au sud
 					{
 						global.real_speed_translation = 0;
-						global.position.x = 580+robotSize;
+						global.position.x = 777+robotSize;
 						we_touch_border = TRUE;
 					}
-					if(global.position.y > 1200 && global.position.y < 1800 && global.position.x > 1900-robotSize)	//Estrade
-					{
-						global.real_speed_translation = 0;
-						global.position.x = 1900-robotSize;
-						we_touch_border = TRUE;
-					}
-					if(global.position.x > 800 && global.position.x < 1200)	//Zones de départ
-					{
-						if(global.position.y < 70+robotSize)
-						{
-							global.real_speed_translation = 0;
-							global.position.y = 70+robotSize;
-							we_touch_border = TRUE;
-						}
-						else if(global.position.y > 3000-robotSize)
-						{
-							global.real_speed_translation = 0;
-							global.position.y = 3000-robotSize;
-							we_touch_border = TRUE;
-						}
-					}*/
+
 				}
 			}
 			/*	en gros, la vitesse à prendre en début d'IT est l'écart entre le robot et le nouveau point fictif
