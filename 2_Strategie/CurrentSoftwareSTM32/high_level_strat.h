@@ -50,10 +50,13 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 
 	//Peu importe l'ordre des états... (sauf en cas de priorité égale)
 
-	//--------------Sub action de holly
-	//HOLLY_SUB_INITIAL,
+	//--------------Sub action de Black
+	BLACK_STRAT_INITIALE,
+	BLACK_TAKE_SAND_BLOC_NEXT_DUNE,
+	BLACK_COLLECT_FISH,
+	BLACK_CLOSE_DOORS,
 
-	//--------------Sub action de wood
+	//--------------Sub action de Paerl
 
 
 	//------------------------------------
