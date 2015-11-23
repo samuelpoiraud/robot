@@ -442,13 +442,6 @@ void PORTS_uarts_init() {
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_USART1);	//U1TX
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);	//U1RX
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);	//U2TX
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);	//U2RX
-	GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
-	GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
-
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -491,6 +484,9 @@ void PORTS_uarts_init() {
 #endif
 
 	#ifdef USE_UART1
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_USART1);	//U1TX
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);	//U1RX
+
 		//USART1 TX
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
@@ -500,6 +496,9 @@ void PORTS_uarts_init() {
 	#endif
 
 	#ifdef USE_UART2
+		GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);	//U2TX
+		GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);	//U2RX
+
 		//USART2 TX
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 		GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -509,6 +508,9 @@ void PORTS_uarts_init() {
 	#endif
 
 	#ifdef USE_UART3
+		GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
+		GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
+
 		//USART3 TX
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 		GPIO_Init(GPIOD, &GPIO_InitStructure);
