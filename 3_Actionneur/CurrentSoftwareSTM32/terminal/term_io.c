@@ -9,8 +9,8 @@
 #include "../clock.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "../Black/Fishs/fish_brush_config.h"
-	#include "../Black/Fishs/fish_magnetic_arm_config.h"
+	#include "../Black/Fishs/fish_brush_front_config.h"
+	#include "../Black/Fishs/fish_brush_back_config.h"
 #else
 	#include "../Pearl/Sand/left_arm_config.h"
 	#include "../Pearl/Sand/right_arm_config.h"
@@ -50,8 +50,8 @@ typedef struct{
 
 terminal_motor_s terminal_motor[] = {
 	#ifdef I_AM_ROBOT_BIG
-		DECLARE_AX12_RX24(2, '0', FISH_BRUSH_AX12),
-		DECLARE_AX12_RX24(2, '1', FISH_MAGNETIC_ARM_AX12)
+		DECLARE_AX12_RX24(2, '0', FISH_BRUSH_FRONT_AX12),
+		DECLARE_AX12_RX24(2, '1', FISH_BRUSH_BACK_AX12)
 	#else
 		DECLARE_AX12_RX24(2, 'A', LEFT_ARM_AX12),
 		DECLARE_AX12_RX24(2, 'B', RIGHT_ARM_AX12)

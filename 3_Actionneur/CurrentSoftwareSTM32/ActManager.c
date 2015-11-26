@@ -15,10 +15,10 @@
 #include "selftest.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Black/Fishs/fish_brush.h"
-	#include "Black/Fishs/fish_brush_config.h"
-	#include "Black/Fishs/fish_magnetic_arm.h"
-	#include "Black/Fishs/fish_magnetic_arm_config.h"
+	#include "Black/Fishs/fish_brush_front.h"
+	#include "Black/Fishs/fish_brush_front_config.h"
+	#include "Black/Fishs/fish_brush_back.h"
+	#include "Black/Fishs/fish_brush_back_config.h"
 #else
 	#include "Pearl/Sand/left_arm.h"
 	#include "Pearl/Sand/left_arm_config.h"
@@ -33,8 +33,8 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 static ACTQ_functions_t actionneurs[] = {
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
-		ACT_DECLARE(FISH_BRUSH),
-		ACT_DECLARE(FISH_MAGNETIC_ARM)
+		ACT_DECLARE(FISH_BRUSH_FRONT),
+		ACT_DECLARE(FISH_BRUSH_BACK)
 	#else  //Small Robot
 		ACT_DECLARE(LEFT_ARM),
 		ACT_DECLARE(RIGHT_ARM)
@@ -108,7 +108,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	} else {
 		bool_e isReady = FALSE, responseReceived = FALSE;
 		#ifdef I_AM_ROBOT_BIG
-				responseReceived = AX12_async_is_ready(FISH_BRUSH_AX12_ID, &isReady);
+				responseReceived = AX12_async_is_ready(FISH_BRUSH_FRONT_AX12_ID, &isReady);
 		#else
 				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);
 		#endif
