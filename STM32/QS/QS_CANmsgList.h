@@ -861,7 +861,8 @@
 		//----------------------------PEARL------------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		ACT_SAND_LEFT_ARM			= (ACT_FILTER | 0x30)
+		ACT_SAND_LEFT_ARM			= (ACT_FILTER | 0x30),
+		ACT_SAND_RIGHT_ARM			= (ACT_FILTER | 0x31)
 
 	} ACT_sid_e;
 

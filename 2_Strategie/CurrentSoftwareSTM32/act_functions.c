@@ -41,8 +41,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_FISH_MAGNETIC_ARM,		ACT_QUEUE_Fish_magnetic_arm,		"Fish Magnetic arm"},
 
 	// Pearl
-	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Left_arm,                 "Left Arm"},
-
+	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Sand_left_arm,            "Left Arm"},
+	{ACT_SAND_RIGHT_ARM,        ACT_QUEUE_Sand_right_arm,			"Right Arm"},
 
 };
 
