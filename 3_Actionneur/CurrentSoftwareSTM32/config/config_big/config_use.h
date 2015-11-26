@@ -31,7 +31,7 @@
 	/* déclarer l'utilisation du pilote */
 	#define USE_DCMOTOR2
 	/* définir le nombre d'actionneurs asservis */
-	#define DCM_NUMBER			3
+	#define DCM_NUMBER			0
 	/* Période d'asservisement (en ms) */
 	#define DCM_TIME_PERIOD		10
 	/* nombre maximum de positions à gérer par moteur */

@@ -172,7 +172,7 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 
 	// de combien on accelere à chaque boucle d'asser
-	#define SMALL_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define SMALL_ACCELERATION_NORMAL	112	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
 	#define SMALL_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 
 	#define BIG_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
@@ -209,7 +209,7 @@
 
 		// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
 	#define BIG_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
-	#define BIG_TRANSLATION_SPEED_MAX 		(Sint32)(11224)//(22448)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define BIG_TRANSLATION_SPEED_MAX 		(Sint32)(22448)		 	//environ = 5[mm/5ms] = 1,0m/s
 	#define BIG_TRANSLATION_SPEED_LOW 		(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
 	#define BIG_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(4128)
 	#define BIG_TRANSLATION_SPEED_SNAIL		(Sint32)(516)

@@ -280,7 +280,7 @@
 
 //--------------------Configuration des ID des actionneurs-----------------------
 
-#define FISH_BRUSH_AX12_ID            1
-#define FISH_MAGNETIC_ARM_AX12_ID     2
+#define FISH_BRUSH_FRONT_AX12_ID            14
+#define FISH_BRUSH_BACK_AX12_ID             6
 
 #endif /* BIG_CONFIG_PIN_H */

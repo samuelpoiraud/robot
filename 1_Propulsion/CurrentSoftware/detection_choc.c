@@ -22,6 +22,7 @@
 #define BANDWIDTH  400
 #define OFFSET_X  2
 #define OFFSET_Z  0
+
 // Variables Globales
 static Sint8 acc_rotation[NB_POINTS];
 static Sint8 acc_rotation_tab[4];
@@ -93,7 +94,7 @@ void DETECTION_CHOC_detect_choc(){
 
 
 void DETECTION_CHOC_acc_rotation_get_value(){
-	/*acc_rotation_tab[acc_rotation_index_tab] = ACC_getZ() - OFFSET_Z;  //C'est bien Z
+	acc_rotation_tab[acc_rotation_index_tab] = ACC_getZ() - OFFSET_Z;  //C'est bien Z
 	acc_rotation_index_tab = (acc_rotation_index_tab + 1)%4;
 	if(acc_rotation_index_tab == 3){
 		Uint8 i;
@@ -101,16 +102,13 @@ void DETECTION_CHOC_acc_rotation_get_value(){
 		for(i=0; i<4; i++){
 			sum += acc_rotation_tab[i];
 		}
-		acc_rotation[acc_rotation_index] = sum/4;*/
-		acc_rotation[acc_rotation_index]=ACC_getZ() - OFFSET_Z;
-		//debug_printf("ACC:    %d\n",acc_rotation[acc_rotation_index]);
+		acc_rotation[acc_rotation_index] = sum/4;
 		acc_rotation_index = (acc_rotation_index + 1)%NB_POINTS;
-	//}
+	}
 }
 
 void DETECTION_CHOC_acc_translation_get_value(){
-	/*acc_translation_tab[acc_translation_index_tab] = ACC_getX() - OFFSET_X;//C'est bien X
-	debug_printf("%d \n",acc_translation_tab[acc_translation_index_tab]);
+	acc_translation_tab[acc_translation_index_tab] = ACC_getX() - OFFSET_X;//C'est bien X
 	acc_translation_index_tab = (acc_translation_index_tab + 1)%4;
 	if(acc_translation_index_tab == 3){
 		Uint8 i;
@@ -118,55 +116,33 @@ void DETECTION_CHOC_acc_translation_get_value(){
 		for(i=0; i<4; i++){
 			sum += acc_translation_tab[i];
 		}
-		acc_translation[acc_translation_index] = sum/4;*/
-	acc_translation[acc_translation_index]= ACC_getX() - OFFSET_X;
-		//debug_printf("ACC:    %d\n",acc_translation[acc_translation_index]);
+	acc_translation[acc_translation_index] = sum/4;
 	acc_translation_index = (acc_translation_index + 1)%NB_POINTS;
-
+	}
 }
 
 void DETECTION_CHOC_odo_rotation_get_value(){
-	if (I_AM_BIG())
-		acc_rotation[odo_rotation_index] = (global.real_speed_translation_for_accelero*global.real_speed_rotation);  //calcul de l'accélération
-	/*else
-		acc_rotation[odo_rotation_index] = (global.real_speed_translation_for_accelero*global.real_speed_rotation);
-	acc_rotation_index = (odo_rotation_index + 1)%NB_POINTS;*/
+	acc_rotation[odo_rotation_index] = global.acceleration_rotation;  //calcul de l'accélération
+	acc_rotation_index = (odo_rotation_index + 1)%NB_POINTS;
 }
 
 
-
 void DETECTION_CHOC_odo_translation_get_value(){
-	//debug_printf("%ld\n",/* avg_acc_translation, avg_odo_translation,*/ global.real_speed_translation_for_accelero);
-
-	current_speed_translation = global.real_speed_translation_for_accelero;
+	current_speed_translation = global.vitesse_translation;
 	odo_translation[odo_translation_index] = (current_speed_translation - last_speed_translation);
-	//debug_printf("%ld \n", odo_translation[odo_translation_index]);
 	last_speed_translation = current_speed_translation;
 	odo_translation_index = (odo_translation_index + 1)%NB_POINTS;
 }
 
 void DETECTION_CHOC_process_it_tim2(){
 	ACC_read();
-	//DETECTION_CHOC_acc_rotation_get_value();
-	//DETECTION_CHOC_odo_rotation_get_value();
-	//DETECTION_CHOC_acc_translation_get_value();
-	//DETECTION_CHOC_odo_translation_get_value();
-	//DETECTION_CHOC_detect_choc();
-	//debug_printf("x=%d  y=%d  z=%d\n", ACC_getX(), ACC_getY(), ACC_getZ());
-	//current_speed_translation  = global.vitesse_translation;
-	//debug_printf("ACC:         %d                   ODO:           %d\n", ACC_getX()-OFFSET_X,current_speed_translation - last_speed_translation);
-	//last_speed_translation = current_speed_translation;
+	DETECTION_CHOC_acc_rotation_get_value();
+	DETECTION_CHOC_acc_translation_get_value();
 }
 
 
 void DETECTION_CHOC_process_it_tim5(){
-	DETECTION_CHOC_acc_rotation_get_value();
 	DETECTION_CHOC_odo_rotation_get_value();
-	DETECTION_CHOC_acc_translation_get_value();
 	DETECTION_CHOC_odo_translation_get_value();
 	DETECTION_CHOC_detect_choc();
-	//debug_printf("x=%d  y=%d  z=%d\n", ACC_getX(), ACC_getY(), ACC_getZ());
-	//current_speed_translation  = global.vitesse_translation;
-	//debug_printf("ACC:         %d                   ODO:           %d\n", ACC_getX()-OFFSET_X,current_speed_translation - last_speed_translation);
-	//last_speed_translation = current_speed_translation;
 }

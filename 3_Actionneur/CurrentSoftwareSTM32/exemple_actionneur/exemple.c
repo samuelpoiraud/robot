@@ -14,7 +14,7 @@
 
 // Exemple d'un actionneur standart avec AX12
 
-// Ajout l'actionneur dans QS_CANmsgList.h ainsi que toutes ses différentes position
+// Ajout l'actionneur dans QS_CANmsgList.h
 // Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
 // Formatage : QUEUE_ACT_AX12_EXEMPLE
 // Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
