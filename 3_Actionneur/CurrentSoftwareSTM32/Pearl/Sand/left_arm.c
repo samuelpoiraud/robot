@@ -135,7 +135,7 @@ void LEFT_ARM_stop(){
 
 // fonction appellée à la réception d'un message CAN (via ActManager)
 bool_e LEFT_ARM_CAN_process_msg(CAN_msg_t* msg) {
-	if(msg->sid == ACT_LEFT_ARM){
+	if(msg->sid == ACT_SAND_LEFT_ARM){
 		LEFT_ARM_initAX12();
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
@@ -197,32 +197,32 @@ static void LEFT_ARM_command_init(queue_id_t queueId) {
 
 		case ACT_LEFT_ARM_STOP :
 			AX12_set_torque_enabled(LEFT_ARM_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
-			QUEUE_next(queueId, ACT_LEFT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+			QUEUE_next(queueId, ACT_SAND_LEFT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			return;
 
 		default: {
 			error_printf("Invalid LEFT_ARM command: %u, code is broken !\n", command);
-			QUEUE_next(queueId, ACT_LEFT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+			QUEUE_next(queueId, ACT_SAND_LEFT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 			return;
 		}
 	}
 
 	if(ax12_is_initialized == FALSE){
 		error_printf("Impossible de mettre l'actionneur en position il n'est pas initialisé\n");
-		QUEUE_next(queueId, ACT_LEFT_ARM, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+		QUEUE_next(queueId, ACT_SAND_LEFT_ARM, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
 
 	if(*ax12_goalPosition == 0xFFFF) {
 		error_printf("Invalid ax12 position for command: %u, code is broken !\n", command);
-		QUEUE_next(queueId, ACT_LEFT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+		QUEUE_next(queueId, ACT_SAND_LEFT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 		return;
 	}
 
 	AX12_reset_last_error(LEFT_ARM_AX12_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	if(!AX12_set_position(LEFT_ARM_AX12_ID, *ax12_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que l'AX12 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(LEFT_ARM_AX12_ID).error);
-		QUEUE_next(queueId, ACT_LEFT_ARM, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+		QUEUE_next(queueId, ACT_SAND_LEFT_ARM, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
 	//La commande a été envoyée et l'AX12 l'a bien reçu
@@ -235,7 +235,7 @@ static void LEFT_ARM_command_run(queue_id_t queueId) {
 	Uint16 line;
 
 	if(ACTQ_check_status_ax12(queueId, LEFT_ARM_AX12_ID, QUEUE_get_arg(queueId)->param, LEFT_ARM_AX12_ASSER_POS_EPSILON, LEFT_ARM_AX12_ASSER_TIMEOUT, LEFT_ARM_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
-		QUEUE_next(queueId, ACT_LEFT_ARM, result, errorCode, line);
+		QUEUE_next(queueId, ACT_SAND_LEFT_ARM, result, errorCode, line);
 }
 
 #endif

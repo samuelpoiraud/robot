@@ -21,7 +21,7 @@
 
 //Position
 	#define FISH_BRUSH_AX12_IDLE_POS					200
-	#define FISH_BRUSH_AX12_CLOSE_POS				730		//en degré
+	#define FISH_BRUSH_AX12_CLOSE_POS				    730		//en degré
 	#define FISH_BRUSH_AX12_OPEN_POS					512		//en degré
 
 //Position initiale de l'AX12
