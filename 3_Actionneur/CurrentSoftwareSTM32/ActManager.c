@@ -22,6 +22,8 @@
 #else
 	#include "Pearl/Sand/left_arm.h"
 	#include "Pearl/Sand/left_arm_config.h"
+	#include "Pearl/Sand/right_arm.h"
+	#include "Pearl/Sand/right_arm_config.h"
 #endif
 
 
@@ -34,7 +36,8 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(FISH_BRUSH),
 		ACT_DECLARE(FISH_MAGNETIC_ARM)
 	#else  //Small Robot
-		ACT_DECLARE(LEFT_ARM)
+		ACT_DECLARE(LEFT_ARM),
+		ACT_DECLARE(RIGHT_ARM)
 	#endif
 };
 
@@ -107,7 +110,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 		#ifdef I_AM_ROBOT_BIG
 				responseReceived = AX12_async_is_ready(FISH_BRUSH_AX12_ID, &isReady);
 		#else
-				//responseReceived = AX12_async_is_ready(PINCE_GAUCHE_AX12_ID, &isReady);
+				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);
 		#endif
 
 		if((responseReceived && isReady) || global.flags.alim) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)

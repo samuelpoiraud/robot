@@ -27,7 +27,8 @@ typedef enum {
 	ACT_QUEUE_Fish_magnetic_arm,
 
 	//Pearl
-	ACT_QUEUE_Left_arm,
+	ACT_QUEUE_Sand_left_arm,
+	ACT_QUEUE_Sand_right_arm,
 
 
 	//Common

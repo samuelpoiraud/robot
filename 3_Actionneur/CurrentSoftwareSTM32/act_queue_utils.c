@@ -240,7 +240,8 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		   case ACT_FISH_BRUSH & 0xFF:				originalSidStr = "FishBrush";			break;
 		   case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagArm";			break;
 		   case ACT_SAND_LEFT_ARM & 0xFF:		    originalSidStr = "SandLeftArm";         break;
-		default:								    originalSidStr = "Unknown";					break;
+		   case ACT_SAND_RIGHT_ARM & 0xFF:          originalSidStr = "SandRightArm";        break;
+		default:								    originalSidStr = "Unknown";				break;
 	}
 	switch(result) {
 		case ACT_RESULT_DONE:        resultStr = "Done";       break;

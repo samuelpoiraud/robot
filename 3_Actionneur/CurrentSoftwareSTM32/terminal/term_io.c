@@ -13,6 +13,7 @@
 	#include "../Black/Fishs/fish_magnetic_arm_config.h"
 #else
 	#include "../Pearl/Sand/left_arm_config.h"
+	#include "../Pearl/Sand/right_arm_config.h"
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);
@@ -52,7 +53,8 @@ terminal_motor_s terminal_motor[] = {
 		DECLARE_AX12_RX24(2, '0', FISH_BRUSH_AX12),
 		DECLARE_AX12_RX24(2, '1', FISH_MAGNETIC_ARM_AX12)
 	#else
-		//DECLARE_AX12_RX24(2, '30', SAND_LEFT_ARM_AX12)
+		DECLARE_AX12_RX24(2, 'A', LEFT_ARM_AX12),
+		DECLARE_AX12_RX24(2, 'B', RIGHT_ARM_AX12)
 	#endif
 };
 

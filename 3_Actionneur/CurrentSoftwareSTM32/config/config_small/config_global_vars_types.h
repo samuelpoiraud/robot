@@ -11,5 +11,6 @@
 
 typedef enum {
 	QUEUE_ACT_AX12_LEFT_ARM,
+	QUEUE_ACT_AX12_RIGHT_ARM,
 	NB_ACT
 } QUEUE_act_e;
