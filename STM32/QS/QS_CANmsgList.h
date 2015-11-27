@@ -862,7 +862,11 @@
 		//////////////////////////////////////////////////////////////////
 
 		ACT_SAND_LEFT_ARM			= (ACT_FILTER | 0x30),
-		ACT_SAND_RIGHT_ARM			= (ACT_FILTER | 0x31)
+		ACT_SAND_RIGHT_ARM			= (ACT_FILTER | 0x31),
+		ACT_POMPE_BACK_LEFT  		= (ACT_FILTER | 0x32),
+		ACT_POMPE_BACK_RIGHT  		= (ACT_FILTER | 0x33),
+		ACT_POMPE_FRONT_LEFT  		= (ACT_FILTER | 0x34),
+		ACT_POMPE_FRONT_RIGHT  		= (ACT_FILTER | 0x35)
 
 	} ACT_sid_e;
 

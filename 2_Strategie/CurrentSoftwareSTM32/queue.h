@@ -29,6 +29,10 @@ typedef enum {
 	//Pearl
 	ACT_QUEUE_Sand_left_arm,
 	ACT_QUEUE_Sand_right_arm,
+	ACT_QUEUE_Pompe_back_left,
+	ACT_QUEUE_Pompe_back_right,
+	ACT_QUEUE_Pompe_front_left,
+	ACT_QUEUE_Pompe_front_right,
 
 
 	//Common
@@ -49,7 +53,7 @@ typedef struct {
 toute action contenant des variables statiques doit être utilisée
 avec un seul actionneur
 */
-typedef void(*action_function_t)(queue_id_e this, bool_e init);
+typedef void(*action_function_t)(queue_id_e thisId, bool_e init);
 
 void QUEUE_init();
 
