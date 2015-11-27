@@ -108,7 +108,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	} else {
 		bool_e isReady = FALSE, responseReceived = FALSE;
 		#ifdef I_AM_ROBOT_BIG
-				responseReceived = AX12_async_is_ready(FISH_BRUSH_FRONT_AX12_ID, &isReady);
+				responseReceived = AX12_async_is_ready(FISH_BRUSH_FRONT_AX12_RX24_ID, &isReady);
 		#else
 				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);
 		#endif
