@@ -51,11 +51,11 @@
 	} bool_e;
 
 	#define TOP_COLOR_NAME "GREEN"
-	#define BOT_COLOR_NAME "YELLOW"
+	#define BOT_COLOR_NAME "MAGENTA"
 
 	typedef enum
 	{
-		BOT_COLOR = 0, YELLOW=0,
+		BOT_COLOR = 0, MAGENTA=0,
 		TOP_COLOR = 1, GREEN=1
 	} color_e;
 
