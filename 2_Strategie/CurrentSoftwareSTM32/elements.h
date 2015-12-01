@@ -4,9 +4,10 @@
 #include "QS/QS_all.h"
 #include "Supervision/SD/SD.h"
 
-	#define NB_SPOT		16
-	#define NB_CUP		5
-
+	typedef enum{
+		OUR_BLOC,
+		ADV_BLOC
+	}Sand_bloc_e;
 
 	typedef enum	{
 
