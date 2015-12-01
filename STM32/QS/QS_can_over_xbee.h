@@ -24,6 +24,7 @@
 
 
 #include "QS_all.h"
+#include "QS_CANmsgList.h"		//Pour eclipse
 
 #ifndef QS_CAN_OVER_XBEE_H
 	#define	QS_CAN_OVER_XBEE_H

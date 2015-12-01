@@ -14,6 +14,7 @@
 
 #define QS_CAN_OVER_XBEE_C
 #include "QS_can_over_xbee.h"
+#include "../config/config_use.h" 	// Pour eclipse
 #ifdef USE_XBEE
 	#include "QS_uart.h"
 	#include "QS_CANmsgList.h"
