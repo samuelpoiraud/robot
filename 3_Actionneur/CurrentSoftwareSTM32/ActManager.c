@@ -19,6 +19,10 @@
 	#include "Black/Fishs/fish_brush_front_config.h"
 	#include "Black/Fishs/fish_brush_back.h"
 	#include "Black/Fishs/fish_brush_back_config.h"
+	#include "Black/Sand/top_plate_left_rx24.h"
+	#include "Black/Sand/top_plate_left_rx24_config.h"
+	#include "Black/Sand/top_plate_right_rx24.h"
+	#include "Black/Sand/top_plate_right_rx24_config.h"
 #else
 	#include "Pearl/Sand/left_arm.h"
 	#include "Pearl/Sand/left_arm_config.h"
@@ -34,7 +38,9 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 static ACTQ_functions_t actionneurs[] = {
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
 		ACT_DECLARE(FISH_BRUSH_FRONT),
-		ACT_DECLARE(FISH_BRUSH_BACK)
+		ACT_DECLARE(FISH_BRUSH_BACK),
+		ACT_DECLARE(TOP_PLATE_LEFT),
+		ACT_DECLARE(TOP_PLATE_RIGHT)
 	#else  //Small Robot
 		ACT_DECLARE(LEFT_ARM),
 		ACT_DECLARE(RIGHT_ARM)

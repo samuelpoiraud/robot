@@ -856,6 +856,8 @@
 
 		ACT_FISH_BRUSH_FRONT	    = (ACT_FILTER | 0x01),
 		ACT_FISH_BRUSH_BACK         = (ACT_FILTER | 0x02),
+		ACT_TOP_PLATE_LEFT          = (ACT_FILTER | 0x03),
+		ACT_TOP_PLATE_RIGHT         = (ACT_FILTER | 0x04),
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------PEARL------------------------------//

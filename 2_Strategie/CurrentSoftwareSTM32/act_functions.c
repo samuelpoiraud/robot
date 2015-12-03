@@ -39,6 +39,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	// Black
 	{ACT_FISH_BRUSH_FRONT,			ACT_QUEUE_Fish_brush_front,			    "Fish Brush Front"},
 	{ACT_FISH_BRUSH_BACK,		    ACT_QUEUE_Fish_brush_back,		        "Fish Brush Back"},
+	{ACT_TOP_PLATE_LEFT,			ACT_QUEUE_Top_plate_left,               "Sand Top Plate left"},
+	{ACT_TOP_PLATE_RIGHT,			ACT_QUEUE_Top_plate_right,               "Sand Top Plate right"},
 
 	// Pearl
 	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Sand_left_arm,            "Left Arm"},
