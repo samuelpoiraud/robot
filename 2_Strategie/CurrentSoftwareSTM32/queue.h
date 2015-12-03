@@ -25,6 +25,8 @@ typedef enum {
 	//Black
 	ACT_QUEUE_Fish_brush_front,
 	ACT_QUEUE_Fish_brush_back,
+	ACT_QUEUE_Top_plate_left,
+	ACT_QUEUE_Top_plate_right,
 
 	//Pearl
 	ACT_QUEUE_Sand_left_arm,
