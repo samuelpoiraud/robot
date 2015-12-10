@@ -281,5 +281,5 @@
 /* ID des différents AX12 */
 	#define LEFT_ARM_AX12_ID                       11
 	#define RIGHT_ARM_AX12_ID					   12
-
+	#define CIRCLE_AX12_ID						   13
 #endif /* SMALL_CONFIG_PIN_H */
