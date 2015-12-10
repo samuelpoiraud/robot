@@ -28,6 +28,7 @@
 	#include "Pearl/Sand/left_arm_config.h"
 	#include "Pearl/Sand/right_arm.h"
 	#include "Pearl/Sand/right_arm_config.h"
+	#include "Pearl/Sand/circle_config.h"
 #endif
 
 

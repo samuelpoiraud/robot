@@ -16,6 +16,7 @@
 #else
 	#include "../Pearl/Sand/left_arm_config.h"
 	#include "../Pearl/Sand/right_arm_config.h"
+	#include "../Pearl/Sand/circle_config.h"
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);
@@ -58,7 +59,7 @@ terminal_motor_s terminal_motor[] = {
 		DECLARE_AX12_RX24(2, '3', TOP_PLATE_RIGHT_AX12_RX24)
 	#else
 		DECLARE_AX12_RX24(2, 'A', LEFT_ARM_AX12),
-		DECLARE_AX12_RX24(2, 'B', RIGHT_ARM_AX12)
+		DECLARE_AX12_RX24(2, 'B', RIGHT_ARM_AX12),
 	#endif
 };
 
