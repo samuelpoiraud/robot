@@ -224,6 +224,10 @@ int main (void)
 
 		MAIN_sensor_test();
 
+		#ifdef DETECTION_CHOC
+			 DETECTION_CHOC_process_main();
+		#endif
+
 		if(flag_calibration_asked)
 		{
 			flag_calibration_asked = FALSE;

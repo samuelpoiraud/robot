@@ -10,7 +10,15 @@
 	}Sand_bloc_e;
 
 	typedef enum	{
-
+		FIRST_DOOR_CLOSED,
+		SECOND_DOOR_CLOSED,
+		OUR_START_ZONE_BLOC,
+		ADV_START_ZONE_BLOC,
+		OUR_DUNE_BLOC,
+		ADV_DUNE_BLOC,
+		SAND_DUNE_FRONT,  //flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
+		SAND_DUNE_BACK,   //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
+		FISHS_COLLECTED,
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 

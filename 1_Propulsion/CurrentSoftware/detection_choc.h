@@ -18,5 +18,6 @@
 void DETECTION_CHOC_init();
 void DETECTION_CHOC_process_it_tim2();
 void DETECTION_CHOC_process_it_tim5();
+void DETECTION_CHOC_process_main();
 
 #endif /* ndef  DETECTION_CHOC_H */
