@@ -191,7 +191,7 @@ static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 	static Sint32 corrector_gyro = 0;
 	int temperature = ADXRS453_GetTemperature();
 	float decalage = 17;
-	float rapport = 4;
+	float rapport = 30;
 
 	static Sint32 gyro_teta = 0;
 	bool_e gyro_valid = FALSE;
@@ -216,7 +216,7 @@ static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 				corrector_gyro = sum_corrector_gyro/gyro_buffer_nb;						//Mise à jour du correcteur
 		}
 
-		gyro_teta += gyro_speed - corrector_gyro - (gyro_speed / (2*PI4096))*(temperature-decalage)*rapport;
+		gyro_teta += gyro_speed - corrector_gyro + (gyro_speed / (2*PI4096))*(temperature-decalage)*rapport;
 		degre = ((gyro_teta / PI4096)*180) >> 10;
 		if(!loop)
 		{
@@ -228,7 +228,7 @@ static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 		loop--;
 
 		//Correction...
-		return gyro_speed - corrector_gyro - (gyro_speed / (2*PI4096))*(temperature-decalage)*rapport;		//TEMPORAIRE... on fait confiance au gyro uniquement (corrigé d'une déviation estimée)
+		return gyro_speed - corrector_gyro + (gyro_speed / (2*PI4096))*(temperature-decalage)*rapport;		//TEMPORAIRE... on fait confiance au gyro uniquement (corrigé d'une déviation estimée)
 	}
 	else
 	{
