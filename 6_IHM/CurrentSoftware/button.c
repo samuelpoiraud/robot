@@ -63,8 +63,8 @@ void BUTTONS_update(){
 	#ifdef BUTTON_SET_PORT
 		buttons_pressed |= (BUTTON_SET_PORT)? 			(1<<BP_SET_IHM)					: 0;
 	#endif
-	#ifdef BUTTON_SELFTEST_PORT
-		buttons_pressed |= (BUTTON_SELFTEST_PORT)? 		(1<<BP_SELFTEST_IHM)			: 0;
+	#ifdef  BUTTON_GO_TO_HOME_PORT
+		buttons_pressed |= (BUTTON_GO_TO_HOME_PORT)? 	(1<<BP_GO_TO_HOME_IHM)			: 0;
 	#endif
 	#ifdef BUTTON_CALIBRATION_PORT
 		buttons_pressed |= (BUTTON_CALIBRATION_PORT)? 	(1<<BP_CALIBRATION_IHM)			: 0;

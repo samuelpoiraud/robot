@@ -27,7 +27,7 @@
 //--------------------------------------PORT A------------------------------------//
 ////////////////////////////////////////////////////////////////////////////////////
 	#define PORT_IO_A_0			PORT_IO_INPUT
-		#define BUTTON_SELFTEST_PORT	GPIOA->IDR0
+		#define BUTTON_GO_TO_HOME_PORT	GPIOA->IDR0
 
 	#define PORT_IO_A_1			PORT_IO_INPUT
 		#define BUTTON_CALIBRATION_PORT	GPIOA->IDR1
