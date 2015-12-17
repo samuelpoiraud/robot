@@ -56,8 +56,17 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	BLACK_COLLECT_FISH,
 	BLACK_CLOSE_DOORS,
 
-	//--------------Sub action de Paerl
-
+	//--------------Sub action de Pearl
+	PEARL_STRAT_INITIALE,
+	PEARL_OUR_DUNE_BLOC,
+	PEARL_ADV_DUNE_BLOC,
+	PEARL_OUR_START_ZONE_BLOC,
+	PEARL_ADV_START_ZONE_BLOC,
+	PEARL_CLOSE_DOORS,
+	PEARL_COQUILLAGES_1_CLOSE,
+	PEARL_COQUILLAGES_2_CLOSE,
+	PEARL_COQUILLAGES_3_4_CLOSE,
+	PEARL_COQUILLAGES_5_CLOSE,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
