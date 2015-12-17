@@ -49,6 +49,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_POMPE_BACK_RIGHT,      ACT_QUEUE_Pompe_back_right,			"Pompe BR"},
 	{ACT_POMPE_FRONT_LEFT,      ACT_QUEUE_Pompe_front_left,			"Pompe FL"},
 	{ACT_POMPE_FRONT_RIGHT,     ACT_QUEUE_Pompe_front_right,		"Pompe FR"},
+	{ACT_SAND_CIRCLE,			ACT_QUEUE_Sand_circle,				"Circle"},
 
 
 };
