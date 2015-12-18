@@ -83,7 +83,16 @@
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
 	#define AX12_STATUS_RETURN_CHECK_CHECKSUM
 	#define AX12_UART_ID 3
-	#define AX12_RX24_UART_ID 2
+
+/* Servo-Moteurs RX24 */
+	#define USE_RX24_SERVO
+	#define RX24_NUMBER 50
+	#define RX24_INSTRUCTION_BUFFER_SIZE 200
+	#define RX24_TIMER_ID 1
+	#define RX24_STATUS_RETURN_MODE RX24_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
+	#define RX24_STATUS_RETURN_CHECK_CHECKSUM
+
+	#define RX24_UART_ID 2
 
 
 //Test et inclusion des configs spécifiques au robot
@@ -96,7 +105,7 @@
 #endif
 
 /* Récapitulatif TIMERs :
- * TIMER 1 : ...
+ * TIMER 1 : RX24			(QS_rx24.c/h)
  * TIMER 2 : AX12			(QS_ax12.c/h)
  * TIMER 3 : Watchdog		(QS_watchdog.c/h)
  * TIMER 4 : Clock			(clock.c/h)
