@@ -466,15 +466,15 @@ void PORTS_uarts_init() {
 	#endif
 
 	//Activation de l'UART RX_24
-	#if AX12_RX24_UART_ID==1
+	#if RX24_UART_ID==1
 		#ifndef USE_UART1
 			#define USE_UART1
 		#endif
-	#elif AX12_RX24_UART_ID==2
+	#elif RX24_UART_ID==2
 		#ifndef USE_UART2
 			#define USE_UART2
 		#endif
-	#elif AX12_RX24_UART_ID==3
+	#elif RX24_UART_ID==3
 		#ifndef USE_UART3
 			#define USE_UART3
 		#endif
