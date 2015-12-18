@@ -2,6 +2,7 @@
 #include "term_io.h"
 #include "../QS/QS_uart.h"
 #include "../QS/QS_ax12.h"
+#include "../QS/QS_rx24.h"
 #include "../QS/QS_DCMotor2.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_pwm.h"
@@ -22,7 +23,8 @@
 typedef Sint16(*sensor_position_fun_t)(void);
 
 typedef enum{
-	term_AX12_RX24,
+	term_AX12,
+	term_RX24,
 	term_MOTOR,
 	term_PWM
 }terminal_type;
@@ -47,19 +49,21 @@ typedef struct{
  * prefix   -> le nom de l'actionneur
  * fun      -> fonction qui retourne la position du bras
  */
-#define DECLARE_AX12_RX24(inc, char, prefix) {term_AX12_RX24, inc, char, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, 0, NULL, NULL, 0}
+#define DECLARE_RX24(inc, char, prefix) {term_RX24, inc, char, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, 0, NULL, NULL, 0}
+#define DECLARE_AX12(inc, char, prefix) {term_AX12, inc, char, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, 0, NULL, NULL, 0}
 #define DECLARE_MOTOR(inc, char, prefix, fun) {term_MOTOR, inc, char, #prefix, prefix##_ID, prefix##_MIN_VALUE, prefix##_MAX_VALUE, 0, fun, NULL, 0}
 #define DECLARE_PWM(inc, char, prefix) {term_PWM, inc, char, #prefix, prefix##_PWM_NUM, 0, 100, 0, NULL, prefix##_SENS}
 
 terminal_motor_s terminal_motor[] = {
 	#ifdef I_AM_ROBOT_BIG
-		DECLARE_AX12_RX24(2, '0', FISH_BRUSH_FRONT_AX12_RX24),
-		DECLARE_AX12_RX24(2, '1', FISH_BRUSH_BACK_AX12_RX24),
-		DECLARE_AX12_RX24(2, '2', TOP_PLATE_LEFT_AX12_RX24),
-		DECLARE_AX12_RX24(2, '3', TOP_PLATE_RIGHT_AX12_RX24)
+		DECLARE_RX24(2, '0', FISH_BRUSH_FRONT_AX12_RX24),
+		DECLARE_RX24(2, '1', FISH_BRUSH_BACK_AX12_RX24),
+		DECLARE_RX24(2, '2', TOP_PLATE_LEFT_AX12_RX24),
+		DECLARE_RX24(2, '3', TOP_PLATE_RIGHT_AX12_RX24)
 	#else
-		DECLARE_AX12_RX24(2, 'A', LEFT_ARM_AX12),
-		DECLARE_AX12_RX24(2, 'B', RIGHT_ARM_AX12),
+		DECLARE_AX12(2, 'A', LEFT_ARM_AX12),
+		DECLARE_AX12(2, 'B', RIGHT_ARM_AX12),
+		DECLARE_AX12(2, 'C', CIRCLE_AX12)
 	#endif
 };
 
@@ -87,7 +91,7 @@ void TERMINAL_uart_checker(unsigned char c){
 		if(terminal_motor[i].char_selection == c && state != i){
 			debug_printf("%s selected\n", terminal_motor[i].name);
 			state = i;
-			if(terminal_motor[i].type == term_AX12_RX24)
+			if(terminal_motor[i].type == term_AX12)
 				position = AX12_get_position(terminal_motor[i].id);
 			else if(terminal_motor[i].type == term_MOTOR)
 				position = terminal_motor[i].fun();
@@ -101,7 +105,7 @@ void TERMINAL_uart_checker(unsigned char c){
 	if(EGAL_CHAR_PRINT(c)){
 		debug_printf("---------------------- Position ----------------------\n");
 		for(i=0;i<terminal_motor_size;i++){
-			if(terminal_motor[i].type == term_AX12_RX24)
+			if(terminal_motor[i].type == term_AX12)
 				debug_printf("%s : %d\n", terminal_motor[i].name, AX12_get_position(terminal_motor[i].id));
 			else if(terminal_motor[i].type == term_MOTOR)
 				debug_printf("%s : %d /  real : %d\n" , terminal_motor[i].name, terminal_motor[i].fun(), 0 /*conv_potar_updown_to_dist(terminal_motor[i].fun())*/);
@@ -114,7 +118,7 @@ void TERMINAL_uart_checker(unsigned char c){
 		debug_printf("---------------------- Terminal ----------------------\n");
 		debug_printf("Actionneur : \n");
 		for(i=0;i<terminal_motor_size;i++){
-			if(terminal_motor[i].type == term_AX12_RX24)
+			if(terminal_motor[i].type == term_AX12)
 				debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", AX12_is_ready(terminal_motor[i].id) ? "  Connecté" : "Déconnecté", terminal_motor[i].char_selection, terminal_motor[i].id, terminal_motor[i].name);
 			else if(terminal_motor[i].type == term_MOTOR)
 				debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", "----------", terminal_motor[i].char_selection, terminal_motor[i].id, terminal_motor[i].name);
@@ -142,7 +146,7 @@ void TERMINAL_uart_checker(unsigned char c){
 		position = ((Sint16)position-terminal_motor[state].inc_quantum <= terminal_motor[state].min_value) ? position : position-terminal_motor[state].inc_quantum;
 	}
 
-	if(terminal_motor[state].type == term_AX12_RX24)
+	if(terminal_motor[state].type == term_AX12)
 		AX12_set_position(terminal_motor[state].id, position);
 	else if(terminal_motor[state].type == term_PWM)
 		PWM_run(position, terminal_motor[state].id);
