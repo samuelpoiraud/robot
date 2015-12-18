@@ -53,21 +53,7 @@
 	#warning "AX12: Unknown UART ID"
 	#endif
 
-	#if AX12_RX24_UART_ID == 1
-		#define AX12_RX24_UART_Ptr USART1
-		#define AX12_RX24_UART_Interrupt USART1_IRQHandler
-		#define AX12_RX24_UART_Interrupt_IRQn USART1_IRQn
-	#elif AX12_RX24_UART_ID == 2
-		#define AX12_RX24_UART_Ptr USART2
-		#define AX12_RX24_UART_Interrupt USART2_IRQHandler
-		#define AX12_RX24_UART_Interrupt_IRQn USART2_IRQn
-	#elif AX12_RX24_UART_ID == 3
-		#define AX12_RX24_UART_Ptr USART3
-		#define AX12_RX24_UART_Interrupt USART3_IRQHandler
-		#define AX12_RX24_UART_Interrupt_IRQn USART3_IRQn
-	#else
-	#warning "RX24: Unknown UART ID"
-	#endif
+
 
 	#ifndef AX12_UART_BAUDRATE
 		#define AX12_UART_BAUDRATE  56700
@@ -110,8 +96,8 @@
 		#error "Vous ne pouvez pas utiliser l'UART2 et l'AX12 en même temps, l'AX12 à besoin de l'UART2 pour communiquer"
 	#endif
 
-	#if !defined(AX12_DIRECTION_PORT_AX12) || !defined(AX12_DIRECTION_PORT_RX24)
-		#error "Vous devez definir un port de direction (AX12_DIRECTION_PORT_AX12 et AX12_DIRECTION_PORT_RX24) pour gérer l'UART qui est en Half-duplex (cf. Datasheet MAX485)"
+	#if !defined(AX12_DIRECTION_PORT_AX12)
+		#error "Vous devez definir un port de direction (AX12_DIRECTION_PORT_AX12) pour gérer l'UART qui est en Half-duplex (cf. Datasheet MAX485)"
 	#endif /* ndef AX12_DIRECTION_PORT */
 
 	/* Pour UART half-uplex */
@@ -335,7 +321,6 @@ typedef enum {
 	AX12_SME_NoEvent,
 	AX12_SME_RxInterrupt,
 	AX12_SME_TxInterruptAX12,
-	AX12_SME_TxInterruptRX24,
 	AX12_SME_Timeout
 } AX12_state_machine_event_e;
 
@@ -358,9 +343,6 @@ typedef struct {
 	//Utilisé en mode SEND
 #ifdef AX12_UART_Ptr
 	Uint8 ax12_sending_index;
-#endif
-#ifdef AX12_RX24_UART_Ptr
-	Uint8 rx24_sending_index;
 #endif
 } AX12_state_machine_t;
 
@@ -892,7 +874,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 //4) Si une IT arrive a ce moment, elle ne s'executera pas car processing_state > 0
 	} else if(event == AX12_SME_Timeout) {
 		AX12_UART_DisableIRQ();
-	} else if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterruptAX12 || event == AX12_SME_TxInterruptRX24) {
+	} else if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterruptAX12) {
 		TIMER_SRC_TIMER_DisableIT();
 	}
 
@@ -910,7 +892,6 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				else {	//s'il n'y a rien a faire, mettre en veille la machine a état, l'UART sera donc inactif (et mettre en mode reception pour ne pas forcer la sortie dont on défini la tension, celle non relié a l'AX12)
 					while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));   //inifinite loop si uart pas initialisé
 					GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
-					GPIO_WriteBit(AX12_DIRECTION_PORT_RX24, RX_DIRECTION);
 					break;
 				}
 
@@ -919,9 +900,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 #ifdef AX12_UART_Ptr
 				state_machine.ax12_sending_index = 0;
 #endif
-#ifdef AX12_RX24_UART_Ptr
-				state_machine.rx24_sending_index = 0;
-#endif
+
 				state_machine.receive_index = 0;
 
 
@@ -933,16 +912,14 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				#endif
 
 				GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, TX_DIRECTION);
-				GPIO_WriteBit(AX12_DIRECTION_PORT_RX24, TX_DIRECTION);
+
 
 				TIMER_SRC_TIMER_start_ms(AX12_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
 
 #ifdef AX12_UART_Ptr
 				state_machine.ax12_sending_index++;	//Attention! Nous devons incrementer sending_index AVANT car il y a un risque que l'interuption Tx arrive avant l'incrementation lorsque cette fonction est appellée par AX12_init() (qui n'est pas dans une interruption)
 #endif
-#ifdef AX12_RX24_UART_Ptr
-				state_machine.rx24_sending_index++;
-#endif
+
 
 				AX12_UART_putc(AX12_get_instruction_packet(0, &state_machine.current_instruction));
 				AX12_UART_ITConfig(USART_IT_TXE, ENABLE);
@@ -952,7 +929,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 		break;
 
 		case AX12_SMS_Sending:
-			if(event == AX12_SME_TxInterruptAX12 || event == AX12_SME_TxInterruptRX24)
+			if(event == AX12_SME_TxInterruptAX12)
 			{
 				if(event == AX12_SME_TxInterruptAX12) {
 #ifdef AX12_UART_Ptr
@@ -962,15 +939,6 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						state_machine.ax12_sending_index++;
 					} else
 						USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
-#endif
-				} else {
-#ifdef AX12_RX24_UART_Ptr
-					// rx24
-					if(state_machine.rx24_sending_index < state_machine.current_instruction.size) {
-						USART_SendData(AX12_RX24_UART_Ptr, AX12_get_instruction_packet(state_machine.rx24_sending_index, &state_machine.current_instruction));
-						state_machine.rx24_sending_index++;
-					} else
-						USART_ITConfig(AX12_RX24_UART_Ptr, USART_IT_TXE, DISABLE);
 #endif
 				}
 //				if(state_machine.sending_index < state_machine.current_instruction.size) {
@@ -982,12 +950,6 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				if(
 		#ifdef AX12_UART_Ptr
 						state_machine.ax12_sending_index >= state_machine.current_instruction.size
-		#endif
-		#if defined(AX12_UART_Ptr) && defined(AX12_RX24_UART_Ptr)
-						&&
-		#endif
-		#ifdef AX12_RX24_UART_Ptr
-						state_machine.rx24_sending_index >= state_machine.current_instruction.size	//Le dernier paquet a été envoyé, passage en mode reception et attente de la réponse dans l'état AX12_SMS_WaitingAnswer s'il y a ou enchainement sur le prochain paquet à evnoyer (AX12_SMS_ReadyToSend)
 		#endif
 					)
 				{
@@ -1008,7 +970,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));
 
 						GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
-						GPIO_WriteBit(AX12_DIRECTION_PORT_RX24, RX_DIRECTION);
+
 
 						//flush recv buffer
 						while(AX12_UART_GetFlagStatus(USART_FLAG_ORE) || AX12_UART_GetFlagStatus(USART_FLAG_FE) || AX12_UART_GetFlagStatus(USART_FLAG_NE))
@@ -1144,7 +1106,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 		break;
 	}
 
-	if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterruptAX12 || event == AX12_SME_TxInterruptRX24) {
+	if(event == AX12_SME_RxInterrupt || event == AX12_SME_TxInterruptAX12) {
 		TIMER_SRC_TIMER_EnableIT();
 	} else if(event == AX12_SME_Timeout) {
 		AX12_UART_EnableIRQ();
@@ -1212,12 +1174,6 @@ static void AX12_UART_init_all(Uint32 uart_speed)
 	debug_printf("UART %d initialized for AX12\n", AX12_UART_ID);
 #endif
 
-#ifdef AX12_RX24_UART_ID
-	AX12_UART_init(AX12_RX24_UART_Ptr, uart_speed);
-	NVIC_InitStructure.NVIC_IRQChannel = AX12_RX24_UART_Interrupt_IRQn;
-	NVIC_Init(&NVIC_InitStructure);
-	debug_printf("UART %d initialized for RX24\n", AX12_RX24_UART_ID);
-#endif
 }
 
 static void AX12_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate) {
@@ -1256,27 +1212,21 @@ static void AX12_UART_DisableIRQ() {
 #ifdef AX12_UART_Interrupt_IRQn
 	NVIC_DisableIRQ(AX12_UART_Interrupt_IRQn);
 #endif
-#ifdef AX12_RX24_UART_Interrupt_IRQn
-	NVIC_DisableIRQ(AX12_RX24_UART_Interrupt_IRQn);
-#endif
+
 }
 
 static void AX12_UART_EnableIRQ() {
 #ifdef AX12_UART_Interrupt_IRQn
 	NVIC_EnableIRQ(AX12_UART_Interrupt_IRQn);
 #endif
-#ifdef AX12_RX24_UART_Interrupt_IRQn
-	NVIC_EnableIRQ(AX12_RX24_UART_Interrupt_IRQn);
-#endif
+
 }
 
 static void AX12_UART_putc(Uint8 c) {
 #ifdef AX12_UART_Ptr
 	USART_SendData(AX12_UART_Ptr, c);
 #endif
-#ifdef AX12_RX24_UART_Ptr
-	USART_SendData(AX12_RX24_UART_Ptr, c);
-#endif
+
 }
 
 static Uint8 AX12_UART_getc() {
@@ -1284,13 +1234,7 @@ static Uint8 AX12_UART_getc() {
 	if(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_RXNE))
 		return USART_ReceiveData(AX12_UART_Ptr);
 #endif
-#if defined(AX12_UART_Ptr) && defined(AX12_RX24_UART_Ptr)
-	else
-#endif
-#ifdef AX12_RX24_UART_Ptr
-		if(USART_GetFlagStatus(AX12_RX24_UART_Ptr, USART_FLAG_RXNE))
-			return USART_ReceiveData(AX12_RX24_UART_Ptr);
-#endif
+
 
 	return 0;
 }
@@ -1301,12 +1245,7 @@ static bool_e AX12_UART_GetFlagStatus(Uint16 flag) {
 		#ifdef AX12_UART_Ptr
 				USART_GetFlagStatus(AX12_UART_Ptr, flag)
 		#endif
-		#if defined(AX12_UART_Ptr) && defined(AX12_RX24_UART_Ptr)
-				&&
-		#endif
-		#ifdef AX12_RX24_UART_Ptr
-				USART_GetFlagStatus(AX12_RX24_UART_Ptr, flag)
-		#endif
+
 				)
 			return TRUE;
 	} else {
@@ -1314,12 +1253,7 @@ static bool_e AX12_UART_GetFlagStatus(Uint16 flag) {
 		#ifdef AX12_UART_Ptr
 				USART_GetFlagStatus(AX12_UART_Ptr, flag)
 		#endif
-		#if defined(AX12_UART_Ptr) && defined(AX12_RX24_UART_Ptr)
-				||
-		#endif
-		#ifdef AX12_RX24_UART_Ptr
-				USART_GetFlagStatus(AX12_RX24_UART_Ptr, flag)
-		#endif
+
 				)
 			return TRUE;
 	}
@@ -1330,9 +1264,7 @@ static void AX12_UART_ITConfig(Uint16 flag, FunctionalState enable) {
 #ifdef AX12_UART_Ptr
 	USART_ITConfig(AX12_UART_Ptr, flag, enable);
 #endif
-#ifdef AX12_RX24_UART_Ptr
-	USART_ITConfig(AX12_RX24_UART_Ptr, flag, enable);
-#endif
+
 }
 
 /*****************************************************************************/
@@ -1371,31 +1303,7 @@ void _ISR AX12_UART_Interrupt(void)
 }
 #endif
 
-#ifdef AX12_RX24_UART_Interrupt
-void _ISR AX12_RX24_UART_Interrupt(void)
-{
-	if(USART_GetITStatus(AX12_RX24_UART_Ptr, USART_IT_RXNE))
-	{
-		Uint8 i = 0;
-		while(USART_GetFlagStatus(AX12_RX24_UART_Ptr, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
-			if(state_machine.state != AX12_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
-				USART_ReceiveData(AX12_RX24_UART_Ptr);
-			} else {
-				AX12_state_machine(AX12_SME_RxInterrupt);
-				if(USART_GetFlagStatus(AX12_RX24_UART_Ptr, USART_FLAG_RXNE) && i > 5) {
-					//debug_printf("Overinterrupt RX !\n");
-					break; //force 0, on va perdre des caractères, mais c'est mieux que de boucler ici ...
-				}
-			}
-			i++;
-		}
-	}
-	else if(USART_GetITStatus(AX12_RX24_UART_Ptr, USART_IT_TXE))
-	{
-		AX12_state_machine(AX12_SME_TxInterruptRX24);
-	}
-}
-#endif
+
 
 void TIMER_SRC_TIMER_interrupt()
 {
@@ -1435,7 +1343,7 @@ void AX12_init() {
 	TIMER_SRC_TIMER_init();
 
 	GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
-	GPIO_WriteBit(AX12_DIRECTION_PORT_RX24, RX_DIRECTION);
+
 
 	AX12_prepare_commands = FALSE;
 	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12/RX24 dans le mode indiqué dans Global_config.h
