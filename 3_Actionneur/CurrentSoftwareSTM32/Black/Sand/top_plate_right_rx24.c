@@ -13,11 +13,11 @@
 
 // Ajout l'actionneur dans QS_CANmsgList.h
 // Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
-// Formatage : QUEUE_ACT_AX12_EXEMPLE
+// Formatage : QUEUE_ACT_RX24_EXEMPLE
 // Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
 // Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
 // Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor du type : ACT_DECLARE(EXEMPLE)
-// Un define EXEMPLE_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
+// Un define EXEMPLE_RX24_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
 // Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
 
 // Optionnel:
@@ -37,7 +37,7 @@
 
 // Les différents includes nécessaires...
 #include "../QS/QS_CANmsgList.h"
-#include "../QS/QS_ax12.h"
+#include "../QS/QS_rx24.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../ActManager.h"
@@ -66,7 +66,7 @@ void TOP_PLATE_RIGHT_init() {
 		return;
 	initialized = TRUE;
 
-	AX12_init();
+	RX24_init();
 	TOP_PLATE_RIGHT_initRX24();
 }
 
@@ -79,18 +79,18 @@ void TOP_PLATE_RIGHT_reset_config(){
 
 //Initialise le RX24 s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void TOP_PLATE_RIGHT_initRX24() {
-	if(rx24_is_initialized == FALSE && AX12_is_ready(TOP_PLATE_RIGHT_AX12_RX24_ID) == TRUE) {
+	if(rx24_is_initialized == FALSE && RX24_is_ready(TOP_PLATE_RIGHT_RX24_ID) == TRUE) {
 		rx24_is_initialized = TRUE;
-		AX12_config_set_lowest_voltage(TOP_PLATE_RIGHT_AX12_RX24_ID, AX12_MIN_VOLTAGE);
-		AX12_config_set_highest_voltage(TOP_PLATE_RIGHT_AX12_RX24_ID, AX12_MAX_VOLTAGE);
-		AX12_set_torque_limit(TOP_PLATE_RIGHT_AX12_RX24_ID, TOP_PLATE_RIGHT_AX12_RX24_MAX_TORQUE_PERCENT);
-		AX12_config_set_temperature_limit(TOP_PLATE_RIGHT_AX12_RX24_ID, TOP_PLATE_RIGHT_AX12_RX24_MAX_TEMPERATURE);
+		RX24_config_set_lowest_voltage(TOP_PLATE_RIGHT_RX24_ID, RX24_MIN_VOLTAGE);
+		RX24_config_set_highest_voltage(TOP_PLATE_RIGHT_RX24_ID, RX24_MAX_VOLTAGE);
+		RX24_set_torque_limit(TOP_PLATE_RIGHT_RX24_ID, TOP_PLATE_RIGHT_RX24_MAX_TORQUE_PERCENT);
+		RX24_config_set_temperature_limit(TOP_PLATE_RIGHT_RX24_ID, TOP_PLATE_RIGHT_RX24_MAX_TEMPERATURE);
 
-		AX12_config_set_maximal_angle(TOP_PLATE_RIGHT_AX12_RX24_ID, TOP_PLATE_RIGHT_AX12_RX24_MAX_VALUE);
-		AX12_config_set_minimal_angle(TOP_PLATE_RIGHT_AX12_RX24_ID, TOP_PLATE_RIGHT_AX12_RX24_MIN_VALUE);
+		RX24_config_set_maximal_angle(TOP_PLATE_RIGHT_RX24_ID, TOP_PLATE_RIGHT_RX24_MAX_VALUE);
+		RX24_config_set_minimal_angle(TOP_PLATE_RIGHT_RX24_ID, TOP_PLATE_RIGHT_RX24_MIN_VALUE);
 
-		AX12_config_set_error_before_led(TOP_PLATE_RIGHT_AX12_RX24_ID, AX12_BEFORE_LED);
-		AX12_config_set_error_before_shutdown(TOP_PLATE_RIGHT_AX12_RX24_ID, AX12_BEFORE_SHUTDOWN);
+		RX24_config_set_error_before_led(TOP_PLATE_RIGHT_RX24_ID, RX24_BEFORE_LED);
+		RX24_config_set_error_before_shutdown(TOP_PLATE_RIGHT_RX24_ID, RX24_BEFORE_SHUTDOWN);
 		debug_printf("Init config DONE\n");
 	}else if(rx24_is_initialized == FALSE)
 		debug_printf("Init config FAIL\n");
@@ -102,7 +102,7 @@ static void TOP_PLATE_RIGHT_initRX24() {
 void TOP_PLATE_RIGHT_config(CAN_msg_t* msg){
 	switch(msg->data.act_msg.act_data.act_config.sub_act_id){
 		case DEFAULT_MONO_ACT : // Premier élement de l'actionneur
-			ACTMGR_config_AX12(TOP_PLATE_RIGHT_AX12_RX24_ID, msg);
+			ACTMGR_config_RX24(TOP_PLATE_RIGHT_RX24_ID, msg);
 			break;
 
 		default :
@@ -118,15 +118,15 @@ void TOP_PLATE_RIGHT_init_pos(){
 		return;
 
 	debug_printf("Init pos : \n");
-	if(!AX12_set_position(TOP_PLATE_RIGHT_AX12_RX24_ID, TOP_PLATE_RIGHT_AX12_RX24_INIT_POS))
-		debug_printf("   Le RX24 n°%d n'est pas là\n", TOP_PLATE_RIGHT_AX12_RX24_ID);
+	if(!RX24_set_position(TOP_PLATE_RIGHT_RX24_ID, TOP_PLATE_RIGHT_RX24_INIT_POS))
+		debug_printf("   Le RX24 n°%d n'est pas là\n", TOP_PLATE_RIGHT_RX24_ID);
 	else
-		debug_printf("   Le RX24 n°%d a été initialisé en position\n", TOP_PLATE_RIGHT_AX12_RX24_ID);
+		debug_printf("   Le RX24 n°%d a été initialisé en position\n", TOP_PLATE_RIGHT_RX24_ID);
 }
 
 // Fonction appellée à la fin du match (via ActManager)
 void TOP_PLATE_RIGHT_stop(){
-	AX12_set_torque_enabled(TOP_PLATE_RIGHT_AX12_RX24_ID, FALSE); //Stopper l'asservissement du RX24
+	RX24_set_torque_enabled(TOP_PLATE_RIGHT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
 }
 
 // fonction appellée à la réception d'un message CAN (via ActManager)
@@ -139,7 +139,7 @@ bool_e TOP_PLATE_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_TOP_PLATE_RIGHT_OPEN :
 			case ACT_TOP_PLATE_RIGHT_CLOSE :
 			case ACT_TOP_PLATE_RIGHT_STOP :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_RX24_TOP_PLATE_RIGHT, &TOP_PLATE_RIGHT_run_command, 0,TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_TOP_PLATE_RIGHT, &TOP_PLATE_RIGHT_run_command, 0,TRUE);
 				break;
 
 			case ACT_CONFIG :
@@ -154,9 +154,9 @@ bool_e TOP_PLATE_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
 		SELFTEST_set_actions(&TOP_PLATE_RIGHT_run_command, 3, 3, (SELFTEST_action_t[]){
-								 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_AX12_RX24_TOP_PLATE_RIGHT},
-								 {ACT_TOP_PLATE_RIGHT_OPEN,       0,  QUEUE_ACT_AX12_RX24_TOP_PLATE_RIGHT},
-								 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_AX12_RX24_TOP_PLATE_RIGHT}
+								 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT},
+								 {ACT_TOP_PLATE_RIGHT_OPEN,       0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT},
+								 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT}
 							 });
 	}
 	return FALSE;
@@ -169,7 +169,7 @@ void TOP_PLATE_RIGHT_run_command(queue_id_t queueId, bool_e init) {
 		return;
 	}
 
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_AX12_RX24_TOP_PLATE_RIGHT) {    // Gestion des mouvements de TOP_PLATE_RIGHT
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_TOP_PLATE_RIGHT) {    // Gestion des mouvements de TOP_PLATE_RIGHT
 		if(init)
 			TOP_PLATE_RIGHT_command_init(queueId);
 		else
@@ -187,12 +187,12 @@ static void TOP_PLATE_RIGHT_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_TOP_PLATE_RIGHT_IDLE : *rx24_goalPosition = TOP_PLATE_RIGHT_AX12_RX24_IDLE_POS; break;
-		case ACT_TOP_PLATE_RIGHT_CLOSE : *rx24_goalPosition = TOP_PLATE_RIGHT_AX12_RX24_CLOSE_POS; break;
-		case ACT_TOP_PLATE_RIGHT_OPEN : *rx24_goalPosition = TOP_PLATE_RIGHT_AX12_RX24_OPEN_POS; break;
+		case ACT_TOP_PLATE_RIGHT_IDLE : *rx24_goalPosition = TOP_PLATE_RIGHT_RX24_IDLE_POS; break;
+		case ACT_TOP_PLATE_RIGHT_CLOSE : *rx24_goalPosition = TOP_PLATE_RIGHT_RX24_CLOSE_POS; break;
+		case ACT_TOP_PLATE_RIGHT_OPEN : *rx24_goalPosition = TOP_PLATE_RIGHT_RX24_OPEN_POS; break;
 
 		case ACT_TOP_PLATE_RIGHT_STOP :
-			AX12_set_torque_enabled(TOP_PLATE_RIGHT_AX12_RX24_ID, FALSE); //Stopper l'asservissement du RX24
+			RX24_set_torque_enabled(TOP_PLATE_RIGHT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
 			QUEUE_next(queueId, ACT_TOP_PLATE_RIGHT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			return;
 
@@ -215,9 +215,9 @@ static void TOP_PLATE_RIGHT_command_init(queue_id_t queueId) {
 		return;
 	}
 
-	AX12_reset_last_error(TOP_PLATE_RIGHT_AX12_RX24_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
-	if(!AX12_set_position(TOP_PLATE_RIGHT_AX12_RX24_ID, *rx24_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que le RX24 ne répond pas a cet envoi, on l'indique à la carte stratégie
-		error_printf("AX12_set_position error: 0x%x\n", AX12_get_last_error(TOP_PLATE_RIGHT_AX12_RX24_ID).error);
+	RX24_reset_last_error(TOP_PLATE_RIGHT_RX24_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
+	if(!RX24_set_position(TOP_PLATE_RIGHT_RX24_ID, *rx24_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que le RX24 ne répond pas a cet envoi, on l'indique à la carte stratégie
+		error_printf("RX24_set_position error: 0x%x\n", RX24_get_last_error(TOP_PLATE_RIGHT_RX24_ID).error);
 		QUEUE_next(queueId, ACT_TOP_PLATE_RIGHT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
@@ -230,7 +230,7 @@ static void TOP_PLATE_RIGHT_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	if(ACTQ_check_status_ax12(queueId, TOP_PLATE_RIGHT_AX12_RX24_ID, QUEUE_get_arg(queueId)->param, TOP_PLATE_RIGHT_AX12_RX24_ASSER_POS_EPSILON, TOP_PLATE_RIGHT_AX12_RX24_ASSER_TIMEOUT, TOP_PLATE_RIGHT_AX12_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+	if(ACTQ_check_status_rx24(queueId, TOP_PLATE_RIGHT_RX24_ID, QUEUE_get_arg(queueId)->param, TOP_PLATE_RIGHT_RX24_ASSER_POS_EPSILON, TOP_PLATE_RIGHT_RX24_ASSER_TIMEOUT, TOP_PLATE_RIGHT_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_TOP_PLATE_RIGHT, result, errorCode, line);
 }
 #endif

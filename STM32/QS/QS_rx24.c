@@ -372,7 +372,7 @@ static Uint8 RX24_status_packet_calc_checksum(RX24_status_packet_t* status_packe
 static bool_e RX24_update_status_packet(Uint8 receive_byte, Uint8 byte_offset, RX24_status_packet_t* status_packet);	//retourne FALSE si le paquet est non valide, sinon TRUE
 static void RX24_state_machine(RX24_state_machine_event_e event);
 static void RX24_UART_init_all(Uint32 uart_speed);
-//static void RX24_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate);
+static void RX24_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate);
 static void RX24_UART_DisableIRQ();
 static void RX24_UART_EnableIRQ();
 static void RX24_UART_putc(Uint8 c);
@@ -900,7 +900,7 @@ static void RX24_state_machine(RX24_state_machine_event_e event) {
 				state_machine.state = RX24_SMS_Sending;
 				RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = RX24_ERROR_IN_PROGRESS;
 
-#ifdef RX_24_UART_Ptr
+#ifdef RX24_UART_Ptr
 				state_machine.rx24_sending_index = 0;
 #endif
 				state_machine.receive_index = 0;
@@ -918,7 +918,7 @@ static void RX24_state_machine(RX24_state_machine_event_e event) {
 
 				TIMER_SRC_TIMER_start_ms(RX24_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
 
-#ifdef RX_24_UART_Ptr
+#ifdef RX24_UART_Ptr
 				state_machine.rx24_sending_index++;
 #endif
 
@@ -932,13 +932,13 @@ static void RX24_state_machine(RX24_state_machine_event_e event) {
 		case RX24_SMS_Sending:
 			if(event == RX24_SME_TxInterruptRX24)
 			{
-#ifdef RX_24_UART_Ptr
+#ifdef RX24_UART_Ptr
 				// rx24
 				if(state_machine.rx24_sending_index < state_machine.current_instruction.size) {
-					USART_SendData(RX_24_UART_Ptr, RX24_get_instruction_packet(state_machine.rx24_sending_index, &state_machine.current_instruction));
+					USART_SendData(RX24_UART_Ptr, RX24_get_instruction_packet(state_machine.rx24_sending_index, &state_machine.current_instruction));
 					state_machine.rx24_sending_index++;
 				} else
-					USART_ITConfig(RX_24_UART_Ptr, USART_IT_TXE, DISABLE);
+					USART_ITConfig(RX24_UART_Ptr, USART_IT_TXE, DISABLE);
 #endif
 
 //				if(state_machine.sending_index < state_machine.current_instruction.size) {
@@ -1169,15 +1169,15 @@ static void RX24_UART_init_all(Uint32 uart_speed)
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;  //inférieur aux uarts mais supérieur au timers
 
 
-#ifdef RX_24_UART_ID
-	RX24_UART_init(RX_24_UART_Ptr, uart_speed);
-	NVIC_InitStructure.NVIC_IRQChannel = RX_24_UART_Interrupt_IRQn;
+#ifdef RX24_UART_ID
+	RX24_UART_init(RX24_UART_Ptr, uart_speed);
+	NVIC_InitStructure.NVIC_IRQChannel = RX24_UART_Interrupt_IRQn;
 	NVIC_Init(&NVIC_InitStructure);
-	debug_printf("UART %d initialized for RX24\n", RX_24_UART_ID);
+	debug_printf("UART %d initialized for RX24\n", RX24_UART_ID);
 #endif
 }
 
-/*static void RX24_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate) {
+static void RX24_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate) {
 	USART_InitTypeDef USART_InitStructure;
 
 	if(uartPtr == USART1)
@@ -1202,39 +1202,39 @@ static void RX24_UART_init_all(Uint32 uart_speed)
 	USART_Init(uartPtr, &USART_InitStructure);
 
 
-*/	/* Enable USART */
-	/*USART_Cmd(uartPtr, ENABLE);
+	/* Enable USART */
+	USART_Cmd(uartPtr, ENABLE);
 
 	USART_ITConfig(uartPtr, USART_IT_RXNE, ENABLE);
 	USART_ITConfig(uartPtr, USART_IT_TXE, DISABLE);
-}*/
+}
 
 static void RX24_UART_DisableIRQ() {
 
-#ifdef RX_24_UART_Interrupt_IRQn
-	NVIC_DisableIRQ(RX_24_UART_Interrupt_IRQn);
+#ifdef RX24_UART_Interrupt_IRQn
+	NVIC_DisableIRQ(RX24_UART_Interrupt_IRQn);
 #endif
 }
 
 static void RX24_UART_EnableIRQ() {
 
-#ifdef RX_24_UART_Interrupt_IRQn
-	NVIC_EnableIRQ(RX_24_UART_Interrupt_IRQn);
+#ifdef RX24_UART_Interrupt_IRQn
+	NVIC_EnableIRQ(RX24_UART_Interrupt_IRQn);
 #endif
 }
 
 static void RX24_UART_putc(Uint8 c) {
 
-#ifdef RX_24_UART_Ptr
-	USART_SendData(RX_24_UART_Ptr, c);
+#ifdef RX24_UART_Ptr
+	USART_SendData(RX24_UART_Ptr, c);
 #endif
 }
 
 static Uint8 RX24_UART_getc() {
 
-#ifdef RX_24_UART_Ptr
-		if(USART_GetFlagStatus(RX_24_UART_Ptr, USART_FLAG_RXNE))
-			return USART_ReceiveData(RX_24_UART_Ptr);
+#ifdef RX24_UART_Ptr
+		if(USART_GetFlagStatus(RX24_UART_Ptr, USART_FLAG_RXNE))
+			return USART_ReceiveData(RX24_UART_Ptr);
 #endif
 
 	return 0;
@@ -1263,8 +1263,8 @@ static bool_e RX24_UART_GetFlagStatus(Uint16 flag) {
 
 static void RX24_UART_ITConfig(Uint16 flag, FunctionalState enable) {
 
-#ifdef RX_24_UART_Ptr
-	USART_ITConfig(RX_24_UART_Ptr, flag, enable);
+#ifdef RX24_UART_Ptr
+	USART_ITConfig(RX24_UART_Ptr, flag, enable);
 #endif
 }
 
@@ -1280,18 +1280,18 @@ static void RX24_UART_ITConfig(Uint16 flag, FunctionalState enable) {
 //(car le caractère envoyé est envoyé plus vite que le retour de la fonction RX24_state_machine)
 
 
-#ifdef RX_24_UART_Interrupt
-void _ISR RX_24_UART_Interrupt(void)
+#ifdef RX24_UART_Interrupt
+void _ISR RX24_UART_Interrupt(void)
 {
-	if(USART_GetITStatus(RX_24_UART_Ptr, USART_IT_RXNE))
+	if(USART_GetITStatus(RX24_UART_Ptr, USART_IT_RXNE))
 	{
 		Uint8 i = 0;
-		while(USART_GetFlagStatus(RX_24_UART_Ptr, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
+		while(USART_GetFlagStatus(RX24_UART_Ptr, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
 			if(state_machine.state != RX24_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
-				USART_ReceiveData(RX_24_UART_Ptr);
+				USART_ReceiveData(RX24_UART_Ptr);
 			} else {
 				RX24_state_machine(RX24_SME_RxInterrupt);
-				if(USART_GetFlagStatus(RX_24_UART_Ptr, USART_FLAG_RXNE) && i > 5) {
+				if(USART_GetFlagStatus(RX24_UART_Ptr, USART_FLAG_RXNE) && i > 5) {
 					//debug_printf("Overinterrupt RX !\n");
 					break; //force 0, on va perdre des caractères, mais c'est mieux que de boucler ici ...
 				}
@@ -1299,7 +1299,7 @@ void _ISR RX_24_UART_Interrupt(void)
 			i++;
 		}
 	}
-	else if(USART_GetITStatus(RX_24_UART_Ptr, USART_IT_TXE))
+	else if(USART_GetITStatus(RX24_UART_Ptr, USART_IT_TXE))
 	{
 		RX24_state_machine(RX24_SME_TxInterruptRX24);
 	}

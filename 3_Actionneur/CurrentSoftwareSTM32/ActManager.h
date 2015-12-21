@@ -31,4 +31,7 @@
 	//Configure un AX12 en fonction d'un message CAN
 	void ACTMGR_config_AX12(Uint8 id_servo, CAN_msg_t* msg);
 
+	//Configure un RX24 en fonction d'un message CAN
+	void ACTMGR_config_RX24(Uint8 id_servo, CAN_msg_t* msg);
+
 #endif	/* ACT_MANAGER_H */

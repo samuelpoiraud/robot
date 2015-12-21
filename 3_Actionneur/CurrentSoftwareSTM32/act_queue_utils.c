@@ -13,6 +13,7 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can.h"
 #include "QS/QS_ax12.h"
+#include "QS/QS_rx24.h"
 #include "QS/QS_DCMotor2.h"
 
 #define LOG_PREFIX "ActUtils: "
@@ -144,6 +145,60 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*line = error; //0x00xx avec xx = error
 	} else if(error) {
 		component_printf(LOG_LEVEL_Error, "Error AX12 %d\n", error);
+		return FALSE;
+	} else return FALSE;
+
+	return TRUE;
+}
+
+bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
+	RX24_reset_last_error(rx24Id);
+
+	Uint16 current_pos = RX24_get_position(rx24Id);
+	Uint8 error = RX24_get_last_error(rx24Id).error;
+	Uint16 dummy;
+
+	//Avec ça, on ne se soucie pas du contenu de result et error_code par la suite, on sait qu'ils ne sont pas NULL
+	if(!result) result = (Uint8*)&dummy;
+	if(!error_code) error_code = (Uint8*)&dummy;
+	if(!line) line = &dummy;
+
+	if(absolute((Sint16)current_pos - (Sint16)(wantedPosition)) <= pos_epsilon) {
+		*result = ACT_RESULT_DONE;
+		*error_code = ACT_RESULT_ERROR_OK;
+		*line = 0x0100;
+	} else if((error & RX24_ERROR_TIMEOUT) && (error & RX24_ERROR_RANGE)) {
+		//Si le driver a attendu trop longtemps, c'est a cause d'un deadlock plutot qu'un manque de ressources (il attend suffisament longtemps pour que les commandes soit bien envoyées)
+		RX24_set_torque_enabled(rx24Id, FALSE);
+		*result = ACT_RESULT_NOT_HANDLED;
+		*error_code = ACT_RESULT_ERROR_LOGIC;
+		*line = 0x0200;
+	} else if(error & RX24_ERROR_TIMEOUT) {
+		//RX24_set_torque_enabled(rx24Id, FALSE);
+		*result = ACT_RESULT_FAILED;
+		*error_code = ACT_RESULT_ERROR_NOT_HERE;
+		*line = 0x0300;
+	} else if(ACTQ_check_timeout(queueId, timeout_ms)) {
+		//Timeout, le RX24 n'a pas bouger à la bonne position a temps
+		if(absolute((Sint16)current_pos - (Sint16)(wantedPosition)) <= large_epsilon) {
+			*result = ACT_RESULT_DONE;
+			*error_code = ACT_RESULT_ERROR_OK;
+			*line = 0x0400;
+		} else {
+#warning ATTENTION MISE EN COMMENTAIRE DE LA PROTECTION DES RX24 SUR TIMEOUT (coté act)
+			//RX24_set_torque_enabled(rx24Id, FALSE);
+			*result = ACT_RESULT_FAILED;
+			*error_code = ACT_RESULT_ERROR_TIMEOUT;
+			*line = 0x0500;
+		}
+	} else if(error & RX24_ERROR_OVERHEATING) {
+		//autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
+		RX24_set_torque_enabled(rx24Id, FALSE);
+		*result = ACT_RESULT_FAILED;
+		*error_code = ACT_RESULT_ERROR_UNKNOWN;
+		*line = error; //0x00xx avec xx = error
+	} else if(error) {
+		component_printf(LOG_LEVEL_Error, "Error RX24 %d\n", error);
 		return FALSE;
 	} else return FALSE;
 

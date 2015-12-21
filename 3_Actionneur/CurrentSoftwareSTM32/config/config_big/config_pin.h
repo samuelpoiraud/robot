@@ -31,7 +31,7 @@
 		//
 
 	#define PORT_IO_A_5			PORT_IO_OUTPUT
-		#define AX12_DIRECTION_PORT_RX24 GPIOA,GPIO_Pin_5
+		#define RX24_DIRECTION_PORT_RX24 GPIOA,GPIO_Pin_5
 
 	#define PORT_IO_A_6			PORT_IO_INPUT
 		//
@@ -280,9 +280,9 @@
 
 //--------------------Configuration des ID des actionneurs-----------------------
 
-#define FISH_BRUSH_FRONT_AX12_RX24_ID            24
-#define FISH_BRUSH_BACK_AX12_RX24_ID             26
-#define TOP_PLATE_LEFT_AX12_RX24_ID              48
-#define TOP_PLATE_RIGHT_AX12_RX24_ID             47
+#define FISH_BRUSH_FRONT_RX24_ID            24
+#define FISH_BRUSH_BACK_RX24_ID                  26
+#define TOP_PLATE_LEFT_RX24_ID              48
+#define TOP_PLATE_RIGHT_RX24_ID             47
 
 #endif /* BIG_CONFIG_PIN_H */
