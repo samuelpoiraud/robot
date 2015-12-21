@@ -68,6 +68,9 @@
 		//Fonction générant la liste de polygones (adversaires + éléments ou zones de jeu)
 		static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius);
 
+		//Procédure permettant d'ajouter les nodes à la liste ouverte lorsque le point de départ est dans un polygone
+		static bool_e ASTAR_link_node_start(astar_path_t *path);
+
 		//Fonction pour créer les polygones correspondant aux zones ou éléments du terrain constituant des obstacles
 		static void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits, ...);
 
@@ -201,13 +204,13 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 900, TRUE},
 									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750, 900 - MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE},  //-3*PI4096/8
-									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},    //-2*PI4096/8
+									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-3*PI4096/8
+									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-2*PI4096/8
 									(astar_user_node_t){750 + 0.93*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //-PI4096/8
-									(astar_user_node_t){1350 + MARGIN_TO_OBSTACLE - 10, 1500, TRUE},                                                 // 0
+									(astar_user_node_t){1350 + MARGIN_TO_OBSTACLE - 10, 1500, TRUE},                                              // 0
 									(astar_user_node_t){750 + 0.93*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //PI4096/8
-									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},    //2*PI4096/8
-									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE}); //3*PI4096/8
+									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //2*PI4096/8
+									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE});  //3*PI4096/8
 
 	//Polygon[3]:Zone de la dune (Node 24 -> 32)
 	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){0, 800 - MARGIN_TO_OBSTACLE, TRUE},
@@ -230,10 +233,285 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(2700), TRUE},
 									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(3000), TRUE});
 
+	//Polygon[5]:Notre cube de sable près de la zone de départ (Node 41 -> 44)
+	ASTAR_create_element_polygon(currentNodeId, 4, (astar_user_node_t){900+MARGIN_TO_OBSTACLE, COLOR_Y(900), TRUE},
+									(astar_user_node_t){900+MARGIN_TO_OBSTACLE, COLOR_Y(650-MARGIN_TO_OBSTACLE), FALSE},
+									(astar_user_node_t){900-MARGIN_TO_OBSTACLE, COLOR_Y(650-MARGIN_TO_OBSTACLE), FALSE},
+									(astar_user_node_t){900-MARGIN_TO_OBSTACLE, COLOR_Y(900), TRUE});
+
+	//Polygon[6]:Cube de sable adverse près de la zone de départ (Node 45 -> 48)
+	ASTAR_create_element_polygon(currentNodeId, 4, (astar_user_node_t){900+MARGIN_TO_OBSTACLE, COLOR_Y(2350+MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){900+MARGIN_TO_OBSTACLE, COLOR_Y(2100), TRUE},
+									(astar_user_node_t){900-MARGIN_TO_OBSTACLE, COLOR_Y(2100), TRUE},
+									(astar_user_node_t){900-MARGIN_TO_OBSTACLE, COLOR_Y(2350+MARGIN_TO_OBSTACLE), TRUE});
+
+	//Polygon[7]: Notre zone de départ (Node 49 -> 55)
+	ASTAR_create_element_polygon(currentNodeId, 8, (astar_user_node_t){1100 + MARGIN_TO_OBSTACLE, COLOR_Y(0), TRUE},
+									(astar_user_node_t){1100 + MARGIN_TO_OBSTACLE, COLOR_Y(300) , TRUE},
+									(astar_user_node_t){1100 + CORNER_MARGIN_TO_OBSTACLE, COLOR_Y(300 + CORNER_MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){1100, COLOR_Y(300 + MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){600, COLOR_Y(300 + MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){600 - CORNER_MARGIN_TO_OBSTACLE, COLOR_Y(300 + CORNER_MARGIN_TO_OBSTACLE), TRUE},
+									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(300), TRUE},
+									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(0), TRUE});
+
 	//Polygones des robots adverses
 	ASTAR_create_foe_polygon(currentNodeId, foeRadius);
 }
 
+/** @ASTAR_link_node_start()
+  *      Procédure permettant d'ajouter les nodes à la liste ouverte lorsque le point de départ est dans un polygone
+  */
+static bool_e ASTAR_link_node_start(astar_path_t *path){
+	//Rien à gérer pour les polygones 0 et 1 correspondant aux deus rochers.
+	//L'éloignement des bordures doit être assuré par le programmeur en strat
+	if(!ASTAR_point_out_of_polygon(polygon_list.polygons[2], path->from.pos) && polygon_list.polygons[2].enable){ //Zone central avec plexi
+		if(path->from.pos.x > 750 && path->from.pos.y < 1500){
+			if(polygon_list.polygons[2].summits[7].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[7]), &opened_list);
+				polygon_list.polygons[2].summits[7].parent = &(path->from);
+				polygon_list.polygons[2].summits[7].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[7]));
+			}
+			if(polygon_list.polygons[2].summits[8].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[8]), &opened_list);
+				polygon_list.polygons[2].summits[8].parent = &(path->from);
+				polygon_list.polygons[2].summits[8].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[8]));
+			}
+			if(polygon_list.polygons[2].summits[9].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[9]), &opened_list);
+				polygon_list.polygons[2].summits[9].parent = &(path->from);
+				polygon_list.polygons[2].summits[9].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[9]));
+			}
+		}else if(path->from.pos.x > 750 && path->from.pos.y > 1500){
+			if(polygon_list.polygons[2].summits[11].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[11]), &opened_list);
+				polygon_list.polygons[2].summits[11].parent = &(path->from);
+				polygon_list.polygons[2].summits[11].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[11]));
+			}
+			if(polygon_list.polygons[2].summits[12].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[12]), &opened_list);
+				polygon_list.polygons[2].summits[12].parent = &(path->from);
+				polygon_list.polygons[2].summits[12].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[12]));
+			}
+			if(polygon_list.polygons[2].summits[13].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[13]), &opened_list);
+				polygon_list.polygons[2].summits[13].parent = &(path->from);
+				polygon_list.polygons[2].summits[13].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[13]));
+			}
+		}else if (path->from.pos.x < 750){
+			if(polygon_list.polygons[2].summits[2].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[2]), &opened_list);
+				polygon_list.polygons[2].summits[2].parent = &(path->from);
+				polygon_list.polygons[2].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[2]));
+			}
+			if(polygon_list.polygons[2].summits[3].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[3]), &opened_list);
+				polygon_list.polygons[2].summits[3].parent = &(path->from);
+				polygon_list.polygons[2].summits[3].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[3]));
+			}
+			if(polygon_list.polygons[2].summits[4].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[4]), &opened_list);
+				polygon_list.polygons[2].summits[4].parent = &(path->from);
+				polygon_list.polygons[2].summits[4].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[4]));
+			}
+		}
+		return TRUE;
+	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[3], path->from.pos)){  //Zone de la dune
+		if(path->from.pos.y > 800 && path->from.pos.y <2200){
+			if(polygon_list.polygons[3].summits[3].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[3]), &opened_list);
+				polygon_list.polygons[3].summits[3].parent = &(path->from);
+				polygon_list.polygons[3].summits[3].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[3]));
+			}
+			if(polygon_list.polygons[3].summits[4].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[4]), &opened_list);
+				polygon_list.polygons[3].summits[4].parent = &(path->from);
+				polygon_list.polygons[3].summits[4].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[4]));
+			}
+			if(polygon_list.polygons[3].summits[5].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[5]), &opened_list);
+				polygon_list.polygons[3].summits[5].parent = &(path->from);
+				polygon_list.polygons[3].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[5]));
+			}
+		}else if(path->from.pos.y <= 800){
+			if(polygon_list.polygons[3].summits[1].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[1]), &opened_list);
+				polygon_list.polygons[3].summits[1].parent = &(path->from);
+				polygon_list.polygons[3].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[1]));
+			}
+			if(polygon_list.polygons[3].summits[2].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[2]), &opened_list);
+				polygon_list.polygons[3].summits[2].parent = &(path->from);
+				polygon_list.polygons[3].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[2]));
+			}
+		}else{
+			if(polygon_list.polygons[3].summits[6].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[6]), &opened_list);
+				polygon_list.polygons[3].summits[6].parent = &(path->from);
+				polygon_list.polygons[3].summits[6].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[6]));
+			}
+			if(polygon_list.polygons[3].summits[7].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[7]), &opened_list);
+				polygon_list.polygons[3].summits[7].parent = &(path->from);
+				polygon_list.polygons[3].summits[7].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[7]));
+			}
+		}
+		return TRUE;
+	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[4], path->from.pos)){  //Zone de départ adverse
+		if(path->from.pos.x < 590){
+			if(polygon_list.polygons[4].summits[5].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[5]), &opened_list);
+				polygon_list.polygons[4].summits[5].parent = &(path->from);
+				polygon_list.polygons[4].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[5]));
+			}
+			if(polygon_list.polygons[4].summits[6].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[6]), &opened_list);
+				polygon_list.polygons[4].summits[6].parent = &(path->from);
+				polygon_list.polygons[4].summits[6].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[6]));
+			}
+		}else if(path->from.pos.x > 1110){
+			if(polygon_list.polygons[4].summits[1].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[1]), &opened_list);
+				polygon_list.polygons[4].summits[1].parent = &(path->from);
+				polygon_list.polygons[4].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[1]));
+			}
+			if(polygon_list.polygons[4].summits[2].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[2]), &opened_list);
+				polygon_list.polygons[4].summits[2].parent = &(path->from);
+				polygon_list.polygons[4].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[2]));
+			}
+		}else{
+			if(polygon_list.polygons[4].summits[2].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[2]), &opened_list);
+				polygon_list.polygons[4].summits[2].parent = &(path->from);
+				polygon_list.polygons[4].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[2]));
+			}
+			if(polygon_list.polygons[4].summits[3].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[3]), &opened_list);
+				polygon_list.polygons[4].summits[3].parent = &(path->from);
+				polygon_list.polygons[4].summits[3].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[3]));
+			}
+			if(polygon_list.polygons[4].summits[4].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[4]), &opened_list);
+				polygon_list.polygons[4].summits[4].parent = &(path->from);
+				polygon_list.polygons[4].summits[4].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[4]));
+			}
+			if(polygon_list.polygons[4].summits[5].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[5]), &opened_list);
+				polygon_list.polygons[4].summits[5].parent = &(path->from);
+				polygon_list.polygons[4].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[5]));
+			}
+		}
+		return TRUE;
+	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[5], path->from.pos)){  //Le cube de sable devant notre zone de départ
+		if(polygon_list.polygons[5].summits[1].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[5].summits[1]), &opened_list);
+			polygon_list.polygons[5].summits[1].parent = &(path->from);
+			polygon_list.polygons[5].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[5].summits[1]));
+		}
+		if(polygon_list.polygons[5].summits[2].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[5].summits[2]), &opened_list);
+			polygon_list.polygons[5].summits[2].parent = &(path->from);
+			polygon_list.polygons[5].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[5].summits[2]));
+		}
+		if(global.color == BOT_COLOR){
+			if(polygon_list.polygons[2].summits[5].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[5]), &opened_list);
+				polygon_list.polygons[2].summits[5].parent = &(path->from);
+				polygon_list.polygons[2].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[5]));
+			}
+			if(polygon_list.polygons[2].summits[8].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[8]), &opened_list);
+				polygon_list.polygons[2].summits[8].parent = &(path->from);
+				polygon_list.polygons[2].summits[8].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[8]));
+			}
+		}else{
+			if(polygon_list.polygons[2].summits[12].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[12]), &opened_list);
+				polygon_list.polygons[2].summits[12].parent = &(path->from);
+				polygon_list.polygons[2].summits[12].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[12]));
+			}
+			if(polygon_list.polygons[2].summits[1].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[1]), &opened_list);
+				polygon_list.polygons[2].summits[1].parent = &(path->from);
+				polygon_list.polygons[2].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[1]));
+			}
+		}
+		return TRUE;
+	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[6], path->from.pos)){  //Le cube de sable devant la zone de départ adverse
+		if(global.color == TOP_COLOR){
+			if(polygon_list.polygons[2].summits[5].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[5]), &opened_list);
+				polygon_list.polygons[2].summits[5].parent = &(path->from);
+				polygon_list.polygons[2].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[5]));
+			}
+			if(polygon_list.polygons[2].summits[8].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[8]), &opened_list);
+				polygon_list.polygons[2].summits[8].parent = &(path->from);
+				polygon_list.polygons[2].summits[8].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[8]));
+			}
+		}else{
+			if(polygon_list.polygons[2].summits[12].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[12]), &opened_list);
+				polygon_list.polygons[2].summits[12].parent = &(path->from);
+				polygon_list.polygons[2].summits[12].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[12]));
+			}
+			if(polygon_list.polygons[2].summits[1].enable){
+				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[1]), &opened_list);
+				polygon_list.polygons[2].summits[1].parent = &(path->from);
+				polygon_list.polygons[2].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[1]));
+			}
+		}
+		return TRUE;
+	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[7], path->from.pos)){  //Notre Zone de départ
+	if(path->from.pos.x < 590){
+		if(polygon_list.polygons[7].summits[5].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[5]), &opened_list);
+			polygon_list.polygons[7].summits[5].parent = &(path->from);
+			polygon_list.polygons[7].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[5]));
+		}
+		if(polygon_list.polygons[7].summits[6].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[6]), &opened_list);
+			polygon_list.polygons[7].summits[6].parent = &(path->from);
+			polygon_list.polygons[7].summits[6].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[6]));
+		}
+	}else if(path->from.pos.x > 1110){
+		if(polygon_list.polygons[7].summits[1].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[1]), &opened_list);
+			polygon_list.polygons[7].summits[1].parent = &(path->from);
+			polygon_list.polygons[7].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[1]));
+		}
+		if(polygon_list.polygons[7].summits[2].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[2]), &opened_list);
+			polygon_list.polygons[7].summits[2].parent = &(path->from);
+			polygon_list.polygons[7].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[2]));
+		}
+	}else{
+		if(polygon_list.polygons[7].summits[2].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[2]), &opened_list);
+			polygon_list.polygons[7].summits[2].parent = &(path->from);
+			polygon_list.polygons[7].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[2]));
+		}
+		if(polygon_list.polygons[7].summits[3].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[3]), &opened_list);
+			polygon_list.polygons[7].summits[3].parent = &(path->from);
+			polygon_list.polygons[7].summits[3].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[3]));
+		}
+		if(polygon_list.polygons[7].summits[4].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[4]), &opened_list);
+			polygon_list.polygons[7].summits[4].parent = &(path->from);
+			polygon_list.polygons[7].summits[4].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[4]));
+		}
+		if(polygon_list.polygons[7].summits[5].enable){
+			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[5]), &opened_list);
+			polygon_list.polygons[7].summits[5].parent = &(path->from);
+			polygon_list.polygons[7].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[5]));
+		}
+	}
+	return TRUE;
+}
+	return FALSE;
+}
 
 
 /** @brief ASTAR_init
@@ -244,6 +522,7 @@ void ASTAR_init(void){
 	for(i=0; i<NB_MAX_POLYGONS; i++){
 		polygon_list.enableByUser[i] = TRUE;
 	}
+	polygon_list.enableByUser[7] = FALSE;
 }
 
 
@@ -430,6 +709,8 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 
 	//Déclaration des variables
 	bool_e  destination_is_in_closed_list = FALSE;
+	bool_e  first_node = TRUE;
+	bool_e  search_link = FALSE;
 	Uint16 minimal_cost; //Cout minimal ie cout entre le node de départ et le node courant
 	astar_ptr_node_t current = NULL; //Le node courant
 	Uint8 i; // Variable de parcours
@@ -463,6 +744,7 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 
 		//Ajout du noeud de départ à la liste ouverte
 		ASTAR_add_node_to_list(&(path->from), &opened_list);
+		first_node = TRUE;
 
 		//Affichage du contenu de la liste fermée et de la liste ouverte
 		//debug_printf("BEGIN  état des listes : \n");
@@ -504,8 +786,16 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 			}
 
 			if(!destination_is_in_closed_list){
-				//Recherche des nodes adjacents (ou voisins) au node current. On ajoute ces nodes à la liste ouverte.
-				ASTAR_link_nodes_on_path(current, &(path->destination), 10);
+				debug_printf("first_node= %d\n", first_node);
+				if(first_node){
+					search_link = ASTAR_link_node_start(path);
+				}
+
+				if(!first_node || !search_link){
+					//Recherche des nodes adjacents (ou voisins) au node current. On ajoute ces nodes à la liste ouverte.
+					ASTAR_link_nodes_on_path(current, &(path->destination), 10);
+					debug_printf("Search link\n");
+				}
 
 				//Mise à jour des coûts des noeuds qui ont pour parent current
 				ASTAR_update_cost(minimal_cost, current, &(path->destination));
@@ -516,7 +806,10 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 			ASTAR_print_closed_list();
 			ASTAR_print_opened_list();
 
+			first_node = FALSE;
 		}
+
+		debug_printf("End Compute PATHFIND\n");
 
 		//Reconstitution du chemin
 		ASTAR_make_the_path(path);
@@ -553,7 +846,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 	//Ajout des voisins de from à la liste ouverte
 	for(k=0; k<from->nbNeighbors; k++){
 
-		//portion de code testant si la trajectoire est bonne (pour cela on teste le milieu de la trajectoire
+		//portion de code testant si la trajectoire est bonne (pour cela on teste le milieu de la trajectoire)
 		seg = (GEOMETRY_segment_t){from->pos,from->neighbors[k]->pos};
 		//debug_printf("Tentative d' ajout\n");
 		//debug_printf("Middle of from:(%d , %d)  et (%d , %d)\n", seg.a.x , seg.a.y, seg.b.x, seg.b.y);
@@ -568,7 +861,7 @@ static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t des
 		if(from->neighbors[k]->enable && ASTAR_node_enable(&nodeMid, TRUE, TRUE) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
 			from->neighbors[k]->parent = from;
 			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
-			//debug_printf("neighbors added: x=%d  y=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y);
+			debug_printf("neighbors added: x=%d  y=%d test_cost=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y, ASTAR_pathfind_cost(from, from->neighbors[k]));
 
 			if(ASTAR_is_in_list(from->neighbors[k], opened_list)){
 				test_cost = ASTAR_pathfind_cost(from, from->neighbors[k]);
@@ -658,14 +951,15 @@ static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from
 	bool_e is_in_closed_list, is_in_opened_list;
 	astar_ptr_node_t answer1 = NULL, answer2 = NULL;
 
-	//interdiction d'ajouter des nodes du même polygone, on ne doit ajouter que ses voisisns mais cela est fait ultérieurement
+	//interdiction d'ajouter des nodes du même polygone, on ne doit ajouter que ses voisins mais cela est fait ultérieurement
 	if(from->polygonId == idPolygon)
 		return;
 
 	if(polygon_list.polygons[idPolygon].enable){
 		debug_printf("Polygon ENABLE\n");
 		for(i=0; i<polygon_list.polygons[idPolygon].nbSummits;i++){
-			if(polygon_list.polygons[idPolygon].summits[i].enable && GEOMETRY_distance(from->pos, polygon_list.polygons[idPolygon].summits[i].pos) < 500){
+			if(polygon_list.polygons[idPolygon].summits[i].enable && GEOMETRY_distance(from->pos, polygon_list.polygons[idPolygon].summits[i].pos) < 600){
+				debug_printf("<500 Node x=%d  y=%d\n",polygon_list.polygons[idPolygon].summits[i].pos.x, polygon_list.polygons[idPolygon].summits[i].pos.y);
 				k = 0;
 				is_in_closed_list = FALSE;
 				while(k<closed_list.nbNodes && !is_in_closed_list){  //On vérifie qu'il n'est pas déjà dans la liste fermée
@@ -684,8 +978,10 @@ static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from
 						else
 							k++;
 					}
-
+					debug_printf("from id =%d\n", from->id);
 					if(ASTAR_node_is_reachable(&answer1, &answer2, from, &(polygon_list.polygons[idPolygon].summits[i]))){
+						debug_printf("<500 and Visible Node x=%d  y=%d\n",polygon_list.polygons[idPolygon].summits[i].pos.x, polygon_list.polygons[idPolygon].summits[i].pos.y);
+
 						//Ajout du node à la liste ouverte si il n'est pas présent dans la liste fermée et dans la liste ouverte
 						if(!is_in_opened_list){
 							debug_printf("Add node to open list x=%d  y=%d\n", polygon_list.polygons[idPolygon].summits[i].pos.x, polygon_list.polygons[idPolygon].summits[i].pos.y );
@@ -702,6 +998,7 @@ static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from
 							}
 						}
 					}
+					debug_printf("Answer1= (%d,%d, id=%d) Answer2= (%d,%d, id=%d)\n", answer1->pos.x, answer1->pos.y, answer1->id, answer2->pos.x, answer2->pos.y, answer2->id);
 				}
 			}
 		}
@@ -796,7 +1093,7 @@ static void ASTAR_make_the_path(astar_path_t *path){
 	i=aux.nbNodes-1;
 	j= i-2;
 	while(i>0){
-		while(j>=0 && ASTAR_node_is_reachable(&answer1, &answer2, aux.list[i], aux.list[j]) && (aux.list[i]->polygonId != aux.list[j]->polygonId)){
+		while(j>=0 && ASTAR_node_is_reachable(&answer1, &answer2, aux.list[i], aux.list[j]) && (aux.list[i]->polygonId != aux.list[j]->polygonId) && ((i!=aux.nbNodes-1) || (i==aux.nbNodes-1 && ASTAR_point_out_of_polygon(polygon_list.polygons[aux.list[j]->polygonId], path->from.pos)))){
 		   j--;
 		}
 		i = j+1;
@@ -1067,6 +1364,7 @@ static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_nod
 	Uint8 i, j;
 	GEOMETRY_segment_t reference = {from->pos, destination->pos};
 	GEOMETRY_segment_t test;
+	debug_printf("from x=%d y=%d id=%d\n", from->pos.x, from->pos.y, from->id);
 
 	*nodeAnswer1 = NULL;
 	*nodeAnswer2 = NULL;
@@ -1321,7 +1619,7 @@ static void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t n
 
 
 /** @brief ASTAR_pathfind_cost
- *		Calcul du cout entre deux points par une distance de manhattan
+ *		Calcul du cout entre deux points
  * @param start_node : le node de départ
  * @param end_node: le node d'arrivée
  * @return le cout entre les deux nodes passés en paramètre
@@ -1338,8 +1636,11 @@ static Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t 
 		debug_printf("end_node NULL dans ASTAR_pathfind_cost\n");
 		return MAX_COST;
 	}
-	return ((start_node->pos.x > end_node->pos.x) ? start_node->pos.x-end_node->pos.x : end_node->pos.x-start_node->pos.x) +
-			((start_node->pos.y >end_node->pos.y) ? start_node->pos.y-end_node->pos.y : end_node->pos.y-start_node->pos.y);
+	return GEOMETRY_distance(start_node->pos, end_node->pos);
+
+	//Distance de Manhattan
+	//((start_node->pos.x > end_node->pos.x) ? start_node->pos.x-end_node->pos.x : end_node->pos.x-start_node->pos.x) +
+	//((start_node->pos.y >end_node->pos.y) ? start_node->pos.y-end_node->pos.y : end_node->pos.y-start_node->pos.y);
 }
 
 
