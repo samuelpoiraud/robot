@@ -20,9 +20,9 @@
 	#define FISH_BRUSH_BACK_AX12_RX24_MAX_TEMPERATURE			60		// Température maximale en degré
 
 //Position
-	#define FISH_BRUSH_BACK_AX12_RX24_IDLE_POS					380
-	#define FISH_BRUSH_BACK_AX12_RX24_CLOSE_POS			     	380	//en degré
-	#define FISH_BRUSH_BACK_AX12_RX24_OPEN_POS					210		//en degré
+	#define FISH_BRUSH_BACK_AX12_RX24_IDLE_POS					512
+	#define FISH_BRUSH_BACK_AX12_RX24_CLOSE_POS			        512	//en degré
+	#define FISH_BRUSH_BACK_AX12_RX24_OPEN_POS					809		//en degré
 
 //Position initiale de l'AX12_RX24
 	#define FISH_BRUSH_BACK_AX12_RX24_INIT_POS					FISH_BRUSH_BACK_AX12_RX24_IDLE_POS

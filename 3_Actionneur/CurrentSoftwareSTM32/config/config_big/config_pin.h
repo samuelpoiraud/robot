@@ -280,9 +280,9 @@
 
 //--------------------Configuration des ID des actionneurs-----------------------
 
-#define FISH_BRUSH_FRONT_AX12_RX24_ID            100
-#define FISH_BRUSH_BACK_AX12_RX24_ID             101
-#define TOP_PLATE_LEFT_AX12_RX24_ID              102
-#define TOP_PLATE_RIGHT_AX12_RX24_ID             103
+#define FISH_BRUSH_FRONT_AX12_RX24_ID            24
+#define FISH_BRUSH_BACK_AX12_RX24_ID             26
+#define TOP_PLATE_LEFT_AX12_RX24_ID              48
+#define TOP_PLATE_RIGHT_AX12_RX24_ID             47
 
 #endif /* BIG_CONFIG_PIN_H */
