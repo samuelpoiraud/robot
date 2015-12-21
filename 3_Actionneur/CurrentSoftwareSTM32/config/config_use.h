@@ -89,9 +89,8 @@
 	#define RX24_NUMBER 50
 	#define RX24_INSTRUCTION_BUFFER_SIZE 200
 	#define RX24_TIMER_ID 1
-	#define RX24_STATUS_RETURN_MODE RX24_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
+	#define RX24_STATUS_RETURN_MODE RX24_STATUS_RETURN_ALWAYS	//Permet de savoir quand le RX24 n'est pas bien connecté ou ne répond pas.
 	#define RX24_STATUS_RETURN_CHECK_CHECKSUM
-
 	#define RX24_UART_ID 2
 
 

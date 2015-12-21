@@ -10,6 +10,7 @@
 
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_ax12.h"
+#include "QS/QS_rx24.h"
 #include "QS/QS_outputlog.h"
 #include "act_queue_utils.h"
 #include "selftest.h"
@@ -115,7 +116,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	} else {
 		bool_e isReady = FALSE, responseReceived = FALSE;
 		#ifdef I_AM_ROBOT_BIG
-				responseReceived = AX12_async_is_ready(FISH_BRUSH_FRONT_AX12_RX24_ID, &isReady);
+				responseReceived = RX24_async_is_ready(FISH_BRUSH_FRONT_RX24_ID, &isReady);
 		#else
 				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);
 		#endif
@@ -150,6 +151,29 @@ void ACTMGR_config_AX12(Uint8 id_servo, CAN_msg_t* msg){
 		case TORQUE_CONFIG : // Configuration du couple
 			AX12_set_torque_limit(id_servo, msg->data.act_msg.act_data.act_config.data_config.torque);
 			debug_printf("Configuration du couple de l'AX12 %d avec une valeur de %d\n", id_servo, msg->data.act_msg.act_data.act_config.data_config.torque);
+			break;
+
+		default :
+			warn_printf("invalid CAN msg data[2]=%u (configuration impossible)!\n", msg->data.act_msg.act_data.act_config.config);
+	}
+}
+
+void ACTMGR_config_RX24(Uint8 id_servo, CAN_msg_t* msg){
+	switch(msg->data.act_msg.act_data.act_config.config){
+		case SPEED_CONFIG : // Configuration de la vitesse
+			if(RX24_is_wheel_mode_enabled(id_servo)){
+				RX24_set_speed_percentage(id_servo, msg->data.act_msg.act_data.act_config.data_config.speed_wheel);
+				debug_printf("Configuration de la vitesse (wheel mode) du RX24 %d avec une valeur de %d\n", id_servo, msg->data.act_msg.act_data.act_config.data_config.speed_wheel);
+			}else{
+				RX24_set_move_to_position_speed(id_servo, msg->data.act_msg.act_data.act_config.data_config.speed_position);
+				debug_printf("Configuration de la vitesse (position mode) du RX24 %d avec une valeur de %d\n", id_servo, msg->data.act_msg.act_data.act_config.data_config.speed_position);
+			}
+
+			break;
+
+		case TORQUE_CONFIG : // Configuration du couple
+			RX24_set_torque_limit(id_servo, msg->data.act_msg.act_data.act_config.data_config.torque);
+			debug_printf("Configuration du couple du RX24 %d avec une valeur de %d\n", id_servo, msg->data.act_msg.act_data.act_config.data_config.torque);
 			break;
 
 		default :
