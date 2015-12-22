@@ -40,7 +40,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_FISH_BRUSH_FRONT,			ACT_QUEUE_Fish_brush_front,			    "Fish Brush Front"},
 	{ACT_FISH_BRUSH_BACK,		    ACT_QUEUE_Fish_brush_back,		        "Fish Brush Back"},
 	{ACT_TOP_PLATE_LEFT,			ACT_QUEUE_Top_plate_left,               "Sand Top Plate left"},
-	{ACT_TOP_PLATE_RIGHT,			ACT_QUEUE_Top_plate_right,               "Sand Top Plate right"},
+	{ACT_TOP_PLATE_RIGHT,			ACT_QUEUE_Top_plate_right,              "Sand Top Plate right"},
+	{ACT_BLACK_SAND_CIRCLE,			ACT_QUEUE_Black_sand_circle,            "Sand Circle"},
 
 	// Pearl
 	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Sand_left_arm,            "Left Arm"},
@@ -49,7 +50,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_POMPE_BACK_RIGHT,      ACT_QUEUE_Pompe_back_right,			"Pompe BR"},
 	{ACT_POMPE_FRONT_LEFT,      ACT_QUEUE_Pompe_front_left,			"Pompe FL"},
 	{ACT_POMPE_FRONT_RIGHT,     ACT_QUEUE_Pompe_front_right,		"Pompe FR"},
-	{ACT_SAND_CIRCLE,			ACT_QUEUE_Sand_circle,				"Circle"},
+	{ACT_PEARL_SAND_CIRCLE,		ACT_QUEUE_Pearl_sand_circle,		"Sand Circle"},
 
 
 };

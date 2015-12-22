@@ -27,6 +27,7 @@ typedef enum {
 	ACT_QUEUE_Fish_brush_back,
 	ACT_QUEUE_Top_plate_left,
 	ACT_QUEUE_Top_plate_right,
+	ACT_QUEUE_Black_sand_circle,
 
 	//Pearl
 	ACT_QUEUE_Sand_left_arm,
@@ -35,7 +36,7 @@ typedef enum {
 	ACT_QUEUE_Pompe_back_right,
 	ACT_QUEUE_Pompe_front_left,
 	ACT_QUEUE_Pompe_front_right,
-
+	ACT_QUEUE_Pearl_sand_circle,
 
 	//Common
 

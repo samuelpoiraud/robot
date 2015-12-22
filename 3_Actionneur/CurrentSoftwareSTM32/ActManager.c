@@ -24,12 +24,15 @@
 	#include "Black/Sand/top_plate_left_rx24_config.h"
 	#include "Black/Sand/top_plate_right_rx24.h"
 	#include "Black/Sand/top_plate_right_rx24_config.h"
+	#include "Black/Sand/black_sand_circle.h"
+	#include "Black/Sand/black_sand_circle_config.h"
 #else
 	#include "Pearl/Sand/left_arm.h"
 	#include "Pearl/Sand/left_arm_config.h"
 	#include "Pearl/Sand/right_arm.h"
 	#include "Pearl/Sand/right_arm_config.h"
-	#include "Pearl/Sand/circle_config.h"
+	#include "Pearl/Sand/pearl_sand_circle.h"
+	#include "Pearl/Sand/pearl_sand_circle_config.h"
 #endif
 
 
@@ -42,10 +45,12 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(FISH_BRUSH_FRONT),
 		ACT_DECLARE(FISH_BRUSH_BACK),
 		ACT_DECLARE(TOP_PLATE_LEFT),
-		ACT_DECLARE(TOP_PLATE_RIGHT)
+		ACT_DECLARE(TOP_PLATE_RIGHT),
+		ACT_DECLARE(BLACK_SAND_CIRCLE)
 	#else  //Small Robot
 		ACT_DECLARE(LEFT_ARM),
-		ACT_DECLARE(RIGHT_ARM)
+		ACT_DECLARE(RIGHT_ARM),
+		ACT_DECLARE(PEARL_SAND_CIRCLE)
 	#endif
 };
 

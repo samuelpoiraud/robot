@@ -10,7 +10,6 @@
  *	Version 20121110
  */
 
-//Pour voir l'ancienne version avant les modifications faites pour le robot 2012-2013, utilisez la version SVN 5340
 
 #include "QS_rx24.h"
 

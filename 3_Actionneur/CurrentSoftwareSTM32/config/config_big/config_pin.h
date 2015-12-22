@@ -279,10 +279,11 @@
 
 
 //--------------------Configuration des ID des actionneurs-----------------------
-
+// L'id doit être inférieur à 50
 #define FISH_BRUSH_FRONT_RX24_ID            24
-#define FISH_BRUSH_BACK_RX24_ID                  26
+#define FISH_BRUSH_BACK_RX24_ID             26
 #define TOP_PLATE_LEFT_RX24_ID              48
 #define TOP_PLATE_RIGHT_RX24_ID             47
+#define BLACK_SAND_CIRCLE_AX12_ID           14
 
 #endif /* BIG_CONFIG_PIN_H */
