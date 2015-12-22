@@ -858,6 +858,7 @@
 		ACT_FISH_BRUSH_BACK         = (ACT_FILTER | 0x02),
 		ACT_TOP_PLATE_LEFT          = (ACT_FILTER | 0x03),
 		ACT_TOP_PLATE_RIGHT         = (ACT_FILTER | 0x04),
+		ACT_BLACK_SAND_CIRCLE       = (ACT_FILTER | 0x05),
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------PEARL------------------------------//
@@ -869,7 +870,7 @@
 		ACT_POMPE_BACK_RIGHT  		= (ACT_FILTER | 0x33),
 		ACT_POMPE_FRONT_LEFT  		= (ACT_FILTER | 0x34),
 		ACT_POMPE_FRONT_RIGHT  		= (ACT_FILTER | 0x35),
-		ACT_SAND_CIRCLE				= (ACT_FILTER | 0x36)
+		ACT_PEARL_SAND_CIRCLE	    = (ACT_FILTER | 0x36)
 	} ACT_sid_e;
 
 #endif	/* ndef QS_CANMSGLIST_H */

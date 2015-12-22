@@ -22,7 +22,7 @@
 //Position
 	#define FISH_BRUSH_BACK_RX24_IDLE_POS					512
 	#define FISH_BRUSH_BACK_RX24_CLOSE_POS			        512	//en degré
-	#define FISH_BRUSH_BACK_RX24_OPEN_POS					809		//en degré
+	#define FISH_BRUSH_BACK_RX24_OPEN_POS					600		//en degré
 
 //Position initiale de l'RX24
 	#define FISH_BRUSH_BACK_RX24_INIT_POS					FISH_BRUSH_BACK_RX24_IDLE_POS

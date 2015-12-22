@@ -490,7 +490,12 @@
 		// Self test de la carte actionneur (si actionneur indiqué, alors il n'a pas fonctionné comme prévu, pour plus d'info voir la sortie uart de la carte actionneur) :
 		SELFTEST_ACT_MISSING_TEST,	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 		SELFTEST_ACT_UNKNOWN_ACT,	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
-		//SELFTEST_ACT_POP_COLLECT_LEFT,
+
+		//Black
+		SELFTEST_ACT_RX24_FISH_BRUSH_FRONT,
+		SELFTEST_ACT_RX24_FISH_BRUSH_BACK,
+
+		//Pearl
 
 		SELFTEST_ERROR_NB,
 		SELFTEST_NO_ERROR = 0xFF
@@ -539,6 +544,11 @@
 		ACT_TOP_PLATE_RIGHT_OPEN,
 		ACT_TOP_PLATE_RIGHT_CLOSE,
 
+		ACT_BLACK_SAND_CIRCLE_STOP = 0,
+		ACT_BLACK_SAND_CIRCLE_IDLE,
+		ACT_BLACK_SAND_CIRCLE_OPEN,
+		ACT_BLACK_SAND_CIRCLE_CLOSE,
+
 // Pearl
 		ACT_LEFT_ARM_STOP = 0,
 		ACT_LEFT_ARM_IDLE,
@@ -567,7 +577,12 @@
 
 		ACT_POMPE_FRONT_RIGHT_STOP = 0,
 		ACT_POMPE_FRONT_RIGHT_NORMAL,
-		ACT_POMPE_FRONT_RIGHT_REVERSE
+		ACT_POMPE_FRONT_RIGHT_REVERSE,
+
+		ACT_PEARL_SAND_CIRCLE_STOP = 0,
+		ACT_PEARL_SAND_CIRCLE_IDLE,
+		ACT_PEARL_SAND_CIRCLE_OPEN,
+		ACT_PEARL_SAND_CIRCLE_CLOSE
 
 	} ACT_order_e;
 
@@ -599,20 +614,20 @@
 	typedef enum{
 		DEFAULT_MONO_ACT = 0,
 
-		PINCEMIR_R,
-		PINCEMIR_L,
-		PINCEMIL_R,
-		PINCEMIL_L,
+		SUB_ACT0_0,
+		SUB_ACT0_1,
+		SUB_ACT0_2,
+		SUB_ACT0_3,
 
-		STOCKR_R_F1,
-		STOCKR_L_F1,
-		STOCKL_R_F1,
-		STOCKL_L_F1,
+		SUB_ACT1_0,
+		SUB_ACT1_1,
+		SUB_ACT1_2,
+		SUB_ACT1_3,
 
-		STOCKR_R_F2,
-		STOCKR_L_F2,
-		STOCKL_R_F2,
-		STOCKL_L_F2
+		SUB_ACT2_0,
+		SUB_ACT2_1,
+		SUB_ACT2_2,
+		SUB_ACT2_3
 
 	}act_sub_act_id_e;
 

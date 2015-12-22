@@ -14,10 +14,11 @@
 	#include "../Black/Fishs/fish_brush_back_config.h"
 	#include "../Black/Sand/top_plate_left_rx24_config.h"
 	#include "../Black/Sand/top_plate_right_rx24_config.h"
+	#include "../Black/Sand/black_sand_circle_config.h"
 #else
 	#include "../Pearl/Sand/left_arm_config.h"
 	#include "../Pearl/Sand/right_arm_config.h"
-	#include "../Pearl/Sand/circle_config.h"
+	#include "../Pearl/Sand/pearl_sand_circle_config.h"
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);
@@ -59,11 +60,12 @@ terminal_motor_s terminal_motor[] = {
 		DECLARE_RX24(2, '0', FISH_BRUSH_FRONT_RX24),
 		DECLARE_RX24(2, '1', FISH_BRUSH_BACK_RX24),
 		DECLARE_RX24(2, '2', TOP_PLATE_LEFT_RX24),
-		DECLARE_RX24(2, '3', TOP_PLATE_RIGHT_RX24)
+		DECLARE_RX24(2, '3', TOP_PLATE_RIGHT_RX24),
+		DECLARE_AX12(2, '4', BLACK_SAND_CIRCLE_AX12)
 	#else
 		DECLARE_AX12(2, 'A', LEFT_ARM_AX12),
 		DECLARE_AX12(2, 'B', RIGHT_ARM_AX12),
-		DECLARE_AX12(2, 'C', CIRCLE_AX12)
+		DECLARE_AX12(2, 'C', PEARL_SAND_CIRCLE_AX12)
 	#endif
 };
 
