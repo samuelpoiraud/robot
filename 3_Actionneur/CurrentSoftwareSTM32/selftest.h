@@ -21,7 +21,9 @@ typedef enum {
 	SELFTEST_STATE_UNUSED = 0,
 #endif
 	SELFTEST_STATE_OK = 1,
-	SELFTEST_STATE_ERROR = 2
+	SELFTEST_STATE_ERROR = 2,
+	SELFTEST_STATE_IN_PROGRESS = 3,
+	SELFTEST_STATE_TIMEOUT = 4
 } SELFTEST_state_e;
 
 typedef struct {
@@ -35,5 +37,7 @@ bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs);
 //delay est un multiple de 100ms
 void SELFTEST_set_actions(action_t action, Uint8 delay, Uint8 action_num, const SELFTEST_action_t actions[]);
 bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
+
+void SELFTEST_state_machine(void);
 
 #endif // SELFTEST_H

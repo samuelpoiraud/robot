@@ -22,6 +22,7 @@
 // Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor du type : ACT_DECLARE(EXEMPLE)
 // Un define EXEMPLE_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
 // Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
+// Mise à jour de config/config_debug.h
 
 // Optionnel:
 // Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test

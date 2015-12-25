@@ -157,11 +157,11 @@ bool_e FISH_BRUSH_BACK_CAN_process_msg(CAN_msg_t* msg) {
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
 		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, 3, (SELFTEST_action_t[]){
+		/*SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, 3, (SELFTEST_action_t[]){
 								 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
 								 {ACT_FISH_BRUSH_BACK_OPEN,       0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
 								 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK}
-							 });
+							 });*/
 	}
 	return FALSE;
 }
