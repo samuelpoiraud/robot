@@ -34,8 +34,7 @@ typedef struct {
 
 bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs);
 
-//delay est un multiple de 100ms
-void SELFTEST_set_actions(action_t action, Uint8 delay, Uint8 action_num, const SELFTEST_action_t actions[]);
+void SELFTEST_set_actions(action_t action, Uint8 action_num, const SELFTEST_action_t actions[]);
 bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param);
 
 void SELFTEST_state_machine(void);
