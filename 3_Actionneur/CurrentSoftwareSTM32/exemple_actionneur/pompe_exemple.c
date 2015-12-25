@@ -19,6 +19,7 @@
 // Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
 // Un define EXEMPLE_PIN doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
 // Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
+// Mise à jour de config/config_debug.h
 
 // Optionnel:
 // Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test

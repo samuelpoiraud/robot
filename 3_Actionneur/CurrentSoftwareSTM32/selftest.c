@@ -6,7 +6,7 @@
  *  Package : Carte Actionneur
  *  Description : Selftest
  *  Auteur : Alexis
- *  Robot : Pierre & Guy, Holly & Wood
+ *  Robot : Pierre & Guy, Holly & Wood, Black & Pearl
  */
 
 #define SELFTEST_C
@@ -16,14 +16,25 @@
 #include "clock.h"
 #include "act_queue_utils.h"
 
+#ifdef I_AM_ROBOT_BIG
+	#include "Black/Fishs/fish_brush_front.h"
+	#include "Black/Fishs/fish_brush_back.h"
+	#include "Black/Sand/top_plate_left_rx24.h"
+	#include "Black/Sand/top_plate_right_rx24.h"
+	#include "Black/Sand/black_sand_circle.h"
+#endif
+
 #define LOG_PREFIX "Selftest: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SELFTEST
 #include "QS/QS_outputlog.h"
 
 #define MAX_NB_ACT 8
-#define SELFTEST_TIMEOUT 15000 // en ms (15sec)
+#define SELFTEST_TIMEOUT 30000 // en ms (30sec)  //Duree du timeout du selftest complet
+#define ACT_TIMEOUT  5000 //en ms (5sec)  //Duree du timeout par actionneur
 
 static SELFTEST_error_code_e failed_act_tests[MAX_NB_ACT];
+static SELFTEST_state_e state_act_tests[MAX_NB_ACT];
+static 	Uint8 state = 0, last_state=0; //état de la machine à états
 static Uint8 expected_act_num = 0;
 static Uint8 act_test_done_num = 0;
 static bool_e test_finished = TRUE;
@@ -42,8 +53,11 @@ bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 
 	for(i = 0; i < MAX_NB_ACT; i++) {
 		failed_act_tests[i] = SELFTEST_NOT_DONE;
+		state_act_tests[i] = SELFTEST_STATE_IN_PROGRESS;
 	}
 
+	state = 0;
+	last_state = 255;
 	act_test_done_num = 0;
 	expected_act_num = nb_actionneurs;
 	test_finished = FALSE;
@@ -113,6 +127,134 @@ void SELFTEST_set_actions(action_t action, Uint8 delay, Uint8 action_num, const 
 	}
 }
 
+void SELFTEST_state_machine(void){
+	//Attention à bien mettre : state_act_tests[ACT_EXEMPLE & 0xFF] != SELFTEST_IN_PROGRESS
+	//Et pas : state_act_tests[QUEUE_ACT_EXEMPLE] != SELFTEST_IN_PROGRESS
+	//Car les indices de la Queue et le l'enum ACT sont peut-être dans un ordre différent
+	static time32_t time_for_timeout;
+	bool_e entrance = (last_state==state)? FALSE:TRUE;
+	last_state = state;
+	if(entrance)
+		time_for_timeout = global.absolute_time;
+
+		switch(state){
+//Black
+			case QUEUE_ACT_RX24_FISH_BRUSH_FRONT:
+				if(entrance){
+					SELFTEST_set_actions(&FISH_BRUSH_FRONT_run_command, 3, 3, (SELFTEST_action_t[]){
+											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
+											 {ACT_FISH_BRUSH_FRONT_OPEN,        0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
+											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT}
+										 });
+				}
+				if(state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_FISH_BRUSH_FRONT finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+
+			case QUEUE_ACT_RX24_FISH_BRUSH_BACK:
+				if(entrance){
+					SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, 3, (SELFTEST_action_t[]){
+											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
+											 {ACT_FISH_BRUSH_BACK_OPEN,     0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
+											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK}
+										 });
+				}
+				if(state_act_tests[ACT_FISH_BRUSH_BACK & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_FISH_BRUSH_BACK finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					debug_printf("\n\nBAPTISTE EST CON \n\n");
+					state_act_tests[ACT_FISH_BRUSH_BACK & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+
+			/*case QUEUE_ACT_RX24_FISH_BRUSH_FRONT:
+			case QUEUE_ACT_RX24_FISH_BRUSH_BACK:
+				if(entrance && state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
+					SELFTEST_set_actions(&FISH_BRUSH_FRONT_run_command, 3, 3, (SELFTEST_action_t[]){
+											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
+											 {ACT_FISH_BRUSH_FRONT_OPEN,        0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
+											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT}
+										 });
+					SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, 3, (SELFTEST_action_t[]){
+											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
+											 {ACT_FISH_BRUSH_BACK_OPEN,     0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
+											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK}
+										 });
+				}
+				if(state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] != SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_FISH_BRUSH_BACK & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state+=2;
+					debug_printf("SELFTEST of ACT_FISH_BRUSH_FRONT finished\n");
+					debug_printf("SELFTEST of ACT_FISH_BRUSH_BACK finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state_act_tests[ACT_FISH_BRUSH_BACK & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state+=2;
+				}
+				break;*/
+
+			case QUEUE_ACT_RX24_TOP_PLATE_LEFT:
+				if(entrance){
+					SELFTEST_set_actions(&TOP_PLATE_LEFT_run_command, 3, 3, (SELFTEST_action_t[]){
+											 {ACT_TOP_PLATE_LEFT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT},
+											 {ACT_TOP_PLATE_LEFT_OPEN,      0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT},
+											 {ACT_TOP_PLATE_LEFT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT}
+										 });
+				}
+				if(state_act_tests[ACT_TOP_PLATE_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_TOP_PLATE_LEFT finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_TOP_PLATE_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+
+			case QUEUE_ACT_RX24_TOP_PLATE_RIGHT:
+				if(entrance){
+					SELFTEST_set_actions(&TOP_PLATE_RIGHT_run_command, 3, 3, (SELFTEST_action_t[]){
+											 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT},
+											 {ACT_TOP_PLATE_RIGHT_OPEN,     0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT},
+											 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT}
+										 });
+				}
+				if(state_act_tests[ACT_TOP_PLATE_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_TOP_PLATE_RIGHT finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_TOP_PLATE_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+
+
+			case QUEUE_ACT_AX12_BLACK_SAND_CIRCLE:
+				if(entrance){
+					SELFTEST_set_actions(&BLACK_SAND_CIRCLE_run_command, 3, 3, (SELFTEST_action_t[]){
+											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
+											 {ACT_BLACK_SAND_CIRCLE_OPEN,       0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
+											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE}
+										 });
+				}
+				if(state_act_tests[ACT_BLACK_SAND_CIRCLE & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_BLACK_SAND_CIRCLE finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_BLACK_SAND_CIRCLE & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+
+//Pearl
+		}
+}
+
 bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 error_code, Uint16 param) {
 	ACTQ_printResult(act_sid, QUEUE_get_arg(queue_id)->canCommand, result, error_code, param);
 
@@ -135,7 +277,6 @@ bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 
 }
 
 static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
-	Uint8 i;
 
 	if(test_finished) {
 		error_printf("SELFTEST_done_test appelé sans selftest en cours !, sid = 0x%x, test state = %d\n", act_sid, test_ok);
@@ -144,19 +285,58 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 
 	info_printf("Test de l\'actionneur sid 0x%x terminé avec l\'état %s\n", act_sid, test_ok ? "SELFTEST_STATE_OK" : "SELFTEST_STATE_ERROR");
 
+	state_act_tests[act_sid & 0xFF] = (test_ok)? SELFTEST_STATE_OK:SELFTEST_STATE_ERROR; //Enregistrement de l'info pour la machine à états
+
 	if(test_ok == FALSE) {
 		for(i = 0; i < MAX_NB_ACT; i++) {
 			if(failed_act_tests[i] == SELFTEST_NOT_DONE) {
 				switch(act_sid){
 #if 0
-					case QUEUE_EXEMPLE:
+					case ACT_EXEMPLE:
 						failed_act_tests[i] = SELFTEST_ACT_EXEMPLE;
 						break;
 #endif
 
 // Black
+					case ACT_FISH_BRUSH_FRONT:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_FISH_BRUSH_FRONT;
+						break;
+					case ACT_FISH_BRUSH_BACK:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_FISH_BRUSH_BACK;
+						break;
+					case ACT_TOP_PLATE_LEFT:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_TOP_PLATE_LEFT;
+						break;
+					case ACT_TOP_PLATE_RIGHT:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_TOP_PLATE_RIGHT;
+						break;
+					case ACT_BLACK_SAND_CIRCLE:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_TOP_PLATE_RIGHT;
+						break;
+
 
 // Pearl
+					case ACT_SAND_LEFT_ARM:
+						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_LEFT_ARM;
+						break;
+					case ACT_SAND_RIGHT_ARM:
+						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_RIGHT_ARM;
+						break;
+					case ACT_PEARL_SAND_CIRCLE:
+						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_CIRCLE;
+						break;
+					case ACT_POMPE_BACK_LEFT:
+						failed_act_tests[i] = SELFTEST_ACT_POMPE_BACK_LEFT;
+						break;
+					case ACT_POMPE_BACK_RIGHT:
+						failed_act_tests[i] = SELFTEST_ACT_POMPE_BACK_RIGHT;
+						break;
+					case ACT_POMPE_FRONT_LEFT:
+						failed_act_tests[i] = SELFTEST_ACT_POMPE_FRONT_LEFT;
+						break;
+					case ACT_POMPE_FRONT_RIGHT:
+						failed_act_tests[i] = SELFTEST_ACT_POMPE_FRONT_RIGHT;
+						break;
 
 					default:
 						warn_printf("L\'actionneur sid 0x%x n\'a pas d\'enum SELFTEST_ACT_xxx associé, utilisation de SELFTEST_ACT_UNKNOWN_ACT\n", act_sid);
@@ -171,7 +351,8 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 }
 
 static void SELFTEST_run(queue_id_t queueId, bool_e init) {
-	if(!init) {
+	SELFTEST_state_machine();
+	if(!init){
 		if(SELFTEST_check_end(queueId))
 			QUEUE_behead(queueId);
 	}

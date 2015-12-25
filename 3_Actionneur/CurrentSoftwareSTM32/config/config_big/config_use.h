@@ -42,6 +42,6 @@
 	#define USE_QUEI2
 
 /* Réglages ADC */
-	#define USE_AN13	// Clap
+	//#define USE_AN13	// Clap
 
 #endif /* BIG_CONFIG_USE_H */
