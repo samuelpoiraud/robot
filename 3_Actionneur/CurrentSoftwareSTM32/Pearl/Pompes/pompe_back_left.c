@@ -100,10 +100,10 @@ bool_e POMPE_BACK_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST) {
-		SELFTEST_set_actions(&POMPE_BACK_LEFT_run_command, 27, 2, (SELFTEST_action_t[]){
+		/*SELFTEST_set_actions(&POMPE_BACK_LEFT_run_command,  2, (SELFTEST_action_t[]){
 								 {ACT_POMPE_BACK_LEFT_NORMAL,  0, QUEUE_ACT_POMPE_BACK_LEFT},
 								 {ACT_POMPE_BACK_LEFT_STOP, 0, QUEUE_ACT_POMPE_BACK_LEFT}
-							 });
+							 });*/
 	}
 
 	return FALSE;

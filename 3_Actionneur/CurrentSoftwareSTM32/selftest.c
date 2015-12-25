@@ -24,6 +24,12 @@
 	#include "Black/Sand/black_sand_circle.h"
 #endif
 
+#ifdef I_AM_ROBOT_SMALL
+	#include "Pearl/Sand/left_arm.h"
+	#include "Pearl/Sand/right_arm.h"
+	#include "Pearl/Sand/pearl_sand_circle.h"
+#endif
+
 #define LOG_PREFIX "Selftest: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SELFTEST
 #include "QS/QS_outputlog.h"
@@ -70,7 +76,7 @@ bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 	return TRUE;
 }
 
-void SELFTEST_set_actions(action_t action, Uint8 delay, Uint8 action_num, const SELFTEST_action_t actions[]) {
+void SELFTEST_set_actions(action_t action, Uint8 action_num, const SELFTEST_action_t actions[]) {
 	Uint8 i, j;
 	queue_id_t queueId = QUEUE_create();
 
@@ -88,9 +94,9 @@ void SELFTEST_set_actions(action_t action, Uint8 delay, Uint8 action_num, const 
 
 	if(queueId != QUEUE_CREATE_FAILED) {
 
-		if(delay){
+		/*if(delay){  //Possibilité d'ajouter un delay (delay est un multiple de 100ms)
 			QUEUE_add(queueId, &QUEUE_wait_time, (QUEUE_arg_t){delay, 0, NULL}, 0);
-		}
+		}*/
 
 		//On cherche les actionneurs à lock, on doit lock un actionneur qu'une seule fois
 		for(i = 0; i < action_num; i++) {
@@ -139,9 +145,10 @@ void SELFTEST_state_machine(void){
 
 		switch(state){
 //Black
+#ifdef I_AM_ROBOT_BIG
 			case QUEUE_ACT_RX24_FISH_BRUSH_FRONT:
 				if(entrance){
-					SELFTEST_set_actions(&FISH_BRUSH_FRONT_run_command, 3, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&FISH_BRUSH_FRONT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
 											 {ACT_FISH_BRUSH_FRONT_OPEN,        0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
 											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT}
@@ -158,7 +165,7 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_RX24_FISH_BRUSH_BACK:
 				if(entrance){
-					SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
 											 {ACT_FISH_BRUSH_BACK_OPEN,     0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
 											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK}
@@ -177,12 +184,12 @@ void SELFTEST_state_machine(void){
 			/*case QUEUE_ACT_RX24_FISH_BRUSH_FRONT:
 			case QUEUE_ACT_RX24_FISH_BRUSH_BACK:
 				if(entrance && state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
-					SELFTEST_set_actions(&FISH_BRUSH_FRONT_run_command, 3, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&FISH_BRUSH_FRONT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
 											 {ACT_FISH_BRUSH_FRONT_OPEN,        0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
 											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT}
 										 });
-					SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
 											 {ACT_FISH_BRUSH_BACK_OPEN,     0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
 											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK}
@@ -201,7 +208,7 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_RX24_TOP_PLATE_LEFT:
 				if(entrance){
-					SELFTEST_set_actions(&TOP_PLATE_LEFT_run_command, 3, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&TOP_PLATE_LEFT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_TOP_PLATE_LEFT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT},
 											 {ACT_TOP_PLATE_LEFT_OPEN,      0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT},
 											 {ACT_TOP_PLATE_LEFT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT}
@@ -218,7 +225,7 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_RX24_TOP_PLATE_RIGHT:
 				if(entrance){
-					SELFTEST_set_actions(&TOP_PLATE_RIGHT_run_command, 3, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&TOP_PLATE_RIGHT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT},
 											 {ACT_TOP_PLATE_RIGHT_OPEN,     0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT},
 											 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT}
@@ -236,7 +243,7 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_AX12_BLACK_SAND_CIRCLE:
 				if(entrance){
-					SELFTEST_set_actions(&BLACK_SAND_CIRCLE_run_command, 3, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&BLACK_SAND_CIRCLE_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
 											 {ACT_BLACK_SAND_CIRCLE_OPEN,       0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
 											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE}
@@ -250,8 +257,63 @@ void SELFTEST_state_machine(void){
 					state++;
 				}
 				break;
+#endif
 
 //Pearl
+#ifdef I_AM_ROBOT_SMALL
+			case QUEUE_ACT_AX12_LEFT_ARM:
+				if(entrance){
+					SELFTEST_set_actions(&LEFT_ARM_run_command,  3, (SELFTEST_action_t[]){
+													 {ACT_LEFT_ARM_IDLE,		0,  QUEUE_ACT_AX12_LEFT_ARM},
+													 {ACT_LEFT_ARM_OPEN,        0,  QUEUE_ACT_AX12_LEFT_ARM},
+													 {ACT_LEFT_ARM_IDLE,		0,  QUEUE_ACT_AX12_LEFT_ARM}
+												 });
+				}
+				if(state_act_tests[ACT_SAND_LEFT_ARM & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_SAND_LEFT_ARM finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_SAND_LEFT_ARM & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+
+			case QUEUE_ACT_AX12_RIGHT_ARM:
+				if(entrance){
+					SELFTEST_set_actions(&RIGHT_ARM_run_command, 3, (SELFTEST_action_t[]){
+													 {ACT_RIGHT_ARM_IDLE,		0,  QUEUE_ACT_AX12_RIGHT_ARM},
+													 {ACT_RIGHT_ARM_OPEN,       0,  QUEUE_ACT_AX12_RIGHT_ARM},
+													 {ACT_RIGHT_ARM_IDLE,		0,  QUEUE_ACT_AX12_RIGHT_ARM}
+												 });
+				}
+				if(state_act_tests[ACT_SAND_RIGHT_ARM & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_SAND_RIGHT_ARM finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_SAND_RIGHT_ARM & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+
+			case QUEUE_ACT_AX12_PEARL_SAND_CIRCLE:
+				if(entrance){
+					SELFTEST_set_actions(&PEARL_SAND_CIRCLE_run_command, 3, (SELFTEST_action_t[]){
+													 {ACT_PEARL_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_PEARL_SAND_CIRCLE},
+													 {ACT_PEARL_SAND_CIRCLE_OPEN,       0,  QUEUE_ACT_AX12_PEARL_SAND_CIRCLE},
+													 {ACT_PEARL_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_PEARL_SAND_CIRCLE}
+												 });
+				}
+				if(state_act_tests[ACT_PEARL_SAND_CIRCLE & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_PEARL_SAND_CIRCLE finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_PEARL_SAND_CIRCLE & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+#endif
+			default:
+				debug_printf("SELFTEST_state_machine: state not cased\n");
 		}
 }
 
@@ -277,6 +339,7 @@ bool_e SELFTEST_finish(queue_id_t queue_id, Uint11 act_sid, Uint8 result, Uint8 
 }
 
 static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
+	Uint8 i;
 
 	if(test_finished) {
 		error_printf("SELFTEST_done_test appelé sans selftest en cours !, sid = 0x%x, test state = %d\n", act_sid, test_ok);
