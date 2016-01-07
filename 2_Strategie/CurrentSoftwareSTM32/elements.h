@@ -18,7 +18,8 @@
 		ADV_DUNE_BLOC,
 		SAND_DUNE_FRONT,  //flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
 		SAND_DUNE_BACK,   //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
-		FISHS_COLLECTED,
+		FISHS_TAKEN,
+		FISHS_DISPOSED,
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 
