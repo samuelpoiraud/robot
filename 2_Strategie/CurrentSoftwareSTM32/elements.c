@@ -9,6 +9,10 @@
 volatile bool_e elements_flags[ELEMENTS_FLAGS_NB];
 
 void ELEMENTS_init(){
+	Uint8 i;
+	for(i=0; i<ELEMENTS_FLAGS_NB; i++){
+		elements_flags[i]= FALSE;
+	}
 
 }
 

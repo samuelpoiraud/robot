@@ -20,6 +20,7 @@
 		SAND_DUNE_BACK,   //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 		FISHS_TAKEN,
 		FISHS_DISPOSED,
+		SEASHELLS_BOTTOM,
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 
