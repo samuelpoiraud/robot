@@ -75,6 +75,140 @@ void ENV_init(void)
 	global.flags.alim = FALSE;
 	global.flags.go_to_home = FALSE;
 
+	global.flags.ventouses_avant_pearl = FALSE;
+	global.flags.ventouses_arriere_pearl = FALSE;
+
+	uint coquillages = 1;
+
+	global.flags.home_rock_three = TRUE;
+
+	global.flags.home_four = TRUE;
+	global.flags.home_five = TRUE;
+
+	global.flags.neutral_one = FALSE;
+
+	global.flags.away_three = FALSE;
+
+	if(coquillages == 1){
+		global.flags.home_rock_one = TRUE;
+		global.flags.home_rock_two = TRUE;
+
+		global.flags.home_one = FALSE;
+		global.flags.home_two = FALSE;
+		global.flags.home_three = FALSE;
+
+		global.flags.neutral_two = TRUE;
+		global.flags.neutral_three = TRUE;
+		global.flags.neutral_four = TRUE;
+		global.flags.neutral_five = FALSE;
+		global.flags.neutral_six = TRUE;
+
+		global.flags.away_one = TRUE;
+		global.flags.away_two = TRUE;
+		global.flags.away_four = FALSE;
+		global.flags.away_five = FALSE;
+
+		global.flags.away_rock_one = FALSE;
+		global.flags.away_rock_two = FALSE;
+		global.flags.away_rock_three = FALSE;
+	}
+
+	if(coquillages == 2){
+		global.flags.home_rock_one = TRUE;
+		global.flags.home_rock_two = TRUE;
+
+		global.flags.home_one = FALSE;
+		global.flags.home_two = FALSE;
+		global.flags.home_three = FALSE;
+
+		global.flags.neutral_two = FALSE;
+		global.flags.neutral_three = TRUE;
+		global.flags.neutral_four = TRUE;
+		global.flags.neutral_five = TRUE;
+		global.flags.neutral_six = TRUE;
+
+		global.flags.away_one = FALSE;
+		global.flags.away_two = TRUE;
+		global.flags.away_four = FALSE;
+		global.flags.away_five = FALSE;
+
+		global.flags.away_rock_one = FALSE;
+		global.flags.away_rock_two = TRUE;
+		global.flags.away_rock_three = FALSE;
+	}
+
+	if(coquillages == 3){
+		global.flags.home_rock_one = TRUE;
+		global.flags.home_rock_two = TRUE;
+
+		global.flags.home_one = TRUE;
+		global.flags.home_two = TRUE;
+		global.flags.home_three = FALSE;
+
+		global.flags.neutral_two = FALSE;
+		global.flags.neutral_three = FALSE;
+		global.flags.neutral_four = FALSE;
+		global.flags.neutral_five = TRUE;
+		global.flags.neutral_six = FALSE;
+
+		global.flags.away_one = FALSE;
+		global.flags.away_two = TRUE;
+		global.flags.away_four = TRUE;
+		global.flags.away_five = FALSE;
+
+		global.flags.away_rock_one = FALSE;
+		global.flags.away_rock_two = TRUE;
+		global.flags.away_rock_three = FALSE;
+	}
+
+	if(coquillages == 4){
+		global.flags.home_rock_one = FALSE;
+		global.flags.home_rock_two = FALSE;
+
+		global.flags.home_one = TRUE;
+		global.flags.home_two = TRUE;
+		global.flags.home_three = FALSE;
+
+		global.flags.neutral_two = TRUE;
+		global.flags.neutral_three = FALSE;
+		global.flags.neutral_four = FALSE;
+		global.flags.neutral_five = TRUE;
+		global.flags.neutral_six = FALSE;
+
+		global.flags.away_one = FALSE;
+		global.flags.away_two = FALSE;
+		global.flags.away_four = TRUE;
+		global.flags.away_five = FALSE;
+
+		global.flags.away_rock_one = TRUE;
+		global.flags.away_rock_two = TRUE;
+		global.flags.away_rock_three = TRUE;
+	}
+
+	if(coquillages == 5){
+		global.flags.home_rock_one = TRUE;
+		global.flags.home_rock_two = TRUE;
+
+		global.flags.home_one = TRUE;
+		global.flags.home_two = FALSE;
+		global.flags.home_three = TRUE;
+
+		global.flags.neutral_two = FALSE;
+		global.flags.neutral_three = FALSE;
+		global.flags.neutral_four = FALSE;
+		global.flags.neutral_five = FALSE;
+		global.flags.neutral_six = FALSE;
+
+		global.flags.away_one = FALSE;
+		global.flags.away_two = FALSE;
+		global.flags.away_four = TRUE;
+		global.flags.away_five = TRUE;
+
+		global.flags.away_rock_one = FALSE;
+		global.flags.away_rock_two = TRUE;
+		global.flags.away_rock_three = TRUE;
+	}
+
 	for(i=0;i<MAX_NB_FOES;i++)
 	{
 		global.foe[i].fiability_error = 0;

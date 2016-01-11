@@ -35,6 +35,36 @@
 		volatile bool_e foes_updated_for_lcd;
 
 		volatile bool_e go_to_home;
+
+		volatile bool_e ventouses_avant_pearl;
+		volatile bool_e ventouses_arriere_pearl;
+
+		volatile bool_e home_rock_one;
+		volatile bool_e home_rock_two;
+		volatile bool_e home_rock_three;
+
+		volatile bool_e home_one;
+		volatile bool_e home_two;
+		volatile bool_e home_three;
+		volatile bool_e home_four;
+		volatile bool_e home_five;
+
+		volatile bool_e neutral_one;
+		volatile bool_e neutral_two;
+		volatile bool_e neutral_three;
+		volatile bool_e neutral_four;
+		volatile bool_e neutral_five;
+		volatile bool_e neutral_six;
+
+		volatile bool_e away_one;
+		volatile bool_e away_two;
+		volatile bool_e away_three;
+		volatile bool_e away_four;
+		volatile bool_e away_five;
+
+		volatile bool_e away_rock_one;
+		volatile bool_e away_rock_two;
+		volatile bool_e away_rock_three;
 	}flag_list_t;
 
 	typedef struct{
