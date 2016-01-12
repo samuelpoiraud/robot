@@ -81,7 +81,7 @@
 		// Mesure 24V
 
 	#define PORT_IO_B_1			PORT_IO_INPUT
-		#define RECALAGE_AR_D		!GPIOB->IDR1
+		#define RECALAGE_AR_D		1       //!GPIOB->IDR1
 
 	#define PORT_IO_B_2			PORT_IO_INPUT
 		#define POWER_WATCH_INT		GPIOB->IDR2
@@ -134,10 +134,10 @@
 		#define	USB_POWER_ON	 	GPIOC,GPIO_Pin_0
 
 	#define PORT_IO_C_1			PORT_IO_INPUT
-		#define RECALAGE_AV_G		!GPIOC->IDR1
+		#define RECALAGE_AV_G		1         //!GPIOC->IDR1
 
 	#define PORT_IO_C_2			PORT_IO_INPUT
-		#define RECALAGE_AV_D		!GPIOC->IDR2
+		#define RECALAGE_AV_D		1         //!GPIOC->IDR2
 
 	#define PORT_IO_C_3			PORT_IO_INPUT
 		#define WT100_GOBELET_FRONT	(!(GPIOC->IDR3))
@@ -146,7 +146,7 @@
 		//
 
 	#define PORT_IO_C_5			PORT_IO_INPUT
-		#define RECALAGE_AR_G		!GPIOC->IDR5
+		#define RECALAGE_AR_G		1        //!GPIOC->IDR5
 
 	#define PORT_IO_C_6			PORT_IO_OUTPUT
 		#define LED_BEACON_IR_GREEN	GPIOC,GPIO_Pin_6
