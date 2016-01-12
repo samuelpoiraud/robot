@@ -19,7 +19,6 @@
 		SAND_DUNE_FRONT,  //flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
 		SAND_DUNE_BACK,   //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 		FISHS_TAKEN,
-		FISHS_DISPOSED,
 		SEASHELLS_BOTTOM,
 		OUR_BLOCK8_DEPOSED,
 		ADV_BLOCK8_DEPOSED,
@@ -30,6 +29,8 @@ void ELEMENTS_init();
 
 bool_e ELEMENTS_get_flag(elements_flags_e flag_id);
 void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state);
+void ELEMENTS_inc_fishs_passage();
+bool_e ELEMENTS_fishs_passage_completed();
 
 
 #endif // ELEMENTS_H
