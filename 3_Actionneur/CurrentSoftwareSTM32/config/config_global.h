@@ -20,8 +20,8 @@
  * PREDEF_BUILD_SMALL et PREDEF_BUILD_BIG sont prioritaire sur la définition manuelle.
  */
 
-//#define I_AM_ROBOT_BIG
-#define I_AM_ROBOT_SMALL
+#define I_AM_ROBOT_BIG
+//#define I_AM_ROBOT_SMALL
 
 
 #if defined(PREDEF_BUILD_BIG)
