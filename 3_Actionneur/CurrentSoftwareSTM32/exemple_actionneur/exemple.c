@@ -37,6 +37,7 @@
 // ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
 
 #if 0
+
 // If def à mettre si l'actionneur est seulement présent sur le petit robot (I_AM_ROBOT_SMALL) ou le gros (I_AM_ROBOT_BIG)
 #ifdef I_AM_ROBOT_BIG
 

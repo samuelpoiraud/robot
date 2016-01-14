@@ -9,7 +9,6 @@
  *  Robot : SMALL
  */
 
-
 #ifndef LEFT_ARM_CONFIG_H
 #define	LEFT_ARM_CONFIG_H
 

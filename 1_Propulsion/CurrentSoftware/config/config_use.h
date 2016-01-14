@@ -16,9 +16,9 @@
 //////////////////////////////////////////////////////////////////
 
 	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
-	#define SIMULATION_VIRTUAL_PERFECT_ROBOT		//L'odométrie est faite sur un robot virtuel parfait.
+	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT		//L'odométrie est faite sur un robot virtuel parfait.
 	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
-	#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+	//#define CAN_SEND_OVER_UART					//envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
 
 /* MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
  *  1 - activez les 4 defines ci-dessus
@@ -48,7 +48,7 @@
 
 	#define USE_HOKUYO					//Active le module HOKUYO et la détection des ennemis... !
 
-	#define USE_GYROSCOPE				//Activation du gyroscope
+	//#define USE_GYROSCOPE				//Activation du gyroscope
 
 	#define USE_ACT_AVOID				//Activation de la modification du rectangle d'évitement en fonction des actionneurs
 
@@ -60,7 +60,7 @@
 
 	#define LIMITATION_PWM_BORDER_MODE
 
-	//#define DETECTION_CHOC
+	#define DETECTION_CHOC
 
 	//#define FDP_2016
 
