@@ -1,59 +1,59 @@
 /*  Club Robot ESEO 2015 - 2016
  *	BIG
  *
- *	Fichier : FISH_BRUSH_FRONT_front.h
+ *	Fichier : fish_unstick_arm.h
  *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur FISH_BRUSH_FRONT
+ *	Description : Gestion de l'actionneur FISH_UNSTICK_ARM
  *  Auteur : Cailyn
  *  Version 2016
  *  Robot : BIG
  */
 
-#ifndef FISH_BRUSH_FRONT_H
-	#define	FISH_BRUSH_FRONT_H
+#ifndef FISH_UNSTICK_ARM_H
+	#define	FISH_UNSTICK_ARM_H
 
 	#include "../QS/QS_all.h"
 	#include "../QS/QS_CANmsgList.h"
 
 	#include "../queue.h"
 
-	/** Initialisation du gestionnaire de FISH_BRUSH_FRONT.
+	/** Initialisation du gestionnaire de FISH_UNSTICK_ARM.
 	 *
 	 * Configure l'asservissement du RX24
 	 */
-	void FISH_BRUSH_FRONT_init();
+	void FISH_UNSTICK_ARM_init();
 
-	/** Initialisation en position du gestionnaire de FISH_BRUSH_FRONT.
+	/** Initialisation en position du gestionnaire de FISH_UNSTICK_ARM.
 	 *
 	 * Initialise la position du RX24
 	 */
-	void FISH_BRUSH_FRONT_init_pos();
+	void FISH_UNSTICK_ARM_init_pos();
 
 	/** Stoppe l'actionneur.
 	 *
 	 * Cette fonction est appelée en fin de match
 	 */
-	void FISH_BRUSH_FRONT_stop();
+	void FISH_UNSTICK_ARM_stop();
 
-	/** Gère les messages CAN liés à la FISH_BRUSH_FRONT.
+	/** Gère les messages CAN liés à la FISH_UNSTICK_ARM.
 	 *
 	 * Cette fonction s'occupe toute seule de gérer la queue et d'agir en conséquence.
 	 * @param msg le message CAN
 	 * @return TRUE si le message CAN a été géré par cet actionneur, FALSE sinon
 	 */
-	bool_e FISH_BRUSH_FRONT_CAN_process_msg(CAN_msg_t* msg);
+	bool_e FISH_UNSTICK_ARM_CAN_process_msg(CAN_msg_t* msg);
 
 	/** Gère les commandes demandées.
 	 *
 	 * Fonction à mettre sur la file pour demander une action.
 	 */
-	void FISH_BRUSH_FRONT_run_command(queue_id_t queueId, bool_e init);
+	void FISH_UNSTICK_ARM_run_command(queue_id_t queueId, bool_e init);
 
 
 	/**
 	 * Réinitialise la configuration du RX24
 	 */
-	void FISH_BRUSH_FRONT_reset_config();
+	void FISH_UNSTICK_ARM_reset_config();
 
-#endif	/* FISH_BRUSH_FRONT_H */
+#endif	/* FISH_UNSTICK_ARM_H */
 
