@@ -40,7 +40,7 @@
 #define DEFAULT_STRAT_BIG	strat_inutile_black
 
 
-#define DEFAULT_STRAT_SMALL	high_level_strat
+#define DEFAULT_STRAT_SMALL	strat_inutile_pearl
 
 
 static ia_fun_t strategy;

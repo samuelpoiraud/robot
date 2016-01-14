@@ -20,7 +20,7 @@
 // OK :Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
 // OK :Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
 // OK :Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor du type : ACT_DECLARE(LEFT_ARM)
-// OK :Un define EXEMPLE_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
+// OK :Un define LEFT_ARM_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
 // OK :Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
 
 // Optionnel:
