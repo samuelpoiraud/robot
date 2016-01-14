@@ -17,11 +17,11 @@
 #include "act_queue_utils.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Black/Fishs/fish_brush_front.h"
-	#include "Black/Fishs/fish_brush_back.h"
-	#include "Black/Sand/top_plate_left_rx24.h"
-	#include "Black/Sand/top_plate_right_rx24.h"
-	#include "Black/Sand/black_sand_circle.h"
+	#include "Black/Fishs/fish_magnetic_arm.h"
+	#include "Black/Fishs/fish_unstick_arm.h"
+	#include "Black/Sand_circle/black_sand_circle.h"
+	#include "Black/Bottom_dune/bottom_dune_left.h"
+	#include "Black/Bottom_dune/bottom_dune_right.h"
 #endif
 
 #ifdef I_AM_ROBOT_SMALL
@@ -146,7 +146,7 @@ void SELFTEST_state_machine(void){
 		switch(state){
 //Black
 #ifdef I_AM_ROBOT_BIG
-			case QUEUE_ACT_RX24_FISH_BRUSH_FRONT:
+			/*case QUEUE_ACT_RX24_FISH_BRUSH_FRONT:
 				if(entrance){
 					SELFTEST_set_actions(&FISH_BRUSH_FRONT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
@@ -179,63 +179,63 @@ void SELFTEST_state_machine(void){
 					state_act_tests[ACT_FISH_BRUSH_BACK & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					state++;
 				}
-				break;
-
-			/*case QUEUE_ACT_RX24_FISH_BRUSH_FRONT:
-			case QUEUE_ACT_RX24_FISH_BRUSH_BACK:
-				if(entrance && state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
-					SELFTEST_set_actions(&FISH_BRUSH_FRONT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
-											 {ACT_FISH_BRUSH_FRONT_OPEN,        0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT},
-											 {ACT_FISH_BRUSH_FRONT_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_FRONT}
-										 });
-					SELFTEST_set_actions(&FISH_BRUSH_BACK_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
-											 {ACT_FISH_BRUSH_BACK_OPEN,     0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK},
-											 {ACT_FISH_BRUSH_BACK_IDLE,		0,  QUEUE_ACT_RX24_FISH_BRUSH_BACK}
-										 });
-				}
-				if(state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] != SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_FISH_BRUSH_BACK & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state+=2;
-					debug_printf("SELFTEST of ACT_FISH_BRUSH_FRONT finished\n");
-					debug_printf("SELFTEST of ACT_FISH_BRUSH_BACK finished\n");
-				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_FISH_BRUSH_FRONT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state_act_tests[ACT_FISH_BRUSH_BACK & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state+=2;
-				}
 				break;*/
 
-			case QUEUE_ACT_RX24_TOP_PLATE_LEFT:
-				if(entrance){
-					SELFTEST_set_actions(&TOP_PLATE_LEFT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_TOP_PLATE_LEFT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT},
-											 {ACT_TOP_PLATE_LEFT_OPEN,      0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT},
-											 {ACT_TOP_PLATE_LEFT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_LEFT}
+			case QUEUE_ACT_RX24_FISH_MAGNETIC_ARM:
+			case QUEUE_ACT_RX24_FISH_UNSTICK_ARM:
+				if(entrance && state_act_tests[ACT_FISH_MAGNETIC_ARM & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
+					SELFTEST_set_actions(&FISH_MAGNETIC_ARM_run_command, 3, (SELFTEST_action_t[]){
+											 {ACT_FISH_MAGNETIC_ARM_IDLE,	0,  QUEUE_ACT_RX24_FISH_MAGNETIC_ARM},
+											 {ACT_FISH_MAGNETIC_ARM_OPEN,   0,  QUEUE_ACT_RX24_FISH_MAGNETIC_ARM},
+											 {ACT_FISH_MAGNETIC_ARM_IDLE,   0,  QUEUE_ACT_RX24_FISH_MAGNETIC_ARM}
+										 });
+					SELFTEST_set_actions(&FISH_UNSTICK_ARM_run_command, 3, (SELFTEST_action_t[]){
+											 {ACT_FISH_UNSTICK_ARM_IDLE,	0,  QUEUE_ACT_RX24_FISH_UNSTICK_ARM},
+											 {ACT_FISH_UNSTICK_ARM_OPEN,    0,  QUEUE_ACT_RX24_FISH_UNSTICK_ARM},
+											 {ACT_FISH_UNSTICK_ARM_IDLE,	0,  QUEUE_ACT_RX24_FISH_UNSTICK_ARM}
 										 });
 				}
-				if(state_act_tests[ACT_TOP_PLATE_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+				if(state_act_tests[ACT_FISH_MAGNETIC_ARM & 0xFF] != SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_FISH_UNSTICK_ARM & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state+=2;
+					debug_printf("SELFTEST of ACT_FISH_MAGNETIC_ARM finished\n");
+					debug_printf("SELFTEST of ACT_FISH_UNSTICK_ARM finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_FISH_MAGNETIC_ARM & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state_act_tests[ACT_FISH_UNSTICK_ARM & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state+=2;
+				}
+				break;
+
+			case QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT:
+				if(entrance){
+					SELFTEST_set_actions(&BOTTOM_DUNE_LEFT_run_command, 3, (SELFTEST_action_t[]){
+											 {ACT_BOTTOM_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT},
+											 {ACT_BOTTOM_DUNE_LEFT_OPEN,    0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT},
+											 {ACT_BOTTOM_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT}
+										 });
+				}
+				if(state_act_tests[ACT_BOTTOM_DUNE_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
 					state++;
 					debug_printf("SELFTEST of ACT_TOP_PLATE_LEFT finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_TOP_PLATE_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state_act_tests[ACT_BOTTOM_DUNE_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					state++;
 				}
 				break;
 
-			case QUEUE_ACT_RX24_TOP_PLATE_RIGHT:
+			case QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT:
 				if(entrance){
-					SELFTEST_set_actions(&TOP_PLATE_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT},
-											 {ACT_TOP_PLATE_RIGHT_OPEN,     0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT},
-											 {ACT_TOP_PLATE_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_TOP_PLATE_RIGHT}
+					SELFTEST_set_actions(&BOTTOM_DUNE_RIGHT_run_command, 3, (SELFTEST_action_t[]){
+											 {ACT_BOTTOM_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT},
+											 {ACT_BOTTOM_DUNE_RIGHT_OPEN,   0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT},
+											 {ACT_BOTTOM_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT}
 										 });
 				}
-				if(state_act_tests[ACT_TOP_PLATE_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+				if(state_act_tests[ACT_BOTTOM_DUNE_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
 					state++;
 					debug_printf("SELFTEST of ACT_TOP_PLATE_RIGHT finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_TOP_PLATE_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state_act_tests[ACT_BOTTOM_DUNE_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					state++;
 				}
 				break;
@@ -361,21 +361,22 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 #endif
 
 // Black
-					case ACT_FISH_BRUSH_FRONT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_FISH_BRUSH_FRONT;
+					case ACT_FISH_MAGNETIC_ARM:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM;
 						break;
-					case ACT_FISH_BRUSH_BACK:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_FISH_BRUSH_BACK;
-						break;
-					case ACT_TOP_PLATE_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_TOP_PLATE_LEFT;
-						break;
-					case ACT_TOP_PLATE_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_TOP_PLATE_RIGHT;
+					case ACT_FISH_UNSTICK_ARM:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_FISH_UNSTICK_ARM;
 						break;
 					case ACT_BLACK_SAND_CIRCLE:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_TOP_PLATE_RIGHT;
+						failed_act_tests[i] = SELFTEST_ACT_AX12_BLACK_SAND_CIRCLE;
 						break;
+					case ACT_BOTTOM_DUNE_LEFT:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_BOTTOM_DUNE_LEFT;
+						break;
+					case ACT_BOTTOM_DUNE_RIGHT:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_BOTTOM_DUNE_RIGHT;
+						break;
+
 
 
 // Pearl

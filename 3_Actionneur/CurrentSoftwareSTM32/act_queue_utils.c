@@ -293,11 +293,20 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
 		//Black
-		   case ACT_FISH_BRUSH_FRONT & 0xFF:		originalSidStr = "FishBrush";			break;
-		   case ACT_FISH_BRUSH_BACK & 0xFF:		    originalSidStr = "FishMagArm";			break;
+		   case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagnetic";		break;
+		   case ACT_FISH_UNSTICK_ARM & 0xFF:	    originalSidStr = "FishUnstick";			break;
 		   case ACT_BLACK_SAND_CIRCLE & 0xFF:	    originalSidStr = "SandCircle";			break;
-		   case ACT_TOP_PLATE_LEFT & 0xFF:			originalSidStr = "SandTopPlateLeft";    break;
-		   case ACT_TOP_PLATE_RIGHT & 0xFF:			originalSidStr = "SandTopPlateRight";   break;
+		   case ACT_BOTTOM_DUNE_LEFT & 0xFF:		originalSidStr = "BottomDuneLeft";      break;
+		   case ACT_BOTTOM_DUNE_RIGHT & 0xFF:		originalSidStr = "BottomDuneRight";     break;
+		   case ACT_MIDDLE_DUNE_LEFT & 0xFF:		originalSidStr = "MiddleDuneLeft";      break;
+		   case ACT_MIDDLE_DUNE_RIGHT & 0xFF:		originalSidStr = "MiddleDuneRight";     break;
+		   case ACT_CONE_DUNE & 0xFF:				originalSidStr = "ConeDune";			break;
+		   case ACT_DUNIX_LEFT & 0xFF:				originalSidStr = "DunixLeft";			break;
+		   case ACT_DUNIX_RIGHT & 0xFF:				originalSidStr = "DunixRight";			break;
+		   case ACT_SAND_LOCKER_LEFT & 0xFF:		originalSidStr = "SandLockerLeft";      break;
+		   case ACT_SAND_LOCKER_RIGHT & 0xFF:		originalSidStr = "SandLockerRight";     break;
+		   case ACT_SHIFT_CYLINDER & 0xFF:			originalSidStr = "ShiftCylinder";       break;
+		   case ACT_PENDULUM & 0xFF:				originalSidStr = "Pendulum";			break;
 
 		 //Pearl
 		   case ACT_SAND_LEFT_ARM & 0xFF:		    originalSidStr = "SandLeftArm";         break;

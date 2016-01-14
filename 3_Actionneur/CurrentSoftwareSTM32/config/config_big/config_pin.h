@@ -280,10 +280,20 @@
 
 //--------------------Configuration des ID des actionneurs-----------------------
 // L'id doit être inférieur à 50
-#define FISH_BRUSH_FRONT_RX24_ID            24
-#define FISH_BRUSH_BACK_RX24_ID             26
-#define TOP_PLATE_LEFT_RX24_ID              48
-#define TOP_PLATE_RIGHT_RX24_ID             47
+#define FISH_MAGNETIC_ARM_RX24_ID           24
+#define FISH_UNSTICK_ARM_RX24_ID            26
 #define BLACK_SAND_CIRCLE_AX12_ID           14
+
+#define BOTTOM_DUNE_LEFT_RX24_ID            30
+#define BOTTOM_DUNE_RIGHT_RX24_ID           31
+#define MIDDLE_DUNE_LEFT_RX24_ID            32
+#define MIDDLE_DUNE_RIGHT_RX24_ID           33
+#define CONE_DUNE_RX24_ID					34
+#define DUNIX_LEFT_RX24_ID					35
+#define DUNIX_RIGHT_RX24_ID					36
+#define SAND_LOCKER_LEFT_RX24_ID			37
+#define SAND_LOCKER_RIGHT_RX24_ID			38
+#define SHIFT_CYLINDER_RX24_ID				39
+#define PENDULUM_RX24_ID					40
 
 #endif /* BIG_CONFIG_PIN_H */
