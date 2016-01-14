@@ -306,6 +306,13 @@
 				bool_e pop_corn_disposed		:1;
 			}xbee_wood_access_scan;
 
+		#define XBEE_SYNC_ELEMENTS_FLAGS		0x5B2
+		#define SIZE_XBEE_SYNC_ELEMENTS_FLAGS	2
+			struct{
+				Uint8 flagId					:8;
+				bool_e flag						:1;
+			}xbee_sync_elements_flags;
+
 
 
 		/**********************************************************************************************************************

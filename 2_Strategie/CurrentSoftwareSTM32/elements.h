@@ -25,6 +25,12 @@
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 
+typedef struct
+{
+	bool_e flags;
+	bool_e update;
+}elements_flags_t;
+
 void ELEMENTS_init();
 
 bool_e ELEMENTS_get_flag(elements_flags_e flag_id);
