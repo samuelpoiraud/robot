@@ -5,32 +5,56 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ELEMENTS
 #include "QS/QS_outputlog.h"
 #include "QS/QS_IHM.h"
+#include "QS/QS_can_over_xbee.h"
+
+volatile elements_flags_t elements_flags[ELEMENTS_FLAGS_NB];
 
 #define FISHS_PASSAGES 2
-
-volatile bool_e elements_flags[ELEMENTS_FLAGS_NB];
 static Uint8 fishs_passage = 0;
 
 void ELEMENTS_init(){
 	Uint8 i;
-	for(i=0; i<ELEMENTS_FLAGS_NB; i++){
-		elements_flags[i]= FALSE;
+
+	for(i=0;i<ELEMENTS_FLAGS_NB;i++)
+	{
+		elements_flags[i].flags = FALSE;
+		elements_flags[i].update = FALSE;
 	}
 	fishs_passage = 0;
-
 }
 
 
 bool_e ELEMENTS_get_flag(elements_flags_e flag_id)
 {
 	assert(flag_id < ELEMENTS_FLAGS_NB);
-	return elements_flags[flag_id];
+	return elements_flags[flag_id].flags;
 }
 
 void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state)
 {
 	assert(flag_id < ELEMENTS_FLAGS_NB);
-	elements_flags[flag_id] = new_state;
+	elements_flags[flag_id].flags = new_state;
+	elements_flags[flag_id].update = TRUE;
+}
+
+void ELEMENTS_process_main()
+{
+	Uint8 i;
+	for(i=0;i<ELEMENTS_FLAGS_NB;i++)
+	{
+		if(elements_flags[i].update == TRUE)
+		{
+			CAN_msg_t msg;
+			msg.sid = XBEE_SYNC_ELEMENTS_FLAGS;
+			msg.size = SIZE_XBEE_SYNC_ELEMENTS_FLAGS;
+			if(QS_WHO_AM_I_get()==BIG_ROBOT){
+				CANMsgToXBeeDestination(&msg,SMALL_ROBOT_MODULE);
+			}else{
+				CANMsgToXBeeDestination(&msg,BIG_ROBOT_MODULE);
+			}
+
+		}
+	}
 }
 
 void ELEMENTS_inc_fishs_passage(){
@@ -40,4 +64,3 @@ void ELEMENTS_inc_fishs_passage(){
 bool_e ELEMENTS_fishs_passage_completed(){
 	return (fishs_passage >= FISHS_PASSAGES);
 }
-
