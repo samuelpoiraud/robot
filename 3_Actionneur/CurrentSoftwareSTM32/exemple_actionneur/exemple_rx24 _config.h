@@ -3,7 +3,7 @@
  *
  *	Fichier : fich_brush_back_config.h
  *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur rx24 EXEMPLE
+ *	Description : Gestion de l'actionneur RX24 EXEMPLE
  *  Auteur :
  *  Version 2016
  *  Robot : BIG
@@ -20,9 +20,9 @@
 	#define EXEMPLE_RX24_MAX_TEMPERATURE			60		// Température maximale en degré
 
 //Position
-	#define EXEMPLE_RX24_IDLE_POS					380
-	#define EXEMPLE_RX24_CLOSE_POS			     	380	//en degré
-	#define EXEMPLE_RX24_OPEN_POS					210		//en degré
+	#define EXEMPLE_RX24_IDLE_POS					512
+	#define EXEMPLE_RX24_CLOSE_POS			     	512	//en degré
+	#define EXEMPLE_RX24_OPEN_POS					512	//en degré
 
 //Position initiale de l'RX24
 	#define EXEMPLE_RX24_INIT_POS					EXEMPLE_RX24_IDLE_POS

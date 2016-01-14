@@ -861,11 +861,20 @@
 		//----------------------------BLACK-----------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		ACT_FISH_BRUSH_FRONT	    = (ACT_FILTER | 0x01),
-		ACT_FISH_BRUSH_BACK         = (ACT_FILTER | 0x02),
-		ACT_TOP_PLATE_LEFT          = (ACT_FILTER | 0x03),
-		ACT_TOP_PLATE_RIGHT         = (ACT_FILTER | 0x04),
-		ACT_BLACK_SAND_CIRCLE       = (ACT_FILTER | 0x05),
+		ACT_FISH_MAGNETIC_ARM	    = (ACT_FILTER | 0x01),
+		ACT_FISH_UNSTICK_ARM        = (ACT_FILTER | 0x02),
+		ACT_BLACK_SAND_CIRCLE       = (ACT_FILTER | 0x03),
+		ACT_BOTTOM_DUNE_LEFT        = (ACT_FILTER | 0x04),
+		ACT_BOTTOM_DUNE_RIGHT       = (ACT_FILTER | 0x05),
+		ACT_MIDDLE_DUNE_LEFT        = (ACT_FILTER | 0x06),
+		ACT_MIDDLE_DUNE_RIGHT       = (ACT_FILTER | 0x07),
+		ACT_CONE_DUNE               = (ACT_FILTER | 0x08),
+		ACT_DUNIX_LEFT              = (ACT_FILTER | 0x09),
+		ACT_DUNIX_RIGHT             = (ACT_FILTER | 0x0A),
+		ACT_SAND_LOCKER_LEFT        = (ACT_FILTER | 0x0B),
+		ACT_SAND_LOCKER_RIGHT       = (ACT_FILTER | 0x0C),
+		ACT_SHIFT_CYLINDER          = (ACT_FILTER | 0x0D),
+		ACT_PENDULUM                = (ACT_FILTER | 0x0E),
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------PEARL------------------------------//

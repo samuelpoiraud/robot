@@ -10,11 +10,20 @@
 #include "../clock.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "../Black/Fishs/fish_brush_front_config.h"
-	#include "../Black/Fishs/fish_brush_back_config.h"
-	#include "../Black/Sand/top_plate_left_rx24_config.h"
-	#include "../Black/Sand/top_plate_right_rx24_config.h"
-	#include "../Black/Sand/black_sand_circle_config.h"
+	#include "../Black/Fishs/fish_magnetic_arm_config.h"
+	#include "../Black/Fishs/fish_unstick_arm_config.h"
+	#include "../Black/Bottom_dune/bottom_dune_left_config.h"
+	#include "../Black/Bottom_dune/bottom_dune_right_config.h"
+	#include "../Black/Sand_circle/black_sand_circle_config.h"
+	#include "../Black/Middle_dune/middle_dune_left_config.h"
+	#include "../Black/Middle_dune/middle_dune_right_config.h"
+	#include "../Black/Cone_dune/cone_dune_config.h"
+	#include "../Black/Dunix/dunix_left_config.h"
+	#include "../Black/Dunix/dunix_right_config.h"
+	#include "../Black/Sand_locker/sand_locker_left_config.h"
+	#include "../Black/Sand_locker/sand_locker_right_config.h"
+	#include "../Black/Shift_cylinder/shift_cylinder_config.h"
+	#include "../Black/Pendulum/pendulum_config.h"
 #else
 	#include "../Pearl/Sand/left_arm_config.h"
 	#include "../Pearl/Sand/right_arm_config.h"
@@ -57,11 +66,21 @@ typedef struct{
 
 terminal_motor_s terminal_motor[] = {
 	#ifdef I_AM_ROBOT_BIG
-		DECLARE_RX24(2, '0', FISH_BRUSH_FRONT_RX24),
-		DECLARE_RX24(2, '1', FISH_BRUSH_BACK_RX24),
-		DECLARE_RX24(2, '2', TOP_PLATE_LEFT_RX24),
-		DECLARE_RX24(2, '3', TOP_PLATE_RIGHT_RX24),
-		DECLARE_AX12(2, '4', BLACK_SAND_CIRCLE_AX12)
+		DECLARE_RX24(2, '0', FISH_MAGNETIC_ARM_RX24),
+		DECLARE_RX24(2, '1', FISH_UNSTICK_ARM_RX24),
+		DECLARE_AX12(2, '2', BLACK_SAND_CIRCLE_AX12),
+		DECLARE_RX24(2, '3', BOTTOM_DUNE_LEFT_RX24),
+		DECLARE_RX24(2, '4', BOTTOM_DUNE_RIGHT_RX24),
+		DECLARE_RX24(2, '5', MIDDLE_DUNE_LEFT_RX24),
+		DECLARE_RX24(2, '6', MIDDLE_DUNE_RIGHT_RX24),
+		DECLARE_RX24(2, '7', CONE_DUNE_RX24),
+		DECLARE_RX24(2, '8', DUNIX_LEFT_RX24),
+		DECLARE_RX24(2, '9', DUNIX_RIGHT_RX24),
+		DECLARE_RX24(2, 'a', SAND_LOCKER_LEFT_RX24),
+		DECLARE_RX24(2, 'b', SAND_LOCKER_RIGHT_RX24),
+		DECLARE_RX24(2, 'c', SHIFT_CYLINDER_RX24),
+		DECLARE_RX24(2, 'd', PENDULUM_RX24)
+
 	#else
 		DECLARE_AX12(2, 'A', LEFT_ARM_AX12),
 		DECLARE_AX12(2, 'B', RIGHT_ARM_AX12),

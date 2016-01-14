@@ -16,16 +16,35 @@
 #include "selftest.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Black/Fishs/fish_brush_front.h"
-	#include "Black/Fishs/fish_brush_front_config.h"
-	#include "Black/Fishs/fish_brush_back.h"
-	#include "Black/Fishs/fish_brush_back_config.h"
-	#include "Black/Sand/top_plate_left_rx24.h"
-	#include "Black/Sand/top_plate_left_rx24_config.h"
-	#include "Black/Sand/top_plate_right_rx24.h"
-	#include "Black/Sand/top_plate_right_rx24_config.h"
-	#include "Black/Sand/black_sand_circle.h"
-	#include "Black/Sand/black_sand_circle_config.h"
+	#include "Black/Fishs/fish_magnetic_arm.h"
+	#include "Black/Fishs/fish_magnetic_arm_config.h"
+	#include "Black/Fishs/fish_unstick_arm.h"
+	#include "Black/Fishs/fish_unstick_arm_config.h"
+	#include "Black/Sand_circle/black_sand_circle.h"
+	#include "Black/Sand_circle/black_sand_circle_config.h"
+	#include "Black/Bottom_dune/bottom_dune_left.h"
+	#include "Black/Bottom_dune/bottom_dune_left_config.h"
+	#include "Black/Bottom_dune/bottom_dune_right.h"
+	#include "Black/Bottom_dune/bottom_dune_right_config.h"
+	#include "Black/Middle_dune/middle_dune_left.h"
+	#include "Black/Middle_dune/middle_dune_left_config.h"
+	#include "Black/Middle_dune/middle_dune_right.h"
+	#include "Black/Middle_dune/middle_dune_right_config.h"
+	#include "Black/Cone_dune/cone_dune.h"
+	#include "Black/Cone_dune/cone_dune_config.h"
+	#include "Black/Dunix/dunix_left.h"
+	#include "Black/Dunix/dunix_left_config.h"
+	#include "Black/Dunix/dunix_right.h"
+	#include "Black/Dunix/dunix_right_config.h"
+	#include "Black/Sand_locker/sand_locker_left.h"
+	#include "Black/Sand_locker/sand_locker_left_config.h"
+	#include "Black/Sand_locker/sand_locker_right.h"
+	#include "Black/Sand_locker/sand_locker_right_config.h"
+	#include "Black/Shift_cylinder/shift_cylinder.h"
+	#include "Black/Shift_cylinder/shift_cylinder_config.h"
+	#include "Black/Pendulum/pendulum.h"
+	#include "Black/Pendulum/pendulum_config.h"
+
 #else
 	#include "Pearl/Sand/left_arm.h"
 	#include "Pearl/Sand/left_arm_config.h"
@@ -42,11 +61,20 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 
 static ACTQ_functions_t actionneurs[] = {
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
-		ACT_DECLARE(FISH_BRUSH_FRONT),
-		ACT_DECLARE(FISH_BRUSH_BACK),
-		ACT_DECLARE(TOP_PLATE_LEFT),
-		ACT_DECLARE(TOP_PLATE_RIGHT),
-		ACT_DECLARE(BLACK_SAND_CIRCLE)
+		ACT_DECLARE(FISH_MAGNETIC_ARM),
+		ACT_DECLARE(FISH_UNSTICK_ARM),
+		ACT_DECLARE(BLACK_SAND_CIRCLE),
+		ACT_DECLARE(BOTTOM_DUNE_LEFT),
+		ACT_DECLARE(BOTTOM_DUNE_RIGHT),
+		ACT_DECLARE(MIDDLE_DUNE_LEFT),
+		ACT_DECLARE(MIDDLE_DUNE_RIGHT),
+		ACT_DECLARE(CONE_DUNE),
+		ACT_DECLARE(DUNIX_LEFT),
+		ACT_DECLARE(DUNIX_RIGHT),
+		ACT_DECLARE(SAND_LOCKER_LEFT),
+		ACT_DECLARE(SAND_LOCKER_RIGHT),
+		ACT_DECLARE(SHIFT_CYLINDER),
+		ACT_DECLARE(PENDULUM)
 	#else  //Small Robot
 		ACT_DECLARE(LEFT_ARM),
 		ACT_DECLARE(RIGHT_ARM),
@@ -121,7 +149,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	} else {
 		bool_e isReady = FALSE, responseReceived = FALSE;
 		#ifdef I_AM_ROBOT_BIG
-				responseReceived = RX24_async_is_ready(FISH_BRUSH_FRONT_RX24_ID, &isReady);
+				responseReceived = RX24_async_is_ready(FISH_UNSTICK_ARM_RX24_ID, &isReady);
 		#else
 				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);
 		#endif

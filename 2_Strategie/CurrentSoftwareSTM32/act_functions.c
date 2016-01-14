@@ -37,11 +37,20 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{0,							NB_QUEUE,						""},
 
 	// Black
-	{ACT_FISH_BRUSH_FRONT,			ACT_QUEUE_Fish_brush_front,			    "Fish Brush Front"},
-	{ACT_FISH_BRUSH_BACK,		    ACT_QUEUE_Fish_brush_back,		        "Fish Brush Back"},
-	{ACT_TOP_PLATE_LEFT,			ACT_QUEUE_Top_plate_left,               "Sand Top Plate left"},
-	{ACT_TOP_PLATE_RIGHT,			ACT_QUEUE_Top_plate_right,              "Sand Top Plate right"},
+	{ACT_FISH_MAGNETIC_ARM,			ACT_QUEUE_Fish_magnetic_arm,			"Fish magnetic arm"},
+	{ACT_FISH_UNSTICK_ARM,		    ACT_QUEUE_Fish_unstick_arm,		        "Fish unstick arm"},
+	{ACT_BOTTOM_DUNE_LEFT,			ACT_QUEUE_Bottom_dune_left,             "Bottom dune left"},
+	{ACT_BOTTOM_DUNE_RIGHT,			ACT_QUEUE_Bottom_dune_right,            "Bottom dune right"},
 	{ACT_BLACK_SAND_CIRCLE,			ACT_QUEUE_Black_sand_circle,            "Sand Circle"},
+	{ACT_MIDDLE_DUNE_LEFT,			ACT_QUEUE_Middle_dune_left,             "Middle dune left"},
+	{ACT_MIDDLE_DUNE_RIGHT,			ACT_QUEUE_Middle_dune_right,            "Middle dune right"},
+	{ACT_CONE_DUNE,					ACT_QUEUE_Cone_dune,					"Cone dune"},
+	{ACT_DUNIX_LEFT,			    ACT_QUEUE_Dunix_left,                   "Dunix left"},
+	{ACT_DUNIX_RIGHT,			    ACT_QUEUE_Dunix_right,                  "Dunix right"},
+	{ACT_SAND_LOCKER_LEFT,			ACT_QUEUE_Sand_locker_left,             "Sand locker left"},
+	{ACT_SAND_LOCKER_RIGHT,			ACT_QUEUE_Sand_locker_right,            "Sand locker right"},
+	{ACT_SHIFT_CYLINDER,			ACT_QUEUE_Shift_cylinder,				"Shift cylinder"},
+	{ACT_PENDULUM,			        ACT_QUEUE_Pendulum,						"Pendulum"},
 
 	// Pearl
 	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Sand_left_arm,            "Left Arm"},

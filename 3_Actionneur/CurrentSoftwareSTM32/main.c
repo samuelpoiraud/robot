@@ -182,13 +182,13 @@ static void MAIN_onButton0() {
 	 static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 1;
-	msg.sid = ACT_FISH_BRUSH_BACK;
+	msg.sid = ACT_FISH_MAGNETIC_ARM;
 
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_FISH_BRUSH_BACK_OPEN;
+		msg.data.act_msg.order = ACT_FISH_MAGNETIC_ARM_OPEN;
 	}else if(state == 1){
-		msg.data.act_msg.order = ACT_FISH_BRUSH_BACK_CLOSE;
+		msg.data.act_msg.order = ACT_FISH_MAGNETIC_ARM_CLOSE;
 	}
 
 	CAN_process_msg(&msg);
@@ -207,7 +207,7 @@ static void MAIN_onButton1() {
    if(state == 0){
 	   msg.data.act_msg.order = ACT_BLACK_SAND_CIRCLE_OPEN;
    }else if(state == 1){
-	   msg.data.act_msg.order = ACT_FISH_BRUSH_BACK_CLOSE;
+	   msg.data.act_msg.order = ACT_BLACK_SAND_CIRCLE_CLOSE;
    }
 
    CAN_process_msg(&msg);
