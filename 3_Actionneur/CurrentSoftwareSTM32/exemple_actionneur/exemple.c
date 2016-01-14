@@ -37,7 +37,6 @@
 // ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
 
 #if 0
-
 // If def à mettre si l'actionneur est seulement présent sur le petit robot (I_AM_ROBOT_SMALL) ou le gros (I_AM_ROBOT_BIG)
 #ifdef I_AM_ROBOT_BIG
 
@@ -239,7 +238,6 @@ static void EXEMPLE_command_run(queue_id_t queueId) {
 	if(ACTQ_check_status_ax12(queueId, EXEMPLE_AX12_ID, QUEUE_get_arg(queueId)->param, EXEMPLE_AX12_ASSER_POS_EPSILON, EXEMPLE_AX12_ASSER_TIMEOUT, EXEMPLE_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_EXEMPLE, result, errorCode, line);
 }
-
 #endif
 
 #endif

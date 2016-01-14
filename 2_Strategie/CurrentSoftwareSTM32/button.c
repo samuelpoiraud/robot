@@ -112,7 +112,7 @@ void BUTTON_rush(void){
 	order.data.prop_rush_in_the_wall.teta = global.pos.angle;
 	order.data.prop_rush_in_the_wall.way = BACKWARD;
 	order.data.prop_rush_in_the_wall.asser_rot = SLOW;
-	CAN_send (&order);
+	//CAN_send (&order);
 }
 
 void BUTTON_verbose(void)

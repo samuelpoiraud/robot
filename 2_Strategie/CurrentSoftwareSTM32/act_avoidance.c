@@ -36,6 +36,7 @@ void ACT_AVOIDANCE_init(){
 }
 
 
+
 static void init_new_offset(act_avoid_e act_avoid_id, Uint8 cmd, Uint8 act_cmd, Uint16 Xleft, Uint16 Xright, Uint16 Yfront, Uint16 Yback){
 	if(cmd >= ACT_AVOID_NB_MAX_CMD){
 		debug_printf("Error : tentative d'initialisation d'évitement actionneur -> cmd %d inconnue\n", cmd);
