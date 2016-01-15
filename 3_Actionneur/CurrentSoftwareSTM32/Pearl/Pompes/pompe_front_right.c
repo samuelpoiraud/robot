@@ -50,7 +50,6 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_POMPE_FRONT_RIGHT
 #include "../QS/QS_outputlog.h"
 
-static void POMPE_FRONT_RIGHT_initDCM();
 static void POMPE_FRONT_RIGHT_command_init(queue_id_t queueId);
 static void POMPE_FRONT_RIGHT_command_run(queue_id_t queueId);
 static void POMPE_FRONT_RIGHT_do_order(Uint8 command);
@@ -62,20 +61,9 @@ void POMPE_FRONT_RIGHT_init() {
 	if(initialized)
 		return;
 	initialized = TRUE;
-
-	POMPE_FRONT_RIGHT_initDCM();
 }
 
 void POMPE_FRONT_RIGHT_reset_config(){}
-
-// Initialisation du moteur, si init ne fait rien
-static void POMPE_FRONT_RIGHT_initDCM() {
-	static bool_e initialized = FALSE;
-
-	if(initialized)
-		return;
-	initialized = TRUE;
-}
 
 void POMPE_FRONT_RIGHT_stop() {
 	GPIO_ResetBits(POMPE_FRONT_RIGHT_PIN);
@@ -87,7 +75,6 @@ void POMPE_FRONT_RIGHT_init_pos(){
 
 bool_e POMPE_FRONT_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_POMPE_FRONT_RIGHT) {
-		POMPE_FRONT_RIGHT_initDCM();
 		switch(msg->data.act_msg.order) {
 			case ACT_POMPE_FRONT_RIGHT_NORMAL:
 			case ACT_POMPE_FRONT_RIGHT_STOP:

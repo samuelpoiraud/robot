@@ -51,7 +51,6 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_POMPE_BACK_RIGHT
 #include "../QS/QS_outputlog.h"
 
-static void POMPE_BACK_RIGHT_initDCM();
 static void POMPE_BACK_RIGHT_command_init(queue_id_t queueId);
 static void POMPE_BACK_RIGHT_command_run(queue_id_t queueId);
 static void POMPE_BACK_RIGHT_do_order(Uint8 command);
@@ -64,19 +63,10 @@ void POMPE_BACK_RIGHT_init() {
 		return;
 	initialized = TRUE;
 
-	POMPE_BACK_RIGHT_initDCM();
 }
 
 void POMPE_BACK_RIGHT_reset_config(){}
 
-// Initialisation du moteur, si init ne fait rien
-static void POMPE_BACK_RIGHT_initDCM() {
-	static bool_e initialized = FALSE;
-
-	if(initialized)
-		return;
-	initialized = TRUE;
-}
 
 void POMPE_BACK_RIGHT_stop() {
 	GPIO_ResetBits(POMPE_BACK_RIGHT_PIN);
@@ -88,7 +78,6 @@ void POMPE_BACK_RIGHT_init_pos(){
 
 bool_e POMPE_BACK_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_POMPE_BACK_RIGHT) {
-		POMPE_BACK_RIGHT_initDCM();
 		switch(msg->data.act_msg.order) {
 			case ACT_POMPE_BACK_RIGHT_NORMAL:
 			case ACT_POMPE_BACK_RIGHT_STOP:
