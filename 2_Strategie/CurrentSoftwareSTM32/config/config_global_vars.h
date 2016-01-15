@@ -65,6 +65,9 @@
 		volatile bool_e away_rock_one;
 		volatile bool_e away_rock_two;
 		volatile bool_e away_rock_three;
+
+		volatile bool_e coquillages_attaque;
+		volatile bool_e coquillages_defense;
 	}flag_list_t;
 
 	typedef struct{

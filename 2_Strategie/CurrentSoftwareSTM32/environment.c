@@ -77,6 +77,8 @@ void ENV_init(void)
 
 	global.flags.ventouses_avant_pearl = FALSE;
 	global.flags.ventouses_arriere_pearl = FALSE;
+	global.flags.coquillages_attaque = FALSE;
+	global.flags.coquillages_defense = FALSE;
 
 	uint coquillages = 1;
 
