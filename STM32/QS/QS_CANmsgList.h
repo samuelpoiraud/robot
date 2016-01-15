@@ -875,6 +875,11 @@
 		ACT_SAND_LOCKER_RIGHT       = (ACT_FILTER | 0x0C),
 		ACT_SHIFT_CYLINDER          = (ACT_FILTER | 0x0D),
 		ACT_PENDULUM                = (ACT_FILTER | 0x0E),
+		ACT_POMPE_SAND_LOCKER_LEFT  = (ACT_FILTER | 0x0F),
+		ACT_POMPE_SAND_LOCKER_RIGHT = (ACT_FILTER | 0x10),
+		ACT_POMPE_BLACK_FRONT_LEFT  = (ACT_FILTER | 0x11),
+		ACT_POMPE_BLACK_FRONT_RIGHT = (ACT_FILTER | 0x12),
+		ACT_POMPE_PENDULUM          = (ACT_FILTER | 0x13),
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------PEARL------------------------------//

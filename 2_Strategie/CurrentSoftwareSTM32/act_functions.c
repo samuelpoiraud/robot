@@ -51,6 +51,11 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_SAND_LOCKER_RIGHT,			ACT_QUEUE_Sand_locker_right,            "Sand locker right"},
 	{ACT_SHIFT_CYLINDER,			ACT_QUEUE_Shift_cylinder,				"Shift cylinder"},
 	{ACT_PENDULUM,			        ACT_QUEUE_Pendulum,						"Pendulum"},
+	{ACT_POMPE_SAND_LOCKER_LEFT,	ACT_QUEUE_Pompe_sand_locker_left,       "Sand locker left"},
+	{ACT_POMPE_SAND_LOCKER_RIGHT,	ACT_QUEUE_Pompe_sand_locker_right,      "Sand locker right"},
+	{ACT_POMPE_BLACK_FRONT_LEFT,    ACT_QUEUE_Pompe_black__front_left,		"Pompe front left"},
+	{ACT_POMPE_BLACK_FRONT_RIGHT,   ACT_QUEUE_Pompe_black_front_right,		"Pompe front right"},
+	{ACT_POMPE_PENDULUM,			ACT_QUEUE_Pompe_pendulum,				"Pendulum"},
 
 	// Pearl
 	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Sand_left_arm,            "Left Arm"},
