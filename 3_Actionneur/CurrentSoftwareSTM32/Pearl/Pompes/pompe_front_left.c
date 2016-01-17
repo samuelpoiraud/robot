@@ -32,7 +32,7 @@
 // ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
 // ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
 
-#if 0
+
 
 #define POMPE_FRONT_LEFT_PIN 0,0
 
@@ -53,7 +53,6 @@
 static void POMPE_FRONT_LEFT_command_init(queue_id_t queueId);
 static void POMPE_FRONT_LEFT_command_run(queue_id_t queueId);
 static void POMPE_FRONT_LEFT_do_order(Uint8 command);
-static void POMPE_FRONT_LEFT_run_command(queue_id_t queueId, bool_e init);
 
 void POMPE_FRONT_LEFT_init() {
 	static bool_e initialized = FALSE;
@@ -98,7 +97,7 @@ bool_e POMPE_FRONT_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 	return FALSE;
 }
 
-static void POMPE_FRONT_LEFT_run_command(queue_id_t queueId, bool_e init) {
+void POMPE_FRONT_LEFT_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
 		return;
@@ -152,4 +151,4 @@ static void POMPE_FRONT_LEFT_do_order(Uint8 command){
 
 #endif
 
-#endif
+

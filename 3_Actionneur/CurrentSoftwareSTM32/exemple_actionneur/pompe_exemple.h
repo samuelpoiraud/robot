@@ -2,8 +2,8 @@
  *
  *	Fichier : pompe_exemple.c
  *	Package : Carte actionneur
- *	Description : Gestion de la pompe exemple
- *  Auteur :
+ *	Description : Gestion de la pompe EXEMPLE
+ *  Auteur : Valentin
  *  Version 2016
  *  Robot : SMALL
  */
@@ -44,6 +44,12 @@
 		 * @return TRUE si le message CAN a été géré par cet actionneur, FALSE sinon
 		 */
 		bool_e POMPE_EXEMPLE_CAN_process_msg(CAN_msg_t* msg);
+
+		/** Gère les commandes demandées.
+		 *
+		 * Fonction à mettre sur la file pour demander une action.
+		 */
+		void POMPE_EXEMPLE_run_command(queue_id_t queueId, bool_e init);
 
 		/**
 		 * Réinitialise la configuration de la pompe

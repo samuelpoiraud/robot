@@ -24,6 +24,14 @@
 #include "Generic_functions.h"
 #include "QS/QS_CANmsgList.h"
 
+#include "pompes_black_2016/pompe_very_left.h"
+#include "pompes_black_2016/pompe_left.h"
+#include "pompes_black_2016/pompe_middle_left.h"
+#include "pompes_black_2016/pompe_middle.h"
+#include "pompes_black_2016/pompe_middle_right.h"
+#include "pompes_black_2016/pompe_right.h"
+#include "pompes_black_2016/pompe_very_right.h"
+
 
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
 #define ULU_TIME                        300
@@ -56,6 +64,15 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_POMPE_BLACK_FRONT_LEFT,    ACT_QUEUE_Pompe_black__front_left,		"Pompe front left"},
 	{ACT_POMPE_BLACK_FRONT_RIGHT,   ACT_QUEUE_Pompe_black_front_right,		"Pompe front right"},
 	{ACT_POMPE_PENDULUM,			ACT_QUEUE_Pompe_pendulum,				"Pendulum"},
+	{ACT_POMPE_VERY_LEFT,			ACT_QUEUE_Pompe_very_left,				"Pompe very left"},
+	{ACT_POMPE_LEFT,			    ACT_QUEUE_Pompe_left,				    "Pompe left"},
+	{ACT_POMPE_MIDDLE_LEFT,			ACT_QUEUE_Pompe_middle_left,			"Pompe middle left"},
+	{ACT_POMPE_MIDDLE,			    ACT_QUEUE_Pompe_middle,				    "Pompe middle"},
+	{ACT_POMPE_MIDDLE_RIGHT,		ACT_QUEUE_Pompe_middle_right,			"Pompe middle right"},
+	{ACT_POMPE_RIGHT,			    ACT_QUEUE_Pompe_right,				    "Pompe right"},
+	{ACT_POMPE_VERY_RIGHT,			ACT_QUEUE_Pompe_very_right,				"Pompe very right"},
+	{ACT_POMPE_ALL,      			ACT_QUEUE_Pompe_all,			        "Pompe all"},
+	{ACT_POMPE_VERY_ALL,      	    ACT_QUEUE_Pompe_very_all,			    "Pompe very all"},
 
 	// Pearl
 	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Sand_left_arm,            "Left Arm"},
@@ -181,7 +198,65 @@ bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value){
 ////////////////////////////////////////
 //////////////// MAE  //////////////////
 ////////////////////////////////////////
+void ACT_init_all_pompes(){
+	ACT_push_order(ACT_POMPE_VERY_ALL, ACT_POMPE_VERY_ALL_STOP);
+}
 
+void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
+	queue_id_e act_id = NB_QUEUE;
+	assert(msg->sid == ACT_RESULT);
+	act_id = act_link_SID_Queue[ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_result.sid))].queue_id;
+
+	switch(msg->sid){
+		case ACT_POMPE_ALL:
+			POMPE_LEFT_CAN_process_msg(msg);
+			POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
+			POMPE_MIDDLE_CAN_process_msg(msg);
+			POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
+			POMPE_RIGHT_CAN_process_msg(msg);
+			break;
+
+		case ACT_POMPE_VERY_ALL:
+			POMPE_VERY_LEFT_CAN_process_msg(msg);
+			POMPE_LEFT_CAN_process_msg(msg);
+			POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
+			POMPE_MIDDLE_CAN_process_msg(msg);
+			POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
+			POMPE_RIGHT_CAN_process_msg(msg);
+			POMPE_VERY_RIGHT_CAN_process_msg(msg);
+			break;
+
+		case ACT_POMPE_VERY_LEFT:
+			POMPE_VERY_LEFT_CAN_process_msg(msg);
+			break;
+
+		case ACT_POMPE_LEFT:
+			POMPE_LEFT_CAN_process_msg(msg);
+			break;
+
+		case ACT_POMPE_MIDDLE_LEFT:
+			POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
+			break;
+
+		case ACT_POMPE_MIDDLE:
+			POMPE_MIDDLE_CAN_process_msg(msg);
+			break;
+
+		case ACT_POMPE_MIDDLE_RIGHT:
+			POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
+			break;
+
+		case ACT_POMPE_RIGHT:
+			POMPE_RIGHT_CAN_process_msg(msg);
+			break;
+
+		case ACT_POMPE_VERY_RIGHT:
+			POMPE_VERY_RIGHT_CAN_process_msg(msg);
+			break;
+	}
+
+	ACT_set_result(act_id, ACT_RESULT_Ok);
+}
 
 ////////////////////////////////////////
 //////////////// SENSOR ////////////////

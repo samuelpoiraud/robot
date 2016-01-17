@@ -880,6 +880,15 @@
 		ACT_POMPE_BLACK_FRONT_LEFT  = (ACT_FILTER | 0x11),
 		ACT_POMPE_BLACK_FRONT_RIGHT = (ACT_FILTER | 0x12),
 		ACT_POMPE_PENDULUM          = (ACT_FILTER | 0x13),
+		ACT_POMPE_VERY_LEFT         = (ACT_FILTER | 0x14),
+		ACT_POMPE_LEFT              = (ACT_FILTER | 0x15),
+		ACT_POMPE_MIDDLE_LEFT       = (ACT_FILTER | 0x16),
+		ACT_POMPE_MIDDLE            = (ACT_FILTER | 0x17),
+		ACT_POMPE_MIDDLE_RIGHT      = (ACT_FILTER | 0x18),
+		ACT_POMPE_RIGHT             = (ACT_FILTER | 0x19),
+		ACT_POMPE_VERY_RIGHT        = (ACT_FILTER | 0x1A),
+		ACT_POMPE_ALL               = (ACT_FILTER | 0x1B),
+		ACT_POMPE_VERY_ALL          = (ACT_FILTER | 0x1C),
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------PEARL------------------------------//

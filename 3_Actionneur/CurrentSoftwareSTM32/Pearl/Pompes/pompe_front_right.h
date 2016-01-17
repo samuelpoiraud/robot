@@ -45,6 +45,12 @@
 		 */
 		bool_e POMPE_FRONT_RIGHT_CAN_process_msg(CAN_msg_t* msg);
 
+		/** Gère les commandes demandées.
+		 *
+		 * Fonction à mettre sur la file pour demander une action.
+		 */
+		void POMPE_FRONT_RIGHT_run_command(queue_id_t queueId, bool_e init);
+
 		/**
 		 * Réinitialise la configuration de la pompe
 		 */

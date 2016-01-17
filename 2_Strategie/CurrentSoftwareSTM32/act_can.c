@@ -24,13 +24,6 @@
 #endif
 
 typedef enum {
-	ACT_RESULT_Idle,	//Etat au démarage, par la suite ce sera le resultat de la dernière opération effectuée
-	ACT_RESULT_Working,	//L'opération n'est pas terminée
-	ACT_RESULT_Ok,		//L'opération s'est terminée correctement
-	ACT_RESULT_Failed	//Une erreur est survenue, voir details dans act_error_recommended_behavior_e
-} act_result_e;
-
-typedef enum {
 	ACT_BEHAVIOR_Ok,                       //Pas d'erreur (ACT_RESULT_ERROR_OK)
 	ACT_BEHAVIOR_DisableAct,               //L'actionneur est inutilisable
 	ACT_BEHAVIOR_RetryLater,               //Ressayer plus tard les commandes, si arrive plusieurs fois de suite, passer à ACT_ERROR_DisableAct (ACT_RESULT_ERROR_NO_RESOURCES)
@@ -168,7 +161,23 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 
 		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x,  data[2]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_optionnal_data[0], msg->data.act_msg.act_data.act_optionnal_data[1], msg->data.act_msg.act_data.act_optionnal_data[2]);
 
-		CAN_send(msg);
+		Uint8 act_id_pompe_very_left    = ACT_search_link_SID_Queue(ACT_POMPE_VERY_LEFT);
+		Uint8 act_id_pompe_left		    = ACT_search_link_SID_Queue(ACT_POMPE_LEFT);
+		Uint8 act_id_pompe_middle_left  = ACT_search_link_SID_Queue(ACT_POMPE_MIDDLE_LEFT);
+		Uint8 act_id_pompe_middle	    = ACT_search_link_SID_Queue(ACT_POMPE_MIDDLE);
+		Uint8 act_id_pompe_middle_right = ACT_search_link_SID_Queue(ACT_POMPE_MIDDLE_RIGHT);
+		Uint8 act_id_pompe_right        = ACT_search_link_SID_Queue(ACT_POMPE_RIGHT);
+		Uint8 act_id_pompe_very_right   = ACT_search_link_SID_Queue(ACT_POMPE_VERY_RIGHT);
+		Uint8 act_id_pompe_all          = ACT_search_link_SID_Queue(ACT_POMPE_ALL);
+		Uint8 act_id_pompe_very_all     = ACT_search_link_SID_Queue(ACT_POMPE_VERY_ALL);
+
+		if(I_AM_BIG() && (act_id == act_id_pompe_all || act_id == act_id_pompe_very_all
+			|| act_id == act_id_pompe_very_left || act_id == act_id_pompe_left
+			|| act_id == act_id_pompe_middle_left || act_id == act_id_pompe_middle || act_id == act_id_pompe_middle_right
+			|| act_id == act_id_pompe_right || act_id == act_id_pompe_very_right))
+			ACT_transmit_order_to_pompe(msg);
+		else
+			CAN_send(msg);
 
 	} else {
 		ACT_check_result(act_id);
@@ -378,3 +387,7 @@ void ACT_process_result(const CAN_msg_t* msg) {
 #endif /* not def ACT_NO_ERROR_HANDLING */
 }
 
+
+void ACT_set_result(Uint8 act_id, act_result_e result){
+	act_states[act_id].operationResult = result;
+}

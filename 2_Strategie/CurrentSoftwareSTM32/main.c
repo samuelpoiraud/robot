@@ -131,6 +131,7 @@ int main (void)
 		while(1);
 	}
 
+	ACT_init_all_pompes();  //initialisation des pompes(spécificité 2016)
 
 	Supervision_init();
 	BRAIN_init();
