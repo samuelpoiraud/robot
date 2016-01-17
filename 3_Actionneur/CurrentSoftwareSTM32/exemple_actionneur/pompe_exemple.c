@@ -2,8 +2,8 @@
  *
  *	Fichier : POMPE_EXEMPLE.c
  *	Package : Carte actionneur
- *	Description : Gestion de la pompe exemple
- *  Auteur :
+ *	Description : Gestion de la pompe EXEMPLE
+ *  Auteur : Valentin
  *  Version 2016
  *  Robot : BIG
  */
@@ -51,11 +51,9 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_POMPE_EXEMPLE
 #include "../QS/QS_outputlog.h"
 
-static void POMPE_EXEMPLE_initDCM();
 static void POMPE_EXEMPLE_command_init(queue_id_t queueId);
 static void POMPE_EXEMPLE_command_run(queue_id_t queueId);
 static void POMPE_EXEMPLE_do_order(Uint8 command);
-static void POMPE_EXEMPLE_run_command(queue_id_t queueId, bool_e init);
 
 void POMPE_EXEMPLE_init() {
 	static bool_e initialized = FALSE;
@@ -63,20 +61,9 @@ void POMPE_EXEMPLE_init() {
 	if(initialized)
 		return;
 	initialized = TRUE;
-
-	POMPE_EXEMPLE_initDCM();
 }
 
 void POMPE_EXEMPLE_reset_config(){}
-
-// Initialisation du moteur, si init ne fait rien
-static void POMPE_EXEMPLE_initDCM() {
-	static bool_e initialized = FALSE;
-
-	if(initialized)
-		return;
-	initialized = TRUE;
-}
 
 void POMPE_EXEMPLE_stop() {
 	GPIO_ResetBits(POMPE_EXEMPLE_PIN);
@@ -124,7 +111,7 @@ static void POMPE_EXEMPLE_run_command(queue_id_t queueId, bool_e init) {
 }
 
 //Initialise une commande
-static void POMPE_EXEMPLE_command_init(queue_id_t queueId) {
+void POMPE_EXEMPLE_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
 
 	switch(command) {

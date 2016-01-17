@@ -33,6 +33,13 @@ typedef enum {
 	ACT_FUNCTION_RetryLater = NOT_HANDLED         //L'opération n'a pas pu se terminer: il faudra retenter plus tard (plus tard = faire autre chose avant de retest, pas juste 3ms, causé par une position impossible à atteindre, robot adverse qui bloque ? positionnement en mode loto trop près du bord ?)
 } ACT_function_result_e;
 
+typedef enum {
+	ACT_RESULT_Idle,	//Etat au démarage, par la suite ce sera le resultat de la dernière opération effectuée
+	ACT_RESULT_Working,	//L'opération n'est pas terminée
+	ACT_RESULT_Ok,		//L'opération s'est terminée correctement
+	ACT_RESULT_Failed	//Une erreur est survenue, voir details dans act_error_recommended_behavior_e
+} act_result_e;
+
 // Récupère le resultat de la dernière action associé à une pile (non valable pour PROP) Cette valeur ne change pas tant qu'aucune opération ne commence ou se finie.
 // A utiliser pour savoir l'état d'une ou plusieurs action en cours.
 ACT_function_result_e ACT_get_last_action_result(queue_id_e act_id);
@@ -49,5 +56,8 @@ bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* arg);
 
 // Gère les messages de retour de la carte actionneur lorsque une action s'est terminée ou a échouée
 void ACT_process_result(const CAN_msg_t* msg);
+
+//Impose le résultat de l'actionneur (codé pour les pompes sur la carte strat en 2016)
+void ACT_set_result(Uint8 act_id, act_result_e result);
 
 #endif // ACT_CAN_H
