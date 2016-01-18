@@ -183,8 +183,35 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 
 // Black
-		//case ACT_POP_COLLECT_LEFT:						print(string, len, "%x ACT_POP_COLLECT_LEFT                   ", ACT_POP_COLLECT_LEFT							);	break;
+		case ACT_FISH_MAGNETIC_ARM:						print(string, len, "%x ACT_FISH_MAGNETIC_ARM                  ", ACT_FISH_MAGNETIC_ARM							);	break;
+		case ACT_FISH_UNSTICK_ARM:						print(string, len, "%x ACT_FISH_UNSTICK_ARM                   ", ACT_FISH_UNSTICK_ARM							);	break;
+		case ACT_BLACK_SAND_CIRCLE:						print(string, len, "%x ACT_BLACK_SAND_CIRCLE                  ", ACT_BLACK_SAND_CIRCLE							);	break;
+		case ACT_BOTTOM_DUNE_LEFT:						print(string, len, "%x ACT_BOTTOM_DUNE_LEFT                   ", ACT_BOTTOM_DUNE_LEFT							);	break;
+		case ACT_BOTTOM_DUNE_RIGHT:						print(string, len, "%x ACT_BOTTOM_DUNE_RIGHT                  ", ACT_BOTTOM_DUNE_RIGHT							);	break;
+		case ACT_MIDDLE_DUNE_LEFT:						print(string, len, "%x ACT_MIDDLE_DUNE_LEFT                   ", ACT_MIDDLE_DUNE_LEFT							);	break;
+		case ACT_MIDDLE_DUNE_RIGHT:						print(string, len, "%x ACT_MIDDLE_DUNE_RIGHT                  ", ACT_MIDDLE_DUNE_RIGHT							);	break;
+		case ACT_CONE_DUNE:						        print(string, len, "%x ACT_CONE_DUNE						  ", ACT_CONE_DUNE									);	break;
+		case ACT_DUNIX_LEFT:							print(string, len, "%x ACT_DUNIX_LEFT                         ", ACT_DUNIX_LEFT									);	break;
+		case ACT_DUNIX_RIGHT:							print(string, len, "%x ACT_DUNIX_RIGHT                        ", ACT_DUNIX_RIGHT								);	break;
+		case ACT_SAND_LOCKER_LEFT:						print(string, len, "%x ACT_SAND_LOCKER_LEFT                   ", ACT_SAND_LOCKER_LEFT							);	break;
+		case ACT_SAND_LOCKER_RIGHT:						print(string, len, "%x ACT_SAND_LOCKER_RIGHT                  ", ACT_SAND_LOCKER_RIGHT							);	break;
+		case ACT_SHIFT_CYLINDER:						print(string, len, "%x ACT_SHIFT_CYLINDER                     ", ACT_SHIFT_CYLINDER								);	break;
+		case ACT_PENDULUM:								print(string, len, "%x ACT_PENDULUM                           ", ACT_PENDULUM									);	break;
+		case ACT_POMPE_SAND_LOCKER_LEFT:				print(string, len, "%x ACT_POMPE_SAND_LOCKER_LEFT             ", ACT_POMPE_SAND_LOCKER_LEFT						);	break;
+		case ACT_POMPE_SAND_LOCKER_RIGHT:				print(string, len, "%x ACT_POMPE_SAND_LOCKER_RIGHT            ", ACT_POMPE_SAND_LOCKER_RIGHT					);	break;
+		case ACT_POMPE_BLACK_FRONT_LEFT:                print(string, len, "%x ACT_POMPE_BLACK_FRONT_LEFT             ", ACT_POMPE_BLACK_FRONT_LEFT						);	break;
+		case ACT_POMPE_BLACK_FRONT_RIGHT:               print(string, len, "%x ACT_POMPE_BLACK_FRONT_RIGHT            ", ACT_POMPE_BLACK_FRONT_RIGHT					);	break;
+		case ACT_POMPE_PENDULUM:                        print(string, len, "%x ACT_POMPE_PENDULUM                     ", ACT_POMPE_PENDULUM								);	break;
+
 // Pearl
+		case ACT_SAND_LEFT_ARM	 :						print(string, len, "%x ACT_SAND_LEFT_ARM	                  ", ACT_SAND_LEFT_ARM								);	break;
+		case ACT_SAND_RIGHT_ARM	 :						print(string, len, "%x ACT_SAND_RIGHT_ARM	                  ", ACT_SAND_RIGHT_ARM								);	break;
+		case ACT_POMPE_BACK_LEFT  :						print(string, len, "%x ACT_POMPE_BACK_LEFT                    ", ACT_POMPE_BACK_LEFT							);	break;
+		case ACT_POMPE_BACK_RIGHT :						print(string, len, "%x ACT_POMPE_BACK_RIGHT                   ", ACT_POMPE_BACK_RIGHT							);	break;
+		case ACT_POMPE_FRONT_LEFT :						print(string, len, "%x ACT_POMPE_FRONT_LEFT                   ", ACT_POMPE_FRONT_LEFT							);	break;
+		case ACT_POMPE_FRONT_RIGHT:						print(string, len, "%x ACT_POMPE_FRONT_RIGHT                  ", ACT_POMPE_FRONT_RIGHT							);	break;
+		case ACT_PEARL_SAND_CIRCLE:						print(string, len, "%x ACT_PEARL_SAND_CIRCLE                  ", ACT_PEARL_SAND_CIRCLE							);	break;
+
 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
@@ -218,22 +245,50 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 			print(string,len, "| act0x%x : ", msg->data.act_result.sid);
 			switch(msg->data.act_result.sid)
 			{
-				// EXEMPLE: case (Uint8)ACT_POP_COLLECT_LEFT:		print(string,len, "ACT_POP_COLLECT_LEFT ");		break;
+				//Black
+				case (Uint8)ACT_FISH_MAGNETIC_ARM:	    		print(string,len, "ACT_FISH_MAGNETIC_ARM ");		break;
+				case (Uint8)ACT_FISH_UNSTICK_ARM:        		print(string,len, "ACT_FISH_UNSTICK_ARM ");		    break;
+				case (Uint8)ACT_BLACK_SAND_CIRCLE:       		print(string,len, "ACT_BLACK_SAND_CIRCLE ");		break;
+				case (Uint8)ACT_BOTTOM_DUNE_LEFT:        		print(string,len, "ACT_BOTTOM_DUNE_LEFT ");		    break;
+				case (Uint8)ACT_BOTTOM_DUNE_RIGHT:       		print(string,len, "ACT_BOTTOM_DUNE_RIGHT ");		break;
+				case (Uint8)ACT_MIDDLE_DUNE_LEFT:        		print(string,len, "ACT_MIDDLE_DUNE_LEFT ");		    break;
+				case (Uint8)ACT_MIDDLE_DUNE_RIGHT:       		print(string,len, "ACT_MIDDLE_DUNE_RIGHT ");		break;
+				case (Uint8)ACT_CONE_DUNE:               		print(string,len, "ACT_CONE_DUNE ");				break;
+				case (Uint8)ACT_DUNIX_LEFT:              		print(string,len, "ACT_DUNIX_LEFT ");				break;
+				case (Uint8)ACT_DUNIX_RIGHT:             		print(string,len, "ACT_DUNIX_RIGHT ");				break;
+				case (Uint8)ACT_SAND_LOCKER_LEFT:        		print(string,len, "ACT_SAND_LOCKER_LEFT ");			break;
+				case (Uint8)ACT_SAND_LOCKER_RIGHT:       		print(string,len, "ACT_SAND_LOCKER_RIGHT ");		break;
+				case (Uint8)ACT_SHIFT_CYLINDER:          		print(string,len, "ACT_SHIFT_CYLINDER ");			break;
+				case (Uint8)ACT_PENDULUM:                		print(string,len, "ACT_PENDULUM ");					break;
+				case (Uint8)ACT_POMPE_SAND_LOCKER_LEFT:  		print(string,len, "ACT_POMPE_SAND_LOCKER_LEFT ");	break;
+				case (Uint8)ACT_POMPE_SAND_LOCKER_RIGHT: 		print(string,len, "ACT_POMPE_SAND_LOCKER_RIGHT ");	break;
+				case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT:  		print(string,len, "ACT_POMPE_BLACK_FRONT_LEFT ");	break;
+				case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT: 		print(string,len, "ACT_POMPE_BLACK_FRONT_RIGHT ");	break;
+				case (Uint8)ACT_POMPE_PENDULUM:          		print(string,len, "ACT_POMPE_PENDULUM ");			break;
+
+				//Pearl
+				case (Uint8)ACT_SAND_LEFT_ARM:					print(string,len, "ACT_SAND_LEFT_ARM ");			break;
+				case (Uint8)ACT_SAND_RIGHT_ARM:					print(string,len, "ACT_SAND_RIGHT_ARM ");			break;
+				case (Uint8)ACT_POMPE_BACK_LEFT:				print(string,len, "ACT_POMPE_BACK_LEFT ");			break;
+				case (Uint8)ACT_POMPE_BACK_RIGHT:				print(string,len, "ACT_POMPE_BACK_RIGHT ");			break;
+				case (Uint8)ACT_POMPE_FRONT_LEFT:				print(string,len, "ACT_POMPE_FRONT_LEFT ");			break;
+				case (Uint8)ACT_POMPE_FRONT_RIGHT:				print(string,len, "ACT_POMPE_FRONT_RIGHT ");		break;
+				case (Uint8)ACT_PEARL_SAND_CIRCLE:				print(string,len, "ACT_PEARL_SAND_CIRCLE ");		break;
+
 				default:								print(string,len, "UNKNOW ACT -> complete verbose !");		break;
 			}
 
 
 			  switch(msg->data.act_result.sid){
-				/*EXEMPLE
-				case (Uint8)ACT_POP_COLLECT_LEFT:
+				case (Uint8)ACT_FISH_MAGNETIC_ARM:
 					switch(msg->data.act_result.cmd){
-						case (Uint8)ACT_POP_COLLECT_LEFT_CLOSED:	print(string,len, "| ACT_POP_COLLECT_LEFT_CLOSED |");	break;
-						case (Uint8)ACT_POP_COLLECT_LEFT_OPEN:	print(string,len, "| ACT_POP_COLLECT_LEFT_OPEN |");			break;
-						case (Uint8)ACT_POP_COLLECT_LEFT_MID:	print(string,len, "| ACT_POP_COLLECT_LEFT_MID |");			break;
-						case (Uint8)ACT_POP_COLLECT_LEFT_STOP:	print(string,len, "| ACT_POP_COLLECT_LEFT_STOP |");			break;
+						case (Uint8)ACT_FISH_MAGNETIC_ARM_IDLE:		print(string,len, "| IDLE |");			break;
+						case (Uint8)ACT_FISH_MAGNETIC_ARM_OPEN:		print(string,len, "| OPEN |");			break;
+						case (Uint8)ACT_FISH_MAGNETIC_ARM_CLOSE:	print(string,len, "| CLOSE |");			break;
+						case (Uint8)ACT_FISH_MAGNETIC_ARM_STOP:		print(string,len, "| STOP |");			break;
+						default:                                    print(string,len, "| UNKNOW cmd |");	break;
 					}
 				break;
-				*/
 			}
 
 			//Todo ajouter la commande dont on envoie le résultat (data 1) ???

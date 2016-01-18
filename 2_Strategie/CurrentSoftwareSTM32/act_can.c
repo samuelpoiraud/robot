@@ -180,6 +180,7 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 			CAN_send(msg);
 
 	} else {
+		ACT_transmit_order_to_pompe(NULL);
 		ACT_check_result(act_id);
 	}
 }

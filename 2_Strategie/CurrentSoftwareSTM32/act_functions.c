@@ -35,6 +35,7 @@
 
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
 #define ULU_TIME                        300
+#define ACT_POMPE_DELAY                  10 //Delay en milliseconde entre l'allumage de chaque pompe
 typedef enum{
 	ACT_SENSOR_WAIT = 0,
 	ACT_SENSOR_ABSENT,
@@ -203,59 +204,124 @@ void ACT_init_all_pompes(){
 }
 
 void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
-	queue_id_e act_id = NB_QUEUE;
-	assert(msg->sid == ACT_RESULT);
-	act_id = act_link_SID_Queue[ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_result.sid))].queue_id;
+	static queue_id_e act_id = NB_QUEUE;
+	static Uint11 current_sid;
+	static Uint11 state;
+	static Uint11 last_state = NB_QUEUE + 1;
+	static bool_e entrance;
+	static time32_t state_time;
 
-	switch(msg->sid){
-		case ACT_POMPE_ALL:
-			POMPE_LEFT_CAN_process_msg(msg);
-			POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
-			POMPE_MIDDLE_CAN_process_msg(msg);
-			POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
-			POMPE_RIGHT_CAN_process_msg(msg);
-			break;
-
-		case ACT_POMPE_VERY_ALL:
-			POMPE_VERY_LEFT_CAN_process_msg(msg);
-			POMPE_LEFT_CAN_process_msg(msg);
-			POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
-			POMPE_MIDDLE_CAN_process_msg(msg);
-			POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
-			POMPE_RIGHT_CAN_process_msg(msg);
-			POMPE_VERY_RIGHT_CAN_process_msg(msg);
-			break;
-
-		case ACT_POMPE_VERY_LEFT:
-			POMPE_VERY_LEFT_CAN_process_msg(msg);
-			break;
-
-		case ACT_POMPE_LEFT:
-			POMPE_LEFT_CAN_process_msg(msg);
-			break;
-
-		case ACT_POMPE_MIDDLE_LEFT:
-			POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
-			break;
-
-		case ACT_POMPE_MIDDLE:
-			POMPE_MIDDLE_CAN_process_msg(msg);
-			break;
-
-		case ACT_POMPE_MIDDLE_RIGHT:
-			POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
-			break;
-
-		case ACT_POMPE_RIGHT:
-			POMPE_RIGHT_CAN_process_msg(msg);
-			break;
-
-		case ACT_POMPE_VERY_RIGHT:
-			POMPE_VERY_RIGHT_CAN_process_msg(msg);
-			break;
+	//initialisation en cas de l'envoi d'une nouvelle commande
+	if(msg != NULL){
+		assert(msg->sid == ACT_RESULT);
+		act_id = act_link_SID_Queue[ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_result.sid))].queue_id; //id de la pompe
+		state = act_id;
+		current_sid = msg->sid;
+		//verbose de l'action
+		/*if(IHM_switchs_get(SWITCH_VERBOSE)){
+			QS_CAN_VERBOSE_can_msg_print(sent_msg, LOG_MSG);*/
 	}
 
-	ACT_set_result(act_id, ACT_RESULT_Ok);
+	//Affectation des variables courantes
+	entrance = (last_state != state);
+	last_state = state;
+	if(entrance){
+		state_time = global.absolute_time;
+	}
+
+	switch(state){
+		case ACT_QUEUE_Pompe_very_all:
+		case ACT_QUEUE_Pompe_very_left:
+			if(entrance){
+				if(current_sid == ACT_POMPE_VERY_ALL)
+					msg->sid = ACT_POMPE_VERY_LEFT;
+				POMPE_VERY_LEFT_CAN_process_msg(msg);
+			}else if(current_sid  == ACT_POMPE_VERY_ALL && state_time >= global.absolute_time + ACT_POMPE_DELAY){
+				state = ACT_QUEUE_Pompe_very_right;
+			}else if(current_sid != ACT_POMPE_VERY_ALL){
+				state = NB_QUEUE; //finish
+			}
+			break;
+
+		case ACT_QUEUE_Pompe_very_right:
+			if(entrance){
+				if(current_sid == ACT_POMPE_VERY_ALL)
+					msg->sid = ACT_POMPE_VERY_RIGHT;
+				POMPE_VERY_RIGHT_CAN_process_msg(msg);
+			}else if(current_sid  == ACT_POMPE_VERY_ALL && state_time >= global.absolute_time + ACT_POMPE_DELAY){
+				state = ACT_QUEUE_Pompe_left;
+			}else if(current_sid != ACT_POMPE_VERY_ALL){
+				state = NB_QUEUE; //finish
+			}
+			break;
+
+		case ACT_QUEUE_Pompe_all:
+		case ACT_QUEUE_Pompe_left:
+			if(entrance){
+				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					msg->sid = ACT_POMPE_LEFT;
+				POMPE_LEFT_CAN_process_msg(msg);
+			}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && state_time >= global.absolute_time + ACT_POMPE_DELAY){
+				state = ACT_QUEUE_Pompe_middle_left;
+			}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+				state = NB_QUEUE; //finish
+			}
+			break;
+
+		case ACT_QUEUE_Pompe_middle_left:
+			if(entrance){
+				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					msg->sid = ACT_POMPE_MIDDLE_LEFT;
+				POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
+			}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && state_time >= global.absolute_time + ACT_POMPE_DELAY){
+				state = ACT_QUEUE_Pompe_middle;
+			}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+				state = NB_QUEUE; //finish
+			}
+			break;
+
+		case ACT_QUEUE_Pompe_middle:
+			if(entrance){
+				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					msg->sid = ACT_POMPE_MIDDLE;
+				POMPE_MIDDLE_CAN_process_msg(msg);
+			}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && state_time >= global.absolute_time + ACT_POMPE_DELAY){
+				state = ACT_QUEUE_Pompe_middle_right;
+			}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+				state = NB_QUEUE; //finish
+			}
+			break;
+
+		case ACT_QUEUE_Pompe_middle_right:
+			if(entrance){
+				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					msg->sid = ACT_POMPE_MIDDLE_RIGHT;
+				POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
+			}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && state_time >= global.absolute_time + ACT_POMPE_DELAY){
+				state = ACT_QUEUE_Pompe_right;
+			}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+				state = NB_QUEUE; //finish
+			}
+			break;
+
+		case ACT_QUEUE_Pompe_right:
+			if(entrance){
+				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					msg->sid = ACT_POMPE_RIGHT;
+				POMPE_RIGHT_CAN_process_msg(msg);
+			}
+			state = NB_QUEUE;
+			break;
+
+		case NB_QUEUE:
+			if(entrance)
+				ACT_set_result(act_id, ACT_RESULT_Ok);
+			//On ne fait rien. On attend le prochain ordre.
+			break;
+
+		default:
+			debug_printf("Default state in ACT_transmit_order_to_pompe: bad sid\n");
+	}
 }
 
 ////////////////////////////////////////
