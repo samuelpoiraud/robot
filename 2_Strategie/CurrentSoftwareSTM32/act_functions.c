@@ -23,6 +23,8 @@
 #include "state_machine_helper.h"
 #include "Generic_functions.h"
 #include "QS/QS_CANmsgList.h"
+#include "QS/QS_IHM.h"
+#include "QS/QS_can_verbose.h"
 
 #include "pompes_black_2016/pompe_very_left.h"
 #include "pompes_black_2016/pompe_left.h"
@@ -36,6 +38,7 @@
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
 #define ULU_TIME                        300
 #define ACT_POMPE_DELAY                  10 //Delay en milliseconde entre l'allumage de chaque pompe
+#define ACT_POMPE_SELFTEST_TIME         300 //Delay en milliseconde pour l'allumage de Selftest pour l'allumage de chaque pompe
 typedef enum{
 	ACT_SENSOR_WAIT = 0,
 	ACT_SENSOR_ABSENT,
@@ -213,13 +216,13 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 
 	//initialisation en cas de l'envoi d'une nouvelle commande
 	if(msg != NULL){
-		assert(msg->sid == ACT_RESULT);
+		assert((msg->sid&0x300) == ACT_FILTER);
 		act_id = act_link_SID_Queue[ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_result.sid))].queue_id; //id de la pompe
 		state = act_id;
 		current_sid = msg->sid;
 		//verbose de l'action
-		/*if(IHM_switchs_get(SWITCH_VERBOSE)){
-			QS_CAN_VERBOSE_can_msg_print(sent_msg, LOG_MSG);*/
+		if(IHM_switchs_get(SWITCH_VERBOSE))
+			QS_CAN_VERBOSE_can_msg_print(msg, VERB_LOG_MSG);
 	}
 
 	//Affectation des variables courantes
@@ -232,83 +235,153 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 	switch(state){
 		case ACT_QUEUE_Pompe_very_all:
 		case ACT_QUEUE_Pompe_very_left:
-			if(entrance){
-				if(current_sid == ACT_POMPE_VERY_ALL)
-					msg->sid = ACT_POMPE_VERY_LEFT;
-				POMPE_VERY_LEFT_CAN_process_msg(msg);
-			}else if(current_sid  == ACT_POMPE_VERY_ALL && state_time >= global.absolute_time + ACT_POMPE_DELAY){
-				state = ACT_QUEUE_Pompe_very_right;
-			}else if(current_sid != ACT_POMPE_VERY_ALL){
-				state = NB_QUEUE; //finish
+			if(current_sid == ACT_DO_SELFTEST)
+			{
+				if(entrance){
+					POMPE_VERY_LEFT_command(ACT_POMPE_VERY_LEFT_NORMAL);
+				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
+					POMPE_VERY_LEFT_command(ACT_POMPE_VERY_LEFT_STOP);
+					state = ACT_QUEUE_Pompe_very_right;
+				}
+			}else{
+				if(entrance){
+					if(current_sid == ACT_POMPE_VERY_ALL)
+						msg->sid = ACT_POMPE_VERY_LEFT;
+					POMPE_VERY_LEFT_CAN_process_msg(msg);
+				}else if(current_sid  == ACT_POMPE_VERY_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+					state = ACT_QUEUE_Pompe_very_right;
+				}else if(current_sid != ACT_POMPE_VERY_ALL){
+					state = NB_QUEUE; //finish
+				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_very_right:
-			if(entrance){
-				if(current_sid == ACT_POMPE_VERY_ALL)
-					msg->sid = ACT_POMPE_VERY_RIGHT;
-				POMPE_VERY_RIGHT_CAN_process_msg(msg);
-			}else if(current_sid  == ACT_POMPE_VERY_ALL && state_time >= global.absolute_time + ACT_POMPE_DELAY){
-				state = ACT_QUEUE_Pompe_left;
-			}else if(current_sid != ACT_POMPE_VERY_ALL){
-				state = NB_QUEUE; //finish
+			if(current_sid == ACT_DO_SELFTEST)
+			{
+				if(entrance){
+					POMPE_VERY_RIGHT_command(ACT_POMPE_VERY_RIGHT_NORMAL);
+				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
+					POMPE_VERY_RIGHT_command(ACT_POMPE_VERY_RIGHT_STOP);
+					state = ACT_QUEUE_Pompe_left;
+				}
+			}else{
+				if(entrance){
+					if(current_sid == ACT_POMPE_VERY_ALL)
+						msg->sid = ACT_POMPE_VERY_RIGHT;
+					POMPE_VERY_RIGHT_CAN_process_msg(msg);
+				}else if(current_sid  == ACT_POMPE_VERY_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+					state = ACT_QUEUE_Pompe_left;
+				}else if(current_sid != ACT_POMPE_VERY_ALL){
+					state = NB_QUEUE; //finish
+				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_all:
 		case ACT_QUEUE_Pompe_left:
-			if(entrance){
-				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
-					msg->sid = ACT_POMPE_LEFT;
-				POMPE_LEFT_CAN_process_msg(msg);
-			}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && state_time >= global.absolute_time + ACT_POMPE_DELAY){
-				state = ACT_QUEUE_Pompe_middle_left;
-			}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
-				state = NB_QUEUE; //finish
+			if(current_sid == ACT_DO_SELFTEST)
+			{
+				if(entrance){
+					POMPE_LEFT_command(ACT_POMPE_LEFT_NORMAL);
+				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
+					POMPE_LEFT_command(ACT_POMPE_LEFT_STOP);
+					state = ACT_QUEUE_Pompe_middle_left;
+				}
+			}else{
+				if(entrance){
+					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+						msg->sid = ACT_POMPE_LEFT;
+					POMPE_LEFT_CAN_process_msg(msg);
+				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+					state = ACT_QUEUE_Pompe_middle_left;
+				}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+					state = NB_QUEUE; //finish
+				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_middle_left:
-			if(entrance){
-				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
-					msg->sid = ACT_POMPE_MIDDLE_LEFT;
-				POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
-			}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && state_time >= global.absolute_time + ACT_POMPE_DELAY){
-				state = ACT_QUEUE_Pompe_middle;
-			}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
-				state = NB_QUEUE; //finish
+			if(current_sid == ACT_DO_SELFTEST)
+			{
+				if(entrance){
+					POMPE_MIDDLE_LEFT_command(ACT_POMPE_MIDDLE_LEFT_NORMAL);
+				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
+					POMPE_MIDDLE_LEFT_command(ACT_POMPE_MIDDLE_LEFT_STOP);
+					state = ACT_QUEUE_Pompe_middle;
+				}
+			}else{
+				if(entrance){
+					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+						msg->sid = ACT_POMPE_MIDDLE_LEFT;
+					POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
+				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+					state = ACT_QUEUE_Pompe_middle;
+				}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+					state = NB_QUEUE; //finish
+				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_middle:
-			if(entrance){
-				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
-					msg->sid = ACT_POMPE_MIDDLE;
-				POMPE_MIDDLE_CAN_process_msg(msg);
-			}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && state_time >= global.absolute_time + ACT_POMPE_DELAY){
-				state = ACT_QUEUE_Pompe_middle_right;
-			}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
-				state = NB_QUEUE; //finish
+			if(current_sid == ACT_DO_SELFTEST)
+			{
+				if(entrance){
+					POMPE_MIDDLE_command(ACT_POMPE_MIDDLE_NORMAL);
+				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
+					POMPE_MIDDLE_command(ACT_POMPE_MIDDLE_STOP);
+					state = ACT_QUEUE_Pompe_middle_right;
+				}
+			}else{
+				if(entrance){
+					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+						msg->sid = ACT_POMPE_MIDDLE;
+					POMPE_MIDDLE_CAN_process_msg(msg);
+				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+					state = ACT_QUEUE_Pompe_middle_right;
+				}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+					state = NB_QUEUE; //finish
+				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_middle_right:
-			if(entrance){
-				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
-					msg->sid = ACT_POMPE_MIDDLE_RIGHT;
-				POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
-			}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && state_time >= global.absolute_time + ACT_POMPE_DELAY){
-				state = ACT_QUEUE_Pompe_right;
-			}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
-				state = NB_QUEUE; //finish
+			if(current_sid == ACT_DO_SELFTEST)
+			{
+				if(entrance){
+					POMPE_MIDDLE_RIGHT_command(ACT_POMPE_MIDDLE_RIGHT_NORMAL);
+				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
+					POMPE_MIDDLE_RIGHT_command(ACT_POMPE_MIDDLE_RIGHT_STOP);
+					state = ACT_QUEUE_Pompe_right;
+				}
+			}else{
+				if(entrance){
+					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+						msg->sid = ACT_POMPE_MIDDLE_RIGHT;
+					POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
+				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+					state = ACT_QUEUE_Pompe_right;
+				}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+					state = NB_QUEUE; //finish
+				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_right:
-			if(entrance){
-				if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
-					msg->sid = ACT_POMPE_RIGHT;
-				POMPE_RIGHT_CAN_process_msg(msg);
+			if(current_sid == ACT_DO_SELFTEST)
+			{
+				if(entrance){
+					POMPE_RIGHT_command(ACT_POMPE_RIGHT_NORMAL);
+				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
+					POMPE_RIGHT_command(ACT_POMPE_RIGHT_STOP);
+					state = NB_QUEUE;
+				}
+			}else{
+				if(entrance){
+					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+						msg->sid = ACT_POMPE_RIGHT;
+					POMPE_RIGHT_CAN_process_msg(msg);
+				}
 			}
 			state = NB_QUEUE;
 			break;

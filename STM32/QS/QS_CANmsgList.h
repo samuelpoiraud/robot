@@ -364,7 +364,7 @@
 
 		#define ACT_DO_SELFTEST				0x300
 
-		#define ACT_PING					0x316
+		#define ACT_PING					0x360
 
 		#define STRAT_ACT_PONG				0x226
 		#define SIZE_STRAT_ACT_PONG			1
