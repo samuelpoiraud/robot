@@ -50,8 +50,6 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_POMPE_MIDDLE
 #include "../QS/QS_outputlog.h"
 
-static void POMPE_MIDDLE_command(ACT_order_e command);
-
 
 void POMPE_MIDDLE_init() {
 	static bool_e initialized = FALSE;
@@ -81,7 +79,7 @@ bool_e POMPE_MIDDLE_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 //Initialise une commande
-static void POMPE_MIDDLE_command(ACT_order_e command) {
+void POMPE_MIDDLE_command(ACT_order_e command) {
 
 	switch(command) {
 		case ACT_POMPE_MIDDLE_NORMAL:

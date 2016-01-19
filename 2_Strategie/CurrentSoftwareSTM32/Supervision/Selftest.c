@@ -442,6 +442,7 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_ESTRADE_SENSOR_RIGHT,
 		TEST_ESTRADE_SENSOR_LEFT,
 		TEST_SWITCHS,
+		TEST_POMPES,
 		TEST_SD_CARD,
 		FAIL,
 		DONE
@@ -482,6 +483,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			if(!t500ms)	//Lorsque T vaut 0 (et que les leds sont éteintes...)
 				state = TEST_AVOIDANCE_SW;
 			break;
+
 		case TEST_AVOIDANCE_SW:
 			if(IHM_switchs_get(SWITCH_EVIT) == FALSE)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE);
@@ -529,10 +531,16 @@ error_e SELFTEST_strategy(bool_e reset)
 				if(IHM_switchs_get(SWITCH_DISABLE_LIFT))		SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_LIFT_DISABLED);
 				if(IHM_switchs_get(SWITCH_DISABLE_CUP))			SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SWITCH_CUP_DISABLED);
 			}
-			state = TEST_SD_CARD;
+			state = TEST_POMPES;
 			break;
 
-
+		case TEST_POMPES:{
+			CAN_msg_t msg;
+			msg.sid = ACT_DO_SELFTEST;
+			msg.size = 0;
+			ACT_transmit_order_to_pompe(&msg);
+			state = TEST_SD_CARD;
+			}break;
 
 		case TEST_SD_CARD:
 			nb_written = 0;

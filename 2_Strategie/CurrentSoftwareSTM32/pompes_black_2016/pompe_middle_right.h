@@ -32,5 +32,10 @@
 		 */
 		bool_e POMPE_MIDDLE_RIGHT_CAN_process_msg(CAN_msg_t* msg);
 
+		/** Réalisation d'une commande
+		 */
+		void POMPE_MIDDLE_RIGHT_command(ACT_order_e command);
+
+
 #endif	/* POMPE_MIDDLE_RIGHT_H */
 

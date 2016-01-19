@@ -202,6 +202,16 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_POMPE_BLACK_FRONT_LEFT:                print(string, len, "%x ACT_POMPE_BLACK_FRONT_LEFT             ", ACT_POMPE_BLACK_FRONT_LEFT						);	break;
 		case ACT_POMPE_BLACK_FRONT_RIGHT:               print(string, len, "%x ACT_POMPE_BLACK_FRONT_RIGHT            ", ACT_POMPE_BLACK_FRONT_RIGHT					);	break;
 		case ACT_POMPE_PENDULUM:                        print(string, len, "%x ACT_POMPE_PENDULUM                     ", ACT_POMPE_PENDULUM								);	break;
+		case ACT_POMPE_VERY_LEFT:                       print(string, len, "%x ACT_POMPE_VERY_LEFT                    ", ACT_POMPE_VERY_LEFT   							);	break;
+		case ACT_POMPE_LEFT:							print(string, len, "%x ACT_POMPE_LEFT                         ", ACT_POMPE_LEFT        							);	break;
+		case ACT_POMPE_MIDDLE_LEFT:                     print(string, len, "%x ACT_POMPE_MIDDLE_LEFT                  ", ACT_POMPE_MIDDLE_LEFT 							);	break;
+		case ACT_POMPE_MIDDLE:							print(string, len, "%x ACT_POMPE_MIDDLE                       ", ACT_POMPE_MIDDLE      							);	break;
+		case ACT_POMPE_MIDDLE_RIGHT:                    print(string, len, "%x ACT_POMPE_MIDDLE_RIGHT                 ", ACT_POMPE_MIDDLE_RIGHT							);	break;
+		case ACT_POMPE_RIGHT:							print(string, len, "%x ACT_POMPE_RIGHT                        ", ACT_POMPE_RIGHT       							);	break;
+		case ACT_POMPE_VERY_RIGHT:                      print(string, len, "%x ACT_POMPE_VERY_RIGHT                   ", ACT_POMPE_VERY_RIGHT  							);	break;
+		case ACT_POMPE_ALL:								print(string, len, "%x ACT_POMPE_ALL                          ", ACT_POMPE_ALL         							);	break;
+		case ACT_POMPE_VERY_ALL:                        print(string, len, "%x ACT_POMPE_VERY_ALL                     ", ACT_POMPE_VERY_ALL    							);	break;
+
 
 // Pearl
 		case ACT_SAND_LEFT_ARM	 :						print(string, len, "%x ACT_SAND_LEFT_ARM	                  ", ACT_SAND_LEFT_ARM								);	break;
@@ -265,6 +275,16 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT:  		print(string,len, "ACT_POMPE_BLACK_FRONT_LEFT ");	break;
 				case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT: 		print(string,len, "ACT_POMPE_BLACK_FRONT_RIGHT ");	break;
 				case (Uint8)ACT_POMPE_PENDULUM:          		print(string,len, "ACT_POMPE_PENDULUM ");			break;
+				case (Uint8)ACT_POMPE_VERY_LEFT:          		print(string,len, "ACT_POMPE_VERY_LEFT ");			break;
+				case (Uint8)ACT_POMPE_LEFT:						print(string,len, "ACT_POMPE_LEFT ");				break;
+				case (Uint8)ACT_POMPE_MIDDLE_LEFT:          	print(string,len, "ACT_POMPE_MIDDLE_LEFT ");		break;
+				case (Uint8)ACT_POMPE_MIDDLE:					print(string,len, "ACT_POMPE_MIDDLE ");				break;
+				case (Uint8)ACT_POMPE_MIDDLE_RIGHT:          	print(string,len, "ACT_POMPE_MIDDLE_RIGHT ");		break;
+				case (Uint8)ACT_POMPE_RIGHT:					print(string,len, "ACT_POMPE_RIGHT ");				break;
+				case (Uint8)ACT_POMPE_VERY_RIGHT:          		print(string,len, "ACT_POMPE_VERY_RIGHT ");			break;
+				case (Uint8)ACT_POMPE_ALL:						print(string,len, "ACT_POMPE_ALL ");				break;
+				case (Uint8)ACT_POMPE_VERY_ALL:          		print(string,len, "ACT_POMPE_VERY_ALL ");			break;
+
 
 				//Pearl
 				case (Uint8)ACT_SAND_LEFT_ARM:					print(string,len, "ACT_SAND_LEFT_ARM ");			break;
