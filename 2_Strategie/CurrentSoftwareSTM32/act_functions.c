@@ -213,6 +213,7 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 	static Uint11 last_state = NB_QUEUE + 1;
 	static bool_e entrance;
 	static time32_t state_time;
+	CAN_msg_t msg_act_result;
 
 	//initialisation en cas de l'envoi d'une nouvelle commande
 	if(msg != NULL){
@@ -222,7 +223,7 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 		current_sid = msg->sid;
 		//verbose de l'action
 		if(IHM_switchs_get(SWITCH_VERBOSE))
-			QS_CAN_VERBOSE_can_msg_print(msg, VERB_LOG_MSG);
+			QS_CAN_VERBOSE_can_msg_print(msg, VERB_OUTPUT_MSG);
 	}
 
 	//Affectation des variables courantes
@@ -290,7 +291,7 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
 						msg->sid = ACT_POMPE_LEFT;
 					POMPE_LEFT_CAN_process_msg(msg);
 				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
@@ -312,7 +313,7 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
 						msg->sid = ACT_POMPE_MIDDLE_LEFT;
 					POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
 				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
@@ -334,7 +335,7 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
 						msg->sid = ACT_POMPE_MIDDLE;
 					POMPE_MIDDLE_CAN_process_msg(msg);
 				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
@@ -356,7 +357,7 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
 						msg->sid = ACT_POMPE_MIDDLE_RIGHT;
 					POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
 				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
@@ -378,7 +379,7 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(msg->sid == ACT_POMPE_VERY_ALL || msg->sid == ACT_POMPE_ALL)
+					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
 						msg->sid = ACT_POMPE_RIGHT;
 					POMPE_RIGHT_CAN_process_msg(msg);
 				}
@@ -387,8 +388,18 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 			break;
 
 		case NB_QUEUE:
-			if(entrance)
+			if(entrance){
 				ACT_set_result(act_id, ACT_RESULT_Ok);
+				msg_act_result.sid = ACT_RESULT;
+				msg_act_result.size = SIZE_ACT_RESULT;
+				msg_act_result.data.act_result.sid = current_sid;
+				msg_act_result.data.act_result.cmd = msg->data.act_msg.order;
+				msg_act_result.data.act_result.result = ACT_RESULT_DONE;
+				msg_act_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;
+				msg_act_result.data.act_result.param = 0;
+				if(IHM_switchs_get(SWITCH_VERBOSE))
+					QS_CAN_VERBOSE_can_msg_print(&msg_act_result, VERB_INPUT_MSG);
+			}
 			//On ne fait rien. On attend le prochain ordre.
 			break;
 
