@@ -315,8 +315,7 @@ void SELFTEST_state_machine(void){
 											 {ACT_SAND_LOCKER_LEFT_OPEN,    0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT},
 											 {ACT_SAND_LOCKER_LEFT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT}
 										 });
-					SELFTEST_set_actions(&POMPE_SAND_LOCKER_LEFT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_POMPE_SAND_LOCKER_LEFT_STOP,   0,  QUEUE_ACT_POMPE_SAND_LOCKER_LEFT},
+					SELFTEST_set_actions(&POMPE_SAND_LOCKER_LEFT_run_command, 2, (SELFTEST_action_t[]){
 											 {ACT_POMPE_SAND_LOCKER_LEFT_NORMAL, 0,  QUEUE_ACT_POMPE_SAND_LOCKER_LEFT},
 											 {ACT_POMPE_SAND_LOCKER_LEFT_STOP,   0,  QUEUE_ACT_POMPE_SAND_LOCKER_LEFT},
 										 });
@@ -340,8 +339,7 @@ void SELFTEST_state_machine(void){
 											 {ACT_SAND_LOCKER_RIGHT_OPEN,   0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT},
 											 {ACT_SAND_LOCKER_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT}
 										 });
-					SELFTEST_set_actions(&POMPE_SAND_LOCKER_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_POMPE_SAND_LOCKER_RIGHT_STOP,   0,  QUEUE_ACT_POMPE_SAND_LOCKER_RIGHT},
+					SELFTEST_set_actions(&POMPE_SAND_LOCKER_RIGHT_run_command, 2, (SELFTEST_action_t[]){
 											 {ACT_POMPE_SAND_LOCKER_RIGHT_NORMAL, 0,  QUEUE_ACT_POMPE_SAND_LOCKER_RIGHT},
 											 {ACT_POMPE_SAND_LOCKER_RIGHT_STOP,   0,  QUEUE_ACT_POMPE_SAND_LOCKER_RIGHT},
 										 });
@@ -382,8 +380,7 @@ void SELFTEST_state_machine(void){
 											 {ACT_PENDULUM_OPEN,   0,  QUEUE_ACT_RX24_PENDULUM},
 											 {ACT_PENDULUM_IDLE,   0,  QUEUE_ACT_RX24_PENDULUM}
 										 });
-					SELFTEST_set_actions(&POMPE_PENDULUM_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_POMPE_PENDULUM_STOP,   0,  QUEUE_ACT_POMPE_PENDULUM},
+					SELFTEST_set_actions(&POMPE_PENDULUM_run_command, 2, (SELFTEST_action_t[]){
 											 {ACT_POMPE_PENDULUM_NORMAL, 0,  QUEUE_ACT_POMPE_PENDULUM},
 											 {ACT_POMPE_PENDULUM_STOP,   0,  QUEUE_ACT_POMPE_PENDULUM},
 										 });
@@ -401,8 +398,7 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_POMPE_BLACK_FRONT_LEFT:
 				if(entrance){
-					SELFTEST_set_actions(&POMPE_BLACK_FRONT_LEFT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_POMPE_BLACK_FRONT_LEFT_STOP,	 0,  QUEUE_ACT_POMPE_BLACK_FRONT_LEFT},
+					SELFTEST_set_actions(&POMPE_BLACK_FRONT_LEFT_run_command, 2, (SELFTEST_action_t[]){
 											 {ACT_POMPE_BLACK_FRONT_LEFT_NORMAL, 0,  QUEUE_ACT_POMPE_BLACK_FRONT_LEFT},
 											 {ACT_POMPE_BLACK_FRONT_LEFT_STOP,   0,  QUEUE_ACT_POMPE_BLACK_FRONT_LEFT}
 										 });
@@ -418,8 +414,7 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_POMPE_BLACK_FRONT_RIGHT:
 				if(entrance){
-					SELFTEST_set_actions(&POMPE_BLACK_FRONT_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_POMPE_BLACK_FRONT_RIGHT_STOP,	  0,  QUEUE_ACT_POMPE_BLACK_FRONT_RIGHT},
+					SELFTEST_set_actions(&POMPE_BLACK_FRONT_RIGHT_run_command, 2, (SELFTEST_action_t[]){
 											 {ACT_POMPE_BLACK_FRONT_RIGHT_NORMAL, 0,  QUEUE_ACT_POMPE_BLACK_FRONT_RIGHT},
 											 {ACT_POMPE_BLACK_FRONT_RIGHT_STOP,   0,  QUEUE_ACT_POMPE_BLACK_FRONT_RIGHT}
 										 });
@@ -489,8 +484,7 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_POMPE_BACK_LEFT:
 				if(entrance){
-					SELFTEST_set_actions(&POMPE_BACK_LEFT_run_command, 3, (SELFTEST_action_t[]){
-													 {ACT_POMPE_BACK_LEFT_STOP,		0,  QUEUE_ACT_POMPE_BACK_LEFT},
+					SELFTEST_set_actions(&POMPE_BACK_LEFT_run_command, 2, (SELFTEST_action_t[]){
 													 {ACT_POMPE_BACK_LEFT_NORMAL,   0,  QUEUE_ACT_POMPE_BACK_LEFT},
 													 {ACT_POMPE_BACK_LEFT_STOP,		0,  QUEUE_ACT_POMPE_BACK_LEFT}
 												 });
@@ -506,8 +500,7 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_POMPE_BACK_RIGHT:
 				if(entrance){
-					SELFTEST_set_actions(&POMPE_BACK_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-													 {ACT_POMPE_BACK_RIGHT_STOP,		0,  QUEUE_ACT_POMPE_BACK_RIGHT},
+					SELFTEST_set_actions(&POMPE_BACK_RIGHT_run_command, 2, (SELFTEST_action_t[]){
 													 {ACT_POMPE_BACK_RIGHT_NORMAL,      0,  QUEUE_ACT_POMPE_BACK_RIGHT},
 													 {ACT_POMPE_BACK_RIGHT_STOP,		0,  QUEUE_ACT_POMPE_BACK_RIGHT}
 												 });
@@ -524,8 +517,8 @@ void SELFTEST_state_machine(void){
 			case QUEUE_ACT_POMPE_FRONT_LEFT:
 				if(entrance){
 					SELFTEST_set_actions(&POMPE_FRONT_LEFT_run_command, 3, (SELFTEST_action_t[]){
-													 {ACT_POMPE_FRONT_LEFT_STOP,		0,  QUEUE_ACT_POMPE_FRONT_LEFT},
-													 {ACT_POMPE_FRONT_LEFT_NORMAL,      0,  QUEUE_ACT_POMPE_FRONT_LEFT},
+													 {ACT_POMPE_FRONT_LEFT_NORMAL,		0,  QUEUE_ACT_POMPE_FRONT_LEFT},
+													 {ACT_POMPE_FRONT_LEFT_REVERSE,      0,  QUEUE_ACT_POMPE_FRONT_LEFT},
 													 {ACT_POMPE_FRONT_LEFT_STOP,		0,  QUEUE_ACT_POMPE_FRONT_LEFT}
 												 });
 				}
@@ -541,8 +534,8 @@ void SELFTEST_state_machine(void){
 			case QUEUE_ACT_POMPE_FRONT_RIGHT:
 				if(entrance){
 					SELFTEST_set_actions(&POMPE_FRONT_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-													 {ACT_POMPE_FRONT_RIGHT_STOP,		0,  QUEUE_ACT_POMPE_FRONT_RIGHT},
-													 {ACT_POMPE_FRONT_RIGHT_NORMAL,     0,  QUEUE_ACT_POMPE_FRONT_RIGHT},
+													 {ACT_POMPE_FRONT_RIGHT_NORMAL,		0,  QUEUE_ACT_POMPE_FRONT_RIGHT},
+													 {ACT_POMPE_FRONT_RIGHT_REVERSE,    0,  QUEUE_ACT_POMPE_FRONT_RIGHT},
 													 {ACT_POMPE_FRONT_RIGHT_STOP,		0,  QUEUE_ACT_POMPE_FRONT_RIGHT}
 												 });
 				}
