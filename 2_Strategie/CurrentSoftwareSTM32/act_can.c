@@ -169,9 +169,8 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 		Uint8 act_id_pompe_right        = ACT_search_link_SID_Queue(ACT_POMPE_RIGHT);
 		Uint8 act_id_pompe_very_right   = ACT_search_link_SID_Queue(ACT_POMPE_VERY_RIGHT);
 		Uint8 act_id_pompe_all          = ACT_search_link_SID_Queue(ACT_POMPE_ALL);
-		Uint8 act_id_pompe_very_all     = ACT_search_link_SID_Queue(ACT_POMPE_VERY_ALL);
 
-		if(I_AM_BIG() && (act_id == act_id_pompe_all || act_id == act_id_pompe_very_all
+		if(I_AM_BIG() && (act_id == act_id_pompe_all
 			|| act_id == act_id_pompe_very_left || act_id == act_id_pompe_left
 			|| act_id == act_id_pompe_middle_left || act_id == act_id_pompe_middle || act_id == act_id_pompe_middle_right
 			|| act_id == act_id_pompe_right || act_id == act_id_pompe_very_right))

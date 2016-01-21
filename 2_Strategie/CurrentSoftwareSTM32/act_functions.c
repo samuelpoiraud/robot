@@ -76,7 +76,6 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_POMPE_RIGHT,			    ACT_QUEUE_Pompe_right,				    "Pompe right"},
 	{ACT_POMPE_VERY_RIGHT,			ACT_QUEUE_Pompe_very_right,				"Pompe very right"},
 	{ACT_POMPE_ALL,      			ACT_QUEUE_Pompe_all,			        "Pompe all"},
-	{ACT_POMPE_VERY_ALL,      	    ACT_QUEUE_Pompe_very_all,			    "Pompe very all"},
 
 	// Pearl
 	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Sand_left_arm,            "Left Arm"},
@@ -203,24 +202,23 @@ bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value){
 //////////////// MAE  //////////////////
 ////////////////////////////////////////
 void ACT_init_all_pompes(){
-	ACT_push_order(ACT_POMPE_VERY_ALL, ACT_POMPE_VERY_ALL_STOP);
+	ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_STOP);
 }
 
 void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 	static queue_id_e act_id = NB_QUEUE;
-	static Uint11 current_sid;
 	static Uint11 state;
 	static Uint11 last_state = NB_QUEUE + 1;
 	static bool_e entrance;
 	static time32_t state_time;
-	CAN_msg_t msg_act_result;
+	CAN_msg_t msg_act_result, current_msg;
 
 	//initialisation en cas de l'envoi d'une nouvelle commande
 	if(msg != NULL){
 		assert((msg->sid&0x300) == ACT_FILTER);
 		act_id = act_link_SID_Queue[ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_result.sid))].queue_id; //id de la pompe
 		state = act_id;
-		current_sid = msg->sid;
+		current_msg = *msg;
 		//verbose de l'action
 		if(IHM_switchs_get(SWITCH_VERBOSE))
 			QS_CAN_VERBOSE_can_msg_print(msg, VERB_OUTPUT_MSG);
@@ -234,54 +232,33 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 	}
 
 	switch(state){
-		case ACT_QUEUE_Pompe_very_all:
+		case ACT_QUEUE_Pompe_all:
 		case ACT_QUEUE_Pompe_very_left:
-			if(current_sid == ACT_DO_SELFTEST)
+			if(current_msg.sid == ACT_DO_SELFTEST)
 			{
 				if(entrance){
 					POMPE_VERY_LEFT_command(ACT_POMPE_VERY_LEFT_NORMAL);
 				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
 					POMPE_VERY_LEFT_command(ACT_POMPE_VERY_LEFT_STOP);
-					state = ACT_QUEUE_Pompe_very_right;
+					state = ACT_QUEUE_Pompe_left;
 				}
 			}else{
 				if(entrance){
-					if(current_sid == ACT_POMPE_VERY_ALL)
+					if(current_msg.sid == ACT_POMPE_ALL){
 						msg->sid = ACT_POMPE_VERY_LEFT;
+						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x40) >> 6;
+					}
 					POMPE_VERY_LEFT_CAN_process_msg(msg);
-				}else if(current_sid  == ACT_POMPE_VERY_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
-					state = ACT_QUEUE_Pompe_very_right;
-				}else if(current_sid != ACT_POMPE_VERY_ALL){
+				}else if(current_msg.sid  == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+					state = ACT_QUEUE_Pompe_left;
+				}else if(current_msg.sid != ACT_POMPE_ALL){
 					state = NB_QUEUE; //finish
 				}
 			}
 			break;
 
-		case ACT_QUEUE_Pompe_very_right:
-			if(current_sid == ACT_DO_SELFTEST)
-			{
-				if(entrance){
-					POMPE_VERY_RIGHT_command(ACT_POMPE_VERY_RIGHT_NORMAL);
-				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
-					POMPE_VERY_RIGHT_command(ACT_POMPE_VERY_RIGHT_STOP);
-					state = ACT_QUEUE_Pompe_left;
-				}
-			}else{
-				if(entrance){
-					if(current_sid == ACT_POMPE_VERY_ALL)
-						msg->sid = ACT_POMPE_VERY_RIGHT;
-					POMPE_VERY_RIGHT_CAN_process_msg(msg);
-				}else if(current_sid  == ACT_POMPE_VERY_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
-					state = ACT_QUEUE_Pompe_left;
-				}else if(current_sid != ACT_POMPE_VERY_ALL){
-					state = NB_QUEUE; //finish
-				}
-			}
-			break;
-
-		case ACT_QUEUE_Pompe_all:
 		case ACT_QUEUE_Pompe_left:
-			if(current_sid == ACT_DO_SELFTEST)
+			if(current_msg.sid == ACT_DO_SELFTEST)
 			{
 				if(entrance){
 					POMPE_LEFT_command(ACT_POMPE_LEFT_NORMAL);
@@ -291,19 +268,21 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
+					if(current_msg.sid == ACT_POMPE_ALL){
 						msg->sid = ACT_POMPE_LEFT;
+						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x20) >> 5;
+					}
 					POMPE_LEFT_CAN_process_msg(msg);
-				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
 					state = ACT_QUEUE_Pompe_middle_left;
-				}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+				}else if(current_msg.sid != ACT_POMPE_ALL){
 					state = NB_QUEUE; //finish
 				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_middle_left:
-			if(current_sid == ACT_DO_SELFTEST)
+			if(current_msg.sid == ACT_DO_SELFTEST)
 			{
 				if(entrance){
 					POMPE_MIDDLE_LEFT_command(ACT_POMPE_MIDDLE_LEFT_NORMAL);
@@ -313,19 +292,21 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
+					if(current_msg.sid == ACT_POMPE_ALL){
 						msg->sid = ACT_POMPE_MIDDLE_LEFT;
+						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x10) >> 4;
+					}
 					POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
-				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
 					state = ACT_QUEUE_Pompe_middle;
-				}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+				}else if(current_msg.sid != ACT_POMPE_ALL){
 					state = NB_QUEUE; //finish
 				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_middle:
-			if(current_sid == ACT_DO_SELFTEST)
+			if(current_msg.sid == ACT_DO_SELFTEST)
 			{
 				if(entrance){
 					POMPE_MIDDLE_command(ACT_POMPE_MIDDLE_NORMAL);
@@ -335,19 +316,21 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
+					if(current_msg.sid == ACT_POMPE_ALL){
 						msg->sid = ACT_POMPE_MIDDLE;
+						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x08) >> 3;
+					}
 					POMPE_MIDDLE_CAN_process_msg(msg);
-				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
 					state = ACT_QUEUE_Pompe_middle_right;
-				}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+				}else if(current_msg.sid != ACT_POMPE_ALL){
 					state = NB_QUEUE; //finish
 				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_middle_right:
-			if(current_sid == ACT_DO_SELFTEST)
+			if(current_msg.sid == ACT_DO_SELFTEST)
 			{
 				if(entrance){
 					POMPE_MIDDLE_RIGHT_command(ACT_POMPE_MIDDLE_RIGHT_NORMAL);
@@ -357,19 +340,21 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
+					if(current_msg.sid == ACT_POMPE_ALL){
 						msg->sid = ACT_POMPE_MIDDLE_RIGHT;
+						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x04) >> 2;
+					}
 					POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
-				}else if((current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL) && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
 					state = ACT_QUEUE_Pompe_right;
-				}else if(current_sid != ACT_POMPE_VERY_ALL && current_sid != ACT_POMPE_ALL){
+				}else if(current_msg.sid != ACT_POMPE_ALL){
 					state = NB_QUEUE; //finish
 				}
 			}
 			break;
 
 		case ACT_QUEUE_Pompe_right:
-			if(current_sid == ACT_DO_SELFTEST)
+			if(current_msg.sid == ACT_DO_SELFTEST)
 			{
 				if(entrance){
 					POMPE_RIGHT_command(ACT_POMPE_RIGHT_NORMAL);
@@ -379,12 +364,36 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				}
 			}else{
 				if(entrance){
-					if(current_sid == ACT_POMPE_VERY_ALL || current_sid == ACT_POMPE_ALL)
+					if(current_msg.sid == ACT_POMPE_ALL){
 						msg->sid = ACT_POMPE_RIGHT;
-					POMPE_RIGHT_CAN_process_msg(msg);
+						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x02) >> 1;
+					}
+					POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
+				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
+					state = ACT_QUEUE_Pompe_very_right;
+				}else if(current_msg.sid != ACT_POMPE_ALL){
+					state = NB_QUEUE; //finish
 				}
 			}
 			state = NB_QUEUE;
+			break;
+
+		case ACT_QUEUE_Pompe_very_right:
+			if(current_msg.sid == ACT_DO_SELFTEST)
+			{
+				if(entrance){
+					POMPE_VERY_RIGHT_command(ACT_POMPE_VERY_RIGHT_NORMAL);
+				}
+			}else{
+				if(entrance){
+					if(current_msg.sid == ACT_POMPE_ALL){
+						msg->sid = ACT_POMPE_VERY_RIGHT;
+						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x01);
+					}
+					POMPE_VERY_RIGHT_CAN_process_msg(msg);
+				}
+			}
+			state = NB_QUEUE; //finish
 			break;
 
 		case NB_QUEUE:
@@ -392,7 +401,7 @@ void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
 				ACT_set_result(act_id, ACT_RESULT_Ok);
 				msg_act_result.sid = ACT_RESULT;
 				msg_act_result.size = SIZE_ACT_RESULT;
-				msg_act_result.data.act_result.sid = current_sid;
+				msg_act_result.data.act_result.sid = current_msg.sid;
 				msg_act_result.data.act_result.cmd = msg->data.act_msg.order;
 				msg_act_result.data.act_result.result = ACT_RESULT_DONE;
 				msg_act_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;

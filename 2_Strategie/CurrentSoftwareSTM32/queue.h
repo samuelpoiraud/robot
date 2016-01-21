@@ -50,7 +50,6 @@ typedef enum {
 	ACT_QUEUE_Pompe_right,
 	ACT_QUEUE_Pompe_very_right,
 	ACT_QUEUE_Pompe_all,
-	ACT_QUEUE_Pompe_very_all,
 
 	//Pearl
 	ACT_QUEUE_Sand_left_arm,

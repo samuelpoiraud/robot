@@ -888,7 +888,6 @@
 		ACT_POMPE_RIGHT             = (ACT_FILTER | 0x19),
 		ACT_POMPE_VERY_RIGHT        = (ACT_FILTER | 0x1A),
 		ACT_POMPE_ALL               = (ACT_FILTER | 0x1B),
-		ACT_POMPE_VERY_ALL          = (ACT_FILTER | 0x1C),
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------PEARL------------------------------//
