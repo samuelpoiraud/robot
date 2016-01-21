@@ -210,7 +210,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_POMPE_RIGHT:							print(string, len, "%x ACT_POMPE_RIGHT                        ", ACT_POMPE_RIGHT       							);	break;
 		case ACT_POMPE_VERY_RIGHT:                      print(string, len, "%x ACT_POMPE_VERY_RIGHT                   ", ACT_POMPE_VERY_RIGHT  							);	break;
 		case ACT_POMPE_ALL:								print(string, len, "%x ACT_POMPE_ALL                          ", ACT_POMPE_ALL         							);	break;
-		case ACT_POMPE_VERY_ALL:                        print(string, len, "%x ACT_POMPE_VERY_ALL                     ", ACT_POMPE_VERY_ALL    							);	break;
 
 
 // Pearl
@@ -283,7 +282,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_POMPE_RIGHT:					print(string,len, "ACT_POMPE_RIGHT ");				break;
 				case (Uint8)ACT_POMPE_VERY_RIGHT:          		print(string,len, "ACT_POMPE_VERY_RIGHT ");			break;
 				case (Uint8)ACT_POMPE_ALL:						print(string,len, "ACT_POMPE_ALL ");				break;
-				case (Uint8)ACT_POMPE_VERY_ALL:          		print(string,len, "ACT_POMPE_VERY_ALL ");			break;
 
 
 				//Pearl
