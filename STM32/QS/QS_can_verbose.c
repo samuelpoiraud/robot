@@ -425,6 +425,13 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  default:                              print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
+				  case (Uint8)ACT_POMPE_PENDULUM:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_PENDULUM_STOP:		print(string,len, "| STOP |");		break;
+						  case (Uint8)ACT_POMPE_PENDULUM_NORMAL:	print(string,len, "| NORMAL |");	break;
+						  default:                              print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
 			}
 
 			//Todo ajouter la commande dont on envoie le résultat (data 1) ???
