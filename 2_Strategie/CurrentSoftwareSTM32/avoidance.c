@@ -760,6 +760,9 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 
 			adversary_to_close_distance = (QS_WHO_AM_I_get() == BIG_ROBOT)? 500 : 400;
 			i_can_turn_in_my_position = is_possible_point_for_rotation(&((GEOMETRY_point_t){global.pos.x,global.pos.y}));
+			debug_printf("i_can_turn_in_my_position= %d\n", i_can_turn_in_my_position);
+			debug_printf("Robot x=%d  y=%d teta=%d\n", global.pos.x, global.pos.y, global.pos.angle);
+			debug_printf("foe x=%d  y=%d  en=%d\n", global.foe[0].x, global.foe[0].y, global.foe[0].enable);
 
 			bestPoint = 0xFF;
 			bestPoint_distance2_with_nearest_foe = 0;
@@ -770,10 +773,10 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 				if(i_can_turn_in_my_position || i <= 1 || (i >=5 && i<=7) || i>=11)
 				{
 					//Calcul des coordonnées du point.
-					COS_SIN_4096_get((PI4096*30*i + global.pos.angle)/180,&cos,&sin);
+					COS_SIN_4096_get(((PI4096*30*i)/180) + global.pos.angle,&cos,&sin);
 					pointEx[i].x = ((Sint32)(cos)*EXTRACTION_DISTANCE)/4096 + global.pos.x;
 					pointEx[i].y = ((Sint32)(sin)*EXTRACTION_DISTANCE)/4096 + global.pos.y;
-
+					debug_printf("Point i=%d x=%d, y=%d\n", i, pointEx[i].x, pointEx[i].y);
 					if(is_possible_point_for_rotation(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
 					{
 						distance2_between_point_and_foe_min = 0xFFFFFFFF;
