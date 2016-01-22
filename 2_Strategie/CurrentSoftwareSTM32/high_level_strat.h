@@ -57,6 +57,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	BLACK_COLLECT_FISHS_2,
 	BLACK_CLOSE_DOORS,
 	BLACK_PUSH_SEASHELLS,
+	BLACK_APOCALYPSE,
 
 	//--------------Sub action de Pearl
 	PEARL_STRAT_INITIALE,
