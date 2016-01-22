@@ -31,11 +31,6 @@
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 
-typedef struct
-{
-	bool_e flags;
-	bool_e update;
-}elements_flags_t;
 
 void ELEMENTS_init();
 
@@ -43,6 +38,10 @@ bool_e ELEMENTS_get_flag(elements_flags_e flag_id);
 void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state);
 void ELEMENTS_inc_fishs_passage();
 bool_e ELEMENTS_fishs_passage_completed();
+
+#ifdef USE_SYNC_ELEMENTS
+void ELEMENTS_receive_flags(CAN_msg_t* msg);
+#endif
 
 
 #endif // ELEMENTS_H

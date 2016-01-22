@@ -606,6 +606,11 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.com.reach_point_get_out_init = TRUE;
 			break;
 
+		case XBEE_SYNC_ELEMENTS_FLAGS:
+#ifdef USE_SYNC_ELEMENTS
+			ELEMENTS_receive_flags(incoming_msg);
+#endif
+			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_SELFTEST_DONE :
