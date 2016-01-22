@@ -47,6 +47,7 @@
 
 #define SD_ENABLE				//Activation de la carte SD
 
+//#define USE_SYNC_ELEMENTS
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
