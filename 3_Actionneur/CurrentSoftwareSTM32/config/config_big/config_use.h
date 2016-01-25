@@ -16,11 +16,10 @@
 /**************** Périphériques ****************/
 
 /* Réglages PWM */
-	#define USE_PWM1
-	#define USE_PWM2
-	#define USE_PWM3
-	#define USE_PWM4
-	#define USE_CUSTOM_PWM_5		// Gestion actionneur pompe gauche
+	//#define USE_PWM1
+	//#define USE_PWM2
+	//#define USE_PWM3
+	//#define USE_PWM4
 	#define FREQ_PWM_50KHZ
 
 /* Servo-Moteurs standart */
@@ -29,7 +28,7 @@
 
 /* Asservissement en position/vitesse de moteurs CC */
 	/* déclarer l'utilisation du pilote */
-	#define USE_DCMOTOR2
+	//#define USE_DCMOTOR2
 	/* définir le nombre d'actionneurs asservis */
 	#define DCM_NUMBER			0
 	/* Période d'asservisement (en ms) */
@@ -38,10 +37,10 @@
 	#define DCMOTOR_NB_POS		1
 
 /* Réglages QEI */
-	#define USE_QUEI1
-	#define USE_QUEI2
+	//#define USE_QUEI1
+	//#define USE_QUEI2
 
 /* Réglages ADC */
-	//#define USE_AN13	// Clap
+
 
 #endif /* BIG_CONFIG_USE_H */

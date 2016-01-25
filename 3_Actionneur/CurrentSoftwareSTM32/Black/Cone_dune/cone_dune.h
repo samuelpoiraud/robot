@@ -4,7 +4,7 @@
  *	Fichier : cone_dune.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur RX24 CONE_DUNE
- *  Auteur :
+ *  Auteur : Valentin
  *  Version 2016
  *  Robot : BIG
  */

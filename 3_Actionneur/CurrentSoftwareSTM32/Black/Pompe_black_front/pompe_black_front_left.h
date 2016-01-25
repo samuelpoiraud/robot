@@ -5,7 +5,7 @@
  *	Description : Gestion de la pompe BLACK_FRONT_LEFT
  *  Auteur : Valentin
  *  Version 2016
- *  Robot : SMALL
+ *  Robot : BIG
  */
 
 

@@ -1,12 +1,12 @@
 /*  Club Robot ESEO 2015 - 2016
- *	BIG
+ *	SMALL
  *
  *	Fichier : pearl_sand_circle_config.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur PEARL_SAND_CIRCLE
- *  Auteur :
+ *  Auteur : Valentin
  *  Version 2016
- *  Robot : BIG
+ *  Robot : SMALL
  */
 
 #ifndef PEARL_SAND_CIRCLE_CONFIG_H

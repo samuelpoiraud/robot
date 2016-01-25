@@ -1,7 +1,7 @@
 /*  Club Robot ESEO 2015 - 2016
  *	SMALL
  *
- *	Fichier : LEFT_ARM.h
+ *	Fichier : left_arm.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur LEFT_ARM
  *  Auteur : Julien
