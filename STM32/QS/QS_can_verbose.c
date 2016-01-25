@@ -425,13 +425,156 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  default:                              print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
-				  case (Uint8)ACT_POMPE_PENDULUM:
+				  case (Uint8)ACT_POMPE_SAND_LOCKER_LEFT:
 					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_PENDULUM_STOP:		print(string,len, "| STOP |");		break;
-						  case (Uint8)ACT_POMPE_PENDULUM_NORMAL:	print(string,len, "| NORMAL |");	break;
-						  default:                              print(string,len, "| UNKNOW cmd |");	break;
+						  case (Uint8)ACT_POMPE_SAND_LOCKER_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_SAND_LOCKER_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
+				  case (Uint8)ACT_POMPE_SAND_LOCKER_RIGHT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_SAND_LOCKER_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_SAND_LOCKER_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case ACT_POMPE_PENDULUM:
+					  switch(msg->data.act_result.cmd){
+						  case ACT_POMPE_PENDULUM_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case ACT_POMPE_PENDULUM_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_POMPE_VERY_LEFT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_VERY_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_VERY_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_POMPE_LEFT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case ACT_POMPE_MIDDLE_LEFT:
+					  switch(msg->data.act_result.cmd){
+						  case ACT_POMPE_MIDDLE_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case ACT_POMPE_MIDDLE_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case ACT_POMPE_MIDDLE:
+					  switch(msg->data.act_result.cmd){
+						  case ACT_POMPE_MIDDLE_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case ACT_POMPE_MIDDLE_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case ACT_POMPE_MIDDLE_RIGHT:
+					  switch(msg->data.act_result.cmd){
+						  case ACT_POMPE_MIDDLE_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case ACT_POMPE_MIDDLE_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case ACT_POMPE_RIGHT:
+					  switch(msg->data.act_result.cmd){
+						  case ACT_POMPE_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case ACT_POMPE_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case ACT_POMPE_VERY_RIGHT:
+					  switch(msg->data.act_result.cmd){
+						  case ACT_POMPE_VERY_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case ACT_POMPE_VERY_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_POMPE_ALL:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_ALL_NORMAL_5:		print(string,len, "| NORMAL_5 |");		break;
+						  case (Uint8)ACT_POMPE_ALL_NORMAL_7:		print(string,len, "| NORMAL_7 |");		break;
+						  case (Uint8)ACT_POMPE_ALL_STOP:			print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+
+				  case (Uint8)ACT_SAND_LEFT_ARM:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_SAND_LEFT_ARM_IDLE:		print(string,len, "| IDLE |");			break;
+						  case (Uint8)ACT_SAND_LEFT_ARM_OPEN:		print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_SAND_LEFT_ARM_CLOSE:		print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_SAND_LEFT_ARM_STOP:		print(string,len, "| STOP |");			break;
+						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_SAND_RIGHT_ARM:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_SAND_RIGHT_ARM_IDLE:		print(string,len, "| IDLE |");			break;
+						  case (Uint8)ACT_SAND_RIGHT_ARM_OPEN:		print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_SAND_RIGHT_ARM_CLOSE:		print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_SAND_RIGHT_ARM_STOP:		print(string,len, "| STOP |");			break;
+						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+
+				  case (Uint8)ACT_POMPE_BACK_LEFT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_BACK_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_BACK_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_POMPE_BACK_RIGHT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_BACK_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_BACK_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_POMPE_FRONT_LEFT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_FRONT_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_FRONT_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_POMPE_FRONT_RIGHT:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_POMPE_FRONT_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_FRONT_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  default:											print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_PEARL_SAND_CIRCLE:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_PEARL_SAND_CIRCLE_IDLE:		print(string,len, "| IDLE |");			break;
+						  case (Uint8)ACT_PEARL_SAND_CIRCLE_OPEN:		print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_PEARL_SAND_CIRCLE_CLOSE:		print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_PEARL_SAND_CIRCLE_STOP:		print(string,len, "| STOP |");			break;
+						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+
 			}
 
 			//Todo ajouter la commande dont on envoie le résultat (data 1) ???
