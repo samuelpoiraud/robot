@@ -4,7 +4,7 @@
  *	Fichier : pearl_sand_circle.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur PEARL_SAND_CIRCLE
- *  Auteur :
+ *  Auteur : Valentin
  *  Version 2016
  *  Robot : BIG
  */

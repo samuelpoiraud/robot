@@ -1,7 +1,7 @@
 /*  Club Robot ESEO 2015 - 2016
  *	SMALL
  *
- *	Fichier : LEFT_ARM.c
+ *	Fichier : left_arm.c
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur LEFT_ARM
  *  Auteur : Julien
@@ -10,31 +10,6 @@
  */
 
 #include "left_arm.h"
-
-
-// Exemple d'un actionneur standart avec AX12
-
-// OK : Ajout l'actionneur dans QS_CANmsgList.h ainsi que toutes ses différentes position
-// OK :Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
-// OK :Formatage : QUEUE_ACT_AX12_LEFT_ARM
-// OK :Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
-// OK :Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
-// OK :Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor du type : ACT_DECLARE(LEFT_ARM)
-// OK :Un define LEFT_ARM_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
-// OK :Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
-
-// Optionnel:
-// Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
-// Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFTEST)
-
-// En stratégie
-// OK :ajout d'une d'une valeur dans le tableau act_link_SID_Queue du fichier act_functions.c/h
-// OK mais on le fait pas :ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
-
-// En stratégie Optionnel
-// ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
-// ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
-
 
 // If def à mettre si l'actionneur est seulement présent sur le petit robot (I_AM_ROBOT_SMALL) ou le gros (I_AM_ROBOT_BIG)
 #ifdef I_AM_ROBOT_SMALL

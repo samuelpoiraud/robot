@@ -12,31 +12,6 @@
 #include "shift_cylinder.h"
 
 
-// SHIFT_CYLINDER d'un actionneur standart avec RX24
-
-// Ajout l'actionneur dans QS_CANmsgList.h
-// Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
-// Formatage : QUEUE_ACT_RX24_SHIFT_CYLINDER
-// Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
-// Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
-// Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor du type : ACT_DECLARE(SHIFT_CYLINDER)
-// Un define SHIFT_CYLINDER_RX24_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
-// Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
-// Mise à jour de config/config_debug.h
-
-// Optionnel:
-// Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
-// Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFTEST)
-
-// En stratégie
-// ajout d'une d'une valeur dans le tableau act_link_SID_Queue du fichier act_functions.c/h
-// ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
-
-// En stratégie Optionnel
-// ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
-// ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
-
-
 // If def à mettre si l'actionneur est seulement présent sur le petit robot (I_AM_ROBOT_SMALL) ou le gros (I_AM_ROBOT_BIG)
 #ifdef I_AM_ROBOT_BIG
 

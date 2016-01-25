@@ -554,6 +554,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_POMPE_FRONT_LEFT:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_POMPE_FRONT_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_FRONT_LEFT_REVERSE:		print(string,len, "| REVERSE |");		break;
 						  case (Uint8)ACT_POMPE_FRONT_LEFT_STOP:		print(string,len, "| STOP |");			break;
 						  default:											print(string,len, "| UNKNOW cmd |");	break;
 					  }
@@ -561,6 +562,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_POMPE_FRONT_RIGHT:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_POMPE_FRONT_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_FRONT_RIGHT_REVERSE:	print(string,len, "| REVERSE |");		break;
 						  case (Uint8)ACT_POMPE_FRONT_RIGHT_STOP:		print(string,len, "| STOP |");			break;
 						  default:											print(string,len, "| UNKNOW cmd |");	break;
 					  }

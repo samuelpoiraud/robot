@@ -4,7 +4,7 @@
  *	Fichier : middle_dune_left_config.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur RX24 MIDDLE_DUNE_LEFT
- *  Auteur :
+ *  Auteur : Valentin
  *  Version 2016
  *  Robot : BIG
  */

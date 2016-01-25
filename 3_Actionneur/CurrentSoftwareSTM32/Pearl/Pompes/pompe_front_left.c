@@ -10,29 +10,6 @@
 
 #include "pompe_front_left.h"
 
-// Exemple d'une pompe
-
-// Ajout l'actionneur dans QS_CANmsgList.h
-// Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
-// Formatage : QUEUE_ACT_POMPE_FRONT_LEFT
-// Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
-// Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
-// Un define EXEMPLE_PIN doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
-// Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
-
-// Optionnel:
-// Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
-// Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFTEST)
-
-// En stratégie
-// ajout d'une d'une valeur dans le tableau act_link_SID_Queue du fichier act_functions.c/h
-// ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
-
-// En stratégie Optionnel
-// ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
-// ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
-
-
 
 #define POMPE_FRONT_LEFT_PIN 0,0
 

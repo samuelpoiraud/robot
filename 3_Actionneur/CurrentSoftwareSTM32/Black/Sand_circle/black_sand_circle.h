@@ -2,7 +2,7 @@
  *	Fichier : black_sand_circle.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur AX12 BLACK_SAND_CIRCLE
- *  Auteur :
+ *  Auteur : Valentin
  *  Version 2016
  *  Robot : BIG
  */

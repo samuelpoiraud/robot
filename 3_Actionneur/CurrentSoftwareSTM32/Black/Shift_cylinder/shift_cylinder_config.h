@@ -4,7 +4,7 @@
  *	Fichier : shift_cylinder_config.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur RX24 SHIFT_CYLINDER
- *  Auteur :
+ *  Auteur : Valentin
  *  Version 2016
  *  Robot : BIG
  */
