@@ -127,8 +127,8 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 	} else if(ACTQ_check_timeout(queueId, timeout_ms)) {
 		//Timeout, l'ax12 n'a pas bouger à la bonne position a temps
 		if(absolute((Sint16)current_pos - (Sint16)(wantedPosition)) <= large_epsilon) {
-			*result = ACT_RESULT_DONE;
-			*error_code = ACT_RESULT_ERROR_OK;
+			*result = ACT_RESULT_FAILED;
+			*error_code = ACT_RESULT_ERROR_TIMEOUT;
 			*line = 0x0400;
 		} else {
 #warning ATTENTION MISE EN COMMENTAIRE DE LA PROTECTION DES AX12 SUR TIMEOUT (coté act)
@@ -181,8 +181,8 @@ bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedPos
 	} else if(ACTQ_check_timeout(queueId, timeout_ms)) {
 		//Timeout, le RX24 n'a pas bouger à la bonne position a temps
 		if(absolute((Sint16)current_pos - (Sint16)(wantedPosition)) <= large_epsilon) {
-			*result = ACT_RESULT_DONE;
-			*error_code = ACT_RESULT_ERROR_OK;
+			*result = ACT_RESULT_FAILED;
+			*error_code = ACT_RESULT_ERROR_TIMEOUT;
 			*line = 0x0400;
 		} else {
 #warning ATTENTION MISE EN COMMENTAIRE DE LA PROTECTION DES RX24 SUR TIMEOUT (coté act)
