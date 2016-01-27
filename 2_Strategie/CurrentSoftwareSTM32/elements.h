@@ -5,9 +5,9 @@
 #include "Supervision/SD/SD.h"
 
 	typedef enum{
-		OUR_BLOC,
-		ADV_BLOC
-	}Sand_bloc_e;
+		OUR_ELEMENT,
+		ADV_ELEMENT
+	}ELEMENTS_property_e;
 
 	typedef enum	{
 		FIRST_DOOR_CLOSED,

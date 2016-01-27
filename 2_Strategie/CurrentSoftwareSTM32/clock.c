@@ -21,7 +21,7 @@
 #include "act_functions.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_ports.h"
-#include "strats_2016/actions_black.h"
+#include "strats_2016/actions_black/actions_black.h"
 
 void CLOCK_run();
 

@@ -726,7 +726,8 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 		TURN_TRIGO,
 		TURN_HORAIRE,
 		WAIT,
-		DONE
+		DONE,
+		ERROR
 	);
 	static Uint8 remaining_try;
 	static Uint8 sens = TURN_TRIGO;							//Si il arrive pas à trouver un point au bout de 3 coups tourne sur lui-même pour permettre à l'hokuyo de voir partout
@@ -873,7 +874,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 				else if(is_possible_point_for_rotation(&((GEOMETRY_point_t){global.pos.x,global.pos.y}))){
 					state = sens;
 				}else
-					state = COMPUTE;
+					state = ERROR;   //ajout 2016 pour éviter les boucles infinies
 			}
 
 			}break;
@@ -897,6 +898,11 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 		case DONE:
 			state = IDLE;
 			return END_OK;
+			break;
+
+		case ERROR:
+			state = IDLE;
+			return NOT_HANDLED;
 			break;
 
 		default:
