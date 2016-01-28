@@ -28,8 +28,8 @@
 #include "Supervision/Buzzer.h"
 
 #include "strats_2016/actions_both_2016.h"
-#include "strats_2016/actions_pearl.h"
-#include "strats_2016/actions_black.h"
+#include "strats_2016/actions_pearl/actions_pearl.h"
+#include "strats_2016/actions_black/actions_black.h"
 #include "strats_2016/actions_tests.h"
 
 #include "high_level_strat.h"
