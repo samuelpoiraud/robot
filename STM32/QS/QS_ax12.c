@@ -640,12 +640,11 @@ static void AX12_instruction_next(Uint16 error, Uint16 param) {
 }
 
 static bool_e AX12_instruction_wait(Uint8 id_servo) {
-	Uint32 i = 0;
+	time32_t local_t = global.absolute_time;
 	//debug_printf("+1\n");
-	while(!AX12_instruction_queue_is_empty() && i < 65000000)	//si on a attendu 7 ms, on stop, on a attendu trop longtemps (au moins 6,5ms, mais ce bout de code ne fait qu'une instruction)
-		i++;
+	while(!AX12_instruction_queue_is_empty() && global.absolute_time - local_t < 200);	//si on a attendu 7 ms, on stop, on a attendu trop longtemps (au moins 6,5ms, mais ce bout de code ne fait qu'une instruction)
 
-	if(i < 65000000) return TRUE;
+	if(global.absolute_time - local_t < 200) return TRUE;
 
 	debug_printf("AX12 Wait too long %d / %d\n", AX12_special_instruction_buffer.start_index, AX12_special_instruction_buffer.end_index);
 	AX12_on_the_robot[id_servo].last_status.error = AX12_ERROR_TIMEOUT | AX12_ERROR_RANGE;	//On a attendu trop longtemps, le buffer est toujours plein

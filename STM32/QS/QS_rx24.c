@@ -640,12 +640,11 @@ static void RX24_instruction_next(Uint16 error, Uint16 param) {
 }
 
 static bool_e RX24_instruction_wait(Uint8 id_servo) {
-	Uint32 i = 0;
+	time32_t local_t = global.absolute_time;
 	//debug_printf("+1\n");
-	while(!RX24_instruction_queue_is_empty() && i < 65000000)	//si on a attendu 7 ms, on stop, on a attendu trop longtemps (au moins 6,5ms, mais ce bout de code ne fait qu'une instruction)
-		i++;
+	while(!RX24_instruction_queue_is_empty() && global.absolute_time - local_t < 200);	//si on a attendu 7 ms, on stop, on a attendu trop longtemps (au moins 6,5ms, mais ce bout de code ne fait qu'une instruction)
 
-	if(i < 65000000) return TRUE;
+	if(global.absolute_time - local_t < 200) return TRUE;
 
 	debug_printf("RX24 Wait too long %d / %d\n", RX24_special_instruction_buffer.start_index, RX24_special_instruction_buffer.end_index);
 	RX24_on_the_robot[id_servo].last_status.error = RX24_ERROR_TIMEOUT | RX24_ERROR_RANGE;	//On a attendu trop longtemps, le buffer est toujours plein
