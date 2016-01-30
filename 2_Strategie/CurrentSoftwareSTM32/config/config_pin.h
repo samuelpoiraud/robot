@@ -81,7 +81,7 @@
 		// Mesure 24V
 
 	#define PORT_IO_B_1			PORT_IO_INPUT
-		#define RECALAGE_AR_D		1       //!GPIOB->IDR1
+		#define RECALAGE_AR_D		!GPIOB->IDR1
 
 	#define PORT_IO_B_2			PORT_IO_INPUT
 		#define POWER_WATCH_INT		GPIOB->IDR2
@@ -90,10 +90,8 @@
 		// Programmation
 
 	#define PORT_IO_B_4			PORT_IO_INPUT
-		#define PRESENCE_PIED_PINCE_GAUCHE_HOLLY 		GPIOB->IDR4
 
 	#define PORT_IO_B_5			PORT_IO_INPUT
-		#define PRESENCE_PIED_PINCE_DROITE_HOLLY 		GPIOB->IDR5
 
 	#define PORT_IO_B_6			PORT_IO_INPUT
 		// U1TX
@@ -134,25 +132,26 @@
 		#define	USB_POWER_ON	 	GPIOC,GPIO_Pin_0
 
 	#define PORT_IO_C_1			PORT_IO_INPUT
-		#define RECALAGE_AV_G		1         //!GPIOC->IDR1
+		#define RECALAGE_AV_G		!GPIOC->IDR1
 
 	#define PORT_IO_C_2			PORT_IO_INPUT
-		#define RECALAGE_AV_D		1         //!GPIOC->IDR2
+		#define RECALAGE_AV_D		!GPIOC->IDR2
 
 	#define PORT_IO_C_3			PORT_IO_INPUT
-		#define WT100_GOBELET_FRONT	(!(GPIOC->IDR3))
+		#define WT100_PEARL_LEFT	!GPIOC->IDR3  //Pearl
 
 	#define PORT_IO_C_4			PORT_IO_INPUT
-		//
+		#define WT100_PEARL_RIGHT   !GPIOC->IDR4  //Pearl
 
 	#define PORT_IO_C_5			PORT_IO_INPUT
-		#define RECALAGE_AR_G		1        //!GPIOC->IDR5
+		#define RECALAGE_AR_G		!GPIOC->IDR5  //Holly
+		#define WT100_PEARL_MIDDLE  !GPIOC->IDR5  //Pearl
 
 	#define PORT_IO_C_6			PORT_IO_OUTPUT
-		#define LED_BEACON_IR_GREEN	GPIOC,GPIO_Pin_6
+		#define POMPE_VERY_LEFT_PIN GPIOC,GPIO_Pin_6
 
 	#define PORT_IO_C_7			PORT_IO_OUTPUT
-		#define LED_BEACON_IR_RED	GPIOC,GPIO_Pin_7
+		#define POMPE_LEFT_PIN      GPIOC,GPIO_Pin_7
 
 	#define PORT_IO_C_8			PORT_IO_OUTPUT
 		#define SYNCHRO_BEACON		GPIOC,GPIO_Pin_8
@@ -160,11 +159,11 @@
 	#define PORT_IO_C_9			PORT_IO_OUTPUT
 		#define BUZZER				GPIOC,GPIO_Pin_9
 
-	#define PORT_IO_C_10		PORT_IO_INPUT
-		//
+	#define PORT_IO_C_10		PORT_IO_OUTPUT
+		#define POMPE_RIGHT_PIN     GPIOC,GPIO_Pin_10
 
-	#define PORT_IO_C_11		PORT_IO_INPUT
-		//
+	#define PORT_IO_C_11		PORT_IO_OUTPUT
+		#define POMPE_VERY_RIGHT_PIN  GPIOC,GPIO_Pin_11
 
 	#define PORT_IO_C_12		PORT_IO_INPUT
 		//
@@ -190,6 +189,7 @@
 
 	#define PORT_IO_D_2			PORT_IO_OUTPUT
 		#define RED_LEDS			GPIOD,GPIO_Pin_2
+		#define POMPE_MIDDLE_PIN    GPIOD,GPIO_Pin_2
 
 	#define PORT_IO_D_3			PORT_IO_OUTPUT
 		#define GREEN_LEDS			GPIOD,GPIO_Pin_3

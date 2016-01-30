@@ -200,8 +200,6 @@ void test_leds(void){
 		toggle_led(LED_CAN);				big_delay();
 		toggle_led(LED_UART);				big_delay();
 		toggle_led(LED_USER);				big_delay();
-		toggle_led(LED_BEACON_IR_GREEN);	big_delay();
-		toggle_led(LED_BEACON_IR_RED);		big_delay();
 	}
 }
 

@@ -640,8 +640,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_LEFT:	debug_printf("SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_LEFT");
 				case SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_RIGHT:	debug_printf("SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_RIGHT");
 				case SELFTEST_ACT_RX24_POMPE_PENDULUM:			debug_printf("SELFTEST_ACT_RX24_POMPE_PENDULUM");
-				case SELFTEST_ACT_AX12_SAND_LEFT_ARM:			debug_printf("SELFTEST_ACT_AX12_SAND_LEFT_ARM");
-				case SELFTEST_ACT_AX12_SAND_RIGHT_ARM:			debug_printf("SELFTEST_ACT_AX12_SAND_RIGHT_ARM");
+				case SELFTEST_ACT_AX12_LEFT_ARM:				debug_printf("SELFTEST_ACT_AX12_LEFT_ARM");
+				case SELFTEST_ACT_AX12_RIGHT_ARM:				debug_printf("SELFTEST_ACT_AX12_RIGHT_ARM");
 				case SELFTEST_ACT_AX12_SAND_CIRCLE:				debug_printf("SELFTEST_ACT_AX12_SAND_CIRCLE");
 				case SELFTEST_ACT_POMPE_BACK_LEFT:				debug_printf("SELFTEST_ACT_POMPE_BACK_LEFT");
 				case SELFTEST_ACT_POMPE_BACK_RIGHT:				debug_printf("SELFTEST_ACT_POMPE_BACK_RIGHT");
@@ -651,8 +651,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");						break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
-
-				//case SELFTEST_ACT_POP_COLLECT_LEFT:				debug_printf("SELFTEST_ACT_POP_COLLECT_LEFT");					break;
+				break;
 
 
 				default:										debug_printf("UNKNOW_ERROR_CODE");								break;
@@ -687,9 +686,9 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 		}*/
 //}
 
-void led_ir_update(selftest_beacon_e state)
+/*void led_ir_update(selftest_beacon_e state)
 	{
-		/*switch(state)
+		switch(state)
 		{
 			case BEACON_ERROR:
 				GPIO_WriteBit(LED_BEACON_IR_GREEN, LED_OFF);
@@ -707,8 +706,8 @@ void led_ir_update(selftest_beacon_e state)
 				GPIO_WriteBit(LED_BEACON_IR_RED, LED_ON);
 				GPIO_WriteBit(LED_BEACON_IR_GREEN, LED_OFF);
 				break;
-		}*/
-}
+		}
+}*/
 
 
 
@@ -763,7 +762,7 @@ void SELFTEST_get_match_report_IR(CAN_msg_t * msg){
 		msg->data.ir_error_result.error_counter[i] = beacon_error_report.beacon_error_ir_counter[i];
 }
 
-void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
+/*void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 {
 	switch(can_msg->sid)
 	{
@@ -783,7 +782,7 @@ void SELFTEST_update_led_beacon(CAN_msg_t * can_msg)
 		default:
 			break;
 	}
-}
+}*/
 
 
 void SELFTEST_check_alim(){
@@ -932,8 +931,6 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
-
-		//case SELFTEST_ACT_POP_COLLECT_LEFT:			return "ACT Pop collect Left";	break;
 
 
 		case SELFTEST_ERROR_NB:							return NULL;					break;

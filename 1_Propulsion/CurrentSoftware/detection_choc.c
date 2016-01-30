@@ -174,7 +174,7 @@ void DETECTION_CHOC_process_main(){
 		//2eme argument odo_trans
 		//3eme argument acc_rot
 		//4eme argument odo_rot
-		debug_printf("%d, %d, %d, %d\r\n", save_acc_trans, save_odo_trans, save_acc_rot, save_odo_rot);
+		//debug_printf("%d, %d, %d, %d\r\n", save_acc_trans, save_odo_trans, save_acc_rot, save_odo_rot);
 /*		save_acc_trans = 0;
 		save_odo_trans = 0;
 		save_acc_rot = 0;
