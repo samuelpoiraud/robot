@@ -97,10 +97,10 @@ int main (void)
 	debug_printf("--- Hello, I'm ACT (%s) ---\n", QS_WHO_AM_I_get_name());
 
 	#if defined(I_AM_ROBOT_BIG)
-		#define ROBOT_CODE_NAME	"Holly"
+		#define ROBOT_CODE_NAME	"Black"
 		if(QS_WHO_AM_I_get() != BIG_ROBOT)
 	#elif defined(I_AM_ROBOT_SMALL)
-		#define ROBOT_CODE_NAME	"Wood"
+		#define ROBOT_CODE_NAME	"Pearl"
 		if(QS_WHO_AM_I_get() != SMALL_ROBOT)
 	#endif	// Pour changer le code du robot aller dans : "config/config_global.h"
 		{
@@ -177,103 +177,354 @@ int main (void)
 
 
 #ifdef I_AM_ROBOT_BIG
-static void MAIN_onButton0() {
+static void MAIN_onButton0() {}
 
-	 static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_FISH_MAGNETIC_ARM;
+static void MAIN_onButton0LongPush() {}
 
+static void MAIN_onButton1() {
+   static Uint8 state = 0;
+   CAN_msg_t msg;
+   msg.size = 1;
+
+   if(state == 0){
+	   msg.sid = ACT_DUNIX_LEFT;
+	   msg.data.act_msg.order = ACT_DUNIX_LEFT_OPEN;
+   }else if(state == 1){
+	   msg.sid = ACT_DUNIX_RIGHT;
+	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_OPEN;
+   }else if(state == 2){
+	   msg.sid = ACT_DUNIX_LEFT;
+	   msg.data.act_msg.order = ACT_DUNIX_LEFT_CLOSE;
+   }else if(state == 3){
+	   msg.sid = ACT_DUNIX_LEFT;
+	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_CLOSE;
+   }
+
+   CAN_process_msg(&msg);
+   state = (state == 3)? 0 : state + 1;
+}
+
+static void MAIN_onButton1LongPush() {}
+
+static void MAIN_onButton2() {
+	static Uint8 state = 0;
+	CAN_msg_t msg1, msg2;
+	msg1.size = 1;
+	msg2.size = 1;
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_FISH_MAGNETIC_ARM_OPEN;
+		msg1.sid = ACT_BOTTOM_DUNE_LEFT;
+		msg1.data.act_msg.order = ACT_BOTTOM_DUNE_LEFT_CLOSE;
+		msg2.sid = ACT_BOTTOM_DUNE_RIGHT;
+		msg2.data.act_msg.order = ACT_BOTTOM_DUNE_RIGHT_CLOSE;
 	}else if(state == 1){
-		msg.data.act_msg.order = ACT_FISH_MAGNETIC_ARM_CLOSE;
+		msg1.sid = ACT_MIDDLE_DUNE_LEFT;
+		msg1.data.act_msg.order = ACT_MIDDLE_DUNE_LEFT_CLOSE;
+		msg2.sid = ACT_MIDDLE_DUNE_RIGHT;
+		msg2.data.act_msg.order = ACT_MIDDLE_DUNE_RIGHT_CLOSE;
+	}else if(state == 2){
+		msg1.sid = ACT_CONE_DUNE;
+		msg1.data.act_msg.order = ACT_CONE_DUNE_CLOSE;
+		msg2.sid = 0;
+	}else if(state == 3){
+		msg1.sid = ACT_BOTTOM_DUNE_LEFT;
+		msg1.data.act_msg.order = ACT_BOTTOM_DUNE_LEFT_OPEN;
+		msg2.sid = ACT_BOTTOM_DUNE_RIGHT;
+		msg2.data.act_msg.order = ACT_BOTTOM_DUNE_RIGHT_OPEN;
+	}else if(state == 4){
+		msg1.sid = ACT_MIDDLE_DUNE_LEFT;
+		msg1.data.act_msg.order = ACT_MIDDLE_DUNE_LEFT_OPEN;
+		msg2.sid = ACT_MIDDLE_DUNE_RIGHT;
+		msg2.data.act_msg.order = ACT_MIDDLE_DUNE_RIGHT_OPEN;
+	}else if(state == 5){
+		msg1.sid = ACT_CONE_DUNE;
+		msg1.data.act_msg.order = ACT_CONE_DUNE_OPEN;
+		msg2.sid = 0;
+	}
+
+	CAN_process_msg(&msg1);
+	if(msg2.sid != 0)
+		CAN_process_msg(&msg2);
+	state = (state == 5)? 0 : state + 1;
+}
+
+static void MAIN_onButton2LongPush() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	 msg.sid = ACT_PEARL_SAND_CIRCLE;
+	msg.size = 1;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_OPEN;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_CLOSE;
 	}
 
 	CAN_process_msg(&msg);
 	state = (state == 1)? 0 : state + 1;
 }
 
-static void MAIN_onButton0LongPush() {}
-
-static void MAIN_onButton1() {
+static void MAIN_onButton3() {
 	static Uint8 state = 0;
-   CAN_msg_t msg;
-   msg.size = 1;
-   msg.sid = ACT_BLACK_SAND_CIRCLE;
+	CAN_msg_t msg;
+	msg.size = 1;
 
+	if(state == 0){
+		msg.sid = ACT_SHIFT_CYLINDER;
+		msg.data.act_msg.order = ACT_SHIFT_CYLINDER_OPEN;
+	}else if(state == 1){
+		msg.sid = ACT_SHIFT_CYLINDER;
+		msg.data.act_msg.order = ACT_SHIFT_CYLINDER_CLOSE;
+	}else if(state == 2){
+		msg.sid = ACT_PENDULUM;
+		msg.data.act_msg.order = ACT_PENDULUM_OPEN;
+	}else if(state == 3){
+		msg.sid = ACT_PENDULUM;
+		msg.data.act_msg.order = ACT_PENDULUM_CLOSE;
+	}
 
-   if(state == 0){
-	   msg.data.act_msg.order = ACT_BLACK_SAND_CIRCLE_OPEN;
-   }else if(state == 1){
-	   msg.data.act_msg.order = ACT_BLACK_SAND_CIRCLE_CLOSE;
-   }
-
-   CAN_process_msg(&msg);
-   state = (state == 1)? 0 : state + 1;
+	CAN_process_msg(&msg);
+	state = (state == 3)? 0 : state + 1;
 }
 
-static void MAIN_onButton1LongPush() {}
+static void MAIN_onButton3LongPush() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.sid = ACT_POMPE_PENDULUM;
+	msg.size = 1;
 
-static void MAIN_onButton2() {}
+	if(state == 0){
+		msg.data.act_msg.order = ACT_POMPE_PENDULUM_NORMAL;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_POMPE_PENDULUM_STOP;
+	}
 
-static void MAIN_onButton2LongPush() {}
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
 
-static void MAIN_onButton3() {}
+static void MAIN_onButton4() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
 
-static void MAIN_onButton3LongPush() {}
+	if(state == 0){
+		msg.sid = ACT_SAND_LOCKER_LEFT;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_OPEN;
+	}else if(state == 1){
+		msg.sid = ACT_SAND_LOCKER_LEFT;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_CLOSE;
+	}else if(state == 2){
+		msg.sid = ACT_SAND_LOCKER_RIGHT;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_RIGHT_OPEN;
+	}else if(state == 3){
+		msg.sid = ACT_SAND_LOCKER_RIGHT;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_RIGHT_CLOSE;
+	}
 
-static void MAIN_onButton4() {}
+	CAN_process_msg(&msg);
+	state = (state == 3)? 0 : state + 1;
+}
 
-static void MAIN_onButton4LongPush() {}
+static void MAIN_onButton4LongPush() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
 
-static void MAIN_onButton5() {}
+	if(state == 0){
+		msg.sid = ACT_POMPE_SAND_LOCKER_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_SAND_LOCKER_LEFT_NORMAL;
+	}else if(state == 1){
+		msg.sid = ACT_POMPE_SAND_LOCKER_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_SAND_LOCKER_LEFT_STOP;
+	}else if(state == 2){
+		msg.sid = ACT_POMPE_SAND_LOCKER_RIGHT;
+		msg.data.act_msg.order = ACT_POMPE_SAND_LOCKER_RIGHT_NORMAL;
+	}else if(state == 3){
+		msg.sid = ACT_POMPE_SAND_LOCKER_RIGHT;
+		msg.data.act_msg.order = ACT_POMPE_SAND_LOCKER_RIGHT_STOP;
+	}
 
-static void MAIN_onButton5LongPush() {}
+	CAN_process_msg(&msg);
+	state = (state == 3)? 0 : state + 1;
+}
+
+static void MAIN_onButton5() {
+	static Uint8 state = 0;
+	CAN_msg_t msg1, msg2;
+	msg1.size = 1;
+	msg2.size = 1;
+
+	if(state == 0){
+		msg1.sid = ACT_FISH_MAGNETIC_ARM;
+		msg1.data.act_msg.order = ACT_FISH_MAGNETIC_ARM_OPEN;
+		msg2.sid = 0;
+	}else if(state == 1){
+		msg1.sid = 0;
+		msg2.sid = ACT_FISH_UNSTICK_ARM;
+		msg2.data.act_msg.order = ACT_FISH_UNSTICK_ARM_OPEN;
+	}else if(state == 2){
+		msg1.sid = ACT_FISH_MAGNETIC_ARM;
+		msg1.data.act_msg.order = ACT_FISH_MAGNETIC_ARM_CLOSE;
+		msg2.sid = ACT_FISH_UNSTICK_ARM;
+		msg2.data.act_msg.order = ACT_FISH_UNSTICK_ARM_CLOSE;
+	}else if(state == 3){
+		msg1.sid = 0;
+		msg2.sid = ACT_FISH_UNSTICK_ARM;
+		msg2.data.act_msg.order = ACT_FISH_UNSTICK_ARM_OPEN;
+	}else if(state == 4){
+		msg1.sid = 0;
+		msg2.sid = ACT_FISH_UNSTICK_ARM;
+		msg2.data.act_msg.order = ACT_FISH_UNSTICK_ARM_CLOSE;
+	}
+
+	if(msg1.sid != 0)
+		CAN_process_msg(&msg1);
+	if(msg2.sid != 0)
+		CAN_process_msg(&msg2);
+	state = (state == 4)? 0 : state + 1;
+}
+
+static void MAIN_onButton5LongPush() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+
+	if(state == 0){
+		msg.sid = ACT_POMPE_BLACK_FRONT_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_BLACK_FRONT_LEFT_NORMAL;
+	}else if(state == 1){
+		msg.sid = ACT_POMPE_BLACK_FRONT_RIGHT;
+		msg.data.act_msg.order = ACT_POMPE_BLACK_FRONT_RIGHT_NORMAL;
+	}else if(state == 2){
+		msg.sid = ACT_POMPE_BLACK_FRONT_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_BLACK_FRONT_LEFT_STOP;
+	}else if(state == 3){
+		msg.sid = ACT_POMPE_SAND_LOCKER_RIGHT;
+		msg.data.act_msg.order = ACT_POMPE_SAND_LOCKER_RIGHT_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 3)? 0 : state + 1;
+}
 
 
 #else // ROBOT_SMALL
 
 static void MAIN_onButton0(){
-	/* EXEMPLE
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 2;
-	msg.sid = ACT_POMPE_WOOD;
-	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
-
+	msg.size = 1;
+	msg.sid = ACT_POMPE_BACK_RIGHT;
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_POMPE_WOOD_NORMAL;
+		msg.data.act_msg.order = ACT_POMPE_BACK_RIGHT_NORMAL;
 	}else if(state == 1){
-		msg.data.act_msg.order = ACT_POMPE_WOOD_REVERSE;
-	}else if(state == 2){
-		msg.data.act_msg.order = ACT_POMPE_WOOD_STOP;
+		msg.data.act_msg.order = ACT_POMPE_BACK_RIGHT_STOP;
 	}
 
 	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;*/
+	state = (state == 1)? 0 : state + 1;
 }
 static void MAIN_onButton0LongPush(){}
 
-static void MAIN_onButton1(){}
+static void MAIN_onButton1(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_RIGHT_ARM;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_RIGHT_ARM_OPEN;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_RIGHT_ARM_CLOSE;
+	}else if(state == 2){
+		msg.data.act_msg.order = ACT_RIGHT_ARM_IDLE;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+}
 
 static void MAIN_onButton1LongPush(){}
 
-static void MAIN_onButton2(){}
+static void MAIN_onButton2(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_POMPE_FRONT_RIGHT;
+	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_POMPE_FRONT_RIGHT_NORMAL;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_POMPE_FRONT_RIGHT_REVERSE;
+	}else if(state == 2){
+		msg.data.act_msg.order = ACT_POMPE_FRONT_RIGHT_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+ }
 
 static void MAIN_onButton2LongPush(){}
 
-static void MAIN_onButton3(){}
+static void MAIN_onButton3(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_POMPE_BACK_LEFT;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_POMPE_BACK_LEFT_NORMAL;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_POMPE_BACK_LEFT_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
 
 static void MAIN_onButton3LongPush(){}
 
-static void MAIN_onButton4(){}
+static void MAIN_onButton4(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_LEFT_ARM;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_LEFT_ARM_OPEN;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_LEFT_ARM_CLOSE;
+	}else if(state == 2){
+		msg.data.act_msg.order = ACT_LEFT_ARM_IDLE;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+}
 
 static void MAIN_onButton4LongPush(){}
 
-static void MAIN_onButton5(){}
+static void MAIN_onButton5(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 2;
+	msg.sid = ACT_POMPE_FRONT_LEFT;
+	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_POMPE_FRONT_LEFT_NORMAL;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_POMPE_FRONT_LEFT_REVERSE;
+	}else if(state == 2){
+		msg.data.act_msg.order = ACT_POMPE_FRONT_LEFT_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+}
 
 static void MAIN_onButton5LongPush(){}
 
