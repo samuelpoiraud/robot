@@ -576,7 +576,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.
 			DETECTION_pos_foe_update(incoming_msg);
-			SELFTEST_update_led_beacon(incoming_msg);
+			//SELFTEST_update_led_beacon(incoming_msg);
 			break;
 		case BROADCAST_ADVERSARIES_POSITION:
 			DETECTION_pos_foe_update(incoming_msg);

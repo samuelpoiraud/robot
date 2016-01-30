@@ -141,7 +141,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			offset = time_base - expected_time;
 
 			RF_synchro_response(header.sender_id, offset);
-			toggle_led(LED_BEACON_IR_GREEN);
+			//toggle_led(LED_BEACON_IR_GREEN);
 
 
 			//Surveillance niveau batterie via la PWM du moteur balise... si elle est transmise
@@ -161,7 +161,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 
 			time_base = wrap_timebase(((Sint16)time_base) + offset);
 
-			toggle_led(LED_BEACON_IR_GREEN);
+			//toggle_led(LED_BEACON_IR_GREEN);
 		}
 
 		//On a vu une réponse d'un autre module que nous (on ne reçoit pas ce qu'on envoie) => BIG_ROBOT est là
@@ -245,10 +245,10 @@ static void update_rfmodule_here()
 		}
 	}
 
-	if(someone_not_here)
+	/*if(someone_not_here)
 		GPIO_SetBits(LED_BEACON_IR_RED);
 	else
-		GPIO_ResetBits(LED_BEACON_IR_RED);
+		GPIO_ResetBits(LED_BEACON_IR_RED);*/
 
 	warner_low_battery_on_foe1 = (pwm_on_foe1 > PWM_THRESHOLD_ON_FOE_BEACON)?TRUE:FALSE;
 	warner_low_battery_on_foe2 = (pwm_on_foe2 > PWM_THRESHOLD_ON_FOE_BEACON)?TRUE:FALSE;

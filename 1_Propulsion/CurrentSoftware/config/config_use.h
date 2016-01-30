@@ -60,7 +60,7 @@
 
 	#define LIMITATION_PWM_BORDER_MODE
 
-	#define DETECTION_CHOC
+	//#define DETECTION_CHOC
 
 	//#define FDP_2016
 
@@ -154,10 +154,10 @@
 	#define USE_FIFO
 
 /* Réglages ADC */
-	#define USE_AN11		// Capteur cup left
-	#define USE_AN12		// Capteur cup right
-	#define SCAN_CUP_SENSOR_LEFT			ADC_11
-	#define SCAN_CUP_SENSOR_RIGHT			ADC_12
+	#define USE_AN11		// Télémètre laser gauche
+	#define USE_AN12		// Télémètre laser droite
+	#define ADC_SENSOR_XUK_LEFT			    ADC_11
+	#define ADC_SENSOR_XUK_RIGHT			ADC_12
 
 
 #include "../_Propulsion_config.h"
