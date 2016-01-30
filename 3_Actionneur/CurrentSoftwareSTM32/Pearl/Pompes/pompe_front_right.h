@@ -2,12 +2,10 @@
  *
  *	Fichier : pompe_front_right.h
  *	Package : Carte actionneur
- *	Description : Gestion de la pompe avant droite permettant de ventouser les blocs de sable ou un coquillage
+ *	Description : Gestion de la pompe avant droite
  *  Auteur : Valentin
- *  Version 2016
- *  Robot : SMALL
+ *  Robot : PEARL
  */
-
 
 #ifndef POMPE_FRONT_RIGHT_H
 	#define	POMPE_FRONT_RIGHT_H
@@ -57,5 +55,6 @@
 		void POMPE_FRONT_RIGHT_reset_config();
 
 	#endif
-#endif	/* POMPE_FRONT_RIGHT_H */
+
+#endif	/* PPOMPE_FRONT_RIGHT_H */
 

@@ -439,11 +439,11 @@ void SELFTEST_state_machine(void){
 													 {ACT_LEFT_ARM_IDLE,		0,  QUEUE_ACT_AX12_LEFT_ARM}
 												 });
 				}
-				if(state_act_tests[ACT_SAND_LEFT_ARM & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+				if(state_act_tests[ACT_LEFT_ARM & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
 					state++;
-					debug_printf("SELFTEST of ACT_SAND_LEFT_ARM finished\n");
+					debug_printf("SELFTEST of ACT_LEFT_ARM finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_SAND_LEFT_ARM & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state_act_tests[ACT_LEFT_ARM & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					state++;
 				}
 				break;
@@ -456,11 +456,11 @@ void SELFTEST_state_machine(void){
 													 {ACT_RIGHT_ARM_IDLE,		0,  QUEUE_ACT_AX12_RIGHT_ARM}
 												 });
 				}
-				if(state_act_tests[ACT_SAND_RIGHT_ARM & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+				if(state_act_tests[ACT_RIGHT_ARM & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
 					state++;
-					debug_printf("SELFTEST of ACT_SAND_RIGHT_ARM finished\n");
+					debug_printf("SELFTEST of ACT_RIGHT_ARM finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_SAND_RIGHT_ARM & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state_act_tests[ACT_RIGHT_ARM & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					state++;
 				}
 				break;
@@ -517,8 +517,8 @@ void SELFTEST_state_machine(void){
 			case QUEUE_ACT_POMPE_FRONT_LEFT:
 				if(entrance){
 					SELFTEST_set_actions(&POMPE_FRONT_LEFT_run_command, 3, (SELFTEST_action_t[]){
-													 {ACT_POMPE_FRONT_LEFT_NORMAL,		0,  QUEUE_ACT_POMPE_FRONT_LEFT},
-													 {ACT_POMPE_FRONT_LEFT_REVERSE,      0,  QUEUE_ACT_POMPE_FRONT_LEFT},
+													 {ACT_POMPE_FRONT_LEFT_NORMAL,	  100,  QUEUE_ACT_POMPE_FRONT_LEFT},
+													 {ACT_POMPE_FRONT_LEFT_REVERSE,   100,  QUEUE_ACT_POMPE_FRONT_LEFT},
 													 {ACT_POMPE_FRONT_LEFT_STOP,		0,  QUEUE_ACT_POMPE_FRONT_LEFT}
 												 });
 				}
@@ -534,8 +534,8 @@ void SELFTEST_state_machine(void){
 			case QUEUE_ACT_POMPE_FRONT_RIGHT:
 				if(entrance){
 					SELFTEST_set_actions(&POMPE_FRONT_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-													 {ACT_POMPE_FRONT_RIGHT_NORMAL,		0,  QUEUE_ACT_POMPE_FRONT_RIGHT},
-													 {ACT_POMPE_FRONT_RIGHT_REVERSE,    0,  QUEUE_ACT_POMPE_FRONT_RIGHT},
+													 {ACT_POMPE_FRONT_RIGHT_NORMAL,	  100,  QUEUE_ACT_POMPE_FRONT_RIGHT},
+													 {ACT_POMPE_FRONT_RIGHT_REVERSE,  100,  QUEUE_ACT_POMPE_FRONT_RIGHT},
 													 {ACT_POMPE_FRONT_RIGHT_STOP,		0,  QUEUE_ACT_POMPE_FRONT_RIGHT}
 												 });
 				}
@@ -657,11 +657,11 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 
 
 // Pearl
-					case ACT_SAND_LEFT_ARM:
-						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_LEFT_ARM;
+					case ACT_LEFT_ARM:
+						failed_act_tests[i] = SELFTEST_ACT_AX12_LEFT_ARM;
 						break;
-					case ACT_SAND_RIGHT_ARM:
-						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_RIGHT_ARM;
+					case ACT_RIGHT_ARM:
+						failed_act_tests[i] = SELFTEST_ACT_AX12_RIGHT_ARM;
 						break;
 					case ACT_PEARL_SAND_CIRCLE:
 						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_CIRCLE;

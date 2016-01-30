@@ -2,16 +2,12 @@
  *
  *	Fichier : pompe_front_left.c
  *	Package : Carte actionneur
- *	Description : Gestion de la pompe avant gauche permettant de ventouser les blocs de sable ou un coquillage
+ *	Description : Gestion de la pompe avant gauche
  *  Auteur : Valentin
- *  Version 2016
- *  Robot : SMALL
+ *  Robot : PEARL
  */
 
 #include "pompe_front_left.h"
-
-
-#define POMPE_FRONT_LEFT_PIN 0,0
 
 #ifdef I_AM_ROBOT_SMALL
 
@@ -23,13 +19,14 @@
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 
-#define LOG_PREFIX "pompe_front_left : "
+#define LOG_PREFIX "POMPE_FRONT_LEFT : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_POMPE_FRONT_LEFT
 #include "../QS/QS_outputlog.h"
 
+static void POMPE_FRONT_LEFT_initDCM();
 static void POMPE_FRONT_LEFT_command_init(queue_id_t queueId);
 static void POMPE_FRONT_LEFT_command_run(queue_id_t queueId);
-static void POMPE_FRONT_LEFT_do_order(Uint8 command);
+static void POMPE_FRONT_LEFT_do_order(Uint8 command, Uint8 param);
 
 void POMPE_FRONT_LEFT_init() {
 	static bool_e initialized = FALSE;
@@ -38,25 +35,42 @@ void POMPE_FRONT_LEFT_init() {
 		return;
 	initialized = TRUE;
 
+	POMPE_FRONT_LEFT_initDCM();
 }
 
 void POMPE_FRONT_LEFT_reset_config(){}
 
+// Initialisation du moteur, si init ne fait rien
+static void POMPE_FRONT_LEFT_initDCM() {
+	static bool_e initialized = FALSE;
+
+	if(initialized)
+		return;
+	initialized = TRUE;
+
+	PORTS_pwm_init();
+	PWM_init();
+	PWM_stop(POMPE_FRONT_LEFT_PWM_NUM);
+
+	info_printf("initialisée (DCM) \n");
+}
 
 void POMPE_FRONT_LEFT_stop() {
-	GPIO_ResetBits(POMPE_FRONT_LEFT_PIN);
+	PWM_stop(POMPE_FRONT_LEFT_PWM_NUM);
 }
 
 void POMPE_FRONT_LEFT_init_pos(){
-	GPIO_ResetBits(POMPE_FRONT_LEFT_PIN);
+	PWM_stop(POMPE_FRONT_LEFT_PWM_NUM);
 }
 
 bool_e POMPE_FRONT_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_POMPE_FRONT_LEFT) {
+		POMPE_FRONT_LEFT_initDCM();
 		switch(msg->data.act_msg.order) {
 			case ACT_POMPE_FRONT_LEFT_NORMAL:
+			case ACT_POMPE_FRONT_LEFT_REVERSE:
 			case ACT_POMPE_FRONT_LEFT_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_FRONT_LEFT, &POMPE_FRONT_LEFT_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_FRONT_LEFT, &POMPE_FRONT_LEFT_run_command, msg->data.act_msg.act_data.act_optionnal_data[0],TRUE);
 				break;
 
 			default:
@@ -64,11 +78,7 @@ bool_e POMPE_FRONT_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST) {
-		/*SELFTEST_set_actions(&POMPE_FRONT_LEFT_run_command, 3, (SELFTEST_action_t[]){
-								 {ACT_POMPE_FRONT_LEFT_NORMAL,  0, QUEUE_ACT_POMPE_FRONT_LEFT},
-								 {ACT_POMPE_FRONT_LEFT_REVERSE, 0, QUEUE_ACT_POMPE_FRONT_LEFT},
-								 {ACT_POMPE_FRONT_LEFT_STOP, 0, QUEUE_ACT_POMPE_FRONT_LEFT}
-							 });*/
+
 	}
 
 	return FALSE;
@@ -91,15 +101,16 @@ void POMPE_FRONT_LEFT_run_command(queue_id_t queueId, bool_e init) {
 //Initialise une commande
 static void POMPE_FRONT_LEFT_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
+	Uint8 param = QUEUE_get_arg(queueId)->param;
 
 	switch(command) {
 		case ACT_POMPE_FRONT_LEFT_NORMAL:
 		case ACT_POMPE_FRONT_LEFT_REVERSE:
-			POMPE_FRONT_LEFT_do_order(command);
+			POMPE_FRONT_LEFT_do_order(command, param);
 			break;
 
 		case ACT_POMPE_FRONT_LEFT_STOP:
-			GPIO_ResetBits(POMPE_FRONT_LEFT_PIN);
+			PWM_stop(POMPE_FRONT_LEFT_PWM_NUM);
 			return;
 
 		default: {
@@ -114,18 +125,19 @@ static void POMPE_FRONT_LEFT_command_run(queue_id_t queueId){
 	QUEUE_next(queueId, ACT_POMPE_FRONT_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
 }
 
-static void POMPE_FRONT_LEFT_do_order(Uint8 command){
+static void POMPE_FRONT_LEFT_do_order(Uint8 command, Uint8 param){
 	if(command == ACT_POMPE_FRONT_LEFT_NORMAL)
-		GPIO_SetBits(POMPE_FRONT_LEFT_PIN);
+		GPIO_ResetBits(POMPE_FRONT_LEFT_SENS);
 	else if(command == ACT_POMPE_FRONT_LEFT_REVERSE)
-		GPIO_ResetBits(POMPE_FRONT_LEFT_PIN);
+		GPIO_SetBits(POMPE_FRONT_LEFT_SENS);
 	else{
-		debug_printf("commande envoyée à POMPE_FRONT_LEFT_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(POMPE_FRONT_LEFT_PIN);
+		debug_printf("commande envoyée à POMPE_FRONT_LEFT_do_order inconnue -> %d	%x\n", command, command);
+		PWM_stop(POMPE_FRONT_LEFT_PWM_NUM);
 		return;
 	}
+
+	param = (param > 100) ? 100 : param;
+	PWM_run(param, POMPE_FRONT_LEFT_PWM_NUM);
 }
 
 #endif
-
-

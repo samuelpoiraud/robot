@@ -439,8 +439,8 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
 		TEST_RTC,
-		TEST_ESTRADE_SENSOR_RIGHT,
-		TEST_ESTRADE_SENSOR_LEFT,
+		//TEST_ESTRADE_SENSOR_RIGHT,
+		//TEST_ESTRADE_SENSOR_LEFT,
 		TEST_SWITCHS,
 		TEST_POMPES,
 		TEST_SD_CARD,
@@ -503,13 +503,9 @@ error_e SELFTEST_strategy(bool_e reset)
 			status = RTC_get_local_time (&date);
 			if(!status)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_RTC);
-
-			if(QS_WHO_AM_I_get() == BIG_ROBOT)
-				state = TEST_ESTRADE_SENSOR_RIGHT;
-			else
 				state = TEST_SWITCHS;
 			break;
-		case TEST_ESTRADE_SENSOR_RIGHT:
+		/*case TEST_ESTRADE_SENSOR_RIGHT:
 			if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 15)
 				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT);
 			state = TEST_SWITCHS;
@@ -519,7 +515,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 15)
 				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_LEFT);
 			state = TEST_SWITCHS;
-			break;
+			break;*/
 
 		case TEST_SWITCHS:
 			if(QS_WHO_AM_I_get()==BIG_ROBOT){
@@ -693,7 +689,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 
 void led_ir_update(selftest_beacon_e state)
 	{
-		switch(state)
+		/*switch(state)
 		{
 			case BEACON_ERROR:
 				GPIO_WriteBit(LED_BEACON_IR_GREEN, LED_OFF);
@@ -711,7 +707,7 @@ void led_ir_update(selftest_beacon_e state)
 				GPIO_WriteBit(LED_BEACON_IR_RED, LED_ON);
 				GPIO_WriteBit(LED_BEACON_IR_GREEN, LED_OFF);
 				break;
-		}
+		}*/
 }
 
 

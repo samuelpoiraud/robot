@@ -214,9 +214,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 
 // Pearl
-		case ACT_SAND_LEFT_ARM	 :						print(string, len, "%x ACT_SAND_LEFT_ARM	                  ", ACT_SAND_LEFT_ARM								);	break;
-		case ACT_SAND_RIGHT_ARM	 :						print(string, len, "%x ACT_SAND_RIGHT_ARM	                  ", ACT_SAND_RIGHT_ARM								);	break;
-		case ACT_POMPE_BACK_LEFT  :						print(string, len, "%x ACT_POMPE_BACK_LEFT                    ", ACT_POMPE_BACK_LEFT							);	break;
+		case ACT_LEFT_ARM	 :					    	print(string, len, "%x ACT_LEFT_ARM	                         ", ACT_LEFT_ARM							      	);	break;
+		case ACT_RIGHT_ARM	 :					     	print(string, len, "%x ACT_RIGHT_ARM	                     ", ACT_RIGHT_ARM							     	);	break;
+		case ACT_POMPE_BACK_LEFT  :						print(string, len, "%x ACT_POMPE_BACK_LEFT                   ", ACT_POMPE_BACK_LEFT							    );	break;
 		case ACT_POMPE_BACK_RIGHT :						print(string, len, "%x ACT_POMPE_BACK_RIGHT                   ", ACT_POMPE_BACK_RIGHT							);	break;
 		case ACT_POMPE_FRONT_LEFT :						print(string, len, "%x ACT_POMPE_FRONT_LEFT                   ", ACT_POMPE_FRONT_LEFT							);	break;
 		case ACT_POMPE_FRONT_RIGHT:						print(string, len, "%x ACT_POMPE_FRONT_RIGHT                  ", ACT_POMPE_FRONT_RIGHT							);	break;
@@ -286,8 +286,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 
 				//Pearl
-				case (Uint8)ACT_SAND_LEFT_ARM:					print(string,len, "ACT_SAND_LEFT_ARM ");			break;
-				case (Uint8)ACT_SAND_RIGHT_ARM:					print(string,len, "ACT_SAND_RIGHT_ARM ");			break;
+				case (Uint8)ACT_LEFT_ARM:		     			print(string,len, "ACT_LEFT_ARM ");			        break;
+				case (Uint8)ACT_RIGHT_ARM:				    	print(string,len, "ACT_RIGHT_ARM ");			    break;
 				case (Uint8)ACT_POMPE_BACK_LEFT:				print(string,len, "ACT_POMPE_BACK_LEFT ");			break;
 				case (Uint8)ACT_POMPE_BACK_RIGHT:				print(string,len, "ACT_POMPE_BACK_RIGHT ");			break;
 				case (Uint8)ACT_POMPE_FRONT_LEFT:				print(string,len, "ACT_POMPE_FRONT_LEFT ");			break;
@@ -518,21 +518,21 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 					  }
 				  break;
 
-				  case (Uint8)ACT_SAND_LEFT_ARM:
+				  case (Uint8)ACT_LEFT_ARM:
 					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_SAND_LEFT_ARM_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_SAND_LEFT_ARM_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_SAND_LEFT_ARM_CLOSE:		print(string,len, "| CLOSE |");			break;
-						  case (Uint8)ACT_SAND_LEFT_ARM_STOP:		print(string,len, "| STOP |");			break;
+						  case (Uint8)ACT_LEFT_ARM_IDLE:			print(string,len, "| IDLE |");			break;
+						  case (Uint8)ACT_LEFT_ARM_OPEN:			print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_LEFT_ARM_CLOSE:			print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_LEFT_ARM_STOP:			print(string,len, "| STOP |");			break;
 						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
-				  case (Uint8)ACT_SAND_RIGHT_ARM:
+				  case (Uint8)ACT_RIGHT_ARM:
 					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_SAND_RIGHT_ARM_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_SAND_RIGHT_ARM_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_SAND_RIGHT_ARM_CLOSE:		print(string,len, "| CLOSE |");			break;
-						  case (Uint8)ACT_SAND_RIGHT_ARM_STOP:		print(string,len, "| STOP |");			break;
+						  case (Uint8)ACT_RIGHT_ARM_IDLE:		    print(string,len, "| IDLE |");			break;
+						  case (Uint8)ACT_RIGHT_ARM_OPEN:			print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_RIGHT_ARM_CLOSE:			print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_RIGHT_ARM_STOP:			print(string,len, "| STOP |");			break;
 						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;

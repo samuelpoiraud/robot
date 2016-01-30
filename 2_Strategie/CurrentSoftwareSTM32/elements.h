@@ -19,7 +19,7 @@
 		SAND_DUNE_FRONT,  //flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
 		SAND_DUNE_BACK,   //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 		FISHS_TAKEN,
-		SEASHELLS_BOTTOM,
+		SEASHELLS_BOTTOM, //Les deux coquillages proche de notre serviette
 		OUR_BLOCK8_DEPOSED,
 		ADV_BLOCK8_DEPOSED,
 		OUR_BLOC_SCAN,

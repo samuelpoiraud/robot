@@ -78,8 +78,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_POMPE_ALL,      			ACT_QUEUE_Pompe_all,			        "Pompe all"},
 
 	// Pearl
-	{ACT_SAND_LEFT_ARM,         ACT_QUEUE_Sand_left_arm,            "Left Arm"},
-	{ACT_SAND_RIGHT_ARM,        ACT_QUEUE_Sand_right_arm,			"Right Arm"},
+	{ACT_LEFT_ARM,              ACT_QUEUE_Left_arm,                 "Left Arm"},
+	{ACT_RIGHT_ARM,             ACT_QUEUE_Right_arm,		     	"Right Arm"},
 	{ACT_POMPE_BACK_LEFT,       ACT_QUEUE_Pompe_back_left,			"Pompe BL"},
 	{ACT_POMPE_BACK_RIGHT,      ACT_QUEUE_Pompe_back_right,			"Pompe BR"},
 	{ACT_POMPE_FRONT_LEFT,      ACT_QUEUE_Pompe_front_left,			"Pompe FL"},
