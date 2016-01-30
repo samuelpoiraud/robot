@@ -23,12 +23,12 @@
 	#define FREQ_PWM_50KHZ
 
 /* Servo-Moteurs standart */
-	#define SERVO_TIMER 5
-	#define USE_SERVO
+	//#define SERVO_TIMER 5
+	//#define USE_SERVO
 
 /* Asservissement en position/vitesse de moteurs CC */
 	/* déclarer l'utilisation du pilote */
-	//#define USE_DCMOTOR2
+	#define USE_DCMOTOR2
 	/* définir le nombre d'actionneurs asservis */
 	#define DCM_NUMBER			0
 	/* Période d'asservisement (en ms) */

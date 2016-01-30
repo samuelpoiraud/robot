@@ -20,9 +20,9 @@
 	#define MIDDLE_DUNE_LEFT_RX24_MAX_TEMPERATURE			65		// Température maximale en degré
 
 //Position
-	#define MIDDLE_DUNE_LEFT_RX24_IDLE_POS					512
+	#define MIDDLE_DUNE_LEFT_RX24_IDLE_POS					400
 	#define MIDDLE_DUNE_LEFT_RX24_CLOSE_POS			     	512	//en degré
-	#define MIDDLE_DUNE_LEFT_RX24_OPEN_POS					512	//en degré
+	#define MIDDLE_DUNE_LEFT_RX24_OPEN_POS					600	//en degré
 
 //Position initiale de l'RX24
 	#define MIDDLE_DUNE_LEFT_RX24_INIT_POS					MIDDLE_DUNE_LEFT_RX24_IDLE_POS

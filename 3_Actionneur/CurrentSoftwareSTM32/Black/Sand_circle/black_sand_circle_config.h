@@ -18,9 +18,9 @@
 	#define BLACK_SAND_CIRCLE_AX12_MAX_TEMPERATURE			    60		// Température maximale en degré
 
 //Position
-	#define BLACK_SAND_CIRCLE_AX12_IDLE_POS					    512
-	#define BLACK_SAND_CIRCLE_AX12_CLOSE_POS				    624	    //en degré
-	#define BLACK_SAND_CIRCLE_AX12_OPEN_POS					    400		//en degré
+	#define BLACK_SAND_CIRCLE_AX12_IDLE_POS					    400
+	#define BLACK_SAND_CIRCLE_AX12_CLOSE_POS				    512	    //en degré
+	#define BLACK_SAND_CIRCLE_AX12_OPEN_POS					    600		//en degré
 
 //Position initiale de l'AX12
 	#define BLACK_SAND_CIRCLE_AX12_INIT_POS					     BLACK_SAND_CIRCLE_AX12_IDLE_POS
