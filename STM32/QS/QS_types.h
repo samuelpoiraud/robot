@@ -513,8 +513,8 @@
 		SELFTEST_ACT_RX24_POMPE_PENDULUM,
 
 		//Pearl
-		SELFTEST_ACT_AX12_SAND_LEFT_ARM,
-		SELFTEST_ACT_AX12_SAND_RIGHT_ARM,
+		SELFTEST_ACT_AX12_LEFT_ARM,
+		SELFTEST_ACT_AX12_RIGHT_ARM,
 		SELFTEST_ACT_AX12_SAND_CIRCLE,
 		SELFTEST_ACT_POMPE_BACK_LEFT,
 		SELFTEST_ACT_POMPE_BACK_RIGHT,
@@ -535,9 +535,7 @@
  *********************************************************************************************************************/
 
 	typedef enum{
-		ACT_SENSOR_ID_PINCE_GOBELET_DROITE	= 0,
-		ACT_SENSOR_ID_PINCE_GOBELET_GAUCHE,
-		NB_ACT_SENSOR
+		NB_ACT_SENSOR = 1
 	}act_sensor_id_e;
 
 // Mettre toujours l'ordre de STOP à la valeur 0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -662,15 +660,15 @@
 
 
 // Pearl
-		ACT_SAND_LEFT_ARM_STOP = 0,
-		ACT_SAND_LEFT_ARM_IDLE,
-		ACT_SAND_LEFT_ARM_OPEN,
-		ACT_SAND_LEFT_ARM_CLOSE,
+		ACT_LEFT_ARM_STOP = 0,
+		ACT_LEFT_ARM_IDLE,
+		ACT_LEFT_ARM_OPEN,
+		ACT_LEFT_ARM_CLOSE,
 
-		ACT_SAND_RIGHT_ARM_STOP = 0,
-		ACT_SAND_RIGHT_ARM_IDLE,
-		ACT_SAND_RIGHT_ARM_OPEN,
-		ACT_SAND_RIGHT_ARM_CLOSE,
+		ACT_RIGHT_ARM_STOP = 0,
+		ACT_RIGHT_ARM_IDLE,
+		ACT_RIGHT_ARM_OPEN,
+		ACT_RIGHT_ARM_CLOSE,
 
 		ACT_CIRCLE_STOP = 0,
 		ACT_CIRCLE_IDLE,
@@ -724,8 +722,8 @@
 	}act_config_e;
 
 	typedef enum{
-		DEFAULT_MONO_ACT = 0,
-
+		DEFAULT_MONO_ACT = 0
+		/*EXEMPLE
 		SUB_ACT0_0,
 		SUB_ACT0_1,
 		SUB_ACT0_2,
@@ -739,7 +737,7 @@
 		SUB_ACT2_0,
 		SUB_ACT2_1,
 		SUB_ACT2_2,
-		SUB_ACT2_3
+		SUB_ACT2_3*/
 
 	}act_sub_act_id_e;
 

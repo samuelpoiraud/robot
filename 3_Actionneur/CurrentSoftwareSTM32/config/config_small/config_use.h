@@ -16,8 +16,8 @@
 /**************** Périphériques ****************/
 
 /* Réglages PWM */
-	//#define USE_PWM1
-	//#define USE_PWM2
+	#define USE_PWM1     //PWM1 Pompe avant gauche de Pearl
+	#define USE_PWM2     //PWM2 Pompe avant droite de Pearl
 	//#define USE_PWM3
 	//#define USE_PWM4
 	#define FREQ_PWM_50KHZ

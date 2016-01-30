@@ -41,7 +41,6 @@
 		//
 
 	#define PORT_IO_A_8			PORT_IO_OUTPUT
-		#define CUP_NIPPER_DCM_SENS		 GPIOA,GPIO_Pin_8
 
 	#define PORT_IO_A_9			PORT_IO_INPUT
 		// USB
@@ -67,10 +66,8 @@
 //--------------------------------------PORT B------------------------------------//
 ////////////////////////////////////////////////////////////////////////////////////
 	#define PORT_IO_B_0			PORT_IO_INPUT
-		#define WT100_GOBELET_RIGHT		(!(GPIOB->IDR0))
 
 	#define PORT_IO_B_1			PORT_IO_INPUT
-		#define WT100_GOBELET_LEFT		(!(GPIOB->IDR1))
 
 	#define PORT_IO_B_2			PORT_IO_INPUT
 		//
@@ -93,11 +90,11 @@
 	#define PORT_IO_B_8			PORT_IO_OUTPUT
 		#define I_AM_READY			GPIOB,GPIO_Pin_8
 
-	#define PORT_IO_B_9			PORT_IO_INPUT
-		//
+	#define PORT_IO_B_9			PORT_IO_OUTPUT
+		#define POMPE_BACK_LEFT     GPIOB,GPIO_Pin_9   //Pompe arrière gauche de Pearl
 
-	#define PORT_IO_B_10		PORT_IO_INPUT
-		//
+	#define PORT_IO_B_10		PORT_IO_OUTPUT
+		#define POMPE_BACK_RIGHT    GPIOB,GPIO_Pin_9   //Pompe arrière droite de Pearl
 
 	#define PORT_IO_B_11		PORT_IO_OUTPUT
 		#define AX12_DIRECTION_PORT_AX12	GPIOB,GPIO_Pin_11
@@ -137,10 +134,10 @@
 		//
 
 	#define PORT_IO_C_6			PORT_IO_INPUT
-		//
+		//PWM1 Pompe avant gauche de Pearl
 
 	#define PORT_IO_C_7			PORT_IO_INPUT
-		//
+		//PWM2 Pompe avant droite de Pearl
 
 	#define PORT_IO_C_8			PORT_IO_INPUT
 		//
@@ -148,14 +145,13 @@
 	#define PORT_IO_C_9			PORT_IO_INPUT
 		//
 
-	#define PORT_IO_C_10		PORT_IO_INPUT
-		//
+	#define PORT_IO_C_10		PORT_IO_OUTPUT
+		#define POMPE_FRONT_LEFT_SENS  GPIOC,GPIO_Pin_10
 
-	#define PORT_IO_C_11		PORT_IO_INPUT
-		//
+	#define PORT_IO_C_11		PORT_IO_OUTPUT
+		#define POMPE_FRONT_RIGHT_SENS  GPIOC,GPIO_Pin_11
 
 	#define PORT_IO_C_12		PORT_IO_OUTPUT
-		#define POMPE_WOOD_SENS	GPIOC,GPIO_Pin_12
 
 	#define PORT_IO_C_13		PORT_IO_INPUT
 		#define PORT_ROBOT_ID  		GPIOC->IDR13
@@ -282,4 +278,7 @@
 	#define LEFT_ARM_AX12_ID                       11
 	#define RIGHT_ARM_AX12_ID					   12
 	#define PEARL_SAND_CIRCLE_AX12_ID			   13
+
+	#define POMPE_FRONT_LEFT_PWM_NUM               1
+	#define POMPE_FRONT_RIGHT_PWM_NUM              2
 #endif /* SMALL_CONFIG_PIN_H */
