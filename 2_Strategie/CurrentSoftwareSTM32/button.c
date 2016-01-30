@@ -38,7 +38,8 @@ void BUTTON_init()
 	BUTTONS_init();
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 
-	IHM_define_act_button(BP_0_IHM,BUTTON_rush, NULL);
+	IHM_define_act_button(BP_0_IHM,BUTTON_pompes_av_direct_push, BUTTON_pompes_av_long_push);
+	IHM_define_act_button(BP_1_IHM,NULL, BUTTON_pompes_dunix);
 	IHM_define_act_button(BP_GO_TO_HOME,BOUTTON_go_to_home, NULL);
 	IHM_define_act_button(BP_OK,LCD_button_ok, NULL);
 	IHM_define_act_button(BP_UP,LCD_button_up, LCD_button_up);
@@ -104,15 +105,46 @@ void BOUTTON_go_to_home(void){
 	global.flags.go_to_home = TRUE;
 }
 
-void BUTTON_rush(void){
-	debug_printf("Rush\r\n");
-	CAN_msg_t order;
-	order.sid = PROP_RUSH_IN_THE_WALL;
-	order.size = SIZE_PROP_RUSH_IN_THE_WALL;
-	order.data.prop_rush_in_the_wall.teta = global.pos.angle;
-	order.data.prop_rush_in_the_wall.way = BACKWARD;
-	order.data.prop_rush_in_the_wall.asser_rot = SLOW;
-	CAN_send (&order);
+void BUTTON_pompes_av_direct_push(void){
+	static Uint8 state = 0;
+	if(state == 0)
+		ACT_push_order(ACT_POMPE_ALL, 0b00100000);
+	else if(state == 1)
+		ACT_push_order(ACT_POMPE_ALL, 0b00010000);
+	else if(state == 2)
+		ACT_push_order(ACT_POMPE_ALL, 0b00001000);
+	else if(state == 3)
+		ACT_push_order(ACT_POMPE_ALL, 0b00000100);
+	else if(state == 4)
+		ACT_push_order(ACT_POMPE_ALL, 0b00000010);
+	else if(state == 5)
+		ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_STOP);
+
+	state = (state==5)? 0: state+1;
+}
+
+void BUTTON_pompes_av_long_push(void){
+	static Uint8 state = 0;
+	if(state == 0)
+		ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_NORMAL_5);
+	else if(state == 1)
+		ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_STOP);
+
+	state = (state==1)? 0: state+1;
+}
+
+void BUTTON_pompes_dunix(void){
+	static Uint8 state = 0;
+	if(state == 0)
+		ACT_push_order(ACT_POMPE_ALL, 0b0100000);
+	else if(state == 1)
+		ACT_push_order(ACT_POMPE_ALL, 0b0100001);
+	else if(state == 2)
+		ACT_push_order(ACT_POMPE_ALL, 0b0000001);
+	else if(state == 3)
+		ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_STOP);
+
+	state = (state==3)? 0: state+1;
 }
 
 void BUTTON_verbose(void)

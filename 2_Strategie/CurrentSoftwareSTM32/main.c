@@ -227,8 +227,6 @@ static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
 		if(RECALAGE_AR_G || RECALAGE_AR_D || RECALAGE_AV_G || RECALAGE_AV_D){
-				//|| (ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 5 && ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) < 350)
-				//|| (ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 5 && ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) < 200)){
 			if(led_on == FALSE){
 				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 				led_on = TRUE;
@@ -238,7 +236,7 @@ static void MAIN_sensor_test(){
 			led_on = FALSE;
 		}
 	}else{
-		if(RECALAGE_AV_G || RECALAGE_AV_D || 1){
+		if(RECALAGE_AV_G || RECALAGE_AV_D || WT100_PEARL_LEFT || WT100_PEARL_RIGHT || WT100_PEARL_MIDDLE){
 			if(led_on == FALSE){
 				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 				led_on = TRUE;
