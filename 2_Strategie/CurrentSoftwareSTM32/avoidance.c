@@ -210,7 +210,7 @@ Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in
 
 	switch(state){
 		case COMPUTE :
-			COS_SIN_4096_get((way == FORWARD)? global.pos.angle:global.pos.angle+PI4096, &cos, &sin);
+			COS_SIN_4096_get((way == FORWARD)? global.pos.angle:GEOMETRY_modulo_angle(global.pos.angle+PI4096), &cos, &sin);
 
 			if(compute){
 
