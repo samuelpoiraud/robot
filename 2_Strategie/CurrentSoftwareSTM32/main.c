@@ -166,7 +166,7 @@ int main (void)
 		//Machine à état QS_mosfet
 		#ifdef USE_MOSFETS
 			MOSFET_state_machine(NULL);
-		#ifdef
+		#endif
 
 		MAIN_sensor_test();
 
