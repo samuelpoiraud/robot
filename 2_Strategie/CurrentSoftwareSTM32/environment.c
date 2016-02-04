@@ -440,12 +440,38 @@ void ENV_update(void)
 	}
 
 
+#define INTERVAL_ASK_TIME 1000  //Temps entre deux demandes d'état de la communication
+
 #ifdef USE_XBEE
 	if(IHM_switchs_get(SWITCH_XBEE))
 	{
 		if(XBeeToCANmsg(&can_msg_from_uart2))
 			ENV_process_can_msg(&can_msg_from_uart2,TRUE, TRUE, FALSE, FALSE);	//Everywhere except U2 and XBee.
+
+		//Mise à jour du flag sur l'état de la communication XBEE
+		static error_e result = NOT_HANDLED;
+		static time32_t time = 0;
+		if(result == IN_PROGRESS)
+		{
+			result = ELEMENTS_check_communication(NULL);
+		}
+		else if(result == END_WITH_TIMEOUT && ((time + INTERVAL_ASK_TIME) > global.absolute_time) )
+		{
+			result = ELEMENTS_check_communication(NULL);
+			time = global.absolute_time;
+		}
+		else if(result == END_OK && ((time + INTERVAL_ASK_TIME) > global.absolute_time) )
+		{
+			result = ELEMENTS_check_communication(NULL);
+			time = global.absolute_time;
+		}
+		else if(result == NOT_HANDLED)
+		{
+			time = global.absolute_time;
+			result = ELEMENTS_check_communication(NULL);
+		}
 	}
+
 #endif
 
 
@@ -610,6 +636,17 @@ void CAN_update (CAN_msg_t* incoming_msg)
 #ifdef USE_SYNC_ELEMENTS
 			ELEMENTS_receive_flags(incoming_msg);
 #endif
+			break;
+
+		case XBEE_COMMUNICATION_AVAILABLE:{
+			CAN_msg_t answer;
+			answer.sid = XBEE_COMMUNICATION_RESPONSE;
+			answer.size = 0;
+			CANMsgToXBeeDestination(&answer,(QS_WHO_AM_I_get()==BIG_ROBOT)?SMALL_ROBOT_MODULE:BIG_ROBOT_MODULE);
+			break;}
+
+		case XBEE_COMMUNICATION_RESPONSE:
+			ELEMENTS_check_communication(incoming_msg);
 			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/

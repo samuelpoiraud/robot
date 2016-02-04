@@ -293,9 +293,9 @@
 				robot_id_e robot_id				:8;
 			}xbee_my_position_is;
 
-		#define XBEE_CAN_WOOD_ACCESS_SCAN		0x5B0
+		#define XBEE_COMMUNICATION_AVAILABLE	0x5B0
+		#define XBEE_COMMUNICATION_RESPONSE		0x5B1	//Réponse...
 
-		#define XBEE_WOOD_ACCESS_SCAN			0x5B1	//Réponse...
 		#define SIZE_XBEE_WOOD_ACCESS_SCAN		6
 			struct{
 				Sint16 holly_x					:16;		// [mm]
