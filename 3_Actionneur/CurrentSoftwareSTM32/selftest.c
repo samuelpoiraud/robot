@@ -31,18 +31,11 @@
 	#include "Black/Sand_locker/sand_locker_right.h"
 	#include "Black/Shift_cylinder/shift_cylinder.h"
 	#include "Black/Pendulum/pendulum.h"
-	#include "Black/Sand_locker/pompe_sand_locker_left.h"
-	#include "Black/Sand_locker/pompe_sand_locker_right.h"
-	#include "Black/Pompe_black_front/pompe_black_front_left.h"
-	#include "Black/Pompe_black_front/pompe_black_front_right.h"
-	#include "Black/Pendulum/pompe_pendulum.h"
 #endif
 
 #ifdef I_AM_ROBOT_SMALL
 	#include "Pearl/Sand/left_arm.h"
 	#include "Pearl/Sand/right_arm.h"
-	#include "Pearl/Pompes/pompe_back_left.h"
-	#include "Pearl/Pompes/pompe_back_right.h"
 	#include "Pearl/Pompes/pompe_front_left.h"
 	#include "Pearl/Pompes/pompe_front_right.h"
 	#include "Pearl/Sand/pearl_sand_circle.h"
@@ -162,6 +155,7 @@ void SELFTEST_state_machine(void){
 		time_for_timeout = global.absolute_time;
 
 		switch(state){
+
 //Black
 #ifdef I_AM_ROBOT_BIG
 			case QUEUE_ACT_RX24_FISH_MAGNETIC_ARM:
@@ -308,50 +302,36 @@ void SELFTEST_state_machine(void){
 				break;
 
 			case QUEUE_ACT_RX24_SAND_LOCKER_LEFT:
-			case QUEUE_ACT_POMPE_SAND_LOCKER_LEFT:
-				if(entrance && state_act_tests[ACT_SAND_LOCKER_LEFT & 0xFF] == SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_POMPE_SAND_LOCKER_LEFT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
+				if(entrance){
 					SELFTEST_set_actions(&SAND_LOCKER_LEFT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_SAND_LOCKER_LEFT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT},
 											 {ACT_SAND_LOCKER_LEFT_OPEN,    0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT},
 											 {ACT_SAND_LOCKER_LEFT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT}
 										 });
-					SELFTEST_set_actions(&POMPE_SAND_LOCKER_LEFT_run_command, 2, (SELFTEST_action_t[]){
-											 {ACT_POMPE_SAND_LOCKER_LEFT_NORMAL, 0,  QUEUE_ACT_POMPE_SAND_LOCKER_LEFT},
-											 {ACT_POMPE_SAND_LOCKER_LEFT_STOP,   0,  QUEUE_ACT_POMPE_SAND_LOCKER_LEFT},
-										 });
 				}
-				if(state_act_tests[ACT_SAND_LOCKER_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_POMPE_SAND_LOCKER_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state+=2;
+				if(state_act_tests[ACT_SAND_LOCKER_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
 					debug_printf("SELFTEST of ACT_SAND_LOCKER_LEFT finished\n");
-					debug_printf("SELFTEST of ACT_POMPE_SAND_LOCKER_LEFT finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
 					state_act_tests[ACT_SAND_LOCKER_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state_act_tests[ACT_POMPE_SAND_LOCKER_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state+=2;
+					state++;
 				}
 				break;
 
 			case QUEUE_ACT_RX24_SAND_LOCKER_RIGHT:
-			case QUEUE_ACT_POMPE_SAND_LOCKER_RIGHT:
-				if(entrance && state_act_tests[ACT_SAND_LOCKER_RIGHT & 0xFF] == SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_POMPE_SAND_LOCKER_RIGHT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
+				if(entrance){
 					SELFTEST_set_actions(&SAND_LOCKER_RIGHT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_SAND_LOCKER_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT},
 											 {ACT_SAND_LOCKER_RIGHT_OPEN,   0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT},
 											 {ACT_SAND_LOCKER_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT}
 										 });
-					SELFTEST_set_actions(&POMPE_SAND_LOCKER_RIGHT_run_command, 2, (SELFTEST_action_t[]){
-											 {ACT_POMPE_SAND_LOCKER_RIGHT_NORMAL, 0,  QUEUE_ACT_POMPE_SAND_LOCKER_RIGHT},
-											 {ACT_POMPE_SAND_LOCKER_RIGHT_STOP,   0,  QUEUE_ACT_POMPE_SAND_LOCKER_RIGHT},
-										 });
 				}
-				if(state_act_tests[ACT_SAND_LOCKER_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_POMPE_SAND_LOCKER_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state+=2;
+				if(state_act_tests[ACT_SAND_LOCKER_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
 					debug_printf("SELFTEST of ACT_SAND_LOCKER_RIGHT finished\n");
-					debug_printf("SELFTEST of ACT_POMPE_SAND_LOCKER_RIGHT finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
 					state_act_tests[ACT_SAND_LOCKER_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state_act_tests[ACT_POMPE_SAND_LOCKER_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state+=2;
+					state++;
 				}
 				break;
 
@@ -373,60 +353,23 @@ void SELFTEST_state_machine(void){
 				break;
 
 			case QUEUE_ACT_RX24_PENDULUM:
-			case QUEUE_ACT_POMPE_PENDULUM:
-				if(entrance && state_act_tests[ACT_PENDULUM & 0xFF] == SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_POMPE_PENDULUM & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
+				if(entrance){
 					SELFTEST_set_actions(&PENDULUM_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_PENDULUM_IDLE,   0,  QUEUE_ACT_RX24_PENDULUM},
 											 {ACT_PENDULUM_OPEN,   0,  QUEUE_ACT_RX24_PENDULUM},
 											 {ACT_PENDULUM_IDLE,   0,  QUEUE_ACT_RX24_PENDULUM}
 										 });
-					SELFTEST_set_actions(&POMPE_PENDULUM_run_command, 2, (SELFTEST_action_t[]){
-											 {ACT_POMPE_PENDULUM_NORMAL, 0,  QUEUE_ACT_POMPE_PENDULUM},
-											 {ACT_POMPE_PENDULUM_STOP,   0,  QUEUE_ACT_POMPE_PENDULUM},
-										 });
 				}
-				if(state_act_tests[ACT_PENDULUM & 0xFF] != SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_POMPE_PENDULUM & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state+=2;
+				if(state_act_tests[ACT_PENDULUM & 0xFF] != SELFTEST_STATE_IN_PROGRESS ){
+					state++;
 					debug_printf("SELFTEST of ACT_PENDULUM finished\n");
-					debug_printf("SELFTEST of ACT_POMPE_PENDULUM finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
 					state_act_tests[ACT_PENDULUM & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state_act_tests[ACT_POMPE_PENDULUM & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state+=2;
-				}
-				break;
-
-			case QUEUE_ACT_POMPE_BLACK_FRONT_LEFT:
-				if(entrance){
-					SELFTEST_set_actions(&POMPE_BLACK_FRONT_LEFT_run_command, 2, (SELFTEST_action_t[]){
-											 {ACT_POMPE_BLACK_FRONT_LEFT_NORMAL, 0,  QUEUE_ACT_POMPE_BLACK_FRONT_LEFT},
-											 {ACT_POMPE_BLACK_FRONT_LEFT_STOP,   0,  QUEUE_ACT_POMPE_BLACK_FRONT_LEFT}
-										 });
-				}
-				if(state_act_tests[ACT_POMPE_BLACK_FRONT_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state++;
-					debug_printf("SELFTEST of ACT_POMPE_BLACK_FRONT_LEFT finished\n");
-				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_POMPE_BLACK_FRONT_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					state++;
 				}
 				break;
 
-			case QUEUE_ACT_POMPE_BLACK_FRONT_RIGHT:
-				if(entrance){
-					SELFTEST_set_actions(&POMPE_BLACK_FRONT_RIGHT_run_command, 2, (SELFTEST_action_t[]){
-											 {ACT_POMPE_BLACK_FRONT_RIGHT_NORMAL, 0,  QUEUE_ACT_POMPE_BLACK_FRONT_RIGHT},
-											 {ACT_POMPE_BLACK_FRONT_RIGHT_STOP,   0,  QUEUE_ACT_POMPE_BLACK_FRONT_RIGHT}
-										 });
-				}
-				if(state_act_tests[ACT_POMPE_BLACK_FRONT_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state++;
-					debug_printf("SELFTEST of ACT_POMPE_BLACK_FRONT_RIGHT finished\n");
-				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_POMPE_BLACK_FRONT_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state++;
-				}
-				break;
+
 #endif
 
 //Pearl
@@ -482,7 +425,7 @@ void SELFTEST_state_machine(void){
 				}
 				break;
 
-			case QUEUE_ACT_POMPE_BACK_LEFT:
+			/*case QUEUE_ACT_POMPE_BACK_LEFT:
 				if(entrance){
 					SELFTEST_set_actions(&POMPE_BACK_LEFT_run_command, 2, (SELFTEST_action_t[]){
 													 {ACT_POMPE_BACK_LEFT_NORMAL,   0,  QUEUE_ACT_POMPE_BACK_LEFT},
@@ -512,7 +455,7 @@ void SELFTEST_state_machine(void){
 					state_act_tests[ACT_POMPE_BACK_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					state++;
 				}
-				break;
+				break;*/
 
 			case QUEUE_ACT_POMPE_FRONT_LEFT:
 				if(entrance){
@@ -639,21 +582,6 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 					case ACT_PENDULUM:
 						failed_act_tests[i] = SELFTEST_ACT_RX24_PENDULUM;
 						break;
-					case ACT_POMPE_SAND_LOCKER_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_POMPE_SAND_LOCKER_LEFT;
-						break;
-					case ACT_POMPE_SAND_LOCKER_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_POMPE_SAND_LOCKER_RIGHT;
-						break;
-					case ACT_POMPE_BLACK_FRONT_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_LEFT;
-						break;
-					case ACT_POMPE_BLACK_FRONT_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_RIGHT;
-						break;
-					case ACT_POMPE_PENDULUM:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_POMPE_PENDULUM;
-						break;
 
 
 // Pearl
@@ -665,12 +593,6 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						break;
 					case ACT_PEARL_SAND_CIRCLE:
 						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_CIRCLE;
-						break;
-					case ACT_POMPE_BACK_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_POMPE_BACK_LEFT;
-						break;
-					case ACT_POMPE_BACK_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_POMPE_BACK_RIGHT;
 						break;
 					case ACT_POMPE_FRONT_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_POMPE_FRONT_LEFT;

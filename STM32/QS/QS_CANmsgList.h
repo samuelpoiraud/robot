@@ -364,7 +364,7 @@
 
 		#define ACT_DO_SELFTEST				0x300
 
-		#define ACT_PING					0x360
+		#define ACT_PING					0x380
 
 		#define STRAT_ACT_PONG				0x226
 		#define SIZE_STRAT_ACT_PONG			1
@@ -875,31 +875,77 @@
 		ACT_SAND_LOCKER_RIGHT       = (ACT_FILTER | 0x0C),
 		ACT_SHIFT_CYLINDER          = (ACT_FILTER | 0x0D),
 		ACT_PENDULUM                = (ACT_FILTER | 0x0E),
-		ACT_POMPE_SAND_LOCKER_LEFT  = (ACT_FILTER | 0x0F),
-		ACT_POMPE_SAND_LOCKER_RIGHT = (ACT_FILTER | 0x10),
-		ACT_POMPE_BLACK_FRONT_LEFT  = (ACT_FILTER | 0x11),
-		ACT_POMPE_BLACK_FRONT_RIGHT = (ACT_FILTER | 0x12),
-		ACT_POMPE_PENDULUM          = (ACT_FILTER | 0x13),
-		ACT_POMPE_VERY_LEFT         = (ACT_FILTER | 0x14),
-		ACT_POMPE_LEFT              = (ACT_FILTER | 0x15),
-		ACT_POMPE_MIDDLE_LEFT       = (ACT_FILTER | 0x16),
-		ACT_POMPE_MIDDLE            = (ACT_FILTER | 0x17),
-		ACT_POMPE_MIDDLE_RIGHT      = (ACT_FILTER | 0x18),
-		ACT_POMPE_RIGHT             = (ACT_FILTER | 0x19),
-		ACT_POMPE_VERY_RIGHT        = (ACT_FILTER | 0x1A),
-		ACT_POMPE_ALL               = (ACT_FILTER | 0x1B),
 
 		//////////////////////////////////////////////////////////////////
-		//----------------------------PEARL------------------------------//
+		//----------------------------PEARL-----------------------------//
 		//////////////////////////////////////////////////////////////////
 
 		ACT_LEFT_ARM			    = (ACT_FILTER | 0x30),
 		ACT_RIGHT_ARM			    = (ACT_FILTER | 0x31),
-		ACT_POMPE_BACK_LEFT  		= (ACT_FILTER | 0x32),
-		ACT_POMPE_BACK_RIGHT  		= (ACT_FILTER | 0x33),
-		ACT_POMPE_FRONT_LEFT  		= (ACT_FILTER | 0x34),
-		ACT_POMPE_FRONT_RIGHT  		= (ACT_FILTER | 0x35),
-		ACT_PEARL_SAND_CIRCLE	    = (ACT_FILTER | 0x36)
+		ACT_POMPE_FRONT_LEFT  		= (ACT_FILTER | 0x32),
+		ACT_POMPE_FRONT_RIGHT  		= (ACT_FILTER | 0x33),
+		ACT_PEARL_SAND_CIRCLE	    = (ACT_FILTER | 0x34),
+
+		//////////////////////////////////////////////////////////////////
+		//-----------------------------BOTH-----------------------------//
+		//////////////////////////////////////////////////////////////////
+
+
+		//////////////////////////////////////////////////////////////////
+		//-------------------------MOSFETS ACT--------------------------//
+		//////////////////////////////////////////////////////////////////
+
+		ACT_MOSFET_0                = (ACT_FILTER | 0x60),
+		ACT_POMPE_VERY_LEFT			= (ACT_FILTER | 0x60),
+		ACT_POMPE_BACK_LEFT         = (ACT_FILTER | 0x60),
+
+		ACT_MOSFET_1				= (ACT_FILTER | 0x61),
+		ACT_POMPE_MIDDLE            = (ACT_FILTER | 0x61),
+		ACT_POMPE_BACK_RIGHT        = (ACT_FILTER | 0x61),
+
+		ACT_MOSFET_2				= (ACT_FILTER | 0x62),
+		ACT_POMPE_VERY_RIGHT_BOT    = (ACT_FILTER | 0x62),
+
+		ACT_MOSFET_3				= (ACT_FILTER | 0x63),
+		ACT_POMPE_VERY_RIGHT_TOP    = (ACT_FILTER | 0x63),
+
+		ACT_MOSFET_4				= (ACT_FILTER | 0x64),
+		ACT_POMPE_RIGHT             = (ACT_FILTER | 0x64),
+
+		ACT_MOSFET_5				= (ACT_FILTER | 0x65),
+		ACT_POMPE_MIDDLE_RIGHT      = (ACT_FILTER | 0x65),
+
+		ACT_MOSFET_6				= (ACT_FILTER | 0x66),
+		ACT_POMPE_MIDDLE_LEFT       = (ACT_FILTER | 0x66),
+
+		ACT_MOSFET_7			    = (ACT_FILTER | 0x67),
+		ACT_POMPE_LEFT              = (ACT_FILTER | 0x67),
+
+		ACT_MOSFETS_ALL             = (ACT_FILTER | 0x68),
+		ACT_POMPE_ALL               = (ACT_FILTER | 0x68),
+
+	//////////////////////////////////////////////////////////////////
+	//-------------------------MOSFETS STRAT------------------------//
+	//////////////////////////////////////////////////////////////////
+		STRAT_MOSFET_0              = (ACT_FILTER | 0x69),
+		ACT_POMPE_BLACK_FRONT_LEFT  = (ACT_FILTER | 0x69),
+
+		STRAT_MOSFET_1				= (ACT_FILTER | 0x70),
+		ACT_POMPE_SAND_LOCKER_LEFT  = (ACT_FILTER | 0x70),
+
+		STRAT_MOSFET_2				= (ACT_FILTER | 0x71),
+		ACT_POMPE_SAND_LOCKER_RIGHT = (ACT_FILTER | 0x71),
+
+		STRAT_MOSFET_3				= (ACT_FILTER | 0x72),
+		ACT_POMPE_BLACK_FRONT_RIGHT	= (ACT_FILTER | 0x72),
+
+		STRAT_MOSFET_4				= (ACT_FILTER | 0x73),
+		ACT_POMPE_PENDULUM			= (ACT_FILTER | 0x73),
+
+		STRAT_MOSFET_5				= (ACT_FILTER | 0x74),
+		STRAT_MOSFET_6				= (ACT_FILTER | 0x75),
+		STRAT_MOSFET_7				= (ACT_FILTER | 0x76)
+
 	} ACT_sid_e;
 
 #endif	/* ndef QS_CANMSGLIST_H */

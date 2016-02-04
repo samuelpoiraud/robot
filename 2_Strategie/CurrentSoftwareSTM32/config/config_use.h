@@ -49,6 +49,10 @@
 
 //#define USE_SYNC_ELEMENTS
 
+// Utilisation de la carte Mosfets
+#define USE_MOSFETS			// déclarer l'utilisation du pilote
+#define NB_MOSFETS     5    //Nombre de mosfets à piloter (max = 8)
+
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
 //#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN

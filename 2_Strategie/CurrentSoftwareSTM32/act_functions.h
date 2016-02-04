@@ -71,9 +71,4 @@ void ACT_sensor_answer(CAN_msg_t* msg);
 bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value);
 
 
-// -------------------------------- Spécificité 2016 pour gérer les pompes
-
-void ACT_init_all_pompes();
-void ACT_transmit_order_to_pompe(CAN_msg_t* msg);
-
 #endif /* ndef ACT_FUNCTIONS_H */

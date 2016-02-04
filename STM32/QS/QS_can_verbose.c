@@ -200,40 +200,51 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_SAND_LOCKER_RIGHT:						print(string, len, "%x ACT_SAND_LOCKER_RIGHT                  ", ACT_SAND_LOCKER_RIGHT							);	break;
 		case ACT_SHIFT_CYLINDER:						print(string, len, "%x ACT_SHIFT_CYLINDER                     ", ACT_SHIFT_CYLINDER								);	break;
 		case ACT_PENDULUM:								print(string, len, "%x ACT_PENDULUM                           ", ACT_PENDULUM									);	break;
-		case ACT_POMPE_SAND_LOCKER_LEFT:				print(string, len, "%x ACT_POMPE_SAND_LOCKER_LEFT             ", ACT_POMPE_SAND_LOCKER_LEFT						);	break;
-		case ACT_POMPE_SAND_LOCKER_RIGHT:				print(string, len, "%x ACT_POMPE_SAND_LOCKER_RIGHT            ", ACT_POMPE_SAND_LOCKER_RIGHT					);	break;
-		case ACT_POMPE_BLACK_FRONT_LEFT:                print(string, len, "%x ACT_POMPE_BLACK_FRONT_LEFT             ", ACT_POMPE_BLACK_FRONT_LEFT						);	break;
-		case ACT_POMPE_BLACK_FRONT_RIGHT:               print(string, len, "%x ACT_POMPE_BLACK_FRONT_RIGHT            ", ACT_POMPE_BLACK_FRONT_RIGHT					);	break;
-		case ACT_POMPE_PENDULUM:                        print(string, len, "%x ACT_POMPE_PENDULUM                     ", ACT_POMPE_PENDULUM								);	break;
-		case ACT_POMPE_VERY_LEFT:                       print(string, len, "%x ACT_POMPE_VERY_LEFT                    ", ACT_POMPE_VERY_LEFT   							);	break;
-		case ACT_POMPE_LEFT:							print(string, len, "%x ACT_POMPE_LEFT                         ", ACT_POMPE_LEFT        							);	break;
-		case ACT_POMPE_MIDDLE_LEFT:                     print(string, len, "%x ACT_POMPE_MIDDLE_LEFT                  ", ACT_POMPE_MIDDLE_LEFT 							);	break;
-		case ACT_POMPE_MIDDLE:							print(string, len, "%x ACT_POMPE_MIDDLE                       ", ACT_POMPE_MIDDLE      							);	break;
-		case ACT_POMPE_MIDDLE_RIGHT:                    print(string, len, "%x ACT_POMPE_MIDDLE_RIGHT                 ", ACT_POMPE_MIDDLE_RIGHT							);	break;
-		case ACT_POMPE_RIGHT:							print(string, len, "%x ACT_POMPE_RIGHT                        ", ACT_POMPE_RIGHT       							);	break;
-		case ACT_POMPE_VERY_RIGHT:                      print(string, len, "%x ACT_POMPE_VERY_RIGHT                   ", ACT_POMPE_VERY_RIGHT  							);	break;
-		case ACT_POMPE_ALL:								print(string, len, "%x ACT_POMPE_ALL                          ", ACT_POMPE_ALL         							);	break;
-
 
 // Pearl
-		case ACT_LEFT_ARM	 :					    	print(string, len, "%x ACT_LEFT_ARM	                         ", ACT_LEFT_ARM							      	);	break;
-		case ACT_RIGHT_ARM	 :					     	print(string, len, "%x ACT_RIGHT_ARM	                     ", ACT_RIGHT_ARM							     	);	break;
-		case ACT_POMPE_BACK_LEFT  :						print(string, len, "%x ACT_POMPE_BACK_LEFT                   ", ACT_POMPE_BACK_LEFT							    );	break;
-		case ACT_POMPE_BACK_RIGHT :						print(string, len, "%x ACT_POMPE_BACK_RIGHT                   ", ACT_POMPE_BACK_RIGHT							);	break;
+		case ACT_LEFT_ARM	 :					    	print(string, len, "%x ACT_LEFT_ARM	                          ", ACT_LEFT_ARM							      	);	break;
+		case ACT_RIGHT_ARM	 :					     	print(string, len, "%x ACT_RIGHT_ARM	                      ", ACT_RIGHT_ARM							     	);	break;
 		case ACT_POMPE_FRONT_LEFT :						print(string, len, "%x ACT_POMPE_FRONT_LEFT                   ", ACT_POMPE_FRONT_LEFT							);	break;
 		case ACT_POMPE_FRONT_RIGHT:						print(string, len, "%x ACT_POMPE_FRONT_RIGHT                  ", ACT_POMPE_FRONT_RIGHT							);	break;
 		case ACT_PEARL_SAND_CIRCLE:						print(string, len, "%x ACT_PEARL_SAND_CIRCLE                  ", ACT_PEARL_SAND_CIRCLE							);	break;
+
+// Mosfets
+		case ACT_MOSFET_0:
+											 if(I_AM_BIG())
+														print(string, len, "%x ACT_POMPE_VERY_LEFT                   ", ACT_POMPE_VERY_LEFT                             );
+											 else
+														print(string, len, "%x ACT_POMPE_BACK_LEFT                   ", ACT_POMPE_BACK_LEFT							    );	break;
+		case ACT_MOSFET_1:
+											 if(I_AM_BIG())
+														print(string, len, "%x ACT_POMPE_MIDDLE                       ", ACT_POMPE_MIDDLE      							);
+											 else
+														print(string, len, "%x ACT_POMPE_BACK_RIGHT                   ", ACT_POMPE_BACK_RIGHT							); break;
+		case ACT_MOSFET_2:								print(string, len, "%x ACT_POMPE_VERY_RIGHT_BOT               ", ACT_POMPE_VERY_RIGHT_BOT    					);	break;
+		case ACT_MOSFET_3:								print(string, len, "%x ACT_POMPE_VERY_RIGHT_TOP               ", ACT_POMPE_VERY_RIGHT_TOP    					);	break;
+		case ACT_MOSFET_4:								print(string, len, "%x ACT_POMPE_RIGHT                        ", ACT_POMPE_RIGHT       							);	break;
+		case ACT_MOSFET_5:								print(string, len, "%x ACT_POMPE_MIDDLE_RIGHT                 ", ACT_POMPE_MIDDLE_RIGHT							);	break;
+		case ACT_MOSFET_6:								print(string, len, "%x ACT_POMPE_MIDDLE_LEFT                  ", ACT_POMPE_MIDDLE_LEFT 							);	break;
+		case ACT_MOSFET_7:								print(string, len, "%x ACT_POMPE_LEFT                         ", ACT_POMPE_LEFT        							);	break;
+
+		case STRAT_MOSFET_0:							print(string, len, "%x ACT_POMPE_BLACK_FRONT_LEFT             ", ACT_POMPE_BLACK_FRONT_LEFT						);	break;
+		case STRAT_MOSFET_1:							print(string, len, "%x ACT_POMPE_SAND_LOCKER_LEFT             ", ACT_POMPE_SAND_LOCKER_LEFT						);	break;
+		case STRAT_MOSFET_2:							print(string, len, "%x ACT_POMPE_SAND_LOCKER_RIGHT            ", ACT_POMPE_SAND_LOCKER_RIGHT					);	break;
+		case STRAT_MOSFET_3:							print(string, len, "%x ACT_POMPE_BLACK_FRONT_RIGHT            ", ACT_POMPE_BLACK_FRONT_RIGHT					);	break;
+		case STRAT_MOSFET_4:                            print(string, len, "%x ACT_POMPE_PENDULUM                     ", ACT_POMPE_PENDULUM								);	break;
+		case STRAT_MOSFET_5:                            print(string, len, "%x STRAT_MOSFET_5                         ", STRAT_MOSFET_5							     	);	break;
+		case STRAT_MOSFET_6:                            print(string, len, "%x STRAT_MOSFET_6                         ", STRAT_MOSFET_6								    );	break;
+		case STRAT_MOSFET_7:                            print(string, len, "%x STRAT_MOSFET_7                         ", STRAT_MOSFET_7								    );	break;
 
 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
 		case IHM_SET_LED:								print(string, len, "%x IHM_SET_LED                            ", IHM_SET_ERROR									);	break;
-		case IHM_SET_ERROR:								print(string, len, "%x IHM_SET_ERROR                          ",IHM_BIROUTE_IS_REMOVED							);	break;
-		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                             ", IHM_BUTTON									);	break;
-		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                             ", IHM_SWITCH									);	break;
-		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                         ", IHM_SWITCH_ALL								);	break;
-		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                              ", IHM_POWER									);	break;
-		case IHM_BIROUTE_IS_REMOVED:					print(string, len, "%.3x IHM_BIROUTE_IS_REMOVED                 ",IHM_BIROUTE_IS_REMOVED						);	break;
+		case IHM_SET_ERROR:								print(string, len, "%x IHM_SET_ERROR                          ", IHM_BIROUTE_IS_REMOVED							);	break;
+		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                           ", IHM_BUTTON									);	break;
+		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                           ", IHM_SWITCH									);	break;
+		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                       ", IHM_SWITCH_ALL								);	break;
+		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                            ", IHM_POWER									);	break;
+		case IHM_BIROUTE_IS_REMOVED:					print(string, len, "%.3x IHM_BIROUTE_IS_REMOVED               ", IHM_BIROUTE_IS_REMOVED						);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
 	}
@@ -272,29 +283,41 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_SAND_LOCKER_RIGHT:       		print(string,len, "ACT_SAND_LOCKER_RIGHT ");		break;
 				case (Uint8)ACT_SHIFT_CYLINDER:          		print(string,len, "ACT_SHIFT_CYLINDER ");			break;
 				case (Uint8)ACT_PENDULUM:                		print(string,len, "ACT_PENDULUM ");					break;
-				case (Uint8)ACT_POMPE_SAND_LOCKER_LEFT:  		print(string,len, "ACT_POMPE_SAND_LOCKER_LEFT ");	break;
-				case (Uint8)ACT_POMPE_SAND_LOCKER_RIGHT: 		print(string,len, "ACT_POMPE_SAND_LOCKER_RIGHT ");	break;
-				case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT:  		print(string,len, "ACT_POMPE_BLACK_FRONT_LEFT ");	break;
-				case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT: 		print(string,len, "ACT_POMPE_BLACK_FRONT_RIGHT ");	break;
-				case (Uint8)ACT_POMPE_PENDULUM:          		print(string,len, "ACT_POMPE_PENDULUM ");			break;
-				case (Uint8)ACT_POMPE_VERY_LEFT:          		print(string,len, "ACT_POMPE_VERY_LEFT ");			break;
-				case (Uint8)ACT_POMPE_LEFT:						print(string,len, "ACT_POMPE_LEFT ");				break;
-				case (Uint8)ACT_POMPE_MIDDLE_LEFT:          	print(string,len, "ACT_POMPE_MIDDLE_LEFT ");		break;
-				case (Uint8)ACT_POMPE_MIDDLE:					print(string,len, "ACT_POMPE_MIDDLE ");				break;
-				case (Uint8)ACT_POMPE_MIDDLE_RIGHT:          	print(string,len, "ACT_POMPE_MIDDLE_RIGHT ");		break;
-				case (Uint8)ACT_POMPE_RIGHT:					print(string,len, "ACT_POMPE_RIGHT ");				break;
-				case (Uint8)ACT_POMPE_VERY_RIGHT:          		print(string,len, "ACT_POMPE_VERY_RIGHT ");			break;
-				case (Uint8)ACT_POMPE_ALL:						print(string,len, "ACT_POMPE_ALL ");				break;
-
 
 				//Pearl
 				case (Uint8)ACT_LEFT_ARM:		     			print(string,len, "ACT_LEFT_ARM ");			        break;
 				case (Uint8)ACT_RIGHT_ARM:				    	print(string,len, "ACT_RIGHT_ARM ");			    break;
-				case (Uint8)ACT_POMPE_BACK_LEFT:				print(string,len, "ACT_POMPE_BACK_LEFT ");			break;
-				case (Uint8)ACT_POMPE_BACK_RIGHT:				print(string,len, "ACT_POMPE_BACK_RIGHT ");			break;
 				case (Uint8)ACT_POMPE_FRONT_LEFT:				print(string,len, "ACT_POMPE_FRONT_LEFT ");			break;
 				case (Uint8)ACT_POMPE_FRONT_RIGHT:				print(string,len, "ACT_POMPE_FRONT_RIGHT ");		break;
 				case (Uint8)ACT_PEARL_SAND_CIRCLE:				print(string,len, "ACT_PEARL_SAND_CIRCLE ");		break;
+
+				//Mosfet
+				case (Uint8)ACT_MOSFET_0:
+													 if(I_AM_BIG())
+																print(string, len, "ACT_POMPE_VERY_LEFT ");
+													 else
+																print(string, len, "ACT_POMPE_BACK_LEFT ");        	break;
+				case (Uint8)ACT_MOSFET_1:
+													 if(I_AM_BIG())
+																print(string, len, "ACT_POMPE_MIDDLE ");
+													 else
+																print(string, len, "ACT_POMPE_BACK_RIGHT ");        break;
+				case (Uint8)ACT_MOSFET_2:					    print(string, len, "ACT_POMPE_VERY_RIGHT_BOT ");    break;
+				case (Uint8)ACT_MOSFET_3:						print(string, len, "ACT_POMPE_VERY_RIGHT_TOP ");    break;
+				case (Uint8)ACT_MOSFET_4:						print(string, len, "ACT_POMPE_RIGHT ");             break;
+				case (Uint8)ACT_MOSFET_5:					    print(string, len, "ACT_POMPE_MIDDLE_RIGHT ");      break;
+				case (Uint8)ACT_MOSFET_6:						print(string, len, "ACT_POMPE_MIDDLE_LEFT ");       break;
+				case (Uint8)ACT_MOSFET_7:						print(string, len, "ACT_POMPE_LEFT ");              break;
+
+				case (Uint8)STRAT_MOSFET_0:						print(string, len, "ACT_POMPE_BLACK_FRONT_LEFT ");	break;
+				case (Uint8)STRAT_MOSFET_1:						print(string, len, "ACT_POMPE_SAND_LOCKER_LEFT ");	break;
+				case (Uint8)STRAT_MOSFET_2:						print(string, len, "ACT_POMPE_SAND_LOCKER_RIGHT ");	break;
+				case (Uint8)STRAT_MOSFET_3:						print(string, len, "ACT_POMPE_BLACK_FRONT_RIGHT");	break;
+				case (Uint8)STRAT_MOSFET_4:                     print(string, len, "ACT_POMPE_PENDULUM  ");			break;
+				case (Uint8)STRAT_MOSFET_5:                     print(string, len, "STRAT_MOSFET_5 ");				break;
+				case (Uint8)STRAT_MOSFET_6:                     print(string, len, "STRAT_MOSFET_6 ");				break;
+				case (Uint8)STRAT_MOSFET_7:                     print(string, len, "STRAT_MOSFET_7 ");				break;
+
 
 				default:										print(string,len, "UNKNOW ACT -> complete verbose !");		break;
 			}
@@ -427,98 +450,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  default:                              print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
-				  case (Uint8)ACT_POMPE_SAND_LOCKER_LEFT:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_SAND_LOCKER_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_SAND_LOCKER_LEFT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_SAND_LOCKER_RIGHT:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_SAND_LOCKER_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_SAND_LOCKER_RIGHT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_BLACK_FRONT_LEFT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_BLACK_FRONT_RIGHT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_PENDULUM:
-					  switch(msg->data.act_result.cmd){
-						  case ACT_POMPE_PENDULUM_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case ACT_POMPE_PENDULUM_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_VERY_LEFT:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_VERY_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_VERY_LEFT_STOP:			print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_LEFT:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_LEFT_STOP:			print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_MIDDLE_LEFT:
-					  switch(msg->data.act_result.cmd){
-						  case ACT_POMPE_MIDDLE_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case ACT_POMPE_MIDDLE_LEFT_STOP:			print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_MIDDLE:
-					  switch(msg->data.act_result.cmd){
-						  case ACT_POMPE_MIDDLE_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case ACT_POMPE_MIDDLE_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_MIDDLE_RIGHT:
-					  switch(msg->data.act_result.cmd){
-						  case ACT_POMPE_MIDDLE_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case ACT_POMPE_MIDDLE_RIGHT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_RIGHT:
-					  switch(msg->data.act_result.cmd){
-						  case ACT_POMPE_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case ACT_POMPE_RIGHT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_VERY_RIGHT:
-					  switch(msg->data.act_result.cmd){
-						  case ACT_POMPE_VERY_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case ACT_POMPE_VERY_RIGHT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_ALL:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_ALL_NORMAL_5:		print(string,len, "| NORMAL_5 |");		break;
-						  case (Uint8)ACT_POMPE_ALL_NORMAL_7:		print(string,len, "| NORMAL_7 |");		break;
-						  case (Uint8)ACT_POMPE_ALL_STOP:			print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
 
 				  case (Uint8)ACT_LEFT_ARM:
 					  switch(msg->data.act_result.cmd){
@@ -536,21 +467,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_RIGHT_ARM_CLOSE:			print(string,len, "| CLOSE |");			break;
 						  case (Uint8)ACT_RIGHT_ARM_STOP:			print(string,len, "| STOP |");			break;
 						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-
-				  case (Uint8)ACT_POMPE_BACK_LEFT:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_BACK_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_BACK_LEFT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-				  case (Uint8)ACT_POMPE_BACK_RIGHT:
-					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_BACK_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_BACK_RIGHT_STOP:		print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
 				  case (Uint8)ACT_POMPE_FRONT_LEFT:
@@ -576,6 +492,29 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_PEARL_SAND_CIRCLE_CLOSE:		print(string,len, "| CLOSE |");			break;
 						  case (Uint8)ACT_PEARL_SAND_CIRCLE_STOP:		print(string,len, "| STOP |");			break;
 						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+
+				  case (Uint8)ACT_MOSFET_0:
+				  case (Uint8)ACT_MOSFET_1:
+				  case (Uint8)ACT_MOSFET_2:
+				  case (Uint8)ACT_MOSFET_3:
+				  case (Uint8)ACT_MOSFET_4:
+				  case (Uint8)ACT_MOSFET_5:
+				  case (Uint8)ACT_MOSFET_6:
+				  case (Uint8)ACT_MOSFET_7:
+				  case (Uint8)STRAT_MOSFET_0:
+				  case (Uint8)STRAT_MOSFET_1:
+				  case (Uint8)STRAT_MOSFET_2:
+				  case (Uint8)STRAT_MOSFET_3:
+				  case (Uint8)STRAT_MOSFET_4:
+				  case (Uint8)STRAT_MOSFET_5:
+				  case (Uint8)STRAT_MOSFET_6:
+				  case (Uint8)STRAT_MOSFET_7:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_MOSFET_NORMAL:		print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_MOSFET_STOP:		    print(string,len, "| STOP |");			break;
+						  default:								print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
 

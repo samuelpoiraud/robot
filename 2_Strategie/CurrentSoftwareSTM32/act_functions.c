@@ -26,19 +26,10 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_can_verbose.h"
 
-#include "pompes_black_2016/pompe_very_left.h"
-#include "pompes_black_2016/pompe_left.h"
-#include "pompes_black_2016/pompe_middle_left.h"
-#include "pompes_black_2016/pompe_middle.h"
-#include "pompes_black_2016/pompe_middle_right.h"
-#include "pompes_black_2016/pompe_right.h"
-#include "pompes_black_2016/pompe_very_right.h"
-
 
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
 #define ULU_TIME                        300
-#define ACT_POMPE_DELAY                  10 //Delay en milliseconde entre l'allumage de chaque pompe
-#define ACT_POMPE_SELFTEST_TIME         300 //Delay en milliseconde pour l'allumage de Selftest pour l'allumage de chaque pompe
+
 typedef enum{
 	ACT_SENSOR_WAIT = 0,
 	ACT_SENSOR_ABSENT,
@@ -46,7 +37,7 @@ typedef enum{
 }act_sensor_e;
 
 const act_link_SID_Queue_s act_link_SID_Queue[] = {
-	{0,							NB_QUEUE,						""},
+	{0,							    NB_QUEUE,						""},
 
 	// Black
 	{ACT_FISH_MAGNETIC_ARM,			ACT_QUEUE_Fish_magnetic_arm,			"Fish magnetic arm"},
@@ -63,29 +54,31 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_SAND_LOCKER_RIGHT,			ACT_QUEUE_Sand_locker_right,            "Sand locker right"},
 	{ACT_SHIFT_CYLINDER,			ACT_QUEUE_Shift_cylinder,				"Shift cylinder"},
 	{ACT_PENDULUM,			        ACT_QUEUE_Pendulum,						"Pendulum"},
-	{ACT_POMPE_SAND_LOCKER_LEFT,	ACT_QUEUE_Pompe_sand_locker_left,       "Sand locker left"},
-	{ACT_POMPE_SAND_LOCKER_RIGHT,	ACT_QUEUE_Pompe_sand_locker_right,      "Sand locker right"},
-	{ACT_POMPE_BLACK_FRONT_LEFT,    ACT_QUEUE_Pompe_black__front_left,		"Pompe front left"},
-	{ACT_POMPE_BLACK_FRONT_RIGHT,   ACT_QUEUE_Pompe_black_front_right,		"Pompe front right"},
-	{ACT_POMPE_PENDULUM,			ACT_QUEUE_Pompe_pendulum,				"Pendulum"},
-	{ACT_POMPE_VERY_LEFT,			ACT_QUEUE_Pompe_very_left,				"Pompe very left"},
-	{ACT_POMPE_LEFT,			    ACT_QUEUE_Pompe_left,				    "Pompe left"},
-	{ACT_POMPE_MIDDLE_LEFT,			ACT_QUEUE_Pompe_middle_left,			"Pompe middle left"},
-	{ACT_POMPE_MIDDLE,			    ACT_QUEUE_Pompe_middle,				    "Pompe middle"},
-	{ACT_POMPE_MIDDLE_RIGHT,		ACT_QUEUE_Pompe_middle_right,			"Pompe middle right"},
-	{ACT_POMPE_RIGHT,			    ACT_QUEUE_Pompe_right,				    "Pompe right"},
-	{ACT_POMPE_VERY_RIGHT,			ACT_QUEUE_Pompe_very_right,				"Pompe very right"},
-	{ACT_POMPE_ALL,      			ACT_QUEUE_Pompe_all,			        "Pompe all"},
 
 	// Pearl
-	{ACT_LEFT_ARM,              ACT_QUEUE_Left_arm,                 "Left Arm"},
-	{ACT_RIGHT_ARM,             ACT_QUEUE_Right_arm,		     	"Right Arm"},
-	{ACT_POMPE_BACK_LEFT,       ACT_QUEUE_Pompe_back_left,			"Pompe BL"},
-	{ACT_POMPE_BACK_RIGHT,      ACT_QUEUE_Pompe_back_right,			"Pompe BR"},
-	{ACT_POMPE_FRONT_LEFT,      ACT_QUEUE_Pompe_front_left,			"Pompe FL"},
-	{ACT_POMPE_FRONT_RIGHT,     ACT_QUEUE_Pompe_front_right,		"Pompe FR"},
-	{ACT_PEARL_SAND_CIRCLE,		ACT_QUEUE_Pearl_sand_circle,		"Sand Circle"},
+	{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},
+	{ACT_RIGHT_ARM,					ACT_QUEUE_Right_arm,					"Right Arm"},
+	{ACT_POMPE_FRONT_LEFT,			ACT_QUEUE_Pompe_front_left,				"Pompe Front Left"},
+	{ACT_POMPE_FRONT_RIGHT,			ACT_QUEUE_Pompe_front_right,			"Pompe Front Right"},
+	{ACT_PEARL_SAND_CIRCLE,			ACT_QUEUE_Pearl_sand_circle,			"Sand Circle"},
 
+	// Mosfets actionneurs
+	{ACT_MOSFET_0,					ACT_QUEUE_Mosfet_act_0,				     "Mosfet_act_0"},
+	{ACT_MOSFET_1,					ACT_QUEUE_Mosfet_act_1,				     "Mosfet_act_1"},
+	{ACT_MOSFET_2,					ACT_QUEUE_Mosfet_act_2,			         "Mosfet_act_2"},
+	{ACT_MOSFET_3,					ACT_QUEUE_Mosfet_act_3,			         "Mosfet_act_3"},
+	{ACT_MOSFET_4,					ACT_QUEUE_Mosfet_act_4,				     "Mosfet_act_4"},
+	{ACT_MOSFET_5,					ACT_QUEUE_Mosfet_act_5,			         "Mosfet_act_5"},
+	{ACT_MOSFET_6,					ACT_QUEUE_Mosfet_act_6,			         "Mosfet_act_6"},
+	{ACT_MOSFET_7,					ACT_QUEUE_Mosfet_act_7,				     "Mosfet_act_7"},
+	{ACT_MOSFETS_ALL,      			ACT_QUEUE_Mosfet_act_all,		         "Mosfet_act_all"},
+
+	//Mosfets stratégie
+	{STRAT_MOSFET_0,                ACT_QUEUE_Mosfet_strat_0,		        "Mosfet_strat_0"},
+	{STRAT_MOSFET_1,                ACT_QUEUE_Mosfet_strat_1,               "Mosfet_strat_1"},
+	{STRAT_MOSFET_2,               	ACT_QUEUE_Mosfet_strat_2,               "Mosfet_strat_2"},
+	{STRAT_MOSFET_3,                ACT_QUEUE_Mosfet_strat_3,		        "Mosfet_strat_3"},
+	{STRAT_MOSFET_4,	           	ACT_QUEUE_Mosfet_strat_4,				"Mosfet_strat_4"},
 
 };
 
@@ -120,7 +113,9 @@ volatile act_sensor_e sensor_answer[NB_ACT_SENSOR] = {0};
 ///////////// BLACK & PEARL ////////////
 ////////////////////////////////////////
 
-
+//Recherche l'indice de la case du tableau act_link_SID_Queue ayant pour sid le sid passé en paramètre
+//Attention pour avoir l'indice de la Queue il faut faire -1 sur la résultat.
+//ex: ACT_FIRST_ACT=301  ACT_QUEUE_First_act=0
 Uint8 ACT_search_link_SID_Queue(ACT_sid_e sid){
 	Uint8 i;
 	for(i=0;i<act_link_SID_Queue_size;i++){
@@ -135,7 +130,7 @@ bool_e ACT_push_order(ACT_sid_e sid,  ACT_order_e order){
 	QUEUE_arg_t args;
 	Uint8 i;
 
-	i = ACT_search_link_SID_Queue(sid);
+	i = ACT_search_link_SID_Queue(sid) ;
 
 	if(i == act_link_SID_Queue_size){
 		error_printf("Link SID non trouvé dans ACT_push_order !\n");
@@ -201,221 +196,7 @@ bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value){
 ////////////////////////////////////////
 //////////////// MAE  //////////////////
 ////////////////////////////////////////
-void ACT_init_all_pompes(){
-	ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_STOP);
-}
 
-void ACT_transmit_order_to_pompe(CAN_msg_t* msg){
-	static queue_id_e act_id = NB_QUEUE;
-	static Uint11 state;
-	static Uint11 last_state = NB_QUEUE + 1;
-	static bool_e entrance;
-	static time32_t state_time;
-	CAN_msg_t msg_act_result, current_msg;
-
-	//initialisation en cas de l'envoi d'une nouvelle commande
-	if(msg != NULL){
-		assert((msg->sid&0x300) == ACT_FILTER);
-		act_id = act_link_SID_Queue[ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_result.sid))].queue_id; //id de la pompe
-		state = act_id;
-		current_msg = *msg;
-		//verbose de l'action
-		if(IHM_switchs_get(SWITCH_VERBOSE))
-			QS_CAN_VERBOSE_can_msg_print(msg, VERB_OUTPUT_MSG);
-	}
-
-	//Affectation des variables courantes
-	entrance = (last_state != state);
-	last_state = state;
-	if(entrance){
-		state_time = global.absolute_time;
-	}
-
-	switch(state){
-		case ACT_QUEUE_Pompe_all:
-		case ACT_QUEUE_Pompe_very_left:
-			if(current_msg.sid == ACT_DO_SELFTEST)
-			{
-				if(entrance){
-					POMPE_VERY_LEFT_command(ACT_POMPE_VERY_LEFT_NORMAL);
-				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
-					POMPE_VERY_LEFT_command(ACT_POMPE_VERY_LEFT_STOP);
-					state = ACT_QUEUE_Pompe_left;
-				}
-			}else{
-				if(entrance){
-					if(current_msg.sid == ACT_POMPE_ALL){
-						msg->sid = ACT_POMPE_VERY_LEFT;
-						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x40) >> 6;
-					}
-					POMPE_VERY_LEFT_CAN_process_msg(msg);
-				}else if(current_msg.sid  == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
-					state = ACT_QUEUE_Pompe_left;
-				}else if(current_msg.sid != ACT_POMPE_ALL){
-					state = NB_QUEUE; //finish
-				}
-			}
-			break;
-
-		case ACT_QUEUE_Pompe_left:
-			if(current_msg.sid == ACT_DO_SELFTEST)
-			{
-				if(entrance){
-					POMPE_LEFT_command(ACT_POMPE_LEFT_NORMAL);
-				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
-					POMPE_LEFT_command(ACT_POMPE_LEFT_STOP);
-					state = ACT_QUEUE_Pompe_middle_left;
-				}
-			}else{
-				if(entrance){
-					if(current_msg.sid == ACT_POMPE_ALL){
-						msg->sid = ACT_POMPE_LEFT;
-						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x20) >> 5;
-					}
-					POMPE_LEFT_CAN_process_msg(msg);
-				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
-					state = ACT_QUEUE_Pompe_middle_left;
-				}else if(current_msg.sid != ACT_POMPE_ALL){
-					state = NB_QUEUE; //finish
-				}
-			}
-			break;
-
-		case ACT_QUEUE_Pompe_middle_left:
-			if(current_msg.sid == ACT_DO_SELFTEST)
-			{
-				if(entrance){
-					POMPE_MIDDLE_LEFT_command(ACT_POMPE_MIDDLE_LEFT_NORMAL);
-				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
-					POMPE_MIDDLE_LEFT_command(ACT_POMPE_MIDDLE_LEFT_STOP);
-					state = ACT_QUEUE_Pompe_middle;
-				}
-			}else{
-				if(entrance){
-					if(current_msg.sid == ACT_POMPE_ALL){
-						msg->sid = ACT_POMPE_MIDDLE_LEFT;
-						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x10) >> 4;
-					}
-					POMPE_MIDDLE_LEFT_CAN_process_msg(msg);
-				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
-					state = ACT_QUEUE_Pompe_middle;
-				}else if(current_msg.sid != ACT_POMPE_ALL){
-					state = NB_QUEUE; //finish
-				}
-			}
-			break;
-
-		case ACT_QUEUE_Pompe_middle:
-			if(current_msg.sid == ACT_DO_SELFTEST)
-			{
-				if(entrance){
-					POMPE_MIDDLE_command(ACT_POMPE_MIDDLE_NORMAL);
-				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
-					POMPE_MIDDLE_command(ACT_POMPE_MIDDLE_STOP);
-					state = ACT_QUEUE_Pompe_middle_right;
-				}
-			}else{
-				if(entrance){
-					if(current_msg.sid == ACT_POMPE_ALL){
-						msg->sid = ACT_POMPE_MIDDLE;
-						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x08) >> 3;
-					}
-					POMPE_MIDDLE_CAN_process_msg(msg);
-				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
-					state = ACT_QUEUE_Pompe_middle_right;
-				}else if(current_msg.sid != ACT_POMPE_ALL){
-					state = NB_QUEUE; //finish
-				}
-			}
-			break;
-
-		case ACT_QUEUE_Pompe_middle_right:
-			if(current_msg.sid == ACT_DO_SELFTEST)
-			{
-				if(entrance){
-					POMPE_MIDDLE_RIGHT_command(ACT_POMPE_MIDDLE_RIGHT_NORMAL);
-				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
-					POMPE_MIDDLE_RIGHT_command(ACT_POMPE_MIDDLE_RIGHT_STOP);
-					state = ACT_QUEUE_Pompe_right;
-				}
-			}else{
-				if(entrance){
-					if(current_msg.sid == ACT_POMPE_ALL){
-						msg->sid = ACT_POMPE_MIDDLE_RIGHT;
-						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x04) >> 2;
-					}
-					POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
-				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
-					state = ACT_QUEUE_Pompe_right;
-				}else if(current_msg.sid != ACT_POMPE_ALL){
-					state = NB_QUEUE; //finish
-				}
-			}
-			break;
-
-		case ACT_QUEUE_Pompe_right:
-			if(current_msg.sid == ACT_DO_SELFTEST)
-			{
-				if(entrance){
-					POMPE_RIGHT_command(ACT_POMPE_RIGHT_NORMAL);
-				}else if(global.absolute_time >= state_time + ACT_POMPE_SELFTEST_TIME){
-					POMPE_RIGHT_command(ACT_POMPE_RIGHT_STOP);
-					state = NB_QUEUE;
-				}
-			}else{
-				if(entrance){
-					if(current_msg.sid == ACT_POMPE_ALL){
-						msg->sid = ACT_POMPE_RIGHT;
-						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x02) >> 1;
-					}
-					POMPE_MIDDLE_RIGHT_CAN_process_msg(msg);
-				}else if(current_msg.sid == ACT_POMPE_ALL && global.absolute_time >= state_time + ACT_POMPE_DELAY){
-					state = ACT_QUEUE_Pompe_very_right;
-				}else if(current_msg.sid != ACT_POMPE_ALL){
-					state = NB_QUEUE; //finish
-				}
-			}
-			state = NB_QUEUE;
-			break;
-
-		case ACT_QUEUE_Pompe_very_right:
-			if(current_msg.sid == ACT_DO_SELFTEST)
-			{
-				if(entrance){
-					POMPE_VERY_RIGHT_command(ACT_POMPE_VERY_RIGHT_NORMAL);
-				}
-			}else{
-				if(entrance){
-					if(current_msg.sid == ACT_POMPE_ALL){
-						msg->sid = ACT_POMPE_VERY_RIGHT;
-						msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x01);
-					}
-					POMPE_VERY_RIGHT_CAN_process_msg(msg);
-				}
-			}
-			state = NB_QUEUE; //finish
-			break;
-
-		case NB_QUEUE:
-			if(entrance){
-				ACT_set_result(act_id, ACT_RESULT_Ok);
-				msg_act_result.sid = ACT_RESULT;
-				msg_act_result.size = SIZE_ACT_RESULT;
-				msg_act_result.data.act_result.sid = current_msg.sid;
-				msg_act_result.data.act_result.cmd = msg->data.act_msg.order;
-				msg_act_result.data.act_result.result = ACT_RESULT_DONE;
-				msg_act_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;
-				msg_act_result.data.act_result.param = 0;
-				if(IHM_switchs_get(SWITCH_VERBOSE))
-					QS_CAN_VERBOSE_can_msg_print(&msg_act_result, VERB_INPUT_MSG);
-			}
-			//On ne fait rien. On attend le prochain ordre.
-			break;
-
-		default:
-			debug_printf("Default state in ACT_transmit_order_to_pompe: bad sid\n");
-	}
-}
 
 ////////////////////////////////////////
 //////////////// SENSOR ////////////////

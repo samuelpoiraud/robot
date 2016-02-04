@@ -5,6 +5,7 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "QS/QS_outputlog.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_mosfet.h"
 #include "act_functions.h"
 
 #define ACT_DONT_TRY_FALLBACK_ON_SMALL
@@ -161,25 +162,39 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 
 		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x,  data[2]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_optionnal_data[0], msg->data.act_msg.act_data.act_optionnal_data[1], msg->data.act_msg.act_data.act_optionnal_data[2]);
 
-		Uint8 act_id_pompe_very_left    = ACT_search_link_SID_Queue(ACT_POMPE_VERY_LEFT);
-		Uint8 act_id_pompe_left		    = ACT_search_link_SID_Queue(ACT_POMPE_LEFT);
-		Uint8 act_id_pompe_middle_left  = ACT_search_link_SID_Queue(ACT_POMPE_MIDDLE_LEFT);
-		Uint8 act_id_pompe_middle	    = ACT_search_link_SID_Queue(ACT_POMPE_MIDDLE);
-		Uint8 act_id_pompe_middle_right = ACT_search_link_SID_Queue(ACT_POMPE_MIDDLE_RIGHT);
-		Uint8 act_id_pompe_right        = ACT_search_link_SID_Queue(ACT_POMPE_RIGHT);
-		Uint8 act_id_pompe_very_right   = ACT_search_link_SID_Queue(ACT_POMPE_VERY_RIGHT);
-		Uint8 act_id_pompe_all          = ACT_search_link_SID_Queue(ACT_POMPE_ALL);
-
-		if(I_AM_BIG() && (act_id == act_id_pompe_all
-			|| act_id == act_id_pompe_very_left || act_id == act_id_pompe_left
-			|| act_id == act_id_pompe_middle_left || act_id == act_id_pompe_middle || act_id == act_id_pompe_middle_right
-			|| act_id == act_id_pompe_right || act_id == act_id_pompe_very_right))
-			ACT_transmit_order_to_pompe(msg);
-		else
+#ifdef USE_MOSFETS
+		if(act_id == ACT_QUEUE_Mosfet_strat_0
+	#if NB_MOSFETS>=2
+		|| act_id == ACT_QUEUE_Mosfet_strat_1
+	#endif
+	#if NB_MOSFETS>=3
+		|| act_id == ACT_QUEUE_Mosfet_strat_2
+	#endif
+	#if NB_MOSFETS>=4
+		|| act_id == ACT_QUEUE_Mosfet_strat_3
+	#endif
+	#if NB_MOSFETS>=5
+		|| act_id == ACT_QUEUE_Mosfet_strat_4
+	#endif
+	#if NB_MOSFETS>=6
+		|| act_id == ACT_QUEUE_Mosfet_strat_5
+	#endif
+	#if NB_MOSFETS>=7
+		|| act_id == ACT_QUEUE_Mosfet_strat_6
+	#endif
+	#if NB_MOSFETS>=8
+		|| act_id == ACT_QUEUE_Mosfet_strat_7
+	#endif
+		 ){
+			debug_printf("Pendulum = %d\n",act_id == ACT_search_link_SID_Queue(STRAT_MOSFET_4));
+			MOSFET_CAN_process_msg(msg);
+		}else if(act_id  == ACT_search_link_SID_Queue(ACT_MOSFETS_ALL)){
+			MOSFET_state_machine(msg);
+		}else{
+#endif
 			CAN_send(msg);
-
+		}
 	} else {
-		ACT_transmit_order_to_pompe(NULL);
 		ACT_check_result(act_id);
 	}
 }

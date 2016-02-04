@@ -132,8 +132,6 @@ int main (void)
 		while(1);
 	}
 
-	ACT_init_all_pompes();  //initialisation des pompes(spécificité 2016)
-
 	Supervision_init();
 	BRAIN_init();
 	ACT_AVOIDANCE_init();
@@ -194,9 +192,6 @@ void test_leds(void){
 	while(1)
 	{
 		toggle_led(LED_RUN);				big_delay();
-		toggle_led(BLUE_LEDS);				big_delay();
-		toggle_led(GREEN_LEDS);				big_delay();
-		toggle_led(RED_LEDS);				big_delay();
 		toggle_led(LED_ERROR);				big_delay();
 		toggle_led(LED_SELFTEST);			big_delay();
 		toggle_led(LED_CAN);				big_delay();
