@@ -32,6 +32,7 @@
 		DEPOSE_BLOC_DOUBLE_ERROR,//on a pas pu pousser deux fois de suite
 		BLOC_IN_ZONE,		//indique si il y a dejà un bloc de déposé dans la zone de construction
 		COMMUNICATION_AVAILABLE,
+		SAND_BLOC_FRONT,	//flag ppour savoir si on a un bloc de sable à l'avant de pearl
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 
