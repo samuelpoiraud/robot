@@ -24,6 +24,7 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_adc.h"
 #include "QS/QS_rcc.h"
+#include "QS/QS_mosfet.h"
 #include "queue.h"
 #include "Stacks.h"
 #include "environment.h"
@@ -161,6 +162,11 @@ int main (void)
 		actionneurs */
 		STACKS_run();
 		QUEUE_run();
+
+		//Machine à état QS_mosfet
+		#ifdef USE_MOSFETS
+			MOSFET_state_machine(NULL);
+		#ifdef
 
 		MAIN_sensor_test();
 
