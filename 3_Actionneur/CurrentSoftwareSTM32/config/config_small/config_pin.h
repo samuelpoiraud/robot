@@ -41,6 +41,7 @@
 		//
 
 	#define PORT_IO_A_8			PORT_IO_OUTPUT
+		#define POMPE_FRONT_LEFT_SENS  GPIOA,GPIO_Pin_8
 
 	#define PORT_IO_A_9			PORT_IO_INPUT
 		// USB
@@ -91,10 +92,10 @@
 		#define I_AM_READY			GPIOB,GPIO_Pin_8
 
 	#define PORT_IO_B_9			PORT_IO_OUTPUT
-		#define POMPE_BACK_LEFT     GPIOB,GPIO_Pin_9   //Pompe arrière gauche de Pearl
+		#define MOSFET_0_PIN		GPIOB,GPIO_Pin_9   //Pompe arrière gauche de Pearl
 
 	#define PORT_IO_B_10		PORT_IO_OUTPUT
-		#define POMPE_BACK_RIGHT    GPIOB,GPIO_Pin_9   //Pompe arrière droite de Pearl
+		#define MOSFET_1_PIN		GPIOB,GPIO_Pin_10   //Pompe arrière droite de Pearl
 
 	#define PORT_IO_B_11		PORT_IO_OUTPUT
 		#define AX12_DIRECTION_PORT_AX12	GPIOB,GPIO_Pin_11
@@ -146,12 +147,13 @@
 		//
 
 	#define PORT_IO_C_10		PORT_IO_OUTPUT
-		#define POMPE_FRONT_LEFT_SENS  GPIOC,GPIO_Pin_10
+		 #define POMPE_FRONT_RIGHT_SENS  GPIOC,GPIO_Pin_10
 
 	#define PORT_IO_C_11		PORT_IO_OUTPUT
-		#define POMPE_FRONT_RIGHT_SENS  GPIOC,GPIO_Pin_11
+		//
 
 	#define PORT_IO_C_12		PORT_IO_OUTPUT
+		//
 
 	#define PORT_IO_C_13		PORT_IO_INPUT
 		#define PORT_ROBOT_ID  		GPIOC->IDR13

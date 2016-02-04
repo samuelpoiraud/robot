@@ -28,15 +28,8 @@
 #define OUTPUT_LOG_COMPONENT_ELEMENTS				LOG_PRINT_On
 #define OUTPUT_LOG_COMPONENT_BUZZER					LOG_PRINT_On
 
-//Activation des logs des pompes situés en strat
-#define OUTPUT_LOG_COMPONENT_POMPE_VERY_LEFT        LOG_PRINT_On
-#define OUTPUT_LOG_COMPONENT_POMPE_LEFT             LOG_PRINT_On
-#define OUTPUT_LOG_COMPONENT_POMPE_MIDDLE_LEFT      LOG_PRINT_On
-#define OUTPUT_LOG_COMPONENT_POMPE_MIDDLE           LOG_PRINT_On
-#define OUTPUT_LOG_COMPONENT_POMPE_MIDDLE_RIGHT     LOG_PRINT_On
-#define OUTPUT_LOG_COMPONENT_POMPE_RIGHT			LOG_PRINT_On
-#define OUTPUT_LOG_COMPONENT_POMPE_VERY_RIGHT       LOG_PRINT_On
-
+//Activation des logs des mosfets en strat
+#define OUTPUT_LOG_COMPONENT_MOSFET                 LOG_PRINT_On
 
 //Activation de define pour l'affichage de debug
 //#define DEBUG_POLYGON

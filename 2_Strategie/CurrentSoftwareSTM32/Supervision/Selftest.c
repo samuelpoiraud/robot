@@ -22,6 +22,7 @@
 #include "../QS/QS_IHM.h"
 #include "../QS/QS_IHM.h"
 #include "../QS/QS_ports.h"
+#include "../QS/QS_mosfet.h"
 #include "../elements.h"
 #include "../act_functions.h"
 #include "../detection.h"
@@ -442,7 +443,8 @@ error_e SELFTEST_strategy(bool_e reset)
 		//TEST_ESTRADE_SENSOR_RIGHT,
 		//TEST_ESTRADE_SENSOR_LEFT,
 		TEST_SWITCHS,
-		TEST_POMPES,
+		TEST_STRAT_MOSFETS,
+		TEST_ACT_MOSFETS,
 		TEST_SD_CARD,
 		FAIL,
 		DONE
@@ -521,16 +523,18 @@ error_e SELFTEST_strategy(bool_e reset)
 			if(QS_WHO_AM_I_get()==BIG_ROBOT){
 
 			}
-			state = TEST_POMPES;
+			state = TEST_STRAT_MOSFETS;
 			break;
 
-		case TEST_POMPES:{
-			CAN_msg_t msg;
-			msg.sid = ACT_DO_SELFTEST;
-			msg.size = 0;
-			ACT_transmit_order_to_pompe(&msg);
-			state = TEST_SD_CARD;
+		case TEST_STRAT_MOSFETS:{
+			if(MOSFET_selftest_strat())
+				state = TEST_ACT_MOSFETS;
 			}break;
+
+		case TEST_ACT_MOSFETS:{
+			if(MOSFET_selftest_act())
+				state = TEST_SD_CARD;
+			 }break;
 
 		case TEST_SD_CARD:
 			nb_written = 0;

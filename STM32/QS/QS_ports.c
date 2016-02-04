@@ -50,7 +50,7 @@ bool_e PORTS_secure_init(void){
 
 	#ifdef I_AM_CARTE_STRAT
 		PORTS_set_pull(PORT_I_AM_STRAT, GPIO_PuPd_UP);
-		#ifdef I_AM_CARTE_PROP || I_AM_CARTE_ACT
+		#if defined(I_AM_CARTE_PROP) || defined(I_AM_CARTE_ACT)
 			PORTS_set_pull(PORT_I_AM_PROP, GPIO_PuPd_UP);
 			PORTS_set_pull(PORT_I_AM_ACT, GPIO_PuPd_UP);
 		#endif

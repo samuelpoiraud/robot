@@ -37,28 +37,31 @@ typedef enum {
 	ACT_QUEUE_Sand_locker_right,
 	ACT_QUEUE_Shift_cylinder,
 	ACT_QUEUE_Pendulum,
-	ACT_QUEUE_Pompe_sand_locker_left,
-	ACT_QUEUE_Pompe_sand_locker_right,
-	ACT_QUEUE_Pompe_black__front_left,
-	ACT_QUEUE_Pompe_black_front_right,
-	ACT_QUEUE_Pompe_pendulum,
-	ACT_QUEUE_Pompe_very_left,
-	ACT_QUEUE_Pompe_left,
-	ACT_QUEUE_Pompe_middle_left,
-	ACT_QUEUE_Pompe_middle,
-	ACT_QUEUE_Pompe_middle_right,
-	ACT_QUEUE_Pompe_right,
-	ACT_QUEUE_Pompe_very_right,
-	ACT_QUEUE_Pompe_all,
 
 	//Pearl
 	ACT_QUEUE_Left_arm,
 	ACT_QUEUE_Right_arm,
-	ACT_QUEUE_Pompe_back_left,
-	ACT_QUEUE_Pompe_back_right,
 	ACT_QUEUE_Pompe_front_left,
 	ACT_QUEUE_Pompe_front_right,
 	ACT_QUEUE_Pearl_sand_circle,
+
+	//Mosfets actionneurs
+	ACT_QUEUE_Mosfet_act_0,
+	ACT_QUEUE_Mosfet_act_1,
+	ACT_QUEUE_Mosfet_act_2,
+	ACT_QUEUE_Mosfet_act_3,
+	ACT_QUEUE_Mosfet_act_4,
+	ACT_QUEUE_Mosfet_act_5,
+	ACT_QUEUE_Mosfet_act_6,
+	ACT_QUEUE_Mosfet_act_7,
+	ACT_QUEUE_Mosfet_act_all,
+
+	//Mosfets stratégie
+	ACT_QUEUE_Mosfet_strat_0,
+	ACT_QUEUE_Mosfet_strat_1,
+	ACT_QUEUE_Mosfet_strat_2,
+	ACT_QUEUE_Mosfet_strat_3,
+	ACT_QUEUE_Mosfet_strat_4,
 
 	//Common
 

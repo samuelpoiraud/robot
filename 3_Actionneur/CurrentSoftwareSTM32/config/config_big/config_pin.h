@@ -93,28 +93,26 @@
 	#define PORT_IO_B_8			PORT_IO_OUTPUT
 		#define I_AM_READY			GPIOB,GPIO_Pin_8
 
-	#define PORT_IO_B_9			PORT_IO_INPUT
-		//
+	#define PORT_IO_B_9			PORT_IO_OUTPUT
+		#define MOSFET_0_PIN		GPIOB,GPIO_Pin_9
 
-	#define PORT_IO_B_10		PORT_IO_INPUT
-		//
+	#define PORT_IO_B_10		PORT_IO_OUTPUT
+		#define MOSFET_1_PIN		GPIOB,GPIO_Pin_10
 
 	#define PORT_IO_B_11		PORT_IO_OUTPUT
 		#define AX12_DIRECTION_PORT_AX12	GPIOB,GPIO_Pin_11
 
 	#define PORT_IO_B_12		PORT_IO_OUTPUT
-		#define CLAP_FDP_LEFT_CONF		GPIOB,GPIO_Pin_12
-		#define CLAP_FDP_LEFT			(GPIOB->IDR12)
+		#define MOSFET_2_PIN		GPIOB,GPIO_Pin_12
 
 	#define PORT_IO_B_13		PORT_IO_OUTPUT
-		#define CLAP_FDP_RIGHT_CONF		 GPIOB,GPIO_Pin_13
-		#define CLAP_FDP_RIGHT			(GPIOB->IDR13)
+		#define MOSFET_3_PIN		GPIOB,GPIO_Pin_13
 
-	#define PORT_IO_B_14		PORT_IO_INPUT
-		//
+	#define PORT_IO_B_14		PORT_IO_OUTPUT
+		#define MOSFET_4_PIN		GPIOB,GPIO_Pin_14
 
-	#define PORT_IO_B_15		PORT_IO_INPUT
-		//
+	#define PORT_IO_B_15		PORT_IO_OUTPUT
+		#define MOSFET_5_PIN		GPIOB,GPIO_Pin_15
 
 ////////////////////////////////////////////////////////////////////////////////////
 //--------------------------------------PORT C------------------------------------//
@@ -123,16 +121,16 @@
 		//
 
 	#define PORT_IO_C_1			PORT_IO_INPUT
-		#define CUP_NIPPER_FDC		!(GPIOC->IDR1)
+	   //
 
 	#define PORT_IO_C_2			PORT_IO_INPUT
 		//
 
 	#define PORT_IO_C_3			PORT_IO_INPUT
-		#define CLAP_SENSOR_R		(GPIOC->IDR3)
+		//
 
 	#define PORT_IO_C_4			PORT_IO_INPUT
-		#define CLAP_SENSOR_L		(GPIOC->IDR4)
+		//
 
 	#define PORT_IO_C_5			PORT_IO_INPUT
 		//
@@ -149,14 +147,14 @@
 	#define PORT_IO_C_9			PORT_IO_INPUT
 		//
 
-	#define PORT_IO_C_10		PORT_IO_OUTPUT
-		#define ELEVATOR_DCM_SENS		GPIOC,GPIO_Pin_10
+	#define PORT_IO_C_10		PORT_IO_INPUT
+		//
 
-	#define PORT_IO_C_11		PORT_IO_OUTPUT
-		#define CLAP_GOLLY_DCM_SENS		GPIOC,GPIO_Pin_11
+	#define PORT_IO_C_11		PORT_IO_INPUT
+		//
 
-	#define PORT_IO_C_12		PORT_IO_OUTPUT
-		#define SPOT_POMPE_RIGHT_SENS	GPIOC,GPIO_Pin_12
+	#define PORT_IO_C_12		PORT_IO_INPUT
+		//
 
 	#define PORT_IO_C_13		PORT_IO_INPUT
 		#define PORT_ROBOT_ID  		GPIOC->IDR13
@@ -259,8 +257,8 @@
 		#define PORT_I_AM_PROP		GPIOE,GPIO_Pin_9
 		#define	READ_I_AM_PROP		GPIOE->IDR9
 
-	#define PORT_IO_E_10		PORT_IO_INPUT
-		//
+	#define PORT_IO_E_10		PORT_IO_OUTPUT
+		#define MOSFET_6_PIN		GPIOE,GPIO_Pin_10
 
 	#define PORT_IO_E_11		PORT_IO_INPUT
 		//
@@ -268,14 +266,14 @@
 	#define PORT_IO_E_12		PORT_IO_INPUT
 		//
 
-	#define PORT_IO_E_13		PORT_IO_INPUT
-		//
+	#define PORT_IO_E_13		PORT_IO_OUTPUT
+		 #define MOSFET_7_PIN		GPIOE,GPIO_Pin_13
 
 	#define PORT_IO_E_14		PORT_IO_INPUT
 		//
 
-	#define PORT_IO_E_15		PORT_IO_OUTPUT
-		#define SPOT_POMPE_LEFT_SENS	GPIOE,GPIO_Pin_15
+	#define PORT_IO_E_15		PORT_IO_INPUT
+		//
 
 
 //--------------------Configuration des ID des actionneurs-----------------------

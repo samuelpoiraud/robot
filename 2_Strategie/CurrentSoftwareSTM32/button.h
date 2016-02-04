@@ -30,9 +30,10 @@
 	void BUTTON_servo();
 	void BUTTON_pi_rotation();
 	void BUTTON_translation();
-	void BUTTON_pompes_av_direct_push(void);
-	void BUTTON_pompes_av_long_push(void);
-	void BUTTON_pompes_dunix(void);
+	void BUTTON_0_long_push(void);
+	void BUTTON_3_long_push(void);
+	void BUTTON_4_long_push(void);
+	void BUTTON_5_long_push(void);
 	void SWITCH_change_color(void);
 	void BOUTTON_go_to_home();
 

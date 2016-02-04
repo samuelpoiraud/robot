@@ -38,8 +38,10 @@ void BUTTON_init()
 	BUTTONS_init();
 	BUTTONS_define_actions(BUTTON0,BUTTON_start, NULL, 1);
 
-	IHM_define_act_button(BP_0_IHM,BUTTON_pompes_av_direct_push, BUTTON_pompes_av_long_push);
-	IHM_define_act_button(BP_1_IHM,NULL, BUTTON_pompes_dunix);
+	IHM_define_act_button(BP_0_IHM,NULL, BUTTON_0_long_push);
+	IHM_define_act_button(BP_3_IHM,NULL, BUTTON_3_long_push);
+	IHM_define_act_button(BP_4_IHM,NULL, BUTTON_4_long_push);
+	IHM_define_act_button(BP_5_IHM,NULL, BUTTON_5_long_push);
 	IHM_define_act_button(BP_GO_TO_HOME,BOUTTON_go_to_home, NULL);
 	IHM_define_act_button(BP_OK,LCD_button_ok, NULL);
 	IHM_define_act_button(BP_UP,LCD_button_up, LCD_button_up);
@@ -105,25 +107,7 @@ void BOUTTON_go_to_home(void){
 	global.flags.go_to_home = TRUE;
 }
 
-void BUTTON_pompes_av_direct_push(void){
-	static Uint8 state = 0;
-	if(state == 0)
-		ACT_push_order(ACT_POMPE_ALL, 0b00100000);
-	else if(state == 1)
-		ACT_push_order(ACT_POMPE_ALL, 0b00010000);
-	else if(state == 2)
-		ACT_push_order(ACT_POMPE_ALL, 0b00001000);
-	else if(state == 3)
-		ACT_push_order(ACT_POMPE_ALL, 0b00000100);
-	else if(state == 4)
-		ACT_push_order(ACT_POMPE_ALL, 0b00000010);
-	else if(state == 5)
-		ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_STOP);
-
-	state = (state==5)? 0: state+1;
-}
-
-void BUTTON_pompes_av_long_push(void){
+void BUTTON_0_long_push(void){
 	static Uint8 state = 0;
 	if(state == 0)
 		ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_NORMAL_5);
@@ -133,16 +117,40 @@ void BUTTON_pompes_av_long_push(void){
 	state = (state==1)? 0: state+1;
 }
 
-void BUTTON_pompes_dunix(void){
+void BUTTON_3_long_push(void){
 	static Uint8 state = 0;
 	if(state == 0)
-		ACT_push_order(ACT_POMPE_ALL, 0b0100000);
+		ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_ALL_NORMAL_5);
 	else if(state == 1)
-		ACT_push_order(ACT_POMPE_ALL, 0b0100001);
+		ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_ALL_STOP);
+
+	state = (state==1)? 0: state+1;
+}
+
+void BUTTON_4_long_push(void){
+	static Uint8 state = 0;
+	if(state == 0)
+		ACT_push_order(ACT_POMPE_SAND_LOCKER_LEFT, ACT_POMPE_NORMAL);
+	else if(state == 1)
+		ACT_push_order(ACT_POMPE_SAND_LOCKER_LEFT, ACT_POMPE_STOP);
 	else if(state == 2)
-		ACT_push_order(ACT_POMPE_ALL, 0b0000001);
+		ACT_push_order(ACT_POMPE_SAND_LOCKER_RIGHT, ACT_POMPE_NORMAL);
 	else if(state == 3)
-		ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_ALL_STOP);
+		ACT_push_order(ACT_POMPE_SAND_LOCKER_RIGHT, ACT_POMPE_STOP);
+
+	state = (state==3)? 0: state+1;
+}
+
+void BUTTON_5_long_push(void){
+	static Uint8 state = 0;
+	if(state == 0)
+		ACT_push_order(ACT_POMPE_BLACK_FRONT_LEFT, ACT_POMPE_NORMAL);
+	else if(state == 1)
+		ACT_push_order(ACT_POMPE_BLACK_FRONT_LEFT, ACT_POMPE_STOP);
+	else if(state == 2)
+		ACT_push_order(ACT_POMPE_BLACK_FRONT_RIGHT, ACT_POMPE_NORMAL);
+	else if(state == 3)
+		ACT_push_order(ACT_POMPE_BLACK_FRONT_RIGHT, ACT_POMPE_STOP);
 
 	state = (state==3)? 0: state+1;
 }
