@@ -186,9 +186,8 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 		|| act_id == ACT_QUEUE_Mosfet_strat_7
 	#endif
 		 ){
-			debug_printf("Pendulum = %d\n",act_id == ACT_search_link_SID_Queue(STRAT_MOSFET_4));
 			MOSFET_CAN_process_msg(msg);
-		}else if(act_id  == ACT_search_link_SID_Queue(ACT_MOSFETS_ALL)){
+		}else if(act_id  == ACT_QUEUE_Mosfet_act_all){;
 			MOSFET_state_machine(msg);
 		}else{
 #endif

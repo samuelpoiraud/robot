@@ -125,7 +125,11 @@
 
 /* Réglages entrées analogiques */
 	#define USE_AN8				// Capteur mesure 24V
+	#define USE_AN_13           // Capteur laser gauche
+	#define USE_AN_14           // Capteur laser droite
 	#define ADC_CHANNEL_MEASURE24		ADC_8
+	#define ADC_SENSOR_BIG_XUK_LEFT     ADC_13
+	#define ADC_SENSOR_BIG_XUK_RIGHT    ADC_14
 
 /* Réglages XBEE */
 	#define USE_XBEE

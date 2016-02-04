@@ -53,7 +53,7 @@
 		/**
 		  * Selftest des mosfets en actionneur
 		  */
-		bool_e MOSFET_selftest_act();
+		bool_e MOSFET_selftest_act(Uint8 nb_mosfets);
 
 		/**
 		  * Selftest des mosfets en stratégie

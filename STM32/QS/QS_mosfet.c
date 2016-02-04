@@ -442,13 +442,14 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 	static Uint11 last_state = NB_QUEUE + 1;
 	static bool_e entrance;
 	static time32_t state_time;
-	CAN_msg_t current_msg;
+	static CAN_msg_t current_msg, msg_act;
 
 	//initialisation en cas de l'envoi d'une nouvelle commande
 	if(msg != NULL){
-		assert((msg->sid&0x300) == ACT_FILTER);
-		state = ACT_search_link_SID_Queue(msg->sid); //id de la pompe
+		assert((msg->sid & 0x300) == ACT_FILTER);
+		state = ACT_search_link_SID_Queue(msg->sid)-1;
 		current_msg = *msg;
+		msg_act = *msg;
 	}
 
 	//Affectation des variables courantes
@@ -463,12 +464,13 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 		case ACT_QUEUE_Mosfet_act_0:
 			if(entrance){
 				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg->sid = ACT_MOSFET_0;
-					msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x80) >> 7;
+					msg_act.sid = ACT_MOSFET_0;
+					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x80) >> 7;
+					debug_printf("Modification mosfet 0 done to %d\n", (current_msg.data.act_msg.order & 0x80) >> 7);
 				}
-				CAN_send(msg);
+				CAN_send(&msg_act);
 			}else if(current_msg.sid  == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = (NB_MOSFETS>=2)? ACT_QUEUE_Mosfet_act_1:NB_QUEUE;
+				state = ACT_QUEUE_Mosfet_act_1;
 			}else if(current_msg.sid != ACT_MOSFETS_ALL){
 				state = NB_QUEUE; //finish
 			}
@@ -477,12 +479,13 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 		case ACT_QUEUE_Mosfet_act_1:
 			if(entrance){
 				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg->sid = ACT_MOSFET_1;
-					msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x10) >> 4;
+					msg_act.sid = ACT_MOSFET_1;
+					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x10) >> 4;
+					debug_printf("Modification mosfet 1 done to %d\n", (current_msg.data.act_msg.order & 0x10) >> 4);
 				}
-				CAN_send(msg);
+				CAN_send(&msg_act);
 			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = (NB_MOSFETS>=3)? ACT_QUEUE_Mosfet_act_2:NB_QUEUE;
+				state = ACT_QUEUE_Mosfet_act_2;
 			}else if(current_msg.sid != ACT_MOSFETS_ALL){
 				state = NB_QUEUE; //finish
 			}
@@ -491,12 +494,13 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 		case ACT_QUEUE_Mosfet_act_2:
 			if(entrance){
 				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg->sid = ACT_MOSFET_2;
-					msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x02) >> 1;
+					msg_act.sid = ACT_MOSFET_2;
+					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x02) >> 1;
+					debug_printf("Modification mosfet 2 done to %d\n", (current_msg.data.act_msg.order & 0x02) >> 1);
 				}
-				CAN_send(msg);
+				CAN_send(&msg_act);
 			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = (NB_MOSFETS>=4)? ACT_QUEUE_Mosfet_act_3:NB_QUEUE;
+				state = ACT_QUEUE_Mosfet_act_3;
 			}else if(current_msg.sid != ACT_MOSFETS_ALL){
 				state = NB_QUEUE; //finish
 			}
@@ -505,12 +509,13 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 		case ACT_QUEUE_Mosfet_act_3:
 			if(entrance){
 				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg->sid = ACT_MOSFET_3;
-					msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x01);
+					msg_act.sid = ACT_MOSFET_3;
+					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x01);
+					debug_printf("Modification mosfet 3 done to %d\n", (current_msg.data.act_msg.order & 0x01));
 				}
-				CAN_send(msg);
+				CAN_send(&msg_act);
 			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = (NB_MOSFETS>=5)? ACT_QUEUE_Mosfet_act_4:NB_QUEUE;
+				state = ACT_QUEUE_Mosfet_act_4;
 			}else if(current_msg.sid != ACT_MOSFETS_ALL){
 				state = NB_QUEUE; //finish
 			}
@@ -519,12 +524,13 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 		case ACT_QUEUE_Mosfet_act_4:
 			if(entrance){
 				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg->sid = ACT_MOSFET_4;
-					msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x04) >> 2;
+					msg_act.sid = ACT_MOSFET_4;
+					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x04) >> 2;
+					debug_printf("Modification mosfet 4 done to %d\n", (current_msg.data.act_msg.order & 0x04) >> 2);
 				}
-				CAN_send(msg);
+				CAN_send(&msg_act);
 			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = (NB_MOSFETS>=6)? ACT_QUEUE_Mosfet_act_5:NB_QUEUE;
+				state =  ACT_QUEUE_Mosfet_act_5;
 			}else if(current_msg.sid != ACT_MOSFETS_ALL){
 				state = NB_QUEUE; //finish
 			}
@@ -533,12 +539,13 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 		case ACT_QUEUE_Mosfet_act_5:
 			if(entrance){
 				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg->sid = ACT_MOSFET_5;
-					msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x08) >> 3;
+					msg_act.sid = ACT_MOSFET_5;
+					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x08) >> 3;
+					debug_printf("Modification mosfet 5 done to %d\n", (current_msg.data.act_msg.order & 0x08) >> 3);
 				}
-				CAN_send(msg);
+				CAN_send(&msg_act);
 			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = (NB_MOSFETS>=7)? ACT_QUEUE_Mosfet_act_6:NB_QUEUE;
+				state = ACT_QUEUE_Mosfet_act_6;
 			}else if(current_msg.sid != ACT_MOSFETS_ALL){
 				state = NB_QUEUE; //finish
 			}
@@ -547,12 +554,13 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 		case ACT_QUEUE_Mosfet_act_6:
 			if(entrance){
 				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg->sid = ACT_MOSFET_6;
-					msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x02) >> 5;
+					msg_act.sid = ACT_MOSFET_6;
+					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x20) >> 5;
+					debug_printf("Modification mosfet 6 done to %d\n", (current_msg.data.act_msg.order & 0x20) >> 5);
 				}
-				CAN_send(msg);
+				CAN_send(&msg_act);
 			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = (NB_MOSFETS>=8)? ACT_QUEUE_Mosfet_act_7:NB_QUEUE;
+				state = ACT_QUEUE_Mosfet_act_7;
 			}else if(current_msg.sid != ACT_MOSFETS_ALL){
 				state = NB_QUEUE; //finish
 			}
@@ -561,15 +569,18 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 		case ACT_QUEUE_Mosfet_act_7:
 			if(entrance){
 				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg->sid = ACT_MOSFET_7;
-					msg->data.act_msg.order = (current_msg.data.act_msg.order & 0x40) >> 6;
+					msg_act.sid = ACT_MOSFET_7;
+					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x40) >> 6;
+					debug_printf("Modification mosfet 7 done to %d\n", (current_msg.data.act_msg.order & 0x40) >> 6);
 				}
-				CAN_send(msg);
+				CAN_send(&msg_act);
 			}
 			state = NB_QUEUE;
 			break;
 
 		case NB_QUEUE:
+			if(entrance)
+				debug_printf("Mosfet_state_machine finish\n");
 			break;
 
 		default:
@@ -578,7 +589,7 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 }
 
 
-bool_e MOSFET_selftest_act(){
+bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 	static Uint11 state = ACT_QUEUE_Mosfet_act_0;
 	static Uint11 last_state = NB_QUEUE + 1;
 	static bool_e entrance;
@@ -603,14 +614,13 @@ bool_e MOSFET_selftest_act(){
 				msg->size = SIZE_ACT_MSG;
 				msg->data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(msg);
-				#if NB_MOSFETS>=2
+				if(nb_mosfets>=2)
 					state = ACT_QUEUE_Mosfet_act_1;
-				#else
+				else
 					state = NB_QUEUE;
-				#endif
 			}
 			break;
-#if NB_MOSFETS>=2
+
 		case ACT_QUEUE_Mosfet_act_1:
 			if(entrance){
 				msg->sid = ACT_MOSFET_1;
@@ -622,15 +632,13 @@ bool_e MOSFET_selftest_act(){
 				msg->size = SIZE_ACT_MSG;
 				msg->data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(msg);
-				#if NB_MOSFETS>=3
+				if(nb_mosfets>=3)
 					state = ACT_QUEUE_Mosfet_act_2;
-				#else
+				else
 					state = NB_QUEUE;
-				#endif
 			}
 			break;
-#endif
-#if NB_MOSFETS>=3
+
 		case ACT_QUEUE_Mosfet_act_2:
 			if(entrance){
 				msg->sid = ACT_MOSFET_2;
@@ -642,15 +650,13 @@ bool_e MOSFET_selftest_act(){
 				msg->size = SIZE_ACT_MSG;
 				msg->data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(msg);
-				#if NB_MOSFETS>=4
+				if(nb_mosfets>=4)
 					state = ACT_QUEUE_Mosfet_act_3;
-				#else
+				else
 					state = NB_QUEUE;
-				#endif
 			}
 			break;
-#endif
-#if NB_MOSFETS>=4
+
 		case ACT_QUEUE_Mosfet_act_3:
 			if(entrance){
 				msg->sid = ACT_MOSFET_3;
@@ -662,15 +668,13 @@ bool_e MOSFET_selftest_act(){
 				msg->size = SIZE_ACT_MSG;
 				msg->data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(msg);
-				#if NB_MOSFETS>=5
+				if(nb_mosfets>=5)
 					state = ACT_QUEUE_Mosfet_act_4;
-				#else
+				else
 					state = NB_QUEUE;
-				#endif
 			}
 			break;
-#endif
-#if NB_MOSFETS>=5
+
 		case ACT_QUEUE_Mosfet_act_4:
 			if(entrance){
 				msg->sid = ACT_MOSFET_4;
@@ -682,15 +686,13 @@ bool_e MOSFET_selftest_act(){
 				msg->size = SIZE_ACT_MSG;
 				msg->data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(msg);
-			   #if NB_MOSFETS>=6
+				if(nb_mosfets>=6)
 					state = ACT_QUEUE_Mosfet_act_5;
-			   #else
+			   else
 					state = NB_QUEUE;
-				#endif
 			}
 			break;
-#endif
-#if NB_MOSFETS>=6
+
 		case ACT_QUEUE_Mosfet_act_5:
 			if(entrance){
 				msg->sid = ACT_MOSFET_5;
@@ -702,15 +704,13 @@ bool_e MOSFET_selftest_act(){
 				msg->size = SIZE_ACT_MSG;
 				msg->data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(msg);
-				#if NB_MOSFETS>=7
+				if(nb_mosfets>=7)
 					state = ACT_QUEUE_Mosfet_act_6;
-				#else
+				else
 					state = NB_QUEUE;
-				#endif
 			}
 			break;
-#endif
-#if NB_MOSFETS>=7
+
 		case ACT_QUEUE_Mosfet_act_6:
 			if(entrance){
 				msg->sid = ACT_MOSFET_6;
@@ -722,15 +722,13 @@ bool_e MOSFET_selftest_act(){
 				msg->size = SIZE_ACT_MSG;
 				msg->data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(msg);
-				#if NB_MOSFETS>=2
-					  state = ACT_QUEUE_Mosfet_act_1;
-				#else
+				if(nb_mosfets>=8)
+					  state = ACT_QUEUE_Mosfet_act_7;
+				else
 					  state = NB_QUEUE;
-				#endif
 			}
 			break;
-#endif
-#if NB_MOSFETS>=8
+
 		case ACT_QUEUE_Mosfet_act_7:
 			if(entrance){
 				msg->sid = ACT_MOSFET_7;
@@ -745,7 +743,7 @@ bool_e MOSFET_selftest_act(){
 				state = NB_QUEUE;
 			}
 			break;
-#endif
+
 		case NB_QUEUE:
 			state = ACT_QUEUE_Mosfet_act_0;
 			return TRUE;

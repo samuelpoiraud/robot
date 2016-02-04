@@ -440,8 +440,8 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
 		TEST_RTC,
-		//TEST_ESTRADE_SENSOR_RIGHT,
-		//TEST_ESTRADE_SENSOR_LEFT,
+		TEST_ESTRADE_SENSOR_RIGHT,
+		TEST_ESTRADE_SENSOR_LEFT,
 		TEST_SWITCHS,
 		TEST_STRAT_MOSFETS,
 		TEST_ACT_MOSFETS,
@@ -507,7 +507,7 @@ error_e SELFTEST_strategy(bool_e reset)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_RTC);
 				state = TEST_SWITCHS;
 			break;
-		/*case TEST_ESTRADE_SENSOR_RIGHT:
+		case TEST_ESTRADE_SENSOR_RIGHT:
 			if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 15)
 				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT);
 			state = TEST_SWITCHS;
@@ -517,7 +517,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 15)
 				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_LEFT);
 			state = TEST_SWITCHS;
-			break;*/
+			break;
 
 		case TEST_SWITCHS:
 			if(QS_WHO_AM_I_get()==BIG_ROBOT){
@@ -532,7 +532,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			}break;
 
 		case TEST_ACT_MOSFETS:{
-			if(MOSFET_selftest_act())
+			if(MOSFET_selftest_act(8))  //huit mosfets à tester
 				state = TEST_SD_CARD;
 			 }break;
 
