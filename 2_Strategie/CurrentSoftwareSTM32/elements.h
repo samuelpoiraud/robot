@@ -3,6 +3,8 @@
 
 #include "QS/QS_all.h"
 #include "Supervision/SD/SD.h"
+#include "avoidance.h"
+
 
 	typedef enum{
 		OUR_ELEMENT,
@@ -36,7 +38,7 @@
 		SAND_DUNE_BACK,				//flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 		SAND_BLOC_FRONT,			//flag ppour savoir si on a un bloc de sable à l'avant de pearl
 
-		COMMUNICATION_AVAILABLE,		
+		COMMUNICATION_AVAILABLE,
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 
@@ -47,6 +49,7 @@ bool_e ELEMENTS_get_flag(elements_flags_e flag_id);
 void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state);
 void ELEMENTS_inc_fishs_passage();
 bool_e ELEMENTS_fishs_passage_completed();
+error_e ELEMENTS_check_communication(CAN_msg_t * msg);
 
 #ifdef USE_SYNC_ELEMENTS
 void ELEMENTS_receive_flags(CAN_msg_t* msg);

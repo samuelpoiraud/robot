@@ -16,7 +16,7 @@
 
 	#include "QS/QS_CANmsgList.h"
 	#include "detection.h"
-	#include "elements.h"
+	//#include "elements.h"
 	#include "QS/QS_maths.h"
 
 	/* #define communs à plusieurs modules */

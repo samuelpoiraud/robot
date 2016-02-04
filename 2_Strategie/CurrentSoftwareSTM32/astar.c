@@ -16,6 +16,7 @@
 #include "QS/QS_maths.h"
 #include <stdarg.h>
 #include "state_machine_helper.h"
+#include "Supervision/SD/SD.h"
 
 #ifdef _ASTAR_H_
 
