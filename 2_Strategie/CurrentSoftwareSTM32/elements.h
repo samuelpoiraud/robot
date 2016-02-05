@@ -12,35 +12,38 @@
 	}ELEMENTS_property_e;
 
 	typedef enum	{
+		//Eléments pris
 		FIRST_DOOR_CLOSED,
 		SECOND_DOOR_CLOSED,
-		OUR_START_ZONE_BLOC,		//on a pris notre bloc de 4
-		ADV_START_ZONE_BLOC,		//on a pris le bloc de 4 adv
-		OUR_DUNE_BLOC,				//on a pris notre bloc de 8
-		ADV_DUNE_BLOC,				//on a pris le bloc de 8 adv
-		FISHS_TAKEN,				//poisson embarqué
-		SEASHELLS_BOTTOM,			//si les deux coquillages du bas sont pris ou pas
-		OUR_BLOCK8_DEPOSED,			//on a depose notre bloc de 8
-		ADV_BLOCK8_DEPOSED,			//on a depose le bloc de 8 adv
+		OUR_START_ZONE_BLOC_TAKEN,		//on a pris notre bloc de 4
+		ADV_START_ZONE_BLOC_TAKEN,		//on a pris le bloc de 4 adv
+		OUR_DUNE_BLOC_TAKEN,			//on a pris notre bloc de 8
+		ADV_DUNE_BLOC_TAKEN,			//on a pris le bloc de 8 adv
+		FISHS_TAKEN,				    //poisson embarqués dans le robot
+		DUNE_TAKEN,					    //on a pris la dune
+
+		//Apocalypse
 		OUR_BLOC_PRESENT,			//on a vu (au scan) notre bloc de 8
 		ADV_BLOC_PRESENT,			//on a vu (au scan) le bloc de 8 adv
 		APOCALYPSE_SCAN,			//on a scanné l'apocalypse (on est passé voir si il y a quelque chose
 		APOCALYPSE_PRESENT,			//on a trouvé l'apocalypse
-		DUNE_TAKEN,					//on a pris la dune
 		APOCALYPSE_TAKEN,			//on a pris l'apocalypse
+
+		//Flags de dépose des blocs de sables
 		DEPOSE_BLOC_ERROR,			//on est dans le cas d'erreur de la depose (si on a pas pu pousser le bloc precedent)
 		DEPOSE_BLOC_DOUBLE_ERROR,	//on a pas pu pousser deux fois de suite
 		BLOC_IN_ZONE,				//indique si il y a dejà un bloc de déposé dans la zone de construction
+
+		//Flags de stratégie ou pour donner des ordres à l'autre robot
 		BLACK_LET_PEARL_GO_TAKE_DUNE_BLOC,
 
-		ELEMENTS_FLAGS_END_SYNCH,	//Les flags au-dessus seront synchro entre les deux robots
+		//à supprimer
+		SEASHELLS_BOTTOM,			//si les deux coquillages du bas sont pris ou pas (flag à supprimer et à remplacer par les flag coquillages)
+		OUR_BLOCK8_DEPOSED,			//on a depose notre bloc de 8 (à supprimer, on doit juste savoir si le cube est pris)
+		ADV_BLOCK8_DEPOSED,			//on a depose le bloc de 8 adv (à supprimer, on doit juste savoir si le cube est pris)
 
-		SAND_DUNE_FRONT,			//flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
-		SAND_DUNE_BACK,				//flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
-		SAND_BLOC_FRONT,			//flag ppour savoir si on a un bloc de sable à l'avant de pearl
 
-		COMMUNICATION_AVAILABLE,
-
+		//Flags coquillages
 		COQUILLAGE_AWAY_ONE,
 		COQUILLAGE_AWAY_TWO,
 		COQUILLAGE_AWAY_THREE,
@@ -63,12 +66,29 @@
 		COQUILLAGE_HOME_ROCK_ONE,
 		COQUILLAGE_HOME_ROCK_TWO,
 		COQUILLAGE_HOME_ROCK_THREE,
+		COQUILLAGES_ATTAQUE,
+		COQUILLAGES_DEFENSE,
+
+		ELEMENTS_FLAGS_END_SYNCH,	//Les flags au-dessus seront synchro entre les deux robots
+
+		//Flags pour savoir si la comm passe entre les deux robots
+		//Ce flag est envoyé à intervalle de temps régulier
+		//Ne pas mettre ce flag dans la partie synchro, ce flag est synchro par une machine à état spécifique
+		COMMUNICATION_AVAILABLE,
+
+		//Gestion des éléments dans le robot Black
+		VENTOUSE_AVANT_GAUCHE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
+		VENTOUSE_AVANT_DROITE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
+		FRONT_BLACK_USED,			  //flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
+		BACK_BLACK_USED,		      //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
+
+		//Gestion des éléments dans le robot Pearl
 		VENTOUSE_AVANT_GAUCHE_PEARL,
 		VENTOUSE_AVANT_DROITE_PEARL,
 		VENTOUSE_ARRIERE_GAUCHE_PEARL,
 		VENTOUSE_ARRIERE_DROITE_PEARL,
-		COQUILLAGES_ATTAQUE,
-		COQUILLAGES_DEFENSE,
+		FRONT_PEARL_USED,               //Flag pour savoir si il y a quelque chose à l'avant de Pearl
+
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;
 
