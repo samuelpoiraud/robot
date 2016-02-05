@@ -12,8 +12,19 @@
 
 #ifdef USE_MOSFETS
 
-#include "QS_mosfet.h"
+/* Pour utiliser ce module, vous devez définir dans le fichier config_use la macro USE_MOSFETS et la
+ * macro NB_MOSFETS suivie du nombre de mosfets à piloter (max = 8).
+ *		exemple : #define USE_MOSFETS
+ *				  #define NB_MOSFETS 3
+ * Dans QS_CAN_msgList.h,vous devez définir les SID de chacun des mosfets (ex ACT_MOSFET_0) pour un mosfet
+ * situé en actionneur ou  (ex STRAT_MOSFET_0) pour un mosfet situé en stratégie. Vous pouvez également redéfinir
+ * ces SID pour leur donner un nom.
+ * Dans queue.h de la stratégie, vous devez définir ACT_QUEUE_Mosfet_act_0 pour un mosfet en actionneur
+ * ou ACT_QUEUE_Mosfet_strat_0 en stratégie.
+ * Vous devez aussi définir si cela n'est pas fait des macros pour chaque mosfet dans config_pin (ex MOSFET_0_PIN)
+ */
 
+#include "QS_mosfet.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ports.h"
 #include "../QS/QS_can.h"
@@ -58,7 +69,7 @@ static void MOSFET_6_do_order(Uint8 command);
 static void MOSFET_7_do_order(Uint8 command);
 #endif
 
-
+//Initialisation du module MOSFET
 void MOSFET_init() {
 	static bool_e initialized = FALSE;
 
@@ -69,7 +80,7 @@ void MOSFET_init() {
 
 void MOSFET_reset_config(){}
 
-
+//Fonction pour stopper tous les mosfets
 void MOSFET_stop() {
 #if defined(MOSFET_0_PIN) && NB_MOSFETS>=1
 	GPIO_ResetBits(MOSFET_0_PIN);
@@ -125,6 +136,7 @@ void MOSFET_init_pos(){
 }
 
 #ifdef I_AM_CARTE_ACT
+//Fonction de gestions des messages CAN pour les mosfets situés sur une carte Mosfet commandée par l'actionneur
 bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_MOSFET_0 && NB_MOSFETS>=1) {
 		switch(msg->data.act_msg.order) {
@@ -220,6 +232,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 #elif defined(I_AM_CARTE_STRAT)
+//Fonction de gestions des messages CAN pour les mosfets situés sur une carte Mosfet commandée par la stratégie
 bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == STRAT_MOSFET_0) {
 		switch(msg->data.act_msg.order) {
@@ -438,6 +451,7 @@ static void MOSFET_7_do_order(Uint8 command){
 
 
 #ifdef I_AM_CARTE_STRAT
+//Machine à état pour activer en décalé les mosfets commandés par l'actionneur
 void MOSFET_state_machine(CAN_msg_t* msg){
 	static Uint11 state = NB_QUEUE;
 	static Uint11 last_state = NB_QUEUE + 1;
@@ -589,7 +603,8 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 	}
 }
 
-
+// Fonction de Selftest des mosfets commandés par l'actionneur
+// @param : nb_mosfets le nombre de mosfets à tester
 bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 	static Uint11 state = ACT_QUEUE_Mosfet_act_0;
 	static Uint11 last_state = NB_QUEUE + 1;
@@ -756,6 +771,7 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 	return FALSE;
 }
 
+//Fonction de Selftest des mosfets commandés par la stratégie
 bool_e MOSFET_selftest_strat(){
 	static Uint11 state = ACT_QUEUE_Mosfet_strat_0;
 	static Uint11 last_state = NB_QUEUE + 1;
@@ -882,238 +898,10 @@ bool_e MOSFET_selftest_strat(){
 			break;
 
 		default:
-			debug_printf("Default state in MOSFET_selftest_act: bad sid\n");
+			debug_printf("Default state in MOSFET_selftest_strat: bad sid\n");
 	}
 	return FALSE;
 }
 #endif
 
 #endif  //USE_MOSFET
-
-
-/*
- *#if I_AM_CARTE_ACT
-bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
-	if(msg->sid == ACT_MOSFET_0 && NB_MOSFETS>=1) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOSFET_0, &MOSFET_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#if NB_MOSFETS>=2
-	}else if(msg->sid == ACT_MOSFET_1) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOSFET_1, &MOSFET_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=3
-	}else if(msg->sid == ACT_MOSFET_2) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOSFET_2, &MOSFET_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=4
-	}else if(msg->sid == ACT_MOSFET_3) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOSFET_3, &MOSFET_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=5
-	}else if(msg->sid == ACT_MOSFET_4) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOSFET_4, &MOSFET_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=6
-	}else if(msg->sid == ACT_MOSFET_5) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOSFET_5, &MOSFET_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=7
-	}else if(msg->sid == ACT_MOSFET_6) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOSFET_6, &MOSFET_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=8
-	}else if(msg->sid == ACT_MOSFET_7) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOSFET_7, &MOSFET_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-	}else if(msg->sid == ACT_DO_SELFTEST) {
-
-	}
-
-	return FALSE;
-}
-
-
-#if I_AM_CARTE_ACT
-void MOSFET_run_command(queue_id_t queueId, bool_e init) {
-	if(QUEUE_has_error(queueId)) {
-		QUEUE_behead(queueId);
-		return;
-	}
-
-	if((QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0)
-#if NB_MOSFETS>=2
-			|| (QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_1)
-#endif
-#if NB_MOSFETS>=3
-			|| (QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_2)
-#endif
-#if NB_MOSFETS>=4
-			|| (QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_3)
-#endif
-#if NB_MOSFETS>=5
-			|| (QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_4)
-#endif
-#if NB_MOSFETS>=6
-			|| (QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_5)
-#endif
-#if NB_MOSFETS>=7
-			|| (QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_6)
-#endif
-#if NB_MOSFETS>=8
-			|| (QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_7)
-#endif
-			) {
-		if(init)
-			MOSFET_command_init(queueId);
-		else
-			MOSFET_command_run(queueId);
-	}
-}
-
-//Initialise une commande
-static void MOSFET_command_init(queue_id_t queueId) {
-	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-
-	switch(command) {
-		case ACT_MOSFET_NORMAL:
-		case ACT_MOSFET_STOP:
-#if NB_MOSFETS>=1 && defined(MOSFET_0_PIN)
-			if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0){
-				MOSFET_0_do_order(command);
-			}
-#endif
-#if NB_MOSFETS>=2 && defined(MOSFET_1_PIN)
-			else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_1){
-				MOSFET_1_do_order(command);
-			}
-#endif
-#if NB_MOSFETS>=3 && defined(MOSFET_2_PIN)
-			else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_2){
-				MOSFET_2_do_order(command);
-			}
-#endif
-#if NB_MOSFETS>=4 && defined(MOSFET_3_PIN)
-			else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_3){
-				MOSFET_3_do_order(command);
-			}
-#endif
-#if NB_MOSFETS>=5 &&defined( MOSFET_4_PIN)
-			else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_4){
-				MOSFET_4_do_order(command);
-			}
-#endif
-#if NB_MOSFETS>=6 && defined(MOSFET_5_PIN)
-			else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_5){
-				MOSFET_5_do_order(command);
-			}
-#endif
-#if NB_MOSFETS>=7 && defined(MOSFET_6_PIN)
-			else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_6){
-				MOSFET_6_do_order(command);
-			}
-#endif
-#if NB_MOSFETS>=8 && defined(MOSFET_7_PIN)
-			else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_7){
-				MOSFET_7_do_order(command);
-			}
-#endif
-			else{
-				debug_printf("Error in QS_mosfet : MOSFET_command_init queueId=%d line=%d\n", QUEUE_get_act(queueId), __LINE__);
-			}
-			break;
-
-		default: {
-			error_printf("Invalid MOSFET command: %u, code is broken !\n", command);
-			//QUEUE_next(queueId, ACT_MOSFET_0, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
-			return;
-		}
-	}
-}
-
-static void MOSFET_command_run(queue_id_t queueId){
-	if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0 && NB_MOSFETS >= 1){
-		QUEUE_next(queueId, ACT_MOSFET_0, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
-	}
-	else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0 && NB_MOSFETS >= 2){
-		QUEUE_next(queueId, ACT_MOSFET_1, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
-	}
-	else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0 && NB_MOSFETS >= 3){
-		QUEUE_next(queueId, ACT_MOSFET_2, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
-	}
-	else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0 && NB_MOSFETS >= 4){
-		QUEUE_next(queueId, ACT_MOSFET_3, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
-	}
-	else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0 && NB_MOSFETS >= 5){
-		QUEUE_next(queueId, ACT_MOSFET_4, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
-	}
-	else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0 && NB_MOSFETS >= 6){
-		QUEUE_next(queueId, ACT_MOSFET_5, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
-	}
-	else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0 && NB_MOSFETS >= 7){
-		QUEUE_next(queueId, ACT_MOSFET_6, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
-	}
-	else if(QUEUE_get_act(queueId) == QUEUE_ACT_MOSFET_0 && NB_MOSFETS >= 8){
-		QUEUE_next(queueId, ACT_MOSFET_7, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
-	}
-	else{
-		debug_printf("Error in QS_mosfet : MOSFET_command_run queueId=%d line=%d\n", QUEUE_get_act(queueId), __LINE__);
-	}
-}
-#endif
-
-*/

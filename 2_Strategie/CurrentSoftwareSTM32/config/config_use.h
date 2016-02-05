@@ -50,7 +50,7 @@
 //#define USE_SYNC_ELEMENTS
 
 // Utilisation de la carte Mosfets
-#define USE_MOSFETS			// déclarer l'utilisation du pilote
+#define USE_MOSFETS			//Déclarer l'utilisation du pilote
 #define NB_MOSFETS     5    //Nombre de mosfets à piloter (max = 8)
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
@@ -125,8 +125,8 @@
 
 /* Réglages entrées analogiques */
 	#define USE_AN8				// Capteur mesure 24V
-	#define USE_AN_13           // Capteur laser gauche
-	#define USE_AN_14           // Capteur laser droite
+	#define USE_AN13            // Capteur laser gauche
+	#define USE_AN14            // Capteur laser droite
 	#define ADC_CHANNEL_MEASURE24		ADC_8
 	#define ADC_SENSOR_BIG_XUK_LEFT     ADC_13
 	#define ADC_SENSOR_BIG_XUK_RIGHT    ADC_14
