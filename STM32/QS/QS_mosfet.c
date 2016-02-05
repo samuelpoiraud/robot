@@ -8,8 +8,9 @@
  *
  */
 
+#include "QS_all.h"
 
-//#ifdef USE_MOSFETS
+#ifdef USE_MOSFETS
 
 #include "QS_mosfet.h"
 
@@ -887,7 +888,7 @@ bool_e MOSFET_selftest_strat(){
 }
 #endif
 
-//#endif
+#endif  //USE_MOSFET
 
 
 /*
