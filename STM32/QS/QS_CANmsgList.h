@@ -896,30 +896,30 @@
 		//////////////////////////////////////////////////////////////////
 
 		ACT_MOSFET_0                = (ACT_FILTER | 0x60),
-		ACT_POMPE_VERY_LEFT			= (ACT_FILTER | 0x60),
+		ACT_POMPE_MIDDLE            = (ACT_FILTER | 0x60),
 		ACT_POMPE_BACK_LEFT         = (ACT_FILTER | 0x60),
 
 		ACT_MOSFET_1				= (ACT_FILTER | 0x61),
-		ACT_POMPE_MIDDLE            = (ACT_FILTER | 0x61),
+		ACT_POMPE_VERY_LEFT			= (ACT_FILTER | 0x61),
 		ACT_POMPE_BACK_RIGHT        = (ACT_FILTER | 0x61),
 
 		ACT_MOSFET_2				= (ACT_FILTER | 0x62),
-		ACT_POMPE_VERY_RIGHT_BOT    = (ACT_FILTER | 0x62),
+		ACT_POMPE_VERY_RIGHT_TOP    = (ACT_FILTER | 0x62),
 
 		ACT_MOSFET_3				= (ACT_FILTER | 0x63),
-		ACT_POMPE_VERY_RIGHT_TOP    = (ACT_FILTER | 0x63),
+		ACT_POMPE_VERY_RIGHT_BOT    = (ACT_FILTER | 0x63),
 
 		ACT_MOSFET_4				= (ACT_FILTER | 0x64),
-		ACT_POMPE_RIGHT             = (ACT_FILTER | 0x64),
+		ACT_POMPE_MIDDLE_RIGHT      = (ACT_FILTER | 0x64),
 
 		ACT_MOSFET_5				= (ACT_FILTER | 0x65),
-		ACT_POMPE_MIDDLE_RIGHT      = (ACT_FILTER | 0x65),
+		ACT_POMPE_RIGHT				= (ACT_FILTER | 0x65),
 
 		ACT_MOSFET_6				= (ACT_FILTER | 0x66),
-		ACT_POMPE_MIDDLE_LEFT       = (ACT_FILTER | 0x66),
+		ACT_POMPE_LEFT				= (ACT_FILTER | 0x66),
 
 		ACT_MOSFET_7			    = (ACT_FILTER | 0x67),
-		ACT_POMPE_LEFT              = (ACT_FILTER | 0x67),
+		ACT_POMPE_MIDDLE_LEFT       = (ACT_FILTER | 0x67),
 
 		ACT_MOSFETS_ALL             = (ACT_FILTER | 0x68),
 		ACT_POMPE_ALL               = (ACT_FILTER | 0x68),
