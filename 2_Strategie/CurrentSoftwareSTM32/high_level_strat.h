@@ -59,6 +59,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	BLACK_PUSH_SEASHELLS,
 	BLACK_APOCALYPSE,
 	BLACK_END_OF_MATCH,
+	BLACK_SAND_DEPOSE,
 
 	//--------------Sub action de Pearl
 	PEARL_STRAT_INITIALE,
@@ -70,6 +71,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	PEARL_COQUILLAGES_CLOSE,
 	PEARL_COQUILLAGES_FAR,
 	PEARL_END_OF_MATCH,
+	PEARL_SAND_DEPOSE,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
