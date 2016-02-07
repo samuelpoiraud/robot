@@ -137,7 +137,6 @@ int main (void)
 	BRAIN_init();
 	ACT_AVOIDANCE_init();
 	ELEMENTS_init();
-	COQUILLAGE_init();
 	ASTAR_init();
 
 	// Demande des états initiaux des switchs

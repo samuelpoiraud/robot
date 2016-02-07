@@ -7,11 +7,46 @@
 
 
 	typedef enum{
+		NO_ELEMENT,
 		OUR_ELEMENT,
-		ADV_ELEMENT
+		ADV_ELEMENT,
+		NEUTRAL_ELEMENT
 	}ELEMENTS_property_e;
 
-	typedef enum	{
+
+	typedef struct{
+		GEOMETRY_point_t pos;
+		ELEMENTS_property_e property;
+	}COQUILLAGES_t;
+
+	typedef enum{
+		//Flags coquillages (Veuillez laisser les flags coquillages ici)
+		COQUILLAGE_AWAY_ONE,
+		COQUILLAGE_AWAY_TWO,
+		COQUILLAGE_AWAY_THREE,
+		COQUILLAGE_AWAY_FOUR,
+		COQUILLAGE_AWAY_FIVE,
+		COQUILLAGE_AWAY_ROCK_ONE,
+		COQUILLAGE_AWAY_ROCK_TWO,
+		COQUILLAGE_AWAY_ROCK_THREE,
+		COQUILLAGE_NEUTRAL_ONE,
+		COQUILLAGE_NEUTRAL_TWO,
+		COQUILLAGE_NEUTRAL_THREE,
+		COQUILLAGE_NEUTRAL_FOUR,
+		COQUILLAGE_NEUTRAL_FIVE,
+		COQUILLAGE_NEUTRAL_SIX,
+		COQUILLAGE_HOME_ONE,
+		COQUILLAGE_HOME_TWO,
+		COQUILLAGE_HOME_THREE,
+		COQUILLAGE_HOME_FOUR,
+		COQUILLAGE_HOME_FIVE,
+		COQUILLAGE_HOME_ROCK_ONE,
+		COQUILLAGE_HOME_ROCK_TWO,
+		COQUILLAGE_HOME_ROCK_THREE,
+		COQUILLAGE_NB, //Sert simplement à la gestion des flags coquillages
+		COQUILLAGES_ATTAQUE,
+		COQUILLAGES_DEFENSE,
+
 		//Eléments pris
 		FIRST_DOOR_CLOSED,
 		SECOND_DOOR_CLOSED,
@@ -41,33 +76,6 @@
 		SEASHELLS_BOTTOM,			//si les deux coquillages du bas sont pris ou pas (flag à supprimer et à remplacer par les flag coquillages)
 		OUR_BLOCK8_DEPOSED,			//on a depose notre bloc de 8 (à supprimer, on doit juste savoir si le cube est pris)
 		ADV_BLOCK8_DEPOSED,			//on a depose le bloc de 8 adv (à supprimer, on doit juste savoir si le cube est pris)
-
-
-		//Flags coquillages
-		COQUILLAGE_AWAY_ONE,
-		COQUILLAGE_AWAY_TWO,
-		COQUILLAGE_AWAY_THREE,
-		COQUILLAGE_AWAY_FOUR,
-		COQUILLAGE_AWAY_FIVE,
-		COQUILLAGE_AWAY_ROCK_ONE,
-		COQUILLAGE_AWAY_ROCK_TWO,
-		COQUILLAGE_AWAY_ROCK_THREE,
-		COQUILLAGE_NEUTRAL_ONE,
-		COQUILLAGE_NEUTRAL_TWO,
-		COQUILLAGE_NEUTRAL_THREE,
-		COQUILLAGE_NEUTRAL_FOUR,
-		COQUILLAGE_NEUTRAL_FIVE,
-		COQUILLAGE_NEUTRAL_SIX,
-		COQUILLAGE_HOME_ONE,
-		COQUILLAGE_HOME_TWO,
-		COQUILLAGE_HOME_THREE,
-		COQUILLAGE_HOME_FOUR,
-		COQUILLAGE_HOME_FIVE,
-		COQUILLAGE_HOME_ROCK_ONE,
-		COQUILLAGE_HOME_ROCK_TWO,
-		COQUILLAGE_HOME_ROCK_THREE,
-		COQUILLAGES_ATTAQUE,
-		COQUILLAGES_DEFENSE,
 
 		ELEMENTS_FLAGS_END_SYNCH,	//Les flags au-dessus seront synchro entre les deux robots
 
@@ -101,6 +109,10 @@ void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state);
 void ELEMENTS_inc_fishs_passage();
 bool_e ELEMENTS_fishs_passage_completed();
 error_e ELEMENTS_check_communication(CAN_msg_t * msg);
+
+ELEMENTS_property_e COQUILLAGE_get_property(Uint8 id);
+bool_e COQUILLAGE_is_mine(Uint8 id);
+bool_e COQUILLAGE_is_present(Uint8 id);
 
 #ifdef USE_SYNC_ELEMENTS
 void ELEMENTS_receive_flags(CAN_msg_t* msg);
