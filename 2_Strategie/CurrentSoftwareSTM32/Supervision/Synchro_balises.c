@@ -218,7 +218,7 @@ static void update_rfmodule_here()
 	static time32_t low_battery_on_foe2_printed_time = 0;
 
 	Uint8 module_id;
-	bool_e someone_not_here = FALSE;
+	//bool_e someone_not_here = FALSE;
 	warner_foe1_is_rf_unreacheable = FALSE;	//on suppose qu'on a un soucis avec la liaison RF FOE1
 	warner_foe2_is_rf_unreacheable = FALSE;	//on suppose qu'on a un soucis avec la liaison RF FOE2
 
@@ -229,7 +229,7 @@ static void update_rfmodule_here()
 		{
 			if(last_activity_time[module_id] + LAST_SYNCHRO_TIMEOUT >= global.absolute_time)
 			{
-				someone_not_here = TRUE;
+				//someone_not_here = TRUE;
 				switch(module_id)
 				{
 					case RF_FOE1:
