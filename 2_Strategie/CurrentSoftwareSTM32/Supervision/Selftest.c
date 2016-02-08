@@ -440,8 +440,8 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
 		TEST_RTC,
-		TEST_ESTRADE_SENSOR_RIGHT,
-		TEST_ESTRADE_SENSOR_LEFT,
+		TEST_LASER_SENSOR_RIGHT,
+		TEST_LASER_SENSOR_LEFT,
 		TEST_SWITCHS,
 		TEST_STRAT_MOSFETS,
 		TEST_ACT_MOSFETS,
@@ -505,24 +505,30 @@ error_e SELFTEST_strategy(bool_e reset)
 			status = RTC_get_local_time (&date);
 			if(!status)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_RTC);
+			if(I_AM_BIG())
+				state = TEST_LASER_SENSOR_RIGHT;
+			else
 				state = TEST_SWITCHS;
 			break;
-		case TEST_ESTRADE_SENSOR_RIGHT:
+		case TEST_LASER_SENSOR_RIGHT:
 			if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 15)
-				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT);
-			state = TEST_SWITCHS;
+				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_LASER_SENSOR_RIGHT);
+			state = TEST_LASER_SENSOR_LEFT;
 			break;
 
-		case TEST_ESTRADE_SENSOR_LEFT:
+		case TEST_LASER_SENSOR_LEFT:
 			if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 15)
-				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_ESTRADE_SENSOR_LEFT);
+				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_LASER_SENSOR_LEFT);
 			state = TEST_SWITCHS;
 			break;
 
 		case TEST_SWITCHS:
 			if(QS_WHO_AM_I_get()==BIG_ROBOT){
-
+				if(IHM_switchs_get(SWITCH_DISABLE_DUNE))		SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_DUNE);
+				if(IHM_switchs_get(SWITCH_DISABLE_FISHS))		SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_FISHS);
+				if(IHM_switchs_get(SWITCH_DISABLE_DUNIX))		SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_DUNIX);
 			}
+			if(IHM_switchs_get(SWITCH_DISABLE_SAND_BLOC))	SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC);
 			state = TEST_STRAT_MOSFETS;
 			break;
 
@@ -592,8 +598,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");					break;
 				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");				break;
 				case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		debug_printf("SELFTEST_PROP_SWITCH_ASSER_DISABLE");				break;
-				case SELFTEST_PROP_SENSOR_CUP_RIGHT:			debug_printf("SELFTEST_PROP_SENSOR_CUP_RIGHT");					break;
-				case SELFTEST_PROP_SENSOR_CUP_LEFT:				debug_printf("SELFTEST_PROP_SENSOR_CUP_LEFT");					break;
 
 				case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	debug_printf("SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE");		break;
 				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
@@ -604,15 +608,12 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
 				case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_STRAT_BIROUTE_FORGOTTEN");				break;
 				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");					break;
-				case SELFTEST_STRAT_ESTRADE_SENSOR_LEFT:		debug_printf("SELFTEST_STRAT_ESTRADE_SENSOR_LEFT");				break;
-				case SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT:		debug_printf("SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT");			break;
-				case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_POPCORN_DISABLED");			break;
-				case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED");		break;
-				case SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED");		break;
-				case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_CLAPS_DISABLED");			break;
-				case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	debug_printf("SELFTEST_STRAT_SWITCH_CARPETS_DISABLED");			break;
-				case SELFTEST_STRAT_SWITCH_LIFT_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_LIFT_DISABLED");			break;
-				case SELFTEST_STRAT_SWITCH_CUP_DISABLED:		debug_printf("SELFTEST_STRAT_SWITCH_CUP_DISABLED");			break;
+				case SELFTEST_STRAT_LASER_SENSOR_LEFT:		    debug_printf("SELFTEST_STRAT_LASER_SENSOR_LEFT");				break;
+				case SELFTEST_STRAT_LASER_SENSOR_RIGHT:		    debug_printf("SELFTEST_STRAT_LASER_SENSOR_RIGHT");			    break;
+				case SELFTEST_STRAT_SWITCH_DISABLE_DUNE:		debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_DUNE");			    break;
+				case SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC:	debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC");		break;
+				case SELFTEST_STRAT_SWITCH_DISABLE_FISHS:	    debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_FISHS");		    break;
+				case SELFTEST_STRAT_SWITCH_DISABLE_DUNIX:		debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_DUNIX");			break;
 
 				case SELFTEST_IHM_BATTERY_NO_24V:				debug_printf("SELFTEST_IHM_BATTERY_NO_24V");					break;
 				case SELFTEST_IHM_BATTERY_LOW:					debug_printf("SELFTEST_IHM_BATTERY_LOW");						break;
@@ -639,16 +640,10 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT");
 				case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			debug_printf("SELFTEST_ACT_RX24_SHIFT_CYLINDER");
 				case SELFTEST_ACT_RX24_PENDULUM:				debug_printf("SELFTEST_ACT_RX24_PENDULUM");
-				case SELFTEST_ACT_RX24_POMPE_SAND_LOCKER_LEFT:	debug_printf("SELFTEST_ACT_RX24_POMPE_SAND_LOCKER_LEFT");
-				case SELFTEST_ACT_RX24_POMPE_SAND_LOCKER_RIGHT:	debug_printf("SELFTEST_ACT_RX24_POMPE_SAND_LOCKER_RIGHT");
-				case SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_LEFT:	debug_printf("SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_LEFT");
-				case SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_RIGHT:	debug_printf("SELFTEST_ACT_RX24_POMPE_BLACK_FRONT_RIGHT");
-				case SELFTEST_ACT_RX24_POMPE_PENDULUM:			debug_printf("SELFTEST_ACT_RX24_POMPE_PENDULUM");
+
 				case SELFTEST_ACT_AX12_LEFT_ARM:				debug_printf("SELFTEST_ACT_AX12_LEFT_ARM");
 				case SELFTEST_ACT_AX12_RIGHT_ARM:				debug_printf("SELFTEST_ACT_AX12_RIGHT_ARM");
 				case SELFTEST_ACT_AX12_SAND_CIRCLE:				debug_printf("SELFTEST_ACT_AX12_SAND_CIRCLE");
-				case SELFTEST_ACT_POMPE_BACK_LEFT:				debug_printf("SELFTEST_ACT_POMPE_BACK_LEFT");
-				case SELFTEST_ACT_POMPE_BACK_RIGHT:				debug_printf("SELFTEST_ACT_POMPE_BACK_RIGHT");
 				case SELFTEST_ACT_POMPE_FRONT_LEFT:				debug_printf("SELFTEST_ACT_POMPE_FRONT_LEFT");
 				case SELFTEST_ACT_POMPE_FRONT_RIGHT:			debug_printf("SELFTEST_ACT_POMPE_FRONT_RIGHT");
 
@@ -901,8 +896,6 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";			break;
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
 		case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		return "Asser Switch disable"; 	break;
-		case SELFTEST_PROP_SENSOR_CUP_RIGHT:			return "PROP Sensor Cup right";	break;
-		case SELFTEST_PROP_SENSOR_CUP_LEFT:				return "PROP Sensor Cup left";	break;
 
 		case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	return "Evit Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		return "XBee Switch disable";	break;
@@ -913,15 +906,12 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";			break;
 		case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			return "Biroute Forgotten"; 	break;
 		case SELFTEST_STRAT_SD_WRITE_FAIL:				return "SD Write FAIL";			break;
-		case SELFTEST_STRAT_ESTRADE_SENSOR_LEFT:		return "Estrade sensor left";	break;
-		case SELFTEST_STRAT_ESTRADE_SENSOR_RIGHT:		return "Estrade sensor right";	break;
-		case SELFTEST_STRAT_SWITCH_POPCORN_DISABLED:	return "Popcorn Disabled";		break;
-		case SELFTEST_STRAT_SWITCH_LEFT_PUMP_DISABLED:	return "Left Pump Disabled";	break;
-		case SELFTEST_STRAT_SWITCH_RIGHT_PUMP_DISABLED:	return "Right Pump Disabled";	break;
-		case SELFTEST_STRAT_SWITCH_CLAPS_DISABLED:		return "Claps Disabled";		break;
-		case SELFTEST_STRAT_SWITCH_CARPETS_DISABLED:	return "Carpets Disabled";		break;
-		case SELFTEST_STRAT_SWITCH_LIFT_DISABLED:		return "Lift Disabled";			break;
-		case SELFTEST_STRAT_SWITCH_CUP_DISABLED:		return "Cup Disabled";			break;
+		case SELFTEST_STRAT_LASER_SENSOR_LEFT:			return "Laser sensor left";		break;
+		case SELFTEST_STRAT_LASER_SENSOR_RIGHT:			return "Laser sensor right";	break;
+		case SELFTEST_STRAT_SWITCH_DISABLE_DUNE:		return "Dune Disabled";			break;
+		case SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC:	return "Sand bloc Disabled";	break;
+		case SELFTEST_STRAT_SWITCH_DISABLE_FISHS:	    return "Fishs Disabled";		break;
+		case SELFTEST_STRAT_SWITCH_DISABLE_DUNIX:		return "Dunix Disabled";		break;
 
 		case SELFTEST_IHM_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_IHM_BATTERY_LOW:					return "BATTERY LOW";			break;
