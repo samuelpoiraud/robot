@@ -28,7 +28,31 @@ void ACT_AVOIDANCE_init(){
 
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
 		//----------------------------------------------------------------------------------------------------------left-----right----front---back
-		//EXEMPLE: init_new_offset(ACT_AVOID_POP_COLLECT_LEFT, ACT_AVOID_POP_COLLECT_LEFT_Open, ACT_POP_COLLECT_LEFT_OPEN,			60,		0,		0,		60);
+//EXEMPLE:init_new_offset(ACT_AVOID_POP_COLLECT_LEFT,ACT_AVOID_POP_COLLECT_LEFT_Open,ACT_POP_COLLECT_LEFT_OPEN,			60,		0,		0,		60);
+		init_new_offset(ACT_AVOID_FISH_UNSTICK_ARM,ACT_AVOID_FISH_UNSTICK_ARM_Open,ACT_FISH_UNSTICK_ARM_OPEN,			0,		210,	0,		0);
+		init_new_offset(ACT_AVOID_FISH_UNSTICK_ARM,ACT_AVOID_FISH_UNSTICK_ARM_Mid,ACT_FISH_UNSTICK_ARM_MIDDLE,			0,		150,	0,		0);
+		init_new_offset(ACT_AVOID_FISH_UNSTICK_ARM,ACT_AVOID_FISH_UNSTICK_ARM_Close,ACT_FISH_UNSTICK_ARM_CLOSE_FISH,	0,		100,	0,		0);
+
+		init_new_offset(ACT_AVOID_BLACK_SAND_CIRCLE,ACT_AVOID_BLACK_SAND_CIRCLE_Open,ACT_BLACK_SAND_CIRCLE_OPEN,		0,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_BOTTOM_DUNE_LEFT,ACT_AVOID_BOTTOM_DUNE_LEFT_Open,ACT_BOTTOM_DUNE_LEFT_OPEN,			0,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_MIDDLE_DUNE_LEFT,ACT_AVOID_MIDDLE_DUNE_LEFT_Open,ACT_MIDDLE_DUNE_LEFT_OPEN,			0,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_CONE_DUNE,ACT_AVOID_CONE_DUNE_Open,ACT_CONE_DUNE_OPEN,								0,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_DUNIX_LEFT,ACT_AVOID_DUNIX_LEFT_Open,ACT_DUNIX_LEFT_OPEN,								0,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_DUNIX_RIGHT,ACT_AVOID_DUNIX_RIGHT_Open,ACT_DUNIX_RIGHT_OPEN,							0,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_SAND_LOCKER_LEFT,ACT_AVOID_SAND_LOCKER_LEFT_Open,ACT_SAND_LOCKER_LEFT_OPEN,			0,		0,		0,		0);
+
+		init_new_offset(ACT_AVOID_SAND_LOCKER_RIGHT,ACT_AVOID_SAND_LOCKER_RIGHT_Open,ACT_SAND_LOCKER_RIGHT_OPEN,		0,		0,		0,		0);
+
+
+
+
+
 
 	}else{ //Seulement sur le petit robot
 
