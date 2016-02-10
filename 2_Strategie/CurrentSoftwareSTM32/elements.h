@@ -59,7 +59,9 @@
 
 		//Apocalypse
 		OUR_BLOC_PRESENT,			//on a vu (au scan) notre bloc de 8
+		OUR_BLOC_ABSENT,			//on a PAS vu (au scan) notre bloc de 8
 		ADV_BLOC_PRESENT,			//on a vu (au scan) le bloc de 8 adv
+		ADV_BLOC_ABSENT,			//on a PAS vu (au scan) le bloc de 8 adv
 		APOCALYPSE_SCAN,			//on a scanné l'apocalypse (on est passé voir si il y a quelque chose
 		APOCALYPSE_PRESENT,			//on a trouvé l'apocalypse
 		APOCALYPSE_TAKEN,			//on a pris l'apocalypse
