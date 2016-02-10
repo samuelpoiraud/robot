@@ -102,7 +102,6 @@
 
 
 void ELEMENTS_init();
-void COQUILLAGE_init();
 
 bool_e ELEMENTS_get_flag(elements_flags_e flag_id);
 void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state);

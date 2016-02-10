@@ -94,56 +94,125 @@ void ELEMENTS_init(){
 
 	//Gestion des différentes configurations
 
-	coquillages[COQUILLAGE_HOME_FOUR].property = OUR_ELEMENT;
-	coquillages[COQUILLAGE_HOME_FIVE].property = OUR_ELEMENT;
-	coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = OUR_ELEMENT;
-
 	if(IHM_switchs_get(SWITCH_COQUILLAGE_1)){
 		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ONE].property = NO_ELEMENT;
+		coquillages[COQUILLAGE_HOME_TWO].property = NO_ELEMENT;
+		coquillages[COQUILLAGE_HOME_THREE].property = NO_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FOUR].property = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FIVE].property = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_ONE].property  = ADV_ELEMENT;
 		coquillages[COQUILLAGE_NEUTRAL_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_NEUTRAL_THREE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_NEUTRAL_FOUR].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_THREE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FOUR].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FIVE].property  = ADV_ELEMENT;
 		coquillages[COQUILLAGE_NEUTRAL_SIX].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_ONE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_TWO].property  = OUR_ELEMENT;
-	}else if(IHM_switchs_get(SWITCH_COQUILLAGE_2)){
+		coquillages[COQUILLAGE_AWAY_ONE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_TWO].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_THREE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FOUR].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FIVE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = ADV_ELEMENT;
+	}
+	else if(IHM_switchs_get(SWITCH_COQUILLAGE_2)){
 		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_NEUTRAL_THREE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_NEUTRAL_FOUR].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ONE].property = NO_ELEMENT;
+		coquillages[COQUILLAGE_HOME_TWO].property = NO_ELEMENT;
+		coquillages[COQUILLAGE_HOME_THREE].property = NO_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FOUR].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FIVE].property = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_THREE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FOUR].property  = NEUTRAL_ELEMENT;
 		coquillages[COQUILLAGE_NEUTRAL_FIVE].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_NEUTRAL_SIX].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = OUR_ELEMENT;
-	}else if(IHM_switchs_get(SWITCH_COQUILLAGE_3)){
+		coquillages[COQUILLAGE_AWAY_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_TWO].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_THREE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FOUR].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FIVE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = ADV_ELEMENT;
+	}
+	else if(IHM_switchs_get(SWITCH_COQUILLAGE_3)){
 		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_HOME_ONE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_HOME_TWO].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ONE].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_TWO].property = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_HOME_THREE].property = NO_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FOUR].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FIVE].property = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_ONE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_THREE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FOUR].property  = NO_ELEMENT;
 		coquillages[COQUILLAGE_NEUTRAL_FIVE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_FOUR].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = OUR_ELEMENT;
-	}else if(IHM_switchs_get(SWITCH_COQUILLAGE_4)){
-		coquillages[COQUILLAGE_HOME_ONE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_HOME_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_NEUTRAL_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_NEUTRAL_FIVE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_FOUR].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_SIX].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_TWO].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_THREE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FOUR].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FIVE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = ADV_ELEMENT;
+	}
+	else if(IHM_switchs_get(SWITCH_COQUILLAGE_4)){
+		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ONE].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_TWO].property = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_HOME_THREE].property = NO_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FOUR].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FIVE].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_ONE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_TWO].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_THREE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FOUR].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FIVE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_SIX].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_THREE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FOUR].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FIVE].property  = NO_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_ROCK_ONE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = NEUTRAL_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = OUR_ELEMENT;
-	}else if(IHM_switchs_get(SWITCH_COQUILLAGE_5)){
-		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = OUR_ELEMENT;
+	}
+	else if(IHM_switchs_get(SWITCH_COQUILLAGE_5)){
+		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = NEUTRAL_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_HOME_ONE].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ONE].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_TWO].property = ADV_ELEMENT;
+		coquillages[COQUILLAGE_HOME_THREE].property = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FOUR].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FIVE].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_ONE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_TWO].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_THREE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FOUR].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FIVE].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_SIX].property  = NO_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_THREE].property  = ADV_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_FOUR].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_FIVE].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = OUR_ELEMENT;
-		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = OUR_ELEMENT;
-	}else{
-		//Définir les coquillages communs a toutes les configurations
+		coquillages[COQUILLAGE_AWAY_FIVE].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = NEUTRAL_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = NEUTRAL_ELEMENT;
 	}
 }
 
