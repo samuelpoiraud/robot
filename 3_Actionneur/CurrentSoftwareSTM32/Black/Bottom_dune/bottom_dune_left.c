@@ -116,8 +116,8 @@ bool_e BOTTOM_DUNE_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_BOTTOM_DUNE_LEFT_IDLE :
-			case ACT_BOTTOM_DUNE_LEFT_OPEN :
-			case ACT_BOTTOM_DUNE_LEFT_CLOSE :
+			case ACT_BOTTOM_DUNE_LEFT_LOCK :
+			case ACT_BOTTOM_DUNE_LEFT_UNLOCK :
 			case ACT_BOTTOM_DUNE_LEFT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT, &BOTTOM_DUNE_LEFT_run_command, 0,TRUE);
 				break;
@@ -168,8 +168,8 @@ static void BOTTOM_DUNE_LEFT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_BOTTOM_DUNE_LEFT_IDLE : *rx24_goalPosition = BOTTOM_DUNE_LEFT_RX24_IDLE_POS; break;
-		case ACT_BOTTOM_DUNE_LEFT_CLOSE : *rx24_goalPosition = BOTTOM_DUNE_LEFT_RX24_CLOSE_POS; break;
-		case ACT_BOTTOM_DUNE_LEFT_OPEN : *rx24_goalPosition = BOTTOM_DUNE_LEFT_RX24_OPEN_POS; break;
+		case ACT_BOTTOM_DUNE_LEFT_LOCK : *rx24_goalPosition = BOTTOM_DUNE_LEFT_RX24_LOCK_POS; break;
+		case ACT_BOTTOM_DUNE_LEFT_UNLOCK : *rx24_goalPosition = BOTTOM_DUNE_LEFT_RX24_UNLOCK_POS; break;
 
 		case ACT_BOTTOM_DUNE_LEFT_STOP :
 			RX24_set_torque_enabled(BOTTOM_DUNE_LEFT_RX24_ID, FALSE); //Stopper l'asservissement du RX24

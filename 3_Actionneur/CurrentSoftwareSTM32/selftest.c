@@ -188,12 +188,12 @@ void SELFTEST_state_machine(void){
 				if(entrance && state_act_tests[ACT_BOTTOM_DUNE_LEFT & 0xFF] == SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_BOTTOM_DUNE_RIGHT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
 					SELFTEST_set_actions(&BOTTOM_DUNE_LEFT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_BOTTOM_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT},
-											 {ACT_BOTTOM_DUNE_LEFT_OPEN,    0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT},
+											 {ACT_BOTTOM_DUNE_LEFT_LOCK,    0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT},
 											 {ACT_BOTTOM_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT}
 										 });
 					SELFTEST_set_actions(&BOTTOM_DUNE_RIGHT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_BOTTOM_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT},
-											 {ACT_BOTTOM_DUNE_RIGHT_OPEN,   0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT},
+											 {ACT_BOTTOM_DUNE_RIGHT_LOCK,   0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT},
 											 {ACT_BOTTOM_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT}
 										 });
 				}
@@ -213,12 +213,12 @@ void SELFTEST_state_machine(void){
 				if(entrance && state_act_tests[ACT_MIDDLE_DUNE_LEFT & 0xFF] == SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_MIDDLE_DUNE_RIGHT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
 					SELFTEST_set_actions(&MIDDLE_DUNE_LEFT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_MIDDLE_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_MIDDLE_DUNE_LEFT},
-											 {ACT_MIDDLE_DUNE_LEFT_OPEN,    0,  QUEUE_ACT_RX24_MIDDLE_DUNE_LEFT},
+											 {ACT_MIDDLE_DUNE_LEFT_LOCK,    0,  QUEUE_ACT_RX24_MIDDLE_DUNE_LEFT},
 											 {ACT_MIDDLE_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_MIDDLE_DUNE_LEFT}
 										 });
 					SELFTEST_set_actions(&MIDDLE_DUNE_RIGHT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_MIDDLE_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_MIDDLE_DUNE_RIGHT},
-											 {ACT_MIDDLE_DUNE_RIGHT_OPEN,   0,  QUEUE_ACT_RX24_MIDDLE_DUNE_RIGHT},
+											 {ACT_MIDDLE_DUNE_RIGHT_LOCK,   0,  QUEUE_ACT_RX24_MIDDLE_DUNE_RIGHT},
 											 {ACT_MIDDLE_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_MIDDLE_DUNE_RIGHT}
 										 });
 				}
@@ -237,7 +237,7 @@ void SELFTEST_state_machine(void){
 				if(entrance){
 					SELFTEST_set_actions(&CONE_DUNE_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_CONE_DUNE_IDLE,		0,  QUEUE_ACT_RX24_CONE_DUNE},
-											 {ACT_CONE_DUNE_OPEN,       0,  QUEUE_ACT_RX24_CONE_DUNE},
+											 {ACT_CONE_DUNE_LOCK,       0,  QUEUE_ACT_RX24_CONE_DUNE},
 											 {ACT_CONE_DUNE_IDLE,		0,  QUEUE_ACT_RX24_CONE_DUNE}
 										 });
 				}

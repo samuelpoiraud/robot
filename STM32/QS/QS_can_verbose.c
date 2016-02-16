@@ -354,8 +354,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_BOTTOM_DUNE_LEFT:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_BOTTOM_DUNE_LEFT_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_BOTTOM_DUNE_LEFT_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_BOTTOM_DUNE_LEFT_CLOSE:		print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_BOTTOM_DUNE_LEFT_LOCK:		print(string,len, "| LOCK |");			break;
+						  case (Uint8)ACT_BOTTOM_DUNE_LEFT_UNLOCK:		print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_BOTTOM_DUNE_LEFT_STOP:		print(string,len, "| STOP |");			break;
 						  default:										print(string,len, "| UNKNOW cmd |");	break;
 					  }
@@ -363,8 +363,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_BOTTOM_DUNE_RIGHT:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_BOTTOM_DUNE_RIGHT_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_BOTTOM_DUNE_RIGHT_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_BOTTOM_DUNE_RIGHT_CLOSE:		print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_BOTTOM_DUNE_RIGHT_LOCK:		print(string,len, "| LOCK |");			break;
+						  case (Uint8)ACT_BOTTOM_DUNE_RIGHT_UNLOCK:		print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_BOTTOM_DUNE_RIGHT_STOP:		print(string,len, "| STOP |");			break;
 						  default:										print(string,len, "| UNKNOW cmd |");	break;
 					  }
@@ -372,8 +372,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_MIDDLE_DUNE_LEFT:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_MIDDLE_DUNE_LEFT_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_MIDDLE_DUNE_LEFT_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_MIDDLE_DUNE_LEFT_CLOSE:		print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_MIDDLE_DUNE_LEFT_LOCK:		print(string,len, "| LOCK |");			break;
+						  case (Uint8)ACT_MIDDLE_DUNE_LEFT_UNLOCK:		print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_MIDDLE_DUNE_LEFT_STOP:		print(string,len, "| STOP |");			break;
 						  default:										print(string,len, "| UNKNOW cmd |");	break;
 					  }
@@ -381,8 +381,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_MIDDLE_DUNE_RIGHT:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_MIDDLE_DUNE_RIGHT_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_MIDDLE_DUNE_RIGHT_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_MIDDLE_DUNE_RIGHT_CLOSE:		print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_MIDDLE_DUNE_RIGHT_LOCK:		print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_MIDDLE_DUNE_RIGHT_UNLOCK:		print(string,len, "| CLOSE |");			break;
 						  case (Uint8)ACT_MIDDLE_DUNE_RIGHT_STOP:		print(string,len, "| STOP |");			break;
 						  default:										print(string,len, "| UNKNOW cmd |");	break;
 					  }
@@ -390,8 +390,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_CONE_DUNE:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_CONE_DUNE_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_CONE_DUNE_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_CONE_DUNE_CLOSE:		print(string,len, "| CLOSE |");			break;
+						  case (Uint8)ACT_CONE_DUNE_LOCK:		print(string,len, "| LOCK |");			break;
+						  case (Uint8)ACT_CONE_DUNE_UNLOCK:		print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_CONE_DUNE_STOP:		print(string,len, "| STOP |");			break;
 						  default:                              print(string,len, "| UNKNOW cmd |");	break;
 					  }
@@ -471,17 +471,17 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  break;
 				  case (Uint8)ACT_POMPE_FRONT_LEFT:
 					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_FRONT_LEFT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_FRONT_LEFT_REVERSE:		print(string,len, "| REVERSE |");		break;
-						  case (Uint8)ACT_POMPE_FRONT_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  case (Uint8)ACT_POMPE_NORMAL:				print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_REVERSE:			print(string,len, "| REVERSE |");		break;
+						  case (Uint8)ACT_POMPE_STOP:				print(string,len, "| STOP |");			break;
 						  default:											print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
 				  case (Uint8)ACT_POMPE_FRONT_RIGHT:
 					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_POMPE_FRONT_RIGHT_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_POMPE_FRONT_RIGHT_REVERSE:	print(string,len, "| REVERSE |");		break;
-						  case (Uint8)ACT_POMPE_FRONT_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  case (Uint8)ACT_POMPE_NORMAL:				print(string,len, "| NORMAL |");		break;
+						  case (Uint8)ACT_POMPE_REVERSE:			print(string,len, "| REVERSE |");		break;
+						  case (Uint8)ACT_POMPE_STOP:				print(string,len, "| STOP |");			break;
 						  default:											print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;

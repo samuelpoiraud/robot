@@ -37,10 +37,10 @@
 
 //Stratégie par défaut... (modifiable par les codeurs qui auraient la flemme ou l'impossibilité de configurer leur strat sur le LCD à chaque reset...)
 //							Valeur souhaitable pour le commit SVN : high_level_strat
-#define DEFAULT_STRAT_BIG	high_level_strat
+#define DEFAULT_STRAT_BIG	strat_inutile_black
 
 
-#define DEFAULT_STRAT_SMALL	high_level_strat
+#define DEFAULT_STRAT_SMALL	strat_inutile_black
 
 
 static ia_fun_t strategy;

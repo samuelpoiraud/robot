@@ -20,9 +20,9 @@
 	#define CONE_DUNE_RX24_MAX_TEMPERATURE			    65	// Température maximale en degré
 
 //Position
-	#define CONE_DUNE_RX24_IDLE_POS					400
-	#define CONE_DUNE_RX24_CLOSE_POS			    512	//en degré
-	#define CONE_DUNE_RX24_OPEN_POS					600	//en degré
+	#define CONE_DUNE_RX24_IDLE_POS						400
+	#define CONE_DUNE_RX24_LOCK_POS						512	//en degré
+	#define CONE_DUNE_RX24_UNLOCK_POS					600	//en degré
 
 //Position initiale de l'RX24
 	#define CONE_DUNE_RX24_INIT_POS					CONE_DUNE_RX24_IDLE_POS

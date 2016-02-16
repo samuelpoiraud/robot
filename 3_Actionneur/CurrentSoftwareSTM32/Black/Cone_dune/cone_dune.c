@@ -115,8 +115,8 @@ bool_e CONE_DUNE_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CONE_DUNE_IDLE :
-			case ACT_CONE_DUNE_OPEN :
-			case ACT_CONE_DUNE_CLOSE :
+			case ACT_CONE_DUNE_LOCK :
+			case ACT_CONE_DUNE_UNLOCK :
 			case ACT_CONE_DUNE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_CONE_DUNE, &CONE_DUNE_run_command, 0,TRUE);
 				break;
@@ -167,8 +167,8 @@ static void CONE_DUNE_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_CONE_DUNE_IDLE : *rx24_goalPosition = CONE_DUNE_RX24_IDLE_POS; break;
-		case ACT_CONE_DUNE_CLOSE : *rx24_goalPosition = CONE_DUNE_RX24_CLOSE_POS; break;
-		case ACT_CONE_DUNE_OPEN : *rx24_goalPosition = CONE_DUNE_RX24_OPEN_POS; break;
+		case ACT_CONE_DUNE_LOCK : *rx24_goalPosition = CONE_DUNE_RX24_LOCK_POS; break;
+		case ACT_CONE_DUNE_UNLOCK : *rx24_goalPosition = CONE_DUNE_RX24_UNLOCK_POS; break;
 
 		case ACT_CONE_DUNE_STOP :
 			RX24_set_torque_enabled(CONE_DUNE_RX24_ID, FALSE); //Stopper l'asservissement du RX24
