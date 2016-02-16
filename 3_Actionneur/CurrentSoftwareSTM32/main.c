@@ -281,31 +281,31 @@ static void MAIN_onButton2(){
 
 	if(state == 0){
 		msg1.sid = ACT_BOTTOM_DUNE_LEFT;
-		msg1.data.act_msg.order = ACT_BOTTOM_DUNE_LEFT_CLOSE;
+		msg1.data.act_msg.order = ACT_BOTTOM_DUNE_LEFT_LOCK;
 		msg2.sid = ACT_BOTTOM_DUNE_RIGHT;
-		msg2.data.act_msg.order = ACT_BOTTOM_DUNE_RIGHT_CLOSE;
+		msg2.data.act_msg.order = ACT_BOTTOM_DUNE_RIGHT_LOCK;
 	}else if(state == 1){
 		msg1.sid = ACT_MIDDLE_DUNE_LEFT;
-		msg1.data.act_msg.order = ACT_MIDDLE_DUNE_LEFT_CLOSE;
+		msg1.data.act_msg.order = ACT_MIDDLE_DUNE_LEFT_LOCK;
 		msg2.sid = ACT_MIDDLE_DUNE_RIGHT;
-		msg2.data.act_msg.order = ACT_MIDDLE_DUNE_RIGHT_CLOSE;
+		msg2.data.act_msg.order = ACT_MIDDLE_DUNE_RIGHT_LOCK;
 	}else if(state == 2){
 		msg1.sid = ACT_CONE_DUNE;
-		msg1.data.act_msg.order = ACT_CONE_DUNE_CLOSE;
+		msg1.data.act_msg.order = ACT_CONE_DUNE_LOCK;
 		msg2.sid = 0;
 	}else if(state == 3){
 		msg1.sid = ACT_BOTTOM_DUNE_LEFT;
-		msg1.data.act_msg.order = ACT_BOTTOM_DUNE_LEFT_OPEN;
+		msg1.data.act_msg.order = ACT_BOTTOM_DUNE_LEFT_UNLOCK;
 		msg2.sid = ACT_BOTTOM_DUNE_RIGHT;
-		msg2.data.act_msg.order = ACT_BOTTOM_DUNE_RIGHT_OPEN;
+		msg2.data.act_msg.order = ACT_BOTTOM_DUNE_RIGHT_UNLOCK;
 	}else if(state == 4){
 		msg1.sid = ACT_MIDDLE_DUNE_LEFT;
-		msg1.data.act_msg.order = ACT_MIDDLE_DUNE_LEFT_OPEN;
+		msg1.data.act_msg.order = ACT_MIDDLE_DUNE_LEFT_UNLOCK;
 		msg2.sid = ACT_MIDDLE_DUNE_RIGHT;
-		msg2.data.act_msg.order = ACT_MIDDLE_DUNE_RIGHT_OPEN;
+		msg2.data.act_msg.order = ACT_MIDDLE_DUNE_RIGHT_UNLOCK;
 	}else if(state == 5){
 		msg1.sid = ACT_CONE_DUNE;
-		msg1.data.act_msg.order = ACT_CONE_DUNE_OPEN;
+		msg1.data.act_msg.order = ACT_CONE_DUNE_UNLOCK;
 		msg2.sid = 0;
 	}
 
