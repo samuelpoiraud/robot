@@ -15,6 +15,8 @@
 	#include "QS/QS_all.h"
 	#include "QS/QS_can.h"
 	#include "hokuyo.h"
+	#include "QS/QS_maths.h"
+
 	typedef struct
 	{
 		bool_e enable;					//cet objet est activé.
@@ -48,5 +50,10 @@
 	//Retourne le tableau des adversaires détectés...
 	//@post : size contient la taille du tableau
 	adversary_t * DETECTION_get_adversaries(Uint8 * size);
-	
+
+	bool_e is_in_zone_transparency(GEOMETRY_point_t p);
+
+	void DETECTON_set_zone_transparency(Uint8 i, bool_e enable);
+
+
 #endif /* ndef DETECTION_H */

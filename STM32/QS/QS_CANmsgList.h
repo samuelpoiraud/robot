@@ -606,6 +606,12 @@
 
 		#define PROP_DEBUG_FORCED_FOE		0x118
 
+		#define PROP_TRANSPARENCY			0x117
+		#define SIZE_PROP_TRANSPARENCY		2
+			struct{
+				Uint8 number				:8;
+				bool_e enable				:1;
+			}prop_transparency;
 
 
 	/**********************************************************************************************************************

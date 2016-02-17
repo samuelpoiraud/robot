@@ -36,6 +36,9 @@ typedef enum {
 	SM_ID_SUB_BLACK_TAKE_SAND_BLOC_START_ZONE       = 0x011A,
 	SM_ID_SUB_BLACK_END_OF_MATCH                    = 0x011B,
 	SM_ID_STRAT_BLACK_TESTS                         = 0x011C,
+	SM_ID_SUB_SNOWPLOW								= 0x011D,
+
+
 
 	SM_ID_STRAT_PEARL_INUTILE						= 0x0120,
 	SM_ID_STRAT_PEARL_INITIALE						= 0x0121,
