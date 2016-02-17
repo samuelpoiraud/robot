@@ -20,6 +20,15 @@
 	}COQUILLAGES_t;
 
 	typedef enum{
+	   NO_COQUILLAGES_CONFIG = 0,
+	   CONFIG_COQUILLAGES_1,
+	   CONFIG_COQUILLAGES_2,
+	   CONFIG_COQUILLAGES_3,
+	   CONFIG_COQUILLAGES_4,
+	   CONFIG_COQUILLAGES_5
+	}COQUILLAGES_config_e;
+
+	typedef enum{
 		//Flags coquillages (Veuillez laisser les flags coquillages ici)
 		COQUILLAGE_AWAY_ONE,
 		COQUILLAGE_AWAY_TWO,
@@ -104,6 +113,7 @@
 
 
 void ELEMENTS_init();
+void ELEMENTS_process_main();
 
 bool_e ELEMENTS_get_flag(elements_flags_e flag_id);
 void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state);
@@ -114,6 +124,10 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg);
 ELEMENTS_property_e COQUILLAGE_get_property(Uint8 id);
 bool_e COQUILLAGE_is_mine(Uint8 id);
 bool_e COQUILLAGE_is_present(Uint8 id);
+Uint8 COQUILLAGES_get_config();
+bool_e COQUILLAGES_is_config(COQUILLAGES_config_e user_config);
+void ELEMENTS_check_configuration_coquillages();
+void ELEMENTS_send_config_coquillages(CAN_msg_t *msg);
 
 #ifdef USE_SYNC_ELEMENTS
 void ELEMENTS_receive_flags(CAN_msg_t* msg);

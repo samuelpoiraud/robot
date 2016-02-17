@@ -12,6 +12,7 @@
 
 volatile bool_e elements_flags[ELEMENTS_FLAGS_NB];
 volatile COQUILLAGES_t coquillages[COQUILLAGE_NB];
+volatile COQUILLAGES_config_e coquillages_config = NO_COQUILLAGES_CONFIG;
 
 #define FISHS_PASSAGES 2
 static Uint8 fishs_passage = 0;
@@ -24,6 +25,10 @@ void ELEMENTS_init(){
 		elements_flags[i] = FALSE;
 	}
 	fishs_passage = 0;
+
+}
+
+void COQUILLAGES_init(){
 
 	coquillages[COQUILLAGE_AWAY_ONE].pos.x = 1250;
 	coquillages[COQUILLAGE_AWAY_ONE].pos.y = 2800;
@@ -94,7 +99,7 @@ void ELEMENTS_init(){
 
 	//Gestion des différentes configurations
 
-	if(IHM_switchs_get(SWITCH_COQUILLAGE_1)){
+	if(COQUILLAGES_is_config(CONFIG_COQUILLAGES_1)){
 		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = OUR_ELEMENT;
@@ -118,7 +123,7 @@ void ELEMENTS_init(){
 		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = ADV_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = ADV_ELEMENT;
 	}
-	else if(IHM_switchs_get(SWITCH_COQUILLAGE_2)){
+	else if(COQUILLAGES_is_config(CONFIG_COQUILLAGES_2)){
 		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = NEUTRAL_ELEMENT;
@@ -142,7 +147,7 @@ void ELEMENTS_init(){
 		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = NEUTRAL_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = ADV_ELEMENT;
 	}
-	else if(IHM_switchs_get(SWITCH_COQUILLAGE_3)){
+	else if(COQUILLAGES_is_config(CONFIG_COQUILLAGES_3)){
 		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = NEUTRAL_ELEMENT;
@@ -166,7 +171,7 @@ void ELEMENTS_init(){
 		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = NEUTRAL_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = ADV_ELEMENT;
 	}
-	else if(IHM_switchs_get(SWITCH_COQUILLAGE_4)){
+	else if(COQUILLAGES_is_config(CONFIG_COQUILLAGES_4)){
 		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = ADV_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = ADV_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = NEUTRAL_ELEMENT;
@@ -190,7 +195,7 @@ void ELEMENTS_init(){
 		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = NEUTRAL_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = OUR_ELEMENT;
 	}
-	else if(IHM_switchs_get(SWITCH_COQUILLAGE_5)){
+	else if(COQUILLAGES_is_config(CONFIG_COQUILLAGES_5)){
 		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = NEUTRAL_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = OUR_ELEMENT;
 		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = NEUTRAL_ELEMENT;
@@ -213,7 +218,34 @@ void ELEMENTS_init(){
 		coquillages[COQUILLAGE_AWAY_ROCK_ONE].property  = ADV_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = NEUTRAL_ELEMENT;
 		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = NEUTRAL_ELEMENT;
+	}else{
+		coquillages[COQUILLAGE_HOME_ROCK_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ROCK_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ROCK_THREE].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_ONE].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_TWO].property = ADV_ELEMENT;
+		coquillages[COQUILLAGE_HOME_THREE].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FOUR].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_HOME_FIVE].property = OUR_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_THREE].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FOUR].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_FIVE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_NEUTRAL_SIX].property  = OUR_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_THREE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FOUR].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_FIVE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_ONE].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_TWO].property  = ADV_ELEMENT;
+		coquillages[COQUILLAGE_AWAY_ROCK_THREE].property  = ADV_ELEMENT;
 	}
+}
+
+void ELEMENTS_process_main(){
+	ELEMENTS_check_configuration_coquillages();
 }
 
 ELEMENTS_property_e COQUILLAGE_get_property(Uint8 id){
@@ -233,6 +265,111 @@ bool_e COQUILLAGE_is_present(Uint8 id){
 	else
 		return TRUE;
 }
+
+Uint8 COQUILLAGES_get_config(){
+	return coquillages_config;
+}
+
+bool_e COQUILLAGES_is_config(COQUILLAGES_config_e user_config){
+	return (bool_e)(coquillages_config == user_config);
+}
+
+#define TIMEOUT_CONFIG_COQUILLAGES      500
+
+void ELEMENTS_check_configuration_coquillages()
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_ASK_CONFIG_COQUILLAGES,
+				INIT,
+				SEND_REQUEST,
+				WAIT_FOR_ANSWER,
+				WAIT_TIMEOUT,
+				TIMEOUT,
+				ANSWER_RECEIVED,
+				END);
+	static bool_e watchdog_flag = FALSE;
+	static watchdog_id_t watchdog_id = 0;
+	static Uint8 nb_ask = 0;
+
+	switch(state)
+	{
+		case INIT:
+			nb_ask = 0;
+			Uint8 nb_switchs_enable = 0;
+			if(IHM_switchs_get(SWITCH_COQUILLAGE_1)){
+				nb_switchs_enable++;
+				coquillages_config = CONFIG_COQUILLAGES_1;
+			}
+			if(IHM_switchs_get(SWITCH_COQUILLAGE_2)){
+				nb_switchs_enable++;
+				coquillages_config = CONFIG_COQUILLAGES_2;
+			}
+			if(IHM_switchs_get(SWITCH_COQUILLAGE_3)){
+				nb_switchs_enable++;
+				coquillages_config = CONFIG_COQUILLAGES_3;
+			}
+			if(IHM_switchs_get(SWITCH_COQUILLAGE_4)){
+				nb_switchs_enable++;
+				coquillages_config = CONFIG_COQUILLAGES_4;
+			}
+			if(IHM_switchs_get(SWITCH_COQUILLAGE_5)){
+				nb_switchs_enable++;
+				coquillages_config = CONFIG_COQUILLAGES_5;
+			}
+			if(nb_switchs_enable > 1)
+				state = END;
+			else
+				state = SEND_REQUEST;
+			break;
+		case SEND_REQUEST:{
+			CAN_msg_t request;
+			request.sid = XBEE_ASK_CONFIG_COQUILLAGES;
+			request.size = 0;
+			CANMsgToXBeeDestination(&request,(QS_WHO_AM_I_get()==BIG_ROBOT)?SMALL_ROBOT_MODULE:BIG_ROBOT_MODULE);
+			state = WAIT_FOR_ANSWER;
+			break;}
+		case WAIT_FOR_ANSWER:
+			if(entrance)
+			{
+				watchdog_id = WATCHDOG_create_flag( TIMEOUT_CONFIG_COQUILLAGES,&watchdog_flag);
+			}
+			if(watchdog_flag)
+			{
+				state = TIMEOUT;
+			}
+			else if(coquillages_config != 0)
+			{
+				state = END;
+				WATCHDOG_stop(watchdog_id);
+			}
+			break;
+
+		case TIMEOUT:
+			nb_ask++;
+			if(nb_ask < 5)
+				state = SEND_REQUEST;
+			else
+				state = END;
+			break;
+		case END:
+			COQUILLAGES_init();
+			RESET_MAE();
+			break;
+		default:
+			RESET_MAE();
+			break;
+	}
+}
+
+void ELEMENTS_send_config_coquillages(CAN_msg_t *msg){
+	if(msg->sid == XBEE_ASK_CONFIG_COQUILLAGES){
+		CAN_msg_t msg_to_send;
+		msg_to_send.sid = XBEE_SEND_CONFIG_COQUILLAGES;
+		msg_to_send.size = SIZE_XBEE_SEND_CONFIG_COQUILLAGES;
+		msg_to_send.data.xbee_send_config_coquillages.config = coquillages_config;
+		CANMsgToXBeeDestination(&msg_to_send, (QS_WHO_AM_I_get()==BIG_ROBOT)?SMALL_ROBOT_MODULE:BIG_ROBOT_MODULE);
+	}
+}
+
 
 
 bool_e ELEMENTS_get_flag(elements_flags_e flag_id)
@@ -350,3 +487,4 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 	}
 	return IN_PROGRESS;
 }
+
