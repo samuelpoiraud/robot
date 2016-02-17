@@ -336,6 +336,8 @@ void ENV_update(void)
 		}
 	}
 
+	//Mise à jour des éléments
+	ELEMENTS_process_main();
 #endif
 
 
@@ -511,6 +513,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 		case XBEE_COMMUNICATION_RESPONSE:
 			ELEMENTS_check_communication(incoming_msg);
+			break;
+
+		case XBEE_ASK_CONFIG_COQUILLAGES:
+			ELEMENTS_send_config_coquillages(incoming_msg);
 			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/

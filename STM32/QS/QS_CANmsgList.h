@@ -313,7 +313,12 @@
 				bool_e flag						:1;
 			}xbee_sync_elements_flags;
 
-
+		#define XBEE_ASK_CONFIG_COQUILLAGES		0x5B3
+		#define XBEE_SEND_CONFIG_COQUILLAGES	0x5B4  //Réponse...
+		#define SIZE_XBEE_SEND_CONFIG_COQUILLAGES   1
+			struct{
+				Uint8 config					:8;
+			}xbee_send_config_coquillages;
 
 		/**********************************************************************************************************************
 		 **********************************************************************************************************************
