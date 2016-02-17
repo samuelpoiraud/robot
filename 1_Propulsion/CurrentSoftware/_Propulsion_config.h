@@ -90,12 +90,12 @@
 		// BOT_COLOR
 		#define SMALL_BOT_COLOR_START_X  		(1100 - SMALL_ROBOT_WIDTH/2)*65536 	// Calé au bord de la serviette, coté cabine de plage
 		#define SMALL_BOT_COLOR_START_Y  		(SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE*65536)
-		#define SMALL_BOT_COLOR_START_TETA 		(6588416)			//PI/2  (il part en marche avant...)
+		#define SMALL_BOT_COLOR_START_TETA 		(-6588416)			//-PI/2  (il part en marche arrière...)
 
 		// TOP_COLOR
 		#define SMALL_TOP_COLOR_START_X 		(1100 - SMALL_ROBOT_WIDTH/2)*65536   // Calé au bord de la serviette, coté cabine de plage
 		#define SMALL_TOP_COLOR_START_Y 		(3000 - SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE) *65536
-		#define SMALL_TOP_COLOR_START_TETA 		(-6588416)				//-PI/2  (il part en marche avant...)
+		#define SMALL_TOP_COLOR_START_TETA 		(6588416)				//PI/2  (il part en marche arrière...)
 
 	//BIG
 		// BOT_COLOR

@@ -25,71 +25,71 @@ void ELEMENTS_init(){
 	}
 	fishs_passage = 0;
 
-	coquillages[COQUILLAGE_AWAY_ONE].pos.x = 0;
-	coquillages[COQUILLAGE_AWAY_ONE].pos.y = 0;
+	coquillages[COQUILLAGE_AWAY_ONE].pos.x = 1250;
+	coquillages[COQUILLAGE_AWAY_ONE].pos.y = 2800;
 
-	coquillages[COQUILLAGE_AWAY_TWO].pos.x = 0;
-	coquillages[COQUILLAGE_AWAY_TWO].pos.y = 0;
+	coquillages[COQUILLAGE_AWAY_TWO].pos.x = 1550;
+	coquillages[COQUILLAGE_AWAY_TWO].pos.y = 2800;
 
-	coquillages[COQUILLAGE_AWAY_THREE].pos.x = 0;
-	coquillages[COQUILLAGE_AWAY_THREE].pos.y = 0;
+	coquillages[COQUILLAGE_AWAY_THREE].pos.x = 1250;
+	coquillages[COQUILLAGE_AWAY_THREE].pos.y = 2400;
 
-	coquillages[COQUILLAGE_AWAY_FOUR].pos.x = 0;
-	coquillages[COQUILLAGE_AWAY_FOUR].pos.y = 0;
+	coquillages[COQUILLAGE_AWAY_FOUR].pos.x = 1550;
+	coquillages[COQUILLAGE_AWAY_FOUR].pos.y = 2400;
 
-	coquillages[COQUILLAGE_AWAY_FIVE].pos.x = 0;
-	coquillages[COQUILLAGE_AWAY_FIVE].pos.y = 0;
+	coquillages[COQUILLAGE_AWAY_FIVE].pos.x = 1850;
+	coquillages[COQUILLAGE_AWAY_FIVE].pos.y = 2400;
 
-	coquillages[COQUILLAGE_AWAY_ROCK_ONE].pos.x = 0;
-	coquillages[COQUILLAGE_AWAY_ROCK_ONE].pos.y = 0;
+	coquillages[COQUILLAGE_AWAY_ROCK_ONE].pos.x = 1800;
+	coquillages[COQUILLAGE_AWAY_ROCK_ONE].pos.y = 2950;
 
-	coquillages[COQUILLAGE_AWAY_ROCK_TWO].pos.x = 0;
-	coquillages[COQUILLAGE_AWAY_ROCK_TWO].pos.y = 0;
+	coquillages[COQUILLAGE_AWAY_ROCK_TWO].pos.x = 1950;
+	coquillages[COQUILLAGE_AWAY_ROCK_TWO].pos.y = 2950;
 
-	coquillages[COQUILLAGE_AWAY_ROCK_THREE].pos.x = 0;
-	coquillages[COQUILLAGE_AWAY_ROCK_THREE].pos.y = 0;
+	coquillages[COQUILLAGE_AWAY_ROCK_THREE].pos.x = 1950;
+	coquillages[COQUILLAGE_AWAY_ROCK_THREE].pos.y = 2800;
 
-	coquillages[COQUILLAGE_NEUTRAL_ONE].pos.x = 0;
-	coquillages[COQUILLAGE_NEUTRAL_ONE].pos.y = 0;
+	coquillages[COQUILLAGE_NEUTRAL_ONE].pos.x = 1450;
+	coquillages[COQUILLAGE_NEUTRAL_ONE].pos.y = 2100;
 
-	coquillages[COQUILLAGE_NEUTRAL_TWO].pos.x = 0;
-	coquillages[COQUILLAGE_NEUTRAL_TWO].pos.y = 0;
+	coquillages[COQUILLAGE_NEUTRAL_TWO].pos.x = 1650;
+	coquillages[COQUILLAGE_NEUTRAL_TWO].pos.y = 1800;
 
-	coquillages[COQUILLAGE_NEUTRAL_THREE].pos.x = 0;
-	coquillages[COQUILLAGE_NEUTRAL_THREE].pos.y = 0;
+	coquillages[COQUILLAGE_NEUTRAL_THREE].pos.x = 1550;
+	coquillages[COQUILLAGE_NEUTRAL_THREE].pos.y = 1500;
 
-	coquillages[COQUILLAGE_NEUTRAL_FOUR].pos.x = 0;
-	coquillages[COQUILLAGE_NEUTRAL_FOUR].pos.y = 0;
+	coquillages[COQUILLAGE_NEUTRAL_FOUR].pos.x = 1850;
+	coquillages[COQUILLAGE_NEUTRAL_FOUR].pos.y = 1500;
 
-	coquillages[COQUILLAGE_NEUTRAL_FIVE].pos.x = 0;
-	coquillages[COQUILLAGE_NEUTRAL_FIVE].pos.y = 0;
+	coquillages[COQUILLAGE_NEUTRAL_FIVE].pos.x = 1650;
+	coquillages[COQUILLAGE_NEUTRAL_FIVE].pos.y = 1200;
 
-	coquillages[COQUILLAGE_NEUTRAL_SIX].pos.x = 0;
-	coquillages[COQUILLAGE_NEUTRAL_SIX].pos.y = 0;
+	coquillages[COQUILLAGE_NEUTRAL_SIX].pos.x = 1450;
+	coquillages[COQUILLAGE_NEUTRAL_SIX].pos.y = 900;
 
-	coquillages[COQUILLAGE_HOME_ONE].pos.x = 0;
-	coquillages[COQUILLAGE_HOME_ONE].pos.y = 0;
+	coquillages[COQUILLAGE_HOME_ONE].pos.x = 1250;
+	coquillages[COQUILLAGE_HOME_ONE].pos.y = 600;
 
-	coquillages[COQUILLAGE_HOME_TWO].pos.x = 0;
-	coquillages[COQUILLAGE_HOME_TWO].pos.y = 0;
+	coquillages[COQUILLAGE_HOME_TWO].pos.x = 1550;
+	coquillages[COQUILLAGE_HOME_TWO].pos.y = 600;
 
-	coquillages[COQUILLAGE_HOME_THREE].pos.x = 0;
-	coquillages[COQUILLAGE_HOME_THREE].pos.y = 0;
+	coquillages[COQUILLAGE_HOME_THREE].pos.x = 1850;
+	coquillages[COQUILLAGE_HOME_THREE].pos.y = 600;
 
-	coquillages[COQUILLAGE_HOME_FOUR].pos.x = 0;
-	coquillages[COQUILLAGE_HOME_FOUR].pos.y = 0;
+	coquillages[COQUILLAGE_HOME_FOUR].pos.x = 1250;
+	coquillages[COQUILLAGE_HOME_FOUR].pos.y = 200;
 
-	coquillages[COQUILLAGE_HOME_FIVE].pos.x = 0;
-	coquillages[COQUILLAGE_HOME_FIVE].pos.y = 0;
+	coquillages[COQUILLAGE_HOME_FIVE].pos.x = 1550;
+	coquillages[COQUILLAGE_HOME_FIVE].pos.y = 200;
 
-	coquillages[COQUILLAGE_HOME_ROCK_ONE].pos.x = 0;
-	coquillages[COQUILLAGE_HOME_ROCK_ONE].pos.y = 0;
+	coquillages[COQUILLAGE_HOME_ROCK_ONE].pos.x = 1950;
+	coquillages[COQUILLAGE_HOME_ROCK_ONE].pos.y = 200;
 
-	coquillages[COQUILLAGE_HOME_ROCK_TWO].pos.x = 0;
-	coquillages[COQUILLAGE_HOME_ROCK_TWO].pos.y = 0;
+	coquillages[COQUILLAGE_HOME_ROCK_TWO].pos.x = 1800;
+	coquillages[COQUILLAGE_HOME_ROCK_TWO].pos.y = 50;
 
-	coquillages[COQUILLAGE_HOME_ROCK_THREE].pos.x = 0;
-	coquillages[COQUILLAGE_HOME_ROCK_THREE].pos.y = 0;
+	coquillages[COQUILLAGE_HOME_ROCK_THREE].pos.x = 1950;
+	coquillages[COQUILLAGE_HOME_ROCK_THREE].pos.y = 50;
 
 
 	//Gestion des différentes configurations

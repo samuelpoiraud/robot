@@ -474,7 +474,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 			IHM_process_main(msg);
 			break;
-
+		case PROP_TRANSPARENCY:
+			DETECTON_set_zone_transparency(msg->data.prop_transparency.number, msg->data.prop_transparency.enable);
+			break;
 		default :
 		break;
 	}

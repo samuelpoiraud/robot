@@ -30,6 +30,23 @@ volatile static Uint32 hokuyo_update_time = 0;
 adversary_t adversaries[HOKUYO_MAX_FOES + BEACON_MAX_FOES];	//Ce tableau se construit progressivement, quand on a toutes les données, on peut les traiter et renseigner le tableau des positions adverses.
 volatile Uint8 hokuyo_objects_number = 0;	//Nombre d'objets hokuyo
 
+typedef struct{
+	Sint16 x1;
+	Sint16 x2;
+	Sint16 y1;
+	Sint16 y2;
+	bool_e enable;
+}square;
+
+square zone[10]={{750,1350,1500,2100,FALSE},{750,1350,900,1500,FALSE},{0,750,900,2100,FALSE}};
+
+/*zone[0]={750,1350,1500,2100,FALSE};
+  zone[1]={750,1350,900,1500,FALSE};
+  zone[2]={0,750,900,2100,FALSE};*/
+
+
+
+
 void DETECTION_init(void)
 {
 	Uint8 i;
@@ -248,6 +265,43 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 		}
 	}
 
+	for(i=0;i<HOKUYO_MAX_FOES + BEACON_MAX_FOES;i++)
+	{
+		if(adversaries[i].enable) //Pour tout les adversaires observés...
+		{
+			//début 2016 uniquement
+			GEOMETRY_point_t pos;
+			pos.x=global.position.x;
+			pos.y=global.position.y;
+			zone[0].enable=FALSE;
+			zone[1].enable=FALSE;
+			zone[2].enable=FALSE;
+			if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, pos))
+			{
+				zone[1].enable=TRUE;
+				zone[2].enable=TRUE;
+			}
+			if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, pos))
+			{
+				zone[0].enable=TRUE;
+				zone[2].enable=TRUE;
+			}
+			if(is_in_square(zone[2].x1, zone[2].x2, zone[2].y1, zone[2].y2, pos))
+			{
+				zone[0].enable=TRUE;
+				zone[1].enable=TRUE;
+			}
+			//fin 2016
+			GEOMETRY_point_t p;
+			p.x=adversaries[i].x;
+			p.y=adversaries[i].y;
+			if(is_in_zone_transparency(p))/*(GEOMETRY_point_t){adversaries[i].x, adversaries[i].y})))*/
+				adversaries[i].enable = FALSE; //On désactive cet adversaire... Soit c'est l'autre robot, soit c'est un ennemi dont on est protégé par l'autre robot ou un obstacle fixe.
+		}
+	}
+
+
+
 	/*debug_printf("Adv 1 : ");
 	if(adversaries[HOKUYO_MAX_FOES].enable == TRUE){
 		debug_printf("\nx : %d\ny : %d\n", adversaries[HOKUYO_MAX_FOES].x, adversaries[HOKUYO_MAX_FOES].y);
@@ -273,3 +327,17 @@ adversary_t * DETECTION_get_adversaries(Uint8 * size)
 	return adversaries;
 }
 
+bool_e is_in_zone_transparency(GEOMETRY_point_t p)
+{
+	Uint8 i=0;
+	for(i=0;i<10;i++){
+		if(zone[i].enable&&is_in_square(zone[i].x1, zone[i].x2, zone[i].y1, zone[i].y2, p))
+			return TRUE;
+	}
+	return FALSE;
+}
+
+void DETECTON_set_zone_transparency(Uint8 i, bool_e enable)
+{
+	zone[i].enable=enable;
+}
