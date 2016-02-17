@@ -62,7 +62,9 @@ typedef enum {
 	ACT_QUEUE_Mosfet_strat_2,
 	ACT_QUEUE_Mosfet_strat_3,
 	ACT_QUEUE_Mosfet_strat_4,
-
+	ACT_QUEUE_Mosfet_strat_5,
+	ACT_QUEUE_Mosfet_strat_6,
+	ACT_QUEUE_Mosfet_strat_7,
 	//Common
 
 	NB_QUEUE

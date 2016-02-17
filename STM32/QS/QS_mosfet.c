@@ -44,28 +44,28 @@
 	#warning "QS_mosfet ne peut pas gérer plus de 8 mosfets"
 #endif
 
-#if NB_MOSFETS>=1 && defined(MOSFET_0_PIN)
+#if defined(MOSFET_0_PIN) //&& NB_MOSFETS>=1
 static void MOSFET_0_do_order(Uint8 command);
 #endif
-#if NB_MOSFETS>=2 && defined(MOSFET_1_PIN)
+#if defined(MOSFET_1_PIN) //&& NB_MOSFETS>=2
 static void MOSFET_1_do_order(Uint8 command);
 #endif
-#if NB_MOSFETS>=3 && defined(MOSFET_2_PIN)
+#if defined(MOSFET_2_PIN) //&& NB_MOSFETS>=3
 static void MOSFET_2_do_order(Uint8 command);
 #endif
-#if NB_MOSFETS>=4 && defined(MOSFET_3_PIN)
+#if defined(MOSFET_3_PIN) //&& NB_MOSFETS>=4
 static void MOSFET_3_do_order(Uint8 command);
 #endif
-#if NB_MOSFETS>=5 && defined(MOSFET_4_PIN)
+#if defined(MOSFET_4_PIN) //&& NB_MOSFETS>=5
 static void MOSFET_4_do_order(Uint8 command);
 #endif
-#if NB_MOSFETS>=6 && defined(MOSFET_5_PIN)
+#if defined(MOSFET_5_PIN) //&& NB_MOSFETS>=6
 static void MOSFET_5_do_order(Uint8 command);
 #endif
-#if NB_MOSFETS>=7 && defined(MOSFET_6_PIN)
+#if defined(MOSFET_6_PIN) //&& NB_MOSFETS>=7
 static void MOSFET_6_do_order(Uint8 command);
 #endif
-#if NB_MOSFETS>=8 && defined(MOSFET_7_PIN)
+#if defined(MOSFET_7_PIN) //&& NB_MOSFETS>=8
 static void MOSFET_7_do_order(Uint8 command);
 #endif
 
@@ -82,55 +82,55 @@ void MOSFET_reset_config(){}
 
 //Fonction pour stopper tous les mosfets
 void MOSFET_stop() {
-#if defined(MOSFET_0_PIN) && NB_MOSFETS>=1
+#if defined(MOSFET_0_PIN) //&& NB_MOSFETS>=1
 	GPIO_ResetBits(MOSFET_0_PIN);
 #endif
-#if defined(MOSFET_1_PIN) && NB_MOSFETS>=2
+#if defined(MOSFET_1_PIN) //&& NB_MOSFETS>=2
 	GPIO_ResetBits(MOSFET_1_PIN);
 #endif
-#if defined(MOSFET_2_PIN) && NB_MOSFETS>=3
+#if defined(MOSFET_2_PIN) //&& NB_MOSFETS>=3
 	GPIO_ResetBits(MOSFET_2_PIN);
 #endif
-#if defined(MOSFET_3_PIN) && NB_MOSFETS>=4
+#if defined(MOSFET_3_PIN) //&& NB_MOSFETS>=4
 	GPIO_ResetBits(MOSFET_3_PIN);
 #endif
-#if defined(MOSFET_4_PIN) && NB_MOSFETS>=5
+#if defined(MOSFET_4_PIN) //&& NB_MOSFETS>=5
 	GPIO_ResetBits(MOSFET_4_PIN);
 #endif
-#if defined(MOSFET_5_PIN) && NB_MOSFETS>=6
+#if defined(MOSFET_5_PIN) //&& NB_MOSFETS>=6
 	GPIO_ResetBits(MOSFET_5_PIN);
 #endif
-#if defined( MOSFET_6_PIN) && NB_MOSFETS>=7
+#if defined( MOSFET_6_PIN) //&& NB_MOSFETS>=7
 	GPIO_ResetBits(MOSFET_6_PIN);
 #endif
-#if defined(MOSFET_7_PIN) && NB_MOSFETS>=8
+#if defined(MOSFET_7_PIN) //&& NB_MOSFETS>=8
 	GPIO_ResetBits(MOSFET_7_PIN);
 #endif
 }
 
 void MOSFET_init_pos(){
-#if defined(MOSFET_0_PIN) && NB_MOSFETS>=1
+#if defined(MOSFET_0_PIN) //&& NB_MOSFETS>=1
 	GPIO_ResetBits(MOSFET_0_PIN);
 #endif
-#if defined(MOSFET_1_PIN) && NB_MOSFETS>=2
+#if defined(MOSFET_1_PIN) //&& NB_MOSFETS>=2
 	GPIO_ResetBits(MOSFET_1_PIN);
 #endif
-#if defined(MOSFET_2_PIN) && NB_MOSFETS>=3
+#if defined(MOSFET_2_PIN) //&& NB_MOSFETS>=3
 	GPIO_ResetBits(MOSFET_2_PIN);
 #endif
-#if defined(MOSFET_3_PIN) && NB_MOSFETS>=4
+#if defined(MOSFET_3_PIN) //&& NB_MOSFETS>=4
 	GPIO_ResetBits(MOSFET_3_PIN);
 #endif
-#if defined(MOSFET_4_PIN) && NB_MOSFETS>=5
+#if defined(MOSFET_4_PIN) //&& NB_MOSFETS>=5
 	GPIO_ResetBits(MOSFET_4_PIN);
 #endif
-#if defined(MOSFET_5_PIN) && NB_MOSFETS>=6
+#if defined(MOSFET_5_PIN) //&& NB_MOSFETS>=6
 	GPIO_ResetBits(MOSFET_5_PIN);
 #endif
-#if defined(MOSFET_6_PIN) && NB_MOSFETS>=7
+#if defined(MOSFET_6_PIN) //&& NB_MOSFETS>=7
 	GPIO_ResetBits(MOSFET_6_PIN);
 #endif
-#if defined(MOSFET_7_PIN) && NB_MOSFETS>=8
+#if defined(MOSFET_7_PIN) //&& NB_MOSFETS>=8
 	GPIO_ResetBits(MOSFET_7_PIN);
 #endif
 }
@@ -142,6 +142,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("ACT_MOSFET_0_do_order\n");
 				MOSFET_0_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -152,6 +153,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("ACT_MOSFET_1_do_order\n");
 				MOSFET_1_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -163,6 +165,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("ACT_MOSFET_2_do_order\n");
 				MOSFET_2_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -174,6 +177,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("ACT_MOSFET_3_do_order\n");
 				MOSFET_3_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -185,6 +189,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("ACT_MOSFET_4_do_order\n");
 				MOSFET_4_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -196,6 +201,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("ACT_MOSFET_5_do_order\n");
 				MOSFET_5_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -207,6 +213,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("ACT_MOSFET_6_do_order\n");
 				MOSFET_6_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -218,6 +225,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("ACT_MOSFET_7_do_order\n");
 				MOSFET_7_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -238,87 +246,90 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
-				debug_printf("MOSFET_0_do_order\n");
+				debug_printf("STRAT_MOSFET_0_do_order\n");
 				MOSFET_0_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
-#if NB_MOSFETS>=2
+#ifdef MOSFET_1_PIN
 	}else if(msg->sid == STRAT_MOSFET_1) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
-				debug_printf("MOSFET_1_do_order\n");
+				debug_printf("STRAT_MOSFET_1_do_order\n");
 				MOSFET_1_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 #endif
-#if NB_MOSFETS>=3
+#ifdef MOSFET_2_PIN
 	}else if(msg->sid == STRAT_MOSFET_2) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
-				debug_printf("MOSFET_2_do_order\n");
+				debug_printf("STRAT_MOSFET_2_do_order\n");
 				MOSFET_2_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 #endif
-#if NB_MOSFETS>=4
+#ifdef MOSFET_3_PIN
 	}else if(msg->sid == STRAT_MOSFET_3) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
-				debug_printf("MOSFET_3_do_order\n");
+				debug_printf("STRAT_MOSFET_3_do_order\n");
 				MOSFET_3_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 #endif
-#if NB_MOSFETS>=5
+#ifdef MOSFET_4_PIN
 	}else if(msg->sid == STRAT_MOSFET_4) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
-				debug_printf("MOSFET_4_do_order\n");
+				debug_printf("STRAT_MOSFET_4_do_order\n");
 				MOSFET_4_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 #endif
-#if NB_MOSFETS>=6
+#ifdef MOSFET_5_PIN
 	}else if(msg->sid == STRAT_MOSFET_5) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("STRAT_MOSFET_5_do_order\n");
 				MOSFET_5_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 #endif
-#if NB_MOSFETS>=7
+#ifdef MOSFET_6_PIN
 	}else if(msg->sid == STRAT_MOSFET_6) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("STRAT_MOSFET_6_do_order\n");
 				MOSFET_6_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
 		return TRUE;
 #endif
-#if NB_MOSFETS>=8
+#ifdef MOSFET_7_PIN
 	}else if(msg->sid == STRAT_MOSFET_7) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
+				debug_printf("STRAT_MOSFET_7_do_order\n");
 				MOSFET_7_do_order(msg->data.act_msg.order);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
@@ -335,13 +346,15 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 
 
 
-#if NB_MOSFETS>=1 && defined(MOSFET_0_PIN)
+#if defined(MOSFET_0_PIN)
 static void MOSFET_0_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL)
+	if(command == ACT_MOSFET_NORMAL){
+		debug_printf("MOSFET_0_PIN set\n");
 		GPIO_SetBits(MOSFET_0_PIN);
-	else if(command == ACT_MOSFET_STOP)
+	}else if(command == ACT_MOSFET_STOP){
+		debug_printf("MOSFET_0_PIN reset\n");
 		GPIO_ResetBits(MOSFET_0_PIN);
-	else{
+	}else{
 		debug_printf("commande envoyée à MOSFET_0_do_order inconnue -> %d	0x%x\n", command, command);
 		GPIO_ResetBits(MOSFET_0_PIN);
 		return;
@@ -349,13 +362,15 @@ static void MOSFET_0_do_order(Uint8 command){
 }
 #endif
 
-#if NB_MOSFETS>=2 && defined(MOSFET_1_PIN)
+#if defined(MOSFET_1_PIN)
 static void MOSFET_1_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL)
+	if(command == ACT_MOSFET_NORMAL){
+		debug_printf("MOSFET_1_PIN set\n");
 		GPIO_SetBits(MOSFET_1_PIN);
-	else if(command == ACT_MOSFET_STOP)
+	}else if(command == ACT_MOSFET_STOP){
+		debug_printf("MOSFET_1_PIN reset\n");
 		GPIO_ResetBits(MOSFET_1_PIN);
-	else{
+	}else{
 		debug_printf("commande envoyée à MOSFET_1_do_order inconnue -> %d	0x%x\n", command, command);
 		GPIO_ResetBits(MOSFET_1_PIN);
 		return;
@@ -363,13 +378,15 @@ static void MOSFET_1_do_order(Uint8 command){
 }
 #endif
 
-#if NB_MOSFETS>=3 && defined( MOSFET_2_PIN)
+#if defined( MOSFET_2_PIN)
 static void MOSFET_2_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL)
+	if(command == ACT_MOSFET_NORMAL){
+		debug_printf("MOSFET_2_PIN set\n");
 		GPIO_SetBits(MOSFET_2_PIN);
-	else if(command == ACT_MOSFET_STOP)
+	}else if(command == ACT_MOSFET_STOP){
+		debug_printf("MOSFET_2_PIN reset\n");
 		GPIO_ResetBits(MOSFET_2_PIN);
-	else{
+	}else{
 		debug_printf("commande envoyée à MOSFET_2_do_order inconnue -> %d	0x%x\n", command, command);
 		GPIO_ResetBits(MOSFET_2_PIN);
 		return;
@@ -377,13 +394,15 @@ static void MOSFET_2_do_order(Uint8 command){
 }
 #endif
 
-#if NB_MOSFETS>=4 && defined(MOSFET_3_PIN)
+#if defined(MOSFET_3_PIN)
 static void MOSFET_3_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL)
+	if(command == ACT_MOSFET_NORMAL){
+		debug_printf("MOSFET_3_PIN set\n");
 		GPIO_SetBits(MOSFET_3_PIN);
-	else if(command == ACT_MOSFET_STOP)
+	}else if(command == ACT_MOSFET_STOP){
+		debug_printf("MOSFET_3_PIN reset\n");
 		GPIO_ResetBits(MOSFET_3_PIN);
-	else{
+	}else{
 		debug_printf("commande envoyée à MOSFET_3_do_order inconnue -> %d	0x%x\n", command, command);
 		GPIO_ResetBits(MOSFET_3_PIN);
 		return;
@@ -391,13 +410,13 @@ static void MOSFET_3_do_order(Uint8 command){
 }
 #endif
 
-#if NB_MOSFETS>=5 && defined(MOSFET_4_PIN)
+#if defined(MOSFET_4_PIN)
 static void MOSFET_4_do_order(Uint8 command){
 	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("Pin D2 activée\n");
+		debug_printf("MOSFET_4_PIN set\n");
 		GPIO_SetBits(MOSFET_4_PIN);
 	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("Pin D2 desactivée\n");
+		debug_printf("MOSFET_4_PIN reset\n");
 		GPIO_ResetBits(MOSFET_4_PIN);
 	}else{
 		debug_printf("commande envoyée à MOSFET_4_do_order inconnue -> %d	0x%x\n", command, command);
@@ -407,13 +426,15 @@ static void MOSFET_4_do_order(Uint8 command){
 }
 #endif
 
-#if NB_MOSFETS>=6 && defined(MOSFET_5_PIN)
+#if defined(MOSFET_5_PIN)
 static void MOSFET_5_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL)
+	if(command == ACT_MOSFET_NORMAL){
+		debug_printf("MOSFET_5_PIN set\n");
 		GPIO_SetBits(MOSFET_5_PIN);
-	else if(command == ACT_MOSFET_STOP)
+	}else if(command == ACT_MOSFET_STOP){
+		debug_printf("MOSFET_5_PIN reset\n");
 		GPIO_ResetBits(MOSFET_5_PIN);
-	else{
+	}else{
 		debug_printf("commande envoyée à MOSFET_5_do_order inconnue -> %d	0x%x\n", command, command);
 		GPIO_ResetBits(MOSFET_5_PIN);
 		return;
@@ -421,13 +442,15 @@ static void MOSFET_5_do_order(Uint8 command){
 }
 #endif
 
-#if NB_MOSFETS>=7 && defined(MOSFET_6_PIN)
+#if defined(MOSFET_6_PIN)
 static void MOSFET_6_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL)
+	if(command == ACT_MOSFET_NORMAL){
+		debug_printf("MOSFET_6_PIN set\n");
 		GPIO_SetBits(MOSFET_6_PIN);
-	else if(command == ACT_MOSFET_STOP)
+	}else if(command == ACT_MOSFET_STOP){
+		debug_printf("MOSFET_6_PIN reset\n");
 		GPIO_ResetBits(MOSFET_6_PIN);
-	else{
+	}else{
 		debug_printf("commande envoyée à MOSFET_0_do_order inconnue -> %d	0x%x\n", command, command);
 		GPIO_ResetBits(MOSFET_6_PIN);
 		return;
@@ -435,13 +458,15 @@ static void MOSFET_6_do_order(Uint8 command){
 }
 #endif
 
-#if NB_MOSFETS>=8 && defined(MOSFET_7_PIN)
+#if defined(MOSFET_7_PIN)
 static void MOSFET_7_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL)
+	if(command == ACT_MOSFET_NORMAL){
+		debug_printf("MOSFET_7_PIN set\n");
 		GPIO_SetBits(MOSFET_7_PIN);
-	else if(command == ACT_MOSFET_STOP)
+	}else if(command == ACT_MOSFET_STOP){
+		debug_printf("MOSFET_7_PIN reset\n");
 		GPIO_ResetBits(MOSFET_7_PIN);
-	else{
+	}else{
 		debug_printf("commande envoyée à MOSFET_7_do_order inconnue -> %d	0x%x\n", command, command);
 		GPIO_ResetBits(MOSFET_7_PIN);
 		return;
@@ -833,14 +858,14 @@ bool_e MOSFET_selftest_strat(){
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
 				MOSFET_3_do_order(ACT_MOSFET_STOP);
 				#if NB_MOSFETS>=5
-					state = ACT_QUEUE_Mosfet_strat_4;
+					state = ACT_QUEUE_Mosfet_strat_5;
 				#else
 					state = NB_QUEUE;
 				#endif
 			}
 			break;
 #endif
-#if NB_MOSFETS>=5
+#if NB_MOSFETS>=6
 		case ACT_QUEUE_Mosfet_strat_4:
 			if(entrance){
 				MOSFET_4_do_order(ACT_MOSFET_NORMAL);
@@ -854,7 +879,7 @@ bool_e MOSFET_selftest_strat(){
 			}
 			break;
 #endif
-#if NB_MOSFETS>=6
+#if NB_MOSFETS>=5
 		case ACT_QUEUE_Mosfet_strat_5:
 			if(entrance){
 				MOSFET_5_do_order(ACT_MOSFET_NORMAL);
