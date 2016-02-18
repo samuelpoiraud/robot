@@ -64,6 +64,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	BLACK_ADV_DUNE_BLOC,
 	BLACK_OUR_START_ZONE_BLOC,
 	BLACK_ADV_START_ZONE_BLOC,
+	BLACK_SNOWPLOW,
 
 	//--------------Sub action de Pearl
 	PEARL_STRAT_INITIALE,

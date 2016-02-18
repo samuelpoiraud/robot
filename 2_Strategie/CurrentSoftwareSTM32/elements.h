@@ -118,6 +118,11 @@ void ELEMENTS_process_main();
 bool_e ELEMENTS_get_flag(elements_flags_e flag_id);
 void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state);
 void ELEMENTS_inc_fishs_passage();
+Uint8 ELEMENTS_get_fishs_passage();
+
+void ELEMENTS_inc_seashell_depose();
+Uint8 ELEMENTS_get_seashell_depose();
+
 bool_e ELEMENTS_fishs_passage_completed();
 error_e ELEMENTS_check_communication(CAN_msg_t * msg);
 

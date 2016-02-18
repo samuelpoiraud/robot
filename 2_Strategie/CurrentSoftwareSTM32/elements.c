@@ -16,6 +16,7 @@ volatile COQUILLAGES_config_e coquillages_config = NO_COQUILLAGES_CONFIG;
 
 #define FISHS_PASSAGES 2
 static Uint8 fishs_passage = 0;
+static Uint8 seashell_depose = 0;
 
 void ELEMENTS_init(){
 	Uint8 i;
@@ -403,13 +404,26 @@ void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state)
 #ifdef USE_SYNC_ELEMENTS
 void ELEMENTS_receive_flags(CAN_msg_t* msg)
 {
-	if(msg->data.xbee_sync_elements_flags.flagId < ELEMENTS_FLAGS_END_SYNCH)
+	if(msg->data.xbee_sync_elements_flags.flagId < ELEMENTS_FLAGS_END_SYNCH){
+		debug_printf("\n\n\n\nReception message Xbee\n\n\n\n");
 		elements_flags[msg->data.xbee_sync_elements_flags.flagId] = msg->data.xbee_sync_elements_flags.flag;
+	}
 }
 #endif
 
 void ELEMENTS_inc_fishs_passage(){
 	fishs_passage++;
+}
+
+void ELEMENTS_inc_seashell_depose(){
+	seashell_depose++;
+}
+Uint8 ELEMENTS_get_seashell_depose(){
+	return seashell_depose;
+}
+
+Uint8 ELEMENTS_get_fishs_passage(){
+	return fishs_passage;
 }
 
 bool_e ELEMENTS_fishs_passage_completed(){
