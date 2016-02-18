@@ -134,20 +134,20 @@
 		GPIO_InitTypeDef GPIO_InitStructure;
 
 
-		GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
-		GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_USART3);	//U3TX
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_USART3);	//U3RX
 
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 		//USART3 TX
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-		GPIO_Init(GPIOD, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
 		//USART3 RX
 		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-		GPIO_Init(GPIOD, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
 	#endif
 
 		UART_IMPL_init_ex(RF_UART, 19200, 10, 10, UART_I_StopBit_1_5, UART_I_Parity_None);
@@ -155,6 +155,8 @@
 		TIMER_SRC_TIMER_init();
 
 		FIFO_init(&fifo_tx, buffer_tx, 50, 1);
+
+		debug_printf("Rf init\n");
 	}
 
 	RF_module_e RF_get_module_id() {
@@ -166,8 +168,10 @@
 		//UART1_putc(c);
 
 		//possible full
-		if(canTransmitData && FIFO_isEmpty(&fifo_tx) && !UART_IMPL_isTxFull(RF_UART))
+		if(canTransmitData && FIFO_isEmpty(&fifo_tx) && !UART_IMPL_isTxFull(RF_UART)){
 			UART_IMPL_write(RF_UART, c);
+			//debug_printf("RF_putc byte send ok\n");
+		}
 		else
 		{
 			bool_e byte_sent = FALSE;
@@ -189,6 +193,7 @@
 				{
 					FIFO_insertData(&fifo_tx, &c);
 					byte_sent = TRUE;
+					//debug_printf("RF_putc byte insert ok\n");
 				} else {
 					printf("bug\n");
 				}
@@ -202,15 +207,19 @@
 	}
 
 	static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size) {
+		debug_printf("RF_send to %d\n", target_id);
 		RF_header_t packet_header;
 		Uint8 i, crc = 0;
 
+		//debug_printf("RF_send_start_of_packet\n");
 		RF_putc(START_OF_PACKET_CHAR);
 		packet_header.type = type;
 		packet_header.sender_id = currentModule;
 		packet_header.target_id = target_id;
 
 		crc = crc8_incremental(crc, packet_header.raw_data);
+		debug_printf("DATA: type=%d  sender=%d  target=%d\n", packet_header.type,  packet_header.sender_id, packet_header.target_id);
+		debug_printf("RF_send raw data %d\n", packet_header.raw_data);
 		RF_putc(packet_header.raw_data);
 
 		for(i = 0; i < size; i++) {
@@ -218,14 +227,20 @@
 			crc = crc8_incremental(crc, c);
 			if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR || c == END_OF_PACKET_CHAR) {
 				c &= (~0xC0);
+				//debug_printf("RF_send escape char 0x%x\n", ESCAPE_CHAR);
 				RF_putc(ESCAPE_CHAR);
+				//debug_printf("RF_send_data 0x%x\n", c);
 				RF_putc(c);
 			} else {
+				//debug_printf("RF_send_data 0x%x\n", data[i]);
 				RF_putc(data[i]);
 			}
 		}
+		//debug_printf("RF_send_crc 0x%x\n", crc);
 		RF_putc(crc);
+		//debug_printf("RF_send_end_of_packet 0x%x\n",END_OF_PACKET_CHAR);
 		RF_putc(END_OF_PACKET_CHAR);
+		debug_printf("Message RF envoyé/n");
 	}
 
 	void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
@@ -267,7 +282,6 @@
 			escape_mode = TRUE;
 			return FALSE;
 		}
-
 		return TRUE;
 	}
 
@@ -322,9 +336,12 @@
 		static RF_status_e state = RFS_IDLE;
 		static Uint8 i;
 
+		debug_printf("c=0x%x\n", c);
+
 		switch(state) {
 			case RFS_IDLE:
 				if(new_frame) {
+					//debug_printf("New RF frame received\n");
 					i = 0;
 					state = RFS_GET_DATA;
 				}
@@ -351,6 +368,7 @@
 				data[i++] = c;
 				if(crc8(data, i) == 0 && packet_received_fct) {
 					RF_process_data((RF_header_t)data[0], data+1, i-1);
+					debug_printf("Msg recieve complete\n");
 				}
 				state = RFS_IDLE;
 				break;
@@ -358,6 +376,7 @@
 	}
 
 	static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
+		debug_printf("RF_process_data\n");
 		if(header.type == RF_PT_Can && (header.target_id == currentModule || header.target_id == RF_BROADCAST)) {
 			if(canmsg_received_fct && size > RF_CAN_SID+1 && size > data[RF_CAN_SIZE] && data[RF_CAN_SIZE] >= 2 && data[RF_CAN_SIZE] < 8+2) {
 				CAN_msg_t msg;
@@ -421,7 +440,7 @@
 	}
 
 	void TIMER_SRC_TIMER_interrupt() {
-		TIMER_SRC_TIMER_stop();
+		//TIMER_SRC_TIMER_stop();
 		TIMER_SRC_TIMER_resetFlag();
 		canTransmitData = TRUE;
 		UART_IMPL_setTxItEnabled(RF_UART, TRUE);
