@@ -319,12 +319,12 @@ void ENV_update(void)
 		{
 			result = ELEMENTS_check_communication(NULL);
 		}
-		else if(result == END_WITH_TIMEOUT && ((time + INTERVAL_ASK_TIME) > global.absolute_time) )
+		else if(result == END_WITH_TIMEOUT && ((time + INTERVAL_ASK_TIME) < global.absolute_time) )
 		{
 			result = ELEMENTS_check_communication(NULL);
 			time = global.absolute_time;
 		}
-		else if(result == END_OK && ((time + INTERVAL_ASK_TIME) > global.absolute_time) )
+		else if(result == END_OK && ((time + INTERVAL_ASK_TIME) < global.absolute_time) )
 		{
 			result = ELEMENTS_check_communication(NULL);
 			time = global.absolute_time;
