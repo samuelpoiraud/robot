@@ -252,6 +252,7 @@ ELEMENTS_property_e COQUILLAGE_get_property(Uint8 id){
 	return coquillages[id].property;
 }
 
+//Le coquillage est à nous et est présent au début du match
 bool_e COQUILLAGE_is_mine(Uint8 id){
 	if(coquillages[id].property == OUR_ELEMENT || coquillages[id].property == NEUTRAL_ELEMENT)
 		return TRUE;
@@ -259,11 +260,12 @@ bool_e COQUILLAGE_is_mine(Uint8 id){
 		return FALSE;
 }
 
+//Le coquillage est à nous et est présent au moement de l'appel de la fonction
 bool_e COQUILLAGE_is_present(Uint8 id){
-	if(coquillages[id].property == NO_ELEMENT)
-		return FALSE;
-	else
+	if(coquillages[id].property == OUR_ELEMENT || coquillages[id].property == NEUTRAL_ELEMENT)
 		return TRUE;
+	else
+		return FALSE;
 }
 
 Uint8 COQUILLAGES_get_config(){
@@ -282,9 +284,7 @@ void ELEMENTS_check_configuration_coquillages()
 				INIT,
 				SEND_REQUEST,
 				WAIT_FOR_ANSWER,
-				WAIT_TIMEOUT,
 				TIMEOUT,
-				ANSWER_RECEIVED,
 				END);
 	static bool_e watchdog_flag = FALSE;
 	static watchdog_id_t watchdog_id = 0;
@@ -345,14 +345,13 @@ void ELEMENTS_check_configuration_coquillages()
 
 		case TIMEOUT:
 			nb_ask++;
-			if(nb_ask < 5)
+			if(nb_ask < 3)
 				state = SEND_REQUEST;
 			else
 				state = END;
 			break;
 		case END:
 			COQUILLAGES_init();
-			RESET_MAE();
 			break;
 		default:
 			RESET_MAE();

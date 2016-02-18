@@ -858,14 +858,14 @@ bool_e MOSFET_selftest_strat(){
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
 				MOSFET_3_do_order(ACT_MOSFET_STOP);
 				#if NB_MOSFETS>=5
-					state = ACT_QUEUE_Mosfet_strat_5;
+					state = ACT_QUEUE_Mosfet_strat_4;
 				#else
 					state = NB_QUEUE;
 				#endif
 			}
 			break;
 #endif
-#if NB_MOSFETS>=6
+#if NB_MOSFETS>=5
 		case ACT_QUEUE_Mosfet_strat_4:
 			if(entrance){
 				MOSFET_4_do_order(ACT_MOSFET_NORMAL);
@@ -879,7 +879,7 @@ bool_e MOSFET_selftest_strat(){
 			}
 			break;
 #endif
-#if NB_MOSFETS>=5
+#if NB_MOSFETS>=6
 		case ACT_QUEUE_Mosfet_strat_5:
 			if(entrance){
 				MOSFET_5_do_order(ACT_MOSFET_NORMAL);
