@@ -509,8 +509,8 @@ void PORTS_uarts_init() {
 
 	#ifdef USE_UART3
 		#ifdef USE_USART3_ON_PB10_PB11
-			GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
-			GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
+			GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_USART3);	//U3TX
+			GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_USART3);	//U3RX
 
 			//USART3 TX
 			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
