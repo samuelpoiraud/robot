@@ -542,6 +542,8 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case IHM_POWER:
 			IHM_process_main(incoming_msg);
 			ENV_warning_switch();
+			if(incoming_msg->sid == IHM_SWITCH || incoming_msg->sid == IHM_SWITCH_ALL)
+				ELEMENTS_check_configuration_coquillages(TRUE);
 			break;
 		case IHM_BIROUTE_IS_REMOVED:
 			global.flags.ask_start = TRUE;

@@ -246,7 +246,7 @@ void COQUILLAGES_init(){
 }
 
 void ELEMENTS_process_main(){
-	ELEMENTS_check_configuration_coquillages();
+	ELEMENTS_check_configuration_coquillages(FALSE);
 }
 
 ELEMENTS_property_e COQUILLAGE_get_property(Uint8 id){
@@ -279,7 +279,7 @@ bool_e COQUILLAGES_is_config(COQUILLAGES_config_e user_config){
 
 #define TIMEOUT_CONFIG_COQUILLAGES      500
 
-void ELEMENTS_check_configuration_coquillages()
+void ELEMENTS_check_configuration_coquillages(bool_e update)
 {
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ASK_CONFIG_COQUILLAGES,
 				INIT,
@@ -290,6 +290,9 @@ void ELEMENTS_check_configuration_coquillages()
 	static bool_e watchdog_flag = FALSE;
 	static watchdog_id_t watchdog_id = 0;
 	static Uint8 nb_ask = 0;
+
+	if(update)
+		state = INIT;
 
 	switch(state)
 	{
@@ -433,8 +436,10 @@ bool_e ELEMENTS_fishs_passage_completed(){
 
 #define	TIMEOUT_ANSWER	200
 
+
 error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 {
+#ifdef USE_SYNC_ELEMENTS
 	CREATE_MAE_WITH_VERBOSE(SM_ID_CHECK_COMMUNICATION,
 				INIT,
 				SEND_REQUEST,
@@ -499,5 +504,6 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 			break;
 	}
 	return IN_PROGRESS;
+#endif
 }
 
