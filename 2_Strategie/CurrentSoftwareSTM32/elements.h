@@ -131,7 +131,7 @@ bool_e COQUILLAGE_is_mine(Uint8 id);
 bool_e COQUILLAGE_is_present(Uint8 id);
 Uint8 COQUILLAGES_get_config();
 bool_e COQUILLAGES_is_config(COQUILLAGES_config_e user_config);
-void ELEMENTS_check_configuration_coquillages();
+void ELEMENTS_check_configuration_coquillages(bool_e activate);
 void ELEMENTS_send_config_coquillages(CAN_msg_t *msg);
 
 #ifdef USE_SYNC_ELEMENTS

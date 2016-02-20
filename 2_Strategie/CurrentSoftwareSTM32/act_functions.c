@@ -50,6 +50,9 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_CONE_DUNE,					ACT_QUEUE_Cone_dune,					"Cone dune"},
 	{ACT_DUNIX_LEFT,			    ACT_QUEUE_Dunix_left,                   "Dunix left"},
 	{ACT_DUNIX_RIGHT,			    ACT_QUEUE_Dunix_right,                  "Dunix right"},
+	{ACT_SAND_LOCKER_LEFT,			ACT_QUEUE_Sand_locker_left,             "Sand locker left"},
+	{ACT_SAND_LOCKER_RIGHT,			ACT_QUEUE_Sand_locker_right,             "Sand locker right"},
+	{ACT_PENDULUM,					ACT_QUEUE_Pendulum,						 "Pendulum"},
 
 	// Pearl
 	{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},

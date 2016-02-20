@@ -207,7 +207,7 @@
 	}
 
 	static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size) {
-		debug_printf("RF_send to %d\n", target_id);
+		//debug_printf("RF_send to %d\n", target_id);
 		RF_header_t packet_header;
 		Uint8 i, crc = 0;
 
@@ -218,8 +218,8 @@
 		packet_header.target_id = target_id;
 
 		crc = crc8_incremental(crc, packet_header.raw_data);
-		debug_printf("DATA: type=%d  sender=%d  target=%d\n", packet_header.type,  packet_header.sender_id, packet_header.target_id);
-		debug_printf("RF_send raw data %d\n", packet_header.raw_data);
+		//debug_printf("DATA: type=%d  sender=%d  target=%d\n", packet_header.type,  packet_header.sender_id, packet_header.target_id);
+		//debug_printf("RF_send raw data %d\n", packet_header.raw_data);
 		RF_putc(packet_header.raw_data);
 
 		for(i = 0; i < size; i++) {
@@ -240,7 +240,7 @@
 		RF_putc(crc);
 		//debug_printf("RF_send_end_of_packet 0x%x\n",END_OF_PACKET_CHAR);
 		RF_putc(END_OF_PACKET_CHAR);
-		debug_printf("Message RF envoyé/n");
+		//debug_printf("Message RF envoyé/n");
 	}
 
 	void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
@@ -440,7 +440,7 @@
 	}
 
 	void TIMER_SRC_TIMER_interrupt() {
-		//TIMER_SRC_TIMER_stop();
+		TIMER_SRC_TIMER_stop();
 		TIMER_SRC_TIMER_resetFlag();
 		canTransmitData = TRUE;
 		UART_IMPL_setTxItEnabled(RF_UART, TRUE);
