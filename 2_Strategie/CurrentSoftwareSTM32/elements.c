@@ -503,7 +503,8 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 			RESET_MAE();
 			break;
 	}
+	#endif
 	return IN_PROGRESS;
-#endif
+
 }
 
