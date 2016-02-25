@@ -82,6 +82,29 @@
 
 		//Flags de stratégie ou pour donner des ordres à l'autre robot
 		BLACK_LET_PEARL_GO_TAKE_DUNE_BLOC,
+		BLACK_DOORS,
+		BLACK_OUR_BLOC_DUNE,
+		BLACK_IN_APOCALYPSE,
+		BLACK_ADV_BLOC_DUNE,
+		BLACK_OUR_START_ZONE,
+		BLACK_DEPOSE_SAND,
+		BLACK_ADV_START_ZONE,
+		BLACK_DEPOSE_SEASHELL,
+		BLACK_PUSH_SEASHELL,
+		BLACK_IN_SNOWPLOW,
+		BLACK_FISH,
+		PEARL_DOORS,
+		PEARL_OUR_BLOC_DUNE,
+		PEARL_ADV_BLOC_DUNE,
+		PEARL_OUR_START_ZONE,
+		PEARL_DEPOSE_SAND,
+		PEARL_ADV_START_ZONE,
+		PEARL_DEPOSE_SEASHELL,
+		PEARL_OUR_SEASHELL,
+		PEARL_ADV_SEASHELL,
+
+
+
 
 		//à supprimer
 		SEASHELLS_BOTTOM,			//si les deux coquillages du bas sont pris ou pas (flag à supprimer et à remplacer par les flag coquillages)
