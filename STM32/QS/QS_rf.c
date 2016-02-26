@@ -95,6 +95,7 @@
 	#define ESCAPE_CHAR 0xC0
 	#define END_OF_PACKET_CHAR 0xC1
 	#define START_OF_PACKET_CHAR 0xC3 //DOIT ETRE 0x?3 !
+	#define PROMPT_CHAR 0x3E   //Le module renvoi ce caractère lorsqu'il est prêt
 
 	static FIFO_t fifo_tx;
 	static char buffer_tx[50];
@@ -102,6 +103,7 @@
 	static RF_onCanMsg_ptr canmsg_received_fct = NULL;
 	static bool_e canTransmitData = TRUE;
 	static RF_module_e currentModule;
+	volatile bool_e flag_wait_prompt = FALSE;
 
 	typedef enum {
 		RF_PS_Incomplete,
@@ -121,14 +123,15 @@
 	#define RF_CAN_MAX_DATA_SIZE 10
 
 	static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size);
-	static void RF_putc(Uint8 c);
 	static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size);
-
 
 	void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg_ptr onCanMsgCallback) {
 		currentModule = module;
 		packet_received_fct = onReceiveCallback;
 		canmsg_received_fct = onCanMsgCallback;
+
+		GPIO_WriteBit(RF_CONFIG, 1);
+		GPIO_WriteBit(RF_RESET, 1);
 
 	#ifdef STM32F40XX
 		GPIO_InitTypeDef GPIO_InitStructure;
@@ -156,6 +159,28 @@
 
 		FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 
+		volatile Uint32 i;
+		GPIO_WriteBit(RF_RESET, 1);
+		//Activation du RESET (sinon le module n'est pas reset entre deux démarrage du micro.... et pour déduire ce qui se passe c'est pas toujours évident !!)
+		for(i=0; i<1000000; i++);
+		//env 100ms
+		GPIO_WriteBit(RF_RESET, 0);
+		//Désactivation du RESET -> le module démarre...
+
+#ifdef CONFIG_RF_RC1240
+		debug_printf("Début procédure pour passer en mode config\n");
+		for(i=0; i<2000000; i++);
+		//env 200ms  (>160ms)
+		GPIO_WriteBit(RF_CONFIG, 0);
+		debug_printf("CONFIG asserted\n");
+		//Activation du mode config
+		for(i=0; i<2000000; i++);
+		//env 50ms
+		GPIO_WriteBit(RF_CONFIG, 1);
+		debug_printf("CONFIG de-asserted\n");
+		//Nous sommes en mode config...
+		debug_printf("Vous etes maintenant en mode config.\n Entrer la commande que vous souhaitez (0 : dump de la mémoire, M : configuration de la memoire)\n");
+#endif
 		debug_printf("Rf init\n");
 	}
 
@@ -163,14 +188,14 @@
 		return currentModule;
 	}
 
-	static void RF_putc(Uint8 c)
+
+	void RF_putc(Uint8 c)
 	{
 		//UART1_putc(c);
 
 		//possible full
 		if(canTransmitData && FIFO_isEmpty(&fifo_tx) && !UART_IMPL_isTxFull(RF_UART)){
 			UART_IMPL_write(RF_UART, c);
-			//debug_printf("RF_putc byte send ok\n");
 		}
 		else
 		{
@@ -193,7 +218,6 @@
 				{
 					FIFO_insertData(&fifo_tx, &c);
 					byte_sent = TRUE;
-					//debug_printf("RF_putc byte insert ok\n");
 				} else {
 					printf("bug\n");
 				}
@@ -207,19 +231,15 @@
 	}
 
 	static void RF_send(RF_packet_type_e type, RF_module_e target_id, const Uint8 *data, Uint8 size) {
-		//debug_printf("RF_send to %d\n", target_id);
 		RF_header_t packet_header;
 		Uint8 i, crc = 0;
 
-		//debug_printf("RF_send_start_of_packet\n");
 		RF_putc(START_OF_PACKET_CHAR);
 		packet_header.type = type;
 		packet_header.sender_id = currentModule;
 		packet_header.target_id = target_id;
 
 		crc = crc8_incremental(crc, packet_header.raw_data);
-		//debug_printf("DATA: type=%d  sender=%d  target=%d\n", packet_header.type,  packet_header.sender_id, packet_header.target_id);
-		//debug_printf("RF_send raw data %d\n", packet_header.raw_data);
 		RF_putc(packet_header.raw_data);
 
 		for(i = 0; i < size; i++) {
@@ -227,20 +247,15 @@
 			crc = crc8_incremental(crc, c);
 			if(c == ESCAPE_CHAR || c == START_OF_PACKET_CHAR || c == END_OF_PACKET_CHAR) {
 				c &= (~0xC0);
-				//debug_printf("RF_send escape char 0x%x\n", ESCAPE_CHAR);
 				RF_putc(ESCAPE_CHAR);
-				//debug_printf("RF_send_data 0x%x\n", c);
 				RF_putc(c);
 			} else {
-				//debug_printf("RF_send_data 0x%x\n", data[i]);
 				RF_putc(data[i]);
 			}
 		}
-		//debug_printf("RF_send_crc 0x%x\n", crc);
+
 		RF_putc(crc);
-		//debug_printf("RF_send_end_of_packet 0x%x\n",END_OF_PACKET_CHAR);
 		RF_putc(END_OF_PACKET_CHAR);
-		//debug_printf("Message RF envoyé/n");
 	}
 
 	void RF_can_send(RF_module_e target_id, CAN_msg_t *msg) {
@@ -329,7 +344,8 @@
 		typedef enum {
 			RFS_IDLE,
 			RFS_GET_DATA,
-			RFS_GET_CRC
+			RFS_GET_CRC,
+			RFS_GET_END
 		} RF_status_e;
 
 		static Uint8 data[20];
@@ -341,7 +357,7 @@
 		switch(state) {
 			case RFS_IDLE:
 				if(new_frame) {
-					//debug_printf("New RF frame received\n");
+					debug_printf("New RF frame received\n");
 					i = 0;
 					state = RFS_GET_DATA;
 				}
@@ -369,6 +385,14 @@
 				if(crc8(data, i) == 0 && packet_received_fct) {
 					RF_process_data((RF_header_t)data[0], data+1, i-1);
 					debug_printf("Msg recieve complete\n");
+				}
+				state = RFS_IDLE;
+				break;
+
+			case RFS_GET_END:
+				if(c == END_OF_PACKET_CHAR){
+					debug_printf("Msg recieve complete\n");
+					RF_process_data((RF_header_t)data[0], data+1, i-1);
 				}
 				state = RFS_IDLE;
 				break;
