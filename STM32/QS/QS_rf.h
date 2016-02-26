@@ -15,6 +15,36 @@
  *	RF_UART						: Définir l'UART sur lequel est branché le module RF
  */
 
+/** --------------- Configuration des modules RF (Radiocrafts RC1240) -------------------------
+ *	Pour utiliser les modules de Radiocrafts RC1240, il faut réaliser une configuration de la mémoire de ces modules.
+ *  Cette configuration est indispensable pour pouvoir synchroniser ces modules dans le cadre de leur utilisation au club
+ *  robot.
+ *  L'opération à effectuer consiste à changer les valeurs de trois paramètres à l'intérieur de la mémoire du module RC1240.
+ *  Les valeurs à modifier sont:
+ *	    END_OF_PACKET:  adresse = 0x11        nouvelle valeur = 0xC1
+ *      ADDRESS_MODE:    adresse = 0x14        nouvelle valeur = 0x00
+ *      CRC_MODE:       adresse = 0x15        nouvelle valeur = 0x00
+ *  Mode opératoire:
+ *  Pour rendre opérationnel ces modules, vous devez décommenter le define CONFIG_RF_RC1240 dans le fichier config_use.h.
+ *  Branchez vous sur l'UART de la carte balise correspondante et ouvrez un Docklight. Programmer la carte balise et lancez
+ *  l'éxécution du programme.
+ *  1) Entrez la lettre 'M', cela permet de rentrer dans le mode de configuration mémoire
+ *  2) Attendre le prompt '>' renvoyez par le module
+ *  3) Entrez le caractère 0x11 puis 0xC1 pour la modification de END_OF_PACKET
+ *  4) Entrez le caractère 0x14 puis 0x00 pour la modification de ADDRESS_MODE
+ *  5) Entrez le caractère 0x15 puis 0x00 pour la modification de CRC_MODE
+ *  6) Entrez le caractère 'X' pour terminer la configuaration mémoire et rendre effectif les modifications.
+ *  7) Attendre le prompt '>' renvoyez par le module
+ *  8) Vous pouvez entrer le caractère '0' (zéro) pour avoir un dump de la mémoire (liste de toutes valeurs de la mémoire)
+ *     et ainsi vérifier que les modifications ont été effectuées.
+ *  9) Terminer la configuration en entrant le caractère 0xFF
+ *
+ *  Pour entrer des valeurs héxadécimales sur Docklight, allez dans Tools -> Options -> Control Characters Shortcuts.
+ *  Vous pouvez ensuite créer des raccourcis pour les valeurs que vous souhaitez entrer.
+ *
+ */
+
+
 #ifndef QS_RF_H
 	#define QS_RF_H
 
@@ -54,6 +84,7 @@
 
 		void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg_ptr onCanMsgCallback);
 		RF_module_e RF_get_module_id();
+		void RF_putc(Uint8 c);
 		void RF_can_send(RF_module_e target_id, CAN_msg_t *msg);
 		void RF_synchro_request(RF_module_e target_id);
 		void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset);
