@@ -460,9 +460,9 @@ void SELFTEST_state_machine(void){
 			case QUEUE_ACT_POMPE_FRONT_LEFT:
 				if(entrance){
 					SELFTEST_set_actions(&POMPE_FRONT_LEFT_run_command, 3, (SELFTEST_action_t[]){
-													 {ACT_POMPE_FRONT_LEFT_NORMAL,	  100,  QUEUE_ACT_POMPE_FRONT_LEFT},
-													 {ACT_POMPE_FRONT_LEFT_REVERSE,   100,  QUEUE_ACT_POMPE_FRONT_LEFT},
-													 {ACT_POMPE_FRONT_LEFT_STOP,		0,  QUEUE_ACT_POMPE_FRONT_LEFT}
+													 {ACT_POMPE_NORMAL,	  100,  QUEUE_ACT_POMPE_FRONT_LEFT},
+													 {ACT_POMPE_REVERSE,   100,  QUEUE_ACT_POMPE_FRONT_LEFT},
+													 {ACT_POMPE_STOP,		0,  QUEUE_ACT_POMPE_FRONT_LEFT}
 												 });
 				}
 				if(state_act_tests[ACT_POMPE_FRONT_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
@@ -477,9 +477,9 @@ void SELFTEST_state_machine(void){
 			case QUEUE_ACT_POMPE_FRONT_RIGHT:
 				if(entrance){
 					SELFTEST_set_actions(&POMPE_FRONT_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-													 {ACT_POMPE_FRONT_RIGHT_NORMAL,	  100,  QUEUE_ACT_POMPE_FRONT_RIGHT},
-													 {ACT_POMPE_FRONT_RIGHT_REVERSE,  100,  QUEUE_ACT_POMPE_FRONT_RIGHT},
-													 {ACT_POMPE_FRONT_RIGHT_STOP,		0,  QUEUE_ACT_POMPE_FRONT_RIGHT}
+													 {ACT_POMPE_NORMAL,	  100,  QUEUE_ACT_POMPE_FRONT_RIGHT},
+													 {ACT_POMPE_REVERSE,  100,  QUEUE_ACT_POMPE_FRONT_RIGHT},
+													 {ACT_POMPE_STOP,		0,  QUEUE_ACT_POMPE_FRONT_RIGHT}
 												 });
 				}
 				if(state_act_tests[ACT_POMPE_FRONT_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
