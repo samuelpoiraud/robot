@@ -511,14 +511,14 @@ error_e SELFTEST_strategy(bool_e reset)
 				state = TEST_SWITCHS;
 			break;
 		case TEST_LASER_SENSOR_RIGHT:
-			if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 15)
-				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_LASER_SENSOR_RIGHT);
+			//if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 15)
+			//	SELFTEST_declare_errors(NULL, SELFTEST_STRAT_LASER_SENSOR_RIGHT);
 			state = TEST_LASER_SENSOR_LEFT;
 			break;
 
 		case TEST_LASER_SENSOR_LEFT:
-			if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 15)
-				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_LASER_SENSOR_LEFT);
+			//if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 15)
+			//	SELFTEST_declare_errors(NULL, SELFTEST_STRAT_LASER_SENSOR_LEFT);
 			state = TEST_SWITCHS;
 			break;
 

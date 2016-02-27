@@ -467,11 +467,11 @@ static void MAIN_onButton2(){
 	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_POMPE_FRONT_RIGHT_NORMAL;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
 	}else if(state == 1){
-		msg.data.act_msg.order = ACT_POMPE_FRONT_RIGHT_REVERSE;
+		msg.data.act_msg.order = ACT_POMPE_REVERSE;
 	}else if(state == 2){
-		msg.data.act_msg.order = ACT_POMPE_FRONT_RIGHT_STOP;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
 	}
 
 	CAN_process_msg(&msg);
@@ -526,11 +526,11 @@ static void MAIN_onButton5(){
 	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_POMPE_FRONT_LEFT_NORMAL;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
 	}else if(state == 1){
-		msg.data.act_msg.order = ACT_POMPE_FRONT_LEFT_REVERSE;
+		msg.data.act_msg.order = ACT_POMPE_REVERSE;
 	}else if(state == 2){
-		msg.data.act_msg.order = ACT_POMPE_FRONT_LEFT_STOP;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
 	}
 
 	CAN_process_msg(&msg);
