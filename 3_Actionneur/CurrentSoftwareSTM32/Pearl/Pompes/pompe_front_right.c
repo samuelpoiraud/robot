@@ -67,9 +67,9 @@ bool_e POMPE_FRONT_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_POMPE_FRONT_RIGHT) {
 		POMPE_FRONT_RIGHT_initDCM();
 		switch(msg->data.act_msg.order) {
-			case ACT_POMPE_FRONT_RIGHT_NORMAL:
-			case ACT_POMPE_FRONT_RIGHT_REVERSE:
-			case ACT_POMPE_FRONT_RIGHT_STOP:
+			case ACT_POMPE_NORMAL:
+			case ACT_POMPE_REVERSE:
+			case ACT_POMPE_STOP:
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_POMPE_FRONT_RIGHT, &POMPE_FRONT_RIGHT_run_command, msg->data.act_msg.act_data.act_optionnal_data[0],TRUE);
 				break;
 
@@ -104,12 +104,12 @@ static void POMPE_FRONT_RIGHT_command_init(queue_id_t queueId) {
 	Uint8 param = QUEUE_get_arg(queueId)->param;
 
 	switch(command) {
-		case ACT_POMPE_FRONT_RIGHT_NORMAL:
-		case ACT_POMPE_FRONT_RIGHT_REVERSE:
+		case ACT_POMPE_NORMAL:
+		case ACT_POMPE_REVERSE:
 			POMPE_FRONT_RIGHT_do_order(command, param);
 			break;
 
-		case ACT_POMPE_FRONT_RIGHT_STOP:
+		case ACT_POMPE_STOP:
 			PWM_stop(POMPE_FRONT_RIGHT_PWM_NUM);
 			return;
 
@@ -126,9 +126,9 @@ static void POMPE_FRONT_RIGHT_command_run(queue_id_t queueId){
 }
 
 static void POMPE_FRONT_RIGHT_do_order(Uint8 command, Uint8 param){
-	if(command == ACT_POMPE_FRONT_RIGHT_NORMAL)
+	if(command == ACT_POMPE_NORMAL)
 		GPIO_ResetBits(POMPE_FRONT_RIGHT_SENS);
-	else if(command == ACT_POMPE_FRONT_RIGHT_REVERSE)
+	else if(command == ACT_POMPE_REVERSE)
 		GPIO_SetBits(POMPE_FRONT_RIGHT_SENS);
 	else{
 		debug_printf("commande envoyée à POMPE_FRONT_RIGHT_do_order inconnue -> %d	%x\n", command, command);
