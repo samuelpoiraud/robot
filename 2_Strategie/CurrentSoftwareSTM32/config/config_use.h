@@ -125,11 +125,7 @@
 
 /* Réglages entrées analogiques */
 	#define USE_AN8				// Capteur mesure 24V
-	#define USE_AN13            // Capteur laser gauche
-	#define USE_AN14            // Capteur laser droite
 	#define ADC_CHANNEL_MEASURE24		ADC_8
-	#define ADC_SENSOR_BIG_XUK_LEFT     ADC_13
-	#define ADC_SENSOR_BIG_XUK_RIGHT    ADC_14
 
 /* Réglages XBEE */
 	#define USE_XBEE
@@ -139,10 +135,10 @@
 	#define USE_FIFO
 
 /* Réglages RF */
-	#define USE_RF
-	#define RF_UART UART3_ID
-	#define RF_USE_WATCHDOG
-	#define SYNCHROBALISE_TIMER 4
+	//#define USE_RF
+	//#define RF_UART UART3_ID
+	//#define RF_USE_WATCHDOG
+	//#define SYNCHROBALISE_TIMER 4
 
 /* Récapitulatif TIMERs :
  * TIMER 1 : Clock			(clock.c/h)
