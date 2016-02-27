@@ -418,6 +418,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_IDLE:		print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_OPEN:		print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_SAND_LOCKER_LEFT_MIDDLE:		print(string,len, "| MIDDLE |");		break;
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_CLOSE:		print(string,len, "| CLOSE |");			break;
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_STOP:		print(string,len, "| STOP |");			break;
 						  default:										print(string,len, "| UNKNOW cmd |");	break;
@@ -427,6 +428,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_IDLE:		print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_OPEN:		print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_SAND_LOCKER_RIGHT_MIDDLE:		print(string,len, "| MIDDLE |");		break;
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_CLOSE:		print(string,len, "| CLOSE |");			break;
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_STOP:		print(string,len, "| STOP |");			break;
 						  default:										print(string,len, "| UNKNOW cmd |");	break;
