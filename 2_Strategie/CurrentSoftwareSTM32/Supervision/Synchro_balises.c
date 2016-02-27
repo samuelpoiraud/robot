@@ -1,3 +1,5 @@
+
+#ifdef USE_RF
 #include "Synchro_balises.h"
 
 #include "../QS/QS_rf.h"
@@ -265,3 +267,4 @@ static void update_rfmodule_here()
 		debug_printf("Beacon 2 has low bat : pwm=%d", pwm_on_foe2);
 	}
 }
+#endif

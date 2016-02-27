@@ -382,15 +382,14 @@
 
 			case RFS_GET_CRC:
 				data[i++] = c;
-				if(crc8(data, i) == 0 && packet_received_fct) {
-					RF_process_data((RF_header_t)data[0], data+1, i-1);
-					debug_printf("Msg recieve complete\n");
-				}
-				state = RFS_IDLE;
+				//if(crc8(data, i) == 0 && packet_received_fct) {
+				//	RF_process_data((RF_header_t)data[0], data+1, i-1);
+				//}
+				state = RFS_GET_END;
 				break;
 
 			case RFS_GET_END:
-				if(c == END_OF_PACKET_CHAR){
+				if(c == END_OF_PACKET_CHAR && crc8(data, i)== 0 && packet_received_fct){
 					debug_printf("Msg recieve complete\n");
 					RF_process_data((RF_header_t)data[0], data+1, i-1);
 				}

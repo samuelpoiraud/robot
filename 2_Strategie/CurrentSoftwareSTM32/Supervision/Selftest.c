@@ -394,7 +394,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 			if(entrance)
 				debug_printf("SELFTEST BEACON ADV\r\n");
 
-			if(get_warner_foe1_is_rf_unreacheable())
+			/*if(get_warner_foe1_is_rf_unreacheable())
 				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV1_RF_UNREACHABLE);
 
 			if(get_warner_foe2_is_rf_unreacheable())
@@ -404,7 +404,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV1_BATTERY_LOW);
 
 			if(get_warner_low_battery_on_foe2())
-				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV2_BATTERY_LOW);
+				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV2_BATTERY_LOW);*/
 
 			state = SELFTEST_END;
 
