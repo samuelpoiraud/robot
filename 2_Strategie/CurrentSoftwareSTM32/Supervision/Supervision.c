@@ -30,7 +30,7 @@ void Supervision_init(void)
 	SELFTEST_init();
 	RTC_init();
 	BUFFER_init();
-	SYNCHRO_init();
+	//SYNCHRO_init();
 
 	#ifdef USE_LCD
 		init_LCD_interface();
@@ -131,7 +131,7 @@ void Supervision_process_main(void)
 	/* Gestion du selftest*/
 	SELFTEST_process_main();
 
-	SYNCHRO_process_main();
+	//SYNCHRO_process_main();
 
 
 	#ifdef USE_XBEE

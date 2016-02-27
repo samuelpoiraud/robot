@@ -1214,10 +1214,12 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 				successPossible = TRUE;
 			else
 				successPossible = FALSE;
-			if(successPossible || (nbTry%2))
+			if((successPossible || (nbTry%2)) && nbDisplacements)
 			   state = DISPLACEMENT;
-			else
+			else if(nbTry > 1)
 				state = INIT;
+			else
+				state = FAIL;
 			nbTry--;
 			break;
 

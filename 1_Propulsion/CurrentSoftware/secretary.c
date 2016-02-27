@@ -196,15 +196,19 @@ PROP_GO_POSITION
 void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 {
 	way_e sens_marche;
+	Uint8 i;
 	toggle_led(LED_CAN);
 	//debug_printf("#%x\n",msg->sid);
 
 #ifdef XBEE_SIMULATION
 	if((msg->sid & 0xF00) == XBEE_FILTER){
-		if(from == FROM_CAN) // Vient du CAN(strat)
+		if(from == FROM_CAN){ // Vient du CAN(strat)
+			for(i=msg->size;i<8;i++)
+				msg->data.raw_data[i]=0xFF;		//On remplace les données hors size par des FF (notamment pour verbose et envoi sur uart)
 			CANmsgToU1tx(msg);
-		else if(from == FROM_UART) // Vient de la simulation
+		}else if(from == FROM_UART){ // Vient de la simulation
 			CAN_send(msg);
+		}
 	}
 #endif
 
