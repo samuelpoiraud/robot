@@ -440,8 +440,6 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
 		TEST_RTC,
-		TEST_LASER_SENSOR_RIGHT,
-		TEST_LASER_SENSOR_LEFT,
 		TEST_SWITCHS,
 		TEST_STRAT_MOSFETS,
 		TEST_ACT_MOSFETS,
@@ -505,20 +503,6 @@ error_e SELFTEST_strategy(bool_e reset)
 			status = RTC_get_local_time (&date);
 			if(!status)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_RTC);
-			if(I_AM_BIG())
-				state = TEST_LASER_SENSOR_RIGHT;
-			else
-				state = TEST_SWITCHS;
-			break;
-		case TEST_LASER_SENSOR_RIGHT:
-			//if(ADC_getValue(ADC_SENSOR_BIG_XUK_RIGHT) > 15)
-			//	SELFTEST_declare_errors(NULL, SELFTEST_STRAT_LASER_SENSOR_RIGHT);
-			state = TEST_LASER_SENSOR_LEFT;
-			break;
-
-		case TEST_LASER_SENSOR_LEFT:
-			//if(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT) > 15)
-			//	SELFTEST_declare_errors(NULL, SELFTEST_STRAT_LASER_SENSOR_LEFT);
 			state = TEST_SWITCHS;
 			break;
 
@@ -598,6 +582,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_HOKUYO_FAILED:				debug_printf("SELFTEST_PROP_HOKUYO_FAILED");					break;
 				case SELFTEST_PROP_IN_SIMULATION_MODE:			debug_printf("SELFTEST_PROP_IN_SIMULATION_MODE");				break;
 				case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		debug_printf("SELFTEST_PROP_SWITCH_ASSER_DISABLE");				break;
+				case SELFTEST_PROP_LASER_SENSOR_LEFT:		    debug_printf("SELFTEST_PROP_LASER_SENSOR_LEFT");				break;
+				case SELFTEST_PROP_LASER_SENSOR_RIGHT:		    debug_printf("SELFTEST_PROP_LASER_SENSOR_RIGHT");			    break;
 
 				case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	debug_printf("SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE");		break;
 				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
@@ -608,8 +594,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
 				case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_STRAT_BIROUTE_FORGOTTEN");				break;
 				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");					break;
-				case SELFTEST_STRAT_LASER_SENSOR_LEFT:		    debug_printf("SELFTEST_STRAT_LASER_SENSOR_LEFT");				break;
-				case SELFTEST_STRAT_LASER_SENSOR_RIGHT:		    debug_printf("SELFTEST_STRAT_LASER_SENSOR_RIGHT");			    break;
 				case SELFTEST_STRAT_SWITCH_DISABLE_DUNE:		debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_DUNE");			    break;
 				case SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC:	debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC");		break;
 				case SELFTEST_STRAT_SWITCH_DISABLE_FISHS:	    debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_FISHS");		    break;
@@ -896,6 +880,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_PROP_HOKUYO_FAILED:				return "Hokuyo failed";			break;
 		case SELFTEST_PROP_IN_SIMULATION_MODE:			return "PROP in simu mode";		break;
 		case SELFTEST_PROP_SWITCH_ASSER_DISABLE:		return "Asser Switch disable"; 	break;
+		case SELFTEST_PROP_LASER_SENSOR_LEFT:			return "Laser sensor left";		break;
+		case SELFTEST_PROP_LASER_SENSOR_RIGHT:			return "Laser sensor right";	break;
 
 		case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	return "Evit Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		return "XBee Switch disable";	break;
@@ -906,8 +892,6 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";			break;
 		case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			return "Biroute Forgotten"; 	break;
 		case SELFTEST_STRAT_SD_WRITE_FAIL:				return "SD Write FAIL";			break;
-		case SELFTEST_STRAT_LASER_SENSOR_LEFT:			return "Laser sensor left";		break;
-		case SELFTEST_STRAT_LASER_SENSOR_RIGHT:			return "Laser sensor right";	break;
 		case SELFTEST_STRAT_SWITCH_DISABLE_DUNE:		return "Dune Disabled";			break;
 		case SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC:	return "Sand bloc Disabled";	break;
 		case SELFTEST_STRAT_SWITCH_DISABLE_FISHS:	    return "Fishs Disabled";		break;

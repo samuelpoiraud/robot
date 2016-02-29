@@ -318,13 +318,13 @@ static void MAIN_onButton2(){
 static void MAIN_onButton2LongPush() {
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	 msg.sid = ACT_PEARL_SAND_CIRCLE;
+	 msg.sid = ACT_BLACK_SAND_CIRCLE;
 	msg.size = 1;
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_OPEN;
+		msg.data.act_msg.order = ACT_BLACK_SAND_CIRCLE_LOCK;
 	}else if(state == 1){
-		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_CLOSE;
+		msg.data.act_msg.order = ACT_BLACK_SAND_CIRCLE_UNLOCK;
 	}
 
 	CAN_process_msg(&msg);
@@ -363,16 +363,16 @@ static void MAIN_onButton4() {
 
 	if(state == 0){
 		msg.sid = ACT_SAND_LOCKER_LEFT;
-		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_OPEN;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_LOCK;
 	}else if(state == 1){
 		msg.sid = ACT_SAND_LOCKER_LEFT;
-		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_CLOSE;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_UNLOCK;
 	}else if(state == 2){
 		msg.sid = ACT_SAND_LOCKER_RIGHT;
-		msg.data.act_msg.order = ACT_SAND_LOCKER_RIGHT_OPEN;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_RIGHT_LOCK;
 	}else if(state == 3){
 		msg.sid = ACT_SAND_LOCKER_RIGHT;
-		msg.data.act_msg.order = ACT_SAND_LOCKER_RIGHT_CLOSE;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_RIGHT_UNLOCK;
 	}
 
 	CAN_process_msg(&msg);
@@ -478,7 +478,21 @@ static void MAIN_onButton2(){
 	state = (state == 2)? 0 : state + 1;
  }
 
-static void MAIN_onButton2LongPush(){}
+static void MAIN_onButton2LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	 msg.sid = ACT_PEARL_SAND_CIRCLE;
+	msg.size = 1;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_LOCK;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_UNLOCK;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
 
 static void MAIN_onButton3(){
 	static Uint8 state = 0;

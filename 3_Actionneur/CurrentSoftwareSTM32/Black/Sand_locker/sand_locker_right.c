@@ -115,8 +115,9 @@ bool_e SAND_LOCKER_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SAND_LOCKER_RIGHT_IDLE :
-			case ACT_SAND_LOCKER_RIGHT_OPEN :
-			case ACT_SAND_LOCKER_RIGHT_CLOSE :
+			case ACT_SAND_LOCKER_RIGHT_LOCK :
+			case ACT_SAND_LOCKER_RIGHT_UNLOCK :
+			case ACT_SAND_LOCKER_RIGHT_MIDDLE:
 			case ACT_SAND_LOCKER_RIGHT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SAND_LOCKER_RIGHT, &SAND_LOCKER_RIGHT_run_command, 0,TRUE);
 				break;
@@ -167,8 +168,9 @@ static void SAND_LOCKER_RIGHT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_SAND_LOCKER_RIGHT_IDLE : *rx24_goalPosition = SAND_LOCKER_RIGHT_RX24_IDLE_POS; break;
-		case ACT_SAND_LOCKER_RIGHT_CLOSE : *rx24_goalPosition = SAND_LOCKER_RIGHT_RX24_CLOSE_POS; break;
-		case ACT_SAND_LOCKER_RIGHT_OPEN : *rx24_goalPosition = SAND_LOCKER_RIGHT_RX24_OPEN_POS; break;
+		case ACT_SAND_LOCKER_RIGHT_LOCK : *rx24_goalPosition = SAND_LOCKER_RIGHT_RX24_LOCK_POS; break;
+		case ACT_SAND_LOCKER_RIGHT_UNLOCK : *rx24_goalPosition = SAND_LOCKER_RIGHT_RX24_UNLOCK_POS; break;
+		case ACT_SAND_LOCKER_RIGHT_MIDDLE : *rx24_goalPosition = SAND_LOCKER_RIGHT_RX24_MID_POS; break;
 
 		case ACT_SAND_LOCKER_RIGHT_STOP :
 			RX24_set_torque_enabled(SAND_LOCKER_RIGHT_RX24_ID, FALSE); //Stopper l'asservissement du RX24

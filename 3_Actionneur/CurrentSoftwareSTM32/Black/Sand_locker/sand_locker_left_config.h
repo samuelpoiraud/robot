@@ -21,8 +21,9 @@
 
 //Position
 	#define SAND_LOCKER_LEFT_RX24_IDLE_POS					400
-	#define SAND_LOCKER_LEFT_RX24_CLOSE_POS			     	512	//en degré
-	#define SAND_LOCKER_LEFT_RX24_OPEN_POS					600	//en degré
+	#define SAND_LOCKER_LEFT_RX24_LOCK_POS			     	512	//en degré
+	#define SAND_LOCKER_LEFT_RX24_UNLOCK_POS     			600	//en degré
+	#define SAND_LOCKER_LEFT_RX24_MID_POS     			    600	//en degré
 
 //Position initiale de l'RX24
 	#define SAND_LOCKER_LEFT_RX24_INIT_POS					SAND_LOCKER_LEFT_RX24_IDLE_POS

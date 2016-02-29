@@ -113,8 +113,8 @@ bool_e BLACK_SAND_CIRCLE_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_BLACK_SAND_CIRCLE_IDLE :
-			case ACT_BLACK_SAND_CIRCLE_OPEN :
-			case ACT_BLACK_SAND_CIRCLE_CLOSE :
+			case ACT_BLACK_SAND_CIRCLE_LOCK :
+			case ACT_BLACK_SAND_CIRCLE_UNLOCK :
 			case ACT_BLACK_SAND_CIRCLE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_BLACK_SAND_CIRCLE, &BLACK_SAND_CIRCLE_run_command, 0,TRUE);
 				break;
@@ -165,8 +165,8 @@ static void BLACK_SAND_CIRCLE_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_BLACK_SAND_CIRCLE_IDLE : *ax12_goalPosition = BLACK_SAND_CIRCLE_AX12_IDLE_POS; break;
-		case ACT_BLACK_SAND_CIRCLE_CLOSE : *ax12_goalPosition = BLACK_SAND_CIRCLE_AX12_CLOSE_POS; break;
-		case ACT_BLACK_SAND_CIRCLE_OPEN : *ax12_goalPosition = BLACK_SAND_CIRCLE_AX12_OPEN_POS; break;
+		case ACT_BLACK_SAND_CIRCLE_LOCK : *ax12_goalPosition = BLACK_SAND_CIRCLE_AX12_LOCK_POS; break;
+		case ACT_BLACK_SAND_CIRCLE_UNLOCK : *ax12_goalPosition = BLACK_SAND_CIRCLE_AX12_UNLOCK_POS; break;
 
 		case ACT_BLACK_SAND_CIRCLE_STOP :
 			AX12_set_torque_enabled(BLACK_SAND_CIRCLE_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
