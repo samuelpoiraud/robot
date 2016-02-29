@@ -288,7 +288,7 @@ void SELFTEST_state_machine(void){
 				if(entrance){
 					SELFTEST_set_actions(&BLACK_SAND_CIRCLE_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
-											 {ACT_BLACK_SAND_CIRCLE_OPEN,       0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
+											 {ACT_BLACK_SAND_CIRCLE_LOCK,       0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
 											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE}
 										 });
 				}
@@ -305,7 +305,7 @@ void SELFTEST_state_machine(void){
 				if(entrance){
 					SELFTEST_set_actions(&SAND_LOCKER_LEFT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_SAND_LOCKER_LEFT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT},
-											 {ACT_SAND_LOCKER_LEFT_OPEN,    0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT},
+											 {ACT_SAND_LOCKER_LEFT_LOCK,    0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT},
 											 {ACT_SAND_LOCKER_LEFT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_LEFT}
 										 });
 				}
@@ -322,7 +322,7 @@ void SELFTEST_state_machine(void){
 				if(entrance){
 					SELFTEST_set_actions(&SAND_LOCKER_RIGHT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_SAND_LOCKER_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT},
-											 {ACT_SAND_LOCKER_RIGHT_OPEN,   0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT},
+											 {ACT_SAND_LOCKER_RIGHT_LOCK,   0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT},
 											 {ACT_SAND_LOCKER_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_SAND_LOCKER_RIGHT}
 										 });
 				}
@@ -412,7 +412,7 @@ void SELFTEST_state_machine(void){
 				if(entrance){
 					SELFTEST_set_actions(&PEARL_SAND_CIRCLE_run_command, 3, (SELFTEST_action_t[]){
 													 {ACT_PEARL_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_PEARL_SAND_CIRCLE},
-													 {ACT_PEARL_SAND_CIRCLE_OPEN,       0,  QUEUE_ACT_AX12_PEARL_SAND_CIRCLE},
+													 {ACT_PEARL_SAND_CIRCLE_LOCK,       0,  QUEUE_ACT_AX12_PEARL_SAND_CIRCLE},
 													 {ACT_PEARL_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_PEARL_SAND_CIRCLE}
 												 });
 				}
