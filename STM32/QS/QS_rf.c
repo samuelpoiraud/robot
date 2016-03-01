@@ -20,6 +20,13 @@
 	#include "QS_outputlog.h"
 	#include <stdio.h>
 
+	//Variables FIFO pour les messages CAN
+	#define SIZE_CAN_FIFO  10
+	#define CAN_FIFO_NEXT_INDEX(index)  (index + 1)%SIZE_CAN_FIFO
+	static volatile CAN_msg_t can_msg_fifo[SIZE_CAN_FIFO];
+	static Uint8 index_can_fifo_write = 0;
+	static Uint8 index_can_fifo_read = 0;
+
 	//>1.5 STOP BIT !!!
 	//CRC8 poly: 0x2F (HD=4 @data size < 120)
 	static const Uint8 crc8_table[256] = {
@@ -401,7 +408,9 @@
 	static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
 		debug_printf("RF_process_data\n");
 		if(header.type == RF_PT_Can && (header.target_id == currentModule || header.target_id == RF_BROADCAST)) {
-			if(canmsg_received_fct && size > RF_CAN_SID+1 && size > data[RF_CAN_SIZE] && data[RF_CAN_SIZE] >= 2 && data[RF_CAN_SIZE] < 8+2) {
+			//Possibilité d'utiliser ce code avec "canmsg_received_fct"
+			//if(canmsg_received_fct && size > RF_CAN_SID+1 && size > data[RF_CAN_SIZE] && data[RF_CAN_SIZE] >= 2 && data[RF_CAN_SIZE] < 8+2) {
+			if(size > RF_CAN_SID+1){
 				CAN_msg_t msg;
 				Uint8 i;
 				msg.size = data[RF_CAN_SIZE] - 2;
@@ -415,7 +424,8 @@
 				}
 				for(; i < 8; i++)
 					msg.data.raw_data[i] = 0;
-				(*canmsg_received_fct)(&msg);
+				RF_can_write_msg(msg);
+				//(*canmsg_received_fct)(&msg);
 			}
 		} else if(header.type != RF_PT_Can) {
 			bool_e for_me = header.target_id == RF_BROADCAST || header.target_id == currentModule;
@@ -467,6 +477,33 @@
 		TIMER_SRC_TIMER_resetFlag();
 		canTransmitData = TRUE;
 		UART_IMPL_setTxItEnabled(RF_UART, TRUE);
+	}
+
+	CAN_msg_t RF_can_get_next_msg(){
+		CAN_msg_t msg;
+		msg.sid = 0;
+		msg.size = 0;
+		if(RF_can_data_ready()){
+			CAN_msg_t msg = can_msg_fifo[index_can_fifo_read];
+			index_can_fifo_read = CAN_FIFO_NEXT_INDEX(index_can_fifo_read);
+			return msg;
+		}
+		return msg;
+	}
+
+	void RF_can_write_msg(CAN_msg_t msg){
+		if(!RF_can_fifo_is_full()){
+			can_msg_fifo[index_can_fifo_write] = msg;
+			index_can_fifo_write = CAN_FIFO_NEXT_INDEX(index_can_fifo_write);
+		}
+	}
+
+	bool_e RF_can_fifo_is_full(){
+		return (CAN_FIFO_NEXT_INDEX(index_can_fifo_write) == index_can_fifo_read);
+	}
+
+	bool_e RF_can_data_ready(){  //DOnc si la fifo n'est pas vide
+		return ( !(index_can_fifo_read == index_can_fifo_write) );
 	}
 
 #endif
