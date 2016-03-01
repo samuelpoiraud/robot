@@ -50,17 +50,12 @@
 
 	#include "QS_all.h"
 	#include "QS_CANmsgList.h"
+	#include "QS_types.h"
 
 	#ifdef USE_RF
 
 		// !!!!!!!!!!!! MAX 7 modules !!!!!!!!!!!! (0-6, 7 = broadcast)
-		typedef enum {
-			RF_SMALL,
-			RF_BIG,
-			RF_FOE1,
-			RF_FOE2,
-			RF_BROADCAST = 7
-		} RF_module_e;
+		//RF_module_e définit dans QS_types.h
 		#define RF_MODULE_COUNT 4
 
 		typedef enum {
@@ -97,6 +92,11 @@
 		//Uint8 RF_get_output_power();
 		//Uint8 RF_get_rssi();
 		//Uint8 RF_get_destination_id();
+
+		CAN_msg_t RF_can_get_next_msg();
+		void RF_can_write_msg(CAN_msg_t msg);
+		bool_e RF_can_fifo_is_full();
+		bool_e RF_can_data_ready();
 
 	#endif
 
