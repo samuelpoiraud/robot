@@ -120,9 +120,9 @@ void BUTTON_0_long_push(void){
 void BUTTON_3_long_push(void){
 	static Uint8 state = 0;
 	if(state == 0)
-		ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_ALL_NORMAL_5);
+		ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_NORMAL);
 	else if(state == 1)
-		ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_ALL_STOP);
+		ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_STOP);
 
 	state = (state==1)? 0: state+1;
 }
@@ -163,7 +163,7 @@ void BUTTON_verbose(void)
 	bool_e change;
 
 	current_state = 	(BUTTON0_PORT						<< 0) 	|	//Run match
-						(IHM_switchs_get(SWITCH_RAW_DATA)		<< 1) 	|
+						(IHM_switchs_get(SWITCH_RAW_DATA)	<< 1) 	|
 						(IHM_switchs_get(SWITCH_VERBOSE)	<< 2) 	|
 						(IHM_switchs_get(SWITCH_XBEE)		<< 4) 	|
 						(IHM_switchs_get(SWITCH_COLOR)		<< 9) 	|

@@ -20,9 +20,9 @@
 	#define SHIFT_CYLINDER_RX24_MAX_TEMPERATURE				65		// Température maximale en degré
 
 //Position
-	#define SHIFT_CYLINDER_RX24_IDLE_POS					400
-	#define SHIFT_CYLINDER_RX24_CLOSE_POS			     	512	//en degré
-	#define SHIFT_CYLINDER_RX24_OPEN_POS					600	//en degré
+	#define SHIFT_CYLINDER_RX24_IDLE_POS					300
+	#define SHIFT_CYLINDER_RX24_CLOSE_POS			     	512
+	#define SHIFT_CYLINDER_RX24_OPEN_POS					700
 
 //Position initiale de l'RX24
 	#define SHIFT_CYLINDER_RX24_INIT_POS					SHIFT_CYLINDER_RX24_IDLE_POS

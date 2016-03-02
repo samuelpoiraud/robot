@@ -21,8 +21,8 @@
 
 //Position
 	#define RIGHT_ARM_AX12_IDLE_POS						400
-	#define RIGHT_ARM_AX12_CLOSE_POS				    512		//en degré
-	#define RIGHT_ARM_AX12_OPEN_POS						600		//en degré
+	#define RIGHT_ARM_AX12_CLOSE_POS				    512
+	#define RIGHT_ARM_AX12_OPEN_POS						600
 
 //Position initiale de l'AX12
 	#define RIGHT_ARM_AX12_INIT_POS						RIGHT_ARM_AX12_IDLE_POS
