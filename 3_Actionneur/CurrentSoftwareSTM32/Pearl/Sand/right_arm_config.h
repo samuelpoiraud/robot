@@ -20,9 +20,9 @@
 	#define RIGHT_ARM_AX12_MAX_TEMPERATURE				60		// Température maximale en degré
 
 //Position
-	#define RIGHT_ARM_AX12_IDLE_POS						400
+	#define RIGHT_ARM_AX12_IDLE_POS						300
 	#define RIGHT_ARM_AX12_CLOSE_POS				    512
-	#define RIGHT_ARM_AX12_OPEN_POS						600
+	#define RIGHT_ARM_AX12_OPEN_POS						700
 
 //Position initiale de l'AX12
 	#define RIGHT_ARM_AX12_INIT_POS						RIGHT_ARM_AX12_IDLE_POS

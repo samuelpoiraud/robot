@@ -277,9 +277,9 @@
 //--------------------Configuration des ID des actionneurs-----------------------
 // L'id doit être inférieur à 50
 /* ID des différents AX12 */
-	#define LEFT_ARM_AX12_ID                       11
-	#define RIGHT_ARM_AX12_ID					   12
-	#define PEARL_SAND_CIRCLE_AX12_ID			   13
+	#define LEFT_ARM_AX12_ID                       5
+	#define RIGHT_ARM_AX12_ID					   6
+	#define PEARL_SAND_CIRCLE_AX12_ID			   2
 
 	#define POMPE_FRONT_LEFT_PWM_NUM               1
 	#define POMPE_FRONT_RIGHT_PWM_NUM              2
