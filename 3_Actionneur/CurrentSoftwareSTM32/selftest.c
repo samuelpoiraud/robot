@@ -581,9 +581,7 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 					case ACT_PENDULUM:
 						failed_act_tests[i] = SELFTEST_ACT_RX24_PENDULUM;
 						break;
-					case ACT_BLACK_PARASOL:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_BLACK_PARASOL;
-						break;
+
 
 // Pearl
 					case ACT_LEFT_ARM:
