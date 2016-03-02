@@ -173,6 +173,10 @@ int main (void)
 
 		process_measure_loop_duration();
 
+		if(global.flags.match_started == TRUE && global.flags.match_over == FALSE){
+			ZONES_process_main();
+		}
+
 	}
 	return 0;
 }

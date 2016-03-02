@@ -280,7 +280,7 @@
 		#define SIZE_XBEE_ZONE_COMMAND			3
 			struct{
 				xbee_zone_order_e order			:8;
-				map_zone_e zone					:8;
+				zone_id_e zone					:8;
 				bool_e lock						:1;
 			}xbee_zone_command;
 

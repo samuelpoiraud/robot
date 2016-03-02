@@ -9,6 +9,8 @@
  *	Version 2 mai 2013
  */
 
+#if 0
+
 #ifndef ZONE_MUTEX_H
 #define	ZONE_MUTEX_H
 
@@ -79,3 +81,4 @@ void ZONE_donate(map_zone_e zone);
 
 #endif	/* ZONE_MUTEX_H */
 
+#endif

@@ -11,13 +11,15 @@
  */
 
 	#include "config/config_use.h"
-	#include "QS/QS_who_am_i.h"
-	#include "avoidance.h"
+
 
 	#ifdef USE_ASTAR
 
 	#ifndef _ASTAR_H_
 		#define _ASTAR_H_
+
+	#include "QS/QS_who_am_i.h"
+	#include "avoidance.h"
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------

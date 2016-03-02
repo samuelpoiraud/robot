@@ -34,6 +34,7 @@
 #include "QS/QS_IHM.h"
 #include "Supervision/LCD_interface.h"
 #include "QS/QS_ports.h"
+#include "zones.h"
 
 /* met à jour l'environnement en fonction du message CAN reçu */
 void CAN_update (CAN_msg_t* incoming_msg);

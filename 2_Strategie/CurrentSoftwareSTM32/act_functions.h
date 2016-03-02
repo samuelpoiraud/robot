@@ -10,13 +10,10 @@
  *	Version 20110313
  */
 
-
-
-#include "QS/QS_all.h"
-
 #ifndef ACT_FUNCTIONS_H
 #define ACT_FUNCTIONS_H
 
+#include "QS/QS_all.h"
 #include "queue.h"
 #include "QS/QS_CANmsgList.h"
 #include "act_can.h"

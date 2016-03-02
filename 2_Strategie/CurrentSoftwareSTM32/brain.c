@@ -26,6 +26,7 @@
 #include "QS/QS_IHM.h"
 #include "Supervision/Supervision.h"
 #include "Supervision/Buzzer.h"
+#include "zones.h"
 
 #include "strats_2016/actions_both_2016.h"
 #include "strats_2016/actions_pearl/actions_pearl.h"
@@ -158,6 +159,7 @@ void any_match(void)
 			Supervision_send_periodically_pos(20,PI4096/45);	//Demande d'envoi de la position : tout les 20 mm et tout les 4°
 			XBEE_ping_pong_enable(FALSE);						//Désactive le ping/pong... c'est trop tard pour ça...
 			PATHFIND_MAJ_COLOR();								// Configuration du pathfind spécifique à la couleur
+			initZones();										// Configuration des zones suivant la couleur
 			return;
 		}
 

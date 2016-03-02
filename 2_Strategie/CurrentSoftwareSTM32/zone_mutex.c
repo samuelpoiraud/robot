@@ -9,6 +9,8 @@
  *	Version 2 mai 2013
  */
 
+#if 0
+
 #include "zone_mutex.h"
 #include "QS/QS_CANmsgList.h"
 #include "avoidance.h"
@@ -251,3 +253,5 @@ bool_e ZONE_validate(map_zone_e zone){
 void ZONE_donate(map_zone_e zone){
 	zones[zone].accept_donate = TRUE;
 }
+
+#endif
