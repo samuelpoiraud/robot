@@ -284,12 +284,12 @@ void SELFTEST_state_machine(void){
 				}
 				break;
 
-			case QUEUE_ACT_AX12_BLACK_SAND_CIRCLE:
+			case QUEUE_ACT_RX24_BLACK_SAND_CIRCLE:
 				if(entrance){
 					SELFTEST_set_actions(&BLACK_SAND_CIRCLE_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
-											 {ACT_BLACK_SAND_CIRCLE_LOCK,       0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE},
-											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_AX12_BLACK_SAND_CIRCLE}
+											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_RX24_BLACK_SAND_CIRCLE},
+											 {ACT_BLACK_SAND_CIRCLE_LOCK,       0,  QUEUE_ACT_RX24_BLACK_SAND_CIRCLE},
+											 {ACT_BLACK_SAND_CIRCLE_IDLE,		0,  QUEUE_ACT_RX24_BLACK_SAND_CIRCLE}
 										 });
 				}
 				if(state_act_tests[ACT_BLACK_SAND_CIRCLE & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
@@ -368,7 +368,6 @@ void SELFTEST_state_machine(void){
 					state++;
 				}
 				break;
-
 
 #endif
 
@@ -547,7 +546,7 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						failed_act_tests[i] = SELFTEST_ACT_RX24_FISH_UNSTICK_ARM;
 						break;
 					case ACT_BLACK_SAND_CIRCLE:
-						failed_act_tests[i] = SELFTEST_ACT_AX12_BLACK_SAND_CIRCLE;
+						failed_act_tests[i] = SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE;
 						break;
 					case ACT_BOTTOM_DUNE_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_RX24_BOTTOM_DUNE_LEFT;
@@ -582,7 +581,9 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 					case ACT_PENDULUM:
 						failed_act_tests[i] = SELFTEST_ACT_RX24_PENDULUM;
 						break;
-
+					case ACT_BLACK_PARASOL:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_BLACK_PARASOL;
+						break;
 
 // Pearl
 					case ACT_LEFT_ARM:

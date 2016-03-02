@@ -1,8 +1,10 @@
 /*  Club Robot ESEO 2015 - 2016
+ *	BIG
+ *
  *	Fichier : black_sand_circle.h
  *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur AX12 BLACK_SAND_CIRCLE
- *  Auteur : Valentin
+ *	Description : Gestion de l'actionneur RX24 BLACK_SAND_CIRCLE
+ *  Auteur :
  *  Version 2016
  *  Robot : BIG
  */
@@ -17,13 +19,13 @@
 
 	/** Initialisation du gestionnaire de BLACK_SAND_CIRCLE.
 	 *
-	 * Configure l'asservissement de l'AX12
+	 * Configure l'asservissement du RX24
 	 */
 	void BLACK_SAND_CIRCLE_init();
 
 	/** Initialisation en position du gestionnaire de BLACK_SAND_CIRCLE.
 	 *
-	 * Initialise la position de l'AX12
+	 * Initialise la position du RX24
 	 */
 	void BLACK_SAND_CIRCLE_init_pos();
 
@@ -49,7 +51,7 @@
 
 
 	/**
-	 * Réinitialise la configuration de l'AX12
+	 * Réinitialise la configuration du RX24
 	 */
 	void BLACK_SAND_CIRCLE_reset_config();
 

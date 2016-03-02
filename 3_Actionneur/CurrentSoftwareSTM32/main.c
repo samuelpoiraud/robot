@@ -318,12 +318,14 @@ static void MAIN_onButton2(){
 static void MAIN_onButton2LongPush() {
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	 msg.sid = ACT_BLACK_SAND_CIRCLE;
+	msg.sid = ACT_BLACK_SAND_CIRCLE;
 	msg.size = 1;
 
 	if(state == 0){
+		msg.sid = ACT_BLACK_SAND_CIRCLE;
 		msg.data.act_msg.order = ACT_BLACK_SAND_CIRCLE_LOCK;
 	}else if(state == 1){
+		msg.sid = ACT_BLACK_SAND_CIRCLE;
 		msg.data.act_msg.order = ACT_BLACK_SAND_CIRCLE_UNLOCK;
 	}
 
