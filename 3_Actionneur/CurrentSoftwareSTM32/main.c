@@ -236,7 +236,7 @@ static void MAIN_onButton1() {
 	   msg.sid = ACT_DUNIX_LEFT;
 	   msg.data.act_msg.order = ACT_DUNIX_LEFT_CLOSE;
    }else if(state == 3){
-	   msg.sid = ACT_DUNIX_LEFT;
+	   msg.sid = ACT_DUNIX_RIGHT;
 	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_CLOSE;
    }
 
