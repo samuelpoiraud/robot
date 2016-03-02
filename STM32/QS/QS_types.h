@@ -116,6 +116,15 @@
 		BUZZER_NOTE_MI
 	} buzzer_play_note_e;
 
+	typedef enum
+	{
+		END_OK=0,
+		IN_PROGRESS,
+		END_WITH_TIMEOUT,
+		NOT_HANDLED,
+		FOE_IN_PATH
+	}error_e;
+
 
 
 	/**********************************************************************************************************************
@@ -306,12 +315,30 @@
 
 
 	//Différentes zone ou les 2 robots passent
-	typedef enum {
+	/*typedef enum {
 		MZ_MAMMOUTH_OUR = 0,
 		MZ_FRUIT_TRAY,		//Zone du bac à fruit
 		MZ_ZONE_LIBRE,
 		ZONE_MUTEX_NUMBER
-	} map_zone_e;
+	} map_zone_e;*/
+
+	typedef enum {
+		ZONE_OUR_DOORS = 0,
+		ZONE_OUR_DUNE,
+		ZONE_ADV_DUNE,
+		ZONE_ADV_DOORS,
+		ZONE_OUR_START_ZONE,
+		ZONE_OUR_START,
+		ZONE_OUR_DEPOSE,
+		ZONE_ADV_DEPOSE,
+		ZONE_ADV_START,
+		ZONE_ADV_START_ZONE,
+		ZONE_OUR_ROCK,
+		ZONE_OUR_FISH,
+		ZONE_ADV_FISH,
+		ZONE_ADV_ROCK,
+		NB_ZONES
+	} zone_id_e;
 
 	typedef enum{
 		EVENT_NO_EVENT	= 0b00000000,

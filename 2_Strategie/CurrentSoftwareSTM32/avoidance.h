@@ -9,7 +9,7 @@
  *	Version 20110426
  */
 
-#include "QS/QS_all.h"
+
 
 /*	Toutes les fonctions suivantes ont des machines d'état interne à réinitialiser
  *	entre chaque utilisation. Cette réinitialisation est automatique et s'effectue
@@ -22,24 +22,17 @@
 #ifndef AVOIDANCE_H
 #define AVOIDANCE_H
 
+#include "QS/QS_all.h"
 #include "prop_types.h"
 #include "QS/QS_maths.h"
 #include "environment.h"
+#include "zones.h"
 
 #ifdef USE_POLYGON
 	#include "polygon.h"
 #endif
 
 //-------------------------------------------------------------------Enumerations
-
-typedef enum
-{
-	END_OK=0,
-	IN_PROGRESS,
-	END_WITH_TIMEOUT,
-	NOT_HANDLED,
-	FOE_IN_PATH
-}error_e;
 
 /* Types d'évitements possibles */
 typedef enum
@@ -87,7 +80,7 @@ typedef struct
  *
  * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
  */
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition/*, zones_list_t list*/);
 
 /*
  * Comme try_going mais avec le support du multipoint

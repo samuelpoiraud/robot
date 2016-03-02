@@ -11,7 +11,6 @@
  */
 
 #include "act_functions.h"
-#include "act_can.h"
 
 #define LOG_PREFIX "act_f: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION

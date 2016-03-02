@@ -1,5 +1,5 @@
 #include "act_avoidance.h"
-#include "avoidance.h"
+
 
 #define LOG_PREFIX "act_avoid: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION

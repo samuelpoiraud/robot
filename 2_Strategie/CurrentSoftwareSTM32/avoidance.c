@@ -19,6 +19,7 @@
 #include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
 
+
 #define LOG_PREFIX "avoid: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_AVOIDANCE
 #include "QS/QS_outputlog.h"
@@ -40,7 +41,7 @@ static bool_e prop_detected_foe = FALSE;
 //------------------------------------------------------------------- Machines à états de déplacements
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Ne s'arrète qu'à la fin que si aucun autre déplacement n'est demandé.
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition/*, zones_list_t list*/)
 {
 	error_e sub_action;
 	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);

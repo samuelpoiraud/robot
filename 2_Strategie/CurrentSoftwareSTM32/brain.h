@@ -14,6 +14,8 @@
 #ifndef BRAIN_H
 	#define BRAIN_H
 
+	#include "QS/QS_all.h"
+
 	/* Les procedures d'ia possibles : */
 	typedef void(*ia_fun_t)(void);
 

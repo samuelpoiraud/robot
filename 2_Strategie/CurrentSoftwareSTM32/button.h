@@ -15,6 +15,8 @@
 
 #ifndef BUTTON_H
 	#define BUTTON_H
+	#include "QS/QS_all.h"
+	#include "prop_functions.h"
 	#include "QS/QS_timer.h"
 	#include "QS/QS_buttons.h"
 	#include "QS/QS_adc.h"
