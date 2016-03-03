@@ -38,7 +38,7 @@ typedef struct{
 	bool_e enable;
 }square;
 
-square zone[10]={{750,1350,1500,2100,FALSE},{750,1350,900,1500,FALSE},{0,750,900,2100,FALSE}};
+square zone[10]={{750,1350,1500,2190,FALSE},{750,1350,810,1500,FALSE},{0,750,900,2100,FALSE}};
 
 /*zone[0]={750,1350,1500,2100,FALSE};
   zone[1]={750,1350,900,1500,FALSE};

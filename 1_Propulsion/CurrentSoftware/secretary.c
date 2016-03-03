@@ -481,6 +481,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		case PROP_TRANSPARENCY:
 			DETECTON_set_zone_transparency(msg->data.prop_transparency.number, msg->data.prop_transparency.enable);
 			break;
+
+		case PROP_SCAN_DUNE:
+			SCAN_PROCESS(msg);
+			break;
+
 		default :
 		break;
 	}
