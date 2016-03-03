@@ -43,6 +43,7 @@ typedef enum{
 	IT_STATE_MAIN,
 	IT_STATE_HOKUYO,
 	IT_STATE_DETECTION,
+	IT_STATE_SCAN,
 	IT_STATE_CHOC_DETECTION,
 	IT_STATE_DEBUG,
 	IT_STATE_LCD
@@ -146,8 +147,11 @@ void _ISR _T2Interrupt()
 	#endif
 	IT_test_state(begin_it_time, IT_STATE_HOKUYO, &first_overtime);
 
-	DETECTION_process_it();
+	SCAN_process_it();
 	IT_test_state(begin_it_time, IT_STATE_DETECTION, &first_overtime);
+
+	SCAN_process_it();
+	IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
 
 	#ifdef DETECTION_CHOC
 		DETECTION_CHOC_process_it_tim2();

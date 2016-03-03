@@ -479,6 +479,17 @@
 				bool_e present				:1;
 			}strat_inform_capteur;
 
+		#define STRAT_BACK_SCAN				0x219
+		#define SIZE_STRAT_BACK_SCAN		1
+			struct{
+				bool_e second_part			:1;
+				bool_e total_dune			:1;
+				bool_e wtf					:1;
+				bool_e nothing				:1;
+			}strat_back_scan;
+
+
+
 		#define PROP_GO_POSITION			0x155
 		#define SIZE_PROP_GO_POSITION		7
 			struct{
@@ -617,6 +628,8 @@
 				Uint8 number				:8;
 				bool_e enable				:1;
 			}prop_transparency;
+
+		#define PROP_SCAN_DUNE				0x119
 
 
 	/**********************************************************************************************************************

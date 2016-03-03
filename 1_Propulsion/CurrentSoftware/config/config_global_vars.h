@@ -21,6 +21,10 @@
 		volatile bool_e match_started;
 		volatile bool_e match_over;
 
+		volatile bool_e scan_dune;
+
+		volatile bool_e treatment_scan;
+
 		volatile bool_e alim;
 	}flag_list_t;
 
