@@ -207,6 +207,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_POMPE_FRONT_LEFT :						print(string, len, "%x ACT_POMPE_FRONT_LEFT                   ", ACT_POMPE_FRONT_LEFT							);	break;
 		case ACT_POMPE_FRONT_RIGHT:						print(string, len, "%x ACT_POMPE_FRONT_RIGHT                  ", ACT_POMPE_FRONT_RIGHT							);	break;
 		case ACT_PEARL_SAND_CIRCLE:						print(string, len, "%x ACT_PEARL_SAND_CIRCLE                  ", ACT_PEARL_SAND_CIRCLE							);	break;
+		case ACT_PARASOL:								print(string, len, "%x ACT_PARASOL			                  ", ACT_PARASOL									);	break;
 
 // Mosfets
 		case ACT_MOSFET_0:
@@ -290,6 +291,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_POMPE_FRONT_LEFT:				print(string,len, "ACT_POMPE_FRONT_LEFT ");			break;
 				case (Uint8)ACT_POMPE_FRONT_RIGHT:				print(string,len, "ACT_POMPE_FRONT_RIGHT ");		break;
 				case (Uint8)ACT_PEARL_SAND_CIRCLE:				print(string,len, "ACT_PEARL_SAND_CIRCLE ");		break;
+				case (Uint8)ACT_PARASOL:						print(string,len, "ACT_PARASOL ");					break;
 
 				//Mosfet
 				case (Uint8)ACT_MOSFET_0:
@@ -493,6 +495,15 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_PEARL_SAND_CIRCLE_LOCK:		print(string,len, "| LOCK |");			break;
 						  case (Uint8)ACT_PEARL_SAND_CIRCLE_UNLOCK:		print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_PEARL_SAND_CIRCLE_STOP:		print(string,len, "| STOP |");			break;
+						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
+					  }
+				  break;
+				  case (Uint8)ACT_PARASOL:
+					  switch(msg->data.act_result.cmd){
+						  case (Uint8)ACT_PARASOL_IDLE:		print(string,len, "| IDLE |");			break;
+						  case (Uint8)ACT_PARASOL_OPEN:		print(string,len, "| OPEN |");			break;
+						  case (Uint8)ACT_PARASOL_CLOSE:		print(string,len, "| CLOSE |");		break;
+						  case (Uint8)ACT_PARASOL_STOP:		print(string,len, "| STOP |");			break;
 						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;

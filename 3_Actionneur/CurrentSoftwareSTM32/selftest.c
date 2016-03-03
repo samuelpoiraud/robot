@@ -593,6 +593,9 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 					case ACT_PEARL_SAND_CIRCLE:
 						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_CIRCLE;
 						break;
+					case ACT_PARASOL:
+						failed_act_tests[i] = SELFTEST_ACT_AX12_PARASOL;
+						break;
 					case ACT_POMPE_FRONT_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_POMPE_FRONT_LEFT;
 						break;

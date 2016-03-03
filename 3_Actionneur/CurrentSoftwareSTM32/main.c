@@ -439,7 +439,21 @@ static void MAIN_onButton0(){
 	CAN_process_msg(&msg);
 	state = (state == 1)? 0 : state + 1;
 }
-static void MAIN_onButton0LongPush(){}
+static void MAIN_onButton0LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_PARASOL;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_PARASOL_OPEN;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_PARASOL_CLOSE;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
 
 static void MAIN_onButton1(){
 	static Uint8 state = 0;

@@ -897,6 +897,7 @@
 		ACT_POMPE_FRONT_LEFT  		= (ACT_FILTER | 0x32),
 		ACT_POMPE_FRONT_RIGHT  		= (ACT_FILTER | 0x33),
 		ACT_PEARL_SAND_CIRCLE	    = (ACT_FILTER | 0x34),
+		ACT_PARASOL					= (ACT_FILTER | 0x35),
 
 		//////////////////////////////////////////////////////////////////
 		//-----------------------------BOTH-----------------------------//
