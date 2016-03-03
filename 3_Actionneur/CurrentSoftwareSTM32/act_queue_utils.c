@@ -320,7 +320,6 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		   case ACT_POMPE_FRONT_LEFT & 0xFF:        originalSidStr = "PompeFrontLeft";      break;
 		   case ACT_POMPE_FRONT_RIGHT & 0xFF:       originalSidStr = "PompeFrontRight";     break;
 		   case ACT_PEARL_SAND_CIRCLE & 0xFF:	    originalSidStr = "SandCircle";			break;
-		   case ACT_PARASOL & 0xFF:					originalSidStr = "Parasol";				break;
 
 		default:								    originalSidStr = "Unknown";				break;
 	}

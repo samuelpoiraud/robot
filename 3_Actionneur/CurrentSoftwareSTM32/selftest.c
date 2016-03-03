@@ -377,7 +377,8 @@ void SELFTEST_state_machine(void){
 				if(entrance){
 					SELFTEST_set_actions(&LEFT_ARM_run_command,  3, (SELFTEST_action_t[]){
 													 {ACT_LEFT_ARM_IDLE,		0,  QUEUE_ACT_AX12_LEFT_ARM},
-													 {ACT_LEFT_ARM_OPEN,        0,  QUEUE_ACT_AX12_LEFT_ARM},
+													 {ACT_LEFT_ARM_UNLOCK,        0,  QUEUE_ACT_AX12_LEFT_ARM},
+													 {ACT_LEFT_ARM_LOCK,        0,  QUEUE_ACT_AX12_LEFT_ARM},
 													 {ACT_LEFT_ARM_IDLE,		0,  QUEUE_ACT_AX12_LEFT_ARM}
 												 });
 				}
@@ -392,9 +393,10 @@ void SELFTEST_state_machine(void){
 
 			case QUEUE_ACT_AX12_RIGHT_ARM:
 				if(entrance){
-					SELFTEST_set_actions(&RIGHT_ARM_run_command, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&RIGHT_ARM_run_command, 4, (SELFTEST_action_t[]){
 													 {ACT_RIGHT_ARM_IDLE,		0,  QUEUE_ACT_AX12_RIGHT_ARM},
-													 {ACT_RIGHT_ARM_OPEN,       0,  QUEUE_ACT_AX12_RIGHT_ARM},
+													 {ACT_RIGHT_ARM_UNLOCK,       0,  QUEUE_ACT_AX12_RIGHT_ARM},
+													 {ACT_RIGHT_ARM_LOCK,       0,  QUEUE_ACT_AX12_RIGHT_ARM},
 													 {ACT_RIGHT_ARM_IDLE,		0,  QUEUE_ACT_AX12_RIGHT_ARM}
 												 });
 				}
@@ -592,9 +594,6 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						break;
 					case ACT_PEARL_SAND_CIRCLE:
 						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_CIRCLE;
-						break;
-					case ACT_PARASOL:
-						failed_act_tests[i] = SELFTEST_ACT_AX12_PARASOL;
 						break;
 					case ACT_POMPE_FRONT_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_POMPE_FRONT_LEFT;
