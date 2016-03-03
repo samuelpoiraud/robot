@@ -138,12 +138,21 @@ void MOSFET_init_pos(){
 #ifdef I_AM_CARTE_ACT
 //Fonction de gestions des messages CAN pour les mosfets situés sur une carte Mosfet commandée par l'actionneur
 bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
+	CAN_msg_t msg_result;
+	msg_result.sid = ACT_RESULT;
+	msg_result.size = SIZE_ACT_RESULT;
+	msg_result.data.act_result.sid = msg->sid;
+	msg_result.data.act_result.cmd = msg->data.act_msg.order;
+	msg_result.data.act_result.result = ACT_RESULT_DONE;
+	msg_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;
+
 	if(msg->sid == ACT_MOSFET_0 && NB_MOSFETS>=1) {
 		switch(msg->data.act_msg.order) {
 			case ACT_MOSFET_NORMAL:
 			case ACT_MOSFET_STOP:
 				debug_printf("ACT_MOSFET_0_do_order\n");
 				MOSFET_0_do_order(msg->data.act_msg.order);
+				CAN_send(&msg_result);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -155,6 +164,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("ACT_MOSFET_1_do_order\n");
 				MOSFET_1_do_order(msg->data.act_msg.order);
+				CAN_send(&msg_result);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -167,6 +177,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("ACT_MOSFET_2_do_order\n");
 				MOSFET_2_do_order(msg->data.act_msg.order);
+				CAN_send(&msg_result);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -179,6 +190,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("ACT_MOSFET_3_do_order\n");
 				MOSFET_3_do_order(msg->data.act_msg.order);
+				CAN_send(&msg_result);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -191,6 +203,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("ACT_MOSFET_4_do_order\n");
 				MOSFET_4_do_order(msg->data.act_msg.order);
+				CAN_send(&msg_result);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -203,6 +216,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("ACT_MOSFET_5_do_order\n");
 				MOSFET_5_do_order(msg->data.act_msg.order);
+				CAN_send(&msg_result);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -215,6 +229,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("ACT_MOSFET_6_do_order\n");
 				MOSFET_6_do_order(msg->data.act_msg.order);
+				CAN_send(&msg_result);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -227,6 +242,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("ACT_MOSFET_7_do_order\n");
 				MOSFET_7_do_order(msg->data.act_msg.order);
+				CAN_send(&msg_result);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -248,6 +264,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("STRAT_MOSFET_0_do_order\n");
 				MOSFET_0_do_order(msg->data.act_msg.order);
+				ACT_set_result(ACT_QUEUE_Mosfet_strat_0, ACT_RESULT_Ok);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -259,6 +276,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("STRAT_MOSFET_1_do_order\n");
 				MOSFET_1_do_order(msg->data.act_msg.order);
+				ACT_set_result(ACT_QUEUE_Mosfet_strat_1, ACT_RESULT_Ok);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -271,6 +289,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("STRAT_MOSFET_2_do_order\n");
 				MOSFET_2_do_order(msg->data.act_msg.order);
+				ACT_set_result(ACT_QUEUE_Mosfet_strat_2, ACT_RESULT_Ok);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -283,6 +302,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("STRAT_MOSFET_3_do_order\n");
 				MOSFET_3_do_order(msg->data.act_msg.order);
+				ACT_set_result(ACT_QUEUE_Mosfet_strat_3, ACT_RESULT_Ok);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -295,6 +315,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("STRAT_MOSFET_4_do_order\n");
 				MOSFET_4_do_order(msg->data.act_msg.order);
+				ACT_set_result(ACT_QUEUE_Mosfet_strat_4, ACT_RESULT_Ok);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -307,6 +328,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("STRAT_MOSFET_5_do_order\n");
 				MOSFET_5_do_order(msg->data.act_msg.order);
+				ACT_set_result(ACT_QUEUE_Mosfet_strat_5, ACT_RESULT_Ok);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -319,6 +341,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("STRAT_MOSFET_6_do_order\n");
 				MOSFET_6_do_order(msg->data.act_msg.order);
+				ACT_set_result(ACT_QUEUE_Mosfet_strat_6, ACT_RESULT_Ok);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -331,6 +354,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MOSFET_STOP:
 				debug_printf("STRAT_MOSFET_7_do_order\n");
 				MOSFET_7_do_order(msg->data.act_msg.order);
+				ACT_set_result(ACT_QUEUE_Mosfet_strat_7, ACT_RESULT_Ok);
 				break;
 			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
 		}
@@ -619,8 +643,10 @@ void MOSFET_state_machine(CAN_msg_t* msg){
 			break;
 
 		case NB_QUEUE:
-			if(entrance)
+			if(entrance){
 				debug_printf("Mosfet_state_machine finish\n");
+				ACT_set_result(ACT_QUEUE_Mosfet_act_all, ACT_RESULT_Ok);
+			}
 			break;
 
 		default:

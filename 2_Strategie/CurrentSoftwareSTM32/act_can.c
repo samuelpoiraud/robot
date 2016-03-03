@@ -402,6 +402,6 @@ void ACT_process_result(const CAN_msg_t* msg) {
 }
 
 
-void ACT_set_result(Uint8 act_id, act_result_e result){
+void ACT_set_result(queue_id_e act_id, act_result_e result){
 	act_states[act_id].operationResult = result;
 }
