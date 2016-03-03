@@ -29,6 +29,7 @@ void ACT_AVOIDANCE_init(){
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
 		//---------------------------------------------------------------------------------------------------------------------left-----right----front---back
 //EXEMPLE:init_new_offset(ACT_AVOID_POP_COLLECT_LEFT,ACT_AVOID_POP_COLLECT_LEFT_Open,ACT_POP_COLLECT_LEFT_OPEN,			60,		0,		0,		60);
+
 		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Open,	ACT_FISH_UNSTICK_ARM_OPEN,			0,		210,	0,		0);
 		//init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Mid,		ACT_FISH_UNSTICK_ARM_MIDDLE,		0,		150,	0,		0);
 		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Close,	ACT_FISH_UNSTICK_ARM_CLOSE,			0,		100,	0,		0);

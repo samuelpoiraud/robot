@@ -628,6 +628,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_AX12_LEFT_ARM:				debug_printf("SELFTEST_ACT_AX12_LEFT_ARM");
 				case SELFTEST_ACT_AX12_RIGHT_ARM:				debug_printf("SELFTEST_ACT_AX12_RIGHT_ARM");
 				case SELFTEST_ACT_AX12_SAND_CIRCLE:				debug_printf("SELFTEST_ACT_AX12_SAND_CIRCLE");
+				case SELFTEST_ACT_AX12_PARASOL:					debug_printf("SELFTEST_ACT_AX12_PARASOL");
 				case SELFTEST_ACT_POMPE_FRONT_LEFT:				debug_printf("SELFTEST_ACT_POMPE_FRONT_LEFT");
 				case SELFTEST_ACT_POMPE_FRONT_RIGHT:			debug_printf("SELFTEST_ACT_POMPE_FRONT_RIGHT");
 
@@ -908,7 +909,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_IHM_UNREACHABLE:					return "IHM Unreachable";		break;
 
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
-		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unkown ACT";		break;
+		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unknown ACT";		break;
 
 
 		case SELFTEST_ERROR_NB:							return NULL;					break;

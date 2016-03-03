@@ -60,6 +60,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_POMPE_FRONT_LEFT,			ACT_QUEUE_Pompe_front_left,				"Pompe Front Left"},
 	{ACT_POMPE_FRONT_RIGHT,			ACT_QUEUE_Pompe_front_right,			"Pompe Front Right"},
 	{ACT_PEARL_SAND_CIRCLE,			ACT_QUEUE_Pearl_sand_circle,			"Sand Circle"},
+	{ACT_PARASOL,					ACT_QUEUE_Parasol,						"Parasol"},
 
 	// Mosfets actionneurs
 	{ACT_MOSFET_0,					ACT_QUEUE_Mosfet_act_0,				     "Mosfet_act_0"},
