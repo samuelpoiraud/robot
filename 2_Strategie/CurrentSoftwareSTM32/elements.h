@@ -131,6 +131,9 @@
 		VENTOUSE_ARRIERE_GAUCHE_PEARL,
 		VENTOUSE_ARRIERE_DROITE_PEARL,
 		FRONT_PEARL_USED,               //Flag pour savoir si il y a quelque chose à l'avant de Pearl
+		ARM_RIGHT_LOCK,
+		ARM_LEFT_LOCK,
+
 
 		ELEMENTS_FLAGS_NB
 	}elements_flags_e;

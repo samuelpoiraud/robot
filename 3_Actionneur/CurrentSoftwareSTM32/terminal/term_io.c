@@ -28,7 +28,6 @@
 	#include "../Pearl/Sand/left_arm_config.h"
 	#include "../Pearl/Sand/right_arm_config.h"
 	#include "../Pearl/Sand/pearl_sand_circle_config.h"
-	#include "../Pearl/Parasol/parasol_config.h"
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);
@@ -85,8 +84,7 @@ terminal_motor_s terminal_motor[] = {
 	#else
 		DECLARE_AX12(2, 'A', LEFT_ARM_AX12),
 		DECLARE_AX12(2, 'B', RIGHT_ARM_AX12),
-		DECLARE_AX12(2, 'C', PEARL_SAND_CIRCLE_AX12),
-		DECLARE_AX12(2, 'D', PARASOL_AX12)
+		DECLARE_AX12(2, 'C', PEARL_SAND_CIRCLE_AX12)
 	#endif
 };
 

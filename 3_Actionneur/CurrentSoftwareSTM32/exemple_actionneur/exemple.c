@@ -26,15 +26,15 @@
 
 // Optionnel:
 // Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
-// Ajout du selftest dans le fichier QS_types.h (dans l'énumération SELFTEST)
+// Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFTEST)
 
 // En stratégie
-// ajout d'une d'une valeur dans le tableau act_link_SID_Queue du fichier act_functions.c
+// ajout d'une d'une valeur dans le tableau act_link_SID_Queue du fichier act_functions.c/h
 // ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
 
 // En stratégie Optionnel
-// ajout du verbose du selftest dans Supervision/Selftest.c (fonction SELFTEST_print_errors)
-// ajout de la verbosité dans QS/QS_can_verbose.c/h (fonction VERBOSE_CAN_MSG_sprint)
+// ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
+// ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
 
 #if 0
 

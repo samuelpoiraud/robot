@@ -94,11 +94,13 @@ typedef enum {
 } ACT_AVOID_PEARL_SAND_CIRCLE_CMD;
 
 typedef enum {
-	ACT_AVOID_LEFT_ARM_Open
+	ACT_AVOID_LEFT_ARM_Unlock,
+	ACT_AVOID_LEFT_ARM_Lock
 } ACT_AVOID_LEFT_ARM_CMD;
 
 typedef enum {
-	ACT_AVOID_RIGHT_ARM_Open
+	ACT_AVOID_RIGHT_ARM_Unlock,
+	ACT_AVOID_RIGHT_ARM_Lock
 } ACT_AVOID_RIGHT_ARM_CMD;
 
 typedef enum {

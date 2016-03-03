@@ -115,8 +115,8 @@ bool_e RIGHT_ARM_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_RIGHT_ARM_IDLE :
-			case ACT_RIGHT_ARM_OPEN :
-			case ACT_RIGHT_ARM_CLOSE :
+			case ACT_RIGHT_ARM_UNLOCK :
+			case ACT_RIGHT_ARM_LOCK :
 			case ACT_RIGHT_ARM_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_RIGHT_ARM, &RIGHT_ARM_run_command, 0,TRUE);
 				break;
@@ -167,15 +167,15 @@ static void RIGHT_ARM_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_RIGHT_ARM_IDLE : *ax12_goalPosition = RIGHT_ARM_AX12_IDLE_POS; break;
-		case ACT_RIGHT_ARM_CLOSE : *ax12_goalPosition = RIGHT_ARM_AX12_CLOSE_POS; break;
-		case ACT_RIGHT_ARM_OPEN : *ax12_goalPosition = RIGHT_ARM_AX12_OPEN_POS; break;
+		case ACT_RIGHT_ARM_LOCK : *ax12_goalPosition = RIGHT_ARM_AX12_LOCK_POS; break;
+		case ACT_RIGHT_ARM_UNLOCK : *ax12_goalPosition = RIGHT_ARM_AX12_UNLOCK_POS; break;
 
 		case ACT_RIGHT_ARM_STOP :
 			AX12_set_torque_enabled(RIGHT_ARM_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
 			QUEUE_next(queueId, ACT_RIGHT_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			return;
 
-		default: {
+		default:{
 			error_printf("Invalid RIGHT_ARM command: %u, code is broken !\n", command);
 			QUEUE_next(queueId, ACT_RIGHT_ARM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 			return;
