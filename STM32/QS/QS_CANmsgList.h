@@ -486,6 +486,7 @@
 				bool_e total_dune			:1;
 				bool_e wtf					:1;
 				bool_e nothing				:1;
+				Uint16 middle				:16;
 			}strat_back_scan;
 
 

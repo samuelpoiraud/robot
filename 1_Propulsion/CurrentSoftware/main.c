@@ -33,6 +33,7 @@
 #include "it.h"
 #include "roadmap.h"
 #include "secretary.h"
+#include "scan_laser.h"
 #include "sequences.h"
 #include "debug.h"
 #include "joystick.h"
