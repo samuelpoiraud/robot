@@ -11,6 +11,8 @@
 #ifndef SCAN_LASER_H
 #define SCAN_LASER_H
 
+void SCAN_process_it();
+void SCAN_PROCESS(CAN_msg_t *msg);
 
 
 #endif // SCAN_LASER_H

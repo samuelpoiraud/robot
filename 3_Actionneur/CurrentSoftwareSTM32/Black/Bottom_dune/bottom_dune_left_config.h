@@ -20,9 +20,9 @@
 	#define BOTTOM_DUNE_LEFT_RX24_MAX_TEMPERATURE			    65		// Température maximale en degré
 
 //Position
-	#define BOTTOM_DUNE_LEFT_RX24_IDLE_POS					300
-	#define BOTTOM_DUNE_LEFT_RX24_LOCK_POS			     	512	//en degré
-	#define BOTTOM_DUNE_LEFT_RX24_UNLOCK_POS				700	//en degré
+	#define BOTTOM_DUNE_LEFT_RX24_IDLE_POS					724
+	#define BOTTOM_DUNE_LEFT_RX24_LOCK_POS			     	300	//en degré
+	#define BOTTOM_DUNE_LEFT_RX24_UNLOCK_POS				724	//en degré
 
 //Position initiale de l'RX24
 	#define BOTTOM_DUNE_LEFT_RX24_INIT_POS					BOTTOM_DUNE_LEFT_RX24_IDLE_POS

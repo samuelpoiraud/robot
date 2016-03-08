@@ -23,6 +23,7 @@
 #include "joystick.h"
 #include "secretary.h"
 #include "debug.h"
+#include "scan_laser.h"
 #include "hokuyo.h"
 #include "main.h"
 #include "detection.h"

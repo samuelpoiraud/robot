@@ -74,16 +74,23 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 				}
 				shift=sum/compteur;
 				compteur=0;
+				sum=0;
 				for(i=14;i<67;i++){
 					if(((tab_scan[i]-shift)<78)&&((tab_scan[i]-shift)>38)){
 						compteur++;
+						sum+=i;
 					}
 				}
+				Uint16 middle=(sum*10+1100)/compteur;
 				if(compteur>45){
 					CAN_msg_t msg;
 					msg.sid = STRAT_BACK_SCAN;
 					msg.size = SIZE_STRAT_BACK_SCAN;
 					msg.data.strat_back_scan.second_part = TRUE;
+					msg.data.strat_back_scan.nothing = FALSE;
+					msg.data.strat_back_scan.total_dune = FALSE;
+					msg.data.strat_back_scan.wtf = FALSE;
+					msg.data.strat_back_scan.middle=middle;
 					CAN_send(&msg);
 					debug_printf("Il a laissé la deuxième partie de la dune");
 				}else{
@@ -107,6 +114,10 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 						msg.sid = STRAT_BACK_SCAN;
 						msg.size = SIZE_STRAT_BACK_SCAN;
 						msg.data.strat_back_scan.total_dune = TRUE;
+						msg.data.strat_back_scan.second_part = FALSE;
+						msg.data.strat_back_scan.nothing = FALSE;
+						msg.data.strat_back_scan.wtf = FALSE;
+
 						CAN_send(&msg);
 						debug_printf("Il a tout laissé on s'éclate c'est la fête");
 					}else{
@@ -119,6 +130,9 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 							msg.sid = STRAT_BACK_SCAN;
 							msg.size = SIZE_STRAT_BACK_SCAN;
 							msg.data.strat_back_scan.wtf = TRUE;
+							msg.data.strat_back_scan.total_dune = FALSE;
+							msg.data.strat_back_scan.second_part = FALSE;
+							msg.data.strat_back_scan.nothing = FALSE;
 							CAN_send(&msg);
 							debug_printf("Il reste de la merde à prendre");
 						}else{
@@ -126,6 +140,9 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 							msg.sid = STRAT_BACK_SCAN;
 							msg.size = SIZE_STRAT_BACK_SCAN;
 							msg.data.strat_back_scan.nothing = TRUE;
+							msg.data.strat_back_scan.second_part = FALSE;
+							msg.data.strat_back_scan.total_dune = FALSE;
+							msg.data.strat_back_scan.wtf = FALSE;
 							CAN_send(&msg);
 							debug_printf("Il reste plus rien il nous reste plus qu'à dégager");
 						}
