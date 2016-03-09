@@ -22,6 +22,12 @@ static Sint16 next_position=1100;
 static Sint16 tab_scan[80]={};
 
 
+// il faut encore gérer le décalage en y entre le centre de gravité et le laser
+
+// et améliorer grandement le remplissage du tableau
+
+// mais je sais pas comment m'y prendre (j'ai pas encore trop réfléchi au sujet)
+
 void SCAN_process_it(){
 	if(global.flags.scan_dune&&global.position.x>next_position){
 		if(global.position.teta<PI4096&&global.position.teta>0)

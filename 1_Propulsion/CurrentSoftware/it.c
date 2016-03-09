@@ -148,8 +148,6 @@ void _ISR _T2Interrupt()
 	#endif
 	IT_test_state(begin_it_time, IT_STATE_HOKUYO, &first_overtime);
 
-	SCAN_process_it();
-	IT_test_state(begin_it_time, IT_STATE_DETECTION, &first_overtime);
 
 	SCAN_process_it();
 	IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
