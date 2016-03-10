@@ -60,6 +60,7 @@ typedef enum {
 	SM_ID_SUB_BLACK_DEPOSE_ALL_SAND_BLOC		    = 0x0137,
 	SM_ID_SUB_PEARL_END_OF_MATCH                    = 0x0138,
 	SM_ID_SUB_PEARL_DEPOSE_ALL_SAND_BLOC			= 0x0139,
+	SM_ID_STRAT_PEARL_TESTS                         = 0x013A,
 
 
 	//0x200 SUBACTIONS
