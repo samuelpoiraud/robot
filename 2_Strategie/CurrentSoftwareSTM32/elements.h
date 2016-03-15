@@ -72,8 +72,12 @@
 		ADV_BLOC_PRESENT,			//on a vu (au scan) le bloc de 8 adv
 		ADV_BLOC_ABSENT,			//on a PAS vu (au scan) le bloc de 8 adv
 		APOCALYPSE_SCAN,			//on a scanné l'apocalypse (on est passé voir si il y a quelque chose
-		APOCALYPSE_PRESENT,			//on a trouvé l'apocalypse
+		//APOCALYPSE_PRESENT,			//on a trouvé l'apocalypse
 		APOCALYPSE_TAKEN,			//on a pris l'apocalypse
+		APOCALYPSE_SECOND_PART,
+		APOCALYPSE_WTF,
+		APOCALYPSE_TOTAL_DUNE,
+		APOCALYPSE_ABSENT,
 
 		//Flags de dépose des blocs de sables
 		DEPOSE_BLOC_ERROR,			//on est dans le cas d'erreur de la depose (si on a pas pu pousser le bloc precedent)

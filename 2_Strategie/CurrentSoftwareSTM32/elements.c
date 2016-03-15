@@ -17,6 +17,7 @@ volatile COQUILLAGES_config_e coquillages_config = NO_COQUILLAGES_CONFIG;
 #define FISHS_PASSAGES 2
 static Uint8 fishs_passage = 0;
 static Uint8 seashell_depose = 0;
+static Uint16 middle_apocalypse=0;
 
 void ELEMENTS_init(){
 	Uint8 i;
@@ -433,6 +434,13 @@ bool_e ELEMENTS_fishs_passage_completed(){
 	return (fishs_passage >= FISHS_PASSAGES);
 }
 
+Uint16 ELEMENTS_get_middle_apocalypse(){
+	return middle_apocalypse;
+}
+
+void ELEMENTS_set_middle_apocalypse(Uint16 middle){
+	middle_apocalypse=middle;
+}
 
 #define	TIMEOUT_ANSWER	200
 
