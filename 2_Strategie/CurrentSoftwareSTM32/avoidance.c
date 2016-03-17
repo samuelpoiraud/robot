@@ -394,7 +394,12 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 		case LOAD_MOVE:
 			timeout = FALSE;
 			clear_prop_detected_foe();
-			global.destination = displacements[nb_displacements-1].point;
+
+			if(displacements)
+				global.destination = displacements[nb_displacements-1].point;
+			else
+				global.destination = displacements_curve[nb_displacements-1].point;
+
 			for(i=nb_displacements-1;i>=1;i--)
 			{
 				if(displacements)
@@ -556,7 +561,12 @@ error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacemen
 		case INIT:
 			timeout = FALSE;
 			clear_prop_detected_foe();
-			global.destination = displacements[nb_displacements-1].point;
+
+			if(displacements)
+				global.destination = displacements[nb_displacements-1].point;
+			else
+				global.destination = displacements_curve[nb_displacements-1].point;
+
 			i = -1;
 			state = NEXT_MOVE;
 			break;
@@ -715,7 +725,9 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 		||	is_in_square(750-(widthRobot), 1350+(widthRobot), 1460-(widthRobot), 1530+(widthRobot),*p)  // Tasseau verticale de la zone centrale
 		||	is_in_square(750-(widthRobot), 780+(widthRobot), 900-(widthRobot), 2100+(widthRobot),*p)	// Tasseau horizontale de la zone centrale
 		||	is_in_square(1950-(widthRobot), 2000, 910-(widthRobot), 960+(widthRobot),*p)                // Attache filet côté vert
-		||	is_in_square(1950-(widthRobot), 2000, 2040-(widthRobot), 2090+(widthRobot),*p)                // Attache filet côté violet
+		||	is_in_square(1950-(widthRobot), 2000, 2040-(widthRobot), 2090+(widthRobot),*p)              // Attache filet côté violet
+		||	is_in_square(600-(widthRobot), 1100+(widthRobot), COLOR_Y(2700-(widthRobot)), COLOR_Y(3000),*p) // Zone de départ adverse
+
 	  )
 		return FALSE;
 
