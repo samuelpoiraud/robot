@@ -169,5 +169,7 @@ void ELEMENTS_send_config_coquillages(CAN_msg_t *msg);
 void ELEMENTS_receive_flags(CAN_msg_t* msg);
 #endif
 
+void ELEMENTS_set_middle_apocalypse(Uint16 middle);
+Uint16 ELEMENTS_get_middle_apocalypse();
 
 #endif // ELEMENTS_H

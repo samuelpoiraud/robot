@@ -539,9 +539,9 @@ void SECRETARY_send_selftest_result(bool_e result)
 		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_FAILED;
 	if(HOKUYO_is_working_well() == FALSE)
 		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_HOKUYO_FAILED;
-	if(ADC_getValue(ADC_SENSOR_XUK_LEFT) < 15)
+	if(ADC_getValue(ADC_SENSOR_LASER_LEFT) < 15)
 		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_LASER_SENSOR_LEFT;
-	if(ADC_getValue(ADC_SENSOR_XUK_RIGHT) < 15)
+	if(ADC_getValue(ADC_SENSOR_LASER_RIGHT) < 15)
 		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_LASER_SENSOR_RIGHT;
 
 	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT	//L'odométrie est faite sur un robot virtuel parfait.

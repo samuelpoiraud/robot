@@ -480,7 +480,7 @@
 			}strat_inform_capteur;
 
 		#define STRAT_BACK_SCAN				0x219
-		#define SIZE_STRAT_BACK_SCAN		1
+		#define SIZE_STRAT_BACK_SCAN		3
 			struct{
 				bool_e second_part			:1;
 				bool_e total_dune			:1;

@@ -282,7 +282,7 @@ bool_e COQUILLAGES_is_config(COQUILLAGES_config_e user_config){
 
 void ELEMENTS_check_configuration_coquillages(bool_e update)
 {
-	CREATE_MAE_WITH_VERBOSE(SM_ID_ASK_CONFIG_COQUILLAGES,
+	CREATE_MAE(SM_ID_ASK_CONFIG_COQUILLAGES,
 				INIT,
 				SEND_REQUEST,
 				WAIT_FOR_ANSWER,
@@ -448,7 +448,7 @@ void ELEMENTS_set_middle_apocalypse(Uint16 middle){
 error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 {
 #ifdef USE_SYNC_ELEMENTS
-	CREATE_MAE_WITH_VERBOSE(SM_ID_CHECK_COMMUNICATION,
+	CREATE_MAE(SM_ID_CHECK_COMMUNICATION,
 				INIT,
 				SEND_REQUEST,
 				WAIT_FOR_ANSWER,
