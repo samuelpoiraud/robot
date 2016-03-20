@@ -32,7 +32,7 @@
 volatile order_t current_order;
 volatile order_t buffer_order;
 
-trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, Sint16 destination_y, Sint16 viewing_angle, way_e way);
+trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, Sint16 destination_y, Sint16 viewing_angle);
 typedef enum {
 	NOT_ARRIVED = 0,
 	ARRIVED
@@ -312,7 +312,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 			COPILOT_destination_angle(order->x, order->y, &angle_a_parcourir, &(order->teta), order->way, &(order->way));
 
 			//Quelle trajectoire dois-je commencer par faire ? ( = faut il s'arreter, tourner vers le point, où y aller directement...?)
-			switch(COPILOT_decision_rotation_before_translation(order->x, order->y, angle_a_parcourir, order->way))
+			switch(COPILOT_decision_rotation_before_translation(order->x, order->y, angle_a_parcourir))
 			{
 				case TRAJECTORY_ROTATION:
 					//On réécrit le reste de la trajectoire pour la suite...
@@ -320,6 +320,7 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 
 					//Les rotations préalables pourraient se faire en mode multipoints.
 					order->multipoint = PROP_NO_MULTIPOINT;
+					order->way = FORWARD;
 
 					//on ne prévient pas la carte P sur rotation préalable ajoutée par nos soins.
 					order->acknowledge = NO_ACKNOWLEDGE;
@@ -381,9 +382,10 @@ void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_withou
 					order->y = global.position.y;
 					if(absolute(global.vitesse_translation) > PRECISION_ARRIVE_SPEED_TRANSLATION)
 						order->trajectory = TRAJECTORY_STOP;		//Besoin de faire un arrêt préalable à la rotation préalable
-					else
+					else{
+						order->way = FORWARD;
 						order->trajectory = TRAJECTORY_ROTATION;	//Nous sommes bien arretés : nous pouvons faire une rotation préalable !
-
+					}
 				}
 				else
 				{
@@ -507,8 +509,7 @@ void COPILOT_update_destination_rotation(void)
 
 		//Si l'angle a parcourir est plus grand que PI/2... on aurait mieux fait de choisir la marche arrière !
 		//l'angle a parcourir sera recalculé ensuite...
-		if(absolute(CALCULATOR_modulo_angle(current_order.teta - global.position.teta)) > HALF_PI4096
-			 && current_order.way != FORWARD)
+		if(current_order.way != FORWARD)
 		{
 			current_order.teta += PI4096;
 		}
@@ -831,7 +832,7 @@ braking_e COPILOT_update_brake_state_translation(void)
 //Fonction appelée si la trajectoire demandée est une translation...
 //TRANSLATION suppose qu'on veuille rejoindre le point en LIGNE DROITE...
 //On s'engage donc à ne pas faire de 'courbe' trop marquée...
-trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, Sint16 destination_y, Sint16 angle_a_parcourir, way_e sens_marche)
+trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destination_x, Sint16 destination_y, Sint16 angle_a_parcourir)
 {
 	//Informations :
 				//on ne fait une rotation préalable qu'après ARRET du robot (vitesses nulles...)
@@ -915,6 +916,7 @@ void COPILOT_destination_angle(Sint16 x, Sint16 y, Sint16 * angle_a_parcourir, S
 			*angle_a_parcourir = CALCULATOR_modulo_angle(*angle_a_parcourir);
 		}
 	}
+	//debug_printf("Nouvelle angle calculé : %ld\n", *teta_destination);
 }
 
 order_t COPILOT_get_current_order(){
