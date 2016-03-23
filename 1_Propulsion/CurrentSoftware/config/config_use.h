@@ -18,8 +18,9 @@
 	//Pour l'utilisation de l'écran LCD tactile et de la propulsion virtuelle hors du robot, activez ceci :
 	//#define SIMULATION_VIRTUAL_PERFECT_ROBOT		//L'odométrie est faite sur un robot virtuel parfait.
 	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
-	//#define CAN_SEND_OVER_UART					//Envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
-	//#define XBEE_SIMULATION						//Envoi des messages XBEE venant de la simulation sur le CAN
+	//#define CAN_SEND_OVER_UART					    //envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
+	//#define XBEE_SIMULATION						    //Envoi des messages XBEE venant de la simulation sur le CAN
+
 
 /* MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
  *  1 - activez les 4 defines ci-dessus
@@ -57,7 +58,7 @@
 
 	#define VERBOSE_MODE				//Activation du verbose
 
-	//#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
+	#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
 
 	#define LIMITATION_PWM_BORDER_MODE
 
@@ -157,8 +158,8 @@
 /* Réglages ADC */
 	#define USE_AN11		// Télémètre laser gauche
 	#define USE_AN12		// Télémètre laser droite
-	#define ADC_SENSOR_XUK_LEFT			    ADC_11
-	#define ADC_SENSOR_XUK_RIGHT			ADC_12
+	#define ADC_SENSOR_LASER_LEFT			ADC_11
+	#define ADC_SENSOR_LASER_RIGHT			ADC_12
 
 
 #include "../_Propulsion_config.h"
