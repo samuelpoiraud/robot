@@ -220,6 +220,7 @@ void any_match(void)
 				QUEUE_reset_all();
 				BUZZER_play(500,NOTE_SOL,2);
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
+				ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
 			}
 			else
 			{

@@ -20,9 +20,9 @@
 	#define PEARL_SAND_CIRCLE_AX12_MAX_TEMPERATURE			    60		// Température maximale en degré
 
 //Position
-	#define PEARL_SAND_CIRCLE_AX12_IDLE_POS					    300
-	#define PEARL_SAND_CIRCLE_AX12_LOCK_POS				        512		//en degré
-	#define PEARL_SAND_CIRCLE_AX12_UNLOCK_POS				    700		//en degré
+	#define PEARL_SAND_CIRCLE_AX12_IDLE_POS					    932
+	#define PEARL_SAND_CIRCLE_AX12_LOCK_POS				        495		//en degré
+	#define PEARL_SAND_CIRCLE_AX12_UNLOCK_POS				    932		//en degré
 
 //Position initiale de l'AX12
 	#define PEARL_SAND_CIRCLE_AX12_INIT_POS					    PEARL_SAND_CIRCLE_AX12_IDLE_POS

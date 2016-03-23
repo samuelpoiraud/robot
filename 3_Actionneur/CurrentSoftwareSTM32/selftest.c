@@ -39,6 +39,7 @@
 	#include "Pearl/Pompes/pompe_front_left.h"
 	#include "Pearl/Pompes/pompe_front_right.h"
 	#include "Pearl/Sand/pearl_sand_circle.h"
+	#include "Pearl/Parasol/parasol.h"
 #endif
 
 #define LOG_PREFIX "Selftest: "
@@ -426,6 +427,22 @@ void SELFTEST_state_machine(void){
 				}
 				break;
 
+			case QUEUE_ACT_AX12_PARASOL:
+				if(entrance){
+					SELFTEST_set_actions(&PARASOL_run_command, 2, (SELFTEST_action_t[]){
+													 {ACT_PARASOL_IDLE,		0,  QUEUE_ACT_AX12_PARASOL},
+													 {ACT_PARASOL_OPEN,      0,  QUEUE_ACT_AX12_PARASOL}
+												 });
+				}
+				if(state_act_tests[ACT_PARASOL & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_PARASOL finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_PARASOL & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
+				}
+				break;
+
 			/*case QUEUE_ACT_POMPE_BACK_LEFT:
 				if(entrance){
 					SELFTEST_set_actions(&POMPE_BACK_LEFT_run_command, 2, (SELFTEST_action_t[]){
@@ -595,12 +612,16 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 					case ACT_PEARL_SAND_CIRCLE:
 						failed_act_tests[i] = SELFTEST_ACT_AX12_SAND_CIRCLE;
 						break;
+					case ACT_PARASOL:
+						failed_act_tests[i] = SELFTEST_ACT_AX12_PARASOL;
+						break;
 					case ACT_POMPE_FRONT_LEFT:
 						failed_act_tests[i] = SELFTEST_ACT_POMPE_FRONT_LEFT;
 						break;
 					case ACT_POMPE_FRONT_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_POMPE_FRONT_RIGHT;
 						break;
+
 
 					default:
 						warn_printf("L\'actionneur sid 0x%x n\'a pas d\'enum SELFTEST_ACT_xxx associé, utilisation de SELFTEST_ACT_UNKNOWN_ACT\n", act_sid);
