@@ -279,8 +279,8 @@
 /* ID des différents AX12 */
 	#define LEFT_ARM_AX12_ID                       5
 	#define RIGHT_ARM_AX12_ID					   6
-	#define PEARL_SAND_CIRCLE_AX12_ID			   2
-	#define	PEARL_PARASOL_ID					   8
+	#define PEARL_SAND_CIRCLE_AX12_ID			   13
+	#define	PARASOL_AX12_ID					       8
 
 	#define POMPE_FRONT_LEFT_PWM_NUM               1
 	#define POMPE_FRONT_RIGHT_PWM_NUM              2

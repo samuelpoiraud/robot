@@ -20,9 +20,9 @@
 	#define PARASOL_AX12_MAX_TEMPERATURE			60		// Température maximale en degré
 
 //Position
-	#define PARASOL_AX12_IDLE_POS					512
-	#define PARASOL_AX12_CLOSE_POS				    300		//en degré
-	#define PARASOL_AX12_OPEN_POS				    800		//en degré
+	#define PARASOL_AX12_IDLE_POS					195
+	#define PARASOL_AX12_CLOSE_POS				    195		//en degré
+	#define PARASOL_AX12_OPEN_POS				    970		//en degré
 
 //Position initiale de l'AX12
 	#define PARASOL_AX12_INIT_POS					PARASOL_AX12_IDLE_POS
