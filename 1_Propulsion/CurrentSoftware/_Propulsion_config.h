@@ -33,7 +33,7 @@
 	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0x31A
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0)
 
-	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x000113A0	//Guy : 89mm entre roue codeuse et centre
+	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x0001139A	//Guy : 89mm entre roue codeuse et centre
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000AD00  	//Holly : 278mm ENVIRON entre roues codeuses...
 																	// - 1% (estimation à l'arrache-mètre) -> B63D
 															//Pierre : 138mm entre roue codeuse et centre - théorique : B308
