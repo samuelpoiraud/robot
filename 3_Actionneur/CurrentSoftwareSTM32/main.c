@@ -428,23 +428,6 @@ static void MAIN_onButton0(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 1;
-	msg.sid = ACT_POMPE_BACK_RIGHT;
-
-	if(state == 0){
-		msg.data.act_msg.order = ACT_POMPE_NORMAL;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_POMPE_STOP;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
-}
-static void MAIN_onButton0LongPush(){}
-
-static void MAIN_onButton1(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
 	msg.sid = ACT_RIGHT_ARM;
 
 	if(state == 0){
@@ -459,9 +442,7 @@ static void MAIN_onButton1(){
 	state = (state == 2)? 0 : state + 1;
 }
 
-static void MAIN_onButton1LongPush(){}
-
-static void MAIN_onButton2(){
+static void MAIN_onButton0LongPush(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 2;
@@ -478,9 +459,27 @@ static void MAIN_onButton2(){
 
 	CAN_process_msg(&msg);
 	state = (state == 2)? 0 : state + 1;
- }
+}
 
-static void MAIN_onButton2LongPush(){
+static void MAIN_onButton1(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_POMPE_BACK_RIGHT;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton1LongPush(){}
+
+static void MAIN_onButton2(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	 msg.sid = ACT_PEARL_SAND_CIRCLE;
@@ -494,27 +493,11 @@ static void MAIN_onButton2LongPush(){
 
 	CAN_process_msg(&msg);
 	state = (state == 1)? 0 : state + 1;
-}
+ }
+
+static void MAIN_onButton2LongPush(){}
 
 static void MAIN_onButton3(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 1;
-	msg.sid = ACT_POMPE_BACK_LEFT;
-
-	if(state == 0){
-		msg.data.act_msg.order = ACT_POMPE_NORMAL;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_POMPE_STOP;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
-}
-
-static void MAIN_onButton3LongPush(){}
-
-static void MAIN_onButton4(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 1;
@@ -532,9 +515,7 @@ static void MAIN_onButton4(){
 	state = (state == 2)? 0 : state + 1;
 }
 
-static void MAIN_onButton4LongPush(){}
-
-static void MAIN_onButton5(){
+static void MAIN_onButton3LongPush(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 2;
@@ -551,6 +532,38 @@ static void MAIN_onButton5(){
 
 	CAN_process_msg(&msg);
 	state = (state == 2)? 0 : state + 1;
+}
+
+static void MAIN_onButton4(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_POMPE_BACK_LEFT;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton4LongPush(){}
+
+static void MAIN_onButton5(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	msg.sid = ACT_PARASOL;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_PARASOL_OPEN;
+	}
+
+	CAN_process_msg(&msg);
+	state = 0;
 }
 
 static void MAIN_onButton5LongPush(){}
