@@ -548,7 +548,7 @@ void SECRETARY_send_selftest_result(bool_e result)
 		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_IN_SIMULATION_MODE;
 	#endif
 
-	for(;i<8;i++)
+	for( ; i<8 ;i++)
 		msg.data.strat_prop_selftest_done.error_code[i] = SELFTEST_NO_ERROR;
 
 	SECRETARY_send_canmsg(&msg);
