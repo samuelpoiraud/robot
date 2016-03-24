@@ -20,9 +20,10 @@
 	#define LEFT_ARM_AX12_MAX_TEMPERATURE			60		// Température maximale en degré
 
 //Position
-	#define LEFT_ARM_AX12_IDLE_POS					300
-	#define LEFT_ARM_AX12_LOCK_POS				    512
-	#define LEFT_ARM_AX12_UNLOCK_POS					700
+	#define LEFT_ARM_AX12_IDLE_POS					1000
+	#define LEFT_ARM_AX12_LOCK_POS				    695
+	#define LEFT_ARM_AX12_LOCK_SERRAGE_POS			705
+	#define LEFT_ARM_AX12_UNLOCK_POS				480
 
 //Position initiale de l'AX12
 	#define LEFT_ARM_AX12_INIT_POS					LEFT_ARM_AX12_IDLE_POS

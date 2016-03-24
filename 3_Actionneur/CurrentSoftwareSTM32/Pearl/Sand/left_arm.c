@@ -117,6 +117,7 @@ bool_e LEFT_ARM_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_LEFT_ARM_IDLE :
 			case ACT_LEFT_ARM_UNLOCK :
 			case ACT_LEFT_ARM_LOCK :
+			case ACT_LEFT_ARM_LOCK_SERRAGE :
 			case ACT_LEFT_ARM_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_LEFT_ARM, &LEFT_ARM_run_command, 0,TRUE);
 				break;
@@ -168,6 +169,7 @@ static void LEFT_ARM_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_LEFT_ARM_IDLE : *ax12_goalPosition = LEFT_ARM_AX12_IDLE_POS; break;
 		case ACT_LEFT_ARM_LOCK : *ax12_goalPosition = LEFT_ARM_AX12_LOCK_POS; break;
+		case ACT_LEFT_ARM_LOCK_SERRAGE : *ax12_goalPosition = LEFT_ARM_AX12_LOCK_SERRAGE_POS; break;
 		case ACT_LEFT_ARM_UNLOCK : *ax12_goalPosition = LEFT_ARM_AX12_UNLOCK_POS; break;
 
 		case ACT_LEFT_ARM_STOP :
