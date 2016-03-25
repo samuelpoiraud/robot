@@ -54,6 +54,8 @@
 	#include "Pearl/Sand/pearl_sand_circle_config.h"
 	#include "Pearl/Parasol/parasol.h"
 	#include "Pearl/Parasol/parasol_config.h"
+	#include "Pearl/Pompes/pompe_front_left.h"
+	#include "Pearl/Pompes/pompe_front_right.h"
 	#include "QS/QS_mosfet.h"
 #endif
 
@@ -84,7 +86,9 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(LEFT_ARM),
 		ACT_DECLARE(RIGHT_ARM),
 		ACT_DECLARE(PEARL_SAND_CIRCLE),
-		ACT_DECLARE(PARASOL)
+		ACT_DECLARE(PARASOL),
+		ACT_DECLARE(POMPE_FRONT_LEFT),
+		ACT_DECLARE(POMPE_FRONT_RIGHT)
 	#endif
 };
 

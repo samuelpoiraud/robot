@@ -427,13 +427,13 @@ static void MAIN_onButton5LongPush() {}
 static void MAIN_onButton0(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 1;
+	msg.size = 7;
 	msg.sid = ACT_RIGHT_ARM;
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_RIGHT_ARM_LOCK;
-	}else if(state == 1){
 		msg.data.act_msg.order = ACT_RIGHT_ARM_UNLOCK;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_RIGHT_ARM_LOCK;
 	}else if(state == 2){
 		msg.data.act_msg.order = ACT_RIGHT_ARM_IDLE;
 	}
@@ -445,7 +445,7 @@ static void MAIN_onButton0(){
 static void MAIN_onButton0LongPush(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 2;
+	msg.size = 7;
 	msg.sid = ACT_POMPE_FRONT_RIGHT;
 	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 
@@ -464,7 +464,7 @@ static void MAIN_onButton0LongPush(){
 static void MAIN_onButton1(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 1;
+	msg.size = 7;
 	msg.sid = ACT_POMPE_BACK_RIGHT;
 
 	if(state == 0){
@@ -483,7 +483,7 @@ static void MAIN_onButton2(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	 msg.sid = ACT_PEARL_SAND_CIRCLE;
-	msg.size = 1;
+	msg.size = 7;
 
 	if(state == 0){
 		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_LOCK;
@@ -500,7 +500,7 @@ static void MAIN_onButton2LongPush(){}
 static void MAIN_onButton3(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 1;
+	msg.size = 7;
 	msg.sid = ACT_LEFT_ARM;
 
 	if(state == 0){
@@ -518,7 +518,7 @@ static void MAIN_onButton3(){
 static void MAIN_onButton3LongPush(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 2;
+	msg.size = 7;
 	msg.sid = ACT_POMPE_FRONT_LEFT;
 	msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 
@@ -537,7 +537,7 @@ static void MAIN_onButton3LongPush(){
 static void MAIN_onButton4(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 1;
+	msg.size = 7;
 	msg.sid = ACT_POMPE_BACK_LEFT;
 
 	if(state == 0){
@@ -555,7 +555,7 @@ static void MAIN_onButton4LongPush(){}
 static void MAIN_onButton5(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
-	msg.size = 1;
+	msg.size = 7;
 	msg.sid = ACT_PARASOL;
 
 	if(state == 0){
