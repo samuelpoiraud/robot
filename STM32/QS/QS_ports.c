@@ -23,6 +23,8 @@
 bool_e PORTS_secure_init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
 
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -48,16 +50,14 @@ bool_e PORTS_secure_init(void){
 	msg.sid = BROADCAST_I_AM_AND_I_AM_HERE;
 	msg.size = SIZE_BROADCAST_I_AM_AND_I_AM_HERE;
 
-	#ifdef I_AM_CARTE_STRAT
-		PORTS_set_pull(PORT_I_AM_STRAT, GPIO_PuPd_UP);
-		#if defined(I_AM_CARTE_PROP) || defined(I_AM_CARTE_ACT)
-			PORTS_set_pull(PORT_I_AM_PROP, GPIO_PuPd_UP);
-			PORTS_set_pull(PORT_I_AM_ACT, GPIO_PuPd_UP);
-		#endif
+	PORTS_set_pull(PORT_I_AM_STRAT, GPIO_PuPd_UP);
+	#if defined(I_AM_CARTE_PROP) || defined(I_AM_CARTE_ACT)
+		PORTS_set_pull(PORT_I_AM_PROP, GPIO_PuPd_UP);
+		PORTS_set_pull(PORT_I_AM_ACT, GPIO_PuPd_UP);
 	#endif
 
 	#ifdef I_AM_CARTE_STRAT
-		if(READ_I_AM_STRAT)
+		if(!READ_I_AM_STRAT)
 			i_can_run = TRUE;
 		else{
 			i_can_run = FALSE;
@@ -66,15 +66,15 @@ bool_e PORTS_secure_init(void){
 			msg.data.broadcast_i_am_and_i_am_where.code_id = CODE_STRAT;
 		}
 	#elif defined(I_AM_CARTE_ACT)
-		if(READ_I_AM_ACT)
+		if(!READ_I_AM_ACT && READ_I_AM_STRAT && READ_I_AM_PROP)
 			i_can_run = TRUE;
 		else{
 			i_can_run = FALSE;
 			msg.data.broadcast_i_am_and_i_am_where.code_id = CODE_ACT;
-			if(READ_I_AM_STRAT){
+			if(!READ_I_AM_STRAT){
 				error_printf("!!! Code Actionneur sur l'emplacement Stratégie !!!\n");
 				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_STRAT;
-			}else if(READ_I_AM_PROP){
+			}else if(!READ_I_AM_PROP){
 				error_printf("!!! Code Actionneur sur l'emplacement Propulsion !!!\n");
 				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_PROP;
 			}else{
@@ -83,15 +83,15 @@ bool_e PORTS_secure_init(void){
 			}
 		}
 	#elif defined(I_AM_CARTE_PROP)
-		if(READ_I_AM_PROP)
+		if(!READ_I_AM_PROP && READ_I_AM_ACT && READ_I_AM_STRAT)
 			i_can_run = TRUE;
 		else{
 			i_can_run = FALSE;
 			msg.data.broadcast_i_am_and_i_am_where.code_id = CODE_PROP;
-			if(READ_I_AM_STRAT){
+			if(!READ_I_AM_STRAT){
 				error_printf("!!! Code Propulsion sur l'emplacement Stratégie !!!\n");
 				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_STRAT;
-			}else if(READ_I_AM_ACT){
+			}else if(!READ_I_AM_ACT){
 				error_printf("!!! Code Propulsion sur l'emplacement Actionneur !!!\n");
 				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_ACT;
 			}else{
@@ -107,6 +107,9 @@ bool_e PORTS_secure_init(void){
 		CAN_send(&msg);
 		return FALSE;
 	}
+
+	UART_deInit();
+	CAN_reset();
 
 	PORTS_init();
 	return TRUE;

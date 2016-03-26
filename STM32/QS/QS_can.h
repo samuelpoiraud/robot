@@ -35,6 +35,7 @@
 	typedef void(*CAN_callback_action_t)(CAN_msg_t * can_msg);
 
 	/* Prototype */
+	void CAN_reset(void);
 	void CAN_init(void);
 
 	void CAN_send(CAN_msg_t* can_msg);

@@ -39,6 +39,7 @@
 		pas de controle de flux
 	*/
 	void UART_init(void);
+	void UART_deInit(void);
 	void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate);
 
 	#ifdef USE_UART1
