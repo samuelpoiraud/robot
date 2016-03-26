@@ -5,7 +5,7 @@
  *	Fichier : main.c
  *	Package : Actionneur
  *	Description : Ordonnanceur de la carte actionneur
- *  Auteurs : Aurélien
+ *  Auteurs : AurÃ©lien
  *  Version 20110225
  */
 
@@ -61,11 +61,11 @@ int main (void)
 {
 	CAN_msg_t msg;
 	/*-------------------------------------
-		Démarrage
+		DÃ©marrage
 	-------------------------------------*/
 
-	//Initialisation du système
-	SYS_init();				// Init système
+	//Initialisation du systÃ¨me
+	SYS_init();				// Init systÃ¨me
 	MAIN_global_var_init();	// Init variable globale
 	SYSTICK_init((time32_t*)&(global.absolute_time));
 
@@ -73,7 +73,7 @@ int main (void)
 		PORTS_init();	// Config des ports
 	#else
 		if(PORTS_secure_init() == FALSE){
-			error_printf("Blocage car le code ne démarre pas sur le bon slot !\n");
+			error_printf("Blocage car le code ne dÃ©marre pas sur le bon slot !\n");
 			while(1);
 		}
 	#endif
@@ -84,7 +84,7 @@ int main (void)
 	GPIO_ResetBits(LED_USER);
 	GPIO_SetBits(LED_CAN);
 
-	// Initialisation des périphériques
+	// Initialisation des pÃ©riphÃ©riques
 	CAN_process_init();
 	UART_init();
 	TIMER_init();
@@ -93,7 +93,7 @@ int main (void)
 	BUTTONS_init();
 
 	//Sur quel robot est-on ?
-	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+	QS_WHO_AM_I_find();	//DÃ©termine le robot sur lequel est branchÃ©e la carte.
 	debug_printf("--- Hello, I'm ACT (%s) ---\n", QS_WHO_AM_I_get_name());
 
 	#if defined(I_AM_ROBOT_BIG)
@@ -104,7 +104,7 @@ int main (void)
 		if(QS_WHO_AM_I_get() != SMALL_ROBOT)
 	#endif	// Pour changer le code du robot aller dans : "config/config_global.h"
 		{
-			debug_printf("ATTENTION ! Vous avez programmé la carte actionneur de %s avec le code de %s\n", QS_WHO_AM_I_get_name(), ROBOT_CODE_NAME);
+			debug_printf("ATTENTION ! Vous avez programmÃ© la carte actionneur de %s avec le code de %s\n", QS_WHO_AM_I_get_name(), ROBOT_CODE_NAME);
 			msg.sid = STRAT_ACT_SELFTEST_DONE;
 			msg.data.strat_act_selftest_done.error_code[0] = SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME;
 			msg.size = 1;
@@ -131,7 +131,7 @@ int main (void)
 
 	debug_printf("---   ACT Ready    ---\n");
 
-	// Demande des états initiaux des switchs
+	// Demande des Ã©tats initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
 
 	while(1)
@@ -153,13 +153,13 @@ int main (void)
 		#endif
 
 		/*-------------------------------------
-			Réception CAN et exécution
+			RÃ©ception CAN et exÃ©cution
 		-------------------------------------*/
 		while(CAN_data_ready()){
-			// Réception et acquittement
+			// RÃ©ception et acquittement
 			toggle_led(LED_CAN);
 			msg = CAN_get_next_msg();
-			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
+			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes Ã  la machine d'Ã©tat
 			#ifdef CAN_VERBOSE_MODE
 				QS_CAN_VERBOSE_can_msg_print(&msg, VERB_INPUT_MSG);
 			#endif
@@ -220,6 +220,7 @@ static void MAIN_onButton0() {
 }
 
 static void MAIN_onButton0LongPush() {
+}
 
 static void MAIN_onButton1() {
    static Uint8 state = 0;
@@ -357,6 +358,7 @@ static void MAIN_onButton3() {
 }
 
 static void MAIN_onButton3LongPush() {
+}
 
 static void MAIN_onButton4() {
 	static Uint8 state = 0;
@@ -381,7 +383,8 @@ static void MAIN_onButton4() {
 	state = (state == 3)? 0 : state + 1;
 }
 
-static void MAIN_onButton4LongPush() {}
+static void MAIN_onButton4LongPush() {
+}
 
 static void MAIN_onButton5() {
 	static Uint8 state = 0;
@@ -419,7 +422,8 @@ static void MAIN_onButton5() {
 	state = (state == 4)? 0 : state + 1;
 }
 
-static void MAIN_onButton5LongPush() {}
+static void MAIN_onButton5LongPush() {
+}
 
 
 #else // ROBOT_SMALL
@@ -477,7 +481,8 @@ static void MAIN_onButton1(){
 	state = (state == 1)? 0 : state + 1;
 }
 
-static void MAIN_onButton1LongPush(){}
+static void MAIN_onButton1LongPush(){
+}
 
 static void MAIN_onButton2(){
 	static Uint8 state = 0;
@@ -495,7 +500,8 @@ static void MAIN_onButton2(){
 	state = (state == 1)? 0 : state + 1;
  }
 
-static void MAIN_onButton2LongPush(){}
+static void MAIN_onButton2LongPush(){
+}
 
 static void MAIN_onButton3(){
 	static Uint8 state = 0;
@@ -550,7 +556,8 @@ static void MAIN_onButton4(){
 	state = (state == 1)? 0 : state + 1;
 }
 
-static void MAIN_onButton4LongPush(){}
+static void MAIN_onButton4LongPush(){
+}
 
 static void MAIN_onButton5(){
 	static Uint8 state = 0;
@@ -566,7 +573,8 @@ static void MAIN_onButton5(){
 	state = 0;
 }
 
-static void MAIN_onButton5LongPush(){}
+static void MAIN_onButton5LongPush(){
+}
 
 #endif // ROBOT_BIG et ROBOT_SMALL
 

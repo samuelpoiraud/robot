@@ -138,9 +138,15 @@
 		NVIC_Init(&NVIC_InitStructure);
 	}
 
+	static bool_e initialized = FALSE;
+
+	void CAN_reset(void){
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, DISABLE);
+		initialized = FALSE;
+	}
+
 	void CAN_init(void)
 	{
-		static bool_e initialized = FALSE;
 		if(initialized)
 			return;
 		initialized = TRUE;

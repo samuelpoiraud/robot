@@ -115,6 +115,32 @@
 	}
 #endif
 
+	static volatile bool_e initialized = FALSE;
+
+void UART_deInit(void){
+#ifdef USE_UART1
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
+#endif
+
+#ifdef USE_UART2
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, DISABLE);
+#endif
+
+#ifdef USE_UART3
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, DISABLE);
+#endif
+#ifdef USE_UART4
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, DISABLE);
+#endif
+#ifdef USE_UART5
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, DISABLE);
+#endif
+#ifdef USE_UART6
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, DISABLE);
+#endif
+	initialized = FALSE;
+}
+
 /*	fonction initialisant les uart choisis
 	vitesse : 115200 bauds (par défaut)
 	bits de donnees : 8
@@ -124,7 +150,6 @@
 */
 void UART_init(void)
 {
-	static bool_e initialized = FALSE;
 	if(initialized)
 		return;
 	initialized = TRUE;
