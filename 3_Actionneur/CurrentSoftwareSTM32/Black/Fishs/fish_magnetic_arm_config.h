@@ -20,8 +20,8 @@
 	#define FISH_MAGNETIC_ARM_RX24_MAX_TEMPERATURE				65		// Température maximale en degré
 
 //Position
-	#define FISH_MAGNETIC_ARM_RX24_IDLE_POS					927
-	#define FISH_MAGNETIC_ARM_RX24_CLOSE_POS			    927
+	#define FISH_MAGNETIC_ARM_RX24_IDLE_POS					911
+	#define FISH_MAGNETIC_ARM_RX24_CLOSE_POS			    911
 	#define FISH_MAGNETIC_ARM_RX24_OPEN_POS					600
 
 //Position initiale de l'RX24
