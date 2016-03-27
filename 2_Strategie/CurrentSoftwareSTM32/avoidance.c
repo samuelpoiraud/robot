@@ -726,9 +726,25 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 		||	is_in_square(750-(widthRobot), 780+(widthRobot), 900-(widthRobot), 2100+(widthRobot),*p)	// Tasseau horizontale de la zone centrale
 		||	is_in_square(1950-(widthRobot), 2000, 910-(widthRobot), 960+(widthRobot),*p)                // Attache filet côté vert
 		||	is_in_square(1950-(widthRobot), 2000, 2040-(widthRobot), 2090+(widthRobot),*p)              // Attache filet côté violet
-		||	is_in_square(600-(widthRobot), 1100+(widthRobot), COLOR_Y(2700-(widthRobot)), COLOR_Y(3000),*p) // Zone de départ adverse
-
 	  )
+		return FALSE;
+
+	return  TRUE;
+}
+
+//Le point passé en paramètre permet-il une extraction ?
+bool_e is_possible_point_for_dodge(GEOMETRY_point_t * p)
+{
+	Uint8 widthRobot;
+	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
+	widthRobot += 100;	//Marge !
+	GEOMETRY_circle_t zone_depose_adv = {(GEOMETRY_point_t){750, 1500}, 700};
+
+	// Spécifique Terrain 2016
+	if(
+			(is_in_circle(*p, zone_depose_adv) && is_in_square(750, 1350+(widthRobot), 1500, 2100+(widthRobot),*p))  // Zone de dépose adverse
+		||  is_in_square(600-(widthRobot), 1100+(widthRobot), COLOR_Y(2700-(widthRobot)), COLOR_Y(3000),*p) // zone de départ adverse
+	)
 		return FALSE;
 
 	return  TRUE;
@@ -795,7 +811,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 					pointEx[i].x = ((Sint32)(cos)*EXTRACTION_DISTANCE)/4096 + global.pos.x;
 					pointEx[i].y = ((Sint32)(sin)*EXTRACTION_DISTANCE)/4096 + global.pos.y;
 					debug_printf("Point i=%d x=%d, y=%d\n", i, pointEx[i].x, pointEx[i].y);
-					if(is_possible_point_for_rotation(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
+					if(is_possible_point_for_rotation(&pointEx[i]) && is_possible_point_for_dodge(&pointEx[i]))	//Si le point est "acceptable" (loin d'un élément fixe ou d'une bordure...)
 					{
 						distance2_between_point_and_foe_min = 0xFFFFFFFF;
 						//On recherche la distance minimale entre le point 'i' et l'adversaire le plus proche.
