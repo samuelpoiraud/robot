@@ -251,6 +251,9 @@ error_e ACTION_prop_stop();
 //Le point passé en paramètre permet-il les rotations ?
 bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p);
 
+//Le point passé en paramètre permet-il une extraction ?
+bool_e is_possible_point_for_dodge(GEOMETRY_point_t * p);
+
 /**
  * @brief i_am_in_square_color permet de tester si le robot est dans un carré donnée avec une gestion automatique en miroir avec la couleur
  * @return vrai si nous somme dans le carré
