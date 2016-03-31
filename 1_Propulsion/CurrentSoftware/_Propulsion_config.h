@@ -34,7 +34,7 @@
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0)
 
 	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x0001139A	//Guy : 89mm entre roue codeuse et centre
-	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000AD00  	//Holly : 278mm ENVIRON entre roues codeuses...
+	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000ACCB  	//Holly : 278mm ENVIRON entre roues codeuses...
 																	// - 1% (estimation à l'arrache-mètre) -> B63D
 															//Pierre : 138mm entre roue codeuse et centre - théorique : B308
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
@@ -119,7 +119,7 @@
 
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
 	#define SMALL_KD_TRANSLATION 	(0x22) //0x80
-	#define BIG_KD_TRANSLATION 	(0x26) //0x80
+	#define BIG_KD_TRANSLATION 	(0x20) //0x80
 
 	#define SMALL_KP_TRANSLATION 	(0x25)
 	#define BIG_KP_TRANSLATION 	(0x30)
@@ -127,10 +127,10 @@
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
 	#define SMALL_KD_ROTATION 	(0x200) //0x800
-	#define BIG_KD_ROTATION 	(0x200) //0x800
+	#define BIG_KD_ROTATION 	(0x180) //0x800
 
 	#define SMALL_KP_ROTATION 	(0x80)//40 //0x80
-	#define BIG_KP_ROTATION 	(0xFF) //0x80
+	#define BIG_KP_ROTATION 	(0x80) //0x80
 
 	//Ordre de grandeur :
 	//A la vitesse lumière, KV_TRANSLATION * vitesse_translation doit valoir 100*4096

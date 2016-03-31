@@ -165,7 +165,7 @@ bool_e ACT_push_order_with_param(ACT_sid_e sid,  ACT_order_e order, Uint16 param
 
 	ACT_AVOIDANCE_new_classic_cmd(act_link_SID_Queue[i].queue_id, order);
 
-	return ACT_push_operation(order, &args);
+	return ACT_push_operation(act_link_SID_Queue[i].queue_id, &args);
 }
 
 ////////////////////////////////////////
