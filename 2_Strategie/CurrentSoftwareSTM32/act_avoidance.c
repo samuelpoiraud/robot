@@ -36,9 +36,9 @@ void ACT_AVOIDANCE_init(){
 
 		init_new_offset(ACT_QUEUE_Black_sand_circle,	ACT_AVOID_BLACK_SAND_CIRCLE_Open,	ACT_BLACK_SAND_CIRCLE_LOCK,			0,		0,		100,	0);
 
-		init_new_offset(ACT_QUEUE_Bottom_dune_left,		ACT_AVOID_BOTTOM_DUNE_LEFT_Lock,	ACT_BOTTOM_DUNE_LEFT_LOCK,			0,		0,		0,		60);
+		init_new_offset(ACT_QUEUE_Bottom_dune,			ACT_AVOID_BOTTOM_DUNE_Lock,			ACT_BOTTOM_DUNE_LOCK,				0,		0,		0,		60);
 
-		init_new_offset(ACT_QUEUE_Middle_dune_left,		ACT_AVOID_MIDDLE_DUNE_LEFT_Lock,	ACT_MIDDLE_DUNE_LEFT_LOCK,			0,		0,		0,		60);
+		init_new_offset(ACT_QUEUE_Middle_dune,			ACT_AVOID_MIDDLE_DUNE_Lock,			ACT_MIDDLE_DUNE_LOCK,				0,		0,		0,		60);
 
 		init_new_offset(ACT_QUEUE_Cone_dune,			ACT_AVOID_CONE_DUNE_Lock,			ACT_CONE_DUNE_LOCK,					0,		0,		0,		60);
 

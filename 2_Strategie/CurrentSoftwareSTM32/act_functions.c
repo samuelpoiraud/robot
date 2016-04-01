@@ -41,11 +41,9 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	// Black
 	{ACT_FISH_MAGNETIC_ARM,			ACT_QUEUE_Fish_magnetic_arm,			"Fish magnetic arm"},
 	{ACT_FISH_UNSTICK_ARM,		    ACT_QUEUE_Fish_unstick_arm,		        "Fish unstick arm"},
-	{ACT_BOTTOM_DUNE_LEFT,			ACT_QUEUE_Bottom_dune_left,             "Bottom dune left"},
-	{ACT_BOTTOM_DUNE_RIGHT,			ACT_QUEUE_Bottom_dune_right,            "Bottom dune right"},
+	{ACT_BOTTOM_DUNE,				ACT_QUEUE_Bottom_dune,					"Bottom dune left"},
 	{ACT_BLACK_SAND_CIRCLE,			ACT_QUEUE_Black_sand_circle,            "Sand Circle"},
-	{ACT_MIDDLE_DUNE_LEFT,			ACT_QUEUE_Middle_dune_left,             "Middle dune left"},
-	{ACT_MIDDLE_DUNE_RIGHT,			ACT_QUEUE_Middle_dune_right,            "Middle dune right"},
+	{ACT_MIDDLE_DUNE,				ACT_QUEUE_Middle_dune,					 "Middle dune"},
 	{ACT_CONE_DUNE,					ACT_QUEUE_Cone_dune,					"Cone dune"},
 	{ACT_DUNIX_LEFT,			    ACT_QUEUE_Dunix_left,                   "Dunix left"},
 	{ACT_DUNIX_RIGHT,			    ACT_QUEUE_Dunix_right,					"Dunix right"},
