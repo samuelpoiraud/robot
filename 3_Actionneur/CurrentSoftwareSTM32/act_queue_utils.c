@@ -296,10 +296,8 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		   case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagnetic";		break;
 		   case ACT_FISH_UNSTICK_ARM & 0xFF:	    originalSidStr = "FishUnstick";			break;
 		   case ACT_BLACK_SAND_CIRCLE & 0xFF:	    originalSidStr = "SandCircle";			break;
-		   case ACT_BOTTOM_DUNE_LEFT & 0xFF:		originalSidStr = "BottomDuneLeft";      break;
-		   case ACT_BOTTOM_DUNE_RIGHT & 0xFF:		originalSidStr = "BottomDuneRight";     break;
-		   case ACT_MIDDLE_DUNE_LEFT & 0xFF:		originalSidStr = "MiddleDuneLeft";      break;
-		   case ACT_MIDDLE_DUNE_RIGHT & 0xFF:		originalSidStr = "MiddleDuneRight";     break;
+		   case ACT_BOTTOM_DUNE & 0xFF:				originalSidStr = "BottomDune";			break;
+		   case ACT_MIDDLE_DUNE & 0xFF:				originalSidStr = "MiddleDune";			break;
 		   case ACT_CONE_DUNE & 0xFF:				originalSidStr = "ConeDune";			break;
 		   case ACT_DUNIX_LEFT & 0xFF:				originalSidStr = "DunixLeft";			break;
 		   case ACT_DUNIX_RIGHT & 0xFF:				originalSidStr = "DunixRight";			break;

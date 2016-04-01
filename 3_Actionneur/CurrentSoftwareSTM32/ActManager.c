@@ -22,14 +22,10 @@
 	#include "Black/Fishs/fish_unstick_arm_config.h"
 	#include "Black/Sand_circle/black_sand_circle.h"
 	#include "Black/Sand_circle/black_sand_circle_config.h"
-	#include "Black/Bottom_dune/bottom_dune_left.h"
-	#include "Black/Bottom_dune/bottom_dune_left_config.h"
-	#include "Black/Bottom_dune/bottom_dune_right.h"
-	#include "Black/Bottom_dune/bottom_dune_right_config.h"
-	#include "Black/Middle_dune/middle_dune_left.h"
-	#include "Black/Middle_dune/middle_dune_left_config.h"
-	#include "Black/Middle_dune/middle_dune_right.h"
-	#include "Black/Middle_dune/middle_dune_right_config.h"
+	#include "Black/Bottom_dune/bottom_dune.h"
+	#include "Black/Bottom_dune/bottom_dune_config.h"
+	#include "Black/Middle_dune/middle_dune.h"
+	#include "Black/Middle_dune/middle_dune_config.h"
 	#include "Black/Cone_dune/cone_dune.h"
 	#include "Black/Cone_dune/cone_dune_config.h"
 	#include "Black/Dunix/dunix_left.h"
@@ -71,10 +67,8 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(FISH_MAGNETIC_ARM),
 		ACT_DECLARE(FISH_UNSTICK_ARM),
 		ACT_DECLARE(BLACK_SAND_CIRCLE),
-		ACT_DECLARE(BOTTOM_DUNE_LEFT),
-		ACT_DECLARE(BOTTOM_DUNE_RIGHT),
-		ACT_DECLARE(MIDDLE_DUNE_LEFT),
-		ACT_DECLARE(MIDDLE_DUNE_RIGHT),
+		ACT_DECLARE(BOTTOM_DUNE),
+		ACT_DECLARE(MIDDLE_DUNE),
 		ACT_DECLARE(CONE_DUNE),
 		ACT_DECLARE(DUNIX_LEFT),
 		ACT_DECLARE(DUNIX_RIGHT),

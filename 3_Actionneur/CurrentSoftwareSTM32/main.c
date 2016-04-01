@@ -159,7 +159,7 @@ int main (void)
 			// Réception et acquittement
 			toggle_led(LED_CAN);
 			msg = CAN_get_next_msg();
-			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes à la machine d'état
+			CAN_process_msg(&msg);		// Traitement du message pour donner les consignes �  la machine d'état
 			#ifdef CAN_VERBOSE_MODE
 				QS_CAN_VERBOSE_can_msg_print(&msg, VERB_INPUT_MSG);
 			#endif
@@ -276,43 +276,30 @@ static void MAIN_onButton1LongPush() {
 
 static void MAIN_onButton2(){
 	static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
+	CAN_msg_t msg;
+	msg.size = 1;
 
 	if(state == 0){
-		msg1.sid = ACT_BOTTOM_DUNE_LEFT;
-		msg1.data.act_msg.order = ACT_BOTTOM_DUNE_LEFT_LOCK;
-		msg2.sid = ACT_BOTTOM_DUNE_RIGHT;
-		msg2.data.act_msg.order = ACT_BOTTOM_DUNE_RIGHT_LOCK;
+		msg.sid = ACT_BOTTOM_DUNE;
+		msg.data.act_msg.order = ACT_BOTTOM_DUNE_LOCK;
 	}else if(state == 1){
-		msg1.sid = ACT_MIDDLE_DUNE_LEFT;
-		msg1.data.act_msg.order = ACT_MIDDLE_DUNE_LEFT_LOCK;
-		msg2.sid = ACT_MIDDLE_DUNE_RIGHT;
-		msg2.data.act_msg.order = ACT_MIDDLE_DUNE_RIGHT_LOCK;
+		msg.sid = ACT_MIDDLE_DUNE;
+		msg.data.act_msg.order = ACT_MIDDLE_DUNE_LOCK;
 	}else if(state == 2){
-		msg1.sid = ACT_CONE_DUNE;
-		msg1.data.act_msg.order = ACT_CONE_DUNE_LOCK;
-		msg2.sid = 0;
+		msg.sid = ACT_CONE_DUNE;
+		msg.data.act_msg.order = ACT_CONE_DUNE_LOCK;
 	}else if(state == 3){
-		msg1.sid = ACT_CONE_DUNE;
-		msg1.data.act_msg.order = ACT_CONE_DUNE_UNLOCK;
-		msg2.sid = 0;
+		msg.sid = ACT_CONE_DUNE;
+		msg.data.act_msg.order = ACT_CONE_DUNE_UNLOCK;
 	}else if(state == 4){
-		msg1.sid = ACT_MIDDLE_DUNE_LEFT;
-		msg1.data.act_msg.order = ACT_MIDDLE_DUNE_LEFT_UNLOCK;
-		msg2.sid = ACT_MIDDLE_DUNE_RIGHT;
-		msg2.data.act_msg.order = ACT_MIDDLE_DUNE_RIGHT_UNLOCK;
+		msg.sid = ACT_MIDDLE_DUNE;
+		msg.data.act_msg.order = ACT_MIDDLE_DUNE_UNLOCK;
 	}else if(state == 5){
-		msg1.sid = ACT_BOTTOM_DUNE_LEFT;
-		msg1.data.act_msg.order = ACT_BOTTOM_DUNE_LEFT_UNLOCK;
-		msg2.sid = ACT_BOTTOM_DUNE_RIGHT;
-		msg2.data.act_msg.order = ACT_BOTTOM_DUNE_RIGHT_UNLOCK;
+		msg.sid = ACT_BOTTOM_DUNE;
+		msg.data.act_msg.order = ACT_BOTTOM_DUNE_UNLOCK;
 	}
 
-	CAN_process_msg(&msg1);
-	if(msg2.sid != 0)
-		CAN_process_msg(&msg2);
+	CAN_process_msg(&msg);
 	state = (state == 5)? 0 : state + 1;
 }
 

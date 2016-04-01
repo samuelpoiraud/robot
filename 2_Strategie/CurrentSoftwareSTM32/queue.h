@@ -25,11 +25,9 @@ typedef enum {
 	//Black
 	ACT_QUEUE_Fish_magnetic_arm,
 	ACT_QUEUE_Fish_unstick_arm,
-	ACT_QUEUE_Bottom_dune_left,
-	ACT_QUEUE_Bottom_dune_right,
+	ACT_QUEUE_Bottom_dune,
 	ACT_QUEUE_Black_sand_circle,
-	ACT_QUEUE_Middle_dune_left,
-	ACT_QUEUE_Middle_dune_right,
+	ACT_QUEUE_Middle_dune,
 	ACT_QUEUE_Cone_dune,
 	ACT_QUEUE_Dunix_left,
 	ACT_QUEUE_Dunix_right,

@@ -610,28 +610,25 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_IHM_UNREACHABLE:					debug_printf("SELFTEST_IHM_UNREACHABLE");						break;
 
 				// Actionneurs
-				case SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM:       debug_printf("SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM");
-				case SELFTEST_ACT_RX24_FISH_UNSTICK_ARM:		debug_printf("SELFTEST_ACT_RX24_FISH_UNSTICK_ARM");
-				case SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE:		debug_printf("SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE");
-				case SELFTEST_ACT_RX24_BOTTOM_DUNE_LEFT:		debug_printf("SELFTEST_ACT_RX24_BOTTOM_DUNE_LEFT");
-				case SELFTEST_ACT_RX24_BOTTOM_DUNE_RIGHT:		debug_printf("SELFTEST_ACT_RX24_BOTTOM_DUNE_RIGHT");
-				case SELFTEST_ACT_RX24_MIDDLE_DUNE_LEFT:		debug_printf("SELFTEST_ACT_RX24_MIDDLE_DUNE_LEFT");
-				case SELFTEST_ACT_RX24_MIDDLE_DUNE_RIGHT:		debug_printf("SELFTEST_ACT_RX24_MIDDLE_DUNE_RIGHT");
-				case SELFTEST_ACT_RX24_CONE_DUNE:				debug_printf("SELFTEST_ACT_RX24_CONE_DUNE");
-				case SELFTEST_ACT_RX24_DUNIX_LEFT:				debug_printf("SELFTEST_ACT_RX24_DUNIX_LEFT");
-				case SELFTEST_ACT_RX24_DUNIX_RIGHT:				debug_printf("SELFTEST_ACT_RX24_DUNIX_RIGHT");
-				case SELFTEST_ACT_RX24_SAND_LOCKER_LEFT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_LEFT");
-				case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT");
-				case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			debug_printf("SELFTEST_ACT_RX24_SHIFT_CYLINDER");
-				case SELFTEST_ACT_RX24_PENDULUM:				debug_printf("SELFTEST_ACT_RX24_PENDULUM");
+				case SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM:       debug_printf("SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM");            break;
+				case SELFTEST_ACT_RX24_FISH_UNSTICK_ARM:		debug_printf("SELFTEST_ACT_RX24_FISH_UNSTICK_ARM");             break;
+				case SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE:		debug_printf("SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE");            break;
+				case SELFTEST_ACT_RX24_BOTTOM_DUNE:				debug_printf("SELFTEST_ACT_RX24_BOTTOM_DUNE");                  break;
+				case SELFTEST_ACT_RX24_MIDDLE_DUNE:				debug_printf("SELFTEST_ACT_RX24_MIDDLE_DUNE");                  break;
+				case SELFTEST_ACT_RX24_CONE_DUNE:				debug_printf("SELFTEST_ACT_RX24_CONE_DUNE");                    break;
+				case SELFTEST_ACT_RX24_DUNIX_LEFT:				debug_printf("SELFTEST_ACT_RX24_DUNIX_LEFT");                   break;
+				case SELFTEST_ACT_RX24_DUNIX_RIGHT:				debug_printf("SELFTEST_ACT_RX24_DUNIX_RIGHT");                  break;
+				case SELFTEST_ACT_RX24_SAND_LOCKER_LEFT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_LEFT");             break;
+				case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT");            break;
+				case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			debug_printf("SELFTEST_ACT_RX24_SHIFT_CYLINDER");               break;
+				case SELFTEST_ACT_RX24_PENDULUM:				debug_printf("SELFTEST_ACT_RX24_PENDULUM");                     break;
 
-				case SELFTEST_ACT_AX12_LEFT_ARM:				debug_printf("SELFTEST_ACT_AX12_LEFT_ARM");
-				case SELFTEST_ACT_AX12_RIGHT_ARM:				debug_printf("SELFTEST_ACT_AX12_RIGHT_ARM");
-				case SELFTEST_ACT_AX12_SAND_CIRCLE:				debug_printf("SELFTEST_ACT_AX12_SAND_CIRCLE");
-				case SELFTEST_ACT_AX12_PARASOL:					debug_printf("SELFTEST_ACT_AX12_PARASOL");
-				case SELFTEST_ACT_POMPE_FRONT_LEFT:				debug_printf("SELFTEST_ACT_POMPE_FRONT_LEFT");
-				case SELFTEST_ACT_POMPE_FRONT_RIGHT:			debug_printf("SELFTEST_ACT_POMPE_FRONT_RIGHT");
-
+				case SELFTEST_ACT_AX12_LEFT_ARM:				debug_printf("SELFTEST_ACT_AX12_LEFT_ARM");                     break;
+				case SELFTEST_ACT_AX12_RIGHT_ARM:				debug_printf("SELFTEST_ACT_AX12_RIGHT_ARM");                    break;
+				case SELFTEST_ACT_AX12_SAND_CIRCLE:				debug_printf("SELFTEST_ACT_AX12_SAND_CIRCLE");                  break;
+				case SELFTEST_ACT_AX12_PARASOL:					debug_printf("SELFTEST_ACT_AX12_PARASOL");                      break;
+				case SELFTEST_ACT_POMPE_FRONT_LEFT:				debug_printf("SELFTEST_ACT_POMPE_FRONT_LEFT");                  break;
+				case SELFTEST_ACT_POMPE_FRONT_RIGHT:			debug_printf("SELFTEST_ACT_POMPE_FRONT_RIGHT");                 break;
 
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");						break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur

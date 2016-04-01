@@ -20,10 +20,8 @@
 	#include "Black/Fishs/fish_magnetic_arm.h"
 	#include "Black/Fishs/fish_unstick_arm.h"
 	#include "Black/Sand_circle/black_sand_circle.h"
-	#include "Black/Bottom_dune/bottom_dune_left.h"
-	#include "Black/Bottom_dune/bottom_dune_right.h"
-	#include "Black/Middle_dune/middle_dune_left.h"
-	#include "Black/Middle_dune/middle_dune_right.h"
+	#include "Black/Bottom_dune/bottom_dune.h"
+	#include "Black/Middle_dune/middle_dune.h"
 	#include "Black/Cone_dune/cone_dune.h"
 	#include "Black/Dunix/dunix_left.h"
 	#include "Black/Dunix/dunix_right.h"
@@ -184,53 +182,37 @@ void SELFTEST_state_machine(void){
 				}
 				break;
 
-			case QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT:
-			case QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT:
-				if(entrance && state_act_tests[ACT_BOTTOM_DUNE_LEFT & 0xFF] == SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_BOTTOM_DUNE_RIGHT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
-					SELFTEST_set_actions(&BOTTOM_DUNE_LEFT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_BOTTOM_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT},
-											 {ACT_BOTTOM_DUNE_LEFT_LOCK,    0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT},
-											 {ACT_BOTTOM_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_LEFT}
-										 });
-					SELFTEST_set_actions(&BOTTOM_DUNE_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_BOTTOM_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT},
-											 {ACT_BOTTOM_DUNE_RIGHT_LOCK,   0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT},
-											 {ACT_BOTTOM_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_BOTTOM_DUNE_RIGHT}
+			case QUEUE_ACT_RX24_BOTTOM_DUNE:
+				if(entrance){
+					SELFTEST_set_actions(&CONE_DUNE_run_command, 3, (SELFTEST_action_t[]){
+											 {ACT_BOTTOM_DUNE_IDLE,		0,  QUEUE_ACT_RX24_BOTTOM_DUNE},
+											 {ACT_BOTTOM_DUNE_LOCK,     0,  QUEUE_ACT_RX24_BOTTOM_DUNE},
+											 {ACT_BOTTOM_DUNE_IDLE,		0,  QUEUE_ACT_RX24_BOTTOM_DUNE}
 										 });
 				}
-				if(state_act_tests[ACT_BOTTOM_DUNE_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_BOTTOM_DUNE_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state+=2;
-					debug_printf("SELFTEST of ACT_BOTTOM_DUNE_LEFT finished\n");
-					debug_printf("SELFTEST of ACT_BOTTOM_DUNE_RIGHT finished\n");
+				if(state_act_tests[ACT_BOTTOM_DUNE & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_BOTTOM_DUNE finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_BOTTOM_DUNE_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state_act_tests[ACT_BOTTOM_DUNE_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state+=2;
+					state_act_tests[ACT_BOTTOM_DUNE_IDLE & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
 				}
 				break;
 
-			case QUEUE_ACT_RX24_MIDDLE_DUNE_LEFT:
-			case QUEUE_ACT_RX24_MIDDLE_DUNE_RIGHT:
-				if(entrance && state_act_tests[ACT_MIDDLE_DUNE_LEFT & 0xFF] == SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_MIDDLE_DUNE_RIGHT & 0xFF] == SELFTEST_STATE_IN_PROGRESS){
-					SELFTEST_set_actions(&MIDDLE_DUNE_LEFT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_MIDDLE_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_MIDDLE_DUNE_LEFT},
-											 {ACT_MIDDLE_DUNE_LEFT_LOCK,    0,  QUEUE_ACT_RX24_MIDDLE_DUNE_LEFT},
-											 {ACT_MIDDLE_DUNE_LEFT_IDLE,	0,  QUEUE_ACT_RX24_MIDDLE_DUNE_LEFT}
-										 });
-					SELFTEST_set_actions(&MIDDLE_DUNE_RIGHT_run_command, 3, (SELFTEST_action_t[]){
-											 {ACT_MIDDLE_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_MIDDLE_DUNE_RIGHT},
-											 {ACT_MIDDLE_DUNE_RIGHT_LOCK,   0,  QUEUE_ACT_RX24_MIDDLE_DUNE_RIGHT},
-											 {ACT_MIDDLE_DUNE_RIGHT_IDLE,	0,  QUEUE_ACT_RX24_MIDDLE_DUNE_RIGHT}
+			case QUEUE_ACT_RX24_MIDDLE_DUNE:
+				if(entrance){
+					SELFTEST_set_actions(&CONE_DUNE_run_command, 3, (SELFTEST_action_t[]){
+											 {ACT_MIDDLE_DUNE_IDLE,		0,  QUEUE_ACT_RX24_MIDDLE_DUNE},
+											 {ACT_MIDDLE_DUNE_LOCK,     0,  QUEUE_ACT_RX24_MIDDLE_DUNE},
+											 {ACT_MIDDLE_DUNE_IDLE,		0,  QUEUE_ACT_RX24_MIDDLE_DUNE}
 										 });
 				}
-				if(state_act_tests[ACT_MIDDLE_DUNE_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS && state_act_tests[ACT_MIDDLE_DUNE_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state+=2;
-					debug_printf("SELFTEST of ACT_MIDDLE_DUNE_LEFT finished\n");
-					debug_printf("SELFTEST of ACT_MIDDLE_DUNE_RIGHT finished\n");
+				if(state_act_tests[ACT_MIDDLE_DUNE & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state++;
+					debug_printf("SELFTEST of ACT_MIDDLE_DUNE finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_MIDDLE_DUNE_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state_act_tests[ACT_MIDDLE_DUNE_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					state+=2;
+					state_act_tests[ACT_MIDDLE_DUNE_IDLE & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state++;
 				}
 				break;
 
@@ -567,17 +549,11 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 					case ACT_BLACK_SAND_CIRCLE:
 						failed_act_tests[i] = SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE;
 						break;
-					case ACT_BOTTOM_DUNE_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_BOTTOM_DUNE_LEFT;
+					case ACT_BOTTOM_DUNE:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_BOTTOM_DUNE;
 						break;
-					case ACT_BOTTOM_DUNE_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_BOTTOM_DUNE_RIGHT;
-						break;
-					case ACT_MIDDLE_DUNE_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_MIDDLE_DUNE_LEFT;
-						break;
-					case ACT_MIDDLE_DUNE_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_MIDDLE_DUNE_RIGHT;
+					case ACT_MIDDLE_DUNE:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_MIDDLE_DUNE;
 						break;
 					case ACT_CONE_DUNE:
 						failed_act_tests[i] = SELFTEST_ACT_RX24_CONE_DUNE;
