@@ -201,7 +201,7 @@ static void BLACK_SAND_CIRCLE_command_init(queue_id_t queueId) {
 			QUEUE_next(queueId, ACT_BLACK_SAND_CIRCLE, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 			return;
 
-		default: {
+		default:{
 			error_printf("Invalid BLACK_SAND_CIRCLE command: %u, code is broken !\n", command);
 			QUEUE_next(queueId, ACT_BLACK_SAND_CIRCLE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
 			return;
