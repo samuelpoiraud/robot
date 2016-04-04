@@ -90,7 +90,6 @@ void ACT_arg_set_timeout(QUEUE_arg_t* arg, Uint16 timeout) {
 }
 
 void ACT_arg_set_fallbackmsg(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd)  {
-
 	//Le code qui suit est dégeu... mais l'école ferme dans 10 minutes.
 	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
 	{

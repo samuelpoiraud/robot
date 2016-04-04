@@ -742,7 +742,7 @@ bool_e is_possible_point_for_dodge(GEOMETRY_point_t * p)
 
 	// Spécifique Terrain 2016
 	if(
-			(is_in_circle(*p, zone_depose_adv) && is_in_square(750, 1350+(widthRobot), 1500, 2100+(widthRobot),*p))  // Zone de dépose adverse
+			(is_in_circle(*p, zone_depose_adv) && is_in_square(750, 1350+(widthRobot), 1500, COLOR_Y(2100+(widthRobot)),*p))  // Zone de dépose adverse
 		||  is_in_square(600-(widthRobot), 1100+(widthRobot), COLOR_Y(2700-(widthRobot)), COLOR_Y(3000),*p) // zone de départ adverse
 	)
 		return FALSE;
