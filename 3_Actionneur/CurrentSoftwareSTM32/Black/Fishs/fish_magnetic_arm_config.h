@@ -18,10 +18,12 @@
 	#define FISH_MAGNETIC_ARM_RX24_ASSER_POS_LARGE_EPSILON		28		// Si le déplacement de le RX24 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define FISH_MAGNETIC_ARM_RX24_MAX_TORQUE_PERCENT		    100		// Couple maximum en pourcentage de le RX24. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager le RX24.
 	#define FISH_MAGNETIC_ARM_RX24_MAX_TEMPERATURE				65		// Température maximale en degré
+	#define FISH_MAGNETIC_ARM_RX24_MAX_SPEED                    50      // Vitesse maximale en pourcent
 
 //Position
 	#define FISH_MAGNETIC_ARM_RX24_IDLE_POS					911
 	#define FISH_MAGNETIC_ARM_RX24_CLOSE_POS			    911
+	#define FISH_MAGNETIC_ARM_RX24_MIDDLE_POS			    700
 	#define FISH_MAGNETIC_ARM_RX24_OPEN_POS					600
 
 //Position initiale de l'RX24
