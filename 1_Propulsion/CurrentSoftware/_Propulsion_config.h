@@ -30,8 +30,8 @@
 	//Si le robot va trop loin, il faut augmenter le coeff et vice versa
 
 
-	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0x31A
-	#define BIG_ODOMETRY_COEF_SYM_DEFAULT (0)
+	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0x2EA
+	#define BIG_ODOMETRY_COEF_SYM_DEFAULT 0x15
 
 	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT 0x0001139A	//Guy : 89mm entre roue codeuse et centre
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT 0x0000ACCB  	//Holly : 278mm ENVIRON entre roues codeuses...
@@ -65,13 +65,13 @@
 // POSITION 2016
 	//SMALL Position calibration
 		//BOT_COLOR
-		#define SMALL_BOT_COLOR_CALIBRATION_X  		1005
-		#define SMALL_BOT_COLOR_CALIBRATION_Y  		290 - SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE //10mm de marge avec le bord de la serviette
+		#define SMALL_BOT_COLOR_CALIBRATION_X  		1000
+		#define SMALL_BOT_COLOR_CALIBRATION_Y  		SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE //10mm de marge avec le bord de la serviette
 		#define SMALL_BOT_COLOR_CALIBRATION_TETA	(-PI4096/2)
 
 		//TOP_COLOR
-		#define SMALL_TOP_COLOR_CALIBRATION_X  		1005
-		#define SMALL_TOP_COLOR_CALIBRATION_Y  		1710 - SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE //10mm de marge avec le bord de la serviette
+		#define SMALL_TOP_COLOR_CALIBRATION_X  		1000
+		#define SMALL_TOP_COLOR_CALIBRATION_Y  		SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE //10mm de marge avec le bord de la serviette
 		#define SMALL_TOP_COLOR_CALIBRATION_TETA	(PI4096/2)
 
 	//BIG
