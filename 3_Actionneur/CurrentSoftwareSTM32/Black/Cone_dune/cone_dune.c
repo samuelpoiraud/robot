@@ -59,6 +59,9 @@ void CONE_DUNE_reset_config(){
 //Initialise le RX24 s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
 static void CONE_DUNE_initRX24() {
 	if(rx24_is_initialized == FALSE && RX24_is_ready(CONE_DUNE_RX24_ID) == TRUE) {
+		time32_t local_time = global.absolute_time;
+		while(global.absolute_time - local_time < 1000);
+
 		rx24_is_initialized = TRUE;
 		RX24_config_set_lowest_voltage(CONE_DUNE_RX24_ID, RX24_MIN_VOLTAGE);
 		RX24_config_set_highest_voltage(CONE_DUNE_RX24_ID, RX24_MAX_VOLTAGE);
