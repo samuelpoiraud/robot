@@ -21,8 +21,8 @@
 
 //Position
 	#define RIGHT_ARM_AX12_IDLE_POS						328
-	#define RIGHT_ARM_AX12_LOCK_POS					    638
-	#define RIGHT_ARM_AX12_LOCK_SERRAGE_POS				628
+	#define RIGHT_ARM_AX12_LOCK_POS					    654
+	#define RIGHT_ARM_AX12_LOCK_SERRAGE_POS				620
 	#define RIGHT_ARM_AX12_UNLOCK_POS					847
 
 //Position initiale de l'AX12
