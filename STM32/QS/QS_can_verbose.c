@@ -325,6 +325,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_FISH_MAGNETIC_ARM:
 					switch(msg->data.act_result.cmd){
 						case (Uint8)ACT_FISH_MAGNETIC_ARM_IDLE:		print(string,len, "| IDLE |");			break;
+						case (Uint8)ACT_FISH_MAGNETIC_ARM_MIDDLE:	print(string,len, "| MIDDLE |");		break;
 						case (Uint8)ACT_FISH_MAGNETIC_ARM_OPEN:		print(string,len, "| OPEN |");			break;
 						case (Uint8)ACT_FISH_MAGNETIC_ARM_CLOSE:	print(string,len, "| CLOSE |");			break;
 						case (Uint8)ACT_FISH_MAGNETIC_ARM_STOP:		print(string,len, "| STOP |");			break;
