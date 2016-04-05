@@ -116,6 +116,7 @@ bool_e FISH_MAGNETIC_ARM_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_FISH_MAGNETIC_ARM_IDLE :
+			case ACT_FISH_MAGNETIC_ARM_MIDDLE :
 			case ACT_FISH_MAGNETIC_ARM_OPEN :
 			case ACT_FISH_MAGNETIC_ARM_CLOSE :
 			case ACT_FISH_MAGNETIC_ARM_STOP :
@@ -168,6 +169,7 @@ static void FISH_MAGNETIC_ARM_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_FISH_MAGNETIC_ARM_IDLE : *rx24_goalPosition = FISH_MAGNETIC_ARM_RX24_IDLE_POS; break;
+		case ACT_FISH_MAGNETIC_ARM_MIDDLE : *rx24_goalPosition = FISH_MAGNETIC_ARM_RX24_MIDDLE_POS; break;
 		case ACT_FISH_MAGNETIC_ARM_CLOSE : *rx24_goalPosition = FISH_MAGNETIC_ARM_RX24_CLOSE_POS; break;
 		case ACT_FISH_MAGNETIC_ARM_OPEN : *rx24_goalPosition = FISH_MAGNETIC_ARM_RX24_OPEN_POS; break;
 
