@@ -13,7 +13,7 @@
 	//à regler avec éléments mécaniques de blocages extrèmement parallèles à l'axe des codeurs !
 
 // BIG
-#define BIG_ROBOT_WIDTH									310		//Largeur du gros robot [mm]
+#define BIG_ROBOT_WIDTH									292  //310		//Largeur du gros robot [mm]
 #define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE		96		//Distance entre le 'centre' du robot et l'arrière en calage [mm]
 #define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE			146		//Distance entre le 'centre' du robot et l'avant en calage [mm]
 
