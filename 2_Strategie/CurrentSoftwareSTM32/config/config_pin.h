@@ -148,10 +148,10 @@
 		#define WT100_PEARL_MIDDLE  !GPIOC->IDR5  //Pearl
 
 	#define PORT_IO_C_6			PORT_IO_OUTPUT
-		#define MOSFET_0_PIN         GPIOC,GPIO_Pin_6
+		#define MOSFET_1_PIN         GPIOC,GPIO_Pin_6
 
 	#define PORT_IO_C_7			PORT_IO_OUTPUT
-		#define MOSFET_1_PIN         GPIOC,GPIO_Pin_7
+		#define MOSFET_0_PIN         GPIOC,GPIO_Pin_7
 
 	#define PORT_IO_C_8			PORT_IO_OUTPUT
 		#define SYNCHRO_BEACON		GPIOC,GPIO_Pin_8
@@ -160,10 +160,10 @@
 		#define BUZZER				GPIOC,GPIO_Pin_9
 
 	#define PORT_IO_C_10		PORT_IO_OUTPUT
-		#define MOSFET_2_PIN        GPIOC,GPIO_Pin_10
+		#define MOSFET_3_PIN        GPIOC,GPIO_Pin_10
 
 	#define PORT_IO_C_11		PORT_IO_OUTPUT
-		#define MOSFET_3_PIN         GPIOC,GPIO_Pin_11
+		#define MOSFET_2_PIN         GPIOC,GPIO_Pin_11
 
 	#define PORT_IO_C_12		PORT_IO_INPUT
 		//

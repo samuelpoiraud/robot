@@ -420,7 +420,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			//ATTENTION : Pas de switch car les raisons peuvent être cumulées !!!
 			//Les raisons WARNING_TRANSLATION, WARNING_ROTATION, WARNING_NO et WARNING_TIMER ne font rien d'autres que déclencher un ENV_pos_update();
 
-			if(incoming_msg->data.broadcast_position_robot.reason & (WARNING_REACH_X | WARNING_REACH_Y)){ //Nous venons d'atteindre une position en END_AT_DISTANCE (ie la position à 100mm près) pour laquelle on a demandé une surveillance à la propulsion.
+			if((incoming_msg->data.broadcast_position_robot.reason & (WARNING_REACH_X | WARNING_REACH_Y)) == (WARNING_REACH_X | WARNING_REACH_Y)){ //Nous venons d'atteindre une position en END_AT_DISTANCE (ie la position à 100mm près) pour laquelle on a demandé une surveillance à la propulsion.
 				global.prop.reach_distance = TRUE;
 				debug_printf("Rd\n");
 			}else{
