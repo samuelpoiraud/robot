@@ -65,47 +65,47 @@
 // POSITION 2016
 	//SMALL Position calibration
 		//BOT_COLOR
-		#define SMALL_BOT_COLOR_CALIBRATION_X  		1000
-		#define SMALL_BOT_COLOR_CALIBRATION_Y  		SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE //10mm de marge avec le bord de la serviette
+		#define SMALL_BOT_COLOR_CALIBRATION_X  		1005
+		#define SMALL_BOT_COLOR_CALIBRATION_Y  		SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE //10mm de marge avec le bord de la serviette
 		#define SMALL_BOT_COLOR_CALIBRATION_TETA	(-PI4096/2)
 
 		//TOP_COLOR
-		#define SMALL_TOP_COLOR_CALIBRATION_X  		1000
-		#define SMALL_TOP_COLOR_CALIBRATION_Y  		SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE //10mm de marge avec le bord de la serviette
+		#define SMALL_TOP_COLOR_CALIBRATION_X  		1005
+		#define SMALL_TOP_COLOR_CALIBRATION_Y  		(3000 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE) //10mm de marge avec le bord de la serviette
 		#define SMALL_TOP_COLOR_CALIBRATION_TETA	(PI4096/2)
 
 	//BIG
 		//BOT_COLOR
 		#define BIG_BOT_COLOR_CALIBRATION_X  		750
-		#define BIG_BOT_COLOR_CALIBRATION_Y  		BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE
+		#define BIG_BOT_COLOR_CALIBRATION_Y  		BIG_CALIBRATION_FORWARD_BORDER_DISTANCE
 		#define BIG_BOT_COLOR_CALIBRATION_TETA		(-PI4096/2)
 
 		//TOP_COLOR
 		#define BIG_TOP_COLOR_CALIBRATION_X  		750
-		#define BIG_TOP_COLOR_CALIBRATION_Y  		(3000 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)
+		#define BIG_TOP_COLOR_CALIBRATION_Y  		(3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)
 		#define BIG_TOP_COLOR_CALIBRATION_TETA 		(PI4096/2)
 
 
 //SMALL  Position initiale
 		// BOT_COLOR
 		#define SMALL_BOT_COLOR_START_X  		(1100 - SMALL_ROBOT_WIDTH/2)*65536 	// Calé au bord de la serviette, coté cabine de plage
-		#define SMALL_BOT_COLOR_START_Y  		(SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE*65536)
+		#define SMALL_BOT_COLOR_START_Y  		(SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE*65536)
 		#define SMALL_BOT_COLOR_START_TETA 		(-6588416)			//-PI/2  (il part en marche arrière...)
 
 		// TOP_COLOR
 		#define SMALL_TOP_COLOR_START_X 		(1100 - SMALL_ROBOT_WIDTH/2)*65536   // Calé au bord de la serviette, coté cabine de plage
-		#define SMALL_TOP_COLOR_START_Y 		(3000 - SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE) *65536
+		#define SMALL_TOP_COLOR_START_Y 		(3000 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE) *65536
 		#define SMALL_TOP_COLOR_START_TETA 		(6588416)				//PI/2  (il part en marche arrière...)
 
 	//BIG
 		// BOT_COLOR
 		#define BIG_BOT_COLOR_START_X  	(600 + BIG_ROBOT_WIDTH/2)*65536	   // Calé au bord de la serviette, coté mer
-		#define BIG_BOT_COLOR_START_Y  	(BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536  //calé contre la bordure
+		#define BIG_BOT_COLOR_START_Y  	(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536  //calé contre la bordure
 		#define BIG_BOT_COLOR_START_TETA 	(-6588416)				//PI/2  (il part en marche avant...)
 
 		// TOP_COLOR
 		#define BIG_TOP_COLOR_START_X  (600 + BIG_ROBOT_WIDTH/2)*65536	  // Calé au bord de la serviette, coté mer
-		#define BIG_TOP_COLOR_START_Y  (3000 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536  //calé contre la bordure
+		#define BIG_TOP_COLOR_START_Y  (3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536  //calé contre la bordure
 		#define BIG_TOP_COLOR_START_TETA 	(6588416)			//-PI/2  (il part en marche avant...)
 
 
@@ -118,18 +118,18 @@
 
 
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
-	#define SMALL_KD_TRANSLATION 	(0x22) //0x80
+	#define SMALL_KD_TRANSLATION 	(0x20) //0x80
 	#define BIG_KD_TRANSLATION 	(0x20) //0x80
 
-	#define SMALL_KP_TRANSLATION 	(0x25)
+	#define SMALL_KP_TRANSLATION 	(0x20)
 	#define BIG_KP_TRANSLATION 	(0x30)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
-	#define SMALL_KD_ROTATION 	(0x200) //0x800
+	#define SMALL_KD_ROTATION 	(0x150) //0x800
 	#define BIG_KD_ROTATION 	(0x180) //0x800
 
-	#define SMALL_KP_ROTATION 	(0x80)//40 //0x80
+	#define SMALL_KP_ROTATION 	(0x60)//40 //0x80
 	#define BIG_KP_ROTATION 	(0x80) //0x80
 
 	//Ordre de grandeur :
@@ -172,7 +172,7 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 
 	// de combien on accelere à chaque boucle d'asser
-	#define SMALL_ACCELERATION_NORMAL	112	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
+	#define SMALL_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
 	#define SMALL_ACCELERATION_ROTATION_TRANSLATION 10			//Sur check Norris : 200mm entre les roues => 1024/50 = 20
 
 	#define BIG_ACCELERATION_NORMAL	80	// ATTENTION : doit être un multiple de 16...	[mm/4096/5ms/5ms]
