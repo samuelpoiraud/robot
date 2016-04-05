@@ -23,7 +23,6 @@
 #define I_AM_ROBOT_BIG
 //#define I_AM_ROBOT_SMALL
 
-
 #if defined(PREDEF_BUILD_BIG)
 # ifndef I_AM_ROBOT_BIG
 #  define I_AM_ROBOT_BIG
