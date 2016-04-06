@@ -359,12 +359,12 @@
 		static RF_status_e state = RFS_IDLE;
 		static Uint8 i;
 
-		debug_printf("c=0x%x\n", c);
+		//debug_printf("c=0x%x\n", c);
 
 		switch(state) {
 			case RFS_IDLE:
 				if(new_frame) {
-					debug_printf("New RF frame received\n");
+					//debug_printf("New RF frame received\n");
 					i = 0;
 					state = RFS_GET_DATA;
 				}
@@ -397,7 +397,7 @@
 
 			case RFS_GET_END:
 				if(c == END_OF_PACKET_CHAR && crc8(data, i)== 0 && packet_received_fct){
-					debug_printf("Msg recieve complete\n");
+					//debug_printf("Msg recieve complete\n");
 					RF_process_data((RF_header_t)data[0], data+1, i-1);
 				}
 				state = RFS_IDLE;
@@ -406,7 +406,7 @@
 	}
 
 	static void RF_process_data(RF_header_t header, Uint8 *data, Uint8 size) {
-		debug_printf("RF_process_data\n");
+		//debug_printf("RF_process_data\n");
 		if(header.type == RF_PT_Can && (header.target_id == currentModule || header.target_id == RF_BROADCAST)) {
 			//Possibilité d'utiliser ce code avec "canmsg_received_fct"
 			//if(canmsg_received_fct && size > RF_CAN_SID+1 && size > data[RF_CAN_SIZE] && data[RF_CAN_SIZE] >= 2 && data[RF_CAN_SIZE] < 8+2) {
