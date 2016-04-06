@@ -93,7 +93,7 @@ int main (void)
 	UART_init();
 	//RCC_read();
 
-	IHM_init();
+	IHM_init(&global.flags.match_started);
 
 	ENV_init();	//Pour être réceptif aux éventuels messages CAN envoyés très tôt...
 

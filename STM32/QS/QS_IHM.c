@@ -24,12 +24,13 @@ typedef struct{
 
 volatile static bool_e switchs[SWITCHS_NUMBER_IHM];
 static ihm_button_t buttons[BP_NUMBER_IHM];
+volatile static bool_e *match_started;
 
 void switchs_update(CAN_msg_t * msg);
 void switchs_update_all(CAN_msg_t * msg);
 void button_update(CAN_msg_t * msg);
 
-void IHM_init(){
+void IHM_init(volatile bool_e *matchStarted){
 	Uint8 i;
 
 	static bool_e initialized = FALSE;
@@ -49,6 +50,7 @@ void IHM_init(){
 	switchs[SWITCH_EVIT] = TRUE;		// Activation Evit
 	switchs[SWITCH18_DISABLE_ASSER] = FALSE;		// Activation Asser
 
+	match_started = matchStarted;
 }
 
 void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
@@ -128,19 +130,25 @@ bool_e IHM_switchs_get(switch_ihm_e swit){
 }
 
 void IHM_process_main(CAN_msg_t* msg){
-	switch (msg->sid){
-		case IHM_BUTTON:
-			button_update(msg);
-			break;
-		case IHM_SWITCH:
-			switchs_update(msg);
-			break;
-		case IHM_SWITCH_ALL:
-			switchs_update_all(msg);
-			break;
-		default:
-			break;
+#ifdef IHM_SWITCH_DISABLE_IN_MATCH
+	if(match_started == NULL || (match_started != NULL && (*match_started) == FALSE)){
+#endif
+		switch (msg->sid){
+			case IHM_BUTTON:
+				button_update(msg);
+				break;
+			case IHM_SWITCH:
+				switchs_update(msg);
+				break;
+			case IHM_SWITCH_ALL:
+				switchs_update_all(msg);
+				break;
+			default:
+				break;
+		}
+#ifdef IHM_SWITCH_DISABLE_IN_MATCH
 	}
+#endif
 }
 
 void IHM_define_act_button(button_ihm_e button_id,ihm_button_action_t direct_push, ihm_button_action_t after_long_push){
