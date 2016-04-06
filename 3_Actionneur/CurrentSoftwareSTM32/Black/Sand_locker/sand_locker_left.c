@@ -118,6 +118,8 @@ bool_e SAND_LOCKER_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_SAND_LOCKER_LEFT_LOCK :
 			case ACT_SAND_LOCKER_LEFT_UNLOCK :
 			case ACT_SAND_LOCKER_LEFT_MIDDLE :
+			case ACT_SAND_LOCKER_LEFT_LOCK_BLOCK :
+			case ACT_SAND_LOCKER_LEFT_LOCK_BLOCK_SERRAGE :
 			case ACT_SAND_LOCKER_LEFT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SAND_LOCKER_LEFT, &SAND_LOCKER_LEFT_run_command, 0,TRUE);
 				break;
@@ -171,6 +173,8 @@ static void SAND_LOCKER_LEFT_command_init(queue_id_t queueId) {
 		case ACT_SAND_LOCKER_LEFT_LOCK : *rx24_goalPosition = SAND_LOCKER_LEFT_RX24_LOCK_POS; break;
 		case ACT_SAND_LOCKER_LEFT_UNLOCK : *rx24_goalPosition = SAND_LOCKER_LEFT_RX24_UNLOCK_POS; break;
 		case ACT_SAND_LOCKER_LEFT_MIDDLE : *rx24_goalPosition = SAND_LOCKER_LEFT_RX24_MID_POS; break;
+		case ACT_SAND_LOCKER_LEFT_LOCK_BLOCK : *rx24_goalPosition = SAND_LOCKER_LEFT_RX24_LOCK_BLOCK_POS; break;
+		case ACT_SAND_LOCKER_LEFT_LOCK_BLOCK_SERRAGE : *rx24_goalPosition = SAND_LOCKER_LEFT_RX24_LOCK_BLOCK_POS; break;
 
 		case ACT_SAND_LOCKER_LEFT_STOP :
 			RX24_set_torque_enabled(SAND_LOCKER_LEFT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
