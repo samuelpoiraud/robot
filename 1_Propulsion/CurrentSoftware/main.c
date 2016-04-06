@@ -125,6 +125,7 @@ void initialisation(void)
 	JOYSTICK_init();
 	DEBUG_init();
 	BUTTONS_init();
+	IHM_init(&global.flags.match_started);
 
 	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
 

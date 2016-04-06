@@ -91,6 +91,7 @@ int main (void)
 	CLOCK_init();
 	QUEUE_init();
 	BUTTONS_init();
+	IHM_init(&global.flags.match_started);
 
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
