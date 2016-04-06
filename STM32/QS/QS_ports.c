@@ -50,7 +50,9 @@ bool_e PORTS_secure_init(void){
 	msg.sid = BROADCAST_I_AM_AND_I_AM_HERE;
 	msg.size = SIZE_BROADCAST_I_AM_AND_I_AM_HERE;
 
-	PORTS_set_pull(PORT_I_AM_STRAT, GPIO_PuPd_UP);
+	#if defined(I_AM_CARTE_PROP) || defined(I_AM_CARTE_ACT) || defined(I_AM_CARTE_STRAT)
+		 PORTS_set_pull(PORT_I_AM_STRAT, GPIO_PuPd_UP);
+	#endif
 	#if defined(I_AM_CARTE_PROP) || defined(I_AM_CARTE_ACT)
 		PORTS_set_pull(PORT_I_AM_PROP, GPIO_PuPd_UP);
 		PORTS_set_pull(PORT_I_AM_ACT, GPIO_PuPd_UP);

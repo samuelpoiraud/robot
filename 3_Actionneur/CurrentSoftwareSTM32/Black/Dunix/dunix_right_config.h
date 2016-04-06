@@ -20,9 +20,9 @@
 	#define DUNIX_RIGHT_RX24_MAX_TEMPERATURE			65		// Température maximale en degré
 
 //Position
-	#define DUNIX_RIGHT_RX24_IDLE_POS					300
-	#define DUNIX_RIGHT_RX24_CLOSE_POS			     	512	//en degré
-	#define DUNIX_RIGHT_RX24_OPEN_POS					700	//en degré
+	#define DUNIX_RIGHT_RX24_IDLE_POS					682
+	#define DUNIX_RIGHT_RX24_CLOSE_POS			     	682	//en degré
+	#define DUNIX_RIGHT_RX24_OPEN_POS					313	//en degré
 
 //Position initiale de l'RX24
 	#define DUNIX_RIGHT_RX24_INIT_POS					DUNIX_RIGHT_RX24_IDLE_POS
