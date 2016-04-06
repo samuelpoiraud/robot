@@ -20,9 +20,9 @@
 	#define SAND_LOCKER_LEFT_RX24_MAX_TEMPERATURE			65		// Température maximale en degré
 
 //Position
-	#define SAND_LOCKER_LEFT_RX24_IDLE_POS					300
-	#define SAND_LOCKER_LEFT_RX24_LOCK_POS			     	512
-	#define SAND_LOCKER_LEFT_RX24_UNLOCK_POS     			700
+	#define SAND_LOCKER_LEFT_RX24_IDLE_POS					40
+	#define SAND_LOCKER_LEFT_RX24_LOCK_POS			     	673
+	#define SAND_LOCKER_LEFT_RX24_UNLOCK_POS     			40
 	#define SAND_LOCKER_LEFT_RX24_MID_POS     			    600
 
 //Position initiale de l'RX24
