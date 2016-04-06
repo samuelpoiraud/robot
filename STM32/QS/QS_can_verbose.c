@@ -399,6 +399,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_IDLE:		print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_LOCK:		print(string,len, "| LOCK |");			break;
+						  case (Uint8)ACT_SAND_LOCKER_LEFT_LOCK_BLOCK:		print(string,len, "| LOCK BLOCK|");			break;
+						  case (Uint8)ACT_SAND_LOCKER_LEFT_LOCK_BLOCK_SERRAGE:		print(string,len, "| LOCK BLOCK SERRAGE|");			break;
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_MIDDLE:		print(string,len, "| MIDDLE |");		break;
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_UNLOCK:		print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_SAND_LOCKER_LEFT_STOP:		print(string,len, "| STOP |");			break;
@@ -409,6 +411,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_IDLE:		print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_LOCK:		print(string,len, "| LOCK |");			break;
+						  case (Uint8)ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK:		print(string,len, "| LOCK BLOCK|");			break;
+						  case (Uint8)ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK_SERRAGE:		print(string,len, "| LOCK BLOCK SERRAGE|");			break;
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_MIDDLE:		print(string,len, "| MIDDLE |");		break;
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_UNLOCK:		print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_SAND_LOCKER_RIGHT_STOP:		print(string,len, "| STOP |");			break;

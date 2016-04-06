@@ -47,10 +47,10 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Dunix_right,			ACT_AVOID_DUNIX_RIGHT_Open,			ACT_DUNIX_RIGHT_OPEN,				0,		60,		0,		0);
 
 		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Open,	ACT_SAND_LOCKER_LEFT_LOCK,			0,		0,		60,		0);
-		//init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Mid,		ACT_SAND_LOCKER_LEFT_MIDDLE,		10,		0,		30,		0);
+		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Lock_Block,		ACT_SAND_LOCKER_LEFT_LOCK_BLOCK,		0,		0,		70,		0);
 
 		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Open,	ACT_SAND_LOCKER_RIGHT_LOCK,			0,		0,		60,		0);
-		//init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Mid,	ACT_SAND_LOCKER_RIGHT_MIDDLE,		0,		10,		30,		0);
+		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Lock_Block,	ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK,		0,		0,		70,		0);
 
 
 		init_new_offset(ACT_QUEUE_Mosfet_act_all,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_5,				0,		0,		0,		60);
