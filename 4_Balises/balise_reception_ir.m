@@ -7,10 +7,10 @@ delete(a);
 
 NB_VAL_VIEW = 60;
 
-s = serial('COM11'); %assigns the object s to serial port
+s = serial('COM9'); %assigns the object s to serial port
 set(s, 'InputBufferSize', 1024); %number of bytes in input buffer
 set(s, 'FlowControl', 'hardware');
-set(s, 'BaudRate', 9600);
+set(s, 'BaudRate', 230400);
 set(s, 'Parity', 'none');
 set(s, 'DataBits', 8);
 set(s, 'StopBit', 1);
@@ -26,7 +26,9 @@ fopen(s); %opens the serial port
 figure('units','normalized','outerposition',[0 0 1 1]);
 echant = 1;
 while(1)
+    open=1
     while fread(s, 1, 'char') ~= 'm' end
+    read=1
     dist(echant) = fscanf(s, '%d')*20;
     dist(echant)
     angle(echant) = fscanf(s, '%d')/(3.14*4096)*180;
