@@ -20,9 +20,9 @@
 	#define PENDULUM_RX24_MAX_TEMPERATURE			65		// Température maximale en degré
 
 //Position
-	#define PENDULUM_RX24_IDLE_POS					300
-	#define PENDULUM_RX24_CLOSE_POS			     	512
-	#define PENDULUM_RX24_OPEN_POS					700
+	#define PENDULUM_RX24_IDLE_POS					674
+	#define PENDULUM_RX24_CLOSE_POS			     	674
+	#define PENDULUM_RX24_OPEN_POS					535
 
 //Position initiale de l'RX24
 	#define PENDULUM_RX24_INIT_POS					PENDULUM_RX24_IDLE_POS
