@@ -56,11 +56,11 @@
 
 	#define FAST_COS_SIN				//Calcul rapide des cos et sin à l'aide d'un GRAND tableau de valeur
 
-	#define VERBOSE_MODE				//Activation du verbose
+	//#define VERBOSE_MODE				//Activation du verbose
 
-	#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
+	//#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
 
-	#define LIMITATION_PWM_BORDER_MODE
+	//#define LIMITATION_PWM_BORDER_MODE
 
 	//#define DETECTION_CHOC
 
