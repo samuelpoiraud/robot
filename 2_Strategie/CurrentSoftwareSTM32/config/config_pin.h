@@ -144,7 +144,7 @@
 		#define WT100_PEARL_RIGHT   !GPIOC->IDR4  //Pearl
 
 	#define PORT_IO_C_5			PORT_IO_INPUT
-		#define RECALAGE_AR_G		!GPIOC->IDR5  //Holly
+		#define RECALAGE_AR_G		!GPIOC->IDR5  //Black
 		#define WT100_PEARL_MIDDLE  !GPIOC->IDR5  //Pearl
 
 	#define PORT_IO_C_6			PORT_IO_OUTPUT
