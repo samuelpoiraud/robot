@@ -25,7 +25,7 @@
 	#define SAND_LOCKER_RIGHT_RX24_UNLOCK_POS  					1012	//en degré
 	#define SAND_LOCKER_RIGHT_RX24_MID_POS  					600	//en degré
 	#define SAND_LOCKER_RIGHT_RX24_LOCK_BLOCK_POS               399
-	#define SAND_LOCKER_RIGHT_RX24_LOCK_BLOCK_SERRAGE           389
+	#define SAND_LOCKER_RIGHT_RX24_LOCK_BLOCK_SERRAGE_POS       365
 
 
 //Position initiale de l'RX24

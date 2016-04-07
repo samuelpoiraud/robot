@@ -555,12 +555,19 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 	}
 	if(COPILOT_braking_translation_get() == BRAKING && extra_braking_translation)
 	{
-		ptrans = ptrans * 2; // 3/2
+		if(!(global.flags.rush))
+			ptrans = ptrans*2;
+		else
+			ptrans = ptrans;
+		//ptrans = ptrans* 2; // 3/2
 	}
 
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP && QS_WHO_AM_I_get() == BIG_ROBOT)
 	{
-		ptrans = ptrans * 2;
+		if(!(global.flags.rush))
+			ptrans = ptrans*2;
+		else
+			ptrans = ptrans;
 		prot = prot * 2;
 	}
 
