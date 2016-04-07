@@ -22,6 +22,7 @@
 		volatile bool_e match_over;
 
 		volatile bool_e scan_dune;
+		volatile bool_e rush;
 
 		volatile bool_e treatment_scan;
 
