@@ -86,10 +86,10 @@
 													//Il est pratique de figer une sauvegarde de toutes la structure global_t et d'afficher ensuite des données "cohérentes", prises au même "instant" !
 													//Voir le code associé à cette macro !
 
-//	#define SUPERVISOR_DISABLE_ERROR_DETECTION			//Dangereux, mais parfois utile !
+	//#define SUPERVISOR_DISABLE_ERROR_DETECTION			//Dangereux, mais parfois utile !
 
 
-//	#define CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION //Inutile... Voir wiki...
+	//#define CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION //Inutile... Voir wiki...
 
 
 
