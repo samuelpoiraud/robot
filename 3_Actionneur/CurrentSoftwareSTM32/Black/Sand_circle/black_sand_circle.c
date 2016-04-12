@@ -50,7 +50,7 @@
 #include "black_sand_circle_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "BLACK_SAND_CIRCLE.c : "
+#define LOG_PREFIX "Black_sand_circle.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BLACK_SAND_CIRCLE
 #include "../QS/QS_outputlog.h"
 

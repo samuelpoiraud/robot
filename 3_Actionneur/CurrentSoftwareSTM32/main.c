@@ -94,7 +94,7 @@ int main (void)
 	IHM_init(&global.flags.match_started);
 
 	//Sur quel robot est-on ?
-	QS_WHO_AM_I_find();	//DÃ©termine le robot sur lequel est branchÃ©e la carte.
+	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	debug_printf("--- Hello, I'm ACT (%s) ---\n", QS_WHO_AM_I_get_name());
 
 	#if defined(I_AM_ROBOT_BIG)
@@ -129,10 +129,9 @@ int main (void)
 	IHM_define_act_button(BP_4_IHM, &MAIN_onButton4, &MAIN_onButton4LongPush);
 	IHM_define_act_button(BP_5_IHM, &MAIN_onButton5, &MAIN_onButton5LongPush);
 
-
 	debug_printf("---   ACT Ready    ---\n");
 
-	// Demande des Ã©tats initiaux des switchs
+	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
 
 	while(1)
@@ -220,8 +219,7 @@ static void MAIN_onButton0() {
 	state = (state == 5)? 0 : state + 1;
 }
 
-static void MAIN_onButton0LongPush() {
-}
+static void MAIN_onButton0LongPush() {}
 
 static void MAIN_onButton1() {
    static Uint8 state = 0;
@@ -345,8 +343,7 @@ static void MAIN_onButton3() {
 	state = (state == 3)? 0 : state + 1;
 }
 
-static void MAIN_onButton3LongPush() {
-}
+static void MAIN_onButton3LongPush() {}
 
 static void MAIN_onButton4() {
 	static Uint8 state = 0;
@@ -371,8 +368,7 @@ static void MAIN_onButton4() {
 	state = (state == 3)? 0 : state + 1;
 }
 
-static void MAIN_onButton4LongPush() {
-}
+static void MAIN_onButton4LongPush() {}
 
 static void MAIN_onButton5() {
 	static Uint8 state = 0;
@@ -410,8 +406,7 @@ static void MAIN_onButton5() {
 	state = (state == 4)? 0 : state + 1;
 }
 
-static void MAIN_onButton5LongPush() {
-}
+static void MAIN_onButton5LongPush() {}
 
 
 #else // ROBOT_SMALL

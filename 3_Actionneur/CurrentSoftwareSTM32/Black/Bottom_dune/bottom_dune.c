@@ -25,7 +25,7 @@
 #include "bottom_dune_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "BOTTOM_DUNE_rx24.c : "
+#define LOG_PREFIX "Bottom_dune_rx24.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BOTTOM_DUNE
 #include "../QS/QS_outputlog.h"
 
@@ -240,19 +240,24 @@ static void BOTTOM_DUNE_command_init(queue_id_t queueId) {
 	RX24_reset_last_error(BOTTOM_DUNE_LEFT_RX24_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 	RX24_reset_last_error(BOTTOM_DUNE_RIGHT_RX24_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
 
+	debug_printf("result = %d\n", result);
+
 	if(!RX24_set_position(BOTTOM_DUNE_LEFT_RX24_ID, rx24_goalPosition_left)) {	//Si la commande n'a pas été envoyée correctement et/ou que le RX24 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		error_printf("RX24_set_position error: 0x%x\n", RX24_get_last_error(BOTTOM_DUNE_LEFT_RX24_ID).error);
 		result = FALSE;
-	}else
+	}else{
 		debug_printf("Move BOTTOM_DUNE rx24(%d) to %d\n", BOTTOM_DUNE_LEFT_RX24_ID, rx24_goalPosition_left);
+	}
 
 	if(!RX24_set_position(BOTTOM_DUNE_RIGHT_RX24_ID, rx24_goalPosition_right)) {	//Si la commande n'a pas été envoyée correctement et/ou que le RX24 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		error_printf("RX24_set_position error: 0x%x\n", RX24_get_last_error(BOTTOM_DUNE_LEFT_RX24_ID).error);
 		result = FALSE;
-	}else
+	}else{
 		debug_printf("Move BOTTOM_DUNE rx24(%d) to %d\n", BOTTOM_DUNE_LEFT_RX24_ID, rx24_goalPosition_right);
+	}
 
 	if(result == FALSE){
+		debug_printf("BOTTOM_DUNE rx24 failed : NotHere\n");
 		QUEUE_next(queueId, ACT_BOTTOM_DUNE, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
@@ -268,23 +273,24 @@ static void BOTTOM_DUNE_command_run(queue_id_t queueId) {
 
 	BOTTOM_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 
-	if(done_right == FALSE)
-		done_right = ACTQ_check_status_ax12(queueId, BOTTOM_DUNE_RIGHT_RX24_ID, rx24_goalPosition_right,
-				BOTTOM_DUNE_RX24_ASSER_POS_EPSILON, BOTTOM_DUNE_RX24_ASSER_TIMEOUT, BOTTOM_DUNE_RX24_ASSER_POS_LARGE_EPSILON, &result_right, &errorCode_right, &line_right);
+	if(done_right == FALSE){
+		done_right = ACTQ_check_status_rx24(queueId, BOTTOM_DUNE_RIGHT_RX24_ID, rx24_goalPosition_right, BOTTOM_DUNE_RX24_ASSER_POS_EPSILON, BOTTOM_DUNE_RX24_ASSER_TIMEOUT, BOTTOM_DUNE_RX24_ASSER_POS_LARGE_EPSILON, &result_right, &errorCode_right, &line_right);
+	}
 
-	if(done_left == FALSE)
-		done_left = ACTQ_check_status_ax12(queueId, BOTTOM_DUNE_LEFT_RX24_ID, rx24_goalPosition_left,
-				BOTTOM_DUNE_RX24_ASSER_POS_EPSILON, BOTTOM_DUNE_RX24_ASSER_TIMEOUT, BOTTOM_DUNE_RX24_ASSER_POS_LARGE_EPSILON, &result_left, &errorCode_left, &line_left);
+	if(done_left == FALSE){
+		done_left = ACTQ_check_status_rx24(queueId, BOTTOM_DUNE_LEFT_RX24_ID, rx24_goalPosition_left, BOTTOM_DUNE_RX24_ASSER_POS_EPSILON, BOTTOM_DUNE_RX24_ASSER_TIMEOUT, BOTTOM_DUNE_RX24_ASSER_POS_LARGE_EPSILON, &result_left, &errorCode_left, &line_left);
+	}
 
 	if(done_right && done_left){
 		done_right = FALSE;
 		done_left = FALSE;
-		if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE)
+		if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE){
 			QUEUE_next(queueId, ACT_BOTTOM_DUNE, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
-		else if(result_right != ACT_RESULT_DONE)
+		}else if(result_right != ACT_RESULT_DONE){
 			QUEUE_next(queueId, ACT_BOTTOM_DUNE, result_right, errorCode_right, line_right);
-		else
+		}else {
 			QUEUE_next(queueId, ACT_BOTTOM_DUNE, result_left, errorCode_left, line_left);
+		}
 	}
 }
 

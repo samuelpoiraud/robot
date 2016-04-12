@@ -661,7 +661,7 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 	static Uint11 last_state = NB_QUEUE + 1;
 	static bool_e entrance;
 	static time32_t state_time;
-	CAN_msg_t *msg = NULL;
+	CAN_msg_t msg;
 
 	//Affectation des variables courantes
 	entrance = (last_state != state);
@@ -669,18 +669,19 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 	if(entrance){
 		state_time = global.absolute_time;
 	}
+
 	switch(state){
 		case ACT_QUEUE_Mosfet_act_0:
 			if(entrance){
-				msg->sid = ACT_MOSFET_0;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_0;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg->sid = ACT_MOSFET_0;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_0;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				if(nb_mosfets>=2)
 					state = ACT_QUEUE_Mosfet_act_1;
 				else
@@ -690,15 +691,15 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 
 		case ACT_QUEUE_Mosfet_act_1:
 			if(entrance){
-				msg->sid = ACT_MOSFET_1;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_1;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg->sid = ACT_MOSFET_1;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_1;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				if(nb_mosfets>=3)
 					state = ACT_QUEUE_Mosfet_act_2;
 				else
@@ -708,15 +709,15 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 
 		case ACT_QUEUE_Mosfet_act_2:
 			if(entrance){
-				msg->sid = ACT_MOSFET_2;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_2;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg->sid = ACT_MOSFET_2;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_2;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				if(nb_mosfets>=4)
 					state = ACT_QUEUE_Mosfet_act_3;
 				else
@@ -726,15 +727,15 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 
 		case ACT_QUEUE_Mosfet_act_3:
 			if(entrance){
-				msg->sid = ACT_MOSFET_3;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_3;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg->sid = ACT_MOSFET_3;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_3;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				if(nb_mosfets>=5)
 					state = ACT_QUEUE_Mosfet_act_4;
 				else
@@ -744,15 +745,15 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 
 		case ACT_QUEUE_Mosfet_act_4:
 			if(entrance){
-				msg->sid = ACT_MOSFET_4;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_4;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg->sid = ACT_MOSFET_4;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_4;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				if(nb_mosfets>=6)
 					state = ACT_QUEUE_Mosfet_act_5;
 			   else
@@ -762,15 +763,15 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 
 		case ACT_QUEUE_Mosfet_act_5:
 			if(entrance){
-				msg->sid = ACT_MOSFET_5;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_5;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg->sid = ACT_MOSFET_5;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_5;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				if(nb_mosfets>=7)
 					state = ACT_QUEUE_Mosfet_act_6;
 				else
@@ -780,15 +781,15 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 
 		case ACT_QUEUE_Mosfet_act_6:
 			if(entrance){
-				msg->sid = ACT_MOSFET_6;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_6;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg->sid = ACT_MOSFET_6;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_6;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				if(nb_mosfets>=8)
 					  state = ACT_QUEUE_Mosfet_act_7;
 				else
@@ -798,15 +799,15 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 
 		case ACT_QUEUE_Mosfet_act_7:
 			if(entrance){
-				msg->sid = ACT_MOSFET_7;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_7;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg->sid = ACT_MOSFET_7;
-				msg->size = SIZE_ACT_MSG;
-				msg->data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(msg);
+				msg.sid = ACT_MOSFET_7;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				state = NB_QUEUE;
 			}
 			break;
