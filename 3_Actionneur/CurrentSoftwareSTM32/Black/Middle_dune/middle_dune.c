@@ -25,7 +25,7 @@
 #include "middle_dune_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "MIDDLE_DUNE_rx24.c : "
+#define LOG_PREFIX "Middle_dune_rx24.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_MIDDLE_DUNE
 #include "../QS/QS_outputlog.h"
 
@@ -264,11 +264,11 @@ static void MIDDLE_DUNE_command_run(queue_id_t queueId) {
 	MIDDLE_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 
 	if(done_right == FALSE)
-		done_right = ACTQ_check_status_ax12(queueId, MIDDLE_DUNE_RIGHT_RX24_ID, rx24_goalPosition_right,
+		done_right = ACTQ_check_status_rx24(queueId, MIDDLE_DUNE_RIGHT_RX24_ID, rx24_goalPosition_right,
 				MIDDLE_DUNE_RX24_ASSER_POS_EPSILON, MIDDLE_DUNE_RX24_ASSER_TIMEOUT, MIDDLE_DUNE_RX24_ASSER_POS_LARGE_EPSILON, &result_right, &errorCode_right, &line_right);
 
 	if(done_left == FALSE)
-		done_left = ACTQ_check_status_ax12(queueId, MIDDLE_DUNE_LEFT_RX24_ID, rx24_goalPosition_left,
+		done_left = ACTQ_check_status_rx24(queueId, MIDDLE_DUNE_LEFT_RX24_ID, rx24_goalPosition_left,
 				MIDDLE_DUNE_RX24_ASSER_POS_EPSILON,MIDDLE_DUNE_RX24_ASSER_TIMEOUT, MIDDLE_DUNE_RX24_ASSER_POS_LARGE_EPSILON, &result_left, &errorCode_left, &line_left);
 
 	if(done_right && done_left){

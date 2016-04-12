@@ -210,20 +210,20 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 // Mosfets
 		case ACT_MOSFET_0:
 											 if(I_AM_BIG())
-														print(string, len, "%x ACT_POMPE_MIDDLE                       ", ACT_POMPE_MIDDLE                               );
+														print(string, len, "%x ACT_POMPE_VERY_LEFT                    ", ACT_POMPE_VERY_LEFT                            );
 											 else
-														print(string, len, "%x ACT_POMPE_BACK_LEFT                   ", ACT_POMPE_BACK_LEFT							    );	break;
+														print(string, len, "%x ACT_POMPE_BACK_RIGHT                   ", ACT_POMPE_BACK_RIGHT							);	break;
 		case ACT_MOSFET_1:
 											 if(I_AM_BIG())
-														print(string, len, "%x ACT_POMPE_VERY_LEFT                   ", ACT_POMPE_VERY_LEFT                             );
+														print(string, len, "%x ACT_POMPE_MIDDLE						  ", ACT_POMPE_MIDDLE                               );
 											 else
-														print(string, len, "%x ACT_POMPE_BACK_RIGHT                   ", ACT_POMPE_BACK_RIGHT							);  break;
-		case ACT_MOSFET_2:								print(string, len, "%x ACT_POMPE_VERY_RIGHT_TOP               ", ACT_POMPE_VERY_RIGHT_TOP    					);	break;
-		case ACT_MOSFET_3:								print(string, len, "%x ACT_POMPE_VERY_RIGHT_BOT               ", ACT_POMPE_VERY_RIGHT_BOT    					);	break;
-		case ACT_MOSFET_4:								print(string, len, "%x ACT_POMPE_MIDDLE_RIGHT                 ", ACT_POMPE_MIDDLE_RIGHT							);	break;
-		case ACT_MOSFET_5:								print(string, len, "%x ACT_POMPE_RIGHT                        ", ACT_POMPE_RIGHT       							);	break;
-		case ACT_MOSFET_6:								print(string, len, "%x ACT_POMPE_LEFT                         ", ACT_POMPE_LEFT        							);	break;
-		case ACT_MOSFET_7:								print(string, len, "%x ACT_POMPE_MIDDLE_LEFT                  ", ACT_POMPE_MIDDLE_LEFT 							);	break;
+														print(string, len, "%x ACT_POMPE_BACK_LEFT                    ", ACT_POMPE_BACK_LEFT							);  break;
+		case ACT_MOSFET_2:								print(string, len, "%x ACT_POMPE_VERY_RIGHT_BOT               ", ACT_POMPE_VERY_RIGHT_BOT    					);	break;
+		case ACT_MOSFET_3:								print(string, len, "%x ACT_POMPE_VERY_RIGHT_TOP               ", ACT_POMPE_VERY_RIGHT_TOP    					);	break;
+		case ACT_MOSFET_4:								print(string, len, "%x ACT_POMPE_RIGHT                        ", ACT_POMPE_RIGHT								);	break;
+		case ACT_MOSFET_5:								print(string, len, "%x ACT_POMPE_MIDDLE_RIGHT                 ", ACT_POMPE_MIDDLE_RIGHT       					);	break;
+		case ACT_MOSFET_6:								print(string, len, "%x ACT_POMPE_MIDDLE_LEFT                  ", ACT_POMPE_MIDDLE_LEFT        					);	break;
+		case ACT_MOSFET_7:								print(string, len, "%x ACT_POMPE_LEFT						  ", ACT_POMPE_LEFT									);	break;
 
 		case STRAT_MOSFET_0:							print(string, len, "%x ACT_POMPE_BLACK_FRONT_LEFT             ", ACT_POMPE_BLACK_FRONT_LEFT						);	break;
 		case STRAT_MOSFET_1:							print(string, len, "%x ACT_POMPE_SAND_LOCKER_LEFT             ", ACT_POMPE_SAND_LOCKER_LEFT						);	break;
@@ -292,20 +292,20 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				//Mosfet
 				case (Uint8)ACT_MOSFET_0:
 													 if(I_AM_BIG())
-																print(string, len, "ACT_POMPE_MIDDLE ");
-													 else
-																print(string, len, "ACT_POMPE_BACK_LEFT ");        	break;
-				case (Uint8)ACT_MOSFET_1:
-													 if(I_AM_BIG())
 																print(string, len, "ACT_POMPE_VERY_LEFT ");
 													 else
 																print(string, len, "ACT_POMPE_BACK_RIGHT ");        break;
-				case (Uint8)ACT_MOSFET_2:						print(string, len, "ACT_POMPE_VERY_RIGHT_TOP ");    break;
-				case (Uint8)ACT_MOSFET_3:					    print(string, len, "ACT_POMPE_VERY_RIGHT_BOT ");    break;
-				case (Uint8)ACT_MOSFET_4:					    print(string, len, "ACT_POMPE_MIDDLE_RIGHT ");      break;
-				case (Uint8)ACT_MOSFET_5:						print(string, len, "ACT_POMPE_RIGHT ");             break;
-				case (Uint8)ACT_MOSFET_6:						print(string, len, "ACT_POMPE_LEFT ");              break;
-				case (Uint8)ACT_MOSFET_7:						print(string, len, "ACT_POMPE_MIDDLE_LEFT ");       break;
+				case (Uint8)ACT_MOSFET_1:
+													 if(I_AM_BIG())
+																print(string, len, "ACT_POMPE_MIDDLE ");
+													 else
+																print(string, len, "ACT_POMPE_BACK_LEFT ");         break;
+				case (Uint8)ACT_MOSFET_2:						print(string, len, "ACT_POMPE_VERY_RIGHT_BOT ");    break;
+				case (Uint8)ACT_MOSFET_3:					    print(string, len, "ACT_POMPE_VERY_RIGHT_TOP ");    break;
+				case (Uint8)ACT_MOSFET_4:					    print(string, len, "ACT_POMPE_RIGHT ");             break;
+				case (Uint8)ACT_MOSFET_5:						print(string, len, "ACT_POMPE_MIDDLE_RIGHT ");      break;
+				case (Uint8)ACT_MOSFET_6:						print(string, len, "ACT_POMPE_MIDDLE_LEFT ");       break;
+				case (Uint8)ACT_MOSFET_7:						print(string, len, "ACT_POMPE_LEFT ");              break;
 
 				case (Uint8)STRAT_MOSFET_0:						print(string, len, "ACT_POMPE_BLACK_FRONT_LEFT ");	break;
 				case (Uint8)STRAT_MOSFET_1:						print(string, len, "ACT_POMPE_SAND_LOCKER_LEFT ");	break;

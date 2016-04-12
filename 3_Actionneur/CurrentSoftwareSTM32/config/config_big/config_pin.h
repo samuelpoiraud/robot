@@ -39,8 +39,8 @@
 	#define PORT_IO_A_7			PORT_IO_INPUT
 		//
 
-	#define PORT_IO_A_8			PORT_IO_OUTPUT
-		#define CUP_NIPPER_DCM_SENS		 GPIOA,GPIO_Pin_8
+	#define PORT_IO_A_8			PORT_IO_INPUT
+		//
 
 	#define PORT_IO_A_9			PORT_IO_INPUT
 		// USB

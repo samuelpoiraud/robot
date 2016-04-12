@@ -119,8 +119,9 @@ void button_update(CAN_msg_t * msg){
 
 	}else{
 		action = button->after_long_push;
-		if(action != NULL)
+		if(action != NULL){
 			(*action)();
+		}
 	}
 }
 
