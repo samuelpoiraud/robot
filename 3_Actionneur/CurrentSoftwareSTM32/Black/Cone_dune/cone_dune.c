@@ -24,7 +24,7 @@
 #include "cone_dune_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "CONE_DUNE.c : "
+#define LOG_PREFIX "cone_dune.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CONE_DUNE
 #include "../QS/QS_outputlog.h"
 
