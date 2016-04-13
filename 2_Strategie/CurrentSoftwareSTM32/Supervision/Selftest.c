@@ -35,7 +35,7 @@
 
 #define TIMEOUT_SELFTEST_ACT			20000	// en ms
 #define TIMEOUT_SELFTEST_PROP			10000	// en ms
-#define TIMEOUT_SELFTEST_STRAT			5000	// en ms
+#define TIMEOUT_SELFTEST_STRAT			10000	// en ms
 #define TIMEOUT_SELFTEST_BEACON_IR		1000	// en ms
 #define TIMEOUT_SELFTEST_AVOIDANCE		5000	// en ms
 #define TIMEOUT_SELFTEST_IHM			1000	// en ms
@@ -516,15 +516,24 @@ error_e SELFTEST_strategy(bool_e reset)
 			state = TEST_STRAT_MOSFETS;
 			break;
 
-		case TEST_STRAT_MOSFETS:{
-			if(MOSFET_selftest_strat())
+		case TEST_STRAT_MOSFETS:
+			if(I_AM_BIG()){
+				if(MOSFET_selftest_strat())
+					state = TEST_ACT_MOSFETS;
+			}else{
 				state = TEST_ACT_MOSFETS;
-			}break;
+			}
+			break;
 
-		case TEST_ACT_MOSFETS:{
-			if(MOSFET_selftest_act(8))  //huit mosfets à tester
-				state = TEST_SD_CARD;
-			 }break;
+		case TEST_ACT_MOSFETS:
+			if(I_AM_BIG()){
+				if(MOSFET_selftest_act(8))  //huit mosfets à tester
+					state = TEST_SD_CARD;
+			}else{
+				if(MOSFET_selftest_act(2))  //deux mosfets à tester
+					state = TEST_SD_CARD;
+			}
+			break;
 
 		case TEST_SD_CARD:
 			nb_written = 0;
