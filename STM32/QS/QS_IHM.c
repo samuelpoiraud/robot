@@ -157,7 +157,4 @@ void IHM_define_act_button(button_ihm_e button_id,ihm_button_action_t direct_pus
 	ihm_button_t* button = &(buttons[button_id]);
 	button->direct_push= direct_push;
 	button->after_long_push= after_long_push;
-	debug_printf("direct_push param=0x%x button=0x%x\n", (unsigned int)direct_push, (unsigned int)button->direct_push);
-	debug_printf("long_push param=0x%x button=0x%x\n",(unsigned int)after_long_push, (unsigned int)button->after_long_push);
-
 }

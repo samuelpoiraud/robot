@@ -24,8 +24,8 @@
 
 	typedef enum
 	{
-		INITIALIZED,
 		NOT_INITIALIZED,
+		INITIALIZED,
 		STOPPED
 	}init_state_e;
 
