@@ -96,6 +96,7 @@ void TERMINAL_init(){
 	PORTS_pwm_init();
 	PWM_init();
 	AX12_init();
+	RX24_init();
 }
 
 void TERMINAL_uart_checker(unsigned char c){
@@ -110,12 +111,15 @@ void TERMINAL_uart_checker(unsigned char c){
 			state = i;
 			if(terminal_motor[i].type == term_AX12)
 				position = AX12_get_position(terminal_motor[i].id);
+			else if(terminal_motor[i].type == term_RX24)
+				position = RX24_get_position(terminal_motor[i].id);
 			else if(terminal_motor[i].type == term_MOTOR)
 				position = terminal_motor[i].fun();
-			else{
+			else if(terminal_motor[i].type == term_PWM){
 				position = PWM_get_duty(terminal_motor[i].id);
 				terminal_motor[i].sens = GPIO_ReadOutputDataBit(terminal_motor[i].GPIOx_sens, terminal_motor[i].GPIO_Pin_sens);
-			}
+			}else
+				debug_printf("Erreur ce type de terminal n'existe pas\n");
 		}
 	}
 
@@ -124,10 +128,14 @@ void TERMINAL_uart_checker(unsigned char c){
 		for(i=0;i<terminal_motor_size;i++){
 			if(terminal_motor[i].type == term_AX12)
 				debug_printf("%s : %d\n", terminal_motor[i].name, AX12_get_position(terminal_motor[i].id));
+			else if(terminal_motor[i].type == term_RX24)
+				debug_printf("%s : %d\n", terminal_motor[i].name, RX24_get_position(terminal_motor[i].id));
 			else if(terminal_motor[i].type == term_MOTOR)
 				debug_printf("%s : %d /  real : %d\n" , terminal_motor[i].name, terminal_motor[i].fun(), 0 /*conv_potar_updown_to_dist(terminal_motor[i].fun())*/);
-			else
+			else if(terminal_motor[i].type == term_PWM)
 				debug_printf("%s : %d %s\n" , terminal_motor[i].name, PWM_get_duty(terminal_motor[i].id), (terminal_motor[i].sens)?"NORMAL":"REVERSE");
+			else
+				debug_printf("Erreur ce type de terminal n'existe pas\n");
 		}
 	}
 
@@ -137,11 +145,15 @@ void TERMINAL_uart_checker(unsigned char c){
 		for(i=0;i<terminal_motor_size;i++){
 			if(terminal_motor[i].type == term_AX12)
 				debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", AX12_is_ready(terminal_motor[i].id) ? "  Connecté" : "Déconnecté", terminal_motor[i].char_selection, terminal_motor[i].id, terminal_motor[i].name);
+			else if(terminal_motor[i].type == term_RX24)
+				debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", RX24_is_ready(terminal_motor[i].id) ? "  Connecté" : "Déconnecté", terminal_motor[i].char_selection, terminal_motor[i].id, terminal_motor[i].name);
 			else if(terminal_motor[i].type == term_MOTOR)
 				debug_printf("(%s) cmd : %c   ID : %d   NAME : %s\n", "----------", terminal_motor[i].char_selection, terminal_motor[i].id, terminal_motor[i].name);
-			else
+			else if(terminal_motor[i].type == term_PWM)
 				debug_printf("(%s) cmd : %c   PWM : %d   NAME : %s\n", "----------", terminal_motor[i].char_selection, terminal_motor[i].id, terminal_motor[i].name);
-			}
+			else
+				debug_printf("Erreur ce type de terminal n'existe pas\n");
+		}
 		debug_printf("\nCommande : \n");
 		debug_printf("p/+ incrémenter\nm/- décrémenter\nr inverser sens PWM\nESPACE affichage position\nh affichage aide\n");
 	}
@@ -165,13 +177,17 @@ void TERMINAL_uart_checker(unsigned char c){
 
 	if(terminal_motor[state].type == term_AX12)
 		AX12_set_position(terminal_motor[state].id, position);
+	else if(terminal_motor[state].type == term_RX24)
+			RX24_set_position(terminal_motor[state].id, position);
 	else if(terminal_motor[state].type == term_PWM)
 		PWM_run(position, terminal_motor[state].id);
 #ifdef USE_DCMOTOR2
-	else{
+	else if(terminal_motor[state].type == term_MOTOR){
 		DCM_setPosValue(terminal_motor[state].id, 0, position);
 		DCM_goToPos(terminal_motor[state].id, 0);
 		DCM_restart(terminal_motor[state].id);
 	}
 #endif
+	else
+		debug_printf("Erreur ce type de terminal n'existe pas\n");
 }
