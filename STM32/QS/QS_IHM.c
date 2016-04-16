@@ -23,7 +23,7 @@ typedef struct{
 }ihm_button_t;
 
 volatile static bool_e switchs[SWITCHS_NUMBER_IHM];
-static ihm_button_t buttons[BP_NUMBER_IHM];
+static ihm_button_t buttons_ihm[BP_NUMBER_IHM];
 volatile static bool_e *match_started;
 
 void switchs_update(CAN_msg_t * msg);
@@ -109,7 +109,7 @@ void switchs_update_all(CAN_msg_t * msg){
 }
 
 void button_update(CAN_msg_t * msg){
-	ihm_button_t* button = &(buttons[msg->data.ihm_button.id]);
+	ihm_button_t* button = &(buttons_ihm[msg->data.ihm_button.id]);
 	ihm_button_action_t action;
 
 	if(msg->data.ihm_button.long_push == FALSE) { // direct push
@@ -154,7 +154,7 @@ void IHM_process_main(CAN_msg_t* msg){
 
 void IHM_define_act_button(button_ihm_e button_id,ihm_button_action_t direct_push, ihm_button_action_t after_long_push){
 	assert(button_id<BP_NUMBER_IHM&&button_id>=0);
-	ihm_button_t* button = &(buttons[button_id]);
+	ihm_button_t* button = &(buttons_ihm[button_id]);
 	button->direct_push= direct_push;
 	button->after_long_push= after_long_push;
 }

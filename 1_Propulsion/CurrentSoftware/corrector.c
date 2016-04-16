@@ -30,26 +30,30 @@ void CORRECTOR_init(void)
 		coefs[CORRECTOR_COEF_KV_TRANSLATION] = SMALL_KV_TRANSLATION;
 		coefs[CORRECTOR_COEF_KA_TRANSLATION] = SMALL_KA_TRANSLATION;
 		coefs[CORRECTOR_COEF_KP_ROTATION] = SMALL_KP_ROTATION;
+		coefs[CORRECTOR_COEF_KI_ROTATION] = SMALL_KI_ROTATION;
 		coefs[CORRECTOR_COEF_KD_ROTATION] = SMALL_KD_ROTATION;
 		coefs[CORRECTOR_COEF_KV_ROTATION] = SMALL_KV_ROTATION;
 		coefs[CORRECTOR_COEF_KA_ROTATION] = SMALL_KA_ROTATION;
- 	}
- 	else
- 	{
-	 	//BIG
-	 	coefs[CORRECTOR_COEF_KP_TRANSLATION] =  BIG_KP_TRANSLATION;
+	}
+	else
+	{
+		//BIG
+		coefs[CORRECTOR_COEF_KP_TRANSLATION] =  BIG_KP_TRANSLATION;
 		coefs[CORRECTOR_COEF_KD_TRANSLATION] = BIG_KD_TRANSLATION;
 		coefs[CORRECTOR_COEF_KV_TRANSLATION] = BIG_KV_TRANSLATION;
 		coefs[CORRECTOR_COEF_KA_TRANSLATION] = BIG_KA_TRANSLATION;
 		coefs[CORRECTOR_COEF_KP_ROTATION] = BIG_KP_ROTATION;
+		coefs[CORRECTOR_COEF_KI_ROTATION] = BIG_KI_ROTATION;
 		coefs[CORRECTOR_COEF_KD_ROTATION] = BIG_KD_ROTATION;
 		coefs[CORRECTOR_COEF_KV_ROTATION] = BIG_KV_ROTATION;
 		coefs[CORRECTOR_COEF_KA_ROTATION] = BIG_KA_ROTATION;
-	}	 
+	}
 	MOTORS_reset();	//RAZ des sorties Moteur.
+	global.ecart_rotation_somme = 0;
+	global.flags.pid_active = FALSE;
 	CORRECTOR_PD_enable(CORRECTOR_ENABLE);
 }
-	
+
 
 void CORRECTOR_set_coef(PROPULSION_coef_e coef, Sint32 value)
 {
@@ -140,38 +144,43 @@ void CORRECTOR_update(void)
 	Sint16 duty_left, duty_right;
 	Sint32 commande_translation;		//[% moteurs]
 	Sint32 commande_rotation;			//[% moteurs]
-	//CALCUL DU PD (non, pas le président directeur !!! il s'agit bien du le proportionnel dérivé !) 
+	//CALCUL DU PD (non, pas le président directeur !!! il s'agit bien du le proportionnel dérivé !)
 	//... le moment ultime...
-	//Calcul effectif du PD !!!  (ecart * Kp) + (dérivée(écart)* Kd)	
+	//Calcul effectif du PD !!!  (ecart * Kp) + (dérivée(écart)* Kd)
 	//k*[mm/4096]/4096 et k*[rad/4096]/1024
 	//On ajoute une anticipation de vitesse si les coeffs sont non nuls... (MODE_ANTICIPATION_DE_VITESSE)
 
-/*	
+/*
 	//Code utilisé sur Archi'tech en 2009... Utile si les roues sont loin du centre de gravité !
 	global.coef_kp_translation = (global.ecart_rotation > 0)?KP_ROTATION_POSITIF:KP_ROTATION_NEGATIF;
-	global.coef_kd_translation = (global.ecart_rotation > 0)?KD_ROTATION_POSITIF:KD_ROTATION_NEGATIF;		
+	global.coef_kd_translation = (global.ecart_rotation > 0)?KD_ROTATION_POSITIF:KD_ROTATION_NEGATIF;
 */
 	// Calcul des écarts entre CONSIGNE (données par MAJ...) et REEL (Mesuré, cpld...)  [mm/4096] et [rad/4096]
 	global.ecart_translation = global.position_translation - global.real_position_translation; // positif si le robot doit avancer
 	global.ecart_rotation = global.position_rotation - (global.real_position_rotation >> 10);  //positif pour rotation dans le sens trigo
-
+	global.ecart_rotation_somme += global.ecart_rotation;
+	if(global.ecart_rotation_somme > 3000)
+		global.ecart_rotation_somme = 3000;
+	else if(global.ecart_rotation_somme < -3000)
+		global.ecart_rotation_somme = -3000;
 
 	commande_translation = -(	(global.acceleration_translation						 * coefs[CORRECTOR_COEF_KA_TRANSLATION])  +
-									(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+ 
+									(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+
 									(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION])/16 	+
-									(global.ecart_translation-global.ecart_translation_prec) * coefs[CORRECTOR_COEF_KD_TRANSLATION] 
+									(global.ecart_translation-global.ecart_translation_prec) * coefs[CORRECTOR_COEF_KD_TRANSLATION]
 								  )>>12;
-								  
+
 	commande_rotation 	= (	(global.acceleration_rotation							 * coefs[CORRECTOR_COEF_KA_ROTATION])		+
 									(global.vitesse_rotation								 * coefs[CORRECTOR_COEF_KV_ROTATION])/2	+
-									(global.ecart_rotation 									 * coefs[CORRECTOR_COEF_KP_ROTATION]) 	+ 
+									(global.ecart_rotation 									 * coefs[CORRECTOR_COEF_KP_ROTATION]) 	+
+									(global.ecart_rotation_somme * global.flags.pid_active   * coefs[CORRECTOR_COEF_KI_ROTATION])   +
 									((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION])
 								  )>>10;
 
-#if 0	//Code a tester								  
+#if 0	//Code a tester
 	if(COPILOT_get_trajectory() == TRAJECTORY_ROTATION)
 		commande_translation = commande_translation * 4;	//Augmentation artificielle de la correction en translation lors d'une rotation pour tourner mieux par rapport au centre du robot.
-#endif							  
+#endif
 		//sauvegarde des valeurs actuelles pour la prochaine boucle
 	global.ecart_translation_prec = global.ecart_translation;
 	global.ecart_rotation_prec = global.ecart_rotation;
@@ -189,13 +198,13 @@ void CORRECTOR_update(void)
 		duty_right += commande_rotation;
 		duty_left -= commande_rotation;
 	}
-	
+
 	MOTORS_update(duty_left,duty_right);
-		
+
 }
 /*
 	[rad/4096 * kprot] = [mm/4096 * kptrans]/4
-roue de propulsion : unité de kptrans : 60mm/4=245760/4=61440 
+roue de propulsion : unité de kptrans : 60mm/4=245760/4=61440
 					unité de kprot : =12868 rad/4096
 					facteur 5 ! (kptrans = 5* kprot)
 */
