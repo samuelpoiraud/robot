@@ -15,6 +15,7 @@
 #include "QS/QS_can.h"
 #include "clock.h"
 #include "act_queue_utils.h"
+#include "can_msg_processing.h"
 
 #ifdef I_AM_ROBOT_BIG
 	#include "Black/Fishs/fish_magnetic_arm.h"
@@ -52,7 +53,8 @@ typedef enum{
 	SELFTEST_FISHS,
 	SELFTEST_CONE_DUNE_OPEN,
 	SELFTEST_BOTTOM_DUNE_OPEN,
-	SELFTEST_MIDDLE_DUNE,
+	SELFTEST_MIDDLE_DUNE_OPEN,
+	SELFTEST_MIDDLE_DUNE_CLOSE,
 	SELFTEST_BOTTOM_DUNE_CLOSE,
 	SELFTEST_CONE_DUNE_CLOSE,
 	SELFTEST_BLACK_SAND_CIRCLE,
@@ -237,33 +239,47 @@ void SELFTEST_state_machine(void){
 					debug_printf("SELFTEST Launch Bottom\n");
 				}
 				if(state_act_tests[ACT_BOTTOM_DUNE & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state = SELFTEST_MIDDLE_DUNE;
+					state = SELFTEST_MIDDLE_DUNE_OPEN;
 					debug_printf("SELFTEST of ACT_BOTTOM_DUNE finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
 					state_act_tests[ACT_BOTTOM_DUNE & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					debug_printf("TIMEOUT Bottom dune\n");
-					state = SELFTEST_MIDDLE_DUNE;
+					state = SELFTEST_MIDDLE_DUNE_OPEN;
 				}
 				break;
 
-			case SELFTEST_MIDDLE_DUNE:
+			case SELFTEST_MIDDLE_DUNE_OPEN:
 				if(entrance){
 					debug_printf("SELFTEST Launch Middle\n");
-					SELFTEST_set_actions(&MIDDLE_DUNE_run_command, 3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&MIDDLE_DUNE_run_command, 2, (SELFTEST_action_t[]){
 											 {ACT_MIDDLE_DUNE_IDLE,		0,  QUEUE_ACT_RX24_MIDDLE_DUNE},
-											 {ACT_MIDDLE_DUNE_LOCK,		0,  QUEUE_ACT_RX24_MIDDLE_DUNE},
-											 {ACT_MIDDLE_DUNE_IDLE,		0,  QUEUE_ACT_RX24_MIDDLE_DUNE}
+											 {ACT_MIDDLE_DUNE_LOCK,		0,  QUEUE_ACT_RX24_MIDDLE_DUNE}
 										 });
 				}
 				if(state_act_tests[ACT_MIDDLE_DUNE & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state = SELFTEST_BOTTOM_DUNE_CLOSE;
+					state = SELFTEST_MIDDLE_DUNE_CLOSE;
 					debug_printf("SELFTEST of ACT_MIDDLE_DUNE finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
 					state_act_tests[ACT_MIDDLE_DUNE & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					debug_printf("TIMEOUT Middle dune\n");
+					state = SELFTEST_MIDDLE_DUNE_CLOSE;
+				}
+				break;
+
+			case SELFTEST_MIDDLE_DUNE_CLOSE:
+				if(entrance){
+					CAN_msg_t msg;
+					msg.sid = ACT_MIDDLE_DUNE;
+					msg.size = SIZE_ACT_MSG;
+					msg.data.act_msg.order = ACT_MIDDLE_DUNE_IDLE;
+					CAN_process_msg(&msg);
+					debug_printf("SELFTEST Launch Middle\n");
+				}
+				if(global.absolute_time >= time_for_timeout + 500){
 					state = SELFTEST_BOTTOM_DUNE_CLOSE;
 				}
 				break;
+
 
 			case SELFTEST_BOTTOM_DUNE_CLOSE:
 				if(entrance){
@@ -680,6 +696,7 @@ static bool_e SELFTEST_check_end(queue_id_t queueId) {
 		msg.size = 0;
 
 		if(act_test_done_num != expected_act_num) {
+			debug_printf("act_test_done_num=%d  expected_act_num=%d\n",act_test_done_num, expected_act_num);
 			msg.data.strat_act_selftest_done.error_code[msg.size] = SELFTEST_ACT_MISSING_TEST;
 			OUTPUTLOG_printf(LOG_LEVEL_Debug, "%3d ", msg.data.strat_act_selftest_done.error_code[msg.size]);
 			msg.size++;

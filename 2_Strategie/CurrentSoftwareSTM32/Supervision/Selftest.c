@@ -160,7 +160,6 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 		SELFTEST_IHM,
 		SELFTEST_BEACON_IR,
 		SELFTEST_STRAT,
-		SELFTEST_BEACON_BATTERY,
 		SELFTEST_END
 	}state_e;
 	static state_e state = INIT;
@@ -372,7 +371,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					debug_printf("SELFTEST BEACON\r\n");
 				}
 				else
-					state = SELFTEST_BEACON_BATTERY;
+					state = SELFTEST_END;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_BEACON_SELFTEST_DONE)
@@ -381,33 +380,13 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					SELFTEST_declare_errors(CAN_msg_received, SELFTEST_NO_ERROR);
 					if(!flag_timeout)
 						WATCHDOG_stop(watchdog_id);
-					state = SELFTEST_BEACON_BATTERY;
+					state = SELFTEST_END;
 				}
 			if(flag_timeout)	//Timeout
 			{
 				debug_printf("SELFTEST BEACON TIMEOUT\r\n");
-				state = SELFTEST_BEACON_BATTERY;
+				state = SELFTEST_END;
 			}
-			break;
-
-		case SELFTEST_BEACON_BATTERY:
-			if(entrance)
-				debug_printf("SELFTEST BEACON ADV\r\n");
-
-			/*if(get_warner_foe1_is_rf_unreacheable())
-				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV1_RF_UNREACHABLE);
-
-			if(get_warner_foe2_is_rf_unreacheable())
-				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV2_RF_UNREACHABLE);
-
-			if(get_warner_low_battery_on_foe1())
-				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV1_BATTERY_LOW);
-
-			if(get_warner_low_battery_on_foe2())
-				SELFTEST_declare_errors(NULL,SELFTEST_BEACON_ADV2_BATTERY_LOW);*/
-
-			state = SELFTEST_END;
-
 			break;
 
 		case SELFTEST_END:

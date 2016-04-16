@@ -310,6 +310,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			SEQUENCES_rush_in_the_wall(msg->data.prop_rush_in_the_wall.teta, msg->data.prop_rush_in_the_wall.way, SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data.prop_rush_in_the_wall.asser_rot)?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
 		break;
 
+		case PROP_ACTIVE_PID:
+			global.flags.pid_active = msg->data.prop_active_pid.state;
+		break;
+
 		//Stop tout
 		case BROADCAST_STOP_ALL:
 			//debug_printf("Broadcast_stop\n");

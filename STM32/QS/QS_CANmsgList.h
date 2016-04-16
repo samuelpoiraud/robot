@@ -635,9 +635,14 @@
 		#define PROP_RUSH					0x11A
 		#define SIZE_PROP_RUSH				1
 			struct{
-				bool_e rush				:1;
+				bool_e rush					:1;
 			}prop_rush;
 
+		#define PROP_ACTIVE_PID				0x11B
+		#define SIZE_PROP_ACTIVE_PID		1
+			struct{
+				bool_e state				:1;
+			}prop_active_pid;
 
 
 	/**********************************************************************************************************************

@@ -21,6 +21,8 @@
 		volatile bool_e match_started;
 		volatile bool_e match_over;
 
+		volatile bool_e pid_active;
+
 		volatile bool_e scan_dune;
 		volatile bool_e rush;
 
@@ -60,6 +62,7 @@
 		volatile Sint32 ecart_rotation;				//[rad/4096] <<12
 		volatile Sint32 ecart_translation_prec;		//[mm/4096]  <<12
 		volatile Sint32 ecart_rotation_prec;		//[rad/4096] <<12
+		volatile Sint32 ecart_rotation_somme;       //[rad/4096] <<12
 
 		//////////////////////////////////////////////////////////
 

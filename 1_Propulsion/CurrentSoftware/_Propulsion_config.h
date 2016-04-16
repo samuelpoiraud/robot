@@ -132,6 +132,9 @@
 	#define SMALL_KP_ROTATION 	(0x60)//40 //0x80
 	#define BIG_KP_ROTATION 	(0x80) //0x80
 
+	#define SMALL_KI_ROTATION   (0x0)
+	#define BIG_KI_ROTATION     (0x05)
+
 	//Ordre de grandeur :
 	//A la vitesse lumière, KV_TRANSLATION * vitesse_translation doit valoir 100*4096
 	//A la vitesse lumière, KV_ROTATION * vitesse_rotation doit valoir 100*1024
