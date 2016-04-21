@@ -296,16 +296,6 @@
 		#define XBEE_COMMUNICATION_AVAILABLE	0x5B0
 		#define XBEE_COMMUNICATION_RESPONSE		0x5B1	//Réponse...
 
-		#define SIZE_XBEE_WOOD_ACCESS_SCAN		6
-			struct{
-				Sint16 holly_x					:16;		// [mm]
-				Sint16 holly_y					:16;		// [mm]
-				access_scan_e access_scan		:8;
-				bool_e north_cup_detected		:1;
-				bool_e south_cup_detected		:1;
-				bool_e pop_corn_disposed		:1;
-			}xbee_wood_access_scan;
-
 		#define XBEE_SYNC_ELEMENTS_FLAGS		0x5B2
 		#define SIZE_XBEE_SYNC_ELEMENTS_FLAGS	2
 			struct{

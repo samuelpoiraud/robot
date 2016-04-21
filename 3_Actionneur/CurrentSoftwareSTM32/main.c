@@ -477,13 +477,15 @@ static void MAIN_onButton2(){
 	msg.size = 7;
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_LOCK;
+		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_MID;
 	}else if(state == 1){
+		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_LOCK;
+	}else if(state == 2){
 		msg.data.act_msg.order = ACT_PEARL_SAND_CIRCLE_UNLOCK;
 	}
 
 	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
+	state = (state == 2)? 0 : state + 1;
  }
 
 static void MAIN_onButton2LongPush(){

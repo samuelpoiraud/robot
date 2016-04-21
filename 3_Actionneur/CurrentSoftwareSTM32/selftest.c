@@ -45,7 +45,7 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SELFTEST
 #include "QS/QS_outputlog.h"
 
-#define MAX_NB_ACT 32
+#define MAX_NB_ACT 64
 #define SELFTEST_TIMEOUT 30000 // en ms (30sec)  //Duree du timeout du selftest complet
 #define ACT_TIMEOUT  5000 //en ms (5sec)  //Duree du timeout par actionneur
 
