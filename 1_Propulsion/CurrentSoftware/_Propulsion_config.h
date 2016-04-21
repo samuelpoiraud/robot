@@ -198,7 +198,7 @@
 		*/
 	// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
 	#define SMALL_TRANSLATION_SPEED_LIGHT 	(Sint32)(24576) 			//environ = 6[mm/5ms] = 1,2m/s
-	#define SMALL_TRANSLATION_SPEED_MAX 		(Sint32)(20480)		 	//environ = 5[mm/5ms] = 1,0m/s
+	#define SMALL_TRANSLATION_SPEED_MAX 		(Sint32)(10240)	//20480	//environ = 5[mm/5ms] = 1,0m/s
 	#define SMALL_TRANSLATION_SPEED_LOW 		(Sint32)(10240)			//environ = 2,5[mm/5ms] = 0,5m/s
 	#define SMALL_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(5120)
 	#define SMALL_TRANSLATION_SPEED_SNAIL		(Sint32)(516)

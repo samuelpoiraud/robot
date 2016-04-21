@@ -895,6 +895,28 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unknown ACT";		break;
+		case SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM:       return "ACT FISH MAGNETIC";     break;
+		case SELFTEST_ACT_RX24_FISH_UNSTICK_ARM:		return "ACT FISH UNSTICK";      break;
+		case SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE:		return "ACT BLACK CIRCLE";      break;
+		case SELFTEST_ACT_RX24_BOTTOM_DUNE:				return "ACT BOTTOM DUNE";       break;
+		case SELFTEST_ACT_RX24_MIDDLE_DUNE:				return "ACT MIDDLE DUNE";       break;
+		case SELFTEST_ACT_RX24_CONE_DUNE:				return "ACT CONE DUNE";         break;
+		case SELFTEST_ACT_RX24_DUNIX_LEFT:				return "ACT DUNIX LEFT";        break;
+		case SELFTEST_ACT_RX24_DUNIX_RIGHT:				return "ACT UNIX RIGHT";       break;
+		case SELFTEST_ACT_RX24_SAND_LOCKER_LEFT:		return "ACT LOCKER LEFT";		break;
+		case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		return "ACT LOCKER RIGHT";      break;
+		case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			return "ACT SHIFT CYLINDER";    break;
+		case SELFTEST_ACT_RX24_PENDULUM:				return "ACT PENDULUM";          break;
+
+		case SELFTEST_ACT_AX12_LEFT_ARM:				return "ACT LEFT ARM";          break;
+		case SELFTEST_ACT_AX12_RIGHT_ARM:				return "ACT RIGHT ARM";         break;
+		case SELFTEST_ACT_AX12_SAND_CIRCLE:				return "ACT CIRCLE";            break;
+		case SELFTEST_ACT_AX12_PARASOL:					return "ACT PARASOL";           break;
+		case SELFTEST_ACT_POMPE_FRONT_LEFT:				return "ACT POMPE FRONT LEFT";  break;
+		case SELFTEST_ACT_POMPE_FRONT_RIGHT:			return "POMPE FRONT RIGHT";     break;
+
+//		case SELFTEST_ACT_MISSING_TEST:					return "ACT MISSING TEST";		break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
+	//	case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT UNKNOWN ACT";		break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
 
 
 		case SELFTEST_ERROR_NB:							return NULL;					break;
