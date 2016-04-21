@@ -157,6 +157,7 @@ bool_e BOTTOM_DUNE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_BOTTOM_DUNE_IDLE :
 			case ACT_BOTTOM_DUNE_LOCK :
 			case ACT_BOTTOM_DUNE_UNLOCK :
+			case ACT_BOTTOM_DUNE_MID :
 			case ACT_BOTTOM_DUNE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_BOTTOM_DUNE, &BOTTOM_DUNE_run_command, 0,TRUE);
 				break;
@@ -209,6 +210,7 @@ static void BOTTOM_DUNE_command_init(queue_id_t queueId) {
 		case ACT_BOTTOM_DUNE_IDLE :
 		case ACT_BOTTOM_DUNE_LOCK :
 		case ACT_BOTTOM_DUNE_UNLOCK :
+		case ACT_BOTTOM_DUNE_MID :
 			BOTTOM_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 			break;
 
