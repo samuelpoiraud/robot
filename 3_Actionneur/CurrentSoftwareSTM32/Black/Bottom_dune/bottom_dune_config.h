@@ -24,10 +24,12 @@
 	#define BOTTOM_DUNE_L_RX24_IDLE_POS					    737
 	#define BOTTOM_DUNE_L_RX24_LOCK_POS			     	    388
 	#define BOTTOM_DUNE_L_RX24_UNLOCK_POS				    737
+	#define BOTTOM_DUNE_L_RX24_MID_POS				        600
 
 	#define BOTTOM_DUNE_R_RX24_IDLE_POS					    283
 	#define BOTTOM_DUNE_R_RX24_LOCK_POS			     	    630
 	#define BOTTOM_DUNE_R_RX24_UNLOCK_POS				    283
+	#define BOTTOM_DUNE_R_RX24_MID_POS				        400
 
 //Position initiale de l'RX24
 	#define BOTTOM_DUNE_L_RX24_INIT_POS					BOTTOM_DUNE_L_RX24_IDLE_POS

@@ -448,9 +448,9 @@ void SELFTEST_state_machine(void){
 #ifdef I_AM_ROBOT_SMALL
 			case SELFTEST_LEFT_ARM:
 				if(entrance){
-					SELFTEST_set_actions(&LEFT_ARM_run_command,  3, (SELFTEST_action_t[]){
+					SELFTEST_set_actions(&LEFT_ARM_run_command, 4, (SELFTEST_action_t[]){
 													 {ACT_LEFT_ARM_IDLE,		0,  QUEUE_ACT_AX12_LEFT_ARM},
-													 {ACT_LEFT_ARM_UNLOCK,        0,  QUEUE_ACT_AX12_LEFT_ARM},
+													 {ACT_LEFT_ARM_UNLOCK,      0,  QUEUE_ACT_AX12_LEFT_ARM},
 													 {ACT_LEFT_ARM_LOCK,        0,  QUEUE_ACT_AX12_LEFT_ARM},
 													 {ACT_LEFT_ARM_IDLE,		0,  QUEUE_ACT_AX12_LEFT_ARM}
 												 });
@@ -468,7 +468,7 @@ void SELFTEST_state_machine(void){
 				if(entrance){
 					SELFTEST_set_actions(&RIGHT_ARM_run_command, 4, (SELFTEST_action_t[]){
 													 {ACT_RIGHT_ARM_IDLE,		0,  QUEUE_ACT_AX12_RIGHT_ARM},
-													 {ACT_RIGHT_ARM_UNLOCK,       0,  QUEUE_ACT_AX12_RIGHT_ARM},
+													 {ACT_RIGHT_ARM_UNLOCK,     0,  QUEUE_ACT_AX12_RIGHT_ARM},
 													 {ACT_RIGHT_ARM_LOCK,       0,  QUEUE_ACT_AX12_RIGHT_ARM},
 													 {ACT_RIGHT_ARM_IDLE,		0,  QUEUE_ACT_AX12_RIGHT_ARM}
 												 });
