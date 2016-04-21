@@ -99,12 +99,12 @@
 
 	//BIG
 		// BOT_COLOR
-		#define BIG_BOT_COLOR_START_X  	(600 + BIG_ROBOT_WIDTH/2)*65536	   // Calé au bord de la serviette, coté mer
+		#define BIG_BOT_COLOR_START_X  	(610 + BIG_ROBOT_WIDTH/2)*65536	   // Calé au bord de la serviette, coté mer
 		#define BIG_BOT_COLOR_START_Y  	(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536  //calé contre la bordure
 		#define BIG_BOT_COLOR_START_TETA 	(-6588416)				//PI/2  (il part en marche avant...)
 
 		// TOP_COLOR
-		#define BIG_TOP_COLOR_START_X  (600 + BIG_ROBOT_WIDTH/2)*65536	  // Calé au bord de la serviette, coté mer
+		#define BIG_TOP_COLOR_START_X  (610 + BIG_ROBOT_WIDTH/2)*65536	  // Calé au bord de la serviette, coté mer
 		#define BIG_TOP_COLOR_START_Y  (3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536  //calé contre la bordure
 		#define BIG_TOP_COLOR_START_TETA 	(6588416)			//-PI/2  (il part en marche avant...)
 
