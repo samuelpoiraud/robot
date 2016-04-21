@@ -283,23 +283,26 @@ static void MAIN_onButton2(){
 		msg.data.act_msg.order = ACT_CONE_DUNE_LOCK;
 	}else if(state == 1){
 		msg.sid = ACT_BOTTOM_DUNE;
-		msg.data.act_msg.order = ACT_BOTTOM_DUNE_LOCK;
+		msg.data.act_msg.order = ACT_BOTTOM_DUNE_MID;
 	}else if(state == 2){
-		msg.sid = ACT_MIDDLE_DUNE;
-		msg.data.act_msg.order = ACT_MIDDLE_DUNE_LOCK;
+		msg.sid = ACT_BOTTOM_DUNE;
+		msg.data.act_msg.order = ACT_BOTTOM_DUNE_LOCK;
 	}else if(state == 3){
 		msg.sid = ACT_MIDDLE_DUNE;
-		msg.data.act_msg.order = ACT_MIDDLE_DUNE_UNLOCK;
+		msg.data.act_msg.order = ACT_MIDDLE_DUNE_LOCK;
 	}else if(state == 4){
+		msg.sid = ACT_MIDDLE_DUNE;
+		msg.data.act_msg.order = ACT_MIDDLE_DUNE_UNLOCK;
+	}else if(state == 5){
 		msg.sid = ACT_BOTTOM_DUNE;
 		msg.data.act_msg.order = ACT_BOTTOM_DUNE_UNLOCK;
-	}else if(state == 5){
+	}else if(state == 6){
 		msg.sid = ACT_CONE_DUNE;
 		msg.data.act_msg.order = ACT_CONE_DUNE_UNLOCK;
 	}
 
 	CAN_process_msg(&msg);
-	state = (state == 5)? 0 : state + 1;
+	state = (state == 6)? 0 : state + 1;
 }
 
 static void MAIN_onButton2LongPush() {
