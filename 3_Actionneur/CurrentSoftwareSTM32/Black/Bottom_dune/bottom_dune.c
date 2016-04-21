@@ -312,6 +312,11 @@ static void BOTTOM_DUNE_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *
 				*left_pos = BOTTOM_DUNE_L_RX24_UNLOCK_POS;
 				break;
 
+			case ACT_BOTTOM_DUNE_MID :
+				*right_pos = BOTTOM_DUNE_R_RX24_MID_POS;
+				*left_pos = BOTTOM_DUNE_L_RX24_MID_POS;
+				break;
+
 			default:
 				*right_pos = 0xFFFF;
 				*left_pos = 0xFFFF;

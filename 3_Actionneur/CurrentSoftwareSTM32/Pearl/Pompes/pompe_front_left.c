@@ -2,7 +2,7 @@
  *
  *	Fichier : pompe_front_left.c
  *	Package : Carte actionneur
- *	Description : Gestion de la pompe avant gauche
+ *	Description : Gestion de la pompe avant gauche NORMAL (ventouse noire)  REVERSE (ventouse blanche)
  *  Auteur : Valentin
  *  Robot : PEARL
  */
