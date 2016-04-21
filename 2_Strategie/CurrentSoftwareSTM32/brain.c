@@ -220,7 +220,20 @@ void any_match(void)
 				QUEUE_reset_all();
 				BUZZER_play(500,NOTE_SOL,2);
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
-				ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
+				if(I_AM_BIG()){
+					ACT_push_order(ACT_POMPE_BLACK_FRONT_LEFT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_BLACK_FRONT_RIGHT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_SAND_LOCKER_LEFT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_SAND_LOCKER_RIGHT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_STOP);
+				}else{
+					ACT_push_order(ACT_POMPE_FRONT_LEFT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_FRONT_RIGHT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_BACK_LEFT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_BACK_RIGHT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
+				}
 			}
 			else
 			{
