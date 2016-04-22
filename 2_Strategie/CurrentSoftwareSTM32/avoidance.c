@@ -102,7 +102,8 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 	CREATE_MAE(
 			EMPILE,
 			WAIT,
-			DONE
+			DONE,
+			ERROR
 		);
 
 	Uint8 ret;
@@ -118,10 +119,19 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
 				state = DONE;
 			}
+			else if (global.prop.erreur)
+			{
+				STACKS_flush(PROP);
+				state = ERROR;
+			}
 			break;
 		case DONE:
 			state = EMPILE;
 			ret = (timeout)? fail_state : success_state;
+			break;
+		case ERROR:
+			state = EMPILE;
+			ret = NOT_HANDLED;
 			break;
 		default:
 			state = EMPILE;
