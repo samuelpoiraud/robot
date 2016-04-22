@@ -126,6 +126,7 @@ void BRAIN_init(void){
 void any_match(void)
 {
 	static error_e ret;
+	static time32_t t_end_of_match;
 
 	if (!global.flags.match_started)
 	{
@@ -220,6 +221,7 @@ void any_match(void)
 				QUEUE_reset_all();
 				BUZZER_play(500,NOTE_SOL,2);
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
+				t_end_of_match = global.absolute_time;
 				if(I_AM_BIG()){
 					ACT_push_order(ACT_POMPE_BLACK_FRONT_LEFT, ACT_POMPE_STOP);
 					ACT_push_order(ACT_POMPE_BLACK_FRONT_RIGHT, ACT_POMPE_STOP);
@@ -232,7 +234,6 @@ void any_match(void)
 					ACT_push_order(ACT_POMPE_FRONT_RIGHT, ACT_POMPE_STOP);
 					ACT_push_order(ACT_POMPE_BACK_LEFT, ACT_POMPE_STOP);
 					ACT_push_order(ACT_POMPE_BACK_RIGHT, ACT_POMPE_STOP);
-					ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
 				}
 			}
 			else
@@ -243,6 +244,8 @@ void any_match(void)
 		else
 		{
 			/* match is over */
+			if((global.absolute_time > t_end_of_match + 1000) && I_AM_SMALL())
+				ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
 		}
 	}
 }

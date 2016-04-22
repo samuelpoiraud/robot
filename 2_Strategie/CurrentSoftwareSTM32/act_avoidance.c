@@ -31,8 +31,9 @@ void ACT_AVOIDANCE_init(){
 //EXEMPLE:init_new_offset(ACT_AVOID_POP_COLLECT_LEFT,ACT_AVOID_POP_COLLECT_LEFT_Open,ACT_POP_COLLECT_LEFT_OPEN,			60,		0,		0,		60);
 
 		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Open,	ACT_FISH_UNSTICK_ARM_OPEN,			0,		210,	0,		0);
-		//init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Mid,		ACT_FISH_UNSTICK_ARM_MIDDLE,		0,		150,	0,		0);
-		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Close,	ACT_FISH_UNSTICK_ARM_CLOSE,			0,		100,	0,		0);
+
+		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Open,	ACT_FISH_MAGNETIC_ARM_OPEN,			0,		210,	0,		0);
+		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Middle,	ACT_FISH_MAGNETIC_ARM_MIDDLE,		0,		100,	0,		0);
 
 		init_new_offset(ACT_QUEUE_Black_sand_circle,	ACT_AVOID_BLACK_SAND_CIRCLE_Open,	ACT_BLACK_SAND_CIRCLE_LOCK,			0,		0,		100,	0);
 
@@ -46,11 +47,11 @@ void ACT_AVOIDANCE_init(){
 
 		init_new_offset(ACT_QUEUE_Dunix_right,			ACT_AVOID_DUNIX_RIGHT_Open,			ACT_DUNIX_RIGHT_OPEN,				0,		60,		0,		0);
 
-		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Open,	ACT_SAND_LOCKER_LEFT_LOCK,			0,		0,		60,		0);
-		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Lock_Block,		ACT_SAND_LOCKER_LEFT_LOCK_BLOCK,		0,		0,		70,		0);
+		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Open,		ACT_SAND_LOCKER_LEFT_LOCK,			0,	0,		60,		0);
+		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Lock_Block,	ACT_SAND_LOCKER_LEFT_LOCK_BLOCK,	0,	0,		70,		0);
 
-		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Open,	ACT_SAND_LOCKER_RIGHT_LOCK,			0,		0,		60,		0);
-		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Lock_Block,	ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK,		0,		0,		70,		0);
+		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Open,		ACT_SAND_LOCKER_RIGHT_LOCK,			0,	0,		60,		0);
+		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Lock_Block,	ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK,	0,	0,		70,		0);
 
 
 		init_new_offset(ACT_QUEUE_Mosfet_act_all,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_5,				0,		0,		0,		60);
@@ -60,16 +61,13 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Mosfet_strat_0,	    ACT_AVOID_MOSFET_STRAT_0_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 
 		//pompe sand_locker_left
-		//init_new_offset(ACT_QUEUE_Mosfet_strat_1,	    ACT_AVOID_MOSFET_STRAT_1_Normal,	ACT_POMPE_NORMAL,					0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Mosfet_strat_1,	    ACT_AVOID_MOSFET_STRAT_1_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 
 		//pompe sand locker right
-		//init_new_offset(ACT_QUEUE_Mosfet_strat_2,	    ACT_AVOID_MOSFET_STRAT_2_Normal,	ACT_POMPE_NORMAL,					0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Mosfet_strat_2,	    ACT_AVOID_MOSFET_STRAT_2_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 
 		//pompe Black front right
 		init_new_offset(ACT_QUEUE_Mosfet_strat_3,	    ACT_AVOID_MOSFET_STRAT_3_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
-
-		//pompe pendulum
-		//init_new_offset(ACT_QUEUE_Mosfet_strat_4,	    ACT_AVOID_MOSFET_STRAT_4_Normal,	ACT_POMPE_NORMAL,					0,		0,		0,		0);
 
 
 	}else{ //Seulement sur le petit robot
@@ -82,10 +80,10 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Right_arm,	        ACT_AVOID_RIGHT_ARM_Unlock,	        ACT_RIGHT_ARM_UNLOCK,				0,		80,		0,		0);
 		init_new_offset(ACT_QUEUE_Right_arm,	        ACT_AVOID_RIGHT_ARM_Lock,	        ACT_RIGHT_ARM_LOCK,					0,		80,		0,		0);
 
-		//pompe back left
+		//pompe back right
 		init_new_offset(ACT_QUEUE_Mosfet_act_0,			ACT_AVOID_MOSFET_ACT_0_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
 
-		//pompe back right
+		//pompe back left
 		init_new_offset(ACT_QUEUE_Mosfet_act_1,			ACT_AVOID_MOSFET_ACT_1_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
 
 		init_new_offset(ACT_QUEUE_Pompe_front_left ,	ACT_AVOID_POMPE_FRONT_LEFT_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
