@@ -357,11 +357,11 @@ static void MAIN_onButton4() {
 		msg.sid = ACT_SAND_LOCKER_LEFT;
 		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_LOCK;
 	}else if(state == 1){
-		msg.sid = ACT_SAND_LOCKER_LEFT;
-		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_UNLOCK;
-	}else if(state == 2){
 		msg.sid = ACT_SAND_LOCKER_RIGHT;
 		msg.data.act_msg.order = ACT_SAND_LOCKER_RIGHT_LOCK;
+	}else if(state == 2){
+		msg.sid = ACT_SAND_LOCKER_LEFT;
+		msg.data.act_msg.order = ACT_SAND_LOCKER_LEFT_UNLOCK;
 	}else if(state == 3){
 		msg.sid = ACT_SAND_LOCKER_RIGHT;
 		msg.data.act_msg.order = ACT_SAND_LOCKER_RIGHT_UNLOCK;

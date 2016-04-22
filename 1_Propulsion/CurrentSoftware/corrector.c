@@ -144,6 +144,7 @@ void CORRECTOR_update(void)
 	Sint16 duty_left, duty_right;
 	Sint32 commande_translation;		//[% moteurs]
 	Sint32 commande_rotation;			//[% moteurs]
+	bool_e pid_active;
 	//CALCUL DU PD (non, pas le président directeur !!! il s'agit bien du le proportionnel dérivé !)
 	//... le moment ultime...
 	//Calcul effectif du PD !!!  (ecart * Kp) + (dérivée(écart)* Kd)
@@ -164,6 +165,16 @@ void CORRECTOR_update(void)
 	else if(global.ecart_rotation_somme < -3000)
 		global.ecart_rotation_somme = -3000;
 
+	if(global.flags.pid_active && I_AM_BIG()){
+		if(global.vitesse_translation < 6000)
+			pid_active = TRUE;
+		else
+			pid_active = FALSE;
+	}else{
+		pid_active = FALSE;
+	}
+
+
 	commande_translation = -(	(global.acceleration_translation						 * coefs[CORRECTOR_COEF_KA_TRANSLATION])  +
 									(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+
 									(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION])/16 	+
@@ -173,7 +184,7 @@ void CORRECTOR_update(void)
 	commande_rotation 	= (	(global.acceleration_rotation							 * coefs[CORRECTOR_COEF_KA_ROTATION])		+
 									(global.vitesse_rotation								 * coefs[CORRECTOR_COEF_KV_ROTATION])/2	+
 									(global.ecart_rotation 									 * coefs[CORRECTOR_COEF_KP_ROTATION]) 	+
-									(global.ecart_rotation_somme * global.flags.pid_active   * coefs[CORRECTOR_COEF_KI_ROTATION])   +
+									(global.ecart_rotation_somme * pid_active                * coefs[CORRECTOR_COEF_KI_ROTATION])   +
 									((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION])
 								  )>>10;
 

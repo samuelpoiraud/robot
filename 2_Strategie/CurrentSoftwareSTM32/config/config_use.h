@@ -34,6 +34,8 @@
 
 #define VERBOSE_MODE			//Activation du verbose
 
+#define BELGIQUE
+
 //#define FDP_2016				//Mode FDP nouvelle génération 2016 !
 
 //#define USE_POLYGON			//Utilise le mode de déplacement avec les polygones
