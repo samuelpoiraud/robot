@@ -21,6 +21,7 @@
 		volatile bool_e match_started;
 
 		volatile bool_e alim;
+
 	}flag_list_t;
 
 	typedef struct{
