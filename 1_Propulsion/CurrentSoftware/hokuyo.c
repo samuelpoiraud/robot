@@ -590,7 +590,7 @@ void hokuyo_find_valid_points(void){
 			{
 				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
 
-				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
+				if(angle < 100*10 || angle > 100*260)//on retire les 10 premiers degrés et les 10 derniers
 					point_filtered = TRUE;
 
 				if(point_filtered == FALSE)
