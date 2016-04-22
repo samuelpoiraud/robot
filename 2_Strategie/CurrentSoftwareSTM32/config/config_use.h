@@ -47,7 +47,7 @@
 
 #define SD_ENABLE				//Activation de la carte SD
 
-//#define USE_SYNC_ELEMENTS
+#define USE_SYNC_ELEMENTS
 
 // Utilisation de la carte Mosfets
 #define USE_MOSFETS			//Déclarer l'utilisation du pilote
