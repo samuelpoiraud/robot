@@ -119,6 +119,8 @@ bool_e FISH_UNSTICK_ARM_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_FISH_UNSTICK_ARM_OPEN :
 			case ACT_FISH_UNSTICK_ARM_CLOSE :
 			case ACT_FISH_UNSTICK_ARM_STOP :
+			case ACT_FISH_UNSTICK_ARM_UP_TAPOTAGE :
+			case ACT_FISH_UNSTICK_ARM_DOWN_TAPOTAGE :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_FISH_UNSTICK_ARM, &FISH_UNSTICK_ARM_run_command, 0,TRUE);
 				break;
 
@@ -170,6 +172,8 @@ static void FISH_UNSTICK_ARM_command_init(queue_id_t queueId) {
 		case ACT_FISH_UNSTICK_ARM_IDLE : *rx24_goalPosition = FISH_UNSTICK_ARM_RX24_IDLE_POS; break;
 		case ACT_FISH_UNSTICK_ARM_CLOSE : *rx24_goalPosition = FISH_UNSTICK_ARM_RX24_CLOSE_POS; break;
 		case ACT_FISH_UNSTICK_ARM_OPEN : *rx24_goalPosition = FISH_UNSTICK_ARM_RX24_OPEN_POS; break;
+		case ACT_FISH_UNSTICK_ARM_UP_TAPOTAGE : *rx24_goalPosition = FISH_UNSTICK_ARM_RX24_UP_TAPOTAGE_POS; break;
+		case ACT_FISH_UNSTICK_ARM_DOWN_TAPOTAGE : *rx24_goalPosition = FISH_UNSTICK_ARM_RX24_DOWN_TAPOTAGE_POS; break;
 
 		case ACT_FISH_UNSTICK_ARM_STOP :
 			RX24_set_torque_enabled(FISH_UNSTICK_ARM_RX24_ID, FALSE); //Stopper l'asservissement du RX24
