@@ -115,8 +115,6 @@
 		PEARL_ADV_SEASHELL,
 		PEARL_CAN_GO_CLOSE_DOORS,
 
-
-
 		//à supprimer
 		SEASHELLS_BOTTOM,			//si les deux coquillages du bas sont pris ou pas (flag à supprimer et à remplacer par les flag coquillages)
 		OUR_BLOCK8_DEPOSED,			//on a depose notre bloc de 8 (à supprimer, on doit juste savoir si le cube est pris)
@@ -135,6 +133,8 @@
 		FRONT_BLACK_USED,			  //flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
 		BACK_BLACK_USED,		      //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 		DUNIX_OPEN,
+		PEARL_IS_OUT,
+
 
 		//Gestion des éléments dans le robot Pearl
 		VENTOUSE_AVANT_GAUCHE_PEARL,
