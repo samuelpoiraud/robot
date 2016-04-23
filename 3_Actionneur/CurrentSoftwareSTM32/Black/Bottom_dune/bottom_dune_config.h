@@ -21,15 +21,15 @@
 	#define BOTTOM_DUNE_RX24_MAX_SPEED                      50      // Vitesse maximale en pourcent
 
 //Position
-	#define BOTTOM_DUNE_L_RX24_IDLE_POS					    737
+	#define BOTTOM_DUNE_L_RX24_IDLE_POS					    743
 	#define BOTTOM_DUNE_L_RX24_LOCK_POS			     	    388
-	#define BOTTOM_DUNE_L_RX24_UNLOCK_POS				    737
-	#define BOTTOM_DUNE_L_RX24_MID_POS				        (737 - 180)
+	#define BOTTOM_DUNE_L_RX24_UNLOCK_POS				    743
+	#define BOTTOM_DUNE_L_RX24_MID_POS				        (743 - 180)
 
-	#define BOTTOM_DUNE_R_RX24_IDLE_POS					    283
+	#define BOTTOM_DUNE_R_RX24_IDLE_POS					    277
 	#define BOTTOM_DUNE_R_RX24_LOCK_POS			     	    630
-	#define BOTTOM_DUNE_R_RX24_UNLOCK_POS				    283
-#define BOTTOM_DUNE_R_RX24_MID_POS							(283 + 180)
+	#define BOTTOM_DUNE_R_RX24_UNLOCK_POS				    277
+#define BOTTOM_DUNE_R_RX24_MID_POS							(277 + 180)
 
 //Position initiale de l'RX24
 	#define BOTTOM_DUNE_L_RX24_INIT_POS					BOTTOM_DUNE_L_RX24_IDLE_POS
