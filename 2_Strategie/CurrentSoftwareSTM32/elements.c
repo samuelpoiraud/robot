@@ -409,7 +409,7 @@ void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state)
 void ELEMENTS_receive_flags(CAN_msg_t* msg)
 {
 	if(msg->data.xbee_sync_elements_flags.flagId < ELEMENTS_FLAGS_END_SYNCH){
-		debug_printf("\n\n\n\nReception message Xbee\n\n\n\n");
+		//debug_printf("\n\n\n\nReception message Xbee\n\n\n\n");
 		elements_flags[msg->data.xbee_sync_elements_flags.flagId] = msg->data.xbee_sync_elements_flags.flag;
 	}
 }

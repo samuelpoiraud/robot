@@ -443,6 +443,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_LEFT_ARM_IDLE:			print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_LEFT_ARM_UNLOCK:			print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_LEFT_ARM_LOCK:			print(string,len, "| LOCK |");			break;
+						  case (Uint8)ACT_LEFT_ARM_LOCK_SERRAGE:			print(string,len, "| ACT_LEFT_ARM_LOCK_SERRAGE |");			break;
 						  case (Uint8)ACT_LEFT_ARM_STOP:			print(string,len, "| STOP |");			break;
 						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
 					  }
@@ -450,8 +451,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_RIGHT_ARM:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_RIGHT_ARM_IDLE:		    print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_RIGHT_ARM_UNLOCK:			print(string,len, "| UNLOCK |");			break;
+						  case (Uint8)ACT_RIGHT_ARM_UNLOCK:			print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_RIGHT_ARM_LOCK:			print(string,len, "| LOCK |");			break;
+						  case (Uint8)ACT_LEFT_ARM_LOCK_SERRAGE:			print(string,len, "| ACT_RIGHT_ARM_LOCK_SERRAGE |");			break;
 						  case (Uint8)ACT_RIGHT_ARM_STOP:			print(string,len, "| STOP |");			break;
 						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
 					  }
