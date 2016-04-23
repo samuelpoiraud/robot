@@ -160,6 +160,7 @@ void initialisation(void)
 
 int main (void)
 {
+	static 		Uint8 i=0;
 	initialisation();
 	GPIO_SetBits(LED_RUN);
 
@@ -201,6 +202,7 @@ int main (void)
 
 	while(1)
 	{
+
 		#ifdef USE_QSx86
 			// Update pour EVE
 			EVE_manager_card();
