@@ -38,7 +38,7 @@
 #define USE_HOKUYO	//Pour eclipse....
 #ifdef USE_HOKUYO
 
-#define VERBOSE_DEBUG_HOKUYO
+//#define VERBOSE_DEBUG_HOKUYO
 
 // Temps d'acquisition
 // MS : 45 - 50  ms
