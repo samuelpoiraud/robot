@@ -333,6 +333,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			// désactivation de tout les avertisseurs.
 			WARNER_init();
 			//arret robot
+			CORRECTOR_PD_enable(CORRECTOR_DISABLE);
 			SUPERVISOR_state_machine(EVENT_BROADCAST_STOP, 0);
 			SECRETARY_send_report();
 		break;
