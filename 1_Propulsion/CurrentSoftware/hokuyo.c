@@ -923,10 +923,11 @@ void DetectRobots(void)
 		}
 		else	//Si la distance est plus grande (le point n'appartient pas à l'objet), on clos l'objet en court.
 		{
-			if(adversaries_number < HOKUYO_MAX_FOES - 1)
+			if(adversaries_number < HOKUYO_MAX_FOES - 1 && nb_pts > 2)
 			{
 				hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
 				hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
+				//debug_printf("Detected x=%d y=%d nb=%d\n",hokuyo_adversaries[adversaries_number].coordX, hokuyo_adversaries[adversaries_number].coordY, nb_pts);
 				adversaries_number++;
 			}
 			nb_pts=1;
@@ -937,7 +938,7 @@ void DetectRobots(void)
 		}
 	}
 	//Il nous faut maintenant clore le dernier objet.
-	if(adversaries_number < HOKUYO_MAX_FOES - 1)
+	if(adversaries_number < HOKUYO_MAX_FOES - 1 && nb_pts > 2)
 	{
 		hokuyo_adversaries[adversaries_number].coordX=sumX/nb_pts;
 		hokuyo_adversaries[adversaries_number].coordY=sumY/nb_pts;
