@@ -58,7 +58,7 @@
 
 	#define VERBOSE_MODE				//Activation du verbose
 
-	#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
+	//#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
 
 	#define LIMITATION_PWM_BORDER_MODE
 
