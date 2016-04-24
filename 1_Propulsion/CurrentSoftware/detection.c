@@ -239,8 +239,8 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					pos.x = global.position.x;
 					pos.y = global.position.y;
 					GEOMETRY_point_t adv_pos;
-					adv_pos.x = global.position.x;
-					adv_pos.y = global.position.y;
+					adv_pos.x = adversaries[HOKUYO_MAX_FOES+i].x;
+					adv_pos.y = adversaries[HOKUYO_MAX_FOES+i].y;
 					if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, pos)){
 						if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, adv_pos)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
