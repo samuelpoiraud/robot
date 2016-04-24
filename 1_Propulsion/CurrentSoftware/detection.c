@@ -235,6 +235,45 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					adversaries[HOKUYO_MAX_FOES+i].x = global.position.x + (adversaries[HOKUYO_MAX_FOES+i].dist * ((float){((Sint32)(cosinus) * (Sint32)(our_cos) - (Sint32)(sinus) * (Sint32)(our_sin))}/(4096*4096)));
 					adversaries[HOKUYO_MAX_FOES+i].y = global.position.y + (adversaries[HOKUYO_MAX_FOES+i].dist * ((float){((Sint32)(cosinus) * (Sint32)(our_sin) + (Sint32)(sinus) * (Sint32)(our_cos))}/(4096*4096)));
 
+					GEOMETRY_point_t pos;
+					pos.x = global.position.x;
+					pos.y = global.position.y;
+					GEOMETRY_point_t adv_pos;
+					adv_pos.x = global.position.x;
+					adv_pos.y = global.position.y;
+					if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, pos)){
+						if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, adv_pos)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+						if(is_in_square(zone[2].x1, zone[2].x2, zone[2].y1, zone[2].y2, adv_pos)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+					}
+
+					if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, pos)){
+						if(is_in_square(zone[2].x1, zone[2].x2, zone[2].y1, zone[2].y2, adv_pos)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+						if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, adv_pos)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+					}
+
+					if(is_in_square(zone[2].x1, zone[2].x2, zone[2].y1, zone[2].y2, pos)){
+						if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, adv_pos)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+						if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, adv_pos)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+					}
+
 					//Mise à jour de l'update_time
 					adversaries[HOKUYO_MAX_FOES+i].update_time = global.absolute_time;
 				}
