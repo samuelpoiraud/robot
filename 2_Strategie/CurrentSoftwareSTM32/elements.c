@@ -14,7 +14,7 @@ volatile bool_e elements_flags[ELEMENTS_FLAGS_NB];
 volatile COQUILLAGES_t coquillages[COQUILLAGE_NB];
 volatile COQUILLAGES_config_e coquillages_config = NO_COQUILLAGES_CONFIG;
 
-#define FISHS_PASSAGES 3
+#define FISHS_PASSAGES 4
 static Uint8 fishs_passage = 0;
 static Uint8 seashell_depose = 0;
 static Uint16 middle_apocalypse=0;
