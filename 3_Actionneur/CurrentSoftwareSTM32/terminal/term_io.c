@@ -95,13 +95,8 @@ Uint8 terminal_motor_size = sizeof(terminal_motor)/sizeof(terminal_motor_s);
 void TERMINAL_init(){
 	PORTS_pwm_init();
 	PWM_init();
-#warning "Contournement problème Actionneur"
-#ifndef I_AM_ROBOT_BIG
 	AX12_init();
-#endif
-#ifndef I_AM_ROBOT_SMALL
 	RX24_init();
-#endif
 }
 
 void TERMINAL_uart_checker(unsigned char c){
