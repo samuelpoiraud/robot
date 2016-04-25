@@ -630,12 +630,14 @@ static bool_e RX24_instruction_buffer_is_full() {
 }
 
 static void RX24_instruction_next(Uint16 error, Uint16 param) {
-	RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
-	RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
-	if(state_machine.current_instruction.type == INST_PING)
-		RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = RX24_PING;
-	else
-		RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = state_machine.current_instruction.address;
+	if(state_machine.current_instruction.id_servo != RX24_BROADCAST_ID){
+		RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
+		RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
+		if(state_machine.current_instruction.type == INST_PING)
+			RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = RX24_PING;
+		else
+			RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = state_machine.current_instruction.address;
+	}
 	RX24_instruction_queue_next();
 }
 

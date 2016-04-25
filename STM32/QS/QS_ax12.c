@@ -630,12 +630,14 @@ static bool_e AX12_instruction_buffer_is_full() {
 }
 
 static void AX12_instruction_next(Uint16 error, Uint16 param) {
-	AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
-	AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
-	if(state_machine.current_instruction.type == INST_PING)
-		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = AX12_PING;
-	else
-		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = state_machine.current_instruction.address;
+	if(state_machine.current_instruction.id_servo != AX12_BROADCAST_ID){
+		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
+		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
+		if(state_machine.current_instruction.type == INST_PING)
+			AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = AX12_PING;
+		else
+			AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.last_instruction_address = state_machine.current_instruction.address;
+	}
 	AX12_instruction_queue_next();
 }
 
@@ -906,7 +908,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 				#if defined(VERBOSE_MODE) && defined(AX12_DEBUG_PACKETS)
 					debug_printf("AX12 Tx:");
 					for(i = 0; i<state_machine.current_instruction.size; i++)
-						debug_printf(" %02x", AX12_get_instruction_packet(i, &state_machine.current_instruction));
+						debug_printf(" %02x", AX12_get_instruction_packet(i, &(state_machine.current_instruction));
 					debug_printf("\n");
 				#endif
 
@@ -920,7 +922,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 #endif
 
 
-				AX12_UART_putc(AX12_get_instruction_packet(0, &state_machine.current_instruction));
+				AX12_UART_putc(AX12_get_instruction_packet(0, &(state_machine.current_instruction)));
 				AX12_UART_ITConfig(USART_IT_TXE, ENABLE);
 			} /*else if(event == AX12_SME_TxInterrupt) {
 				AX12_UART_ITConfig(USART_IT_TXE, DISABLE);
@@ -934,16 +936,19 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 #ifdef AX12_UART_Ptr
 					// ax12
 					if(state_machine.ax12_sending_index < state_machine.current_instruction.size) {
-						USART_SendData(AX12_UART_Ptr, AX12_get_instruction_packet(state_machine.ax12_sending_index, &state_machine.current_instruction));
+						USART_SendData(AX12_UART_Ptr, AX12_get_instruction_packet(state_machine.ax12_sending_index, &(state_machine.current_instruction)));
 						state_machine.ax12_sending_index++;
 					} else
 						USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
 #endif
 				}
 //				if(state_machine.sending_index < state_machine.current_instruction.size) {
-//					AX12_UART_putc(AX12_get_instruction_packet(state_machine.sending_index, &state_machine.current_instruction));
+//					AX12_UART_putc(AX12_get_instruction_packet(state_machine.sending_index, &(state_machine.current_instruction)));
 //					state_machine.sending_index++;
 //				}
+
+
+				///------------------------------------
 
 
 				if(
@@ -978,14 +983,18 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						state_machine.state = AX12_SMS_WaitingAnswer;
 
 						TIMER_SRC_TIMER_start_ms(AX12_STATUS_RETURN_TIMEOUT);	//Pour le timeout de reception, ne devrait pas arriver
+
+
 					}
 					else
 					{
-						AX12_instruction_next(AX12_ERROR_OK, 0);
+						AX12_instruction_next(AX12_ERROR_OK, 0);		// <<<<---- Erreur
 						state_machine.state = AX12_SMS_ReadyToSend;
 						AX12_state_machine(AX12_SME_NoEvent);
+
 					}
 				}
+				///----------------------------
 			} else if(event == AX12_SME_Timeout) {
 				TIMER_SRC_TIMER_stop();
 				TIMER_SRC_TIMER_resetFlag();
@@ -1343,7 +1352,7 @@ void AX12_init() {
 
 	GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
 
-
+	state_machine.current_instruction.id_servo = 0;
 	AX12_prepare_commands = FALSE;
 	AX12_instruction_write8(AX12_BROADCAST_ID, AX12_RETURN_LEVEL, AX12_STATUS_RETURN_MODE);	//Mettre les AX12/RX24 dans le mode indiqué dans Global_config.h
 
