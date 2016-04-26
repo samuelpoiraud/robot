@@ -237,51 +237,51 @@ void affichage_global(void)
 				if(COPILOT_get_border_mode() != NOT_BORDER_MODE)
 				{
 					Sint16 robotSize = (COPILOT_get_way()==FORWARD) ? get_calibration_forward_distance() : get_calibration_backward_distance();
-					if(global.position.x < robotSize)
+					if(global.position.x <= robotSize)
 					{
 						global.real_speed_translation = 0;
 						global.position.x = robotSize;
 						we_touch_border = TRUE;
 					}
-					if(global.position.y < robotSize)
+					if(global.position.y <= robotSize)
 					{
 						global.real_speed_translation = 0;
 						global.position.y = robotSize;
 						we_touch_border = TRUE;
 					}
-					if(global.position.x > FIELD_SIZE_X-robotSize)
+					if(global.position.x >= FIELD_SIZE_X-robotSize)
 					{
 						global.real_speed_translation = 0;
 						global.position.x = FIELD_SIZE_X-robotSize;
 						we_touch_border = TRUE;
 					}
-					if(global.position.y > FIELD_SIZE_Y-robotSize){
+					if(global.position.y >= FIELD_SIZE_Y-robotSize){
 						global.real_speed_translation = 0;
 						global.position.y = FIELD_SIZE_Y-robotSize;
 						we_touch_border = TRUE;
 					}
 
 					//Spécifique terrain 2016
-					if(global.position.x > 750 && global.position.x < 1350 && global.position.y  > 1476 - robotSize  && global.position.y  < 1500 - robotSize)	//plaque centrale en plexi
+					if(global.position.x > 750 && global.position.x < 1350 && global.position.y  >= 1476 - robotSize  && global.position.y  <= 1500 - robotSize)	//plaque centrale en plexi
 					{
 						global.real_speed_translation = 0;
 						global.position.y = 1476-robotSize;
 						we_touch_border = TRUE;
 					}
-					if(global.position.x > 750 && global.position.x < 1350 && global.position.y < 1524 + robotSize  && global.position.y > 1500 + robotSize)	//plaque centrale en plexi
+					if(global.position.x > 750 && global.position.x < 1350 && global.position.y <= 1524 + robotSize  && global.position.y >= 1500 + robotSize)	//plaque centrale en plexi
 					{
 						global.real_speed_translation = 0;
 						global.position.y = 1524+robotSize;
 						we_touch_border = TRUE;
 					}
-					if(global.position.y > 900 && global.position.y < 2100 && global.position.x > 750 - robotSize && global.position.x < 766 - robotSize)	//Tasseau horizontal de la zone de construction au nord
+					if(global.position.y > 900 && global.position.y < 2100 && global.position.x >= 750 - robotSize && global.position.x <= 766 - robotSize)	//Tasseau horizontal de la zone de construction au nord
 					{
 						global.real_speed_translation = 0;
 						global.position.x = 750-robotSize;
 						we_touch_border = TRUE;
 					}
 
-					if(global.position.y > 900 && global.position.y < 2100 && global.position.x < 777 + robotSize && global.position.x > 766 + robotSize)	//Tasseau horizontal de la zone de construction au sud
+					if(global.position.y > 900 && global.position.y < 2100 && global.position.x <= 777 + robotSize && global.position.x >= 766 + robotSize)	//Tasseau horizontal de la zone de construction au sud
 					{
 						global.real_speed_translation = 0;
 						global.position.x = 777+robotSize;
