@@ -236,7 +236,7 @@ void affichage_global(void)
 				}
 				if(COPILOT_get_border_mode() != NOT_BORDER_MODE)
 				{
-					Sint16 robotSize = get_calibration_backward_distance();
+					Sint16 robotSize = (COPILOT_get_way()==FORWARD) ? get_calibration_forward_distance() : get_calibration_backward_distance();
 					if(global.position.x < robotSize)
 					{
 						global.real_speed_translation = 0;
