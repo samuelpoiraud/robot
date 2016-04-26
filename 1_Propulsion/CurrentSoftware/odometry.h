@@ -20,11 +20,12 @@
 	void ODOMETRY_update(void);
 
 	Sint16 get_calibration_backward_distance(void);
+	Sint16 get_calibration_forward_distance(void);
 
 	void ODOMETRY_set_coef(PROPULSION_coef_e coef, Sint32 value);
-	
+
 	Sint32 ODOMETRY_get_coef(PROPULSION_coef_e coef);
-	
+
 	color_e ODOMETRY_get_color();
 
 

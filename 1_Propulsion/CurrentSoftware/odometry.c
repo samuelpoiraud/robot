@@ -74,6 +74,11 @@ Sint16 get_calibration_backward_distance(void)
 	return calibration_backward_border_distance;
 }
 
+Sint16 get_calibration_forward_distance(void)
+{
+	return calibration_forward_border_distance;
+}
+
 void ODOMETRY_set_coef(PROPULSION_coef_e coef, Sint32 value)
 {
 	if(coef <= ODOMETRY_COEF_CENTRIFUGAL)
