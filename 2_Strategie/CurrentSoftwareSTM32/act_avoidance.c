@@ -30,12 +30,16 @@ void ACT_AVOIDANCE_init(){
 		//---------------------------------------------------------------------------------------------------------------------left-----right----front---back
 //EXEMPLE:init_new_offset(ACT_AVOID_POP_COLLECT_LEFT,ACT_AVOID_POP_COLLECT_LEFT_Open,ACT_POP_COLLECT_LEFT_OPEN,			60,		0,		0,		60);
 
-		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Open,	ACT_FISH_UNSTICK_ARM_OPEN,			0,		210,	0,		0);
+		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Open,	ACT_FISH_UNSTICK_ARM_OPEN,			0,		190,	0,		0);
+		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Up_Tapotage,		ACT_FISH_UNSTICK_ARM_UP_TAPOTAGE,	0,		190,	0,		0);
+		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Down_Tapotage,	ACT_FISH_UNSTICK_ARM_DOWN_TAPOTAGE,	0,		190,	0,		0);
 
-		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Open,	ACT_FISH_MAGNETIC_ARM_OPEN,			0,		210,	0,		0);
-		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Middle,	ACT_FISH_MAGNETIC_ARM_MIDDLE,		0,		100,	0,		0);
+		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Open,	ACT_FISH_MAGNETIC_ARM_OPEN,			0,		190,	0,		0);
+		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Up_Tapotage,	ACT_FISH_MAGNETIC_ARM_UP_TAPOTAGE,	0,		190,	0,		0);
+		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Down_Tapotage,	ACT_FISH_MAGNETIC_ARM_DOWN_TAPOTAGE,0,		190,	0,		0);
+		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Middle,	ACT_FISH_MAGNETIC_ARM_MIDDLE,		0,		150,	0,		0);
 
-		init_new_offset(ACT_QUEUE_Black_sand_circle,	ACT_AVOID_BLACK_SAND_CIRCLE_Open,	ACT_BLACK_SAND_CIRCLE_LOCK,			0,		0,		100,	0);
+		init_new_offset(ACT_QUEUE_Black_sand_circle,	ACT_AVOID_BLACK_SAND_CIRCLE_Open,	ACT_BLACK_SAND_CIRCLE_LOCK,			0,		0,		120,	0);
 
 		init_new_offset(ACT_QUEUE_Bottom_dune,			ACT_AVOID_BOTTOM_DUNE_Lock,			ACT_BOTTOM_DUNE_LOCK,				0,		0,		0,		60);
 
@@ -48,10 +52,10 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Dunix_right,			ACT_AVOID_DUNIX_RIGHT_Open,			ACT_DUNIX_RIGHT_OPEN,				0,		60,		0,		0);
 
 		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Open,		ACT_SAND_LOCKER_LEFT_LOCK,			0,	0,		60,		0);
-		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Lock_Block,	ACT_SAND_LOCKER_LEFT_LOCK_BLOCK,	0,	0,		70,		0);
+		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Lock_Block,	ACT_SAND_LOCKER_LEFT_LOCK_BLOCK,	0,	0,		90,		0);
 
 		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Open,		ACT_SAND_LOCKER_RIGHT_LOCK,			0,	0,		60,		0);
-		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Lock_Block,	ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK,	0,	0,		70,		0);
+		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Lock_Block,	ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK,	0,	0,		90,		0);
 
 
 		init_new_offset(ACT_QUEUE_Mosfet_act_all,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_5,				0,		0,		0,		60);

@@ -558,7 +558,8 @@
  *********************************************************************************************************************/
 
 	typedef enum{
-		NB_ACT_SENSOR = 1
+		WT100_CENTER,
+		NB_ACT_SENSOR
 	}act_sensor_id_e;
 
 // Mettre toujours l'ordre de STOP à la valeur 0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
