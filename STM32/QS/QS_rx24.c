@@ -631,6 +631,7 @@ static bool_e RX24_instruction_buffer_is_full() {
 
 static void RX24_instruction_next(Uint16 error, Uint16 param) {
 	if(state_machine.current_instruction.id_servo != RX24_BROADCAST_ID){
+		assert(state_machine.current_instruction.id_servo < RX24_NUMBER);
 		RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
 		RX24_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
 		if(state_machine.current_instruction.type == INST_PING)
@@ -642,6 +643,7 @@ static void RX24_instruction_next(Uint16 error, Uint16 param) {
 }
 
 static bool_e RX24_instruction_wait(Uint8 id_servo) {
+	assert(id_servo < RX24_NUMBER);
 	time32_t local_t = global.absolute_time;
 	//debug_printf("+1\n");
 	while(!RX24_instruction_queue_is_empty() && global.absolute_time - local_t < 200);	//si on a attendu 7 ms, on stop, on a attendu trop longtemps (au moins 6,5ms, mais ce bout de code ne fait qu'une instruction)
@@ -656,6 +658,7 @@ static bool_e RX24_instruction_wait(Uint8 id_servo) {
 
 static RX24_status_t RX24_instruction_get_last_status(Uint8 id_servo)
 {
+	assert(id_servo < RX24_NUMBER);
 	RX24_status_t status;
 	RX24_UART_DisableIRQ();
 	TIMER_SRC_TIMER_DisableIT();
@@ -667,6 +670,7 @@ static RX24_status_t RX24_instruction_get_last_status(Uint8 id_servo)
 }
 
 static void RX24_instruction_reset_last_status(Uint8 id_servo) {
+	assert(id_servo < RX24_NUMBER);
 	RX24_UART_DisableIRQ();
 	TIMER_SRC_TIMER_DisableIT();
 		RX24_on_the_robot[id_servo].last_status.last_instruction_address = 0;
@@ -1135,7 +1139,8 @@ static bool_e RX24_instruction_queue_insert(const RX24_instruction_packet_t* ins
 		return FALSE;	//return false, on a pas réussi a insérer l'instruction, problème de priorité d'interruptions ?
 	}
 
-	RX24_on_the_robot[inst->id_servo].last_status.error = RX24_ERROR_IN_PROGRESS;
+	if(inst->id_servo != RX24_BROADCAST_ID)
+		RX24_on_the_robot[inst->id_servo].last_status.error = RX24_ERROR_IN_PROGRESS;
 	RX24_special_instruction_buffer.buffer[RX24_special_instruction_buffer.end_index] = *inst;
 	RX24_special_instruction_buffer.end_index = INC_WITH_MOD(RX24_special_instruction_buffer.end_index, RX24_INSTRUCTION_REAL_NEEDED_BUFFER_SIZE);
 	//truc = state_machine.state;
@@ -1647,6 +1652,8 @@ bool_e RX24_is_moving(Uint8 id_servo) {
 
 
 bool_e RX24_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled) {
+	assert(id_servo < RX24_NUMBER);
+
 	if(enabled == RX24_on_the_robot[id_servo].is_wheel_enabled)	//mode déja défini
 		return TRUE;
 
@@ -1769,6 +1776,8 @@ bool_e RX24_set_move_to_position_speed(Uint8 id_servo, Uint8 percentage) {
 }
 
 bool_e RX24_set_speed_percentage(Uint8 id_servo, Sint8 percentage) {
+	assert(id_servo < RX24_NUMBER);
+
 	bool_e isBackward;
 
 	if(!RX24_on_the_robot[id_servo].is_wheel_enabled) {

@@ -631,6 +631,7 @@ static bool_e AX12_instruction_buffer_is_full() {
 
 static void AX12_instruction_next(Uint16 error, Uint16 param) {
 	if(state_machine.current_instruction.id_servo != AX12_BROADCAST_ID){
+		assert(state_machine.current_instruction.id_servo < AX12_NUMBER);
 		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.error = error;
 		AX12_on_the_robot[state_machine.current_instruction.id_servo].last_status.param = param;
 		if(state_machine.current_instruction.type == INST_PING)
@@ -642,6 +643,8 @@ static void AX12_instruction_next(Uint16 error, Uint16 param) {
 }
 
 static bool_e AX12_instruction_wait(Uint8 id_servo) {
+	assert(id_servo < AX12_NUMBER);
+
 	time32_t local_t = global.absolute_time;
 	//debug_printf("+1\n");
 	while(!AX12_instruction_queue_is_empty() && global.absolute_time - local_t < 200);	//si on a attendu 7 ms, on stop, on a attendu trop longtemps (au moins 6,5ms, mais ce bout de code ne fait qu'une instruction)
@@ -656,6 +659,8 @@ static bool_e AX12_instruction_wait(Uint8 id_servo) {
 
 static AX12_status_t AX12_instruction_get_last_status(Uint8 id_servo)
 {
+	assert(id_servo < AX12_NUMBER);
+
 	AX12_status_t status;
 	AX12_UART_DisableIRQ();
 	TIMER_SRC_TIMER_DisableIT();
@@ -667,6 +672,8 @@ static AX12_status_t AX12_instruction_get_last_status(Uint8 id_servo)
 }
 
 static void AX12_instruction_reset_last_status(Uint8 id_servo) {
+	assert(id_servo < AX12_NUMBER);
+
 	AX12_UART_DisableIRQ();
 	TIMER_SRC_TIMER_DisableIT();
 		AX12_on_the_robot[id_servo].last_status.last_instruction_address = 0;
@@ -1142,7 +1149,8 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 		return FALSE;	//return false, on a pas réussi a insérer l'instruction, problème de priorité d'interruptions ?
 	}
 
-	AX12_on_the_robot[inst->id_servo].last_status.error = AX12_ERROR_IN_PROGRESS;
+	if(inst->id_servo != AX12_BROADCAST_ID)
+		AX12_on_the_robot[inst->id_servo].last_status.error = AX12_ERROR_IN_PROGRESS;
 	AX12_special_instruction_buffer.buffer[AX12_special_instruction_buffer.end_index] = *inst;
 	AX12_special_instruction_buffer.end_index = INC_WITH_MOD(AX12_special_instruction_buffer.end_index, AX12_INSTRUCTION_REAL_NEEDED_BUFFER_SIZE);
 	//truc = state_machine.state;
@@ -1655,6 +1663,8 @@ bool_e AX12_is_moving(Uint8 id_servo) {
 
 
 bool_e AX12_set_wheel_mode_enabled(Uint8 id_servo, bool_e enabled) {
+	assert(id_servo < AX12_NUMBER);
+
 	if(enabled == AX12_on_the_robot[id_servo].is_wheel_enabled)	//mode déja défini
 		return TRUE;
 
@@ -1777,6 +1787,8 @@ bool_e AX12_set_move_to_position_speed(Uint8 id_servo, Uint8 percentage) {
 }
 
 bool_e AX12_set_speed_percentage(Uint8 id_servo, Sint8 percentage) {
+	assert(id_servo < AX12_NUMBER);
+
 	bool_e isBackward;
 
 	if(!AX12_on_the_robot[id_servo].is_wheel_enabled) {
