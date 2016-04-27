@@ -84,6 +84,8 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Right_arm,	        ACT_AVOID_RIGHT_ARM_Unlock,	        ACT_RIGHT_ARM_UNLOCK,				0,		80,		0,		0);
 		init_new_offset(ACT_QUEUE_Right_arm,	        ACT_AVOID_RIGHT_ARM_Lock,	        ACT_RIGHT_ARM_LOCK,					0,		80,		0,		0);
 
+		init_new_offset(ACT_QUEUE_Fish_pearl,	        ACT_AVOID_FISH_PEARL_Open,				ACT_FISH_PEARL_OPEN,				0,		150,	0,		0);
+
 		//pompe back right
 		init_new_offset(ACT_QUEUE_Mosfet_act_0,			ACT_AVOID_MOSFET_ACT_0_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
 

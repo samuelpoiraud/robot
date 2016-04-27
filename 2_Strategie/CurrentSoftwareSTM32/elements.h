@@ -114,6 +114,7 @@
 		PEARL_OUR_SEASHELL,
 		PEARL_ADV_SEASHELL,
 		PEARL_CAN_GO_CLOSE_DOORS,
+		PEARL_FISH,
 
 		//à supprimer
 		SEASHELLS_BOTTOM,			//si les deux coquillages du bas sont pris ou pas (flag à supprimer et à remplacer par les flag coquillages)
