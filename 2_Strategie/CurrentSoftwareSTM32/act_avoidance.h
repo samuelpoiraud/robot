@@ -115,6 +115,10 @@ typedef enum {
 } ACT_AVOID_RIGHT_ARM_CMD;
 
 typedef enum {
+	ACT_AVOID_FISH_PEARL_Open
+} ACT_AVOID_FISH_PEARL_CMD;
+
+typedef enum {
 	ACT_AVOID_MOSFET_ACT_0_Normal
 } ACT_AVOID_MOSFET_ACT_0_CMD;
 

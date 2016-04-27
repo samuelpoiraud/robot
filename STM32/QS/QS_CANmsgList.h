@@ -912,6 +912,7 @@
 		ACT_POMPE_FRONT_RIGHT  		= (ACT_FILTER | 0x33),
 		ACT_PEARL_SAND_CIRCLE	    = (ACT_FILTER | 0x34),
 		ACT_PARASOL					= (ACT_FILTER | 0x35),
+		ACT_FISH_PEARL				= (ACT_FILTER | 0x36),
 
 		//////////////////////////////////////////////////////////////////
 		//-----------------------------BOTH-----------------------------//

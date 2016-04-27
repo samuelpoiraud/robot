@@ -43,6 +43,7 @@ typedef enum {
 	ACT_QUEUE_Pompe_front_right,
 	ACT_QUEUE_Pearl_sand_circle,
 	ACT_QUEUE_Parasol,
+	ACT_QUEUE_Fish_pearl,
 
 	//Mosfets actionneurs
 	ACT_QUEUE_Mosfet_act_0,
