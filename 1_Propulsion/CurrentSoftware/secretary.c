@@ -623,6 +623,17 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, 
 }
 
 
+void SECRETARY_send_bloc_position(bool_e error_scan, Sint16 x, Sint16 y){
+	CAN_msg_t msg;
+	msg.sid = STRAT_BLOC_POSITION;
+	msg.size = SIZE_STRAT_BLOC_POSITION;
+	msg.data.strat_bloc_position.x = x;
+	msg.data.strat_bloc_position.y = y;
+	msg.data.strat_bloc_position.error_scan = error_scan;
+	SECRETARY_send_canmsg_from_it(&msg);
+}
+
+
 
 //////////////////////////////////////////////////////////////////
 //----------------------FONCTION AUTRE--------------------------//
