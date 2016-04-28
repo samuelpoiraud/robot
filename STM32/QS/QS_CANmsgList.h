@@ -443,7 +443,7 @@
 			prop_traj_msg_t prop_robot_calibre;
 
 
-		#define STRAT_PROP_FOE_DETECTED		0x215
+		#define STRAT_PROP_FOE_DETECTED		0x015
 		#define SIZE_STRAT_PROP_FOE_DETECTED 8
 			struct{
 				Sint16 x					:16;		// [mm]

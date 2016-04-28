@@ -208,7 +208,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					//Extraction des données du msg.
 					adversaries[HOKUYO_MAX_FOES+i].fiability_error = msg->data.broadcast_beacon_adversary_position_ir.adv[i].error;
 
-					adversaries[HOKUYO_MAX_FOES+i].angle = GEOMETRY_modulo_angle((Sint16)(msg->data.broadcast_beacon_adversary_position_ir.adv[i].angle + PI4096/2));
+					adversaries[HOKUYO_MAX_FOES+i].angle = GEOMETRY_modulo_angle((Sint16)(msg->data.broadcast_beacon_adversary_position_ir.adv[i].angle));
 					adversaries[HOKUYO_MAX_FOES+i].dist = (Uint16)(msg->data.broadcast_beacon_adversary_position_ir.adv[i].dist)*20;
 
 					//enable ou pas ?
