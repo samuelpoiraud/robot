@@ -314,6 +314,7 @@ void SELFTEST_state_machine(void){
 					SELFTEST_set_actions(&DUNIX_LEFT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_DUNIX_LEFT_IDLE,		0,  QUEUE_ACT_RX24_DUNIX_LEFT},
 											 {ACT_DUNIX_LEFT_OPEN,      0,  QUEUE_ACT_RX24_DUNIX_LEFT},
+											 {ACT_DUNIX_LEFT_SNOWPLOW,  0,  QUEUE_ACT_RX24_DUNIX_LEFT},
 											 {ACT_DUNIX_LEFT_IDLE,		0,  QUEUE_ACT_RX24_DUNIX_LEFT}
 										 });
 					debug_printf("SELFTEST Launch Dunix left\n");
@@ -333,6 +334,7 @@ void SELFTEST_state_machine(void){
 					SELFTEST_set_actions(&DUNIX_RIGHT_run_command, 3, (SELFTEST_action_t[]){
 											 {ACT_DUNIX_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_DUNIX_RIGHT},
 											 {ACT_DUNIX_RIGHT_OPEN,     0,  QUEUE_ACT_RX24_DUNIX_RIGHT},
+											 {ACT_DUNIX_RIGHT_SNOWPLOW, 0,  QUEUE_ACT_RX24_DUNIX_RIGHT},
 											 {ACT_DUNIX_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_DUNIX_RIGHT}
 										 });
 					debug_printf("SELFTEST Launch Dunix right\n");
