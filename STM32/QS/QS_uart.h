@@ -14,16 +14,16 @@
 /** ----------------  Defines possibles  --------------------
  *	USE_UART1					: Créer la fonction pour envoyer un message sur l'UART 1
  *	USE_UART2					: Créer la fonction pour envoyer un message sur l'UART 2
- *	USE_UART2					: Créer la fonction pour envoyer un message sur l'UART 3
- *	USE_UART2					: Créer la fonction pour envoyer un message sur l'UART 4
- *	USE_UART2					: Créer la fonction pour envoyer un message sur l'UART 5
- *	USE_UART2					: Créer la fonction pour envoyer un message sur l'UART 6
+ *	USE_UART3					: Créer la fonction pour envoyer un message sur l'UART 3
+ *	USE_UART4					: Créer la fonction pour envoyer un message sur l'UART 4
+ *	USE_UART5					: Créer la fonction pour envoyer un message sur l'UART 5
+ *	USE_UART6					: Créer la fonction pour envoyer un message sur l'UART 6
  *	USE_UART1RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 1
  *	USE_UART2RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 2
- *	USE_UART2RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 3
- *	USE_UART2RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 4
- *	USE_UART2RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 5
- *	USE_UART2RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 6
+ *	USE_UART3RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 3
+ *	USE_UART4RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 4
+ *	USE_UART5RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 5
+ *	USE_UART6RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 6
  */
 
 #ifndef QS_UART_H
