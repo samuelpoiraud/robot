@@ -24,6 +24,8 @@
 	#define DUNIX_RIGHT_RX24_CLOSE_POS			     	682	//en degré
 	#define DUNIX_RIGHT_RX24_OPEN_POS					350	//en degré
 	#define DUNIX_RIGHT_RX24_SNOWPLOW_POS				300	//en degré
+	#define DUNIX_RIGHT_RX24_FISHS_POS                  42
+
 
 
 //Position initiale de l'RX24

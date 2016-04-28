@@ -118,6 +118,7 @@ bool_e DUNIX_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_DUNIX_LEFT_IDLE :
 			case ACT_DUNIX_LEFT_OPEN :
 			case ACT_DUNIX_LEFT_SNOWPLOW :
+			case ACT_DUNIX_LEFT_FISHS :
 			case ACT_DUNIX_LEFT_CLOSE :
 			case ACT_DUNIX_LEFT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_DUNIX_LEFT, &DUNIX_LEFT_run_command, 0,TRUE);
@@ -172,6 +173,7 @@ static void DUNIX_LEFT_command_init(queue_id_t queueId) {
 		case ACT_DUNIX_LEFT_CLOSE : *rx24_goalPosition = DUNIX_LEFT_RX24_CLOSE_POS; break;
 		case ACT_DUNIX_LEFT_OPEN : *rx24_goalPosition = DUNIX_LEFT_RX24_OPEN_POS; break;
 		case ACT_DUNIX_LEFT_SNOWPLOW : *rx24_goalPosition = DUNIX_LEFT_RX24_SNOWPLOW_POS; break;
+		case ACT_DUNIX_LEFT_FISHS : *rx24_goalPosition = DUNIX_LEFT_RX24_FISHS_POS; break;
 
 
 		case ACT_DUNIX_LEFT_STOP :
