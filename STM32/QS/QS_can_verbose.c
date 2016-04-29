@@ -154,6 +154,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case STRAT_PROP_PONG:							print(string, len, "%x STRAT_PROP_PONG                        ", STRAT_PROP_PONG								);	break;
 		case STRAT_BEACON_PONG:							print(string, len, "%x STRAT_BEACON_PONG                      ", STRAT_BEACON_PONG								);	break;
 		case STRAT_IHM_PONG:							print(string, len, "%x STRAT_IHM_PONG                         ", STRAT_IHM_PONG									);	break;
+		case IHM_SET_LED_COLOR:							print(string, len, "%x IHM_SET_LED_COLOR                      ", IHM_SET_LED_COLOR								);	break;
 
 
 
@@ -183,6 +184,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case XBEE_SYNC_ELEMENTS_FLAGS:					print(string, len, "%x XBEE_SYNC_ELEMENTS_FLAGS		          ", XBEE_SYNC_ELEMENTS_FLAGS						);	break;
 		case XBEE_COMMUNICATION_AVAILABLE:				print(string, len, "%x XBEE_COMMUNICATION_AVAILABLE		      ", XBEE_COMMUNICATION_AVAILABLE					);	break;
 		case XBEE_COMMUNICATION_RESPONSE:				print(string, len, "%x XBEE_COMMUNICATION_RESPONSE	          ", XBEE_COMMUNICATION_RESPONSE					);	break;
+		case XBEE_ASK_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_ASK_CONFIG_COQUILLAGES	          ", XBEE_ASK_CONFIG_COQUILLAGES					);	break;
+		case XBEE_SEND_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_SEND_CONFIG_COQUILLAGES	          ", XBEE_SEND_CONFIG_COQUILLAGES					);	break;
+		case XBEE_ZONE_COMMAND:							print(string, len, "%x XBEE_ZONE_COMMAND			          ", XBEE_ZONE_COMMAND								);	break;
 
 
 // Black
