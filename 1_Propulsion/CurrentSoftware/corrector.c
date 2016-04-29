@@ -15,6 +15,7 @@
 #include "corrector.h"
 #include "pilot.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_outputlog.h"
 
 volatile bool_e corrector_pd_rotation = TRUE;
 volatile bool_e corrector_pd_translation = TRUE;
@@ -209,6 +210,20 @@ void CORRECTOR_update(void)
 		duty_right += commande_rotation;
 		duty_left -= commande_rotation;
 	}
+
+#ifdef MATLAB_ASSER
+	static Uint8 i = 0;
+	i++;
+	if(i > 50){
+		debug_printf("m\n");
+		debug_printf("%ld\n", global.position_translation);
+		debug_printf("%ld\n", global.real_position_translation);
+		debug_printf("%ld\n", global.position_rotation);
+		debug_printf("%ld\n", global.real_position_rotation);
+		i = 0;
+	}
+#endif
+
 
 	MOTORS_update(duty_left,duty_right);
 
