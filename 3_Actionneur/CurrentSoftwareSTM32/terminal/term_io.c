@@ -131,9 +131,9 @@ void TERMINAL_uart_checker(unsigned char c){
 		debug_printf("---------------------- Position ----------------------\n");
 		for(i=0;i<terminal_motor_size;i++){
 			if(terminal_motor[i].type == term_AX12)
-				debug_printf("%s : %d\n", terminal_motor[i].name, AX12_get_position(terminal_motor[i].id));
+				debug_printf("%s : position : %3d    couple : %3d   temperature : %3d\n", terminal_motor[i].name, AX12_get_position(terminal_motor[i].id), AX12_get_load_percentage(terminal_motor[i].id), AX12_get_temperature(terminal_motor[i].id));
 			else if(terminal_motor[i].type == term_RX24)
-				debug_printf("%s : %d\n", terminal_motor[i].name, RX24_get_position(terminal_motor[i].id));
+				debug_printf("%s : position : %3d    couple : %3d   temperature : %3d\n", terminal_motor[i].name, RX24_get_position(terminal_motor[i].id), RX24_get_load_percentage(terminal_motor[i].id), RX24_get_temperature(terminal_motor[i].id));
 			else if(terminal_motor[i].type == term_MOTOR)
 				debug_printf("%s : %d /  real : %d\n" , terminal_motor[i].name, terminal_motor[i].fun(), 0 /*conv_potar_updown_to_dist(terminal_motor[i].fun())*/);
 			else if(terminal_motor[i].type == term_PWM)
