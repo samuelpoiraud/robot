@@ -232,7 +232,7 @@ void test_bp_switchs(void)
 static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
-		if(RECALAGE_AR_G || RECALAGE_AR_D || RECALAGE_AV_G || RECALAGE_AV_D){
+		if(/*RECALAGE_AR_G || RECALAGE_AR_D ||*/ RECALAGE_AV_G || RECALAGE_AV_D){
 			if(led_on == FALSE){
 				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 				led_on = TRUE;
@@ -242,7 +242,7 @@ static void MAIN_sensor_test(){
 			led_on = FALSE;
 		}
 	}else{
-		if(RECALAGE_AV_G || RECALAGE_AV_D || WT100_PEARL_LEFT || WT100_PEARL_RIGHT){
+		if(RECALAGE_AV_G || RECALAGE_AV_D /*|| WT100_PEARL_LEFT || WT100_PEARL_RIGHT*/){
 			if(led_on == FALSE){
 				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 				led_on = TRUE;
