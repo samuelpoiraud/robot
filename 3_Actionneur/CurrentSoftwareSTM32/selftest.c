@@ -39,6 +39,7 @@
 	#include "Pearl/Pompes/pompe_front_right.h"
 	#include "Pearl/Sand/pearl_sand_circle.h"
 	#include "Pearl/Parasol/parasol.h"
+	#include "Pearl/Fishs_pearl/fish_pearl.h"
 #endif
 
 #define LOG_PREFIX "Selftest: "
@@ -68,6 +69,7 @@ typedef enum{
 	SELFTEST_RIGHT_ARM,
 	SELFTEST_PEARL_SAND_CIRCLE,
 	SELFTEST_PARASOL,
+	SELFTEST_FISHS_PEARL,
 	SELFTEST_POMPE_FRONT_LEFT,
 	SELFTEST_POMPE_FRONT_RIGHT,
 	DONE
@@ -508,8 +510,25 @@ void SELFTEST_state_machine(void){
 												 });
 				}
 				if(state_act_tests[ACT_PARASOL & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state = SELFTEST_POMPE_FRONT_LEFT;
+					state = SELFTEST_FISHS_PEARL;
 					debug_printf("SELFTEST of ACT_PARASOL finished\n");
+				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
+					state_act_tests[ACT_PARASOL & 0xFF] = SELFTEST_STATE_TIMEOUT;
+					state = SELFTEST_FISHS_PEARL;
+				}
+				break;
+
+			case  SELFTEST_FISHS_PEARL:
+				if(entrance){
+					SELFTEST_set_actions(&FISH_PEARL_run_command, 3, (SELFTEST_action_t[]){
+													 {ACT_FISH_PEARL_IDLE,      0,  QUEUE_ACT_AX12_FISH_PEARL},
+													 {ACT_FISH_PEARL_OPEN,      0,  QUEUE_ACT_AX12_FISH_PEARL},
+													 {ACT_FISH_PEARL_IDLE,      0,  QUEUE_ACT_AX12_FISH_PEARL}
+												 });
+				}
+				if(state_act_tests[ACT_FISH_PEARL & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
+					state = SELFTEST_POMPE_FRONT_LEFT;
+					debug_printf("SELFTEST of ACT_FISH_PEARL finished\n");
 				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
 					state_act_tests[ACT_PARASOL & 0xFF] = SELFTEST_STATE_TIMEOUT;
 					state = SELFTEST_POMPE_FRONT_LEFT;

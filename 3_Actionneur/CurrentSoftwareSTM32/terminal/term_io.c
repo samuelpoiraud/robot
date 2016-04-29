@@ -27,7 +27,7 @@
 	#include "../Pearl/Sand/right_arm_config.h"
 	#include "../Pearl/Sand/pearl_sand_circle_config.h"
 	#include "../Pearl/Parasol/parasol_config.h"
-	#include "../Pearl/fish_pearl/fish_pearl_config.h"
+	#include "../Pearl/Fishs_pearl/fish_pearl_config.h"
 
 #endif
 

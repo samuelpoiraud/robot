@@ -234,14 +234,20 @@ static void MAIN_onButton1() {
 	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_OPEN;
    }else if(state == 2){
 	   msg.sid = ACT_DUNIX_LEFT;
-	   msg.data.act_msg.order = ACT_DUNIX_LEFT_CLOSE;
+	   msg.data.act_msg.order = ACT_DUNIX_LEFT_FISHS;
    }else if(state == 3){
+	   msg.sid = ACT_DUNIX_RIGHT;
+	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_FISHS;
+   }else if(state == 4){
+	   msg.sid = ACT_DUNIX_LEFT;
+	   msg.data.act_msg.order = ACT_DUNIX_LEFT_CLOSE;
+   }else if(state == 5){
 	   msg.sid = ACT_DUNIX_RIGHT;
 	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_CLOSE;
    }
 
    CAN_process_msg(&msg);
-   state = (state == 3)? 0 : state + 1;
+   state = (state == 5)? 0 : state + 1;
 }
 
 static void MAIN_onButton1LongPush() {
