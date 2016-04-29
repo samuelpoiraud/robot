@@ -48,7 +48,7 @@ void AVOIDANCE_process_it(){
 	order_t current_order = COPILOT_get_current_order();
 	volatile order_t *buffer_order;
 
-	if((current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
+	if((current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE || current_order.trajectory == TRAJECTORY_TRANSLATION) &&
 		current_order.avoidance != AVOID_DISABLED){
 
 		if(AVOIDANCE_target_safe(current_order.way, FALSE)){

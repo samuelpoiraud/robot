@@ -64,7 +64,9 @@
 
 	//#define DETECTION_CHOC
 
-	//#define FDP_2016
+	#define FDP_2016
+
+	//#define MATLAB_ASSER
 
 	//#define DISABLED_BALISE_AVOIDANCE		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Désactivation de l'évitement balise
 
