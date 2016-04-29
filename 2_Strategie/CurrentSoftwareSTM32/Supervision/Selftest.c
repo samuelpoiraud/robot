@@ -823,7 +823,7 @@ void SELFTEST_check_hokuyo(){
 	CAN_msg_t msg;
 	msg.sid = IHM_SET_ERROR;
 	msg.size = SIZE_IHM_SET_ERROR;
-	msg.data.ihm_set_error.error = IHM_ERROR_ASSER;
+	msg.data.ihm_set_error.error = IHM_ERROR_HOKUYO;
 
 	if(delta_time > 250 && alarmed == FALSE){
 		BUZZER_play(15, DEFAULT_NOTE, 5);
