@@ -609,7 +609,7 @@ void SECRETARY_process_send(Uint11 sid, prop_warning_reason_e reason, SUPERVISOR
 }
 
 //Fonction appelée uniquement en IT.
-void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, bool_e adv_hokuyo, bool_e timeout){
+void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, bool_e adv_hokuyo, bool_e timeout, bool_e in_wait){
 	CAN_msg_t msg;
 		msg.sid = STRAT_PROP_FOE_DETECTED;
 		msg.size = SIZE_STRAT_PROP_FOE_DETECTED;
@@ -619,6 +619,7 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, 
 		msg.data.strat_prop_foe_detected.angle = angle;
 		msg.data.strat_prop_foe_detected.timeout = timeout;
 		msg.data.strat_prop_foe_detected.hokuyo_detection = adv_hokuyo;
+		msg.data.strat_prop_foe_detected.in_wait = in_wait;
 	SECRETARY_send_canmsg_from_it(&msg);
 }
 

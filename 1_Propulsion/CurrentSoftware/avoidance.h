@@ -23,7 +23,7 @@
 
 	bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on_all_traject);
 
-	void AVOIDANCE_said_foe_detected();
+	void AVOIDANCE_said_foe_detected(bool_e timeout, bool_e in_wait);
 
 	bool_e AVOIDANCE_foe_near();
 

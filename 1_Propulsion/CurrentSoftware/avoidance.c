@@ -72,7 +72,7 @@ void AVOIDANCE_process_it(){
 
 				// Puis on avertie la stratégie qu'il y a eu évitement
 
-				SECRETARY_send_foe_detected(adversary.x, adversary.y, adversary.dist, adversary.angle, adv_hokuyo, FALSE);
+				AVOIDANCE_said_foe_detected(FALSE, FALSE);
 
 			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
 
@@ -104,6 +104,8 @@ void AVOIDANCE_process_it(){
 				supp.trajectory = TRAJECTORY_STOP;
 				BUFFER_add_begin(&supp);
 
+				AVOIDANCE_said_foe_detected(FALSE, TRUE);
+
 				ROADMAP_launch_next_order();
 			}
 		}
@@ -132,7 +134,7 @@ void AVOIDANCE_process_it(){
 								AVOID_DISABLED
 							);
 
-			SECRETARY_send_foe_detected(adversary.x, adversary.y, adversary.dist, adversary.angle, adv_hokuyo, TRUE);
+			AVOIDANCE_said_foe_detected(TRUE, FALSE);
 
 		}else if(AVOIDANCE_target_safe(buffer_order->way, FALSE) == FALSE){
 			//debug_printf("t : %ld      free !\n", global.absolute_time);
@@ -479,8 +481,8 @@ bool_e AVOIDANCE_foe_in_zone(bool_e verbose, Sint16 x, Sint16 y, bool_e check_on
 	return inZone;
 }
 
-void AVOIDANCE_said_foe_detected(){
-	SECRETARY_send_foe_detected(adversary.x, adversary.y, adversary.dist, adversary.angle, adv_hokuyo, FALSE);
+void AVOIDANCE_said_foe_detected(bool_e timeout, bool_e in_wait){
+	SECRETARY_send_foe_detected(adversary.x, adversary.y, adversary.dist, adversary.angle, adv_hokuyo, timeout, in_wait);
 }
 
 void AVOIDANCE_process_CAN_msg(CAN_msg_t *msg){

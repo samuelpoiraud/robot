@@ -429,7 +429,7 @@ void COPILOT_do_order(order_t * order)
 				supp.trajectory = TRAJECTORY_STOP;
 			current_order = supp;
 
-			AVOIDANCE_said_foe_detected();
+			AVOIDANCE_said_foe_detected(FALSE, FALSE);
 
 		}else if(order->avoidance == AVOID_ENABLED_AND_WAIT){
 			buffer_order = *order;
@@ -451,6 +451,8 @@ void COPILOT_do_order(order_t * order)
 				supp.trajectory = WAIT_FOREVER;
 
 			BUFFER_add_begin(&supp);
+
+			AVOIDANCE_said_foe_detected(FALSE, TRUE);
 
 			supp.trajectory = TRAJECTORY_STOP;
 			current_order = supp;

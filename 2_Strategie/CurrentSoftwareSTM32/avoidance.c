@@ -1080,7 +1080,12 @@ void clear_prop_detected_foe(){
 }
 
 void set_prop_detected_foe(CAN_msg_t *msg){
-	prop_detected_foe = TRUE;
+
+	if(msg->sid == STRAT_PROP_FOE_DETECTED){
+		if(msg->data.strat_prop_foe_detected.in_wait == FALSE){
+			prop_detected_foe = TRUE;
+		}
+	}
 }
 
 //------------------------------------------------------------------- Fonctions autress

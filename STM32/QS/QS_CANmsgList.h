@@ -452,6 +452,7 @@
 				Uint8 dist					:8;			// [mm/20]
 				bool_e timeout				:1;
 				bool_e hokuyo_detection		:1;
+				bool_e in_wait				:1;			// Si à 1 c'est juste une information d'évitement quand on est en évitement avec attente
 			}strat_prop_foe_detected;
 
 		#define STRAT_SEND_REPORT			0x217
