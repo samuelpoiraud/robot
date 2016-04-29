@@ -36,6 +36,8 @@
 
 #define BELGIQUE
 
+#define USE_SENSORS
+
 //#define FDP_2016				//Mode FDP nouvelle génération 2016 !
 
 //#define USE_POLYGON			//Utilise le mode de déplacement avec les polygones

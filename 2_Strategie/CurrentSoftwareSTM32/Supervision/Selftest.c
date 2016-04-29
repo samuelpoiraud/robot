@@ -509,7 +509,7 @@ error_e SELFTEST_strategy(bool_e reset)
 				if(MOSFET_selftest_act(8))  //huit mosfets à tester
 					state = TEST_SD_CARD;
 			}else{
-				if(MOSFET_selftest_act(2))  //deux mosfets à tester
+				if(MOSFET_selftest_act(1))  //un mosfet à tester
 					state = TEST_SD_CARD;
 			}
 			break;
@@ -615,6 +615,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_AX12_RIGHT_ARM:				debug_printf("SELFTEST_ACT_AX12_RIGHT_ARM");                    break;
 				case SELFTEST_ACT_AX12_SAND_CIRCLE:				debug_printf("SELFTEST_ACT_AX12_SAND_CIRCLE");                  break;
 				case SELFTEST_ACT_AX12_PARASOL:					debug_printf("SELFTEST_ACT_AX12_PARASOL");                      break;
+				case SELFTEST_ACT_AX12_FISH_PEARL:				debug_printf("SELFTEST_ACT_AX12_FISH_PEARL");                   break;
 				case SELFTEST_ACT_POMPE_FRONT_LEFT:				debug_printf("SELFTEST_ACT_POMPE_FRONT_LEFT");                  break;
 				case SELFTEST_ACT_POMPE_FRONT_RIGHT:			debug_printf("SELFTEST_ACT_POMPE_FRONT_RIGHT");                 break;
 
@@ -902,7 +903,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_RX24_MIDDLE_DUNE:				return "ACT MIDDLE DUNE";       break;
 		case SELFTEST_ACT_RX24_CONE_DUNE:				return "ACT CONE DUNE";         break;
 		case SELFTEST_ACT_RX24_DUNIX_LEFT:				return "ACT DUNIX LEFT";        break;
-		case SELFTEST_ACT_RX24_DUNIX_RIGHT:				return "ACT UNIX RIGHT";       break;
+		case SELFTEST_ACT_RX24_DUNIX_RIGHT:				return "ACT UNIX RIGHT";        break;
 		case SELFTEST_ACT_RX24_SAND_LOCKER_LEFT:		return "ACT LOCKER LEFT";		break;
 		case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		return "ACT LOCKER RIGHT";      break;
 		case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			return "ACT SHIFT CYLINDER";    break;
@@ -912,6 +913,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_AX12_RIGHT_ARM:				return "ACT RIGHT ARM";         break;
 		case SELFTEST_ACT_AX12_SAND_CIRCLE:				return "ACT CIRCLE";            break;
 		case SELFTEST_ACT_AX12_PARASOL:					return "ACT PARASOL";           break;
+		case SELFTEST_ACT_AX12_FISH_PEARL:				return "ACT FISH PEARL";        break;
 		case SELFTEST_ACT_POMPE_FRONT_LEFT:				return "ACT POMPE FRONT LEFT";  break;
 		case SELFTEST_ACT_POMPE_FRONT_RIGHT:			return "POMPE FRONT RIGHT";     break;
 
