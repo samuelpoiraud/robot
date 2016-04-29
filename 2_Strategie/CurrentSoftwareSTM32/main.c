@@ -242,7 +242,7 @@ static void MAIN_sensor_test(){
 			led_on = FALSE;
 		}
 	}else{
-		if(RECALAGE_AV_G || RECALAGE_AV_D || WT100_PEARL_LEFT || WT100_PEARL_RIGHT || WT100_PEARL_MIDDLE){
+		if(RECALAGE_AV_G || RECALAGE_AV_D || WT100_PEARL_LEFT || WT100_PEARL_RIGHT){
 			if(led_on == FALSE){
 				IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 				led_on = TRUE;
