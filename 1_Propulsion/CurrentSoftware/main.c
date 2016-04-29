@@ -56,11 +56,6 @@
 	#warning "SOYEZ CONSCIENT QUE VOUS NE COMPILEZ PAS EN MODE MATCH..."
 #endif
 
-
-
-
-void RCON_read(void);
-
 static void MAIN_global_var_init();
 static void MAIN_sensor_test();
 volatile Uint8 t_ms = 0;
@@ -160,7 +155,6 @@ void initialisation(void)
 
 int main (void)
 {
-	static 		Uint8 i=0;
 	initialisation();
 	GPIO_SetBits(LED_RUN);
 
