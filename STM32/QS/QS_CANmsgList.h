@@ -634,6 +634,22 @@
 				bool_e state				:1;
 			}prop_active_pid;
 
+		#define STRAT_BLOC_POSITION			0x11C
+		#define SIZE_STRAT_BLOC_POSITION	5
+			struct{
+				Sint16 x					:16;
+				Sint16 y					:16;
+				bool_e error_scan			:1;
+			}strat_bloc_position;
+
+		#define STRAT_ASK_BLOC_SCAN			0x11D
+		#define SIZE_STRAT_ASK_BLOC_SCAN	1
+			struct{
+				color_e color				:1;
+				bool_e startScan			:1;
+			}strat_ask_bloc_scan;
+
+
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
