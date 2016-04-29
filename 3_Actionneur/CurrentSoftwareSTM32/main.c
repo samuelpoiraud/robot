@@ -595,6 +595,14 @@ static void MAIN_sensor_test(){
 		led_on = FALSE;
 	}*/
 #else
-
+	if(WT100_CENTER){
+	   if(led_on == FALSE){
+		   IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
+		   led_on = TRUE;
+	   }
+   }else if(led_on == TRUE){
+	   IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, OFF});
+	   led_on = FALSE;
+   }
 #endif
 }
