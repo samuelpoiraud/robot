@@ -26,6 +26,6 @@
 	/* déclarer l'utilisation du pilote */
 	#define USE_MOSFETS
 	/*Nombre de mosfets à piloter (max = 8)*/
-	#define NB_MOSFETS          2
+	#define NB_MOSFETS          1
 
 #endif /* SMALL_CONFIG_USE_H */

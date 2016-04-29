@@ -95,8 +95,8 @@
 	#define PORT_IO_B_9			PORT_IO_INPUT
 
 
-	#define PORT_IO_B_10		PORT_IO_OUTPUT
-		#define MOSFET_1_PIN		GPIOB,GPIO_Pin_10   //Pompe arrière droite de Pearl
+	#define PORT_IO_B_10		PORT_IO_INPUT
+		//
 
 	#define PORT_IO_B_11		PORT_IO_OUTPUT
 		#define AX12_DIRECTION_PORT_AX12	GPIOB,GPIO_Pin_11
