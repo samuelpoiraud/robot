@@ -15,7 +15,8 @@
 #include "QS/QS_can.h"
 #include "QS/QS_maths.h"
 
-#define CONVERSION_LASER_LEFT(x)  ((Sint32)((x)*5385-18695)/10000)
+#define CONVERSION_LASER_LEFT(x)  ((Sint32)((x)*19969-11274)/1000)
+#define CONVERSION_LASER_RIGHT(x)  ((Sint32)((x)*26071-21929)/1000)
 #define DISTANCE_SCAN_CENTER	150
 
 static Sint16 next_position=1100;
@@ -33,7 +34,7 @@ void SCAN_process_it(){
 		if(global.position.teta < PI4096 && global.position.teta > 0 )
 			tab_scan[(next_position-1100)/10] = - sin4096(global.position.teta)*(CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT)))+global.position.x+DISTANCE_SCAN_CENTER;
 		else
-			tab_scan[(next_position-1100)/10] = sin4096(global.position.teta)*CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x+DISTANCE_SCAN_CENTER;
+			tab_scan[(next_position-1100)/10] = sin4096(global.position.teta)*CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x+DISTANCE_SCAN_CENTER;
 		next_position = next_position + 10;
 		if(next_position == 1900){
 			global.flags.scan_dune = FALSE;
@@ -165,6 +166,3 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 	}
 }
 
-//void SCAN_take_value_left(){
-	//CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_BIG_XUK_LEFT));
-//}
