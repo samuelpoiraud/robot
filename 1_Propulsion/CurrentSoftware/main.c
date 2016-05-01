@@ -119,6 +119,7 @@ void initialisation(void)
 	WARNER_init();
 	JOYSTICK_init();
 	DEBUG_init();
+	ADC_init();
 	BUTTONS_init();
 	IHM_init(&global.flags.match_started);
 	IHM_define_act_button(BP_CALIBRATION_IHM,&SEQUENCES_calibrate,NULL);
