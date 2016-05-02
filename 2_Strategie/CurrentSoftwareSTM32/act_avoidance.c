@@ -146,6 +146,13 @@ void ACT_AVOIDANCE_reset_actionneur(queue_id_e act_avoid_id){
 static void refresh_total_offset_avoid(){
 	Uint8 i, j;
 
+	offset_avoid_s past_offset;
+
+	past_offset.Xleft = total_offset_avoid.Xleft;
+	past_offset.Xright = total_offset_avoid.Xright;
+	past_offset.Yback = total_offset_avoid.Yback;
+	past_offset.Yfront = total_offset_avoid.Yfront;
+
 	total_offset_avoid.Xleft = 0;
 	total_offset_avoid.Xright = 0;
 	total_offset_avoid.Yfront = 0;
@@ -169,8 +176,14 @@ static void refresh_total_offset_avoid(){
 			}
 		}
 	}
-	debug_printf("New total avoid offset : L:%d R:%d F:%d B:%d\n", total_offset_avoid.Xleft, total_offset_avoid.Xright, total_offset_avoid.Yfront, total_offset_avoid.Yback);
-	send_total_offset_avoid();
+
+	if(total_offset_avoid.Xleft != past_offset.Xleft
+			|| total_offset_avoid.Xright != past_offset.Xright
+			|| total_offset_avoid.Yback != past_offset.Yback
+			|| total_offset_avoid.Yfront != past_offset.Yfront){
+		debug_printf("New total avoid offset : L:%d R:%d F:%d B:%d\n", total_offset_avoid.Xleft, total_offset_avoid.Xright, total_offset_avoid.Yfront, total_offset_avoid.Yback);
+		send_total_offset_avoid();
+	}
 }
 
 static void send_total_offset_avoid(){
