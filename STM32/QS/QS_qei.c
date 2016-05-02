@@ -14,6 +14,7 @@
 #include "QS_qei.h"
 #include "QS_ports.h"
 #include "stm32f4xx_tim.h"
+#include "QS_outputlog.h"
 
 /*-------------------------------------
 	Initialisation de l'interface
@@ -54,7 +55,7 @@ void QEI_init()
 	{
 		if(!initialized){
 			error_printf("QEI non initialisé ! Appeller QEI_init");
-			return;
+			return 0;
 		}
 
 		return -(Sint16)TIM_GetCounter(TIM3);
@@ -76,7 +77,7 @@ void QEI_init()
 	{
 		if(!initialized){
 			error_printf("QEI non initialisé ! Appeller QEI_init");
-			return;
+			return 0;
 		}
 
 		return (Sint16)TIM_GetCounter(TIM2);
