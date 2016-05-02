@@ -22,9 +22,9 @@
 static ADC_TypeDef* ADCx = ADC1;
 static Sint16 adc_converted_value[MAX_ADC_CHANNELS];
 static Sint8 adc_id[MAX_ADC_CHANNELS];
+static bool_e initialized = FALSE;
 
 void ADC_init(void) {
-	static bool_e initialized = FALSE;
 	Uint8 i;
 	if(initialized == TRUE)
 		return;
@@ -153,7 +153,10 @@ void ADC_init(void) {
 
 
 Sint16 ADC_getValue(adc_id_e channel) {
-	if(adc_id[channel] == -1 || channel >= MAX_ADC_CHANNELS){
+	if(initialized == FALSE){
+		error_printf("ADC non initialisé ! Appeller ADC_init");
+		return 0;
+	}else if(adc_id[channel] == -1 || channel >= MAX_ADC_CHANNELS){
 		error_printf("Lecture de la valeur du convertisseur analogique numérique %d non utilisé ou non initialisé ! \n", channel);
 		return 0;
 	}
