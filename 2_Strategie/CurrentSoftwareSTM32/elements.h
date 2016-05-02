@@ -90,6 +90,7 @@
 
 		//Flags de stratégie ou pour donner des ordres à l'autre robot
 		BLACK_LET_PEARL_GO_TAKE_DUNE_BLOC,
+		BLACK_CAN_USE_DUNIX,
 		BLACK_DOORS,
 		BLACK_OUR_BLOC_DUNE,
 		BLACK_IN_APOCALYPSE,

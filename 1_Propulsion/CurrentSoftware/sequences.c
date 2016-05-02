@@ -43,8 +43,8 @@ void SEQUENCES_calibrate(void)
 #ifndef SIMULATION_VIRTUAL_PERFECT_ROBOT	// Pour ne pas avoir de warning
 	//Sint16 x, y, teta;
 #endif
-	//color_e color;
-	//color = ODOMETRY_get_color();
+	color_e color;
+	color = ODOMETRY_get_color();
 #ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){
 		if(color == BOT_COLOR)
