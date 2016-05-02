@@ -38,10 +38,10 @@
 
 //Stratégie par défaut... (modifiable par les codeurs qui auraient la flemme ou l'impossibilité de configurer leur strat sur le LCD à chaque reset...)
 //							Valeur souhaitable pour le commit SVN : high_level_strat
-#define DEFAULT_STRAT_BIG	high_level_strat
+#define DEFAULT_STRAT_BIG		high_level_strat
 
 
-#define DEFAULT_STRAT_SMALL	high_level_strat
+#define DEFAULT_STRAT_SMALL		high_level_strat
 
 
 static ia_fun_t strategy;
@@ -127,6 +127,8 @@ void any_match(void)
 {
 	static error_e ret;
 	static time32_t t_end_of_match;
+	static bool_e do_parasol = FALSE;
+	static error_e ret_parasol = FALSE;
 
 	if (!global.flags.match_started)
 	{
@@ -244,8 +246,15 @@ void any_match(void)
 		else
 		{
 			/* match is over */
-			if((global.absolute_time > t_end_of_match + 1000) && I_AM_SMALL())
+			if((global.absolute_time > t_end_of_match + 1000) && I_AM_SMALL() && !do_parasol){
 				ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
+				do_parasol = TRUE;
+			}else{
+				ret_parasol = check_act_status(ACT_QUEUE_Parasol, IN_PROGRESS, END_OK, ERROR);
+				if(ret_parasol != IN_PROGRESS && ret_parasol == ERROR){
+					do_parasol = FALSE; //On refait une tentative
+				}
+			}
 		}
 	}
 }
