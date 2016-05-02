@@ -103,8 +103,10 @@ void PWM_set_frequency(Uint32 freq)
 {
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	Uint32 presc32;
-	if(!initialized)
+	if(!initialized){
+		error_printf("PWM non initialisé ! Appeller PWM_init");
 		return;
+	}
 	if(freq == 0)
 		return;
 	presc32 = (TIM_CLK2_FREQUENCY_HZ / freq / PWM_PERIOD) - 1;
@@ -119,8 +121,10 @@ void PWM_set_frequency(Uint32 freq)
 /* Fonctions de manipulation des PWM */
 void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 {
-	if(!initialized)
+	if(!initialized){
+		error_printf("PWM non initialisé ! Appeller PWM_init");
 		return;
+	}
 
 	switch(channel)
 	{
@@ -157,6 +161,12 @@ void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 }
 
 Uint8 PWM_get_duty(Uint8 channel){
+
+	if(!initialized){
+		error_printf("PWM non initialisé ! Appeller PWM_init");
+		return;
+	}
+
 	switch(channel)
 	{
 		case 1:
@@ -187,6 +197,12 @@ void PWM_stop(Uint8 channel)
 #if PWM_PERIOD == PWM_FINE_DUTY
 void PWM_run_fine(Uint16 duty, Uint8 channel)
 {
+
+	if(!initialized){
+		error_printf("PWM non initialisé ! Appeller PWM_init");
+		return;
+	}
+
 	switch(channel)
 	{
 #ifdef USE_PWM1

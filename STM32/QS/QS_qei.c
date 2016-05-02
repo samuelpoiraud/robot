@@ -18,9 +18,11 @@
 /*-------------------------------------
 	Initialisation de l'interface
 -------------------------------------*/
+
+static bool_e initialized = FALSE;
+
 void QEI_init()
 {
-	static bool_e initialized = FALSE;
 	if(initialized)
 		return;
 	initialized = TRUE;
@@ -50,11 +52,21 @@ void QEI_init()
 #ifdef USE_QUEI1
 	Sint16 QEI1_get_count()
 	{
+		if(!initialized){
+			error_printf("QEI non initialisé ! Appeller QEI_init");
+			return;
+		}
+
 		return -(Sint16)TIM_GetCounter(TIM3);
 	}
 
 	void QEI1_set_count(Sint16 count)
 	{
+		if(!initialized){
+			error_printf("QEI non initialisé ! Appeller QEI_init");
+			return;
+		}
+
 		TIM_SetCounter(TIM3, (Sint32)count);
 	}
 #endif
@@ -62,11 +74,21 @@ void QEI_init()
 #ifdef USE_QUEI2
 	Sint16 QEI2_get_count()
 	{
+		if(!initialized){
+			error_printf("QEI non initialisé ! Appeller QEI_init");
+			return;
+		}
+
 		return (Sint16)TIM_GetCounter(TIM2);
 	}
 
 	void QEI2_set_count(Sint16 count)
 	{
+		if(!initialized){
+			error_printf("QEI non initialisé ! Appeller QEI_init");
+			return;
+		}
+
 		TIM_SetCounter(TIM2, (Sint32)count);
 	}
 #endif
