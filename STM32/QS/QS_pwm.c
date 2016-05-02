@@ -14,6 +14,7 @@
 #include "QS_ports.h"
 #include "stm32f4xx_tim.h"
 #include "QS_clocks_freq.h"
+#include "QS_outputlog.h"
 
 /* Configuration du prédiviseur */
 #if PWM_FREQ > 50000
@@ -164,7 +165,7 @@ Uint8 PWM_get_duty(Uint8 channel){
 
 	if(!initialized){
 		error_printf("PWM non initialisé ! Appeller PWM_init");
-		return;
+		return 0;
 	}
 
 	switch(channel)
