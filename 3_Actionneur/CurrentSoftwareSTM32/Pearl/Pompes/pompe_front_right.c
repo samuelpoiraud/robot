@@ -127,9 +127,9 @@ static void POMPE_FRONT_RIGHT_command_run(queue_id_t queueId){
 
 static void POMPE_FRONT_RIGHT_do_order(Uint8 command, Uint8 param){
 	if(command == ACT_POMPE_NORMAL)
-		GPIO_ResetBits(POMPE_FRONT_RIGHT_SENS);
-	else if(command == ACT_POMPE_REVERSE)
 		GPIO_SetBits(POMPE_FRONT_RIGHT_SENS);
+	else if(command == ACT_POMPE_REVERSE)
+		GPIO_ResetBits(POMPE_FRONT_RIGHT_SENS);
 	else{
 		debug_printf("commande envoyée à POMPE_FRONT_RIGHT_do_order inconnue -> %d	%x\n", command, command);
 		PWM_stop(POMPE_FRONT_RIGHT_PWM_NUM);
