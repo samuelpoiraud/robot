@@ -138,10 +138,9 @@
 		#define RECALAGE_AV_D		!GPIOC->IDR2
 
 	#define PORT_IO_C_3			PORT_IO_INPUT
-		#define WT100_PEARL_LEFT	!GPIOC->IDR3  //Pearl
 
 	#define PORT_IO_C_4			PORT_IO_INPUT
-		#define WT100_PEARL_RIGHT   !GPIOC->IDR4  //Pearl
+		#define WT100_CENTER_TOP  !GPIOC->IDR4  //Pearl
 
 	#define PORT_IO_C_5			PORT_IO_INPUT
 		#define RECALAGE_AR_G		!GPIOC->IDR5  //Black

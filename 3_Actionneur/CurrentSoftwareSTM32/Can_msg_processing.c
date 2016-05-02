@@ -115,8 +115,8 @@ void CAN_process_msg(CAN_msg_t* msg) {
 #ifdef I_AM_ROBOT_BIG
 
 #else
-				case WT100_CENTER:
-					answer.data.strat_inform_capteur.present = WT100_CENTER_PORT;
+				case WT100_CENTER_BOTTOM:
+					answer.data.strat_inform_capteur.present = WT100_CENTER_BOTTOM_PORT;
 					break;
 #endif
 				default:
