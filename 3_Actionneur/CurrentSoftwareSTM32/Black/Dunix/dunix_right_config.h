@@ -23,7 +23,8 @@
 	#define DUNIX_RIGHT_RX24_IDLE_POS					682
 	#define DUNIX_RIGHT_RX24_CLOSE_POS			     	682	//en degré
 	#define DUNIX_RIGHT_RX24_OPEN_POS					350	//en degré
-	#define DUNIX_RIGHT_RX24_SNOWPLOW_POS				300	//en degré
+	#define DUNIX_RIGHT_RX24_SNOWPLOW_POS				250	//en degré
+	#define DUNIX_RIGHT_RX24_FISHS_BIS_POS				105
 	#define DUNIX_RIGHT_RX24_FISHS_POS                  42
 
 

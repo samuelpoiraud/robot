@@ -286,6 +286,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		case BROADCAST_COULEUR :
 			//Le type couleur est normalisé en QS...
 			ODOMETRY_set_color(msg->data.broadcast_couleur.color);
+			SCAN_init();
 			//Propagation sur UART (pour un éventuel robot virtuel branché sur notre UART)
 			#ifdef CAN_SEND_OVER_UART
 				CANmsgToU1tx(msg);
