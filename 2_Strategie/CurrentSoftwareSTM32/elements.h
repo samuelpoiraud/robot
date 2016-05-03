@@ -88,9 +88,12 @@
 		DEPOSE_POS_2,
 		DEPOSE_POS_3,
 
-		//Flags de stratégie ou pour donner des ordres à l'autre robot
+		//Flags de stratégie échangées entre les deux robots
 		BLACK_LET_PEARL_GO_TAKE_DUNE_BLOC,
 		BLACK_CAN_USE_DUNIX,
+		BLACK_TRY_DOORS,
+
+		//Flags de subaction
 		BLACK_DOORS,
 		BLACK_OUR_BLOC_DUNE,
 		BLACK_IN_APOCALYPSE,
@@ -116,11 +119,6 @@
 		PEARL_ADV_SEASHELL,
 		PEARL_CAN_GO_CLOSE_DOORS,
 		PEARL_FISH,
-
-		//à supprimer
-		SEASHELLS_BOTTOM,			//si les deux coquillages du bas sont pris ou pas (flag à supprimer et à remplacer par les flag coquillages)
-		OUR_BLOCK8_DEPOSED,			//on a depose notre bloc de 8 (à supprimer, on doit juste savoir si le cube est pris)
-		ADV_BLOCK8_DEPOSED,			//on a depose le bloc de 8 adv (à supprimer, on doit juste savoir si le cube est pris)
 
 		ELEMENTS_FLAGS_END_SYNCH,	//Les flags au-dessus seront synchro entre les deux robots
 
