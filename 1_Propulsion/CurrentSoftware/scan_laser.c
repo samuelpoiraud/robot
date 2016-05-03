@@ -14,31 +14,57 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can.h"
 #include "QS/QS_maths.h"
+#include "odometry.h"
 
-#define CONVERSION_LASER_LEFT(x)  ((Sint32)((x)*19969-11274)/1000)
-#define CONVERSION_LASER_RIGHT(x)  ((Sint32)((x)*26071-21929)/1000)
-#define DISTANCE_SCAN_CENTER	150
+#define CONVERSION_LASER_LEFT(x)	((Sint32)(-264*(x)+353500)/1000)
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(-264*(x)+354400)/1000)
+#define DISTANCE_SCAN_CENTER		146
+#define DISTANCE_SCAN_CENTER_Y		60
 
-static Sint16 next_position=1100;
+static Sint16 next_position;
 static Sint16 tab_scan[80]={};
 
+void SCAN_init(){
+	if(ODOMETRY_get_color()==MAGENTA)
+		next_position=1100;
+	else
+		next_position=1900;
+	//debug_printf("\n\nnext position init = %d\n\n\n", next_position);
+}
 
-// il faut encore gérer le décalage en y entre le centre de gravité et le laser
 
-// et améliorer grandement le remplissage du tableau
 
-// mais je sais pas comment m'y prendre (j'ai pas encore trop réfléchi au sujet)
 
 void SCAN_process_it(){
-	if(global.flags.scan_dune && global.position.x > next_position){
-		if(global.position.teta < PI4096 && global.position.teta > 0 )
-			tab_scan[(next_position-1100)/10] = - sin4096(global.position.teta)*(CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT)))+global.position.x+DISTANCE_SCAN_CENTER;
-		else
-			tab_scan[(next_position-1100)/10] = sin4096(global.position.teta)*CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x+DISTANCE_SCAN_CENTER;
-		next_position = next_position + 10;
-		if(next_position == 1900){
+//	printf("%d\n",ADC_getValue(ADC_SENSOR_LASER_RIGHT));
+	if(ODOMETRY_get_color()==MAGENTA){
+		if(next_position <= 1100){
 			global.flags.scan_dune = FALSE;
-			global.flags.treatment_scan = TRUE;
+		}
+		if(global.flags.scan_dune && (global.position.y+(DISTANCE_SCAN_CENTER_Y) > next_position)){
+			//printf("%d\n",(next_position-1100)/10);
+			tab_scan[(next_position-1100)/10] = 100;//-(CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT)))+(global.position.x)-(DISTANCE_SCAN_CENTER);
+			next_position = next_position + 10;
+			if(next_position >= 1900){
+				global.flags.scan_dune = FALSE;
+				global.flags.treatment_scan = TRUE;
+			}
+		}
+	}else{
+		//printf("%d < %d\n", (global.position.y-(DISTANCE_SCAN_CENTER_Y)), next_position);
+		if(global.flags.scan_dune && ((global.position.y-(DISTANCE_SCAN_CENTER_Y)) < next_position)){
+			//printf("%d\n",(next_position-1100)/10);
+			tab_scan[(next_position-1100)/10] = 200;//-CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x-(DISTANCE_SCAN_CENTER);
+			next_position = next_position - 10;
+			if(next_position <= 1100){
+				global.flags.scan_dune = FALSE;
+				global.flags.treatment_scan = TRUE;
+				//printf("ghfighfg");
+			}
+		}
+		else{
+			//printf("%d < %d\n", (global.position.y-(DISTANCE_SCAN_CENTER_Y)), next_position);
+			//printf("%d\n",global.flags.scan_dune);
 		}
 	}
 }
@@ -58,15 +84,21 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 				state = LANCER_SCAN;
 			break;
 		case LANCER_SCAN:
+			//printf("LANCER SCAN\n");
 			global.flags.scan_dune = TRUE;
 			state = TRAITEMENT_SCAN;
 			break;
 		case TRAITEMENT_SCAN:{
+			//printf("TRAITEMENT SCAN 1\n");
 			if(global.flags.treatment_scan){
+				//printf("TRAITEMENT SCAN 2\n");
 				Uint8 compteur = 0;
 				Sint16 sum = 0;
 				Uint8 shift = 0;
 				Uint8 i=0;
+				for(i=0;i<80;i++){
+					//printf("scan[%d]: %d\n",i,tab_scan[i]);
+				}
 				for(i=0;i<14;i++){
 					if(tab_scan[i] < 20 && tab_scan[i] > -20){
 						compteur++;

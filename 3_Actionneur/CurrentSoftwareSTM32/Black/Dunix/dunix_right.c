@@ -117,6 +117,7 @@ bool_e DUNIX_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_DUNIX_RIGHT_IDLE :
 			case ACT_DUNIX_RIGHT_OPEN :
 			case ACT_DUNIX_RIGHT_SNOWPLOW :
+			case ACT_DUNIX_RIGHT_FISHS_BIS :
 			case ACT_DUNIX_RIGHT_FISHS :
 			case ACT_DUNIX_RIGHT_CLOSE :
 			case ACT_DUNIX_RIGHT_STOP :
@@ -173,6 +174,7 @@ static void DUNIX_RIGHT_command_init(queue_id_t queueId) {
 		case ACT_DUNIX_RIGHT_CLOSE : *rx24_goalPosition = DUNIX_RIGHT_RX24_CLOSE_POS; break;
 		case ACT_DUNIX_RIGHT_OPEN : *rx24_goalPosition = DUNIX_RIGHT_RX24_OPEN_POS; break;
 		case ACT_DUNIX_RIGHT_SNOWPLOW : *rx24_goalPosition = DUNIX_RIGHT_RX24_SNOWPLOW_POS; break;
+		case ACT_DUNIX_RIGHT_FISHS_BIS : *rx24_goalPosition = DUNIX_RIGHT_RX24_FISHS_BIS_POS; break;
 		case ACT_DUNIX_RIGHT_FISHS : *rx24_goalPosition = DUNIX_RIGHT_RX24_FISHS_POS; break;
 		case ACT_DUNIX_RIGHT_STOP :
 			RX24_set_torque_enabled(DUNIX_RIGHT_RX24_ID, FALSE); //Stopper l'asservissement du RX24

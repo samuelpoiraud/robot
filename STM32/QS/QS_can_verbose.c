@@ -173,6 +173,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_WARN_X:								print(string, len, "%x PROP_WARN_X                            ", PROP_WARN_X									);	break;
 		case PROP_WARN_Y:								print(string, len, "%x PROP_WARN_Y                            ", PROP_WARN_Y									);	break;
 		case DEBUG_PROP_MOVE_POSITION:					print(string, len, "%x PROP_DEBUG_MOVE_POSITION               ", DEBUG_PROP_MOVE_POSITION						);	break;
+		case PROP_SCAN_DUNE:							print(string, len, "%x PROP_SCAN_DUNE                         ", PROP_SCAN_DUNE                                 );  break;
 
 		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING         ", BEACON_ENABLE_PERIODIC_SENDING					);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING        ", BEACON_DISABLE_PERIODIC_SENDING				);	break;
@@ -397,6 +398,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_DUNIX_RIGHT_IDLE:		print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_DUNIX_RIGHT_OPEN:		print(string,len, "| OPEN |");			break;
 						  case (Uint8)ACT_DUNIX_RIGHT_SNOWPLOW:	print(string,len, "| SNOWPLOW |");		break;
+						  case (Uint8)ACT_DUNIX_RIGHT_FISHS_BIS:print(string,len, "| FISHSBIS |");		break;
+						  case (Uint8)ACT_DUNIX_RIGHT_FISHS:	print(string,len, "| FISHS |");			break;
 						  case (Uint8)ACT_DUNIX_RIGHT_CLOSE:	print(string,len, "| CLOSE |");			break;
 						  case (Uint8)ACT_DUNIX_RIGHT_STOP:		print(string,len, "| STOP |");			break;
 						  default:                              print(string,len, "| UNKNOW cmd |");	break;

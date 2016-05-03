@@ -121,6 +121,7 @@ void initialisation(void)
 	DEBUG_init();
 	ADC_init();
 	BUTTONS_init();
+	SCAN_init();
 	IHM_init(&global.flags.match_started);
 	IHM_define_act_button(BP_CALIBRATION_IHM,&SEQUENCES_calibrate,NULL);
 	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
