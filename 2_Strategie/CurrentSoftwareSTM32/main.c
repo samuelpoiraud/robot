@@ -53,8 +53,8 @@ void process_measure_loop_duration(void)
 	{
 		//Décommenter ce printf pour afficher la mesure de la durée de la boucle.
 		//ATTENTION, cet affichage est hors de la mesure... (donc elle impacte le code hors de cette mesure).
-		if(global.absolute_time - previous_time > 5)
-			debug_printf("L%d\n",(Uint16)(global.absolute_time - previous_time));
+		//if(global.absolute_time - previous_time > 5)
+			//debug_printf("L%d\n",(Uint16)(global.absolute_time - previous_time));
 		previous_time = global.absolute_time;
 	}
 }
@@ -138,6 +138,7 @@ int main (void)
 	ACT_AVOIDANCE_init();
 	ELEMENTS_init();
 	ASTAR_init();
+	ASTAR_disable_polygon(6); //Désactivation du polygon du bloc de départ adverse
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
