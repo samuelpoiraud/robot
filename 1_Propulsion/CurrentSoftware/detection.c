@@ -38,7 +38,8 @@ typedef struct{
 	bool_e enable;
 }square;
 
-square zone[10]={{750,1350,1500,2190,FALSE},{750,1350,810,1500,FALSE},{0,750,900,2100,FALSE}};
+square zone_hokuyo[3]={{750,1350,1300,2190,FALSE},{750,1350,810,1700,FALSE},{0,750,900,2100,FALSE}};
+square zone_balise[3]={{750,1350,1200,2190,FALSE},{750,1350,810,1800,FALSE},{0,750,900,2100,FALSE}};
 
 /*zone[0]={750,1350,1500,2100,FALSE};
   zone[1]={750,1350,900,1500,FALSE};
@@ -241,34 +242,34 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					GEOMETRY_point_t adv_pos;
 					adv_pos.x = adversaries[HOKUYO_MAX_FOES+i].x;
 					adv_pos.y = adversaries[HOKUYO_MAX_FOES+i].y;
-					if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, pos)){
-						if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, adv_pos)){
+					if(is_in_square(zone_hokuyo[0].x1, zone_hokuyo[0].x2, zone_hokuyo[0].y1, zone_hokuyo[0].y2, pos)){
+						if(is_in_square(zone_hokuyo[1].x1, zone_hokuyo[1].x2, zone_hokuyo[1].y1, zone_hokuyo[1].y2, adv_pos)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
-						if(is_in_square(zone[2].x1, zone[2].x2, zone[2].y1, zone[2].y2, adv_pos)){
-							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
-							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
-						}
-					}
-
-					if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, pos)){
-						if(is_in_square(zone[2].x1, zone[2].x2, zone[2].y1, zone[2].y2, adv_pos)){
-							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
-							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
-						}
-						if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, adv_pos)){
+						if(is_in_square(zone_hokuyo[2].x1, zone_hokuyo[2].x2, zone_hokuyo[2].y1, zone_hokuyo[2].y2, adv_pos)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
 					}
 
-					if(is_in_square(zone[2].x1, zone[2].x2, zone[2].y1, zone[2].y2, pos)){
-						if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, adv_pos)){
+					if(is_in_square(zone_hokuyo[1].x1, zone_hokuyo[1].x2, zone_hokuyo[1].y1, zone_hokuyo[1].y2, pos)){
+						if(is_in_square(zone_hokuyo[2].x1, zone_hokuyo[2].x2, zone_hokuyo[2].y1, zone_hokuyo[2].y2, adv_pos)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
-						if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, adv_pos)){
+						if(is_in_square(zone_hokuyo[0].x1, zone_hokuyo[0].x2, zone_hokuyo[0].y1, zone_hokuyo[0].y2, adv_pos)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+					}
+
+					if(is_in_square(zone_hokuyo[2].x1, zone_hokuyo[2].x2, zone_hokuyo[2].y1, zone_hokuyo[2].y2, pos)){
+						if(is_in_square(zone_hokuyo[1].x1, zone_hokuyo[1].x2, zone_hokuyo[1].y1, zone_hokuyo[1].y2, adv_pos)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+						if(is_in_square(zone_hokuyo[0].x1, zone_hokuyo[0].x2, zone_hokuyo[0].y1, zone_hokuyo[0].y2, adv_pos)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
@@ -312,29 +313,29 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 			GEOMETRY_point_t pos;
 			pos.x=global.position.x;
 			pos.y=global.position.y;
-			zone[0].enable=FALSE;
-			zone[1].enable=FALSE;
-			zone[2].enable=FALSE;
-			if(is_in_square(zone[0].x1, zone[0].x2, zone[0].y1, zone[0].y2, pos))
+			zone_balise[0].enable=FALSE;
+			zone_balise[1].enable=FALSE;
+			zone_balise[2].enable=FALSE;
+			if(is_in_square(zone_balise[0].x1, zone_balise[0].x2, zone_balise[0].y1, zone_balise[0].y2, pos))
 			{
-				zone[1].enable=TRUE;
-				zone[2].enable=TRUE;
+				zone_balise[1].enable=TRUE;
+				zone_balise[2].enable=TRUE;
 			}
-			if(is_in_square(zone[1].x1, zone[1].x2, zone[1].y1, zone[1].y2, pos))
+			if(is_in_square(zone_balise[1].x1, zone_balise[1].x2, zone_balise[1].y1, zone_balise[1].y2, pos))
 			{
-				zone[0].enable=TRUE;
-				zone[2].enable=TRUE;
+				zone_balise[0].enable=TRUE;
+				zone_balise[2].enable=TRUE;
 			}
-			if(is_in_square(zone[2].x1, zone[2].x2, zone[2].y1, zone[2].y2, pos))
+			if(is_in_square(zone_balise[2].x1, zone_balise[2].x2, zone_balise[2].y1, zone_balise[2].y2, pos))
 			{
-				zone[0].enable=TRUE;
-				zone[1].enable=TRUE;
+				zone_balise[0].enable=TRUE;
+				zone_balise[1].enable=TRUE;
 			}
 			//fin 2016
 			GEOMETRY_point_t p;
 			p.x=adversaries[i].x;
 			p.y=adversaries[i].y;
-			if(is_in_zone_transparency(p))/*(GEOMETRY_point_t){adversaries[i].x, adversaries[i].y})))*/
+			if(is_in_zone_transparency_balise(p))/*(GEOMETRY_point_t){adversaries[i].x, adversaries[i].y})))*/
 				adversaries[i].enable = FALSE; //On désactive cet adversaire... Soit c'est l'autre robot, soit c'est un ennemi dont on est protégé par l'autre robot ou un obstacle fixe.
 		}
 	}
@@ -366,17 +367,27 @@ adversary_t * DETECTION_get_adversaries(Uint8 * size)
 	return adversaries;
 }
 
-bool_e is_in_zone_transparency(GEOMETRY_point_t p)
+bool_e is_in_zone_transparency_hokuyo(GEOMETRY_point_t p)
 {
 	Uint8 i=0;
-	for(i=0;i<10;i++){
-		if(zone[i].enable&&is_in_square(zone[i].x1, zone[i].x2, zone[i].y1, zone[i].y2, p))
+	for(i=0;i<3;i++){
+		if(zone_hokuyo[i].enable&&is_in_square(zone_hokuyo[i].x1, zone_hokuyo[i].x2, zone_hokuyo[i].y1, zone_hokuyo[i].y2, p))
 			return TRUE;
 	}
 	return FALSE;
 }
 
-void DETECTON_set_zone_transparency(Uint8 i, bool_e enable)
+void DETECTON_set_zone_transparency(Uint8 i, bool_e enable) //Pour l'hokuyo
 {
-	zone[i].enable=enable;
+	zone_hokuyo[i].enable=enable;
+}
+
+bool_e is_in_zone_transparency_balise(GEOMETRY_point_t p)
+{
+	Uint8 i=0;
+	for(i=0;i<3;i++){
+		if(zone_balise[i].enable&&is_in_square(zone_balise[i].x1, zone_balise[i].x2, zone_balise[i].y1, zone_balise[i].y2, p))
+			return TRUE;
+	}
+	return FALSE;
 }

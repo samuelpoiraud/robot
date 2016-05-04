@@ -51,9 +51,11 @@
 	//@post : size contient la taille du tableau
 	adversary_t * DETECTION_get_adversaries(Uint8 * size);
 
-	bool_e is_in_zone_transparency(GEOMETRY_point_t p);
+	bool_e is_in_zone_transparency_hokuyo(GEOMETRY_point_t p);
+	bool_e is_in_zone_transparency_balise(GEOMETRY_point_t p);
 
-	void DETECTON_set_zone_transparency(Uint8 i, bool_e enable);
+	void DETECTON_set_zone_transparency(Uint8 i, bool_e enable);  //Pour l'hokuyo
+
 
 
 #endif /* ndef DETECTION_H */
