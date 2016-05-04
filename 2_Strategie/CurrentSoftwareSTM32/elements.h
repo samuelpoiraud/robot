@@ -63,8 +63,14 @@
 		ADV_START_ZONE_BLOC_TAKEN,		//on a pris le bloc de 4 adv
 		OUR_DUNE_BLOC_TAKEN,			//on a pris notre bloc de 8
 		ADV_DUNE_BLOC_TAKEN,			//on a pris le bloc de 8 adv
-		FISHS_TAKEN,				    //poisson embarqués dans le robot
-		DUNE_TAKEN,					    //on a pris la dune
+		FISHS_TAKEN_BY_BLACK,			//sub poissons fait par Black
+		FISHS_TAKEN_BY_PEARL,			//sub poissons fait par Pearl
+
+		DUNE_TAKEN,
+		FIRST_ROW_DUNE_TAKEN,			//on a pris la première rangée de la dune
+		SECOND_ROW_DUNE_TAKEN,			//on a pris la seconde rangée de la dune
+		DUNE_ALTERNATIF_TAKEN,          //on a pris le côté de la dune grâce au rush alternatif
+		DUNE_IN_ROBOT,                   //la dune est dans le robot, on ne l'a pas encore déposé
 
 		//Apocalypse
 		OUR_BLOC_PRESENT,			//on a vu (au scan) notre bloc de 8
