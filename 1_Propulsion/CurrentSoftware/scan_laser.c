@@ -29,7 +29,7 @@ void SCAN_init(){
 		next_position=1100;
 	else
 		next_position=1900;
-	//debug_printf("\n\nnext position init = %d\n\n\n", next_position);
+	debug_printf("\n\nnext position init = %d\n\n\n", next_position);
 }
 
 
@@ -38,11 +38,8 @@ void SCAN_init(){
 void SCAN_process_it(){
 //	printf("%d\n",ADC_getValue(ADC_SENSOR_LASER_RIGHT));
 	if(ODOMETRY_get_color()==MAGENTA){
-		if(next_position <= 1100){
-			global.flags.scan_dune = FALSE;
-		}
 		if(global.flags.scan_dune && (global.position.y+(DISTANCE_SCAN_CENTER_Y) > next_position)){
-			//printf("%d\n",(next_position-1100)/10);
+			printf("%d\n",(next_position-1100)/10);
 			tab_scan[(next_position-1100)/10] = 100;//-(CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT)))+(global.position.x)-(DISTANCE_SCAN_CENTER);
 			next_position = next_position + 10;
 			if(next_position >= 1900){
@@ -54,18 +51,23 @@ void SCAN_process_it(){
 		//printf("%d < %d\n", (global.position.y-(DISTANCE_SCAN_CENTER_Y)), next_position);
 		if(global.flags.scan_dune && ((global.position.y-(DISTANCE_SCAN_CENTER_Y)) < next_position)){
 			//printf("%d\n",(next_position-1100)/10);
-			tab_scan[(next_position-1100)/10] = 200;//-CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x-(DISTANCE_SCAN_CENTER);
-			next_position = next_position - 10;
-			if(next_position <= 1100){
-				global.flags.scan_dune = FALSE;
-				global.flags.treatment_scan = TRUE;
-				//printf("ghfighfg");
+			if(((next_position-1100)/10) >=0 && ((next_position-1100)/10) < 80){
+				tab_scan[((next_position-1100)/10) - 1] = -CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x-(DISTANCE_SCAN_CENTER);
+				next_position = next_position - 10;
+			}else{
+				//debug_printf("Index hors tab\n");
 			}
 		}
 		else{
 			//printf("%d < %d\n", (global.position.y-(DISTANCE_SCAN_CENTER_Y)), next_position);
 			//printf("%d\n",global.flags.scan_dune);
 		}
+
+		if((global.position.y-(DISTANCE_SCAN_CENTER_Y)) <= 1100){
+			global.flags.scan_dune = FALSE;
+			global.flags.treatment_scan = TRUE;
+		}
+
 	}
 }
 
@@ -76,28 +78,29 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 		TRAITEMENT_SCAN,
 		END
 	}SCAN_MAE_e;
-
 	static SCAN_MAE_e state = INIT;
+	//printf("s=%d\n",state);
 	switch (state){
 		case INIT:
+			//printf("STATA = INIT\n");
 			if(msg != NULL)
 				state = LANCER_SCAN;
 			break;
 		case LANCER_SCAN:
-			//printf("LANCER SCAN\n");
+			printf("LANCER SCAN\n");
 			global.flags.scan_dune = TRUE;
 			state = TRAITEMENT_SCAN;
 			break;
 		case TRAITEMENT_SCAN:{
-			//printf("TRAITEMENT SCAN 1\n");
-			if(global.flags.treatment_scan){
-				//printf("TRAITEMENT SCAN 2\n");
+			printf("TRAITEMENT SCAN 1\n");
+			if(global.flags.treatment_scan == TRUE){
+				printf("TRAITEMENT SCAN 2\n");
 				Uint8 compteur = 0;
 				Sint16 sum = 0;
 				Uint8 shift = 0;
 				Uint8 i=0;
 				for(i=0;i<80;i++){
-					//printf("scan[%d]: %d\n",i,tab_scan[i]);
+					printf("scan[%d]: %d\n",i,tab_scan[i]);
 				}
 				for(i=0;i<14;i++){
 					if(tab_scan[i] < 20 && tab_scan[i] > -20){
@@ -111,7 +114,8 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 						sum+=tab_scan[i];
 					}
 				}
-				shift = sum/compteur;
+				if(compteur!=0)
+					shift = sum/compteur;
 				compteur=0;
 				sum=0;
 				for(i=14;i<67;i++){
@@ -120,7 +124,9 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 						sum += i;
 					}
 				}
-				Uint16 middle=(sum*10+1100)/compteur;
+				Uint16 middle;
+				if(compteur!=0)
+					middle=(sum*10)/compteur + 1100;
 				if(compteur>45){
 					CAN_msg_t msg;
 					msg.sid = STRAT_BACK_SCAN;
@@ -133,6 +139,7 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 					CAN_send(&msg);
 					debug_printf("Il a laissé la deuxième partie de la dune");
 				}else{
+					compteur = 0;
 					for(i=14;i<32;i++){
 						if(((tab_scan[i]-shift)<78)&&((tab_scan[i]-shift)>38)){
 							compteur++;
@@ -187,8 +194,9 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 						}
 					}
 				}
-			state=END;
+				state=END;
 			}
+
 		}
 		break;
 		case END:
