@@ -128,7 +128,7 @@ void any_match(void)
 	static error_e ret;
 	static time32_t t_end_of_match;
 	static bool_e do_parasol = FALSE;
-	static error_e ret_parasol = FALSE;
+	static Uint8 ret_parasol = FALSE;
 
 	if (!global.flags.match_started)
 	{
