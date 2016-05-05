@@ -172,7 +172,7 @@ bool_e ACT_push_order_with_param(ACT_sid_e sid,  ACT_order_e order, Uint16 param
 //////////////// COMMON ////////////////
 ////////////////////////////////////////
 
-bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value){
+bool_e ACT_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value){
 	QUEUE_arg_t args;
 	CAN_msg_t msg;
 

@@ -65,7 +65,7 @@ void ACT_sensor_answer(CAN_msg_t* msg);
 
 // -------------------------------- Fonctions de configuration des actionneurs
 
-bool_e ACT_config(Uint16 sid, Uint8 sub_act, Uint8 cmd, Uint16 value);
+bool_e ACT_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value);
 
 
 #endif /* ndef ACT_FUNCTIONS_H */
