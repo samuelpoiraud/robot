@@ -89,7 +89,6 @@
 		//Flags de dépose des blocs de sables
 		DEPOSE_BLOC_ERROR,			//on est dans le cas d'erreur de la depose (si on a pas pu pousser le bloc precedent)
 		DEPOSE_BLOC_DOUBLE_ERROR,	//on a pas pu pousser deux fois de suite
-		BLOC_IN_ZONE,				//indique si il y a dejà un bloc de déposé dans la zone de construction
 		DEPOSE_POS_0,
 		DEPOSE_POS_1,
 		DEPOSE_POS_2,
