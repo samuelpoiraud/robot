@@ -60,7 +60,7 @@ typedef enum {
 	SM_ID_SUB_PEARL_DEPOSE_ALL_SAND_BLOC			= 0x0153,
 	SM_ID_STRAT_PEARL_TESTS                         = 0x0154,
 	SM_ID_SUB_PEARL_COLLECT_FISHS					= 0x0155,
-
+	SM_ID_SUB_PEARL_WAIT         					= 0x0156,
 
 	//0x200 SUBACTIONS
 	SM_ID_SUB_RECALAGE_X							= 0x0201,
