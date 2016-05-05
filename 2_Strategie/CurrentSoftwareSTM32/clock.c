@@ -65,6 +65,9 @@ void _ISR _T1Interrupt()
 
 		if(global.match_time & 0x100)
 			toggle_led(LED_USER);
+
+		if(global.friend_position_lifetime)
+			global.friend_position_lifetime--;
 	}
 
 	local_time++;

@@ -75,6 +75,9 @@ void ENV_init(void)
 	global.flags.initial_position_received = FALSE;
 	global.flags.alim = FALSE;
 	global.flags.go_to_home = FALSE;
+	global.friend_position_lifetime = 0;
+	global.friend_pos.x = 0;
+	global.friend_pos.y = 0;
 
 	for(i=0;i<MAX_NB_FOES;i++)
 	{
@@ -508,6 +511,18 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 		case XBEE_REACH_POINT_GET_OUT_INIT:
 			global.com.reach_point_get_out_init = TRUE;
+			break;
+
+		case XBEE_MY_POSITION_IS:
+			if(QS_WHO_AM_I_get() == PEARL)
+			{
+				if(incoming_msg->data.xbee_my_position_is.robot_id == BLACK)
+				{
+					global.friend_position_lifetime = 2100;							//Durée de vie de 2100 pour cette donnée.
+					global.friend_pos.x = incoming_msg->data.xbee_my_position_is.x;
+					global.friend_pos.y = incoming_msg->data.xbee_my_position_is.y;
+				}
+			}
 			break;
 
 		case XBEE_SYNC_ELEMENTS_FLAGS:
