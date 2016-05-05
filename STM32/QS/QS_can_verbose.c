@@ -189,7 +189,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case XBEE_ASK_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_ASK_CONFIG_COQUILLAGES	          ", XBEE_ASK_CONFIG_COQUILLAGES					);	break;
 		case XBEE_SEND_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_SEND_CONFIG_COQUILLAGES	          ", XBEE_SEND_CONFIG_COQUILLAGES					);	break;
 		case XBEE_ZONE_COMMAND:							print(string, len, "%x XBEE_ZONE_COMMAND			          ", XBEE_ZONE_COMMAND								);	break;
-
+		case XBEE_MY_POSITION_IS:						print(string, len, "%x XBEE_MY_POSITION_IS			          ", XBEE_MY_POSITION_IS							);	break;
 
 // Black
 		case ACT_FISH_MAGNETIC_ARM:						print(string, len, "%x ACT_FISH_MAGNETIC_ARM                  ", ACT_FISH_MAGNETIC_ARM							);	break;
@@ -267,7 +267,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 																print(string, len, "ERRs:0x%2x 0x%2x|",msg->data.broadcast_beacon_adversary_position_ir.adv[0].error, msg->data.broadcast_beacon_adversary_position_ir.adv[1].error);
 															print(string, len, "angleR1=%3d |dR1=%3dcm |angleR2=%3d |dR2=%3dcm \n", RAD_TO_DEG(msg->data.broadcast_beacon_adversary_position_ir.adv[0].angle), msg->data.broadcast_beacon_adversary_position_ir.adv[0].dist, RAD_TO_DEG(msg->data.broadcast_beacon_adversary_position_ir.adv[1].angle), msg->data.broadcast_beacon_adversary_position_ir.adv[1].dist);	break;
 
-		case BROADCAST_I_AM_AND_I_AM_HERE:			print(string, len, "| Code %s sur emplacement %s !!!\n", (msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_PROP)?"Prop":"Act"),  (msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_PROP)?"Prop":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_ACT)?"Act":"Inconnu"))); break;
+		case BROADCAST_I_AM_AND_I_AM_HERE:		print(string, len, "| Code %s sur emplacement %s !!!\n", (msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_PROP)?"Prop":"Act"),  (msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_PROP)?"Prop":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_ACT)?"Act":"Inconnu"))); break;
+
+		case XBEE_MY_POSITION_IS:				print(string, len, "%s pos : x = %d | y = %d\n", (msg->data.xbee_my_position_is.robot_id == BIG_ROBOT)?"Big":"Small", msg->data.xbee_my_position_is.x, msg->data.xbee_my_position_is.y);	break;
 
 		case ACT_RESULT:
 			print(string,len, "| act0x%x : ", msg->data.act_result.sid);
