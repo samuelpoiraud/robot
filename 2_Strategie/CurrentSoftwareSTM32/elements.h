@@ -139,6 +139,8 @@
 		//Gestion des éléments dans le robot Black
 		VENTOUSE_AVANT_GAUCHE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
 		VENTOUSE_AVANT_DROITE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
+		BLOC_IN_BLACK,
+		FRONT_DUNE_IN_BLACK,
 		FRONT_BLACK_USED,			  //flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
 		BACK_BLACK_USED,		      //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 		DUNIX_OPEN,
