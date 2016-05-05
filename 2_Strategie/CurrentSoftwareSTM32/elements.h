@@ -69,6 +69,12 @@
 		DUNE_TAKEN,                      //La dune a été prise
 		DUNE_IN_ROBOT,                   //la dune est dans le robot, on ne l'a pas encore déposé. Ce flag
 
+		//Flags temporaires strat d'attaque pearl
+		BLOC_DUNE_TRIED,				//on a tenté lors de cette strat de prendre le bloc dune adv
+		BLOC_START_ZONE_TRIED,			//on a tenté lors de cette strat de prendre le bloc start zone adv
+		LACHE_COQUILLAGE,				//défini si on lache un coquillage devant les poissons adverses
+		BLOC_DUNE_ADV_GO,				//défini si on tente de prendre le bloc dune de l'adversaire en priorité
+
 		//Apocalypse
 		OUR_BLOC_PRESENT,			//on a vu (au scan) notre bloc de 8
 		OUR_BLOC_ABSENT,			//on a PAS vu (au scan) notre bloc de 8
