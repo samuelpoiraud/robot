@@ -24,6 +24,7 @@
 	#define LEFT_ARM_AX12_LOCK_POS				    678
 	#define LEFT_ARM_AX12_LOCK_SERRAGE_POS			720
 	#define LEFT_ARM_AX12_UNLOCK_POS				480
+	#define LEFT_ARM_AX12_PARALLELE_POS             546
 
 //Position initiale de l'AX12
 	#define LEFT_ARM_AX12_INIT_POS					LEFT_ARM_AX12_IDLE_POS

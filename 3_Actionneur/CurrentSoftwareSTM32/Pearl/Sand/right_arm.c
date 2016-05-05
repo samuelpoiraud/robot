@@ -119,6 +119,7 @@ bool_e RIGHT_ARM_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_RIGHT_ARM_LOCK :
 			case ACT_RIGHT_ARM_LOCK_SERRAGE :
 			case ACT_RIGHT_ARM_STOP :
+			case ACT_RIGHT_ARM_PARALLELE:
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_RIGHT_ARM, &RIGHT_ARM_run_command, 0,TRUE);
 				break;
 
@@ -171,6 +172,7 @@ static void RIGHT_ARM_command_init(queue_id_t queueId) {
 		case ACT_RIGHT_ARM_LOCK : *ax12_goalPosition = RIGHT_ARM_AX12_LOCK_POS; break;
 		case ACT_RIGHT_ARM_LOCK_SERRAGE : *ax12_goalPosition = RIGHT_ARM_AX12_LOCK_SERRAGE_POS; break;
 		case ACT_RIGHT_ARM_UNLOCK : *ax12_goalPosition = RIGHT_ARM_AX12_UNLOCK_POS; break;
+		case ACT_RIGHT_ARM_PARALLELE : *ax12_goalPosition = RIGHT_ARM_AX12_PARALLELE_POS; break;
 
 		case ACT_RIGHT_ARM_STOP :
 			AX12_set_torque_enabled(RIGHT_ARM_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
