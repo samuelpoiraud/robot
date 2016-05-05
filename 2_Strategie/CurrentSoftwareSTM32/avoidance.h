@@ -260,4 +260,6 @@ bool_e is_possible_point_for_dodge(GEOMETRY_point_t * p);
  */
 bool_e i_am_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
 
+bool_e is_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
+
 #endif /* ndef AVOIDANCE_H */
