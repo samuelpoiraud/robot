@@ -518,11 +518,11 @@ void PORTS_uarts_init() {
 			GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_USART3);	//U3RX
 
 			//USART3 TX
-			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-			GPIO_Init(GPIOD, &GPIO_InitStructure);
+			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+			GPIO_Init(GPIOB, &GPIO_InitStructure);
 			//USART3 RX
-			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-			GPIO_Init(GPIOD, &GPIO_InitStructure);
+			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+			GPIO_Init(GPIOB, &GPIO_InitStructure);
 		#else
 
 			GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
