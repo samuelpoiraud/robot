@@ -129,6 +129,10 @@ void any_match(void)
 	static time32_t t_end_of_match;
 	static bool_e do_parasol = FALSE;
 	static Uint8 ret_parasol = FALSE;
+	static bool_e release_point = FALSE;
+	static bool_e release_pendulum_pum = FALSE;
+	static bool_e release_bottom_dune = FALSE;
+	static bool_e release_mid_dune = FALSE;
 
 	if (!global.flags.match_started)
 	{
@@ -214,6 +218,43 @@ void any_match(void)
 			strat_stop_robot();
 
 		}else if (!global.flags.match_over && !global.flags.match_suspended) {
+
+			if(!release_mid_dune && global.match_time >= (t_end_of_match - 2000) && I_AM_BIG()){
+				ACT_push_order(ACT_MIDDLE_DUNE, ACT_MIDDLE_DUNE_IDLE);
+				release_mid_dune = TRUE;
+			}
+
+			if(!release_bottom_dune && global.match_time >= (t_end_of_match - 1500) && I_AM_BIG()){
+				ACT_push_order(ACT_BOTTOM_DUNE, ACT_BOTTOM_DUNE_IDLE);
+				release_bottom_dune = TRUE;
+			}
+
+			if(!release_pendulum_pum && global.match_time >= t_end_of_match - 2000 && I_AM_SMALL()){ // Arrêt de la pompe pendulum pour libération des points
+				ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_STOP);
+				release_pendulum_pum = TRUE;
+			}
+
+			if(!release_point && global.match_time >= t_end_of_match - 1000){ // Libération des points
+				if(I_AM_BIG()){
+					ACT_push_order(ACT_CONE_DUNE, ACT_CONE_DUNE_IDLE);
+					ACT_push_order(ACT_BLACK_SAND_CIRCLE, ACT_BLACK_SAND_CIRCLE_IDLE);
+					ACT_push_order(ACT_BOTTOM_DUNE, ACT_BOTTOM_DUNE_IDLE);
+					ACT_push_order(ACT_SAND_LOCKER_LEFT, ACT_SAND_LOCKER_LEFT_IDLE);
+					ACT_push_order(ACT_SAND_LOCKER_RIGHT, ACT_SAND_LOCKER_RIGHT_IDLE);
+					ACT_push_order(ACT_SAND_LOCKER_RIGHT, ACT_SAND_LOCKER_RIGHT_IDLE);
+
+				}else{
+					if(ELEMENTS_get_flag(ARM_RIGHT_LOCK)){
+						ACT_push_order(ACT_RIGHT_ARM, ACT_RIGHT_ARM_UNLOCK);
+					}
+
+					if(ELEMENTS_get_flag(ARM_LEFT_LOCK)){
+						ACT_push_order(ACT_LEFT_ARM, ACT_LEFT_ARM_UNLOCK);
+					}
+					ACT_push_order(ACT_PEARL_SAND_CIRCLE, ACT_PEARL_SAND_CIRCLE_IDLE);
+				}
+				release_point = TRUE;
+			}
 			if (match_duration != 0 && (global.match_time >= (match_duration))) {
 				//MATCH QUI SE TERMINE
 				Selftest_print_sd_hokuyo_lost();
