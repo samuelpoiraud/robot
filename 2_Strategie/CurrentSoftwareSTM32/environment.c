@@ -518,7 +518,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			{
 				if(incoming_msg->data.xbee_my_position_is.robot_id == BLACK)
 				{
-					global.friend_position_lifetime = 2100;							//Durée de vie de 2100 pour cette donnée.
+					global.friend_position_lifetime = 4000;		//Durée de vie pour cette donnée. (attention à la latence du XBEE)
 					global.friend_pos.x = incoming_msg->data.xbee_my_position_is.x;
 					global.friend_pos.y = incoming_msg->data.xbee_my_position_is.y;
 				}
