@@ -310,7 +310,8 @@
 	typedef enum{
 		XBEE_ZONE_TRY_LOCK = 0,		// La réponse de l'autre robot sera envoyé avec XBEE_ZONE_LOCK_RESULT
 		XBEE_ZONE_LOCK_RESULT,		// La réponse dans data[2]: TRUE/FALSE suivant si le verouillage à été accepté ou non
-		XBEE_ZONE_UNLOCK			// Libère une zone qui a été verouillée
+		XBEE_ZONE_UNLOCK,			// Libère une zone qui a été verouillée
+		XBEE_ZONE_LOCK
 	}xbee_zone_order_e;
 
 
@@ -324,7 +325,8 @@
 	} map_zone_e;*/
 
 	typedef enum {
-		ZONE_OUR_DOORS = 0,
+		ZONE_NO_ZONE = 0,
+		ZONE_OUR_DOORS = 1,
 		ZONE_OUR_DUNE,
 		ZONE_ADV_DUNE,
 		ZONE_ADV_DOORS,

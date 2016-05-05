@@ -259,8 +259,6 @@ static void MAIN_global_var_init(){
 	global.debug.mode_best_effort_enable = FALSE;
 	global.flags.match_started = FALSE;
 	global.flags.match_over = FALSE;
-	global.flags.scan_dune = FALSE;
-	global.flags.treatment_scan = FALSE;
 	global.absolute_time = 0;
 }
 

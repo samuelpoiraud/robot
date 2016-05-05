@@ -66,6 +66,8 @@
 
 	#define FDP_2016
 
+	//#define SCAN_BLOC
+
 	//#define MATLAB_ASSER
 
 	//#define DISABLED_BALISE_AVOIDANCE		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Désactivation de l'évitement balise
@@ -162,8 +164,6 @@
 	#define USE_AN12		// Télémètre laser droite
 	#define ADC_SENSOR_LASER_LEFT			ADC_11
 	#define ADC_SENSOR_LASER_RIGHT			ADC_12
-	#define ADC_SCAN_BLOC_SENSOR_RIGHT		ADC_13	// TODO : ADC à définir
-	#define ADC_SCAN_BLOC_SENSOR_LEFT		ADC_14	// TODO : ADC à définir
 
 
 #include "../_Propulsion_config.h"

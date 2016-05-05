@@ -30,6 +30,7 @@
 #include "avoidance.h"
 #include "gyroscope.h"
 #include "detection_choc.h"
+#include "scan_bloc.h"
 
 typedef enum{
 	IT_STATE_NONE = 0,
@@ -85,6 +86,11 @@ void _ISR _T5Interrupt(void)
 	#ifdef DETECTION_CHOC
 	DETECTION_CHOC_process_it_tim5();
 	#endif
+
+	#ifdef SCAN_BLOC
+	SCAN_BLOC_process_it();
+	#endif
+
 	TIMER5_AckIT();
 }
 

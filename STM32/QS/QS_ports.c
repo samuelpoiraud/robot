@@ -111,7 +111,10 @@ bool_e PORTS_secure_init(void){
 	}
 
 	UART_deInit();
+
+#ifndef I_AM_CARTE_BEACON_EYE
 	CAN_reset();
+#endif
 
 	PORTS_init();
 	return TRUE;
