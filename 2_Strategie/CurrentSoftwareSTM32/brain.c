@@ -133,6 +133,7 @@ void any_match(void)
 	static bool_e release_pendulum_pum = FALSE;
 	static bool_e release_bottom_dune = FALSE;
 	static bool_e release_mid_dune = FALSE;
+	static Uint8 nbTryParasol = 0;
 
 	if (!global.flags.match_started)
 	{
@@ -291,9 +292,10 @@ void any_match(void)
 			if((global.absolute_time > t_end_of_match + 1000) && I_AM_SMALL() && !do_parasol){
 				ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
 				do_parasol = TRUE;
+				nbTryParasol++;
 			}else{
 				ret_parasol = check_act_status(ACT_QUEUE_Parasol, IN_PROGRESS, END_OK, ERROR);
-				if(ret_parasol != IN_PROGRESS && ret_parasol == ERROR){
+				if(ret_parasol == ERROR && nbTryParasol < 3){
 					do_parasol = FALSE; //On refait une tentative
 				}
 			}
