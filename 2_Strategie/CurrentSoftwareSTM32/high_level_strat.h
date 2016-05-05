@@ -65,6 +65,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	BLACK_OUR_START_ZONE_BLOC,
 	BLACK_ADV_START_ZONE_BLOC,
 	BLACK_SNOWPLOW,
+	BLACK_WAIT_ONE_SEC,
 
 	//--------------Sub action de Pearl
 	PEARL_STRAT_INITIALE,
@@ -77,7 +78,8 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	PEARL_ATTAQUE,
 	PEARL_END_OF_MATCH,
 	PEARL_SAND_DEPOSE,
-	PEARL_WAIT,
+	PEARL_WAIT_NORTH,
+	PEARL_WAIT_ONE_SEC,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
