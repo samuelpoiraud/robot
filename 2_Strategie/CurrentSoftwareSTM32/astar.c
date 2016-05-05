@@ -1268,12 +1268,12 @@ Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state
 			break;
 		case FAIL:
 			debug_printf("Finish by Fail nbTry=%d\n", nbTry+1);
-			state = INIT;
+			state = INIT_PARAMETERS;
 			return fail_state;
 			break;
 		case SUCCESS:
 			debug_printf("Finish by Success nbTry=%d \n", nbTry+1);
-			state = INIT;
+			state = INIT_PARAMETERS;
 			return success_state;
 			break;
 	}
