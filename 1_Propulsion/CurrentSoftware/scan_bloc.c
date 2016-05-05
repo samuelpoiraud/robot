@@ -16,8 +16,8 @@
 //------------------------------------------------------------------------------------ Macro
 
 #define square(x) ((float)(x)*(float)(x))
-#define conversion_capteur_LEFT(x) ((Sint32)(550)*(x)/1000 - 69)
-#define conversion_capteur_RIGHT(x) ((Sint32)(551)*(x)/1000 - 63)
+#define CONVERSION_LASER_LEFT(x)	((Sint32)(-264*(x)+353500)/1000)
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(-264*(x)+354400)/1000)
 
 
 //------------------------------------------------------------------------------------ Define
@@ -27,6 +27,9 @@
 #define Y_SENSOR_RIGHT		10
 #define X_SENSOR_LEFT		10
 #define Y_SENSOR_LEFT		10
+
+#define DISTANCE_SCAN_CENTER		146
+#define DISTANCE_SCAN_CENTER_Y		60
 
 
 
@@ -147,16 +150,19 @@ void SCAN_BLOC_process_it(){
 
 void SCAN_BLOC_calculate(){
 	// TODO : Traitement des points
-
+	int i;
+	for(i=0;i<NB_POINT_MAX;i++){
+		debug_printf("[%d;%d]\n", ourBloc[i].x, ourBloc[i].y);
+	}
 	run_calcul = FALSE;
 }
 
 static void scanOnePoint(){
 	mesure_en_cours.robot = global.position;
 	if(info_scan.color == BOT_COLOR){	// Magenta
-		mesure_en_cours.dist = conversion_capteur_RIGHT(ADC_getValue(ADC_SCAN_BLOC_SENSOR_RIGHT));
+		mesure_en_cours.dist = CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT));
 	}else{
-		mesure_en_cours.dist = conversion_capteur_LEFT(ADC_getValue(ADC_SCAN_BLOC_SENSOR_LEFT));
+		mesure_en_cours.dist = CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT));
 	}
 
 	// Déterminer la position du point scanné sur le terrain
@@ -166,11 +172,11 @@ static void scanOnePoint(){
 		COS_SIN_4096_get(mesure_en_cours.robot.teta, &cos, &sin);
 		Sint32 cos32 = cos, sin32 = sin;
 		if(info_scan.color == BOT_COLOR){	// Magenta
-			tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + X_SENSOR_RIGHT;
-			tmp.y = mesure_en_cours.robot.y - mesure_en_cours.dist * sin32/4096 - Y_SENSOR_RIGHT;
+			tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + DISTANCE_SCAN_CENTER;
+			tmp.y = mesure_en_cours.robot.y - mesure_en_cours.dist * sin32/4096 - DISTANCE_SCAN_CENTER_Y;
 		}else{
-			tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + X_SENSOR_RIGHT;
-			tmp.y = mesure_en_cours.robot.y - mesure_en_cours.dist * sin32/4096 - Y_SENSOR_RIGHT;
+			tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + DISTANCE_SCAN_CENTER;
+			tmp.y = mesure_en_cours.robot.y - mesure_en_cours.dist * sin32/4096 - DISTANCE_SCAN_CENTER_Y;
 		}
 		ourBloc[nbPointBloc] = tmp;
 	}else{

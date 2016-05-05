@@ -49,7 +49,7 @@ static bool_e noBloc(int index, int index2, int max);
 
 #ifdef SECOND_ANALYSIS
 #define BLOC_SIZE	60
-#define TOLERANCE	10
+#define TOLERANCE	20
 #define MAX_VARIATION	20
 
 static bool_e importantVariation(int index);
@@ -249,6 +249,8 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 				msg.data.strat_back_scan.wtf = wtf;
 				msg.data.strat_back_scan.middle=middle;
 				CAN_send(&msg);
+
+
 
 				#endif
 
