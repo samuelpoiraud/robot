@@ -143,6 +143,7 @@
 		BACK_BLACK_USED,		      //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 		DUNIX_OPEN,
 		PEARL_IS_OUT,
+		FISHS_IN_ROBOT_PEARL,
 
 
 		//Gestion des éléments dans le robot Pearl

@@ -77,6 +77,7 @@ TYPEDEF_ENUM_WITH_STRING(subaction_id_e, subaction_name,
 	PEARL_COQUILLAGES_FAR,
 	PEARL_END_OF_MATCH,
 	PEARL_SAND_DEPOSE,
+	PEARL_WAIT,
 
 	//------------------------------------
 	SUB_NB,			//Ceci n'est pas un état atteignable, mais permet de connaitre le nombre d'action !
