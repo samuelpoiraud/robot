@@ -38,7 +38,7 @@ typedef struct{
 	bool_e enable;
 }square;
 
-square zone_hokuyo[3]={{750,1350,1300,2190,FALSE},{750,1350,810,1700,FALSE},{0,750,900,2100,FALSE}};
+square zone_hokuyo[3]={{750,1350,1400,2190,FALSE},{750,1350,810,1600,FALSE},{0,750,900,2100,FALSE}};
 square zone_balise[3]={{750,1350,1200,2190,FALSE},{750,1350,810,1800,FALSE},{0,750,900,2100,FALSE}};
 
 /*zone[0]={750,1350,1500,2100,FALSE};
