@@ -32,7 +32,7 @@
 		#define DEFAULT_FOE_RADIUS  530
 
 		//Nombre d'essais consécutifs avec du DODGE en évitement
-		#define NB_TRY_WHEN_DODGE 6
+		#define NB_TRY_WHEN_DODGE 2
 
 		//Distance minimale entre deux point consécutifs
 		#define MIN_DISTANCE_BETWEEN_2_POINTS  400
@@ -820,7 +820,7 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 
 	}else{ //Protection si le node destination est dans un polygone fixe ou trop près de la bordure
 		SD_printf("ASTAR: Destination node is DISABLE\n");
-		debug_printf("ASTAR: Destination node is DISABLE\n");
+		force_printf("ASTAR: Destination node is DISABLE\n");
 	}
 }
 
