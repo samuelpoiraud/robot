@@ -23,6 +23,7 @@
 	#define FISH_PEARL_AX12_IDLE_POS					818
 	#define FISH_PEARL_AX12_CLOSE_POS				    818		//en degré
 	#define FISH_PEARL_AX12_OPEN_POS					500		//en degré
+	#define FISH_PEARL_AX12_TAPOTAGE_POS                525
 
 //Position initiale de l'AX12
 	#define FISH_PEARL_AX12_INIT_POS					FISH_PEARL_AX12_IDLE_POS

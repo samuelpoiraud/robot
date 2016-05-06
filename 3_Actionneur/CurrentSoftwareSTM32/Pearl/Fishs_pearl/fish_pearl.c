@@ -145,6 +145,7 @@ bool_e FISH_PEARL_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_FISH_PEARL_OPEN :
 			case ACT_FISH_PEARL_CLOSE :
 			case ACT_FISH_PEARL_STOP :
+			case ACT_FISH_PEARL_TAPOTAGE:
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_FISH_PEARL, &FISH_PEARL_run_command, 0,TRUE);
 				break;
 
@@ -196,6 +197,7 @@ static void FISH_PEARL_command_init(queue_id_t queueId) {
 		case ACT_FISH_PEARL_IDLE : *ax12_goalPosition = FISH_PEARL_AX12_IDLE_POS; break;
 		case ACT_FISH_PEARL_CLOSE : *ax12_goalPosition = FISH_PEARL_AX12_CLOSE_POS; break;
 		case ACT_FISH_PEARL_OPEN : *ax12_goalPosition = FISH_PEARL_AX12_OPEN_POS; break;
+		case ACT_FISH_PEARL_TAPOTAGE : *ax12_goalPosition = FISH_PEARL_AX12_TAPOTAGE_POS; break;
 
 		case ACT_FISH_PEARL_STOP :
 			AX12_set_torque_enabled(FISH_PEARL_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

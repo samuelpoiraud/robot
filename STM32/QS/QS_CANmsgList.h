@@ -974,9 +974,9 @@
 	//-------------------------MOSFETS STRAT------------------------//
 	//////////////////////////////////////////////////////////////////
 		STRAT_MOSFET_0              = (ACT_FILTER | 0x69),
-		ACT_POMPE_BLACK_FRONT_LEFT  = (ACT_FILTER | 0x69),
+		ACT_POMPE_PENDULUM          = (ACT_FILTER | 0x69),
 
-		STRAT_MOSFET_1				= (ACT_FILTER | 0x70),
+		STRAT_MOSFET_1				 = (ACT_FILTER | 0x70),
 		ACT_POMPE_SAND_LOCKER_LEFT   = (ACT_FILTER | 0x70),
 
 		STRAT_MOSFET_2				= (ACT_FILTER | 0x71),
@@ -986,7 +986,7 @@
 		ACT_POMPE_BLACK_FRONT_RIGHT = (ACT_FILTER | 0x72),
 
 		STRAT_MOSFET_4				= (ACT_FILTER | 0x73),
-		ACT_POMPE_PENDULUM			= (ACT_FILTER | 0x73),
+		ACT_POMPE_BLACK_FRONT_LEFT	= (ACT_FILTER | 0x73),
 
 		STRAT_MOSFET_5				= (ACT_FILTER | 0x74),
 		STRAT_MOSFET_6				= (ACT_FILTER | 0x75),
