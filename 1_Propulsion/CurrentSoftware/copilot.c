@@ -808,7 +808,7 @@ braking_e COPILOT_update_brake_state_translation(void)
 
 	Sint32 translation_frein, translation_restante;
 	translation_frein = absolute(((global.vitesse_translation*global.vitesse_translation)/(PILOT_get_coef(PILOT_ACCELERATION_NORMAL)))/2);
-	if(!(global.flags.rush))
+	if(!(PILOT_get_in_rush()))
 		translation_frein -= absolute(global.vitesse_translation/2);
 	else
 		translation_frein += 3*absolute(global.vitesse_translation/2);

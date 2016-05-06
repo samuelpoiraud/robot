@@ -56,4 +56,8 @@
 	void PILOT_set_extra_braking_rotation(bool_e enable);
 	void PILOT_set_extra_braking_translation(bool_e enable);
 
+	void PILOT_set_in_rush(bool_e in_rush_msg);
+	bool_e PILOT_get_boost_asser();
+	bool_e PILOT_get_in_rush();
+
 #endif  //def _PILOT_H
