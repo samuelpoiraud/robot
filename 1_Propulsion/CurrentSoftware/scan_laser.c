@@ -48,12 +48,18 @@ static bool_e noBloc(int index, int index2, int max);
 #endif
 
 #ifdef SECOND_ANALYSIS
-#define BLOC_SIZE	60
+
+#define BLOC_SIZE	58
 #define TOLERANCE	20
 #define MAX_VARIATION	20
+#define BEGIN_DUNE	1239
+#define END_DUNE	1761
+
 
 static bool_e importantVariation(int index);
 static bool_e isInInterval(int index, int min, int max);
+static bool_e allFirstRow(int variation[], int nbVariation);
+static bool_e allDune(int variation[], int nbVariation);
 #endif
 
 
@@ -94,8 +100,8 @@ void SCAN_process_it(){
 		}
 	}else{
 		if(scan_dune && ((global.position.y-(DISTANCE_SCAN_CENTER_Y)) < next_position)){
-			if(((next_position-1100)/10) >=0 && ((next_position-1100)/10) < 80){
-				tab_scan[((next_position-1100)/10) - 1] = -CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x-(DISTANCE_SCAN_CENTER);
+			if(((next_position-1900)/10) >=0 && ((next_position-1900)/10) < 80){
+				tab_scan[((next_position-1900)/10) - 1] = -CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x-(DISTANCE_SCAN_CENTER);
 				next_position = next_position - 10;
 			}
 			if(next_position <= 1100){
@@ -127,6 +133,7 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 			wtf = FALSE;
 			middle = 0;
 			state = WAIT_MSG;
+			SCAN_init();
 			break;
 		case WAIT_MSG:
 			if(msg != NULL)
@@ -190,51 +197,43 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 						}
 					}
 				}
+
+				total_dune = FALSE;
+				second_part = FALSE;
+				nothing = FALSE;
+				wtf = FALSE;
+
 				if(nbVariation <= 6){
 					if(nbVariation >= 4){
 						debug_printf("Dune avant présente\n");
 						total_dune = TRUE;
-						second_part = FALSE;
-						nothing = FALSE;
-						wtf = FALSE;
 						middle = (variation[0] + variation[nbVariation-1]) / 2;
+
 					}else if(nbVariation >= 2){
 						// On vérifie que l'on a bien que des cubes sur une seule ligne
-						bool_e confirmation = TRUE;
-						for(i=0; i<nbVariation - 1; i++){
-							int mid = (variation[i] + variation[i+1]) / 2;
-							if(mid > 0 && mid < MAX_VARIATION){
-								if(!isInInterval(tab_scan[mid],FIRST_LINE)){
-									confirmation = FALSE;
-								}
-							}
-						}
-						if(confirmation){
-							debug_printf("Dune arrière présente\n");
-							total_dune = FALSE;
-							second_part = TRUE;
-							nothing = FALSE;
-							wtf = FALSE;
-						}else{
-							debug_printf("C'est la merde dans la dune 2\n");
-							total_dune = FALSE;
-							second_part = FALSE;
-							nothing = FALSE;
-							wtf = TRUE;
-						}
+												bool_e confirmation = TRUE;
+												for(i=0; i<nbVariation - 1; i++){
+													int mid = (variation[i] + variation[i+1]) / 2;
+													if(mid > 0 && mid < MAX_VARIATION){
+														if(!isInInterval(tab_scan[mid],FIRST_LINE)){
+															confirmation = FALSE;
+														}
+													}
+												}
+												if(confirmation){
+													debug_printf("Dune arrière présente\n");
+													second_part = TRUE;
+												}else{
+													debug_printf("C'est la merde dans la dune 2\n");
+													wtf = TRUE;
+												}
 
 					}else{
 						debug_printf("La dune n'est pas là\n");
-						total_dune = FALSE;
-						second_part = FALSE;
 						nothing = TRUE;
-						wtf = FALSE;
 					}
 				}else{
 					debug_printf("C'est la merde dans la dune\n");
-					total_dune = FALSE;
-					second_part = FALSE;
-					nothing = FALSE;
 					wtf = TRUE;
 				}
 
@@ -358,6 +357,7 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 		case END:
 			scan_dune=FALSE;
 			treatment_scan=FALSE;
+			state = INIT;
 			break;
 	}
 }
@@ -405,6 +405,98 @@ static bool_e isInInterval(int index, int min, int max){
 	}else{
 		return TRUE;
 	}
+}
+
+static bool_e allDune(int variation[], int nbVariation){
+	// La dune commence et se termine au bonne endroit
+	bool_e resultat = TRUE;
+	int posCalcul;
+	if(ODOMETRY_get_color()==MAGENTA){
+		posCalcul = 1100;
+	}else{
+		posCalcul = 1900;
+	}
+
+	if((variation[0]*10+posCalcul) >= (BEGIN_DUNE - TOLERANCE) && (variation[0]*10+posCalcul) <= (BEGIN_DUNE + TOLERANCE)){
+		// la position Y du cube est bonne
+		if(!isInInterval(variation[0],FIRST_LINE)){
+			// La position X du cube n'est pas bonne
+			debug_printf("allDune FALSE : 1\n");
+			resultat = FALSE;
+		}
+	}else{
+		debug_printf("allDune FALSE : 2\n");
+		resultat = FALSE;
+	}
+	if((variation[nbVariation]*10+posCalcul) >= (END_DUNE - TOLERANCE) && (variation[nbVariation]*10+posCalcul) <= (END_DUNE + TOLERANCE)){
+		// la position Y du cube est bonne
+		if(!isInInterval(variation[nbVariation],FIRST_LINE)){
+			// La position X du cube n'est pas bonne
+			debug_printf("allDune FALSE : 3\n");
+			resultat = FALSE;
+		}
+	}else{
+		debug_printf("allDune FALSE : 4\n");
+		resultat = FALSE;
+	}
+
+	// Le cylindre du milieu est présent
+	int mid = (variation[0] + variation[nbVariation]) / 2;
+	if(!isInInterval(mid,THIRD_LINE)){
+		// La position X du cube n'est pas bonne
+		debug_printf("allDune FALSE : 5\n");
+		resultat = FALSE;
+	}
+
+	return resultat;
+}
+
+static bool_e allFirstRow(int variation[], int nbVariation){
+	// La dune commence et se termine au bonne endroit
+
+	debug_printf("Lancement de allFirstRow\n");
+
+	bool_e resultat = TRUE;
+	/*int posCalcul;
+	if(ODOMETRY_get_color()==MAGENTA){
+		posCalcul = 1100;
+	}else{
+		posCalcul = 1900;
+	}
+
+	if((variation[0]*10+posCalcul) >= (BEGIN_DUNE - TOLERANCE) && (variation[0]*10+posCalcul) <= (BEGIN_DUNE + TOLERANCE)){
+		// la position Y du cube est bonne
+		if(!isInInterval(variation[0],FIRST_LINE)){
+			// La position X du cube n'est pas bonne
+			debug_printf("allFirstRow FALSE : 1\n");
+			resultat = FALSE;
+		}
+	}else{
+		debug_printf("allFirstRow FALSE : 2\n");
+		resultat = FALSE;
+	}
+	if((variation[nbVariation]*10+posCalcul) >= (END_DUNE - TOLERANCE) && (variation[nbVariation]*10+posCalcul) <= (END_DUNE + TOLERANCE)){
+		// la position Y du cube est bonne
+		if(!isInInterval(variation[nbVariation],FIRST_LINE)){
+			// La position X du cube n'est pas bonne
+			debug_printf("allFirstRow FALSE : 3\n");
+			resultat = FALSE;
+		}
+	}else{
+		debug_printf("allFirstRow FALSE : 4\n");
+		resultat = FALSE;
+	}*/
+	int i;
+	debug_printf("Valeur max %d\n", variation[nbVariation]);
+	for(i = variation[0]+1;i<variation[nbVariation];i++){
+		if(!isInInterval(i, FIRST_LINE)){
+			debug_printf("allFirstRow FALSE : 5 (%d)\n",i);
+			resultat = FALSE;
+		}
+	}
+
+	return resultat;
+
 }
 
 #endif
