@@ -125,7 +125,19 @@
 		FOE_IN_PATH
 	}error_e;
 
-
+	typedef enum
+	{
+		STATE_BLACK_FOR_COM_INIT,		//est utilisé pour l'appel sans évènement
+		STATE_BLACK_FOR_COM_WAIT,
+		STATE_BLACK_FOR_COM_RUSH,
+		STATE_BLACK_FOR_COM_WAIT_ADV,
+		STATE_BLACK_FOR_COM_TAKING_DUNE,
+		STATE_BLACK_FOR_COM_COMING_BACK,
+		STATE_BLACK_FOR_COM_DISPOSE,
+		STATE_BLACK_FOR_COM_SOUTH,
+		STATE_BLACK_FOR_COM_OUR_BLOC,
+		STATE_BLACK_FOR_COM_NB
+	}state_black_for_com_e;
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************

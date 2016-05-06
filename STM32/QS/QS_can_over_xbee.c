@@ -30,7 +30,7 @@
 	#include <stdio.h>
 
 	volatile static CAN_over_XBee_callback_action_t CAN_over_XBee_send_callback = NULL;
-
+	void XBEE_buffer_state_machine(void);
 
 		#ifdef XBEE_PLUGGED_ON_UART1
 			#define XBee_putc(c) UART1_putc(c)
@@ -137,7 +137,9 @@
 		//A terme, il faudrait traiter l'acquittement des messages envoyés pour maintenir à jour la connaissance du fonctionnement du réseau...
 		//Et pouvoir reprendre les ping envers un destinataire absenté... ! (Donc géré dans un état IDLE normal)
 
-		switch(state)	//Machine à état exécutée toutes les secondes !
+		XBEE_buffer_state_machine();
+
+		switch(state)
 		{
 			case INIT:
 				if(initialized == FALSE)
@@ -478,23 +480,107 @@
 
 		XBee_putc(0xFF-cs); //checksum
 	}
+
+
+
+#define BUFFERIZE_XBEE_MSG
+
+#define PERIOD_MSG_XBEE	200
+#define BUFFER_MSG_SIZE	32
+	typedef struct
+	{
+		CAN_msg_t msg;
+		bool_e broadcast;
+	}buffer_msg_t;
+	static buffer_msg_t buffer_msgs[BUFFER_MSG_SIZE];
+	static uint16_t index_read;
+	static uint16_t index_write;
+	static uint16_t index_nb;
+
+	void XBEE_buffer_state_machine(void)
+	{
+		typedef enum
+		{
+			INIT = 0,
+			RUN
+		}state_e;
+		static state_e state = INIT;
+		static time32_t previous_send_time;
+		switch(state)
+		{
+			case INIT:
+				index_read = 0;
+				index_write = 0;
+				index_nb = 0;
+				previous_send_time = 0;
+				state = RUN;
+				break;
+			case RUN:
+				if(global.absolute_time - previous_send_time > PERIOD_MSG_XBEE)	//Si on a le droit de causer sur le XBEE...
+				{
+					if(index_nb)	//Il y a des message à envoyer.
+					{
+						previous_send_time = global.absolute_time;		//On reset le compteur de temps à chaque compteur de msg.
+						if(buffer_msgs[index_read].broadcast)
+						{
+							module_id_e module;
+							for(module = 0; module<MODULE_NUMBER; module++)
+							{
+								if(module != XBee_i_am_module)
+									CANMsgToXBeeDestination(&(buffer_msgs[index_read].msg), module);
+							}
+						}
+						else
+							CANMsgToXBeeDestination(&(buffer_msgs[index_read].msg), XBee_module_id_destination);
+
+						if(CAN_over_XBee_send_callback)
+							(*CAN_over_XBee_send_callback)(&(buffer_msgs[index_read].msg));
+
+						//màj index
+						index_read = (index_read + 1) % BUFFER_MSG_SIZE;
+						index_nb--;
+					}
+				}
+				break;
+		}
+	}
+
+
+
+
+
 	void CANMsgToXbee(CAN_msg_t * src, bool_e broadcast)
 	{
-		module_id_e module;
-		if(broadcast)
-		{
-			for(module = 0; module<MODULE_NUMBER; module++)
+		#ifdef BUFFERIZE_XBEE_MSG
+			if(index_nb < BUFFER_MSG_SIZE)
 			{
-				if(module != XBee_i_am_module)
-					CANMsgToXBeeDestination(src, module);
+				buffer_msgs[index_write].msg = *src;
+				buffer_msgs[index_write].broadcast = broadcast;
+				index_write = (index_write + 1) % BUFFER_MSG_SIZE;
+				index_nb++;
 			}
-		}
-		else
-			CANMsgToXBeeDestination(src, XBee_module_id_destination);
+			else
+				debug_printf("buffer_xbee plein.\n");
+		#else
+			module_id_e module;
+			if(broadcast)
+			{
+				for(module = 0; module<MODULE_NUMBER; module++)
+				{
+					if(module != XBee_i_am_module)
+						CANMsgToXBeeDestination(src, module);
+				}
+			}
+			else
+				CANMsgToXBeeDestination(src, XBee_module_id_destination);
 
-		if(CAN_over_XBee_send_callback)
-			(*CAN_over_XBee_send_callback)(src);
+			if(CAN_over_XBee_send_callback)
+				(*CAN_over_XBee_send_callback)(src);
+		#endif
 	}
+
+
+
 
 	void XBEE_send_sid(Uint11 sid, bool_e broadcast)
 	{
@@ -502,6 +588,7 @@
 		msg.sid = sid;
 		msg.size = 0;
 		CANMsgToXbee(&msg, broadcast);
+
 	}
 
 	bool_e XBee_is_destination_reachable(void)

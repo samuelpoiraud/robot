@@ -521,6 +521,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 					global.friend_position_lifetime = 4000;		//Durée de vie pour cette donnée. (attention à la latence du XBEE)
 					global.friend_pos.x = incoming_msg->data.xbee_my_position_is.x;
 					global.friend_pos.y = incoming_msg->data.xbee_my_position_is.y;
+					PEARL_set_state_black_for_com(incoming_msg);
 				}
 			}
 			break;
@@ -535,7 +536,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			CAN_msg_t answer;
 			answer.sid = XBEE_COMMUNICATION_RESPONSE;
 			answer.size = 0;
-			CANMsgToXBeeDestination(&answer,(QS_WHO_AM_I_get()==BIG_ROBOT)?SMALL_ROBOT_MODULE:BIG_ROBOT_MODULE);
+			CANMsgToXbee(&answer,FALSE);
 			break;}
 
 		case XBEE_COMMUNICATION_RESPONSE:

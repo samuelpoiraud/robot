@@ -69,7 +69,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 	switch(msg->sid){
 
 #ifdef I_AM_CARTE_STRAT			// Message ignoré par la stratégie
-	case XBEE_MY_POSITION_IS:
+
 #endif
 
 #ifdef I_AM_CARTE_PROP			// Message ignoré par la propulsion
@@ -269,7 +269,21 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 		case BROADCAST_I_AM_AND_I_AM_HERE:		print(string, len, "| Code %s sur emplacement %s !!!\n", (msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.code_id == CODE_PROP)?"Prop":"Act"),  (msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_STRAT)?"Strat":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_PROP)?"Prop":((msg->data.broadcast_i_am_and_i_am_where.slot_id == SLOT_ACT)?"Act":"Inconnu"))); break;
 
-		case XBEE_MY_POSITION_IS:				print(string, len, "%s pos : x = %d | y = %d\n", (msg->data.xbee_my_position_is.robot_id == BIG_ROBOT)?"Big":"Small", msg->data.xbee_my_position_is.x, msg->data.xbee_my_position_is.y);	break;
+		case XBEE_MY_POSITION_IS:				print(string, len, "%s pos : x = %d | y = %d | state = ", (msg->data.xbee_my_position_is.robot_id == BIG_ROBOT)?"Big":"Small", msg->data.xbee_my_position_is.x, msg->data.xbee_my_position_is.y);
+												switch(msg->data.xbee_my_position_is.state)
+												{
+													case STATE_BLACK_FOR_COM_INIT:			print(string, len, "INIT\n");			break;
+													case STATE_BLACK_FOR_COM_WAIT:			print(string, len, "WAIT\n");			break;
+													case STATE_BLACK_FOR_COM_RUSH:			print(string, len, "RUSH\n");			break;
+													case STATE_BLACK_FOR_COM_WAIT_ADV:		print(string, len, "WAIT_ADV\n");		break;
+													case STATE_BLACK_FOR_COM_TAKING_DUNE:	print(string, len, "TAKING_DUNE\n");	break;
+													case STATE_BLACK_FOR_COM_COMING_BACK:	print(string, len, "COMING_BACK\n");	break;
+													case STATE_BLACK_FOR_COM_DISPOSE:		print(string, len, "DISPOSE\n");		break;
+													case STATE_BLACK_FOR_COM_SOUTH:			print(string, len, "SOUTH\n");			break;
+													case STATE_BLACK_FOR_COM_OUR_BLOC:		print(string, len, "OUT_BLOC\n");		break;
+													default:								print(string, len, "UNKONW\n");			break;
+												}
+												break;
 
 		case ACT_RESULT:
 			print(string,len, "| act0x%x : ", msg->data.act_result.sid);

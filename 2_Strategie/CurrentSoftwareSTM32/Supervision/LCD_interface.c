@@ -59,8 +59,8 @@ typedef enum
 	INIT = 0XFF
 }lcd_state;
 
-lcd_state state;
-lcd_state previous_state;
+static lcd_state state;
+static lcd_state previous_state;
 
 const char *strategy[6] = {"STR","TRG","MSN","BAL","FRT","SCN"};
 Uint8 strat_nb[LINE_NUMBER];
