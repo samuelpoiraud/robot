@@ -286,11 +286,12 @@
 
 
 		#define XBEE_MY_POSITION_IS				0x5FF
-		#define SIZE_XBEE_MY_POSITION_IS		5
+		#define SIZE_XBEE_MY_POSITION_IS		6
 			struct{
 				Sint16 x						:16;		// [mm]
 				Sint16 y						:16;		// [mm]
 				robot_id_e robot_id				:8;
+				state_black_for_com_e state 	:8;
 			}xbee_my_position_is;
 
 		#define XBEE_COMMUNICATION_AVAILABLE	0x5B0

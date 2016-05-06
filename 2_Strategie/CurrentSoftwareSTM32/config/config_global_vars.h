@@ -93,6 +93,8 @@
 
 		volatile time32_t friend_position_lifetime;	//Durée de vie restante pour les données de position de notre autre robot.
 		volatile GEOMETRY_point_t friend_pos;
+
+		volatile state_black_for_com_e state_black_for_com;
 	}global_data_storage_t;
 
 	extern global_data_storage_t global;

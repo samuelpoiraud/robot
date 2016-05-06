@@ -6,7 +6,7 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_can_over_xbee.h"
-#include "../QS/QS_watchdog.h"
+#include "QS/QS_watchdog.h"
 #include "state_machine_helper.h"
 #include "Generic_functions.h"
 
@@ -329,7 +329,7 @@ void ELEMENTS_check_configuration_coquillages(bool_e update)
 			CAN_msg_t request;
 			request.sid = XBEE_ASK_CONFIG_COQUILLAGES;
 			request.size = 0;
-			CANMsgToXBeeDestination(&request,(QS_WHO_AM_I_get()==BIG_ROBOT)?SMALL_ROBOT_MODULE:BIG_ROBOT_MODULE);
+			CANMsgToXbee(&request,FALSE);
 			state = WAIT_FOR_ANSWER;
 			break;}
 		case WAIT_FOR_ANSWER:
@@ -370,7 +370,7 @@ void ELEMENTS_send_config_coquillages(CAN_msg_t *msg){
 		msg_to_send.sid = XBEE_SEND_CONFIG_COQUILLAGES;
 		msg_to_send.size = SIZE_XBEE_SEND_CONFIG_COQUILLAGES;
 		msg_to_send.data.xbee_send_config_coquillages.config = coquillages_config;
-		CANMsgToXBeeDestination(&msg_to_send, (QS_WHO_AM_I_get()==BIG_ROBOT)?SMALL_ROBOT_MODULE:BIG_ROBOT_MODULE);
+		CANMsgToXbee(&msg_to_send, FALSE);
 	}
 }
 
@@ -395,11 +395,7 @@ void ELEMENTS_set_flag(elements_flags_e flag_id, bool_e new_state)
 		msg.size = SIZE_XBEE_SYNC_ELEMENTS_FLAGS;
 		msg.data.xbee_sync_elements_flags.flagId = flag_id;
 		msg.data.xbee_sync_elements_flags.flag = new_state;
-		if(QS_WHO_AM_I_get()==BIG_ROBOT){
-			CANMsgToXBeeDestination(&msg,SMALL_ROBOT_MODULE);
-		}else{
-			CANMsgToXBeeDestination(&msg,BIG_ROBOT_MODULE);
-		}
+		CANMsgToXbee(&msg,FALSE);
 	}
 #endif
 
@@ -469,7 +465,7 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 			CAN_msg_t request;
 			request.sid = XBEE_COMMUNICATION_AVAILABLE;
 			request.size = 0;
-			CANMsgToXBeeDestination(&request,(QS_WHO_AM_I_get()==BIG_ROBOT)?SMALL_ROBOT_MODULE:BIG_ROBOT_MODULE);
+			CANMsgToXbee(&request,FALSE);
 			state = WAIT_FOR_ANSWER;
 			break;}
 		case WAIT_FOR_ANSWER:
