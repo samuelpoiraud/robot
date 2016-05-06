@@ -279,7 +279,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 													case STATE_BLACK_FOR_COM_TAKING_DUNE:	print(string, len, "TAKING_DUNE\n");	break;
 													case STATE_BLACK_FOR_COM_COMING_BACK:	print(string, len, "COMING_BACK\n");	break;
 													case STATE_BLACK_FOR_COM_DISPOSE:		print(string, len, "DISPOSE\n");		break;
-													case STATE_BLACK_FOR_COM_SOUTH:			print(string, len, "SOUTH\n");			break;
+													case STATE_BLACK_FOR_COM_CENTER_SOUTH:	print(string, len, "CENTER_SOUTH\n");	break;
+													case STATE_BLACK_FOR_COM_FISH:			print(string, len, "FISH\n");			break;
 													case STATE_BLACK_FOR_COM_OUR_BLOC:		print(string, len, "OUT_BLOC\n");		break;
 													default:								print(string, len, "UNKONW\n");			break;
 												}
