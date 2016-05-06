@@ -174,6 +174,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_WARN_Y:								print(string, len, "%x PROP_WARN_Y                            ", PROP_WARN_Y									);	break;
 		case DEBUG_PROP_MOVE_POSITION:					print(string, len, "%x PROP_DEBUG_MOVE_POSITION               ", DEBUG_PROP_MOVE_POSITION						);	break;
 		case PROP_SCAN_DUNE:							print(string, len, "%x PROP_SCAN_DUNE                         ", PROP_SCAN_DUNE                                 );  break;
+		case PROP_ACTIVE_PID:							print(string, len, "%x PROP_ACTIVE_PID                        ", PROP_ACTIVE_PID                                );  break;
 
 		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING         ", BEACON_ENABLE_PERIODIC_SENDING					);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING        ", BEACON_DISABLE_PERIODIC_SENDING				);	break;
@@ -186,7 +187,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case XBEE_SYNC_ELEMENTS_FLAGS:					print(string, len, "%x XBEE_SYNC_ELEMENTS_FLAGS		          ", XBEE_SYNC_ELEMENTS_FLAGS						);	break;
 		case XBEE_COMMUNICATION_AVAILABLE:				print(string, len, "%x XBEE_COMMUNICATION_AVAILABLE		      ", XBEE_COMMUNICATION_AVAILABLE					);	break;
 		case XBEE_COMMUNICATION_RESPONSE:				print(string, len, "%x XBEE_COMMUNICATION_RESPONSE	          ", XBEE_COMMUNICATION_RESPONSE					);	break;
-		case XBEE_ASK_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_ASK_CONFIG_COQUILLAGES	          ", XBEE_ASK_CONFIG_COQUILLAGES					);	break;
+		case XBEE_ASK_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_ASK_CONFIG_COQUILLAGES            ", XBEE_ASK_CONFIG_COQUILLAGES					);	break;
 		case XBEE_SEND_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_SEND_CONFIG_COQUILLAGES	          ", XBEE_SEND_CONFIG_COQUILLAGES					);	break;
 		case XBEE_ZONE_COMMAND:							print(string, len, "%x XBEE_ZONE_COMMAND			          ", XBEE_ZONE_COMMAND								);	break;
 		case XBEE_MY_POSITION_IS:						print(string, len, "%x XBEE_MY_POSITION_IS			          ", XBEE_MY_POSITION_IS							);	break;
@@ -196,8 +197,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_FISH_UNSTICK_ARM:						print(string, len, "%x ACT_FISH_UNSTICK_ARM                   ", ACT_FISH_UNSTICK_ARM							);	break;
 		case ACT_BLACK_SAND_CIRCLE:						print(string, len, "%x ACT_BLACK_SAND_CIRCLE                  ", ACT_BLACK_SAND_CIRCLE							);	break;
 		case ACT_BOTTOM_DUNE:							print(string, len, "%x ACT_BOTTOM_DUNE					      ", ACT_BOTTOM_DUNE								);	break;
-		case ACT_MIDDLE_DUNE:							print(string, len, "%x ACT_MIDDLE_DUNE					      ", ACT_MIDDLE_DUNE								);	break;
-		case ACT_CONE_DUNE:						        print(string, len, "%x ACT_CONE_DUNE						  ", ACT_CONE_DUNE									);	break;
+		case ACT_MIDDLE_DUNE:							print(string, len, "%x ACT_MIDDLE_DUNE                        ", ACT_MIDDLE_DUNE								);	break;
+		case ACT_CONE_DUNE:						        print(string, len, "%x ACT_CONE_DUNE                          ", ACT_CONE_DUNE									);	break;
 		case ACT_DUNIX_LEFT:							print(string, len, "%x ACT_DUNIX_LEFT                         ", ACT_DUNIX_LEFT									);	break;
 		case ACT_DUNIX_RIGHT:							print(string, len, "%x ACT_DUNIX_RIGHT                        ", ACT_DUNIX_RIGHT								);	break;
 		case ACT_SAND_LOCKER_LEFT:						print(string, len, "%x ACT_SAND_LOCKER_LEFT                   ", ACT_SAND_LOCKER_LEFT							);	break;
@@ -222,7 +223,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 														print(string, len, "%x ACT_POMPE_BACK_RIGHT                   ", ACT_POMPE_BACK_RIGHT							);	break;
 		case ACT_MOSFET_1:
 											 if(I_AM_BIG())
-														print(string, len, "%x ACT_POMPE_MIDDLE						  ", ACT_POMPE_MIDDLE                               );
+														print(string, len, "%x ACT_POMPE_MIDDLE                       ", ACT_POMPE_MIDDLE                               );
 											 else
 														print(string, len, "%x ACT_POMPE_BACK_LEFT                    ", ACT_POMPE_BACK_LEFT							);  break;
 		case ACT_MOSFET_2:								print(string, len, "%x ACT_POMPE_VERY_RIGHT_BOT               ", ACT_POMPE_VERY_RIGHT_BOT    					);	break;
@@ -230,7 +231,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_MOSFET_4:								print(string, len, "%x ACT_POMPE_RIGHT                        ", ACT_POMPE_RIGHT								);	break;
 		case ACT_MOSFET_5:								print(string, len, "%x ACT_POMPE_MIDDLE_RIGHT                 ", ACT_POMPE_MIDDLE_RIGHT       					);	break;
 		case ACT_MOSFET_6:								print(string, len, "%x ACT_POMPE_MIDDLE_LEFT                  ", ACT_POMPE_MIDDLE_LEFT        					);	break;
-		case ACT_MOSFET_7:								print(string, len, "%x ACT_POMPE_LEFT						  ", ACT_POMPE_LEFT									);	break;
+		case ACT_MOSFET_7:								print(string, len, "%x ACT_POMPE_LEFT                         ", ACT_POMPE_LEFT									);	break;
 
 		case STRAT_MOSFET_0:							print(string, len, "%x ACT_POMPE_BLACK_FRONT_LEFT             ", ACT_POMPE_BLACK_FRONT_LEFT						);	break;
 		case STRAT_MOSFET_1:							print(string, len, "%x ACT_POMPE_SAND_LOCKER_LEFT             ", ACT_POMPE_SAND_LOCKER_LEFT						);	break;
@@ -246,11 +247,11 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
 		case IHM_SET_LED:								print(string, len, "%x IHM_SET_LED                            ", IHM_SET_ERROR									);	break;
 		case IHM_SET_ERROR:								print(string, len, "%x IHM_SET_ERROR                          ", IHM_BIROUTE_IS_REMOVED							);	break;
-		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                           ", IHM_BUTTON									);	break;
-		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                           ", IHM_SWITCH									);	break;
-		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                       ", IHM_SWITCH_ALL								);	break;
-		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                            ", IHM_POWER									);	break;
-		case IHM_BIROUTE_IS_REMOVED:					print(string, len, "%.3x IHM_BIROUTE_IS_REMOVED               ", IHM_BIROUTE_IS_REMOVED						);	break;
+		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                           ", IHM_BUTTON										);	break;
+		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                           ", IHM_SWITCH										);	break;
+		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                       ", IHM_SWITCH_ALL									);	break;
+		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                            ", IHM_POWER										);	break;
+		case IHM_BIROUTE_IS_REMOVED:					print(string, len, "%.3x IHM_BIROUTE_IS_REMOVED               ", IHM_BIROUTE_IS_REMOVED							);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
 	}
@@ -694,7 +695,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_WARN_Y:						if(msg->data.prop_warn_y.y) print(string, len, "| avertisseur en y=%d\n", msg->data.prop_warn_y.y);                                  else print(string, len, "désactivation de l'avertisseur en Y\n");		break;
 		case PROP_WARN_DISTANCE:                if(msg->data.prop_warn_distance.distance) print(string, len, "| avertisseur au point x=%d  y=%d  distance=%d\n", msg->data.prop_warn_distance.x, msg->data.prop_warn_distance.y, msg->data.prop_warn_distance.distance);            else print(string, len, "désactivation de l'avertisseur en distance\n");		break;
 		case DEBUG_PROP_MOVE_POSITION:			print(string, len, "| offset d'aleration x : %d    y : %d    teta : %d\n", msg->data.debug_prop_move_position.xOffset, msg->data.debug_prop_move_position.yOffset, msg->data.debug_prop_move_position.tetaOffset);	break;
-
+		case PROP_ACTIVE_PID:					print(string, len, " : %s\n",(msg->data.prop_active_pid.state)?"Enable":"Disable");	break;
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_SWITCH:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_GET_SWITCH:					print_ihm_result(msg, &string, &len);			break;
