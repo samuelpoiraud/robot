@@ -196,7 +196,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_FISH_MAGNETIC_ARM:						print(string, len, "%x ACT_FISH_MAGNETIC_ARM                  ", ACT_FISH_MAGNETIC_ARM							);	break;
 		case ACT_FISH_UNSTICK_ARM:						print(string, len, "%x ACT_FISH_UNSTICK_ARM                   ", ACT_FISH_UNSTICK_ARM							);	break;
 		case ACT_BLACK_SAND_CIRCLE:						print(string, len, "%x ACT_BLACK_SAND_CIRCLE                  ", ACT_BLACK_SAND_CIRCLE							);	break;
-		case ACT_BOTTOM_DUNE:							print(string, len, "%x ACT_BOTTOM_DUNE					      ", ACT_BOTTOM_DUNE								);	break;
+		case ACT_BOTTOM_DUNE:							print(string, len, "%x ACT_BOTTOM_DUNE                        ", ACT_BOTTOM_DUNE								);	break;
 		case ACT_MIDDLE_DUNE:							print(string, len, "%x ACT_MIDDLE_DUNE                        ", ACT_MIDDLE_DUNE								);	break;
 		case ACT_CONE_DUNE:						        print(string, len, "%x ACT_CONE_DUNE                          ", ACT_CONE_DUNE									);	break;
 		case ACT_DUNIX_LEFT:							print(string, len, "%x ACT_DUNIX_LEFT                         ", ACT_DUNIX_LEFT									);	break;
