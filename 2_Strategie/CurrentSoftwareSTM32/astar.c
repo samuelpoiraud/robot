@@ -198,13 +198,13 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 
 	//Polygon[2]:Zone central avec le plexi (Node 10 -> 23)
 	//espacement tous les PI4096/6
-	ASTAR_create_element_polygon(currentNodeId, 14, (astar_user_node_t){750, 2100 + MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 2100 + CORNER_MARGIN_TO_OBSTACLE, TRUE},
+	ASTAR_create_element_polygon(currentNodeId, 14, (astar_user_node_t){750, 2100 + MARGIN_TO_OBSTACLE, FALSE},
+									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 2100 + CORNER_MARGIN_TO_OBSTACLE, FALSE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 2100, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 1500, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 900, TRUE},
-									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){750, 900 - MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, FALSE},
+									(astar_user_node_t){750, 900 - MARGIN_TO_OBSTACLE, FALSE},
 									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-3*PI4096/8
 									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-2*PI4096/8
 									(astar_user_node_t){750 + 0.93*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //-PI4096/8
