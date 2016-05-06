@@ -557,6 +557,22 @@ static void MAIN_onButton5(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 7;
+	msg.sid = ACT_FISH_PEARL;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_FISH_PEARL_OPEN;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_FISH_PEARL_IDLE;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton5LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 7;
 	msg.sid = ACT_PARASOL;
 
 	if(state == 0){
@@ -565,9 +581,6 @@ static void MAIN_onButton5(){
 
 	CAN_process_msg(&msg);
 	state = 0;
-}
-
-static void MAIN_onButton5LongPush(){
 }
 
 #endif // ROBOT_BIG et ROBOT_SMALL
