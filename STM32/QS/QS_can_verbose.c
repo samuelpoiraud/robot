@@ -571,7 +571,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_RIGHT_ARM_IDLE:		    print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_RIGHT_ARM_UNLOCK:			print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_RIGHT_ARM_LOCK:			print(string,len, "| LOCK |");			break;
-						  case (Uint8)ACT_RIGHT_ARM_LOCK_SERRAGE:			print(string,len, "| ACT_RIGHT_ARM_LOCK_SERRAGE |"); break;
+						  case (Uint8)ACT_RIGHT_ARM_LOCK_SERRAGE:	print(string,len, "| ACT_RIGHT_ARM_LOCK_SERRAGE |"); break;
 						  case (Uint8)ACT_RIGHT_ARM_STOP:			print(string,len, "| STOP |");			break;
 						  case (Uint8)ACT_RIGHT_ARM_PARALLELE:		print(string,len, "| ACT_RIGHT_ARM_PARALLELE |"); break;
 						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
@@ -590,7 +590,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_POMPE_NORMAL:				print(string,len, "| NORMAL |");		break;
 						  case (Uint8)ACT_POMPE_REVERSE:			print(string,len, "| REVERSE |");		break;
 						  case (Uint8)ACT_POMPE_STOP:				print(string,len, "| STOP |");			break;
-						  default:											print(string,len, "| UNKNOW cmd |");	break;
+						  default:										print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
 				  case (Uint8)ACT_PEARL_SAND_CIRCLE:
@@ -599,16 +599,16 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_PEARL_SAND_CIRCLE_LOCK:		print(string,len, "| LOCK |");			break;
 						  case (Uint8)ACT_PEARL_SAND_CIRCLE_UNLOCK:		print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_PEARL_SAND_CIRCLE_STOP:		print(string,len, "| STOP |");			break;
-						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
+						  default:											print(string,len, "| UNKNOW cmd |");	    break;
 					  }
 				  break;
 				  case (Uint8)ACT_PARASOL:
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_PARASOL_IDLE:		print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_PARASOL_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_PARASOL_CLOSE:		print(string,len, "| CLOSE |");		break;
+						  case (Uint8)ACT_PARASOL_CLOSE:	print(string,len, "| CLOSE |");		    break;
 						  case (Uint8)ACT_PARASOL_STOP:		print(string,len, "| STOP |");			break;
-						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
+						  default:								print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
 
@@ -616,9 +616,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 					  switch(msg->data.act_result.cmd){
 						  case (Uint8)ACT_FISH_PEARL_IDLE:		print(string,len, "| IDLE |");			break;
 						  case (Uint8)ACT_FISH_PEARL_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_FISH_PEARL_CLOSE:		print(string,len, "| CLOSE |");		break;
+						  case (Uint8)ACT_FISH_PEARL_CLOSE:		print(string,len, "| CLOSE |");		    break;
 						  case (Uint8)ACT_FISH_PEARL_STOP:		print(string,len, "| STOP |");			break;
-						  default:                                    print(string,len, "| UNKNOW cmd |");	break;
+						  case (Uint8)ACT_FISH_PEARL_TAPOTAGE:	print(string,len, "| TAPOTAGE |");	    break;
+						  default:									print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
 
