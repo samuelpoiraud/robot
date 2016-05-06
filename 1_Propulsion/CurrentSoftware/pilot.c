@@ -64,6 +64,9 @@ volatile Sint32 vitesse_rotation_max;
 
 volatile Sint32 coefs[PILOT_NUMBER_COEFS];
 
+volatile static bool_e in_rush = FALSE;
+volatile static bool_e boost_asser = FALSE;
+
 #define SOUS_QUANTIFICATION (0)	//Simplification de la courbe (permet de réduire le nombre de calculs de sinus..) Doit être une puissance de 2...
 
 void PILOT_init(void)
@@ -407,9 +410,15 @@ void PILOT_update_acceleration_state(void)
 			}
 		}
 
-		if(bdroite && bgauche)	//Cool ! Le point est accessible
+		boost_asser = FALSE;
+
+		if(bdroite && bgauche){	//Cool ! Le point est accessible
 			etat_acceleration_rotation = ACCELERATION_FOR_INCREASE_SPEED;
-		else{					//Le point n'est pas accessible sans freiner... => on doit freiner
+			if(in_rush){
+				etat_acceleration_translation = ACCELERATION_FOR_INCREASE_SPEED;
+				boost_asser = TRUE;
+			}
+		}else{					//Le point n'est pas accessible sans freiner... => on doit freiner
 			etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
 			etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
 		}
@@ -422,8 +431,10 @@ void PILOT_update_acceleration_state(void)
 
 	//Attention, l'ordre des lignes ci-dessous est important.
 
-	if (COPILOT_braking_rotation_get() == BRAKING)
+	if (COPILOT_braking_rotation_get() == BRAKING){
 		etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
+		boost_asser = FALSE;
+	}
 
 
 	if (COPILOT_is_arrived_rotation())
@@ -431,30 +442,41 @@ void PILOT_update_acceleration_state(void)
 		//Il ne reste plus qu'à avancer !
 		etat_acceleration_translation = ACCELERATION_FOR_INCREASE_SPEED;
 		etat_acceleration_rotation = ACCELERATION_NULLE;
+		boost_asser = FALSE;
 	}
 
-	if (COPILOT_braking_translation_get() == BRAKING)
+	if (COPILOT_braking_translation_get() == BRAKING){
 		etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
+		boost_asser = FALSE;
+	}
 
-	if (COPILOT_is_arrived_translation())
+	if (COPILOT_is_arrived_translation()){
 		etat_acceleration_translation = ACCELERATION_NULLE;
+		boost_asser = FALSE;
+	}
 
 	//Ecretage vitesse si la vitesse max a changé...
-	if (absolute(global.vitesse_rotation) > absolute(vitesse_rotation_max))
+	if (absolute(global.vitesse_rotation) > absolute(vitesse_rotation_max)){
 		etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
+		boost_asser = FALSE;
+	}
 
-	if (absolute(global.vitesse_translation) > absolute(vitesse_translation_max))
+	if (absolute(global.vitesse_translation) > absolute(vitesse_translation_max)){
 		etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
+		boost_asser = FALSE;
+	}
 
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
 	{
 		etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
 		etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
+		boost_asser = FALSE;
 	}
 	if(SUPERVISOR_get_state() == SUPERVISOR_ERROR)
 	{
 		etat_acceleration_translation = ACCELERATION_NULLE;
 		etat_acceleration_rotation = ACCELERATION_NULLE;
+		boost_asser = FALSE;
 	}
 }
 
@@ -542,12 +564,16 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 	}
 
 	if(	(ptrans == 64 && global.vitesse_translation >= vitesse_translation_max)  ||
-			(ptrans == -64 && global.vitesse_translation <= -vitesse_translation_max)	)
+			(ptrans == -64 && global.vitesse_translation <= -vitesse_translation_max)	){
 		ptrans = 0;	//On ne dépasse pas la vitesse max
+		boost_asser = FALSE;
+	}
 
 	if(	(prot == 64 && global.vitesse_rotation >= vitesse_rotation_max)  ||
-			(prot == -64 && global.vitesse_rotation <= -vitesse_rotation_max)	)
+			(prot == -64 && global.vitesse_rotation <= -vitesse_rotation_max)	){
 		prot = 0;	//On ne dépasse pas la vitesse max
+		boost_asser = FALSE;
+	}
 
 	if(COPILOT_braking_rotation_get() == BRAKING && extra_braking_rotation)
 	{
@@ -555,24 +581,29 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 	}
 	if(COPILOT_braking_translation_get() == BRAKING && extra_braking_translation)
 	{
-		if(!(global.flags.rush))
-			ptrans = ptrans*2;
+		if(in_rush)
+			ptrans = ptrans*1.3;
 		else
-			ptrans = ptrans;
+			ptrans = ptrans*2;
 		//ptrans = ptrans* 2; // 3/2
 	}
 
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP && QS_WHO_AM_I_get() == BIG_ROBOT)
 	{
-		if(!(global.flags.rush))
-			ptrans = ptrans*2;
-		else
+		if(in_rush)
 			ptrans = ptrans;
+		else
+			ptrans = ptrans*2;
 		prot = prot * 2;
 	}
 
-	global.acceleration_translation = (coefs[PILOT_ACCELERATION_NORMAL] * ptrans) / 64;
-	global.acceleration_rotation = (coefs[PILOT_ACCELERATION_NORMAL] * prot) / 64;
+	if(boost_asser){
+		global.acceleration_translation = ((coefs[PILOT_ACCELERATION_NORMAL] * ptrans) / 64) * 2 / 3;
+		global.acceleration_rotation = ((coefs[PILOT_ACCELERATION_NORMAL] * prot) / 64) * 1 / 3;
+	}else{
+		global.acceleration_translation = (coefs[PILOT_ACCELERATION_NORMAL] * ptrans) / 64;
+		global.acceleration_rotation = (coefs[PILOT_ACCELERATION_NORMAL] * prot) / 64;
+	}
 
 	//ce coeff dï¿½pend de la distance entre les roues de propulsions...
 	global.acceleration_rotation *= coefs[PILOT_ACCELERATION_ROTATION_TRANSLATION];
@@ -685,3 +716,14 @@ void PILOT_set_extra_braking_translation(bool_e enable)
 	extra_braking_translation = enable;
 }
 
+void PILOT_set_in_rush(bool_e in_rush_msg){
+	in_rush = in_rush_msg;
+}
+
+bool_e PILOT_get_boost_asser(){
+	return boost_asser;
+}
+
+bool_e PILOT_get_in_rush(){
+	return in_rush;
+}

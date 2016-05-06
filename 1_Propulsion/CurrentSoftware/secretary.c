@@ -311,7 +311,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		case PROP_ACTIVE_PID:
 			global.flags.pid_active = msg->data.prop_active_pid.state;
-		break;
+			break;
+
+		case PROP_RUSH:
+			PILOT_set_in_rush(msg->data.prop_rush.rush);
+			break;
 
 		//Stop tout
 		case BROADCAST_STOP_ALL:
@@ -394,7 +398,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		//REGLAGES DES COEFFICIENTS !!!!!!!!
 		case DEBUG_PROPULSION_SET_ACCELERATION:
-			if(msg->data.debug_propulsion_set_acceleration.acceleration_coef < 200)	//Sécurité...
+			// if(msg->data.debug_propulsion_set_acceleration.acceleration_coef < 200)	//Sécurité...
 				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, msg->data.debug_propulsion_set_acceleration.acceleration_coef);
 		break;
 
