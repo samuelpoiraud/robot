@@ -97,7 +97,7 @@ void xitoa (long val, int radix, int len)
 
 void put_dump (const BYTE *buff, DWORD ofs, int cnt)
 {
-	BYTE n;
+	Uint32 n;
 
 
 	debug_printf("%08lX ", ofs);
