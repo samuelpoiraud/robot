@@ -30,7 +30,7 @@
 
 
 //Position initiale de l'RX24
-	#define DUNIX_RIGHT_RX24_INIT_POS					DUNIX_RIGHT_RX24_IDLE_POS
+	#define DUNIX_RIGHT_RX24_INIT_POS					DUNIX_RIGHT_RX24_FISHS_POS
 
 //Extremum valeur
 	#define DUNIX_RIGHT_RX24_MIN_VALUE					0
