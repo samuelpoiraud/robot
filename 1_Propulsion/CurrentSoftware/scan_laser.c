@@ -16,8 +16,8 @@
 #include "QS/QS_maths.h"
 #include "odometry.h"
 
-#define CONVERSION_LASER_LEFT(x)	((Sint32)(-264*(x)+353500)/1000)
-#define CONVERSION_LASER_RIGHT(x)	((Sint32)(-264*(x)+354400)/1000)
+#define CONVERSION_LASER_LEFT(x)	((Sint32)(-264*(x)+35350)/1000)
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(-270*(x)+35580)/1000)
 #define DISTANCE_SCAN_CENTER		146
 #define DISTANCE_SCAN_CENTER_Y		60
 
@@ -87,10 +87,11 @@ void SCAN_init(){
 
 
 void SCAN_process_it(){
+	//debug_printf("%d\n",ADC_getValue(ADC_SENSOR_LASER_LEFT));
 	if(ODOMETRY_get_color()==MAGENTA){
 		if(scan_dune && (global.position.y+(DISTANCE_SCAN_CENTER_Y) > next_position)){
 			if(((next_position-1100)/10) >=0 && ((next_position-1100)/10) < 80){
-				tab_scan[(next_position-1100)/10] = -(CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT)))+(global.position.x)-(DISTANCE_SCAN_CENTER);
+				tab_scan[(next_position-1100)/10] = (CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT)))+(global.position.x)-(DISTANCE_SCAN_CENTER);
 				next_position = next_position + 10;
 			}
 			if(next_position >= 1900){
@@ -99,9 +100,9 @@ void SCAN_process_it(){
 			}
 		}
 	}else{
-		if(scan_dune && ((global.position.y-(DISTANCE_SCAN_CENTER_Y)) < next_position)){
-			if(((next_position-1900)/10) >=0 && ((next_position-1900)/10) < 80){
-				tab_scan[((next_position-1900)/10) - 1] = -CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT))+global.position.x-(DISTANCE_SCAN_CENTER);
+		if(scan_dune && (global.position.y-(DISTANCE_SCAN_CENTER_Y) < next_position)){
+			if(((1900-next_position)/10) >=0 && ((1900-next_position)/10) < 80){
+				tab_scan[(1900-next_position)/10] = (CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT)))+global.position.x-(DISTANCE_SCAN_CENTER);
 				next_position = next_position - 10;
 			}
 			if(next_position <= 1100){
@@ -147,7 +148,7 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 		case TRAITEMENT_SCAN:{
 			//printf("TRAITEMENT SCAN 1\n");
 			if(treatment_scan == TRUE){
-				printf("TRAITEMENT SCAN 2\n");
+				//printf("TRAITEMENT SCAN 2\n");
 				//Uint8 compteur = 0;
 				//Sint16 sum = 0;
 				//Uint8 shift = 0;
@@ -211,7 +212,7 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 
 					}else if(nbVariation >= 2){
 						// On vérifie que l'on a bien que des cubes sur une seule ligne
-												bool_e confirmation = TRUE;
+												/*bool_e confirmation = TRUE;
 												for(i=0; i<nbVariation - 1; i++){
 													int mid = (variation[i] + variation[i+1]) / 2;
 													if(mid > 0 && mid < MAX_VARIATION){
@@ -220,13 +221,13 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 														}
 													}
 												}
-												if(confirmation){
+												if(confirmation){*/
 													debug_printf("Dune arrière présente\n");
 													second_part = TRUE;
-												}else{
+												/*}else{
 													debug_printf("C'est la merde dans la dune 2\n");
 													wtf = TRUE;
-												}
+												}*/
 
 					}else{
 						debug_printf("La dune n'est pas là\n");
@@ -238,6 +239,12 @@ void SCAN_PROCESS(CAN_msg_t *msg){
 				}
 
 				debug_printf("Nombre de variation : %d\n", nbVariation);
+				if(nbVariation >= 2 && nbVariation <= 6){
+					middle = ((variation[0] * 10 + 1100) + (variation[nbVariation] * 10 + 1100)) / 2;
+				}else{
+					middle = 0;
+				}
+
 
 				CAN_msg_t msg;
 				msg.sid = STRAT_BACK_SCAN;
