@@ -28,8 +28,6 @@
 	   CONFIG_COQUILLAGES_5
 	}COQUILLAGES_config_e;
 
-
-
 void ELEMENTS_init();
 void ELEMENTS_process_main();
 
