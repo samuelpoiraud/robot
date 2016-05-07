@@ -221,6 +221,8 @@ void ZONE_CAN_process_msg(CAN_msg_t *msg) {
 				zones[msg->data.xbee_zone_command.zone].accept_donate = FALSE;
 			}
 			break;
+		default:
+			break;
 	}
 }
 
