@@ -199,11 +199,11 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 	//Polygon[2]:Zone central avec le plexi (Node 10 -> 23)
 	//espacement tous les PI4096/6
 	ASTAR_create_element_polygon(currentNodeId, 14, (astar_user_node_t){750, 2100 + MARGIN_TO_OBSTACLE, FALSE},
-									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 2100 + CORNER_MARGIN_TO_OBSTACLE, FALSE},
+									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 2100 + CORNER_MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 2100, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 1500, TRUE},
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 900, TRUE},
-									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, FALSE},
+									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750, 900 - MARGIN_TO_OBSTACLE, FALSE},
 									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-3*PI4096/8
 									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-2*PI4096/8
@@ -216,11 +216,11 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 	//Polygon[3]:Zone de la dune (Node 24 -> 32)
 	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){0, 800 - MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){200, 800-MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){200 + CORNER_MARGIN_TO_OBSTACLE,800 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){200 + CORNER_MARGIN_TO_OBSTACLE,800 - CORNER_MARGIN_TO_OBSTACLE, FALSE},
 									(astar_user_node_t){200 + MARGIN_TO_OBSTACLE,800, TRUE},
 									(astar_user_node_t){200 + MARGIN_TO_OBSTACLE,1500, TRUE},
 									(astar_user_node_t){200 + MARGIN_TO_OBSTACLE,2200, TRUE},
-									(astar_user_node_t){200 + CORNER_MARGIN_TO_OBSTACLE,2200+CORNER_MARGIN_TO_OBSTACLE, TRUE},
+									(astar_user_node_t){200 + CORNER_MARGIN_TO_OBSTACLE,2200+CORNER_MARGIN_TO_OBSTACLE, FALSE},
 									(astar_user_node_t){200, 2200 + MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){0, 2200 + MARGIN_TO_OBSTACLE, TRUE});
 
@@ -1133,14 +1133,17 @@ static void ASTAR_make_displacements(astar_path_t path, displacement_curve_t dis
 	debug_printf("MAKE DISPLACEMENTS\n nbDisplacements = %d\n", *nbDisplacements);
 	for(i=0; i<path.list.nbNodes; i++){
 		displacements[i].point = path.list.list[i]->pos;
-		debug_printf("displacement x=%d  y=%d\n", displacements[i].point.x, displacements[i].point.y);
 		displacements[i].speed = speed;
 
 		//Affectation du paramètre de courbe
-		if(i!=0 && path.list.list[i]->curve == FALSE && GEOMETRY_distance(path.list.list[i-1]->pos, path.list.list[i]->pos) < 300)
+		if(i!=0 && ((path.list.list[i]->curve == FALSE && GEOMETRY_distance(path.list.list[i-1]->pos, path.list.list[i]->pos) < 50)
+					|| (path.list.list[i]->curve == FALSE && path.list.list[i-1]->curve == FALSE && GEOMETRY_distance(path.list.list[i-1]->pos, path.list.list[i]->pos) < 500))){
 			displacements[i].curve = TRUE; //Si on est vraiment proche d'un point et qu on devrait s'arreter, on autorise quand même une courbe
-		else
+		}else{
 			displacements[i].curve = path.list.list[i]->curve;
+		}
+		debug_printf("d x=%d  y=%d  curve=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve );
+
 	}
 }
 
