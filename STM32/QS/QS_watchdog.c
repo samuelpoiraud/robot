@@ -111,14 +111,17 @@
 	/* Arrêt d'un watchdog par mise à zéro de ses descripteurs */
 	void WATCHDOG_stop(watchdog_id_t id)
 	{
+		assert(id >= 0 && id < WATCHDOG_MAX_COUNT);
 		watchdog[id].initialized = FALSE;
 	}
 
 	void WATCHDOG_disable_timeout(watchdog_id_t id) {
+		assert(id >= 0 && id < WATCHDOG_MAX_COUNT);
 		watchdog[id].enabled = FALSE;
 	}
 
 	void WATCHDOG_enable_timeout(watchdog_id_t id) {
+		assert(id >= 0 && id < WATCHDOG_MAX_COUNT);
 		watchdog[id].enabled = TRUE;
 	}
 
