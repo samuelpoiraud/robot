@@ -24,9 +24,10 @@
 
 #if defined(USE_SPI1) || defined(USE_SPI2)
 
+static bool_e initialized = FALSE;
+
 void SPI_init(void)
 {
-	static bool_e initialized = FALSE;
 	if(initialized)
 		return;
 	initialized = TRUE;
@@ -65,6 +66,11 @@ void SPI_init(void)
 
 Uint8 SPI1_exchange(Uint8 c)
 {
+	if(!initialized){
+		error_printf("SPI non initialisé ! Appeller SPI_init\n");
+		return 0;
+	}
+
 	while(SPI_I2S_GetFlagStatus(SPI1_SPI_HANDLE, SPI_I2S_FLAG_TXE) == RESET);
 
 	if(SPI_I2S_GetFlagStatus(SPI1_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == SET)
@@ -90,11 +96,21 @@ Uint8 SPI1_exchange(Uint8 c)
 
 void SPI1_write(Uint8 msg)
 {
+	if(!initialized){
+		error_printf("SPI non initialisé ! Appeller SPI_init\n");
+		return;
+	}
+
 	SPI1_exchange(msg);
 }
 
 Uint8 SPI1_read()
 {
+	if(!initialized){
+		error_printf("SPI non initialisé ! Appeller SPI_init\n");
+		return 0;
+	}
+
 	return SPI1_exchange(0x00);
 }
 
@@ -104,6 +120,11 @@ Uint8 SPI1_read()
 
 Uint8 SPI2_exchange(Uint8 c)
 {
+	if(!initialized){
+		error_printf("SPI non initialisé ! Appeller SPI_init\n");
+		return 0;
+	}
+
 	while(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_TXE) == RESET);
 
 	if(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == SET)
@@ -129,11 +150,21 @@ Uint8 SPI2_exchange(Uint8 c)
 
 void SPI2_write(Uint8 msg)
 {
+	if(!initialized){
+		error_printf("SPI non initialisé ! Appeller SPI_init\n");
+		return;
+	}
+
 	SPI2_exchange(msg);
 }
 
 Uint8 SPI2_read()
 {
+	if(!initialized){
+		error_printf("SPI non initialisé ! Appeller SPI_init\n");
+		return 0;
+	}
+
 	return  SPI2_exchange(0x00);
 }
 

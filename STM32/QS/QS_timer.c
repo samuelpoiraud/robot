@@ -11,6 +11,7 @@
 
 
 #include "QS_timer.h"
+#include "QS_outputlog.h"
 #include "stm32f4xx_tim.h"
 
 #if TIMER_MS_PRESCALER <= 0 || TIMER_MS_PRESCALER > 65535
@@ -65,9 +66,10 @@ __attribute__((weak)) void _T3Interrupt() {TIMER3_AckIT();}
 __attribute__((weak)) void _T4Interrupt() {TIMER4_AckIT();}
 __attribute__((weak)) void _T5Interrupt() {TIMER5_AckIT();}
 
+static bool_e initialized = FALSE;
+
 /* Configuation de l'ensemble du bloc timer */
 void TIMER_init(void){
-	static bool_e initialized = FALSE;
 	if (initialized) return;
 
 	/* Horloges */
@@ -146,6 +148,11 @@ void TIMER_init(void){
 }
 
 void TIMER_run(TIM_TypeDef* TIMx, Uint8 period /* en millisecondes */) {
+	if(!initialized){
+		error_printf("TIMER non initialisé ! Appeller TIMER_init\n");
+		return;
+	}
+
 	RCC_ClocksTypeDef clocksSpeed;
 	Uint32 prescaler_mul = 1;
 	RCC_GetClocksFreq(&clocksSpeed);
@@ -169,6 +176,11 @@ void TIMER_run(TIM_TypeDef* TIMx, Uint8 period /* en millisecondes */) {
 }
 
 void TIMER_run_us(TIM_TypeDef* TIMx, Uint16 period /* en microsecondes */) {
+	if(!initialized){
+		error_printf("TIMER non initialisé ! Appeller TIMER_init\n");
+		return;
+	}
+
 	RCC_ClocksTypeDef clocksSpeed;
 	Uint32 prescaler_mul = 1;
 	RCC_GetClocksFreq(&clocksSpeed);
@@ -190,10 +202,20 @@ void TIMER_run_us(TIM_TypeDef* TIMx, Uint16 period /* en microsecondes */) {
 }
 
 void TIMER_stop(TIM_TypeDef* TIMx) {
+	if(!initialized){
+		error_printf("TIMER non initialisé ! Appeller TIMER_init\n");
+		return;
+	}
+
 	TIM_Cmd(TIMx, DISABLE);
 }
 
 void TIMER_disableInt(TIM_TypeDef* TIMx) {
+	if(!initialized){
+		error_printf("TIMER non initialisé ! Appeller TIMER_init\n");
+		return;
+	}
+
 	switch((int)TIMx) {
 		case (int)TIM10:
 			NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
@@ -218,6 +240,11 @@ void TIMER_disableInt(TIM_TypeDef* TIMx) {
 }
 
 void TIMER_enableInt(TIM_TypeDef* TIMx) {
+	if(!initialized){
+		error_printf("TIMER non initialisé ! Appeller TIMER_init\n");
+		return;
+	}
+
 	switch((int)TIMx) {
 		case (int)TIM10:
 			NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);

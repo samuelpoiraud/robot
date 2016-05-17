@@ -122,9 +122,9 @@
 	#define BUTTONS_TIMER_USE_WATCHDOG
 
 /* Réglages PWM */
-	#define USE_PWM4
-	//#define FREQ_PWM_50HZ
-	#define FREQ_PWM_50KHZ
+	#define USE_PWM_MODULE
+		#define PWM_FREQ	50000
+		#define USE_PWM4
 
 
 /* Réglages entrées analogiques */

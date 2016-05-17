@@ -9,8 +9,10 @@
  *  Version 20100424
  */
 
-
 #include "QS_pwm.h"
+
+#ifdef USE_PWM_MODULE
+
 #include "QS_ports.h"
 #include "stm32f4xx_tim.h"
 #include "QS_clocks_freq.h"
@@ -102,14 +104,15 @@ void PWM_init(void)
 
 void PWM_set_frequency(Uint32 freq)
 {
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	Uint32 presc32;
 	if(!initialized){
-		error_printf("PWM non initialisé ! Appeller PWM_init");
+		error_printf("PWM non initialisé ! Appeller PWM_init\n");
 		return;
 	}
-	if(freq == 0)
-		return;
+
+	assert(freq != 0);
+
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	Uint32 presc32;
 	presc32 = (TIM_CLK2_FREQUENCY_HZ / freq / PWM_PERIOD) - 1;
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
@@ -123,9 +126,11 @@ void PWM_set_frequency(Uint32 freq)
 void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 {
 	if(!initialized){
-		error_printf("PWM non initialisé ! Appeller PWM_init");
+		error_printf("PWM non initialisé ! Appeller PWM_init\n");
 		return;
 	}
+
+	assert(duty >= 0 && duty <= 100);
 
 	switch(channel)
 	{
@@ -164,7 +169,7 @@ void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 Uint8 PWM_get_duty(Uint8 channel){
 
 	if(!initialized){
-		error_printf("PWM non initialisé ! Appeller PWM_init");
+		error_printf("PWM non initialisé ! Appeller PWM_init\n");
 		return 0;
 	}
 
@@ -200,9 +205,11 @@ void PWM_run_fine(Uint16 duty, Uint8 channel)
 {
 
 	if(!initialized){
-		error_printf("PWM non initialisé ! Appeller PWM_init");
+		error_printf("PWM non initialisé ! Appeller PWM_init\n");
 		return;
 	}
+
+	assert(duty >= 0 && duty <= 100);
 
 	switch(channel)
 	{
@@ -241,3 +248,4 @@ void PWM_run_fine(Uint16 duty, Uint8 channel)
 
 #endif /* def PWM_PRESC */
 
+#endif /* def USE_PWM_MODULE */

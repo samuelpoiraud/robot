@@ -25,6 +25,7 @@ typedef struct{
 volatile static bool_e switchs[SWITCHS_NUMBER_IHM];
 static ihm_button_t buttons_ihm[BP_NUMBER_IHM];
 volatile static bool_e *match_started;
+static bool_e initialized = FALSE;
 
 void switchs_update(CAN_msg_t * msg);
 void switchs_update_all(CAN_msg_t * msg);
@@ -33,7 +34,6 @@ void button_update(CAN_msg_t * msg);
 void IHM_init(volatile bool_e *matchStarted){
 	Uint8 i;
 
-	static bool_e initialized = FALSE;
 	if(initialized)
 		return;
 
@@ -54,6 +54,11 @@ void IHM_init(volatile bool_e *matchStarted){
 }
 
 void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
+	if(initialized == FALSE){
+		error_printf("Module IHM non initialisé ! \n");
+		return;
+	}
+
 	assert(size < 8);
 
 	Uint8 i = 0;
@@ -84,6 +89,11 @@ void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
 
 void IHM_set_led_color(led_color_e color)
 {
+	if(initialized == FALSE){
+		error_printf("Module IHM non initialisé ! \n");
+		return;
+	}
+
 	CAN_msg_t msg;
 	msg.sid = IHM_SET_LED_COLOR;
 	msg.size = 1;
@@ -93,14 +103,25 @@ void IHM_set_led_color(led_color_e color)
 
 
 void switchs_update(CAN_msg_t * msg){
-	Uint8 i;
 
+	if(initialized == FALSE){
+		error_printf("Module IHM non initialisé ! \n");
+		return;
+	}
+
+	Uint8 i;
 
 	for(i=0; i<msg->size; i++)
 		switchs[msg->data.ihm_switch.switchs[i].id] = msg->data.ihm_switch.switchs[i].state;
 }
 
 void switchs_update_all(CAN_msg_t * msg){
+
+	if(initialized == FALSE){
+		error_printf("Module IHM non initialisé ! \n");
+		return;
+	}
+
 	Uint8 i;
 	Uint32 swit = msg->data.ihm_switch_all.switch_mask;
 
@@ -109,6 +130,12 @@ void switchs_update_all(CAN_msg_t * msg){
 }
 
 void button_update(CAN_msg_t * msg){
+
+	if(initialized == FALSE){
+		error_printf("Module IHM non initialisé ! \n");
+		return;
+	}
+
 	ihm_button_t* button = &(buttons_ihm[msg->data.ihm_button.id]);
 	ihm_button_action_t action;
 
@@ -126,11 +153,24 @@ void button_update(CAN_msg_t * msg){
 }
 
 bool_e IHM_switchs_get(switch_ihm_e swit){
+
+	if(initialized == FALSE){
+		error_printf("Module IHM non initialisé ! \n");
+		return 0;
+	}
+
+	assert(swit >= 0 && swit < SWITCHS_NUMBER_IHM);
 	return switchs[swit];
 
 }
 
 void IHM_process_main(CAN_msg_t* msg){
+
+	if(initialized == FALSE){
+		error_printf("Module IHM non initialisé ! \n");
+		return;
+	}
+
 #ifdef IHM_SWITCH_DISABLE_IN_MATCH
 	if(match_started == NULL || (match_started != NULL && (*match_started) == FALSE)){
 #endif

@@ -47,14 +47,6 @@
 
 	#define UART_RX_BUF_SIZE	512 //Taille de la chaine de caracteres memorisant les caracteres recus sur UART
 
-
-/* Réglages PWM */
-	//#define FREQ_PWM_50HZ
-	//#define FREQ_PWM_1KHZ
-	//#define FREQ_PWM_10KHZ
-	//#define FREQ_PWM_20KHZ
-	#define FREQ_PWM_50KHZ
-
 /* Réglages watchdog */
 	#define USE_WATCHDOG
 	#define WATCHDOG_TIMER 3
