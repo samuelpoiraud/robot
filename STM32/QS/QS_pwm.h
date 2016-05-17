@@ -12,18 +12,13 @@
  */
 
 /** ----------------  Defines possibles  --------------------
+ *  USE_PWM_MODULE				: Activation du module PWM
  *	USE_PWM1					: Activation de la PWM numéro 1
  *	USE_PWM2					: Activation de la PWM numéro 2
  *	USE_PWM3					: Activation de la PWM numéro 3
  *	USE_PWM4					: Activation de la PWM numéro 4
  *
- *	Choix d'une fréquence définir l'une des constances suivantes :
- *		- FREQ_PWM_200KHZ
- *		- FREQ_PWM_50KHZ
- *		- FREQ_PWM_20KHZ
- *		- FREQ_PWM_10KHZ
- *		- FREQ_PWM_1KHZ
- *		- FREQ_PWM_50HZ
+ *  PWM_FREQ					: Fréquence du module PWM
  *
  * ----------------  Choses à savoir  --------------------
  *	VERBOSE_MODE				: Verbosité des modifications des commandes des PWMs
@@ -33,28 +28,22 @@
 	#define QS_PWM_H
 	#include "QS_all.h"
 
+#ifdef USE_PWM_MODULE
+
 	#include "QS_clocks_freq.h"
 
-	#ifdef FREQ_PWM_200KHZ
+	#ifndef PWM_FREQ
+		#error "PWM_FREQ n'est pas défini"
+	#endif
+
+	#if PWM_FREQ < 0
+		#error "PWM_FREQ doit être supérieur à 0"
+	#endif
+
+	#if PWM_FREQ > 200000
 		#error "Les ponts en H actuel ne supporte pas cette fréquence. Si c'est le cas un jour, veuillez passer ce #error en #warning. si tout ce qui existe au robot peut supporter 200Khz, veuillez supprimer ce warning/error"
-		#define PWM_FREQ 200000
 	#endif
-	#ifdef FREQ_PWM_50KHZ
-		#define PWM_FREQ 50000
-	#endif
-	#ifdef FREQ_PWM_20KHZ
-		#define PWM_FREQ 20000
-	#endif
-	#ifdef FREQ_PWM_10KHZ
-		#define PWM_FREQ 10000
-	#endif
-	#ifdef FREQ_PWM_1KHZ
-		#define PWM_FREQ 1000
-	#endif
-	#ifdef FREQ_PWM_50HZ
-		#define PWM_FREQ 50
-	#endif
-		
+
 	/**
 	 * Initialise le module PWM
 	 */
@@ -99,5 +88,7 @@
 		 */
 		void PWM_run_fine (Uint16 duty, Uint8 channel);
 	#endif
+
+#endif
 
 #endif /* ndef QS_PWM_H */

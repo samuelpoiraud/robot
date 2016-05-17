@@ -25,8 +25,11 @@
 
 	#include "QS_all.h"
 
-	#ifdef USE_WATCHDOG	
-	
+	#ifdef USE_WATCHDOG
+
+		/* Constantes */
+		#define WATCHDOG_ERROR		0xFF
+
 		/* Types */
 		typedef Uint16 timeout_t;
 		typedef Uint8 watchdog_id_t;
@@ -64,6 +67,6 @@
 		/** Réactive le declenchement du watchdog lors d'un timeout.
 		 */
 		void WATCHDOG_enable_timeout(watchdog_id_t id);
-	
+
 	#endif /* def USE_WATCHDOG */
 #endif

@@ -54,7 +54,7 @@ void QEI_init()
 	Sint16 QEI1_get_count()
 	{
 		if(!initialized){
-			error_printf("QEI non initialisé ! Appeller QEI_init");
+			error_printf("QEI non initialisé ! Appeller QEI_init\n");
 			return 0;
 		}
 
@@ -64,7 +64,7 @@ void QEI_init()
 	void QEI1_set_count(Sint16 count)
 	{
 		if(!initialized){
-			error_printf("QEI non initialisé ! Appeller QEI_init");
+			error_printf("QEI non initialisé ! Appeller QEI_init\n");
 			return;
 		}
 
@@ -76,7 +76,7 @@ void QEI_init()
 	Sint16 QEI2_get_count()
 	{
 		if(!initialized){
-			error_printf("QEI non initialisé ! Appeller QEI_init");
+			error_printf("QEI non initialisé ! Appeller QEI_init\n");
 			return 0;
 		}
 
@@ -86,7 +86,7 @@ void QEI_init()
 	void QEI2_set_count(Sint16 count)
 	{
 		if(!initialized){
-			error_printf("QEI non initialisé ! Appeller QEI_init");
+			error_printf("QEI non initialisé ! Appeller QEI_init\n");
 			return;
 		}
 

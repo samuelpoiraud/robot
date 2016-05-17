@@ -35,12 +35,13 @@
 		bool_e periodic;
 	}watchdog_t;
 
-	static volatile watchdog_t watchdog[WATCHDOG_MAX_COUNT];
+	static watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, volatile bool_e * flag, bool_e is_periodic);
 
+	static volatile watchdog_t watchdog[WATCHDOG_MAX_COUNT];
+	static bool_e initialized = FALSE;
 
 	void WATCHDOG_init(void)
 	{
-		static bool_e initialized = FALSE;
 		watchdog_id_t i;
 		if(initialized)
 			return;
@@ -55,22 +56,27 @@
 	/** Privée: ajoute un nouveau watchdog
 		* Cette fonction est utilisée pour ajoute un nouveau watchdog avec les caractéristiques spécifiés
 	**/
-	watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, volatile bool_e * flag, bool_e is_periodic)
+	static watchdog_id_t WATCHDOG_new(timeout_t t, watchdog_callback_fun_t func, volatile bool_e * flag, bool_e is_periodic)
 	{
+		if(!initialized){
+			error_printf("WATCHDOG non initialisé ! Appeller WATCHDOG_init\n");
+			return 0;
+		}
+
+		assert(t >= WATCHDOG_QUANTUM);
+
 		/* Vars */
 		Uint8 i;
-		watchdog_id_t id = 255;
-		assert(t >= WATCHDOG_QUANTUM);
+		watchdog_id_t id = WATCHDOG_ERROR;
 
 		TIMER_SRC_TIMER_DisableIT();
 
-		for (i = 0; i < WATCHDOG_MAX_COUNT; i++)
+		for (i = 0; i < WATCHDOG_MAX_COUNT; i++){
 			if((watchdog[i].initialized) && func != NULL && watchdog[i].callback == func)
 			{
-				return 255;	//PAS DE CREATION !
+				return WATCHDOG_ERROR;	//PAS DE CREATION !
 			}
-
-
+		}
 
 		/* Parcours des watchdogs jusqu'à trouver un espace libre */
 		for (i = 0; i < WATCHDOG_MAX_COUNT; i++)
@@ -89,7 +95,8 @@
 				break;
 			}
 		}
-		if(id== 255)
+
+		if(id == WATCHDOG_ERROR)
 			debug_printf("WD : TABLEAU FULL\n");
 
 		TIMER_SRC_TIMER_EnableIT();
@@ -98,11 +105,21 @@
 
 
 	watchdog_id_t WATCHDOG_create(timeout_t t, watchdog_callback_fun_t f, bool_e is_periodic){
+		if(!initialized){
+			error_printf("WATCHDOG non initialisé ! Appeller WATCHDOG_init\n");
+			return 0;
+		}
+
 		assert(f != NULL);
 		return WATCHDOG_new(t, f, NULL, is_periodic);
 	}
 
 	watchdog_id_t WATCHDOG_create_flag(timeout_t t, volatile bool_e * f){
+		if(!initialized){
+			error_printf("WATCHDOG non initialisé ! Appeller WATCHDOG_init\n");
+			return 0;
+		}
+
 		assert(f != NULL);
 		*f = FALSE;
 		return WATCHDOG_new(t, NULL, f, FALSE);
@@ -111,16 +128,31 @@
 	/* Arrêt d'un watchdog par mise à zéro de ses descripteurs */
 	void WATCHDOG_stop(watchdog_id_t id)
 	{
+		if(!initialized){
+			error_printf("WATCHDOG non initialisé ! Appeller WATCHDOG_init\n");
+			return;
+		}
+
 		assert(id >= 0 && id < WATCHDOG_MAX_COUNT);
 		watchdog[id].initialized = FALSE;
 	}
 
 	void WATCHDOG_disable_timeout(watchdog_id_t id) {
+		if(!initialized){
+			error_printf("WATCHDOG non initialisé ! Appeller WATCHDOG_init\n");
+			return;
+		}
+
 		assert(id >= 0 && id < WATCHDOG_MAX_COUNT);
 		watchdog[id].enabled = FALSE;
 	}
 
 	void WATCHDOG_enable_timeout(watchdog_id_t id) {
+		if(!initialized){
+			error_printf("WATCHDOG non initialisé ! Appeller WATCHDOG_init\n");
+			return;
+		}
+
 		assert(id >= 0 && id < WATCHDOG_MAX_COUNT);
 		watchdog[id].enabled = TRUE;
 	}

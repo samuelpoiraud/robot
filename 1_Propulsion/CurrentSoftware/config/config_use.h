@@ -139,13 +139,10 @@
 	#define WATCHDOG_QUANTUM 1
 
 /* Réglages PWM */
-	#define USE_PWM3    //moteur droite
-	#define USE_PWM4    //moteur gauche
-	//#define FREQ_PWM_50HZ
-	//#define FREQ_PWM_1KHZ
-	//#define FREQ_PWM_10KHZ
-	//#define FREQ_PWM_20KHZ
-	#define FREQ_PWM_50KHZ
+	#define USE_PWM_MODULE
+		#define PWM_FREQ 50000
+		#define USE_PWM3    //moteur droite
+		#define USE_PWM4    //moteur gauche
 
 /* Réglages SPI */
 	#ifdef USE_GYROSCOPE

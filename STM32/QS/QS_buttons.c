@@ -13,6 +13,7 @@
 #define QS_BUTTONS_C
 
 #include "QS_buttons.h"
+#include "QS_outputlog.h"
 
 #ifdef USE_BUTTONS
 
@@ -39,12 +40,12 @@
 
 	static button_t buttons[BUTTONS_NUMBER];
 	static Uint8 push_time[BUTTONS_NUMBER]={0};
+	static bool_e initialized = FALSE;
 
 	void BUTTONS_init()
 	{
 		Uint8 i;
 
-		static bool_e initialized = FALSE;
 		if(initialized)
 			return;
 
@@ -60,6 +61,10 @@
 
 	void BUTTONS_define_actions(button_id_e button_id,button_action_t direct_push, button_action_t after_long_push, Uint8 long_push_time)
 	{
+		if(initialized == FALSE){
+			error_printf("Module Buttons non initialisé ! \n");
+			return;
+		}
 		assert(button_id<BUTTONS_NUMBER&&button_id>=0);
 		button_t* button = &(buttons[button_id]);
 		button->direct_push=direct_push;
@@ -76,6 +81,11 @@
 		button_action_t action;
 		button_t* button = NULL;
 		Uint8 i;
+
+		if(initialized == FALSE){
+			error_printf("Module Buttons non initialisé ! \n");
+			return;
+		}
 
 		buttons_pressed = 0;
 		#ifdef BUTTON0_PORT
