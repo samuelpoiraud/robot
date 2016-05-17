@@ -383,7 +383,18 @@ Uint8 PORTS_adc_init(void* adc_handle, Uint8 ADC_sampleTime) {
 	number_of_channels++;
 	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_15, number_of_channels, ADC_sampleTime);
 #endif
-
+#ifdef	USE_AN_TEMP_SENSOR	// Temperature sensor
+	number_of_channels++;
+	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_TempSensor, number_of_channels, ADC_sampleTime);
+#endif
+#ifdef	USE_AN_VREFIN		// VRefIn
+	number_of_channels++;
+	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_Vrefint, number_of_channels, ADC_sampleTime);
+#endif
+#ifdef	USE_AN_VBAT			// VBat
+	number_of_channels++;
+	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_Vbat, number_of_channels, ADC_sampleTime);
+#endif
 	return number_of_channels;
 }
 
