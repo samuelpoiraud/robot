@@ -18,6 +18,7 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_watchdog.h"
 
 
 #define LOG_PREFIX "avoid: "
@@ -969,6 +970,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 
 	static bool_e timeout = FALSE;
 	error_e prop_stack_state;
+	static volatile bool_e flag_buzzer = FALSE;
 
 	switch(state)
 	{
@@ -978,6 +980,8 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 			global.destination = displacements.point;
 			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVE, AVOID_ENABLED, PROP_END_OF_BUFFER, END_AT_LAST_POINT, PROP_NO_BORDER_MODE, TRUE);
 			debug_printf("goto_extract_with_avoidance : load_move\n");
+			WATCHDOG_create_flag(900, &flag_buzzer);
+			BUZZER_play(400, DEFAULT_NOTE, 1);
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
 
@@ -1005,6 +1009,10 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 					break;
 
 				case IN_PROGRESS:
+					if (flag_buzzer) {
+						BUZZER_play(400, DEFAULT_NOTE, 1);
+						WATCHDOG_create_flag(900, &flag_buzzer);
+					}
 					break;
 
 				default:
