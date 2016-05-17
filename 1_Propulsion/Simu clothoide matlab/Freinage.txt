@@ -1,0 +1,47 @@
+la suggestion que je propose est la suivante.
+
+	Actuellement, l'algo de freinage doit osciller entre ces deux valeurs pour arriver sur le point :
+			249
+			-192
+			
+	Il faudrait plutôt que dès le début du freinage, l'algo calcule à chaque IT la valeur idéale du freinage...
+		On aurait qch de bien plus doux !
+		
+	La détermination du début du freinage intervient dès lors que la distance qui sera parcourue si l'on freine devient supérieur à la distance restante.
+	Jusque là, l'algo est plutôt correct.. avec la formule suivante (qui n'est pas la même en rush)
+		on a quand même des effets de bords de ce calcul..
+		tf = v*v/a/2 + v/2;
+		translation_frein = absolute(((global.vitesse_translation*global.vitesse_translation)/(PILOT_get_coef(PILOT_ACCELERATION_NORMAL)))/2);
+		translation_frein += absolute(global.vitesse_translation/2);
+		
+	Il faut simplement s'assurer que l'accélération utilisée dans le calcul est la bonne...
+		par exemple : 1.3*a (249 si a=192)
+	Une fois le freinage en translation commencé, on peut considérer qu'il se poursuit jusqu'à ce qu'on arrive.
+		(important pour que l'algo suivant fonctionne !!!)
+		
+	ensuite, l'accélération peut être déterminée par la formule :
+	
+	Sint32 amax = coefs[PILOT_ACCELERATION_NORMAL]*1.3;
+	ptrans = amax*amax/translation_restante/2;
+	//en s'assurant que :
+	ptrans = MIN(amax,ptrans);
+	
+	Il faut donc bricoler un peu le copilot et le pilot pour transmettre ces valeurs...
+	
+	Le classeur excel ci joint illustre cet exemple...
+		Les cases en jaune sont les données à entrer.
+		Les colonnes de gauche illustrent chaque IT.
+		Il faut donc régler une distance initiale pertinente (par dichotomie)
+			si distance trop grande, le freinage intervient dès que nécessaire
+			si distance trop faible, ca part en live... et c'est normal.
+		Le résultat de l'algo est la colonne ptrans (saturée à amax)
+		
+	espérance de gain :
+		99 IT pour freiner à notre vitesse max au lieu de 120 actuellement
+			=> 105ms... en moins pour le freinage ;)
+			=> environ 50ms de moins pour le rush.
+	
+	
+		
+		
+	
