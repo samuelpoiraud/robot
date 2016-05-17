@@ -15,7 +15,7 @@
 #include "stm32f4xx_adc.h"
 #include "stm32f4xx_dma.h"
 
-#define MAX_ADC_CHANNELS 16
+#define MAX_ADC_CHANNELS 19
 
 #define ADC_CONTINUOUS_CONVERSION
 
@@ -147,7 +147,15 @@ void ADC_init(void) {
 #ifdef	USE_AN15
 	adc_id[ADC_15] = i++;
 #endif
-
+#ifdef	USE_AN_TEMP_SENSOR
+	adc_id[ADC_TEMP_SENSOR] = i++;
+#endif
+#ifdef	USE_AN_VREFIN
+	adc_id[ADC_VREFIN] = i++;
+#endif
+#ifdef	USE_AN_VBAT
+	adc_id[ADC_VBAT] = i++;
+#endif
 	initialized = TRUE;
 }
 

@@ -26,6 +26,9 @@
  *	USE_AN13					: Activation du convertisseur analogique 13
  *	USE_AN14					: Activation du convertisseur analogique 14
  *	USE_AN15					: Activation du convertisseur analogique 15
+ *	USE_AN_TEMP_SENSOR			: Activation du convertisseur analogique du capteur de température de la STM32
+*	USE_AN_VREFIN				: Activation du convertisseur analogique de la tension de référence interne
+ *	USE_AN_VBAT					: Activation du convertisseur analogique de la tension batterie
  */
 
 #ifndef QS_ADC_H
@@ -52,7 +55,10 @@
 		ADC_12,
 		ADC_13,
 		ADC_14,
-		ADC_15
+		ADC_15,
+		ADC_TEMP_SENSOR,
+		ADC_VREFIN,
+		ADC_VBAT
 	}adc_id_e;
 
 	/**
