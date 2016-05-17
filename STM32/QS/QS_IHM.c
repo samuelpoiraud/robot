@@ -51,6 +51,8 @@ void IHM_init(volatile bool_e *matchStarted){
 	switchs[SWITCH18_DISABLE_ASSER] = FALSE;		// Activation Asser
 
 	match_started = matchStarted;
+
+	initialized = TRUE;
 }
 
 void IHM_leds_send_msg(Uint8 size, led_ihm_t led, ...){
