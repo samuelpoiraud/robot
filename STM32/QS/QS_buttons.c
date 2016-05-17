@@ -57,6 +57,8 @@
 			TIMER_SRC_TIMER_init();
 			TIMER_SRC_TIMER_start_ms(100);
 		#endif
+
+		initialized = TRUE;
 	}
 
 	void BUTTONS_define_actions(button_id_e button_id,button_action_t direct_push, button_action_t after_long_push, Uint8 long_push_time)
