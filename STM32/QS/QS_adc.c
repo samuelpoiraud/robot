@@ -33,7 +33,12 @@ void ADC_init(void) {
 	ADC_InitTypeDef       ADC_InitStructure;
 	ADC_CommonInitTypeDef ADC_CommonInitStructure;
 	DMA_InitTypeDef       DMA_InitStructure;
+#ifdef MAIN_IR_RCVA
+	static const Uint8 ADC_sampleTime = ADC_SampleTime_3Cycles;
+#else
 	static const Uint8 ADC_sampleTime = ADC_SampleTime_28Cycles;
+#endif
+
 
 	/* Enable ADCx, DMA and GPIO clocks ****************************************/
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);	//DMA2
@@ -61,14 +66,26 @@ void ADC_init(void) {
 	DMA_Cmd(DMA2_Stream0, ENABLE);
 
 	/* ADC Common Init **********************************************************/
+#ifdef MAIN_IR_RCVA
+	ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+	ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div2;
+	ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+	ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+#else
 	ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
 	ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div8;
 	ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
 	ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_20Cycles;
+#endif
 	ADC_CommonInit(&ADC_CommonInitStructure);
 
 	/* ADC1 Init ****************************************************************/
+#ifdef MAIN_IR_RCVA
+	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+#else
 	ADC_InitStructure.ADC_Resolution = ADC_Resolution_10b;
+#endif
+
 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
 #ifdef ADC_CONTINUOUS_CONVERSION
 	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
