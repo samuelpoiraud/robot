@@ -175,6 +175,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case DEBUG_PROP_MOVE_POSITION:					print(string, len, "%x PROP_DEBUG_MOVE_POSITION               ", DEBUG_PROP_MOVE_POSITION						);	break;
 		case PROP_SCAN_DUNE:							print(string, len, "%x PROP_SCAN_DUNE                         ", PROP_SCAN_DUNE                                 );  break;
 		case PROP_ACTIVE_PID:							print(string, len, "%x PROP_ACTIVE_PID                        ", PROP_ACTIVE_PID                                );  break;
+		case PROP_RUSH:									print(string, len, "%x PROP_RUSH                              ", PROP_RUSH		                                );  break;
 
 		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING         ", BEACON_ENABLE_PERIODIC_SENDING					);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING        ", BEACON_DISABLE_PERIODIC_SENDING				);	break;
@@ -696,7 +697,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_WARN_Y:						if(msg->data.prop_warn_y.y) print(string, len, "| avertisseur en y=%d\n", msg->data.prop_warn_y.y);                                  else print(string, len, "désactivation de l'avertisseur en Y\n");		break;
 		case PROP_WARN_DISTANCE:                if(msg->data.prop_warn_distance.distance) print(string, len, "| avertisseur au point x=%d  y=%d  distance=%d\n", msg->data.prop_warn_distance.x, msg->data.prop_warn_distance.y, msg->data.prop_warn_distance.distance);            else print(string, len, "désactivation de l'avertisseur en distance\n");		break;
 		case DEBUG_PROP_MOVE_POSITION:			print(string, len, "| offset d'aleration x : %d    y : %d    teta : %d\n", msg->data.debug_prop_move_position.xOffset, msg->data.debug_prop_move_position.yOffset, msg->data.debug_prop_move_position.tetaOffset);	break;
-		case PROP_ACTIVE_PID:					print(string, len, " : %s\n",(msg->data.prop_active_pid.state)?"Enable":"Disable");	break;
+		case PROP_ACTIVE_PID:					print(string, len, "| %s\n",(msg->data.prop_active_pid.state)?"Enable":"Disable");	break;
+		case PROP_RUSH:							print(string, len, "| %s\n",(msg->data.prop_rush.rush)?"Enable":"Disable");	break;
+
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_SWITCH:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_GET_SWITCH:					print_ihm_result(msg, &string, &len);			break;
