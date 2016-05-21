@@ -120,11 +120,6 @@ void _ISR _T2Interrupt()
 	IT_test_state(begin_it_time, IT_STATE_ODOMETRY, &first_overtime);
 
 	//Sauvegarde de l'état du système, en mode debug...
-
-	#ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
-		void debug_save_structure_global(void);
-	#endif
-
 	SECRETARY_process_it();
 	IT_test_state(begin_it_time, IT_STATE_SECRETARY, &first_overtime);
 
@@ -163,13 +158,7 @@ void _ISR _T2Interrupt()
 		IT_test_state(begin_it_time, IT_STATE_CHOC_DETECTION, &first_overtime);
 	#endif
 
-	#ifdef MODE_PRINTF_TABLEAU
-		debug_print_tableau();
-	#endif
-
-	#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-		DEBUG_process_it();
-	#endif
+	DEBUG_process_it();
 	IT_test_state(begin_it_time, IT_STATE_DEBUG, &first_overtime);
 
 	// Affichage des leds toutes les 500ms
