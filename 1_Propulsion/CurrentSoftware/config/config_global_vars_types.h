@@ -17,7 +17,7 @@
 	typedef struct {
 		Sint16 x;		//[mm]
 		Sint16 y;		//[mm]
-		Sint16 teta;	//[rad/4096]
+		Sint16 teta;	//[rad.4096]
 	}position_t;
 
 	typedef enum {

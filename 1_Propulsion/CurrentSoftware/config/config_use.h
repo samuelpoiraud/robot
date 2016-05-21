@@ -66,9 +66,9 @@
 
 	#define FDP_2016
 
-	//#define SCAN_BLOC
+	#define BUFFER_SIZE 64	//maximum : 255
 
-	//#define MATLAB_ASSER
+	//#define SCAN_BLOC
 
 	//#define DISABLED_BALISE_AVOIDANCE		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Désactivation de l'évitement balise
 
@@ -82,6 +82,8 @@
 			#warning "Le mode réglage KV a besoin du VERBOSE_MODE"
 		#endif
 	#endif
+
+	//#define MODE_PRINT_FIRST_TRAJ		// Il est recommandé de baisser le baudrate pour éviter les erreurs de transmission et le flood du récepteur
 
 	//#define MODE_PRINTF_TABLEAU		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...
 

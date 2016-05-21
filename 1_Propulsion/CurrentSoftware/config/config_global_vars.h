@@ -42,27 +42,27 @@
 		volatile position_t position;
 		// x 		[mm]
 		// y 		[mm]
-		// teta 	[rad/4096]		<<12
+		// teta 	[rad.4096]
 
 
 		///REFERENTIEL IT///////////////////////////////////////////
 
 		//Vitesse réelle du robot mesurée pour 5ms
-		volatile Sint32 real_speed_translation;		//[mm/4096/5ms]		<<12 /5ms
-		volatile Sint32 real_speed_rotation;		//[rad/4096/1024/5ms]	<<22
-		volatile Sint32 real_speed_translation_for_accelero;   //[mm/4096/5ms]		<<12 /5ms
+		volatile Sint32 real_speed_translation;					//[mm.4096/5ms]			<<12 /5ms
+		volatile Sint32 real_speed_rotation;					//[rad.4096.1024/5ms]	<<22 /5ms
+		volatile Sint32 real_speed_translation_for_accelero;	//[mm.4096/5ms]			<<12 /5ms
 
 		//Distance et Angle réellement parcourue par le robot mesurée pour 5ms
 		//Dans le référentiel IT
-		volatile Sint32 real_position_translation;	//[mm/4096]  <<12
-		volatile Sint32 real_position_rotation;		//[rad/4096/1024] <<22
+		volatile Sint32 real_position_translation;				//[mm.4096]				<<12
+		volatile Sint32 real_position_rotation;					//[rad.4096.1024]		<<22
 
 		//Ces écarts correspondent à la différence entre les coordonnées du point fictif et les coordonnées réelles du robot.
-		volatile Sint32 ecart_translation;			//[mm/4096]  <<12
-		volatile Sint32 ecart_rotation;				//[rad/4096] <<12
-		volatile Sint32 ecart_translation_prec;		//[mm/4096]  <<12
-		volatile Sint32 ecart_rotation_prec;		//[rad/4096] <<12
-		volatile Sint32 ecart_rotation_somme;       //[rad/4096] <<12
+		volatile Sint32 ecart_translation;						//[mm.4096]				<<12
+		volatile Sint32 ecart_rotation;							//[rad.4096.1024]		<<22
+		volatile Sint32 ecart_translation_prec;					//[mm.4096]				<<12
+		volatile Sint32 ecart_rotation_prec;					//[rad.4096.1024]		<<22
+		volatile Sint32 ecart_rotation_somme;					//[rad.4096.1024]		<<22
 
 		//////////////////////////////////////////////////////////
 
@@ -70,26 +70,38 @@
 
 		//Accélérations, vitesses, positions DU POINT FICTIF calculées par la gestion des trajectoires
 
-		volatile Sint32 acceleration_translation;	//[mm/4096/5ms/5ms]
-		volatile Sint32 vitesse_translation;		//[mm/4096/5ms]
-		volatile Sint32 position_translation; 		//[mm/4096]
+		volatile Sint32 acceleration_translation;				//[mm.4096/5ms/5ms]
+		volatile Sint32 vitesse_translation;					//[mm.4096/5ms]
+		volatile Sint32 position_translation;					//[mm.4096]
 
 
-		volatile Sint32 acceleration_rotation;		//[rad/4096/1024/5ms/5ms]
-		volatile Sint32 vitesse_rotation;			//[rad/4096/1024/5ms]
-		volatile Sint32 position_rotation;			//[rad/4096]
+		volatile Sint32 acceleration_rotation;					//[rad.4096.1024/5ms/5ms]
+		volatile Sint32 vitesse_rotation;						//[rad.4096.1024/5ms]
+		volatile Sint32 position_rotation;						//[rad.4096.1024]
 
 
 		//Dernières vitesse avant erreur
-		volatile Sint32 vitesse_translation_erreur;	//[mm/5ms]   /5ms
-		volatile Sint32 vitesse_rotation_erreur;	//[rad/1024]   <<10
+		volatile Sint32 vitesse_translation_erreur;				//[mm/5ms]
+		volatile Sint32 vitesse_rotation_erreur;				//[rad.1024]
+
+		//Pwm en sortie du correcteur
+		volatile Sint16 pwmG;
+		volatile Sint16 pwmD;
+
+		//Distance restante dans la trajectoire
+		volatile Sint32 translation_restante;					//[mm.4096]
+		volatile Sint32 rotation_restante;						//[rad.4096.1024]
+
+		//Distance nécessaire pour freiner
+		volatile Sint32 distance_frein;							//[mm.4096]
+		volatile Sint32 angle_frein;							//[rad.4096.1024]
 
 		//////////////////////////////////////////////////////////
 
 		// Etat alimentation
-		volatile Uint16 alim_value;					// en mV
+		volatile Uint16 alim_value;								//[mV]
 
-		volatile time32_t absolute_time;
+		volatile time32_t absolute_time;						//[ms]
 
 		volatile debug_t debug;
 	}global_data_storage_t;
