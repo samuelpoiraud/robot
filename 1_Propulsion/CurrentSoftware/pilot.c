@@ -579,37 +579,19 @@ static void PILOT_update_acceleration_translation_and_rotation(void) {
 		boost_asser = FALSE;
 	}
 
-	/*if(COPILOT_braking_rotation_get() == BRAKING && extra_braking_rotation)
-	{
-		prot = prot * 2; // 3/2
-	}*/
-	/*if(COPILOT_braking_translation_get() == BRAKING && extra_braking_translation)
-	{
-		if(in_rush)
-			ptrans = ptrans*1.3;
-		else
-			ptrans = ptrans*2;
-		//ptrans = ptrans* 2; // 3/2
-	}*/
-
-	if(COPILOT_get_trajectory() == TRAJECTORY_STOP && QS_WHO_AM_I_get() == BIG_ROBOT)
-	{
-		if(in_rush)
-			ptrans = ptrans;
-		else
-			ptrans = ptrans*2;
-		prot = prot * 2;
-	}
-
 	Sint32 coef_acceleration_translation;
 	Sint32 coef_acceleration_rotation;
 
-	if(extra_braking_translation)
+	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
+		coef_acceleration_translation = 160;
+	else if(extra_braking_translation)
 		coef_acceleration_translation = extra_braking_translation_value;
 	else
 		coef_acceleration_translation = coefs[PILOT_ACCELERATION_NORMAL];
 
-	if(extra_braking_rotation)
+	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
+		coef_acceleration_rotation = 160;
+	else if(extra_braking_rotation)
 		coef_acceleration_rotation = extra_braking_rotation_value;
 	else
 		coef_acceleration_rotation = coefs[PILOT_ACCELERATION_NORMAL];
