@@ -674,7 +674,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 			break;
 		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", msg->data.debug_propulsion_set_coef.id, msg->data.debug_propulsion_set_coef.value);	break;
-		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%d\n", msg->data.debug_propulsion_set_acceleration.acceleration_coef);								break;
+		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%ld\n", msg->data.debug_propulsion_set_acceleration.acceleration_coef);								break;
 		case IR_ERROR_RESULT:					print_ir_result(msg, &string, &len);									break;
 
 		case DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT :	print(string, len, "| duration : %dms  section : %s\n", msg->data.debug_propulsion_erreur_recouvrement_it.duration, it_state_name[msg->data.debug_propulsion_erreur_recouvrement_it.id_it_state_name]);										break;
