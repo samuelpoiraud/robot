@@ -12,9 +12,10 @@
 
 #include "calculator.h"
 #include "QS/QS_maths.h"
+
 /* calcul de la distance que l'on a à parcourir entre la position actuelle et la position finale ( en mm ) OK
 et calcul de l'angle */
-Sint32 CALCULATOR_viewing_algebric_distance(Sint16 start_x, Sint16 start_y, Sint16 destination_x, Sint16 destination_y, Sint16 angle_de_vue)
+Sint32 CALCULATOR_viewing_algebric_distance(Sint32 start_x, Sint32 start_y, Sint32 destination_x, Sint32 destination_y, Sint32 angle_de_vue)
 {
 	Sint32 deltaX,deltaY;
 	deltaX= absolute(destination_x - start_x);
@@ -28,10 +29,25 @@ Sint32 CALCULATOR_viewing_algebric_distance(Sint16 start_x, Sint16 start_y, Sint
 	// en mm
 }
 
-//retourne l'angle de la destination...[rad/4096]
-Sint16 CALCULATOR_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destination_x, Sint16 destination_y)
+/* calcul de la distance que l'on a à parcourir entre la position actuelle et la position finale ( en mm.4096 ) OK
+et calcul de l'angle, valeur d'entrée en [mm.16] et [rad.4096]*/
+Sint32 CALCULATOR_viewing_algebric_distance_mm16(Sint32 start_x, Sint32 start_y, Sint32 destination_x, Sint32 destination_y, Sint32 angle_de_vue)
 {
-	Sint16 deltaX,deltaY;
+	Sint32 deltaX,deltaY;
+	deltaX= absolute(destination_x - start_x);
+	deltaY= absolute(destination_y - start_y);
+
+	if(absolute(angle_de_vue) > PI4096/2)
+		return -(float)sqrt( deltaX*deltaX + deltaY*deltaY )*256;
+	else
+		return (float)sqrt( deltaX*deltaX + deltaY*deltaY )*256;
+	// en mm
+}
+
+//retourne l'angle de la destination...[rad.4096]
+Sint16 CALCULATOR_viewing_angle(Sint32 start_x, Sint32 start_y, Sint32 destination_x, Sint32 destination_y)
+{
+	Sint32 deltaX,deltaY;
 	deltaX= destination_x - start_x;
 	deltaY= destination_y - start_y;
 	if(deltaX || deltaY)
@@ -40,7 +56,19 @@ Sint16 CALCULATOR_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destinati
 		return 0;
 }
 
-Sint16 CALCULATOR_modulo_angle(Sint16 angle)
+//retourne l'angle de la destination...[rad.4096.1024]
+Sint32 CALCULATOR_viewing_angle_22(Sint32 start_x, Sint32 start_y, Sint32 destination_x, Sint32 destination_y)
+{
+	Sint32 deltaX,deltaY;
+	deltaX= destination_x - start_x;
+	deltaY= destination_y - start_y;
+	if(deltaX || deltaY)
+		return (float)atan2(deltaY,deltaX)*4096*1024;
+	else
+		return 0;
+}
+
+Sint16	CALCULATOR_modulo_angle(Sint16 angle)
 {
 	while(angle > PI4096)
 			angle -= 2*PI4096;
