@@ -294,7 +294,7 @@ void PROP_set_position(Sint16 x, Sint16 y, Sint16 teta)
 }
 
 //Acceleration en mm/4096/5ms/5ms..
-void PROP_set_acceleration(Uint16 acceleration)
+void PROP_set_acceleration(Uint32 acceleration)
 {
 	CAN_msg_t msg;
 	msg.sid = DEBUG_PROPULSION_SET_ACCELERATION;

@@ -321,7 +321,8 @@
 		SLOW_TRANSLATION_AND_FAST_ROTATION,
 		FAST_TRANSLATION_AND_SLOW_ROTATION,
 		EXTREMELY_VERY_SLOW,
-		CUSTOM	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
+		CUSTOM,	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
+		MAX_SPEED = 0xFFFF
 	 } PROP_speed_e;
 
 	typedef enum{

@@ -34,7 +34,7 @@
 		Sint16 x						:13;		// [mm]
 		Sint8 speed_trans				:3;			// [250 mm/sec]
 		Sint16 y						:13;		// [mm]
-		Sint8 speed_rot					:3;			// [wtf]
+		Sint8 speed_rot					:3;			// [rad/sec]
 		Sint16 angle					:16;		// [PI4096]
 		prop_warning_reason_e reason	:8;
 		SUPERVISOR_error_source_e error	:3;
@@ -484,11 +484,11 @@
 
 
 		#define PROP_GO_POSITION			0x155
-		#define SIZE_PROP_GO_POSITION		7
+		#define SIZE_PROP_GO_POSITION		8
 			struct{
 				Sint16 x						:16;	// [mm]
 				Sint16 y						:16;	// [mm]
-				PROP_speed_e speed				:8;
+				PROP_speed_e speed				:16;
 				way_e way						:2;
 				avoidance_e avoidance			:4;
 				prop_acknowledge_e acknowledge	:1;
@@ -501,10 +501,10 @@
 
 
 		#define PROP_GO_ANGLE				0x177
-		#define SIZE_PROP_GO_ANGLE			4
+		#define SIZE_PROP_GO_ANGLE			5
 			struct{
 				Sint16 teta						:16;	// [PI4096]
-				PROP_speed_e speed				:8;
+				PROP_speed_e speed				:16;
 				way_e way						:2;
 				prop_acknowledge_e acknowledge	:1;
 				prop_multipoint_e multipoint	:1;
@@ -770,9 +770,9 @@
 			}debug_trajectory_for_test_coefs_done;
 
 		#define DEBUG_PROPULSION_SET_ACCELERATION		0x713
-		#define SIZE_DEBUG_PROPULSION_SET_ACCELERATION	2
+		#define SIZE_DEBUG_PROPULSION_SET_ACCELERATION	4
 			struct{
-				Uint16 acceleration_coef		:16;	// [mm/4096/5ms/5ms]
+				Uint32 acceleration_coef		:32;	// [mm.4096/5ms/5ms]
 			}debug_propulsion_set_acceleration;
 
 		#define DEBUG_SET_ERROR_TRESHOLD_TRANSLATION	0x714

@@ -119,7 +119,7 @@
 	//Modifie l'état des correcteurs de la propulsion. (attention, les correcteurs sont remis à un bon fonctionnement à chaque nouvel ordre de déplacement !)
 	//Cela permet notamment de désasservir le robot lorsqu'on le souhaite...
 
-	void PROP_set_acceleration(Uint16 acceleration);
+	void PROP_set_acceleration(Uint32 acceleration);
 
 	/* Demande un envoi par la propulsion de l'ensemble de ses coefs */
 	void PROP_ask_propulsion_coefs(void);
