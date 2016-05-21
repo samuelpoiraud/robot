@@ -22,57 +22,77 @@
 #include "joystick.h"
 #include "QS/QS_who_am_i.h"
 
-typedef enum {
+/**
+ *	Defines
+ */
+
+#define SOUS_QUANTIFICATION (0)	//Simplification de la courbe (permet de réduire le nombre de calculs de sinus..) Doit être une puissance de 2...
+
+
+/**
+ *	Types
+ */
+
+typedef enum{
 	ACCELERATION_NULLE,
 	ACCELERATION_POSITIVE,
 	ACCELERATION_NEGATIVE,
 	ACCELERATION_FOR_DECREASE_SPEED,
 	ACCELERATION_FOR_INCREASE_SPEED
-} e_acceleration;
+}e_acceleration;
 
-typedef enum {
+typedef enum{
 	AUCUN,
 	ACCELERATION,
 	DECELERATION
-} relative_acceleration_e;
+}relative_acceleration_e;
 
-void PILOT_update_acceleration_state(void);
-void PILOT_update_acceleration_translation_and_rotation(void);
+/**
+ *	Variables locales
+ */
 
-void PILOT_update_speed_translation(void);
-void PILOT_update_speed_rotation(void);
-
-void PILOT_update_position_translation(void);
-void PILOT_update_position_rotation(void);
-void PILOT_set_extra_braking_translation(bool_e enable);
-void PILOT_set_extra_braking_rotation(bool_e enable);
-
+static volatile Sint32 coefs[PILOT_NUMBER_COEFS];
 
 //Coordonnées de la destination dans le référentiel IT
-volatile Sint32 destination_rotation;		//[rad/4096] <<12
-volatile Sint32 destination_translation;	//[mm/4096] <<12
+static volatile Sint32 destination_rotation;				//[rad.4096.1024]
+static volatile Sint32 destination_translation;				//[mm.4096]
 
-volatile bool_e extra_braking_translation = FALSE;
-volatile bool_e extra_braking_rotation = FALSE;
-volatile Sint32	rotation_frein;
+static volatile bool_e extra_braking_translation = FALSE;
+static volatile bool_e extra_braking_rotation = FALSE;
+static volatile Sint32 extra_braking_translation_value;		//[mm.4096/5ms/5ms]
+static volatile Sint32 extra_braking_rotation_value;		//[mm.4096/5ms/5ms]
 
-volatile e_acceleration etat_acceleration_translation;
-volatile e_acceleration etat_acceleration_rotation;
+static volatile e_acceleration etat_acceleration_translation;
+static volatile e_acceleration etat_acceleration_rotation;
 
-volatile Sint32 vitesse_translation_max;
-volatile Sint32 vitesse_rotation_max;
+static volatile Sint32 vitesse_translation_max;				//[mm.4096/5ms]
+static volatile Sint32 vitesse_rotation_max;				//[rad.4096.1024/5ms]
 
-volatile Sint32 coefs[PILOT_NUMBER_COEFS];
+static volatile bool_e in_rush = FALSE;
+static volatile bool_e boost_asser = FALSE;
 
-volatile static bool_e in_rush = FALSE;
-volatile static bool_e boost_asser = FALSE;
+/**
+ *	Prototypes
+ */
+static void PILOT_reset_default_coef(PILOT_coef_e id);
 
-#define SOUS_QUANTIFICATION (0)	//Simplification de la courbe (permet de réduire le nombre de calculs de sinus..) Doit être une puissance de 2...
+static void PILOT_update_acceleration_state(void);
+static void PILOT_update_acceleration_translation_and_rotation(void);
+
+static void PILOT_update_speed_translation(void);
+static void PILOT_update_speed_rotation(void);
+
+static void PILOT_update_position_translation(void);
+static void PILOT_update_position_rotation(void);
+
+/**
+ *	Fonctions
+ */
 
 void PILOT_init(void)
 {
-	CORRECTOR_init();
 	MOTORS_init();
+	CORRECTOR_init();
 	PILOT_set_speed(FAST);
 	PILOT_referential_init();
 	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
@@ -107,12 +127,45 @@ void PILOT_init(void)
 	}
 }
 
-Sint32 PILOT_get_coef(PILOT_coef_e id)
+void PILOT_process_it(void)
 {
-	return coefs[id];
+
+
+	PILOT_update_acceleration_translation_and_rotation();
+
+	PILOT_update_speed_translation();
+	PILOT_update_speed_rotation();
+
+	PILOT_update_position_translation();
+	PILOT_update_position_rotation();
+
+	CORRECTOR_update();
 }
 
-void PILOT_reset_default_coef(PILOT_coef_e id)
+void PILOT_referential_init(void)
+{
+	global.vitesse_rotation = 0;
+	global.vitesse_translation = 0;
+	COPILOT_reset_absolute_destination();
+}
+
+//remise a zéro du référentiel IT... attention a ne pas le faire n'importe quand...
+//le point fictif est ici ramené au point actuel... attention, ça peut être violent (freinage brusque...)
+void PILOT_referential_reset(void)
+{
+	global.position_translation = 0;
+	global.position_rotation = 0;
+
+	global.real_position_translation = 0;
+	global.real_position_rotation = 0;
+
+	global.ecart_translation_prec = 0;
+	global.ecart_rotation_prec = 0;
+
+	//pas de discontinuité de vitesse...
+}
+
+static void PILOT_reset_default_coef(PILOT_coef_e id)
 {
 
 	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
@@ -160,81 +213,13 @@ void PILOT_reset_default_coef(PILOT_coef_e id)
 }
 
 
-//Attention... a utiliser avec des valeurs pertinentes......
-//Pour une valeur demandée à 0 -> retour au coef par défaut.
-void PILOT_set_coef(PILOT_coef_e id, Sint32 value)
-{
-	if(value)
-		coefs[id] = value;
-	else
-		PILOT_reset_default_coef(id);
-}
-
-void PILOT_referential_init(void)
-{
-	global.vitesse_rotation = 0;
-	global.vitesse_translation = 0;
-	COPILOT_reset_absolute_destination();
-}
-
-
-
-//remise a zéro du référentiel IT... attention a ne pas le faire n'importe quand...
-//le point fictif est ici ramené au point actuel... attention, ça peut être violent (freinage brusque...)
-void PILOT_referential_reset()
-{
-	global.position_translation = 0;
-	global.position_rotation = 0;
-
-	global.real_position_translation = 0;
-	global.real_position_rotation = 0;
-
-	global.ecart_translation_prec = 0;
-	global.ecart_rotation_prec = 0;
-
-	//pas de discontinuité de vitesse...
-}
-
-void PILOT_process_it(void)
-{
-
-
-	PILOT_update_acceleration_translation_and_rotation();
-
-	PILOT_update_speed_translation();
-	PILOT_update_speed_rotation();
-
-	PILOT_update_position_translation();
-	PILOT_update_position_rotation();
-
-	CORRECTOR_update();
-}
-
-
-void PILOT_set_destination_rotation(Sint32 dest)
-{
-	destination_rotation = dest;
-}
-
-void PILOT_set_destination_translation(Sint32 dest)
-{
-	destination_translation = dest;
-}
-
-Sint32 PILOT_get_destination_translation(void)
-{
-	return destination_translation;
-}
-
-Sint32 PILOT_get_destination_rotation(void)
-{
-	return destination_rotation;
-}
-
-
+///--------------------------------------------------------------------------------------------------------------
+///------------------------------------------Mise à jours des valeurs--------------------------------------------
+///--------------------------------------------------------------------------------------------------------------
+///
 				//[en de puissance de 2...] ! (si = 7 : on sous quantifie de 64...)
 				//NE PAS CHANGER CETTE VALEUR... sans connaissance absolue de toutes les unités et limites des variables de cette fonctions.
-void PILOT_update_acceleration_state(void)
+static void PILOT_update_acceleration_state(void)
 {
 	static Sint32 vrot;			//[rad/4096/1024/5ms]
 	static Sint32 vtrans;		//[mm/4096/5ms]
@@ -253,10 +238,12 @@ void PILOT_update_acceleration_state(void)
 	etat_acceleration_rotation = ACCELERATION_NULLE;
 	etat_acceleration_translation = ACCELERATION_NULLE;
 
+	boost_asser = FALSE;
+
 	//Conditions d'entrée.
 	vrot = global.vitesse_rotation;
 	vtrans = global.vitesse_translation;
-	alpha = destination_rotation;	//rad/4096
+	alpha = destination_rotation >> 10;	//rad.4096.1024
 	d = destination_translation >> 12;	//mm
 
 	alpha = CALCULATOR_modulo_angle(alpha);
@@ -410,7 +397,6 @@ void PILOT_update_acceleration_state(void)
 			}
 		}
 
-		boost_asser = FALSE;
 
 		if(bdroite && bgauche){	//Cool ! Le point est accessible
 			etat_acceleration_rotation = ACCELERATION_FOR_INCREASE_SPEED;
@@ -433,7 +419,6 @@ void PILOT_update_acceleration_state(void)
 
 	if (COPILOT_braking_rotation_get() == BRAKING){
 		etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
-		boost_asser = FALSE;
 	}
 
 
@@ -455,16 +440,36 @@ void PILOT_update_acceleration_state(void)
 		boost_asser = FALSE;
 	}
 
+
+
 	//Ecretage vitesse si la vitesse max a changé...
-	if (absolute(global.vitesse_rotation) > absolute(vitesse_rotation_max)){
+	if (etat_acceleration_translation == ACCELERATION_FOR_INCREASE_SPEED
+			&& absolute(global.vitesse_rotation) > absolute(vitesse_rotation_max)
+			&& absolute(global.vitesse_rotation) < absolute(vitesse_rotation_max) * 1.1){
+
+		etat_acceleration_rotation = ACCELERATION_NULLE;
+
+	}else if(absolute(global.vitesse_rotation) > absolute(vitesse_rotation_max)*1.1){
+
 		etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
 		boost_asser = FALSE;
 	}
 
-	if (absolute(global.vitesse_translation) > absolute(vitesse_translation_max)){
+
+
+	if (etat_acceleration_translation == ACCELERATION_FOR_INCREASE_SPEED
+			&& absolute(global.vitesse_translation) > absolute(vitesse_translation_max)
+			&& absolute(global.vitesse_translation) < absolute(vitesse_translation_max)*1.1){
+
+		etat_acceleration_translation = ACCELERATION_NULLE;
+
+	}else if(absolute(global.vitesse_translation) > absolute(vitesse_translation_max)*1.1){
+
 		etat_acceleration_translation = ACCELERATION_FOR_DECREASE_SPEED;
 		boost_asser = FALSE;
 	}
+
+
 
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
 	{
@@ -472,6 +477,7 @@ void PILOT_update_acceleration_state(void)
 		etat_acceleration_rotation = ACCELERATION_FOR_DECREASE_SPEED;
 		boost_asser = FALSE;
 	}
+
 	if(SUPERVISOR_get_state() == SUPERVISOR_ERROR)
 	{
 		etat_acceleration_translation = ACCELERATION_NULLE;
@@ -480,9 +486,7 @@ void PILOT_update_acceleration_state(void)
 	}
 }
 
-
-
-void PILOT_update_acceleration_translation_and_rotation(void) {
+static void PILOT_update_acceleration_translation_and_rotation(void) {
 	/*ratios pour la rÃ©alisaton d'une courbure*/
 	Sint32 prot, ptrans;
 
@@ -575,18 +579,18 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 		boost_asser = FALSE;
 	}
 
-	if(COPILOT_braking_rotation_get() == BRAKING && extra_braking_rotation)
+	/*if(COPILOT_braking_rotation_get() == BRAKING && extra_braking_rotation)
 	{
 		prot = prot * 2; // 3/2
-	}
-	if(COPILOT_braking_translation_get() == BRAKING && extra_braking_translation)
+	}*/
+	/*if(COPILOT_braking_translation_get() == BRAKING && extra_braking_translation)
 	{
 		if(in_rush)
 			ptrans = ptrans*1.3;
 		else
 			ptrans = ptrans*2;
 		//ptrans = ptrans* 2; // 3/2
-	}
+	}*/
 
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP && QS_WHO_AM_I_get() == BIG_ROBOT)
 	{
@@ -597,19 +601,34 @@ void PILOT_update_acceleration_translation_and_rotation(void) {
 		prot = prot * 2;
 	}
 
+	Sint32 coef_acceleration_translation;
+	Sint32 coef_acceleration_rotation;
+
+	if(extra_braking_translation)
+		coef_acceleration_translation = extra_braking_translation_value;
+	else
+		coef_acceleration_translation = coefs[PILOT_ACCELERATION_NORMAL];
+
+	if(extra_braking_rotation)
+		coef_acceleration_rotation = extra_braking_rotation_value;
+	else
+		coef_acceleration_rotation = coefs[PILOT_ACCELERATION_NORMAL];
+
+
 	if(boost_asser){
-		global.acceleration_translation = ((coefs[PILOT_ACCELERATION_NORMAL] * ptrans) / 64) * 2 / 3;
-		global.acceleration_rotation = ((coefs[PILOT_ACCELERATION_NORMAL] * prot) / 64) * 1 / 3;
+		global.acceleration_translation = ((coef_acceleration_translation * ptrans) / 64) * BIG_ACCELERATION_RUSH_TRANS;
+		global.acceleration_rotation = ((coef_acceleration_rotation * prot) / 64) * BIG_ACCELERATION_RUSH_ROT;
 	}else{
-		global.acceleration_translation = (coefs[PILOT_ACCELERATION_NORMAL] * ptrans) / 64;
-		global.acceleration_rotation = (coefs[PILOT_ACCELERATION_NORMAL] * prot) / 64;
+		global.acceleration_translation = (coef_acceleration_translation * ptrans) / 64;
+		global.acceleration_rotation = (coef_acceleration_rotation * prot) / 64;
 	}
+
 
 	//ce coeff dï¿½pend de la distance entre les roues de propulsions...
 	global.acceleration_rotation *= coefs[PILOT_ACCELERATION_ROTATION_TRANSLATION];
 }
 
-void PILOT_update_speed_translation() {
+static void PILOT_update_speed_translation(void) {
 
 	if(etat_acceleration_translation == ACCELERATION_FOR_DECREASE_SPEED
 			&& absolute(global.vitesse_translation) < absolute(global.acceleration_translation))
@@ -621,7 +640,7 @@ void PILOT_update_speed_translation() {
 		global.vitesse_translation = 0;
 }
 
-void PILOT_update_speed_rotation() {
+static void PILOT_update_speed_rotation(void) {
 
 	if(etat_acceleration_rotation == ACCELERATION_FOR_DECREASE_SPEED
 			&& absolute(global.vitesse_rotation) < absolute(global.acceleration_rotation))
@@ -633,7 +652,7 @@ void PILOT_update_speed_rotation() {
 		global.vitesse_rotation = 0;
 }
 
-void PILOT_update_position_translation()
+static void PILOT_update_position_translation(void)
 {
 	//mise à jour des positions voulues suivant les vitesses voulues calculï¿½es plus haut...
 
@@ -652,7 +671,7 @@ void PILOT_update_position_translation()
 		global.position_translation += global.vitesse_translation;
 }
 
-void PILOT_update_position_rotation()
+static void PILOT_update_position_rotation(void)
 {
 	if (COPILOT_is_arrived_rotation())
 	{
@@ -662,11 +681,30 @@ void PILOT_update_position_rotation()
 		else //si on est ARRIVE en traj normale, on prend la position du point final
 			global.position_rotation = destination_rotation;
 	} else	//si on est pas arrivï¿½, on continue...
-		global.position_rotation += global.vitesse_rotation >> 10;
-	global.position_rotation = CALCULATOR_modulo_angle(global.position_rotation);
+		global.position_rotation += global.vitesse_rotation;
+	global.position_rotation = CALCULATOR_modulo_angle_22(global.position_rotation);
 }
 
 
+///--------------------------------------------------------------------------------------------------------------
+///--------------------------------------------Accesseur et Mutateur---------------------------------------------
+///--------------------------------------------------------------------------------------------------------------
+
+
+//Attention... a utiliser avec des valeurs pertinentes......
+//Pour une valeur demandée à 0 -> retour au coef par défaut.
+void PILOT_set_coef(PILOT_coef_e id, Sint32 value)
+{
+	if(value)
+		coefs[id] = value;
+	else
+		PILOT_reset_default_coef(id);
+}
+
+Sint32 PILOT_get_coef(PILOT_coef_e id)
+{
+	return coefs[id];
+}
 
 void PILOT_set_speed(PROP_speed_e speed)
 {
@@ -705,25 +743,49 @@ void PILOT_set_speed(PROP_speed_e speed)
 	}
 }
 
-
-void PILOT_set_extra_braking_rotation(bool_e enable)
+void PILOT_set_extra_braking_rotation(bool_e enable, Sint32 value)
 {
 	extra_braking_rotation = enable;
+	extra_braking_rotation_value = value;
 }
 
-void PILOT_set_extra_braking_translation(bool_e enable)
+void PILOT_set_extra_braking_translation(bool_e enable, Sint32 value)
 {
 	extra_braking_translation = enable;
+	extra_braking_translation_value = value;
 }
 
-void PILOT_set_in_rush(bool_e in_rush_msg){
+void PILOT_set_in_rush(bool_e in_rush_msg)
+{
 	in_rush = in_rush_msg;
 }
 
-bool_e PILOT_get_boost_asser(){
+bool_e PILOT_get_in_rush(void)
+{
+	return in_rush;
+}
+
+bool_e PILOT_get_boost_asser(void)
+{
 	return boost_asser;
 }
 
-bool_e PILOT_get_in_rush(){
-	return in_rush;
+void PILOT_set_destination_rotation(Sint32 dest)
+{
+	destination_rotation = dest;
+}
+
+void PILOT_set_destination_translation(Sint32 dest)
+{
+	destination_translation = dest;
+}
+
+Sint32 PILOT_get_destination_translation(void)
+{
+	return destination_translation;
+}
+
+Sint32 PILOT_get_destination_rotation(void)
+{
+	return destination_rotation;
 }

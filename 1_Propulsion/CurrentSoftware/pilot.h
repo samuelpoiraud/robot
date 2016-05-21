@@ -34,30 +34,27 @@
 
 
 	void PILOT_init(void);
-
-	Sint32 PILOT_get_coef(PILOT_coef_e id);
-	void PILOT_set_coef(PILOT_coef_e id, Sint32 value);
-
 	void PILOT_process_it(void);
+
+	void PILOT_referential_init(void);
+	void PILOT_referential_reset(void);
+
+	void PILOT_set_coef(PILOT_coef_e id, Sint32 value);
+	Sint32 PILOT_get_coef(PILOT_coef_e id);
 
 	void PILOT_set_speed(PROP_speed_e speed);
 
-	void PILOT_referential_init(void);
-
-	void PILOT_referential_reset(void);
-	void PILOT_new_order(void);
-
-
-	Sint32 PILOT_get_destination_rotation(void);
-	Sint32 PILOT_get_destination_translation(void);
-	void PILOT_set_destination_rotation(Sint32 dest);
-	void PILOT_set_destination_translation(Sint32 dest);
-
-	void PILOT_set_extra_braking_rotation(bool_e enable);
-	void PILOT_set_extra_braking_translation(bool_e enable);
+	void PILOT_set_extra_braking_rotation(bool_e enable, Sint32 value);
+	void PILOT_set_extra_braking_translation(bool_e enable, Sint32 value);
 
 	void PILOT_set_in_rush(bool_e in_rush_msg);
-	bool_e PILOT_get_boost_asser();
-	bool_e PILOT_get_in_rush();
+	bool_e PILOT_get_in_rush(void);
+	bool_e PILOT_get_boost_asser(void);
+
+	void PILOT_set_destination_rotation(Sint32 dest);
+	void PILOT_set_destination_translation(Sint32 dest);
+	Sint32 PILOT_get_destination_translation(void);
+	Sint32 PILOT_get_destination_rotation(void);
+
 
 #endif  //def _PILOT_H

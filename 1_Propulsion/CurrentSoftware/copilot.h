@@ -14,40 +14,32 @@
 	#include "roadmap.h"
 
 
-	typedef enum {
-			NOT_BRAKING = 0,
-			BRAKING
-	} braking_e;
+	typedef enum{
+		NOT_BRAKING = 0,
+		BRAKING
+	}braking_e;
 
 	void COPILOT_init(void);
+	void COPILOT_process_it(void);						//Consulte la roadmap pour savoir s'il faut set_order un nouvel ordre !
 
-	//Consulte la roadmap pour savoir s'il faut set_order un nouvel ordre !
-	void COPILOT_process_it(void);
+	void COPILOT_reset_absolute_destination(void);		//RAZ des destinations... (position actuelle considérée comme bonne)
 
-	void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint_without_reaching_destination);	//On essaye de lancer un nouvel ordre (abouti soit sur un do_order de cet ordre, soit sur un autre do_order temporaire...)
+	order_t COPILOT_get_current_order(void);
 
-	//Attention aux cas où l'ordre fait est différent de l'ordre tenté (rotation préalable notamment...)
-	void COPILOT_do_order(order_t * order);	//On réalise un nouvel ordre
+	volatile order_t* COPILOT_get_buffer_order(void);
+	void COPILOT_buffering_order(void);
 
-
-	//RAZ des destinations... (position actuelle considérée comme bonne)
-	void COPILOT_reset_absolute_destination(void);
-	void COPILOT_set_absolute_destination(Sint16 x, Sint16 y, Sint16 teta);
-	void COPILOT_updatrelative_e_destination_rotation(void);
-	void COPILOT_updatrelative_e_destination_translation(void);
-	way_e COPILOT_get_way(void);
-	border_mode_e COPILOT_get_border_mode(void);
-	trajectory_e COPILOT_get_trajectory(void);
-
-	bool_e COPILOT_is_arrived(void);
-	bool_e COPILOT_is_arrived_translation(void);
-	bool_e COPILOT_is_arrived_rotation(void);
 	braking_e COPILOT_braking_rotation_get(void);
-
 	braking_e COPILOT_braking_translation_get(void);
 
-	order_t COPILOT_get_current_order();
-	volatile order_t* COPILOT_get_buffer_order();
-	void COPILOT_buffering_order();
+	way_e COPILOT_get_way(void);
 
-	#endif	//def _COPILOT_H
+	bool_e COPILOT_is_arrived(void);
+	bool_e COPILOT_is_arrived_rotation(void);
+	bool_e COPILOT_is_arrived_translation(void);
+
+	border_mode_e COPILOT_get_border_mode(void);
+
+	trajectory_e COPILOT_get_trajectory(void);
+
+#endif	//def _COPILOT_H
