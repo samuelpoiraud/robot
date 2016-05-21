@@ -159,7 +159,7 @@ void CORRECTOR_update(void)
 */
 	// Calcul des écarts entre CONSIGNE (données par MAJ...) et REEL (Mesuré, cpld...)  [mm/4096] et [rad/4096]
 	global.ecart_translation = global.position_translation - global.real_position_translation; // positif si le robot doit avancer
-	global.ecart_rotation = global.position_rotation - (global.real_position_rotation >> 10);  //positif pour rotation dans le sens trigo
+	global.ecart_rotation = global.position_rotation - global.real_position_rotation;  //positif pour rotation dans le sens trigo
 	global.ecart_rotation_somme += global.ecart_rotation;
 	if(global.ecart_rotation_somme > 3000)
 		global.ecart_rotation_somme = 3000;
@@ -184,9 +184,9 @@ void CORRECTOR_update(void)
 
 	commande_rotation 	= (	(global.acceleration_rotation							 * coefs[CORRECTOR_COEF_KA_ROTATION])		+
 									(global.vitesse_rotation								 * coefs[CORRECTOR_COEF_KV_ROTATION])/2	+
-									(global.ecart_rotation 									 * coefs[CORRECTOR_COEF_KP_ROTATION]) 	+
-									(global.ecart_rotation_somme * pid_active                * coefs[CORRECTOR_COEF_KI_ROTATION])   +
-									((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION])
+									((global.ecart_rotation 									 * coefs[CORRECTOR_COEF_KP_ROTATION]) >> 10) 	+
+									((global.ecart_rotation_somme * pid_active                * coefs[CORRECTOR_COEF_KI_ROTATION]) >> 10)   +
+									(((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION]) >> 10)
 								  )>>10;
 
 #if 0	//Code a tester
@@ -211,19 +211,8 @@ void CORRECTOR_update(void)
 		duty_left -= commande_rotation;
 	}
 
-#ifdef MATLAB_ASSER
-	static Uint8 i = 0;
-	i++;
-	if(i > 50){
-		debug_printf("m\n");
-		debug_printf("%ld\n", global.position_translation);
-		debug_printf("%ld\n", global.real_position_translation);
-		debug_printf("%ld\n", global.position_rotation);
-		debug_printf("%ld\n", global.real_position_rotation);
-		i = 0;
-	}
-#endif
-
+	global.pwmD = duty_right;
+	global.pwmG = duty_left;
 
 	MOTORS_update(duty_left,duty_right);
 
