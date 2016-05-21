@@ -25,16 +25,14 @@
 #include "QS/QS_timer.h"
 
 volatile static Sint32 coefs[ODOMETRY_COEF_CENTRIFUGAL+1];
-static Sint32 total_teta = 0;       //[rad/1024/4096]
-static Sint32 max_total_teta = 0;   //[rad/1024/4096]
-static Uint32 total_dist_x = 0;       //[mm/65536]
-static Uint32 total_dist_y = 0;       //[mm/65536]
+static Sint32 total_teta = 0;								//[rad.1024.4096]
+static Sint32 max_total_teta = 0;							//[rad.1024.4096]
+static Uint32 total_dist_x = 0;								//[mm.65536]
+static Uint32 total_dist_y = 0;								//[mm.65536]
 
-
-
-volatile Sint32 x32;		//Position précise en x [mm/65536]		<<16
-volatile Sint32 y32;		//Position précise en y [mm/65536]		<<16
-volatile Sint32 teta32;		//Position précise en teta [rad/4096/1024]	<<22
+volatile Sint32 x32;		//Position précise en x			[mm.65536]		<<16
+volatile Sint32 y32;		//Position précise en y			[mm.65536]		<<16
+volatile Sint32 teta32;		//Position précise en teta		[rad.4096.1024]	<<22
 volatile color_e color;
 volatile Sint16 calibration_backward_border_distance;
 volatile Sint16 calibration_forward_border_distance;
@@ -138,6 +136,7 @@ color_e ODOMETRY_get_color(void)
 {
 	return color;
 }
+
 void ODOMETRY_set(Sint16 x, Sint16 y, Sint16 teta)
 {
 	//Permet d'imposer une positon au robot... utile pour les tests !!!
@@ -247,15 +246,15 @@ static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 
 void ODOMETRY_update(void)
 {
-	Sint16 cos,sin; 	//[pas d'unité/4096]
+	Sint16 cos,sin;			//[pas d'unité.16384]	<< 14
 	Sint32 cos32, sin32;
 	Sint32 left, right;
 	Sint32 left2, right2;
 	//deviation occasionné par la force centrifuge
 	Sint32 deviation_x;
 	Sint32 deviation_y;
-	Sint32 real_speed_x;	//[mm/65536/5ms]
-	Sint32 real_speed_y;	//[mm/65536/5ms]
+	Sint32 real_speed_x;	//[mm.65536/5ms]
+	Sint32 real_speed_y;	//[mm.65536/5ms]
 
 	//CALCUL PREALABLE...DES COS ET SIN...
 	//ATTENTION... le calcul des x et y se fait avec l'angle de la précédente IT, on considère qu'on s'est déplacé avec l'angle précédent...
@@ -271,7 +270,7 @@ void ODOMETRY_update(void)
 	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
 	global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
 
-	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm/4096/5ms] =  [impulsions + impulsions]*[mm/65536/impulsion/5ms]*[16]*[2]
+	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm.4096/5ms] =  [impulsions + impulsions]*[mm.65536/impulsion/5ms]*[16]*[2]
 	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
 	//calcul de la vitesse de l'accéléromètre pour le gros robot. L'accéléromètre est au dessus de la roue codeuse gauche
 	global.real_speed_translation_for_accelero = (Sint32)(((left)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4);
@@ -290,48 +289,45 @@ void ODOMETRY_update(void)
 #endif
 
 	//vitesses X et Y
-	//cos et sin sont exprimés en [pas d'unité/4096]
-	real_speed_x =(global.real_speed_translation*cos32)>>8;		//[mm/65536/5ms] = [mm/4096/5ms]*[/4096]*[256]
-	real_speed_y =(global.real_speed_translation*sin32)>>8;		//[mm/65536/5ms] = [mm/4096/5ms]*[/4096]*[256]
+	real_speed_x =(global.real_speed_translation*cos32)>>10;		//[mm.65536/5ms] = [mm.4096/5ms]*[pas d'unité.16384]/[1024]
+	real_speed_y =(global.real_speed_translation*sin32)>>10;		//[mm.65536/5ms] = [mm.4096/5ms]*[pas d'unité.16384]/[1024]
 
-	real_speed_x /= 4;
-	real_speed_y /= 4;
-
-	//Explication, pourquoi xFin, yFin, vitesse_x_reelle et vitesse_y_reelle sont exprimés en [mm/65536]
+	//Explication, pourquoi xFin, yFin, vitesse_x_reelle et vitesse_y_reelle sont exprimés en [mm.65536]
 	// limite haute
 	// 	les coordonnées en x et en y doivent pouvoir être bien supérieures aux limites du terrain, c'est à dire, plus grandes que 3m
 	//	par exemple : de -32768mm à +32768mm
-	//	ainsi, l'unité minimale de xFin est le mm/65536, puisque pour un nombre de 32768mm, cela donne "xFin = le nombre maxi sous 32 bits."
+	//	ainsi, l'unité minimale de xFin est le mm.65536, puisque pour un nombre de 32768mm, cela donne "xFin = le nombre maxi sous 32 bits."
 	// limite basse
 	// 	plus l'unité est faible et mieux c'est....
 	//	explication : COEF_ODOMETRIE_TRANSLATION<<4<<1 vaut environ 700... le cosinus/sinus minimal vaut 1... on obtient ainsi un produit mini de 700... si on le divise trop, on perd en précision
-	//	si on avait voulu utiliser l'unité [mm/4096] très présente ailleurs dans le code,
+	//	si on avait voulu utiliser l'unité [mm.4096] très présente ailleurs dans le code,
 	//	ce 700 aurait été simplifié divisé par 8.... c'est à dire 2... c'est génant... surtout que l'on intègre les erreurs !
 	// 	plus d'infos : samuelp5@gmail.com
 
+	//TODO les calculs sont faux fin du moins les unitées...
 	//calcul de la deviation du à l'action de la force centrifuge
-	deviation_x = -(coefs[ODOMETRY_COEF_CENTRIFUGAL]*(global.real_speed_rotation/128)*(real_speed_y/128))/1024; //[rad/65536/5ms]*[mm/512/5ms]
-	deviation_y = (coefs[ODOMETRY_COEF_CENTRIFUGAL]*(global.real_speed_rotation/128)*(real_speed_x/128))/1024; //[rad/65536/5ms]*[mm/512/5ms]
+	deviation_x = -(coefs[ODOMETRY_COEF_CENTRIFUGAL]*(global.real_speed_rotation/128)*(real_speed_y/128))/1024;	//[rad.65536/5ms]*[mm/512/5ms]
+	deviation_y = (coefs[ODOMETRY_COEF_CENTRIFUGAL]*(global.real_speed_rotation/128)*(real_speed_x/128))/1024;	//[rad.65536/5ms]*[mm/512/5ms]
 	//Ordre de grandeur : pour 1 unité du coef_odometrie_centrifuge, et à la vitesse max (rot et trans), on corrige de 1mm/secondes environ !
 	//Donc si on a l'impression que le robot perd un centimètre quand il est à fond, et pendant 1 seconde, le coef aura probablement une réglage en dizaine...
 
 	//Mise a jour de la position en x et y
-	x32 += real_speed_x + deviation_x; 				//[mm/65536]
-	y32 += real_speed_y + deviation_y;				//[mm/65536]
-	global.position.x = x32 >> 16;		//[mm]
-	global.position.y = y32 >> 16;		//[mm]
-	//debug_printf("Position : x=%d  y=%d \n", global.position.x, global.position.y);
+	x32 += real_speed_x + deviation_x;						//[mm.65536]
+	y32 += real_speed_y + deviation_y;						//[mm.65536]
+	global.position.x = x32 >> 16;							//[mm]
+	global.position.y = y32 >> 16;							//[mm]
+
 	//Mise à jour de l'angle
-	teta32 += global.real_speed_rotation;	//[rad/1024/4096]
+	teta32 += global.real_speed_rotation;					//[rad.1024.4096]
 
 	//Mise à jour de la distance total parcourue
-	total_dist_x += absolute(real_speed_x + deviation_x);		//[mm/65536]
-	total_dist_y += absolute(real_speed_y + deviation_y);		//[mm/65536]
+	total_dist_x += absolute(real_speed_x + deviation_x);	//[mm.65536]
+	total_dist_y += absolute(real_speed_y + deviation_y);	//[mm.65536]
 
 	//Mise à jour de l'angle total parcourue
-	total_teta += global.real_speed_rotation;	//[rad/1024/4096]
+	total_teta += global.real_speed_rotation;				//[rad.1024.4096]
 	if(absolute(total_teta) > absolute(max_total_teta))
-		max_total_teta = total_teta;			//[rad/1024/4096]
+		max_total_teta = total_teta;						//[rad.1024.4096]
 
 	//Gestion de l'angle modulo 2PI !!!
 	if(teta32 < (-PI_22) )
@@ -339,8 +335,7 @@ void ODOMETRY_update(void)
 	if(teta32 > PI_22)
 		teta32 -= TWO_PI22;
 
-	global.position.teta = teta32 >> 10;	//[rad/4096]
-
+	global.position.teta = teta32 >> 10;					//[rad.4096]
 
 	if((!COPILOT_is_arrived()) || (SUPERVISOR_get_state() == SUPERVISOR_ERROR))
 	{	//Si je ne suis pas arrivé à destination, le référentiel me suit... et repart à zéro !)
@@ -349,10 +344,10 @@ void ODOMETRY_update(void)
 	}
 
 	// translation réelle parcourue depuis la dernière RAZ du référentiel IT
-	global.real_position_translation +=  global.real_speed_translation;  //[mm/4096]
+	global.real_position_translation +=  global.real_speed_translation;		//[mm.4096]
 
 	// rotation réelle parcourue depuis la dernière RAZ du référentiel IT
-	global.real_position_rotation += global.real_speed_rotation;	//[rad/4096/1024]
+	global.real_position_rotation += global.real_speed_rotation;			//[rad.4096.1024]
 
 }
 
@@ -370,3 +365,14 @@ Uint32 ODOMETRY_get_total_dist(){
 	return (Uint32)sqrt(SQUARE(total_dist_x >> 16) + SQUARE(total_dist_y >> 16));
 }
 
+Sint32 ODOMETRY_get_65536_x(void){
+	return x32;
+}
+
+Sint32 ODOMETRY_get_65536_y(void){
+	return y32;
+}
+
+Sint32 ODOMETRY_get_teta22(void){
+	return teta32;
+}

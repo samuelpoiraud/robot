@@ -19,6 +19,10 @@
 
 	void ODOMETRY_update(void);
 
+	Sint32 ODOMETRY_get_65536_x(void);
+	Sint32 ODOMETRY_get_65536_y(void);
+	Sint32 ODOMETRY_get_teta22(void);
+
 	Sint16 get_calibration_backward_distance(void);
 	Sint16 get_calibration_forward_distance(void);
 
