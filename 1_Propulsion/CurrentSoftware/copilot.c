@@ -742,7 +742,7 @@ static braking_e COPILOT_update_brake_state_rotation(void)
 	}
 
 	if(global.vitesse_rotation != 0 && rotation_restante == 0){ // Si on tourne encore alors qu'on doit être arrêté
-		PILOT_set_extra_braking_rotation(TRUE, 250);
+		PILOT_set_custom_acceleration_rotation(TRUE, 250);
 		return BRAKING;
 	}
 
@@ -768,19 +768,19 @@ static braking_e COPILOT_update_brake_state_rotation(void)
 		else if(acc_frein <= PILOT_get_coef(PILOT_ACCELERATION_NORMAL) / 2)
 			acc_frein = PILOT_get_coef(PILOT_ACCELERATION_NORMAL) / 2;
 
-		PILOT_set_extra_braking_rotation(TRUE, acc_frein);
+		PILOT_set_custom_acceleration_rotation(TRUE, acc_frein);
 
 		return BRAKING;
 
 	}else if(rotation_restante - angle_frein == 0){	// On peut freiner normalement
 
-		PILOT_set_extra_braking_rotation(FALSE, 0);
+		PILOT_set_custom_acceleration_rotation(FALSE, 0);
 
 		return BRAKING;
 
 	}else{	// On n'a pas a freiner... On fonce !
 
-		PILOT_set_extra_braking_rotation(FALSE, 0);
+		PILOT_set_custom_acceleration_rotation(FALSE, 0);
 
 		return NOT_BRAKING;
 	}
@@ -817,7 +817,7 @@ static braking_e COPILOT_update_brake_state_translation(void)
 	}
 
 	if(global.vitesse_translation != 0 && translation_restante == 0){ // Si on roule encore alors qu'on doit être arrêté
-		PILOT_set_extra_braking_translation(TRUE, 250);
+		PILOT_set_custom_acceleration_translation(TRUE, 250);
 		return BRAKING;
 	}
 
@@ -837,19 +837,19 @@ static braking_e COPILOT_update_brake_state_translation(void)
 		else if(acc_frein <= PILOT_get_coef(PILOT_ACCELERATION_NORMAL) / 2)
 			acc_frein = PILOT_get_coef(PILOT_ACCELERATION_NORMAL) / 2;
 
-		PILOT_set_extra_braking_translation(TRUE, acc_frein);
+		PILOT_set_custom_acceleration_translation(TRUE, acc_frein);
 
 		return BRAKING;
 
 	}else if(translation_restante - translation_frein == 0){	// On peut freiner normalement
 
-		PILOT_set_extra_braking_translation(FALSE, 0);
+		PILOT_set_custom_acceleration_translation(FALSE, 0);
 
 		return BRAKING;
 
 	}else{	// On n'a pas a freiner... On fonce !
 
-		PILOT_set_extra_braking_translation(FALSE, 0);
+		PILOT_set_custom_acceleration_translation(FALSE, 0);
 
 		return NOT_BRAKING;
 	}

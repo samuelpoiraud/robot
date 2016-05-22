@@ -44,8 +44,8 @@
 
 	void PILOT_set_speed(PROP_speed_e speed);
 
-	void PILOT_set_extra_braking_rotation(bool_e enable, Sint32 value);
-	void PILOT_set_extra_braking_translation(bool_e enable, Sint32 value);
+	void PILOT_set_custom_acceleration_rotation(bool_e enable, Sint32 value);
+	void PILOT_set_custom_acceleration_translation(bool_e enable, Sint32 value);
 
 	void PILOT_set_in_rush(bool_e in_rush_msg);
 	bool_e PILOT_get_in_rush(void);

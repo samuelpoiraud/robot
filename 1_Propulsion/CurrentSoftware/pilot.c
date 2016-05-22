@@ -54,19 +54,19 @@ typedef enum{
 static volatile Sint32 coefs[PILOT_NUMBER_COEFS];
 
 //Coordonnées de la destination dans le référentiel IT
-static volatile Sint32 destination_rotation;				//[rad.4096.1024]
-static volatile Sint32 destination_translation;				//[mm.4096]
+static volatile Sint32 destination_rotation;					//[rad.4096.1024]
+static volatile Sint32 destination_translation;					//[mm.4096]
 
-static volatile bool_e extra_braking_translation = FALSE;
-static volatile bool_e extra_braking_rotation = FALSE;
-static volatile Sint32 extra_braking_translation_value;		//[mm.4096/5ms/5ms]
-static volatile Sint32 extra_braking_rotation_value;		//[mm.4096/5ms/5ms]
+static volatile bool_e custom_acceleration_translation = FALSE;
+static volatile bool_e custom_acceleration_rotation = FALSE;
+static volatile Sint32 custom_acceleration_translation_value;	//[mm.4096/5ms/5ms]
+static volatile Sint32 custom_acceleration_rotation_value;		//[mm.4096/5ms/5ms]
 
 static volatile e_acceleration etat_acceleration_translation;
 static volatile e_acceleration etat_acceleration_rotation;
 
-static volatile Sint32 vitesse_translation_max;				//[mm.4096/5ms]
-static volatile Sint32 vitesse_rotation_max;				//[rad.4096.1024/5ms]
+static volatile Sint32 vitesse_translation_max;					//[mm.4096/5ms]
+static volatile Sint32 vitesse_rotation_max;					//[rad.4096.1024/5ms]
 
 static volatile bool_e in_rush = FALSE;
 static volatile bool_e boost_asser = FALSE;
@@ -584,15 +584,15 @@ static void PILOT_update_acceleration_translation_and_rotation(void) {
 
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
 		coef_acceleration_translation = 160;
-	else if(extra_braking_translation)
-		coef_acceleration_translation = extra_braking_translation_value;
+	else if(custom_acceleration_translation)
+		coef_acceleration_translation = custom_acceleration_translation_value;
 	else
 		coef_acceleration_translation = coefs[PILOT_ACCELERATION_NORMAL];
 
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
 		coef_acceleration_rotation = 160;
-	else if(extra_braking_rotation)
-		coef_acceleration_rotation = extra_braking_rotation_value;
+	else if(custom_acceleration_rotation)
+		coef_acceleration_rotation = custom_acceleration_rotation_value;
 	else
 		coef_acceleration_rotation = coefs[PILOT_ACCELERATION_NORMAL];
 
@@ -725,16 +725,16 @@ void PILOT_set_speed(PROP_speed_e speed)
 	}
 }
 
-void PILOT_set_extra_braking_rotation(bool_e enable, Sint32 value)
+void PILOT_set_custom_acceleration_rotation(bool_e enable, Sint32 value)
 {
-	extra_braking_rotation = enable;
-	extra_braking_rotation_value = value;
+	custom_acceleration_rotation = enable;
+	custom_acceleration_rotation_value = value;
 }
 
-void PILOT_set_extra_braking_translation(bool_e enable, Sint32 value)
+void PILOT_set_custom_acceleration_translation(bool_e enable, Sint32 value)
 {
-	extra_braking_translation = enable;
-	extra_braking_translation_value = value;
+	custom_acceleration_translation = enable;
+	custom_acceleration_translation_value = value;
 }
 
 void PILOT_set_in_rush(bool_e in_rush_msg)
