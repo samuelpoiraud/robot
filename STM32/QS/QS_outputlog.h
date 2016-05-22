@@ -38,12 +38,14 @@
 	#define display(x)				debug_printf("%s : %ld\n", #x, (Sint32)(x))
 	#define display_float(x)		{unsigned char var_ftoa[30];  debug_printf("%s : %s\n", #x, ftoa(x, var_ftoa, 3, 'f'));}
 	#define display_p(x, format)	debug_printf("%s : "format"\n", #x, x)		// Par exemple display_p(ma_chaine, "%s");
-	#define display_bit(x)			{Uint8 var_dec = 7, var_i;					\
-									for(var_i=0;var_i<8;var_i++){				\
+	#define display_bit(nbBit,x)	{Uint8 var_dec = nbBit-1, var_i;			\
+									for(var_i=0;var_i<nbBit;var_i++){			\
 										debug_printf("%d", (x>>var_dec)&1);		\
+										if((var_i+1)%8 == 0)					\
+											debug_printf(" ");					\
 										var_dec--;								\
 									}											\
-									debug_printf(" ");							\
+									debug_printf("\n");							\
 									}
 
 	// prec indique la précison (nb de chiffrers après la virgule) 0 pour avoir le maximum

@@ -477,6 +477,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		case IHM_BUTTON:
 		case IHM_SWITCH:
 		case IHM_POWER:
+		case IHM_BIROUTE_IS_REMOVED:
+
 			if(from == FROM_UART) // Le message vient de la simulation sur pc, le message doit être répété pour les autres cartes
 				CAN_send(msg);
 			else if(from == FROM_CAN){
