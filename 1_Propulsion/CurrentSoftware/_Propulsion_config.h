@@ -173,14 +173,22 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 
 	// de combien on accelere à chaque boucle d'asser
-	#define SMALL_ACCELERATION_NORMAL				80		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
-	#define SMALL_ACCELERATION_ROTATION_TRANSLATION 10		//[rad.1024/mm]		Sur check Norris : 200mm entre les roues => 1024/50 = 20
+	#define SMALL_ACCELERATION_NORMAL					80		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
+	#define SMALL_ACCELERATION_MAX						192		//[mm.4096/5ms/5ms]
 
-	#define BIG_ACCELERATION_NORMAL					80		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
-	#define BIG_ACCELERATION_ROTATION_TRANSLATION	7		//[rad.1024/mm]
+	#define SMALL_ACCELERATION_ROTATION_TRANSLATION		10		//[rad.1024/mm]		Sur check Norris : 200mm entre les roues => 1024/50 = 20
+	#define SMALL_ACCELERATION_ROTATION_TRANSLATION_MAX	10		//[rad.1024/mm]
 
-	#define BIG_ACCELERATION_RUSH_ROT				(1/3.)
-	#define BIG_ACCELERATION_RUSH_TRANS				(2/3.)
+
+
+	#define BIG_ACCELERATION_NORMAL						80		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
+	#define BIG_ACCELERATION_MAX						288		//[mm.4096/5ms/5ms]
+
+	#define BIG_ACCELERATION_ROTATION_TRANSLATION		7		//[rad.1024/mm]
+	#define BIG_ACCELERATION_ROTATION_TRANSLATION_MAX	13		//[rad.1024/mm]
+
+	#define BIG_ACCELERATION_RUSH_ROT					(1/3.)
+	#define BIG_ACCELERATION_RUSH_TRANS					(2/3.)
 
 	// 13 = (1024 / (distance entre les roues de propulsions divisée par 2 ) )
 	//sur archi'tech : 2*80mm entre les roues
