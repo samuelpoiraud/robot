@@ -610,8 +610,8 @@ static void PILOT_update_acceleration_translation_and_rotation(void) {
 	else
 		coef_acceleration_rotation = coefs[PILOT_ACCELERATION_NORMAL];
 
-	if(acceleration_rotation > coefs[PILOT_ACCELERATION_MAX])
-		acceleration_rotation = coefs[PILOT_ACCELERATION_MAX];
+	if(coef_acceleration_rotation > coefs[PILOT_ACCELERATION_MAX])
+		coef_acceleration_rotation = coefs[PILOT_ACCELERATION_MAX];
 
 
 
