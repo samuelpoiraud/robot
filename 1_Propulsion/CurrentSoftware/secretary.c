@@ -40,7 +40,7 @@
 #include "gyroscope.h"
 #include "hokuyo.h"
 #include "avoidance.h"
-
+#include "scan_bloc.h"
 
 
 typedef struct{
@@ -316,6 +316,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		case PROP_RUSH:
 			PILOT_set_in_rush(msg->data.prop_rush.rush);
 			break;
+
+		case PROP_ASK_BLOC_SCAN:
+			SCAN_BLOC_canMsg(msg);
+			break;
+
 
 		//Stop tout
 		case BROADCAST_STOP_ALL:

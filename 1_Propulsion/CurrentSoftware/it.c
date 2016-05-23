@@ -88,7 +88,7 @@ void _ISR _T5Interrupt(void)
 	#endif
 
 	#ifdef SCAN_BLOC
-	SCAN_BLOC_process_it();
+	//SCAN_BLOC_process_it();
 	#endif
 
 	TIMER5_AckIT();
@@ -152,6 +152,10 @@ void _ISR _T2Interrupt()
 
 	SCAN_process_it();
 	IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
+
+	#ifdef SCAN_BLOC
+		SCAN_BLOC_process_it();
+	#endif
 
 	#ifdef DETECTION_CHOC
 		DETECTION_CHOC_process_it_tim2();

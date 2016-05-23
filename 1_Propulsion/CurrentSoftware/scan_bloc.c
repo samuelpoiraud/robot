@@ -104,12 +104,14 @@ void SCAN_BLOC_process_it(){
 
 		case INIT :
 			receve_msg_can = NO_MSG_CAN;
+			//printf("\n\aziaoe\n\n");
 			state = WAIT;
 			break;
 
 		case WAIT :
 			switch(receve_msg_can){
 				case MSG_CAN_LAUNCH_SCAN:
+					//printf("\n\nhhhhhhhhhhh\n\n");
 					idWatchdog = WATCHDOG_create(10, scanOnePoint, TRUE);
 					state = PROCESS_SCAN;
 					break;
@@ -132,6 +134,7 @@ void SCAN_BLOC_process_it(){
 			break;
 
 		case WAIT_CALCULATE:
+			//printf("\n\nsrfgunfgjnkfgdfg\n\n");
 			SCAN_BLOC_calculate();
 			if(!run_calcul)
 				state = SEND_COOR_BLOC;
@@ -139,6 +142,7 @@ void SCAN_BLOC_process_it(){
 
 		case SEND_COOR_BLOC:
 			SECRETARY_send_bloc_position(error_scan, blocPosition.x, blocPosition.y);
+			state=END;
 			break;
 
 		case END:
@@ -150,16 +154,71 @@ void SCAN_BLOC_process_it(){
 
 void SCAN_BLOC_calculate(){
 	// TODO : Traitement des points
-	int i;
+	Uint8 i, j;
+	Sint16 moyx[NB_POINT_MAX], moyy[NB_POINT_MAX];
+	Uint16 varx[NB_POINT_MAX], vary[NB_POINT_MAX];
+	Uint8 indexMinVarx=0;
+	Uint8 indexMinVary=0;
+	Uint16 minVarx=65535;
+	Uint16 minVary=65535;
+	printf("erhkdfgbhkdg\n");
+
 	for(i=0;i<NB_POINT_MAX;i++){
-		debug_printf("[%d;%d]\n", ourBloc[i].x, ourBloc[i].y);
+		moyx[i]=0;
+		moyy[i]=0;
+		varx[i]=65535;
+		vary[i]=65535;
+		if(i<NB_POINT_MAX-10){
+			for(j=i;j<i+10;j++){
+				moyx[i]+=ourBloc[j].x;
+				moyy[i]+=ourBloc[j].y;
+			}
+			moyx[i]/=10;
+			moyy[i]/=10;
+			if((moyx[i]<174)&&(moyx[i]>58)){
+				varx[i]=0;
+					for(j=i;j<i+10;j++){
+						varx[i]+=(moyx[i]-ourBloc[j].x)*(moyx[i]-ourBloc[j].x);
+					}
+			}
+			//printf("\n%d\n",moyx[i]);
+			//printf("\n%d\n",info_scan.is_right_sensor);
+			if(((moyy[i]<996)&&(moyy[i]>880)&&(info_scan.is_right_sensor))||((moyy[i]>2004)&&(moyy[i]<2120)&&(!(info_scan.is_right_sensor)))){
+				vary[i]=0;
+				for(j=i;j<i+10;j++){
+					vary[i]+=(moyy[i]-ourBloc[j].y)*(moyy[i]-ourBloc[j].y);
+				}
+			}
+		}
+//		debug_printf("[%d;%d]\n", ourBloc[i].x, ourBloc[i].y);
 	}
+	for(i=0;i<NB_POINT_MAX;i++){
+		//printf("\n\n%d<%d\n",varx[i],minVarx);
+		if(varx[i]<minVarx){
+			minVarx=varx[i];
+			indexMinVarx=i;
+	//		printf("\n\n%d\t%d\n\n",minVarx,indexMinVarx);
+		}
+		if(vary[i]<minVary){
+			minVary=vary[i];
+			indexMinVary=i;
+		//	printf("\n\n%d\t%d\n\n",minVary,indexMinVary);
+		}
+	}
+	for(i=0;i<NB_POINT_MAX;i++){
+		//printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n",ourBloc[i].x,ourBloc[i].y,moyx[i],moyy[i],varx[i],vary[i],info_scan.is_right_sensor);
+	}
+	blocPosition.x=moyx[indexMinVarx];
+	blocPosition.y=moyy[indexMinVary];
+	//printf("\n\n%d\t%d\n\n",indexMinVary,indexMinVarx);
+
+	//printf("\n\n%d\t%d\n\n",blocPosition.x,blocPosition.y);
 	run_calcul = FALSE;
 }
 
 static void scanOnePoint(){
 	mesure_en_cours.robot = global.position;
-	if(info_scan.color == BOT_COLOR){	// Magenta
+	if(info_scan.is_right_sensor){	// Magenta
 		mesure_en_cours.dist = CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT));
 	}else{
 		mesure_en_cours.dist = CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT));
@@ -171,14 +230,23 @@ static void scanOnePoint(){
 		Sint16 cos, sin;
 		COS_SIN_4096_get(mesure_en_cours.robot.teta, &cos, &sin);
 		Sint32 cos32 = cos, sin32 = sin;
-		if(info_scan.color == BOT_COLOR){	// Magenta
-			tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + DISTANCE_SCAN_CENTER;
-			tmp.y = mesure_en_cours.robot.y - mesure_en_cours.dist * sin32/4096 - DISTANCE_SCAN_CENTER_Y;
+		//printf("%d\n",mesure_en_cours.dist);
+		if(info_scan.is_right_sensor){
+			tmp.x = mesure_en_cours.robot.x + (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * sin32/4096 + DISTANCE_SCAN_CENTER_Y * cos32/4096;
+			tmp.y = mesure_en_cours.robot.y - (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * cos32/4096 + DISTANCE_SCAN_CENTER_Y * sin32/4096;
 		}else{
-			tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + DISTANCE_SCAN_CENTER;
-			tmp.y = mesure_en_cours.robot.y - mesure_en_cours.dist * sin32/4096 - DISTANCE_SCAN_CENTER_Y;
+			tmp.x = mesure_en_cours.robot.x - (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * sin32/4096 + DISTANCE_SCAN_CENTER_Y * cos32/4096;
+			tmp.y = mesure_en_cours.robot.y + (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * cos32/4096 + DISTANCE_SCAN_CENTER_Y * sin32/4096;
 		}
+		//if(info_scan.color == BOT_COLOR){	// Magenta
+			//tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + DISTANCE_SCAN_CENTER;
+			//tmp.y = mesure_en_cours.robot.y - mesure_en_cours.dist * sin32/4096 - DISTANCE_SCAN_CENTER_Y;
+		//}else{
+			//tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + DISTANCE_SCAN_CENTER;
+			//tmp.y = mesure_en_cours.robot.y - mesure_en_cours.dist * sin32/4096 - DISTANCE_SCAN_CENTER_Y;
+		//}
 		ourBloc[nbPointBloc] = tmp;
+		nbPointBloc++;
 	}else{
 		debug_printf("Dépassement de capacité du tableau de sauvegarde des points de scan\n");
 	}
@@ -193,6 +261,8 @@ void SCAN_BLOC_canMsg(CAN_msg_t *msg){
 	if(msg->data.strat_ask_bloc_scan.startScan){
 		receve_msg_can = MSG_CAN_LAUNCH_SCAN;
 		end_scan = FALSE;
+		info_scan.is_right_sensor = msg->data.strat_ask_bloc_scan.isRightSensor;
+
 	}else{
 		receve_msg_can = NO_MSG_CAN;
 		end_scan = TRUE;
