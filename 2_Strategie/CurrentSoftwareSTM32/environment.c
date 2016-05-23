@@ -467,8 +467,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 				ELEMENTS_set_middle_apocalypse(incoming_msg->data.strat_back_scan.middle);
 			ELEMENTS_set_flag(APOCALYPSE_SCAN,TRUE);
 			break;
-
-
+		case STRAT_BLOC_POSITION:
+			global.posBloc.x=incoming_msg->data.strat_bloc_position.x;
+			global.posBloc.y=incoming_msg->data.strat_bloc_position.y;
+			break;
 
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:

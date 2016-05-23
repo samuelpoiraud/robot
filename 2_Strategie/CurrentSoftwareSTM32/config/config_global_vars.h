@@ -90,6 +90,7 @@
 		volatile debug_t debug;
 		volatile prop_env_t prop;
 		volatile position_t pos;
+		volatile position_t posBloc;
 
 		volatile time32_t friend_position_lifetime;	//Durée de vie restante pour les données de position de notre autre robot.
 		volatile GEOMETRY_point_t friend_pos;
