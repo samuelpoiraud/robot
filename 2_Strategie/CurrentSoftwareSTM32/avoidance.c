@@ -132,7 +132,7 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 			break;
 		case ERROR:
 			state = EMPILE;
-			ret = NOT_HANDLED;
+			ret = fail_state;
 			break;
 		default:
 			state = EMPILE;
