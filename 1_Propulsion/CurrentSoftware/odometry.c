@@ -249,7 +249,6 @@ void ODOMETRY_update(void)
 	Sint16 cos,sin;			//[pas d'unité.16384]	<< 14
 	Sint32 cos32, sin32;
 	Sint32 left, right;
-	Sint32 left2, right2;
 	//deviation occasionné par la force centrifuge
 	Sint32 deviation_x;
 	Sint32 deviation_y;
@@ -266,7 +265,6 @@ void ODOMETRY_update(void)
 	sin32 = (Sint32)(sin);
 
 	ENCODERS_get(&left, &right);
-	ENCODERS_get2(&left2,&right2);
 	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
 	global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
 
