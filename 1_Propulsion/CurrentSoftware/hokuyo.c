@@ -61,6 +61,7 @@
 
 	#define GROS_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE		250	//Distance d'un point trop proche de nous qui doit être ignoré.
 	#define PETIT_ROBOT_HOKUYO_TOO_CLOSE_DISTANCE_IGNORE	150	//Distance d'un point trop proche de nous qui doit être ignoré.
+	#define	BLIND_ANGLE	10	//En degré : angle supplémentaire sur lequel on rend l'hokuyo aveugle (de chaque côté) pour éviter des mauvaises détections.
 
 	#define ROBOT_COORDX 150
 	#define ROBOT_COORDY 150
@@ -128,8 +129,6 @@
 	void Compute_dist_and_teta(void);
 	Sint32 hokuyo_get_detected_valid_point_dist(Uint16 point);
 
-	//Deux fonctions pour detecter des regroupements de points
-	void hokuyo_detection_ennemis(void);
 	//void ReconObjet(void);
 	void DetectRobots(void);
 	void send_adversaries_datas(void);
@@ -205,7 +204,6 @@ void HOKUYO_process_main(void)
 	static state_e state = INIT, last_state = INIT;
 	bool_e entrance;
 	static time32_t buffer_read_time_begin = 0;
-	static bool_e i_planted = FALSE;
 
 	if((state == INIT && last_state == INIT) || state != last_state)
 		entrance = TRUE;
@@ -281,23 +279,17 @@ void HOKUYO_process_main(void)
 				state=REMOVE_LF;
 			else if(datas_index>2278)
 			{
-				//i_planted = TRUE;
 				state=ASK_NEW_MEASUREMENT;
 			}
 			*/
 			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
 			{
-				//i_planted = TRUE;
 				state=ASK_NEW_MEASUREMENT;
 				//flag_device_disconnected = TRUE;
 			}
 #endif
 		break;
 		case REMOVE_LF:
-			if(i_planted)
-			{
-				i_planted = FALSE;
-			}
 			hokuyo_format_data();
 			state=TREATMENT_DATA;
 		break;
@@ -327,7 +319,7 @@ void HOKUYO_process_main(void)
 		break;
 		case DETECTION_ADVERSARIES:
 			//hokuyo_dist_min(nb_pts_terrain);
-			//hokuyo_detection_ennemis(nb_pts_terrain,&nb_ennemis);
+
 			DetectRobots();
 			Compute_dist_and_teta();
 			//ReconObjet(nb_pts_terrain);
@@ -562,7 +554,7 @@ void hokuyo_find_valid_points(void){
 						point_filtered = TRUE;	//on refuse les points
 
 
-				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
+				if(angle < 100*BLIND_ANGLE || angle > 100*(270-BLIND_ANGLE))//on retire les 5 premiers degrés et les 5 derniers
 					point_filtered = TRUE;
 
 				if(point_filtered == FALSE)
@@ -590,7 +582,7 @@ void hokuyo_find_valid_points(void){
 			{
 				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
 
-				if(angle < 100*10 || angle > 100*260)//on retire les 10 premiers degrés et les 10 derniers
+				if(angle < 100*BLIND_ANGLE || angle > 100*(270-BLIND_ANGLE))//on retire les 10 premiers degrés et les 10 derniers
 					point_filtered = TRUE;
 
 				if(point_filtered == FALSE)
@@ -715,7 +707,7 @@ void hokuyo_find_valid_points(void){
 			offset_x = (Sint16)(offset_pos_x*cos/4096.);
 			offset_y = (Sint16)(offset_pos_y*sin/4096.);
 
-			COS_SIN_4096_get(teta_absolute,&cos,&sin);
+			//COS_SIN_4096_get(teta_absolute,&cos,&sin);
 			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_x;
 			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_y;
 
@@ -754,7 +746,7 @@ void hokuyo_find_valid_points(void){
 						point_filtered = TRUE;	//on refuse les points
 
 
-				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
+				if(angle < 100*BLIND_ANGLE || angle > 100*(270-BLIND_ANGLE))//on retire les 10 premiers degrés et les 10 derniers
 					point_filtered = TRUE;
 
 				if(point_filtered == FALSE)
@@ -821,35 +813,6 @@ Sint32 hokuyo_get_detected_valid_point_dist(Uint16 point){
 						 (detected_valid_points[point].coordY - robot_position_during_measurement.y)*(detected_valid_points[point].coordY - robot_position_during_measurement.y)));
 }
 
-//fonctions de detection des ennemis
-void hokuyo_detection_ennemis(void){
-	Uint16 i;
-	Sint32 x_comp;
-	Sint32 y_comp;
-	Sint32 moyenne_x;
-	Sint32 moyenne_y;
-
-	x_comp=detected_valid_points[0].coordX;
-	y_comp=detected_valid_points[0].coordY;
-	adversaries_number = 0;
-	for(i=0;i<nb_valid_points;i++)
-	{
-		if(	!(	detected_valid_points[i].coordX <= (x_comp+HOKUYO_DETECTION_MARGE)  	&&
-				detected_valid_points[i].coordX >= (x_comp-HOKUYO_DETECTION_MARGE)	) &&
-			!(detected_valid_points[i].coordY <= (y_comp+HOKUYO_DETECTION_MARGE)  	&&
-				detected_valid_points[i].coordY >= (y_comp-HOKUYO_DETECTION_MARGE)	))
-		{
-				moyenne_x=(x_comp+detected_valid_points[i-1].coordX)/2;
-				moyenne_y=(y_comp+detected_valid_points[i-1].coordY)/2;
-				hokuyo_adversaries[adversaries_number].coordX=moyenne_x;
-				hokuyo_adversaries[adversaries_number].coordY=moyenne_y;
-				if(adversaries_number < HOKUYO_MAX_FOES - 1)
-					adversaries_number++;
-				x_comp=detected_valid_points[i].coordX;
-				y_comp=detected_valid_points[i].coordY;
-		}
-	}
-}
 
 /*
 void ReconObjet(Uint16 compt_sushis)
@@ -1056,7 +1019,7 @@ void Hokuyo_validPointsAndBeacons(){
 				//		point_filtered = TRUE;	//on refuse les points de la zone de départ...
 
 
-				if(angle < 100*5 || angle > 100*265)//on retire les 5 premiers degrés et les 5 derniers
+				if(angle < 100*BLIND_ANGLE || angle > 100*(270-BLIND_ANGLE))//on retire les 5 premiers degrés et les 5 derniers
 					point_filtered = TRUE;
 
 				if(point_filtered == FALSE)
