@@ -132,7 +132,7 @@ bool_e ACT_push_order(ACT_sid_e sid,  ACT_order_e order){
 
 	i = ACT_search_link_SID_Queue(sid) ;
 
-	if(i == act_link_SID_Queue_size){
+	if(i >= act_link_SID_Queue_size || i == 0){
 		error_printf("Link SID non trouvé dans ACT_push_order !\n");
 		return FALSE;
 	}
