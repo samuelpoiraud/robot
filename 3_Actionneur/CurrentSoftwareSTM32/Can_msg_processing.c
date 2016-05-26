@@ -44,6 +44,15 @@ void CAN_process_msg(CAN_msg_t* msg) {
 	// Traitement des autres messages reçus
 	switch (msg->sid)
 	{
+		case ACT_BOOST_ASSER:
+#ifdef I_AM_ROBOT_BIG
+			if(msg->data.act_boost_asser.enable)
+				GPIO_SetBits(BOOST_ASSER_PORT);
+			else
+				GPIO_ResetBits(BOOST_ASSER_PORT);
+#endif
+			break;
+
 		case BROADCAST_RESET:
 			NVIC_SystemReset();
 			break;
