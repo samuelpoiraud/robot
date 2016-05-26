@@ -34,7 +34,7 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed
 	if(far_point_x || far_point_y)
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_NO_MULTIPOINT, rush_speed, acquittement, corrector, AVOID_DISABLED);
 	else
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a, sin_a, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_NO_MULTIPOINT, rush_speed, acquittement, corrector, AVOID_DISABLED);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a/4, sin_a/4, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_NO_MULTIPOINT, rush_speed, acquittement, corrector, AVOID_DISABLED);
 }
 
 
