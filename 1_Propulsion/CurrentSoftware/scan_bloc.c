@@ -180,7 +180,7 @@ void SCAN_BLOC_calculate(){
 			}
 			moyx[i]/=10;
 			moyy[i]/=10;
-			if((moyx[i]<174)&&(moyx[i]>58)){
+			if((moyx[i]<145)&&(moyx[i]>87)){
 				varx[i]=0;
 					for(j=i;j<i+10;j++){
 						varx[i]+=(moyx[i]-ourBloc[j].x)*(moyx[i]-ourBloc[j].x);
@@ -188,7 +188,7 @@ void SCAN_BLOC_calculate(){
 			}
 			//printf("\n%d\n",moyx[i]);
 			//printf("\n%d\n",info_scan.is_right_sensor);
-			if(((moyy[i]<996)&&(moyy[i]>880)&&(info_scan.is_right_sensor))||((moyy[i]>2004)&&(moyy[i]<2120)&&(!(info_scan.is_right_sensor)))){
+			if(((moyy[i]<967)&&(moyy[i]>909)&&(info_scan.is_right_sensor))||((moyy[i]>2033)&&(moyy[i]<2091)&&(!(info_scan.is_right_sensor)))){
 				vary[i]=0;
 				for(j=i;j<i+10;j++){
 					vary[i]+=(moyy[i]-ourBloc[j].y)*(moyy[i]-ourBloc[j].y);
