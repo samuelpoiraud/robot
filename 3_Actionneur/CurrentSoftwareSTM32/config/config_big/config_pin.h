@@ -36,8 +36,8 @@
 	#define PORT_IO_A_6			PORT_IO_INPUT
 		//
 
-	#define PORT_IO_A_7			PORT_IO_INPUT
-		//
+	#define PORT_IO_A_7			PORT_IO_OUTPUT
+		#define BOOST_ASSER_PORT	GPIOA,GPIO_Pin_7
 
 	#define PORT_IO_A_8			PORT_IO_INPUT
 		//
