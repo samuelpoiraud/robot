@@ -32,7 +32,7 @@
 	#define BOTTOM_DUNE_R_RX24_LOCK_POS			     	    630
 	#define BOTTOM_DUNE_R_RX24_UNLOCK_POS				    277
 	#define BOTTOM_DUNE_R_RX24_MID_POS						(277 + 180)
-	#define BOTTOM_DUNE_R_RX24_RESCUE_POS					268
+	#define BOTTOM_DUNE_R_RX24_RESCUE_POS					582
 	#define BOTTOM_DUNE_R_RX24_CHECK_POS					658
 
 //Position initiale de l'RX24

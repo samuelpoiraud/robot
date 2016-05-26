@@ -36,6 +36,8 @@
 
 #define BELGIQUE
 
+#define SCAN_BLOC
+
 #define USE_SENSORS
 
 #define FDP_2016				//Mode FDP nouvelle génération 2016 !

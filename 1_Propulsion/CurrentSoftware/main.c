@@ -225,6 +225,7 @@ int main (void)
 		MAIN_sensor_test();
 
 		SCAN_PROCESS(NULL);
+		SCAN_BLOC_process_main();
 
 		#ifdef DETECTION_CHOC
 			 DETECTION_CHOC_process_main();

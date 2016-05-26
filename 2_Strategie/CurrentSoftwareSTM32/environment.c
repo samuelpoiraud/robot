@@ -470,6 +470,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case STRAT_BLOC_POSITION:
 			global.posBloc.x=incoming_msg->data.strat_bloc_position.x;
 			global.posBloc.y=incoming_msg->data.strat_bloc_position.y;
+			global.scan_bloc_error=incoming_msg->data.strat_bloc_position.error_scan;
 			break;
 
 //****************************** Messages de la carte actionneur *************************/
