@@ -8,5 +8,6 @@
 	void SCAN_BLOC_process_it();
 	void SCAN_BLOC_canMsg(CAN_msg_t *msg);
 	void SCAN_BLOC_calculate();
+	void SCAN_BLOC_process_main();
 
 #endif

@@ -87,6 +87,11 @@ void SCAN_BLOC_init(void)
 //												MAE Scan Bloc
 //---------------------------------------------------------------------------------------------------------------
 
+void SCAN_BLOC_process_main(){
+	if(run_calcul)
+		SCAN_BLOC_calculate();
+}
+
 void SCAN_BLOC_process_it(){
 	typedef enum{
 		INIT=0,
@@ -135,7 +140,7 @@ void SCAN_BLOC_process_it(){
 
 		case WAIT_CALCULATE:
 			//printf("\n\nsrfgunfgjnkfgdfg\n\n");
-			SCAN_BLOC_calculate();
+			//SCAN_BLOC_calculate();
 			if(!run_calcul)
 				state = SEND_COOR_BLOC;
 			break;
@@ -161,7 +166,7 @@ void SCAN_BLOC_calculate(){
 	Uint8 indexMinVary=0;
 	Uint16 minVarx=65535;
 	Uint16 minVary=65535;
-	printf("erhkdfgbhkdg\n");
+	//printf("erhkdfgbhkdg\n");
 
 	for(i=0;i<NB_POINT_MAX;i++){
 		moyx[i]=0;
@@ -208,11 +213,15 @@ void SCAN_BLOC_calculate(){
 	for(i=0;i<NB_POINT_MAX;i++){
 		//printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n",ourBloc[i].x,ourBloc[i].y,moyx[i],moyy[i],varx[i],vary[i],info_scan.is_right_sensor);
 	}
-	blocPosition.x=moyx[indexMinVarx];
-	blocPosition.y=moyy[indexMinVary];
+	if((varx[indexMinVarx]<500)&&(vary[indexMinVary]<500)){
+		blocPosition.x=moyx[indexMinVarx];
+		blocPosition.y=moyy[indexMinVary];
+	}else{
+		error_scan=TRUE;
+	}
 	//printf("\n\n%d\t%d\n\n",indexMinVary,indexMinVarx);
 
-	//printf("\n\n%d\t%d\n\n",blocPosition.x,blocPosition.y);
+	printf("\n\n%d\t%d\n\n",blocPosition.x,blocPosition.y);
 	run_calcul = FALSE;
 }
 
