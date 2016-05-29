@@ -293,6 +293,11 @@
 #define PENDULUM_RX24_ID					32
 #define BLACK_SAND_CIRCLE_RX24_ID           25
 
+#define SHOVEL_DUNE_LEFT_RX24_ID			20
+#define SHOVEL_DUNE_RIGHT_RX24_ID			20
+
+#define BRUSH_DUNE_LEFT_RX24_ID				20
+#define BRUSH_DUNE_RIGHT_RX24_ID			20
 
 
 #endif /* BIG_CONFIG_PIN_H */
