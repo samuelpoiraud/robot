@@ -176,7 +176,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			break;
 
 		case INIT_COEF:
-			PROP_set_threshold_error_translation(50,FALSE);
+			PROP_set_threshold_error_translation(50, FALSE);
 			state = GO;
 			break;
 
@@ -199,12 +199,12 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			break;
 
 		case ERROR :
-			PROP_set_threshold_error_translation(0,TRUE);
+			PROP_set_threshold_error_translation(0, TRUE);
 			RESET_MAE();
 			return fail_state;
 
 		case DONE :
-			PROP_set_threshold_error_translation(0,TRUE);
+			PROP_set_threshold_error_translation(0, TRUE);
 			RESET_MAE();
 			return success_state;
 	}
