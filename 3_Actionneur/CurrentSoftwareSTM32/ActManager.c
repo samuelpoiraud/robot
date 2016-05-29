@@ -40,6 +40,10 @@
 	#include "Black/Shift_cylinder/shift_cylinder_config.h"
 	#include "Black/Pendulum/pendulum.h"
 	#include "Black/Pendulum/pendulum_config.h"
+	#include "Black/Shovel_dune/shovel_dune.h"
+	#include "Black/Shovel_dune/shovel_dune_config.h"
+	#include "Black/Brush_dune/brush_dune.h"
+	#include "Black/Brush_dune/brush_dune_config.h"
 	#include "QS/QS_mosfet.h"
 #else
 	#include "Pearl/Sand/left_arm.h"
@@ -77,7 +81,9 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(SAND_LOCKER_LEFT),
 		ACT_DECLARE(SAND_LOCKER_RIGHT),
 		ACT_DECLARE(SHIFT_CYLINDER),
-		ACT_DECLARE(PENDULUM)
+		ACT_DECLARE(PENDULUM),
+		ACT_DECLARE(SHOVEL_DUNE),
+		ACT_DECLARE(BRUSH_DUNE)
 	#else  //Small Robot
 		ACT_DECLARE(LEFT_ARM),
 		ACT_DECLARE(RIGHT_ARM),

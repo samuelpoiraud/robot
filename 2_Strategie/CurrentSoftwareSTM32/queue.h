@@ -35,6 +35,8 @@ typedef enum {
 	ACT_QUEUE_Sand_locker_right,
 	ACT_QUEUE_Shift_cylinder,
 	ACT_QUEUE_Pendulum,
+	ACT_QUEUE_Shovel_dune,
+	ACT_QUEUE_Brush_dune,
 
 	//Pearl
 	ACT_QUEUE_Left_arm,

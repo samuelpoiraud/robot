@@ -73,6 +73,14 @@ void ACT_AVOIDANCE_init(){
 		//pompe Black front right
 		init_new_offset(ACT_QUEUE_Mosfet_strat_3,	    ACT_AVOID_MOSFET_STRAT_3_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 
+		init_new_offset(ACT_QUEUE_Shovel_dune,			ACT_AVOID_SHOVEL_DUNE_CMD_Take,		ACT_SHOVEL_DUNE_TAKE,				0,		0,		0,		100);
+		init_new_offset(ACT_QUEUE_Shovel_dune,			ACT_AVOID_SHOVEL_DUNE_CMD_Store,	ACT_SHOVEL_DUNE_STORE,				0,		0,		0,		100);
+		init_new_offset(ACT_QUEUE_Shovel_dune,			ACT_AVOID_SHOVEL_DUNE_CMD_Rescue,	ACT_SHOVEL_DUNE_RESCUE,				0,		0,		0,		100);
+
+		init_new_offset(ACT_QUEUE_Brush_dune,			ACT_AVOID_BRUSH_DUNE_CMD_Push_Mid,	ACT_BRUSH_DUNE_PUSH_MID,			0,		0,		0,		50);
+		init_new_offset(ACT_QUEUE_Brush_dune,			ACT_AVOID_BRUSH_DUNE_CMD_Push_All,	ACT_BRUSH_DUNE_PUSH_ALL,			0,		0,		0,		75);
+		init_new_offset(ACT_QUEUE_Brush_dune,			ACT_AVOID_BRUSH_DUNE_CMD_Sucker_Release, ACT_BRUSH_DUNE_SUCKER_RELEASE,	0,		0,		0,		20);
+
 
 	}else{ //Seulement sur le petit robot
 

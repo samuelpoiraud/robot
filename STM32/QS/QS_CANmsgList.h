@@ -927,6 +927,8 @@
 		ACT_SAND_LOCKER_RIGHT       = (ACT_FILTER | 0x0A),
 		ACT_SHIFT_CYLINDER          = (ACT_FILTER | 0x0B),
 		ACT_PENDULUM                = (ACT_FILTER | 0x0C),
+		ACT_SHOVEL_DUNE             = (ACT_FILTER | 0x0D),
+		ACT_BRUSH_DUNE              = (ACT_FILTER | 0x0E),
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------PEARL-----------------------------//

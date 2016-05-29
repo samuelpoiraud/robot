@@ -43,7 +43,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_FISH_UNSTICK_ARM,		    ACT_QUEUE_Fish_unstick_arm,		        "Fish unstick arm"},
 	{ACT_BOTTOM_DUNE,				ACT_QUEUE_Bottom_dune,					"Bottom dune left"},
 	{ACT_BLACK_SAND_CIRCLE,			ACT_QUEUE_Black_sand_circle,            "Sand Circle"},
-	{ACT_MIDDLE_DUNE,				ACT_QUEUE_Middle_dune,					 "Middle dune"},
+	{ACT_MIDDLE_DUNE,				ACT_QUEUE_Middle_dune,					"Middle dune"},
 	{ACT_CONE_DUNE,					ACT_QUEUE_Cone_dune,					"Cone dune"},
 	{ACT_DUNIX_LEFT,			    ACT_QUEUE_Dunix_left,                   "Dunix left"},
 	{ACT_DUNIX_RIGHT,			    ACT_QUEUE_Dunix_right,					"Dunix right"},
@@ -51,6 +51,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_SAND_LOCKER_RIGHT,			ACT_QUEUE_Sand_locker_right,            "Sand locker right"},
 	{ACT_SHIFT_CYLINDER,			ACT_QUEUE_Shift_cylinder,				"Shift cylinder"},
 	{ACT_PENDULUM,					ACT_QUEUE_Pendulum,						"Pendulum"},
+	{ACT_SHOVEL_DUNE,				ACT_QUEUE_Shovel_dune,					"Shovel dune"},
+	{ACT_BRUSH_DUNE,				ACT_QUEUE_Brush_dune,					"Brush dune"},
 
 	// Pearl
 	{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},
