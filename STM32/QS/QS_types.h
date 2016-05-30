@@ -184,8 +184,6 @@
 			//F_BLOC_START_ZONE_TRIED,			//on a tenté lors de cette strat de prendre le bloc start zone adv
 
 			//Flags de dépose des blocs de sables
-			F_DEPOSE_BLOC_ERROR,			//on est dans le cas d'erreur de la depose (si on a pas pu pousser le bloc precedent)
-			F_DEPOSE_BLOC_DOUBLE_ERROR,	    //on a pas pu pousser deux fois de suite
 			F_DEPOSE_POS_0,
 			F_DEPOSE_POS_1,
 			F_DEPOSE_POS_2,
