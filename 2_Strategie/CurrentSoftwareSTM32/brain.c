@@ -245,11 +245,11 @@ void any_match(void)
 					ACT_push_order(ACT_SAND_LOCKER_RIGHT, ACT_SAND_LOCKER_RIGHT_IDLE);
 
 				}else{
-					if(ELEMENTS_get_flag(ARM_RIGHT_LOCK)){
+					if(ELEMENTS_get_flag(F_ARM_RIGHT_LOCK)){
 						ACT_push_order(ACT_RIGHT_ARM, ACT_RIGHT_ARM_PARALLELE);
 					}
 
-					if(ELEMENTS_get_flag(ARM_LEFT_LOCK)){
+					if(ELEMENTS_get_flag(F_ARM_LEFT_LOCK)){
 						ACT_push_order(ACT_LEFT_ARM, ACT_LEFT_ARM_PARALLELE);
 					}
 					ACT_push_order(ACT_PEARL_SAND_CIRCLE, ACT_PEARL_SAND_CIRCLE_IDLE);
