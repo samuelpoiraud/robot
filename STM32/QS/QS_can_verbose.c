@@ -341,8 +341,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 													case F_APOCALYPSE_WTF:				print(string, len, "APOCALYPSE_WTF");				break;
 													case F_APOCALYPSE_TOTAL_DUNE:			print(string, len, "APOCALYPSE_TOTAL_DUNE");		break;
 													case F_APOCALYPSE_ABSENT:				print(string, len, "APOCALYPSE_ABSENT");			break;
-													case F_DEPOSE_BLOC_ERROR:				print(string, len, "DEPOSE_BLOC_ERROR");			break;
-													case F_DEPOSE_BLOC_DOUBLE_ERROR:		print(string, len, "DEPOSE_BLOC_DOUBLE_ERROR");		break;
 													case F_DEPOSE_POS_0:					print(string, len, "DEPOSE_POS_0");					break;
 													case F_DEPOSE_POS_1:					print(string, len, "DEPOSE_POS_1");					break;
 													case F_DEPOSE_POS_2:					print(string, len, "DEPOSE_POS_2");					break;
