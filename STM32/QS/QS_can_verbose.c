@@ -328,9 +328,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 													case F_FISHS_TAKEN_BY_BLACK:			print(string, len, "FISHS_TAKEN_BY_BLACK");			break;
 													case F_FISHS_TAKEN_BY_PEARL:			print(string, len, "FISHS_TAKEN_BY_PEARL");			break;
 													case F_DUNE_TAKEN:					print(string, len, "DUNE_TAKEN");					break;
-													case F_DUNE_IN_ROBOT:					print(string, len, "DUNE_IN_ROBOT");				break;
-													case F_BLOC_DUNE_TRIED:				print(string, len, "BLOC_DUNE_TRIED");				break;
-													case F_BLOC_START_ZONE_TRIED:			print(string, len, "BLOC_START_ZONE_TRIED");		break;
+													case F_ENTIRE_DUNE_IN_ROBOT:					print(string, len, "DUNE_IN_ROBOT");				break;
+													//case F_BLOC_DUNE_TRIED:				print(string, len, "BLOC_DUNE_TRIED");				break;
+													//case F_BLOC_START_ZONE_TRIED:			print(string, len, "BLOC_START_ZONE_TRIED");		break;
 													case F_OUR_BLOC_PRESENT:				print(string, len, "OUR_BLOC_PRESENT");				break;
 													case F_OUR_BLOC_ABSENT:				print(string, len, "OUR_BLOC_ABSENT");				break;
 													case F_ADV_BLOC_PRESENT:				print(string, len, "ADV_BLOC_PRESENT");				break;
@@ -346,10 +346,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 													case F_DEPOSE_POS_0:					print(string, len, "DEPOSE_POS_0");					break;
 													case F_DEPOSE_POS_1:					print(string, len, "DEPOSE_POS_1");					break;
 													case F_DEPOSE_POS_2:					print(string, len, "DEPOSE_POS_2");					break;
-													case DEPOSE_POS_3:					print(string, len, "DEPOSE_POS_3");					break;
-													case F_BLACK_LET_PEARL_GO_TAKE_DUNE_BLOC:	print(string, len, "BLACK_LET_PEARL_GO_TAKE_DUNE_BLOC");	break;
-													case F_BLACK_CAN_USE_DUNIX:			print(string, len, "BLACK_CAN_USE_DUNIX");			break;
-													case F_BLACK_TRY_DOORS:				print(string, len, "BLACK_TRY_DOORS");				break;
+													case F_DEPOSE_POS_3:					print(string, len, "DEPOSE_POS_3");					break;
 													case F_BLACK_DOORS:					print(string, len, "BLACK_DOORS");					break;
 													case F_BLACK_OUR_BLOC_DUNE:			print(string, len, "BLACK_OUR_BLOC_DUNE");			break;
 													case F_BLACK_IN_APOCALYPSE:			print(string, len, "BLACK_IN_APOCALYPSE");			break;
@@ -372,7 +369,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 													case F_PEARL_DEPOSE_SEASHELL:			print(string, len, "PEARL_DEPOSE_SEASHELL");		break;
 													case F_PEARL_OUR_SEASHELL:			print(string, len, "PEARL_OUR_SEASHELL");			break;
 													case F_PEARL_ADV_SEASHELL:			print(string, len, "PEARL_ADV_SEASHELL");			break;
-													case F_PEARL_CAN_GO_CLOSE_DOORS:		print(string, len, "PEARL_CAN_GO_CLOSE_DOORS");		break;
 													case F_PEARL_FISH:					print(string, len, "PEARL_FISH");					break;
 													default:							print(string, len, "UNKNOW : %d : faites un tour dans le verbose ;)", msg->data.xbee_sync_elements_flags.flagId);	break;
 												}

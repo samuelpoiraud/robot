@@ -172,45 +172,24 @@
 			//Eléments pris
 			F_FIRST_DOOR_CLOSED,
 			F_SECOND_DOOR_CLOSED,
-			F_OUR_START_ZONE_BLOC_TAKEN,		//on a pris notre bloc de 4
-			F_ADV_START_ZONE_BLOC_TAKEN,		//on a pris le bloc de 4 adv
+			F_OUR_START_ZONE_BLOC_TAKEN,	//on a pris notre bloc de 4
+			F_ADV_START_ZONE_BLOC_TAKEN,	//on a pris le bloc de 4 adv
 			F_OUR_DUNE_BLOC_TAKEN,			//on a pris notre bloc de 8
 			F_ADV_DUNE_BLOC_TAKEN,			//on a pris le bloc de 8 adv
 			F_FISHS_TAKEN_BY_BLACK,			//sub poissons fait par Black
 			F_FISHS_TAKEN_BY_PEARL,			//sub poissons fait par Pearl
 
-			F_DUNE_TAKEN,                      //La dune a été prise
-			F_DUNE_IN_ROBOT,                   //la dune est dans le robot, on ne l'a pas encore déposé. Ce flag
-
 			//Flags temporaires strat d'attaque pearl
-			F_BLOC_DUNE_TRIED,				//on a tenté lors de cette strat de prendre le bloc dune adv
-			F_BLOC_START_ZONE_TRIED,			//on a tenté lors de cette strat de prendre le bloc start zone adv
-
-			//Apocalypse
-			F_OUR_BLOC_PRESENT,			//on a vu (au scan) notre bloc de 8
-			F_OUR_BLOC_ABSENT,			//on a PAS vu (au scan) notre bloc de 8
-			F_ADV_BLOC_PRESENT,			//on a vu (au scan) le bloc de 8 adv
-			F_ADV_BLOC_ABSENT,			//on a PAS vu (au scan) le bloc de 8 adv
-			F_APOCALYPSE_SCAN,			//on a scanné l'apocalypse (on est passé voir si il y a quelque chose
-			//F_APOCALYPSE_PRESENT,			//on a trouvé l'apocalypse
-			F_APOCALYPSE_TAKEN,			//on a pris l'apocalypse
-			F_APOCALYPSE_SECOND_PART,
-			F_APOCALYPSE_WTF,
-			F_APOCALYPSE_TOTAL_DUNE,
-			F_APOCALYPSE_ABSENT,
+			//F_BLOC_DUNE_TRIED,				//on a tenté lors de cette strat de prendre le bloc dune adv
+			//F_BLOC_START_ZONE_TRIED,			//on a tenté lors de cette strat de prendre le bloc start zone adv
 
 			//Flags de dépose des blocs de sables
 			F_DEPOSE_BLOC_ERROR,			//on est dans le cas d'erreur de la depose (si on a pas pu pousser le bloc precedent)
-			F_DEPOSE_BLOC_DOUBLE_ERROR,	//on a pas pu pousser deux fois de suite
+			F_DEPOSE_BLOC_DOUBLE_ERROR,	    //on a pas pu pousser deux fois de suite
 			F_DEPOSE_POS_0,
 			F_DEPOSE_POS_1,
 			F_DEPOSE_POS_2,
-			DEPOSE_POS_3,
-
-			//Flags de stratégie échangées entre les deux robots
-			F_BLACK_LET_PEARL_GO_TAKE_DUNE_BLOC,
-			F_BLACK_CAN_USE_DUNIX,
-			F_BLACK_TRY_DOORS,
+			F_DEPOSE_POS_3,
 
 			//Flags de subaction
 			F_BLACK_DOORS,
@@ -236,7 +215,6 @@
 			F_PEARL_DEPOSE_SEASHELL,
 			F_PEARL_OUR_SEASHELL,
 			F_PEARL_ADV_SEASHELL,
-			F_PEARL_CAN_GO_CLOSE_DOORS,
 			F_PEARL_FISH,
 
 			F_ELEMENTS_FLAGS_END_SYNCH,	//Les flags au-dessus seront synchro entre les deux robots
@@ -246,26 +224,44 @@
 			//Ne pas mettre ce flag dans la partie synchro, ce flag est synchro par une machine à état spécifique
 			F_COMMUNICATION_AVAILABLE,
 
-			//Gestion des éléments dans le robot Black
+			//Eléments pris (non synchro)
+			F_DUNE_TAKEN,                      //la dune a été prise
+
+			///GESTION DES ELEMNTS DANS LE ROBOT BLACK
 			F_VENTOUSE_AVANT_GAUCHE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
 			F_VENTOUSE_AVANT_DROITE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
-			F_BLOC_IN_BLACK,
-			F_FRONT_DUNE_IN_BLACK,
-			F_FRONT_BLACK_USED,			  //flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
-			F_BACK_BLACK_USED,		      //flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
+			F_FRONT_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
+			F_BACK_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 			F_DUNIX_OPEN,
-			F_PEARL_IS_OUT,
-			F_FISHS_IN_ROBOT_PEARL,
+			F_PEARL_IS_OUT,					//flag indiquant que Pearl est resté planté dans la zone de départ
 
+			//Flag apportant plus d'info sur ce qui a été pris à l'avant et ce qui a été pris à l'arrière
+			F_BLOC_IN_BLACK,                   //un bloc est à l'avant du robot
+			F_FRONT_DUNE_IN_BLACK,             //l'avant de la dune est dans le robot
+			F_ENTIRE_DUNE_IN_ROBOT,            //la dune arrière est entièrement dans le robot, on ne l'a pas encore déposé.
 
-			//Gestion des éléments dans le robot Pearl
+			//Apocalypse
+			F_OUR_BLOC_PRESENT,			//on a vu (au scan) notre bloc de 8
+			F_OUR_BLOC_ABSENT,			//on a PAS vu (au scan) notre bloc de 8
+			F_ADV_BLOC_PRESENT,			//on a vu (au scan) le bloc de 8 adv
+			F_ADV_BLOC_ABSENT,			//on a PAS vu (au scan) le bloc de 8 adv
+			F_APOCALYPSE_SCAN,			//on a scanné l'apocalypse (on est passé voir si il y a quelque chose
+			//F_APOCALYPSE_PRESENT,		//on a trouvé l'apocalypse
+			F_APOCALYPSE_TAKEN,			//on a pris l'apocalypse
+			F_APOCALYPSE_SECOND_PART,
+			F_APOCALYPSE_WTF,
+			F_APOCALYPSE_TOTAL_DUNE,
+			F_APOCALYPSE_ABSENT,
+
+			///GESTION DES ELEMNTS DANS LE ROBOT PEARL
 			F_VENTOUSE_AVANT_GAUCHE_PEARL,
 			F_VENTOUSE_AVANT_DROITE_PEARL,
 			F_VENTOUSE_ARRIERE_GAUCHE_PEARL,
 			F_VENTOUSE_ARRIERE_DROITE_PEARL,
-			F_FRONT_PEARL_USED,               //Flag pour savoir si il y a quelque chose à l'avant de Pearl
+			F_FRONT_PEARL_USED,               //flag pour savoir si il y a quelque chose à l'avant de Pearl
 			F_ARM_RIGHT_LOCK,
 			F_ARM_LEFT_LOCK,
+			F_FISHS_IN_PEARL,                 //flag indiquant que des poissons non-déposé sont dans Pearl
 
 
 			F_ELEMENTS_FLAGS_NB
