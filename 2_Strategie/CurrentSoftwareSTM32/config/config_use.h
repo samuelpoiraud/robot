@@ -38,6 +38,11 @@
 
 #define SCAN_BLOC
 
+//#define MAIN_IR_RCVA
+#ifdef MAIN_IR_RCVA
+	#warning "PAS CE CODE DANS LE ROBOT SVP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+#endif
+
 #define USE_SENSORS
 
 #define FDP_2016				//Mode FDP nouvelle génération 2016 !
@@ -128,11 +133,17 @@
 		#define PWM_FREQ	50000
 		#define USE_PWM4
 
+#ifdef MAIN_IR_RCVA
+	#define USE_PWM1
+	#define USE_AN9				// PB1...
+	#define ADC_PHOTOTRANSISTOR		ADC_9
 
+	#define ADC_CHANNEL_MEASURE24		ADC_9	//UNUSED !!
+#else
 /* Réglages entrées analogiques */
 	#define USE_AN8				// Capteur mesure 24V
 	#define ADC_CHANNEL_MEASURE24		ADC_8
-
+#endif
 /* Réglages XBEE */
 	#define USE_XBEE
 	#define XBEE_PLUGGED_ON_UART2
