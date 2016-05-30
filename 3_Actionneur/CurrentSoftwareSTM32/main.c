@@ -458,19 +458,7 @@ static void MAIN_onButton0LongPush(){
 }
 
 static void MAIN_onButton1(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 7;
-	msg.sid = ACT_POMPE_BACK_RIGHT;
 
-	if(state == 0){
-		msg.data.act_msg.order = ACT_POMPE_NORMAL;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_POMPE_STOP;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton1LongPush(){
@@ -538,25 +526,6 @@ static void MAIN_onButton4(){
 	static Uint8 state = 0;
 	CAN_msg_t msg;
 	msg.size = 7;
-	msg.sid = ACT_POMPE_BACK_LEFT;
-
-	if(state == 0){
-		msg.data.act_msg.order = ACT_POMPE_NORMAL;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_POMPE_STOP;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
-}
-
-static void MAIN_onButton4LongPush(){
-}
-
-static void MAIN_onButton5(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 7;
 	msg.sid = ACT_FISH_PEARL;
 
 	if(state == 0){
@@ -568,6 +537,24 @@ static void MAIN_onButton5(){
 	CAN_process_msg(&msg);
 	state = (state == 1)? 0 : state + 1;
 }
+
+static void MAIN_onButton4LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 7;
+	msg.sid = ACT_VENTILATOR_PEARL;
+
+	if(state == 0){
+		msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+	}else if(state == 1){
+		msg.data.act_msg.order = ACT_MOSFET_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton5(){}
 
 static void MAIN_onButton5LongPush(){
 	static Uint8 state = 0;

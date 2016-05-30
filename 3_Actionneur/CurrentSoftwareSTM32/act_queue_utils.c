@@ -313,8 +313,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		 //Pearl
 		   case ACT_LEFT_ARM & 0xFF:		        originalSidStr = "SandLeftArm";         break;
 		   case ACT_RIGHT_ARM & 0xFF:               originalSidStr = "SandRightArm";        break;
-		   case ACT_POMPE_BACK_LEFT & 0xFF:         originalSidStr = "PompeBackLeft";       break;
-		   case ACT_POMPE_BACK_RIGHT & 0xFF:        originalSidStr = "PompeBackRight";      break;
+		   case ACT_VENTILATOR_PEARL & 0xFF:        originalSidStr = "VentilatorPearl";     break;
 		   case ACT_POMPE_FRONT_LEFT & 0xFF:        originalSidStr = "PompeFrontLeft";      break;
 		   case ACT_POMPE_FRONT_RIGHT & 0xFF:       originalSidStr = "PompeFrontRight";     break;
 		   case ACT_PEARL_SAND_CIRCLE & 0xFF:	    originalSidStr = "SandCircle";			break;

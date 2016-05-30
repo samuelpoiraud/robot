@@ -92,8 +92,8 @@
 	#define PORT_IO_B_8			PORT_IO_OUTPUT
 		#define I_AM_READY			GPIOB,GPIO_Pin_8
 
-	#define PORT_IO_B_9			PORT_IO_INPUT
-
+	#define PORT_IO_B_9			PORT_IO_OUTPUT
+		#define MOSFET_0_PIN		GPIOB,GPIO_Pin_9
 
 	#define PORT_IO_B_10		PORT_IO_INPUT
 		//
@@ -174,8 +174,8 @@
 	#define PORT_IO_D_1			PORT_IO_INPUT
 		// CAN_TX
 
-	#define PORT_IO_D_2			PORT_IO_OUTPUT
-		#define MOSFET_0_PIN		GPIOD,GPIO_Pin_2   //Pompe arrière gauche de Pearl
+	#define PORT_IO_D_2			PORT_IO_INPUT
+
 
 	#define PORT_IO_D_3			PORT_IO_INPUT
 		//
