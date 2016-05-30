@@ -205,13 +205,13 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
 									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 900, TRUE},
 									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
 									(astar_user_node_t){750, 900 - MARGIN_TO_OBSTACLE, FALSE},
-									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-3*PI4096/8
-									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-2*PI4096/8
-									(astar_user_node_t){750 + 0.93*(600 + MARGIN_TO_OBSTACLE), 1500 - 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //-PI4096/8
-									(astar_user_node_t){1350 + MARGIN_TO_OBSTACLE - 10, 1500, TRUE},                                              // 0
-									(astar_user_node_t){750 + 0.93*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //PI4096/8
-									(astar_user_node_t){750 + 0.707*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //2*PI4096/8
-									(astar_user_node_t){750 + 0.382*(600 + MARGIN_TO_OBSTACLE), 1500 + 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE});  //3*PI4096/8
+									(astar_user_node_t){750 + 0.382*(650 + MARGIN_TO_OBSTACLE), 1500 - 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-3*PI4096/8
+									(astar_user_node_t){750 + 0.707*(650 + MARGIN_TO_OBSTACLE), 1500 - 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-2*PI4096/8
+									(astar_user_node_t){750 + 0.93*(650 + MARGIN_TO_OBSTACLE), 1500 - 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //-PI4096/8
+									(astar_user_node_t){1350 + 50 + MARGIN_TO_OBSTACLE - 10, 1500, TRUE},                                              // 0
+									(astar_user_node_t){750 + 0.93*(650 + MARGIN_TO_OBSTACLE), 1500 + 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //PI4096/8
+									(astar_user_node_t){750 + 0.707*(650 + MARGIN_TO_OBSTACLE), 1500 + 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //2*PI4096/8
+									(astar_user_node_t){750 + 0.382*(650 + MARGIN_TO_OBSTACLE), 1500 + 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE});  //3*PI4096/8
 
 	//Polygon[3]:Zone de la dune (Node 24 -> 32)
 	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){0, 800 - MARGIN_TO_OBSTACLE, TRUE},
@@ -264,7 +264,7 @@ static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
   *      Procédure permettant d'ajouter les nodes à la liste ouverte lorsque le point de départ est dans un polygone
   */
 static bool_e ASTAR_link_node_start(astar_path_t *path){
-	//Rien à gérer pour les polygones 0 et 1 correspondant aux deus rochers.
+	//Rien à gérer pour les polygones 0 et 1 correspondant aux deux rochers.
 	//L'éloignement des bordures doit être assuré par le programmeur en strat
 	if(!ASTAR_point_out_of_polygon(polygon_list.polygons[2], path->from.pos) && polygon_list.polygons[2].enable){ //Zone central avec plexi
 		if(path->from.pos.x > 750 && path->from.pos.y < 1500){
