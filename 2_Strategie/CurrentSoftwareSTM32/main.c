@@ -39,7 +39,6 @@
 #include "astar.h"
 #include "elements.h"
 
-
 void test_bp_switchs(void);
 void test_leds(void);
 void pull_bp_and_switch(void);
@@ -59,7 +58,23 @@ void process_measure_loop_duration(void)
 	}
 }
 
-
+void security_stack(void)
+{
+	static bool_e initialized = FALSE;
+	static uint8_t * ptr;
+	extern uint8_t _susrstack;
+	if(!initialized)
+	{
+		ptr = &_susrstack;
+		*ptr = 0x55;
+		initialized = TRUE;
+	}
+	if(*ptr != 0x55)
+	{
+		printf("Stack overflowed\n");
+		while(1);
+	}
+}
 
 void tests(void)
 {
@@ -94,7 +109,9 @@ int main (void)
 	//RCC_read();
 
 	IHM_init(&global.flags.match_started);
-
+#ifdef MAIN_IR_RCVA
+	main_ir_rcva();
+#endif
 	ENV_init();	//Pour être réceptif aux éventuels messages CAN envoyés très tôt...
 
 	GPIO_SetBits(LED_RUN);
@@ -146,7 +163,7 @@ int main (void)
 	while(1)
 	{
 		toggle_led(LED_RUN);
-
+		security_stack();
 		// Commandes pour EVE
 		#ifdef USE_QSx86
 			EVE_manager_card();
@@ -254,3 +271,93 @@ static void MAIN_sensor_test(){
 		}
 	}
 }
+
+
+
+
+#ifdef MAIN_IR_RCVA
+
+#define NB_ECH	10000
+void main_ir_rcva(void)
+{
+	static uint16_t buffer_adc[NB_ECH];
+
+	typedef enum
+	{
+		INIT = 0,
+		WAIT_BP,
+		ACQUIRE,
+		PRINT
+	}state_e;
+	static state_e state = INIT;
+	uint16_t value;
+	static uint16_t previous_value;
+	uint32_t i;
+	uint32_t index;
+
+	static time32_t time_begin, time_end;
+
+	while(1)
+	{
+		switch(state)
+		{
+			case INIT:
+				QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
+				ADC_init();
+				RTC_init();
+				CLOCK_init();	//TEMPORAIRE !!!
+				index = 0;
+				state = WAIT_BP;
+				SD_init();
+				PWM_init();
+				PWM_set_frequency(450000);
+				PWM_run(50,1);
+
+				break;
+			case WAIT_BP:
+				if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0))
+				{
+					time_begin = global.absolute_time;
+					state = ACQUIRE;
+				}
+
+
+				while(UART1_data_ready())
+					{
+						char_from_user(UART1_get_next_msg());
+					}
+
+
+
+				SD_process_main();
+				break;
+			case ACQUIRE:
+				value = ADC_getValue(ADC_PHOTOTRANSISTOR);
+				if(value && (value != previous_value))
+				{
+					buffer_adc[index] = value;
+					previous_value = value;
+					index++;
+				}
+
+				if(index>=NB_ECH)
+				{
+					index = 0;
+					time_end = global.absolute_time;
+					state = PRINT;
+				}
+
+				break;
+			case PRINT:
+				/*SD_*/printf("t:%d | %d\n",time_begin,time_end-time_begin);
+				printf("t:%d | %d\n",time_begin,time_end-time_begin);
+				for(i = 0; i<NB_ECH; i++)
+					/*SD_*/printf("%d,",buffer_adc[i]);
+				state = WAIT_BP;
+				break;
+		}
+	}
+
+}
+
+#endif
