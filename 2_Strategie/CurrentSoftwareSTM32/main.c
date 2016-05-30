@@ -71,7 +71,7 @@ void security_stack(void)
 	}
 	if(*ptr != 0x55)
 	{
-		printf("Stack overflowed\n");
+		SD_printf("Stack overflowed\n");
 		while(1);
 	}
 }
@@ -349,10 +349,10 @@ void main_ir_rcva(void)
 
 				break;
 			case PRINT:
-				/*SD_*/printf("t:%d | %d\n",time_begin,time_end-time_begin);
+				SD_printf("t:%d | %d\n",time_begin,time_end-time_begin);
 				printf("t:%d | %d\n",time_begin,time_end-time_begin);
 				for(i = 0; i<NB_ECH; i++)
-					/*SD_*/printf("%d,",buffer_adc[i]);
+					SD_printf("%d,",buffer_adc[i]);
 				state = WAIT_BP;
 				break;
 		}
