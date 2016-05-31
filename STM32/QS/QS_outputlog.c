@@ -64,9 +64,9 @@ log_level_e OUTPUTLOG_get_level() {
 	return current_max_log_level;
 }
 
-void OUTPUTLOG_set_callback_vargs(OUTPUTLOG_CallbackV callback) {
+void OUTPUTLOG_set_callback_vargs(OUTPUTLOG_CallbackV new_callback) {
 	callback = NULL;
-	vcallback = callback;
+	vcallback = new_callback;
 }
 
 void OUTPUTLOG_set_callback(OUTPUTLOG_Callback new_callback) {
