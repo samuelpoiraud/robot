@@ -277,8 +277,6 @@ void any_match(void)
 				}else{
 					ACT_push_order(ACT_POMPE_FRONT_LEFT, ACT_POMPE_STOP);
 					ACT_push_order(ACT_POMPE_FRONT_RIGHT, ACT_POMPE_STOP);
-					ACT_push_order(ACT_POMPE_BACK_LEFT, ACT_POMPE_STOP);
-					ACT_push_order(ACT_POMPE_BACK_RIGHT, ACT_POMPE_STOP);
 				}
 			}
 			else
