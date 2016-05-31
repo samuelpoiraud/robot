@@ -72,7 +72,7 @@
 		// Programmation
 
 	#define PORT_IO_A_15		PORT_IO_INPUT
-
+		//
 
 ////////////////////////////////////////////////////////////////////////////////////
 //--------------------------------------PORT B------------------------------------//
@@ -81,7 +81,7 @@
 		// Mesure 24V
 
 	#define PORT_IO_B_1			PORT_IO_INPUT
-		#define RECALAGE_AR_D		!GPIOB->IDR1
+		//
 
 	#define PORT_IO_B_2			PORT_IO_INPUT
 		#define POWER_WATCH_INT		GPIOB->IDR2
@@ -143,7 +143,7 @@
 		#define WT100_CENTER_TOP  !GPIOC->IDR4  //Pearl
 
 	#define PORT_IO_C_5			PORT_IO_INPUT
-		#define RECALAGE_AR_G		!GPIOC->IDR5  //Black
+		//
 
 	#define PORT_IO_C_6			PORT_IO_OUTPUT
 		#define MOSFET_1_PIN         GPIOC,GPIO_Pin_6
@@ -284,5 +284,8 @@
 
 	#define PORT_IO_E_15		PORT_IO_INPUT
 		//
+
+#define RECALAGE_AR_D		1
+#define RECALAGE_AR_G		1
 
 #endif /* CONFIG_PIN_H */
