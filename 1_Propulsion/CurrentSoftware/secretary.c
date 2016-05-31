@@ -41,6 +41,7 @@
 #include "hokuyo.h"
 #include "avoidance.h"
 #include "scan_bloc.h"
+#include "scan_fishs.h"
 
 
 typedef struct{
@@ -500,6 +501,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		case PROP_SCAN_DUNE:
 			SCAN_PROCESS(msg);
+			break;
+
+		case PROP_ASK_FISHS_SCAN:
+			SCAN_FISHS_set_start(msg->data.prop_ask_fishs_scan.start);
+			SCAN_FISHS_set_finish(msg->data.prop_ask_fishs_scan.finish);
 			break;
 
 		default :

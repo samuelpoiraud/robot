@@ -473,6 +473,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.scan_bloc_error=incoming_msg->data.strat_bloc_position.error_scan;
 			break;
 
+		case PROP_RESULT_FISHS_SCAN:
+			ACT_set_pos_fishs(incoming_msg->data.prop_result_fishs_scan.y_pos);
+			break;
+
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
 			ACT_process_result(incoming_msg);

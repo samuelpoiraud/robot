@@ -654,6 +654,19 @@
 				bool_e startScan			:1;
 			}strat_ask_bloc_scan;
 
+		#define PROP_ASK_FISHS_SCAN    		0x11D
+		#define SIZE_PROP_ASK_FISHS_SCAN	1
+			struct{
+				bool_e start		        :1;
+				bool_e finish			    :1;
+			}prop_ask_fishs_scan;
+
+		#define PROP_RESULT_FISHS_SCAN    	0x21B
+		#define SIZE_PROP_RESULT_FISHS_SCAN	8
+			struct{
+				Sint16 y_pos[4];
+			}prop_result_fishs_scan;
+
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
