@@ -48,7 +48,8 @@ typedef enum{
 	IT_STATE_SCAN,
 	IT_STATE_CHOC_DETECTION,
 	IT_STATE_DEBUG,
-	IT_STATE_LCD
+	IT_STATE_LCD,
+	IT_STATE_SCAN_FISHS
 }it_state_e;
 
 void IT_test_state(time32_t time_begin, it_state_e it_state, bool_e *over_time);
@@ -161,6 +162,9 @@ void _ISR _T2Interrupt()
 		DETECTION_CHOC_process_it_tim2();
 		IT_test_state(begin_it_time, IT_STATE_CHOC_DETECTION, &first_overtime);
 	#endif
+
+	SCAN_FISHS_process_it();
+	IT_test_state(begin_it_time, IT_STATE_SCAN_FISHS, &first_overtime);
 
 	DEBUG_process_it();
 	IT_test_state(begin_it_time, IT_STATE_DEBUG, &first_overtime);

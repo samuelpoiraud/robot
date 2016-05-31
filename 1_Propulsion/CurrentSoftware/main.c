@@ -41,6 +41,7 @@
 #include "gyroscope.h"
 #include "detection.h"
 #include "detection_choc.h"
+#include "scan_fishs.h"
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -210,6 +211,7 @@ int main (void)
 		{
 			t_ms = 0;
 			BUTTONS_update();			//Gestion des boutons
+			//debug_printf("value = %d\n", ADC_getValue(ADC_SENSOR_FISHS));
 		}
 
 		SECRETARY_process_main();	//Communication avec l'extérieur. (Réception des messages)
@@ -226,6 +228,7 @@ int main (void)
 
 		SCAN_PROCESS(NULL);
 		SCAN_BLOC_process_main();
+		SCAN_FISHS_process_main();
 
 		#ifdef DETECTION_CHOC
 			 DETECTION_CHOC_process_main();

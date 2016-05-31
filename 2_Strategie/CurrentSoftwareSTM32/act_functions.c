@@ -268,3 +268,26 @@ void ACT_sensor_answer(CAN_msg_t* msg){
 	else
 		sensor_answer[msg->data.strat_inform_capteur.sensor_id] = ACT_SENSOR_ABSENT;
 }
+
+
+static Sint16 pos_fishs[4];
+static Uint8 nb_fishs;
+void ACT_set_pos_fishs(Sint16 value[]){
+	Uint8 i;
+	global.scan_fishs = TRUE;
+	nb_fishs = 0;
+	for(i=0 ; i<4 ; i++){
+		pos_fishs[i] = value[i];
+		if(value[i] != 0){
+			nb_fishs++;
+		}
+	}
+}
+
+Uint8 ACT_get_nb_fishs(){
+	return nb_fishs;
+}
+
+void ACT_get_pos_fishs(Sint16 *value){
+	value = pos_fishs;
+}

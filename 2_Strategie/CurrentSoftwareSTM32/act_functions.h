@@ -69,4 +69,8 @@ void ACT_sensor_answer(CAN_msg_t* msg);
 bool_e ACT_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value);
 
 
+void ACT_set_pos_fishs(Sint16 value[]);
+Uint8 ACT_get_nb_fishs();
+void ACT_get_pos_fishs(Sint16 *value);
+
 #endif /* ndef ACT_FUNCTIONS_H */
