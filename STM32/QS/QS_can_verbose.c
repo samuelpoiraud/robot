@@ -224,7 +224,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 											 if(I_AM_BIG())
 														print(string, len, "%x ACT_POMPE_VERY_LEFT                    ", ACT_POMPE_VERY_LEFT                            );
 											 else
-														print(string, len, "%x ACT_POMPE_BACK_RIGHT                   ", ACT_VENTILATOR_PEARL							);	break;
+														print(string, len, "%x ACT_VENTILATOR_PEARL                   ", ACT_VENTILATOR_PEARL							);	break;
 		case ACT_MOSFET_1:
 											 if(I_AM_BIG())
 														print(string, len, "%x ACT_POMPE_MIDDLE                       ", ACT_POMPE_MIDDLE                               );

@@ -149,6 +149,29 @@ bool_e ACT_push_order(ACT_sid_e sid,  ACT_order_e order){
 	return ACT_push_operation(act_link_SID_Queue[i].queue_id, &args);
 }
 
+
+bool_e ACT_push_order_with_timeout(ACT_sid_e sid,  ACT_order_e order, Uint16 timeout){
+	QUEUE_arg_t args;
+	Uint8 i;
+
+	i = ACT_search_link_SID_Queue(sid) ;
+
+	if(i >= act_link_SID_Queue_size || i == 0){
+		error_printf("Link SID non trouvé dans ACT_push_order !\n");
+		return FALSE;
+	}
+
+	ACT_arg_init(&args, sid, order);
+	ACT_arg_set_timeout(&args, timeout);
+	ACT_arg_set_fallbackmsg(&args, sid,  ACT_DEFAULT_STOP);
+
+	debug_printf("Pushing %s Run cmd (sid : 0x%x   order : %d)\n", act_link_SID_Queue[i].name, sid, order);
+
+	ACT_AVOIDANCE_new_classic_cmd(act_link_SID_Queue[i].queue_id, order);
+
+	return ACT_push_operation(act_link_SID_Queue[i].queue_id, &args);
+}
+
 bool_e ACT_push_order_with_param(ACT_sid_e sid,  ACT_order_e order, Uint16 param){
 	QUEUE_arg_t args;
 	Uint8 i;
