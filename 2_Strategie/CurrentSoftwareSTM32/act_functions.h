@@ -46,6 +46,7 @@ Uint8 ACT_search_link_SID_Queue(ACT_sid_e sid);
 
 
 bool_e ACT_push_order(ACT_sid_e sid,  ACT_order_e order);
+bool_e ACT_push_order_with_timeout(ACT_sid_e sid,  ACT_order_e order, Uint16 timeout);
 bool_e ACT_push_order_with_param(ACT_sid_e sid,  ACT_order_e order, Uint16 param);
 
 
