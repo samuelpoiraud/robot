@@ -63,7 +63,8 @@ void SD_init(void)
 
 static int SD_logprintf(log_level_e level, const char* format, va_list vargs) {
 	if(level <= LOG_LEVEL_Info)
-		SD_vprintf(TRUE, format, vargs);
+		SD_vprintf(FALSE, format, vargs);	//Pas de verbose sur cet enregistrement en SD... puisqu'il s'agit déjà d'un printf.
+											//cela évite d'ailleurs le risque d'une boucle récursive entre le verbose d'un SD_printf et le log SD d'un printf !
 
 	return 0;
 }
@@ -104,7 +105,7 @@ static int SD_vprintf(bool_e verbose, const char * s, va_list args)
 		ret = PRINTF_BUFFER_SIZE-1;
 
 	SD_new_event(FROM_SOFT, NULL, buf, b_insert_time);
-	if(IHM_switchs_get(SWITCH_VERBOSE) && verbose)
+	if(verbose && IHM_switchs_get(SWITCH_VERBOSE))
 		OUTPUTLOG_printf(LOG_LEVEL_Always, buf); //On en profite pour Verboser l'événement.
 
 //	was_newline = buf[ret-1] == '\n'; //Si la ligne à un '\n' à la fin, on ajoutera un timestamp au prochain printf
