@@ -592,9 +592,16 @@ static void PILOT_update_acceleration_translation_and_rotation(void) {
 	Sint32 coef_acceleration_rotation_translation;
 
 	// Coef_acceleration translation
-	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
-		coef_acceleration_translation = 160;
-	else if(custom_acceleration_translation)
+	if(COPILOT_get_trajectory() == TRAJECTORY_STOP){
+		if(QS_WHO_AM_I_get() == BIG_ROBOT){
+			if(in_rush)
+				coef_acceleration_translation = BIG_ACCELERATION_AVOIDANCE_RUSH;
+			else
+				coef_acceleration_translation = BIG_ACCELERATION_AVOIDANCE;
+		}else{
+			coef_acceleration_translation = SMALL_ACCELERATION_AVOIDANCE;
+		}
+	}else if(custom_acceleration_translation)
 		coef_acceleration_translation = custom_acceleration_translation_value;
 	else
 		coef_acceleration_translation = coefs[PILOT_ACCELERATION_NORMAL];
@@ -604,7 +611,14 @@ static void PILOT_update_acceleration_translation_and_rotation(void) {
 
 	// Coef_acceleration rotation
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP)
-		coef_acceleration_rotation = 160;
+		if(QS_WHO_AM_I_get() == BIG_ROBOT){
+			if(in_rush)
+				coef_acceleration_rotation = BIG_ACCELERATION_AVOIDANCE_RUSH;
+			else
+				coef_acceleration_rotation = BIG_ACCELERATION_AVOIDANCE;
+		}else{
+			coef_acceleration_rotation = SMALL_ACCELERATION_AVOIDANCE;
+		}
 	else if(custom_acceleration_rotation)
 		coef_acceleration_rotation = custom_acceleration_rotation_value;
 	else
