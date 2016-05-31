@@ -52,7 +52,7 @@ void process_measure_loop_duration(void)
 	{
 		//Décommenter ce printf pour afficher la mesure de la durée de la boucle.
 		//ATTENTION, cet affichage est hors de la mesure... (donc elle impacte le code hors de cette mesure).
-		if(global.absolute_time - previous_time > 5)
+		if(global.absolute_time - previous_time > 9)
 			debug_printf("L%d\n",(Uint16)(global.absolute_time - previous_time));
 		previous_time = global.absolute_time;
 	}
