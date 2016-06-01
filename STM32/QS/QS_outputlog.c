@@ -9,6 +9,7 @@
  */
 
 #include "QS_outputlog.h"
+#include "QS_sys.h"
 #include "../config/config_debug.h"
 
 #include <stdio.h>
@@ -34,7 +35,7 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 	if(SYS_Read_Interrupt_state())
 	{
 		va_start(args_list, format);
-		OUTPUTLOG_printf_in_it(level, format, args_list);
+		OUTPUTLOG_printf_in_it(format, args_list);
 		va_end(args_list);
 		return;
 	}
@@ -65,7 +66,7 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 #ifndef BUFFER_PRINTF_IT_SIZE
 	#define BUFFER_PRINTF_IT_SIZE	256
 #endif
-volatile static uint8_t buffer_printf_it[BUFFER_PRINTF_IT_SIZE];
+static char buffer_printf_it[BUFFER_PRINTF_IT_SIZE];
 volatile static uint32_t index_write;
 //Cette fonction ne doit être appelée qu'en IT.
 //Elle enregistre la chaine demandée dans un buffer. Si ca déborde -> poubelle !
@@ -85,7 +86,7 @@ void OUTPUTLOG_printf_in_it(const char * format, ...)
 //Cette fonction à pour but de consommer le buffer qui aurait été rempli en IT.
 void OUTPUTLOG_process_main(void)
 {
-	uint8_t buffer_printf_main[BUFFER_PRINTF_IT_SIZE];	//En stack !
+	char buffer_printf_main[BUFFER_PRINTF_IT_SIZE];	//En stack !
 	uint32_t i;
 	bool_e bloop;
 	bloop = (index_write!=0)?TRUE:FALSE;

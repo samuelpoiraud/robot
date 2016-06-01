@@ -39,7 +39,6 @@
 
 #if 1      //Pour pouvoir fold le code dessous (car long et utile que en cas de problème ...)
 
-	void stack_overflow_detection(void);
 	//Vérification des valeurs, si elles sont bien celles voulu par l'utilisateur
 
 	#define HCLK_DIV	FORCED_HCLK_DIV	//HCLK = SYSCLK_HZ / HCLK_DIV
@@ -407,10 +406,22 @@ void SYS_check_stack_level(void)
 		if(*a != 0x55555555)
 			break;
 	}
-	a = (uint32_t *)&_estack - a;
+	a = (uint32_t *)((uint32_t *)&_estack - a);
 	info_printf("stack max occupation : %d\n",a);
 }
 
+
+
+__attribute__((naked)) int SYS_Read_Interrupt_state(void)
+{
+	//l'attribut naked indique qu'on ne veux pas de prologue / epilogue générés par GCC
+	__asm volatile
+	(
+		"MRS R0, IPSR\n"
+		"BX LR\n"
+	);
+	return 0;	//Jamais atteint. Uniquement pour satisfaire le compilo C.
+}
 
 
 /*  Fonctions appelées par la libc (comme printf)  */

@@ -25,7 +25,7 @@
 	 * Configurations essentielles de la carte
 	 */
 	void SYS_init(void);
-
-	extern SYS_Read_Interrupt_state(void);
+	void SYS_check_stack_level(void);
+	extern int SYS_Read_Interrupt_state(void);
 
 #endif /* ndef QS_SYS_H */
