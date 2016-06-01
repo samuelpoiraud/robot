@@ -333,54 +333,54 @@
 
 		void CAN1_SCE_IRQHandler(void)
 		{
-			debug_printf("CAN Error List :\n");
+			it_printf("CAN Error List :\n");
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_BOF))
 			{
-				debug_printf("  Bus OFF, too many bus errors, > 255\n");
+				it_printf("  Bus OFF, too many bus errors, > 255\n");
 				CAN_ClearFlag(CAN1, CAN_FLAG_BOF);
 			}
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_EPV))
 			{
-				debug_printf("  Error passive, many bus errors, > 127\n");
+				it_printf("  Error passive, many bus errors, > 127\n");
 				CAN_ClearFlag(CAN1, CAN_FLAG_EPV);
 			}
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_EWG))
 			{
-				debug_printf("  Error passive, many bus errors, > 96\n");
+				it_printf("  Error passive, many bus errors, > 96\n");
 				CAN_ClearFlag(CAN1, CAN_FLAG_EWG);
 			}
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_FOV0))
 			{
-				debug_printf("  Recv FIFO 0 Overflow (MY_FILTER + DEBUG)\n");
+				it_printf("  Recv FIFO 0 Overflow (MY_FILTER + DEBUG)\n");
 				CAN_ClearFlag(CAN1, CAN_FLAG_FOV0);
 				CAN_ClearITPendingBit(CAN1, CAN_IT_FOV0);
 			}
 
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_FOV1))
 			{
-				debug_printf("  Recv FIFO 1 Overflow (BROADCAST msgs)\n");
+				it_printf("  Recv FIFO 1 Overflow (BROADCAST msgs)\n");
 				CAN_ClearFlag(CAN1, CAN_FLAG_FOV1);
 				CAN_ClearITPendingBit(CAN1, CAN_IT_FOV1);
 			}
 
 
-			debug_printf("  Last ErrorCode was: ");
+			it_printf("  Last ErrorCode was: ");
 			switch(CAN_GetLastErrorCode(CAN1)) {
-				case CAN_ErrorCode_NoErr: debug_printf("NoErr\n"); break;
-				case CAN_ErrorCode_StuffErr: debug_printf("StuffErr\n"); break;
-				case CAN_ErrorCode_FormErr: debug_printf("FormErr\n"); break;
-				case CAN_ErrorCode_ACKErr: debug_printf("AckErr\n"); break;
-				case CAN_ErrorCode_BitRecessiveErr: debug_printf("BitRecessiveErr\n"); break;
-				case CAN_ErrorCode_BitDominantErr: debug_printf("BitDominantErr\n"); break;
-				case CAN_ErrorCode_CRCErr: debug_printf("CRCErr\n"); break;
-				case CAN_ErrorCode_SoftwareSetErr: debug_printf("SoftwareSetErr\n"); break;
-				default: debug_printf("Unknown\n"); break;
+				case CAN_ErrorCode_NoErr: 			it_printf("NoErr\n"); break;
+				case CAN_ErrorCode_StuffErr: 		it_printf("StuffErr\n"); break;
+				case CAN_ErrorCode_FormErr: 		it_printf("FormErr\n"); break;
+				case CAN_ErrorCode_ACKErr: 			it_printf("AckErr\n"); break;
+				case CAN_ErrorCode_BitRecessiveErr: it_printf("BitRecessiveErr\n"); break;
+				case CAN_ErrorCode_BitDominantErr: 	it_printf("BitDominantErr\n"); break;
+				case CAN_ErrorCode_CRCErr: 			it_printf("CRCErr\n"); break;
+				case CAN_ErrorCode_SoftwareSetErr: 	it_printf("SoftwareSetErr\n"); break;
+				default: 							it_printf("Unknown\n"); break;
 			}
-			debug_printf("  Recv error count: %u\n", CAN_GetReceiveErrorCounter(CAN1));
-			debug_printf("  Transmit error count: %u\n", CAN_GetLSBTransmitErrorCounter(CAN1));
+			it_printf("  Recv error count: %u\n", CAN_GetReceiveErrorCounter(CAN1));
+			it_printf("  Transmit error count: %u\n", CAN_GetLSBTransmitErrorCounter(CAN1));
 			CAN_ClearITPendingBit(CAN1, CAN_IT_ERR);
 			CAN_reinit();
-			debug_printf("End Error List\n");
+			it_printf("End Error List\n");
 		}
 #else /* def USE_CAN */
 	//Pas de bus can, définition des fonctions pour que le code compile quand même

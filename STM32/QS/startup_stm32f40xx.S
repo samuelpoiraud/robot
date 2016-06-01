@@ -99,8 +99,20 @@ LoopFillZerobss:
   cmp  r2, r3
   bcc  FillZerobss
 
+
 /* Call the clock system intitialization function.*/
   bl  SystemInit   
+
+  ldr r3, =0x55555555
+  sub ip, sp, #4
+  #ldr r2, = _susrstack
+  ldr r2, = __Stack_Init
+  #sub r2, ip, r1
+LoopPaintStack:
+	str r3, [ip], #-4
+	cmp ip, r2
+	bne LoopPaintStack
+
 /* Call the application's entry point.*/
   bl  main
   bx  lr    

@@ -189,6 +189,8 @@ int main (void)
 
 		any_match();
 
+		OUTPUTLOG_process_main();
+
 		process_measure_loop_duration();
 
 		if(global.flags.match_started == TRUE && global.flags.match_over == FALSE){

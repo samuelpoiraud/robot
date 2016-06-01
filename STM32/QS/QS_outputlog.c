@@ -54,6 +54,48 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 #endif
 }
 
+#define BUFFER_PRINTF_IT_SIZE	256
+volatile static uint8_t buffer_printf_it[BUFFER_PRINTF_IT_SIZE];
+volatile static uint32_t index_write;
+//Cette fonction ne doit être appelée qu'en IT.
+//Elle enregistre la chaine demandée dans un buffer. Si ca déborde -> poubelle !
+void OUTPUTLOG_printf_in_it(const char * format, ...)
+{
+	va_list args_list;
+	va_start(args_list, format);
+	//Il reste BUFFER_PRINTF_IT_SIZE - index_write octets dispos dans le buffer.
+	if(index_write < BUFFER_PRINTF_IT_SIZE)
+		index_write += vsnprintf(&buffer_printf_it[index_write], BUFFER_PRINTF_IT_SIZE-index_write, format, args_list);
+	//vsnprintf renvoie le nombre de caractères même si elle n'en a copié qu'une partie dans le buffer à taille limitée.
+	if(index_write >= BUFFER_PRINTF_IT_SIZE)
+		index_write = BUFFER_PRINTF_IT_SIZE;	//Ecretage.
+	va_end(args_list);
+}
+
+//Cette fonction à pour but de consommer le buffer qui aurait été rempli en IT.
+void OUTPUTLOG_process_main(void)
+{
+	uint8_t buffer_printf_main[BUFFER_PRINTF_IT_SIZE];	//En stack !
+	uint32_t i;
+	bool_e bloop;
+	bloop = (index_write!=0)?TRUE:FALSE;
+	i=0;
+	while(bloop)
+	{
+		buffer_printf_main[i] = buffer_printf_it[i];
+		i++;
+		__disable_irq();	//Section critique.
+		if(i>=index_write)	//On est enfin arrivé au bout des données à afficher
+		{
+			bloop = FALSE;
+			index_write = 0;
+		}
+		__enable_irq();
+	}
+	if(i)
+		warn_printf("%s",buffer_printf_main);
+}
+
 void OUTPUTLOG_set_level(log_level_e level) {
 	current_max_log_level = level;
 	if(current_max_log_level > 200)
