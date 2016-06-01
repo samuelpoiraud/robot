@@ -61,6 +61,7 @@ void process_measure_loop_duration(void)
 void security_stack(void)
 {
 	static bool_e initialized = FALSE;
+	static bool_e verbosed = FALSE;
 	static uint8_t * ptr;
 	extern uint8_t _susrstack;
 	if(!initialized)
@@ -69,10 +70,10 @@ void security_stack(void)
 		*ptr = 0x55;
 		initialized = TRUE;
 	}
-	if(*ptr != 0x55)
+	if(*ptr != 0x55 && !verbosed)
 	{
-		SD_printf("Stack overflowed\n");
-		while(1);
+		fatal_printf("Stack overflowed\n");
+		verbosed = TRUE;
 	}
 }
 

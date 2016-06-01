@@ -447,7 +447,7 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
 				if(PATHFIND_manhattan_dist(nodes[n].x, nodes[n].y, global.foe[i].x, global.foe[i].y)<MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY)
 				{
 					PATHFIND_SET_NODE_IN(n,adversaries_nodes);
-					SD_printf("Adv%d in node %d\n",i,n);
+					info_printf("Adv%d in node %d\n",i,n);
 				}
 			}
 			dist = dist_point_to_point(nodes[n].x, nodes[n].y, global.foe[i].x, global.foe[i].y);
@@ -681,7 +681,7 @@ Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint
 			//Calcul d'un chemin pour atteindre l'objectif.
 			if(PATHFIND_compute(displacements, &nb_displacements, global.pos.x, global.pos.y, node_wanted) != END_OK)
 			{
-				SD_printf("I cannot find any path. x=%d y=%d to node %d\n",global.pos.x, global.pos.y, node_wanted);
+				info_printf("I cannot find any path. x=%d y=%d to node %d\n",global.pos.x, global.pos.y, node_wanted);
 				state = FAIL;
 			}
 			else

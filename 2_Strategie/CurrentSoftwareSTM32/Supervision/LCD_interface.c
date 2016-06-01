@@ -732,7 +732,7 @@ void LCD_printf(Uint8 line, bool_e switch_on_menu, bool_e log_on_sd, char * chai
 	free_msg_updated = TRUE;
 	free_msg[line][20] = '\0';	//sécurité...
 	if(log_on_sd)
-		SD_printf("LCD_printf(%d):%s\n",line,free_msg[line]);	//On logue sur la LCD ce qu'on demande d'afficher à l'écran (parce que si on l'affiche, c'est que c'est important)
+		info_printf("LCD_printf(%d):%s\n",line,free_msg[line]);	//On logue sur la LCD ce qu'on demande d'afficher à l'écran (parce que si on l'affiche, c'est que c'est important)
 
 	//Cela permet aussi d'éviter le spam...
 }

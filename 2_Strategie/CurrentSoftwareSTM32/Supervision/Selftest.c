@@ -955,6 +955,6 @@ void clean_warning_bat(){
 }
 
 void Selftest_print_sd_hokuyo_lost(void){
-	SD_printf("Hokuyo lost count : %d\n", hokuyo_lost_counter);
+	info_printf("Hokuyo lost count : %d\n", hokuyo_lost_counter);
 }
 
