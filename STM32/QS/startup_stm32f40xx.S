@@ -130,12 +130,12 @@ Default_Handler:
 Infinite_Loop:
   b  Infinite_Loop
   .size  Default_Handler, .-Default_Handler
-
+/*
   .global SYS_Read_Interrupt_state
 SYS_Read_Interrupt_state:
  MRS R0, IPSR
  BX LR
-
+*/
 /******************************************************************************
 *
 * The minimal vector table for a Cortex M3. Note that the proper constructs
