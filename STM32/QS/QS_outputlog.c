@@ -53,8 +53,9 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 	format = format;
 #endif
 }
-
-#define BUFFER_PRINTF_IT_SIZE	256
+#ifndef BUFFER_PRINTF_IT_SIZE
+	#define BUFFER_PRINTF_IT_SIZE	256
+#endif
 volatile static uint8_t buffer_printf_it[BUFFER_PRINTF_IT_SIZE];
 volatile static uint32_t index_write;
 //Cette fonction ne doit être appelée qu'en IT.
