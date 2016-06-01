@@ -30,6 +30,15 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 	if(level != LOG_LEVEL_Always && level > current_max_log_level)
 		return;
 
+	//Si nous sommes dans une IT, on refuse le printf !!!!
+	if(SYS_Read_Interrupt_state())
+	{
+		va_start(args_list, format);
+		OUTPUTLOG_printf_in_it(level, format, args_list);
+		va_end(args_list);
+		return;
+	}
+
 	if(vcallback) {
 		va_start(args_list, format);
 		vcallback(level, format, args_list);

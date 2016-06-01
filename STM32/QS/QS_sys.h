@@ -26,4 +26,6 @@
 	 */
 	void SYS_init(void);
 
+	extern SYS_Read_Interrupt_state(void);
+
 #endif /* ndef QS_SYS_H */
