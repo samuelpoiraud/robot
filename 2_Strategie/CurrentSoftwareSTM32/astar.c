@@ -819,8 +819,7 @@ static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GE
 		debug_printf("Pathfind end\n");
 
 	}else{ //Protection si le node destination est dans un polygone fixe ou trop près de la bordure
-		SD_printf("ASTAR: Destination node is DISABLE\n");
-		force_printf("ASTAR: Destination node is DISABLE\n");
+		info_printf("ASTAR: Destination node is DISABLE\n");
 	}
 }
 

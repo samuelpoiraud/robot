@@ -450,15 +450,13 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 
 				case END_WITH_TIMEOUT:
 					timeout = TRUE;
-					debug_printf("wait_move_and_scan_foe -- timeout\n");
-					SD_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
+					info_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
 					state = DONE;
 					break;
 
 				case NOT_HANDLED:
-					debug_printf("wait_move_and_scan_foe -- probleme\n");
-					SD_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
+					info_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					state = LOAD_MOVE;
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
@@ -466,8 +464,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					break;
 
 				case FOE_IN_PATH:
-					debug_printf("wait_move_and_scan_foe -- foe in path\n");
-					SD_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
+					info_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					if(avoidance_type == DODGE_AND_WAIT || avoidance_type == DODGE_AND_NO_WAIT)
 						state = EXTRACT;
@@ -519,7 +516,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			break;
 
 		default:
-			debug_printf("Cas Default state, panique !!!\n");
+			warn_printf("Cas Default state, panique !!!\n");
 			state = LOAD_MOVE;
 			global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
 			return NOT_HANDLED;
@@ -618,14 +615,14 @@ error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacemen
 				case END_WITH_TIMEOUT:
 					timeout = TRUE;
 					debug_printf("wait_move_and_scan_foe -- timeout\n");
-					SD_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
+					info_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
 					state = DONE;
 					break;
 
 				case NOT_HANDLED:
 					debug_printf("wait_move_and_scan_foe -- probleme\n");
-					SD_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
+					info_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					state = INIT;
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
@@ -634,7 +631,7 @@ error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacemen
 
 				case FOE_IN_PATH:
 					debug_printf("wait_move_and_scan_foe -- foe in path\n");
-					SD_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
+					info_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
 					wait_timeout = WAIT_TIME_DETECTION;
 					if(avoidance_type == DODGE_AND_WAIT || avoidance_type == DODGE_AND_NO_WAIT)
 						state = EXTRACT;
@@ -712,12 +709,12 @@ bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
 			if(is_in_square(x1,x2,y1,y2,(GEOMETRY_point_t){global.foe[i].x,global.foe[i].y}))
 			{
 				if(verbose)
-					SD_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,global.foe[i].x,global.foe[i].y,x1,x2,y1,y2);
+					info_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,global.foe[i].x,global.foe[i].y,x1,x2,y1,y2);
 				return TRUE;
 			}
 		}
 	}
-	SD_printf("NO FOE found in zone x[%d->%d] y[%d->%d]\n",x1,x2,y1,y2);
+	info_printf("NO FOE found in zone x[%d->%d] y[%d->%d]\n",x1,x2,y1,y2);
 	return FALSE;
 }
 
@@ -996,14 +993,12 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 
 				case END_WITH_TIMEOUT:
 					timeout = TRUE;
-					debug_printf("goto_extract_with_avoidance -- timeout\n");
-					SD_printf("TIMEOUT on goto_extract_with_avoidance");
+					info_printf("TIMEOUT on goto_extract_with_avoidance");
 					state = DONE;
 					break;
 
 				case NOT_HANDLED:
-					debug_printf("goto_extract_with_avoidance -- probleme\n");
-					SD_printf("ERROR on goto_extract_with_avoidance");
+					info_printf("ERROR on goto_extract_with_avoidance");
 					state = LOAD_MOVE;
 					return NOT_HANDLED;
 					break;

@@ -105,9 +105,9 @@
 		#define vtrace_printf(...) (void)0
 		#define debug_printf(...) (void)0
 		#define info_printf(...) (void)0
-		#define warn_printf(...) (void)0
-		#define error_printf(...) (void)0
-		#define fatal_printf(...) (void)0
+		#define warn_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX __VA_ARGS__)	//Affiché même si LOG_PRINT_Off !
+		#define error_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX __VA_ARGS__)		//Affiché même si LOG_PRINT_Off !
+		#define fatal_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Fatal, LOG_PREFIX __VA_ARGS__)		//Affiché même si LOG_PRINT_Off !
 		#define	it_printf(...)	(void)0
 	#else
 
