@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_TOOLCHAIN_FILE "QS/CMakeToolchain.cmake")
 
-project(SuperStrat C)
+project(SuperStrat C ASM)
 
 #include("QS/FindPCHSupport.cmake")
 
