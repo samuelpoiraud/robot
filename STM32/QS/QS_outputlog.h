@@ -93,7 +93,7 @@
 	//OUTPUTLOG_set_callback: le resultat du formatage est donné à la fonction callback
 	void OUTPUTLOG_set_callback(OUTPUTLOG_Callback callback);
 
-
+	void OUTPUTLOG_process_main(void);
 	/* Fonction d'aide à l'utilisation */
 
 	#if LOG_COMPONENT == LOG_PRINT_Off && !defined(OUTPUTLOG_PRINT_ALL_COMPONENTS)
@@ -107,18 +107,19 @@
 		#define warn_printf(...) (void)0
 		#define error_printf(...) (void)0
 		#define fatal_printf(...) (void)0
-
+		#define	it_printf(...)	(void)0
 	#else
 
 		#define component_printf(log_level, format, ...) OUTPUTLOG_printf(log_level, LOG_PREFIX format, ## __VA_ARGS__)
 
-		#define trace_printf(format, ...) OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: %s line: " OUTPUTLOG_TOSTRING(__LINE__) " " format, __func__, ## __VA_ARGS__)
-		#define vtrace_printf(format, ...) OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: %s line: " OUTPUTLOG_TOSTRING(__LINE__) " in " __FILE__ ": " format, __func__, ## __VA_ARGS__)
-		#define debug_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX __VA_ARGS__)
-		#define info_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX __VA_ARGS__)
-		#define warn_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX __VA_ARGS__)
-		#define error_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX __VA_ARGS__)
-		#define fatal_printf(...) OUTPUTLOG_printf(LOG_LEVEL_Fatal, LOG_PREFIX __VA_ARGS__)
+		#define trace_printf(format, ...) 	OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: %s line: " OUTPUTLOG_TOSTRING(__LINE__) " " format, __func__, ## __VA_ARGS__)
+		#define vtrace_printf(format, ...) 	OUTPUTLOG_printf(LOG_LEVEL_Trace, "Trace: %s line: " OUTPUTLOG_TOSTRING(__LINE__) " in " __FILE__ ": " format, __func__, ## __VA_ARGS__)
+		#define debug_printf(...) 			OUTPUTLOG_printf(LOG_LEVEL_Debug, LOG_PREFIX __VA_ARGS__)
+		#define info_printf(...) 			OUTPUTLOG_printf(LOG_LEVEL_Info, LOG_PREFIX __VA_ARGS__)
+		#define warn_printf(...) 			OUTPUTLOG_printf(LOG_LEVEL_Warning, LOG_PREFIX __VA_ARGS__)
+		#define error_printf(...) 			OUTPUTLOG_printf(LOG_LEVEL_Error, LOG_PREFIX __VA_ARGS__)
+		#define fatal_printf(...) 			OUTPUTLOG_printf(LOG_LEVEL_Fatal, LOG_PREFIX __VA_ARGS__)
+		#define	it_printf(...) 				OUTPUTLOG_printf_in_it(LOG_PREFIX __VA_ARGS__)
 
 	#endif
 

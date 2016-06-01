@@ -12,6 +12,7 @@
 #include "QS_sys.h"
 #include "stm32f4xx_usart.h"
 #include "stm32f4xx_flash.h"
+#include "QS_outputlog.h"
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/times.h>
@@ -38,6 +39,7 @@
 
 #if 1      //Pour pouvoir fold le code dessous (car long et utile que en cas de problème ...)
 
+	void stack_overflow_detection(void);
 	//Vérification des valeurs, si elles sont bien celles voulu par l'utilisateur
 
 	#define HCLK_DIV	FORCED_HCLK_DIV	//HCLK = SYSCLK_HZ / HCLK_DIV
@@ -182,7 +184,233 @@ void SYS_init(void)
 	setvbuf(stdout, NULL, _IONBF, 0 );
 	setvbuf(stderr, NULL, _IONBF, 0 );
 	setvbuf(stdin, NULL, _IONBF, 0 );
+
 }
+
+#if 0
+
+#define MPU_BASE_ADDR (0xE000ED90)
+
+typedef struct
+{
+	struct
+	{
+		int SEPARATE :1;
+		int :7; // reserved (warning : mistake in datasheet)
+		int DREGION :8;
+		int IREGION :8;
+		int :8; // reserved
+	} MPU_TYPER;
+	struct
+	{
+		int ENABLE :1;
+		int HFNMIENA :1;
+		int PRIVDEFENA :1;
+		int :29; // reserved
+	} MPU_CTRL;
+	struct
+	{
+		int REGION :8;
+		int :24; // reserved
+	} MPU_RNR;
+	union
+	{
+		unsigned int value;
+		struct
+		{
+			int REGION :4;
+			int VALID :1;
+			int ADDR :27;
+		};
+	}	MPU_RBAR;
+	struct
+	{
+		int ENABLE :1;
+		int SIZE :5;
+		int :2; // reserved
+		int SRD :8;
+		int B :1;
+		int C :1;
+		int S :1;
+		int TEX :3;
+		int :2; // reserved
+		int AP :3;
+		int :1; // reserved
+		int XN :1;
+		int :3; // reserved
+	} MPU_RASR;
+	struct
+	{
+		int REGION :4;
+		int VALID :1;
+		int ADDR :27;
+	} MPU_RBAR_A1;
+	struct
+	{
+		int ENABLE :1;
+		int SIZE :5;
+		int :2; // reserved
+		int SRD :8;
+		int B :1;
+		int C :1;
+		int S :1;
+		int TEX :3;
+		int :2; // reserved
+		int AP :3;
+		int :1; // reserved
+		int XN :1;
+		int :3; // reserved
+	} MPU_RASR_A1;
+	struct
+	{
+		int REGION :4;
+		int VALID :1;
+		int ADDR :27;
+	} MPU_RBAR_A2;
+	struct
+	{
+		int ENABLE :1;
+		int SIZE :5;
+		int :2; // reserved
+		int SRD :8;
+		int B :1;
+		int C :1;
+		int S :1;
+		int TEX :3;
+		int :2; // reserved
+		int AP :3;
+		int :1; // reserved
+		int XN :1;
+		int :3; // reserved
+	} MPU_RASR_A2;
+	struct
+	{
+		int REGION :4;
+		int VALID :1;
+		int ADDR :27;
+	} MPU_RBAR_A3;
+	struct
+	{
+		int ENABLE :1;
+		int SIZE :5;
+		int :2; // reserved
+		int SRD :8;
+		int B :1;
+		int C :1;
+		int S :1;
+		int TEX :3;
+		int :2; // reserved
+		int AP :3;
+		int :1; // reserved
+		int XN :1;
+		int :3; // reserved
+	} MPU_RASR_A3;
+} MpuRegs_t;
+
+MpuRegs_t *MpuRegs = ((MpuRegs_t *) MPU_BASE_ADDR);
+
+void init_mpu (void)
+{
+	extern uint8_t _susrstack;
+	unsigned int rodata;
+	rodata = (unsigned int)&_susrstack;
+	// general parameters
+	MpuRegs->MPU_TYPER.SEPARATE = 0; // unified MPU (data and instruction are the same accesses)
+	MpuRegs->MPU_TYPER.IREGION = 0;  // no regions for instruction accesses
+	MpuRegs->MPU_TYPER.DREGION = 8;  // 8 data regions
+
+	// region 0: default code region
+	MpuRegs->MPU_RBAR.value = 1 << 4 | 0 | 0x08000000; // code area
+	MpuRegs->MPU_RASR.XN = 0;        // can fetch instructions
+	MpuRegs->MPU_RASR.AP = 7;				 // permission = read/write
+	MpuRegs->MPU_RASR.TEX = 0;       // for bits TEX, C, B et S, see table #42 at page 186 of PM0214
+	MpuRegs->MPU_RASR.C = 1;
+	MpuRegs->MPU_RASR.B = 0;
+	MpuRegs->MPU_RASR.S = 0;
+	MpuRegs->MPU_RASR.SRD = 0;
+	MpuRegs->MPU_RASR.SIZE = 19;     // region size = 1MiB
+	MpuRegs->MPU_RASR.ENABLE = 1;    // enable region
+
+	// region 1: default variable area
+	MpuRegs->MPU_RBAR.value = 1 << 4 | 1 | 0x20000000; // variable area
+	MpuRegs->MPU_RASR.XN = 0;        // no instruction fetch
+	MpuRegs->MPU_RASR.AP = 3;				 // permission = read/write
+	MpuRegs->MPU_RASR.TEX = 0;       // for bits TEX, C, B et S, see table #42 at page 186 of PM0214
+	MpuRegs->MPU_RASR.C = 1;
+	MpuRegs->MPU_RASR.B = 0;
+	MpuRegs->MPU_RASR.S = 1;
+	MpuRegs->MPU_RASR.SRD = 0;
+	MpuRegs->MPU_RASR.SIZE = 19;     // region size = 1MiB
+	MpuRegs->MPU_RASR.ENABLE = 1;    // enable region
+
+	// region 2: periph area
+	MpuRegs->MPU_RBAR.value = 1 << 4 | 2 | 0x40000000; // adresse de base de la région + n° de la région
+	MpuRegs->MPU_RASR.XN = 1;        // interdiction de lire des instructions
+	MpuRegs->MPU_RASR.AP = 3;				 // permission = lecture/écriture
+	MpuRegs->MPU_RASR.TEX = 0;       // for bits TEX, C, B et S, see table #42 at page 186 of PM0214
+	MpuRegs->MPU_RASR.C = 1;
+	MpuRegs->MPU_RASR.B = 0;
+	MpuRegs->MPU_RASR.S = 1;
+	MpuRegs->MPU_RASR.SRD = 0;
+	MpuRegs->MPU_RASR.SIZE = 30;			 // taille de la région
+	MpuRegs->MPU_RASR.ENABLE = 1;    // activer la région
+
+	// region 3: read only variable
+	MpuRegs->MPU_RBAR.value = 1 << 4 | 3 | (rodata); // adresse de base de la région + n° de la région
+	MpuRegs->MPU_RASR.XN = 1;        //  interdiction de lire des instructions
+	MpuRegs->MPU_RASR.AP = 7;				 // permission = lecture seule
+	MpuRegs->MPU_RASR.TEX = 0;       // for bits TEX, C, B et S, see table #42 at page 186 of PM0214
+	MpuRegs->MPU_RASR.C = 1;
+	MpuRegs->MPU_RASR.B = 0;
+	MpuRegs->MPU_RASR.S = 1;
+	MpuRegs->MPU_RASR.SRD = 0;
+	MpuRegs->MPU_RASR.SIZE = 1;			 // taille de la région = 4 octets
+	MpuRegs->MPU_RASR.ENABLE = 1;    //  activer la région
+
+/*	// region 4: forbidden variable
+	MpuRegs->MPU_RBAR.value = 1 << 4 | 4 | forbidden_address; // adresse de base de la région + n° de la région
+	MpuRegs->MPU_RASR.XN = 1;        // interdiction de lire des instructions
+	MpuRegs->MPU_RASR.AP = 0;				 // permission = rien
+	MpuRegs->MPU_RASR.TEX = 0;       // for bits TEX, C, B et S, see table #42 at page 186 of PM0214
+	MpuRegs->MPU_RASR.C = 1;
+	MpuRegs->MPU_RASR.B = 0;
+	MpuRegs->MPU_RASR.S = 1;
+	MpuRegs->MPU_RASR.SRD = 0;
+	MpuRegs->MPU_RASR.SIZE = 4;			 // taille de la région = 32 octets
+	MpuRegs->MPU_RASR.ENABLE = 1;    // activer la région
+*/
+	MpuRegs->MPU_CTRL.ENABLE = 1;    // activer la MPU
+}
+
+
+
+
+
+void stack_overflow_detection(void)
+{
+	init_mpu();
+//	extern uint8_t _susrstack;
+	//_susrstack = 0x55;
+
+}
+
+#endif
+
+
+void SYS_check_stack_level(void)
+{
+	extern uint8_t __Stack_Init;
+	extern uint8_t _estack;
+	uint32_t * a;
+	for(a = (uint32_t *)(&__Stack_Init+4); a<(uint32_t *)(&_estack); a++)
+	{
+		if(*a != 0x55555555)
+			break;
+	}
+	a = (uint32_t *)&_estack - a;
+	info_printf("stack max occupation : %d\n",a);
+}
+
 
 
 /*  Fonctions appelées par la libc (comme printf)  */

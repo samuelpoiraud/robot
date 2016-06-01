@@ -24,6 +24,7 @@
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_IHM.h"
+#include "QS/QS_sys.h"
 #include "Supervision/Supervision.h"
 #include "Supervision/Buzzer.h"
 #include "zones.h"
@@ -278,6 +279,7 @@ void any_match(void)
 					ACT_push_order(ACT_POMPE_FRONT_LEFT, ACT_POMPE_STOP);
 					ACT_push_order(ACT_POMPE_FRONT_RIGHT, ACT_POMPE_STOP);
 				}
+				SYS_check_stack_level();
 			}
 			else
 			{
