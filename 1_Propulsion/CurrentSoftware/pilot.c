@@ -21,6 +21,7 @@
 #include "calculator.h"
 #include "joystick.h"
 #include "QS/QS_who_am_i.h"
+#include "odometry.h"
 
 /**
  *	Defines
@@ -160,8 +161,7 @@ void PILOT_referential_reset(void)
 	global.position_translation = 0;
 	global.position_rotation = 0;
 
-	global.real_position_translation = 0;
-	global.real_position_rotation = 0;
+	ODOMETRY_referential_reset();
 
 	global.ecart_translation_prec = 0;
 	global.ecart_rotation_prec = 0;
