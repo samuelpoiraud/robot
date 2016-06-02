@@ -24,7 +24,7 @@
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
-	// COEF_ODOMETRIE_TRANSLATION = 16*4096*(PI*d)/c;	 	[mm.16.4096/impulsion/5ms]
+	// COEF_ODOMETRIE_TRANSLATION = 16*4096*(PI*d)/c;	 	[mm.4096.16/impulsion]
 	//		on le calcule pour l'approcher, et on le détermine ensuite par l'expérience !
 	//COEF_ODOMETRIE_TRANSLATION est le premier des coeffs a régler... il suffit d'envoyer le robot très loin et de regarder s'il arrive assez loin.
 	//Si le robot va trop loin, il faut augmenter le coeff et vice versa
@@ -36,7 +36,7 @@
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT		0x0000AD23
 
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
-	// COEF_ODOMETRIE_ROTATION = 1024*4096*64*(PI*d)/c /(2*r)	[rad.16.4096.1024/impulsions/5ms]
+	// COEF_ODOMETRIE_ROTATION = 1024*4096*64*(PI*d)/c /(2*r)	[rad.4096.1024.64/impulsions]
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
 	// r : rayon du cercle ayant pour diamètre le segment définit entre les roues codeuses en mm
