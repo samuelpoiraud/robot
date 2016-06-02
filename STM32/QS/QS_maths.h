@@ -126,6 +126,8 @@
 	#define	TWO_PI16384			102944
 	#define PI_22				(13176795)		/*Valeur de PI<<22 */
 	#define TWO_PI22			(26353589)
+	#define PI_28				(843314856)		/*Valeur de PI<<28 */
+	#define TWO_PI28			(1686629713)
 
 	#define TWO_PI4096			(25736)
 	#define HALF_PI4096			(6434)

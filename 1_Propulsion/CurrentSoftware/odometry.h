@@ -17,7 +17,8 @@
 
 	void ODOMETRY_init(void);
 
-	void ODOMETRY_update(void);
+	void ODOMETRY_update_1ms(void);
+	void ODOMETRY_update_5ms(void);
 
 	Sint32 ODOMETRY_get_65536_x(void);
 	Sint32 ODOMETRY_get_65536_y(void);
@@ -47,5 +48,7 @@
 	//met a jour la position en considérant que l'on est contre un bord du terrain
 	//(L'angle devient un multiple de PI/2 le plus logique et la distance en x OU en y est la distance entre l'arrière du robot et le centre.)
 	void ODOMETRY_correct_with_border(way_e way);
+
+	void ODOMETRY_referential_reset(void);
 
 #endif //def _ODOMETRY_H

@@ -30,9 +30,21 @@ static Sint32 max_total_teta = 0;							//[rad.1024.4096]
 static Uint32 total_dist_x = 0;								//[mm.65536]
 static Uint32 total_dist_y = 0;								//[mm.65536]
 
-volatile Sint32 x32;		//Position précise en x			[mm.65536]		<<16
-volatile Sint32 y32;		//Position précise en y			[mm.65536]		<<16
-volatile Sint32 teta32;		//Position précise en teta		[rad.4096.1024]	<<22
+volatile Sint64 x64;			//Position précise en x			[mm.65536.16384]		<<30
+volatile Sint64 y64;			//Position précise en y			[mm.65536.16384]		<<30
+volatile Sint64 teta64;			//Position précise en teta		[rad.4096.1024.64]		<<28
+
+volatile Sint32 x32_sync;		//Position précise en x			[mm.65536]				<<16
+volatile Sint32 y32_sync;		//Position précise en y			[mm.65536]				<<16
+volatile Sint32 teta32_sync;	//Position précise en teta		[rad.4096.1024]			<<22
+
+volatile static Sint64 real_speed_rotation;					//[rad.4096.1024.64/ms]
+volatile static Sint64 real_speed_translation;				//[mm.65536/ms]
+volatile static Sint64 real_position_rotation;				//[mm.4096]
+volatile static Sint64 real_position_translation;			//[rad.4096.1024]
+volatile static Sint64 last_real_speed_rotation[5];			//[rad.4096.1024.64/ms]
+volatile static Sint64 last_real_speed_translation[5];		//[mm.65536/ms]
+
 volatile color_e color;
 volatile Sint16 calibration_backward_border_distance;
 volatile Sint16 calibration_forward_border_distance;
@@ -79,12 +91,16 @@ Sint16 get_calibration_forward_distance(void)
 
 void ODOMETRY_set_coef(PROPULSION_coef_e coef, Sint32 value)
 {
+	assert(coef <= ODOMETRY_COEF_CENTRIFUGAL);
+
 	if(coef <= ODOMETRY_COEF_CENTRIFUGAL)
 		coefs[coef] = value;
 }
 
 Sint32 ODOMETRY_get_coef(PROPULSION_coef_e coef)
 {
+	assert(coef <= ODOMETRY_COEF_CENTRIFUGAL);
+
 	if(coef <= ODOMETRY_COEF_CENTRIFUGAL)
 		return coefs[coef];
 	else
@@ -95,20 +111,23 @@ void ODOMETRY_set_color(color_e new_color)
 {
 	color = new_color;
 
+	TIMER5_disableInt();
+	TIMER2_disableInt();
+
 	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
 	{
 		//SMALL
 		if (new_color == TOP_COLOR)
 		{
-			x32	= SMALL_TOP_COLOR_START_X;		//[mm/65536]		(<<16)
-			y32	= SMALL_TOP_COLOR_START_Y;		//[mm/65536]		(<<16)
-			teta32 = SMALL_TOP_COLOR_START_TETA;		//[rad/4096/1024]	(<<22)
+			x64	= (Sint64)SMALL_TOP_COLOR_START_X << 14;			//[mm.65536.16384]		(<<30)
+			y64	= (Sint64)SMALL_TOP_COLOR_START_Y << 14;			//[mm.65536.16384]		(<<30)
+			teta64 = PI_28/2;										//[rad.4096.1024.64]	(<<28)
 		}
 		else
 		{
-			x32	= SMALL_BOT_COLOR_START_X ;		//[mm/65536]		(<<16)
-			y32	= SMALL_BOT_COLOR_START_Y ;		//[mm/65536]		(<<16)
-			teta32 = SMALL_BOT_COLOR_START_TETA ;		//[rad/4096/1024]	(<<22)
+			x64	= (Sint64)SMALL_BOT_COLOR_START_X << 14;			//[mm.65536.16384]		(<<30)
+			y64	= (Sint64)SMALL_BOT_COLOR_START_Y << 14;			//[mm.65536.16384]		(<<30)
+			teta64 = -PI_28/2;										//[rad.4096.1024.64]	(<<28)
 		}
 	}
 	else
@@ -116,20 +135,28 @@ void ODOMETRY_set_color(color_e new_color)
 		//BIG
 		if (new_color == TOP_COLOR)
 		{
-			x32	= BIG_TOP_COLOR_START_X;		//[mm/65536]		(<<16)
-			y32	= BIG_TOP_COLOR_START_Y;		//[mm/65536]		(<<16)
-			teta32 = BIG_TOP_COLOR_START_TETA;		//[rad/4096/1024]	(<<22)
+			x64	= (Sint64)BIG_TOP_COLOR_START_X << 14;				//[mm.65536.16384]		(<<30)
+			y64	= (Sint64)BIG_TOP_COLOR_START_Y << 14;				//[mm.65536.16384]		(<<30)
+			teta64 = PI_28/2;										//[rad.4096.1024.64]	(<<28)
 		}
 		else
 		{
-			x32	= BIG_BOT_COLOR_START_X ;		//[mm/65536]		(<<16)
-			y32	= BIG_BOT_COLOR_START_Y ;		//[mm/65536]		(<<16)
-			teta32 = BIG_BOT_COLOR_START_TETA ;		//[rad/4096/1024]	(<<22)
+			x64	= (Sint64)BIG_BOT_COLOR_START_X << 14;				//[mm.6553.163846]		(<<30)
+			y64	= (Sint64)BIG_BOT_COLOR_START_Y << 14;				//[mm.65536.16384]		(<<30)
+			teta64 = -PI_28/2;										//[rad.4096.1024.64]	(<<28)
 		}
 	}
-	global.position.x	= x32  >> 16;	//[mm]
-	global.position.y	= y32  >> 16;	//[mm]
-	global.position.teta = teta32 >> 10;	//[rad/4096]	(<<12)
+
+	x32_sync = x64 >> 14;
+	y32_sync = y64 >> 14;
+	teta32_sync = teta64 >> 6;
+
+	global.position.x	= x64  >> 30;					//[mm]
+	global.position.y	= y64  >> 30;					//[mm]
+	global.position.teta = teta64 >> 16;				//[rad.4096]	(<<12)
+
+	TIMER5_enableInt();
+	TIMER2_enableInt();
 }
 
 color_e ODOMETRY_get_color(void)
@@ -139,16 +166,26 @@ color_e ODOMETRY_get_color(void)
 
 void ODOMETRY_set(Sint16 x, Sint16 y, Sint16 teta)
 {
+	TIMER5_disableInt();
+	TIMER2_disableInt();
+
 	//Permet d'imposer une positon au robot... utile pour les tests !!!
 	//Par exemple pour les tests de trajectoires rectangles sans se prendre la tete !
 	//Egalement utilisé lors des calage, et pour l'autocalibration
 	global.position.x = x;								//[mm]
 	global.position.y = y;								//[mm]
-	global.position.teta = teta;						//[rad/4096]	(<<12)
+	global.position.teta = teta;						//[rad.4096]			(<<12)
 
-	x32	= (Sint32)x	<< 16;		//[mm/65536]		(<<16)
-	y32	= (Sint32)y	<< 16;		//[mm/65536]		(<<16)
-	teta32 = (Sint32)teta << 10;		//[rad/4096/1024]	(<<22)
+	x64	= ((Sint64)x) << 30;							//[mm.65536.16384]		(<<16)
+	y64	= ((Sint64)y) << 30;							//[mm.65536.16384]		(<<16)
+	teta64 = ((Sint64)teta) << 16;						//[mm.65536.16384]		(<<22)
+
+	x32_sync = x64 >> 14;
+	y32_sync = y64 >> 14;
+	teta32_sync = teta64 >> 6;
+
+	TIMER5_enableInt();
+	TIMER2_enableInt();
 }
 
 
@@ -244,34 +281,40 @@ static Sint32 ODOMETRY_get_speed_rotation_gyroway_corrected(void)
 }
 #endif
 
-void ODOMETRY_update(void)
-{
+void ODOMETRY_update_1ms(void){
 	Sint16 cos,sin;			//[pas d'unité.16384]	<< 14
 	Sint32 cos32, sin32;
 	Sint32 left, right;
 	//deviation occasionné par la force centrifuge
-	Sint32 deviation_x;
-	Sint32 deviation_y;
-	Sint32 real_speed_x;	//[mm.65536/5ms]
-	Sint32 real_speed_y;	//[mm.65536/5ms]
+	//Sint32 deviation_x;
+	//Sint32 deviation_y;
+	Sint64 real_speed_x;	//[mm.65536.16384/ms]
+	Sint64 real_speed_y;	//[mm.65536.16384/ms]
 
 	//CALCUL PREALABLE...DES COS ET SIN...
 	//ATTENTION... le calcul des x et y se fait avec l'angle de la précédente IT, on considère qu'on s'est déplacé avec l'angle précédent...
 	//Calcul des cos et sin
 
-	COS_SIN_16384_get(teta32 >> 8,&cos,&sin);
+	COS_SIN_16384_get(teta64 >> 14,&cos,&sin);
 
 	cos32 = (Sint32)(cos);
 	sin32 = (Sint32)(sin);
 
 	ENCODERS_get(&left, &right);
-	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
-	global.real_speed_rotation	= (Sint32)((-left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM])) >> 6);		//[rad/1024/4096/5ms] = [impulsions] * [rad/16/4096/1024/impulsions/5ms] * [16]
 
-	global.real_speed_translation = (Sint32)(((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4 >> 1);	//[mm.4096/5ms] =  [impulsions + impulsions]*[mm.65536/impulsion/5ms]*[16]*[2]
-	//le 4 pour remettre à la bonne unité (/16), le 1 pour la moyenne : (a+b)/2=(a+b)>>1
+	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
+
+	real_speed_rotation	= -left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM]);
+	//[rad.1024.4096.64/ms] = [impulsions] * [rad.4096.1024.64/impulsions]
+
+	real_speed_translation = ((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 1;
+	//[mm.65536/5ms] =  [impulsions + impulsions]*[mm.65536/impulsion]/[2]
+	//Diviser par deux pour la moyenne : (a+b)/2=(a+b)>>1
+
+
 	//calcul de la vitesse de l'accéléromètre pour le gros robot. L'accéléromètre est au dessus de la roue codeuse gauche
 	global.real_speed_translation_for_accelero = (Sint32)(((left)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 4);
+	// Refaire aprés le passage à l'odo 1ms
 
 #ifdef USE_GYROSCOPE
 	TIMER1_disableInt();
@@ -281,14 +324,9 @@ void ODOMETRY_update(void)
 
 	//TODO : comparer speed avec global.real_speed_rotation produit ci-dessous
 
-#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-#warning "Simulation avec robot virtuel parfait activée... ne pas utiliser ce code dans le robot sans volonté volontaire de nuire à la bonne pratique > robot en 'boucle ouverte' !"
-	DEBUG_envoi_point_fictif_alteration_coordonnees_reelles();
-#endif
-
 	//vitesses X et Y
-	real_speed_x =(global.real_speed_translation*cos32)>>10;		//[mm.65536/5ms] = [mm.4096/5ms]*[pas d'unité.16384]/[1024]
-	real_speed_y =(global.real_speed_translation*sin32)>>10;		//[mm.65536/5ms] = [mm.4096/5ms]*[pas d'unité.16384]/[1024]
+	real_speed_x = real_speed_translation * cos32;		//[mm.65536.16384/ms] = [mm.65536/ms]*[pas d'unité.16384]
+	real_speed_y = real_speed_translation * sin32;		//[mm.65536.16384/ms] = [mm.65536/ms]*[pas d'unité.16384]
 
 	//Explication, pourquoi xFin, yFin, vitesse_x_reelle et vitesse_y_reelle sont exprimés en [mm.65536]
 	// limite haute
@@ -304,51 +342,98 @@ void ODOMETRY_update(void)
 
 	//TODO les calculs sont faux fin du moins les unitées...
 	//calcul de la deviation du à l'action de la force centrifuge
-	deviation_x = -(coefs[ODOMETRY_COEF_CENTRIFUGAL]*(global.real_speed_rotation/128)*(real_speed_y/128))/1024;	//[rad.65536/5ms]*[mm/512/5ms]
-	deviation_y = (coefs[ODOMETRY_COEF_CENTRIFUGAL]*(global.real_speed_rotation/128)*(real_speed_x/128))/1024;	//[rad.65536/5ms]*[mm/512/5ms]
+	// TODO refaire le calcul de déviation pour l'IT 1ms et le changement d'unité
+	//deviation_x = -(coefs[ODOMETRY_COEF_CENTRIFUGAL]*(real_speed_rotation/128)*(real_speed_y/128))/1024;	//[rad.65536/ms]*[mm/512/ms]
+	//deviation_y = (coefs[ODOMETRY_COEF_CENTRIFUGAL]*(real_speed_rotation/128)*(real_speed_x/128))/1024;		//[rad.65536/ms]*[mm/512/ms]
 	//Ordre de grandeur : pour 1 unité du coef_odometrie_centrifuge, et à la vitesse max (rot et trans), on corrige de 1mm/secondes environ !
 	//Donc si on a l'impression que le robot perd un centimètre quand il est à fond, et pendant 1 seconde, le coef aura probablement une réglage en dizaine...
 
 	//Mise a jour de la position en x et y
-	x32 += real_speed_x + deviation_x;						//[mm.65536]
-	y32 += real_speed_y + deviation_y;						//[mm.65536]
-	global.position.x = x32 >> 16;							//[mm]
-	global.position.y = y32 >> 16;							//[mm]
+	x64 += real_speed_x;// + deviation_x;						//[mm.65536.16384]
+	y64 += real_speed_y;// + deviation_y;						//[mm.65536.16384]
 
 	//Mise à jour de l'angle
-	teta32 += global.real_speed_rotation;					//[rad.1024.4096]
+	teta64 += real_speed_rotation;					//[rad.1024.4096.64]
+
+	//Gestion de l'angle modulo 2PI !!!
+	if(teta64 < (-PI_28) )
+		teta64 += TWO_PI28;
+	if(teta64 > PI_28)
+		teta64 -= TWO_PI28;
 
 	//Mise à jour de la distance total parcourue
-	total_dist_x += absolute(real_speed_x + deviation_x);	//[mm.65536]
-	total_dist_y += absolute(real_speed_y + deviation_y);	//[mm.65536]
+	total_dist_x += absolute(real_speed_x) >> 14;	//[mm.65536]
+	total_dist_y += absolute(real_speed_y) >> 14;	//[mm.65536]
 
 	//Mise à jour de l'angle total parcourue
-	total_teta += global.real_speed_rotation;				//[rad.1024.4096]
+	total_teta += real_speed_rotation >> 6;				//[rad.1024.4096]
 	if(absolute(total_teta) > absolute(max_total_teta))
 		max_total_teta = total_teta;						//[rad.1024.4096]
 
-	//Gestion de l'angle modulo 2PI !!!
-	if(teta32 < (-PI_22) )
-		teta32 += TWO_PI22;
-	if(teta32 > PI_22)
-		teta32 -= TWO_PI22;
 
-	global.position.teta = teta32 >> 10;					//[rad.4096]
+	// Mise à jours des position réelle en rotation translation depuis la dernière RAZ du référentiel IT
+	real_position_translation += real_speed_translation / 16;		//[mm.4096]
+	real_position_rotation += real_speed_rotation / 64;				//[rad.4096.1024]
 
-	if((!COPILOT_is_arrived()) || (SUPERVISOR_get_state() == SUPERVISOR_ERROR))
-	{	//Si je ne suis pas arrivé à destination, le référentiel me suit... et repart à zéro !)
-		global.real_position_translation = 0;
-		global.real_position_rotation = 0;
+	Uint8 i;
+
+	for(i=4;i>0;i--){
+		last_real_speed_rotation[i] = last_real_speed_rotation[i-1];
+		last_real_speed_translation[i] = last_real_speed_translation[i-1];
 	}
-
-	// translation réelle parcourue depuis la dernière RAZ du référentiel IT
-	global.real_position_translation +=  global.real_speed_translation;		//[mm.4096]
-
-	// rotation réelle parcourue depuis la dernière RAZ du référentiel IT
-	global.real_position_rotation += global.real_speed_rotation;			//[rad.4096.1024]
+	last_real_speed_rotation[0] = real_speed_rotation;
+	last_real_speed_translation[0] = real_speed_translation;
 
 }
 
+void ODOMETRY_update_5ms(void){
+
+
+	TIMER5_disableInt();
+
+	Sint64 real_speed_rotation_average = 0, real_speed_translation_average = 0;
+	Uint8 i;
+	for(i=0;i<5;i++){
+		real_speed_rotation_average += last_real_speed_rotation[i];
+		real_speed_translation_average += last_real_speed_translation[i];
+	}
+	// Pas de division par 5 car on revient à une unité de vitesse par 5ms
+
+
+	global.real_speed_rotation = (Sint32)real_speed_rotation_average / 64;
+
+	global.real_speed_translation = (Sint32)real_speed_translation_average / 16;
+
+#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+#warning "Simulation avec robot virtuel parfait activée... ne pas utiliser ce code dans le robot sans volonté volontaire de nuire à la bonne pratique > robot en 'boucle ouverte' !"
+	DEBUG_envoi_point_fictif_alteration_coordonnees_reelles();
+#endif
+
+	if((!COPILOT_is_arrived()) || (SUPERVISOR_get_state() == SUPERVISOR_ERROR))
+	{	//Si je ne suis pas arrivé à destination, le référentiel me suit... et repart à zéro !)
+		ODOMETRY_referential_reset();
+
+		// Mise à jours des position réelle en rotation translation depuis la dernière RAZ du référentiel IT
+		global.real_position_translation +=  (Sint32)real_speed_translation_average / 16;	//[mm/4096]
+		global.real_position_rotation += (Sint32)real_speed_rotation_average / 64;				//[rad/4096/1024]
+
+	}else{
+
+		// Mise à jours des position réelle en rotation translation depuis la dernière RAZ du référentiel IT
+		global.real_position_translation =  (Sint32)real_position_translation;				//[mm/4096]
+		global.real_position_rotation = (Sint32)real_position_rotation;						//[rad/4096/1024]
+	}
+
+	global.position.x = x64 >> 30;			//[mm]
+	global.position.y = y64 >> 30;			//[mm]
+	global.position.teta = teta64 >> 16;	//[rad/4096]
+
+	x32_sync = x64 >> 14;
+	y32_sync = y64 >> 14;
+	teta32_sync = teta64 >> 6;
+
+	TIMER5_enableInt();
+}
 
 Sint32 ODOMETRY_get_max_total_teta(){
 	return max_total_teta >> 10;
@@ -364,13 +449,26 @@ Uint32 ODOMETRY_get_total_dist(){
 }
 
 Sint32 ODOMETRY_get_65536_x(void){
-	return x32;
+	return x32_sync;
 }
 
 Sint32 ODOMETRY_get_65536_y(void){
-	return y32;
+	return y32_sync;
 }
 
 Sint32 ODOMETRY_get_teta22(void){
-	return teta32;
+	return teta32_sync;
+}
+
+void ODOMETRY_referential_reset(void){
+	global.real_position_translation = 0;
+	global.real_position_rotation = 0;
+
+	TIMER5_disableInt();
+
+	real_position_rotation = 0;
+	real_position_translation = 0;
+
+
+	TIMER5_enableInt();
 }

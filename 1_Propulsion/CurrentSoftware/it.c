@@ -70,6 +70,7 @@ void IT_init(void)
 	#endif
 	TIMER2_run_us(1000*PERIODE_IT_ASSER);			//IT trajectoire et Correcteur
 	global.debug.recouvrement_IT = FALSE;
+	TIMER5_run_us(1000);
 }
 
 
@@ -91,6 +92,8 @@ void _ISR _T5Interrupt(void)
 	#ifdef SCAN_BLOC
 	//SCAN_BLOC_process_it();
 	#endif
+
+	ODOMETRY_update_1ms();
 
 	TIMER5_AckIT();
 }
@@ -117,7 +120,7 @@ void _ISR _T2Interrupt()
 	TIMER2_AckIT(); /* interruption traitée */
 
 	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
-	ODOMETRY_update();
+	ODOMETRY_update_5ms();
 	IT_test_state(begin_it_time, IT_STATE_ODOMETRY, &first_overtime);
 
 	//Sauvegarde de l'état du système, en mode debug...
