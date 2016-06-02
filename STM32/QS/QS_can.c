@@ -337,17 +337,17 @@
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_BOF))
 			{
 				it_printf("  Bus OFF, too many bus errors, > 255\n");
-				CAN_ClearFlag(CAN1, CAN_FLAG_BOF);
+				CAN_ClearITPendingBit(CAN1,CAN_IT_BOF);
 			}
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_EPV))
 			{
 				it_printf("  Error passive, many bus errors, > 127\n");
-				CAN_ClearFlag(CAN1, CAN_FLAG_EPV);
+				CAN_ClearITPendingBit(CAN1, CAN_IT_EPV);
 			}
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_EWG))
 			{
 				it_printf("  Error passive, many bus errors, > 96\n");
-				CAN_ClearFlag(CAN1, CAN_FLAG_EWG);
+				CAN_ClearITPendingBit (CAN1, CAN_IT_EWG);
 			}
 			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_FOV0))
 			{
