@@ -226,6 +226,7 @@
 			F_DUNE_TAKEN,                      //la dune a été prise
 
 			///GESTION DES ELEMNTS DANS LE ROBOT BLACK
+			F_DUNE_TAKEN_WITHOUT_ARMS,		//La dune a été prise mais les bras n'ont pas pu se fermer
 			F_VENTOUSE_AVANT_GAUCHE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
 			F_VENTOUSE_AVANT_DROITE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
 			F_FRONT_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
