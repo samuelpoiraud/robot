@@ -227,11 +227,11 @@ static void MAIN_onButton1() {
    msg.size = 1;
 
    if(state == 0){
-	   msg.sid = ACT_DUNIX_LEFT;
-	   msg.data.act_msg.order = ACT_DUNIX_LEFT_OPEN;
+	   msg.sid = ACT_SHOVEL_DUNE;
+	   msg.data.act_msg.order = ACT_SHOVEL_DUNE_TAKE;
    }else if(state == 1){
-	   msg.sid = ACT_DUNIX_RIGHT;
-	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_OPEN;
+	   msg.sid = ACT_SHOVEL_DUNE;
+	   msg.data.act_msg.order = ACT_SHOVEL_DUNE_STORE;
    }else if(state == 2){
 	   msg.sid = ACT_DUNIX_LEFT;
 	   msg.data.act_msg.order = ACT_DUNIX_LEFT_FISHS;
@@ -242,8 +242,8 @@ static void MAIN_onButton1() {
 	   msg.sid = ACT_DUNIX_LEFT;
 	   msg.data.act_msg.order = ACT_DUNIX_LEFT_CLOSE;
    }else if(state == 5){
-	   msg.sid = ACT_DUNIX_RIGHT;
-	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_CLOSE;
+	   msg.sid = ACT_SHOVEL_DUNE;
+	   msg.data.act_msg.order = ACT_SHOVEL_DUNE_IDLE;
    }
 
    CAN_process_msg(&msg);
