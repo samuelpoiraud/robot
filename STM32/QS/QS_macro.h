@@ -38,7 +38,7 @@
 	#define absolute(x)					(((x) >= 0) ? (x) : (-(x)))
 	#ifdef VERBOSE_MODE
 		#define assert(condition) \
-			if(!(condition)) {Uint32 wait = 999999; while(wait--); printf("\nassert failed file " __FILE__ " line %d : %s\n\n", __LINE__ , #condition ); wait = 999999; while(wait--); NVIC_SystemReset();}
+			if(!(condition)) {Uint32 wait = 999999; while(wait--); fprintf(stderr, "\nassert failed file " __FILE__ " line %d : %s\n\n", __LINE__ , #condition ); wait = 999999; while(wait--); NVIC_SystemReset();}
 	#else
 		#define assert(condition) (void)0
 	#endif

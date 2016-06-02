@@ -10,11 +10,12 @@
 
 
 #include "QS_trap_handler.h"
+#include "QS_outputlog.h"
 #include <stdio.h>
 
 void assert_failed(uint8_t* file, uint32_t line)
 {
-	fprintf(stderr,"ASSERT in %s, line %ld\n",file,line);
+	fatal_printf("ASSERT in %s, line %ld\n",file,line);
 }
 
 void dump_trap_info(Uint32 stack_ptr[], Uint32 lr) {
