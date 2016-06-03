@@ -65,6 +65,7 @@ volatile Uint8 errors_index = 0;
 volatile Uint8 t500ms = 0;	//Minuteur [500ms]
 static bool_e warning_bat = FALSE;
 static Uint16 hokuyo_lost_counter = 0;
+volatile static bool_e warning_bat_display = TRUE;
 
 
 error_e SELFTEST_strategy(bool_e reset);
@@ -754,6 +755,9 @@ void SELFTEST_get_match_report_IR(CAN_msg_t * msg){
 	}
 }*/
 
+void SELFTEST_set_warning_bat_display_state(bool_e state){
+	warning_bat_display = state;
+}
 
 void SELFTEST_check_alim(){
 	typedef enum{
@@ -794,7 +798,7 @@ void SELFTEST_check_alim(){
 			warning_bat = TRUE;
 		}
 
-		if(!warning_bat)
+		if(!warning_bat && warning_bat_display)
 			LCD_printf(3, FALSE, FALSE, "VBAT : %d  N°%d", global.alim_value, SD_get_match_id());
 	}
 
