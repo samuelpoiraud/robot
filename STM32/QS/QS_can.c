@@ -321,13 +321,11 @@
 
 		void CAN1_RX0_IRQHandler(void)
 		{
-			CAN_ClearITPendingBit(CAN1, CAN_IT_FMP0);
 			CAN_onMsgReceived();
 		}
 
 		void CAN1_RX1_IRQHandler(void)
 		{
-			CAN_ClearITPendingBit(CAN1, CAN_IT_FMP1);
 			CAN_onMsgReceived();
 		}
 
