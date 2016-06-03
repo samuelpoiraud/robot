@@ -635,9 +635,13 @@
 		#define PROP_SCAN_DUNE				0x119
 
 		#define PROP_RUSH					0x11A
-		#define SIZE_PROP_RUSH				1
+		#define SIZE_PROP_RUSH				8
 			struct{
-				bool_e rush					:1;
+				Sint16 rush_first_traj_acc		:16;
+				Sint16 rush_second_traj_acc		:16;
+				Sint16 rush_second_traj_brake	:16;
+				Uint8 rush_acc_rot_trans		:8;
+				bool_e rush						:1;
 			}prop_rush;
 
 		#define PROP_ACTIVE_PID				0x11B

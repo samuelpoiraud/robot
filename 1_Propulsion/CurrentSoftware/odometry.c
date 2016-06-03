@@ -391,6 +391,47 @@ void ODOMETRY_update_5ms(void){
 
 	TIMER5_disableInt();
 
+#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
+#warning "Simulation avec robot virtuel parfait activée... ne pas utiliser ce code dans le robot sans volonté volontaire de nuire à la bonne pratique > robot en 'boucle ouverte' !"
+	DEBUG_envoi_point_fictif_alteration_coordonnees_reelles();
+	Sint32 real_speed_x;	//[mm.65536/ms]
+	Sint32 real_speed_y;	//[mm.65536/ms]
+	Sint16 cos,sin;			//[pas d'unité.16384]	<< 14
+	Sint32 cos32, sin32;
+
+	COS_SIN_16384_get(teta32_sync >> 8,&cos,&sin);
+
+	cos32 = (Sint32)(cos);
+	sin32 = (Sint32)(sin);
+
+	real_speed_x =(global.real_speed_translation*cos32)>>10;	//[mm.65536/5ms] = [mm.4096/5ms]*[pas d'unité.16384]/[1024]
+	real_speed_y =(global.real_speed_translation*sin32)>>10;	//[mm.65536/5ms] = [mm.4096/5ms]*[pas d'unité.16384]/[1024]
+
+	x32_sync += real_speed_x;									//[mm.65536]
+	y32_sync += real_speed_y;									//[mm.65536]
+	teta32_sync += global.real_speed_rotation;					//[rad.1024.4096]
+
+	if(teta32_sync < (-PI_22) )
+		teta32_sync += TWO_PI22;
+	if(teta32_sync > PI_22)
+		teta32_sync -= TWO_PI22;
+
+	global.position.x = x32_sync >> 16;							//[mm]
+	global.position.y = y32_sync >> 16;							//[mm]
+	global.position.teta = teta32_sync >> 10;					//[rad.4096]
+
+	if((!COPILOT_is_arrived()) || (SUPERVISOR_get_state() == SUPERVISOR_ERROR))
+	{	//Si je ne suis pas arrivé à destination, le référentiel me suit... et repart à zéro !)
+		global.real_position_translation = 0;
+		global.real_position_rotation = 0;
+	}
+
+	// Mise à jours des position réelle en rotation translation depuis la dernière RAZ du référentiel IT
+	global.real_position_translation +=  global.real_speed_translation;		//[mm.4096]
+	global.real_position_rotation += global.real_speed_rotation;			//[rad.4096.1024]
+
+#else
+
 	Sint64 real_speed_rotation_average = 0, real_speed_translation_average = 0;
 	Uint8 i;
 	for(i=0;i<5;i++){
@@ -404,18 +445,13 @@ void ODOMETRY_update_5ms(void){
 
 	global.real_speed_translation = (Sint32)real_speed_translation_average / 16;
 
-#ifdef SIMULATION_VIRTUAL_PERFECT_ROBOT
-#warning "Simulation avec robot virtuel parfait activée... ne pas utiliser ce code dans le robot sans volonté volontaire de nuire à la bonne pratique > robot en 'boucle ouverte' !"
-	DEBUG_envoi_point_fictif_alteration_coordonnees_reelles();
-#endif
-
 	if((!COPILOT_is_arrived()) || (SUPERVISOR_get_state() == SUPERVISOR_ERROR))
 	{	//Si je ne suis pas arrivé à destination, le référentiel me suit... et repart à zéro !)
 		ODOMETRY_referential_reset();
 
 		// Mise à jours des position réelle en rotation translation depuis la dernière RAZ du référentiel IT
-		global.real_position_translation +=  (Sint32)real_speed_translation_average / 16;	//[mm/4096]
-		global.real_position_rotation += (Sint32)real_speed_rotation_average / 64;				//[rad/4096/1024]
+		global.real_position_translation +=  global.real_speed_translation;				//[mm/4096]
+		global.real_position_rotation += global.real_speed_rotation;					//[rad/4096/1024]
 
 	}else{
 
@@ -431,6 +467,8 @@ void ODOMETRY_update_5ms(void){
 	x32_sync = x64 >> 14;
 	y32_sync = y64 >> 14;
 	teta32_sync = teta64 >> 6;
+
+#endif
 
 	TIMER5_enableInt();
 }

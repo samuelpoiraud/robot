@@ -52,6 +52,13 @@ static volatile braking_e already_braking_rotation;		//a commencé a freiner depu
 static volatile braking_e braking_translation;
 static volatile braking_e braking_rotation;
 
+static volatile Uint8 rush_count_traj = 0;
+static volatile Sint16 rush_first_traj_acc = 300;
+static volatile Sint16 rush_second_traj_acc = 245;
+static volatile Sint16 rush_second_traj_brake = 180;
+static volatile Sint16 rush_acc_rot_trans = 10;
+static volatile bool_e in_rush = FALSE;
+
 /**
  *	Prototypes
  */
@@ -480,6 +487,17 @@ static void COPILOT_do_order(order_t * order)
 		//IMPORTANT, à ce stade, le type de trajectoire peut etre ROTATION, TRANSLATION, AUTOMATIC_CURVE ou STOP
 		//Les coordonnées ne sont PLUS relatives !!!
 		current_order = *order;
+
+		if(in_rush){
+			rush_count_traj++;
+
+			if(rush_count_traj == 1)
+				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_first_traj_acc);
+			else if(rush_count_traj == 2){
+				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_second_traj_acc);
+				PILOT_set_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION, rush_acc_rot_trans);
+			}
+		}
 	}
 
 	//MAJ Vitesse
@@ -711,6 +729,12 @@ static void COPILOT_update_brake_state(void)
 
 	if(braking_translation)
 		already_braking_translation = BRAKING;
+
+	if(in_rush && already_braking_translation){
+		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_second_traj_brake);
+		//CORRECTOR_set_coef(CORRECTOR_COEF_KP_ROTATION, 0x80);
+		//CORRECTOR_set_coef(CORRECTOR_COEF_KD_ROTATION, 0x200);
+	}
 }
 
 static braking_e COPILOT_update_brake_state_rotation(void)
@@ -723,7 +747,7 @@ static braking_e COPILOT_update_brake_state_rotation(void)
 	global.rotation_restante = rotation_restante;
 
 	angle_frein = (global.vitesse_rotation >> 2)*(global.vitesse_rotation >> 2); // Division par 4 car sinon overflow
-	if(PILOT_get_in_rush())
+	if(in_rush)
 		angle_frein /= (2 * PILOT_get_coef(PILOT_ACCELERATION_NORMAL) * BIG_ACCELERATION_RUSH_ROT * PILOT_get_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION));
 	else
 		angle_frein /= (2 * PILOT_get_coef(PILOT_ACCELERATION_NORMAL) * PILOT_get_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION));
@@ -756,7 +780,7 @@ static braking_e COPILOT_update_brake_state_rotation(void)
 
 		acc_frein = (global.vitesse_rotation >> 2)*(global.vitesse_rotation >> 2); // Division par 4 car sinon overflow
 
-		if(PILOT_get_in_rush())
+		if(in_rush)
 			acc_frein /= absolute(2 * (rotation_restante + absolute(global.vitesse_rotation/2)) * PILOT_get_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION) * BIG_ACCELERATION_RUSH_ROT);
 		else
 			acc_frein /= absolute(2 * (rotation_restante + absolute(global.vitesse_rotation/2)) * PILOT_get_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION));
@@ -794,7 +818,10 @@ static braking_e COPILOT_update_brake_state_translation(void)
 	global.translation_restante = translation_restante;
 
 	translation_frein = global.vitesse_translation * global.vitesse_translation;
-	translation_frein /= (2 * PILOT_get_coef(PILOT_ACCELERATION_NORMAL));
+	if(in_rush)
+		translation_frein /= (2 * rush_second_traj_brake);
+	else
+		translation_frein /= (2 * PILOT_get_coef(PILOT_ACCELERATION_NORMAL));
 	translation_frein -= absolute(global.vitesse_translation/2);
 	global.distance_frein = translation_frein;
 
@@ -832,10 +859,18 @@ static braking_e COPILOT_update_brake_state_translation(void)
 		acc_frein = global.vitesse_translation * global.vitesse_translation;
 		acc_frein /= absolute(2 * translation_restante + absolute(global.vitesse_translation/2));
 
-		if(acc_frein > PILOT_get_coef(PILOT_ACCELERATION_NORMAL) * 2)
-			acc_frein = PILOT_get_coef(PILOT_ACCELERATION_NORMAL) * 2;
-		else if(acc_frein <= PILOT_get_coef(PILOT_ACCELERATION_NORMAL) / 2)
-			acc_frein = PILOT_get_coef(PILOT_ACCELERATION_NORMAL) / 2;
+		if(in_rush){
+			if(acc_frein > rush_second_traj_brake * 2)
+				acc_frein = rush_second_traj_brake * 2;
+			else if(acc_frein <= rush_second_traj_brake / 2)
+				acc_frein = rush_second_traj_brake / 2;
+
+		}else{
+			if(acc_frein > PILOT_get_coef(PILOT_ACCELERATION_NORMAL) * 2)
+				acc_frein = PILOT_get_coef(PILOT_ACCELERATION_NORMAL) * 2;
+			else if(acc_frein <= PILOT_get_coef(PILOT_ACCELERATION_NORMAL) / 2)
+				acc_frein = PILOT_get_coef(PILOT_ACCELERATION_NORMAL) / 2;
+		}
 
 		PILOT_set_custom_acceleration_translation(TRUE, acc_frein);
 
@@ -972,4 +1007,20 @@ border_mode_e COPILOT_get_border_mode(void)
 trajectory_e COPILOT_get_trajectory(void)
 {
 	return current_order.trajectory;
+}
+
+void COPILOT_set_in_rush(bool_e in_rush_msg, Sint16 rush_first_traj_acc_msg, Sint16 rush_second_traj_acc_msg, Sint16 rush_second_traj_brake_msg, Uint8 rush_acc_rot_trans_msg){
+	if(in_rush_msg){
+		rush_count_traj = 0;
+		rush_first_traj_acc = rush_first_traj_acc_msg;
+		rush_second_traj_acc = rush_second_traj_acc_msg;
+		rush_second_traj_brake = rush_second_traj_brake_msg;
+		rush_acc_rot_trans = rush_acc_rot_trans_msg;
+		in_rush = TRUE;
+	}else{
+		in_rush = FALSE;
+		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, 0);
+		PILOT_set_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION, 0);
+	}
+
 }
