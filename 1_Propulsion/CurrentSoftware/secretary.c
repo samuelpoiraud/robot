@@ -316,6 +316,14 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		case PROP_RUSH:
 			PILOT_set_in_rush(msg->data.prop_rush.rush);
+			COPILOT_set_in_rush(msg->data.prop_rush.rush,
+								msg->data.prop_rush.rush_first_traj_acc,
+								msg->data.prop_rush.rush_second_traj_acc,
+								msg->data.prop_rush.rush_second_traj_brake,
+								msg->data.prop_rush.rush_acc_rot_trans);
+			if(msg->data.prop_rush.rush == FALSE){
+				CORRECTOR_reset_coef();
+			}
 			break;
 
 		case PROP_ASK_BLOC_SCAN:
