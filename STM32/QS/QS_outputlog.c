@@ -18,7 +18,7 @@
 	#define OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL LOG_LEVEL_Debug
 	#warning "Attention, niveau d'affichage printf non défini, mis à LOG_LEVEL_Debug par defaut (OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL)"
 #endif
-
+static void vOUTPUTLOG_printf_in_it(const char * format, va_list arg_ptr);
 static log_level_e current_max_log_level = OUTPUTLOG_DEFAULT_MAX_LOG_LEVEL;
 static OUTPUTLOG_CallbackV vcallback;
 static OUTPUTLOG_Callback callback;
@@ -35,7 +35,7 @@ void OUTPUTLOG_printf(log_level_e level, const char * format, ...) {
 	if(SYS_Read_Interrupt_state())
 	{
 		va_start(args_list, format);
-		OUTPUTLOG_printf_in_it(format, args_list);
+		vOUTPUTLOG_printf_in_it(format, args_list);
 		va_end(args_list);
 		return;
 	}
@@ -74,13 +74,18 @@ void OUTPUTLOG_printf_in_it(const char * format, ...)
 {
 	va_list args_list;
 	va_start(args_list, format);
+	vOUTPUTLOG_printf_in_it(format, args_list);
+	va_end(args_list);
+}
+
+static void vOUTPUTLOG_printf_in_it(const char * format, va_list arg_ptr)
+{
 	//Il reste BUFFER_PRINTF_IT_SIZE - index_write octets dispos dans le buffer.
 	if(index_write < BUFFER_PRINTF_IT_SIZE)
-		index_write += vsnprintf(&buffer_printf_it[index_write], BUFFER_PRINTF_IT_SIZE-index_write, format, args_list);
+		index_write += vsnprintf(&buffer_printf_it[index_write], BUFFER_PRINTF_IT_SIZE-index_write, format, arg_ptr);
 	//vsnprintf renvoie le nombre de caractères même si elle n'en a copié qu'une partie dans le buffer à taille limitée.
 	if(index_write >= BUFFER_PRINTF_IT_SIZE)
 		index_write = BUFFER_PRINTF_IT_SIZE;	//Ecretage.
-	va_end(args_list);
 }
 
 //Cette fonction à pour but de consommer le buffer qui aurait été rempli en IT.
