@@ -54,4 +54,6 @@
 
 	void Selftest_print_sd_hokuyo_lost(void);
 
+	void SELFTEST_set_warning_bat_display_state(bool_e state);
+
 #endif
