@@ -729,12 +729,6 @@ static void COPILOT_update_brake_state(void)
 
 	if(braking_translation)
 		already_braking_translation = BRAKING;
-
-	if(in_rush && already_braking_translation){
-		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_second_traj_brake);
-		//CORRECTOR_set_coef(CORRECTOR_COEF_KP_ROTATION, 0x80);
-		//CORRECTOR_set_coef(CORRECTOR_COEF_KD_ROTATION, 0x200);
-	}
 }
 
 static braking_e COPILOT_update_brake_state_rotation(void)
@@ -851,7 +845,24 @@ static braking_e COPILOT_update_brake_state_translation(void)
 	// A partir d'ici on travail en absolue
 	translation_restante = absolute(translation_restante);
 
-	if((translation_restante - translation_frein < 0) // Si le freinage standart ne suffit pas
+	if(in_rush && (translation_restante - translation_frein < 0) && rush_count_traj == 2){
+		ROADMAP_add_order(  TRAJECTORY_STOP,
+							0,
+							0,
+							0,					//teta
+							PROP_ABSOLUTE,		//relative
+							PROP_NOW,			//maintenant
+							ANY_WAY,			//sens de marche
+							NOT_BORDER_MODE,	//mode bordure
+							PROP_NO_MULTIPOINT, //mode multipoints
+							FAST,				//Vitesse
+							ACKNOWLEDGE_ASKED,
+							CORRECTOR_ENABLE,
+							AVOID_DISABLED
+						);
+		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_second_traj_brake);
+
+	}else if((translation_restante - translation_frein < 0) // Si le freinage standart ne suffit pas
 			|| ((translation_restante - translation_frein > 0) && (already_braking_translation == BRAKING))){ // ou si on a déjà commencé à freiner on continue mais plus doucement
 
 		Sint32 acc_frein;	//[mm.4096/5ms/5ms]
