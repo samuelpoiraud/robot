@@ -63,6 +63,7 @@ void ENV_init(void)
 	ENV_clean();
 	global.wanted_color=COLOR_INIT_VALUE;
 	global.color = COLOR_INIT_VALUE; //update -> color = wanted + dispatch
+	global.other_robot_color = COLOR_INIT_VALUE;
 
 	global.flags.color_updated = TRUE;
 	global.flags.match_started = FALSE;
@@ -500,7 +501,17 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			if(QS_WHO_AM_I_get() == BIG_ROBOT || global.prop.calibrated)	//Vérification pour éviter de lancer un match si on est pas "sur le terrain"...et près à partir.
 				global.flags.ask_start = TRUE;	//Inconvénient : il FAUT être calibré pour lancer un match à partir de l'autre robot.
 			break;
-		case XBEE_PING:
+		case XBEE_SEND_COLOR:
+			global.other_robot_color = incoming_msg->data.xbee_send_color.color;
+			global.flags.other_color_updated = TRUE;
+			break;
+		case XBEE_GET_COLOR:{
+			CAN_msg_t msg;
+			msg.sid = XBEE_SEND_COLOR;
+			msg.size = XBEE_SEND_COLOR_SIZE;
+			msg.data.xbee_send_color.color = global.color;
+			CANMsgToXbee(&msg, FALSE);
+		}case XBEE_PING:
 			//On recoit un ping, on répond par un PONG.
 			//Le lien est établi
 			//Le module QS_CanoverXBee se débrouille pour PONGer
@@ -653,6 +664,11 @@ void ENV_set_color(color_e color)
 	msg.size = SIZE_BROADCAST_COULEUR;
 	msg.data.broadcast_couleur.color = color;
 	CAN_send(&msg);
+
+	msg.sid = XBEE_SEND_COLOR;
+	msg.size = XBEE_SEND_COLOR_SIZE;
+	msg.data.xbee_send_color.color = color;
+	CANMsgToXbee(&msg, FALSE);
 }
 
 void ENV_warning_switch(){

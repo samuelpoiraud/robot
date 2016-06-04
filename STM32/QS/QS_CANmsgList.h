@@ -311,6 +311,14 @@
 				Uint8 config					:8;
 			}xbee_send_config_coquillages;
 
+		#define XBEE_SEND_COLOR					0x5B5
+		#define XBEE_SEND_COLOR_SIZE			1
+			struct{
+				color_e color					:8;
+			}xbee_send_color;
+
+		 #define XBEE_GET_COLOR					0x5B6
+
 		/**********************************************************************************************************************
 		 **********************************************************************************************************************
 		 **										Carte Strat <-> Balise Ext													 **

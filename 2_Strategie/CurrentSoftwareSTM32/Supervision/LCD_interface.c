@@ -46,6 +46,7 @@
 	static void display_strats(Uint8 line);
 	static void display_debug_msg(Uint8 line);
 	static void display_subaction_struct(Uint8 line, subaction_id_e subaction);
+	static void display_other_robot_color(Uint8 line);
 	void clear_line(Uint8 line);
 	void IHM_LEDS(bool_e led_set, bool_e led_down, bool_e led_up, bool_e led_ok);
 
@@ -306,11 +307,15 @@ static void LCD_menu_infos(bool_e init)
 	if(init || BRAIN_get_strat_updated())	//Temporaire !	//TODO add updated
 		display_strats(2);
 
-	if(init || free_msg_updated)
-	{
-		free_msg_updated = FALSE;
-		display_debug_msg(3);
-	}
+	if(init || global.flags.other_color_updated){
+		display_other_robot_color(3);
+	}/*else{
+		if(init || free_msg_updated)
+		{
+			free_msg_updated = FALSE;
+			display_debug_msg(3);
+		}
+	}*/
 
 	if(flag_bp_ok){
 		BUZZER_play(80, DEFAULT_NOTE, 2);
@@ -889,5 +894,15 @@ static void display_subaction_struct(Uint8 line, subaction_id_e subaction)
 	sprintf_line(line, buf);
 }
 
+static void display_other_robot_color(Uint8 line)
+{
+	global.flags.other_color_updated = FALSE;
+	if(global.other_robot_color == COLOR_INIT_VALUE)
+		sprintf_line(line, "Color not sync");
+	else if(global.other_robot_color != global.color)
+		sprintf_line(line, "Color ERROR !");
+	else
+		sprintf_line(line, "Color good :)");
+}
 
 
