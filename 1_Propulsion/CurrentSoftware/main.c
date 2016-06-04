@@ -42,6 +42,7 @@
 #include "detection.h"
 #include "detection_choc.h"
 #include "scan_fishs.h"
+#include "scan_bloc.h"
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;

@@ -31,6 +31,7 @@
 #include "gyroscope.h"
 #include "detection_choc.h"
 #include "scan_bloc.h"
+#include "scan_fishs.h"
 
 typedef enum{
 	IT_STATE_NONE = 0,

@@ -862,6 +862,8 @@ static braking_e COPILOT_update_brake_state_translation(void)
 						);
 		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_second_traj_brake);
 
+		return NOT_BRAKING;
+
 	}else if((translation_restante - translation_frein < 0) // Si le freinage standart ne suffit pas
 			|| ((translation_restante - translation_frein > 0) && (already_braking_translation == BRAKING))){ // ou si on a déjà commencé à freiner on continue mais plus doucement
 
