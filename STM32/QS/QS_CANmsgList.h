@@ -645,10 +645,10 @@
 		#define PROP_RUSH					0x11A
 		#define SIZE_PROP_RUSH				8
 			struct{
-				Sint16 rush_first_traj_acc		:16;
-				Sint16 rush_second_traj_acc		:16;
-				Sint16 rush_second_traj_brake	:16;
-				Uint8 rush_acc_rot_trans		:8;
+				Sint16 first_traj_acc			:16;
+				Sint16 second_traj_acc			:16;
+				Sint16 brake_acc				:16;
+				Uint8 acc_rot_trans				:8;
 				bool_e rush						:1;
 			}prop_rush;
 

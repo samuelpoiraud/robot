@@ -55,7 +55,7 @@ static volatile braking_e braking_rotation;
 static volatile Uint8 rush_count_traj = 0;
 static volatile Sint16 rush_first_traj_acc = 300;
 static volatile Sint16 rush_second_traj_acc = 245;
-static volatile Sint16 rush_second_traj_brake = 180;
+static volatile Sint16 rush_brake_acc = 180;
 static volatile Sint16 rush_acc_rot_trans = 10;
 static volatile bool_e in_rush = FALSE;
 
@@ -813,7 +813,7 @@ static braking_e COPILOT_update_brake_state_translation(void)
 
 	translation_frein = global.vitesse_translation * global.vitesse_translation;
 	if(in_rush)
-		translation_frein /= (2 * rush_second_traj_brake);
+		translation_frein /= (2 * rush_brake_acc);
 	else
 		translation_frein /= (2 * PILOT_get_coef(PILOT_ACCELERATION_NORMAL));
 	translation_frein -= absolute(global.vitesse_translation/2);
@@ -860,7 +860,7 @@ static braking_e COPILOT_update_brake_state_translation(void)
 							CORRECTOR_ENABLE,
 							AVOID_DISABLED
 						);
-		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_second_traj_brake);
+		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_brake_acc);
 
 		return NOT_BRAKING;
 
@@ -873,10 +873,10 @@ static braking_e COPILOT_update_brake_state_translation(void)
 		acc_frein /= absolute(2 * translation_restante + absolute(global.vitesse_translation/2));
 
 		if(in_rush){
-			if(acc_frein > rush_second_traj_brake * 2)
-				acc_frein = rush_second_traj_brake * 2;
-			else if(acc_frein <= rush_second_traj_brake / 2)
-				acc_frein = rush_second_traj_brake / 2;
+			if(acc_frein > rush_brake_acc * 2)
+				acc_frein = rush_brake_acc * 2;
+			else if(acc_frein <= rush_brake_acc / 2)
+				acc_frein = rush_brake_acc / 2;
 
 		}else{
 			if(acc_frein > PILOT_get_coef(PILOT_ACCELERATION_NORMAL) * 2)
@@ -1022,13 +1022,13 @@ trajectory_e COPILOT_get_trajectory(void)
 	return current_order.trajectory;
 }
 
-void COPILOT_set_in_rush(bool_e in_rush_msg, Sint16 rush_first_traj_acc_msg, Sint16 rush_second_traj_acc_msg, Sint16 rush_second_traj_brake_msg, Uint8 rush_acc_rot_trans_msg){
+void COPILOT_set_in_rush(bool_e in_rush_msg, Sint16 first_traj_acc_msg, Sint16 second_traj_acc_msg, Sint16 brake_acc_msg, Uint8 acc_rot_trans_msg){
 	if(in_rush_msg){
 		rush_count_traj = 0;
-		rush_first_traj_acc = rush_first_traj_acc_msg;
-		rush_second_traj_acc = rush_second_traj_acc_msg;
-		rush_second_traj_brake = rush_second_traj_brake_msg;
-		rush_acc_rot_trans = rush_acc_rot_trans_msg;
+		rush_first_traj_acc = first_traj_acc_msg;
+		rush_second_traj_acc = second_traj_acc_msg;
+		rush_brake_acc = brake_acc_msg;
+		rush_acc_rot_trans = acc_rot_trans_msg;
 		in_rush = TRUE;
 	}else{
 		in_rush = FALSE;
