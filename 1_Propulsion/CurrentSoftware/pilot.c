@@ -595,7 +595,7 @@ static void PILOT_update_acceleration_translation_and_rotation(void) {
 	if(COPILOT_get_trajectory() == TRAJECTORY_STOP){
 		if(QS_WHO_AM_I_get() == BIG_ROBOT){
 			if(in_rush)
-				coef_acceleration_translation = BIG_ACCELERATION_AVOIDANCE_RUSH;
+				coef_acceleration_translation = coefs[PILOT_ACCELERATION_NORMAL];
 			else
 				coef_acceleration_translation = BIG_ACCELERATION_AVOIDANCE;
 		}else{

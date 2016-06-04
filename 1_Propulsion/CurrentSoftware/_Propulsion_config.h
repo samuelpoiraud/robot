@@ -196,8 +196,8 @@
 	#define BIG_ACCELERATION_ROTATION_TRANSLATION		7		//[rad.1024/mm]
 	#define BIG_ACCELERATION_ROTATION_TRANSLATION_MAX	13		//[rad.1024/mm]
 
-	#define BIG_ACCELERATION_RUSH_ROT					(1/3.)
-	#define BIG_ACCELERATION_RUSH_TRANS					(2/3.)
+	#define BIG_ACCELERATION_RUSH_ROT					(1/2.)
+	#define BIG_ACCELERATION_RUSH_TRANS					(1/2.)
 
 	// 13 = (1024 / (distance entre les roues de propulsions divisée par 2 ) )
 	//sur archi'tech : 2*80mm entre les roues
