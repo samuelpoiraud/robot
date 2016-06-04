@@ -25,6 +25,7 @@
 
 
 		volatile bool_e color_updated;
+		volatile bool_e other_color_updated;
 
 		volatile bool_e match_started;
 		volatile bool_e match_over;
@@ -44,6 +45,7 @@
 
 		volatile color_e color;
 		volatile color_e wanted_color;
+		volatile color_e other_robot_color;
 
 		volatile Uint16 alim_value;				// en mV
 

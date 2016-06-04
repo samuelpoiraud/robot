@@ -22,6 +22,7 @@
 #include "Buzzer.h"
 #include "Synchro_balises.h"
 #include "../QS/QS_IHM.h"
+#include "../environment.h"
 
 //@pre : QS_WHO_I_AM doit être found.
 //@pre : le CAN doit être initialisé...
@@ -98,6 +99,7 @@ void Supervision_process_main(void)
 	static bool_e disable_already_said = FALSE;
 	bool_e current_destination_reachable;
 	bool_e led_color_initialize = FALSE;
+	static time32_t last_ask_color = 0;
 
 	if(flag_1sec)
 	{
@@ -162,6 +164,11 @@ void Supervision_process_main(void)
 	{
 		IHM_set_led_color((global.color == BOT_COLOR)?LED_COLOR_MAGENTA:LED_COLOR_GREEN);
 		local_color = global.color;
+	}
+
+	if(global.other_robot_color == COLOR_INIT_VALUE && global.absolute_time - last_ask_color >= 2000){
+		last_ask_color = global.absolute_time;
+		XBEE_send_sid(XBEE_GET_COLOR, FALSE);
 	}
 
 	/* Mise à jour des informations affichées à l'écran*/
