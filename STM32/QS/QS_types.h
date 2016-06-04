@@ -231,7 +231,6 @@
 			F_VENTOUSE_AVANT_DROITE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
 			F_FRONT_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
 			F_BACK_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
-			F_DUNIX_OPEN,
 			F_PEARL_IS_OUT,					//flag indiquant que Pearl est resté planté dans la zone de départ
 
 			//Flag apportant plus d'info sur ce qui a été pris à l'avant et ce qui a été pris à l'arrière
@@ -671,12 +670,12 @@
 		SELFTEST_ACT_RX24_BOTTOM_DUNE,
 		SELFTEST_ACT_RX24_MIDDLE_DUNE,
 		SELFTEST_ACT_RX24_CONE_DUNE,
-		SELFTEST_ACT_RX24_DUNIX_LEFT,
-		SELFTEST_ACT_RX24_DUNIX_RIGHT,
 		SELFTEST_ACT_RX24_SAND_LOCKER_LEFT,//0x2F
 		SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT,
 		SELFTEST_ACT_RX24_SHIFT_CYLINDER,
 		SELFTEST_ACT_RX24_PENDULUM,
+		SELFTEST_ACT_RX24_SHOVEL_DUNE,
+		SELFTEST_ACT_RX24_BRUSH_DUNE,
 
 		//Pearl
 		SELFTEST_ACT_AX12_LEFT_ARM,
@@ -755,21 +754,6 @@
 		ACT_CONE_DUNE_IDLE,
 		ACT_CONE_DUNE_LOCK,
 		ACT_CONE_DUNE_UNLOCK,
-
-		ACT_DUNIX_LEFT_STOP = 0,
-		ACT_DUNIX_LEFT_IDLE,
-		ACT_DUNIX_LEFT_OPEN,
-		ACT_DUNIX_LEFT_SNOWPLOW,
-		ACT_DUNIX_LEFT_FISHS,
-		ACT_DUNIX_LEFT_CLOSE,
-
-		ACT_DUNIX_RIGHT_STOP = 0,
-		ACT_DUNIX_RIGHT_IDLE,
-		ACT_DUNIX_RIGHT_OPEN,
-		ACT_DUNIX_RIGHT_SNOWPLOW,
-		ACT_DUNIX_RIGHT_FISHS_BIS,
-		ACT_DUNIX_RIGHT_FISHS,
-		ACT_DUNIX_RIGHT_CLOSE,
 
 		ACT_SAND_LOCKER_LEFT_STOP = 0,
 		ACT_SAND_LOCKER_LEFT_IDLE,

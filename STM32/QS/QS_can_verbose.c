@@ -203,12 +203,12 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_BOTTOM_DUNE:							print(string, len, "%x ACT_BOTTOM_DUNE                        ", ACT_BOTTOM_DUNE								);	break;
 		case ACT_MIDDLE_DUNE:							print(string, len, "%x ACT_MIDDLE_DUNE                        ", ACT_MIDDLE_DUNE								);	break;
 		case ACT_CONE_DUNE:						        print(string, len, "%x ACT_CONE_DUNE                          ", ACT_CONE_DUNE									);	break;
-		case ACT_DUNIX_LEFT:							print(string, len, "%x ACT_DUNIX_LEFT                         ", ACT_DUNIX_LEFT									);	break;
-		case ACT_DUNIX_RIGHT:							print(string, len, "%x ACT_DUNIX_RIGHT                        ", ACT_DUNIX_RIGHT								);	break;
 		case ACT_SAND_LOCKER_LEFT:						print(string, len, "%x ACT_SAND_LOCKER_LEFT                   ", ACT_SAND_LOCKER_LEFT							);	break;
 		case ACT_SAND_LOCKER_RIGHT:						print(string, len, "%x ACT_SAND_LOCKER_RIGHT                  ", ACT_SAND_LOCKER_RIGHT							);	break;
 		case ACT_SHIFT_CYLINDER:						print(string, len, "%x ACT_SHIFT_CYLINDER                     ", ACT_SHIFT_CYLINDER								);	break;
 		case ACT_PENDULUM:								print(string, len, "%x ACT_PENDULUM                           ", ACT_PENDULUM									);	break;
+		case ACT_SHOVEL_DUNE:							print(string, len, "%x ACT_SHOVEL_DUNE                        ", ACT_SHOVEL_DUNE								);	break;
+		case ACT_BRUSH_DUNE:							print(string, len, "%x ACT_BRUSH_DUNE                         ", ACT_BRUSH_DUNE									);	break;
 
 // Pearl
 		case ACT_LEFT_ARM	 :					    	print(string, len, "%x ACT_LEFT_ARM	                          ", ACT_LEFT_ARM							      	);	break;
@@ -383,12 +383,12 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_BOTTOM_DUNE:					print(string,len, "ACT_BOTTOM_DUNE ");				break;
 				case (Uint8)ACT_MIDDLE_DUNE:					print(string,len, "ACT_MIDDLE_DUNE ");				break;
 				case (Uint8)ACT_CONE_DUNE:               		print(string,len, "ACT_CONE_DUNE ");				break;
-				case (Uint8)ACT_DUNIX_LEFT:              		print(string,len, "ACT_DUNIX_LEFT ");				break;
-				case (Uint8)ACT_DUNIX_RIGHT:             		print(string,len, "ACT_DUNIX_RIGHT ");				break;
 				case (Uint8)ACT_SAND_LOCKER_LEFT:        		print(string,len, "ACT_SAND_LOCKER_LEFT ");			break;
 				case (Uint8)ACT_SAND_LOCKER_RIGHT:       		print(string,len, "ACT_SAND_LOCKER_RIGHT ");		break;
 				case (Uint8)ACT_SHIFT_CYLINDER:          		print(string,len, "ACT_SHIFT_CYLINDER ");			break;
 				case (Uint8)ACT_PENDULUM:                		print(string,len, "ACT_PENDULUM ");					break;
+				case (Uint8)ACT_SHOVEL_DUNE:                	print(string,len, "ACT_SHOVEL_DUNE ");				break;
+				case (Uint8)ACT_BRUSH_DUNE:                		print(string,len, "ACT_BRUSH_DUNE ");				break;
 
 				//Pearl
 				case (Uint8)ACT_LEFT_ARM:		     			print(string,len, "ACT_LEFT_ARM ");			        break;
@@ -487,25 +487,23 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  default:                              print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
-				  case (Uint8)ACT_DUNIX_LEFT:
+				  case (Uint8)ACT_SHOVEL_DUNE:
 					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_DUNIX_LEFT_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_DUNIX_LEFT_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_DUNIX_LEFT_SNOWPLOW:	print(string,len, "| SNOWPLOW |");		break;
-						  case (Uint8)ACT_DUNIX_LEFT_CLOSE:		print(string,len, "| CLOSE |");			break;
-						  case (Uint8)ACT_DUNIX_LEFT_STOP:		print(string,len, "| STOP |");			break;
+						  case (Uint8)ACT_SHOVEL_DUNE_IDLE:		print(string,len, "| IDLE |");			break;
+						  case (Uint8)ACT_SHOVEL_DUNE_RESCUE:	print(string,len, "| RESCUE |");			break;
+						  case (Uint8)ACT_SHOVEL_DUNE_STORE:	print(string,len, "| STORE |");		break;
+						  case (Uint8)ACT_SHOVEL_DUNE_TAKE:		print(string,len, "| TAKE |");			break;
+						  case (Uint8)ACT_SHOVEL_DUNE_STOP:		print(string,len, "| STOP |");			break;
 						  default:                              print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;
-				  case (Uint8)ACT_DUNIX_RIGHT:
+				  case (Uint8)ACT_BRUSH_DUNE:
 					  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_DUNIX_RIGHT_IDLE:		print(string,len, "| IDLE |");			break;
-						  case (Uint8)ACT_DUNIX_RIGHT_OPEN:		print(string,len, "| OPEN |");			break;
-						  case (Uint8)ACT_DUNIX_RIGHT_SNOWPLOW:	print(string,len, "| SNOWPLOW |");		break;
-						  case (Uint8)ACT_DUNIX_RIGHT_FISHS_BIS:print(string,len, "| FISHSBIS |");		break;
-						  case (Uint8)ACT_DUNIX_RIGHT_FISHS:	print(string,len, "| FISHS |");			break;
-						  case (Uint8)ACT_DUNIX_RIGHT_CLOSE:	print(string,len, "| CLOSE |");			break;
-						  case (Uint8)ACT_DUNIX_RIGHT_STOP:		print(string,len, "| STOP |");			break;
+						  case (Uint8)ACT_BRUSH_DUNE_IDLE:		print(string,len, "| IDLE |");			break;
+						  case (Uint8)ACT_BRUSH_DUNE_PUSH_ALL:	print(string,len, "| PUSH_ALL |");		break;
+						  case (Uint8)ACT_BRUSH_DUNE_PUSH_MID:	print(string,len, "| PUSH_MID |");		break;
+						  case (Uint8)ACT_BRUSH_DUNE_SUCKER_RELEASE:	print(string,len, "| SUCKER_RELEASE |");	break;
+						  case (Uint8)ACT_BRUSH_DUNE_STOP:		print(string,len, "| STOP |");			break;
 						  default:                              print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;

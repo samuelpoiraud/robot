@@ -605,8 +605,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_ACT_RX24_BOTTOM_DUNE:				debug_printf("SELFTEST_ACT_RX24_BOTTOM_DUNE");                  break;
 				case SELFTEST_ACT_RX24_MIDDLE_DUNE:				debug_printf("SELFTEST_ACT_RX24_MIDDLE_DUNE");                  break;
 				case SELFTEST_ACT_RX24_CONE_DUNE:				debug_printf("SELFTEST_ACT_RX24_CONE_DUNE");                    break;
-				case SELFTEST_ACT_RX24_DUNIX_LEFT:				debug_printf("SELFTEST_ACT_RX24_DUNIX_LEFT");                   break;
-				case SELFTEST_ACT_RX24_DUNIX_RIGHT:				debug_printf("SELFTEST_ACT_RX24_DUNIX_RIGHT");                  break;
+				case SELFTEST_ACT_RX24_SHOVEL_DUNE:				debug_printf("SELFTEST_ACT_RX24_SHOVEL_DUNE");                  break;
+				case SELFTEST_ACT_RX24_BRUSH_DUNE:				debug_printf("SELFTEST_ACT_RX24_BRUSH_DUNE");					break;
 				case SELFTEST_ACT_RX24_SAND_LOCKER_LEFT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_LEFT");             break;
 				case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT");            break;
 				case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			debug_printf("SELFTEST_ACT_RX24_SHIFT_CYLINDER");               break;
@@ -906,8 +906,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_ACT_RX24_BOTTOM_DUNE:				return "ACT BOTTOM DUNE";       break;
 		case SELFTEST_ACT_RX24_MIDDLE_DUNE:				return "ACT MIDDLE DUNE";       break;
 		case SELFTEST_ACT_RX24_CONE_DUNE:				return "ACT CONE DUNE";         break;
-		case SELFTEST_ACT_RX24_DUNIX_LEFT:				return "ACT DUNIX LEFT";        break;
-		case SELFTEST_ACT_RX24_DUNIX_RIGHT:				return "ACT UNIX RIGHT";        break;
+		case SELFTEST_ACT_RX24_SHOVEL_DUNE:				return "ACT SHOVEL DUNE";        break;
+		case SELFTEST_ACT_RX24_BRUSH_DUNE:				return "ACT BRUSH DUNE";        break;
 		case SELFTEST_ACT_RX24_SAND_LOCKER_LEFT:		return "ACT LOCKER LEFT";		break;
 		case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		return "ACT LOCKER RIGHT";      break;
 		case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			return "ACT SHIFT CYLINDER";    break;

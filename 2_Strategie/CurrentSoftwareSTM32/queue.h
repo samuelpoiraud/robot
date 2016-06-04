@@ -29,8 +29,6 @@ typedef enum {
 	ACT_QUEUE_Black_sand_circle,
 	ACT_QUEUE_Middle_dune,
 	ACT_QUEUE_Cone_dune,
-	ACT_QUEUE_Dunix_left,
-	ACT_QUEUE_Dunix_right,
 	ACT_QUEUE_Sand_locker_left,
 	ACT_QUEUE_Sand_locker_right,
 	ACT_QUEUE_Shift_cylinder,

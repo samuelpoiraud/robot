@@ -938,14 +938,12 @@
 		ACT_BOTTOM_DUNE             = (ACT_FILTER | 0x04),
 		ACT_MIDDLE_DUNE             = (ACT_FILTER | 0x05),
 		ACT_CONE_DUNE               = (ACT_FILTER | 0x06),
-		ACT_DUNIX_LEFT              = (ACT_FILTER | 0x07),
-		ACT_DUNIX_RIGHT             = (ACT_FILTER | 0x08),
-		ACT_SAND_LOCKER_LEFT        = (ACT_FILTER | 0x09),
-		ACT_SAND_LOCKER_RIGHT       = (ACT_FILTER | 0x0A),
-		ACT_SHIFT_CYLINDER          = (ACT_FILTER | 0x0B),
-		ACT_PENDULUM                = (ACT_FILTER | 0x0C),
-		ACT_SHOVEL_DUNE             = (ACT_FILTER | 0x0D),
-		ACT_BRUSH_DUNE              = (ACT_FILTER | 0x0E),
+		ACT_SAND_LOCKER_LEFT        = (ACT_FILTER | 0x07),
+		ACT_SAND_LOCKER_RIGHT       = (ACT_FILTER | 0x08),
+		ACT_SHIFT_CYLINDER          = (ACT_FILTER | 0x09),
+		ACT_PENDULUM                = (ACT_FILTER | 0x0A),
+		ACT_SHOVEL_DUNE             = (ACT_FILTER | 0x0B),
+		ACT_BRUSH_DUNE              = (ACT_FILTER | 0x0C),
 
 		//////////////////////////////////////////////////////////////////
 		//----------------------------PEARL-----------------------------//

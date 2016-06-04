@@ -28,10 +28,6 @@
 	#include "Black/Middle_dune/middle_dune_config.h"
 	#include "Black/Cone_dune/cone_dune.h"
 	#include "Black/Cone_dune/cone_dune_config.h"
-	#include "Black/Dunix/dunix_left.h"
-	#include "Black/Dunix/dunix_left_config.h"
-	#include "Black/Dunix/dunix_right.h"
-	#include "Black/Dunix/dunix_right_config.h"
 	#include "Black/Sand_locker/sand_locker_left.h"
 	#include "Black/Sand_locker/sand_locker_left_config.h"
 	#include "Black/Sand_locker/sand_locker_right.h"
@@ -76,8 +72,6 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(BOTTOM_DUNE),
 		ACT_DECLARE(MIDDLE_DUNE),
 		ACT_DECLARE(CONE_DUNE),
-		ACT_DECLARE(DUNIX_LEFT),
-		ACT_DECLARE(DUNIX_RIGHT),
 		ACT_DECLARE(SAND_LOCKER_LEFT),
 		ACT_DECLARE(SAND_LOCKER_RIGHT),
 		ACT_DECLARE(SHIFT_CYLINDER),

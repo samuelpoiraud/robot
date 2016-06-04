@@ -232,22 +232,10 @@ static void MAIN_onButton1() {
    }else if(state == 1){
 	   msg.sid = ACT_SHOVEL_DUNE;
 	   msg.data.act_msg.order = ACT_SHOVEL_DUNE_STORE;
-   }else if(state == 2){
-	   msg.sid = ACT_DUNIX_LEFT;
-	   msg.data.act_msg.order = ACT_DUNIX_LEFT_FISHS;
-   }else if(state == 3){
-	   msg.sid = ACT_DUNIX_RIGHT;
-	   msg.data.act_msg.order = ACT_DUNIX_RIGHT_FISHS;
-   }else if(state == 4){
-	   msg.sid = ACT_DUNIX_LEFT;
-	   msg.data.act_msg.order = ACT_DUNIX_LEFT_CLOSE;
-   }else if(state == 5){
-	   msg.sid = ACT_SHOVEL_DUNE;
-	   msg.data.act_msg.order = ACT_SHOVEL_DUNE_IDLE;
    }
 
    CAN_process_msg(&msg);
-   state = (state == 5)? 0 : state + 1;
+   state = (state == 2)? 0 : state + 1;
 }
 
 static void MAIN_onButton1LongPush() {
