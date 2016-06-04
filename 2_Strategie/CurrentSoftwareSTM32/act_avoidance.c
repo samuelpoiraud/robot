@@ -47,10 +47,6 @@ void ACT_AVOIDANCE_init(){
 
 		init_new_offset(ACT_QUEUE_Cone_dune,			ACT_AVOID_CONE_DUNE_Lock,			ACT_CONE_DUNE_LOCK,					0,		0,		0,		60);
 
-		init_new_offset(ACT_QUEUE_Dunix_left,			ACT_AVOID_DUNIX_LEFT_Open,			ACT_DUNIX_LEFT_OPEN,				60,		0,		0,		0);
-
-		init_new_offset(ACT_QUEUE_Dunix_right,			ACT_AVOID_DUNIX_RIGHT_Open,			ACT_DUNIX_RIGHT_OPEN,				0,		60,		0,		0);
-
 		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Open,		ACT_SAND_LOCKER_LEFT_LOCK,			0,	0,		60,		0);
 		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Lock_Block,	ACT_SAND_LOCKER_LEFT_LOCK_BLOCK,	0,	0,		90,		0);
 

@@ -24,8 +24,6 @@
 	#include "Black/Bottom_dune/bottom_dune.h"
 	#include "Black/Middle_dune/middle_dune.h"
 	#include "Black/Cone_dune/cone_dune.h"
-	#include "Black/Dunix/dunix_left.h"
-	#include "Black/Dunix/dunix_right.h"
 	#include "Black/Sand_locker/sand_locker_left.h"
 	#include "Black/Sand_locker/sand_locker_right.h"
 	#include "Black/Shift_cylinder/shift_cylinder.h"
@@ -59,8 +57,6 @@ typedef enum{
 	SELFTEST_BOTTOM_DUNE_CLOSE,
 	SELFTEST_CONE_DUNE_CLOSE,
 	SELFTEST_BLACK_SAND_CIRCLE,
-	SELFTEST_DUNIX_LEFT,
-	SELFTEST_DUNIX_RIGHT,
 	SELFTEST_SAND_LOCKER_LEFT,
 	SELFTEST_SAND_LOCKER_RIGHT,
 	SELFTEST_SHIFT_CYLINDER,
@@ -307,46 +303,6 @@ void SELFTEST_state_machine(void){
 					debug_printf("SELFTEST Launch Cone\n");
 				}
 				if(global.absolute_time >= time_for_timeout + 500){
-					state = SELFTEST_DUNIX_LEFT;
-				}
-				break;
-
-			case SELFTEST_DUNIX_LEFT:
-				if(entrance){
-					SELFTEST_set_actions(&DUNIX_LEFT_run_command, 4, (SELFTEST_action_t[]){
-											 {ACT_DUNIX_LEFT_IDLE,		0,  QUEUE_ACT_RX24_DUNIX_LEFT},
-											 {ACT_DUNIX_LEFT_OPEN,      0,  QUEUE_ACT_RX24_DUNIX_LEFT},
-											 {ACT_DUNIX_LEFT_SNOWPLOW,  0,  QUEUE_ACT_RX24_DUNIX_LEFT},
-											 {ACT_DUNIX_LEFT_IDLE,		0,  QUEUE_ACT_RX24_DUNIX_LEFT}
-										 });
-					debug_printf("SELFTEST Launch Dunix left\n");
-				}
-				if(state_act_tests[ACT_DUNIX_LEFT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state = SELFTEST_DUNIX_RIGHT;
-					debug_printf("SELFTEST of ACT_DUNIX_LEFT finished\n");
-				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_DUNIX_LEFT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					debug_printf("TIMEOUT Dunix left\n");
-					state = SELFTEST_DUNIX_RIGHT;
-				}
-				break;
-
-			case SELFTEST_DUNIX_RIGHT:
-				if(entrance){
-					SELFTEST_set_actions(&DUNIX_RIGHT_run_command, 4, (SELFTEST_action_t[]){
-											 {ACT_DUNIX_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_DUNIX_RIGHT},
-											 {ACT_DUNIX_RIGHT_OPEN,     0,  QUEUE_ACT_RX24_DUNIX_RIGHT},
-											 {ACT_DUNIX_RIGHT_SNOWPLOW, 0,  QUEUE_ACT_RX24_DUNIX_RIGHT},
-											 {ACT_DUNIX_RIGHT_IDLE,		0,  QUEUE_ACT_RX24_DUNIX_RIGHT}
-										 });
-					debug_printf("SELFTEST Launch Dunix right\n");
-				}
-				if(state_act_tests[ACT_DUNIX_RIGHT & 0xFF] != SELFTEST_STATE_IN_PROGRESS){
-					state = SELFTEST_BLACK_SAND_CIRCLE;
-					debug_printf("SELFTEST of ACT_DUNIX_RIGHT finished\n");
-				}else if(global.absolute_time >= time_for_timeout + ACT_TIMEOUT){
-					state_act_tests[ACT_DUNIX_RIGHT & 0xFF] = SELFTEST_STATE_TIMEOUT;
-					debug_printf("TIMEOUT Dunix right\n");
 					state = SELFTEST_BLACK_SAND_CIRCLE;
 				}
 				break;
@@ -647,11 +603,11 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 					case ACT_SAND_LOCKER_RIGHT:
 						failed_act_tests[i] = SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT;
 						break;
-					case ACT_DUNIX_LEFT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_DUNIX_LEFT;
+					case ACT_SHOVEL_DUNE:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_SHOVEL_DUNE;
 						break;
-					case ACT_DUNIX_RIGHT:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_DUNIX_RIGHT;
+					case ACT_BRUSH_DUNE:
+						failed_act_tests[i] = SELFTEST_ACT_RX24_BRUSH_DUNE;
 						break;
 					case ACT_SHIFT_CYLINDER:
 						failed_act_tests[i] = SELFTEST_ACT_RX24_SHIFT_CYLINDER;

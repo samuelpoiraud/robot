@@ -299,8 +299,6 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		   case ACT_BOTTOM_DUNE & 0xFF:				originalSidStr = "BottomDune";			break;
 		   case ACT_MIDDLE_DUNE & 0xFF:				originalSidStr = "MiddleDune";			break;
 		   case ACT_CONE_DUNE & 0xFF:				originalSidStr = "ConeDune";			break;
-		   case ACT_DUNIX_LEFT & 0xFF:				originalSidStr = "DunixLeft";			break;
-		   case ACT_DUNIX_RIGHT & 0xFF:				originalSidStr = "DunixRight";			break;
 		   case ACT_SAND_LOCKER_LEFT & 0xFF:		originalSidStr = "SandLockerLeft";      break;
 		   case ACT_SAND_LOCKER_RIGHT & 0xFF:		originalSidStr = "SandLockerRight";     break;
 		   case ACT_SHIFT_CYLINDER & 0xFF:			originalSidStr = "ShiftCylinder";       break;
@@ -310,6 +308,8 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		   case ACT_POMPE_BLACK_FRONT_LEFT & 0xFF:	originalSidStr = "PompeFrontLeft";      break;
 		   case ACT_POMPE_BLACK_FRONT_RIGHT & 0xFF:	originalSidStr = "PompeFrontRight";     break;
 		   case ACT_POMPE_PENDULUM & 0xFF:			originalSidStr = "PompePendulum";		break;
+		   case ACT_SHOVEL_DUNE & 0xFF:				originalSidStr = "ShovelDune";			break;
+		   case ACT_BRUSH_DUNE & 0xFF:				originalSidStr = "BrushDune";			break;
 		 //Pearl
 		   case ACT_LEFT_ARM & 0xFF:		        originalSidStr = "SandLeftArm";         break;
 		   case ACT_RIGHT_ARM & 0xFF:               originalSidStr = "SandRightArm";        break;
