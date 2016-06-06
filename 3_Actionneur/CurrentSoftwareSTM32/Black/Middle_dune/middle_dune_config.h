@@ -25,10 +25,12 @@
 	#define MIDDLE_DUNE_L_RX24_IDLE_POS					    920
 	#define MIDDLE_DUNE_L_RX24_LOCK_POS			     	    596
 	#define MIDDLE_DUNE_L_RX24_UNLOCK_POS				    920
+	#define MIDDLE_DUNE_L_RX24_RESCUE_POS					730
 
 	#define MIDDLE_DUNE_R_RX24_IDLE_POS					    95
 	#define MIDDLE_DUNE_R_RX24_LOCK_POS			     	    422
 	#define MIDDLE_DUNE_R_RX24_UNLOCK_POS				    95
+	#define MIDDLE_DUNE_R_RX24_RESCUE_POS					300
 
 //Position initiale de l'RX24
 	#define MIDDLE_DUNE_L_RX24_INIT_POS					MIDDLE_DUNE_L_RX24_IDLE_POS

@@ -152,6 +152,7 @@ bool_e MIDDLE_DUNE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_MIDDLE_DUNE_IDLE :
 			case ACT_MIDDLE_DUNE_LOCK :
 			case ACT_MIDDLE_DUNE_UNLOCK :
+			case ACT_MIDDLE_DUNE_RESCUE :
 			case ACT_MIDDLE_DUNE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_MIDDLE_DUNE, &MIDDLE_DUNE_run_command, 0,TRUE);
 				break;
@@ -204,6 +205,7 @@ static void MIDDLE_DUNE_command_init(queue_id_t queueId) {
 		case ACT_MIDDLE_DUNE_IDLE :
 		case ACT_MIDDLE_DUNE_LOCK :
 		case ACT_MIDDLE_DUNE_UNLOCK :
+		case ACT_MIDDLE_DUNE_RESCUE :
 			MIDDLE_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 			break;
 
@@ -299,6 +301,11 @@ static void MIDDLE_DUNE_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *
 			case ACT_MIDDLE_DUNE_UNLOCK :
 				*right_pos = MIDDLE_DUNE_R_RX24_UNLOCK_POS;
 				*left_pos = MIDDLE_DUNE_L_RX24_UNLOCK_POS;
+				break;
+
+			case ACT_MIDDLE_DUNE_RESCUE :
+				*right_pos = MIDDLE_DUNE_R_RX24_RESCUE_POS;
+				*left_pos = MIDDLE_DUNE_L_RX24_RESCUE_POS;
 				break;
 
 			default:
