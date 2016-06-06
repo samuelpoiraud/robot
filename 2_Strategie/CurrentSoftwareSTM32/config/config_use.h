@@ -36,7 +36,9 @@
 
 #define BELGIQUE
 
-#define SCAN_BLOC
+#define SCAN_BLOC_BLACK
+
+//#define SCAN_BLOC_PEARL
 
 //#define MAIN_IR_RCVA
 #ifdef MAIN_IR_RCVA
