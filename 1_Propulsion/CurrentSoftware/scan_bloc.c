@@ -18,19 +18,22 @@
 #define square(x) ((float)(x)*(float)(x))
 #define CONVERSION_LASER_LEFT(x)	((Sint32)(-264*(x)+353500)/1000)
 #define CONVERSION_LASER_RIGHT(x)	((Sint32)(-264*(x)+354400)/1000)
+#define CONVERSION_PEARL(x)			((Sint32)(5513*(x)-69277)/10000)
 
 
 //------------------------------------------------------------------------------------ Define
 
 #define NB_POINT_MAX		250					//Max : 255
 #define X_SENSOR_RIGHT		10
-#define Y_SENSOR_RIGHT		10
+#define Y_SENSOR_RIGHT		10				//Ca sert à quoi ça ???
 #define X_SENSOR_LEFT		10
 #define Y_SENSOR_LEFT		10
 
 #define DISTANCE_SCAN_CENTER		146
 #define DISTANCE_SCAN_CENTER_Y		60
-
+#define DISTANCE_PEARL				31
+#define OFFSET_PEARL				6
+#define ANGLE_PEARL					131			//en PI4096
 
 
 //------------------------------------------------------------------------------------ Définition des structures et énumerations
@@ -227,10 +230,14 @@ void SCAN_BLOC_calculate(){
 
 static void scanOnePoint(){
 	mesure_en_cours.robot = global.position;
-	if(info_scan.is_right_sensor){	// Magenta
-		mesure_en_cours.dist = CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT));
+	if(I_AM_BIG()){
+		if(info_scan.is_right_sensor){	// Magenta
+			mesure_en_cours.dist = CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT));
+		}else{
+			mesure_en_cours.dist = CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT));
+		}
 	}else{
-		mesure_en_cours.dist = CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT));
+		mesure_en_cours.dist = CONVERSION_PEARL(ADC_getValue(ADC_SENSOR_LASER_LEFT));
 	}
 
 	// Déterminer la position du point scanné sur le terrain
@@ -240,12 +247,21 @@ static void scanOnePoint(){
 		COS_SIN_4096_get(mesure_en_cours.robot.teta, &cos, &sin);
 		Sint32 cos32 = cos, sin32 = sin;
 		//printf("%d\n",mesure_en_cours.dist);
-		if(info_scan.is_right_sensor){
-			tmp.x = mesure_en_cours.robot.x + (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * sin32/4096 + DISTANCE_SCAN_CENTER_Y * cos32/4096;
-			tmp.y = mesure_en_cours.robot.y - (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * cos32/4096 + DISTANCE_SCAN_CENTER_Y * sin32/4096;
+		if(I_AM_BIG()){
+			if(info_scan.is_right_sensor){
+				tmp.x = mesure_en_cours.robot.x + (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * sin32/4096 + DISTANCE_SCAN_CENTER_Y * cos32/4096;
+				tmp.y = mesure_en_cours.robot.y - (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * cos32/4096 + DISTANCE_SCAN_CENTER_Y * sin32/4096;
+			}else{
+				tmp.x = mesure_en_cours.robot.x - (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * sin32/4096 + DISTANCE_SCAN_CENTER_Y * cos32/4096;
+				tmp.y = mesure_en_cours.robot.y + (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * cos32/4096 + DISTANCE_SCAN_CENTER_Y * sin32/4096;
+			}
 		}else{
-			tmp.x = mesure_en_cours.robot.x - (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * sin32/4096 + DISTANCE_SCAN_CENTER_Y * cos32/4096;
-			tmp.y = mesure_en_cours.robot.y + (mesure_en_cours.dist + DISTANCE_SCAN_CENTER) * cos32/4096 + DISTANCE_SCAN_CENTER_Y * sin32/4096;
+			tmp.x=mesure_en_cours.robot.x+DISTANCE_PEARL*cos32/4096+OFFSET_PEARL*sin32/4096;
+			tmp.y=mesure_en_cours.robot.y-OFFSET_PEARL*cos32/4096+DISTANCE_PEARL*sin32/4096;
+			COS_SIN_4096_get(mesure_en_cours.robot.teta-ANGLE_PEARL, &cos, &sin);
+			cos32 = cos, sin32 = sin;
+			tmp.x+=(mesure_en_cours.dist) * cos32/4096;
+			tmp.y+=(mesure_en_cours.dist) * sin32/4096;
 		}
 		//if(info_scan.color == BOT_COLOR){	// Magenta
 			//tmp.x = mesure_en_cours.robot.x + mesure_en_cours.dist * cos32/4096 + DISTANCE_SCAN_CENTER;

@@ -158,7 +158,7 @@ void SYS_init(void)
 		//Pour savoir si les valeurs sont correctes, veuillez changer HCLK_CHOOSEN_DIV, PCLK1_CHOOSEN_DIV et PCLK2_CHOOSEN_DIV. Une erreur de précompilation indiquera s'il y a un problème
 		RCC_HCLKConfig(RCC_SYSCLK_Div1);
 		RCC_PCLK1Config(RCC_HCLK_Div4);
-        RCC_PCLK2Config(RCC_HCLK_Div2);
+		RCC_PCLK2Config(RCC_HCLK_Div2);
 
 		RCC_PLLConfig(RCC_PLLSource_HSE, PLLM, PLLN, PLLP, PLLQ);
 
@@ -407,7 +407,7 @@ void SYS_check_stack_level(void)
 			break;
 	}
 	a = (uint32_t *)((uint32_t *)&_estack - a);
-	info_printf("stack max occupation : %d\n",a);
+	info_printf("stack max occupation : %ld\n",(uint32_t)(a));
 }
 
 
