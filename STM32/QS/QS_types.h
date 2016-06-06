@@ -225,13 +225,14 @@
 			//Eléments pris (non synchro)
 			F_DUNE_TAKEN,                      //la dune a été prise
 
-			///GESTION DES ELEMNTS DANS LE ROBOT BLACK
+			///GESTION DES ELEMENTS DANS LE ROBOT BLACK
 			F_DUNE_TAKEN_WITHOUT_ARMS,		//La dune a été prise mais les bras n'ont pas pu se fermer
 			F_VENTOUSE_AVANT_GAUCHE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
 			F_VENTOUSE_AVANT_DROITE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
 			F_FRONT_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
 			F_BACK_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
 			F_PEARL_IS_OUT,					//flag indiquant que Pearl est resté planté dans la zone de départ
+			F_DUNE_TAKEN_WITH_SHOVEL,       //Flag indiquant que la dune ou ce qu'il en reste a été prise avec la pelle
 
 			//Flag apportant plus d'info sur ce qui a été pris à l'avant et ce qui a été pris à l'arrière
 			F_BLOC_IN_BLACK,                   //un bloc est à l'avant du robot
