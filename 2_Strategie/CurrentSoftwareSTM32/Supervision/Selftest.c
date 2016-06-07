@@ -776,7 +776,7 @@ void SELFTEST_check_alim(){
 	if(begin_time == 0){
 		static time32_t begin_measure24 = 0;
 		if(SELFTEST_measure24_mV() > 10000 && begin_measure24 == 0){
-			begin_measure24 == global.absolute_time;
+			begin_measure24 = global.absolute_time;
 			return;
 		}else if(global.absolute_time - begin_measure24 > 2000){
 			begin_time = global.absolute_time;
