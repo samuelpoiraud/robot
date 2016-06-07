@@ -13,9 +13,9 @@
 #define CONVERSION_FISHS(x)	((Sint32)(4845*(x)+221900)/10000)
 
 static volatile GEOMETRY_point_t tab_points[NB_POINTS];
-static volatile GEOMETRY_point_t tab[1500];
-static volatile Uint16 tab_distance[1500];
-static Uint16 tab_index, index;
+//static volatile GEOMETRY_point_t tab[1500];
+//static volatile Uint16 tab_distance[1500];
+static Uint16 tab_index;
 static GEOMETRY_point_t pos_fishs[NB_FISHS];
 static Uint8 nb_fishs_detected;
 static bool_e flag_start, flag_finish;
@@ -31,7 +31,7 @@ void SCAN_FISHS_init(){
 	flag_finish = FALSE;
 	tab_index = 0;
 	nb_fishs_detected = 0;
-	index=0;
+	//index=0;
 }
 
 
@@ -83,22 +83,19 @@ void SCAN_FISHS_process_it(){
 		GEOMETRY_point_t point;
 		point.x = global.position.x + distance_scan*cos4096(global.position.teta);
 		point.y = global.position.y + distance_scan*sin4096(global.position.teta);
-		//debug_printf("%4d ; %4d",point.x, point.y);
-		tab_distance[index] = distance_scan;
-		tab[index].x = point.x;
-		tab[index].y = point.y;
-		index++;
+		//tab_distance[index] = distance_scan;
+		//tab[index].x = point.x;
+		//tab[index].y = point.y;
+		//index++;
 		if(tab_index < NB_POINTS){
 			if(color == MAGENTA && is_in_square(2027 + MARGIN_BAC , 2227 - MARGIN_BAC, 503 + MARGIN_BAC, 903 - MARGIN_BAC, point)){
 				tab_points[tab_index].x = point.x;
 				tab_points[tab_index].y = point.y;
 				tab_index++;
-				//debug_printf(" X\n");
 			}else if(color == GREEN && is_in_square(2027 + MARGIN_BAC , 2227 - MARGIN_BAC, 2097 + MARGIN_BAC, 2497 - MARGIN_BAC, point)){
 				tab_points[tab_index].x = point.x;
 				tab_points[tab_index].y = point.y;
 				tab_index++;
-				//debug_printf("\n");
 			}
 		}
 	}
@@ -109,9 +106,9 @@ static void SCAN_FISHS_treatment(){
 	Uint16 moyX, moyY;
 	Uint16 index_begin_detection = 0;
 
-	for(i=0 ; i< index; i++){
-		debug_printf("scan point=%4d x=%4d y=%4d dist=%4d\n", i, tab[i].x, tab[i].y, tab_distance[i]);
-	}
+	//for(i=0 ; i< index; i++){
+	//	debug_printf("scan point=%4d x=%4d y=%4d dist=%4d\n", i, tab[i].x, tab[i].y, tab_distance[i]);
+	//}
 	debug_printf("tab_index=%d", tab_index);
 	//PS: Si on ne rentre pas dans le for, alors aucun poisson n'a été détecté
 	for(i = 0; i < tab_index && nb_fishs_detected < NB_FISHS; i++){
