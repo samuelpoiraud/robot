@@ -6,14 +6,15 @@
 #include "QS/QS_adc.h"
 #include "QS/QS_outputlog.h"
 
-#define DISTANCE_CENTRE_ROBOT 20
+#define DISTANCE_CENTRE_ROBOT 30
 #define MARGIN_BAC 5
 #define NB_FISHS 4
 #define NB_POINTS 1000
 #define CONVERSION_FISHS(x)	((Sint32)(4845*(x)+221900)/10000)
 
 static volatile GEOMETRY_point_t tab_points[NB_POINTS];
-static volatile GEOMETRY_point_t tab[5000];
+static volatile GEOMETRY_point_t tab[1500];
+static volatile Uint16 tab_distance[1500];
 static Uint16 tab_index, index;
 static GEOMETRY_point_t pos_fishs[NB_FISHS];
 static Uint8 nb_fishs_detected;
@@ -83,6 +84,7 @@ void SCAN_FISHS_process_it(){
 		point.x = global.position.x + distance_scan*cos4096(global.position.teta);
 		point.y = global.position.y + distance_scan*sin4096(global.position.teta);
 		//debug_printf("%4d ; %4d",point.x, point.y);
+		tab_distance[index] = distance_scan;
 		tab[index].x = point.x;
 		tab[index].y = point.y;
 		index++;
@@ -108,7 +110,7 @@ static void SCAN_FISHS_treatment(){
 	Uint16 index_begin_detection = 0;
 
 	for(i=0 ; i< index; i++){
-		debug_printf("scan point=%5d x=%4d y=%4d\n", index, tab[i].x, tab[i].y);
+		debug_printf("scan point=%4d x=%4d y=%4d dist=%4d\n", i, tab[i].x, tab[i].y, tab_distance[i]);
 	}
 	debug_printf("tab_index=%d", tab_index);
 	//PS: Si on ne rentre pas dans le for, alors aucun poisson n'a été détecté
