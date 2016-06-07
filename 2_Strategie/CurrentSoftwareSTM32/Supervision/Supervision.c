@@ -160,13 +160,12 @@ void Supervision_process_main(void)
 		}
 	#endif
 
-	if(global.color != local_color || led_color_initialize)
-	{
+	if(global.color != local_color || led_color_initialize){
 		IHM_set_led_color((global.color == BOT_COLOR)?LED_COLOR_MAGENTA:LED_COLOR_GREEN);
 		local_color = global.color;
 	}
 
-	if(global.other_robot_color == COLOR_INIT_VALUE && global.absolute_time - last_ask_color >= 2000){
+	if(global.absolute_time - last_ask_color >= 2000 && global.flags.match_started == FALSE){
 		last_ask_color = global.absolute_time;
 		XBEE_send_sid(XBEE_GET_COLOR, FALSE);
 	}
