@@ -269,7 +269,7 @@ void ACT_sensor_answer(CAN_msg_t* msg){
 
 
 static Sint16 pos_fishs[4];
-static Uint8 nb_fishs = 0;
+static Uint8 nb_fishs = 4;
 void ACT_set_pos_fishs(Sint16 value[]){
 	Uint8 i;
 	global.scan_fishs = TRUE;
