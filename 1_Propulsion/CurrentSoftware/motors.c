@@ -65,11 +65,19 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 	//Commande du sens des moteurs (sens vers les ponts en H)
 	if(duty_right<0)
 	{
-		GPIO_WriteBit(SENS_MOTEUR_1, MOTOR_BACKWARD);
+		if(QS_WHO_AM_I_get() == BIG_ROBOT)
+			GPIO_WriteBit(SENS_MOTEUR_1, MOTOR_FORWARD);
+		else
+			GPIO_WriteBit(SENS_MOTEUR_1, MOTOR_BACKWARD);
+
 		duty_right=-duty_right;
 	}
-	else
-		GPIO_WriteBit(SENS_MOTEUR_1, MOTOR_FORWARD);
+	else{
+		if(QS_WHO_AM_I_get() == BIG_ROBOT)
+			GPIO_WriteBit(SENS_MOTEUR_1, MOTOR_BACKWARD);
+		else
+			GPIO_WriteBit(SENS_MOTEUR_1, MOTOR_FORWARD);
+	}
 
 
 	if(duty_left<0)
