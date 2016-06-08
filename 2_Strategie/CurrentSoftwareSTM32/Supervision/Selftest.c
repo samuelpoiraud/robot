@@ -778,7 +778,7 @@ void SELFTEST_check_alim(){
 		if(SELFTEST_measure24_mV() > 10000 && begin_measure24 == 0){
 			begin_measure24 = global.absolute_time;
 			return;
-		}else if(global.absolute_time - begin_measure24 > 2000){
+		}else if(global.absolute_time - begin_measure24 > 3500){
 			begin_time = global.absolute_time;
 		}
 	}
