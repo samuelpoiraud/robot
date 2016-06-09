@@ -12,13 +12,24 @@
 #ifndef SHOVEL_DUNE_CONFIG_H
 #define	SHOVEL_DUNE_CONFIG_H
 
-//Config
+//Config RX24
 	#define SHOVEL_DUNE_RX24_ASSER_TIMEOUT					600		// Si le RX24 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en ms.
 	#define SHOVEL_DUNE_RX24_ASSER_POS_EPSILON				6		// Lorsque le RX24 atteint sa position avec +/- POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define SHOVEL_DUNE_RX24_ASSER_POS_LARGE_EPSILON	    28		// Si le déplacement de le RX24 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define SHOVEL_DUNE_RX24_MAX_TORQUE_PERCENT		        99		// Couple maximum en pourcentage de le RX24. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager le RX24.
 	#define SHOVEL_DUNE_RX24_MAX_TEMPERATURE			    65		// Température maximale en degré
-	#define SHOVEL_DUNE_RX24_MAX_SPEED                      99      // Vitesse maximale en pourcent
+	#define SHOVEL_DUNE_RX24_MAX_SPEED                      30      // Vitesse maximale en pourcent
+
+//Config DC
+	#define SHOVEL_DUNE_DC_ASSER_TIMEOUT					1500
+	#define SHOVEL_DUNE_DC_ASSER_POS_EPSILON				20
+	#define SHOVEL_DUNE_DC_ASSER_POS_LARGE_EPSILON			40
+	#define SHOVEL_DUNE_DC_LEFT_UP_WAY_FCT()				GPIO_SetBits(SHOVEL_DUNE_HELPER_LEFT_SENS_PIN)
+	#define SHOVEL_DUNE_DC_LEFT_DOWN_WAY_FCT()				GPIO_ResetBits(SHOVEL_DUNE_HELPER_LEFT_SENS_PIN)
+	#define SHOVEL_DUNE_DC_RIGHT_UP_WAY_FCT()				GPIO_SetBits(SHOVEL_DUNE_HELPER_RIGHT_SENS_PIN)
+	#define SHOVEL_DUNE_DC_RIGHT_DOWN_WAY_FCT()				GPIO_ResetBits(SHOVEL_DUNE_HELPER_RIGHT_SENS_PIN)
+	#define SHOVEL_DUNE_DC_SPEED							20
+
 
 //Position
 	#define SHOVEL_DUNE_L_RX24_IDLE_POS					    635

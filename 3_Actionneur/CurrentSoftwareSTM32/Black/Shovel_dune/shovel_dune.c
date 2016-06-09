@@ -18,11 +18,18 @@
 // Les différents includes nécessaires...
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_rx24.h"
+#include "../QS/QS_pwm.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../ActManager.h"
+#include "dc_asser.h"
 
 #include "shovel_dune_config.h"
+
+typedef enum{
+	SERVO_STATE_OFF = 0,
+	SERVO_STATE_ON
+}servo_state_e;
 
 // Les différents define pour le verbose sur uart
 #define LOG_PREFIX "Shovel_dune_rx24.c : "
@@ -31,14 +38,19 @@
 
 // Les fonctions internes au fonctionnement de l'actionneur
 static void SHOVEL_DUNE_command_run(queue_id_t queueId);
-static void SHOVEL_DUNE_initRX24();
 static void SHOVEL_DUNE_command_init(queue_id_t queueId);
+static void SHOVEL_DUNE_run_command(queue_id_t queueId, bool_e init);
+static void SHOVEL_DUNE_HELPER_command_run(queue_id_t queueId);
+static void SHOVEL_DUNE_HELPER_command_init(queue_id_t queueId);
+static void SHOVEL_DUNE_HELPER_run_command(queue_id_t queueId, bool_e init);
+static void SHOVEL_DUNE_initRX24();
 static void SHOVEL_DUNE_config(CAN_msg_t* msg);
 static void SHOVEL_DUNE_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *right_pos, Uint16 *left_pos);
 
 // Booléen contenant l'état actuel de l'initialisation du RX24 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e rx24_is_initialized_left = FALSE;
 static bool_e rx24_is_initialized_right = FALSE;
+static servo_state_e RX24_state = SERVO_STATE_OFF;
 
 // Fonction appellée au lancement de la carte (via ActManager)
 void SHOVEL_DUNE_init() {
@@ -50,6 +62,8 @@ void SHOVEL_DUNE_init() {
 
 	RX24_init();
 	SHOVEL_DUNE_initRX24();
+
+	DC_ASSER_init();
 }
 
 // Fonction appellée si la carte IHM a détecté une grosse chutte de la tension d'alimentation des servos
@@ -58,6 +72,7 @@ void SHOVEL_DUNE_reset_config(){
 	rx24_is_initialized_left = FALSE;
 	rx24_is_initialized_right = FALSE;
 	SHOVEL_DUNE_initRX24();
+	DC_ASSER_init();
 }
 
 //Initialise le RX24 s'il n'était pas alimenté lors d'initialisations précédentes, si déjà initialisé, ne fait rien
@@ -85,6 +100,7 @@ static void SHOVEL_DUNE_initRX24() {
 		RX24_config_set_error_before_led(SHOVEL_DUNE_LEFT_RX24_ID, RX24_BEFORE_LED);
 		RX24_config_set_error_before_shutdown(SHOVEL_DUNE_LEFT_RX24_ID, RX24_BEFORE_SHUTDOWN);
 
+
 		debug_printf("Init config DONE\n");
 	}else if(rx24_is_initialized_left == FALSE)
 		debug_printf("Init config FAIL\n");
@@ -106,6 +122,7 @@ static void SHOVEL_DUNE_initRX24() {
 
 		RX24_config_set_error_before_led(SHOVEL_DUNE_RIGHT_RX24_ID, RX24_BEFORE_LED);
 		RX24_config_set_error_before_shutdown(SHOVEL_DUNE_RIGHT_RX24_ID, RX24_BEFORE_SHUTDOWN);
+
 		debug_printf("Init config DONE\n");
 	}else if(rx24_is_initialized_right == FALSE)
 		debug_printf("Init config FAIL\n");
@@ -151,6 +168,8 @@ void SHOVEL_DUNE_init_pos(){
 void SHOVEL_DUNE_stop(){
 	RX24_set_torque_enabled(SHOVEL_DUNE_LEFT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
 	RX24_set_torque_enabled(SHOVEL_DUNE_RIGHT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
+	DC_ASSER_stop(DC_ASSER_MOTOR_LEFT);
+	DC_ASSER_stop(DC_ASSER_MOTOR_RIGHT);
 }
 
 // fonction appellée à la réception d'un message CAN (via ActManager)
@@ -161,10 +180,26 @@ bool_e SHOVEL_DUNE_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SHOVEL_DUNE_IDLE :
 			case ACT_SHOVEL_DUNE_TAKE :
+#ifndef USE_SHOVEL_DUNE_HELPER
 			case ACT_SHOVEL_DUNE_STORE :
 			case ACT_SHOVEL_DUNE_RESCUE :
+#endif
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SHOVEL_DUNE, &SHOVEL_DUNE_run_command, 0, TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SHOVEL_DUNE_HELPER, &SHOVEL_DUNE_HELPER_run_command, 0, FALSE);
+				break;
+
+#ifdef USE_SHOVEL_DUNE_HELPER
+			case ACT_SHOVEL_DUNE_STORE :
+			case ACT_SHOVEL_DUNE_RESCUE :
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SHOVEL_DUNE, &SHOVEL_DUNE_run_command, 0, FALSE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SHOVEL_DUNE_HELPER, &SHOVEL_DUNE_HELPER_run_command, 0, TRUE);
+				break;
+#endif
+
+
 			case ACT_SHOVEL_DUNE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SHOVEL_DUNE, &SHOVEL_DUNE_run_command, 0,TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SHOVEL_DUNE, &SHOVEL_DUNE_HELPER_run_command, 0,TRUE);
 				break;
 
 			case ACT_CONFIG :
@@ -188,7 +223,7 @@ bool_e SHOVEL_DUNE_CAN_process_msg(CAN_msg_t* msg) {
 }
 
 // Fonction appellée par la queue pendant tout le temps de la commande en cours (le booléen init est à TRUE au premier lancement de la commande)
-void SHOVEL_DUNE_run_command(queue_id_t queueId, bool_e init) {
+static void SHOVEL_DUNE_run_command(queue_id_t queueId, bool_e init) {
 	if(QUEUE_has_error(queueId)) {
 		QUEUE_behead(queueId);
 		return;
@@ -214,10 +249,22 @@ static void SHOVEL_DUNE_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_SHOVEL_DUNE_IDLE :
 		case ACT_SHOVEL_DUNE_TAKE :
+#ifndef USE_SHOVEL_DUNE_HELPER
 		case ACT_SHOVEL_DUNE_STORE :
 		case ACT_SHOVEL_DUNE_RESCUE :
+#endif
+			RX24_set_torque_enabled(SHOVEL_DUNE_LEFT_RX24_ID, TRUE);
+			RX24_set_torque_enabled(SHOVEL_DUNE_RIGHT_RX24_ID, TRUE);
 			SHOVEL_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 			break;
+
+#ifdef USE_SHOVEL_DUNE_HELPER
+		case ACT_SHOVEL_DUNE_STORE :
+		case ACT_SHOVEL_DUNE_RESCUE :
+			RX24_set_torque_enabled(SHOVEL_DUNE_LEFT_RX24_ID, FALSE);
+			RX24_set_torque_enabled(SHOVEL_DUNE_RIGHT_RX24_ID, FALSE);
+			break;
+#endif
 
 		case ACT_SHOVEL_DUNE_STOP :
 			RX24_set_torque_enabled(SHOVEL_DUNE_LEFT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
@@ -302,7 +349,7 @@ static void SHOVEL_DUNE_command_run(queue_id_t queueId) {
 }
 
 static void SHOVEL_DUNE_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *right_pos, Uint16 *left_pos){
-	if(act_id == QUEUE_ACT_RX24_SHOVEL_DUNE){
+	if(act_id == QUEUE_ACT_RX24_SHOVEL_DUNE || act_id == QUEUE_ACT_RX24_SHOVEL_DUNE_HELPER){
 		switch(command){
 			case ACT_SHOVEL_DUNE_IDLE :
 				*right_pos = SHOVEL_DUNE_R_RX24_IDLE_POS;
@@ -332,6 +379,121 @@ static void SHOVEL_DUNE_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *
 	}else{
 		*right_pos = 0xFFFF;
 		*left_pos = 0xFFFF;
+	}
+}
+
+static void SHOVEL_DUNE_HELPER_run_command(queue_id_t queueId, bool_e init){
+	if(QUEUE_has_error(queueId)) {
+		QUEUE_behead(queueId);
+		return;
+	}
+
+	if(QUEUE_get_act(queueId) == QUEUE_ACT_RX24_SHOVEL_DUNE_HELPER) {    // Gestion des mouvements de SHOVEL_DUNE
+		if(init)
+			SHOVEL_DUNE_HELPER_command_init(queueId);
+		else
+			SHOVEL_DUNE_HELPER_command_run(queueId);
+	}
+}
+
+//Initialise une commande
+static void SHOVEL_DUNE_HELPER_command_init(queue_id_t queueId) {
+	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
+	Uint16 rx24_goalPosition_left = 0xFFFF, rx24_goalPosition_right = 0xFFFF;
+	bool_e result;
+
+	SHOVEL_DUNE_initRX24();
+
+	switch(command) {
+		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
+		case ACT_SHOVEL_DUNE_IDLE :
+		case ACT_SHOVEL_DUNE_TAKE :
+			DC_ASSER_set_speed(40);
+			DC_ASSER_set_state(TRUE);
+			SHOVEL_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
+			break;
+
+		case ACT_SHOVEL_DUNE_STORE :
+		case ACT_SHOVEL_DUNE_RESCUE :
+			DC_ASSER_set_speed(20);
+			DC_ASSER_set_state(TRUE);
+			SHOVEL_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
+			break;
+
+		case ACT_SHOVEL_DUNE_STOP :
+			DC_ASSER_stop(DC_ASSER_MOTOR_RIGHT);
+			DC_ASSER_stop(DC_ASSER_MOTOR_LEFT);
+			QUEUE_next(queueId, ACT_SHOVEL_DUNE, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+			return;
+
+		default: {
+			error_printf("Invalid SHOVEL_DUNE command: %u, code is broken !\n", command);
+			QUEUE_next(queueId, ACT_SHOVEL_DUNE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+			return;
+		}
+	}
+
+	if(RX24_state == SERVO_STATE_ON){
+		error_printf("Impossible de mettre l'actionneur DC en position car les RX24 ne sont pas arrêté");
+		QUEUE_next(queueId, ACT_SHOVEL_DUNE, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+		return;
+	}
+
+	if(rx24_goalPosition_left == 0xFFFF || rx24_goalPosition_left == 0xFFFF) {
+		error_printf("Invalid rx24 position for command: %u, code is broken !\n", command);
+		QUEUE_next(queueId, ACT_SHOVEL_DUNE, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
+		return;
+	}
+
+	if(!DC_ASSER_set_position(DC_ASSER_MOTOR_RIGHT, rx24_goalPosition_right)) {	//Si la commande n'a pas été envoyée correctement on l'indique à la carte stratégie
+		error_printf("DC_ASSER_set_position error");
+		result = FALSE;
+	}else{
+		debug_printf("Move DC_ASSER_set_position dc(%d) to %d\n", DC_ASSER_MOTOR_RIGHT, rx24_goalPosition_left);
+	}
+
+	if(!DC_ASSER_set_position(DC_ASSER_MOTOR_LEFT, rx24_goalPosition_left)) {	//Si la commande n'a pas été envoyée correctement on l'indique à la carte stratégie
+		error_printf("DC_ASSER_set_position error");
+		result = FALSE;
+	}else{
+		debug_printf("Move DC_ASSER_set_position dc(%d) to %d\n", DC_ASSER_MOTOR_LEFT, rx24_goalPosition_left);
+	}
+
+	if(result == FALSE){
+		debug_printf("DC_ASSER_set_position failed : NotHere\n");
+		QUEUE_next(queueId, ACT_SHOVEL_DUNE, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
+		return;
+	}
+
+}
+
+//Gère les états pendant le mouvement du RX24
+static void SHOVEL_DUNE_HELPER_command_run(queue_id_t queueId) {
+	Uint8 result_left, result_right, errorCode_left, errorCode_right;
+	Uint16 line_left, line_right;
+	Uint16 rx24_goalPosition_left = 0xFFFF, rx24_goalPosition_right = 0xFFFF;
+	static bool_e done_left=FALSE, done_right=FALSE;
+
+	SHOVEL_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
+
+	if(done_right == FALSE){
+		done_right = ACTQ_check_status_rx24(queueId, SHOVEL_DUNE_RIGHT_RX24_ID, rx24_goalPosition_right, SHOVEL_DUNE_RX24_ASSER_POS_EPSILON, SHOVEL_DUNE_RX24_ASSER_TIMEOUT, SHOVEL_DUNE_RX24_ASSER_POS_LARGE_EPSILON, &result_right, &errorCode_right, &line_right);
+	}
+
+	if(done_left == FALSE){
+		done_left = ACTQ_check_status_rx24(queueId, SHOVEL_DUNE_LEFT_RX24_ID, rx24_goalPosition_left, SHOVEL_DUNE_RX24_ASSER_POS_EPSILON, SHOVEL_DUNE_RX24_ASSER_TIMEOUT, SHOVEL_DUNE_RX24_ASSER_POS_LARGE_EPSILON, &result_left, &errorCode_left, &line_left);
+	}
+
+	if(done_right && done_left){
+		done_right = FALSE;
+		done_left = FALSE;
+		if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE){
+			QUEUE_next(queueId, ACT_SHOVEL_DUNE, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
+		}else if(result_right != ACT_RESULT_DONE){
+			QUEUE_next(queueId, ACT_SHOVEL_DUNE, result_right, errorCode_right, line_right);
+		}else {
+			QUEUE_next(queueId, ACT_SHOVEL_DUNE, result_left, errorCode_left, line_left);
+		}
 	}
 }
 #endif

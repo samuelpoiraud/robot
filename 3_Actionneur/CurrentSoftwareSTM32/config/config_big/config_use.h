@@ -13,11 +13,16 @@
 
 /* Definition des périphériques, connectiques capteurs et actionneurs du gros robot */
 
+
+	#define USE_SHOVEL_DUNE_HELPER
+
 /**************** Périphériques ****************/
 
 /* Réglages PWM */
 	#define USE_PWM_MODULE
 		#define PWM_FREQ	50000
+		#define USE_PWM1
+		#define USE_PWM2
 
 /* Servo-Moteurs standart */
 	//#define SERVO_TIMER 5
