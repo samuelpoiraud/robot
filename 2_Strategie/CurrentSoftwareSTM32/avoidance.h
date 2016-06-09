@@ -202,7 +202,13 @@ foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id);
  */
 void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
 
-bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
+typedef enum{
+	FOE_TYPE_ALL = 0,
+	FOE_TYPE_IR,
+	FOE_TYPE_HOKUYO
+}foe_type_e;
+
+bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, foe_type_e foe_type);
 
 
 void clear_prop_detected_foe();
