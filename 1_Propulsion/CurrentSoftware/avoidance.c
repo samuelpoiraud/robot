@@ -74,6 +74,8 @@ void AVOIDANCE_process_it(){
 
 				AVOIDANCE_said_foe_detected(FALSE, FALSE);
 
+				COPILOT_set_avoid_in_rush(TRUE);
+
 			}else if(current_order.avoidance == AVOID_ENABLED_AND_WAIT){
 
 				//debug_printf("t : %ld      buffering !\n", global.absolute_time);
@@ -107,6 +109,8 @@ void AVOIDANCE_process_it(){
 				AVOIDANCE_said_foe_detected(FALSE, TRUE);
 
 				ROADMAP_launch_next_order();
+
+				COPILOT_set_avoid_in_rush(TRUE);
 			}
 		}
 	}else if(current_order.trajectory == WAIT_FOREVER){
@@ -194,7 +198,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 		/*[mm/4096/5ms/5ms]*/	breaking_acceleration = BIG_ACCELERATION_AVOIDANCE_RUSH;
 		/*[mm/4096/5ms]*/		current_speed = (Uint32)(absolute(vtrans)*1);
 		/*[mm]*/				break_distance = SQUARE(current_speed)/(2*breaking_acceleration) >> 12;	//distance que l'on va parcourir si l'on décide de freiner maintenant. (Division par 4096 car on calcule avec des variables /4096)
-		/*[mm]*/				respect_distance = 100 + (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN;	//Distance à laquelle on souhaite s'arrêter
+		/*[mm]*/				respect_distance = 100 + (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_RESPECT_DIST_MIN:BIG_ROBOT_RESPECT_DIST_MIN+500;	//Distance à laquelle on souhaite s'arrêter
 		/*[mm]*/				slow_distance = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_DIST_MIN_SPEED_SLOW:BIG_ROBOT_DIST_MIN_SPEED_SLOW;	//Distance à laquelle on souhaite ralentir
 	}else{
 		/*[mm/4096/5ms/5ms]*/	breaking_acceleration = (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ACCELERATION_AVOIDANCE:BIG_ACCELERATION_AVOIDANCE;

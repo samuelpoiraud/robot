@@ -58,6 +58,7 @@ static volatile Sint16 rush_second_traj_acc = 245;
 static volatile Sint16 rush_brake_acc = 180;
 static volatile Sint16 rush_acc_rot_trans = 10;
 static volatile bool_e in_rush = FALSE;
+static volatile bool_e avoid_in_rush = FALSE;
 
 /**
  *	Prototypes
@@ -496,6 +497,16 @@ static void COPILOT_do_order(order_t * order)
 			else if(rush_count_traj == 2){
 				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_second_traj_acc);
 				PILOT_set_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION, rush_acc_rot_trans);
+			}else if(rush_count_traj == 3){
+				if(avoid_in_rush){
+					PILOT_set_coef(PILOT_ACCELERATION_NORMAL, BIG_ACCELERATION_AVOIDANCE_RUSH);
+				}else{
+					PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_brake_acc);
+					CORRECTOR_set_coef(CORRECTOR_COEF_KP_ROTATION, BIG_KP_ROTATION/2);
+					CORRECTOR_set_coef(CORRECTOR_COEF_KD_ROTATION, BIG_KD_ROTATION/2);
+				}
+				//SUPERVISOR_set_treshold_error_translation(400);
+				//SUPERVISOR_set_treshold_error_rotation(THRESHOLD_ERROR_ROTATION*2);
 			}
 		}
 	}
@@ -860,7 +871,6 @@ static braking_e COPILOT_update_brake_state_translation(void)
 							CORRECTOR_ENABLE,
 							AVOID_DISABLED
 						);
-		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_brake_acc);
 
 		return NOT_BRAKING;
 
@@ -1032,8 +1042,14 @@ void COPILOT_set_in_rush(bool_e in_rush_msg, Sint16 first_traj_acc_msg, Sint16 s
 		in_rush = TRUE;
 	}else{
 		in_rush = FALSE;
+		avoid_in_rush = FALSE;
 		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, 0);
 		PILOT_set_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION, 0);
+		CORRECTOR_reset_coef();
 	}
 
+}
+
+void COPILOT_set_avoid_in_rush(bool_e avoid){
+	avoid_in_rush = avoid;
 }

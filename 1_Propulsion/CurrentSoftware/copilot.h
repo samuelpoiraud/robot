@@ -44,4 +44,6 @@
 
 	void COPILOT_set_in_rush(bool_e in_rush_msg, Sint16 first_traj_acc_msg, Sint16 second_traj_acc_msg, Sint16 brake_acc_msg, Uint8 acc_rot_trans_msg);
 
+	void COPILOT_set_avoid_in_rush(bool_e avoid);
+
 #endif	//def _COPILOT_H
