@@ -38,6 +38,7 @@
 #include "strats_2016/actions_both_2016.h"
 #include "astar.h"
 #include "elements.h"
+#include "foe_analyser.h"
 
 void test_bp_switchs(void);
 void test_leds(void);
@@ -157,6 +158,7 @@ int main (void)
 	ELEMENTS_init();
 	ASTAR_init();
 	ASTAR_disable_polygon(6); //Désactivation du polygon du bloc de départ adverse
+	FOE_ANALYSER_init();
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
@@ -187,6 +189,8 @@ int main (void)
 		#endif
 
 		MAIN_sensor_test();
+
+		FOE_ANALYSER_process_main();
 
 		any_match();
 
