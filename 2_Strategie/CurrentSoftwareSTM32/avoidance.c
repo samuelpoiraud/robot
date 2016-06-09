@@ -699,22 +699,29 @@ error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacemen
 /* ----------------------------------------------------------------------------- */
 
 //Retourne si un adversaire est dans le carré dont deux coins 1 et 2 sont passés en paramètres
-bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2)
+bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, foe_type_e foe_type)
 {
 	Uint8 i;
 	for (i=0; i<MAX_NB_FOES; i++)
 	{
-		if (global.foe[i].enable)
-		{
-			if(is_in_square(x1,x2,y1,y2,(GEOMETRY_point_t){global.foe[i].x,global.foe[i].y}))
+		if(
+			(i < MAX_HOKUYO_FOES && (foe_type == FOE_TYPE_ALL || foe_type == FOE_TYPE_HOKUYO))
+			||
+			(i >= MAX_HOKUYO_FOES && (foe_type == FOE_TYPE_ALL || foe_type == FOE_TYPE_IR))
+			){
+			if (global.foe[i].enable)
 			{
-				if(verbose)
-					info_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,global.foe[i].x,global.foe[i].y,x1,x2,y1,y2);
-				return TRUE;
+				if(is_in_square(x1,x2,y1,y2,(GEOMETRY_point_t){global.foe[i].x,global.foe[i].y}))
+				{
+					if(verbose)
+						info_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,global.foe[i].x,global.foe[i].y,x1,x2,y1,y2);
+					return TRUE;
+				}
 			}
 		}
 	}
-	info_printf("NO FOE found in zone x[%d->%d] y[%d->%d]\n",x1,x2,y1,y2);
+	if(verbose)
+		info_printf("NO FOE found in zone x[%d->%d] y[%d->%d]\n",x1,x2,y1,y2);
 	return FALSE;
 }
 
