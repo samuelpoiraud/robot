@@ -48,6 +48,7 @@
 	void SUPERVISOR_config_intern_acknowledge(void (*prt)(void));
 
 	void SUPERVISOR_set_treshold_error_translation(Uint8 value);
+	void SUPERVISOR_set_treshold_error_rotation(Sint32 value);
 
 
 #endif //def _SUPERVISOR_H
