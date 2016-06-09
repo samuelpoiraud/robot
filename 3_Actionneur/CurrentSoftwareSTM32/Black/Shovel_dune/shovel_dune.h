@@ -43,13 +43,6 @@
 	 */
 	bool_e SHOVEL_DUNE_CAN_process_msg(CAN_msg_t* msg);
 
-	/** Gère les commandes demandées.
-	 *
-	 * Fonction à mettre sur la file pour demander une action.
-	 */
-	void SHOVEL_DUNE_run_command(queue_id_t queueId, bool_e init);
-
-
 	/**
 	 * Réinitialise la configuration du RX24
 	 */

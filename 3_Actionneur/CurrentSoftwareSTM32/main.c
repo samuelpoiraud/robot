@@ -35,7 +35,7 @@
 #include "Can_msg_processing.h"
 
 #ifdef I_AM_ROBOT_BIG
-
+	#include "Black/Shovel_dune/dc_asser.h"
 #else
 
 #endif
@@ -78,6 +78,7 @@ int main (void)
 		}
 	#endif
 
+	PWM_init();
 	PORTS_pwm_init();
 
 	GPIO_SetBits(LED_RUN);
@@ -227,15 +228,26 @@ static void MAIN_onButton1() {
    msg.size = 1;
 
    if(state == 0){
+	   //GPIO_SetBits(SHOVEL_DUNE_HELPER_RIGHT_SENS_PIN);
+	   //GPIO_SetBits(SHOVEL_DUNE_HELPER_LEFT_SENS_PIN);
+	   //PWM_run(30, SHOVEL_DUNE_HELPER_RIGHT_ID);
+	   //PWM_run(30, SHOVEL_DUNE_HELPER_LEFT_ID);
 	   msg.sid = ACT_SHOVEL_DUNE;
 	   msg.data.act_msg.order = ACT_SHOVEL_DUNE_TAKE;
    }else if(state == 1){
+	   //GPIO_ResetBits(SHOVEL_DUNE_HELPER_RIGHT_SENS_PIN);
+	   //GPIO_ResetBits(SHOVEL_DUNE_HELPER_LEFT_SENS_PIN);
+	   //PWM_run(30, SHOVEL_DUNE_HELPER_RIGHT_ID);
+	   //PWM_run(30, SHOVEL_DUNE_HELPER_LEFT_ID);
 	   msg.sid = ACT_SHOVEL_DUNE;
 	   msg.data.act_msg.order = ACT_SHOVEL_DUNE_STORE;
+   }else if(state == 2){
+	   PWM_stop(SHOVEL_DUNE_HELPER_RIGHT_ID);
+	   PWM_stop(SHOVEL_DUNE_HELPER_LEFT_ID);
    }
 
    CAN_process_msg(&msg);
-   state = (state == 2)? 0 : state + 1;
+   state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton1LongPush() {
@@ -533,9 +545,9 @@ static void MAIN_onButton4LongPush(){
 	msg.sid = ACT_VENTILATOR_PEARL;
 
 	if(state == 0){
-		msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+		msg.data.act_msg.order = ACT_VENTILATOR_STOP;
 	}else if(state == 1){
-		msg.data.act_msg.order = ACT_MOSFET_STOP;
+		msg.data.act_msg.order = ACT_VENTILATOR_NORMAL;
 	}
 
 	CAN_process_msg(&msg);
