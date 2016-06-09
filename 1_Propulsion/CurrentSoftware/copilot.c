@@ -502,8 +502,8 @@ static void COPILOT_do_order(order_t * order)
 					PILOT_set_coef(PILOT_ACCELERATION_NORMAL, BIG_ACCELERATION_AVOIDANCE_RUSH);
 				}else{
 					PILOT_set_coef(PILOT_ACCELERATION_NORMAL, rush_brake_acc);
-					CORRECTOR_set_coef(CORRECTOR_COEF_KP_ROTATION, BIG_KP_ROTATION/2);
-					CORRECTOR_set_coef(CORRECTOR_COEF_KD_ROTATION, BIG_KD_ROTATION/2);
+					//CORRECTOR_set_coef(CORRECTOR_COEF_KP_ROTATION, BIG_KP_ROTATION/2);
+					//CORRECTOR_set_coef(CORRECTOR_COEF_KD_ROTATION, BIG_KD_ROTATION/2);
 				}
 				//SUPERVISOR_set_treshold_error_translation(400);
 				//SUPERVISOR_set_treshold_error_rotation(THRESHOLD_ERROR_ROTATION*2);
