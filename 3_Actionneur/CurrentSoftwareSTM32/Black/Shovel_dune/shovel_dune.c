@@ -147,8 +147,19 @@ void SHOVEL_DUNE_config(CAN_msg_t* msg){
 void SHOVEL_DUNE_init_pos(){
 	SHOVEL_DUNE_initRX24();
 
+#ifdef USE_SHOVEL_DUNE_HELPER
+	CAN_msg_t msg;
+
+	msg.sid = ACT_SHOVEL_DUNE;
+	msg.data.act_msg.order = ACT_SHOVEL_DUNE_IDLE;
+	msg.size = SIZE_ACT_MSG;
+
+	ACTQ_push_operation_from_msg(&msg, QUEUE_ACT_RX24_SHOVEL_DUNE, &SHOVEL_DUNE_run_command, 0,FALSE);
+	ACTQ_push_operation_from_msg(&msg, QUEUE_ACT_RX24_SHOVEL_DUNE_HELPER, &SHOVEL_DUNE_HELPER_run_command, 0, FALSE);
+#else
 	if(rx24_is_initialized_left == TRUE){
 		debug_printf("Init pos : \n");
+
 		if(!RX24_set_position(SHOVEL_DUNE_LEFT_RX24_ID, SHOVEL_DUNE_L_RX24_INIT_POS))
 			debug_printf("   Le RX24 n°%d n'est pas là\n", SHOVEL_DUNE_LEFT_RX24_ID);
 		else
@@ -162,6 +173,7 @@ void SHOVEL_DUNE_init_pos(){
 		else
 			debug_printf("   Le RX24 n°%d a été initialisé en position\n", SHOVEL_DUNE_RIGHT_RX24_ID);
 	}
+#endif
 }
 
 // Fonction appellée à la fin du match (via ActManager)
@@ -178,9 +190,9 @@ bool_e SHOVEL_DUNE_CAN_process_msg(CAN_msg_t* msg) {
 		SHOVEL_DUNE_initRX24();
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
-			case ACT_SHOVEL_DUNE_IDLE :
 			case ACT_SHOVEL_DUNE_TAKE :
 #ifndef USE_SHOVEL_DUNE_HELPER
+			case ACT_SHOVEL_DUNE_IDLE :
 			case ACT_SHOVEL_DUNE_STORE :
 			case ACT_SHOVEL_DUNE_RESCUE :
 #endif
@@ -189,6 +201,7 @@ bool_e SHOVEL_DUNE_CAN_process_msg(CAN_msg_t* msg) {
 				break;
 
 #ifdef USE_SHOVEL_DUNE_HELPER
+			case ACT_SHOVEL_DUNE_IDLE :
 			case ACT_SHOVEL_DUNE_STORE :
 			case ACT_SHOVEL_DUNE_RESCUE :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SHOVEL_DUNE, &SHOVEL_DUNE_run_command, 0, FALSE);
@@ -247,9 +260,9 @@ static void SHOVEL_DUNE_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_SHOVEL_DUNE_IDLE :
 		case ACT_SHOVEL_DUNE_TAKE :
 #ifndef USE_SHOVEL_DUNE_HELPER
+		case ACT_SHOVEL_DUNE_IDLE :
 		case ACT_SHOVEL_DUNE_STORE :
 		case ACT_SHOVEL_DUNE_RESCUE :
 #endif
@@ -259,6 +272,7 @@ static void SHOVEL_DUNE_command_init(queue_id_t queueId) {
 			break;
 
 #ifdef USE_SHOVEL_DUNE_HELPER
+		case ACT_SHOVEL_DUNE_IDLE :
 		case ACT_SHOVEL_DUNE_STORE :
 		case ACT_SHOVEL_DUNE_RESCUE :
 			RX24_set_torque_enabled(SHOVEL_DUNE_LEFT_RX24_ID, FALSE);
