@@ -191,7 +191,7 @@
 	#define BIG_ACCELERATION_NORMAL						80		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
 	#define BIG_ACCELERATION_MAX						500		//[mm.4096/5ms/5ms]
 	#define BIG_ACCELERATION_AVOIDANCE					160		//[mm.4096/5ms/5ms]
-	#define BIG_ACCELERATION_AVOIDANCE_RUSH				224		//[mm.4096/5ms/5ms]
+	#define BIG_ACCELERATION_AVOIDANCE_RUSH				256		//[mm.4096/5ms/5ms]
 
 	#define BIG_ACCELERATION_ROTATION_TRANSLATION		7		//[rad.1024/mm]
 	#define BIG_ACCELERATION_ROTATION_TRANSLATION_MAX	13		//[rad.1024/mm]
