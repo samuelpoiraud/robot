@@ -408,7 +408,7 @@ static void SHOVEL_DUNE_HELPER_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_SHOVEL_DUNE_IDLE :
 		case ACT_SHOVEL_DUNE_TAKE :
-			DC_ASSER_set_speed(40);
+			DC_ASSER_set_speed(50);
 			DC_ASSER_set_state(TRUE);
 			SHOVEL_DUNE_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 			break;
