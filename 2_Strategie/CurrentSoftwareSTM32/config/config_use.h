@@ -38,6 +38,8 @@
 
 #define SCAN_BLOC_BLACK
 
+#define USE_FOE_ANALYSER
+
 //#define SCAN_BLOC_PEARL
 
 //#define MAIN_IR_RCVA
