@@ -26,6 +26,7 @@ void SUPERVISOR_error_check_enable(bool_e enable);  //Active la surveillance des
 void SUPERVISOR_error_check(bool_e raz_cteur_immo);
 
 volatile Sint32 treshold_error_translation;
+volatile Sint32 treshold_error_rotation;
 volatile SUPERVISOR_state_e state = SUPERVISOR_INIT;
 volatile Uint8 number_of_rounds_returns;
 volatile bool_e error_check_enable;
@@ -41,12 +42,23 @@ void SUPERVISOR_init(void)
 	SUPERVISOR_state_machine(EVENT_NOTHING_TO_DO,FALSE);
 	SUPERVISOR_error_check_enable(TRUE);
 	SUPERVISOR_set_treshold_error_translation(0); // Equivalent à TRESHOLD_ERROR_TRANSLATION/4096
+	SUPERVISOR_set_treshold_error_rotation(0);
 }
 
 
 void SUPERVISOR_process_it(void)
 {
 	SUPERVISOR_error_check(FALSE);	//Surveillance des erreurs...
+}
+
+
+//unité : rad.4096.1024
+void SUPERVISOR_set_treshold_error_rotation(Sint32 value)
+{
+	if(value == 0)
+		treshold_error_rotation = THRESHOLD_ERROR_ROTATION;	//RESET
+	else
+		treshold_error_rotation = (Sint32)(value);
 }
 
 
