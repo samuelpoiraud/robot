@@ -17,6 +17,7 @@
 #include "QS/QS_watchdog.h"
 #include "QS/QS_IHM.h"
 #include "queue.h"
+#include "QS/QS_mosfet.h"
 
 #include "ActManager.h"
 
@@ -147,6 +148,8 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
 			break;
 	}//End switch
+
+	MOSFET_CAN_process_msg(msg);
 }
 
 static void CAN_send_callback(CAN_msg_t* msg){
