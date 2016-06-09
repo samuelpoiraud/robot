@@ -21,15 +21,15 @@
 	#define BRUSH_DUNE_RX24_MAX_SPEED						50      // Vitesse maximale en pourcent
 
 //Position
-	#define BRUSH_DUNE_L_RX24_IDLE_POS					    500
-	#define BRUSH_DUNE_L_RX24_PUSH_MID_POS		     	    500
-	#define BRUSH_DUNE_L_RX24_PUSH_ALL_POS		     	    500
-	#define BRUSH_DUNE_L_RX24_SUCKER_RELEASE_POS		    500
+	#define BRUSH_DUNE_L_RX24_IDLE_POS					    765
+	#define BRUSH_DUNE_L_RX24_PUSH_MID_POS		     	    707
+	#define BRUSH_DUNE_L_RX24_PUSH_ALL_POS		     	    659
+	#define BRUSH_DUNE_L_RX24_SUCKER_RELEASE_POS		    759
 
-	#define BRUSH_DUNE_R_RX24_IDLE_POS					    500
-	#define BRUSH_DUNE_R_RX24_PUSH_MID_POS					500
-	#define BRUSH_DUNE_R_RX24_PUSH_ALL_POS					500
-	#define BRUSH_DUNE_R_RX24_SUCKER_RELEASE_POS			500
+	#define BRUSH_DUNE_R_RX24_IDLE_POS					    256
+	#define BRUSH_DUNE_R_RX24_PUSH_MID_POS					320
+	#define BRUSH_DUNE_R_RX24_PUSH_ALL_POS					370
+	#define BRUSH_DUNE_R_RX24_SUCKER_RELEASE_POS			266
 
 //Position initiale de l'RX24
 	#define BRUSH_DUNE_L_RX24_INIT_POS						BRUSH_DUNE_L_RX24_IDLE_POS
