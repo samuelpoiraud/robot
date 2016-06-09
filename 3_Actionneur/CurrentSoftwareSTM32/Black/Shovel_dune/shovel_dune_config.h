@@ -33,14 +33,14 @@
 
 //Position
 	#define SHOVEL_DUNE_L_RX24_IDLE_POS					    635
-	#define SHOVEL_DUNE_L_RX24_TAKE_POS			     	    294
-	#define SHOVEL_DUNE_L_RX24_STORE_POS				    326
-	#define SHOVEL_DUNE_L_RX24_RESCUE_POS				    326
+	#define SHOVEL_DUNE_L_RX24_TAKE_POS			     	    291
+	#define SHOVEL_DUNE_L_RX24_STORE_POS				    321
+	#define SHOVEL_DUNE_L_RX24_RESCUE_POS				    324
 
 	#define SHOVEL_DUNE_R_RX24_IDLE_POS					    529
 	#define SHOVEL_DUNE_R_RX24_TAKE_POS			     	    871
-	#define SHOVEL_DUNE_R_RX24_STORE_POS				    835
-	#define SHOVEL_DUNE_R_RX24_RESCUE_POS					835
+	#define SHOVEL_DUNE_R_RX24_STORE_POS				    822
+	#define SHOVEL_DUNE_R_RX24_RESCUE_POS					816
 
 //Position initiale de l'RX24
 	#define SHOVEL_DUNE_L_RX24_INIT_POS						SHOVEL_DUNE_L_RX24_IDLE_POS
