@@ -242,12 +242,18 @@ static void MAIN_onButton1() {
 	   msg.sid = ACT_SHOVEL_DUNE;
 	   msg.data.act_msg.order = ACT_SHOVEL_DUNE_STORE;
    }else if(state == 2){
-	   PWM_stop(SHOVEL_DUNE_HELPER_RIGHT_ID);
-	   PWM_stop(SHOVEL_DUNE_HELPER_LEFT_ID);
+	   msg.sid = ACT_BRUSH_DUNE;
+	   msg.data.act_msg.order = ACT_BRUSH_DUNE_PUSH_MID;
+   }else if(state == 3){
+	   msg.sid = ACT_BRUSH_DUNE;
+	   msg.data.act_msg.order = ACT_BRUSH_DUNE_PUSH_ALL;
+   }else if(state == 4){
+	   msg.sid = ACT_BRUSH_DUNE;
+	   msg.data.act_msg.order = ACT_BRUSH_DUNE_IDLE;
    }
 
    CAN_process_msg(&msg);
-   state = (state == 1)? 0 : state + 1;
+   state = (state == 4)? 0 : state + 1;
 }
 
 static void MAIN_onButton1LongPush() {
