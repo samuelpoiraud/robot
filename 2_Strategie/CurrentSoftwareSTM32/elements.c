@@ -413,6 +413,10 @@ void ELEMENTS_receive_flags(CAN_msg_t* msg)
 
 void ELEMENTS_inc_fishs_passage(){
 	fishs_passage++;
+	if(ELEMENTS_fishs_passage_completed())
+	{
+		ELEMENTS_set_flag(F_FISH_COMPLETELY_DONE);
+	}
 }
 
 void ELEMENTS_inc_seashell_depose(){
