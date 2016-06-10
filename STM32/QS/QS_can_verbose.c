@@ -650,6 +650,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 			}
 
+
 			//Todo ajouter la commande dont on envoie le résultat (data 1) ???
 			switch(msg->data.act_result.result)
 			{
@@ -673,6 +674,198 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 			}
 			print(string,len, "\n");
 			break;
+
+	  case ACT_FISH_MAGNETIC_ARM:
+		  switch(msg->data.act_msg.order){
+			  case (Uint8)ACT_FISH_MAGNETIC_ARM_IDLE:		print(string,len, "| IDLE |\n");			break;
+			  case (Uint8)ACT_FISH_MAGNETIC_ARM_MIDDLE:		print(string,len, "| MIDDLE |\n");		break;
+			  case (Uint8)ACT_FISH_MAGNETIC_ARM_OPEN:		print(string,len, "| OPEN |\n");			break;
+			  case (Uint8)ACT_FISH_MAGNETIC_ARM_CLOSE:		print(string,len, "| CLOSE |\n");			break;
+			  case (Uint8)ACT_FISH_MAGNETIC_ARM_UP_TAPOTAGE:		print(string,len, "| UP_TAPOT |\n");			break;
+			  case (Uint8)ACT_FISH_MAGNETIC_ARM_DOWN_TAPOTAGE:		print(string,len, "| DOWN_TAPOT |\n");			break;
+			  case (Uint8)ACT_FISH_MAGNETIC_ARM_STOP:		print(string,len, "| STOP |\n");			break;
+			  default:										print(string,len, "| UNKNOW cmd |\n");	break;
+		  }
+	  break;
+	  case ACT_FISH_UNSTICK_ARM:
+		  switch(msg->data.act_msg.order){
+			  case (Uint8)ACT_FISH_UNSTICK_ARM_IDLE:		print(string,len, "| IDLE |\n");			break;
+			  case (Uint8)ACT_FISH_UNSTICK_ARM_OPEN:		print(string,len, "| OPEN |\n");			break;
+			  case (Uint8)ACT_FISH_UNSTICK_ARM_CLOSE:		print(string,len, "| CLOSE |\n");			break;
+			  case (Uint8)ACT_FISH_UNSTICK_ARM_UP_TAPOTAGE:		print(string,len, "| UP_TAPOT |\n");			break;
+			  case (Uint8)ACT_FISH_UNSTICK_ARM_DOWN_TAPOTAGE:		print(string,len, "| DOWN_TAPOT |\n");			break;
+			  case (Uint8)ACT_FISH_UNSTICK_ARM_STOP:		print(string,len, "| STOP |\n");			break;
+			  default:                                    print(string,len, "| UNKNOW cmd |\n");	break;
+		  }
+	  break;
+		case ACT_BLACK_SAND_CIRCLE:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_BLACK_SAND_CIRCLE_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_BLACK_SAND_CIRCLE_LOCK:		print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_BLACK_SAND_CIRCLE_UNLOCK:		print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_BLACK_SAND_CIRCLE_STOP:		print(string,len, "| STOP |\n");			break;
+				default:										print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_BOTTOM_DUNE:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_BOTTOM_DUNE_IDLE:				print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_BOTTOM_DUNE_LOCK:				print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_BOTTOM_DUNE_UNLOCK:			print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_BOTTOM_DUNE_STOP:				print(string,len, "| STOP |\n");			break;
+				default:										print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_MIDDLE_DUNE:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_MIDDLE_DUNE_IDLE:				print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_MIDDLE_DUNE_LOCK:				print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_MIDDLE_DUNE_UNLOCK:			print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_MIDDLE_DUNE_RESCUE:			print(string,len, "| RESCUE |\n");		break;
+				case (Uint8)ACT_MIDDLE_DUNE_STOP:				print(string,len, "| STOP |\n");			break;
+				default:										print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_CONE_DUNE:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_CONE_DUNE_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_CONE_DUNE_LOCK:		print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_CONE_DUNE_UNLOCK:		print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_CONE_DUNE_STOP:		print(string,len, "| STOP |\n");			break;
+				default:                              print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_SHOVEL_DUNE:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_SHOVEL_DUNE_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_SHOVEL_DUNE_RESCUE:	print(string,len, "| RESCUE |\n");			break;
+				case (Uint8)ACT_SHOVEL_DUNE_STORE:	print(string,len, "| STORE |\n");		break;
+				case (Uint8)ACT_SHOVEL_DUNE_TAKE:		print(string,len, "| TAKE |\n");			break;
+				case (Uint8)ACT_SHOVEL_DUNE_STOP:		print(string,len, "| STOP |\n");			break;
+				default:                              print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_BRUSH_DUNE:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_BRUSH_DUNE_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_BRUSH_DUNE_PUSH_ALL:	print(string,len, "| PUSH_ALL |\n");		break;
+				case (Uint8)ACT_BRUSH_DUNE_PUSH_MID:	print(string,len, "| PUSH_MID |\n");		break;
+				case (Uint8)ACT_BRUSH_DUNE_SUCKER_RELEASE:	print(string,len, "| SUCKER_RELEASE |\n");	break;
+				case (Uint8)ACT_BRUSH_DUNE_STOP:		print(string,len, "| STOP |\n");			break;
+				default:                              print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_SAND_LOCKER_LEFT:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_SAND_LOCKER_LEFT_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_SAND_LOCKER_LEFT_LOCK:		print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_SAND_LOCKER_LEFT_LOCK_BLOCK:		print(string,len, "| LOCK BLOCK|\n");			break;
+				case (Uint8)ACT_SAND_LOCKER_LEFT_LOCK_BLOCK_SERRAGE:		print(string,len, "| LOCK BLOCK SERRAGE|\n");			break;
+				case (Uint8)ACT_SAND_LOCKER_LEFT_MIDDLE:		print(string,len, "| MIDDLE |\n");		break;
+				case (Uint8)ACT_SAND_LOCKER_LEFT_UNLOCK:		print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_SAND_LOCKER_LEFT_STOP:		print(string,len, "| STOP |\n");			break;
+				default:										print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_SAND_LOCKER_RIGHT:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_SAND_LOCKER_RIGHT_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_SAND_LOCKER_RIGHT_LOCK:		print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK:		print(string,len, "| LOCK BLOCK|\n");			break;
+				case (Uint8)ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK_SERRAGE:		print(string,len, "| LOCK BLOCK SERRAGE|\n");			break;
+				case (Uint8)ACT_SAND_LOCKER_RIGHT_MIDDLE:		print(string,len, "| MIDDLE |\n");		break;
+				case (Uint8)ACT_SAND_LOCKER_RIGHT_UNLOCK:		print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_SAND_LOCKER_RIGHT_STOP:		print(string,len, "| STOP |\n");			break;
+				default:										print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_SHIFT_CYLINDER:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_SHIFT_CYLINDER_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_SHIFT_CYLINDER_OPEN:		print(string,len, "| OPEN |\n");			break;
+				case (Uint8)ACT_SHIFT_CYLINDER_CLOSE:		print(string,len, "| CLOSE |\n");			break;
+				case (Uint8)ACT_SHIFT_CYLINDER_STOP:		print(string,len, "| STOP |\n");			break;
+				default:                                  print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_PENDULUM:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_PENDULUM_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_PENDULUM_OPEN:		print(string,len, "| OPEN |\n");			break;
+				case (Uint8)ACT_PENDULUM_CLOSE:		print(string,len, "| CLOSE |\n");			break;
+				case (Uint8)ACT_PENDULUM_STOP:		print(string,len, "| STOP |\n");			break;
+				default:                              print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+
+		case ACT_LEFT_ARM:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_LEFT_ARM_IDLE:			print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_LEFT_ARM_UNLOCK:			print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_LEFT_ARM_LOCK:			print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_LEFT_ARM_LOCK_SERRAGE:			print(string,len, "| ACT_LEFT_ARM_LOCK_SERRAGE |\n");	break;
+				case (Uint8)ACT_LEFT_ARM_STOP:			print(string,len, "| STOP |\n");			break;
+				case (Uint8)ACT_LEFT_ARM_PARALLELE:		print(string,len, "| ACT_LEFT_ARM_PARALLELE |\n"); break;
+				default:                                    print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_RIGHT_ARM:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_RIGHT_ARM_IDLE:		    print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_RIGHT_ARM_UNLOCK:			print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_RIGHT_ARM_LOCK:			print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_RIGHT_ARM_LOCK_SERRAGE:	print(string,len, "| ACT_RIGHT_ARM_LOCK_SERRAGE |\n"); break;
+				case (Uint8)ACT_RIGHT_ARM_STOP:			print(string,len, "| STOP |\n");			break;
+				case (Uint8)ACT_RIGHT_ARM_PARALLELE:		print(string,len, "| ACT_RIGHT_ARM_PARALLELE |\n"); break;
+				default:                                    print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_POMPE_FRONT_LEFT:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_POMPE_NORMAL:				print(string,len, "| NORMAL |\n");		break;
+				case (Uint8)ACT_POMPE_REVERSE:			print(string,len, "| REVERSE |\n");		break;
+				case (Uint8)ACT_POMPE_STOP:				print(string,len, "| STOP |\n");			break;
+				default:											print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_POMPE_FRONT_RIGHT:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_POMPE_NORMAL:				print(string,len, "| NORMAL |\n");		break;
+				case (Uint8)ACT_POMPE_REVERSE:			print(string,len, "| REVERSE |\n");		break;
+				case (Uint8)ACT_POMPE_STOP:				print(string,len, "| STOP |\n");			break;
+				default:										print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+		case ACT_PEARL_SAND_CIRCLE:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_PEARL_SAND_CIRCLE_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_PEARL_SAND_CIRCLE_LOCK:		print(string,len, "| LOCK |\n");			break;
+				case (Uint8)ACT_PEARL_SAND_CIRCLE_UNLOCK:		print(string,len, "| UNLOCK |\n");		break;
+				case (Uint8)ACT_PEARL_SAND_CIRCLE_STOP:		print(string,len, "| STOP |\n");			break;
+				default:											print(string,len, "| UNKNOW cmd |\n");	    break;
+			}
+		break;
+		case ACT_PARASOL:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_PARASOL_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_PARASOL_OPEN:		print(string,len, "| OPEN |\n");			break;
+				case (Uint8)ACT_PARASOL_CLOSE:	print(string,len, "| CLOSE |\n");		    break;
+				case (Uint8)ACT_PARASOL_STOP:		print(string,len, "| STOP |\n");			break;
+				default:								print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+
+		case ACT_FISH_PEARL:
+			switch(msg->data.act_msg.order){
+				case (Uint8)ACT_FISH_PEARL_IDLE:		print(string,len, "| IDLE |\n");			break;
+				case (Uint8)ACT_FISH_PEARL_OPEN:		print(string,len, "| OPEN |\n");			break;
+				case (Uint8)ACT_FISH_PEARL_CLOSE:		print(string,len, "| CLOSE |\n");		    break;
+				case (Uint8)ACT_FISH_PEARL_STOP:		print(string,len, "| STOP |\n");			break;
+				case (Uint8)ACT_FISH_PEARL_TAPOTAGE:	print(string,len, "| TAPOTAGE |\n");	    break;
+				default:									print(string,len, "| UNKNOW cmd |\n");	break;
+			}
+		break;
+
 		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", msg->data.debug_propulsion_set_coef.id, msg->data.debug_propulsion_set_coef.value);	break;
 		case DEBUG_PROPULSION_SET_ACCELERATION:	print(string, len, "| Acc=%ld\n", msg->data.debug_propulsion_set_acceleration.acceleration_coef);								break;
