@@ -144,6 +144,15 @@ void ENV_check_filter(CAN_msg_t * msg, bool_e * bUART_filter, bool_e * bCAN_filt
 			*bUART_filter = FALSE;	//Ca passe pas...
 			*bSAVE_filter = FALSE;
 			break;
+		case XBEE_SEND_COLOR:
+			*bUART_filter = FALSE;	//Ca passe pas...
+			*bSAVE_filter = FALSE;
+			break;
+		case XBEE_GET_COLOR:
+			*bUART_filter = FALSE;	//Ca passe pas...
+			*bSAVE_filter = FALSE;
+			break;
+
 		default:
 			//Message autorisé.
 			break;
