@@ -17,6 +17,7 @@
 
 //#define ROBOT_VIRTUEL_PARFAIT		// Afin que les actionneurs et certaines fonction en strat renvoi true
 #ifdef ROBOT_VIRTUEL_PARFAIT
+	#define ACT_NO_ERROR_HANDLING
 	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
 #endif
 
