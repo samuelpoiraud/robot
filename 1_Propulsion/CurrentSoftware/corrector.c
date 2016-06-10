@@ -190,10 +190,10 @@ void CORRECTOR_update(void)
 	global.ecart_translation = global.position_translation - global.real_position_translation; // positif si le robot doit avancer
 	global.ecart_rotation = global.position_rotation - global.real_position_rotation;  //positif pour rotation dans le sens trigo
 	global.ecart_rotation_somme += global.ecart_rotation;
-	if(global.ecart_rotation_somme > 3000)
-		global.ecart_rotation_somme = 3000;
-	else if(global.ecart_rotation_somme < -3000)
-		global.ecart_rotation_somme = -3000;
+	if(global.ecart_rotation_somme > 3072000)
+		global.ecart_rotation_somme = 3072000;
+	else if(global.ecart_rotation_somme < -3072000)
+		global.ecart_rotation_somme = -3072000;
 
 	if(global.flags.pid_active && I_AM_BIG()){
 		if(global.vitesse_translation < 6000)
@@ -205,17 +205,17 @@ void CORRECTOR_update(void)
 	}
 
 
-	commande_translation = -(	(global.acceleration_translation						 * coefs[CORRECTOR_COEF_KA_TRANSLATION])  +
-									(global.vitesse_translation 							 * coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+
-									(global.ecart_translation 								 * coefs[CORRECTOR_COEF_KP_TRANSLATION])/16 	+
-									(global.ecart_translation-global.ecart_translation_prec) * coefs[CORRECTOR_COEF_KD_TRANSLATION]
+	commande_translation = -(	(global.acceleration_translation								* coefs[CORRECTOR_COEF_KA_TRANSLATION])		+
+									(global.vitesse_translation									* coefs[CORRECTOR_COEF_KV_TRANSLATION]) 	+
+									(global.ecart_translation									* coefs[CORRECTOR_COEF_KP_TRANSLATION])/16 	+
+									(global.ecart_translation-global.ecart_translation_prec)	* coefs[CORRECTOR_COEF_KD_TRANSLATION]
 								  )>>12;
 
-	commande_rotation 	= (	(global.acceleration_rotation							 * coefs[CORRECTOR_COEF_KA_ROTATION])		+
-									(global.vitesse_rotation								 * coefs[CORRECTOR_COEF_KV_ROTATION])/2	+
-									((global.ecart_rotation 									 * coefs[CORRECTOR_COEF_KP_ROTATION]) >> 10) 	+
-									((global.ecart_rotation_somme * pid_active                * coefs[CORRECTOR_COEF_KI_ROTATION]) >> 10)   +
-									(((global.ecart_rotation-global.ecart_rotation_prec)		 * coefs[CORRECTOR_COEF_KD_ROTATION]) >> 10)
+	commande_rotation 	= (	(global.acceleration_rotation										* coefs[CORRECTOR_COEF_KA_ROTATION])		+
+									(global.vitesse_rotation									* coefs[CORRECTOR_COEF_KV_ROTATION])/2		+
+									((global.ecart_rotation										* coefs[CORRECTOR_COEF_KP_ROTATION]) >> 10) +
+									((global.ecart_rotation_somme * pid_active					* coefs[CORRECTOR_COEF_KI_ROTATION]) >> 10)	+
+									(((global.ecart_rotation-global.ecart_rotation_prec)		* coefs[CORRECTOR_COEF_KD_ROTATION]) >> 10)
 								  )>>10;
 
 #if 0	//Code a tester
