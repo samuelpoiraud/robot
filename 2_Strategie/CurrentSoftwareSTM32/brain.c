@@ -221,13 +221,23 @@ void any_match(void)
 
 		}else if (!global.flags.match_over && !global.flags.match_suspended) {
 
+			static bool_e dune_do_not_release = FALSE;
+
 			if(!release_mid_dune && global.match_time >= (90000 - 2000) && I_AM_BIG()){
-				ACT_push_order(ACT_MIDDLE_DUNE, ACT_MIDDLE_DUNE_IDLE);
+				if(!i_am_in_square_color(772, 1350, 1200, 1500) && !i_am_in_square_color(0, 300, 0, 2200) && dune_do_not_release == FALSE){
+					ACT_push_order(ACT_MIDDLE_DUNE, ACT_MIDDLE_DUNE_IDLE);
+				}else{
+					dune_do_not_release = TRUE;
+				}
 				release_mid_dune = TRUE;
 			}
 
 			if(!release_bottom_dune && global.match_time >= (90000 - 1500) && I_AM_BIG()){
-				ACT_push_order(ACT_BOTTOM_DUNE, ACT_BOTTOM_DUNE_IDLE);
+				if(!i_am_in_square_color(772, 1350, 1200, 1500) && !i_am_in_square_color(0, 300, 0, 2200) && dune_do_not_release == FALSE){
+					ACT_push_order(ACT_BOTTOM_DUNE, ACT_BOTTOM_DUNE_IDLE);
+				}else{
+					dune_do_not_release = TRUE;
+				}
 				release_bottom_dune = TRUE;
 			}
 
@@ -240,7 +250,9 @@ void any_match(void)
 				if(I_AM_BIG()){
 					ACT_push_order(ACT_CONE_DUNE, ACT_CONE_DUNE_IDLE);
 					ACT_push_order(ACT_BLACK_SAND_CIRCLE, ACT_BLACK_SAND_CIRCLE_IDLE);
-					ACT_push_order(ACT_BOTTOM_DUNE, ACT_BOTTOM_DUNE_IDLE);
+					if(!i_am_in_square_color(772, 1350, 1200, 1500) && !i_am_in_square_color(0, 300, 0, 2200) && dune_do_not_release == FALSE){
+						ACT_push_order(ACT_BOTTOM_DUNE, ACT_BOTTOM_DUNE_IDLE);
+					}
 					ACT_push_order(ACT_SAND_LOCKER_LEFT, ACT_SAND_LOCKER_LEFT_IDLE);
 					ACT_push_order(ACT_SAND_LOCKER_RIGHT, ACT_SAND_LOCKER_RIGHT_IDLE);
 					ACT_push_order(ACT_SAND_LOCKER_RIGHT, ACT_SAND_LOCKER_RIGHT_IDLE);
