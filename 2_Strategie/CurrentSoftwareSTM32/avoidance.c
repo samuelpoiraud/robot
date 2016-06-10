@@ -775,7 +775,8 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 		TURN_HORAIRE,
 		WAIT,
 		DONE,
-		ERROR
+		ERROR,
+		ERROR_FOE
 	);
 	static Uint8 remaining_try;
 	static Uint8 sens = TURN_TRIGO;							//Si il arrive pas à trouver un point au bout de 3 coups tourne sur lui-même pour permettre à l'hokuyo de voir partout
@@ -903,7 +904,27 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 			break;
 
 		case GO_POINT:
-			state = check_sub_action_result(goto_extract_with_avoidance((displacement_t){(GEOMETRY_point_t){pointEx[bestPoint].x,pointEx[bestPoint].y}, speed}), GO_POINT, DONE, WAIT);
+			switch(goto_extract_with_avoidance((displacement_t){(GEOMETRY_point_t){pointEx[bestPoint].x,pointEx[bestPoint].y}, speed}))
+			{
+					case END_OK:
+						state = DONE;
+						break;
+					case FOE_IN_PATH:
+						if(is_possible_point_for_rotation(&((GEOMETRY_point_t){global.pos.x,global.pos.y})))
+							state = ERROR_FOE;
+						else
+							state = WAIT;	//On est pas sur un turning point, on ne peut pas rendre la main.
+						break;
+					case END_WITH_TIMEOUT:
+					case NOT_HANDLED:
+						if(is_possible_point_for_rotation(&((GEOMETRY_point_t){global.pos.x,global.pos.y})))
+							state = ERROR;
+						else
+							state = WAIT;	//On est pas sur un turning point, on ne peut pas rendre la main.
+						break;
+					default:
+						break;
+				}
 			break;
 
 		case WAIT:{ // Etat d'attente si il n'a pas trouvé de chemin dans l'immédiat
@@ -951,6 +972,10 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 		case ERROR:
 			state = IDLE;
 			return NOT_HANDLED;
+			break;
+		case ERROR_FOE:
+			state = IDLE;
+			return FOE_IN_PATH;
 			break;
 
 		default:

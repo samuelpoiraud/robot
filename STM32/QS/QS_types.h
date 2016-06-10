@@ -178,6 +178,7 @@
 			F_ADV_DUNE_BLOC_TAKEN,			//on a pris le bloc de 8 adv
 			F_FISHS_TAKEN_BY_BLACK,			//sub poissons fait par Black
 			F_FISHS_TAKEN_BY_PEARL,			//sub poissons fait par Pearl
+			F_FISH_COMPLETELY_DONE,			//Poissons complètement terminé par l'un des deux.
 
 			//Flags temporaires strat d'attaque pearl
 			//F_BLOC_DUNE_TRIED,				//on a tenté lors de cette strat de prendre le bloc dune adv
