@@ -168,9 +168,9 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			if(entrance){
 				angle = atan2(y-global.pos.y, x-global.pos.x)*4096;
 				if(angle > 0)
-					angle -= (way == BACKWARD)? PI4096 : 0;
+					angle -= ((way == BACKWARD)? PI4096 : 0);
 				else
-					angle += (way == BACKWARD)? PI4096 : 0;
+					angle += ((way == BACKWARD)? PI4096 : 0);
 			}
 			state = try_go_angle(angle, FAST_ROTATE, INIT_COEF, ERROR, FAST);
 			break;
@@ -729,7 +729,7 @@ bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2,
 bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 {
 	Uint8 widthRobot;
-	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
+	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? (BIG_ROBOT_WIDTH/2) : (SMALL_ROBOT_WIDTH/2);
 	widthRobot += 100;	//Marge !
 
 	// Spécifique Terrain 2016
@@ -751,7 +751,7 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 bool_e is_possible_point_for_dodge(GEOMETRY_point_t * p)
 {
 	Uint8 widthRobot;
-	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
+	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? (BIG_ROBOT_WIDTH/2) : (SMALL_ROBOT_WIDTH/2);
 	widthRobot += 100;	//Marge !
 	GEOMETRY_circle_t zone_depose_adv = {(GEOMETRY_point_t){750, 1500}, 700};
 
@@ -872,7 +872,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 
 							GEOMETRY_point_t center; // Le centre d'où nous allons faire le produit scalaire
 							Uint8 widthRobot;
-							widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? BIG_ROBOT_WIDTH/2 : SMALL_ROBOT_WIDTH/2;
+							widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? (BIG_ROBOT_WIDTH/2) : (SMALL_ROBOT_WIDTH/2);
 
 							center.x = global.pos.x + widthRobot*coefx;
 							center.y = global.pos.y + widthRobot*coefy;
