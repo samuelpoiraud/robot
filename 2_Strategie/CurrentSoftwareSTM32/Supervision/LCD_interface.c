@@ -307,7 +307,7 @@ static void LCD_menu_infos(bool_e init)
 	if(init || BRAIN_get_strat_updated())	//Temporaire !	//TODO add updated
 		display_strats(2);
 
-	if(init || global.flags.other_color_updated){
+	if(init || global.flags.other_color_updated || global.flags.color_updated){
 		display_other_robot_color(3);
 	}/*else{
 		if(init || free_msg_updated)
