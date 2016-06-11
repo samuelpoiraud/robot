@@ -415,7 +415,7 @@ void ELEMENTS_inc_fishs_passage(){
 	fishs_passage++;
 	if(ELEMENTS_fishs_passage_completed())
 	{
-		ELEMENTS_set_flag(F_FISH_COMPLETELY_DONE);
+		ELEMENTS_set_flag(F_FISH_COMPLETELY_DONE,TRUE);
 	}
 }
 
