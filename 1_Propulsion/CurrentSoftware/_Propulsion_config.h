@@ -227,7 +227,7 @@
 
 	// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
 	// Unité : [mm.4096/5ms]
-	#define BIG_TRANSLATION_SPEED_LIGHT			(Sint32)(17864) 		//environ = 9[mm/5ms] = 1,8m/s
+	#define BIG_TRANSLATION_SPEED_LIGHT			(Sint32)(36864) 		//environ = 9[mm/5ms] = 1,8m/s
 	#define BIG_TRANSLATION_SPEED_MAX			(Sint32)(22528)		 	//environ = 5,5[mm/5ms] = 1,1m/s
 	#define BIG_TRANSLATION_SPEED_LOW			(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
 	#define BIG_TRANSLATION_SPEED_VERY_LOW		(Sint32)(4128)			//environ = 1[mm/5ms] = 0,2m/s
