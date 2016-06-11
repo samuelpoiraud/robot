@@ -21,7 +21,7 @@
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
 	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BEA
-	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT	0x0BC7
+	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT	0x0BEC
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
 	// c : resolution du codeur = 4000
@@ -33,7 +33,7 @@
 
 
 
-	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT	0x00011430
+	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT	0x00011441
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT		0x0000AD4B
 
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
@@ -227,7 +227,7 @@
 
 	// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
 	// Unité : [mm.4096/5ms]
-	#define BIG_TRANSLATION_SPEED_LIGHT			(Sint32)(36864) 		//environ = 9[mm/5ms] = 1,8m/s
+	#define BIG_TRANSLATION_SPEED_LIGHT			(Sint32)(17864) 		//environ = 9[mm/5ms] = 1,8m/s
 	#define BIG_TRANSLATION_SPEED_MAX			(Sint32)(22528)		 	//environ = 5,5[mm/5ms] = 1,1m/s
 	#define BIG_TRANSLATION_SPEED_LOW			(Sint32)(8256)			//environ = 2[mm/5ms] = 0,4m/s
 	#define BIG_TRANSLATION_SPEED_VERY_LOW		(Sint32)(4128)			//environ = 1[mm/5ms] = 0,2m/s
