@@ -22,4 +22,8 @@
 	bool_e DEBUG_get_we_touch_border(void);
 #endif
 
+#ifdef MODE_PRINT_FIRST_TRAJ
+	void DEBUG_display(void);
+#endif
+
 #endif //ndef _DEBUG_H
