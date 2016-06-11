@@ -39,7 +39,7 @@
 
 #define SCAN_BLOC_BLACK
 
-#define USE_FOE_ANALYSER
+//#define USE_FOE_ANALYSER
 
 //#define SCAN_BLOC_PEARL
 
