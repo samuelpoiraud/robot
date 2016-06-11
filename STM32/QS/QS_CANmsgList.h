@@ -312,12 +312,16 @@
 			}xbee_send_config_coquillages;
 
 		#define XBEE_SEND_COLOR					0x5B5
-		#define XBEE_SEND_COLOR_SIZE			1
+		#define SIZE_XBEE_SEND_COLOR			1
 			struct{
 				color_e color					:8;
 			}xbee_send_color;
 
-		 #define XBEE_GET_COLOR					0x5B6
+		#define XBEE_GET_COLOR					0x5B6
+		#define SIZE_XBEE_GET_COLOR				1
+			struct{
+				color_e color					:8;
+			}xbee_get_color;
 
 		/**********************************************************************************************************************
 		 **********************************************************************************************************************
