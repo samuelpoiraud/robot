@@ -472,6 +472,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  case (Uint8)ACT_BOTTOM_DUNE_LOCK:				print(string,len, "| LOCK |");			break;
 						  case (Uint8)ACT_BOTTOM_DUNE_UNLOCK:			print(string,len, "| UNLOCK |");		break;
 						  case (Uint8)ACT_BOTTOM_DUNE_STOP:				print(string,len, "| STOP |");			break;
+						  case (Uint8)ACT_BOTTOM_DUNE_MID:				print(string,len, "| MID |");			break;
+						  case (Uint8)ACT_BOTTOM_DUNE_RESCUE:			print(string,len, "| RESCUE |");		break;
+						  case (Uint8)ACT_BOTTOM_DUNE_CHECK:		    print(string,len, "| CHECK |");			break;
 						  default:										print(string,len, "| UNKNOW cmd |");	break;
 					  }
 				  break;

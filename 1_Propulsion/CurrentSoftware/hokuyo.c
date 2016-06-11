@@ -735,7 +735,7 @@ void hokuyo_find_valid_points(void){
 						point_filtered = TRUE;	//on refuse les points
 
 				if(x_absolute < PLEXI_RECT_X + PLEXI_RECT_WIDTH + MARGIN
-						&& x_absolute > PLEXI_RECT_X  - MARGIN
+						&& x_absolute > PLEXI_RECT_X  - MARGIN - 70    // On prend une marge supplémentaire pour résoudre les problème de mauvaise détection
 						&& y_absolute > PLEXI_RECT_Y - MARGIN
 						&& y_absolute < PLEXI_RECT_Y + PLEXI_RECT_HEIGHT + MARGIN) 	//zone centrale où se trouve le plexi
 						point_filtered = TRUE;	//on refuse les points
