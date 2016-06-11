@@ -83,7 +83,7 @@
 		#endif
 	#endif
 
-	//#define MODE_PRINT_FIRST_TRAJ		// Il est recommandé de baisser le baudrate pour éviter les erreurs de transmission et le flood du récepteur
+	#define MODE_PRINT_FIRST_TRAJ		// Il est recommandé de baisser le baudrate pour éviter les erreurs de transmission et le flood du récepteur
 
 	//#define MODE_PRINTF_TABLEAU		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...
 
@@ -121,7 +121,7 @@
 /* Réglages UART */
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
-	#define UART1_BAUDRATE		230400
+	#define UART1_BAUDRATE		9600
 	#define USE_UART1TXINTERRUPT
 	#define BUFFER_U1TX_SIZE	128
 

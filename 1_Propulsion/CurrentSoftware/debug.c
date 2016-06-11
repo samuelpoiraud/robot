@@ -51,6 +51,8 @@
 	static volatile debug_saved_t tab[DEBUG_TAB_TRAJ_TAILLE];
 	static volatile Uint16 index = 0;
 
+	static volatile bool_e display_wanted = FALSE;
+
 	static void affichage_first_traj(void);
 #endif
 
@@ -109,9 +111,8 @@ void DEBUG_process_main(void)
 	#endif
 
 	#ifdef MODE_PRINT_FIRST_TRAJ
-		static bool_e displayed = FALSE;
-		if(index >= DEBUG_TAB_TRAJ_TAILLE && !displayed){
-			displayed = TRUE;
+		if(index >= DEBUG_TAB_TRAJ_TAILLE && display_wanted){
+			display_wanted = FALSE;
 			affichage_first_traj();
 		}
 	#endif
@@ -158,6 +159,11 @@ void DEBUG_process_it(void)
 }
 
 #ifdef MODE_PRINT_FIRST_TRAJ
+
+	void DEBUG_display(void){
+		display_wanted = TRUE;
+	}
+
 	static void affichage_first_traj(void){
 		Uint16 i;
 		debug_printf("t(ms);");

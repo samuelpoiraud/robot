@@ -126,6 +126,9 @@ void initialisation(void)
 	SCAN_init();
 	IHM_init(&global.flags.match_started);
 	IHM_define_act_button(BP_CALIBRATION_IHM,&SEQUENCES_calibrate,NULL);
+#ifdef MODE_PRINT_FIRST_TRAJ
+	IHM_define_act_button(BP_PRINTMATCH_IHM,&DEBUG_display,NULL);
+#endif
 	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
 
 	DETECTION_init();
