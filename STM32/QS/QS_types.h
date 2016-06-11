@@ -235,6 +235,10 @@
 			F_PEARL_IS_OUT,					//flag indiquant que Pearl est resté planté dans la zone de départ
 			F_DUNE_TAKEN_WITH_SHOVEL,       //Flag indiquant que la dune ou ce qu'il en reste a été prise avec la pelle
 
+
+			//Flag de choix pour la suite du match
+			F_BLACK_FORCE_CHOICE_RESCUE,
+
 			//Flag apportant plus d'info sur ce qui a été pris à l'avant et ce qui a été pris à l'arrière
 			F_BLOC_IN_BLACK,                   //un bloc est à l'avant du robot
 			F_FRONT_DUNE_IN_BLACK,             //l'avant de la dune est dans le robot
