@@ -48,7 +48,7 @@
 	#warning "PAS CE CODE DANS LE ROBOT SVP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 #endif
 
-#define USE_SENSORS
+//#define USE_SENSORS
 
 #define FDP_2016				//Mode FDP nouvelle génération 2016 !
 
