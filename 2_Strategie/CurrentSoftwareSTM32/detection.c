@@ -295,7 +295,7 @@ void DETECTION_pos_foe_update (CAN_msg_t* msg)
 				else
 					beacon_ir_objects[i].enable = FALSE;
 
-				beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(msg->data.broadcast_beacon_adversary_position_ir.adv[i].angle + PI4096/2);
+				beacon_ir_objects[i].angle = GEOMETRY_modulo_angle(msg->data.broadcast_beacon_adversary_position_ir.adv[i].angle);
 				beacon_ir_objects[i].dist = (Uint16)(msg->data.broadcast_beacon_adversary_position_ir.adv[i].dist)*20;
 
 				if(beacon_ir_objects[i].fiability_error & TACHE_TROP_GRANDE)
