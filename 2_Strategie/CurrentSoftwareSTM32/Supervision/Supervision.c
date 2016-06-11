@@ -23,6 +23,7 @@
 #include "Synchro_balises.h"
 #include "../QS/QS_IHM.h"
 #include "../environment.h"
+#include "../QS/QS_can_over_xbee.h"
 
 //@pre : QS_WHO_I_AM doit être found.
 //@pre : le CAN doit être initialisé...
@@ -145,6 +146,12 @@ void Supervision_process_main(void)
 				{
 					IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, ON});
 					end_of_blink_sent = TRUE;
+
+					CAN_msg_t msg;
+					msg.sid = XBEE_GET_COLOR;
+					msg.size = SIZE_XBEE_GET_COLOR;
+					msg.data.xbee_get_color.color = global.color;
+					CANMsgToXbee(&msg, FALSE);
 				}
 				else
 					IHM_leds_send_msg(1,(led_ihm_t){LED_COLOR_IHM, SPEED_BLINK_4HZ});
@@ -163,11 +170,6 @@ void Supervision_process_main(void)
 	if(global.color != local_color || led_color_initialize){
 		IHM_set_led_color((global.color == BOT_COLOR)?LED_COLOR_MAGENTA:LED_COLOR_GREEN);
 		local_color = global.color;
-	}
-
-	if(global.absolute_time - last_ask_color >= 2000 && global.flags.match_started == FALSE){
-		last_ask_color = global.absolute_time;
-		XBEE_send_sid(XBEE_GET_COLOR, FALSE);
 	}
 
 	/* Mise à jour des informations affichées à l'écran*/

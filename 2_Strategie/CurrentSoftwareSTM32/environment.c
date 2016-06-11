@@ -515,9 +515,13 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.flags.other_color_updated = TRUE;
 			break;
 		case XBEE_GET_COLOR:{
+
+			global.other_robot_color = incoming_msg->data.xbee_get_color.color;
+			global.flags.other_color_updated = TRUE;
+
 			CAN_msg_t msg;
 			msg.sid = XBEE_SEND_COLOR;
-			msg.size = XBEE_SEND_COLOR_SIZE;
+			msg.size = SIZE_XBEE_SEND_COLOR;
 			msg.data.xbee_send_color.color = global.color;
 			CANMsgToXbee(&msg, FALSE);
 		}case XBEE_PING:
@@ -675,7 +679,7 @@ void ENV_set_color(color_e color)
 	CAN_send(&msg);
 
 	msg.sid = XBEE_SEND_COLOR;
-	msg.size = XBEE_SEND_COLOR_SIZE;
+	msg.size = SIZE_XBEE_SEND_COLOR;
 	msg.data.xbee_send_color.color = color;
 	CANMsgToXbee(&msg, FALSE);
 }
