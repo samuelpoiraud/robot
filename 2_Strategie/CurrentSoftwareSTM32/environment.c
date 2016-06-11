@@ -670,6 +670,7 @@ void ENV_set_color(color_e color)
 {
 	/* changer la couleur */
 	global.color = color;
+	global.flags.color_updated = TRUE;
 
 	/* indiquer au monde la nouvelle couleur */
 	CAN_msg_t msg;
