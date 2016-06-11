@@ -307,7 +307,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		break;
 		case PROP_RUSH_IN_THE_WALL:
-			SEQUENCES_rush_in_the_wall(msg->data.prop_rush_in_the_wall.teta, msg->data.prop_rush_in_the_wall.way, SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data.prop_rush_in_the_wall.asser_rot)?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
+			if(QS_WHO_AM_I_get() == BIG_ROBOT)
+				SEQUENCES_rush_in_the_wall(msg->data.prop_rush_in_the_wall.teta, msg->data.prop_rush_in_the_wall.way, SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data.prop_rush_in_the_wall.asser_rot)?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
+			else
+				SEQUENCES_rush_in_the_wall(msg->data.prop_rush_in_the_wall.teta, msg->data.prop_rush_in_the_wall.way, 25, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data.prop_rush_in_the_wall.asser_rot)?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);
 		break;
 
 		case PROP_ACTIVE_PID:
