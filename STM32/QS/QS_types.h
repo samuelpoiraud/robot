@@ -243,6 +243,7 @@
 			F_BLOC_IN_BLACK,                   //un bloc est à l'avant du robot
 			F_FRONT_DUNE_IN_BLACK,             //l'avant de la dune est dans le robot
 			F_ENTIRE_DUNE_IN_ROBOT,            //la dune arrière est entièrement dans le robot, on ne l'a pas encore déposé.
+			F_DUNE_RETOUR_LENT,
 
 			//Apocalypse
 			F_OUR_BLOC_PRESENT,			//on a vu (au scan) notre bloc de 8
