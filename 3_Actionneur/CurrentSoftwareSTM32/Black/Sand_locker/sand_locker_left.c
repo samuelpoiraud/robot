@@ -115,6 +115,7 @@ bool_e SAND_LOCKER_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SAND_LOCKER_LEFT_IDLE :
+				RX24_set_torque_enabled(SAND_LOCKER_LEFT_RX24_ID, TRUE);
 			case ACT_SAND_LOCKER_LEFT_LOCK :
 			case ACT_SAND_LOCKER_LEFT_UNLOCK :
 			case ACT_SAND_LOCKER_LEFT_MIDDLE :
