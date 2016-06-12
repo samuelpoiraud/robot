@@ -100,7 +100,6 @@ void Supervision_process_main(void)
 	static bool_e disable_already_said = FALSE;
 	bool_e current_destination_reachable;
 	bool_e led_color_initialize = FALSE;
-	static time32_t last_ask_color = 0;
 
 	if(flag_1sec)
 	{
