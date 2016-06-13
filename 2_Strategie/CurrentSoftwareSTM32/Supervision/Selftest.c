@@ -768,28 +768,25 @@ void SELFTEST_check_alim(){
 	static Uint16 values[NB_AVERAGED_VALUE] = {0};
 	static time32_t begin_time = 0;
 	static time32_t last_display_time = 0;
+	static Uint8 begin_index_store = 0;
 
 	Uint8 i;
 	Uint32 average = 0;
 	CAN_msg_t msg;
 
-	if(begin_time == 0){
-		static time32_t begin_measure24 = 0;
-		if(SELFTEST_measure24_mV() > 10000 && begin_measure24 == 0){
-			begin_measure24 = global.absolute_time;
-			return;
-		}else if(global.absolute_time - begin_measure24 > 3500){
+	if(begin_time == 0)
 			begin_time = global.absolute_time;
-		}
-	}
 
 	if((int)((global.absolute_time-begin_time)/TIME_TO_TAKE_VALUE) < NB_AVERAGED_VALUE)
 		values[(int)((global.absolute_time-begin_time)/TIME_TO_TAKE_VALUE)] = SELFTEST_measure24_mV();
 
-	for(i=0;i<NB_AVERAGED_VALUE;i++)
+	if(begin_index_store < NB_AVERAGED_VALUE)
+		begin_index_store++;
+
+	for(i=0;i<begin_index_store;i++)
 		average += values[i];
 
-	average /= NB_AVERAGED_VALUE;
+	average /= begin_index_store;
 	global.alim_value = average;
 
 	if(global.absolute_time-begin_time >= TIME_TO_REFRESH_BAT){
