@@ -155,6 +155,7 @@ void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, c
 //	  }
 //    break;
 #define ON_LEAVING(current_state) (state != current_state)
+#define ON_LEAVE()					(state != last_state_for_check_entrance)
 
 // Réinitialise une machine à état déclarée avec CREATE_MAE_WITH_VERBOSE ou CREATE_MAE
 // 0 est la première valeur d'une énumeration sans donner explicitement une autre valeur
