@@ -46,7 +46,6 @@ typedef enum {
 	ACT_QUEUE_Fish_pearl,
 
 	//Mosfets actionneurs
-	ACT_QUEUE_Mosfet_act_0,
 	ACT_QUEUE_Mosfet_act_1,
 	ACT_QUEUE_Mosfet_act_2,
 	ACT_QUEUE_Mosfet_act_3,
@@ -54,10 +53,10 @@ typedef enum {
 	ACT_QUEUE_Mosfet_act_5,
 	ACT_QUEUE_Mosfet_act_6,
 	ACT_QUEUE_Mosfet_act_7,
-	ACT_QUEUE_Mosfet_act_all,
+	ACT_QUEUE_Mosfet_act_8,
+	ACT_QUEUE_Mosfet_act_multi,
 
 	//Mosfets stratégie
-	ACT_QUEUE_Mosfet_strat_0,
 	ACT_QUEUE_Mosfet_strat_1,
 	ACT_QUEUE_Mosfet_strat_2,
 	ACT_QUEUE_Mosfet_strat_3,
@@ -65,6 +64,9 @@ typedef enum {
 	ACT_QUEUE_Mosfet_strat_5,
 	ACT_QUEUE_Mosfet_strat_6,
 	ACT_QUEUE_Mosfet_strat_7,
+	ACT_QUEUE_Mosfet_strat_8,
+	ACT_QUEUE_Mosfet_strat_multi,
+
 	//Common
 
 	NB_QUEUE

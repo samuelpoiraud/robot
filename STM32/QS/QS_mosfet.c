@@ -10,18 +10,18 @@
 
 #include "QS_all.h"
 
-#ifdef USE_MOSFETS
+#ifdef USE_MOSFETS_MODULE
 
-/* Pour utiliser ce module, vous devez définir dans le fichier config_use la macro USE_MOSFETS et la
- * macro NB_MOSFETS suivie du nombre de mosfets à piloter (max = 8).
- *		exemple : #define USE_MOSFETS
- *				  #define NB_MOSFETS 3
- * Dans QS_CAN_msgList.h,vous devez définir les SID de chacun des mosfets (ex ACT_MOSFET_0) pour un mosfet
- * situé en actionneur ou  (ex STRAT_MOSFET_0) pour un mosfet situé en stratégie. Vous pouvez également redéfinir
+/* Pour utiliser ce module, vous devez définir dans le fichier config_use la macro USE_MOSFETS_MODULE et la/les
+ * macro USE_MOSFET_X où X est le numéro du mosfet souhaité.
+ *		exemple : #define USE_MOSFETS_MODULE
+ *				  #define USE_MOSFET_3
+ * Dans QS_CAN_msgList.h,vous devez définir les SID de chacun des mosfets (ex: ACT_MOSFET_1) pour un mosfet
+ * situé en actionneur ou  (ex: STRAT_MOSFET_1) pour un mosfet situé en stratégie. Vous pouvez également redéfinir
  * ces SID pour leur donner un nom.
- * Dans queue.h de la stratégie, vous devez définir ACT_QUEUE_Mosfet_act_0 pour un mosfet en actionneur
- * ou ACT_QUEUE_Mosfet_strat_0 en stratégie.
- * Vous devez aussi définir si cela n'est pas fait des macros pour chaque mosfet dans config_pin (ex MOSFET_0_PIN)
+ * Dans queue.h de la stratégie, vous devez définir ACT_QUEUE_Mosfet_act_1 pour un mosfet en actionneur
+ * ou ACT_QUEUE_Mosfet_strat_1 en stratégie.
+ * Vous devez aussi définir si cela n'est pas fait des macros pour chaque mosfet dans config_pin (ex MOSFET_1_PIN)
  */
 
 #include "QS_mosfet.h"
@@ -40,34 +40,8 @@
 #define MOSFET_SELFTEST_TIME         500 //Delay en milliseconde pour l'allumage de Selftest pour l'allumage de chaque pompe
 
 
-#if NB_MOSFETS>8
-	#warning "QS_mosfet ne peut pas gérer plus de 8 mosfets"
-#endif
-
-#if defined(MOSFET_0_PIN) //&& NB_MOSFETS>=1
-static void MOSFET_0_do_order(Uint8 command);
-#endif
-#if defined(MOSFET_1_PIN) //&& NB_MOSFETS>=2
-static void MOSFET_1_do_order(Uint8 command);
-#endif
-#if defined(MOSFET_2_PIN) //&& NB_MOSFETS>=3
-static void MOSFET_2_do_order(Uint8 command);
-#endif
-#if defined(MOSFET_3_PIN) //&& NB_MOSFETS>=4
-static void MOSFET_3_do_order(Uint8 command);
-#endif
-#if defined(MOSFET_4_PIN) //&& NB_MOSFETS>=5
-static void MOSFET_4_do_order(Uint8 command);
-#endif
-#if defined(MOSFET_5_PIN) //&& NB_MOSFETS>=6
-static void MOSFET_5_do_order(Uint8 command);
-#endif
-#if defined(MOSFET_6_PIN) //&& NB_MOSFETS>=7
-static void MOSFET_6_do_order(Uint8 command);
-#endif
-#if defined(MOSFET_7_PIN) //&& NB_MOSFETS>=8
-static void MOSFET_7_do_order(Uint8 command);
-#endif
+static void MOSFET_do_order(ACT_sid_e sid, Uint8 command);
+static bool_e MOSFET_activate_this_mosfet(bool_e entrance, ACT_sid_e sid, Uint8 command, code_id_e code);
 
 //Initialisation du module MOSFET
 void MOSFET_init() {
@@ -82,62 +56,41 @@ void MOSFET_reset_config(){}
 
 //Fonction pour stopper tous les mosfets
 void MOSFET_stop() {
-#if defined(MOSFET_0_PIN) //&& NB_MOSFETS>=1
-	GPIO_ResetBits(MOSFET_0_PIN);
-#endif
-#if defined(MOSFET_1_PIN) //&& NB_MOSFETS>=2
+#ifdef USE_MOSFET_1
 	GPIO_ResetBits(MOSFET_1_PIN);
 #endif
-#if defined(MOSFET_2_PIN) //&& NB_MOSFETS>=3
+#ifdef USE_MOSFET_2
 	GPIO_ResetBits(MOSFET_2_PIN);
 #endif
-#if defined(MOSFET_3_PIN) //&& NB_MOSFETS>=4
+#ifdef USE_MOSFET_3
 	GPIO_ResetBits(MOSFET_3_PIN);
 #endif
-#if defined(MOSFET_4_PIN) //&& NB_MOSFETS>=5
+#ifdef USE_MOSFET_4
 	GPIO_ResetBits(MOSFET_4_PIN);
 #endif
-#if defined(MOSFET_5_PIN) //&& NB_MOSFETS>=6
+#ifdef USE_MOSFET_5
 	GPIO_ResetBits(MOSFET_5_PIN);
 #endif
-#if defined( MOSFET_6_PIN) //&& NB_MOSFETS>=7
+#ifdef USE_MOSFET_6
 	GPIO_ResetBits(MOSFET_6_PIN);
 #endif
-#if defined(MOSFET_7_PIN) //&& NB_MOSFETS>=8
+#ifdef USE_MOSFET_7
 	GPIO_ResetBits(MOSFET_7_PIN);
+#endif
+#ifdef USE_MOSFET_8
+	GPIO_ResetBits(MOSFET_8_PIN);
 #endif
 }
 
 void MOSFET_init_pos(){
-#if defined(MOSFET_0_PIN) //&& NB_MOSFETS>=1
-	GPIO_ResetBits(MOSFET_0_PIN);
-#endif
-#if defined(MOSFET_1_PIN) //&& NB_MOSFETS>=2
-	GPIO_ResetBits(MOSFET_1_PIN);
-#endif
-#if defined(MOSFET_2_PIN) //&& NB_MOSFETS>=3
-	GPIO_ResetBits(MOSFET_2_PIN);
-#endif
-#if defined(MOSFET_3_PIN) //&& NB_MOSFETS>=4
-	GPIO_ResetBits(MOSFET_3_PIN);
-#endif
-#if defined(MOSFET_4_PIN) //&& NB_MOSFETS>=5
-	GPIO_ResetBits(MOSFET_4_PIN);
-#endif
-#if defined(MOSFET_5_PIN) //&& NB_MOSFETS>=6
-	GPIO_ResetBits(MOSFET_5_PIN);
-#endif
-#if defined(MOSFET_6_PIN) //&& NB_MOSFETS>=7
-	GPIO_ResetBits(MOSFET_6_PIN);
-#endif
-#if defined(MOSFET_7_PIN) //&& NB_MOSFETS>=8
-	GPIO_ResetBits(MOSFET_7_PIN);
-#endif
+	MOSFET_stop();  //Arrêt de tous les mosfets au début du match
 }
 
-#ifdef I_AM_CARTE_ACT
-//Fonction de gestions des messages CAN pour les mosfets situés sur une carte Mosfet commandée par l'actionneur
+
+//Fonction de gestions des messages CAN pour les mosfets situés sur une carte Mosfet commandée par la stratégie
 bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
+	bool_e result;
+#if defined(I_AM_CARTE_ACT)
 	CAN_msg_t msg_result;
 	msg_result.sid = ACT_RESULT;
 	msg_result.size = SIZE_ACT_RESULT;
@@ -145,519 +98,677 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 	msg_result.data.act_result.cmd = msg->data.act_msg.order;
 	msg_result.data.act_result.result = ACT_RESULT_DONE;
 	msg_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;
+#endif
 
-	if(msg->sid == ACT_MOSFET_0 && NB_MOSFETS>=1) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("ACT_MOSFET_0_do_order\n");
-				MOSFET_0_do_order(msg->data.act_msg.order);
-				CAN_send(&msg_result);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#if NB_MOSFETS>=2
-	}else if(msg->sid == ACT_MOSFET_1) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("ACT_MOSFET_1_do_order\n");
-				MOSFET_1_do_order(msg->data.act_msg.order);
-				CAN_send(&msg_result);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=3
-	}else if(msg->sid == ACT_MOSFET_2) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("ACT_MOSFET_2_do_order\n");
-				MOSFET_2_do_order(msg->data.act_msg.order);
-				CAN_send(&msg_result);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=4
-	}else if(msg->sid == ACT_MOSFET_3) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("ACT_MOSFET_3_do_order\n");
-				MOSFET_3_do_order(msg->data.act_msg.order);
-				CAN_send(&msg_result);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=5
-	}else if(msg->sid == ACT_MOSFET_4) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("ACT_MOSFET_4_do_order\n");
-				MOSFET_4_do_order(msg->data.act_msg.order);
-				CAN_send(&msg_result);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=6
-	}else if(msg->sid == ACT_MOSFET_5) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("ACT_MOSFET_5_do_order\n");
-				MOSFET_5_do_order(msg->data.act_msg.order);
-				CAN_send(&msg_result);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=7
-	}else if(msg->sid == ACT_MOSFET_6) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("ACT_MOSFET_6_do_order\n");
-				MOSFET_6_do_order(msg->data.act_msg.order);
-				CAN_send(&msg_result);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-#if NB_MOSFETS>=8
-	}else if(msg->sid == ACT_MOSFET_7) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("ACT_MOSFET_7_do_order\n");
-				MOSFET_7_do_order(msg->data.act_msg.order);
-				CAN_send(&msg_result);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#endif
-	}else if(msg->sid == ACT_DO_SELFTEST) {
-
-	}
-
-	return FALSE;
-}
-
+	switch(msg->sid){
+#ifdef USE_MOSFET_1
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_1:
 #elif defined(I_AM_CARTE_STRAT)
-//Fonction de gestions des messages CAN pour les mosfets situés sur une carte Mosfet commandée par la stratégie
-bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
-	if(msg->sid == STRAT_MOSFET_0) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("STRAT_MOSFET_0_do_order\n");
-				MOSFET_0_do_order(msg->data.act_msg.order);
-				ACT_set_result(ACT_QUEUE_Mosfet_strat_0, ACT_RESULT_Ok);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
-#ifdef MOSFET_1_PIN
-	}else if(msg->sid == STRAT_MOSFET_1) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("STRAT_MOSFET_1_do_order\n");
-				MOSFET_1_do_order(msg->data.act_msg.order);
-				ACT_set_result(ACT_QUEUE_Mosfet_strat_1, ACT_RESULT_Ok);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
+		case STRAT_MOSFET_1:
 #endif
-#ifdef MOSFET_2_PIN
-	}else if(msg->sid == STRAT_MOSFET_2) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("STRAT_MOSFET_2_do_order\n");
-				MOSFET_2_do_order(msg->data.act_msg.order);
-				ACT_set_result(ACT_QUEUE_Mosfet_strat_2, ACT_RESULT_Ok);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_1, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
 #endif
-#ifdef MOSFET_3_PIN
-	}else if(msg->sid == STRAT_MOSFET_3) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("STRAT_MOSFET_3_do_order\n");
-				MOSFET_3_do_order(msg->data.act_msg.order);
-				ACT_set_result(ACT_QUEUE_Mosfet_strat_3, ACT_RESULT_Ok);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
+#ifdef USE_MOSFET_2
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_2:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_2:
 #endif
-#ifdef MOSFET_4_PIN
-	}else if(msg->sid == STRAT_MOSFET_4) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("STRAT_MOSFET_4_do_order\n");
-				MOSFET_4_do_order(msg->data.act_msg.order);
-				ACT_set_result(ACT_QUEUE_Mosfet_strat_4, ACT_RESULT_Ok);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_2, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
 #endif
-#ifdef MOSFET_5_PIN
-	}else if(msg->sid == STRAT_MOSFET_5) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("STRAT_MOSFET_5_do_order\n");
-				MOSFET_5_do_order(msg->data.act_msg.order);
-				ACT_set_result(ACT_QUEUE_Mosfet_strat_5, ACT_RESULT_Ok);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
+#ifdef USE_MOSFET_3
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_3:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_3:
 #endif
-#ifdef MOSFET_6_PIN
-	}else if(msg->sid == STRAT_MOSFET_6) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("STRAT_MOSFET_6_do_order\n");
-				MOSFET_6_do_order(msg->data.act_msg.order);
-				ACT_set_result(ACT_QUEUE_Mosfet_strat_6, ACT_RESULT_Ok);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_3, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
 #endif
-#ifdef MOSFET_7_PIN
-	}else if(msg->sid == STRAT_MOSFET_7) {
-		switch(msg->data.act_msg.order) {
-			case ACT_MOSFET_NORMAL:
-			case ACT_MOSFET_STOP:
-				debug_printf("STRAT_MOSFET_7_do_order\n");
-				MOSFET_7_do_order(msg->data.act_msg.order);
-				ACT_set_result(ACT_QUEUE_Mosfet_strat_7, ACT_RESULT_Ok);
-				break;
-			default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-		}
-		return TRUE;
+#ifdef USE_MOSFET_4
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_4:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_4:
 #endif
-	}else if(msg->sid == ACT_DO_SELFTEST) {
-
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_4, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_5
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_5:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_5:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_5, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_6
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_6:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_6:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_6, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_7
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_7:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_7:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_7, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_8
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_8:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_8:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_8, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_MULTI
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_MULTI:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_MULTI:
+#endif
+			MOSFET_do_order_multi(msg);
+			result = TRUE;
+		break;
+#endif
+		default :
+			result = FALSE;
 	}
-	return FALSE;
+	return result;
 }
+
+
+
+
+static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
+	switch(sid){
+#ifdef USE_MOSFET_1
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_1:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_1:
 #endif
-
-
-
-
-#if defined(MOSFET_0_PIN)
-static void MOSFET_0_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("MOSFET_0_PIN set\n");
-		GPIO_SetBits(MOSFET_0_PIN);
-	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("MOSFET_0_PIN reset\n");
-		GPIO_ResetBits(MOSFET_0_PIN);
-	}else{
-		debug_printf("commande envoyée à MOSFET_0_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(MOSFET_0_PIN);
-		return;
+			if(command == ACT_MOSFET_NORMAL){
+				GPIO_WriteBit(MOSFET_1_PIN, TRUE);
+				debug_printf("MOSFET_1 activé\n");
+			}else if(command == ACT_MOSFET_STOP){
+				GPIO_WriteBit(MOSFET_1_PIN, FALSE);
+				debug_printf("MOSFET_1 désactivé\n");
+			}else{
+				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
+				GPIO_ResetBits(MOSFET_1_PIN);
+			}
+			break;
+#endif
+#ifdef USE_MOSFET_2
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_2:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_2:
+#endif
+			if(command == ACT_MOSFET_NORMAL){
+				GPIO_WriteBit(MOSFET_2_PIN, TRUE);
+				debug_printf("MOSFET_2 activé\n");
+			}else if(command == ACT_MOSFET_STOP){
+				GPIO_WriteBit(MOSFET_2_PIN, FALSE);
+				debug_printf("MOSFET_2 désactivé\n");
+			}else{
+				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
+				GPIO_ResetBits(MOSFET_2_PIN);
+			}
+			break;
+#endif
+#ifdef USE_MOSFET_3
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_3:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_3:
+#endif
+			if(command == ACT_MOSFET_NORMAL){
+				GPIO_WriteBit(MOSFET_3_PIN, TRUE);
+				debug_printf("MOSFET_3 activé\n");
+			}else if(command == ACT_MOSFET_STOP){
+				GPIO_WriteBit(MOSFET_3_PIN, FALSE);
+				debug_printf("MOSFET_3 désactivé\n");
+			}else{
+				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
+				GPIO_ResetBits(MOSFET_3_PIN);
+			}
+			break;
+#endif
+#ifdef USE_MOSFET_4
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_4:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_4:
+#endif
+			if(command == ACT_MOSFET_NORMAL){
+				GPIO_WriteBit(MOSFET_4_PIN, TRUE);
+				debug_printf("MOSFET_4 activé\n");
+			}else if(command == ACT_MOSFET_STOP){
+				GPIO_WriteBit(MOSFET_4_PIN, FALSE);
+				debug_printf("MOSFET_4 désactivé\n");
+			}else{
+				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
+				GPIO_ResetBits(MOSFET_4_PIN);
+			}
+			break;
+#endif
+#ifdef USE_MOSFET_5
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_5:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_5:
+#endif
+			if(command == ACT_MOSFET_NORMAL){
+				GPIO_WriteBit(MOSFET_5_PIN, TRUE);
+				debug_printf("MOSFET_5 activé\n");
+			}else if(command == ACT_MOSFET_STOP){
+				debug_printf("MOSFET_5 désactivé\n");
+				GPIO_WriteBit(MOSFET_5_PIN, FALSE);
+			}else{
+				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
+				GPIO_ResetBits(MOSFET_5_PIN);
+			}
+			break;
+#endif
+#ifdef USE_MOSFET_6
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_6:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_6:
+#endif
+			if(command == ACT_MOSFET_NORMAL){
+				GPIO_WriteBit(MOSFET_6_PIN, TRUE);
+				debug_printf("MOSFET_6 activé\n");
+			}else if(command == ACT_MOSFET_STOP){
+				GPIO_WriteBit(MOSFET_6_PIN, FALSE);
+				debug_printf("MOSFET_6 désactivé\n");
+			}else{
+				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
+				GPIO_ResetBits(MOSFET_6_PIN);
+			}
+			break;
+#endif
+#ifdef USE_MOSFET_7
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_7:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_7:
+#endif
+			if(command == ACT_MOSFET_NORMAL){
+				GPIO_WriteBit(MOSFET_7_PIN, TRUE);
+				debug_printf("MOSFET_7 activé\n");
+			}else if(command == ACT_MOSFET_STOP){
+				GPIO_WriteBit(MOSFET_7_PIN, FALSE);
+				debug_printf("MOSFET_7 désactivé\n");
+			}else{
+				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
+				GPIO_ResetBits(MOSFET_7_PIN);
+			}
+			break;
+#endif
+#ifdef USE_MOSFET_8
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_8:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_8:
+#endif
+			if(command == ACT_MOSFET_NORMAL){
+				GPIO_WriteBit(MOSFET_8_PIN, TRUE);
+				debug_printf("MOSFET_8 activé\n");
+			}else if(command == ACT_MOSFET_STOP){
+				GPIO_WriteBit(MOSFET_8_PIN, FALSE);
+				debug_printf("MOSFET_8 désactivé\n");
+			}else{
+				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
+				GPIO_ResetBits(MOSFET_8_PIN);
+			}
+			break;
+#endif
+		default:
+			debug_printf("Le mosfet demandé n'existe pas. Vérifiez les sid.\n");
 	}
 }
+
+//Machine à état pour activer en décalé les mosfets
+bool_e MOSFET_do_order_multi(CAN_msg_t* new_msg){
+	typedef enum{
+		SM_INIT,
+#ifdef USE_MOSFET_1
+		SM_MOSFET_1,
 #endif
-
-#if defined(MOSFET_1_PIN)
-static void MOSFET_1_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("MOSFET_1_PIN set\n");
-		GPIO_SetBits(MOSFET_1_PIN);
-	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("MOSFET_1_PIN reset\n");
-		GPIO_ResetBits(MOSFET_1_PIN);
-	}else{
-		debug_printf("commande envoyée à MOSFET_1_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(MOSFET_1_PIN);
-		return;
-	}
-}
+#ifdef USE_MOSFET_2
+		SM_MOSFET_2,
 #endif
-
-#if defined( MOSFET_2_PIN)
-static void MOSFET_2_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("MOSFET_2_PIN set\n");
-		GPIO_SetBits(MOSFET_2_PIN);
-	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("MOSFET_2_PIN reset\n");
-		GPIO_ResetBits(MOSFET_2_PIN);
-	}else{
-		debug_printf("commande envoyée à MOSFET_2_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(MOSFET_2_PIN);
-		return;
-	}
-}
+#ifdef USE_MOSFET_3
+		SM_MOSFET_3,
 #endif
-
-#if defined(MOSFET_3_PIN)
-static void MOSFET_3_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("MOSFET_3_PIN set\n");
-		GPIO_SetBits(MOSFET_3_PIN);
-	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("MOSFET_3_PIN reset\n");
-		GPIO_ResetBits(MOSFET_3_PIN);
-	}else{
-		debug_printf("commande envoyée à MOSFET_3_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(MOSFET_3_PIN);
-		return;
-	}
-}
+#ifdef USE_MOSFET_4
+		SM_MOSFET_4,
 #endif
-
-#if defined(MOSFET_4_PIN)
-static void MOSFET_4_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("MOSFET_4_PIN set\n");
-		GPIO_SetBits(MOSFET_4_PIN);
-	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("MOSFET_4_PIN reset\n");
-		GPIO_ResetBits(MOSFET_4_PIN);
-	}else{
-		debug_printf("commande envoyée à MOSFET_4_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(MOSFET_4_PIN);
-		return;
-	}
-}
+#ifdef USE_MOSFET_5
+		SM_MOSFET_5,
 #endif
-
-#if defined(MOSFET_5_PIN)
-static void MOSFET_5_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("MOSFET_5_PIN set\n");
-		GPIO_SetBits(MOSFET_5_PIN);
-	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("MOSFET_5_PIN reset\n");
-		GPIO_ResetBits(MOSFET_5_PIN);
-	}else{
-		debug_printf("commande envoyée à MOSFET_5_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(MOSFET_5_PIN);
-		return;
-	}
-}
+#ifdef USE_MOSFET_6
+		SM_MOSFET_6,
 #endif
-
-#if defined(MOSFET_6_PIN)
-static void MOSFET_6_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("MOSFET_6_PIN set\n");
-		GPIO_SetBits(MOSFET_6_PIN);
-	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("MOSFET_6_PIN reset\n");
-		GPIO_ResetBits(MOSFET_6_PIN);
-	}else{
-		debug_printf("commande envoyée à MOSFET_0_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(MOSFET_6_PIN);
-		return;
-	}
-}
+#ifdef USE_MOSFET_7
+		SM_MOSFET_7,
 #endif
-
-#if defined(MOSFET_7_PIN)
-static void MOSFET_7_do_order(Uint8 command){
-	if(command == ACT_MOSFET_NORMAL){
-		debug_printf("MOSFET_7_PIN set\n");
-		GPIO_SetBits(MOSFET_7_PIN);
-	}else if(command == ACT_MOSFET_STOP){
-		debug_printf("MOSFET_7_PIN reset\n");
-		GPIO_ResetBits(MOSFET_7_PIN);
-	}else{
-		debug_printf("commande envoyée à MOSFET_7_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(MOSFET_7_PIN);
-		return;
-	}
-}
+#ifdef USE_MOSFET_8
+		SM_MOSFET_8,
 #endif
-
-
-#ifdef I_AM_CARTE_STRAT
-//Machine à état pour activer en décalé les mosfets commandés par l'actionneur
-void MOSFET_state_machine(CAN_msg_t* msg){
-	static Uint11 state = NB_QUEUE;
-	static Uint11 last_state = NB_QUEUE + 1;
+		SM_DONE
+	}SM_mosfet_e;
+	static SM_mosfet_e state = SM_INIT;
+	static SM_mosfet_e last_state = SM_INIT;
 	static bool_e entrance;
-	static time32_t state_time;
-	static CAN_msg_t current_msg, msg_act;
+	static CAN_msg_t *msg;
+	Uint8 command;
 
-	//initialisation en cas de l'envoi d'une nouvelle commande
-	if(msg != NULL){
-		assert((msg->sid & 0x300) == ACT_FILTER);
-		state = ACT_search_link_SID_Queue(msg->sid)-1;
-		current_msg = *msg;
-		msg_act = *msg;
+	if(new_msg != NULL){
+		msg = new_msg;
+		assert(msg->sid == ACT_MOSFET_MULTI || msg->sid == STRAT_MOSFET_MULTI);
+		state = SM_INIT;
 	}
 
 	//Affectation des variables courantes
 	entrance = (last_state != state);
 	last_state = state;
-	if(entrance){
-		state_time = global.absolute_time;
-	}
 
 	switch(state){
-		case ACT_QUEUE_Mosfet_act_all:
-		case ACT_QUEUE_Mosfet_act_0:
-			if(entrance){
-				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg_act.sid = ACT_MOSFET_0;
-					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x80) >> 7;
-					debug_printf("Modification mosfet 0 done to %d\n", (current_msg.data.act_msg.order & 0x80) >> 7);
-				}
-				CAN_send(&msg_act);
-			}else if(current_msg.sid  == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = ACT_QUEUE_Mosfet_act_1;
-			}else if(current_msg.sid != ACT_MOSFETS_ALL){
-				state = NB_QUEUE; //finish
-			}
+		case SM_INIT:
+			if(new_msg != NULL)
+				state++;
 			break;
-
-		case ACT_QUEUE_Mosfet_act_1:
-			if(entrance){
-				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg_act.sid = ACT_MOSFET_1;
-					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x10) >> 4;
-					debug_printf("Modification mosfet 1 done to %d\n", (current_msg.data.act_msg.order & 0x10) >> 4);
-				}
-				CAN_send(&msg_act);
-			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = ACT_QUEUE_Mosfet_act_2;
-			}else if(current_msg.sid != ACT_MOSFETS_ALL){
-				state = NB_QUEUE; //finish
+#ifdef USE_MOSFET_1
+		case SM_MOSFET_1:
+			if(msg->data.act_msg.order & 0x01){
+				command = ACT_MOSFET_NORMAL;
+			}else{
+				command = ACT_MOSFET_STOP;
 			}
+			#if defined(I_AM_CARTE_ACT)
+				 if(MOSFET_activate_this_mosfet(entrance, ACT_MOSFET_1, command, CODE_ACT))
+					 state++;
+			#elif defined(I_AM_CARTE_STRAT)
+				 if(MOSFET_activate_this_mosfet(entrance, STRAT_MOSFET_1, command, CODE_STRAT))
+					 state++;
+			#else
+				debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+				state = SM_DONE;
+			#endif
 			break;
-
-		case ACT_QUEUE_Mosfet_act_2:
-			if(entrance){
-				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg_act.sid = ACT_MOSFET_2;
-					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x02) >> 1;
-					debug_printf("Modification mosfet 2 done to %d\n", (current_msg.data.act_msg.order & 0x02) >> 1);
-				}
-				CAN_send(&msg_act);
-			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = ACT_QUEUE_Mosfet_act_3;
-			}else if(current_msg.sid != ACT_MOSFETS_ALL){
-				state = NB_QUEUE; //finish
+#endif
+#ifdef USE_MOSFET_2
+		case SM_MOSFET_2:
+			if(msg->data.act_msg.order & 0x02){
+				command = ACT_MOSFET_NORMAL;
+			}else{
+				command = ACT_MOSFET_STOP;
 			}
+			#if defined(I_AM_CARTE_ACT)
+				 if(MOSFET_activate_this_mosfet(entrance, ACT_MOSFET_2, command, CODE_ACT))
+					 state++;
+			#elif defined(I_AM_CARTE_STRAT)
+				 if(MOSFET_activate_this_mosfet(entrance, STRAT_MOSFET_2, command, CODE_STRAT))
+					 state++;
+			#else
+				debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+				state = SM_DONE;
+			#endif
 			break;
-
-		case ACT_QUEUE_Mosfet_act_3:
-			if(entrance){
-				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg_act.sid = ACT_MOSFET_3;
-					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x01);
-					debug_printf("Modification mosfet 3 done to %d\n", (current_msg.data.act_msg.order & 0x01));
-				}
-				CAN_send(&msg_act);
-			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = ACT_QUEUE_Mosfet_act_4;
-			}else if(current_msg.sid != ACT_MOSFETS_ALL){
-				state = NB_QUEUE; //finish
+#endif
+#ifdef USE_MOSFET_3
+		case SM_MOSFET_3:
+			if(msg->data.act_msg.order & 0x04){
+				command = ACT_MOSFET_NORMAL;
+			}else{
+				command = ACT_MOSFET_STOP;
 			}
+			#if defined(I_AM_CARTE_ACT)
+				 if(MOSFET_activate_this_mosfet(entrance, ACT_MOSFET_3, command, CODE_ACT))
+					 state++;
+			#elif defined(I_AM_CARTE_STRAT)
+				 if(MOSFET_activate_this_mosfet(entrance, STRAT_MOSFET_3, command, CODE_STRAT))
+					 state++;
+			#else
+				debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+				state = SM_DONE;
+			#endif
 			break;
-
-		case ACT_QUEUE_Mosfet_act_4:
-			if(entrance){
-				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg_act.sid = ACT_MOSFET_4;
-					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x04) >> 2;
-					debug_printf("Modification mosfet 4 done to %d\n", (current_msg.data.act_msg.order & 0x04) >> 2);
-				}
-				CAN_send(&msg_act);
-			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state =  ACT_QUEUE_Mosfet_act_5;
-			}else if(current_msg.sid != ACT_MOSFETS_ALL){
-				state = NB_QUEUE; //finish
+#endif
+#ifdef USE_MOSFET_4
+		case SM_MOSFET_4:
+			if(msg->data.act_msg.order & 0x08){
+				command = ACT_MOSFET_NORMAL;
+			}else{
+				command = ACT_MOSFET_STOP;
 			}
+			#if defined(I_AM_CARTE_ACT)
+				 if(MOSFET_activate_this_mosfet(entrance, ACT_MOSFET_4, command, CODE_ACT))
+					 state++;
+			#elif defined(I_AM_CARTE_STRAT)
+				 if(MOSFET_activate_this_mosfet(entrance, STRAT_MOSFET_4, command, CODE_STRAT))
+					 state++;
+			#else
+				debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+				state = SM_DONE;
+			#endif
 			break;
-
-		case ACT_QUEUE_Mosfet_act_5:
-			if(entrance){
-				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg_act.sid = ACT_MOSFET_5;
-					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x08) >> 3;
-					debug_printf("Modification mosfet 5 done to %d\n", (current_msg.data.act_msg.order & 0x08) >> 3);
-				}
-				CAN_send(&msg_act);
-			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = ACT_QUEUE_Mosfet_act_6;
-			}else if(current_msg.sid != ACT_MOSFETS_ALL){
-				state = NB_QUEUE; //finish
+#endif
+#ifdef USE_MOSFET_5
+		case SM_MOSFET_5:
+			if(msg->data.act_msg.order & 0x10){
+				command = ACT_MOSFET_NORMAL;
+			}else{
+				command = ACT_MOSFET_STOP;
 			}
+			#if defined(I_AM_CARTE_ACT)
+				if(MOSFET_activate_this_mosfet(entrance, ACT_MOSFET_5, command, CODE_ACT))
+					 state++;
+			#elif defined(I_AM_CARTE_STRAT)
+				 if(MOSFET_activate_this_mosfet(entrance, STRAT_MOSFET_5, command, CODE_STRAT))
+					 state++;
+			#else
+				debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+				state = SM_DONE;
+			#endif
 			break;
-
-		case ACT_QUEUE_Mosfet_act_6:
-			if(entrance){
-				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg_act.sid = ACT_MOSFET_6;
-					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x20) >> 5;
-					debug_printf("Modification mosfet 6 done to %d\n", (current_msg.data.act_msg.order & 0x20) >> 5);
-				}
-				CAN_send(&msg_act);
-			}else if(current_msg.sid == ACT_MOSFETS_ALL && global.absolute_time >= state_time + MOSFET_DELAY){
-				state = ACT_QUEUE_Mosfet_act_7;
-			}else if(current_msg.sid != ACT_MOSFETS_ALL){
-				state = NB_QUEUE; //finish
+#endif
+#ifdef USE_MOSFET_6
+		case SM_MOSFET_6:
+			if(msg->data.act_msg.order & 0x20){
+				command = ACT_MOSFET_NORMAL;
+			}else{
+				command = ACT_MOSFET_STOP;
 			}
+			#if defined(I_AM_CARTE_ACT)
+				 if(MOSFET_activate_this_mosfet(entrance, ACT_MOSFET_6, command, CODE_ACT))
+					 state++;
+			#elif defined(I_AM_CARTE_STRAT)
+				 if(MOSFET_activate_this_mosfet(entrance, STRAT_MOSFET_6, command, CODE_STRAT))
+					 state++;
+			#else
+				debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+				state = SM_DONE;
+			#endif
 			break;
-
-		case ACT_QUEUE_Mosfet_act_7:
-			if(entrance){
-				if(current_msg.sid == ACT_MOSFETS_ALL){
-					msg_act.sid = ACT_MOSFET_7;
-					msg_act.data.act_msg.order = (current_msg.data.act_msg.order & 0x40) >> 6;
-					debug_printf("Modification mosfet 7 done to %d\n", (current_msg.data.act_msg.order & 0x40) >> 6);
-				}
-				CAN_send(&msg_act);
+#endif
+#ifdef USE_MOSFET_7
+		case SM_MOSFET_7:
+			if(msg->data.act_msg.order & 0x40){
+				command = ACT_MOSFET_NORMAL;
+			}else{
+				command = ACT_MOSFET_STOP;
 			}
-			state = NB_QUEUE;
+			#if defined(I_AM_CARTE_ACT)
+				 if(MOSFET_activate_this_mosfet(entrance, ACT_MOSFET_7, command, CODE_ACT))
+					 state++;
+			#elif defined(I_AM_CARTE_STRAT)
+				 if(MOSFET_activate_this_mosfet(entrance, STRAT_MOSFET_7, command, CODE_STRAT))
+					 state++;
+			#else
+				debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+				state = SM_DONE;
+			#endif
 			break;
-
-		case NB_QUEUE:
+#endif
+#ifdef USE_MOSFET_8
+		case SM_MOSFET_8:
+			if(msg->data.act_msg.order & 0x80){
+				command = ACT_MOSFET_NORMAL;
+			}else{
+				command = ACT_MOSFET_STOP;
+			}
+			#if defined(I_AM_CARTE_ACT)
+				 if(MOSFET_activate_this_mosfet(entrance, ACT_MOSFET_8, command, CODE_ACT))
+					 state++;
+			#elif defined(I_AM_CARTE_STRAT)
+				 if(MOSFET_activate_this_mosfet(entrance, STRAT_MOSFET_8, command, CODE_STRAT))
+					 state++;
+			#else
+				debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+				state = SM_DONE;
+			#endif
+			break;
+#endif
+		case SM_DONE:
 			if(entrance){
-				debug_printf("Mosfet_state_machine finish\n");
-				ACT_set_result(ACT_QUEUE_Mosfet_act_all, ACT_RESULT_Ok);
+#if defined(I_AM_CARTE_ACT)
+			CAN_msg_t msg_result;
+			msg_result.sid = ACT_RESULT;
+			msg_result.size = SIZE_ACT_RESULT;
+			msg_result.data.act_result.sid = msg->sid;
+			msg_result.data.act_result.cmd = msg->data.act_msg.order;
+			msg_result.data.act_result.result = ACT_RESULT_DONE;
+			msg_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;
+			CAN_send(&msg_result);
+#elif defined(I_AM_CARTE_STRAT)
+			ACT_set_result(ACT_QUEUE_Mosfet_strat_multi, ACT_RESULT_Ok);
+#endif
+			state = SM_INIT;
+			return TRUE;
 			}
 			break;
 
 		default:
-			debug_printf("Default state in MOSFET_state_machine: bad sid\n");
+			debug_printf("Default state in MOSFET_do_order_multi: Le mosfet demandé n'est pas configuré (voir config_use)\n");
 	}
+	return FALSE;
 }
 
+
+static bool_e MOSFET_activate_this_mosfet(bool_e entrance, ACT_sid_e sid, Uint8 command, code_id_e code){
+	static time32_t state_time;
+	bool_e finish = FALSE;
+	if(entrance){
+			MOSFET_do_order(sid, command);
+	}else if(global.absolute_time >= state_time + MOSFET_DELAY){
+		finish = TRUE;
+	}
+	return finish;
+}
+
+
+bool_e MOSFET_selftest_this_mosfet(bool_e entrance, ACT_sid_e sid, code_id_e code){
+	static time32_t state_time;
+	CAN_msg_t msg;
+	bool_e finish = FALSE;
+	if(entrance){
+		state_time = global.absolute_time;
+		if(code == CODE_ACT){
+			msg.sid = sid;
+			msg.size = SIZE_ACT_MSG;
+			msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+			CAN_send(&msg);
+		}else if(code == CODE_STRAT){
+			MOSFET_do_order(sid, ACT_MOSFET_NORMAL);
+		}else{
+			debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+		}
+	}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
+		if(code == CODE_ACT){
+			msg.sid = sid;
+			msg.size = SIZE_ACT_MSG;
+			msg.data.act_msg.order = ACT_MOSFET_STOP;
+			CAN_send(&msg);
+		}else if(code == CODE_STRAT){
+			MOSFET_do_order(sid, ACT_MOSFET_STOP);
+		}else{
+			debug_printf("Les mosfets ne sont pilotables que en STRAT et en ACT.\n");
+		}
+		finish = TRUE;
+	}
+	return finish;
+}
+#endif  //USE_MOSFETS_MODULE
+
+///******************************* Fonctions définies sans USE_MOSFETS_MODULE ********************************/
+#if defined(I_AM_CARTE_STRAT)
+bool_e MOSFET_isStratMosfetSid(queue_id_e act_id){
+#if defined(I_AM_CARTE_STRAT) && defined(USE_MOSFETS_MODULE)
+	if(
+	#ifdef USE_MOSFET_1
+		   act_id == (queue_id_e)ACT_QUEUE_Mosfet_strat_1
+	#endif
+	#ifdef USE_MOSFET_2
+		|| act_id == ACT_QUEUE_Mosfet_strat_2
+	#endif
+	#ifdef USE_MOSFET_3
+		|| act_id == ACT_QUEUE_Mosfet_strat_3
+	#endif
+	#ifdef USE_MOSFET_4
+		|| act_id == ACT_QUEUE_Mosfet_strat_4
+	#endif
+	#ifdef USE_MOSFET_5
+		|| act_id == ACT_QUEUE_Mosfet_strat_5
+	#endif
+	#ifdef USE_MOSFET_6
+		|| act_id == ACT_QUEUE_Mosfet_strat_6
+	#endif
+	#ifdef USE_MOSFET_7
+		|| act_id == ACT_QUEUE_Mosfet_strat_7
+	#endif
+	#ifdef USE_MOSFET_8
+		|| act_id == ACT_QUEUE_Mosfet_strat_8
+	#endif
+	#ifdef USE_MOSFET_MULTI
+		|| act_id == ACT_QUEUE_Mosfet_strat_multi
+	#endif
+	){
+		return TRUE;
+	}else{
+		return FALSE;
+	}
+#else
+	return FALSE;
+#endif
+}
+#endif //I_AM_CARTE_STRAT
+
+#if defined(I_AM_CARTE_STRAT) && defined(USE_MOSFETS_MODULE)
 // Fonction de Selftest des mosfets commandés par l'actionneur
 // @param : nb_mosfets le nombre de mosfets à tester
 bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
-	static Uint11 state = ACT_QUEUE_Mosfet_act_0;
+	static Uint11 state = ACT_QUEUE_Mosfet_act_1;
 	static Uint11 last_state = NB_QUEUE + 1;
 	static bool_e entrance;
 	static time32_t state_time;
@@ -671,24 +782,6 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 	}
 
 	switch(state){
-		case ACT_QUEUE_Mosfet_act_0:
-			if(entrance){
-				msg.sid = ACT_MOSFET_0;
-				msg.size = SIZE_ACT_MSG;
-				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
-				CAN_send(&msg);
-			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				msg.sid = ACT_MOSFET_0;
-				msg.size = SIZE_ACT_MSG;
-				msg.data.act_msg.order = ACT_MOSFET_STOP;
-				CAN_send(&msg);
-				if(nb_mosfets>=2)
-					state = ACT_QUEUE_Mosfet_act_1;
-				else
-					state = NB_QUEUE;
-			}
-			break;
-
 		case ACT_QUEUE_Mosfet_act_1:
 			if(entrance){
 				msg.sid = ACT_MOSFET_1;
@@ -700,7 +793,7 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 				msg.size = SIZE_ACT_MSG;
 				msg.data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(&msg);
-				if(nb_mosfets>=3)
+				if(nb_mosfets>=2)
 					state = ACT_QUEUE_Mosfet_act_2;
 				else
 					state = NB_QUEUE;
@@ -718,7 +811,7 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 				msg.size = SIZE_ACT_MSG;
 				msg.data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(&msg);
-				if(nb_mosfets>=4)
+				if(nb_mosfets>=3)
 					state = ACT_QUEUE_Mosfet_act_3;
 				else
 					state = NB_QUEUE;
@@ -736,7 +829,7 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 				msg.size = SIZE_ACT_MSG;
 				msg.data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(&msg);
-				if(nb_mosfets>=5)
+				if(nb_mosfets>=4)
 					state = ACT_QUEUE_Mosfet_act_4;
 				else
 					state = NB_QUEUE;
@@ -754,9 +847,9 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 				msg.size = SIZE_ACT_MSG;
 				msg.data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(&msg);
-				if(nb_mosfets>=6)
+				if(nb_mosfets>=5)
 					state = ACT_QUEUE_Mosfet_act_5;
-			   else
+				else
 					state = NB_QUEUE;
 			}
 			break;
@@ -772,9 +865,9 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 				msg.size = SIZE_ACT_MSG;
 				msg.data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(&msg);
-				if(nb_mosfets>=7)
+				if(nb_mosfets>=6)
 					state = ACT_QUEUE_Mosfet_act_6;
-				else
+			   else
 					state = NB_QUEUE;
 			}
 			break;
@@ -790,10 +883,10 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 				msg.size = SIZE_ACT_MSG;
 				msg.data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(&msg);
-				if(nb_mosfets>=8)
-					  state = ACT_QUEUE_Mosfet_act_7;
+				if(nb_mosfets>=7)
+					state = ACT_QUEUE_Mosfet_act_7;
 				else
-					  state = NB_QUEUE;
+					state = NB_QUEUE;
 			}
 			break;
 
@@ -808,12 +901,30 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 				msg.size = SIZE_ACT_MSG;
 				msg.data.act_msg.order = ACT_MOSFET_STOP;
 				CAN_send(&msg);
+				if(nb_mosfets>=8)
+					  state = ACT_QUEUE_Mosfet_act_8;
+				else
+					  state = NB_QUEUE;
+			}
+			break;
+
+		case ACT_QUEUE_Mosfet_act_8:
+			if(entrance){
+				msg.sid = ACT_MOSFET_8;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_NORMAL;
+				CAN_send(&msg);
+			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
+				msg.sid = ACT_MOSFET_8;
+				msg.size = SIZE_ACT_MSG;
+				msg.data.act_msg.order = ACT_MOSFET_STOP;
+				CAN_send(&msg);
 				state = NB_QUEUE;
 			}
 			break;
 
 		case NB_QUEUE:
-			state = ACT_QUEUE_Mosfet_act_0;
+			state = ACT_QUEUE_Mosfet_act_1;
 			return TRUE;
 			break;
 
@@ -825,7 +936,7 @@ bool_e MOSFET_selftest_act(Uint8 nb_mosfets){
 
 //Fonction de Selftest des mosfets commandés par la stratégie
 bool_e MOSFET_selftest_strat(){
-	static Uint11 state = ACT_QUEUE_Mosfet_strat_0;
+	static Uint11 state = ACT_QUEUE_Mosfet_strat_1;
 	static Uint11 last_state = NB_QUEUE + 1;
 	static bool_e entrance;
 	static time32_t state_time;
@@ -838,39 +949,25 @@ bool_e MOSFET_selftest_strat(){
 	}
 
 	switch(state){
-		case ACT_QUEUE_Mosfet_strat_0:
-			if(entrance){
-				MOSFET_0_do_order(ACT_MOSFET_NORMAL);
-			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				MOSFET_0_do_order(ACT_MOSFET_STOP);
-			   #if NB_MOSFETS>=2
-					state = ACT_QUEUE_Mosfet_strat_1;
-				#else
-					state = NB_QUEUE;
-				#endif
-			}
-			break;
-#if NB_MOSFETS>=2
 		case ACT_QUEUE_Mosfet_strat_1:
 			if(entrance){
-				MOSFET_1_do_order(ACT_MOSFET_NORMAL);
+				MOSFET_do_order(STRAT_MOSFET_1,ACT_MOSFET_NORMAL);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				MOSFET_1_do_order(ACT_MOSFET_STOP);
-				#if NB_MOSFETS>=3
+				MOSFET_do_order(STRAT_MOSFET_1,ACT_MOSFET_NORMAL);
+			   #if NB_MOSFETS>=2
 					state = ACT_QUEUE_Mosfet_strat_2;
 				#else
 					state = NB_QUEUE;
 				#endif
 			}
 			break;
-#endif
-#if NB_MOSFETS>=3
+#if NB_MOSFETS>=2
 		case ACT_QUEUE_Mosfet_strat_2:
 			if(entrance){
-				MOSFET_2_do_order(ACT_MOSFET_NORMAL);
+				MOSFET_do_order(STRAT_MOSFET_2,ACT_MOSFET_NORMAL);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				MOSFET_2_do_order(ACT_MOSFET_STOP);
-				#if NB_MOSFETS>=4
+				MOSFET_do_order(STRAT_MOSFET_2,ACT_MOSFET_NORMAL);
+				#if NB_MOSFETS>=3
 					state = ACT_QUEUE_Mosfet_strat_3;
 				#else
 					state = NB_QUEUE;
@@ -878,13 +975,13 @@ bool_e MOSFET_selftest_strat(){
 			}
 			break;
 #endif
-#if NB_MOSFETS>=4
+#if NB_MOSFETS>=3
 		case ACT_QUEUE_Mosfet_strat_3:
 			if(entrance){
-				MOSFET_3_do_order(ACT_MOSFET_NORMAL);
+				MOSFET_do_order(STRAT_MOSFET_3,ACT_MOSFET_NORMAL);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				MOSFET_3_do_order(ACT_MOSFET_STOP);
-				#if NB_MOSFETS>=5
+				MOSFET_do_order(STRAT_MOSFET_3,ACT_MOSFET_NORMAL);
+				#if NB_MOSFETS>=4
 					state = ACT_QUEUE_Mosfet_strat_4;
 				#else
 					state = NB_QUEUE;
@@ -892,13 +989,13 @@ bool_e MOSFET_selftest_strat(){
 			}
 			break;
 #endif
-#if NB_MOSFETS>=5
+#if NB_MOSFETS>=4
 		case ACT_QUEUE_Mosfet_strat_4:
 			if(entrance){
-				MOSFET_4_do_order(ACT_MOSFET_NORMAL);
+				MOSFET_do_order(STRAT_MOSFET_4,ACT_MOSFET_NORMAL);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				MOSFET_4_do_order(ACT_MOSFET_STOP);
-				#if NB_MOSFETS>=6
+				MOSFET_do_order(STRAT_MOSFET_4,ACT_MOSFET_NORMAL);;
+				#if NB_MOSFETS>=5
 					state = ACT_QUEUE_Mosfet_strat_5;
 				#else
 					state = NB_QUEUE;
@@ -906,14 +1003,28 @@ bool_e MOSFET_selftest_strat(){
 			}
 			break;
 #endif
-#if NB_MOSFETS>=6
+#if NB_MOSFETS>=5
 		case ACT_QUEUE_Mosfet_strat_5:
 			if(entrance){
-				MOSFET_5_do_order(ACT_MOSFET_NORMAL);
+				MOSFET_do_order(STRAT_MOSFET_5,ACT_MOSFET_NORMAL);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				MOSFET_5_do_order(ACT_MOSFET_STOP);
-				#if NB_MOSFETS>=7
+				MOSFET_do_order(STRAT_MOSFET_5,ACT_MOSFET_NORMAL);
+				#if NB_MOSFETS>=6
 					state = ACT_QUEUE_Mosfet_strat_6;
+				#else
+					state = NB_QUEUE;
+				#endif
+			}
+			break;
+#endif
+#if NB_MOSFETS>=6
+		case ACT_QUEUE_Mosfet_strat_6:
+			if(entrance){
+				MOSFET_do_order(STRAT_MOSFET_6,ACT_MOSFET_NORMAL);
+			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
+				MOSFET_do_order(STRAT_MOSFET_6,ACT_MOSFET_NORMAL);
+				#if NB_MOSFETS>=7
+					state = ACT_QUEUE_Mosfet_strat_7;
 				 #else
 					state = NB_QUEUE;
 				#endif
@@ -921,13 +1032,13 @@ bool_e MOSFET_selftest_strat(){
 			break;
 #endif
 #if NB_MOSFETS>=7
-		case ACT_QUEUE_Mosfet_strat_6:
+		case ACT_QUEUE_Mosfet_strat_7:
 			if(entrance){
-				MOSFET_6_do_order(ACT_MOSFET_NORMAL);
+				MOSFET_do_order(STRAT_MOSFET_7,ACT_MOSFET_NORMAL);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				MOSFET_6_do_order(ACT_MOSFET_STOP);
+				MOSFET_do_order(STRAT_MOSFET_7,ACT_MOSFET_NORMAL);
 				#if NB_MOSFETS>=8
-					 state = ACT_QUEUE_Mosfet_strat_7;
+					 state = ACT_QUEUE_Mosfet_strat_8;
 				#else
 					 state = NB_QUEUE;
 				#endif
@@ -935,17 +1046,17 @@ bool_e MOSFET_selftest_strat(){
 			break;
 #endif
 #if NB_MOSFETS>=8
-		case ACT_QUEUE_Mosfet_strat_7:
+		case ACT_QUEUE_Mosfet_strat_8:
 			if(entrance){
-				MOSFET_7_do_order(ACT_MOSFET_NORMAL);
+				MOSFET_do_order(STRAT_MOSFET_8,ACT_MOSFET_NORMAL);
 			}else if(global.absolute_time >= state_time + MOSFET_SELFTEST_TIME){
-				MOSFET_7_do_order(ACT_MOSFET_STOP);
+				MOSFET_do_order(STRAT_MOSFET_8,ACT_MOSFET_NORMAL);;
 				state = NB_QUEUE;
 			}
 			break;
 #endif
 		case NB_QUEUE:
-			state = ACT_QUEUE_Mosfet_strat_0;
+			state = ACT_QUEUE_Mosfet_strat_1;
 			return TRUE;
 			break;
 
@@ -955,5 +1066,3 @@ bool_e MOSFET_selftest_strat(){
 	return FALSE;
 }
 #endif
-
-#endif  //USE_MOSFET

@@ -65,10 +65,6 @@
 
 #define USE_SYNC_ELEMENTS
 
-// Utilisation de la carte Mosfets
-#define USE_MOSFETS			//Déclarer l'utilisation du pilote
-#define NB_MOSFETS     5    //Nombre de mosfets à piloter (max = 8)
-
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
 //#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN
@@ -137,6 +133,14 @@
 	#define USE_PWM_MODULE
 		#define PWM_FREQ	50000
 		#define USE_PWM4
+
+/* Réglages de la carte Mosfets */
+	#define USE_MOSFETS_MODULE
+		#define USE_MOSFET_1
+		#define USE_MOSFET_2
+		#define USE_MOSFET_3
+		#define USE_MOSFET_4
+		#define USE_MOSFET_5
 
 #ifdef MAIN_IR_RCVA
 	#define USE_PWM1
