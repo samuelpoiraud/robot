@@ -94,25 +94,25 @@
 		#define I_AM_READY			GPIOB,GPIO_Pin_8
 
 	#define PORT_IO_B_9			PORT_IO_OUTPUT
-		#define MOSFET_0_PIN		GPIOB,GPIO_Pin_9
+		#define MOSFET_1_PIN		GPIOB,GPIO_Pin_9
 
 	#define PORT_IO_B_10		PORT_IO_OUTPUT
-		#define MOSFET_1_PIN		GPIOB,GPIO_Pin_10
+		#define MOSFET_2_PIN		GPIOB,GPIO_Pin_10
 
 	#define PORT_IO_B_11		PORT_IO_OUTPUT
 		#define AX12_DIRECTION_PORT_AX12	GPIOB,GPIO_Pin_11
 
 	#define PORT_IO_B_12		PORT_IO_OUTPUT
-		#define MOSFET_2_PIN		GPIOB,GPIO_Pin_12
+		#define MOSFET_3_PIN		GPIOB,GPIO_Pin_12
 
 	#define PORT_IO_B_13		PORT_IO_OUTPUT
-		#define MOSFET_3_PIN		GPIOB,GPIO_Pin_13
+		#define MOSFET_4_PIN		GPIOB,GPIO_Pin_13
 
 	#define PORT_IO_B_14		PORT_IO_OUTPUT
-		#define MOSFET_4_PIN		GPIOB,GPIO_Pin_14
+		#define MOSFET_5_PIN		GPIOB,GPIO_Pin_14
 
 	#define PORT_IO_B_15		PORT_IO_OUTPUT
-		#define MOSFET_5_PIN		GPIOB,GPIO_Pin_15
+		#define MOSFET_6_PIN		GPIOB,GPIO_Pin_15
 
 ////////////////////////////////////////////////////////////////////////////////////
 //--------------------------------------PORT C------------------------------------//
@@ -258,7 +258,7 @@
 		#define	READ_I_AM_PROP		GPIOE->IDR9
 
 	#define PORT_IO_E_10		PORT_IO_OUTPUT
-		#define MOSFET_6_PIN		GPIOE,GPIO_Pin_10
+		#define MOSFET_7_PIN		GPIOE,GPIO_Pin_10
 
 	#define PORT_IO_E_11		PORT_IO_INPUT
 		//
@@ -267,7 +267,7 @@
 		//
 
 	#define PORT_IO_E_13		PORT_IO_OUTPUT
-		 #define MOSFET_7_PIN		GPIOE,GPIO_Pin_13
+		 #define MOSFET_8_PIN		GPIOE,GPIO_Pin_13
 
 	#define PORT_IO_E_14		PORT_IO_INPUT
 		//
