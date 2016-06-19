@@ -12,18 +12,6 @@
 
 #ifdef USE_MOSFETS_MODULE
 
-/* Pour utiliser ce module, vous devez définir dans le fichier config_use la macro USE_MOSFETS_MODULE et la/les
- * macro USE_MOSFET_X où X est le numéro du mosfet souhaité.
- *		exemple : #define USE_MOSFETS_MODULE
- *				  #define USE_MOSFET_3
- * Dans QS_CAN_msgList.h,vous devez définir les SID de chacun des mosfets (ex: ACT_MOSFET_1) pour un mosfet
- * situé en actionneur ou  (ex: STRAT_MOSFET_1) pour un mosfet situé en stratégie. Vous pouvez également redéfinir
- * ces SID pour leur donner un nom.
- * Dans queue.h de la stratégie, vous devez définir ACT_QUEUE_Mosfet_act_1 pour un mosfet en actionneur
- * ou ACT_QUEUE_Mosfet_strat_1 en stratégie.
- * Vous devez aussi définir si cela n'est pas fait des macros pour chaque mosfet dans config_pin (ex MOSFET_1_PIN)
- */
-
 #include "QS_mosfet.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ports.h"
@@ -36,7 +24,7 @@
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_MOSFET
 #include "../QS/QS_outputlog.h"
 
-#define MOSFET_DELAY                 10 //Delay en milliseconde entre l'allumage de chaque pompe
+#define MOSFET_DELAY                 10  //Delay en milliseconde entre l'allumage de chaque pompe
 #define MOSFET_SELFTEST_TIME         500 //Delay en milliseconde pour l'allumage de Selftest pour l'allumage de chaque pompe
 
 
