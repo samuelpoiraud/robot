@@ -14,7 +14,7 @@
 #ifdef USE_PWM_MODULE
 
 #include "QS_ports.h"
-#include "stm32f4xx_tim.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_tim.h"
 #include "QS_clocks_freq.h"
 #include "QS_outputlog.h"
 
@@ -49,55 +49,59 @@ void PWM_init(void)
 		return;
 
 	/* Structures */
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	TIM_OCInitTypeDef TIM_OCInitStructure;
+	TIM_HandleTypeDef TIM_HandleStructure;
+	TIM_OC_InitTypeDef TIM_OCInitStructure;
 
 #if !defined(USE_PWM1) && !defined(USE_PWM2) && !defined(USE_PWM3) && !defined(USE_PWM4)
+	UNUSED_VAR(TIM_HandleStructure);
 	UNUSED_VAR(TIM_OCInitStructure);
 #endif
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
+
+	__HAL_RCC_TIM8_CLK_ENABLE();
 
 	PORTS_pwm_init();
 
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-	TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
-	TIM_TimeBaseStructure.TIM_Period        = PWM_PERIOD - 1;	//Le timer compte de 0 à period inclus
-	TIM_TimeBaseStructure.TIM_Prescaler     = PWM_PRESC - 1;
-	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
+	TIM_HandleStructure.Instance = TIM8;
+	TIM_HandleStructure.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	TIM_HandleStructure.Init.CounterMode = TIM_COUNTERMODE_UP;
+	TIM_HandleStructure.Init.Period = PWM_PERIOD - 1;	//Le timer compte de 0 à period inclus
+	TIM_HandleStructure.Init.Prescaler = PWM_PRESC - 1;
+	TIM_HandleStructure.Init.RepetitionCounter = 0;
+	if(HAL_TIM_Base_Init(&TIM_HandleStructure) != HAL_OK)
+	{
+		debug_printf("Erreur lors de l'initialisation de la pwm channel 1\n");
+	}
+	__HAL_TIM_ENABLE(&TIM_HandleStructure);
 
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
-	TIM_OCInitStructure.TIM_Pulse = 0;
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_High;
-	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset;
-	TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
+	TIM_OCInitStructure.OCMode = TIM_OCMODE_PWM1;
+	TIM_OCInitStructure.OCFastMode = TIM_OCFAST_DISABLE; // (only available with PWM1 and PWM2 mode)
+	TIM_OCInitStructure.Pulse = 0;
+	TIM_OCInitStructure.OCPolarity = TIM_OCPOLARITY_HIGH;
+	TIM_OCInitStructure.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+	TIM_OCInitStructure.OCIdleState = TIM_OCIDLESTATE_RESET;
+	TIM_OCInitStructure.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+	HAL_TIM_OC_Init(&TIM_HandleStructure);
 
 #ifdef USE_PWM1
-	TIM_OC1Init(TIM8, &TIM_OCInitStructure);
-	TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);
+	HAL_TIM_OC_ConfigChannel(&TIM_HandleStructure, &TIM_OCInitStructure, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&TIM_HandleStructure, TIM_CHANNEL_2);
 #endif
 
 #ifdef USE_PWM2
-	TIM_OC2Init(TIM8, &TIM_OCInitStructure);
-	TIM_OC2PreloadConfig(TIM8, TIM_OCPreload_Enable);
+	HAL_TIM_OC_ConfigChannel(&TIM_HandleStructure, &TIM_OCInitStructure, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&TIM_HandleStructure, TIM_CHANNEL_2);
 #endif
 
 #ifdef USE_PWM3
-	TIM_OC3Init(TIM8, &TIM_OCInitStructure);
-	TIM_OC3PreloadConfig(TIM8, TIM_OCPreload_Enable);
-
+	HAL_TIM_OC_ConfigChannel(&TIM_HandleStructure, &TIM_OCInitStructure, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&TIM_HandleStructure, TIM_CHANNEL_3);
 #endif
+
 #ifdef USE_PWM4
-	TIM_OC4Init(TIM8, &TIM_OCInitStructure);
-	TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
+	HAL_TIM_OC_ConfigChannel(&TIM_HandleStructure, &TIM_OCInitStructure, TIM_CHANNEL_4);
+	HAL_TIM_PWM_Start(&TIM_HandleStructure, TIM_CHANNEL_4);
 #endif
-
-	TIM_Cmd(TIM8, ENABLE);
-	TIM_CtrlPWMOutputs(TIM8, ENABLE);
 
 	initialized = TRUE;
 }
@@ -105,28 +109,33 @@ void PWM_init(void)
 void PWM_set_frequency(Uint32 freq)
 {
 	if(!initialized){
-		error_printf("PWM non initialisé ! Appeller PWM_init\n");
+		error_printf("PWM non initialisé ! Appeler PWM_init\n");
 		return;
 	}
 
 	assert(freq != 0);
 
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	TIM_HandleTypeDef TIM_HandleStructure;
+	TIM_HandleStructure.Instance = TIM8;
 	Uint32 presc32;
 	presc32 = (TIM_CLK2_FREQUENCY_HZ / freq / PWM_PERIOD) - 1;
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-	TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
-	TIM_TimeBaseStructure.TIM_Period        = PWM_PERIOD - 1;	//Le timer compte de 0 à period inclus
-	TIM_TimeBaseStructure.TIM_Prescaler     = (Uint16)presc32;
-	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
+	TIM_HandleStructure.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	TIM_HandleStructure.Init.CounterMode = TIM_COUNTERMODE_UP;
+	TIM_HandleStructure.Init.Period = PWM_PERIOD - 1;	//Le timer compte de 0 à period inclus
+	TIM_HandleStructure.Init.Prescaler = (Uint16)presc32;
+	TIM_HandleStructure.Init.RepetitionCounter = 0;
+
+	if(HAL_TIM_Base_Init(&TIM_HandleStructure) != HAL_OK)
+	{
+		debug_printf("Erreur lors de l'initialisation de la pwm channel 1\n");
+	}
 }
 
 /* Fonctions de manipulation des PWM */
 void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 {
 	if(!initialized){
-		error_printf("PWM non initialisé ! Appeller PWM_init\n");
+		error_printf("PWM non initialisé ! Appeler PWM_init\n");
 		return;
 	}
 
@@ -136,22 +145,22 @@ void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 	{
 #ifdef USE_PWM1
 		case 1:
-			TIM_SetCompare1(TIM8, duty * (PWM_PERIOD/100));
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH1, TIM_CHANNEL_1, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM2
 		case 2:
-			TIM_SetCompare2(TIM8, duty * (PWM_PERIOD/100));
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH2, TIM_CHANNEL_2, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM3
 		case 3:
-			TIM_SetCompare3(TIM8, duty * (PWM_PERIOD/100));
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH3, TIM_CHANNEL_3, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM4
 		case 4:
-			TIM_SetCompare4(TIM8, duty * (PWM_PERIOD/100));
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH4, TIM_CHANNEL_4, (uint32_t)duty);
 			break;
 #endif
 		default:
@@ -169,7 +178,7 @@ void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 Uint8 PWM_get_duty(Uint8 channel){
 
 	if(!initialized){
-		error_printf("PWM non initialisé ! Appeller PWM_init\n");
+		error_printf("PWM non initialisé ! Appeler PWM_init\n");
 		return 0;
 	}
 
@@ -215,22 +224,22 @@ void PWM_run_fine(Uint16 duty, Uint8 channel)
 	{
 #ifdef USE_PWM1
 		case 1:
-			TIM_SetCompare1(TIM8, duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH1, TIM_CHANNEL_1, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM2
 		case 2:
-			TIM_SetCompare2(TIM8, duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH2, TIM_CHANNEL_2, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM3
 		case 3:
-			TIM_SetCompare3(TIM8, duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH3, TIM_CHANNEL_3, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM4
 		case 4:
-			TIM_SetCompare4(TIM8, duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH4, TIM_CHANNEL_4, (uint32_t)duty);
 			break;
 #endif
 		default:

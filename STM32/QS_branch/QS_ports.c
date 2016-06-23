@@ -14,8 +14,8 @@
 #include "QS_can.h"
 #include "QS_uart.h"
 #include "QS_outputlog.h"
-#include "stm32f4xx_gpio.h"
-#include "stm32f4xx_adc.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_gpio.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_adc.h"
 
 #include "../config/config_pin.h"
 
@@ -23,21 +23,21 @@
 bool_e PORTS_secure_init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+	__HAL_RCC_GPIOE_CLK_ENABLE();
 
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
+	GPIO_InitStructure.Alternate = 0;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
 
 	/* GPIOE */
 	Uint32 port_e_mask =
 			(1  << 7 ) |
 			(1  << 8 ) |
 			(1  << 9 );
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_e_mask) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.Pin = ((uint32_t)port_e_mask) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
 
 	UART_init();
@@ -51,11 +51,11 @@ bool_e PORTS_secure_init(void){
 	msg.size = SIZE_BROADCAST_I_AM_AND_I_AM_HERE;
 
 	#if defined(I_AM_CARTE_PROP) || defined(I_AM_CARTE_ACT) || defined(I_AM_CARTE_STRAT)
-		 PORTS_set_pull(PORT_I_AM_STRAT, GPIO_PuPd_UP);
+		 PORTS_set_pull(PORT_I_AM_STRAT, GPIO_PULLUP);
 	#endif
 	#if defined(I_AM_CARTE_PROP) || defined(I_AM_CARTE_ACT)
-		PORTS_set_pull(PORT_I_AM_PROP, GPIO_PuPd_UP);
-		PORTS_set_pull(PORT_I_AM_ACT, GPIO_PuPd_UP);
+		PORTS_set_pull(PORT_I_AM_PROP, GPIO_PULLUP);
+		PORTS_set_pull(PORT_I_AM_ACT, GPIO_PULLUP);
 	#endif
 
 	#ifdef I_AM_CARTE_STRAT
@@ -128,16 +128,15 @@ void PORTS_init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	/* Horloges périphériques: tout ce qui est utilisé */
-	RCC_AHB1PeriphClockCmd(
-		  RCC_AHB1Periph_GPIOA
-		| RCC_AHB1Periph_GPIOB
-		| RCC_AHB1Periph_GPIOC
-		| RCC_AHB1Periph_GPIOD
-		| RCC_AHB1Periph_GPIOE, ENABLE);
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+	__HAL_RCC_GPIOE_CLK_ENABLE();
 
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
+	GPIO_InitStructure.Alternate = 0;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
 
 	/* GPIOA */
 	Uint32 port_a_mask =
@@ -157,11 +156,11 @@ void PORTS_init(void){
 			(PORT_IO_A_13 << 13) |
 			(PORT_IO_A_14 << 14) |
 			(PORT_IO_A_15 << 15);
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_a_mask) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.Pin = ((uint32_t)port_a_mask) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
+	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_a_mask)) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.Pin = (~((uint32_t)port_a_mask)) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
+	GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	/* GPIOB */
@@ -182,11 +181,11 @@ void PORTS_init(void){
 			(PORT_IO_B_13 << 13) |
 			(PORT_IO_B_14 << 14) |
 			(PORT_IO_B_15 << 15);
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_b_mask) & 0xFFFFFFEF; //JTDO/TRACESWO,
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.Pin = ((uint32_t)port_b_mask) & 0xFFFFFFEF; //JTDO/TRACESWO,
+	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_b_mask)) & 0xFFFFFFEF; //JTDO/TRACESWO
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.Pin = (~((uint32_t)port_b_mask)) & 0xFFFFFFEF; //JTDO/TRACESWO
+	GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	/* GPIOC */
@@ -207,11 +206,11 @@ void PORTS_init(void){
 			(PORT_IO_C_13 << 13) |
 			(PORT_IO_C_14 << 14) |
 			(PORT_IO_C_15 << 15);
-	GPIO_InitStructure.GPIO_Pin = (uint32_t)port_c_mask;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.Pin = (uint32_t)port_c_mask;
+	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)port_c_mask);
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.Pin = ~((uint32_t)port_c_mask);
+	GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	/* GPIOD */
@@ -232,11 +231,11 @@ void PORTS_init(void){
 			(PORT_IO_D_13 << 13) |
 			(PORT_IO_D_14 << 14) |
 			(PORT_IO_D_15 << 15);
-	GPIO_InitStructure.GPIO_Pin = (uint32_t)port_d_mask;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.Pin = (uint32_t)port_d_mask;
+	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)port_d_mask);
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.Pin = ~((uint32_t)port_d_mask);
+	GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	/* GPIOE */
@@ -257,14 +256,14 @@ void PORTS_init(void){
 			(PORT_IO_E_13 << 13) |
 			(PORT_IO_E_14 << 14) |
 			(PORT_IO_E_15 << 15);
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_e_mask) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.Pin = ((uint32_t)port_e_mask) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+	GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_e_mask)) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.Pin = (~((uint32_t)port_e_mask)) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+	GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
 
-	PORTS_adc_init(NULL, ADC_SampleTime_28Cycles);
+	PORTS_adc_init(NULL, ADC_SAMPLETIME_28CYCLES);
 
 	initialized = TRUE;
 }
@@ -280,132 +279,113 @@ Uint8 PORTS_adc_init(void* adc_handle, Uint8 ADC_sampleTime) {
 	UNUSED_VAR(GPIO_InitStructure);
 
 	/* Configure ADC1 Channelx pin as analog input ******************************/
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
+	GPIO_InitStructure.Alternate = 0;
+	GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
 
 	number_of_channels = 0;
 
-#ifdef	USE_AN0
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+//#ifdef	USE_AN0
+	GPIO_InitStructure.Pin = GPIO_PIN_0;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_0, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN1
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_1;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_1, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN2
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_2;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_2, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN3
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_3;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_3, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN4
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_4;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_4, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN5
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_5;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_5, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN6
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_6;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_6, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN7
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_7;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_7, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN8
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_0;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_8, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN9
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_1;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_9, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN10
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_0;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_10, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN11
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_1;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_11, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN12
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_2;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_12, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN13
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_3;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_13, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN14
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_4;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_14, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN15
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_5;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_15, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN_TEMP_SENSOR	// Temperature sensor
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_TempSensor, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN_VREFIN		// VRefIn
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_Vrefint, number_of_channels, ADC_sampleTime);
 #endif
 #ifdef	USE_AN_VBAT			// VBat
 	number_of_channels++;
-	if(ADCx) ADC_RegularChannelConfig(ADCx, ADC_Channel_Vbat, number_of_channels, ADC_sampleTime);
 #endif
 	return number_of_channels;
 }
 
 
-void PORTS_set_pull(GPIO_TypeDef* GPIOx, Uint16 GPIO_Pin, GPIOPuPd_TypeDef pull_up)
+void PORTS_set_pull(GPIO_TypeDef* GPIOx, Uint16 GPIO_Pin, Uint8 pull_up)
 {
 	  Uint32 pinpos = 0x00, pos = 0x00 , currentpin = 0x00;
 	  /* Check the parameters */
-	  assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+	  assert_param(IS_GPIO_ALL_INSTANCE(GPIOx));
 	  assert_param(IS_GPIO_PIN(GPIO_Pin));
-	  assert_param(IS_GPIO_PUPD(pull_up));
+	  assert_param(IS_GPIO_PULL(pull_up));
 
 	  for (pinpos = 0x00; pinpos < 0x10; pinpos++)
 	  {
@@ -422,7 +402,7 @@ void PORTS_set_pull(GPIO_TypeDef* GPIOx, Uint16 GPIO_Pin, GPIOPuPd_TypeDef pull_
 }
 
 void PORTS_pwm_init() {
-	GPIO_InitTypeDef GPInit;
+	GPIO_InitTypeDef GPIO_InitStructure.;
 
 
 #if !defined(USE_PWM1) && !defined(USE_PWM2) && !defined(USE_PWM3) && !defined(USE_PWM4)
@@ -430,30 +410,26 @@ void PORTS_pwm_init() {
 #endif
 
 	/* Configuration GPIO et remappings */
-	GPInit.GPIO_Mode = GPIO_Mode_AF;
-	GPInit.GPIO_Speed = GPIO_Speed_50MHz;
-	GPInit.GPIO_OType = GPIO_OType_PP;
-	GPInit.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
+	GPIO_InitStructure.Alternate = GPIO_AF3_TIM8;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
 
 #ifdef USE_PWM1
-	GPInit.GPIO_Pin = GPIO_Pin_6;
-	GPIO_Init(GPIOC, &GPInit);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_TIM8);
+	GPIO_InitStructure.Pin = GPIO_PIN_6;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 #endif
 #ifdef USE_PWM2
-	GPInit.GPIO_Pin = GPIO_Pin_7;
-	GPIO_Init(GPIOC, &GPInit);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_TIM8);
+	GPIO_InitStructure.Pin = GPIO_PIN_7;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 #endif
 #ifdef USE_PWM3
-	GPInit.GPIO_Pin = GPIO_Pin_8;
-	GPIO_Init(GPIOC, &GPInit);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_TIM8);
+	GPIO_InitStructure.Pin = GPIO_PIN_8;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 #endif
 #ifdef USE_PWM4
-	GPInit.GPIO_Pin = GPIO_Pin_9;
-	GPIO_Init(GPIOC, &GPInit);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM8);
+	GPIO_InitStructure.Pin = GPIO_PIN_9;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 #endif
 }
 
@@ -461,10 +437,9 @@ void PORTS_uarts_init() {
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
+	GPIO_InitStructure.Pull = GPIO_PULLUP;
 
 #ifdef I_AM_CARTE_ACT
 	//Activation de l'UART AX_12
@@ -503,51 +478,47 @@ void PORTS_uarts_init() {
 #endif
 
 	#ifdef USE_UART1
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_USART1);	//U1TX
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1);	//U1RX
+		GPIO_InitStructure.Alternate = GPIO_AF7_USART1;
 
 		//USART1 TX
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_6;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 		//USART1 RX
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_7;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 	#endif
 
 	#ifdef USE_UART2
-		GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);	//U2TX
-		GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);	//U2RX
+		GPIO_InitStructure.Alternate = GPIO_AF7_USART2;
 
 		//USART2 TX
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-		GPIO_Init(GPIOA, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_2;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 		//USART2 RX
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-		GPIO_Init(GPIOA, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_3;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	#endif
 
 	#ifdef USE_UART3
 		#ifdef USE_USART3_ON_PB10_PB11
-			GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_USART3);	//U3TX
-			GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_USART3);	//U3RX
+			GPIO_InitStructure.Alternate = GPIO_AF7_USART3;
 
 			//USART3 TX
-			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-			GPIO_Init(GPIOB, &GPIO_InitStructure);
+			GPIO_InitStructure.Pin = GPIO_PIN_10;
+			HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 			//USART3 RX
-			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
-			GPIO_Init(GPIOB, &GPIO_InitStructure);
+			GPIO_InitStructure.Pin = GPIO_PIN_11;
+			HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 		#else
 
-			GPIO_PinAFConfig(GPIOD, GPIO_PinSource8, GPIO_AF_USART3);	//U3TX
-			GPIO_PinAFConfig(GPIOD, GPIO_PinSource9, GPIO_AF_USART3);	//U3RX
+			GPIO_InitStructure.Alternate = GPIO_AF7_USART3;
 
 			//USART3 TX
-			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-			GPIO_Init(GPIOD, &GPIO_InitStructure);
+			GPIO_InitStructure.Pin = GPIO_PIN_8;
+			HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
 			//USART3 RX
-			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-			GPIO_Init(GPIOD, &GPIO_InitStructure);
+			GPIO_InitStructure.Pin = GPIO_PIN_9;
+			HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
 		#endif
 	#endif
 }
@@ -556,27 +527,25 @@ void PORTS_qei_init() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_StructInit(&GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
+	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
 
 	#ifdef USE_QUEI1
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_TIM3);
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_TIM3);
+		GPIO_InitStructure.Alternate = GPIO_AF2_TIM3;
+		GPIO_InitStructure.Pin = GPIO_PIN_4;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_5;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+
 	#endif
 
 	#ifdef USE_QUEI2
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-		GPIO_Init(GPIOA, &GPIO_InitStructure);
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
-		GPIO_Init(GPIOA, &GPIO_InitStructure);
-		GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM2);
-		GPIO_PinAFConfig(GPIOA, GPIO_PinSource15, GPIO_AF_TIM2);
+		GPIO_InitStructure.Alternate = GPIO_AF1_TIM2;
+		GPIO_InitStructure.Pin = GPIO_PIN_1;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_15;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 	#endif
 }
 
@@ -584,69 +553,55 @@ void PORTS_spi_init() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_StructInit(&GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
+	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
+	GPIO_InitStructure.Alternate = GPIO_AF5_SPI2;
 
-	//GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;				//NSS : seulement en Slave
+	//GPIO_InitStructure.Pin = GPIO_PIN_12;				//NSS : seulement en Slave
 	//GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-	//GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2);	//NSS : seulement en Slave
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
+	GPIO_InitStructure.Pin = GPIO_PIN_13;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_14;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_15;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
 void PORTS_i2c_init(void) {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_StructInit(&GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+	GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
+	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
 
 	#ifdef USE_I2C1
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
+		GPIO_InitStructure.Alternate = GPIO_AF4_I2C1;
+		GPIO_InitStructure.Pin = GPIO_PIN_8;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_9;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 	#endif
 	#ifdef USE_I2C2
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_I2C2);
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_I2C2);
+		GPIO_InitStructure.Alternate = GPIO_AF4_I2C2;
+		GPIO_InitStructure.Pin = GPIO_PIN_10;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_11;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 	#endif
-
 }
 
 void PORTS_can_init() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStructure.Alternate = GPIO_AF9_CAN1;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
+	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-	GPIO_PinAFConfig(GPIOD, GPIO_PinSource0, GPIO_AF_CAN1);
-	GPIO_PinAFConfig(GPIOD, GPIO_PinSource1, GPIO_AF_CAN1);
+	GPIO_InitStructure.Pin = GPIO_PIN_0;
+	HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = GPIO_PIN_1;
+	HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
 }
