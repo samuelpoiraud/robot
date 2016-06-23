@@ -19,17 +19,26 @@
 	//Procédure initialisant l'accéléromètre
 	void ACC_init(void);
 
+	//Procédure lisant l'ID de l'accéléromètre pour savoir de quel type il est
+	Uint8 ACC_readID(void);
+
+	//Procédure pour faire un reset de l'accéléromètre
+	void ACC_reset(void);
+
+	//Procédure pour tout nettoyer avant de désallouer l'objet
+	void ACC_deInit(void);
+
 	//Procédure lisant les valeurs données par l'accéléromètre et les sauvegardes dans les variables Xlu, Ylu et Zlu
 	void ACC_read(void);
 
 	//Procédure donnant accès à la variable Xlu
-	Sint8 ACC_getX(void);
+	Sint16 ACC_getX(void);
 
 	//Procédure donnant accès à la variable Ylut
-	Sint8 ACC_getY(void);
+	Sint16 ACC_getY(void);
 
 	//Procédure donnant accès à la variable Zlu
-	Sint8 ACC_getZ(void);
+	Sint16 ACC_getZ(void);
 
 
 	/*  Exemple pour récupérer l'angle

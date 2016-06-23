@@ -29,7 +29,8 @@
 	 *
 	 */
 
-	#include "stm32f4xx.h"					/* 	Toujours utile...								*/
+	#include "../stm32f4xx_hal/stm32f4xx.h"			/* 	Toujours utile...								*/
+	#include "../stm32f4xx_hal/stm32f407xx.h"		/* 	Toujours utile...								*/
 	#define _ISR							/*  attribut d'interruption non utilisé sous STM32  */
 
 	#include "../config/config_global.h"
