@@ -179,7 +179,7 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 
 	// de combien on accelere à chaque boucle d'asser
-	#define SMALL_ACCELERATION_NORMAL					70		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
+	#define SMALL_ACCELERATION_NORMAL					55		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
 	#define SMALL_ACCELERATION_MAX						192		//[mm.4096/5ms/5ms]
 	#define SMALL_ACCELERATION_AVOIDANCE				160		//[mm.4096/5ms/5ms]
 
