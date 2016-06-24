@@ -63,7 +63,8 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 #define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_reset_config, &prefix##_CAN_process_msg}
 
 static ACTQ_functions_t actionneurs[] = {
-		ACT_DECLARE(MOSFET), //QS_mosfets
+		//QS_mosfets
+		ACT_DECLARE(MOSFET),
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
 		ACT_DECLARE(FISH_MAGNETIC_ARM),
 		ACT_DECLARE(FISH_UNSTICK_ARM),

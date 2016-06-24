@@ -21,8 +21,10 @@
 		#define USE_PWM1     //PWM1 Pompe avant gauche de Pearl
 		#define USE_PWM2     //PWM2 Pompe avant droite de Pearl
 
-/* Réglages de la carte Mosfets*/
-	#define USE_MOSFETS_MODULE
-		 #define USE_MOSFET_1
+/* Utilisation de la carte Mosfets*/
+	/* déclarer l'utilisation du pilote */
+	#define USE_MOSFETS
+	/*Nombre de mosfets à piloter (max = 8)*/
+	#define NB_MOSFETS          1
 
 #endif /* SMALL_CONFIG_USE_H */

@@ -93,7 +93,7 @@
 		#define I_AM_READY			GPIOB,GPIO_Pin_8
 
 	#define PORT_IO_B_9			PORT_IO_OUTPUT
-		#define MOSFET_1_PIN		GPIOB,GPIO_Pin_9
+		#define MOSFET_0_PIN		GPIOB,GPIO_Pin_9
 
 	#define PORT_IO_B_10		PORT_IO_INPUT
 		//

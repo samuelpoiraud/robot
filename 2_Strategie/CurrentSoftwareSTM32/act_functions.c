@@ -63,26 +63,22 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 
 
 	// Mosfets actionneurs
+	{ACT_MOSFET_0,					ACT_QUEUE_Mosfet_act_0,				     "Mosfet_act_0"},
 	{ACT_MOSFET_1,					ACT_QUEUE_Mosfet_act_1,				     "Mosfet_act_1"},
-	{ACT_MOSFET_2,					ACT_QUEUE_Mosfet_act_2,				     "Mosfet_act_2"},
+	{ACT_MOSFET_2,					ACT_QUEUE_Mosfet_act_2,			         "Mosfet_act_2"},
 	{ACT_MOSFET_3,					ACT_QUEUE_Mosfet_act_3,			         "Mosfet_act_3"},
-	{ACT_MOSFET_4,					ACT_QUEUE_Mosfet_act_4,			         "Mosfet_act_4"},
-	{ACT_MOSFET_5,					ACT_QUEUE_Mosfet_act_5,				     "Mosfet_act_5"},
+	{ACT_MOSFET_4,					ACT_QUEUE_Mosfet_act_4,				     "Mosfet_act_4"},
+	{ACT_MOSFET_5,					ACT_QUEUE_Mosfet_act_5,			         "Mosfet_act_5"},
 	{ACT_MOSFET_6,					ACT_QUEUE_Mosfet_act_6,			         "Mosfet_act_6"},
-	{ACT_MOSFET_7,					ACT_QUEUE_Mosfet_act_7,			         "Mosfet_act_7"},
-	{ACT_MOSFET_8,					ACT_QUEUE_Mosfet_act_8,				     "Mosfet_act_8"},
-	{ACT_MOSFET_MULTI,      		ACT_QUEUE_Mosfet_act_multi,		         "Mosfet_act_multi"},
+	{ACT_MOSFET_7,					ACT_QUEUE_Mosfet_act_7,				     "Mosfet_act_7"},
+	{ACT_MOSFETS_ALL,      			ACT_QUEUE_Mosfet_act_all,		         "Mosfet_act_all"},
 
 	//Mosfets stratégie
-	{STRAT_MOSFET_1,                ACT_QUEUE_Mosfet_strat_1,		        "Mosfet_strat_1"},
-	{STRAT_MOSFET_2,                ACT_QUEUE_Mosfet_strat_2,               "Mosfet_strat_2"},
-	{STRAT_MOSFET_3,               	ACT_QUEUE_Mosfet_strat_3,               "Mosfet_strat_3"},
-	{STRAT_MOSFET_4,                ACT_QUEUE_Mosfet_strat_4,		        "Mosfet_strat_4"},
-	{STRAT_MOSFET_5,	           	ACT_QUEUE_Mosfet_strat_5,				"Mosfet_strat_5"},
-	{STRAT_MOSFET_6,                ACT_QUEUE_Mosfet_strat_6,               "Mosfet_strat_6"},
-	{STRAT_MOSFET_7,               	ACT_QUEUE_Mosfet_strat_7,               "Mosfet_strat_7"},
-	{STRAT_MOSFET_8,                ACT_QUEUE_Mosfet_strat_8,		        "Mosfet_strat_8"},
-	{STRAT_MOSFET_MULTI,	        ACT_QUEUE_Mosfet_strat_multi,			"Mosfet_strat_multi"},
+	{STRAT_MOSFET_0,                ACT_QUEUE_Mosfet_strat_0,		        "Mosfet_strat_0"},
+	{STRAT_MOSFET_1,                ACT_QUEUE_Mosfet_strat_1,               "Mosfet_strat_1"},
+	{STRAT_MOSFET_2,               	ACT_QUEUE_Mosfet_strat_2,               "Mosfet_strat_2"},
+	{STRAT_MOSFET_3,                ACT_QUEUE_Mosfet_strat_3,		        "Mosfet_strat_3"},
+	{STRAT_MOSFET_4,	           	ACT_QUEUE_Mosfet_strat_4,				"Mosfet_strat_4"},
 
 };
 

@@ -161,9 +161,35 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 
 		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x,  data[2]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_optionnal_data[0], msg->data.act_msg.act_data.act_optionnal_data[1], msg->data.act_msg.act_data.act_optionnal_data[2]);
 
-		if(MOSFET_isStratMosfetSid(act_id)){
+#ifdef USE_MOSFETS
+		if(act_id == ACT_QUEUE_Mosfet_strat_0
+	#if NB_MOSFETS>=2
+		|| act_id == ACT_QUEUE_Mosfet_strat_1
+	#endif
+	#if NB_MOSFETS>=3
+		|| act_id == ACT_QUEUE_Mosfet_strat_2
+	#endif
+	#if NB_MOSFETS>=4
+		|| act_id == ACT_QUEUE_Mosfet_strat_3
+	#endif
+	#if NB_MOSFETS>=5
+		|| act_id == ACT_QUEUE_Mosfet_strat_4
+	#endif
+	#if NB_MOSFETS>=6
+		|| act_id == ACT_QUEUE_Mosfet_strat_5
+	#endif
+	#if NB_MOSFETS>=7
+		|| act_id == ACT_QUEUE_Mosfet_strat_6
+	#endif
+	#if NB_MOSFETS>=8
+		|| act_id == ACT_QUEUE_Mosfet_strat_7
+	#endif
+		 ){
 			MOSFET_CAN_process_msg(msg);
+		}else if(act_id  == ACT_QUEUE_Mosfet_act_all){;
+			MOSFET_state_machine(msg);
 		}else{
+#endif
 			CAN_send(msg);
 		}
 	} else {
