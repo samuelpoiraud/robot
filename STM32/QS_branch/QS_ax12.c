@@ -14,11 +14,11 @@
 
 #include "QS_ax12.h"
 
-#ifdef USE_AX12_SERVO
+//#ifdef USE_AX12_SERVO
 
 #include "QS_ports.h"
 #include "QS_outputlog.h"
-#include "stm32f4xx_usart.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_usart.h"
 
 #include "../config/config_pin.h"
 
@@ -52,7 +52,6 @@
 	#else
 	#warning "AX12: Unknown UART ID"
 	#endif
-
 
 
 	#ifndef AX12_UART_BAUDRATE
@@ -357,6 +356,9 @@ static AX12_state_machine_t state_machine = {0};	//Machine à états du driver
 static volatile AX12_instruction_buffer AX12_special_instruction_buffer;
 //Cette variable est à TRUE si le driver est en mode préparation de commandes. Voir doc de AX12_start_command_block dans le .h
 static bool_e AX12_prepare_commands = FALSE;
+
+//Variables globales USART
+static USART_HandleTypeDef USART_HandleStructure;
 
 /**************************************************************************/
 /** Fonctions internes au driver de l'AX12+ et macros                    **/
@@ -899,7 +901,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					state_machine.current_instruction = AX12_instruction_queue_get_current();
 				else {	//s'il n'y a rien a faire, mettre en veille la machine a état, l'UART sera donc inactif (et mettre en mode reception pour ne pas forcer la sortie dont on défini la tension, celle non relié a l'AX12)
 					while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));   //inifinite loop si uart pas initialisé
-					GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
+					HAL_GPIO_WritePin(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
 					break;
 				}
 
@@ -919,7 +921,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 					debug_printf("\n");
 				#endif
 
-				GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, TX_DIRECTION);
+				HAL_GPIO_WritePin(AX12_DIRECTION_PORT_AX12, TX_DIRECTION);
 
 
 				TIMER_SRC_TIMER_start_ms(AX12_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
@@ -943,10 +945,11 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 #ifdef AX12_UART_Ptr
 					// ax12
 					if(state_machine.ax12_sending_index < state_machine.current_instruction.size) {
+						HAL_USART_Transmit_IT(&USART_HandleStructure,)
 						USART_SendData(AX12_UART_Ptr, AX12_get_instruction_packet(state_machine.ax12_sending_index, &(state_machine.current_instruction)));
 						state_machine.ax12_sending_index++;
 					} else
-						USART_ITConfig(AX12_UART_Ptr, USART_IT_TXE, DISABLE);
+						__HAL_USART_DISABLE_IT(&USART_HandleStructure, USART_IT_TXE);
 #endif
 				}
 //				if(state_machine.sending_index < state_machine.current_instruction.size) {
@@ -980,7 +983,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 						//plus d'info ici: http://books.google.fr/books?id=ZNngQv_E0_MC&lpg=PA250&ots=_ZTiXKt-8p&hl=fr&pg=PA250
 						while(!AX12_UART_GetFlagStatus(USART_FLAG_TC));
 
-						GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
+						HAL_GPIO_WritePin(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
 
 
 						//flush recv buffer
@@ -1174,111 +1177,102 @@ static bool_e AX12_instruction_queue_insert(const AX12_instruction_packet_t* ins
 
 static void AX12_UART_init_all(Uint32 uart_speed)
 {
-	NVIC_InitTypeDef NVIC_InitStructure;
-
 	PORTS_uarts_init();
-
-
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;  //inférieur aux uarts mais supérieur au timers
 
 #ifdef AX12_UART_ID
 	AX12_UART_init(AX12_UART_Ptr, uart_speed);
-	NVIC_InitStructure.NVIC_IRQChannel = AX12_UART_Interrupt_IRQn;
-	NVIC_Init(&NVIC_InitStructure);
+	HAL_NVIC_SetPriority(AX12_UART_Interrupt_IRQn , 3, 0); //PreemptionPriority = 0, SubPriority = 1
+	HAL_NVIC_EnableIRQ(AX12_UART_Interrupt_IRQn);
 	debug_printf("UART %d initialized for AX12\n", AX12_UART_ID);
 #endif
 
 }
 
 static void AX12_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate) {
-	USART_InitTypeDef USART_InitStructure;
 
 	if(uartPtr == USART1)
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+		__HAL_RCC_USART1_CLK_ENABLE();
 	else if(uartPtr == USART2)
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+		__HAL_RCC_USART2_CLK_ENABLE();
 	else if(uartPtr == USART3)
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+		__HAL_RCC_USART3_CLK_ENABLE();
 	else {
 		fatal_printf("UART inconnu !!! %p\n", uartPtr);
 		assert(0 && "Uart inconnu");
 	}
 
-	USART_OverSampling8Cmd(uartPtr, ENABLE);
+	USART_HandleStructure.Instance = (USART_TypeDef*)uartPtr;
+	USART_HandleStructure.Init.BaudRate = baudrate;
+	USART_HandleStructure.Init.WordLength = UART_WORDLENGTH_8B;
+	USART_HandleStructure.Init.StopBits = UART_STOPBITS_1;
+	USART_HandleStructure.Init.Parity = UART_PARITY_NONE;
+	USART_HandleStructure.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	USART_HandleStructure.Init.Mode = UART_MODE_TX_RX;
+	USART_HandleStructure.Init.OverSampling = UART_OVERSAMPLING_8;
 
-	USART_InitStructure.USART_BaudRate = baudrate;
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;
-	USART_InitStructure.USART_Parity = USART_Parity_No;
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-	USART_Init(uartPtr, &USART_InitStructure);
-
+	HAL_UART_Init(&USART_HandleStructure);
 
 	/* Enable USART */
-	USART_Cmd(uartPtr, ENABLE);
+	__HAL_UART_ENABLE(&USART_HandleStructure);
 
-	USART_ITConfig(uartPtr, USART_IT_RXNE, ENABLE);
-	USART_ITConfig(uartPtr, USART_IT_TXE, DISABLE);
+	__HAL_USART_ENABLE_IT(&USART_HandleStructure, USART_IT_RXNE);
+	__HAL_USART_DISABLE_IT(&USART_HandleStructure, USART_IT_TXE);
 }
 
 static void AX12_UART_DisableIRQ() {
 #ifdef AX12_UART_Interrupt_IRQn
-	NVIC_DisableIRQ(AX12_UART_Interrupt_IRQn);
+	HAL_NVIC_DisableIRQ(AX12_UART_Interrupt_IRQn);
 #endif
 
 }
 
 static void AX12_UART_EnableIRQ() {
 #ifdef AX12_UART_Interrupt_IRQn
-	NVIC_EnableIRQ(AX12_UART_Interrupt_IRQn);
+	HAL_NVIC_EnableIRQ(AX12_UART_Interrupt_IRQn);
 #endif
 
 }
 
 static void AX12_UART_putc(Uint8 c) {
 #ifdef AX12_UART_Ptr
-	USART_SendData(AX12_UART_Ptr, c);
+	HAL_StatusTypeDef state;
+	do
+	{
+		state = HAL_UART_Transmit_IT(&USART_HandleStructure, &c, 1);
+	}while(state == HAL_BUSY);
 #endif
 
 }
 
 static Uint8 AX12_UART_getc() {
 #ifdef AX12_UART_Ptr
-	if(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_RXNE))
-		return USART_ReceiveData(AX12_UART_Ptr);
+	Uint8 c;
+	if(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE)){
+		HAL_USART_Receive_IT(&USART_HandleStructure, &c, 1);
+		return c;
+	}
 #endif
-
-
 	return 0;
 }
 
 static bool_e AX12_UART_GetFlagStatus(Uint16 flag) {
-	if(flag == USART_FLAG_TC) {
-		if(
-		#ifdef AX12_UART_Ptr
-				USART_GetFlagStatus(AX12_UART_Ptr, flag)
-		#endif
+	if(
+	#ifdef AX12_UART_Ptr
+			__HAL_USART_GET_FLAG(&USART_HandleStructure, flag);
+	#endif
 
-				)
-			return TRUE;
-	} else {
-		if(
-		#ifdef AX12_UART_Ptr
-				USART_GetFlagStatus(AX12_UART_Ptr, flag)
-		#endif
+			)
+		return TRUE;
 
-				)
-			return TRUE;
-	}
 	return FALSE;
 }
 
 static void AX12_UART_ITConfig(Uint16 flag, FunctionalState enable) {
 #ifdef AX12_UART_Ptr
-	USART_ITConfig(AX12_UART_Ptr, flag, enable);
+	if(enable)
+		__HAL_USART_ENABLE_IT(&USART_HandleStructure, flag);
+	else
+		__HAL_USART_DISABLE_IT(&USART_HandleStructure, flag);
 #endif
 
 }
@@ -1296,15 +1290,15 @@ static void AX12_UART_ITConfig(Uint16 flag, FunctionalState enable) {
 #ifdef AX12_UART_Interrupt
 void _ISR AX12_UART_Interrupt(void)
 {
-	if(USART_GetITStatus(AX12_UART_Ptr, USART_IT_RXNE))
+	if(__HAL_USART_GET_IT_SOURCE(&USART_HandleStructure, USART_IT_RXNE))
 	{
 		Uint8 i = 0;
-		while(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
+		while(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
 			if(state_machine.state != AX12_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
-				USART_ReceiveData(AX12_UART_Ptr);
+				 USART_ReceiveData(AX12_UART_Ptr);
 			} else {
 				AX12_state_machine(AX12_SME_RxInterrupt);
-				if(USART_GetFlagStatus(AX12_UART_Ptr, USART_FLAG_RXNE) && i > 5) {
+				if(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE) && i > 5) {
 					//debug_printf("Overinterrupt RX !\n");
 					break; //force 0, on va perdre des caractères, mais c'est mieux que de boucler ici ...
 				}
@@ -1312,7 +1306,7 @@ void _ISR AX12_UART_Interrupt(void)
 			i++;
 		}
 	}
-	else if(USART_GetITStatus(AX12_UART_Ptr, USART_IT_TXE))
+	else if(__HAL_USART_GET_IT_SOURCE(&USART_HandleStructure, USART_IT_TXE))
 	{
 		AX12_state_machine(AX12_SME_TxInterruptAX12);
 	}
@@ -1358,7 +1352,7 @@ void AX12_init() {
 	AX12_UART_init_all(AX12_UART_BAUDRATE);
 	TIMER_SRC_TIMER_init();
 
-	GPIO_WriteBit(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
+	HAL_GPIO_WritePin(AX12_DIRECTION_PORT_AX12, RX_DIRECTION);
 
 	state_machine.current_instruction.id_servo = 0;
 	AX12_prepare_commands = FALSE;

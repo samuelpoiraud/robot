@@ -13,6 +13,7 @@
 #include "QS_DCMotor2.h"
 #ifdef USE_DCMOTOR2
 
+#include "../stm32f4xx_hal/stm32f4xx_hal_gpio.h"
 #include "QS_pwm.h"
 #include "QS_can.h"
 #include "QS_CANmsgList.h"
@@ -118,16 +119,16 @@ static void DCM_setWay(Uint8 dc_motor_id, Uint8 value)
 	DCMotor_config_t* thiss = &(DCMotors[dc_motor_id].config);
 	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STOPPED));
 	if(value ^ thiss->inverse_way)
-		GPIO_SetBits(thiss->way_latch, thiss->way_bit_number);
+		HAL_GPIO_WritePin(thiss->way_latch, thiss->way_bit_number, GPIO_PIN_SET);
 	else
-		GPIO_ResetBits(thiss->way_latch, thiss->way_bit_number);
+		HAL_GPIO_WritePin(thiss->way_latch, thiss->way_bit_number, GPIO_PIN_RESET);
 }
 
 static Uint8 DCM_getWay(Uint8 dc_motor_id)
 {
 	DCMotor_config_t* thiss = &(DCMotors[dc_motor_id].config);
 	assert((DCMotors[dc_motor_id].init_state == INITIALIZED) || (DCMotors[dc_motor_id].init_state==STOPPED));
-	return GPIO_ReadInputDataBit(thiss->way_latch, thiss->way_bit_number);
+	return HAL_GPIO_ReadPin(thiss->way_latch, thiss->way_bit_number);
 }
 
 void DCM_setInverseWay(Uint8 dc_motor_id, bool_e inverse){
