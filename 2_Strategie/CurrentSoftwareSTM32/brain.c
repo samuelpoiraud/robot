@@ -301,14 +301,20 @@ void any_match(void)
 		else
 		{
 			/* match is over */
-			if((global.absolute_time > t_end_of_match + 1000) && I_AM_SMALL() && !do_parasol){
-				ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
-				do_parasol = TRUE;
-				nbTryParasol++;
-			}else{
-				ret_parasol = check_act_status(ACT_QUEUE_Parasol, IN_PROGRESS, END_OK, ERROR);
-				if(ret_parasol == ERROR && nbTryParasol < 3){
-					do_parasol = FALSE; //On refait une tentative
+			if(I_AM_SMALL()){
+#ifdef PLAY_MUSIC_END_MATCH
+				play_some_random_music();
+#endif
+
+				if((global.absolute_time > t_end_of_match + 1000) && I_AM_SMALL()){
+					ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
+					do_parasol = TRUE;
+					nbTryParasol++;
+				}else{
+					ret_parasol = check_act_status(ACT_QUEUE_Parasol, IN_PROGRESS, END_OK, ERROR);
+					if(ret_parasol == ERROR && nbTryParasol < 3){
+						do_parasol = FALSE; //On refait une tentative
+					}
 				}
 			}
 		}
