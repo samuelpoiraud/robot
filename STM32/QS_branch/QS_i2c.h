@@ -21,11 +21,6 @@
 
 	void I2C_init(void);
 	void I2C_reset(void);
-	#define I2C1_I2C_HANDLE I2C1
-	#define I2C1_I2C_CLOCK  RCC_APB1Periph_I2C1
-
-	#define I2C2_I2C_HANDLE I2C2
-	#define I2C2_I2C_CLOCK  RCC_APB1Periph_I2C2
 
 	#ifdef USE_I2C1
 		bool_e I2C1_read(Uint8 address, Uint8 * data, Uint8 size);

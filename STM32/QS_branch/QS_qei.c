@@ -13,7 +13,7 @@
 
 #include "QS_qei.h"
 #include "QS_ports.h"
-#include "stm32f4xx_tim.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_tim.h"
 #include "QS_outputlog.h"
 
 /*-------------------------------------
@@ -21,6 +21,8 @@
 -------------------------------------*/
 
 static bool_e initialized = FALSE;
+static TIM_HandleTypeDef TIM_HandleStructure_2;
+static TIM_HandleTypeDef TIM_HandleStructure_3;
 
 void QEI_init()
 {
@@ -31,19 +33,43 @@ void QEI_init()
 	PORTS_qei_init();
 
 	#if defined(USE_QUEI1) || defined(USE_QUEI2)
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3  | RCC_APB1Periph_TIM2 , ENABLE);
+		 __HAL_RCC_TIM2_CLK_ENABLE();
+		 __HAL_RCC_TIM3_CLK_ENABLE();
 	#endif
 
+	//Paramétrage des timers
+	TIM_HandleStructure_2.Instance = TIM2;
+	TIM_HandleStructure_2.Init.Period = 65535;
+
+	TIM_HandleStructure_3.Instance = TIM2;
+	TIM_HandleStructure_3.Init.Period = 65535;
+
+	//Parametrage des codeurs
+	TIM_Encoder_InitTypeDef enc_init;
+	enc_init.EncoderMode = TIM_ENCODERMODE_TI12;
+
+	enc_init.IC1Polarity = TIM_INPUTCHANNELPOLARITY_RISING;
+	enc_init.IC2Polarity = TIM_INPUTCHANNELPOLARITY_RISING;
+
+	enc_init.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+	enc_init.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+
+	enc_init.IC1Prescaler = TIM_ICPSC_DIV1;
+	enc_init.IC2Prescaler = TIM_ICPSC_DIV1;
+
+	enc_init.IC1Filter = 0;
+	enc_init.IC2Filter = 0;
+
 	#ifdef USE_QUEI1
-		TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
-		TIM_SetAutoreload(TIM3, 0xFFFF);
-		TIM_Cmd(TIM3, ENABLE);
+		  HAL_TIM_Encoder_Init(&TIM_HandleStructure_3, &enc_init);
+		  __HAL_TIM_SetCounter(&TIM_HandleStructure_3,0);
+		  HAL_TIM_Encoder_Start(&TIM_HandleStructure_3, TIM_CHANNEL_1 | TIM_CHANNEL_2);
 	#endif
 
 	#ifdef USE_QUEI2
-		TIM_EncoderInterfaceConfig(TIM2, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
-		TIM_SetAutoreload(TIM2, 0xFFFF);
-		TIM_Cmd(TIM2, ENABLE);
+		  HAL_TIM_Encoder_Init(&TIM_HandleStructure_2, &enc_init);
+		  __HAL_TIM_SetCounter(&TIM_HandleStructure_2,0);
+		  HAL_TIM_Encoder_Start(&TIM_HandleStructure_2, TIM_CHANNEL_1 | TIM_CHANNEL_2);
 	#endif
 }
 
@@ -58,7 +84,7 @@ void QEI_init()
 			return 0;
 		}
 
-		return -(Sint16)TIM_GetCounter(TIM3);
+		return -__HAL_TIM_GET_COUNTER(TIM_HandleStructure_3);
 	}
 
 	void QEI1_set_count(Sint16 count)
@@ -68,7 +94,7 @@ void QEI_init()
 			return;
 		}
 
-		TIM_SetCounter(TIM3, (Sint32)count);
+		__HAL_TIM_SET_COUNTER(TIM_HandleStructure_3, (Sint32)count);
 	}
 #endif
 
@@ -80,7 +106,7 @@ void QEI_init()
 			return 0;
 		}
 
-		return (Sint16)TIM_GetCounter(TIM2);
+		return -__HAL_TIM_GET_COUNTER(TIM_HandleStructure_2);
 	}
 
 	void QEI2_set_count(Sint16 count)
@@ -90,6 +116,6 @@ void QEI_init()
 			return;
 		}
 
-		TIM_SetCounter(TIM2, (Sint32)count);
+		__HAL_TIM_SET_COUNTER(TIM_HandleStructure_2, (Sint32)count);
 	}
 #endif
