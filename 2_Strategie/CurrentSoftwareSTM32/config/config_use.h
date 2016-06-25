@@ -37,6 +37,8 @@
 
 #define BELGIQUE
 
+//#define PLAY_MUSIC_END_MATCH
+
 #define SCAN_BLOC_BLACK
 
 //#define USE_FOE_ANALYSER
