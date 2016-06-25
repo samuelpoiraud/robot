@@ -45,28 +45,28 @@ void MOSFET_reset_config(){}
 //Fonction pour stopper tous les mosfets
 void MOSFET_stop() {
 #ifdef USE_MOSFET_1
-	GPIO_ResetBits(MOSFET_1_PIN);
+	HAL_GPIO_WritePin(MOSFET_1_PIN, GPIO_PIN_RESET);
 #endif
 #ifdef USE_MOSFET_2
-	GPIO_ResetBits(MOSFET_2_PIN);
+	HAL_GPIO_WritePin(MOSFET_2_PIN, GPIO_PIN_RESET);
 #endif
 #ifdef USE_MOSFET_3
-	GPIO_ResetBits(MOSFET_3_PIN);
+	HAL_GPIO_WritePin(MOSFET_3_PIN, GPIO_PIN_RESET);
 #endif
 #ifdef USE_MOSFET_4
-	GPIO_ResetBits(MOSFET_4_PIN);
+	HAL_GPIO_WritePin(MOSFET_4_PIN, GPIO_PIN_RESET);
 #endif
 #ifdef USE_MOSFET_5
-	GPIO_ResetBits(MOSFET_5_PIN);
+	HAL_GPIO_WritePin(MOSFET_5_PIN, GPIO_PIN_RESET);
 #endif
 #ifdef USE_MOSFET_6
-	GPIO_ResetBits(MOSFET_6_PIN);
+	HAL_GPIO_WritePin(MOSFET_6_PIN, GPIO_PIN_RESET);
 #endif
 #ifdef USE_MOSFET_7
-	GPIO_ResetBits(MOSFET_7_PIN);
+	HAL_GPIO_WritePin(MOSFET_7_PIN, GPIO_PIN_RESET);
 #endif
 #ifdef USE_MOSFET_8
-	GPIO_ResetBits(MOSFET_8_PIN);
+	HAL_GPIO_WritePin(MOSFET_8_PIN, GPIO_PIN_RESET);
 #endif
 }
 
@@ -293,14 +293,14 @@ static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
 		case STRAT_MOSFET_1:
 #endif
 			if(command == ACT_MOSFET_NORMAL){
-				GPIO_WriteBit(MOSFET_1_PIN, TRUE);
+				HAL_GPIO_WritePin(MOSFET_1_PIN, GPIO_PIN_SET);
 				debug_printf("MOSFET_1 activé\n");
 			}else if(command == ACT_MOSFET_STOP){
-				GPIO_WriteBit(MOSFET_1_PIN, FALSE);
+				HAL_GPIO_WritePin(MOSFET_1_PIN, GPIO_PIN_RESET);
 				debug_printf("MOSFET_1 désactivé\n");
 			}else{
 				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
-				GPIO_ResetBits(MOSFET_1_PIN);
+				HAL_GPIO_WritePin(MOSFET_1_PIN, GPIO_PIN_RESET);
 			}
 			break;
 #endif
@@ -311,14 +311,14 @@ static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
 		case STRAT_MOSFET_2:
 #endif
 			if(command == ACT_MOSFET_NORMAL){
-				GPIO_WriteBit(MOSFET_2_PIN, TRUE);
+				HAL_GPIO_WritePin(MOSFET_2_PIN, GPIO_PIN_SET);
 				debug_printf("MOSFET_2 activé\n");
 			}else if(command == ACT_MOSFET_STOP){
-				GPIO_WriteBit(MOSFET_2_PIN, FALSE);
+				HAL_GPIO_WritePin(MOSFET_2_PIN, GPIO_PIN_RESET);
 				debug_printf("MOSFET_2 désactivé\n");
 			}else{
 				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
-				GPIO_ResetBits(MOSFET_2_PIN);
+				HAL_GPIO_WritePin(MOSFET_2_PIN, GPIO_PIN_RESET);
 			}
 			break;
 #endif
@@ -329,14 +329,14 @@ static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
 		case STRAT_MOSFET_3:
 #endif
 			if(command == ACT_MOSFET_NORMAL){
-				GPIO_WriteBit(MOSFET_3_PIN, TRUE);
+				HAL_GPIO_WritePin(MOSFET_3_PIN, GPIO_PIN_SET);
 				debug_printf("MOSFET_3 activé\n");
 			}else if(command == ACT_MOSFET_STOP){
-				GPIO_WriteBit(MOSFET_3_PIN, FALSE);
+				HAL_GPIO_WritePin(MOSFET_3_PIN, GPIO_PIN_RESET);
 				debug_printf("MOSFET_3 désactivé\n");
 			}else{
 				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
-				GPIO_ResetBits(MOSFET_3_PIN);
+				HAL_GPIO_WritePin(MOSFET_3_PIN, GPIO_PIN_RESET);
 			}
 			break;
 #endif
@@ -347,14 +347,14 @@ static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
 		case STRAT_MOSFET_4:
 #endif
 			if(command == ACT_MOSFET_NORMAL){
-				GPIO_WriteBit(MOSFET_4_PIN, TRUE);
+				HAL_GPIO_WritePin(MOSFET_4_PIN, GPIO_PIN_SET);
 				debug_printf("MOSFET_4 activé\n");
 			}else if(command == ACT_MOSFET_STOP){
-				GPIO_WriteBit(MOSFET_4_PIN, FALSE);
+				HAL_GPIO_WritePin(MOSFET_4_PIN, GPIO_PIN_RESET);
 				debug_printf("MOSFET_4 désactivé\n");
 			}else{
 				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
-				GPIO_ResetBits(MOSFET_4_PIN);
+				HAL_GPIO_WritePin(MOSFET_4_PIN, GPIO_PIN_RESET);
 			}
 			break;
 #endif
@@ -365,14 +365,14 @@ static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
 		case STRAT_MOSFET_5:
 #endif
 			if(command == ACT_MOSFET_NORMAL){
-				GPIO_WriteBit(MOSFET_5_PIN, TRUE);
+				HAL_GPIO_WritePin(MOSFET_5_PIN, GPIO_PIN_SET);
 				debug_printf("MOSFET_5 activé\n");
 			}else if(command == ACT_MOSFET_STOP){
 				debug_printf("MOSFET_5 désactivé\n");
-				GPIO_WriteBit(MOSFET_5_PIN, FALSE);
+				HAL_GPIO_WritePin(MOSFET_5_PIN, GPIO_PIN_RESET);
 			}else{
 				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
-				GPIO_ResetBits(MOSFET_5_PIN);
+				HAL_GPIO_WritePin(MOSFET_5_PIN, GPIO_PIN_RESET);
 			}
 			break;
 #endif
@@ -383,14 +383,14 @@ static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
 		case STRAT_MOSFET_6:
 #endif
 			if(command == ACT_MOSFET_NORMAL){
-				GPIO_WriteBit(MOSFET_6_PIN, TRUE);
+				HAL_GPIO_WritePin(MOSFET_6_PIN, GPIO_PIN_SET);
 				debug_printf("MOSFET_6 activé\n");
 			}else if(command == ACT_MOSFET_STOP){
-				GPIO_WriteBit(MOSFET_6_PIN, FALSE);
+				HAL_GPIO_WritePin(MOSFET_6_PIN, GPIO_PIN_RESET);
 				debug_printf("MOSFET_6 désactivé\n");
 			}else{
 				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
-				GPIO_ResetBits(MOSFET_6_PIN);
+				HAL_GPIO_WritePin(MOSFET_6_PIN, GPIO_PIN_RESET);
 			}
 			break;
 #endif
@@ -401,14 +401,14 @@ static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
 		case STRAT_MOSFET_7:
 #endif
 			if(command == ACT_MOSFET_NORMAL){
-				GPIO_WriteBit(MOSFET_7_PIN, TRUE);
+				HAL_GPIO_WritePin(MOSFET_7_PIN, GPIO_PIN_SET);
 				debug_printf("MOSFET_7 activé\n");
 			}else if(command == ACT_MOSFET_STOP){
-				GPIO_WriteBit(MOSFET_7_PIN, FALSE);
+				HAL_GPIO_WritePin(MOSFET_7_PIN, GPIO_PIN_RESET);
 				debug_printf("MOSFET_7 désactivé\n");
 			}else{
 				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
-				GPIO_ResetBits(MOSFET_7_PIN);
+				HAL_GPIO_WritePin(MOSFET_7_PIN, GPIO_PIN_RESET);
 			}
 			break;
 #endif
@@ -419,14 +419,14 @@ static void MOSFET_do_order(ACT_sid_e sid, Uint8 command){
 		case STRAT_MOSFET_8:
 #endif
 			if(command == ACT_MOSFET_NORMAL){
-				GPIO_WriteBit(MOSFET_8_PIN, TRUE);
+				HAL_GPIO_WritePin(MOSFET_8_PIN, GPIO_PIN_SET);
 				debug_printf("MOSFET_8 activé\n");
 			}else if(command == ACT_MOSFET_STOP){
-				GPIO_WriteBit(MOSFET_8_PIN, FALSE);
+				HAL_GPIO_WritePin(MOSFET_8_PIN, GPIO_PIN_RESET);
 				debug_printf("MOSFET_8 désactivé\n");
 			}else{
 				debug_printf("commande envoyée à MOSFET_do_order inconnue -> %d	0x%x\n", command, command);
-				GPIO_ResetBits(MOSFET_8_PIN);
+				HAL_GPIO_WritePin(MOSFET_8_PIN, GPIO_PIN_RESET);
 			}
 			break;
 #endif

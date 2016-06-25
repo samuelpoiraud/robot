@@ -16,89 +16,68 @@
 #include "QS_watchdog.h"
 #include "QS_outputlog.h"
 #include "QS_timer.h"
-#include "../stm32f4xx/stm32f4xx_i2c.h"
-#include "../stm32f4xx/stm32f4xx_dma.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_i2c.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_dma.h"
 
 #if defined(USE_I2C1) || defined(USE_I2C2)
 
+static I2C_HandleTypeDef I2C1_HandleStructure, I2C2_HandleStructure;
+
 void I2C_init(void)
 {
-	I2C_InitTypeDef I2C_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
-
 	#ifdef USE_I2C1
 		/* Enable IOE_I2C and IOE_I2C_GPIO_PORT & Alternate Function clocks */
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-
-		/* Reset I2C1 */
-		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
-
-		/* Release reset signal of I2C1 */
-		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
+		__HAL_RCC_I2C1_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
+		__HAL_RCC_SYSCFG_CLK_ENABLE();
 	#endif
 
 	#ifdef USE_I2C2
 		/* Enable IOE_I2C and IOE_I2C_GPIO_PORT & Alternate Function clocks */
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-
-		/* Reset I2C2 */
-		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, ENABLE);
-
-		/* Release reset signal of I2C2 */
-		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
+		__HAL_RCC_I2C2_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
+		__HAL_RCC_SYSCFG_CLK_ENABLE();
 	#endif
 
 	PORTS_i2c_init();
 	WATCHDOG_init();
 
-	I2C_InitStructure.I2C_ClockSpeed = 100000; //100kHz   					/*!< Specifies the clock frequency. This parameter must be set to a value lower than 400kHz */
-	I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;                				/*!< Specifies the I2C mode. This parameter can be a value of @ref I2C_mode */
-	I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;           			/*!< Specifies the I2C fast mode duty cycle. This parameter can be a value of @ref I2C_duty_cycle_in_fast_mode */
-	I2C_InitStructure.I2C_OwnAddress1 = 0;         							/*!< Specifies the first device own address. This parameter can be a 7-bit or 10-bit address. */
-	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;                 				/*!< Enables or disables the acknowledgement. This parameter can be a value of @ref I2C_acknowledgement */
-	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit; /*!< Specifies if 7-bit or 10-bit address is acknowledged. This parameter can be a value of @ref I2C_acknowledged_address */
+	I2C1_HandleStructure.Instance = I2C1;
+	I2C1_HandleStructure.Init.ClockSpeed = 100000; //100kHz
+	I2C1_HandleStructure.Init.DutyCycle = I2C_DUTYCYCLE_2;
+	I2C1_HandleStructure.Init.OwnAddress1 = 0;
+	I2C1_HandleStructure.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+	I2C1_HandleStructure.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+	I2C1_HandleStructure.Init.OwnAddress2 = 0;
+	I2C1_HandleStructure.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+	I2C1_HandleStructure.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
 
+	I2C2_HandleStructure.Instance = I2C2;
+	I2C2_HandleStructure.Init = I2C1_HandleStructure.Init; //On copie tous les paramètres d'initialisation dans l'I2C2
 
 	#ifdef USE_I2C1
-		I2C_DeInit(I2C1_I2C_HANDLE);
-		I2C_Init(I2C1_I2C_HANDLE, &I2C_InitStructure);
-		I2C_Cmd(I2C1_I2C_HANDLE, ENABLE);
-		I2C_ITConfig(I2C1_I2C_HANDLE,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
-
-		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+		HAL_I2C_DeInit(&I2C1_HandleStructure);
+		HAL_I2C_Init(&I2C1_HandleStructure);
+		__HAL_I2C_ENABLE_IT(&I2C1_HandleStructure, I2C_IT_ERR);	//Active Interruption sur détection d'erreur de communication.
 
 		//I2C ERROR : activation des IRQ
-		NVIC_InitStructure.NVIC_IRQChannel = I2C2_ER_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
+		HAL_NVIC_SetPriority(&I2C1_ER_IRQn, 7, 0);
 
 		//I2C Event : pas d'activation des IRQ.
-		//NVIC_InitStructure.NVIC_IRQChannel = I2C2_EV_IRQn;
-		//NVIC_Init(&NVIC_InitStructure);
+		//HAL_NVIC_SetPriority(&I2C1_EV_IRQn, 7, 0);
 	#endif /* def USE_I2C1 */
 
 	#ifdef USE_I2C2
-		I2C_DeInit(I2C2_I2C_HANDLE);
-		I2C_Init(I2C2_I2C_HANDLE, &I2C_InitStructure);
-		I2C_Cmd(I2C2_I2C_HANDLE, ENABLE);
-		I2C_ITConfig(I2C2_I2C_HANDLE,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
-
-		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+		I2C2_HandleStructure.Instance = I2C2;
+		HAL_I2C_DeInit(&I2C2_HandleStructure);
+		HAL_I2C_Init(&I2C2_HandleStructure);
+		__HAL_I2C_ENABLE_IT(&I2C2_HandleStructure, I2C_IT_ERR);	//Active Interruption sur détection d'erreur de communication.
 
 		//I2C ERROR : activation des IRQ
-		NVIC_InitStructure.NVIC_IRQChannel = I2C2_ER_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
+		HAL_NVIC_SetPriority(&I2C2_ER_IRQn, 7, 0);
 
 		//I2C Event : pas d'activation des IRQ.
-		//NVIC_InitStructure.NVIC_IRQChannel = I2C2_EV_IRQn;
-		//NVIC_Init(&NVIC_InitStructure);
+		//HAL_NVIC_SetPriority(&I2C2_EV_IRQn, 7, 0);
 	#endif /* def USE_I2C2 */
 }
 
@@ -112,7 +91,6 @@ volatile Uint32 failed_sr1 = 0, failed_sr2 = 0;
 
 void error_exit(void)
 {
-	//Uint8 trash;
 	debug_printf("I2C_failure :\n");
 	if(timeout)
 		debug_printf(" - Timeout\n");
@@ -141,232 +119,68 @@ void error_exit(void)
 	failed_sr1 = 0;
 	timeout = FALSE;
 	debug_printf("\n");
-	/*trash = I2C_ReceiveData(I2C2_I2C_HANDLE);
-	I2C_ClearFlag(I2C2_I2C_HANDLE, I2C_FLAG_SMBALERT | I2C_FLAG_TIMEOUT | I2C_FLAG_PECERR | I2C_FLAG_OVR | I2C_FLAG_AF | I2C_FLAG_ARLO | I2C_FLAG_BERR);
-	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,ENABLE);
-	debug_printf("Reset and Re-init I2C...\n");
-	GPIOB->ODR10 = 1;
-	GPIOB->ODR11 = 1;
-	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,DISABLE);
-
-	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,ENABLE);
-	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,DISABLE);
-	I2C_DeInit(I2C2_I2C_HANDLE);
-	I2C_init();*/
 }
 
 void I2C_reset(void){
 
 #ifdef USE_I2C1
-	I2C_SoftwareResetCmd(I2C1_I2C_HANDLE,ENABLE);
-	I2C_SoftwareResetCmd(I2C1_I2C_HANDLE,DISABLE);
-	I2C_DeInit(I2C1_I2C_HANDLE);
+	HAL_I2C_DeInit(&I2C1_HandleStructure);
 #endif
 
 #ifdef USE_I2C2
-	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,ENABLE);
-	I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,DISABLE);
-	I2C_DeInit(I2C2_I2C_HANDLE);
+	HAL_I2C_DeInit(&I2C2_HandleStructure);
 #endif
 
 	I2C_init();
 }
 
 
-
-// décomenter error_exit pour afficher les erreurs I2C
-#define Timed(x) while (x) { if (timeout || i2c_bus_error){ /*error_exit();*/ goto errReturn;}}
-
-//code inspiré de ceci : https://github.com/geoffreymbrown/STM32-Template/blob/master/Library/i2c.c
-bool_e I2C_read(Uint8 address, Uint8 * data, Uint8 size)
+//code inspiré de ceci : http://stm32f4-discovery.net/2015/07/hal-library-16-i2c-for-stm32fxxx-devices/
+bool_e I2C_read(I2C_HandleTypeDef *handle, Uint8 address, Uint8 * data, Uint8 size)
 {
-  //    I2C2_I2C_HANDLE->CR2 |= I2C_IT_ERR;  interrupts for errors
+	/* Send register address */
+	if (HAL_I2C_Master_Transmit(handle, (Uint16)address, &register_address, 1, 10) != HAL_OK) {
+		/* Check error */
+		if (HAL_I2C_GetError(handle) != HAL_I2C_ERROR_AF) {
+			debug_printf("Error I2C read : transmit address\n");
+		}
 
-	if (!size)
+		/* Return error */
 		return FALSE;
-	i2c_bus_error = FALSE;
-	watchdog_id = WATCHDOG_create_flag(100, &timeout);	//10ms max for the I2C frame !
-	if(watchdog_id == 0xFF)
-	{
-		debug_printf("Watchdog_create fail - I2C read exited\n");
+	}
+
+	/* Receive multiple byte */
+	if (HAL_I2C_Master_Receive(handle, address, data, size, 10) != HAL_OK) {
+		/* Check error */
+		if (HAL_I2C_GetError(handle) != HAL_I2C_ERROR_AF) {
+			debug_printf("Error I2C read : read datas\n");
+		}
+
+		/* Return error */
 		return FALSE;
 	}
 
-
-  // Wait for idle I2C interface
-
-  //Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY));
-
-  // Enable Acknowledgement, clear POS flag
-
-  I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, ENABLE);
-  I2C_NACKPositionConfig(I2C2_I2C_HANDLE, I2C_NACKPosition_Current);
-
-  // Intiate Start Sequence (wait for EV5
-
-  I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE);
-  Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_MODE_SELECT));
-
-  // Send Address
-
-  I2C_Send7bitAddress(I2C2_I2C_HANDLE, address, I2C_Direction_Receiver);
-
-  // EV6
-
-  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_ADDR));
-
-  if (size == 1)
-	{
-
-	  // Clear Ack bit
-
-	  I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);
-
-	  // EV6_1 -- must be atomic -- Clear ADDR, generate STOP
-
-	  __disable_irq();
-	  (void) I2C2_I2C_HANDLE->SR2;
-	  I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);
-	  __enable_irq();
-
-	  // Receive data   EV7
-
-	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_RXNE));
-	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
-
-	}
-  else if (size == 2)
-	{
-	  // Set POS flag
-
-	  I2C_NACKPositionConfig(I2C2_I2C_HANDLE, I2C_NACKPosition_Next);
-
-	  // EV6_1 -- must be atomic and in this order
-
-	  __disable_irq();
-	  (void) I2C2_I2C_HANDLE->SR2;                           // Clear ADDR flag
-	  I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);       // Clear Ack bit
-	  __enable_irq();
-
-	  // EV7_3  -- Wait for BTF, program stop, read data twice
-
-	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
-
-	  __disable_irq();
-	  I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);
-	  *data++ = I2C2_I2C_HANDLE->DR;
-	  __enable_irq();
-
-	  *data++ = I2C2_I2C_HANDLE->DR;
-
-	}
-  else
-	{
-	  (void) I2C2_I2C_HANDLE->SR2;                           // Clear ADDR flag
-	  while (size-- != 3)
-	{
-	  // EV7 -- cannot guarantee 1 transfer completion time, wait for BTF
-		  //        instead of RXNE
-
-	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
-	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
-	}
-
-	  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
-
-	  // EV7_2 -- Figure 1 has an error, doesn't read N-2 !
-
-	  I2C_AcknowledgeConfig(I2C2_I2C_HANDLE, DISABLE);           // clear ack bit
-
-	  __disable_irq();
-	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);             // receive byte N-2
-	  I2C_GenerateSTOP(I2C2_I2C_HANDLE,ENABLE);                  // program stop
-	  __enable_irq();
-
-	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);             // receive byte N-1
-
-	  // wait for byte N
-	  Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_BYTE_RECEIVED));
-	  *data++ = I2C_ReceiveData(I2C2_I2C_HANDLE);
-
-	  size = 0;
-
-	}
-
-  // Wait for stop
-  Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_STOPF));
-
-  WATCHDOG_stop(watchdog_id);
-
-  return TRUE;
-
- errReturn:
-	 if(!timeout)
-		WATCHDOG_stop(watchdog_id);
-  return FALSE;
+	/* Return OK */
+	return TRUE;
 }
 
-bool_e I2C_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition)
+bool_e I2C_write(I2C_HandleTypeDef *handle, Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition)
 {
-	i2c_bus_error = FALSE;
-	watchdog_id = WATCHDOG_create_flag(10, &timeout);	//10ms max for the I2C frame !
-	if(watchdog_id == 0xFF)
-	{
-		debug_printf("Watchdog_create fail - I2C write exited\n");
+	I2C_HandleTypeDef* Handle = TM_I2C_GetHandle(I2Cx);
+
+	/* Try to transmit via I2C */
+	if (HAL_I2C_Master_Transmit(handle, (uint16_t)address, data, size, 10) != HAL_OK) {
+		/* Check error */
+		if (HAL_I2C_GetError(Handle) != HAL_I2C_ERROR_AF) {
+			debug_printf("Error I2C write\n");
+		}
+
+		/* Return error */
 		return FALSE;
 	}
 
-	//Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_TXE));
-
-	/* Enable Error IT (used in all modes: DMA, Polling and Interrupts */
-	//    I2C2_I2C_HANDLE->CR2 |= I2C_IT_ERR;
-
-	if (size)
-	{
-		//delay_50ns();
-		//Timed(I2C2_I2C_HANDLE->SR2 & 0b00000010);
-		//Timed(I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BUSY));
-
-		// Intiate Start Sequence
-
-		I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE);
-		Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_MODE_SELECT));
-
-		// Send Address  EV5
-
-		I2C_Send7bitAddress(I2C2_I2C_HANDLE, address, I2C_Direction_Transmitter);
-		Timed(!I2C_CheckEvent(I2C2_I2C_HANDLE, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-
-		// EV6
-
-		// Write first byte EV8_1
-
-		I2C_SendData(I2C2_I2C_HANDLE, *data++);
-
-		while (--size) {
-
-		  // wait on BTF
-
-
-		  Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
-		  I2C_SendData(I2C2_I2C_HANDLE, *data++);
-		}
-
-		Timed(!I2C_GetFlagStatus(I2C2_I2C_HANDLE, I2C_FLAG_BTF));
-
-		if(enable_stop_condition)
-		{
-			I2C_GenerateSTOP(I2C2_I2C_HANDLE, ENABLE);
-			Timed(I2C_GetFlagStatus(I2C1, I2C_FLAG_STOPF));
-		}
-	}
-
-	WATCHDOG_stop(watchdog_id);
+	/* Return OK */
 	return TRUE;
- errReturn:
-	 if(!timeout)
-		WATCHDOG_stop(watchdog_id);
-	return FALSE;
 }
 #endif  /* defined(USE_I2C1) || defined(USE_I2C2) */
 
@@ -376,16 +190,15 @@ void I2C1_ER_IRQHandler(void)
 {
 	failed_sr1 = I2C1->SR1;
 	failed_sr2 = I2C1->SR2;
-	I2C_ClearITPendingBit(I2C1_I2C_HANDLE, I2C_IT_SMBALERT | I2C_IT_TIMEOUT | I2C_IT_PECERR | I2C_IT_OVR | I2C_IT_AF | I2C_IT_ARLO | I2C_IT_BERR);
 	i2c_bus_error = TRUE;
 }
 
 bool_e I2C1_read(Uint8 address, Uint8 * data, Uint8 size){
-	return I2C_read(address, data, size);
+	return I2C_read(&I2C1_HandleStructure, address, data, size);
 }
 
 bool_e I2C21write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition){
-	return I2C_write(address, data, size, enable_stop_condition);
+	return I2C_write(&I2C1_HandleStructure, address, data, size, enable_stop_condition);
 }
 #endif
 
@@ -395,16 +208,15 @@ void I2C2_ER_IRQHandler(void)
 {
 	failed_sr1 = I2C2->SR1;
 	failed_sr2 = I2C2->SR2;
-	I2C_ClearITPendingBit(I2C2_I2C_HANDLE, I2C_IT_SMBALERT | I2C_IT_TIMEOUT | I2C_IT_PECERR | I2C_IT_OVR | I2C_IT_AF | I2C_IT_ARLO | I2C_IT_BERR);
 	i2c_bus_error = TRUE;
 }
 
 bool_e I2C2_read(Uint8 address, Uint8 * data, Uint8 size){
-	return I2C_read(address, data, size);
+	return I2C_read(&I2C2_HandleStructure, address, data, size);
 }
 
 bool_e I2C2_write(Uint8 address, Uint8 * data, Uint8 size, bool_e enable_stop_condition){
-	return I2C_write(address, data, size, enable_stop_condition);
+	return I2C_write(&I2C2_HandleStructure, address, data, size, enable_stop_condition);
 }
 #endif
 

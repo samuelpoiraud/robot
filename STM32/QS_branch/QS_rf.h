@@ -84,15 +84,6 @@
 		void RF_synchro_request(RF_module_e target_id);
 		void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset);
 
-		//void RF_set_channel(Uint8 channel);
-		//void RF_set_output_power(Uint8 power);
-		//void RF_set_destination_id(Uint8 address);
-
-		//Uint8 RF_get_channel();
-		//Uint8 RF_get_output_power();
-		//Uint8 RF_get_rssi();
-		//Uint8 RF_get_destination_id();
-
 		CAN_msg_t RF_can_get_next_msg();
 		void RF_can_write_msg(CAN_msg_t msg);
 		bool_e RF_can_fifo_is_full();

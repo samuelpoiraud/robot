@@ -14,7 +14,7 @@
 
 	#include "impl/QS_uart_impl.h"
 	#ifdef STM32F40XX
-	#include "stm32f4xx_gpio.h"
+	#include "../stm32f4xx_hal/stm32f4xx_hal_gpio.h"
 	#endif
 	#include "QS_buffer_fifo.h"
 	#include "QS_outputlog.h"
@@ -137,27 +137,23 @@
 		packet_received_fct = onReceiveCallback;
 		canmsg_received_fct = onCanMsgCallback;
 
-		GPIO_WriteBit(RF_CONFIG, 1);
-		GPIO_WriteBit(RF_RESET, 1);
+		HAL_GPIO_WritePin(RF_CONFIG, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(RF_RESET, GPIO_PIN_SET);
 
 	#ifdef STM32F40XX
 		GPIO_InitTypeDef GPIO_InitStructure;
 
-
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_USART3);	//U3TX
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_USART3);	//U3RX
-
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+		GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
+		GPIO_InitStructure.Alternate = GPIO_AF7_USART3;
+		GPIO_InitStructure.Pull = GPIO_PULLUP;
 		//USART3 TX
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.Pin = GPIO_PIN_10;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 		//USART3 RX
-		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.Pull = GPIO_NOPULL;
+		GPIO_InitStructure.Pin = GPIO_PIN_11;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 	#endif
 
 		UART_IMPL_init_ex(RF_UART, 19200, 10, 10, UART_I_StopBit_1_5, UART_I_Parity_None);
@@ -167,23 +163,23 @@
 		FIFO_init(&fifo_tx, buffer_tx, 50, 1);
 
 		volatile Uint32 i;
-		GPIO_WriteBit(RF_RESET, 1);
+		HAL_GPIO_WritePin(RF_RESET, GPIO_PIN_SET);
 		//Activation du RESET (sinon le module n'est pas reset entre deux démarrage du micro.... et pour déduire ce qui se passe c'est pas toujours évident !!)
 		for(i=0; i<1000000; i++);
 		//env 100ms
-		GPIO_WriteBit(RF_RESET, 0);
+		HAL_GPIO_WritePin(RF_RESET, GPIO_PIN_RESET);
 		//Désactivation du RESET -> le module démarre...
 
 #ifdef CONFIG_RF_RC1240
 		debug_printf("Début procédure pour passer en mode config\n");
 		for(i=0; i<2000000; i++);
 		//env 200ms  (>160ms)
-		GPIO_WriteBit(RF_CONFIG, 0);
+		HAL_GPIO_WritePin(RF_CONFIG, GPIO_PIN_RESET);
 		debug_printf("CONFIG asserted\n");
 		//Activation du mode config
 		for(i=0; i<2000000; i++);
 		//env 50ms
-		GPIO_WriteBit(RF_CONFIG, 1);
+		HAL_GPIO_WritePin(RF_CONFIG, GPIO_PIN_SET);
 		debug_printf("CONFIG de-asserted\n");
 		//Nous sommes en mode config...
 		debug_printf("Vous etes maintenant en mode config.\n Entrer la commande que vous souhaitez (0 : dump de la mémoire, M : configuration de la memoire)\n");
