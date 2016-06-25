@@ -14,7 +14,7 @@
 #include "QS_CANmsgList.h"
 #include "QS_ports.h"
 #include "QS_outputlog.h"
-#include "stm32f4xx_can.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_can.h"
 #include "../config/config_pin.h"
 
 
@@ -45,6 +45,7 @@
 
 /* Variables globales pour le CAN */
 #ifdef USE_CAN
+	static CAN_HandleTypeDef CAN_HandleStructure;
 	static CAN_msg_t m_can_buffer[CAN_BUF_SIZE];
 	static volatile Uint8 m_can_rx_num;
 	static volatile bool_e m_canrx;	// message reçu sur le bus can
@@ -54,94 +55,93 @@
 
 	void CAN_reinit(void)
 	{
-		CAN_InitTypeDef CAN_InitStructure;
-		CAN_FilterInitTypeDef CAN_FilterInitStructure;
+		CAN_FilterConfTypeDef CAN_FilterConfStructure;
 
-		CAN_DeInit(CAN1);
+		// Initialisation du CAN
+		CAN_HandleStructure.Instance = CAN1;
+		CAN_HandleStructure.Init.Prescaler = PCLK1_FREQUENCY_HZ / 1000000 / 2;	//Prescaler = 21 -> 1Mhz clk CAN //Pourquoi le 2, je ne sais pas, mais on tombe sur la même vitesse que les dsPIC30F...
+		CAN_HandleStructure.Init.Mode = CAN_MODE_NORMAL;
+		CAN_HandleStructure.Init.SJW = CAN_SJW_1TQ;
+		CAN_HandleStructure.Init.BS1 = CAN_BS1_4TQ;     //1tq propagation + 3tq segment 1
+		CAN_HandleStructure.Init.BS2 = CAN_BS2_3TQ;
+		CAN_HandleStructure.Init.TTCM = DISABLE;
+		CAN_HandleStructure.Init.ABOM = ENABLE;
+		CAN_HandleStructure.Init.AWUM = DISABLE;
+		CAN_HandleStructure.Init.NART = DISABLE;
+		CAN_HandleStructure.Init.RFLM = DISABLE;
+		CAN_HandleStructure.Init.TXFP = ENABLE;
 
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+		HAL_CAN_DeInit(&CAN_HandleStructure);
+
+		__HAL_RCC_CAN1_CLK_ENABLE();
 		PORTS_can_init();
 
-
-		CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;
-		CAN_InitStructure.CAN_Prescaler = PCLK1_FREQUENCY_HZ / 1000000 / 2;	//Prescaler = 21 -> 1Mhz clk CAN //Pourquoi le 2, je ne sais pas, mais on tombe sur la même vitesse que les dsPIC30F...
-		CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;
-		CAN_InitStructure.CAN_BS1 = CAN_BS1_4tq;	//1tq propagation + 3tq segment 1
-		CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
-		CAN_InitStructure.CAN_ABOM = ENABLE;
-		CAN_InitStructure.CAN_AWUM = DISABLE;
-		CAN_InitStructure.CAN_NART = DISABLE;
-		CAN_InitStructure.CAN_RFLM = DISABLE;
-		CAN_InitStructure.CAN_TTCM = DISABLE;
-		CAN_InitStructure.CAN_TXFP = ENABLE;
-		CAN_Init(CAN1, &CAN_InitStructure);
+		HAL_CAN_Init(&CAN_HandleStructure);
 
 		//Message pour la carte & message de debug sur FIFO 0
-		CAN_FilterInitStructure.CAN_FilterNumber = 0;
-		CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
-		CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
-		CAN_FilterInitStructure.CAN_FilterIdHigh = MY_FILTER << 5;
-		CAN_FilterInitStructure.CAN_FilterIdLow  = 0x0700 << 5;
-		CAN_FilterInitStructure.CAN_FilterMaskIdHigh = MASK_BITS << 5;
-		CAN_FilterInitStructure.CAN_FilterMaskIdLow  = MASK_BITS << 5;
-		CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO0;
-		CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-		CAN_FilterInit(&CAN_FilterInitStructure);
+		CAN_FilterConfStructure.FilterNumber = 0;
+		CAN_FilterConfStructure.FilterMode = CAN_FILTERMODE_IDMASK;
+		CAN_FilterConfStructure.FilterScale = CAN_FILTERSCALE_16BIT;
+		CAN_FilterConfStructure.FilterIdHigh = MY_FILTER << 5;
+		CAN_FilterConfStructure.FilterIdLow  = 0x0700 << 5;
+		CAN_FilterConfStructure.FilterMaskIdHigh = MASK_BITS << 5;
+		CAN_FilterConfStructure.FilterMaskIdLow  = MASK_BITS << 5;
+		CAN_FilterConfStructure.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+		CAN_FilterConfStructure.FilterActivation = ENABLE;
+		CAN_FilterConfStructure.BankNumber = 0;
+		HAL_CAN_ConfigFilter(&CAN_HandleStructure, &CAN_FilterConfStructure);
+
 
 		//Message en broadcast (qui peuvent flood) sur FIFO 1
-		CAN_FilterInitStructure.CAN_FilterNumber = 1;
-		CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
-		CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
-		CAN_FilterInitStructure.CAN_FilterIdHigh = BROADCAST_FILTER << 5;
-		CAN_FilterInitStructure.CAN_FilterIdLow  = BROADCAST_FILTER << 5;
-		CAN_FilterInitStructure.CAN_FilterMaskIdHigh = MASK_BITS << 5;
-		CAN_FilterInitStructure.CAN_FilterMaskIdLow  = MASK_BITS << 5;
-		CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO1;
-		CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-		CAN_FilterInit(&CAN_FilterInitStructure);
+		CAN_FilterConfStructure.FilterNumber = 1;
+		CAN_FilterConfStructure.FilterMode = CAN_FILTERMODE_IDMASK;
+		CAN_FilterConfStructure.FilterScale = CAN_FILTERSCALE_16BIT;
+		CAN_FilterConfStructure.FilterIdHigh = BROADCAST_FILTER << 5;
+		CAN_FilterConfStructure.FilterIdLow  = BROADCAST_FILTER << 5;
+		CAN_FilterConfStructure.FilterMaskIdHigh = MASK_BITS << 5;
+		CAN_FilterConfStructure.FilterMaskIdLow  = MASK_BITS << 5;
+		CAN_FilterConfStructure.FilterFIFOAssignment = CAN_FILTER_FIFO1;
+		CAN_FilterConfStructure.FilterActivation = ENABLE;
+		CAN_FilterConfStructure.BankNumber = 0;
+		HAL_CAN_ConfigFilter(&CAN_HandleStructure, &CAN_FilterConfStructure);
+
 
 		#ifdef XBEE_SIMULATION
 			//Message en broadcast (qui peuvent flood) sur FIFO 2
-			CAN_FilterInitStructure.CAN_FilterNumber = 2;
-			CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
-			CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
-			CAN_FilterInitStructure.CAN_FilterIdHigh = XBEE_FILTER << 5;
-			CAN_FilterInitStructure.CAN_FilterIdLow  = 0x0700 << 5;
-			CAN_FilterInitStructure.CAN_FilterMaskIdHigh = MASK_BITS << 5;
-			CAN_FilterInitStructure.CAN_FilterMaskIdLow  = MASK_BITS << 5;
-			CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO1;
-			CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-			CAN_FilterInit(&CAN_FilterInitStructure);
+			CAN_FilterConfStructure.FilterNumber = 2;
+			CAN_FilterConfStructure.FilterMode = CAN_FILTERMODE_IDMASK;
+			CAN_FilterConfStructure.FilterScale = CAN_FILTERSCALE_16BIT;
+			CAN_FilterConfStructure.FilterIdHigh = XBEE_FILTER << 5;
+			CAN_FilterConfStructure.FilterIdLow  = 0x0700 << 5;
+			CAN_FilterConfStructure.FilterMaskIdHigh = MASK_BITS << 5;
+			CAN_FilterConfStructure.FilterMaskIdLow  = MASK_BITS << 5;
+			CAN_FilterConfStructure.FilterFIFOAssignment = CAN_FILTER_FIFO1;
+			CAN_FilterConfStructure.FilterActivation = ENABLE;
+			CAN_FilterConfStructure.BankNumber = 0;
+			HAL_CAN_ConfigFilter(&CAN_HandleStructure, &CAN_FilterConfStructure);
 		#endif
 
-		CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
-		CAN_ITConfig(CAN1, CAN_IT_FMP1, ENABLE);
-		CAN_ITConfig(CAN1, CAN_IT_ERR, ENABLE);
-		CAN_ITConfig(CAN1, CAN_IT_FOV0, ENABLE);	//Recv buffer 0 overrun
-		CAN_ITConfig(CAN1, CAN_IT_FOV1, ENABLE);	//Recv buffer 1 overrun
-//		CAN_ITConfig(CAN1, CAN_IT_EWG, ENABLE);	//TEC / REC >= 96
-//		CAN_ITConfig(CAN1, CAN_IT_EPV, ENABLE);	//TEC / REC > 127
-		CAN_ITConfig(CAN1, CAN_IT_BOF, ENABLE);	//Bus OFF, TEC / REC > 255
+		__HAL_CAN_ENABLE_IT(&CAN_HandleStructure, CAN_IT_FMP0);
+		__HAL_CAN_ENABLE_IT(&CAN_HandleStructure, CAN_IT_FMP1);
+		__HAL_CAN_ENABLE_IT(&CAN_HandleStructure, CAN_IT_ERR);
+		__HAL_CAN_ENABLE_IT(&CAN_HandleStructure, CAN_IT_FOV0); //Recv buffer 0 overrun
+		__HAL_CAN_ENABLE_IT(&CAN_HandleStructure, CAN_IT_FOV1); //Recv buffer 1 overrun
+		__HAL_CAN_ENABLE_IT(&CAN_HandleStructure, CAN_IT_BOF);  //Bus OFF, TEC / REC > 255
 
-		NVIC_InitTypeDef NVIC_InitStructure;
-		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = QS_CAN_RX_IT_PRI;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+		HAL_NVIC_SetPriority(CAN1_RX0_IRQn, QS_CAN_RX_IT_PRI, 0);
+		HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
 
-		NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
+		HAL_NVIC_SetPriority(CAN1_RX1_IRQn, QS_CAN_RX_IT_PRI, 0);
+		HAL_NVIC_EnableIRQ(CAN1_RX1_IRQn);
 
-		NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX1_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
-
-		NVIC_InitStructure.NVIC_IRQChannel = CAN1_SCE_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
+		HAL_NVIC_SetPriority(CAN1_SCE_IRQn, QS_CAN_RX_IT_PRI, 0);
+		HAL_NVIC_EnableIRQ(CAN1_SCE_IRQn);
 	}
 
 	static bool_e initialized = FALSE;
 
 	void CAN_reset(void){
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, DISABLE);
+		__CAN1_CLK_DISABLE();
 		initialized = FALSE;
 	}
 
@@ -187,7 +187,7 @@
 			#endif
 			void CAN_send(CAN_msg_t* can_msg)
 			{
-				CanTxMsg TxMsg;
+				CanTxMsgTypeDef TxMsg;
 				int i;
 
 				#ifdef CAN_SEND_TIMEOUT_ENABLE
@@ -198,8 +198,8 @@
 					can_msg->size = 0;
 
 				TxMsg.ExtId = 12344;
-				TxMsg.IDE = CAN_Id_Standard;
-				TxMsg.RTR = CAN_RTR_Data;
+				TxMsg.IDE = CAN_ID_STD;
+				TxMsg.RTR = CAN_RTR_DATA;
 
 				TxMsg.StdId = can_msg->sid;
 
@@ -213,12 +213,14 @@
 
 				TxMsg.DLC = can_msg->size;
 
-				while(CAN_Transmit(CAN1, &TxMsg) == CAN_TxStatus_NoMailBox) {
+				CAN_HandleStructure.pTxMsg = &TxMsg; //Copie du message dans la structure du handle
+
+				while(HAL_CAN_Transmit_IT(&CAN_HandleStructure) == HAL_BUSY) {
 					#ifdef CAN_SEND_TIMEOUT_ENABLE
 					time--;
 					if(time == 0) {
 						#ifdef LED_ERROR
-							GPIO_SetBits(LED_ERROR);
+							HAL_GPIO_WritePin((LED_ERROR, GPIO_PIN_SET);
 						#endif
 
 						return;
@@ -242,18 +244,17 @@
 
 		static void CAN_receive(CAN_msg_t* can_msg)
 		{
-			CanRxMsg msg;
 			int i;
 
-			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_FMP0))
+			if(__HAL_CAN_GET_FLAG(&CAN_HandleStructure, CAN_FLAG_FMP0))
 			{
 				/* réception d'un message dans le buffer RX0 */
-				CAN_Receive(CAN1, 0, &msg);
+				HAL_CAN_Receive_IT(&CAN_HandleStructure, 0);
 			}
-			else if(CAN_GetFlagStatus(CAN1, CAN_FLAG_FMP1))
+			else if(__HAL_CAN_GET_FLAG(&CAN_HandleStructure, CAN_FLAG_FMP1))
 			{
 				/* réception d'un message dans le buffer RX1 */
-				CAN_Receive(CAN1, 1, &msg);
+				HAL_CAN_Receive_IT(&CAN_HandleStructure, 1);
 			}
 			else //Rien a été reçu ...
 			{
@@ -262,11 +263,11 @@
 				return;
 			}
 
-			can_msg->sid = msg.StdId;
-			can_msg->size = msg.DLC;
+			can_msg->sid = CAN_HandleStructure.pRxMsg->StdId;
+			can_msg->size = CAN_HandleStructure.pRxMsg->DLC;
 
 			for(i = 0; i < 8; i++) {
-				can_msg->data.raw_data[i] = msg.Data[i];
+				can_msg->data.raw_data[i] = CAN_HandleStructure.pRxMsg->Data[i];
 			}
 		}
 
@@ -332,51 +333,51 @@
 		void CAN1_SCE_IRQHandler(void)
 		{
 			it_printf("CAN Error List :\n");
-			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_BOF))
+			if(__HAL_CAN_GET_FLAG(&CAN_HandleStructure, CAN_FLAG_BOF))
 			{
 				it_printf("  Bus OFF, too many bus errors, > 255\n");
-				CAN_ClearITPendingBit(CAN1,CAN_IT_BOF);
+				__HAL_CAN_DISABLE_IT(&CAN_HandleStructure, CAN_IT_BOF);
 			}
-			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_EPV))
+			if(__HAL_CAN_GET_FLAG(&CAN_HandleStructure, CAN_FLAG_EPV))
 			{
 				it_printf("  Error passive, many bus errors, > 127\n");
-				CAN_ClearITPendingBit(CAN1, CAN_IT_EPV);
+				__HAL_CAN_DISABLE_IT(&CAN_HandleStructure, CAN_IT_EPV);
 			}
-			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_EWG))
+			if(__HAL_CAN_GET_FLAG(&CAN_HandleStructure, CAN_FLAG_EWG))
 			{
 				it_printf("  Error passive, many bus errors, > 96\n");
-				CAN_ClearITPendingBit (CAN1, CAN_IT_EWG);
+				__HAL_CAN_DISABLE_IT(&CAN_HandleStructure, CAN_IT_EWG);
 			}
-			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_FOV0))
+			if(__HAL_CAN_GET_FLAG(&CAN_HandleStructure, CAN_FLAG_FOV0))
 			{
 				it_printf("  Recv FIFO 0 Overflow (MY_FILTER + DEBUG)\n");
-				CAN_ClearFlag(CAN1, CAN_FLAG_FOV0);
-				CAN_ClearITPendingBit(CAN1, CAN_IT_FOV0);
+				__HAL_CAN_CLEAR_FLAG(&CAN_HandleStructure, CAN_FLAG_FOV0);
+				__HAL_CAN_DISABLE_IT(&CAN_HandleStructure, CAN_IT_FOV0);
 			}
 
-			if(CAN_GetFlagStatus(CAN1, CAN_FLAG_FOV1))
+			if(__HAL_CAN_GET_FLAG(&CAN_HandleStructure, CAN_FLAG_FOV1))
 			{
 				it_printf("  Recv FIFO 1 Overflow (BROADCAST msgs)\n");
-				CAN_ClearFlag(CAN1, CAN_FLAG_FOV1);
-				CAN_ClearITPendingBit(CAN1, CAN_IT_FOV1);
+				__HAL_CAN_CLEAR_FLAG(&CAN_HandleStructure, CAN_FLAG_FOV1);
+				__HAL_CAN_DISABLE_IT(&CAN_HandleStructure, CAN_IT_FOV1);
 			}
 
 
 			it_printf("  Last ErrorCode was: ");
-			switch(CAN_GetLastErrorCode(CAN1)) {
-				case CAN_ErrorCode_NoErr: 			it_printf("NoErr\n"); break;
-				case CAN_ErrorCode_StuffErr: 		it_printf("StuffErr\n"); break;
-				case CAN_ErrorCode_FormErr: 		it_printf("FormErr\n"); break;
-				case CAN_ErrorCode_ACKErr: 			it_printf("AckErr\n"); break;
-				case CAN_ErrorCode_BitRecessiveErr: it_printf("BitRecessiveErr\n"); break;
-				case CAN_ErrorCode_BitDominantErr: 	it_printf("BitDominantErr\n"); break;
-				case CAN_ErrorCode_CRCErr: 			it_printf("CRCErr\n"); break;
-				case CAN_ErrorCode_SoftwareSetErr: 	it_printf("SoftwareSetErr\n"); break;
+			switch(HAL_CAN_GetError(CAN1)) {
+				case HAL_CAN_ERROR_NONE: 			it_printf("No error\n"); break;
+				case HAL_CAN_ERROR_STF:				it_printf("Stuff error\n"); break;
+				case HAL_CAN_ERROR_FOR:				it_printf("Form error\n"); break;
+				case HAL_CAN_ERROR_ACK: 			it_printf("Ack error\n"); break;
+				case HAL_CAN_ERROR_BR:				it_printf("BitRecessive error\n"); break;
+				case HAL_CAN_ERROR_BD:				it_printf("BitDominant error\n"); break;
+				case HAL_CAN_ERROR_CRC: 			it_printf("CRC error\n"); break;
+				case HAL_CAN_ERROR_EWG:				it_printf("EWG error\n"); break;
+				case HAL_CAN_ERROR_EPV:				it_printf("EPV error\n"); break;
+				case HAL_CAN_ERROR_BOF:				it_printf("BOF error\n"); break;
 				default: 							it_printf("Unknown\n"); break;
 			}
-			it_printf("  Recv error count: %u\n", CAN_GetReceiveErrorCounter(CAN1));
-			it_printf("  Transmit error count: %u\n", CAN_GetLSBTransmitErrorCounter(CAN1));
-			CAN_ClearITPendingBit(CAN1, CAN_IT_ERR);
+			__HAL_CAN_DISABLE_IT(&CAN_HandleStructure, CAN_IT_ERR);
 			CAN_reinit();
 			it_printf("End Error List\n");
 		}
