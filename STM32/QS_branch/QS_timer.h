@@ -26,7 +26,7 @@
 	#define QS_TIMER_H
 
 	#include "QS_all.h"
-	#include "stm32f4xx_tim.h"
+	#include "../stm32f4xx_hal/stm32f4xx_hal_tim.h"
 
 	//Définitions faites ici pour permettre l'utilisation de ces valeurs hors de ce module. Il est parfois nécessaire d'avoir ces nombres pour d'autre module.
 	//En étant ici, les définitions restent centralisés.
@@ -100,17 +100,17 @@
 	int TIMER5_getCounter();
 
 	//Acuittement des IT timer
-	#define TIMER1_AckIT() TIM_ClearITPendingBit(TIM11, TIM_IT_Update)
-	#define TIMER2_AckIT() TIM_ClearITPendingBit(TIM12, TIM_IT_Update)
-	#define TIMER3_AckIT() TIM_ClearITPendingBit(TIM13, TIM_IT_Update)
-	#define TIMER4_AckIT() TIM_ClearITPendingBit(TIM14, TIM_IT_Update)
-	#define TIMER5_AckIT() TIM_ClearITPendingBit(TIM10, TIM_IT_Update)
+	void TIMER1_AckIT();
+	void TIMER2_AckIT();
+	void TIMER3_AckIT();
+	void TIMER4_AckIT();
+	void TIMER5_AckIT();
 
 	//Verification de l'état d'une IT, pour detecter un eventuel recouvrement IT
-	#define TIMER1_getITStatus() TIM_GetITStatus(TIM11, TIM_IT_Update)
-	#define TIMER2_getITStatus() TIM_GetITStatus(TIM12, TIM_IT_Update)
-	#define TIMER3_getITStatus() TIM_GetITStatus(TIM13, TIM_IT_Update)
-	#define TIMER4_getITStatus() TIM_GetITStatus(TIM14, TIM_IT_Update)
-	#define TIMER5_getITStatus() TIM_GetITStatus(TIM10, TIM_IT_Update)
+	void TIMER1_getITStatus();
+	void TIMER2_getITStatus();
+	void TIMER3_getITStatus();
+	void TIMER4_getITStatus();
+	void TIMER5_getITStatus();
 
 #endif

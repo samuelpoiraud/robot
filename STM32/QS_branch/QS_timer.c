@@ -12,7 +12,7 @@
 
 #include "QS_timer.h"
 #include "QS_outputlog.h"
-#include "stm32f4xx_tim.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_tim.h"
 
 #if TIMER_MS_PRESCALER <= 0 || TIMER_MS_PRESCALER > 65535
 	#error "TIMER_MS_PRESCALER is not > 0 or < 65536"
@@ -66,85 +66,130 @@ __attribute__((weak)) void _T3Interrupt() {TIMER3_AckIT();}
 __attribute__((weak)) void _T4Interrupt() {TIMER4_AckIT();}
 __attribute__((weak)) void _T5Interrupt() {TIMER5_AckIT();}
 
+static TIM_HandleTypeDef* TIMER_getHandle(TIM_TypeDef *TIMx);
+
 static bool_e initialized = FALSE;
+static TIM_HandleTypeDef TIM_HandleStructure_10;
+static TIM_HandleTypeDef TIM_HandleStructure_11;
+static TIM_HandleTypeDef TIM_HandleStructure_12;
+static TIM_HandleTypeDef TIM_HandleStructure_13;
+static TIM_HandleTypeDef TIM_HandleStructure_14;
+
 
 /* Configuation de l'ensemble du bloc timer */
 void TIMER_init(void){
 	if (initialized) return;
 
 	/* Horloges */
-	RCC_APB2PeriphClockCmd(
-		  RCC_APB2Periph_TIM10
-		| RCC_APB2Periph_TIM11, ENABLE);
-	RCC_APB1PeriphClockCmd(
-		  RCC_APB1Periph_TIM12
-		| RCC_APB1Periph_TIM13
-		| RCC_APB1Periph_TIM14, ENABLE);
+	__HAL_RCC_TIM10_CLK_ENABLE();
+	__HAL_RCC_TIM11_CLK_ENABLE();
+	__HAL_RCC_TIM12_CLK_ENABLE();
+	__HAL_RCC_TIM13_CLK_ENABLE();
+	__HAL_RCC_TIM14_CLK_ENABLE();
 
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	static TIM_Base_InitTypeDef TIM_InitStructure;
 
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseStructure.TIM_Period = 0xFFFF;	//Le moins rapide par défaut
-	TIM_TimeBaseStructure.TIM_Prescaler = 0xFFFF;
-	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_InitStructure.CounterMode = TIM_COUNTERMODE_UP;
+	TIM_InitStructure.Period = 0xFFFF;	//Le moins rapide par défaut
+	TIM_InitStructure.Prescaler = 0xFFFF;
+	TIM_InitStructure.RepetitionCounter = 0;
+	TIM_InitStructure.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 
 	//On s'arrange pour que la clock sur TIM11 soit la même que sur TIM12-14, voir manuel de réference STM32F4xx page 114
 #if (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) != 1 && (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) != 2 && (PCLK2_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ) != 4
 #error "Incorrect HCLK/PCLK1 ratio, must be 1, 2 or 4"
 #endif
 
-	TIM_TimeBaseInit(TIM10, &TIM_TimeBaseStructure);
-	TIM_TimeBaseInit(TIM11, &TIM_TimeBaseStructure);
-	TIM_TimeBaseInit(TIM12, &TIM_TimeBaseStructure);
-	TIM_TimeBaseInit(TIM13, &TIM_TimeBaseStructure);
-	TIM_TimeBaseInit(TIM14, &TIM_TimeBaseStructure);
+	//Initialisation TIM10
+	TIM_HandleStructure_10.Instance = TIM10;
+	TIM_HandleStructure_10.Init = TIM_InitStructure;
+	HAL_TIM_Base_Init(&TIM_HandleStructure_10);
 
-	TIM_UpdateRequestConfig(TIM10, TIM_UpdateSource_Regular);
-	TIM_UpdateRequestConfig(TIM11, TIM_UpdateSource_Regular);
-	TIM_UpdateRequestConfig(TIM12, TIM_UpdateSource_Regular);
-	TIM_UpdateRequestConfig(TIM13, TIM_UpdateSource_Regular);
-	TIM_UpdateRequestConfig(TIM14, TIM_UpdateSource_Regular);
+	//Initialisation TIM11
+	TIM_HandleStructure_11.Instance = TIM11;
+	TIM_HandleStructure_11.Init = TIM_InitStructure;
+	HAL_TIM_Base_Init(&TIM_HandleStructure_11);
 
-	TIM_ITConfig(TIM10, TIM_IT_Update, ENABLE);
-	TIM_ITConfig(TIM11, TIM_IT_Update, ENABLE);
-	TIM_ITConfig(TIM12, TIM_IT_Update, ENABLE);
-	TIM_ITConfig(TIM13, TIM_IT_Update, ENABLE);
-	TIM_ITConfig(TIM14, TIM_IT_Update, ENABLE);
+	//Initialisation TIM12
+	TIM_HandleStructure_12.Instance = TIM12;
+	TIM_HandleStructure_12.Init = TIM_InitStructure;
+	HAL_TIM_Base_Init(&TIM_HandleStructure_12);
 
-	TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
-	TIM_ClearITPendingBit(TIM11, TIM_IT_Update);
-	TIM_ClearITPendingBit(TIM12, TIM_IT_Update);
-	TIM_ClearITPendingBit(TIM13, TIM_IT_Update);
-	TIM_ClearITPendingBit(TIM14, TIM_IT_Update);
+	//Initialisation TIM13
+	TIM_HandleStructure_13.Instance = TIM13;
+	TIM_HandleStructure_13.Init = TIM_InitStructure;
+	HAL_TIM_Base_Init(&TIM_HandleStructure_13);
+
+	//Initialisation TIM14
+	TIM_HandleStructure_14.Instance = TIM14;
+	TIM_HandleStructure_14.Init = TIM_InitStructure;
+	HAL_TIM_Base_Init(&TIM_HandleStructure_14);
+
+	//Update request source enable
+	__HAL_TIM_URS_ENABLE(&TIM_HandleStructure_10);
+	__HAL_TIM_URS_ENABLE(&TIM_HandleStructure_11);
+	__HAL_TIM_URS_ENABLE(&TIM_HandleStructure_12);
+	__HAL_TIM_URS_ENABLE(&TIM_HandleStructure_13);
+	__HAL_TIM_URS_ENABLE(&TIM_HandleStructure_14);
+
+	__HAL_TIM_ENABLE_IT(&TIM_HandleStructure_10, TIM_IT_UPDATE);
+	__HAL_TIM_ENABLE_IT(&TIM_HandleStructure_11, TIM_IT_UPDATE);
+	__HAL_TIM_ENABLE_IT(&TIM_HandleStructure_12, TIM_IT_UPDATE);
+	__HAL_TIM_ENABLE_IT(&TIM_HandleStructure_13, TIM_IT_UPDATE);
+	__HAL_TIM_ENABLE_IT(&TIM_HandleStructure_14, TIM_IT_UPDATE);
+
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_10, TIM_IT_UPDATE);
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_11, TIM_IT_UPDATE);
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_12, TIM_IT_UPDATE);
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_13, TIM_IT_UPDATE);
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_14, TIM_IT_UPDATE);
 
 	/* NVIC: initialisation des IT timer avec les niveaux de priorité adéquats*/
-	NVIC_InitTypeDef NVICInit;
-	NVICInit.NVIC_IRQChannelCmd = ENABLE;
-	NVICInit.NVIC_IRQChannelSubPriority = 0;
+	HAL_NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, TIMER_1_PRIORITY, 0);
+	HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_1_PRIORITY;
-	NVICInit.NVIC_IRQChannel = TIM1_TRG_COM_TIM11_IRQn;
-	NVIC_Init(&NVICInit);
+	HAL_NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, TIMER_2_PRIORITY, 0);
+	HAL_NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_2_PRIORITY;
-	NVICInit.NVIC_IRQChannel = TIM8_BRK_TIM12_IRQn;
-	NVIC_Init(&NVICInit);
+	HAL_NVIC_SetPriority(TIM8_UP_TIM13_IRQn, TIMER_3_PRIORITY, 0);
+	HAL_NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_3_PRIORITY;
-	NVICInit.NVIC_IRQChannel = TIM8_UP_TIM13_IRQn;
-	NVIC_Init(&NVICInit);
+	HAL_NVIC_SetPriority(TIM8_TRG_COM_TIM14_IRQn, TIMER_4_PRIORITY, 0);
+	HAL_NVIC_EnableIRQ(TIM8_TRG_COM_TIM14_IRQn);
 
-	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_4_PRIORITY;
-	NVICInit.NVIC_IRQChannel = TIM8_TRG_COM_TIM14_IRQn;
-	NVIC_Init(&NVICInit);
-
-	NVICInit.NVIC_IRQChannelPreemptionPriority = TIMER_5_PRIORITY;
-	NVICInit.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
-	NVIC_Init(&NVICInit);
+	HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, TIMER_5_PRIORITY, 0);
+	HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
 
 	/* Fin de la configuration */
 	initialized = TRUE;
+}
+
+static TIM_HandleTypeDef* TIMER_getHandle(TIM_TypeDef *TIMx){
+	TIM_HandleTypeDef *TIM_HandleStructure_x;
+	switch((int)TIMx){
+		case TIM11: //TIMER1
+			TIM_HandleStructure_x = &TIM_HandleStructure_11;
+			break;
+
+		case TIM12: //TIMER2
+			TIM_HandleStructure_x = &TIM_HandleStructure_12;
+			break;
+
+		case TIM13: //TIMER3
+			TIM_HandleStructure_x = &TIM_HandleStructure_13;
+			break;
+
+		case TIM14: //TIMER4
+			TIM_HandleStructure_x = &TIM_HandleStructure_14;
+			break;
+
+		case TIM10: //TIMER5
+			TIM_HandleStructure_x = &TIM_HandleStructure_10;
+			break;
+		default:
+			debug_printf("Ce timer n'existe pas !!\n");
+	}
+	return TIM_HandleStructure_x
 }
 
 void TIMER_run(TIM_TypeDef* TIMx, Uint8 period /* en millisecondes */) {
@@ -153,26 +198,25 @@ void TIMER_run(TIM_TypeDef* TIMx, Uint8 period /* en millisecondes */) {
 		return;
 	}
 
-	RCC_ClocksTypeDef clocksSpeed;
-	Uint32 prescaler_mul = 1;
-	RCC_GetClocksFreq(&clocksSpeed);
+	TIM_HandleTypeDef *TIM_HandleStructure_x = TIMER_getHandle(TIMx);
 
+	Uint32 SYSCLKFreq =  HAL_RCC_GetSysClockFreq();
+	Uint32 PCLK1Freq = HAL_RCC_GetPCLK1Freq();
+	Uint32 PCLK2Freq = HAL_RCC_GetPCLK2Freq();
 
 	if(TIMx == TIM10 || TIMx == TIM11) {
-		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK2_Frequency > 1)
+		if(SYSCLKFreq / PCLK2Freq > 1)
 			prescaler_mul = 2;
-		prescaler_mul *= clocksSpeed.PCLK2_Frequency / clocksSpeed.PCLK1_Frequency;
+		prescaler_mul *= PCLK2Freq / PCLK1Freq;
 	} else {
-		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK1_Frequency > 1)
+		if(SYSCLKFreq / PCLK1Freq > 1)
 			prescaler_mul = 2;
 	}
 
-	TIM_PrescalerConfig(TIMx, (prescaler_mul*TIMER_MS_PRESCALER) - 1, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIMx,  ((Uint16)period) * TIMER_PULSE_PER_MS);
-//	TIM_PrescalerConfig(TIMx, 38, TIM_PSCReloadMode_Immediate);
-//	TIM_SetAutoreload(TIMx,  64000);
-	TIM_SetCounter(TIMx, 0);
-	TIM_Cmd(TIMx, ENABLE);
+	__HAL_TIM_SET_PRESCALER(TIM_HandleStructure_x, (prescaler_mul*TIMER_MS_PRESCALER) - 1);
+	__HAL_TIM_SET_AUTORELOAD(TIM_HandleStructure_x, ((Uint16)period) * TIMER_PULSE_PER_MS);
+	__HAL_TIM_SET_COUNTER(TIM_HandleStructure_x, 0);
+	__HAL_TIM_ENABLE(TIM_HandleStructure_x);
 }
 
 void TIMER_run_us(TIM_TypeDef* TIMx, Uint16 period /* en microsecondes */) {
@@ -181,24 +225,25 @@ void TIMER_run_us(TIM_TypeDef* TIMx, Uint16 period /* en microsecondes */) {
 		return;
 	}
 
-	RCC_ClocksTypeDef clocksSpeed;
-	Uint32 prescaler_mul = 1;
-	RCC_GetClocksFreq(&clocksSpeed);
+	TIM_HandleTypeDef *TIM_HandleStructure_x = TIMER_getHandle(TIMx);
 
+	Uint32 SYSCLKFreq =  HAL_RCC_GetSysClockFreq();
+	Uint32 PCLK1Freq = HAL_RCC_GetPCLK1Freq();
+	Uint32 PCLK2Freq = HAL_RCC_GetPCLK2Freq();
 
 	if(TIMx == TIM10 || TIMx == TIM11) {
-		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK2_Frequency > 1)
+		if(SYSCLKFreq / PCLK2Freq > 1)
 			prescaler_mul = 2;
-		prescaler_mul *= clocksSpeed.PCLK2_Frequency / clocksSpeed.PCLK1_Frequency;
+		prescaler_mul *= PCLK2Freq / PCLK1Freq;
 	} else {
-		if(clocksSpeed.SYSCLK_Frequency / clocksSpeed.PCLK1_Frequency > 1)
+		if(SYSCLKFreq / PCLK1Freq > 1)
 			prescaler_mul = 2;
 	}
 
-	TIM_PrescalerConfig(TIMx, (prescaler_mul*TIMER_US_PRESCALER) - 1, TIM_PSCReloadMode_Immediate);
-	TIM_SetAutoreload(TIMx, period * TIMER_PULSE_PER_US);
-	TIM_SetCounter(TIMx, 0);
-	TIM_Cmd(TIMx, ENABLE);
+	__HAL_TIM_SET_PRESCALER(TIM_HandleStructure_x, (prescaler_mul*TIMER_US_PRESCALER) - 1);
+	__HAL_TIM_SET_AUTORELOAD(TIM_HandleStructure_x, ((Uint16)period) * TIMER_PULSE_PER_US);
+	__HAL_TIM_SET_COUNTER(TIM_HandleStructure_x, 0);
+	__HAL_TIM_ENABLE(TIM_HandleStructure_x);
 }
 
 void TIMER_stop(TIM_TypeDef* TIMx) {
@@ -207,7 +252,7 @@ void TIMER_stop(TIM_TypeDef* TIMx) {
 		return;
 	}
 
-	TIM_Cmd(TIMx, DISABLE);
+	__HAL_TIM_DISABLE(TIMER_getHandle(TIMx));
 }
 
 void TIMER_disableInt(TIM_TypeDef* TIMx) {
@@ -218,23 +263,23 @@ void TIMER_disableInt(TIM_TypeDef* TIMx) {
 
 	switch((int)TIMx) {
 		case (int)TIM10:
-			NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
+			HAL_NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
 			break;
 
 		case (int)TIM11:
-			NVIC_DisableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+			HAL_NVIC_DisableIRQ(TIM1_TRG_COM_TIM11_IRQn);
 			break;
 
 		case (int)TIM12:
-			NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn);
+			HAL_NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn);
 			break;
 
 		case (int)TIM13:
-			NVIC_DisableIRQ(TIM8_UP_TIM13_IRQn);
+			HAL_NVIC_DisableIRQ(TIM8_UP_TIM13_IRQn);
 			break;
 
 		case (int)TIM14:
-			NVIC_DisableIRQ(TIM8_TRG_COM_TIM14_IRQn);
+			HAL_NVIC_DisableIRQ(TIM8_TRG_COM_TIM14_IRQn);
 			break;
 	}
 }
@@ -247,23 +292,23 @@ void TIMER_enableInt(TIM_TypeDef* TIMx) {
 
 	switch((int)TIMx) {
 		case (int)TIM10:
-			NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+			HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
 			break;
 
 		case (int)TIM11:
-			NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+			HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
 			break;
 
 		case (int)TIM12:
-			NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
+			HAL_NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
 			break;
 
 		case (int)TIM13:
-			NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
+			HAL_NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
 			break;
 
 		case (int)TIM14:
-			NVIC_EnableIRQ(TIM8_TRG_COM_TIM14_IRQn);
+			HAL_NVIC_EnableIRQ(TIM8_TRG_COM_TIM14_IRQn);
 			break;
 	}
 }
@@ -292,7 +337,15 @@ void TIMER1_enableInt() {
 }
 
 int TIMER1_getCounter() {
-	return TIM_GetCounter(TIM11);
+	return __HAL_TIM_GET_COUNTER(&TIM_HandleStructure_11);
+}
+
+void TIMER1_AckIT(){
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_11, TIM_IT_UPDATE);
+}
+
+void TIMER1_getITStatus(){
+	__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_11, TIM_IT_UPDATE);
 }
 
 void TIMER2_run(Uint8 period /* en millisecondes */) {
@@ -316,7 +369,15 @@ void TIMER2_enableInt() {
 }
 
 int TIMER2_getCounter() {
-	return TIM_GetCounter(TIM12);
+	return __HAL_TIM_GET_COUNTER(&TIM_HandleStructure_12);
+}
+
+void TIMER2_AckIT(){
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_12, TIM_IT_UPDATE);
+}
+
+void TIMER2_getITStatus(){
+	__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_12, TIM_IT_UPDATE);
 }
 
 void TIMER3_run(Uint8 period /* en millisecondes */) {
@@ -340,7 +401,15 @@ void TIMER3_enableInt() {
 }
 
 int TIMER3_getCounter() {
-	return TIM_GetCounter(TIM13);
+	return __HAL_TIM_GET_COUNTER(&TIM_HandleStructure_13);
+}
+
+void TIMER3_AckIT(){
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_13, TIM_IT_UPDATE);
+}
+
+void TIMER3_getITStatus(){
+	__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_13, TIM_IT_UPDATE);
 }
 
 void TIMER4_run(Uint8 period /* en millisecondes */) {
@@ -364,7 +433,15 @@ void TIMER4_enableInt() {
 }
 
 int TIMER4_getCounter() {
-	return TIM_GetCounter(TIM14);
+	return __HAL_TIM_GET_COUNTER(&TIM_HandleStructure_14);
+}
+
+void TIMER4_AckIT(){
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_14, TIM_IT_UPDATE);
+}
+
+void TIMER4_getITStatus(){
+	__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_14, TIM_IT_UPDATE);
 }
 
 void TIMER5_run(Uint8 period /* en millisecondes */) {
@@ -388,31 +465,39 @@ void TIMER5_enableInt() {
 }
 
 int TIMER5_getCounter() {
-	return TIM_GetCounter(TIM10);
+	return __HAL_TIM_GET_COUNTER(&TIM_HandleStructure_10);
+}
+
+void TIMER5_AckIT(){
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_15, TIM_IT_UPDATE);
+}
+
+void TIMER5_getITStatus(){
+	__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_15, TIM_IT_UPDATE);
 }
 
 //Interrupts management and redirection
 void TIM1_UP_TIM10_IRQHandler() {
-	if(TIM_GetITStatus(TIM10, TIM_IT_Update))
+	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_10, TIM_IT_UPDATE))
 		_T5Interrupt();
 }
 
 void TIM1_TRG_COM_TIM11_IRQHandler() {
-	if(TIM_GetITStatus(TIM11, TIM_IT_Update))
+	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_11, TIM_IT_UPDATE))
 		_T1Interrupt();
 }
 
 void TIM8_BRK_TIM12_IRQHandler() {
-	if(TIM_GetITStatus(TIM12, TIM_IT_Update))
+	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_12, TIM_IT_UPDATE))
 		_T2Interrupt();
 }
 
 void TIM8_UP_TIM13_IRQHandler() {
-	if(TIM_GetITStatus(TIM13, TIM_IT_Update))
+	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_13, TIM_IT_UPDATE))
 		_T3Interrupt();
 }
 
 void TIM8_TRG_COM_TIM14_IRQHandler() {
-	if(TIM_GetITStatus(TIM14, TIM_IT_Update))
+	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_14, TIM_IT_UPDATE))
 		_T4Interrupt();
 }
