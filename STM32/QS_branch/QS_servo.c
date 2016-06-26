@@ -101,52 +101,52 @@ void SERVO_set_servo(Uint8 servo,bool_e stateUp){
 	switch (servo) {
 	#ifdef SERVO0
 		case 0:
-			GPIO_WriteBit(SERVO0, stateUp);
+			HAL_GPIO_WritePin(SERVO0, stateUp);
 			break;
 	#endif
 	#ifdef SERVO1
 		case 1:
-			GPIO_WriteBit(SERVO1, stateUp);
+			HAL_GPIO_WritePin(SERVO1, stateUp);
 			break;
 	#endif
 	#ifdef SERVO2
 		case 2:
-			GPIO_WriteBit(SERVO2, stateUp);
+			HAL_GPIO_WritePin(SERVO2, stateUp);
 			break;
 	#endif
 	#ifdef SERVO3
 		case 3:
-			GPIO_WriteBit(SERVO3, stateUp);
+			HAL_GPIO_WritePin(SERVO3, stateUp);
 			break;
 	#endif
 	#ifdef SERVO4
 		case 4:
-			GPIO_WriteBit(SERVO4, stateUp);
+			HAL_GPIO_WritePin(SERVO4, stateUp);
 			break;
 	#endif
 	#ifdef SERVO5
 		case 5:
-			GPIO_WriteBit(SERVO5, stateUp);
+			HAL_GPIO_WritePin(SERVO5, stateUp);
 			break;
 	#endif
 	#ifdef SERVO6
 		case 6:
-			GPIO_WriteBit(SERVO6, stateUp);
+			HAL_GPIO_WritePin(SERVO6, stateUp);
 			break;
 	#endif
 	#ifdef SERVO7
 		case 7:
-			GPIO_WriteBit(SERVO7, stateUp);
+			HAL_GPIO_WritePin(SERVO7, stateUp);
 			break;
 	#endif
 	#ifdef SERVO8
 		case 8:
-			GPIO_WriteBit(SERVO8, stateUp);
+			HAL_GPIO_WritePin(SERVO8, stateUp);
 			break;
 	#endif
 	#ifdef SERVO9
 		case 9:
-			GPIO_WriteBit(SERVO9, stateUp);
+			HAL_GPIO_WritePin(SERVO9, stateUp);
 			break;
 	#endif
 		default:
