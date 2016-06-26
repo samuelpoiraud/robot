@@ -4,15 +4,16 @@
  *
  *	Fichier : QS_sys.c
  *	Package : Qualite Soft
- *	Description : Configuration du STM32 - Horloges - DÃ©marrage
+ *	Description : Configuration du STM32 - Horloges - Demarrage
  *	Auteur : Gwenn
  *	Version 20100421
  */
 
 #include "QS_sys.h"
-#include "stm32f4xx_usart.h"
-#include "stm32f4xx_flash.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_usart.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_flash.h"
 #include "QS_outputlog.h"
+#include "QS_clocks_freq.h"
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/times.h>
@@ -45,33 +46,33 @@
 	#define PCLK1_DIV	(HCLK_FREQUENCY_HZ/PCLK1_FREQUENCY_HZ)	//PCLK1 = HCLK_DIV / PCLK1_DIV
 	#define PCLK2_DIV	(HCLK_FREQUENCY_HZ/PCLK2_FREQUENCY_HZ)	//PCLK2 = HCLK_DIV / PCLK2_DIV
 
-	//VCO_INPUT_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM
-	//VCO_OUTPUT_HZ = VCO_INPUT_HZ * PLLN
-	//SYSCLK_HZ = VCO_OUTPUT_HZ / PLLP
-	//USB_RNG_SDIO_CLK_HZ = SYSCLK_HZ / PLLQ
-	//SYSCLK = CPU_FREQUENCY_HZ = CPU_EXTERNAL_CLOCK_HZ / PLLM * PLLN / PLLP
+	//VCO_INPUT_HZ = CPU_EXTERNAL_CLOCK_HZ / RCC_PLLM
+	//VCO_OUTPUT_HZ = VCO_INPUT_HZ * RCC_PLLN
+	//SYSCLK_HZ = VCO_OUTPUT_HZ / RCC_PLLP
+	//USB_RNG_SDIO_CLK_HZ = SYSCLK_HZ / RCC_PLLQ
+	//SYSCLK = CPU_FREQUENCY_HZ = CPU_EXTERNAL_CLOCK_HZ / RCC_PLLM * RCC_PLLN / RCC_PLLP
 
 
-	#define PLLM (CPU_EXTERNAL_CLOCK_HZ / VCO_INPUT_HZ)
-	#define PLLN (VCO_OUTPUT_HZ  / CPU_EXTERNAL_CLOCK_HZ * PLLM)	//On utilise pas directement VCO_INPUT_HZ car il peut ne pas pouvoir être exact
-	#define PLLP FORCED_PLLP
-	#define PLLQ (VCO_OUTPUT_HZ / USB_RNG_SDIO_CLK_HZ)
+	#define RCC_PLLM (CPU_EXTERNAL_CLOCK_HZ / VCO_INPUT_HZ)
+	#define RCC_PLLN (VCO_OUTPUT_HZ  / CPU_EXTERNAL_CLOCK_HZ * RCC_PLLM)	//On utilise pas directement VCO_INPUT_HZ car il peut ne pas pouvoir être exact
+	#define RCC_PLLP (FORCED_PLLP)
+	#define RCC_PLLQ (VCO_OUTPUT_HZ / USB_RNG_SDIO_CLK_HZ)
 
 	#define FLASH_WAIT_CYCLES (HCLK_FREQUENCY_HZ / 30000000)	//Voir page 62 du manuel de réference RM0090
 
-	#if HCLK_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV)
+	#if HCLK_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / RCC_PLLM) * RCC_PLLN) / RCC_PLLP) / HCLK_DIV)
 		#warning "Computed HCLK frequency is not exactly HCLK_FREQUENCY_HZ"
 	#endif
 
-	#if PCLK1_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK1_DIV)
+	#if PCLK1_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / RCC_PLLM) * RCC_PLLN) / RCC_PLLP) / HCLK_DIV / PCLK1_DIV)
 		#warning "Computed PCLK1 frequency is not exactly PCLK1_FREQUENCY_HZ"
 	#endif
 
-	#if PCLK2_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLP) / HCLK_DIV / PCLK2_DIV)
+	#if PCLK2_FREQUENCY_HZ != ((((CPU_EXTERNAL_CLOCK_HZ / RCC_PLLM) * RCC_PLLN) / RCC_PLLP) / HCLK_DIV / PCLK2_DIV)
 		#warning "Computed PCLK2 frequency is not exactly PCLK2_FREQUENCY_HZ"
 	#endif
 
-	#if USB_RNG_SDIO_CLK_HZ != (((CPU_EXTERNAL_CLOCK_HZ / PLLM) * PLLN) / PLLQ)
+	#if USB_RNG_SDIO_CLK_HZ != (((CPU_EXTERNAL_CLOCK_HZ / RCC_PLLM) * RCC_PLLN) / RCC_PLLQ)
 		#warning "USB Frequency is not exactly USB_RNG_SDIO_CLK_HZ"
 	#endif
 
@@ -87,20 +88,20 @@
 		#error "VCO_OUTPUT_HZ must be <= 432Mhz"
 	#endif
 
-	#if PLLM < 0 || PLLM > 63
-		#error "PLLM be be a unsigned integer <= 63"
+	#if RCC_PLLM < 0 || RCC_PLLM > 63
+		#error "RCC_PLLM be be a unsigned integer <= 63"
 	#endif
 
-	#if PLLN < 192 || PLLN > 432
-		#error "PLLN must be >= 192 and <= 432"
+	#if RCC_PLLN < 192 || RCC_PLLN > 432
+		#error "RCC_PLLN must be >= 192 and <= 432"
 	#endif
 
-	#if PLLP != 2 && PLLP != 4 && PLLP != 6 && PLLP != 8
-		#error "PLLP must be either 2, 4, 6 or 8"
+	#if RCC_PLLP != 2 && RCC_PLLP != 4 && RCC_PLLP != 6 && RCC_PLLP != 8
+		#error "RCC_PLLP must be either 2, 4, 6 or 8"
 	#endif
 
-	#if PLLQ < 4 || PLLQ > 15
-		#error "PLLQ must be >= 4 and <= 15"
+	#if RCC_PLLQ < 4 || RCC_PLLQ > 15
+		#error "RCC_PLLQ must be >= 4 and <= 15"
 	#endif
 
 	#if HCLK_DIV != HCLK_CHOOSEN_DIV
@@ -140,50 +141,56 @@
 
 void SYS_init(void)
 {
-	RCC_DeInit();
+	RCC_ClkInitTypeDef RCC_ClkInitStructure;
+	RCC_OscInitTypeDef RCC_OscInitStructure;
 
-	/* Oscillateur externe */
-	ErrorStatus HSEStartUpStatus;
-	RCC_HSEConfig(RCC_HSE_ON);
-	HSEStartUpStatus = RCC_WaitForHSEStartUp();
-	if(HSEStartUpStatus != ERROR)
-	{
-		//Voir page 60 du manuel de reference
-		FLASH_SetLatency(FLASH_WAIT_CYCLES);
+	/* Enable Power Control clock */
+	__HAL_RCC_PWR_CLK_ENABLE();
 
-		//Défini la clock HSE pour avoir des valeurs correcte pour RCC_GetClocksFreq()
-		RCC_SetHSEFreq(CPU_EXTERNAL_CLOCK_HZ);
+	/* Set voltage scaling */
+	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-		/* PCLK1 = HCLK/2, PCLK2 = HCLK | HCLK = SYSCLK */
-		//Pour savoir si les valeurs sont correctes, veuillez changer HCLK_CHOOSEN_DIV, PCLK1_CHOOSEN_DIV et PCLK2_CHOOSEN_DIV. Une erreur de précompilation indiquera s'il y a un problème
-		RCC_HCLKConfig(RCC_SYSCLK_Div1);
-		RCC_PCLK1Config(RCC_HCLK_Div4);
-		RCC_PCLK2Config(RCC_HCLK_Div2);
+	/* Enable HSE Oscillator and activate PLL with HSE as source */
+	RCC_OscInitStructure.OscillatorType = RCC_OSCILLATORTYPE_HSE;
 
-		RCC_PLLConfig(RCC_PLLSource_HSE, PLLM, PLLN, PLLP, PLLQ);
+	/* Select proper PLL input clock */
+	RCC_OscInitStructure.HSEState = RCC_HSE_ON;
+	RCC_OscInitStructure.HSIState = RCC_HSI_OFF;
+	RCC_OscInitStructure.PLL.PLLSource = RCC_PLLSOURCE_HSE;
 
-		/* Enable PLL1 */
-		RCC_PLLCmd(ENABLE);
-		while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET){}
+	/* Set PLL parameters */
+	RCC_OscInitStructure.PLL.PLLState = RCC_PLL_ON;
+	RCC_OscInitStructure.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+	RCC_OscInitStructure.PLL.PLLM = RCC_PLLM;
+	RCC_OscInitStructure.PLL.PLLN = RCC_PLLN;
+	RCC_OscInitStructure.PLL.PLLP = RCC_PLLP;
+	RCC_OscInitStructure.PLL.PLLQ = RCC_PLLQ;
 
-		/* Select PLL as system clock source */
-		RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-		while (RCC_GetSYSCLKSource() != 0x08){}
-	}
+	/* Try to init */
+	HAL_RCC_OscConfig(&RCC_OscInitStructure);
+
+	/* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
+	RCC_ClkInitStructure.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+	RCC_ClkInitStructure.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	RCC_ClkInitStructure.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+	RCC_ClkInitStructure.APB1CLKDivider = RCC_HCLK_DIV4;
+	RCC_ClkInitStructure.APB2CLKDivider = RCC_HCLK_DIV2;
+
+	/* Try to init */
+	HAL_RCC_ClockConfig(&RCC_ClkInitStructure, FLASH_WAIT_CYCLES);
 
 	SystemCoreClockUpdate();
 
 	//Pas de subpriority sur les interruptions
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+	NVIC_SetPriorityGrouping(4);
 
 	//Activation de l'exception Division par 0
-	SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;	//
+	SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
 
 	//Config LibC: no buffering
 	setvbuf(stdout, NULL, _IONBF, 0 );
 	setvbuf(stderr, NULL, _IONBF, 0 );
 	setvbuf(stdin, NULL, _IONBF, 0 );
-
 }
 
 #if 0
