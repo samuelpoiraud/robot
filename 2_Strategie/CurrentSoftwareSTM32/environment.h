@@ -31,6 +31,7 @@
 	// Macros permettant de symétriser le terrain
 	#define COLOR_Y(y)		((global.color == BOT_COLOR) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
 	#define COLOR_ANGLE(a)	((global.color == BOT_COLOR) ? (a) : (-(a)))
+	#define COLOR_EXP(a,b)	((global.color == BOT_COLOR) ? (a) : (b))
 
 	/* Appelée dans l'INIT : initialise toutes les variables d'environnement */
 	void ENV_init(void);
