@@ -946,7 +946,7 @@ static void AX12_state_machine(AX12_state_machine_event_e event) {
 #ifdef AX12_UART_Ptr
 					// ax12
 					if(state_machine.ax12_sending_index < state_machine.current_instruction.size) {
-						USART_SendData(AX12_UART_Ptr, AX12_get_instruction_packet(state_machine.ax12_sending_index, &(state_machine.current_instruction)));
+						HAL_USART_Transmit_IT(&USART_HandleStructure, &(AX12_get_instruction_packet(state_machine.ax12_sending_index, &(state_machine.current_instruction))), 1);
 						state_machine.ax12_sending_index++;
 					} else
 						__HAL_USART_DISABLE_IT(&USART_HandleStructure, USART_IT_TXE);
@@ -1236,7 +1236,7 @@ static void AX12_UART_EnableIRQ() {
 static void AX12_UART_putc(Uint8 c) {
 
 #ifdef AX12_UART_Ptr
-	HAL_USART_Transmit_IT(&USART_HandleStructure, &c, 1);
+	HAL_USART_Transmit(&USART_HandleStructure, &c, 1, 10); //Timeout 10 ms
 #endif
 }
 
@@ -1300,6 +1300,7 @@ void _ISR AX12_UART_Interrupt(void)
 	if(__HAL_USART_GET_IT_SOURCE(&USART_HandleStructure, USART_IT_RXNE))
 	{
 		Uint8 i = 0;
+		Uint8 c;
 		while(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
 			if(state_machine.state != AX12_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
 				HAL_USART_Receive(&USART_HandleStructure, &c, 1, 0); //Timeout 0 ms

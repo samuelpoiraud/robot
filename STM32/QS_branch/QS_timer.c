@@ -469,11 +469,11 @@ int TIMER5_getCounter() {
 }
 
 void TIMER5_AckIT(){
-	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_15, TIM_IT_UPDATE);
+	__HAL_TIM_CLEAR_IT(&TIM_HandleStructure_10, TIM_IT_UPDATE);
 }
 
 void TIMER5_getITStatus(){
-	__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_15, TIM_IT_UPDATE);
+	__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_10, TIM_IT_UPDATE);
 }
 
 //Interrupts management and redirection

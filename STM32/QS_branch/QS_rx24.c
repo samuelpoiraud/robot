@@ -1226,7 +1226,7 @@ static void RX24_UART_EnableIRQ() {
 static void RX24_UART_putc(Uint8 c) {
 
 #ifdef RX24_UART_Ptr
-	HAL_USART_Transmit_IT(&USART_HandleStructure, &c, 1);
+	HAL_USART_Transmit(&USART_HandleStructure, &c, 1, 10); // Timeout 10 ms
 #endif
 }
 
@@ -1292,9 +1292,10 @@ void _ISR RX24_UART_Interrupt(void)
 	if(__HAL_USART_GET_IT_SOURCE(&USART_HandleStructure, USART_IT_RXNE))
 	{
 		Uint8 i = 0;
+		Uint8 c;
 		while(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
 			if(state_machine.state != RX24_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
-				HAL_USART_Receive_IT(&USART_HandleStructure, &c, 1, 0);  //Timeout de 0 ms
+				HAL_USART_Receive(&USART_HandleStructure, &c, 1, 0);  //Timeout de 0 ms
 			} else {
 				RX24_state_machine(RX24_SME_RxInterrupt);
 				if(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE) && i > 5) {
