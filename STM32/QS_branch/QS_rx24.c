@@ -17,7 +17,7 @@
 
 #include "QS_ports.h"
 #include "QS_outputlog.h"
-#include "stm32f4xx_usart.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_usart.h"
 
 #include "../config/config_pin.h"
 
@@ -357,6 +357,9 @@ static RX24_state_machine_t state_machine = {0};	//Machine à états du driver
 static volatile RX24_instruction_buffer RX24_special_instruction_buffer;
 //Cette variable est à TRUE si le driver est en mode préparation de commandes. Voir doc de RX24_start_command_block dans le .h
 static bool_e RX24_prepare_commands = FALSE;
+
+//Variable contenant les infos relatives à l'UART
+static UART_HandleTypeDef USART_HandleStructure;
 
 /**************************************************************************/
 /** Fonctions internes au driver de l'RX24+ et macros                    **/
@@ -897,7 +900,7 @@ static void RX24_state_machine(RX24_state_machine_event_e event) {
 				else {	//s'il n'y a rien a faire, mettre en veille la machine a état, l'UART sera donc inactif (et mettre en mode reception pour ne pas forcer la sortie dont on défini la tension, celle non relié a l'RX24)
 					while(!RX24_UART_GetFlagStatus(USART_FLAG_TC));   //inifinite loop si uart pas initialisé
 
-					GPIO_WriteBit(RX24_DIRECTION_PORT_RX24, RX_DIRECTION);
+					HAL_GPIO_WritePin(RX24_DIRECTION_PORT_RX24, RX_DIRECTION);
 					break;
 				}
 
@@ -918,7 +921,7 @@ static void RX24_state_machine(RX24_state_machine_event_e event) {
 				#endif
 
 
-				GPIO_WriteBit(RX24_DIRECTION_PORT_RX24, TX_DIRECTION);
+				HAL_GPIO_WritePin(RX24_DIRECTION_PORT_RX24, TX_DIRECTION);
 
 				TIMER_SRC_TIMER_start_ms(RX24_STATUS_SEND_TIMEOUT);	//Pour le timeout d'envoi, ne devrait pas arriver
 
@@ -939,10 +942,10 @@ static void RX24_state_machine(RX24_state_machine_event_e event) {
 #ifdef RX24_UART_Ptr
 				// rx24
 				if(state_machine.rx24_sending_index < state_machine.current_instruction.size) {
-					USART_SendData(RX24_UART_Ptr, RX24_get_instruction_packet(state_machine.rx24_sending_index, &state_machine.current_instruction));
+					HAL_USART_Transmit_IT(&USART_HandleStructure, &(RX24_get_instruction_packet(state_machine.rx24_sending_index, &state_machine.current_instruction)), 1);
 					state_machine.rx24_sending_index++;
 				} else
-					USART_ITConfig(RX24_UART_Ptr, USART_IT_TXE, DISABLE);
+					__HAL_USART_ENABLE_IT(&USART_HandleStructure, USART_IT_TXE);
 #endif
 
 //				if(state_machine.sending_index < state_machine.current_instruction.size) {
@@ -975,7 +978,7 @@ static void RX24_state_machine(RX24_state_machine_event_e event) {
 						while(!RX24_UART_GetFlagStatus(USART_FLAG_TC));
 
 
-					GPIO_WriteBit(RX24_DIRECTION_PORT_RX24, RX_DIRECTION);
+					HAL_GPIO_WritePin(RX24_DIRECTION_PORT_RX24, RX_DIRECTION);
 
 						//flush recv buffer
 					while(RX24_UART_GetFlagStatus(USART_FLAG_ORE) || RX24_UART_GetFlagStatus(USART_FLAG_FE) || RX24_UART_GetFlagStatus(USART_FLAG_NE))
@@ -1164,82 +1167,77 @@ static bool_e RX24_instruction_queue_insert(const RX24_instruction_packet_t* ins
 
 static void RX24_UART_init_all(Uint32 uart_speed)
 {
-	NVIC_InitTypeDef NVIC_InitStructure;
-
 	PORTS_uarts_init();
-
-
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;  //inférieur aux uarts mais supérieur au timers
-
 
 #ifdef RX24_UART_ID
 	RX24_UART_init(RX24_UART_Ptr, uart_speed);
-	NVIC_InitStructure.NVIC_IRQChannel = RX24_UART_Interrupt_IRQn;
-	NVIC_Init(&NVIC_InitStructure);
+	HAL_NVIC_SetPriority(RX24_UART_Interrupt_IRQn, 3, 0); //PreemptionPriority = 3 : inférieur aux uarts mais supérieur au timers
+	HAL_NVIC_EnableIRQ(RX24_UART_Interrupt_IRQn);
 	debug_printf("UART %d initialized for RX24\n", RX24_UART_ID);
 #endif
 }
 
 static void RX24_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate) {
-	USART_InitTypeDef USART_InitStructure;
 
 	if(uartPtr == USART1)
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+		__HAL_RCC_USART1_CLK_ENABLE();
 	else if(uartPtr == USART2)
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+		__HAL_RCC_USART2_CLK_ENABLE();
 	else if(uartPtr == USART3)
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+		__HAL_RCC_USART3_CLK_ENABLE();
 	else {
 		fatal_printf("UART inconnu !!! %p\n", uartPtr);
 		assert(0 && "Uart inconnu");
 	}
 
-	USART_OverSampling8Cmd(uartPtr, ENABLE);
+	USART_HandleStructure.Instance = uartPtr;
+	USART_HandleStructure.Init.BaudRate = baudrate;
+	USART_HandleStructure.Init.WordLength = UART_WORDLENGTH_8B;
+	USART_HandleStructure.Init.StopBits = UART_STOPBITS_1;
+	USART_HandleStructure.Init.Parity = UART_PARITY_NONE;
+	USART_HandleStructure.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	USART_HandleStructure.Init.Mode = UART_MODE_TX_RX;
+	USART_HandleStructure.Init.OverSampling = UART_OVERSAMPLING_8;
 
-	USART_InitStructure.USART_BaudRate = baudrate;
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;
-	USART_InitStructure.USART_Parity = USART_Parity_No;
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-	USART_Init(uartPtr, &USART_InitStructure);
+	/*On applique les parametres d'initialisation ci-dessus */
+	HAL_UART_Init(&USART_HandleStructure);
 
+	/*Activation de l'UART */
+	__HAL_UART_ENABLE(&USART_HandleStructure);
 
-	/* Enable USART */
-	USART_Cmd(uartPtr, ENABLE);
-
-	USART_ITConfig(uartPtr, USART_IT_RXNE, ENABLE);
-	USART_ITConfig(uartPtr, USART_IT_TXE, DISABLE);
+	__HAL_USART_ENABLE_IT(&USART_HandleStructure, USART_IT_RXNE);
+	__HAL_USART_DISABLE_IT(&USART_HandleStructure, USART_IT_TXE);
 }
 
 static void RX24_UART_DisableIRQ() {
 
 #ifdef RX24_UART_Interrupt_IRQn
-	NVIC_DisableIRQ(RX24_UART_Interrupt_IRQn);
+	HAL_NVIC_DisableIRQ(RX24_UART_Interrupt_IRQn);
 #endif
 }
 
 static void RX24_UART_EnableIRQ() {
 
 #ifdef RX24_UART_Interrupt_IRQn
-	NVIC_EnableIRQ(RX24_UART_Interrupt_IRQn);
+	HAL_NVIC_EnableIRQ(RX24_UART_Interrupt_IRQn);
 #endif
 }
 
 static void RX24_UART_putc(Uint8 c) {
 
 #ifdef RX24_UART_Ptr
-	USART_SendData(RX24_UART_Ptr, c);
+	HAL_USART_Transmit_IT(&USART_HandleStructure, &c, 1);
 #endif
 }
 
 static Uint8 RX24_UART_getc() {
 
 #ifdef RX24_UART_Ptr
-		if(USART_GetFlagStatus(RX24_UART_Ptr, USART_FLAG_RXNE))
-			return USART_ReceiveData(RX24_UART_Ptr);
+	Uint8 c;
+	if(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE)){
+		HAL_USART_Receive(&USART_HandleStructure, &c, 1, 0); //Timeout 0 ms
+		return c;
+	}
 #endif
 
 	return 0;
@@ -1250,7 +1248,7 @@ static bool_e RX24_UART_GetFlagStatus(Uint16 flag) {
 		if(
 
 		#ifdef RX24_UART_Ptr
-				USART_GetFlagStatus(RX24_UART_Ptr, flag)
+				__HAL_USART_GET_FLAG(&USART_HandleStructure, flag)
 		#endif
 				)
 			return TRUE;
@@ -1258,7 +1256,7 @@ static bool_e RX24_UART_GetFlagStatus(Uint16 flag) {
 		if(
 
 		#ifdef RX24_UART_Ptr
-				USART_GetFlagStatus(RX24_UART_Ptr, flag)
+				__HAL_USART_GET_FLAG(&USART_HandleStructure, flag)
 		#endif
 				)
 			return TRUE;
@@ -1269,7 +1267,10 @@ static bool_e RX24_UART_GetFlagStatus(Uint16 flag) {
 static void RX24_UART_ITConfig(Uint16 flag, FunctionalState enable) {
 
 #ifdef RX24_UART_Ptr
-	USART_ITConfig(RX24_UART_Ptr, flag, enable);
+	if(enable)
+		__HAL_USART_ENABLE_IT(&USART_HandleStructure, flag);
+	else
+		__HAL_USART_DISABLE_IT(&USART_HandleStructure, flag);
 #endif
 }
 
@@ -1288,15 +1289,15 @@ static void RX24_UART_ITConfig(Uint16 flag, FunctionalState enable) {
 #ifdef RX24_UART_Interrupt
 void _ISR RX24_UART_Interrupt(void)
 {
-	if(USART_GetITStatus(RX24_UART_Ptr, USART_IT_RXNE))
+	if(__HAL_USART_GET_IT_SOURCE(&USART_HandleStructure, USART_IT_RXNE))
 	{
 		Uint8 i = 0;
-		while(USART_GetFlagStatus(RX24_UART_Ptr, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
+		while(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE)) {		//On a une IT Rx pour chaque caratère reçu, donc on ne devrai pas tomber dans un cas avec 2+ char dans le buffer uart dans une IT
 			if(state_machine.state != RX24_SMS_WaitingAnswer) {	//Arrive quand on allume les cartes avant la puissance ou lorsque l'on coupe la puissance avec les cartes alumées (reception d'un octet avec l'erreur FERR car l'entrée RX tombe à 0)
-				USART_ReceiveData(RX24_UART_Ptr);
+				HAL_USART_Receive_IT(&USART_HandleStructure, &c, 1, 0);  //Timeout de 0 ms
 			} else {
 				RX24_state_machine(RX24_SME_RxInterrupt);
-				if(USART_GetFlagStatus(RX24_UART_Ptr, USART_FLAG_RXNE) && i > 5) {
+				if(__HAL_USART_GET_FLAG(&USART_HandleStructure, USART_FLAG_RXNE) && i > 5) {
 					//debug_printf("Overinterrupt RX !\n");
 					break; //force 0, on va perdre des caractères, mais c'est mieux que de boucler ici ...
 				}
@@ -1304,7 +1305,7 @@ void _ISR RX24_UART_Interrupt(void)
 			i++;
 		}
 	}
-	else if(USART_GetITStatus(RX24_UART_Ptr, USART_IT_TXE))
+	else if(__HAL_USART_GET_IT_SOURCE(&USART_HandleStructure, USART_IT_TXE))
 	{
 		RX24_state_machine(RX24_SME_TxInterruptRX24);
 	}
@@ -1348,7 +1349,7 @@ void RX24_init() {
 	RX24_UART_init_all(RX24_UART_BAUDRATE);
 	TIMER_SRC_TIMER_init();
 
-	GPIO_WriteBit(RX24_DIRECTION_PORT_RX24, RX_DIRECTION);
+	HAL_GPIO_WritePin(RX24_DIRECTION_PORT_RX24, RX_DIRECTION);
 
 	RX24_prepare_commands = FALSE;
 	RX24_instruction_write8(RX24_BROADCAST_ID, RX24_RETURN_LEVEL, RX24_STATUS_RETURN_MODE);	//Mettre les RX24/RX24 dans le mode indiqué dans Global_config.h
