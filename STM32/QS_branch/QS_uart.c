@@ -541,7 +541,7 @@ int _write(int file, char *ptr, int len)
 
 				while(buffer2tx.nb_datas >= buffer2tx.size);	//ON BLOQUE ICI
 
-				AHL_NVIC_DisableIRQ(USART2_IRQn);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
+				HAL_NVIC_DisableIRQ(USART2_IRQn);	//On interdit la préemption ici.. pour éviter les Read pendant les Write.
 
 				if(buffer2tx.nb_datas < buffer2tx.size)
 				{
@@ -943,7 +943,7 @@ int _write(int file, char *ptr, int len)
 			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART5_ID], USART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u5rxbuf[(m_u5rxnum%UART_RX_BUF_SIZE)]);
 
-				while(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART5_ID], USART_FLAG_RXNE))
+				while(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART5_ID], USART_FLAG_RXNE))
 				{
 					#ifdef LED_UART
 						toggle_led(LED_UART);

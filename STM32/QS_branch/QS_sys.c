@@ -182,7 +182,7 @@ void SYS_init(void)
 	SystemCoreClockUpdate();
 
 	//Pas de subpriority sur les interruptions
-	NVIC_SetPriorityGrouping(4);
+	HAL_NVIC_SetPriorityGrouping(4);
 
 	//Activation de l'exception Division par 0
 	SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
