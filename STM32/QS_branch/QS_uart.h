@@ -31,6 +31,18 @@
 
 	#include "QS_all.h"
 
+	// Identifiant des UART
+	typedef enum
+	{
+		UART1_ID = 0,
+		UART2_ID,
+		UART3_ID,
+		UART4_ID,
+		UART5_ID,
+		UART6_ID,
+		UART_ID_NB
+	}uart_id_e;
+
 	/*	fonction initialisant les uart choisis
 		vitesse : 9600 bauds
 		bits de donnees : 8
