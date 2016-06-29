@@ -33,6 +33,25 @@
 	} EXTERNALIT_port_e;
 
 	typedef enum {
+		EXTIT_Pin0,
+		EXTIT_Pin1,
+		EXTIT_Pin2,
+		EXTIT_Pin3,
+		EXTIT_Pin4,
+		EXTIT_Pin5,
+		EXTIT_Pin6,
+		EXTIT_Pin7,
+		EXTIT_Pin8,
+		EXTIT_Pin9,
+		EXTIT_Pin10,
+		EXTIT_Pin11,
+		EXTIT_Pin12,
+		EXTIT_Pin13,
+		EXTIT_Pin14,
+		EXTIT_Pin15
+	} EXTERNALIT_pin_e;
+
+	typedef enum {
 		EXTIT_Edge_Rising,
 		EXTIT_Edge_Falling,
 		EXTIT_Edge_Both
