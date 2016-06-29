@@ -10,12 +10,14 @@
  */
 
 #include "QS_external_it.h"
-#include "stm32f4xx_syscfg.h"
-#include "stm32f4xx_exti.h"
+#include "../stm32f4xx_hal/stm32f4xx_hal_gpio.h"
 
 
 #ifdef USE_EXTERNAL_IT
 	#warning "SOYEZ PRUDENT AVEC LES IT EXTERNES"
+
+	static GPIO_TypeDef* EXTERNALIT_get_port(EXTERNALIT_port_e port);
+	static Uint16 EXTERNALIT_get_pin(EXTERNALIT_pin_e pin);
 
 	EXTERNALIT_callback_it_t callbacks[16];
 	volatile static bool_e initialized = FALSE;
@@ -30,91 +32,74 @@
 			callbacks[i] = NULL;
 		}
 
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+		__HAL_RCC_SYSCFG_CLK_ENABLE();
 		initialized = TRUE;
 	}
 
-	void EXTERNALIT_configure(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_t callback) {
-		NVIC_InitTypeDef NVIC_InitStructure;
+	void EXTERNALIT_configure(EXTERNALIT_port_e port, EXTERNALIT_pin_e pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_t callback) {
+		IRQn_Type irq;
 
-		if(pin >= 16)
-			return;
-
-		SYSCFG_EXTILineConfig(port, pin);
+		assert(pin < 16);
 
 		EXTERNALIT_set_edge(port, pin, edge);
 
 		callbacks[pin] = callback;
 
 		if(pin < 5)
-			NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn + pin;
+			irq = EXTI0_IRQn + pin;
 		else if(pin < 10)
-			NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+			irq = EXTI9_5_IRQn;
 		else
-			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+			irq = EXTI15_10_IRQn;
 
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-
-		NVIC_Init(&NVIC_InitStructure);
+		HAL_NVIC_SetPriority(irq, 0, 0);
+		HAL_NVIC_EnableIRQ(irq);
 	}
 
-	void EXTERNALIT_set_edge(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge) {
-		EXTI_InitTypeDef EXTI_InitStructure;
+	void EXTERNALIT_set_edge(EXTERNALIT_port_e port, EXTERNALIT_pin_e pin, EXTERNALIT_edge_e edge) {
+		GPIO_InitTypeDef GPIO_InitStructure;
 
-		port = port;
-
-		EXTI_InitStructure.EXTI_Line = 1 << pin;
-		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+		GPIO_InitStructure.Pin = EXTERNALIT_get_pin(pin);
+		GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
+		GPIO_InitStructure.Alternate = 0;
+		GPIO_InitStructure.Pull = GPIO_NOPULL;
 
 		switch(edge) {
 			case EXTIT_Edge_Rising:
-				EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+				GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;;
 				break;
 
 			case EXTIT_Edge_Falling:
-				EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+				GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
 				break;
 
 			case EXTIT_Edge_Both:
-				EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+				GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING_FALLING;
 				break;
 		}
 
-		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-		EXTI_Init(&EXTI_InitStructure);
+		HAL_GPIO_Init(EXTERNALIT_get_port(port), &GPIO_InitStructure);
 	}
 
-	void EXTERNALIT_set_priority(EXTERNALIT_port_e port, Uint8 pin, Uint8 priority) {
-		NVIC_InitTypeDef NVIC_InitStructure;
+	void EXTERNALIT_set_priority(EXTERNALIT_pin_e pin, Uint8 priority) {
+		IRQn_Type irq;
 
 		if(pin < 5)
-			NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn + pin;
+			irq = EXTI0_IRQn + pin;
 		else if(pin < 10)
-			NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+			irq = EXTI9_5_IRQn;
 		else
-			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+			irq = EXTI15_10_IRQn;
 
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = priority;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-
-		NVIC_Init(&NVIC_InitStructure);
+		HAL_NVIC_SetPriority(irq, priority, 0);
+		HAL_NVIC_EnableIRQ(irq);
 	}
 
-	void EXTERNALIT_disable(EXTERNALIT_port_e port, Uint8 pin) {
-		EXTI_InitTypeDef EXTI_InitStructure;
-
-		port = port;
-
-		EXTI_InitStructure.EXTI_Line = 1 << pin;
-		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-		EXTI_InitStructure.EXTI_LineCmd = DISABLE;
-		EXTI_Init(&EXTI_InitStructure);
+	void EXTERNALIT_disable(EXTERNALIT_port_e port, EXTERNALIT_pin_e pin) {
+		HAL_GPIO_DeInit(EXTERNALIT_get_port(port),EXTERNALIT_get_pin(pin));
 	}
 
-	void EXTERNALIT_set_it_enabled(EXTERNALIT_port_e port, Uint8 pin, bool_e enabled) {
+	void EXTERNALIT_set_it_enabled(EXTERNALIT_pin_e pin, bool_e enabled) {
 		IRQn_Type irq;
 
 		if(pin < 5)
@@ -125,91 +110,68 @@
 			irq = EXTI15_10_IRQn;
 
 		if(enabled)
-			NVIC_EnableIRQ(irq);
+			HAL_NVIC_EnableIRQ(irq);
 		else
-			NVIC_DisableIRQ(irq);
+			HAL_NVIC_DisableIRQ(irq);
 	}
 
-
-	//Interrupts management and redirection
-	void EXTI0_IRQHandler()
-	{
-		if(EXTI_GetITStatus(EXTI_Line0))
-		{
-			if(callbacks[0] != NULL)
-				callbacks[0]();
-			EXTI_ClearITPendingBit(EXTI_Line0);
+	static GPIO_TypeDef* EXTERNALIT_get_port(EXTERNALIT_port_e port) {
+		GPIO_TypeDef* gpio_port;
+		switch(port){
+			case EXTIT_GpioA : gpio_port = GPIOA; break;
+			case EXTIT_GpioB : gpio_port = GPIOB; break;
+			case EXTIT_GpioC : gpio_port = GPIOC; break;
+			case EXTIT_GpioD : gpio_port = GPIOD; break;
+			case EXTIT_GpioE : gpio_port = GPIOE; break;
+			case EXTIT_GpioF : gpio_port = GPIOF; break;
+			case EXTIT_GpioG : gpio_port = GPIOG; break;
 		}
+		return gpio_port;
 	}
 
-	void EXTI1_IRQHandler()
-	{
-		if(EXTI_GetITStatus(EXTI_Line1))
-		{
-			if(callbacks[1] != NULL)
-				callbacks[1]();
-			EXTI_ClearITPendingBit(EXTI_Line1);
+	static Uint16 EXTERNALIT_get_pin(EXTERNALIT_pin_e pin) {
+		Uint16 gpio_pin;
+		switch(pin){
+			case EXTIT_Pin0  : gpio_pin = GPIO_PIN_0; break;
+			case EXTIT_Pin1  : gpio_pin = GPIO_PIN_1; break;
+			case EXTIT_Pin2  : gpio_pin = GPIO_PIN_2; break;
+			case EXTIT_Pin3  : gpio_pin = GPIO_PIN_3; break;
+			case EXTIT_Pin4  : gpio_pin = GPIO_PIN_4; break;
+			case EXTIT_Pin5  : gpio_pin = GPIO_PIN_5; break;
+			case EXTIT_Pin6  : gpio_pin = GPIO_PIN_6; break;
+			case EXTIT_Pin7  : gpio_pin = GPIO_PIN_7; break;
+			case EXTIT_Pin8  : gpio_pin = GPIO_PIN_8; break;
+			case EXTIT_Pin9  : gpio_pin = GPIO_PIN_9; break;
+			case EXTIT_Pin10 : gpio_pin = GPIO_PIN_10; break;
+			case EXTIT_Pin11 : gpio_pin = GPIO_PIN_11; break;
+			case EXTIT_Pin12 : gpio_pin = GPIO_PIN_12; break;
+			case EXTIT_Pin13 : gpio_pin = GPIO_PIN_13; break;
+			case EXTIT_Pin14 : gpio_pin = GPIO_PIN_14; break;
+			case EXTIT_Pin15 : gpio_pin = GPIO_PIN_15; break;
 		}
+		return gpio_pin;
 	}
 
-	void EXTI2_IRQHandler()
+	//Interrupts callbacks
+	void HAL_GPIO_EXTI_Callback(Uint16 gpio_pin)
 	{
-		if(EXTI_GetITStatus(EXTI_Line2))
-		{
-			if(callbacks[2] != NULL)
-				callbacks[2]();
-			EXTI_ClearITPendingBit(EXTI_Line2);
-		}
-	}
-	void EXTI3_IRQHandler()
-	{
-		if(EXTI_GetITStatus(EXTI_Line3))
-		{
-			if(callbacks[3] != NULL)
-				callbacks[3]();
-			EXTI_ClearITPendingBit(EXTI_Line3);
-		}
-	}
-	void EXTI4_IRQHandler()
-	{
-		if(EXTI_GetITStatus(EXTI_Line4))
-		{
-			if(callbacks[4] != NULL)
-				callbacks[4]();
-			EXTI_ClearITPendingBit(EXTI_Line4);
-		}
-	}
-
-
-	void EXTI9_5_IRQHandler()
-	{
-		Uint8 i;
-		Uint32 EXTI_Line;
-		for(i = 5; i <= 9; i++)
-		{
-			EXTI_Line = ((Uint32)(1))<< (i+1);
-			if(EXTI_GetITStatus(EXTI_Line))
-			{
-				if(callbacks[i] != NULL)
-					callbacks[i]();
-				EXTI_ClearITPendingBit(EXTI_Line);
-			}
-		}
-	}
-
-	void EXTI15_10_IRQHandler()
-	{
-		Uint8 i;
-		Uint32 EXTI_Line;
-		for(i = 10; i <= 15; i++)
-		{
-			EXTI_Line = ((Uint32)(1))<< (i);
-			if(EXTI_GetITStatus(EXTI_Line))
-			{
-				if(callbacks[i] != NULL)
-					callbacks[i]();
-				EXTI_ClearITPendingBit(EXTI_Line);
-			}
+		switch(gpio_pin){
+			case GPIO_PIN_0  : callbacks[0](); break;
+			case GPIO_PIN_1  : callbacks[1](); break;
+			case GPIO_PIN_2  : callbacks[2](); break;
+			case GPIO_PIN_3  : callbacks[3](); break;
+			case GPIO_PIN_4  : callbacks[4](); break;
+			case GPIO_PIN_5  : callbacks[5](); break;
+			case GPIO_PIN_6  : callbacks[6](); break;
+			case GPIO_PIN_7  : callbacks[7](); break;
+			case GPIO_PIN_8  : callbacks[8](); break;
+			case GPIO_PIN_9  : callbacks[9](); break;
+			case GPIO_PIN_10 : callbacks[10](); break;
+			case GPIO_PIN_11 : callbacks[11](); break;
+			case GPIO_PIN_12 : callbacks[12](); break;
+			case GPIO_PIN_13 : callbacks[13](); break;
+			case GPIO_PIN_14 : callbacks[14](); break;
+			case GPIO_PIN_15 : callbacks[15](); break;
 		}
 	}
 
