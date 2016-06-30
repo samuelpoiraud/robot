@@ -20,7 +20,6 @@
 
 typedef enum {
 	UART_I_StopBit_1,
-	UART_I_StopBit_1_5,
 	UART_I_StopBit_2
 } UART_IMPL_stop_bits_e;
 

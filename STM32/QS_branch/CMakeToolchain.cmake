@@ -77,8 +77,8 @@ macro(configure_mcu_target TARGET_NAME SRC_LIST)
 
     add_executable(${TARGET_ELF} ${SRC_LIST})
 
-    include_directories("${CMAKE_CURRENT_LIST_DIR}/stm32f4xx")
-    target_link_libraries(${TARGET_ELF} "${CMAKE_CURRENT_LIST_DIR}/stm32f4xx/libstm32f4xx.a")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/stm32f4xx_hal")
+    #target_link_libraries(${TARGET_ELF} "${CMAKE_CURRENT_LIST_DIR}/stm32f4xx/libstm32f4xx.a")
 
     # elf to bin/hex (utilisé pour programmer sur la cible)
     add_custom_command(OUTPUT ${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN} DEPENDS ${TARGET_ELF} COMMAND ${CMAKE_OBJCOPY} "-Obinary" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_ELF}" "${EXECUTABLE_OUTPUT_PATH}/${TARGET_BIN}")
