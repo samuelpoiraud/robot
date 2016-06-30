@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    25-March-2015
+  * @version V1.4.2
+  * @date    10-November-2015
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -44,7 +44,6 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f4xx_hal_dma.h"
 #include "stm32f4xx_hal_def.h"
 
 /** @addtogroup STM32F4xx_HAL_Driver
@@ -134,7 +133,7 @@ typedef struct
   __IO uint16_t                 RxXferCount;      /* Usart Rx Transfer Counter           */  
   
   DMA_HandleTypeDef             *hdmatx;          /* Usart Tx DMA Handle parameters      */
-
+    
   DMA_HandleTypeDef             *hdmarx;          /* Usart Rx DMA Handle parameters      */
   
   HAL_LockTypeDef                Lock;            /* Locking object                      */
@@ -354,7 +353,7 @@ typedef struct
   */
 #define __HAL_USART_CLEAR_PEFLAG(__HANDLE__)    \
   do{                                           \
-    __IO uint32_t tmpreg;                       \
+    __IO uint32_t tmpreg = 0x00;                \
     tmpreg = (__HANDLE__)->Instance->SR;        \
     tmpreg = (__HANDLE__)->Instance->DR;        \
     UNUSED(tmpreg);                             \
