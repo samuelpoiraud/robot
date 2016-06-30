@@ -140,11 +140,11 @@ void UART_deInit(void){
 	HAL_UART_DeInit(&UART_HandleStructure[UART3_ID]);
 #endif
 #ifdef USE_UART4
-	__HAL_RCC_USART4_CLK_DISABLE();
+	__HAL_RCC_UART4_CLK_DISABLE();
 	HAL_UART_DeInit(&UART_HandleStructure[UART4_ID]);
 #endif
 #ifdef USE_UART5
-	__HAL_RCC_USART5_CLK_DISABLE();
+	__HAL_RCC_UART5_CLK_DISABLE();
 	HAL_UART_DeInit(&UART_HandleStructure[UART5_ID]);
 #endif
 #ifdef USE_UART6
@@ -212,28 +212,28 @@ void UART_init_all(void)
 	#endif
 #endif
 #ifdef USE_UART4
-	__HAL_RCC_USART4_CLK_ENABLE();
+	__HAL_RCC_UART4_CLK_ENABLE();
 	UART_init(UART4_ID, UART4_BAUDRATE);
 
 	#ifdef USE_UART4RXINTERRUPT
 		m_u4rxnum = 0;
 		m_u4rx = 0;
 		/* Enable the USART4 Interrupt */
-		HAL_NVIC_SetPriority(USART4_IRQn, 5, 0);
-		HAL_NVIC_EnableIRQ(USART4_IRQn);
+		HAL_NVIC_SetPriority(UART4_IRQn, 5, 0);
+		HAL_NVIC_EnableIRQ(UART4_IRQn);
 		HAL_UART_Receive_IT(&UART_HandleStructure[UART4_ID],&m_u4rxbuf[m_u4rxnum],1);
 	#endif
 #endif
 #ifdef USE_UART5
-	__HAL_RCC_USART5_CLK_ENABLE();
+	__HAL_RCC_UART5_CLK_ENABLE();
 	UART_init(UART5_ID, UART5_BAUDRATE);
 
 	#ifdef USE_UART5RXINTERRUPT
 		m_u5rxnum = 0;
 		m_u5rx = 0;
 		/* Enable the USART5 Interrupt */
-		HAL_NVIC_SetPriority(USART5_IRQn, 5, 0);
-		HAL_NVIC_EnableIRQ(USART5_IRQn);
+		HAL_NVIC_SetPriority(UART5_IRQn, 5, 0);
+		HAL_NVIC_EnableIRQ(UART5_IRQn);
 		HAL_UART_Receive_IT(&UART_HandleStructure[UART5_ID],&m_u5rxbuf[m_u5rxnum],1);
 	#endif
 #endif
@@ -332,8 +332,8 @@ int _write(int file, char *ptr, int len)
 		case 2:  //stderr = problème (entre autre trap_handler) donc pas de buffering
 			for (i = 0; i < len; ++i)
 			{
-				while(__HAL_USART_GET_FLAG(&UART_HandleStructure[USART_FOR_PRINTF_PTR], USART_FLAG_TXE) == RESET);
-				HAL_USART_Transmit_IT(&UART_HandleStructure[USART_FOR_PRINTF_PTR], *ptr++, 1);
+				while(__HAL_UART_GET_FLAG(&UART_HandleStructure[USART_FOR_PRINTF_PTR], UART_FLAG_TXE) == RESET);
+				HAL_UART_Transmit_IT(&UART_HandleStructure[USART_FOR_PRINTF_PTR], *ptr++, 1);
 			}
 			return len;
 			break;
@@ -398,8 +398,8 @@ int _write(int file, char *ptr, int len)
 				return;					//Si printf en IT pendant un printf, on abandonne le caractère du printf en IT..
 
 			reentrance_detection = TRUE;
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART1_ID], USART_IT_TXE))
-				HAL_USART_Transmit_IT(&UART_HandleStructure[UART1_ID], c, 1);
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART1_ID], UART_IT_TXE))
+				HAL_UART_Transmit_IT(&UART_HandleStructure[UART1_ID], c, 1);
 			else
 			{
 				//mise en buffer + activation IT U1TX.
@@ -420,7 +420,7 @@ int _write(int file, char *ptr, int len)
 				}
 
 				HAL_NVIC_EnableIRQ(USART1_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-				__HAL_USART_ENABLE_IT(__HAL_USART_GET_FLAG, USART_IT_TXE);
+				__HAL_UART_ENABLE_IT(&UART_HandleStructure[UART1_ID], UART_IT_TXE);
 			}
 			reentrance_detection = FALSE;
 		}
@@ -429,18 +429,18 @@ int _write(int file, char *ptr, int len)
 		//Fonction blocante
 		void UART1_putc(Uint8 mes)
 		{
-			while(__HAL_USART_GET_FLAG(__HAL_USART_GET_FLAG, USART_FLAG_TXE) == RESET);
-			HAL_USART_Transmit(&UART_HandleStructure[UART1_ID], mes, 1, 100);
+			while(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART1_ID], UART_FLAG_TXE) == RESET);
+			HAL_UART_Transmit(&UART_HandleStructure[UART1_ID], mes, 1, 100);
 		}
 	#endif /* def USE_UART1TXINTERRUPT */
 
 
 	void _ISR USART1_IRQHandler(void){
 		#ifdef USE_UART1RXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART1_ID], USART_IT_RXNE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART1_ID], UART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u1rxbuf[(m_u1rxnum%UART_RX_BUF_SIZE)]);
 
-				while(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART1_ID], USART_FLAG_RXNE)){
+				while(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART1_ID], UART_FLAG_RXNE)){
 					#ifdef LED_UART
 						toggle_led(LED_UART);
 					#endif
@@ -477,11 +477,11 @@ int _write(int file, char *ptr, int len)
 							receiveddata = m_u1rxbuf;
 					#endif
 				}
-				__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART1_ID], USART_IT_RXNE);
+				__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART1_ID], UART_IT_RXNE);
 			}
 		#endif
 		#ifdef USE_UART1TXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART1_ID], USART_IT_TXE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART1_ID], UART_IT_TXE)) {
 				Uint8 c;
 
 				//debufferiser.
@@ -494,13 +494,13 @@ int _write(int file, char *ptr, int len)
 						c = buffer1tx.datas[buffer1tx.index_read];
 						buffer1tx.index_read = (buffer1tx.index_read>=buffer1tx.size-1)?0:(buffer1tx.index_read + 1);
 						buffer1tx.nb_datas--;
-						HAL_USART_Transmit_IT(&UART_HandleStructure[UART1_ID], c, 1);
+						HAL_UART_Transmit_IT(&UART_HandleStructure[UART1_ID], c, 1);
 					}
 					//Critical section
 
 				}
 				else if(!IsNotEmpty_buffer(&buffer1tx))
-					__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART1_ID], USART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+					__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART1_ID], UART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 			}
 		#endif
 	}
@@ -530,8 +530,8 @@ int _write(int file, char *ptr, int len)
 
 		void UART2_putc(Uint8 c)
 		{
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART2_ID], USART_IT_TXE))
-				HAL_USART_Transmit_IT(&UART_HandleStructure[UART2_ID], c, 1);
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART2_ID], UART_IT_TXE))
+				HAL_UART_Transmit_IT(&UART_HandleStructure[UART2_ID], c, 1);
 			else
 			{
 				//mise en buffer + activation IT U2TX.
@@ -551,23 +551,23 @@ int _write(int file, char *ptr, int len)
 				}
 
 				HAL_NVIC_EnableIRQ(USART2_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-				__HAL_USART_ENABLE_IT(&UART_HandleStructure[UART2_ID],USART_IT_TXE);
+				__HAL_UART_ENABLE_IT(&UART_HandleStructure[UART2_ID],UART_IT_TXE);
 			}
 		}
 	#else	/* def USE_UART2TXINTERRUPT */
 		void UART2_putc(Uint8 mes)
 		{
-			while(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART2_ID], USART_FLAG_TXE) == RESET);
-			HAL_USART_Transmit(&UART_HandleStructure[UART2_ID], mes, 1, 100);
+			while(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART2_ID], UART_FLAG_TXE) == RESET);
+			HAL_UART_Transmit(&UART_HandleStructure[UART2_ID], mes, 1, 100);
 		}
 	#endif
 	void _ISR USART2_IRQHandler(void)
 	{
 		#ifdef USE_UART2RXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART2_ID], USART_IT_RXNE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART2_ID], UART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u2rxbuf[(m_u2rxnum%UART_RX_BUF_SIZE)]);
 
-				while(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART2_ID], USART_FLAG_RXNE))
+				while(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART2_ID], UART_FLAG_RXNE))
 				{
 					#ifdef LED_UART
 						toggle_led(LED_UART);
@@ -580,12 +580,12 @@ int _write(int file, char *ptr, int len)
 					if (receiveddata - m_u2rxbuf >= UART_RX_BUF_SIZE)
 						receiveddata = m_u2rxbuf;
 				}
-				__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART2_ID], USART_IT_RXNE);
+				__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART2_ID], UART_IT_RXNE);
 				HAL_NVIC_ClearPendingIRQ(USART2_IRQn);
 			}
 		#endif	//def USE_UART2RXINTERRUPT
 		#ifdef USE_UART2TXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART2_ID], USART_IT_TXE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART2_ID], UART_IT_TXE)) {
 				Uint8 c;
 
 				//debufferiser.
@@ -598,13 +598,13 @@ int _write(int file, char *ptr, int len)
 						c = buffer2tx.datas[buffer2tx.index_read];
 						buffer2tx.index_read = (buffer2tx.index_read>=buffer2tx.size-1)?0:(buffer2tx.index_read + 1);
 						buffer2tx.nb_datas--;
-						HAL_USART_Transmit_IT(&UART_HandleStructure[UART2_ID], &c, 1);
+						HAL_UART_Transmit_IT(&UART_HandleStructure[UART2_ID], &c, 1);
 					}
 					//Critical section
 
 				}
 				else if(!IsNotEmpty_buffer(&buffer2tx))
-					__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART2_ID], USART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+					__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART2_ID], UART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 			}
 		#endif
 	}
@@ -655,8 +655,8 @@ int _write(int file, char *ptr, int len)
 
 		void UART3_putc(Uint8 c)
 		{
-			if(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART3_ID], USART_IT_TXE))
-				HAL_USART_Transmit_IT(&UART_HandleStructure[UART3_ID], &c, 1);
+			if(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART3_ID], UART_IT_TXE))
+				HAL_UART_Transmit_IT(&UART_HandleStructure[UART3_ID], &c, 1);
 			else
 			{
 				//mise en buffer + activation IT U3TX.
@@ -676,23 +676,23 @@ int _write(int file, char *ptr, int len)
 				}
 
 				HAL_NVIC_EnableIRQ(USART3_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-				__HAL_USART_ENABLE_IT(&UART_HandleStructure[UART3_ID], USART_IT_TXE);
+				__HAL_UART_ENABLE_IT(&UART_HandleStructure[UART3_ID], UART_IT_TXE);
 			}
 		}
 	#else	/* def USE_UART3TXINTERRUPT */
 		void UART3_putc(Uint8 mes)
 		{
-			while(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART3_ID], USART_FLAG_TXE) == RESET);
-			HAL_USART_Transmit(&UART_HandleStructure[UART3_ID], &mes, 1, 100);
+			while(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART3_ID], UART_FLAG_TXE) == RESET);
+			HAL_UART_Transmit(&UART_HandleStructure[UART3_ID], &mes, 1, 100);
 		}
 	#endif
 	void _ISR USART3_IRQHandler(void)
 	{
 		#ifdef USE_UART3RXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART3_ID], USART_IT_RXNE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART3_ID], UART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u3rxbuf[(m_u3rxnum%UART_RX_BUF_SIZE)]);
 
-				while(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART3_ID], USART_FLAG_RXNE))
+				while(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART3_ID], UART_FLAG_RXNE))
 				{
 					#ifdef LED_UART
 						toggle_led(LED_UART);
@@ -705,12 +705,12 @@ int _write(int file, char *ptr, int len)
 					if (receiveddata - m_u3rxbuf >= UART_RX_BUF_SIZE)
 						receiveddata = m_u3rxbuf;
 				}
-				__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART3_ID], USART_IT_RXNE);
+				__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART3_ID], UART_IT_RXNE);
 				HAL_NVIC_ClearPendingIRQ(USART3_IRQn);
 			}
 		#endif	//def USE_UART3RXINTERRUPT
 		#ifdef USE_UART3TXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART3_ID], USART_IT_TXE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART3_ID], UART_IT_TXE)) {
 				Uint8 c;
 
 				//debufferiser.
@@ -723,13 +723,13 @@ int _write(int file, char *ptr, int len)
 						c = buffer3tx.datas[buffer3tx.index_read];
 						buffer3tx.index_read = (buffer3tx.index_read>=buffer3tx.size-1)?0:(buffer3tx.index_read + 1);
 						buffer3tx.nb_datas--;
-						HAL_USART_Transmit_IT(&UART_HandleStructure[UART3_ID], &c, 1);
+						HAL_UART_Transmit_IT(&UART_HandleStructure[UART3_ID], &c, 1);
 					}
 					//Critical section
 
 				}
 				else if(!IsNotEmpty_buffer(&buffer3tx))
-					__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART3_ID], USART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+					__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART3_ID], UART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 			}
 		#endif
 	}
@@ -781,8 +781,8 @@ int _write(int file, char *ptr, int len)
 
 		void UART4_putc(Uint8 c)
 		{
-			if(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART4_ID], USART_IT_TXE))
-				HAL_USART_Transmit_IT(&UART_HandleStructure[UART4_ID], &c, 1);
+			if(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART4_ID], UART_IT_TXE))
+				HAL_UART_Transmit_IT(&UART_HandleStructure[UART4_ID], &c, 1);
 			else
 			{
 				//mise en buffer + activation IT U4TX.
@@ -802,23 +802,23 @@ int _write(int file, char *ptr, int len)
 				}
 
 				HAL_NVIC_EnableIRQ(UART4_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-				__HAL_USART_ENABLE_IT(&UART_HandleStructure[UART4_ID], USART_IT_TXE);
+				__HAL_UART_ENABLE_IT(&UART_HandleStructure[UART4_ID], UART_IT_TXE);
 			}
 		}
 	#else	/* def USE_UART4TXINTERRUPT */
 		void UART4_putc(Uint8 mes)
 		{
-			while(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART4_ID], USART_FLAG_TXE) == RESET);
-			HAL_USART_Transmit(&UART_HandleStructure[UART4_ID], &mes, 1, 100);
+			while(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART4_ID], UART_FLAG_TXE) == RESET);
+			HAL_UART_Transmit(&UART_HandleStructure[UART4_ID], &mes, 1, 100);
 		}
 	#endif
 	void _ISR UART4_IRQHandler(void)
 	{
 		#ifdef USE_UART4RXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART4_ID], USART_IT_RXNE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART4_ID], UART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u4rxbuf[(m_u4rxnum%UART_RX_BUF_SIZE)]);
 
-				while((__HAL_USART_GET_FLAG(&UART_HandleStructure[UART4_ID], USART_FLAG_RXNE))
+				while((__HAL_UART_GET_FLAG(&UART_HandleStructure[UART4_ID], UART_FLAG_RXNE))
 				{
 					#ifdef LED_UART
 						toggle_led(LED_UART);
@@ -831,12 +831,12 @@ int _write(int file, char *ptr, int len)
 					if (receiveddata - m_u4rxbuf >= UART_RX_BUF_SIZE)
 						receiveddata = m_u4rxbuf;
 				}
-				__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART4_ID], USART_IT_RXNE);
+				__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART4_ID], UART_IT_RXNE);
 				HAL_NVIC_ClearPendingIRQ(UART4_IRQn);
 			}
 		#endif	//def USE_UART4RXINTERRUPT
 		#ifdef USE_UART4TXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART4_ID], USART_IT_TXE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART4_ID], UART_IT_TXE)) {
 				Uint8 c;
 
 				//debufferiser.
@@ -849,13 +849,13 @@ int _write(int file, char *ptr, int len)
 						c = buffer4tx.datas[buffer4tx.index_read];
 						buffer4tx.index_read = (buffer4tx.index_read>=buffer4tx.size-1)?0:(buffer4tx.index_read + 1);
 						buffer4tx.nb_datas--;
-						HAL_USART_Transmit_IT(&UART_HandleStructure[UART4_ID], &c, 1);
+						HAL_UART_Transmit_IT(&UART_HandleStructure[UART4_ID], &c, 1);
 					}
 					//Critical section
 
 				}
 				else if(!IsNotEmpty_buffer(&buffer4tx))
-					__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART4_ID], USART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+					__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART4_ID], UART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 			}
 		#endif
 	}
@@ -906,8 +906,8 @@ int _write(int file, char *ptr, int len)
 
 		void UART5_putc(Uint8 c)
 		{
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART5_ID], USART_IT_TXE))
-				HAL_USART_Transmit_IT(&UART_HandleStructure[UART5_ID], &c, 1);
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART5_ID], UART_IT_TXE))
+				HAL_UART_Transmit_IT(&UART_HandleStructure[UART5_ID], &c, 1);
 			else
 			{
 				//mise en buffer + activation IT U5TX.
@@ -927,23 +927,23 @@ int _write(int file, char *ptr, int len)
 				}
 
 				HAL_NVIC_EnableIRQ(USART5_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-				__HAL_USART_ENABLE_IT(&UART_HandleStructure[UART5_ID], USART_IT_TXE);
+				__HAL_UART_ENABLE_IT(&UART_HandleStructure[UART5_ID], UART_IT_TXE);
 			}
 		}
 	#else	/* def USE_UART5TXINTERRUPT */
 		void UART5_putc(Uint8 mes)
 		{
-			while(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART5_ID], USART_FLAG_TXE) == RESET);
-			HAL_USART_Transmit(&UART_HandleStructure[UART5_ID], &mes, 1, 100);
+			while(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART5_ID], UART_FLAG_TXE) == RESET);
+			HAL_UART_Transmit(&UART_HandleStructure[UART5_ID], &mes, 1, 100);
 		}
 	#endif
 	void _ISR UART5_IRQHandler(void)
 	{
 		#ifdef USE_UART5RXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART5_ID], USART_IT_RXNE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART5_ID], UART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u5rxbuf[(m_u5rxnum%UART_RX_BUF_SIZE)]);
 
-				while(__HAL_USART_GET_FLAG(&UART_HandleStructure[UART5_ID], USART_FLAG_RXNE))
+				while(__HAL_UART_GET_FLAG(&UART_HandleStructure[UART5_ID], UART_FLAG_RXNE))
 				{
 					#ifdef LED_UART
 						toggle_led(LED_UART);
@@ -956,12 +956,12 @@ int _write(int file, char *ptr, int len)
 					if (receiveddata - m_u5rxbuf >= UART_RX_BUF_SIZE)
 						receiveddata = m_u5rxbuf;
 				}
-				__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART5_ID], USART_IT_RXNE);
+				__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART5_ID], UART_IT_RXNE);
 				HAL_NVIC_ClearPendingIRQ(UART5_IRQn);
 			}
 		#endif	//def USE_UART5RXINTERRUPT
 		#ifdef USE_UART5TXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART5_ID], USART_IT_TXE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART5_ID], UART_IT_TXE)) {
 				Uint8 c;
 
 				//debufferiser.
@@ -974,13 +974,13 @@ int _write(int file, char *ptr, int len)
 						c = buffer5tx.datas[buffer5tx.index_read];
 						buffer5tx.index_read = (buffer5tx.index_read>=buffer5tx.size-1)?0:(buffer5tx.index_read + 1);
 						buffer5tx.nb_datas--;
-						HAL_USART_Transmit_IT(&UART_HandleStructure[UART5_ID], &c, 1);
+						HAL_UART_Transmit_IT(&UART_HandleStructure[UART5_ID], &c, 1);
 					}
 					//Critical section
 
 				}
 				else if(!IsNotEmpty_buffer(&buffer5tx))
-					__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART5_ID], USART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+					__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART5_ID], UART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 			}
 		#endif
 	}
@@ -1031,8 +1031,8 @@ int _write(int file, char *ptr, int len)
 
 		void UART6_putc(Uint8 c)
 		{
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], USART_IT_TXE))
-				HAL_USART_Transmit_IT(&UART_HandleStructure[UART6_ID], &c, 1);
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], UART_IT_TXE))
+				HAL_UART_Transmit_IT(&UART_HandleStructure[UART6_ID], &c, 1);
 			else
 			{
 				//mise en buffer + activation IT U6TX.
@@ -1052,23 +1052,23 @@ int _write(int file, char *ptr, int len)
 				}
 
 				HAL_NVIC_EnableIRQ(USART6_IRQn);	//On active l'IT sur TX... lors du premier caractère à envoyer...
-				__HAL_USART_ENABLE_IT(&UART_HandleStructure[UART6_ID], USART_IT_TXE);
+				__HAL_UART_ENABLE_IT(&UART_HandleStructure[UART6_ID], UART_IT_TXE);
 			}
 		}
 	#else	/* def USE_UART6TXINTERRUPT */
 		void UART6_putc(Uint8 mes)
 		{
-			while(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], USART_FLAG_TXE) == RESET);
-			HAL_USART_Transmit(&UART_HandleStructure[UART6_ID], &mes, 1, 100);
+			while(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], UART_FLAG_TXE) == RESET);
+			HAL_UART_Transmit(&UART_HandleStructure[UART6_ID], &mes, 1, 100);
 		}
 	#endif
 	void _ISR USART6_IRQHandler(void)
 	{
 		#ifdef USE_UART6RXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], USART_IT_RXNE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], UART_IT_RXNE)) {
 				Uint8 * receiveddata = &(m_u6rxbuf[(m_u6rxnum%UART_RX_BUF_SIZE)]);
 
-				while(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], USART_FLAG_RXNE))
+				while(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], UART_FLAG_RXNE))
 				{
 					#ifdef LED_UART
 						toggle_led(LED_UART);
@@ -1081,12 +1081,12 @@ int _write(int file, char *ptr, int len)
 					if (receiveddata - m_u6rxbuf >= UART_RX_BUF_SIZE)
 						receiveddata = m_u6rxbuf;
 				}
-				__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART6_ID], USART_IT_RXNE);
+				__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART6_ID], UART_IT_RXNE);
 				HAL_NVIC_ClearPendingIRQ(USART6_IRQn);
 			}
 		#endif	//def USE_UART6RXINTERRUPT
 		#ifdef USE_UART6TXINTERRUPT
-			if(__HAL_USART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], USART_IT_TXE)) {
+			if(__HAL_UART_GET_IT_SOURCE(&UART_HandleStructure[UART6_ID], UART_IT_TXE)) {
 				Uint8 c;
 
 				//debufferiser.
@@ -1099,13 +1099,13 @@ int _write(int file, char *ptr, int len)
 						c = buffer6tx.datas[buffer6tx.index_read];
 						buffer6tx.index_read = (buffer6tx.index_read>=buffer6tx.size-1)?0:(buffer6tx.index_read + 1);
 						buffer6tx.nb_datas--;
-						HAL_USART_Transmit_IT(&UART_HandleStructure[UART6_ID], &c, 1);
+						HAL_UART_Transmit_IT(&UART_HandleStructure[UART6_ID], &c, 1);
 					}
 					//Critical section
 
 				}
 				else if(!IsNotEmpty_buffer(&buffer6tx))
-					__HAL_USART_DISABLE_IT(&UART_HandleStructure[UART6_ID], USART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
+					__HAL_UART_DISABLE_IT(&UART_HandleStructure[UART6_ID], UART_IT_TXE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
 			}
 		#endif
 	}

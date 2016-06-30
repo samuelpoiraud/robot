@@ -153,25 +153,126 @@
 	}
 
 	//Interrupts callbacks
+	void EXTI0_IRQHandler()
+	{
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+	}
+
+	void EXTI1_IRQHandler()
+	{
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
+	}
+
+	void EXTI2_IRQHandler()
+	{
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
+	}
+	void EXTI3_IRQHandler()
+	{
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
+	}
+	void EXTI4_IRQHandler()
+	{
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
+	}
+
+
+	void EXTI9_5_IRQHandler()
+	{
+		Uint8 i;
+		Uint16 gpio_pin;
+		for(i = 5; i <= 9; i++)
+		{
+			gpio_pin = EXTERNALIT_get_pin(i);
+			if(__HAL_GPIO_EXTI_GET_IT(gpio_pin) != RESET)
+			{
+				HAL_GPIO_EXTI_IRQHandler(gpio_pin);
+			}
+		}
+	}
+
+	void EXTI15_10_IRQHandler()
+	{
+		Uint8 i;
+		Uint16 gpio_pin;
+		for(i = 10; i <= 15; i++)
+		{
+			gpio_pin = EXTERNALIT_get_pin(i);
+			if(__HAL_GPIO_EXTI_GET_IT(gpio_pin) != RESET)
+			{
+				HAL_GPIO_EXTI_IRQHandler(gpio_pin);
+			}
+		}
+	}
+
+	// Gestion des callbacks (cette fonction est réentrante)
 	void HAL_GPIO_EXTI_Callback(Uint16 gpio_pin)
 	{
 		switch(gpio_pin){
-			case GPIO_PIN_0  : callbacks[0](); break;
-			case GPIO_PIN_1  : callbacks[1](); break;
-			case GPIO_PIN_2  : callbacks[2](); break;
-			case GPIO_PIN_3  : callbacks[3](); break;
-			case GPIO_PIN_4  : callbacks[4](); break;
-			case GPIO_PIN_5  : callbacks[5](); break;
-			case GPIO_PIN_6  : callbacks[6](); break;
-			case GPIO_PIN_7  : callbacks[7](); break;
-			case GPIO_PIN_8  : callbacks[8](); break;
-			case GPIO_PIN_9  : callbacks[9](); break;
-			case GPIO_PIN_10 : callbacks[10](); break;
-			case GPIO_PIN_11 : callbacks[11](); break;
-			case GPIO_PIN_12 : callbacks[12](); break;
-			case GPIO_PIN_13 : callbacks[13](); break;
-			case GPIO_PIN_14 : callbacks[14](); break;
-			case GPIO_PIN_15 : callbacks[15](); break;
+			case GPIO_PIN_0:
+				if(callbacks[0] != NULL)
+					callbacks[0]();
+				break;
+			case GPIO_PIN_1:
+				if(callbacks[1] != NULL)
+					callbacks[1]();
+				break;
+			case GPIO_PIN_2:
+				if(callbacks[2] != NULL)
+					callbacks[2]();
+				break;
+			case GPIO_PIN_3:
+				if(callbacks[3] != NULL)
+					callbacks[3]();
+				break;
+			case GPIO_PIN_4:
+				if(callbacks[4] != NULL)
+					callbacks[4]();
+				break;
+			case GPIO_PIN_5:
+				if(callbacks[5] != NULL)
+					callbacks[5]();
+				break;
+			case GPIO_PIN_6:
+				if(callbacks[6] != NULL)
+					callbacks[6]();
+				break;
+			case GPIO_PIN_7:
+				if(callbacks[7] != NULL)
+					callbacks[7]();
+				break;
+			case GPIO_PIN_8:
+				if(callbacks[8] != NULL)
+					callbacks[8]();
+				break;
+			case GPIO_PIN_9:
+				if(callbacks[9] != NULL)
+					callbacks[9]();
+				break;
+			case GPIO_PIN_10:
+				if(callbacks[10] != NULL)
+					callbacks[10]();
+				break;
+			case GPIO_PIN_11:
+				if(callbacks[11] != NULL)
+					callbacks[11]();
+				break;
+			case GPIO_PIN_12:
+				if(callbacks[12] != NULL)
+					callbacks[12]();
+				break;
+			case GPIO_PIN_13:
+				if(callbacks[13] != NULL)
+					callbacks[13]();
+				break;
+			case GPIO_PIN_14:
+				if(callbacks[14] != NULL)
+					callbacks[14]();
+				break;
+			case GPIO_PIN_15:
+				if(callbacks[15] != NULL)
+					callbacks[15]();
+				break;
 		}
 	}
 
