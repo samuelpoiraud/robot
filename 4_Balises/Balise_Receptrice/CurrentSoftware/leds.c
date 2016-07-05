@@ -21,6 +21,11 @@ typedef struct{
 	bool_e hokuyo_detection;	//A 1 si la détection vient de l'hokuyo
 }LEDS_adversary_t;
 
+typedef enum{
+	HORAIRE,
+	TRIGO
+}rotation_way_e;
+
 #define ANGLE_SMALL_FROM_BIG_BOT		(PI4096/2)
 #define ANGLE_BIG_FROM_SMALL_BOT		(-PI4096/2)
 #define DEPHASING_SMALL_FROM_BIG_BOT	(PI4096)
@@ -30,10 +35,6 @@ typedef struct{
 #define DEPHASING_SMALL_FROM_BIG_TOP	(PI4096)
 
 #define MASK_SIZE						(PI4096/2)
-
-#define HORAIRE							0
-#define TRIGO							1
-#define PHARE_ROTATE_WAY				(HORAIRE)
 
 #define NB_STEP_BY_LED					20				//Nombre de pas de luminosité possible par LED
 #define MAX_LED_VALUE					NB_STEP_BY_LED	//Valeur lumineuse maximal d'une LED
@@ -54,14 +55,14 @@ static void LEDS_update(Led_balise_color_e index_color, Uint8 index_step_color);
 static void LEDS_search_led_adversaries(LEDS_adversary_t *leds_adv);
 static void LEDS_reset_all(Led_balise_color_e color);
 static void LEDS_reset_all_color();
-static void LEDS_set_all(Led_balise_color_e color);
+static void LEDS_set_all(Led_balise_color_e color, Uint8 value);
 static Sint16 LEDS_calcul_angle(Sint16 teta); //Centre l'angle entre 0 et TWO_PI4096
 
-static void LEDS_phare(bool_e entrance, Uint8 nb_leds, Led_balise_color_e color);
-static void LEDS_phare_on_two_robot(bool_e sync, bool_e entrance, Uint8 nb_leds, Led_balise_color_e color);
+static void LEDS_phare(bool_e entrance, Uint8 nb_leds, Led_balise_color_e color, rotation_way_e rotation_way, Uint16 timeForOneRotation);
+static void LEDS_phare_on_two_robot(bool_e sync, bool_e entrance, Uint8 nb_leds, Led_balise_color_e color,  rotation_way_e rotation_way, Uint16 timeForOneRotation);
 static bool_e LEDS_track_adversaries_evitement(bool_e entrance);
 static void LEDS_track_adversaries_ir(bool_e entrance, Led_balise_color_e color);
-static bool_e LEDS_blink(bool_e entrance, Uint8 nb_clignotement, Led_balise_color_e color);
+static bool_e LEDS_blink(bool_e entrance, Uint8 nb_clignotement, Led_balise_color_e color, Uint16 time_on, Uint16 timeoff, bool_e smooth);
 
 //Variables globales
 static volatile Uint8 display_leds[NB_LEDS_COLOR][NB_LEDS]={{0},{0},{0}}; //Tableau manipulé pour les mise à jour dans la tâche de fond (A manipuler)
@@ -160,8 +161,10 @@ void LEDS_manager_process_it(){
 
 	enum state_e {
 		INIT = 0,
-		WAIT_BEGIN,
+		WAIT_BEGIN_NONE,
 		WAIT_BEGIN_SYNC,
+		WAIT_BEGIN_XBEE,
+		WAIT_BEGIN_ALL,
 		BEGIN,
 		DURING_MATCH,
 		AVOIDANCE,
@@ -176,48 +179,59 @@ void LEDS_manager_process_it(){
 	last_state_for_check_entrance = state;
 	initialized = TRUE;
 
-
-	static time32_t time_lost = 0;
-	static bool_e sync_lost = FALSE;
-
 	// Entrée dans un nouvelle état donc on réinitialise l'utilisation des couleurs
 	if(entrance)
 		LEDS_reset_all_color();
 
 	switch(state){
 		case INIT :
-			sync_lost = FALSE;
-			state = WAIT_BEGIN;
+			state = WAIT_BEGIN_NONE;
 			break;
 
-		case WAIT_BEGIN :
-			LEDS_phare(entrance, 8, team_color);
+		case WAIT_BEGIN_NONE :
+			if(entrance)
+				LEDS_set_all(team_color, MAX_LED_VALUE);
+
 			LEDS_track_adversaries_ir(entrance, LEDS_RED);
 
 			if(global.flags.start_of_match)
 				state = BEGIN;
-			/*else if(SYNCHRO_is_synchronized() == TRUE)
-				state = WAIT_BEGIN_SYNC;*/
+			else if(SYNCHRO_is_synchronized() == TRUE)
+				state = WAIT_BEGIN_SYNC;
 			break;
 
 		case WAIT_BEGIN_SYNC:
-			LEDS_phare_on_two_robot(FALSE, entrance, 6, team_color);
+			LEDS_phare(entrance, 6, team_color, TRIGO, 3000);
 			LEDS_track_adversaries_ir(entrance, LEDS_RED);
 
-			if(global.flags.start_of_match){
+			if(global.flags.start_of_match)
 				state = BEGIN;
-			}else if(SYNCHRO_is_synchronized() == FALSE && sync_lost == FALSE){
-				time_lost = global.absolute_time;
-				sync_lost = TRUE;
-			}else if(SYNCHRO_is_synchronized() == TRUE){
-				sync_lost = FALSE;
-			}else if(sync_lost && ((global.absolute_time - time_lost) >= 1000)){
-				state = WAIT_BEGIN;
-			}
+			else if(SYNCHRO_is_synchronized() == FALSE)
+				state = WAIT_BEGIN_NONE;
+			else if(0/*XBEE*/)
+				state = WAIT_BEGIN_XBEE;
+			break;
+
+		case WAIT_BEGIN_XBEE:
+			LEDS_blink(entrance, 1, team_color, 1500, 1500, TRUE);
+			LEDS_track_adversaries_ir(entrance, LEDS_RED);
+
+			if(global.flags.start_of_match)
+				state = BEGIN;
+			else if(SYNCHRO_is_synchronized() == TRUE)
+				state = WAIT_BEGIN_ALL;
+			break;
+
+		case WAIT_BEGIN_ALL:
+			LEDS_phare(entrance, 8, team_color, HORAIRE, 400);
+			LEDS_track_adversaries_ir(entrance, LEDS_RED);
+
+			if(global.flags.start_of_match)
+				state = BEGIN;
 			break;
 
 		case BEGIN :
-			if(LEDS_blink(entrance, 2, LEDS_RED))
+			if(LEDS_blink(entrance, 2, LEDS_RED, 400, 400, TRUE))
 				state = DURING_MATCH;
 			break;
 
@@ -235,14 +249,14 @@ void LEDS_manager_process_it(){
 			break;
 
 		case END_OF_MATCH :
-			LEDS_phare(entrance, 4, team_color);
+			LEDS_phare(entrance, 4, team_color, TRIGO, 1000);
 			break;
 	}
 
 }
 
 void LEDS_rf_sync(){
-	LEDS_phare_on_two_robot(TRUE, 0, 0, 0);
+	LEDS_phare_on_two_robot(TRUE, 0, 0, 0, 0, 0);
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -251,7 +265,7 @@ void LEDS_rf_sync(){
 //-------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------
 
-static void LEDS_phare_on_two_robot(bool_e sync, bool_e entrance, Uint8 nb_leds, Led_balise_color_e color){
+static void LEDS_phare_on_two_robot(bool_e sync, bool_e entrance, Uint8 nb_leds, Led_balise_color_e color,  rotation_way_e rotation_way, Uint16 timeForOneRotation){
 	static Uint8 current_index = 0;
 	static bool_e flag_time = FALSE;
 	static Led_balise_color_e last_color;
@@ -323,42 +337,41 @@ static void LEDS_phare_on_two_robot(bool_e sync, bool_e entrance, Uint8 nb_leds,
 
 		for(i=0; i<nb_leds; i++){
 			if(QS_WHO_AM_I_get() == BIG_ROBOT){
-#if PHARE_ROTATE_WAY == HORAIRE
-				if(led_mask & (1 << FIND_INDEX(current_index, i)))
-					display_leds[color][FIND_INDEX(current_index, i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
-#else
-				if(led_mask & (1 << FIND_INDEX(current_index, -i)))
-					display_leds[color][FIND_INDEX(current_index, -i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
-#endif
+				if(rotation_way == HORAIRE){
+					if(led_mask & (1 << FIND_INDEX(current_index, i)))
+						display_leds[color][FIND_INDEX(current_index, i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
+				}else{
+					if(led_mask & (1 << FIND_INDEX(current_index, -i)))
+						display_leds[color][FIND_INDEX(current_index, -i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
+				}
 			}else{
-#if PHARE_ROTATE_WAY == HORAIRE
-				if(led_mask & (1 << FIND_INDEX(current_index + small_dephasing, i)))
-					display_leds[color][FIND_INDEX(current_index + small_dephasing, i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
-#else
-				if(led_mask & (1 << FIND_INDEX(current_index + small_dephasing, -i)))
-					display_leds[color][FIND_INDEX(current_index + small_dephasing, -i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
-#endif
+				if(rotation_way == HORAIRE){
+					if(led_mask & (1 << FIND_INDEX(current_index + small_dephasing, i)))
+						display_leds[color][FIND_INDEX(current_index + small_dephasing, i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
+				}else{
+					if(led_mask & (1 << FIND_INDEX(current_index + small_dephasing, -i)))
+						display_leds[color][FIND_INDEX(current_index + small_dephasing, -i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
+				}
 			}
 		}
 
-#if PHARE_ROTATE_WAY == HORAIRE
+if(rotation_way == HORAIRE){
 		if(current_index >= NB_LEDS)
 			current_index = 0;
 		else
 			current_index++; //On incrémente l'indice courant pour faire avancer le phare
-#else
+}else{
 		if(current_index == 0)
 			current_index = NB_LEDS - 1;
 		else
 			current_index--; //On décrémente l'indice courant pour faire reculer le phare
+}
 
-#endif
-
-		WATCHDOG_create_flag(25, &flag_time);
+		WATCHDOG_create_flag(timeForOneRotation/16, &flag_time);
 	}
 }
 
-static void LEDS_phare(bool_e entrance, Uint8 nb_leds, Led_balise_color_e color){
+static void LEDS_phare(bool_e entrance, Uint8 nb_leds, Led_balise_color_e color, rotation_way_e rotation_way, Uint16 timeForOneRotation){
 	static Uint8 current_index = 0;
 	static bool_e flag_time = FALSE;
 	static Led_balise_color_e last_color;
@@ -377,72 +390,128 @@ static void LEDS_phare(bool_e entrance, Uint8 nb_leds, Led_balise_color_e color)
 		LEDS_reset_all(color);
 
 		for(i=0; i<nb_leds; i++){
-#if PHARE_ROTATE_WAY == HORAIRE
-			display_leds[color][FIND_INDEX(current_index, i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
-#else
-			display_leds[color][FIND_INDEX(current_index, -i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
-#endif
+			if(rotation_way == HORAIRE)
+				display_leds[color][FIND_INDEX(current_index, i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
+			else
+				display_leds[color][FIND_INDEX(current_index, -i)] = MAX_LED_VALUE - ((nb_leds - (i+1))*MAX_LED_VALUE/nb_leds);
 		}
 
-#if PHARE_ROTATE_WAY == HORAIRE
-		if(current_index >= NB_LEDS)
-			current_index = 0;
-		else
-			current_index++; //On incrémente l'indice courant pour faire avancer le phare
-#else
-		if(current_index == 0)
-			current_index = NB_LEDS - 1;
-		else
-			current_index--; //On décrémente l'indice courant pour faire reculer le phare
+		if(rotation_way == HORAIRE){
+			if(current_index >= NB_LEDS)
+				current_index = 0;
+			else
+				current_index++; //On incrémente l'indice courant pour faire avancer le phare
+		}else{
+			if(current_index == 0)
+				current_index = NB_LEDS - 1;
+			else
+				current_index--; //On décrémente l'indice courant pour faire reculer le phare
+		}
 
-#endif
-
-		WATCHDOG_create_flag(25, &flag_time);
+		WATCHDOG_create_flag(timeForOneRotation/16, &flag_time);
 	}
 }
 
-static bool_e LEDS_blink(bool_e entrance, Uint8 nb_clignotement, Led_balise_color_e color){
-	static Uint8 step = 0;
+static bool_e LEDS_blink(bool_e entrance, Uint8 nb_clignotement, Led_balise_color_e color, Uint16 time_on, Uint16 time_off, bool_e smooth){
+	typedef enum{
+		INC_PHASE,
+		WAIT_INC,
+		WAIT_UP_PHASE,
+		DEC_PHASE,
+		WAIT_DEC,
+		WAIT_DOWN_PHASE
+	}state_e;
+	static state_e state = 0;
 	static Uint16 count = 0;
+	static Uint8 smooth_count = 0;
 	static bool_e flag_time = FALSE;
 	static Led_balise_color_e last_color;
 
 	if(entrance){
-		step = 0;
+		state = 0;
 		count = 0;
 		last_color = color;
+		smooth_count = 0;
 	}else if(last_color != color){
 		LEDS_reset_all(last_color);
 		last_color = color;
 	}
 
-	switch(step){
-		case 0:
-			LEDS_set_all(color);
-			step = 1;
-			WATCHDOG_create_flag(200, &flag_time);
+	switch(state){
+		case INC_PHASE:
+			if(smooth == FALSE)
+				smooth_count = MAX_LED_VALUE;
+
+			LEDS_set_all(color, smooth_count);
+
+			if(smooth){
+
+				if(smooth_count >= MAX_LED_VALUE){
+					if(smooth_count > MAX_LED_VALUE)
+						smooth_count = MAX_LED_VALUE;
+					state = WAIT_UP_PHASE;
+				}else{
+					smooth_count++;
+					state = WAIT_INC;
+				}
+
+				WATCHDOG_create_flag(time_on/MAX_LED_VALUE, &flag_time);
+
+			}else{
+				state = WAIT_UP_PHASE;
+				WATCHDOG_create_flag(time_on, &flag_time);
+			}
 			break;
 
-		case 1:
+		case WAIT_INC:
 			if(flag_time)
-				step = 2;
+				state = INC_PHASE;
 			break;
 
-		case 2:
-			LEDS_reset_all(color);
-			step = 3;
-			WATCHDOG_create_flag(200, &flag_time);
+		case WAIT_UP_PHASE:
+			if(flag_time)
+				state = DEC_PHASE;
 			break;
 
-		case 3:
+		case DEC_PHASE:
+			if(smooth == FALSE)
+				smooth_count = 0;
+
+			LEDS_set_all(color, smooth_count);
+
+			if(smooth){
+
+				if(smooth_count == 0)
+					state = WAIT_DOWN_PHASE;
+				else{
+					smooth_count--;
+					state = WAIT_DEC;
+				}
+
+				WATCHDOG_create_flag(time_off/MAX_LED_VALUE, &flag_time);
+
+			}else{
+				state = WAIT_DOWN_PHASE;
+				WATCHDOG_create_flag(time_off, &flag_time);
+			}
+			break;
+
+		case WAIT_DEC:
+			if(flag_time)
+				state = DEC_PHASE;
+			break;
+
+		case WAIT_DOWN_PHASE:
 			if(flag_time){
 				count++;
 				if(count >= nb_clignotement){
-					step = 0;
+					state = INC_PHASE;
 					count = 0;
+					smooth_count = 0;
 					return TRUE;
 				}
-				step = 0;
+
+				state = INC_PHASE;
 			}
 			break;
 	}
@@ -612,10 +681,12 @@ static void LEDS_reset_all_color(){
 	LEDS_reset_all(LEDS_GREEN);
 }
 
-static void LEDS_set_all(Led_balise_color_e color){
+static void LEDS_set_all(Led_balise_color_e color, Uint8 value){
 	Uint8 i;
+	if(value > MAX_LED_VALUE)
+		value = MAX_LED_VALUE;
 	for(i=0; i<NB_LEDS; i++){
-		display_leds[color][i] = MAX_LED_VALUE;
+		display_leds[color][i] = value;
 	}
 }
 
