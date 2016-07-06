@@ -43,10 +43,9 @@
 
 #define THRESHOLD_BATTERY_OFF	18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
 #define THRESHOLD_BATTERY_LOW	21300	//[mV] Réglage du seuil de batterie faible
-#define NB_AVERAGED_VALUE		50
 #define REFRESH_DISPLAY_BAT		500
 #define TIME_TO_REFRESH_BAT		1000
-#define TIME_TO_TAKE_VALUE		(TIME_TO_REFRESH_BAT/NB_AVERAGED_VALUE)
+#define PERCENTAGE_BAT_FILTER   10
 
 #define LED_ON	Bit_SET
 #define LED_OFF	Bit_RESET
@@ -759,44 +758,37 @@ void SELFTEST_set_warning_bat_display_state(bool_e state){
 	warning_bat_display = state;
 }
 
-void SELFTEST_check_alim(){
-	typedef enum{
-		ALIM_Off = 0,
-		ALIM_On
-	}state_e;
-	static state_e state = ALIM_Off;
-	static Uint16 values[NB_AVERAGED_VALUE] = {0};
-	static time32_t begin_time = 0;
-	static time32_t last_display_time = 0;
-	static Uint8 begin_index_store = 0;
 
-	Uint8 i;
-	Uint32 average = 0;
+
+void SELFTEST_check_alim(){
+	static alim_state_e state = BATTERY_DISABLE;
+	static time32_t last_display_time = 0;
+	static time32_t begin_time = 0;
+	static Uint16 battery_value = 0;
+	static bool_e responsability_of_alim = FALSE;
 	CAN_msg_t msg;
 
+	//Initialisation du compteur
 	if(begin_time == 0)
 			begin_time = global.absolute_time;
 
-	if((int)((global.absolute_time-begin_time)/TIME_TO_TAKE_VALUE) < NB_AVERAGED_VALUE)
-		values[(int)((global.absolute_time-begin_time)/TIME_TO_TAKE_VALUE)] = SELFTEST_measure24_mV();
+	battery_value = battery_value*(100-PERCENTAGE_BAT_FILTER)/100 + SELFTEST_measure24_mV()*PERCENTAGE_BAT_FILTER/100;
 
-	if(begin_index_store < NB_AVERAGED_VALUE)
-		begin_index_store++;
-
-	for(i=0;i<begin_index_store;i++)
-		average += values[i];
-
-	average /= begin_index_store;
-	global.alim_value = average;
-
-	if(global.absolute_time-begin_time >= TIME_TO_REFRESH_BAT){
-		begin_time = global.absolute_time;
+	//Pas de message de la carte IHM (car valeur de la batterie nulle) => la stratégie prend le relais pour mettre à jour les données
+	if(global.alim_value == 0 && global.absolute_time - begin_time >= TIME_TO_REFRESH_BAT){
+		responsability_of_alim = TRUE;
+		debug_printf("STRATEGY takes the responsability of alim control\n");
 	}
 
+	if(responsability_of_alim){
+		global.alim_value = battery_value;
+	}
+
+	//Affichage sur le LCD and buzzer
 	if(global.absolute_time-last_display_time >= REFRESH_DISPLAY_BAT){
 		last_display_time = global.absolute_time;
 
-		if(state == ALIM_On && global.alim_value < THRESHOLD_BATTERY_LOW && global.alim_value > THRESHOLD_BATTERY_OFF){
+		if(state == BATTERY_ENABLE && global.alim_value < THRESHOLD_BATTERY_LOW && global.alim_value > THRESHOLD_BATTERY_OFF){
 			BUZZER_play(40, DEFAULT_NOTE, 10);
 			LCD_printf(3, TRUE, TRUE, "CHANGE BAT : %d", global.alim_value);
 			warning_bat = TRUE;
@@ -806,24 +798,33 @@ void SELFTEST_check_alim(){
 			LCD_printf(3, FALSE, FALSE, "VBAT : %d  N°%d", global.alim_value, SD_get_match_id());
 	}
 
-	if(global.alim_value > THRESHOLD_BATTERY_OFF && state != ALIM_On){
-		msg.sid = BROADCAST_ALIM;
-		msg.size = SIZE_BROADCAST_ALIM;
-		msg.data.broadcast_alim.state = TRUE;
-		msg.data.broadcast_alim.value = global.alim_value;
-		CAN_send(&msg);
-		state = ALIM_On;
-		global.flags.alim = TRUE;
-	}else if(global.alim_value < THRESHOLD_BATTERY_OFF && state != ALIM_Off){
-		msg.sid = BROADCAST_ALIM;
-		msg.size = SIZE_BROADCAST_ALIM;
-		msg.data.broadcast_alim.state = FALSE;
-		msg.data.broadcast_alim.value = global.alim_value;
-		CAN_send(&msg);
-		state = ALIM_Off;
-		global.flags.alim = FALSE;
+	if(responsability_of_alim){
+		if(global.alim_value > THRESHOLD_BATTERY_LOW && state != BATTERY_ENABLE){
+			msg.sid = BROADCAST_ALIM;
+			msg.size = SIZE_BROADCAST_ALIM;
+			msg.data.broadcast_alim.state = BATTERY_ENABLE | ARU_DISABLE; // On suppose que l'ARU n'est pas enclenché
+			msg.data.broadcast_alim.battery_value = global.alim_value;
+			CAN_send(&msg);
+			state = BATTERY_ENABLE;
+			global.flags.alim = TRUE;
+		}else if(global.alim_value > THRESHOLD_BATTERY_OFF && state != BATTERY_LOW){
+			msg.sid = BROADCAST_ALIM;
+			msg.size = SIZE_BROADCAST_ALIM;
+			msg.data.broadcast_alim.state = BATTERY_LOW | ARU_DISABLE; // On suppose que l'ARU n'est pas enclenché
+			msg.data.broadcast_alim.battery_value = global.alim_value;
+			CAN_send(&msg);
+			state = BATTERY_LOW;
+			global.flags.alim = TRUE;
+		}else if(state != BATTERY_DISABLE){
+			msg.sid = BROADCAST_ALIM;
+			msg.size = SIZE_BROADCAST_ALIM;
+			msg.data.broadcast_alim.state = BATTERY_DISABLE;  // On ne peut rien dire au sujet de l'ARU
+			msg.data.broadcast_alim.battery_value = global.alim_value;
+			CAN_send(&msg);
+			state = BATTERY_DISABLE;
+			global.flags.alim = FALSE;
+		}
 	}
-
 }
 
 void SELFTEST_check_hokuyo(){

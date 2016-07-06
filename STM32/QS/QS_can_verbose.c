@@ -259,7 +259,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_BUTTON:								print(string, len, "%.3x IHM_BUTTON                           ", IHM_BUTTON										);	break;
 		case IHM_SWITCH:								print(string, len, "%.3x IHM_SWITCH                           ", IHM_SWITCH										);	break;
 		case IHM_SWITCH_ALL:							print(string, len, "%.3x IHM_SWITCH_ALL                       ", IHM_SWITCH_ALL									);	break;
-		case IHM_POWER:									print(string, len, "%.3x IHM_POWER                            ", IHM_POWER										);	break;
 		case IHM_BIROUTE_IS_REMOVED:					print(string, len, "%.3x IHM_BIROUTE_IS_REMOVED               ", IHM_BIROUTE_IS_REMOVED							);	break;
 
 		default:										print(string, len, "%x UNKNOW : you should add SID in code !  ", msg->sid										);	break;
@@ -270,7 +269,21 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 	switch(msg->sid)
 	{
 		case BROADCAST_START:					print(string, len, "| match N°%d  %.2d:%.2d:%.2d %.2d/%.2d/20%.2d\n", msg->data.broadcast_start.matchId, msg->data.broadcast_start.heure, msg->data.broadcast_start.minute, msg->data.broadcast_start.seconde, msg->data.broadcast_start.jour, msg->data.broadcast_start.mois, msg->data.broadcast_start.annee);	break;
-		case BROADCAST_ALIM:				    print(string, len, "| état : %s\n", (msg->data.broadcast_alim.state)?"ALIM_ON":"ALIM_OFF");		break;
+		case BROADCAST_ALIM:				    if(msg->data.broadcast_alim.state & BATTERY_DISABLE)
+													   print(string, len, "| état batterie ALIM_OFF\n");
+												if(msg->data.broadcast_alim.state & BATTERY_ENABLE)
+													   print(string, len, "| état batterie : ALIM_ON\n");
+												if(msg->data.broadcast_alim.state & BATTERY_LOW)
+													   print(string, len, "| état batterie : ALIM_LOW\n");
+												if(msg->data.broadcast_alim.state & ARU_DISABLE)
+													   print(string, len, "| état aru : ARU_DISABLE\n");
+												if(msg->data.broadcast_alim.state & ARU_ENABLE)
+													   print(string, len, "| état aru : ARU_ENABLE\n");
+												if(msg->data.broadcast_alim.state & HOKUYO_DISABLE)
+													   print(string, len, "| état hokuyo : HOKUYO_POWER_DISABLE\n");
+												if(msg->data.broadcast_alim.state & HOKUYO_ENABLE)
+													   print(string, len, "| état hokuyo : HOKUYO_POWER_ENABLE\n");
+												break;
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (msg->data.broadcast_couleur.color == GREEN)?"VERT":"VIOLET"	);		break;
 		case BROADCAST_POSITION_ROBOT:			print(string, len, "| JeSuisEn  x=%4d y=%4d t=0x%8x=%3d° Vt=%4dmm/s Vr=%2drd/s reas=0x%2x st=0x%2x\n", msg->data.broadcast_position_robot.x, msg->data.broadcast_position_robot.y, msg->data.broadcast_position_robot.angle, RAD_TO_DEG(msg->data.broadcast_position_robot.angle), (Uint16)(msg->data.broadcast_position_robot.speed_trans)*250, msg->data.broadcast_position_robot.speed_rot, msg->data.broadcast_position_robot.reason ,msg->data.broadcast_position_robot.error);								break;
 
@@ -900,7 +913,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_SWITCH:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_GET_SWITCH:					print_ihm_result(msg, &string, &len);			break;
-		case IHM_POWER:							print_ihm_result(msg, &string, &len);			break;
 		case IHM_SET_LED:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_SET_ERROR:						print_ihm_result(msg, &string, &len);			break;
 
@@ -1010,16 +1022,6 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 				print(*string, *len, "\n");
 			}
 			break;}
-		case IHM_POWER:
-			switch(msg->data.ihm_power.state){
-				case BATTERY_OFF:				print(*string, *len, "| BATTERY_OFF\n");			break;
-				case BATTERY_LOW:				print(*string, *len, "| BATTERY_LOW\n");			break;
-				case ARU_ENABLE:				print(*string, *len, "| POWER_DISABLE\n");			break;
-				case ARU_DISABLE:				print(*string, *len, "| POWER_ENABLE\n");			break;
-				case HOKUYO_POWER_FAIL:			print(*string, *len, "| HOKUYO_POWER_FAIL\n");		break;
-				default:																			break;
-			}
-			break;
 		case IHM_SET_LED:{
 			Uint8 i;
 			for(i = 0; i < msg->size; i++)

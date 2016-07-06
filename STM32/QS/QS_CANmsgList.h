@@ -97,12 +97,13 @@
 
 		/*
 		 * Message envoyé lors d'un changement d'état de l'alimentation 24V
+		 * state peut prendre des valeurs de type "alim_state_e" (possibilité de passer plusieurs infos en même temps avec un OU logique)
 		 */
 		#define BROADCAST_ALIM				0x005
 		#define SIZE_BROADCAST_ALIM			3
 			struct{
-				Uint16 value				:16;		// [mV]
-				bool_e state				:1;
+				Uint16 battery_value		:16;		// [mV]
+				Uint8 state		            :8;         // Peut prendre des valeurs de type "alim_state_e"
 			}broadcast_alim;
 
 
@@ -186,12 +187,6 @@
 			struct{
 				Uint32 switch_mask			:32;
 			}ihm_switch_all;
-
-		#define IHM_POWER					0x063
-		#define SIZE_IHM_POWER				1
-			struct{
-				IHM_power_e state			:8;
-			}ihm_power;
 
 		/*
 		 * La biroute vient d'être retirée, let's go, c'est parti pour la purée !

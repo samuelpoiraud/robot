@@ -72,9 +72,10 @@ void ENV_init(void)
 	global.flags.ask_prop_calibration = FALSE;
 	global.flags.ask_suspend_match = FALSE;
 	global.flags.ask_start = FALSE;
+	global.flags.alim = FALSE;
+	global.flags.aru = TRUE;
 	global.flags.foes_updated_for_lcd = FALSE;
 	global.flags.initial_position_received = FALSE;
-	global.flags.alim = FALSE;
 	global.flags.go_to_home = FALSE;
 	global.friend_position_lifetime = 0;
 	global.friend_pos.x = 0;
@@ -598,7 +599,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case IHM_SWITCH_ALL:
 		case IHM_BUTTON:
 		case IHM_SWITCH:
-		case IHM_POWER:
 			IHM_process_main(incoming_msg);
 			ENV_warning_switch();
 			if(incoming_msg->sid == IHM_SWITCH || incoming_msg->sid == IHM_SWITCH_ALL)
@@ -606,6 +606,17 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case IHM_BIROUTE_IS_REMOVED:
 			global.flags.ask_start = TRUE;
+			break;
+		case BROADCAST_ALIM:
+			global.alim_value = incoming_msg->data.broadcast_alim.battery_value;
+			if(incoming_msg->data.broadcast_alim.state & (BATTERY_ENABLE | BATTERY_LOW))
+				global.flags.alim = TRUE;
+			else if(incoming_msg->data.broadcast_alim.state & BATTERY_DISABLE)
+				global.flags.alim = FALSE;
+			if(incoming_msg->data.broadcast_alim.state & ARU_ENABLE)
+				global.flags.aru = TRUE;
+			else if(incoming_msg->data.broadcast_alim.state & ARU_DISABLE)
+				global.flags.aru = FALSE;
 			break;
 
 		default:

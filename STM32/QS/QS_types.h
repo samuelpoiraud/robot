@@ -514,14 +514,15 @@
 	 **********************************************************************************************************************
 	 *********************************************************************************************************************/
 
-
 	typedef enum{
-		BATTERY_OFF = 0,
-		BATTERY_LOW,
-		ARU_ENABLE,
-		ARU_DISABLE,
-		HOKUYO_POWER_FAIL
-	} IHM_power_e;
+		BATTERY_DISABLE = 0b00000001,
+		BATTERY_ENABLE	= 0b00000010,
+		BATTERY_LOW		= 0b00000100,
+		ARU_DISABLE		= 0b00001000,
+		ARU_ENABLE		= 0b00010000,
+		HOKUYO_DISABLE	= 0b00100000,
+		HOKUYO_ENABLE	= 0b01000000
+	}alim_state_e;
 
 	// Switch de la carte IHM, pour rajouter des switchs (voir IHM switch.c/h)
 	typedef enum{

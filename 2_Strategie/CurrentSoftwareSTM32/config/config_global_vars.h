@@ -23,7 +23,6 @@
 		volatile bool_e ask_suspend_match;
 		volatile bool_e ask_resume_match;
 
-
 		volatile bool_e color_updated;
 		volatile bool_e other_color_updated;
 
@@ -32,6 +31,7 @@
 		volatile bool_e match_suspended;
 
 		volatile bool_e alim;
+		volatile bool_e aru;
 
 		volatile bool_e foes_updated_for_lcd;
 

@@ -366,7 +366,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		break;
 
 		case BROADCAST_ALIM :
-			global.alim_value = msg->data.broadcast_alim.value;
+			global.alim_value = msg->data.broadcast_alim.battery_value;
+			if(msg->data.broadcast_alim.state & (BATTERY_ENABLE | BATTERY_LOW))
+				global.flags.alim = TRUE;
+			else if(msg->data.broadcast_alim.state & BATTERY_DISABLE)
+				global.flags.alim = FALSE;
 			break;
 
 		//Carte stratégie demande la position
@@ -493,7 +497,6 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		case IHM_SWITCH_ALL:
 		case IHM_BUTTON:
 		case IHM_SWITCH:
-		case IHM_POWER:
 		case IHM_BIROUTE_IS_REMOVED:
 
 			if(from == FROM_UART) // Le message vient de la simulation sur pc, le message doit être répété pour les autres cartes
