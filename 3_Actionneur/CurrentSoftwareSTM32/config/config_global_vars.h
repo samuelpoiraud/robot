@@ -21,6 +21,7 @@
 		volatile bool_e match_started;
 
 		volatile bool_e alim;
+		volatile bool_e aru;
 
 	}flag_list_t;
 
