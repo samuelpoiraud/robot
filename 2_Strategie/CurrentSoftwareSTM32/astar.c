@@ -1,5 +1,5 @@
 /*
- *	Club Robot ESEO 2015 - 2016
+ *	Club Robot ESEO 2015 - 2017
  *
  *
  *	Fichier : astar.c
@@ -7,14 +7,16 @@
  *	Description : 	Fonctions de génération des trajectoires
  *					par le biais d'un algo de type A*
  *	Auteurs : Valentin BESNARD
- *	Version 20150701
+ *	Version 2
  */
 
 #include "astar.h"
+#include <stdarg.h>
+#include <stdlib.h>
+#include <math.h>
 #include "QS/QS_all.h"
 #include "QS/QS_measure.h"
 #include "QS/QS_maths.h"
-#include <stdarg.h>
 #include "state_machine_helper.h"
 #include "Supervision/SD/SD.h"
 
@@ -28,135 +30,257 @@
 //--------------------------------------------------------------- Macros ---------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-		//Rayon du polygone d'évitement pour les robots adverses
-		#define DEFAULT_FOE_RADIUS  530
+	// Macros pour les coûts
+	#define MAX_COST (65535)		//Coût global maximal
+	#define MAX_COST_ANGLE (200)	//Coût maximal pouvant être généré par un écart d'angle
+	#define MAX_COST_FOES (600)     //Côût supplémentaire ajouté si on est trop près d'un adversaire
 
-		//Nombre d'essais consécutifs avec du DODGE en évitement
-		#define NB_TRY_WHEN_DODGE 2
+	// Macros pour les polygones
+	#define NB_MAX_POLYGONS (5 + MAX_NB_FOES)	// Nombre maximal de polygones
+	#define NB_MAX_NODES_IO (10)				// Nombre maximal de noeuds d'entrée/sortie
+	#define NB_MAX_SUMMITS (10)					// Nombre maximal de sommets par polygone
+	#define OBSTACLE_MARGIN (200)				// Marge du centre du robot avec un obstacle
 
-		//Distance minimale entre deux point consécutifs
-		#define MIN_DISTANCE_BETWEEN_2_POINTS  400
+	// Macros pour les hardlines
+	#define NB_MAX_HARDLINES (15)				// Nombre maximale de hardlines (attention si vous ajoutez une protection, ca fait une hardline en plus
+	#define HARDLINE_PROTECTION_LENGTH (200)	// Longeur de la protection d'une hardline
 
-		//Dimension du terrain
-		#define PLAYGROUND_WIDTH 2000
-		#define PLAYGROUND_HEIGHT 3000
+	//Distance à laquelle on accepte des noeuds comme voisins
+	#define DISTANCE_NEIGHBOURHOOD (500)
 
-		//Largeur du robot
-		#define ROBOT_WIDTH ((QS_WHO_AM_I_get()== BIG_ROBOT)? BIG_ROBOT_WIDTH:SMALL_ROBOT_WIDTH)
+	// Macros pour le traitement des listes
+	#define ASTAR_IS_NODE_IN(nodeId, nodeList)	((nodeList) &  ((1ULL) << nodeId))
+	#define ASTAR_ADD_NODE_IN(nodeId, nodeList)	((nodeList) |= ((1ULL) << (nodeId)))
+	#define ASTAR_CLR_NODE_IN(nodeId, nodeList)	((nodeList) &= ~((1ULL) << (nodeId)))
 
-		//Marge entre le centre du robot et un obstacle
-		#define MARGIN_TO_OBSTACLE (ROBOT_WIDTH/2 + 100)
+	// Rayon du polygone défini pour les robots adverses
+	#define FOE_RADIUS (250)
 
-		//Marge entre le centre du robot et le coin d'un obstacle
-		#define CORNER_MARGIN_TO_OBSTACLE  MARGIN_TO_OBSTACLE/1.4
+	// Macro renvoyant le noeud symétrique suivant la couleur (tout comme COLOR_Y le fait pour les coordonnées
+	#define COLOR_NODE(id) ASTAR_get_symetric_node(id)
 
-		//Marge entre le centre du robot et la bordure (Les nodes dans cette zone sont supprimés)
-		#define MARGIN_TO_BORDER (MARGIN_TO_OBSTACLE - 10)
+	#define NB_TRY_WITH_DODGE (3)
 
-		//Cout maximal
-		#define MAX_COST 65535
+//-------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------- Définitions des types structrés ---------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 
-		//Pour spécifier qu'un noeud (node) n'a pas de polygonId
-		#define NO_ID 255
+	//Type énuméré définissant les id des nodes
+	typedef enum{
+		A1 = 0,
+		A2,
+		B1,
+		B2,
+		B3,
+		B4,
+		B5,
+		C1,
+		C2,
+		C3,
+		C4,
+		D1,
+		D2,
+		D3,
+		D4,
+		D5,
+		D6,
+		E1,
+		E2,
+		F1,
+		F2,
+		F3,
+		F4,
+		F5,
+		F6,
+		G1,
+		G2,
+		G3,
+		G4,
+		H1,
+		H2,
+		H3,
+		H4,
+		H5,
+		I1,
+		I2,
+		FROM_NODE,
+		DEST_NODE,
+		NB_NODES,
+		NO_ID = 255
+	}astar_node_id;
 
-		//Distance entre le robot et l'adversaire pour trajectoire non réussie
-		#define DIST_TRAJECTORY_FAILED   700
+	//Type structuré coût d'un noeud
+	typedef struct{
+		Uint16 total;		//Cout total = somme du cout (départ -> node parent) + (step) + (heuristic)
+		Uint16 step;		//Cout de déplacement du node parent vers le node courant (= step)
+		Uint16 heuristic;	//Cout de déplacement du node courant vers le node d'arrivée (= heuristic)
+	}astar_node_cost_t;
+
+	// Type structuré voisin d'un noeud
+	typedef Uint64 astar_neighbor_t;
+
+	//Type structuré noeud (ou node)
+	struct astar_node{
+		//Son id
+		astar_node_id id;
+
+		//Coordonnées du point
+		GEOMETRY_point_t pos;
+
+		//Ses voisins
+		Uint64 neighbors;
+
+		//Ses propriétés
+		bool_e enable;
+		astar_node_cost_t cost;
+		astar_node_id parent;
+
+	};
+
+	//Type noeud
+	typedef struct astar_node astar_node_t;
+
+	//Type structuré liste de nodes (pour l'opened_list et la closed_list)
+	typedef Uint64 astar_list_t;
+
+	// Type structuré polygone définissant une zone interdite sous forme d'un polygone
+	typedef struct{
+		//Son id et son nom
+		Uint8 id;
+		char *name;
+
+		//Ses caractéristiques
+		GEOMETRY_point_t summits[NB_MAX_SUMMITS];
+		Uint8 nb_summits;
+		Uint8 nodesIO[NB_MAX_NODES_IO];
+		Uint8 nb_nodesIO;
+
+		//Ses propriétés
+		bool_e enable;
+	}astar_polygon_t;
+
+	// Type définissant une "hardline" c'est à dire une ligne physiquement infranchissable par le robot (ex: tasseau de bois)
+	typedef struct{
+		GEOMETRY_point_t ex1;
+		GEOMETRY_point_t ex2;
+	}astar_hardline_t;
+
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------- Fonctions importantes de l'algo A* (internes au programme)-------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-		//Fonction générant la liste de polygones (adversaires + éléments ou zones de jeu)
-		static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius);
-
-		//Procédure permettant d'ajouter les nodes à la liste ouverte lorsque le point de départ est dans un polygone
-		static bool_e ASTAR_link_node_start(astar_path_t *path);
-
-		//Fonction pour créer les polygones correspondant aux zones ou éléments du terrain constituant des obstacles
-		static void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits, ...);
-
-		//Fonction pour créer les polygones correspondant aux 2 robots adverses
-		static void ASTAR_create_foe_polygon(Uint8 *currentId, Uint16 foeRadius);
-
-		//Fonction permettant de générer le graphe de nodes
-		static void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint8 *currentNodeId);
-
-		//Fonction qui effectue l'algorithme A* (un algorithme de recherche de chemin dans un graphe)
-		static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint16 foeRadius);
-
-		//Fonction qui recherche et affecte des nodes en tant que "voisins" du node courant
-		static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 recursivityOrder);
-
-		//Fonction permettant de vérifier l'ajout des nodes du polygone spécifié
-		static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 idPolygon);
-
-		//Fonction d'optimisation de la trajectoire afin d'éliminer les nodes inutiles pour gagner du temps quand on le peut.
-		static void ASTAR_make_the_path(astar_path_t *path);
-
-		//Fonction transformant la trajectoire de nodes en trjaectoire de points.
-		static void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displacements[], Uint8 *nbDisplacements, PROP_speed_e speed);
-
-		//Fonction qui recherche si un node est visible à partir d'un autre node. En cas d'échec, cette fonction retourne
-		//les nodes consitituant les extrémités du segment le plus proche de lui et qui empêche l'accès au node d'arrivée.
-		static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination);
-
-		//Fonction qui recherche si un node est atteignable à partir d'un autre node. En cas d'échec, cette fonction retourne
-		//les nodes consitituant les extrémités du segment le plus proche de lui et qui empêche l'accès au node d'arrivée.
-		//Cette  foçnction est très similaire à ASTAR_node_is_visible mais sans "l'aspect voisin". On cherche à savoir si le
-		//node est atteignable et non pas si il doit être pris en compte comme point éventuel dans la trajectoire du robot.
-		//Cette fonction est utilisé pour optimiser la trajectoire du robot.
-		static bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination);
-
-		//Fonction pour la mise à jour des coûts des nodes qui ont pour parent "parent" (parent = le node current)
-		static void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t from, astar_ptr_node_t destination);
+	static void ASTAR_user_define_obstacles();
+	static void ASTAR_define_polygon(char *name, GEOMETRY_point_t polygon[], Uint8 nb_summits, bool_e enable_polygon, astar_node_id nodesIO[], Uint8 nb_nodesIO);
+	static void ASTAR_define_hardline(bool_e protection_extremity_1, GEOMETRY_point_t extremity_1, GEOMETRY_point_t extremity_2, bool_e protection_extremity_2);
+	static void ASTAR_create_foe_polygon(Uint16 foeRadius);
+	static void ASTAR_init_nodes();
+	static void ASTAR_generate_graph(GEOMETRY_point_t from, GEOMETRY_point_t dest);
+	static void ASTAR_search_neighbors(astar_node_id nodeId, bool_e my_neighbors);
+	static void ASTAR_link_nodes_on_path(astar_node_id current, bool_e handle_foes);
+	static error_e ASTAR_compute(displacement_curve_t *displacements, Uint8 *nb_displacements, GEOMETRY_point_t from, GEOMETRY_point_t dest, PROP_speed_e speed, bool_e handle_foes);
+	static error_e ASTAR_make_the_path(displacement_curve_t *displacements, Uint8 *nb_displacements, PROP_speed_e speed, astar_node_id last_node);
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------- Fonctions annexes (internes au programme) --------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-		//Procédure permettant de nettoyer un liste (RAZ du nombre d'éléments qu'elle contient)
-		static void ASTAR_clean_list(astar_list_t *list);
+	static astar_node_id ASTAR_get_symetric_node(astar_node_id id);
+	static Uint16 ASTAR_pathfind_cost(astar_node_id start_node, astar_node_id end_node, bool_e with_angle, bool_e with_foes);
+	static void ASTAR_update_cost(astar_node_id current_node);
+	static Uint16 ASTAR_abs_angle(Sint16 angle);
+	static bool_e ASTAR_point_is_in_polygon(astar_polygon_t polygon, GEOMETRY_point_t nodeTested);
+	static bool_e ASTAR_is_link_cut_by_hardlines(GEOMETRY_point_t p1, GEOMETRY_point_t p2);
+	static bool_e ASTAR_is_node_visible(GEOMETRY_point_t p1, GEOMETRY_point_t p2);
 
-		//Fonction indiquant si une liste est vide
-		static bool_e ASTAR_list_is_empty(astar_list_t list);
-
-		//Procédure d'ajout d'un node à une liste
-		static void ASTAR_add_node_to_list(astar_ptr_node_t node, astar_list_t *list);
-
-		//Procédure de suppression d'un node dans une liste
-		static void ASTAR_delete_node_to_list(astar_ptr_node_t node, astar_list_t *list);
-
-		//Fonction recherchant si un node est présent dans une liste
-		static bool_e ASTAR_is_in_list(astar_ptr_node_t node, astar_list_t list);
-
-		//Procédure ajoutant un voisin à un node
-		static void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t neighbor);
-
-		//Fonction retournant l'intersection de deux segements (NOT USED)
-		//static GEOMETRY_point_t ASTAR_intersection_is(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2);
-
-		//Fonction retournant si il y a une intersection entre un point et un de ses voisins avec un autre polygone (NOT USED)
-		//static bool_e ASTAR_neighbors_intersection(astar_ptr_node_t from, astar_ptr_node_t neighbor);
-
-		//Calcul du cout entre deux points par une distance de manhattan
-		static Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t end_node);
-
-
-
-
+	static void ASTAR_print_list(astar_list_t list);
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------- Variables globales ---------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-		//La liste des polygones
-		astar_polygon_list_t polygon_list;
+	// Le graphe contenant tous les nodes
+	static astar_node_t astar_nodes[NB_NODES] =
+	{
+		//(astar_node_t){ id,  pos, neighbors },
 
-		//La liste ouverte pour l'algo A*
-		astar_list_t opened_list;
+		//Rangée [A]
+		(astar_node_t){ A1, {300,  250}, (1ULL<<B1)|(1ULL<<B2)},
+		(astar_node_t){ A2, {1400, 250}, (1ULL<<B3)|(1ULL<<B4)|(1<<B5)},
 
-		//La liste fermée pour l'algo A*
-		astar_list_t closed_list;
+		//Rangée [B]
+		(astar_node_t){ B1, {300,  550}, (1ULL<<A1)|(1ULL<<B2)|(1ULL<<C1)},
+		(astar_node_t){ B2, {650,  550}, (1ULL<<A1)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C1)|(1ULL<<C2)},
+		(astar_node_t){ B3, {1000, 550}, (1ULL<<A2)|(1ULL<<B2)|(1ULL<<B4)|(1ULL<<C2)|(1ULL<<C3)},
+		(astar_node_t){ B4, {1350, 550}, (1ULL<<A2)|(1ULL<<B3)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4)},
+		(astar_node_t){ B5, {1700, 550}, (1ULL<<A2)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<C4)},
+
+		//Rangée [C]
+		(astar_node_t){ C1, {475,  800}, (1ULL<<B1)|(1ULL<<B2)|(1ULL<<D1)|(1ULL<<D2)},
+		(astar_node_t){ C2, {1050, 750}, (1ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4)},
+		(astar_node_t){ C3, {1400, 800}, (1ULL<<B3)|(1ULL<<B4)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6)},
+		(astar_node_t){ C4, {1700, 800}, (1ULL<<B4)|(1ULL<<B5)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D6)},
+
+		//Rangée [D]
+		(astar_node_t){ D1, {250,  1100}, (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)},
+		(astar_node_t){ D2, {475,  1150}, (1ULL<<C1)|(1ULL<<D1)|(1ULL<<E1)},
+		(astar_node_t){ D3, {1050, 1150}, (1ULL<<C2)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<D6)},
+		(astar_node_t){ D4, {1400, 1000}, (1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D5)|(1ULL<<D6)},
+		(astar_node_t){ D5, {1550, 1250}, (1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6)|(1ULL<<E2)},
+		(astar_node_t){ D6, {1700, 1100}, (1ULL<<C3)|(1ULL<<C4)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<E2)},
+
+		//Rangée [E]
+		(astar_node_t){ E1, {475,  1500}, (1ULL<<D1)|(1ULL<<D2)|(1ULL<<F1)|(1ULL<<F2)},
+		(astar_node_t){ E2, {1700, 1500}, (1ULL<<D5)|(1ULL<<D6)|(1ULL<<F5)|(1ULL<<F6)},
+
+		//Rangée [F]
+		(astar_node_t){ F1, {250,  1900}, (1ULL<<G1)|(1ULL<<F2)|(1ULL<<E1)},
+		(astar_node_t){ F2, {475,  1850}, (1ULL<<G1)|(1ULL<<F1)|(1ULL<<E1)},
+		(astar_node_t){ F3, {1050, 1850}, (1ULL<<G2)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<F6)},
+		(astar_node_t){ F4, {1400, 2000}, (1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F5)|(1ULL<<F6)},
+		(astar_node_t){ F5, {1550, 1750}, (1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)|(1ULL<<E2)},
+		(astar_node_t){ F6, {1700, 1900}, (1ULL<<G3)|(1ULL<<G4)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<E2)},
+
+
+		//Rangée [G]
+		(astar_node_t){ G1, {475,  2200}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<F1)|(1ULL<<F2)},
+		(astar_node_t){ G2, {1050, 2250}, (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4)},
+		(astar_node_t){ G3, {1400, 2200}, (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)},
+		(astar_node_t){ G4, {1700, 2200}, (1ULL<<H4)|(1ULL<<H5)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F6)},
+
+		//Rangée [H]
+		(astar_node_t){ H1, {300,  2450}, (1ULL<<I1)|(1ULL<<H2)|(1ULL<<G1)},
+		(astar_node_t){ H2, {650,  2450}, (1ULL<<I1)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<G1)|(1ULL<<G2)},
+		(astar_node_t){ H3, {1000, 2450}, (1ULL<<I2)|(1ULL<<H2)|(1ULL<<H4)|(1ULL<<G2)|(1ULL<<G3)},
+		(astar_node_t){ H4, {1350, 2450}, (1ULL<<I2)|(1ULL<<H3)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4)},
+		(astar_node_t){ H5, {1700, 2450}, (1ULL<<I2)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<G4)},
+
+		//Rangée [I]
+		(astar_node_t){ I1, {300,  2750}, (1ULL<<H1)|(1ULL<<H2)},
+		(astar_node_t){ I2, {1400, 2750}, (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)},
+
+		//Node de départ
+		(astar_node_t){ FROM_NODE, {0, 0},  0ULL},
+
+		//Node de destination
+		(astar_node_t){ DEST_NODE, {0, 0},  0ULL}
+	};
+
+
+	// Les polygones qui définissent des zones interdites d'accés pendant les trajectoires du pathfind
+	static astar_polygon_t astar_polygons[NB_MAX_POLYGONS];
+	static Uint8 astar_nb_polygons = 0;   // Le nombre total de polygones (obstacles + robots adverses)
+	static Uint8 astar_nb_obstacles = 0;  // Le nombre total d'obstacles
+
+	// Les hardlines qui définissent des lignes physiquement infranchissables par le robot (ex: tasseau de bois)
+	static astar_hardline_t astar_hardlines[NB_MAX_HARDLINES];
+	static Uint8 astar_nb_hardlines = 0;
+
+	// Les listes
+	static astar_list_t opened_list;
+	static astar_list_t closed_list;
+
+
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------
@@ -164,1635 +288,985 @@
 //--------------------------------------------------------------------------------------------------------------------------------------
 
 
-/** @brief ASTAR_generate_polygon_list
- *		Fonction générant la liste de polygones (adversaires + éléments ou zones de jeu)
- * @param currentNodeId : le numéro d'identité des nodes afin de ne pas donner le même id à deux nodes
- * @param foeRadius : la distance caractéristique des polygones modélisant les robots  adverses
- */
-static void ASTAR_generate_polygon_list(Uint8 *currentNodeId, Uint16 foeRadius){
-	polygon_list.nbPolygons = 0;  //réinitialisation du nombre de polygones
+	void ASTAR_init(){
+		//debug_printf("sizeof = %d\n",sizeof(Uint8));
+		//astar_node_t *machin = (Uint8*)malloc(sizeof(Uint8));
+		displacement_curve_t displacements[60];
+		Uint8 nb_displacements = 0;
+		Uint8 i;
+		ASTAR_user_define_obstacles();
+		ASTAR_print_obstacles();
 
-	//Attention, les nodes doivent être écartés au maximum de 250mm sur un même segment
-
-	//Polygon[0]: Rocher côté violet (Node 0 -> 4)
-	//cos4096(4*PI4096/6) = -0.5
-	//sin4096(4*PI4096/6) = 0.886
-	//cos4096(5*PI4096/6) = -0.886
-	//sin4096(5*PI4096/6) = 0.5
-	ASTAR_create_element_polygon(currentNodeId, 5, (astar_user_node_t){2000, 0, TRUE},
-									(astar_user_node_t){2000, 250 + MARGIN_TO_OBSTACLE , TRUE},
-									(astar_user_node_t){2000 - 0.5*(250 + MARGIN_TO_OBSTACLE), 0.886*(250 + MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){2000 - 0.886*(250 + MARGIN_TO_OBSTACLE), 0.5*(250 + MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){1750 - MARGIN_TO_OBSTACLE, 0, TRUE});
-
-	//Polygon[1]: Rocher côté vert (Node 5 -> 9)
-	//cos4096(-5*PI4096/6) = -0.886
-	//sin4096(-5*PI4096/6) = -0.5
-	//cos4096(-4*PI4096/6) = -0.5
-	//sin4096(-4*PI4096/6) = -0.886
-	ASTAR_create_element_polygon(currentNodeId, 5, (astar_user_node_t){2000, 3000, TRUE},
-									(astar_user_node_t){1750 - MARGIN_TO_OBSTACLE, 3000, TRUE},
-									(astar_user_node_t){2000 - 0.886*(250 + MARGIN_TO_OBSTACLE), 3000 - 0.5*(250 + MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){2000 - 0.5*(250 + MARGIN_TO_OBSTACLE), 3000 - 0.886*(250 + MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){2000, 2750 - MARGIN_TO_OBSTACLE, TRUE});
-
-	//Polygon[2]:Zone central avec le plexi (Node 10 -> 23)
-	//espacement tous les PI4096/6
-	ASTAR_create_element_polygon(currentNodeId, 14, (astar_user_node_t){750, 2100 + MARGIN_TO_OBSTACLE, FALSE},
-									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 2100 + CORNER_MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 2100, TRUE},
-									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 1500, TRUE},
-									(astar_user_node_t){750 - MARGIN_TO_OBSTACLE, 900, TRUE},
-									(astar_user_node_t){750 - CORNER_MARGIN_TO_OBSTACLE, 900 - CORNER_MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){750, 900 - MARGIN_TO_OBSTACLE, FALSE},
-									(astar_user_node_t){750 + 0.382*(650 + MARGIN_TO_OBSTACLE), 1500 - 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-3*PI4096/8
-									(astar_user_node_t){750 + 0.707*(650 + MARGIN_TO_OBSTACLE), 1500 - 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //-2*PI4096/8
-									(astar_user_node_t){750 + 0.93*(650 + MARGIN_TO_OBSTACLE), 1500 - 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //-PI4096/8
-									(astar_user_node_t){1350 + 50 + MARGIN_TO_OBSTACLE - 10, 1500, TRUE},                                              // 0
-									(astar_user_node_t){750 + 0.93*(650 + MARGIN_TO_OBSTACLE), 1500 + 0.382*(600 + MARGIN_TO_OBSTACLE), TRUE},    //PI4096/8
-									(astar_user_node_t){750 + 0.707*(650 + MARGIN_TO_OBSTACLE), 1500 + 0.707*(600 + MARGIN_TO_OBSTACLE), TRUE},   //2*PI4096/8
-									(astar_user_node_t){750 + 0.382*(650 + MARGIN_TO_OBSTACLE), 1500 + 0.924*(600 + MARGIN_TO_OBSTACLE), TRUE});  //3*PI4096/8
-
-	//Polygon[3]:Zone de la dune (Node 24 -> 32)
-	ASTAR_create_element_polygon(currentNodeId, 9, (astar_user_node_t){0, 800 - MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){200, 800-MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){200 + CORNER_MARGIN_TO_OBSTACLE,800 - CORNER_MARGIN_TO_OBSTACLE, FALSE},
-									(astar_user_node_t){200 + MARGIN_TO_OBSTACLE,800, TRUE},
-									(astar_user_node_t){200 + MARGIN_TO_OBSTACLE,1500, TRUE},
-									(astar_user_node_t){200 + MARGIN_TO_OBSTACLE,2200, TRUE},
-									(astar_user_node_t){200 + CORNER_MARGIN_TO_OBSTACLE,2200+CORNER_MARGIN_TO_OBSTACLE, FALSE},
-									(astar_user_node_t){200, 2200 + MARGIN_TO_OBSTACLE, TRUE},
-									(astar_user_node_t){0, 2200 + MARGIN_TO_OBSTACLE, TRUE});
-
-	//Polygon[4]:Zone de départ adverse (Node 33 -> 40)
-	ASTAR_create_element_polygon(currentNodeId, 8, (astar_user_node_t){1100 + MARGIN_TO_OBSTACLE, COLOR_Y(3000), TRUE},
-									(astar_user_node_t){1100 + MARGIN_TO_OBSTACLE, COLOR_Y(2700) , TRUE},
-									(astar_user_node_t){1100 + CORNER_MARGIN_TO_OBSTACLE, COLOR_Y(2700 - CORNER_MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){1100, COLOR_Y(2700 - MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){600, COLOR_Y(2700 - MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){600 - CORNER_MARGIN_TO_OBSTACLE, COLOR_Y(2700 - CORNER_MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(2700), TRUE},
-									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(3000), TRUE});
-
-	//Polygon[5]:Notre cube de sable près de la zone de départ (Node 41 -> 44)
-	ASTAR_create_element_polygon(currentNodeId, 4, (astar_user_node_t){900+MARGIN_TO_OBSTACLE, COLOR_Y(900), TRUE},
-									(astar_user_node_t){900+MARGIN_TO_OBSTACLE, COLOR_Y(650-MARGIN_TO_OBSTACLE), FALSE},
-									(astar_user_node_t){900-MARGIN_TO_OBSTACLE, COLOR_Y(650-MARGIN_TO_OBSTACLE), FALSE},
-									(astar_user_node_t){900-MARGIN_TO_OBSTACLE, COLOR_Y(900), TRUE});
-
-	//Polygon[6]:Cube de sable adverse près de la zone de départ (Node 45 -> 48)
-	ASTAR_create_element_polygon(currentNodeId, 4, (astar_user_node_t){900+MARGIN_TO_OBSTACLE, COLOR_Y(2350+MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){900+MARGIN_TO_OBSTACLE, COLOR_Y(2100), TRUE},
-									(astar_user_node_t){900-MARGIN_TO_OBSTACLE, COLOR_Y(2100), TRUE},
-									(astar_user_node_t){900-MARGIN_TO_OBSTACLE, COLOR_Y(2350+MARGIN_TO_OBSTACLE), TRUE});
-
-	//Polygon[7]: Notre zone de départ (Node 49 -> 55)
-	ASTAR_create_element_polygon(currentNodeId, 8, (astar_user_node_t){1100 + MARGIN_TO_OBSTACLE, COLOR_Y(0), TRUE},
-									(astar_user_node_t){1100 + MARGIN_TO_OBSTACLE, COLOR_Y(300) , TRUE},
-									(astar_user_node_t){1100 + CORNER_MARGIN_TO_OBSTACLE, COLOR_Y(300 + CORNER_MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){1100, COLOR_Y(300 + MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){600, COLOR_Y(300 + MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){600 - CORNER_MARGIN_TO_OBSTACLE, COLOR_Y(300 + CORNER_MARGIN_TO_OBSTACLE), TRUE},
-									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(300), TRUE},
-									(astar_user_node_t){600 - MARGIN_TO_OBSTACLE, COLOR_Y(0), TRUE});
-
-	//Polygones des robots adverses
-	ASTAR_create_foe_polygon(currentNodeId, foeRadius);
-}
-
-/** @ASTAR_link_node_start()
-  *      Procédure permettant d'ajouter les nodes à la liste ouverte lorsque le point de départ est dans un polygone
-  */
-static bool_e ASTAR_link_node_start(astar_path_t *path){
-	//Rien à gérer pour les polygones 0 et 1 correspondant aux deux rochers.
-	//L'éloignement des bordures doit être assuré par le programmeur en strat
-	if(!ASTAR_point_out_of_polygon(polygon_list.polygons[2], path->from.pos) && polygon_list.polygons[2].enable){ //Zone central avec plexi
-		if(path->from.pos.x > 750 && path->from.pos.y < 1500){
-			if(polygon_list.polygons[2].summits[7].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[7]), &opened_list);
-				polygon_list.polygons[2].summits[7].parent = &(path->from);
-				polygon_list.polygons[2].summits[7].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[7]));
-			}
-			if(polygon_list.polygons[2].summits[8].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[8]), &opened_list);
-				polygon_list.polygons[2].summits[8].parent = &(path->from);
-				polygon_list.polygons[2].summits[8].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[8]));
-			}
-			if(polygon_list.polygons[2].summits[9].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[9]), &opened_list);
-				polygon_list.polygons[2].summits[9].parent = &(path->from);
-				polygon_list.polygons[2].summits[9].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[9]));
-			}
-		}else if(path->from.pos.x > 750 && path->from.pos.y > 1500){
-			if(polygon_list.polygons[2].summits[11].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[11]), &opened_list);
-				polygon_list.polygons[2].summits[11].parent = &(path->from);
-				polygon_list.polygons[2].summits[11].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[11]));
-			}
-			if(polygon_list.polygons[2].summits[12].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[12]), &opened_list);
-				polygon_list.polygons[2].summits[12].parent = &(path->from);
-				polygon_list.polygons[2].summits[12].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[12]));
-			}
-			if(polygon_list.polygons[2].summits[13].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[13]), &opened_list);
-				polygon_list.polygons[2].summits[13].parent = &(path->from);
-				polygon_list.polygons[2].summits[13].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[13]));
-			}
-		}else if (path->from.pos.x < 750){
-			if(polygon_list.polygons[2].summits[2].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[2]), &opened_list);
-				polygon_list.polygons[2].summits[2].parent = &(path->from);
-				polygon_list.polygons[2].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[2]));
-			}
-			if(polygon_list.polygons[2].summits[3].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[3]), &opened_list);
-				polygon_list.polygons[2].summits[3].parent = &(path->from);
-				polygon_list.polygons[2].summits[3].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[3]));
-			}
-			if(polygon_list.polygons[2].summits[4].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[4]), &opened_list);
-				polygon_list.polygons[2].summits[4].parent = &(path->from);
-				polygon_list.polygons[2].summits[4].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[4]));
-			}
+		for(i=0; i<NB_NODES; i++){
+			debug_printf("COLOR_NODES of %d is %d\n", i, COLOR_NODE(i));
 		}
-		return TRUE;
-	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[3], path->from.pos)){  //Zone de la dune
-		if(path->from.pos.y > 800 && path->from.pos.y <2200){
-			if(polygon_list.polygons[3].summits[3].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[3]), &opened_list);
-				polygon_list.polygons[3].summits[3].parent = &(path->from);
-				polygon_list.polygons[3].summits[3].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[3]));
-			}
-			if(polygon_list.polygons[3].summits[4].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[4]), &opened_list);
-				polygon_list.polygons[3].summits[4].parent = &(path->from);
-				polygon_list.polygons[3].summits[4].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[4]));
-			}
-			if(polygon_list.polygons[3].summits[5].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[5]), &opened_list);
-				polygon_list.polygons[3].summits[5].parent = &(path->from);
-				polygon_list.polygons[3].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[5]));
-			}
-		}else if(path->from.pos.y <= 800){
-			if(polygon_list.polygons[3].summits[1].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[1]), &opened_list);
-				polygon_list.polygons[3].summits[1].parent = &(path->from);
-				polygon_list.polygons[3].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[1]));
-			}
-			if(polygon_list.polygons[3].summits[2].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[2]), &opened_list);
-				polygon_list.polygons[3].summits[2].parent = &(path->from);
-				polygon_list.polygons[3].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[2]));
-			}
-		}else{
-			if(polygon_list.polygons[3].summits[6].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[6]), &opened_list);
-				polygon_list.polygons[3].summits[6].parent = &(path->from);
-				polygon_list.polygons[3].summits[6].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[6]));
-			}
-			if(polygon_list.polygons[3].summits[7].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[3].summits[7]), &opened_list);
-				polygon_list.polygons[3].summits[7].parent = &(path->from);
-				polygon_list.polygons[3].summits[7].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[3].summits[7]));
-			}
-		}
-		return TRUE;
-	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[4], path->from.pos)){  //Zone de départ adverse
-		if(path->from.pos.x < 590){
-			if(polygon_list.polygons[4].summits[5].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[5]), &opened_list);
-				polygon_list.polygons[4].summits[5].parent = &(path->from);
-				polygon_list.polygons[4].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[5]));
-			}
-			if(polygon_list.polygons[4].summits[6].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[6]), &opened_list);
-				polygon_list.polygons[4].summits[6].parent = &(path->from);
-				polygon_list.polygons[4].summits[6].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[6]));
-			}
-		}else if(path->from.pos.x > 1110){
-			if(polygon_list.polygons[4].summits[1].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[1]), &opened_list);
-				polygon_list.polygons[4].summits[1].parent = &(path->from);
-				polygon_list.polygons[4].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[1]));
-			}
-			if(polygon_list.polygons[4].summits[2].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[2]), &opened_list);
-				polygon_list.polygons[4].summits[2].parent = &(path->from);
-				polygon_list.polygons[4].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[2]));
-			}
-		}else{
-			if(polygon_list.polygons[4].summits[2].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[2]), &opened_list);
-				polygon_list.polygons[4].summits[2].parent = &(path->from);
-				polygon_list.polygons[4].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[2]));
-			}
-			if(polygon_list.polygons[4].summits[3].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[3]), &opened_list);
-				polygon_list.polygons[4].summits[3].parent = &(path->from);
-				polygon_list.polygons[4].summits[3].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[3]));
-			}
-			if(polygon_list.polygons[4].summits[4].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[4]), &opened_list);
-				polygon_list.polygons[4].summits[4].parent = &(path->from);
-				polygon_list.polygons[4].summits[4].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[4]));
-			}
-			if(polygon_list.polygons[4].summits[5].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[4].summits[5]), &opened_list);
-				polygon_list.polygons[4].summits[5].parent = &(path->from);
-				polygon_list.polygons[4].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[4].summits[5]));
-			}
-		}
-		return TRUE;
-	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[5], path->from.pos)){  //Le cube de sable devant notre zone de départ
-		if(polygon_list.polygons[5].summits[1].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[5].summits[1]), &opened_list);
-			polygon_list.polygons[5].summits[1].parent = &(path->from);
-			polygon_list.polygons[5].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[5].summits[1]));
-		}
-		if(polygon_list.polygons[5].summits[2].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[5].summits[2]), &opened_list);
-			polygon_list.polygons[5].summits[2].parent = &(path->from);
-			polygon_list.polygons[5].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[5].summits[2]));
-		}
-		if(global.color == BOT_COLOR){
-			if(polygon_list.polygons[2].summits[5].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[5]), &opened_list);
-				polygon_list.polygons[2].summits[5].parent = &(path->from);
-				polygon_list.polygons[2].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[5]));
-			}
-			if(polygon_list.polygons[2].summits[8].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[8]), &opened_list);
-				polygon_list.polygons[2].summits[8].parent = &(path->from);
-				polygon_list.polygons[2].summits[8].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[8]));
-			}
-		}else{
-			if(polygon_list.polygons[2].summits[12].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[12]), &opened_list);
-				polygon_list.polygons[2].summits[12].parent = &(path->from);
-				polygon_list.polygons[2].summits[12].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[12]));
-			}
-			if(polygon_list.polygons[2].summits[1].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[1]), &opened_list);
-				polygon_list.polygons[2].summits[1].parent = &(path->from);
-				polygon_list.polygons[2].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[1]));
-			}
-		}
-		return TRUE;
-	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[6], path->from.pos)){  //Le cube de sable devant la zone de départ adverse
-		if(global.color == TOP_COLOR){
-			if(polygon_list.polygons[2].summits[5].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[5]), &opened_list);
-				polygon_list.polygons[2].summits[5].parent = &(path->from);
-				polygon_list.polygons[2].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[5]));
-			}
-			if(polygon_list.polygons[2].summits[8].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[8]), &opened_list);
-				polygon_list.polygons[2].summits[8].parent = &(path->from);
-				polygon_list.polygons[2].summits[8].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[8]));
-			}
-		}else{
-			if(polygon_list.polygons[2].summits[12].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[12]), &opened_list);
-				polygon_list.polygons[2].summits[12].parent = &(path->from);
-				polygon_list.polygons[2].summits[12].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[12]));
-			}
-			if(polygon_list.polygons[2].summits[1].enable){
-				ASTAR_add_node_to_list(&(polygon_list.polygons[2].summits[1]), &opened_list);
-				polygon_list.polygons[2].summits[1].parent = &(path->from);
-				polygon_list.polygons[2].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[2].summits[1]));
-			}
-		}
-		return TRUE;
-	}else if(!ASTAR_point_out_of_polygon(polygon_list.polygons[7], path->from.pos)){  //Notre Zone de départ
-	if(path->from.pos.x < 590){
-		if(polygon_list.polygons[7].summits[5].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[5]), &opened_list);
-			polygon_list.polygons[7].summits[5].parent = &(path->from);
-			polygon_list.polygons[7].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[5]));
-		}
-		if(polygon_list.polygons[7].summits[6].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[6]), &opened_list);
-			polygon_list.polygons[7].summits[6].parent = &(path->from);
-			polygon_list.polygons[7].summits[6].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[6]));
-		}
-	}else if(path->from.pos.x > 1110){
-		if(polygon_list.polygons[7].summits[1].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[1]), &opened_list);
-			polygon_list.polygons[7].summits[1].parent = &(path->from);
-			polygon_list.polygons[7].summits[1].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[1]));
-		}
-		if(polygon_list.polygons[7].summits[2].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[2]), &opened_list);
-			polygon_list.polygons[7].summits[2].parent = &(path->from);
-			polygon_list.polygons[7].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[2]));
-		}
-	}else{
-		if(polygon_list.polygons[7].summits[2].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[2]), &opened_list);
-			polygon_list.polygons[7].summits[2].parent = &(path->from);
-			polygon_list.polygons[7].summits[2].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[2]));
-		}
-		if(polygon_list.polygons[7].summits[3].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[3]), &opened_list);
-			polygon_list.polygons[7].summits[3].parent = &(path->from);
-			polygon_list.polygons[7].summits[3].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[3]));
-		}
-		if(polygon_list.polygons[7].summits[4].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[4]), &opened_list);
-			polygon_list.polygons[7].summits[4].parent = &(path->from);
-			polygon_list.polygons[7].summits[4].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[4]));
-		}
-		if(polygon_list.polygons[7].summits[5].enable){
-			ASTAR_add_node_to_list(&(polygon_list.polygons[7].summits[5]), &opened_list);
-			polygon_list.polygons[7].summits[5].parent = &(path->from);
-			polygon_list.polygons[7].summits[5].cost.step = ASTAR_pathfind_cost(&(path->from), &(polygon_list.polygons[7].summits[5]));
-		}
-	}
-	return TRUE;
-}
-	return FALSE;
-}
-
-
-/** @brief ASTAR_init
- *		Procédure permettant de réaliser les initialisations nécessaires
- */
-void ASTAR_init(void){
-	Uint8 i;
-	for(i=0; i<NB_MAX_POLYGONS; i++){
-		polygon_list.enableByUser[i] = TRUE;
-	}
-	polygon_list.enableByUser[7] = FALSE;
-}
 
 
 
-/** @brief ASTAR_create_element_polygon
- *		Fonction pour créer les polygones correspondant aux zones ou éléments du terrain constituant des obstacles
- * @param currentId : le numéro d'identité auquel on est rendu
- * @param nbSummits : le nombre de sommets du polygone crée
- */
-static void ASTAR_create_element_polygon(Uint8 *currentId, Uint8 nbSummits,...){
-	int i;
-	int index = polygon_list.nbPolygons;
-	va_list listePoints;
-	va_start(listePoints, nbSummits);
-	astar_user_node_t point;
+		bool_e result = ASTAR_is_node_visible((GEOMETRY_point_t){1500, 500}, (GEOMETRY_point_t){300, 2500});
+		debug_printf("astar is node visible = %d\n", result);
 
-	for(i=0; i< nbSummits; i++){
-		point = va_arg(listePoints, astar_user_node_t);
-		polygon_list.polygons[index].summits[i].id = ((*currentId)++);
-		polygon_list.polygons[index].summits[i].polygonId = index;
-		polygon_list.polygons[index].summits[i].pos = (GEOMETRY_point_t){point.x, point.y};
-		polygon_list.polygons[index].summits[i].enable = TRUE; //node enable par défaut. L'affectation de ce champ ne peut se faire que lorsque tous les polygones sont créés.
-		polygon_list.polygons[index].summits[i].curve = point.curve;
-		polygon_list.polygons[index].summits[i].cost.total = MAX_COST;
-		polygon_list.polygons[index].summits[i].cost.heuristic = MAX_COST;
-		polygon_list.polygons[index].summits[i].cost.step = MAX_COST;
-		polygon_list.polygons[index].summits[i].parent = NULL;  //Le parent est affecté par l'algo A*
-		polygon_list.polygons[index].summits[i].nbNeighbors = 0;  //Les voisins sont affectés par la suite, on initialise donc à 0.
+		//ASTAR_compute(displacements, &nb_displacements, (GEOMETRY_point_t){200, 1500}, (GEOMETRY_point_t){1200, 1700}, FAST, FALSE);
+		debug_printf("\nAFFICHAGE PATH\n");
+		for(i=0; i<nb_displacements; i++){
+			debug_printf("pos(%d;%d) \n", displacements[i].point.x, displacements[i].point.y);
+		}
+
 	}
 
-	polygon_list.polygons[index].id = index;
-	polygon_list.polygons[index].nbSummits = nbSummits;
-	polygon_list.polygons[index].enable = polygon_list.enableByUser[index];
-	polygon_list.nbPolygons++;
-}
+
+	#define POLYGON_OUR_DEPOSE_ZONE (0)
+	#define POLYGON_ADV_DEPOSE_ZONE (1)
+	#define POLYGON_OUR_START_ZONE	(2)
+	#define POLYGON_ADV_START_ZONE	(3)
+	static void ASTAR_user_define_obstacles(){
+		////////////////////////////////////////// DEFINITION DES POLYGONES ///////////////////////////////////////////////////////
+		// Notre zone de dépose
+		GEOMETRY_point_t poly_our_depose_zone[3] = {(GEOMETRY_point_t){750, COLOR_Y(900 - OBSTACLE_MARGIN)},
+													(GEOMETRY_point_t){1350 + OBSTACLE_MARGIN, 1500},
+													(GEOMETRY_point_t){750, 1500}};
+		astar_node_id nodesIO_our_depose_zone[5] = {COLOR_NODE(C2), COLOR_NODE(C3), COLOR_NODE(D4), COLOR_NODE(D5), COLOR_NODE(D6)};
+		ASTAR_define_polygon("our_depose_zone", poly_our_depose_zone, 3, FALSE, nodesIO_our_depose_zone, 5);
+
+		// La zone de dépose adverse
+		GEOMETRY_point_t poly_adv_depose_zone[5] = {(GEOMETRY_point_t){750, 1500},
+													(GEOMETRY_point_t){1350 + OBSTACLE_MARGIN, 1500},
+													(GEOMETRY_point_t){750 + (600 + OBSTACLE_MARGIN)*cos(M_PI/6.0), COLOR_Y(1500 + (600 + OBSTACLE_MARGIN)*sin(M_PI/6.0))},
+													(GEOMETRY_point_t){750 + (600 + OBSTACLE_MARGIN)*cos(2*M_PI/6.0), COLOR_Y(1500 + (600 + OBSTACLE_MARGIN)*sin(2*M_PI/6.0))},
+													(GEOMETRY_point_t){750, COLOR_Y(2100 + OBSTACLE_MARGIN)}};
+		astar_node_id nodesIO_adv_depose_zone[5] = {COLOR_NODE(G2), COLOR_NODE(G3), COLOR_NODE(F4), COLOR_NODE(F5), COLOR_NODE(F6)};
+		ASTAR_define_polygon("adv_depose_zone", poly_adv_depose_zone, 5, TRUE, nodesIO_adv_depose_zone, 5);
+
+		// Notre zone de départ
+		GEOMETRY_point_t poly_our_start_zone[4] = {(GEOMETRY_point_t){400, COLOR_Y(0)},
+												   (GEOMETRY_point_t){400, COLOR_Y(400)},
+												   (GEOMETRY_point_t){1300, COLOR_Y(400)},
+												   (GEOMETRY_point_t){1300, COLOR_Y(0)}};
+		astar_node_id nodesIO_our_start_zone[6] = {COLOR_NODE(A1), COLOR_NODE(A2), COLOR_NODE(B1), COLOR_NODE(B2), COLOR_NODE(B3), COLOR_NODE(B4)};
+		ASTAR_define_polygon("our_start_zone", poly_our_start_zone, 4, TRUE, nodesIO_our_start_zone, 6);
+
+		// La zone de départ adverse
+		GEOMETRY_point_t poly_adv_start_zone[4] = {(GEOMETRY_point_t){400, COLOR_Y(3000)},
+												   (GEOMETRY_point_t){400, COLOR_Y(2600)},
+												   (GEOMETRY_point_t){1300, COLOR_Y(2600)},
+												   (GEOMETRY_point_t){1300, COLOR_Y(3000)}};
+		astar_node_id nodesIO_adv_start_zone[6] = {COLOR_NODE(I1), COLOR_NODE(I2), COLOR_NODE(H1), COLOR_NODE(H2), COLOR_NODE(H3), COLOR_NODE(H4)};
+		ASTAR_define_polygon("adv_start_zone", poly_adv_start_zone, 4, TRUE, nodesIO_adv_start_zone, 6);
 
 
+		////////////////////////////////////////// DEFINITION DES HARDLINES ///////////////////////////////////////////////////////
+		// tasseau cube de 8
+		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){0, 800}, (GEOMETRY_point_t){200 + HARDLINE_PROTECTION_LENGTH, 800}, TRUE);
+		// tasseau cube de 8
+		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){0, 2200}, (GEOMETRY_point_t){200 + HARDLINE_PROTECTION_LENGTH, 2200}, TRUE);
+		// tasseau zone de dépose
+		ASTAR_define_hardline(TRUE,(GEOMETRY_point_t){750, 900 - HARDLINE_PROTECTION_LENGTH}, (GEOMETRY_point_t){750, 2100 + HARDLINE_PROTECTION_LENGTH}, TRUE);
+		// plexi zone de dépose
+		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){750, 1500}, (GEOMETRY_point_t){1350 + HARDLINE_PROTECTION_LENGTH, 1500}, TRUE);
 
-/** @brief ASTAR_create_foe_polygon
- *		Fonction pour créer les polygones correspondant aux 2 robots adverses
- * @param currentId : le numéro d'identité auquel on est rendu
- * @param foeRadius : la distance caractéristique du polygone créé (environ égale au rayon)
- */
-static void ASTAR_create_foe_polygon(Uint8 *currentId, Uint16 foeRadius){
-	Uint8 i, j, nbFoes =0;
-	Uint8 index = polygon_list.nbPolygons;
-	GEOMETRY_point_t foe;
-	Uint16 dist;
-	Uint16 dist_sin, dist_cos;
+	}
 
-	for(i=0; i<MAX_NB_FOES ; i++){
-		if(global.foe[i].enable){
-			foe.x = global.foe[i].x;
-			foe.y = global.foe[i].y;
+	/** @brief ASTAR_disable_nodes_in_polygon
+	 *		Fonction permettant de définir un polygone dans lequel les noeuds seront désactivés (pas pris en compte dans le compute)
+	 *	@param polygon : le polygone définissant la zone souhaité
+	 *  @param nbPoints : le nombre de points du polygone
+	 */
+	static void ASTAR_define_polygon(char *name, GEOMETRY_point_t polygon[], Uint8 nb_summits, bool_e enable_polygon, astar_node_id nodesIO[], Uint8 nb_nodesIO){
+		int i;
 
-			debug_printf("Foe %d in position x=%d   y=%d\n", i, foe.x, foe.y);
+		astar_polygons[astar_nb_polygons].id = astar_nb_polygons;
+		astar_polygons[astar_nb_polygons].name = name;
+		astar_polygons[astar_nb_polygons].enable = enable_polygon;
 
-			//Si le petit robot adverse est très petit, inutile de surdimensionné l'hexagone
-			//Prise en compte dynamique de la taille du robot adverse qaund on se trouve très proche de lui
-			dist = MIN(foeRadius, GEOMETRY_distance(foe, (GEOMETRY_point_t){global.pos.x, global.pos.y}) + 50);
-			dist_sin = dist*sin4096(PI4096/6);
-			dist_cos = dist*cos4096(PI4096/6);
-			debug_printf("Polygon Foe  dist= %d  dist_sin= %d   dist_cos= %d\n", dist, dist_sin, dist_cos);
+		// Réservation de l'espace mémoire
+	/*	if(nb_summits)
+			polygons_obstacles[nb_obstacles].summits = (GEOMETRY_point_t *)malloc(sizeof(GEOMETRY_point_t)*nb_summits);
+		else
+			polygons_obstacles[nb_obstacles].summits = NULL;
+		if(nb_nodesIO)
+			polygons_obstacles[nb_obstacles].nodesIO = (Uint8 *)malloc(sizeof(Uint8)*nb_nodesIO);
+		else
+			polygons_obstacles[nb_obstacles].nodesIO = NULL;*/
 
-			//Affectation des coordonnées des points du polygone
-			polygon_list.polygons[index].summits[0].pos.x = foe.x + dist;
-			polygon_list.polygons[index].summits[0].pos.y = foe.y;
+		// Affetation du polygone
+		for(i=0; i<nb_summits; i++){
+			astar_polygons[astar_nb_polygons].summits[i] = polygon[i];
+		}
+		astar_polygons[astar_nb_polygons].nb_summits = nb_summits;
 
-			polygon_list.polygons[index].summits[1].pos.x = foe.x + dist_sin;
-			polygon_list.polygons[index].summits[1].pos.y = foe.y + dist_cos;
+		// Affectation de ses noeuds d'entrée/sortie
+		for(i=0; i<nb_nodesIO; i++){
+			astar_polygons[astar_nb_polygons].nodesIO[i] = nodesIO[i];
+		}
+		astar_polygons[astar_nb_polygons].nb_nodesIO = nb_nodesIO;
 
-			polygon_list.polygons[index].summits[2].pos.x = foe.x - dist_sin;
-			polygon_list.polygons[index].summits[2].pos.y = foe.y + dist_cos;
+		astar_nb_polygons++;
+		astar_nb_obstacles++;
+		assert(astar_nb_polygons < NB_MAX_POLYGONS);
+	}
 
-			polygon_list.polygons[index].summits[3].pos.x = foe.x - dist;
-			polygon_list.polygons[index].summits[3].pos.y = foe.y;
+	static void ASTAR_define_hardline(bool_e protection_extremity_1, GEOMETRY_point_t extremity_1, GEOMETRY_point_t extremity_2, bool_e protection_extremity_2){
+		double angle;
+		if(protection_extremity_1){
+			//On ajoute une autre hardline de longueur HARDLINE_PROTECTION_LENGTH/2 qui protegera l'extrémité 1 de la hardline voulue
+			angle = atan2(extremity_2.y - extremity_1.y, extremity_2.x - extremity_1.x) + M_PI/2.0;
+			astar_hardlines[astar_nb_hardlines].ex1.x = extremity_1.x + HARDLINE_PROTECTION_LENGTH*cos(angle);
+			astar_hardlines[astar_nb_hardlines].ex1.y = extremity_1.y + HARDLINE_PROTECTION_LENGTH*sin(angle);
+			astar_hardlines[astar_nb_hardlines].ex2.x = extremity_1.x - HARDLINE_PROTECTION_LENGTH*cos(angle);
+			astar_hardlines[astar_nb_hardlines].ex2.y = extremity_1.y - HARDLINE_PROTECTION_LENGTH*sin(angle);
+			astar_nb_hardlines++;
+			assert(astar_nb_hardlines < NB_MAX_HARDLINES);
+		}
 
-			polygon_list.polygons[index].summits[4].pos.x = foe.x - dist_sin;
-			polygon_list.polygons[index].summits[4].pos.y = foe.y - dist_cos;
+		//On ajoute la harline voulue
+		astar_hardlines[astar_nb_hardlines].ex1 = extremity_1;
+		astar_hardlines[astar_nb_hardlines].ex2 = extremity_2;
+		astar_nb_hardlines++;
+		assert(astar_nb_hardlines < NB_MAX_HARDLINES);
 
-			polygon_list.polygons[index].summits[5].pos.x = foe.x + dist_sin;
-			polygon_list.polygons[index].summits[5].pos.y = foe.y - dist_cos;
-
-			//Affectation des autres paramètres du polygone
-			polygon_list.polygons[index].id = index;
-			polygon_list.polygons[index].nbSummits = 6;
-			polygon_list.polygons[index].enable = TRUE;
-
-			//Affectation des données de chaque node
-			for(j=0; j<6; j++){
-				polygon_list.polygons[index].summits[j].id = ((*currentId)++);
-				polygon_list.polygons[index].summits[j].polygonId = index;
-				polygon_list.polygons[index].summits[j].enable = TRUE; //node enable par défaut
-				polygon_list.polygons[index].summits[j].curve = TRUE;
-				polygon_list.polygons[index].summits[j].cost.total = MAX_COST;
-				polygon_list.polygons[index].summits[j].cost.heuristic = MAX_COST;
-				polygon_list.polygons[index].summits[j].cost.step = MAX_COST;
-				polygon_list.polygons[index].summits[j].parent = NULL ; //Le parent est affecté par la suite
-				polygon_list.polygons[index].summits[j].nbNeighbors = 0; //initialisation à 0
-			}
-			nbFoes++;
-			index++;
+		if(protection_extremity_2){
+			//On ajoute une autre hardline de longueur HARDLINE_PROTECTION_LENGTH/2 qui protegera l'extrémité 2 de la hardline voulue
+			angle = atan2(extremity_1.y - extremity_2.y, extremity_1.x - extremity_2.x) + M_PI/2.0;
+			astar_hardlines[astar_nb_hardlines].ex1.x = extremity_2.x + HARDLINE_PROTECTION_LENGTH*cos(angle);
+			astar_hardlines[astar_nb_hardlines].ex1.y = extremity_2.y + HARDLINE_PROTECTION_LENGTH*sin(angle);
+			astar_hardlines[astar_nb_hardlines].ex2.x = extremity_2.x - HARDLINE_PROTECTION_LENGTH*cos(angle);
+			astar_hardlines[astar_nb_hardlines].ex2.y = extremity_2.y - HARDLINE_PROTECTION_LENGTH*sin(angle);
+			astar_nb_hardlines++;
+			assert(astar_nb_hardlines < NB_MAX_HARDLINES);
 		}
 	}
 
-	debug_printf("nbFoes = %d\n\n",index-polygon_list.nbPolygons);
-	polygon_list.nbPolygons += nbFoes;
-}
+
+
+	/** @brief ASTAR_create_foe_polygon
+	 *		Fonction pour créer les polygones correspondant aux 2 robots adverses
+	 * @param currentId : le numéro d'identité auquel on est rendu
+	 * @param foeRadius : la distance caractéristique du polygone créé (environ égale au rayon)
+	 */
+	static void ASTAR_create_foe_polygon(Uint16 foeRadius){
+		Uint8 i, nbFoes =0;
+		GEOMETRY_point_t foe;
+		Uint16 dist;
+		Uint16 dist_sin, dist_cos;
+
+		for(i=0; i<MAX_NB_FOES ; i++){
+			if(global.foe[i].enable){
+				foe.x = global.foe[i].x;
+				foe.y = global.foe[i].y;
+				nbFoes++;
+
+				debug_printf("Foe %d in position x=%d   y=%d\n", i, foe.x, foe.y);
+
+				//Si le petit robot adverse est très petit, inutile de surdimensionné l'hexagone
+				//Prise en compte dynamique de la taille du robot adverse qaund on se trouve très proche de lui
+				dist = MIN(foeRadius, GEOMETRY_distance(foe, (GEOMETRY_point_t){global.pos.x, global.pos.y}));
+				dist_sin = dist*sin4096(PI4096/6);
+				dist_cos = dist*cos4096(PI4096/6);
+				debug_printf("Polygon Foe  dist= %d  dist_sin= %d   dist_cos= %d\n", dist, dist_sin, dist_cos);
+
+				//Affectation des coordonnées des points du polygone
+				astar_polygons[astar_nb_polygons].summits[0].x = foe.x + dist;
+				astar_polygons[astar_nb_polygons].summits[0].y = foe.y;
+
+				astar_polygons[astar_nb_polygons].summits[1].x = foe.x + dist_sin;
+				astar_polygons[astar_nb_polygons].summits[1].y = foe.y + dist_cos;
+
+				astar_polygons[astar_nb_polygons].summits[2].x = foe.x - dist_sin;
+				astar_polygons[astar_nb_polygons].summits[2].y = foe.y + dist_cos;
+
+				astar_polygons[astar_nb_polygons].summits[3].x = foe.x - dist;
+				astar_polygons[astar_nb_polygons].summits[3].y = foe.y;
+
+				astar_polygons[astar_nb_polygons].summits[4].x = foe.x - dist_sin;
+				astar_polygons[astar_nb_polygons].summits[4].y = foe.y - dist_cos;
+
+				astar_polygons[astar_nb_polygons].summits[5].x = foe.x + dist_sin;
+				astar_polygons[astar_nb_polygons].summits[5].y = foe.y - dist_cos;
 
 
 
-/** @brief ASTAR_generate_graph
- *		Fonction permettant de générer le graphe de nodes
- * @param path : la trajectoire du robot contenant le node de départ, le node d'arrivée et les nodes du chemin à emprunter
- * @param from : les coordonnées du point de départ
- * @destination : les coordonnées du point d'arrivée
- * @param currentNodeId : le numéro d'identité des nodes afin de ne pas donner le même id à deux nodes
- */
-static void ASTAR_generate_graph(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint8 *currentNodeId){
-	Uint8 i, j;
+				//Affectation des autres paramètres du polygone
+				astar_polygons[astar_nb_polygons].id = i;
+				astar_polygons[astar_nb_polygons].nb_summits = 6;
+				//La prise en compte de la distance de l'adversaire permet d'éviter à nos robots de se trouver dans des polygones de
+				//robots adverses, le nombre de nodesIO peut donc être mis à 0 (voir si ca pose problème dans l'utilisation
+				astar_polygons[astar_nb_polygons].nb_nodesIO = 0;
+				astar_polygons[astar_nb_polygons].enable = TRUE;
 
-	debug_printf("From x=%d  y=%d\n", from.x, from.y);
-
-	//Création du node de départ
-	path->from.id = (*currentNodeId)++;
-	path->from.polygonId = NO_ID;
-	path->from.pos = from;
-	path->from.enable = TRUE; //On considère que la position de départ du robot est valide.
-	path->from.cost.total = 0; //Ca ne coute rien d'aller de from vers from
-	path->from.cost.heuristic = 0; //de même
-	path->from.cost.step = 0; //de même
-	path->from.parent = NULL; //Le noeud de départ n'a pas de parent, c'est un noeud racine.
-	path->from.nbNeighbors = 0;
-
-	//Création du node d'arrivée
-	path->destination.id = (*currentNodeId)++;
-	path->destination.polygonId = NO_ID;
-	path->destination.pos = destination;
-	path->destination.enable = ASTAR_node_enable(&(path->destination), FALSE, FALSE);
-	path->destination.cost.total = MAX_COST; //On lui affecte un cout maximal
-	path->destination.cost.heuristic = MAX_COST; //On lui affecte un cout maximal
-	path->destination.cost.step = MAX_COST; //On lui affecte un cout maximal
-	path->destination.parent = NULL; //on ne connait pas encore son parent
-	path->destination.nbNeighbors = 0;
-
-	//Vérification de la visibilité des noeuds et affectation du champ enable de chaque node
-	//Cette action ne peut se faire que lorsque tous les polygones ont été générés
-	for(i=0; i< polygon_list.nbPolygons; i++){
-		if(polygon_list.polygons[i].enable){
-			for(j=0; j< polygon_list.polygons[i].nbSummits; j++){
-				polygon_list.polygons[i].summits[j].enable = ASTAR_node_enable(&(polygon_list.polygons[i].summits[j]), TRUE, TRUE);
+				astar_nb_polygons++;
 			}
 		}
+
+		debug_printf("nbFoes = %d\n\n",nbFoes);
 	}
 
-	//Création des liens entre les noeuds d'un même polygone (cela revient à dessiner les polygones)
-	//On affecte les voisins connus de chaque node.
-	for(i=0; i<polygon_list.nbPolygons; i++){
-		//Affectation du premier sommet (on lui affecte le second sommet et le dermier comme voisins)
-		ASTAR_add_neighbor_to_node(&(polygon_list.polygons[i].summits[0]), &(polygon_list.polygons[i].summits[1]));
-		ASTAR_add_neighbor_to_node(&(polygon_list.polygons[i].summits[0]), &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]));
+	/** @brief ASTAR_init_nodes
+	 *		Fonction permettant d'initialiser les propriétés principales des nodes
+	 */
+	static void ASTAR_init_nodes(){
+		Uint8 i;
+		Uint16 id = 0;
 
-		//Affectation des sommets "normaux" (on lui affecte le sommet précédent et le sommet suivant comme voisins)
-		for(j=1; j<polygon_list.polygons[i].nbSummits-1; j++){
-			ASTAR_add_neighbor_to_node(&(polygon_list.polygons[i].summits[j]), &(polygon_list.polygons[i].summits[j-1]));
-			ASTAR_add_neighbor_to_node(&(polygon_list.polygons[i].summits[j]), &(polygon_list.polygons[i].summits[j+1]));
+		for(i=0; i<NB_NODES; i++){
+			astar_nodes[i].id = id;
+			id++;
+			astar_nodes[i].enable = TRUE;
+			astar_nodes[i].parent = NO_ID;
+			astar_nodes[i].cost.heuristic = MAX_COST;
+			astar_nodes[i].cost.step = MAX_COST;
+			astar_nodes[i].cost.total = MAX_COST;
+
+			// Il faut aussi penser à nettoyer le voisin DEST_NODE de tous les noeuds, la position finale demandée change à chaque fois
+			ASTAR_CLR_NODE_IN(DEST_NODE, astar_nodes[i].neighbors);
 		}
 
-		//Affectation du dernier sommet (on lui affecte l'avant dernier sommet et le premier comme voisins)
-		ASTAR_add_neighbor_to_node(&(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]), &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-2]));
-		ASTAR_add_neighbor_to_node(&(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]), &(polygon_list.polygons[i].summits[0]));
-	}
-}
-
-/** @brief ASTAR_compute_pathfind
- *		Fonction qui effectue l'algorithme A* (un algorithme de recherche de chemin dans un graphe)
- * @param path : la trajectoire du robot contenant le node de départ, le node d'arrivée et les nodes du chemin à emprunter
- * @param from : les coordonnées du point de départ
- * @param destination : les coordonnées du point d'arrivée
- * @param currentNodeId : le numéro d'identité des nodes afin de ne pas donner le même id à deux nodes
- */
-static void ASTAR_compute_pathfind(astar_path_t *path, GEOMETRY_point_t from, GEOMETRY_point_t destination, Uint16 foeRadius){
-	debug_printf("Pathfind Begin\n");
-
-	//Déclaration des variables
-	bool_e  destination_is_in_closed_list = FALSE;
-	bool_e  first_node = TRUE;
-	bool_e  search_link = FALSE;
-	Uint16 minimal_cost; //Cout minimal ie cout entre le node de départ et le node courant
-	astar_ptr_node_t current = NULL; //Le node courant
-	Uint8 i; // Variable de parcours
-	Uint8 currentNodeId = 0; //la variable pour affecter les ID
-
-	//Génération de la liste de polygones
-	ASTAR_generate_polygon_list(&currentNodeId, foeRadius);
-
-	//Affichage de la liste de polygones
-	ASTAR_print_polygon_list();
-
-	//Génération du graphe
-	ASTAR_generate_graph(path, from, destination, &currentNodeId);
-	//ASTAR_print_neighbors();
-
-	//Affichage de la liste de polygones en détails
-	//ASTAR_print_polygon_list_details();
-
-	//if de protection afin que l'algorithme soit lancé uniquement si le point de destination est valide
-	//debug_printf("\nTest du point de destination \n");
-	if(ASTAR_node_enable(&(path->destination), TRUE, FALSE)){
-
-		//Affichage de certains détails
-		//ASTAR_print_neighbors();
-		//ASTAR_print_polygon_list_details();
-
-		//Nettoyage des différentes listes
-		ASTAR_clean_list(&(path->list)); //La liste contenant le chemin
-		ASTAR_clean_list(&opened_list); //La liste ouverte
-		ASTAR_clean_list(&closed_list); //La liste fermée
-
-		//Ajout du noeud de départ à la liste ouverte
-		ASTAR_add_node_to_list(&(path->from), &opened_list);
-		first_node = TRUE;
-
-		//Affichage du contenu de la liste fermée et de la liste ouverte
-		//debug_printf("BEGIN  état des listes : \n");
-		//ASTAR_print_closed_list();
-		//ASTAR_print_opened_list();
-
-		/*Uint8 k;
-		astar_ptr_node_t answer1=NULL, answer2=NULL;
-		for(k=0; k<polygon_list.polygons[4].nbSummits; k++){
-			if(ASTAR_node_is_reachable(&answer1, &answer2, &(path->from), &(polygon_list.polygons[4].summits[k]))){
-				debug_printf("node x=%d  y=%d is visible by start point\n", polygon_list.polygons[4].summits[k].pos.x, polygon_list.polygons[4].summits[k].pos.y);
-			}else{
-				debug_printf("node x=%d  y=%d is NOT visible by start point\n", polygon_list.polygons[4].summits[k].pos.x, polygon_list.polygons[4].summits[k].pos.y);
-			}
-		}*/
-
-		//////// Boucle de l'algorithme A* ////////
-		//Tant que la liste ouverte n'est pas vide et que le node de destination n'a pas été ajouté à la liste fermé
-		while(!ASTAR_list_is_empty(opened_list) && !destination_is_in_closed_list){
-
-			//Recherche dans la liste ouverte du node avec le cout le plus faible. Ce node devient le node courant (current).
-			minimal_cost = opened_list.list[0]->cost.total;
-			current = opened_list.list[0];
-			for(i=1; i<opened_list.nbNodes; i++){
-				if(opened_list.list[i]->cost.total <= minimal_cost){
-					minimal_cost = opened_list.list[i]->cost.total;
-					current = opened_list.list[i];
-				}
-			}
-
-			//Ajout du noeud courant dans la closed_list et suppression de celui_ci dans l'opened_list
-			ASTAR_add_node_to_list(current, &closed_list);
-			ASTAR_delete_node_to_list(current, &opened_list);
-
-			//On regarde si le node courant est le node de destination (ou d'arrivée)
-			if(current == &(path->destination)){
-				destination_is_in_closed_list = TRUE;
-				debug_printf("destination_is_in_closed_list\n");
-			}
-
-			if(!destination_is_in_closed_list){
-				debug_printf("first_node= %d\n", first_node);
-				if(first_node){
-					search_link = ASTAR_link_node_start(path);
-				}
-
-				if(!first_node || !search_link){
-					//Recherche des nodes adjacents (ou voisins) au node current. On ajoute ces nodes à la liste ouverte.
-					ASTAR_link_nodes_on_path(current, &(path->destination), 10);
-					debug_printf("Search link\n");
-				}
-
-				//Mise à jour des coûts des noeuds qui ont pour parent current
-				ASTAR_update_cost(minimal_cost, current, &(path->destination));
-			}
-
-			//Affichage des listes
-			debug_printf("\n\n\nNode current x=%d  y=%d  -------------------------------------------------------------\n", current->pos.x, current->pos.y);
-			ASTAR_print_closed_list();
-			ASTAR_print_opened_list();
-
-			first_node = FALSE;
-		}
-
-		debug_printf("End Compute PATHFIND\n");
-
-		//Reconstitution du chemin
-		ASTAR_make_the_path(path);
-		ASTAR_print_path(*path);
-
-		debug_printf("Pathfind end\n");
-
-	}else{ //Protection si le node destination est dans un polygone fixe ou trop près de la bordure
-		info_printf("ASTAR: Destination node is DISABLE\n");
-	}
-}
-
-/** @brief ASTAR_link_nodes_on_path
- *		Fonction qui recherche et affecte des nodes en tant que "voisins" du node courant
- * @param path : la trajectoire du robot contenant le node de départ, le node d'arrivée et les nodes du chemin à emprunter
- * @param from : le node de départ
- * @param destination : le node d'arrivée
- * @param recursivityOrder : l'ordre de récursivité afin d'éviter les boucles infinies.
- *		Le premier appel de cet fonction ne peut s'appeller elle-même que recursivityOrder fois.
- */
-static void ASTAR_link_nodes_on_path(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 recursivityOrder){
-	debug_printf("\n\n\nLink Begin\n");
-	Uint16 test_cost;
-	Uint8  k;
-	astar_ptr_node_t nodeAnswer1 = NULL, nodeAnswer2 = NULL;
-	bool_e is_in_closed_list = FALSE;
-	bool_e is_in_opened_list = FALSE;
-	GEOMETRY_segment_t seg;
-	//GEOMETRY_point_t middle = GEOMETRY_segment_middle(seg);
-	struct astar_node nodeMid;
-
-
-	//Ajout des voisins de from à la liste ouverte
-	for(k=0; k<from->nbNeighbors; k++){
-
-		//portion de code testant si la trajectoire est bonne (pour cela on teste le milieu de la trajectoire)
-		seg = (GEOMETRY_segment_t){from->pos,from->neighbors[k]->pos};
-		//debug_printf("Tentative d' ajout\n");
-		//debug_printf("Middle of from:(%d , %d)  et (%d , %d)\n", seg.a.x , seg.a.y, seg.b.x, seg.b.y);
-		nodeMid.pos = GEOMETRY_segment_middle(seg);
-		nodeMid.id = NO_ID;
-		nodeMid.polygonId = from->polygonId;
-		nodeMid.enable = TRUE;
-		nodeMid.nbNeighbors = 0;
-		nodeMid.parent = NULL;
-		//debug_printf("Node ENABLE to add neighbor = %d\n", ASTAR_node_enable(&nodeMid, TRUE, TRUE));
-
-		if(from->neighbors[k]->enable && ASTAR_node_enable(&nodeMid, TRUE, TRUE) && !ASTAR_is_in_list(from->neighbors[k], closed_list)){
-			from->neighbors[k]->parent = from;
-			from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
-			debug_printf("neighbors added: x=%d  y=%d test_cost=%d\n", from->neighbors[k]->pos.x, from->neighbors[k]->pos.y, ASTAR_pathfind_cost(from, from->neighbors[k]));
-
-			if(ASTAR_is_in_list(from->neighbors[k], opened_list)){
-				test_cost = ASTAR_pathfind_cost(from, from->neighbors[k]);
-				if(test_cost < from->neighbors[k]->cost.step){
-					destination->parent = from;
-					destination->cost.step = test_cost;
-				}
-			}else{
-				ASTAR_add_node_to_list(from->neighbors[k], &opened_list);
-				from->neighbors[k]->parent = from;
-				from->neighbors[k]->cost.step = ASTAR_pathfind_cost(from, from->neighbors[k]);
-			}
-		}
+		// On nettoie aussi tous les voisins de FROM_NODE et de DEST_FROM
+		astar_nodes[FROM_NODE].neighbors = 0ULL;
+		astar_nodes[DEST_NODE].neighbors = 0ULL;
 	}
 
-	// Test d'ajout de tout les nodes à l'open_list dans un rayon de 500 mm
-	for(k=0; k<polygon_list.nbPolygons; k++){
-		ASTAR_add_nodes_specified_polygon_to_open_list(from, destination, k);
-	}
+	static void ASTAR_generate_graph(GEOMETRY_point_t from, GEOMETRY_point_t dest){
+		Uint8 i, j;
 
-	//on regarde si le node de destination est visible par le node de départ
-	bool_e answer = ASTAR_node_is_visible(&nodeAnswer1, &nodeAnswer2, from, destination);
-	//debug_printf("Link nodes for x=%d  y=%d : answer=%d  \n", destination->pos.x, destination->pos.y,answer );
+		// Création des polygones adversaires
+		astar_nb_polygons = astar_nb_obstacles;  // Réinitialisation des polygones adversaires correspndant à un ancien appel de l'astar
+		ASTAR_create_foe_polygon(FOE_RADIUS);
 
-
-	if(recursivityOrder==0){ //Protection de la récursivité pour éviter les boucles infinies
-		//nothing
-		nodeAnswer1 = NULL;
-		nodeAnswer2 = NULL;
-	}else if(answer){ 	//le node destination peut être ajouté à la liste ouverte
-		//debug_printf("Link node: answer1 = (%d , %d)  answer2 = (%d , %d)\n", nodeAnswer1->pos.x, nodeAnswer1->pos.y, nodeAnswer2->pos.x, nodeAnswer2->pos.y);
-		k = 0;
-		is_in_closed_list = FALSE;
-		while(k<closed_list.nbNodes && !is_in_closed_list){  //On vérifie qu'il n'est pas déjà dans la liste fermée
-			if(closed_list.list[k]->id == destination->id)
-				is_in_closed_list = TRUE;
-			else
-				k++;
-		}
-
-		if(!is_in_closed_list){
-			k=0;
-			is_in_opened_list = FALSE;
-			while(k<opened_list.nbNodes && !is_in_opened_list){  //On vérifie qu'il n'est pas déjà dans la liste ouverte
-				if(opened_list.list[k]->id == destination->id)
-					is_in_opened_list = TRUE;
-				else
-					k++;
-			}
-
-			//Ajout du node à la liste ouverte si il n'est pas présent dans la liste fermée et dans la liste ouverte
-			if(!is_in_opened_list){
-				ASTAR_add_node_to_list(destination, &opened_list);
-				destination->parent = from;
-				destination->cost.step = ASTAR_pathfind_cost(destination->parent, destination);
-			}else{
-				//Si le node est déjà présent dans la liste ouverte
-				//Si le cout global est inférieur avec current en tant que parent, current devient le parent du node destination
-				test_cost = ASTAR_pathfind_cost(from, destination);
-				if(test_cost < destination->cost.step){
-					destination->parent = from;
-					destination->cost.step = test_cost;
-				}
-			}
-
-		}
-	}
-	else
-	{
-		//Si le node destination ne peut pas être atteint, on fait de la récursivité pour trouver d'autres voisins et être sur qu'on puisse les atteindre
-		debug_printf("Link nodes: Recursivité engagé\n");
-		if(nodeAnswer1 != NULL && nodeAnswer1->enable && nodeAnswer1->polygonId != from->polygonId)
-			ASTAR_link_nodes_on_path(from, nodeAnswer1, recursivityOrder-1);
-		if(nodeAnswer2 != NULL && nodeAnswer2->enable && nodeAnswer2->polygonId != from->polygonId)
-			ASTAR_link_nodes_on_path(from, nodeAnswer2, recursivityOrder-1);
-	}
-	debug_printf("Link End\n");
-}
-
-
-/** @brief ASTAR_add_nodes_specified_polygon_to_open_list
- *		Fonction permettant de vérifier l'ajout des nodes du polygone spécifié
- */
-static void ASTAR_add_nodes_specified_polygon_to_open_list(astar_ptr_node_t from, astar_ptr_node_t destination, Uint8 idPolygon){
-	Uint16 test_cost;
-	Uint8 i, k;
-	bool_e is_in_closed_list, is_in_opened_list;
-	astar_ptr_node_t answer1 = NULL, answer2 = NULL;
-
-	//interdiction d'ajouter des nodes du même polygone, on ne doit ajouter que ses voisins mais cela est fait ultérieurement
-	if(from->polygonId == idPolygon)
-		return;
-
-	if(polygon_list.polygons[idPolygon].enable){
-		debug_printf("Polygon ENABLE\n");
-		for(i=0; i<polygon_list.polygons[idPolygon].nbSummits;i++){
-			if(polygon_list.polygons[idPolygon].summits[i].enable && GEOMETRY_distance(from->pos, polygon_list.polygons[idPolygon].summits[i].pos) < 600){
-				debug_printf("<500 Node x=%d  y=%d\n",polygon_list.polygons[idPolygon].summits[i].pos.x, polygon_list.polygons[idPolygon].summits[i].pos.y);
-				k = 0;
-				is_in_closed_list = FALSE;
-				while(k<closed_list.nbNodes && !is_in_closed_list){  //On vérifie qu'il n'est pas déjà dans la liste fermée
-					if(closed_list.list[k]->id == polygon_list.polygons[idPolygon].summits[i].id)
-						is_in_closed_list = TRUE;
-					else
-						k++;
-				}
-
-				if(!is_in_closed_list){
-					k=0;
-					is_in_opened_list = FALSE;
-					while(k<opened_list.nbNodes && !is_in_opened_list){  //On vérifie qu'il n'est pas déjà dans la liste ouverte
-						if(opened_list.list[k]->id == polygon_list.polygons[idPolygon].summits[i].id)
-							is_in_opened_list = TRUE;
-						else
-							k++;
+		// Il faut désactiver tous les noeuds qui sont à l'intérieur d'un polygone valide
+		for(i=0; i<astar_nb_polygons; i++){
+			if(astar_polygons[i].enable){
+				for(j=0; j<NB_NODES - 2; j++){ //On ne traite pas le noeud de départ et le noeud d'arrivée
+					//On évite de faire le calcul si le noeud est déjà désactivé
+					if(astar_nodes[j].enable && ASTAR_point_is_in_polygon(astar_polygons[i], astar_nodes[j].pos)){
+						astar_nodes[j].enable = FALSE;
+						debug_printf("Node %d désactivé car dans le polygon %s\n", j, astar_polygons[i].name);
 					}
-					debug_printf("from id =%d\n", from->id);
-					if(ASTAR_node_is_reachable(&answer1, &answer2, from, &(polygon_list.polygons[idPolygon].summits[i]))){
-						debug_printf("<500 and Visible Node x=%d  y=%d\n",polygon_list.polygons[idPolygon].summits[i].pos.x, polygon_list.polygons[idPolygon].summits[i].pos.y);
+				}
+			}
+		}
 
-						//Ajout du node à la liste ouverte si il n'est pas présent dans la liste fermée et dans la liste ouverte
-						if(!is_in_opened_list){
-							debug_printf("Add node to open list x=%d  y=%d\n", polygon_list.polygons[idPolygon].summits[i].pos.x, polygon_list.polygons[idPolygon].summits[i].pos.y );
-							ASTAR_add_node_to_list(&(polygon_list.polygons[idPolygon].summits[i]), &opened_list);
-							polygon_list.polygons[idPolygon].summits[i].parent = from;
-							polygon_list.polygons[idPolygon].summits[i].cost.step = ASTAR_pathfind_cost(from, &(polygon_list.polygons[idPolygon].summits[i]));
+		//Mise à jour du noeud de départ
+		astar_nodes[FROM_NODE].pos = from;
+		astar_nodes[FROM_NODE].enable = TRUE;
+
+		//Mise à jour du noeud d'arrivée
+		astar_nodes[DEST_NODE].pos = dest;
+		astar_nodes[DEST_NODE].enable = TRUE;
+
+		ASTAR_search_neighbors(FROM_NODE, TRUE);
+		debug_printf("FROM_NODE pos(%d;%d)\n", astar_nodes[FROM_NODE].pos.x, astar_nodes[FROM_NODE].pos.y);
+		ASTAR_search_neighbors(DEST_NODE, FALSE);
+	}
+
+	static void ASTAR_search_neighbors(astar_node_id nodeId, bool_e my_neighbors){
+		Uint8 i, j;
+		bool_e in_polygon = FALSE;
+		Uint32 dist = 0;
+		Uint32 dist_ref = 0;
+		Uint8 nb_search = 0;
+		bool_e finish_search = FALSE;
+
+		debug_printf("\nGENERATE GRAPH\n");
+		for(i=0; i<astar_nb_polygons; i++){
+			if(astar_polygons[i].enable){
+				// Si le node "nodeId" est dans un polygone
+				if(ASTAR_point_is_in_polygon(astar_polygons[i], astar_nodes[nodeId].pos)){
+					in_polygon = TRUE;
+					debug_printf("in_polygon TRUE(%s)\n", astar_polygons[i].name);
+					for(j=0; j<astar_polygons[i].nb_nodesIO; j++){
+						if(my_neighbors){
+							// Je cherche mes voisins (voisins de nodeId), donc on ajoute les nodesIO du polygones comme mes voisins
+							debug_printf("Node=%d ajoute comme voisin par FROM_NODE\n", astar_polygons[i].nodesIO[j]);
+							ASTAR_ADD_NODE_IN(astar_polygons[i].nodesIO[j], astar_nodes[nodeId].neighbors);
 						}else{
-							//Si le node est déjà présent dans la liste ouverte
-							//Si le cout global est inférieur avec current en tant que parent, current devient le parent du node destination
-							test_cost = ASTAR_pathfind_cost(from, &(polygon_list.polygons[idPolygon].summits[i]));
-							if(test_cost < polygon_list.polygons[idPolygon].summits[i].cost.step){
-								polygon_list.polygons[idPolygon].summits[i].parent = from;
-								polygon_list.polygons[idPolygon].summits[i].cost.step = test_cost;
+							// Je cherche de qui je peut être voisin, les nodesIO du polygone m'ajoute comme voisin
+							debug_printf("Node=%d ajoute comme voisin à DEST_NODE\n", astar_polygons[i].nodesIO[j]);
+							ASTAR_ADD_NODE_IN(nodeId, astar_nodes[astar_polygons[i].nodesIO[j]].neighbors);
+						}
+					}
+				}
+			}
+		}
+
+		// Si le node nodeId n'est pas dans un polygone
+		// On effectue un premier passage avec une distance de recherche donné
+		// On effectue un second passage avec une distance de recherche plus large si aucun noeud n'a été trouvé au premier passage
+		if(!in_polygon){
+			do{
+				if(nb_search == 0)
+					dist_ref = DISTANCE_NEIGHBOURHOOD*DISTANCE_NEIGHBOURHOOD; // On pred le carré pour éviter de calculer la racine carrée couteuse en temps CPU
+				else
+					dist_ref = 4*DISTANCE_NEIGHBOURHOOD*DISTANCE_NEIGHBOURHOOD; // Doubler la distance, revient à multiplier par 4 le carré de la distance
+				for(i=0; i<NB_NODES; i++){
+					if(i != nodeId && astar_nodes[i].enable){
+						dist = GEOMETRY_squared_distance(astar_nodes[nodeId].pos, astar_nodes[i].pos);
+						//Si la distance est acceptable et que ce lien n'est pas coupé par une hardlines
+						if(dist < dist_ref && !ASTAR_is_link_cut_by_hardlines(astar_nodes[nodeId].pos, astar_nodes[i].pos)){
+							if(my_neighbors){
+								// Je cherche mes voisins (voisins de nodeId), donc on ajoute le node trouvé comme mon voisin
+								debug_printf("Node=%d ajoute comme voisin par FROM_NODE\n", i);
+								ASTAR_ADD_NODE_IN(i, astar_nodes[nodeId].neighbors);
+								finish_search = TRUE;
+							}else{
+								// Je cherche de qui je peut être voisin, les node trouvé m'ajoute comme voisin
+								debug_printf("Node=%d ajoute comme voisin à DEST_NODE\n", i);
+								ASTAR_ADD_NODE_IN(nodeId, astar_nodes[i].neighbors);
+								finish_search = TRUE;
 							}
 						}
 					}
-					debug_printf("Answer1= (%d,%d, id=%d) Answer2= (%d,%d, id=%d)\n", answer1->pos.x, answer1->pos.y, answer1->id, answer2->pos.x, answer2->pos.y, answer2->id);
 				}
-			}
-		}
-	}
-}
-
-
-/** @brief ASTAR_make_the_path
- *		Fonction d'optimisation de la trajectoire afin d'éliminer les nodes inutiles pour gagner du temps quand on le peut.
- * @param path : la trajectoire du robot contenant le node de départ, le node d'arrivée et les nodes consituant la trajectoire
- */
-static void ASTAR_make_the_path(astar_path_t *path){
-	astar_list_t aux, auxOptimized; //Liste auxiliaire
-	Sint16 i, j;
-	astar_ptr_node_t answer1, answer2;
-
-	GEOMETRY_point_t foe1, foe2, foe;
-	Uint16 minFoe1, minFoe2, minFoe;
-	Uint16 min = 6000;
-	Sint8 index = -1;
-
-	//Nettoyage de la liste (Vaut mieux deux fois qu'une)
-	ASTAR_clean_list(&aux);
-	ASTAR_clean_list(&auxOptimized);
-
-
-	//Quelque soit le résultat de A*, on reconstruit le chemin même si il est incomplet. On verra plus tard ce qu'on décide de faire.
-	//Le chemin est reconstruit de la destination vers le point de départ
-	if(closed_list.list[closed_list.nbNodes-1]->id == path->destination.id){
-		debug_printf("node destination is x=%d y=%d\n",closed_list.list[closed_list.nbNodes-1]->pos.x, closed_list.list[closed_list.nbNodes-1]->pos.y);
-		ASTAR_add_node_to_list(closed_list.list[closed_list.nbNodes-1], &aux);
-	}else{
-		debug_printf("Test des nodes\n");
-		min = 6000;
-		index = -1;
-		foe1 = (GEOMETRY_point_t){global.foe[0].x, global.foe[0].y};
-		foe2 = (GEOMETRY_point_t){global.foe[1].x, global.foe[1].y};
-		if(global.foe[0].enable && global.foe[1].enable){
-			minFoe1 = GEOMETRY_distance(path->destination.pos, foe1);
-			minFoe2 = GEOMETRY_distance(path->destination.pos, foe2);
-			foe = (minFoe1 < minFoe2)? foe1:foe2;
-		}
-		for(i=0; i<closed_list.nbNodes; i++){
-			if(global.foe[0].enable && global.foe[1].enable){
-				minFoe = GEOMETRY_distance(closed_list.list[i]->pos, foe);
-				debug_printf("minFoe(%d,%d) = %d\n", foe.x, foe.y, minFoe);
-				if( minFoe < min){
-					index = i;
-					min = minFoe;
-				}
-			}else if(global.foe[0].enable){
-				minFoe1 = GEOMETRY_distance(closed_list.list[i]->pos, foe1);
-				debug_printf("minFoe = %d\n", minFoe1);
-				if( minFoe1 < min){
-					index = i;
-					min = minFoe1;
-					debug_printf("min affected to %d\n", min);
-				}
-			}else if(global.foe[1].enable){
-				minFoe2 = GEOMETRY_distance(closed_list.list[i]->pos, foe2);
-				debug_printf("minFoe = %d\n", minFoe2);
-				if(minFoe2 < min){
-					index = i;
-					min = minFoe2;
-				}
-			}
-		}
-		debug_printf("Make the path: Destination not found, closest node to go is x=%d y=%d\n", closed_list.list[index]->pos.x, closed_list.list[index]->pos.y);
-		if(index != -1){
-			ASTAR_add_node_to_list(closed_list.list[index], &aux);
-		}else{
-			debug_printf("0 nodes in Path \n");
-			path->list.nbNodes = 0;
-			return;
+				nb_search++;
+			}while(!finish_search && nb_search < 2);
 		}
 	}
 
+	static void ASTAR_link_nodes_on_path(astar_node_id current, bool_e handle_foes){
+		Uint8 neighbor;
+		Uint16 test_cost = 0;
 
-	debug_printf("PATH: added node to path x=%d  y=%d\n", closed_list.list[index]->pos.x, closed_list.list[index]->pos.y);
-	while(aux.list[aux.nbNodes-1] != &(path->from)){  //Tant qu'on a pas atteint le point de départ
-		ASTAR_add_node_to_list(aux.list[aux.nbNodes-1]->parent, &aux);
-	}
+		for(neighbor=0; neighbor<NB_NODES; neighbor++){
+			if(astar_nodes[neighbor].enable && ASTAR_IS_NODE_IN(neighbor, astar_nodes[current].neighbors)){
 
-	debug_printf("\n\nTrajectoire sans optimisation\n");
-	ASTAR_print_list(aux);
+				// On vérifie que le noeud n'est pas dans la liste fermée
+				if(!ASTAR_IS_NODE_IN(neighbor, closed_list)){
 
-	//Vérification de l'utilité de chacun des points. Parfois un des points est inutile,
-	//le chemin peut directement aller du point N-1 au point N+1. On supprime donc le point N de la trajectoire.
-	//On regarde donc si le second point est visible du point de départ
-	//i est l'indice de parcours et j l'indice d'e parcours d'ajout dans la liste du path
-
-	i=aux.nbNodes-1;
-	j= i-2;
-	while(i>0){
-		while(j>=0 && ASTAR_node_is_reachable(&answer1, &answer2, aux.list[i], aux.list[j]) && (aux.list[i]->polygonId != aux.list[j]->polygonId) && ((i!=aux.nbNodes-1) || (i==aux.nbNodes-1 && ASTAR_point_out_of_polygon(polygon_list.polygons[aux.list[j]->polygonId], path->from.pos)))){
-		   j--;
-		}
-		i = j+1;
-		if(i != aux.nbNodes-1){
-			ASTAR_add_node_to_list(aux.list[i], &auxOptimized);
-			ASTAR_add_node_to_list(aux.list[i],  &(path->list));
-			j--;
-		}
-	}
-
-	debug_printf("\n\nTrajectoire avec optimisation\n");
-	ASTAR_print_list(path->list);
-
-	//Si le robot est trop proche du premier node -> risque important d'effet de bord du genre robot qui se tourne vers l'adversaire -> on reste bloqué
-	if(GEOMETRY_distance((GEOMETRY_point_t){global.pos.x, global.pos.y},path->list.list[0]->pos) <  50){
-		if(path->list.nbNodes > 0){
-			debug_printf("Fisrt Node deleted beacause too close of actual position (<50mm)\n");
-			for(i=0; i<path->list.nbNodes-1;i++){   //on écrase le premier node
-				path->list.list[i] = path->list.list[i+1];
-			}
-			path->list.nbNodes =  path->list.nbNodes - 1;
-		}
-	}
-}
-
-/** @brief ASTAR_make_displacements
- *		Fonction transformant la trajectoire de nodes en trjaectoire de points.
- * @param path : la trajectoire de nodes
- * @param displacements : la trajectoire de points
- * @param nbDisplacements : le nombre de déplacements
- * @speed : la vitesse du robot
- */
-static void ASTAR_make_displacements(astar_path_t path, displacement_curve_t displacements[], Uint8 *nbDisplacements, PROP_speed_e speed){
-	Uint8 i;
-	*nbDisplacements = path.list.nbNodes;
-	debug_printf("MAKE DISPLACEMENTS\n nbDisplacements = %d\n", *nbDisplacements);
-	for(i=0; i<path.list.nbNodes; i++){
-		displacements[i].point = path.list.list[i]->pos;
-		displacements[i].speed = speed;
-
-		//Affectation du paramètre de courbe
-		if(i!=0 && ((path.list.list[i]->curve == FALSE && GEOMETRY_distance(path.list.list[i-1]->pos, path.list.list[i]->pos) < 50)
-					|| (path.list.list[i]->curve == FALSE && path.list.list[i-1]->curve == FALSE && GEOMETRY_distance(path.list.list[i-1]->pos, path.list.list[i]->pos) < 500))){
-			displacements[i].curve = TRUE; //Si on est vraiment proche d'un point et qu on devrait s'arreter, on autorise quand même une courbe
-		}else{
-			displacements[i].curve = path.list.list[i]->curve;
-		}
-		debug_printf("d x=%d  y=%d  curve=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve );
-
-	}
-}
-
-
-
-/** @brief ASTAR_try_going
- *		Machine à état réalisant le try_going
- *
- * @param x : l'abscisse u point d'arrivée
- * @param y : l'ordonnée du point d'arrivée
- * @param success_state : l'état courant dans lequel ce ASTAR_try_going est effectué en stratégie
- * @param success_state : l'état dans lequel on doit aller en cas de succès
- * @param fail_state : l'état dans lequel on doit aller en cas d'échec
- * @param speed la vitesse du robot
- * @param way : le sens de déplacements du robot
- * @param avoidance : le paramètre d'évitement
- * @param end_condition : la condition de fin (END_AT_BREAK ou END_AT_LAST_POINT)
- * @return l'état en cours ou l'état de succès ou l'état d'échec
- */
-Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition){
-	error_e sub_action;
-	static displacement_curve_t displacements[NB_MAX_DISPLACEMENTS];
-	static Uint8 nbDisplacements;
-	static astar_path_t path;
-	static Uint8 nbTry;
-	static bool_e successPossible;
-	static Uint16 foeRadius;
-
-	CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
-							INIT_PARAMETERS,
-							INIT,
-							COMPUTE,
-							DISPLACEMENT,
-							FAIL,
-							SUCCESS
-							);
-
-	switch(state)
-	{
-		case INIT_PARAMETERS:{
-			switch(avoidance)
-			{
-				case DODGE_AND_WAIT:
-				case DODGE_AND_NO_WAIT:
-					nbTry = NB_TRY_WHEN_DODGE;
-					break;
-				default:
-					nbTry = 1;
-					break;
-			}
-			foeRadius = DEFAULT_FOE_RADIUS;
-			state = INIT;
-		}break;
-
-		case INIT:
-			if(nbTry == 5 ||  nbTry==3 || nbTry==1)
-				foeRadius = DEFAULT_FOE_RADIUS - 70;
-			else
-				foeRadius = DEFAULT_FOE_RADIUS + 70;
-			debug_printf("\n\n\nASTAR_try_going with nbTry = %d ------------------------------------------------------------\n", nbTry);
-			debug_printf("foeRadius = %d\n", foeRadius);
-			ASTAR_compute_pathfind(&path, (GEOMETRY_point_t){global.pos.x, global.pos.y}, (GEOMETRY_point_t){x, y}, foeRadius);
-			state = COMPUTE;
-			break;
-
-		case COMPUTE:
-			debug_printf("Compute for try_going\n");
-			ASTAR_make_displacements(path, displacements, &nbDisplacements, speed);
-			debug_printf("%d displacements announced\n", nbDisplacements);
-			if(displacements[nbDisplacements-1].point.x == x && displacements[nbDisplacements-1].point.y == y)
-				successPossible = TRUE;
-			else
-				successPossible = FALSE;
-			if((successPossible || (nbTry%2)) && nbDisplacements)
-			   state = DISPLACEMENT;
-			else if(nbTry > 1)
-				state = INIT;
-			else
-				state = FAIL;
-			nbTry--;
-			break;
-
-		case DISPLACEMENT:
-			sub_action = goto_pos_curve_with_avoidance(NULL, displacements, nbDisplacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
-
-			switch(sub_action)
-			{
-				case IN_PROGRESS:
-					break;
-				case END_OK:
-					debug_printf("Displacement for try_going....success\n");
-					if(successPossible){
-						state = SUCCESS;
+					if(!ASTAR_IS_NODE_IN(neighbor, opened_list)){
+						// Si le noeud n'est pas dans la liste ouverte, on l'ajoute
+						//debug_printf("Le node %d est ajouté à l'opened_list\n", neighbor);
+						ASTAR_ADD_NODE_IN(neighbor, opened_list);
+						astar_nodes[neighbor].parent = current;
+						astar_nodes[neighbor].cost.step = ASTAR_pathfind_cost(current, neighbor, TRUE, handle_foes);
 					}else{
-						if(nbTry == 0){
-							state = FAIL;
+						// Sinon si le cout est inférieur avec le noeud courant en tant que parent,
+						// le noeud courant devient le parent du node en question
+						test_cost = ASTAR_pathfind_cost(current, neighbor, TRUE, handle_foes);
+						if(test_cost < astar_nodes[neighbor].cost.step){
+							//debug_printf("Le node %d a maintenant pour parent %d\n", neighbor, current);
+							astar_nodes[neighbor].parent = current;
+							astar_nodes[neighbor].cost.step = test_cost;
+						}
+					}
+
+				}
+
+			}
+		}
+	}
+
+	static error_e ASTAR_compute(displacement_curve_t *displacements, Uint8 *nb_displacements, GEOMETRY_point_t from, GEOMETRY_point_t dest, PROP_speed_e speed, bool_e handle_foes){
+		Uint16 minimal_cost = MAX_COST;
+		Uint16 current_node = NO_ID;
+		Uint8 i;
+		error_e result;
+
+		// On réinitialise tous les noeuds
+		ASTAR_init_nodes();
+
+		// On génère le graphe
+		ASTAR_generate_graph(from, dest);
+
+		ASTAR_print_nodes(TRUE);
+
+		// On réinitialise les listes avec des 0 sur 64 bits
+		opened_list = 0ULL;
+		closed_list = 0ULL;
+
+		// On ajoute le noeud de départ (from) à l'opened_list
+		ASTAR_ADD_NODE_IN(FROM_NODE, opened_list);
+		astar_nodes[FROM_NODE].cost.step = 0;
+		astar_nodes[FROM_NODE].cost.heuristic = ASTAR_pathfind_cost(FROM_NODE, DEST_NODE, FALSE, FALSE);
+		astar_nodes[FROM_NODE].cost.total = astar_nodes[FROM_NODE].cost.heuristic; //Le cout total est égal à l'heuristique car le step est nul.
+
+		// Tant que la liste ouverte n'est pas vide et que le noeud d'arrivée n'a pas été ajouté à la liste fermée
+		while(opened_list != 0ULL && !ASTAR_IS_NODE_IN(DEST_NODE, closed_list)){
+
+			ASTAR_print_opened_list();
+			ASTAR_print_closed_list();
+
+			//Recherche dans la liste ouverte du node avec le cout le plus faible. Ce node devient le node courant (current).
+			minimal_cost = MAX_COST;
+			current_node = NO_ID;
+			for(i=1; i<NB_NODES; i++){
+				if(ASTAR_IS_NODE_IN(i, opened_list) && astar_nodes[i].cost.total <= minimal_cost){
+					minimal_cost = astar_nodes[i].cost.total;
+					current_node = i;
+				}
+			}
+
+			debug_printf("Current node selected is %d\n", current_node);
+			//Ajout du noeud courant dans la closed_list et suppression de celui_ci dans l'opened_list
+			ASTAR_ADD_NODE_IN(current_node, closed_list);
+			ASTAR_CLR_NODE_IN(current_node, opened_list);
+
+			// Si le node courant n'est pas le node de destination (ou d'arrivée)
+			if(current_node != DEST_NODE){
+
+				// On ajoute les noeuds voisins à la liste ouverte
+				ASTAR_link_nodes_on_path(current_node, handle_foes);
+
+				// Mise à jour des coûts des noeuds qui pour parent current_node
+				ASTAR_update_cost(current_node);
+			}
+
+		}
+
+		// On connait maintenant la trajectoire du robot, on peut en déduire les déplacements à effectuer
+		result = ASTAR_make_the_path(displacements, nb_displacements, speed, current_node);
+
+		return result;
+	}
+
+
+
+	static error_e ASTAR_make_the_path(displacement_curve_t *displacements, Uint8 *nb_displacements, PROP_speed_e speed, astar_node_id last_node){
+		astar_node_id id = NO_ID;
+		Uint8 nb_nodes = 0;
+		Sint16 i;
+		error_e result;
+
+		id = last_node;
+		// On recherche le nombre de noeuds coinstituant la trajectoire
+		do{
+			id = astar_nodes[id].parent;
+			nb_nodes++;
+		}while(id != FROM_NODE);
+		*nb_displacements = nb_nodes;
+
+		// On remplit le tableaux des déplacements
+		debug_printf("\n PATH \n");
+		id = last_node;
+		for(i=nb_nodes-1; i>=0; i--){
+			displacements[i].point = astar_nodes[id].pos;
+			id = astar_nodes[id].parent;
+			debug_printf("[%d] pos(%d;%d)\n", id, astar_nodes[id].pos.x, astar_nodes[id].pos.y);
+		}
+
+		if(last_node == DEST_NODE){
+			// Le chemin est trouvé jusqu'au point d'arrivée
+			result = END_OK;
+		}else if(nb_nodes >=1){
+			// Si un début de chemin est trouvé, alors surement qu'un adversaire nous bloque le chemin
+			result = FOE_IN_PATH;
+		}else{
+			// Pas de chemin trouvé
+			result = NOT_HANDLED;
+		}
+		return result;
+	}
+
+	/** @brief ASTAR_try_going
+	 *		Machine à état réalisant le try_going
+	 *
+	 * @param x : l'abscisse u point d'arrivée
+	 * @param y : l'ordonnée du point d'arrivée
+	 * @param success_state : l'état courant dans lequel ce ASTAR_try_going est effectué en stratégie
+	 * @param success_state : l'état dans lequel on doit aller en cas de succès
+	 * @param fail_state : l'état dans lequel on doit aller en cas d'échec
+	 * @param speed la vitesse du robot
+	 * @param way : le sens de déplacements du robot
+	 * @param avoidance : le paramètre d'évitement
+	 * @param end_condition : la condition de fin (END_AT_BREAK ou END_AT_LAST_POINT)
+	 * @return l'état en cours ou l'état de succès ou l'état d'échec
+	 */
+	Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition){
+		static error_e result = IN_PROGRESS;
+		static displacement_curve_t displacements[NB_NODES];
+		static Uint8 nb_displacements;
+		static Uint8 nb_try;
+		static bool_e success_possible;
+		static GEOMETRY_point_t destination;
+		static bool_e handles_foes;
+
+		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
+								ASTAR_INIT,
+								ASTAR_GO_DIRECTLY,
+								ASTAR_COMPUTE,
+								ASTAR_DISPLACEMENT,
+								ASTAR_FAIL,
+								ASTAR_SUCCESS
+								);
+
+		switch(state)
+		{
+			case ASTAR_INIT:{
+				switch(avoidance)
+				{
+					case DODGE_AND_WAIT:
+					case DODGE_AND_NO_WAIT:
+						nb_try = NB_TRY_WITH_DODGE;
+						break;
+					default:
+						nb_try = 1;
+						break;
+				}
+				destination = (GEOMETRY_point_t){x, y};
+				if(ASTAR_is_node_visible((GEOMETRY_point_t){global.pos.x, global.pos.y}, destination)){ // Si le point de destination est directement visible à partir du point de départ
+					nb_try--; // On le compte comme une tentative
+					state = ASTAR_GO_DIRECTLY;
+				}else{
+					state = ASTAR_COMPUTE;
+				}
+			}break;
+
+			case ASTAR_GO_DIRECTLY:
+				result = try_going(x, y,  IN_PROGRESS, END_OK, NOT_HANDLED, speed, way, avoidance, end_condition, NO_ZONE);
+
+				switch(result)
+				{
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						state = ASTAR_SUCCESS;
+						break;
+					case FOE_IN_PATH:
+					case NOT_HANDLED:
+					case END_WITH_TIMEOUT:
+					default:
+						debug_printf("result ASTAR_GO_DIRECTLY is %d\n", result);
+						if(nb_try == 0)
+							state = ASTAR_FAIL;
+						else
+							state = ASTAR_COMPUTE; // On tente en pathfind
+				}
+				break;
+
+			case ASTAR_COMPUTE:
+				result = ASTAR_compute(displacements, &nb_displacements, (GEOMETRY_point_t){global.pos.x, global.pos.y}, destination, speed,  FALSE);
+
+				if(result == END_OK){
+					success_possible = TRUE;
+					state = ASTAR_DISPLACEMENT;
+				}else if(result == FOE_IN_PATH){
+					success_possible = FALSE;
+					state = ASTAR_DISPLACEMENT;
+					info_printf("ASTAR failure but will try to reach x=%d y=%d\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
+				}else{
+					state = ASTAR_FAIL;  // Aucun chemin trouvé
+				}
+				nb_try--;
+				break;
+
+			case ASTAR_DISPLACEMENT:
+				result = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+
+				switch(result)
+				{
+					case IN_PROGRESS:
+						break;
+					case END_OK:
+						if(success_possible){
+							state = ASTAR_SUCCESS;
 						}else{
-							state = INIT;
-							if(nbTry == 5)
-								nbTry = 4;
-							else if(nbTry == 3)
-								nbTry = 2;
-							else if(nbTry == 1)
-								state=  FAIL;
+							if(nb_try == 0)
+								state = ASTAR_FAIL;
+							else
+								state = ASTAR_COMPUTE; // On retente
 						}
-					}
-					break;
-				case FOE_IN_PATH:
-				case NOT_HANDLED:
-				case END_WITH_TIMEOUT:
-				default:
-					debug_printf("Displacement for try_going....fail\n");
-					if(nbTry == 0)
-						state = FAIL;
-					else
-						state = INIT;
-					if(nbTry == 5)
-						nbTry = 4;
-					else if(nbTry == 3)
-						nbTry = 2;
-					else if(nbTry == 1)
-						state=  FAIL;
-					break;
-			}
-			break;
-		case FAIL:
-			debug_printf("Finish by Fail nbTry=%d\n", nbTry+1);
-			state = INIT_PARAMETERS;
-			return fail_state;
-			break;
-		case SUCCESS:
-			debug_printf("Finish by Success nbTry=%d \n", nbTry+1);
-			state = INIT_PARAMETERS;
-			return success_state;
-			break;
-	}
-	return in_progress;
-}
-
-
-
-/** @brief ASTAR_node_enable
- *		Fonction pour vérifier si un point est présent dans l'aire de jeu et s'il est utilisable suivant les polygones définit sur le terrain
- * @param nodeTested : le node testé
- * @param withPolygons : booléen indiquant si on doit aussi prendre en compte les polygones correspondant aux éléments de jeu
- *		Node à l'intérieur d'un polygone ->  return FALSE
- * @param withFoes : booléen indiquant si on doit aussi prendre en compte les polygones correspondant aux robots adverses
- *		Node à l'intérieur d'un polygone ->  return FALSE
- * @return le booléen indiquant si le node est utilisable ou inutilisable
- */
-bool_e ASTAR_node_enable(astar_ptr_node_t nodeTested, bool_e withPolygons, bool_e withFoes){
-	Uint8 i;
-	if(nodeTested->pos.x < MARGIN_TO_BORDER || nodeTested->pos.x > PLAYGROUND_WIDTH-MARGIN_TO_BORDER || nodeTested->pos.y < MARGIN_TO_BORDER || nodeTested->pos.y > PLAYGROUND_HEIGHT-MARGIN_TO_BORDER){
-		//debug_printf("Node x=%d y=%d return FALSE because out of area\n", nodeTested->pos.x, nodeTested->pos.y);
-		return FALSE;
-	}
-
-	if(withPolygons){
-		Uint8 nbPolygons;
-		if(withFoes)
-			nbPolygons = polygon_list.nbPolygons;
-		else
-			nbPolygons = polygon_list.nbPolygons - 2;
-		for(i=0; i<nbPolygons; i++){
-			if(polygon_list.polygons[i].enable && polygon_list.polygons[i].id != nodeTested->polygonId && !ASTAR_point_out_of_polygon(polygon_list.polygons[i], nodeTested->pos)){
-				//debug_printf("Node x=%d y=%d return FALSE because in polygon id=%d\n", nodeTested->pos.x, nodeTested->pos.y, i);
-				return FALSE;
-			}
+						break;
+					case FOE_IN_PATH:
+					case NOT_HANDLED:
+					case END_WITH_TIMEOUT:
+					default:
+						if(nb_try == 0)
+							state = ASTAR_FAIL;
+						else
+							state = ASTAR_COMPUTE; // On retente
+				}
+				break;
+			case ASTAR_FAIL:
+				debug_printf("Finish with failure\n");
+				state = ASTAR_INIT;
+				return fail_state;
+				break;
+			case ASTAR_SUCCESS:
+				debug_printf("Finish with success\n");
+				state = ASTAR_INIT;
+				return success_state;
+				break;
 		}
+		return in_progress;
 	}
-	return TRUE;
-}
-
-
-
-/** @brief ASTAR_point_out_of_polygon
- *		Fonction pour vérifier si un point est à l'extérieur d'un polygone
- * @param polygon : le polygone pris en compte
- * @param nodeTested : le node testé
- * @return le booléen indiquant si le node est à l'extérieur (TRUE) ou à l'intérieur (FALSE) du polygone considéré
- */
-bool_e ASTAR_point_out_of_polygon(astar_polygon_t polygon, GEOMETRY_point_t nodeTested){
-	int nbIntersections=0;
-	int i;
-	//segment de référence dont une extrémité est à l'extérieur du polygone
-	GEOMETRY_segment_t seg1 = {nodeTested, (GEOMETRY_point_t){3000, 4000}};
-
-	//on compte le nombre d'intersection avec chaque coté du polygone
-	for(i=0; i<polygon.nbSummits-1; i++){
-		GEOMETRY_segment_t seg2 = {polygon.summits[i].pos, polygon.summits[i+1].pos};
-		nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
-		//if(GEOMETRY_segments_intersects(seg1, seg2)){
-		//	debug_printf("Intersection of node (%d, %d) with seg (%d, %d)   (%d, %d)\n", nodeTested.x, nodeTested.y, seg2.a.x, seg2.a.y, seg2.b.x, seg2.b.y);
-		//}
-	}
-
-	//Test de l'intersection avec le dernier segment
-	GEOMETRY_segment_t seg2 = {polygon.summits[polygon.nbSummits-1].pos, polygon.summits[0].pos};
-	nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
-	//if(GEOMETRY_segments_intersects(seg1, seg2)){
-	//	debug_printf("Intersection of node (%d, %d) with seg (%d, %d)   (%d, %d)\n", nodeTested.x, nodeTested.y, seg2.a.x, seg2.a.y, seg2.b.x, seg2.b.y);
-	//}
-
-	//Le point est à l'extérieur du polygone si le nombre d'intersections avec chacun des côté du polygone est un nombre pair.
-	//Si le nombre d'intersection est un nombre impair, le node est donc à l'intérieur du polygone.
-	return  (nbIntersections%2 == 0);
-}
-
-
-
-/** @brief ASTAR_node_is_visible
- *		Fonction qui recherche si un node est visible à partir d'un autre node. En cas d'échec, cette fonction retourne
- *		les nodes constituant les extrémités du segment le plus proche de lui et qui empêche l'accès au node d'arrivée.
- * @param nodeAnswer1 : premier node atteignable par le node de départ (node réponse)
- * @param nodeAnswer2 : second node atteignable par le node de départ (node réponse)
- * @param from : le node de départ
- * @param destination : le node d'arrivée
- * @return le booléen indiquant si le node destination est visible par le node from
- */
-static bool_e ASTAR_node_is_visible(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
-	//debug_printf("Visible Begin\n");
-	Uint16 minimal_dist = MAX_COST;
-	Uint16 test_dist;
-	Uint8 i, j;
-	GEOMETRY_segment_t reference = {from->pos, destination->pos};
-	GEOMETRY_segment_t test;
-	debug_printf("from x=%d y=%d id=%d\n", from->pos.x, from->pos.y, from->id);
-
-	*nodeAnswer1 = NULL;
-	*nodeAnswer2 = NULL;
-	for(i=0; i<polygon_list.nbPolygons; i++){
-		if(polygon_list.polygons[i].enable && polygon_list.polygons[i].id != destination->polygonId){ //Le test n'est réalisé que si le polygone est "enable"
-			for(j=0; j<polygon_list.polygons[i].nbSummits-1; j++){
-				//On vérifie  si il y a une intersection avec chaque segment de polygone excepté le polygone auquel le node appartient
-				if(polygon_list.polygons[i].summits[j].id != from->id && polygon_list.polygons[i].summits[j+1].id != from->id){
-					//Vérification de l'intersection
-					test.a = polygon_list.polygons[i].summits[j].pos;
-					test.b = polygon_list.polygons[i].summits[j+1].pos;
-					//debug_printf("Test intersection (%d , %d ) et (%d , %d)\n", test.a.x, test.a.y, test.b.x, test.b.y);
-					if(GEOMETRY_segments_intersects(reference, test)){
-						//Si il y a intersection, on calcule le point d'intersecsection
-						//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
-						test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-						//debug_printf("Finish with dist = %d\n", test_dist);
-						if(test_dist < minimal_dist){ // Si la distance est inférieur, on sauvegarde les extrémités du segment
-							//debug_printf("minimal_dist affected to %d\n", test_dist);
-							minimal_dist = test_dist;
-							*nodeAnswer1 = &(polygon_list.polygons[i].summits[j]);
-							*nodeAnswer2 = &(polygon_list.polygons[i].summits[j+1]);
-						}
-					}
-				}
-			}
-			//Vérification du segment entre le premier et le dernier node de chaque polygone
-			if(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].id != from->id && polygon_list.polygons[i].summits[0].id != from->id){
-				//Vérification de l'intersection
-				test.a = polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].pos;
-				test.b = polygon_list.polygons[i].summits[0].pos;
-				if(GEOMETRY_segments_intersects(reference, test)){
-					//Si il y a intersection, on calcule le point d'intersecsection;
-					//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
-					test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-					//debug_printf("Finish with dist = %d\n", test_dist);
-					if(test_dist < minimal_dist){ // Si la distance est inférieur, on sauvegarde les extrémités du segment
-						//debug_printf("minimal_dist affected\n");
-						minimal_dist = test_dist;
-						*nodeAnswer1 = &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]);
-						*nodeAnswer2 = &(polygon_list.polygons[i].summits[0]);
-					}
-				}
-			}
-		}
-	}
-	//debug_printf("Visible End\n");
-	if(*nodeAnswer1 == NULL && *nodeAnswer2 == NULL)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
-
-/** @brief ASTAR_node_is_reachable
- *		Fonction qui recherche si un node est atteignable à partir d'un autre node. En cas d'échec, cette fonction retourne
- *		les nodes consitituant les extrémités du segment le plus proche de lui et qui empêche l'accès au node d'arrivée.
- *		Cette  fonction est très similaire à ASTAR_node_is_visible mais sans "l'aspect voisin". On cherche à savoir si le
- *		node est atteignable et non pas si il doit être pris en compte comme point éventuel dans la trajectoire du robot.
- *		Cette fonction est utilisé pour optimiser la trajectoire du robot.
- * @param nodeAnswer1 : premier node atteignable par le node de départ (node réponse)
- * @param nodeAnswer2 : second node atteignable par le node de départ (node réponse)
- * @param from : le node de départ
- * @param destination : le node d'arrivée
- * @return le booléen indiquant si le node destination est atteignable par le node from
- */
-static bool_e ASTAR_node_is_reachable(astar_ptr_node_t *nodeAnswer1, astar_ptr_node_t *nodeAnswer2, astar_ptr_node_t from, astar_ptr_node_t destination){
-	//debug_printf("Reachable between x=%d  y=%d  et  x=%d y=%d\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
-	Uint16 minimal_dist = MAX_COST;
-	Uint16 test_dist;
-	Uint8 i, j;
-	GEOMETRY_segment_t reference = {from->pos, destination->pos};
-	GEOMETRY_segment_t test;
-
-	*nodeAnswer1 = NULL;
-	*nodeAnswer2 = NULL;
-	for(i=0; i<polygon_list.nbPolygons; i++){
-		if(polygon_list.polygons[i].enable){ //Le test n'est réalisé que si le polygone est "enable"
-			for(j=0; j<polygon_list.polygons[i].nbSummits-1; j++){
-				//On vérifie  si il y a une intersection avec chaque segment de polygone excepté le polygone auquel le node appartient
-				if(polygon_list.polygons[i].summits[j].id != from->id && polygon_list.polygons[i].summits[j+1].id != from->id
-					   && polygon_list.polygons[i].summits[j].id != destination->id && polygon_list.polygons[i].summits[j+1].id != destination->id){
-					//Vérification de l'intersection
-					test.a = polygon_list.polygons[i].summits[j].pos;
-					test.b = polygon_list.polygons[i].summits[j+1].pos;
-					if(GEOMETRY_segments_intersects(reference, test)){
-						//Si il y a intersection, on calcule le point d'intersecsection
-						//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
-						test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-						//debug_printf("Finish with dist = %d\n", test_dist);
-						if(test_dist < minimal_dist){
-							//debug_printf("minimal_dist affected to %d\n", test_dist);
-							minimal_dist = test_dist;
-							*nodeAnswer1 = &(polygon_list.polygons[i].summits[j]);
-							*nodeAnswer2 = &(polygon_list.polygons[i].summits[j+1]);
-						}
-					}
-				}
-			}
-			//Vérification du segment entre le premier et le dernier node de chaque polygone
-			if(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].id != from->id && polygon_list.polygons[i].summits[0].id != from->id
-				   && polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].id != destination->id && polygon_list.polygons[i].summits[0].id != destination->id){
-				//Vérification de l'intersection
-				test.a = polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1].pos;
-				test.b = polygon_list.polygons[i].summits[0].pos;
-				if(GEOMETRY_segments_intersects(reference, test)){
-					//Si il y a intersection, on calcule le point d'intersecsection
-					//debug_printf("Calcul dist ....with (%d , %d) et (%d , %d) ", test.a.x, test.a.y, test.b.x, test.b.y);
-					test_dist = (GEOMETRY_distance(from->pos, test.a) + GEOMETRY_distance(from->pos, test.b))/2; //Moyenne des distances
-					//debug_printf("Finish with dist = %d\n", test_dist);
-					if(test_dist < minimal_dist){
-						//debug_printf("minimal_dist affected\n");
-						minimal_dist = test_dist;
-						*nodeAnswer1 = &(polygon_list.polygons[i].summits[polygon_list.polygons[i].nbSummits-1]);
-						*nodeAnswer2 = &(polygon_list.polygons[i].summits[0]);
-					}
-				}
-			}
-		}
-	}
-	if(*nodeAnswer1 == NULL && *nodeAnswer2 == NULL){
-		debug_printf("Reachable x=%d  y=%d  et  x=%d y=%d  is TRUE\n\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
-		return TRUE;
-	}else{
-		debug_printf("Reachable x=%d  y=%d  et  x=%d y=%d  is FALSE\n\n", from->pos.x, from->pos.y, destination->pos.x, destination->pos.y );
-		return FALSE;
-	}
-}
-
-
-
-/** @brief ASTAR_update_cost
- *		Fonction pour la mise à jour des coûts des nodes qui ont pour parent "parent" (parent = le node current dans ASTAR_compute_pathfind)
- * @param minimal_cost : le cout_minimal du point de départ au node courant
- * @param parent : le node parent
- * @param destination : le node d'arrivée
- */
-static void ASTAR_update_cost(Uint16 minimal_cost, astar_ptr_node_t parent, astar_ptr_node_t destination){
-	Uint8 i;
-	for(i=0; i<opened_list.nbNodes; i++){
-		opened_list.list[i]->cost.heuristic = ASTAR_pathfind_cost(opened_list.list[i], destination);
-		opened_list.list[i]->cost.total = minimal_cost + opened_list.list[i]->cost.step + opened_list.list[i]->cost.heuristic;
-	}
-}
-
-
 
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------- Fonctions annexes --------------------------------------------------------
+//---------------------------------------------------------- Fonctions annexes ---------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-/** @brief ASTAR_clean_list
- *		Procédure permettant de nettoyer un liste (RAZ du nombre d'éléments qu'elle contient)
- * @param list : la liste concernée
- */
-static void ASTAR_clean_list(astar_list_t *list){
-	list->nbNodes = 0;
-}
+	static astar_node_id ASTAR_get_symetric_node(astar_node_id id){
+		astar_node_id sym_id = 0;
+
+		if(global.color == BOT_COLOR){
+			sym_id = id;
+		}else{
+			if(id >=A1 && id <=A2)
+				sym_id = I1 + id;
+			else if(id >=B1 && id <=B5)
+				sym_id = H1 - B1 + id;
+			else if(id >=C1 && id <=C4)
+				sym_id = G1 - C1 + id;
+			else if(id >=D1 && id <=D6)
+				sym_id = F1 - D1 + id;
+			else if(id >=E1 && id <=E2)
+				sym_id = id;
+			else if(id >=F1 && id <=F6)
+				sym_id = D1 - F1 + id ;
+			else if(id >=G1 && id <=G4)
+				sym_id = C1 - G1 + id;
+			else if(id >=H1 && id <=H5)
+				sym_id = B1 - H1 + id;
+			else if(id >=I1 && id <=I2)
+				sym_id = A1 - I1 + id;
+			else
+				debug_printf("ASTAR_get_symetric_node : symetric node of %d not found\n", id);
+		}
+		return sym_id;
+	}
 
 
-
-/** @brief ASTAR_list_is_empty
- *		Fonction indiquant si une liste est vide
- * @param list : la liste concernée
- * @return le booléen indiquant si la liste est vide
- */
-static bool_e ASTAR_list_is_empty(astar_list_t list){
-	return (list.nbNodes == 0);
-}
-
-
-
-/** @brief ASTAR_add_node_to_list
- *		Procédure d'ajout d'un node à une liste
- * @param node : le node à ajouter
- * @param list : la liste concernée
- */
-static void ASTAR_add_node_to_list(astar_ptr_node_t node, astar_list_t *list){
-	list->list[list->nbNodes] = node;
-	list->nbNodes = list->nbNodes + 1;
-}
+	/** @brief ASTAR_pathfind_cost
+	 *		Calcul du cout entre deux points
+	 * @param start_node : le node de départ
+	 * @param end_node: le node d'arrivée
+	 * @return le cout entre les deux nodes passés en paramètre
+	 */
+	static Uint16 ASTAR_pathfind_cost(astar_node_id start_node, astar_node_id end_node, bool_e with_angle, bool_e with_foes){
+		assert(start_node < NB_NODES);
+		assert(end_node < NB_NODES);
 
 
+		Uint16 cost = 0;
+		Uint16 dist = 0;
+		Uint8 parent = 0;
+		double new_angle, current_angle = 0;
 
-/** @brief ASTAR_delete_node_to_list
- *		Procédure de suppression d'un node dans une liste
- * @param node : le node à supprimer
- * @param list : la liste concernée
- */
-static void ASTAR_delete_node_to_list(astar_ptr_node_t node, astar_list_t *list){
-	if(list == NULL){
-		debug_printf("list = NULL in ASTAR_delete_node_to_list\n");
-	}else if(node == NULL){
-		debug_printf("node = NULL in ASTAR_delete_node_to_list\n");
-	}else{
-		Uint8 i=0, j;
-		bool_e index_found = FALSE;
-		//recherche de la position
-		while(i < list->nbNodes && !index_found){
-			if(list->list[i]->id == node->id){
-				index_found = TRUE;
+		// Dans tous les cas, on prend en compte la distance
+		dist = GEOMETRY_distance(astar_nodes[start_node].pos, astar_nodes[end_node].pos);
+		if(with_foes && dist < MAX_COST_FOES){
+			// Si on est très proche d'un adversaire, on alourdit le poids de façon inversement proportionnel
+			// à la distance, ainsi le cout minimal se toruve aux alentours de MAX_COST_FOES en distance
+			cost = MAX_COST_FOES - dist;
+		}else{
+			cost = dist;
+			debug_printf("cost_dist(%d) = %d\n", end_node, dist);
+		}
+
+
+		if(with_angle){
+			if(start_node == FROM_NODE){
+				//new_angle = atan2(astar_nodes[end_node].pos.y - astar_nodes[start_node].pos.y, astar_nodes[end_node].pos.x - astar_nodes[start_node].pos.x);
+				//new_angle = new_angle*PI4096/M_PI;  // transformation de la valeur en unité PI4096
+				// Si c'est le noeud de départ, current_angle est égal à l'angle actuel du robot
+				//cost += (MAX_COST_ANGLE * ASTAR_abs_angle((Sint16)((Sint16)new_angle - global.pos.angle)))/TWO_PI4096;
+				//debug_printf("FROM cost_angle(%d) = %d   diff=%d\n", end_node, (MAX_COST_ANGLE * ASTAR_abs_angle((Sint16)((Sint16)new_angle - global.pos.angle)))/PI4096, (Sint16)(new_angle - global.pos.angle));
+
 			}else{
+				parent = astar_nodes[start_node].parent;
+			//	debug_printf("Node %d a pour parent %d\n", start_node, parent);
+				assert(parent != NO_ID);
+				new_angle = atan2(astar_nodes[end_node].pos.y - astar_nodes[start_node].pos.y, astar_nodes[end_node].pos.x - astar_nodes[start_node].pos.x);
+				new_angle = new_angle*PI4096/M_PI;  // transformation de la valeur en unité PI4096
+				current_angle = atan2(astar_nodes[start_node].pos.y - astar_nodes[parent].pos.y, astar_nodes[start_node].pos.x - astar_nodes[parent].pos.x);
+				current_angle = current_angle*PI4096/M_PI;  // transformation de la valeur en unité PI4096
+				cost += (MAX_COST_ANGLE * ASTAR_abs_angle((Sint16)(new_angle - current_angle)))/TWO_PI4096;
+			//	debug_printf("current_angle=%lf new_angle=%lf\n", current_angle, new_angle);
+				debug_printf("cost_angle(%d) = %d   diff=%d\n", end_node, (MAX_COST_ANGLE * ASTAR_abs_angle((Sint16)(new_angle - current_angle))/PI4096), (Sint16)(new_angle - current_angle));
+			}
+		}
+
+		return cost;
+	}
+
+	static void ASTAR_update_cost(astar_node_id current_node){
+		Uint8 i;
+
+		for(i=0; i<NB_NODES; i++){
+			if(astar_nodes[i].parent == current_node){
+				astar_nodes[i].cost.heuristic = ASTAR_pathfind_cost(i, DEST_NODE, FALSE, FALSE);
+				// Le cout total est juste la somme su step et de l'heuristique.
+				// On veut choisir le meilleur point pour aller à la destination sans s'occuper du chemin parcouru avant
+				astar_nodes[i].cost.total = astar_nodes[i].cost.step + astar_nodes[i].cost.heuristic;
+			}
+		}
+	}
+
+	static Uint16 ASTAR_abs_angle(Sint16 angle){
+		Uint16 result = 0;
+		while(angle >= TWO_PI4096)
+			angle -= TWO_PI4096;
+		while(angle < 0)
+			angle += TWO_PI4096;
+
+		result = (Uint16)angle; // On le cast en unsigned
+
+		return result;
+	}
+
+	/** @brief ASTAR_point_out_of_polygon
+	 *		Fonction pour vérifier si un point est à l'extérieur d'un polygone
+	 * @param polygon : le polygone pris en compte
+	 * @param nodeTested : le node testé
+	 * @return le booléen indiquant si le node est à l'extérieur (TRUE) ou à l'intérieur (FALSE) du polygone considéré
+	 */
+	static bool_e ASTAR_point_is_in_polygon(astar_polygon_t polygon, GEOMETRY_point_t nodeTested){
+		Uint8 nbIntersections=0;
+		Uint8 i;
+		//segment de référence dont une extrémité (x=3000, y=4000) est à l'extérieur du polygone
+		GEOMETRY_segment_t seg1 = {nodeTested, (GEOMETRY_point_t){3000, 4000}};
+
+		//on compte le nombre d'intersection avec chaque coté du polygone
+		for(i=0; i<polygon.nb_summits-1; i++){
+			GEOMETRY_segment_t seg2 = {polygon.summits[i], polygon.summits[i+1]};
+			nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
+		}
+
+		//Test de l'intersection avec le dernier segment
+		GEOMETRY_segment_t seg2 = {polygon.summits[polygon.nb_summits-1], polygon.summits[0]};
+		nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
+
+		//Le point est à l'intérieur du polygone si le nombre d'intersections avec chacun des côté du polygone est un nombre impair.
+		//Si le nombre d'intersection est un nombre pair, le node est donc à l'extérieur du polygone.
+		return  (nbIntersections%2 == 1);
+	}
+
+	static bool_e ASTAR_is_link_cut_by_hardlines(GEOMETRY_point_t p1, GEOMETRY_point_t p2){
+		Uint8 i = 0;
+		GEOMETRY_segment_t seg_tested = {p1, p2};
+		GEOMETRY_segment_t seg_hardline;
+		bool_e result = FALSE;
+
+		while(i<astar_nb_hardlines && !result){
+			seg_hardline.a = astar_hardlines[i].ex1;
+			seg_hardline.b = astar_hardlines[i].ex2;
+			result = GEOMETRY_segments_intersects(seg_tested, seg_hardline);
+			i++;
+		}
+		return result;
+	}
+
+	static bool_e ASTAR_is_node_visible(GEOMETRY_point_t p1, GEOMETRY_point_t p2){
+		Uint8 i = 0, j = 0;
+		bool_e result = FALSE;
+		GEOMETRY_segment_t seg_tested = {p1, p2};
+		GEOMETRY_segment_t seg_polygon;
+
+		result = ASTAR_is_link_cut_by_hardlines(p1, p2);
+		if(result)
+			debug_printf("Segement is cut by hardline\n");
+
+		if(!result){ //Si ce n'est pas coupé par une hardline, on continue les vérifications
+			while(i < astar_nb_polygons && !result){
+				j = 0;
+				while(j < astar_polygons[i].nb_summits - 1 && !result){
+					seg_polygon.a = astar_polygons[i].summits[j];
+					seg_polygon.b = astar_polygons[i].summits[j+1];
+					result = GEOMETRY_segments_intersects(seg_tested, seg_polygon);
+					if(result)
+						debug_printf("Segement is cut by polygon[%d] summit[%d] and [%d]\n", i, j, j+1);
+					j++;
+				}
+
+				// Test du dernier segment
+				if(!result){
+					seg_polygon.a = astar_polygons[i].summits[0];
+					seg_polygon.b = astar_polygons[i].summits[astar_polygons[i].nb_summits - 1];
+					result = GEOMETRY_segments_intersects(seg_tested, seg_polygon);
+					if(result)
+						debug_printf("Segement is cut by polygon[%d] summit[%d] and [%d]\n", i, j, j+1);
+				}
 				i++;
 			}
 		}
 
-		//Décalage des nodes
-		for(j=i ; j<list->nbNodes - 1; j++){
-			list->list[j] = list->list[j+1];
-		}
-
-		//Dinimution du nombre de nodes
-		list->nbNodes = list->nbNodes - 1;
+		return !result;
 	}
-}
-
-
-
-/** @brief ASTAR_is_in_list
- *		Fonction recherchant si un node est présent dans une liste
- * @param start_node : le node testé
- * @param list : la liste de recherche
- * @return un booléen indiquant si le node est présent (TRUE) dans la liste ou non (FALSE)
- */
-static bool_e ASTAR_is_in_list(astar_ptr_node_t node, astar_list_t list){
-	bool_e is_in_list = FALSE;
-	Uint8 i=0;
-	while(i<list.nbNodes && !is_in_list){
-		if(list.list[i]->id == node->id)
-			is_in_list = TRUE;
-		else
-			i++;
-	}
-	return is_in_list;
-}
-
-
-
-/** @brief ASTAR_add_neighbor_to_node
- *		Procédure ajoutant un voisin à un node
- * @param node : le node auquel on doit ajouter un voisin
- * @param neighbor : le node voisin à ajouter
- */
-static void ASTAR_add_neighbor_to_node(astar_ptr_node_t node, astar_ptr_node_t neighbor){
-	node->neighbors[node->nbNeighbors] = neighbor;
-	node->nbNeighbors = node->nbNeighbors + 1;
-}
-
-
-
-/** @brief ASTAR_pathfind_cost
- *		Calcul du cout entre deux points
- * @param start_node : le node de départ
- * @param end_node: le node d'arrivée
- * @return le cout entre les deux nodes passés en paramètre
- */
-static Uint16 ASTAR_pathfind_cost(astar_ptr_node_t start_node, astar_ptr_node_t end_node)
-{
-	if(start_node == NULL)
-	{
-		debug_printf("start_node NULL dans ASTAR_pathfind_cost\n");
-		return MAX_COST;
-	}
-	if(end_node == NULL)
-	{
-		debug_printf("end_node NULL dans ASTAR_pathfind_cost\n");
-		return MAX_COST;
-	}
-	return GEOMETRY_distance(start_node->pos, end_node->pos);
-
-	//Distance de Manhattan
-	//((start_node->pos.x > end_node->pos.x) ? start_node->pos.x-end_node->pos.x : end_node->pos.x-start_node->pos.x) +
-	//((start_node->pos.y >end_node->pos.y) ? start_node->pos.y-end_node->pos.y : end_node->pos.y-start_node->pos.y);
-}
-
-
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------- Fonctions d'affichage ------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-/** @brief ASTAR_print_polygon_list
- *		Procédure affichant la liste des polygones et leurs nodes
- */
-void ASTAR_print_polygon_list(){
-	int i, j;
-	int nb=0;
-	debug_printf("Liste des nodes \n\n");
-	for(i=0; i< polygon_list.nbPolygons; i++){
-		if(polygon_list.polygons[i].enable){
-			for(j=0; j< polygon_list.polygons[i].nbSummits; j++){
-				if(polygon_list.polygons[i].summits[j].enable){
-					debug_printf("%d \t            %d\n", polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y);
-					nb++;
+	/** @brief ASTAR_print_list
+	 *		Procédure affichant une liste de nodes
+	 * @param list : la liste concernée
+	 */
+	static void ASTAR_print_list(astar_list_t list){
+		Uint8 i;
+		for(i=0; i<NB_NODES; i++){
+			if(ASTAR_IS_NODE_IN(i, list)){
+				debug_printf("%d) Node:  pos x=%d  y=%d    parent: id=%d\n", i, astar_nodes[i].pos.x, astar_nodes[i].pos.y, astar_nodes[i].parent);
+				debug_printf("\t costHeuristic=%d  costStep=%d  costTotal=%d\n",astar_nodes[i].cost.heuristic, astar_nodes[i].cost.step, astar_nodes[i].cost.total);
+			}
+		}
+		debug_printf("\n\n");
+	}
+
+	/** @brief ASTAR_print_opened_list
+	 *		Procédure affichant la liste ouverte
+	 */
+	void ASTAR_print_opened_list(){
+		debug_printf("\nOPENED LIST:\n");
+		ASTAR_print_list(opened_list);
+	}
+
+
+
+	/** @brief ASTAR_print_closed_list
+	 *		Procédure affichant la liste fermée
+	 */
+	void ASTAR_print_closed_list(){
+		debug_printf("\nCLOSED LIST:\n");
+		ASTAR_print_list(closed_list);
+	}
+
+
+	void ASTAR_print_nodes(bool_e with_neighbors){
+		Uint8 i, j;
+		debug_printf("\nAFFICHAGE DES NODES:\n");
+		for(i=0; i<NB_NODES; i++){
+			if(!with_neighbors){
+				debug_printf("%3d; %4d; %4d\n", astar_nodes[i].id, astar_nodes[i].pos.x,  astar_nodes[i].pos.y);
+			}else{
+				debug_printf("id = %3d; pos_x = %4d; pos_y = %4d;  enable = %d\n", astar_nodes[i].id, astar_nodes[i].pos.x,  astar_nodes[i].pos.y, astar_nodes[i].enable);
+				for(j=0; j<NB_NODES; j++){
+					if(astar_nodes[i].neighbors & (1ULL<<j)){
+						debug_printf("neighbor : %d\n", j);
+					}
 				}
+				debug_printf("\n");
 			}
 		}
 	}
-	debug_printf("%d nodes written \n\n", nb);
-}
 
-
-
-/** @brief ASTAR_print_polygon_list_details
- *		Procédure affichant la liste des polygones et leurs nodes avec plus de détails sur leurs paramètres
- */
-void ASTAR_print_polygon_list_details(){
-	int i, j;
-	int nb=0;
-	debug_printf("Liste des nodes \n\n");
-	for(i=0; i< polygon_list.nbPolygons; i++){
-		debug_printf("polygone[%d]: polygonId=%d enable=%d\n", i, polygon_list.polygons[i].id, polygon_list.polygons[i].enable);
-		if(polygon_list.polygons[i].enable){
-			for(j=0; j< polygon_list.polygons[i].nbSummits; j++){
-				debug_printf("\tnode id=%d   x=%d   y=%d  polygonId=%d enable=%d\n", polygon_list.polygons[i].summits[j].id, polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y, polygon_list.polygons[i].summits[j].polygonId, polygon_list.polygons[i].summits[j].enable);
-				nb++;
-			}
+	void ASTAR_print_obstacles(){
+		Uint8 i, j;
+		debug_printf("\nAFFICHAGE DES OBSTACLES:\n");
+		for(i=0; i<astar_nb_polygons; i++){
+				debug_printf("%3d; %s\n", astar_polygons[i].id, astar_polygons[i].name);
+				for(j=0; j<astar_polygons[i].nb_summits; j++){
+					debug_printf("%2d; %4d; %4d\n", j, astar_polygons[i].summits[j].x, astar_polygons[i].summits[j].y);
+				}
+				debug_printf("NodesIO : ");
+				for(j=0; j<astar_polygons[i].nb_nodesIO; j++){
+					debug_printf("%d, ", astar_polygons[i].nodesIO[j]);
+				}
+				debug_printf("\n");
+		}
+		debug_printf("\nAFFICHAGE DES HARDLINES:\n");
+		for(i=0; i<astar_nb_hardlines; i++){
+			debug_printf("%2d  (%4d;%4d) -> (%4d;%4d)\n", i, astar_hardlines[i].ex1.x, astar_hardlines[i].ex1.y, astar_hardlines[i].ex2.x, astar_hardlines[i].ex2.y);
 		}
 	}
-	debug_printf("%d nodes written \n\n", nb);
-}
 
-
-
-/** @brief ASTAR_print_list
- *		Procédure affichant une liste de nodes
- * @param list : la liste concernée
- */
-void ASTAR_print_list(astar_list_t list){
-	Uint8 i;
-	for(i=0; i<list.nbNodes; i++){
-		debug_printf("%d) Node:  pos x=%d  y=%d    parent: x=%d  y=%d\n", i, list.list[i]->pos.x, list.list[i]->pos.y, list.list[i]->parent->pos.x, list.list[i]->parent->pos.y);
-		debug_printf("\t costHeuristic=%d  costStep=%d  costTotal=%d\n",list.list[i]->cost.heuristic, list.list[i]->cost.step, list.list[i]->cost.total);
-	}
-	debug_printf("\n\n");
-}
-
-
-
-/** @brief ASTAR_print_opened_list
- *		Procédure affichant la liste ouverte
- */
-void ASTAR_print_opened_list(){
-	debug_printf("\nOPENED LIST:\n");
-	ASTAR_print_list(opened_list);
-}
-
-
-
-/** @brief ASTAR_print_closed_list
- *		Procédure affichant la liste fermée
- */
-void ASTAR_print_closed_list(){
-	debug_printf("\nCLOSED LIST:\n");
-	ASTAR_print_list(closed_list);
-}
-
-
-
-/** @brief ASTAR_print_neighbors
- *		Procédure affichant les voisins de chaque node
- */
-void ASTAR_print_neighbors(){
-	Uint8 i, j, k;
-	debug_printf("\nPRINT NEIGHBORS :");
-	for(i=0; i<polygon_list.nbPolygons; i++){
-		debug_printf("polygon %d \n", i);
-		for(j=0; j<polygon_list.polygons[i].nbSummits; j++){
-			debug_printf("\t node id=%d x=%d y=%d\n",polygon_list.polygons[i].summits[j].id, polygon_list.polygons[i].summits[j].pos.x, polygon_list.polygons[i].summits[j].pos.y);
-			for(k=0; k<polygon_list.polygons[i].summits[j].nbNeighbors; k++){
-				debug_printf("\t\tneighbor  id=%d x=%d y=%d\n",polygon_list.polygons[i].summits[j].neighbors[k]->id, polygon_list.polygons[i].summits[j].neighbors[k]->pos.x, polygon_list.polygons[i].summits[j].neighbors[k]->pos.y );
-			}
-		}
-	}
-	debug_printf("\n\n");
-}
-
-
-
-/** @brief ASTAR_print_path
- *		Procédure affichant la liste des nodes constituant la trajectoire
- * @param path : la trajectoire contenant la liste des nodes de la trajectoire
- */
-void ASTAR_print_path(astar_path_t path){
-	Uint8 i;
-	debug_printf("\nPath is:\n");
-	for(i=0; i<path.list.nbNodes; i++){
-		debug_printf("Node: pos x=%d  y=%d curve=%d\n", path.list.list[i]->pos.x, path.list.list[i]->pos.y, path.list.list[i]->curve);
-	}
-}
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------- Accesseurs -----------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-/** @brief ASTAR_enable_polygon
- *		Procédure permettant d'activer un polygone
- *  @param polygonNumber : le numéro du polygon concerné
- */
-void ASTAR_enable_polygon(Uint8 polygonNumber){
-	polygon_list.enableByUser[polygonNumber] = TRUE;
-}
+
+	/** @brief ASTAR_enable_polygon
+	 *		Procédure permettant d'activer un polygone
+	 *  @param polygon_number : le numéro du polygone concerné
+	 */
+	void ASTAR_enable_polygon(Uint8 polygon_number){
+		astar_polygons[polygon_number].enable = TRUE;
+	}
 
 
 
-/** @brief ASTAR_disnable_polygon
- *		Procédure permettant de désactiver un polygone
- *  @param polygonNumber : le numéro du polygon concerné
- */
-void ASTAR_disable_polygon(Uint8 polygonNumber){
-	debug_printf("ASTAR_disable_polygon :  polygonNumber = %d    polygon_list.nbPolygons = %d\n", polygonNumber, polygon_list.nbPolygons);
-	polygon_list.enableByUser[polygonNumber] = FALSE;
-}
+	/** @brief ASTAR_disnable_polygon
+	 *		Procédure permettant de désactiver un polygone
+	 *  @param polygon_number : le numéro du polygone concerné
+	 */
+	void ASTAR_disable_polygon(Uint8 polygon_number){
+		astar_polygons[polygon_number].enable = FALSE;
+	}
+
 
 #endif //_ASTAR_H_
 
 
 
 
+/*
+	static void ASTAR_user_define_polygons(){
+		////////////////////////////////////////// DEFINITION DES POLYGONES ///////////////////////////////////////////////////////
+		// La zone de dépose
+		GEOMETRY_point_t poly_depose_zone[9] = {(GEOMETRY_point_t){750, 900 - OBSTACLE_MARGIN},
+												(GEOMETRY_point_t){750 + (600 + OBSTACLE_MARGIN)*cos(-2*M_PI/6.0), 1500 + (600 + OBSTACLE_MARGIN)*sin(-2*M_PI/6.0)},
+												(GEOMETRY_point_t){750 + (600 + OBSTACLE_MARGIN)*cos(-M_PI/6.0), 1500 + (600 + OBSTACLE_MARGIN)*sin(-M_PI/6.0)},
+												(GEOMETRY_point_t){1350 + OBSTACLE_MARGIN, 1500},
+												(GEOMETRY_point_t){750 + (600 + OBSTACLE_MARGIN)*cos(M_PI/6.0), 1500 + (600 + OBSTACLE_MARGIN)*sin(M_PI/6.0)},
+												(GEOMETRY_point_t){750 + (600 + OBSTACLE_MARGIN)*cos(2*M_PI/6.0), 1500 + (600 + OBSTACLE_MARGIN)*sin(2*M_PI/6.0)},
+												(GEOMETRY_point_t){750, 2100 + OBSTACLE_MARGIN},
+												(GEOMETRY_point_t){750 - OBSTACLE_MARGIN, 2100 + OBSTACLE_MARGIN},
+												(GEOMETRY_point_t){750 - OBSTACLE_MARGIN, 900 - OBSTACLE_MARGIN}};
+		astar_node_id nodesIO_depose_zone[4];
+		ASTAR_define_polygon("depose_zone", poly_depose_zone, 9, TRUE, nodesIO_depose_zone, 0);
 
+		// Notre zone de départ
+		GEOMETRY_point_t poly_our_start_zone[4] = {(GEOMETRY_point_t){600 - OBSTACLE_MARGIN, COLOR_Y(0)},
+												   (GEOMETRY_point_t){600 - OBSTACLE_MARGIN, COLOR_Y(300 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1100 + OBSTACLE_MARGIN, COLOR_Y(300 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1100 + OBSTACLE_MARGIN, COLOR_Y(0)}};
+		char *nodesIO_our_start_zone[0];
+		ASTAR_define_polygon("our_start_zone", poly_our_start_zone, 4, TRUE, nodesIO_our_start_zone, 0);
+
+		// La zone de départ adverse
+		GEOMETRY_point_t poly_adv_start_zone[4] = {(GEOMETRY_point_t){600 - OBSTACLE_MARGIN, COLOR_Y(3000)},
+												  (GEOMETRY_point_t){600 - OBSTACLE_MARGIN, COLOR_Y(2700 - OBSTACLE_MARGIN)},
+												  (GEOMETRY_point_t){1100 + OBSTACLE_MARGIN, COLOR_Y(2700 - OBSTACLE_MARGIN)},
+												  (GEOMETRY_point_t){1100 + OBSTACLE_MARGIN, COLOR_Y(3000)}};
+		char *nodesIO_adv_start_zone[0];
+		ASTAR_define_polygon("adv_start_zone", poly_adv_start_zone, 4, TRUE, nodesIO_adv_start_zone, 0);
+
+		// Le rocher de notre zone
+		GEOMETRY_point_t poly_our_rocher_zone[4] = {(GEOMETRY_point_t){1750 - OBSTACLE_MARGIN, COLOR_Y(0)},
+												  (GEOMETRY_point_t){2000, COLOR_Y(0)},
+												  (GEOMETRY_point_t){2000, COLOR_Y(250 + OBSTACLE_MARGIN)},
+												  (GEOMETRY_point_t){1800 - OBSTACLE_MARGIN, COLOR_Y(200 + OBSTACLE_MARGIN)}};
+		char *nodesIO_our_rocher_zone[0];
+		ASTAR_define_polygon("our_rocher_zone", poly_our_rocher_zone, 4, TRUE, nodesIO_our_rocher_zone, 0);
+
+		// Le rocher de la zone adverse
+		GEOMETRY_point_t poly_adv_rocher_zone[4] = {(GEOMETRY_point_t){1750 - OBSTACLE_MARGIN, COLOR_Y(3000)},
+												  (GEOMETRY_point_t){2000, COLOR_Y(3000)},
+												  (GEOMETRY_point_t){2000, COLOR_Y(2750 - OBSTACLE_MARGIN)},
+												  (GEOMETRY_point_t){1800 - OBSTACLE_MARGIN, COLOR_Y(2800 - OBSTACLE_MARGIN)} };
+		char *nodesIO_adv_rocher_zone[0];
+		ASTAR_define_polygon("adv_rocher_zone", poly_adv_rocher_zone, 4, TRUE, nodesIO_adv_rocher_zone, 0);
+
+		// Le cube de 8 de notre zone
+		GEOMETRY_point_t poly_our_cube_8_zone[4] = {(GEOMETRY_point_t){0, COLOR_Y(800 - OBSTACLE_MARGIN)},
+													(GEOMETRY_point_t){200 + OBSTACLE_MARGIN, COLOR_Y(800 - OBSTACLE_MARGIN)},
+													(GEOMETRY_point_t){200 + OBSTACLE_MARGIN, COLOR_Y(960 + OBSTACLE_MARGIN)},
+													(GEOMETRY_point_t){0, COLOR_Y(960 + OBSTACLE_MARGIN)}};
+		char *nodesIO_our_cube_8_zone[0];
+		ASTAR_define_polygon("our_cube_8_zone", poly_our_cube_8_zone, 4, TRUE, nodesIO_our_cube_8_zone, 0);
+
+		// Le cube de 8 de la zone adverse
+		GEOMETRY_point_t poly_adv_cube_8_zone[4] = {(GEOMETRY_point_t){0, COLOR_Y(2200 + OBSTACLE_MARGIN)},
+													(GEOMETRY_point_t){200 + OBSTACLE_MARGIN, COLOR_Y(2200 + OBSTACLE_MARGIN)},
+													(GEOMETRY_point_t){200 + OBSTACLE_MARGIN, COLOR_Y(2040 - OBSTACLE_MARGIN)},
+													(GEOMETRY_point_t){0, COLOR_Y(2040 - OBSTACLE_MARGIN)}};
+		char *nodesIO_adv_cube_8_zone[0];
+		ASTAR_define_polygon("adv_cube_8_zone", poly_adv_cube_8_zone, 4, TRUE, nodesIO_adv_cube_8_zone, 0);
+
+		// La zone de la dune
+		GEOMETRY_point_t poly_dune_zone[4] = {(GEOMETRY_point_t){0, 1200 - OBSTACLE_MARGIN},
+											  (GEOMETRY_point_t){180 + OBSTACLE_MARGIN,  1200 - OBSTACLE_MARGIN},
+											  (GEOMETRY_point_t){180 + OBSTACLE_MARGIN, 1800 + OBSTACLE_MARGIN},
+											  (GEOMETRY_point_t){0, 1800 + OBSTACLE_MARGIN}};
+		char *nodesIO_dune_zone[0];
+		ASTAR_define_polygon("dune_zone", poly_dune_zone, 4, TRUE, nodesIO_dune_zone, 0);
+
+		////////////////////////////////////////// DEFINITION DES HARDLINES ///////////////////////////////////////////////////////
+		ASTAR_define_hardlines(4, (astar_hardline_t){(GEOMETRY_point_t){0, 800}, (GEOMETRY_point_t){200 + OBSTACLE_MARGIN, 800}},                       // tasseau cube de 8
+								  (astar_hardline_t){(GEOMETRY_point_t){0, 2200}, (GEOMETRY_point_t){200 + OBSTACLE_MARGIN, 2200}},						// tasseau cube de 8
+								  (astar_hardline_t){(GEOMETRY_point_t){750, 900 - OBSTACLE_MARGIN}, (GEOMETRY_point_t){750, 2100 + OBSTACLE_MARGIN}},	// tasseau zone de dépose
+								  (astar_hardline_t){(GEOMETRY_point_t){750, 1500}, (GEOMETRY_point_t){1350 + OBSTACLE_MARGIN, 1500}});					// plexi zone de dépose
+	}
+*/
 
 
 

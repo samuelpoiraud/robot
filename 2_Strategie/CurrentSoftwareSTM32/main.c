@@ -157,11 +157,11 @@ int main (void)
 	ACT_AVOIDANCE_init();
 	ELEMENTS_init();
 	ASTAR_init();
-	ASTAR_disable_polygon(6); //Désactivation du polygon du bloc de départ adverse
 	FOE_ANALYSER_init();
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
+
 
 	while(1)
 	{
