@@ -17,8 +17,10 @@
 #include "QS/QS_all.h"
 #include "QS/QS_measure.h"
 #include "QS/QS_maths.h"
+#include "QS/QS_sys.h"
 #include "state_machine_helper.h"
 #include "Supervision/SD/SD.h"
+#include "Generic_functions.h"
 
 #ifdef _ASTAR_H_
 
@@ -60,6 +62,15 @@
 	#define COLOR_NODE(id) ASTAR_get_symetric_node(id)
 
 	#define NB_TRY_WITH_DODGE (3)
+
+	#define DISTANCE_TO_DELETE_FIRST_NODE (150)
+
+	#define MAX_DISTANCE_IN_FAST_SPEED (800)
+	#define MAX_ANGLE_IN_FAST_SPEED (PI4096/6) // Angle positif
+	#define MAX_ANGLE_IN_SLOW_SPEED  (PI4096/2)
+	#define DISTANCE_OF_BRAKING (200)
+
+	#define ASTAR_OPTIMISATION
 
 //-------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------- Définitions des types structrés ---------------------------------------------------
@@ -289,28 +300,31 @@
 
 
 	void ASTAR_init(){
+		//debug_printf("i_am_in is = %d\n", get_i_am_in());
 		//debug_printf("sizeof = %d\n",sizeof(Uint8));
-		//astar_node_t *machin = (Uint8*)malloc(sizeof(Uint8));
+		//astar_node_t *machin = (Uint8*)malloc(sizeof(astar_node_t)*9);
+		//debug_printf("i_am_in is = %d\n", get_i_am_in());
+
 		displacement_curve_t displacements[60];
 		Uint8 nb_displacements = 0;
 		Uint8 i;
 		ASTAR_user_define_obstacles();
-		ASTAR_print_obstacles();
+	//	ASTAR_print_obstacles();
 
-		for(i=0; i<NB_NODES; i++){
-			debug_printf("COLOR_NODES of %d is %d\n", i, COLOR_NODE(i));
-		}
+		//for(i=0; i<NB_NODES; i++){
+		//	debug_printf("COLOR_NODES of %d is %d\n", i, COLOR_NODE(i));
+		//}
 
 
 
-		bool_e result = ASTAR_is_node_visible((GEOMETRY_point_t){1500, 500}, (GEOMETRY_point_t){300, 2500});
-		debug_printf("astar is node visible = %d\n", result);
+		//bool_e result = ASTAR_is_node_visible((GEOMETRY_point_t){1500, 500}, (GEOMETRY_point_t){300, 2500});
+		//debug_printf("astar is node visible = %d\n", result);
 
 		//ASTAR_compute(displacements, &nb_displacements, (GEOMETRY_point_t){200, 1500}, (GEOMETRY_point_t){1200, 1700}, FAST, FALSE);
-		debug_printf("\nAFFICHAGE PATH\n");
-		for(i=0; i<nb_displacements; i++){
-			debug_printf("pos(%d;%d) \n", displacements[i].point.x, displacements[i].point.y);
-		}
+		//debug_printf("\nAFFICHAGE PATH\n");
+		//for(i=0; i<nb_displacements; i++){
+		//	debug_printf("pos(%d;%d) \n", displacements[i].point.x, displacements[i].point.y);
+		//}
 
 	}
 
@@ -528,6 +542,9 @@
 	static void ASTAR_generate_graph(GEOMETRY_point_t from, GEOMETRY_point_t dest){
 		Uint8 i, j;
 
+		// On réinitialise tous les noeuds
+		ASTAR_init_nodes();
+
 		// Création des polygones adversaires
 		astar_nb_polygons = astar_nb_obstacles;  // Réinitialisation des polygones adversaires correspndant à un ancien appel de l'astar
 		ASTAR_create_foe_polygon(FOE_RADIUS);
@@ -660,13 +677,7 @@
 		Uint8 i;
 		error_e result;
 
-		// On réinitialise tous les noeuds
-		ASTAR_init_nodes();
-
-		// On génère le graphe
-		ASTAR_generate_graph(from, dest);
-
-		ASTAR_print_nodes(TRUE);
+		//ASTAR_print_nodes(TRUE);
 
 		// On réinitialise les listes avec des 0 sur 64 bits
 		opened_list = 0ULL;
@@ -681,8 +692,8 @@
 		// Tant que la liste ouverte n'est pas vide et que le noeud d'arrivée n'a pas été ajouté à la liste fermée
 		while(opened_list != 0ULL && !ASTAR_IS_NODE_IN(DEST_NODE, closed_list)){
 
-			ASTAR_print_opened_list();
-			ASTAR_print_closed_list();
+			//ASTAR_print_opened_list();
+			//ASTAR_print_closed_list();
 
 			//Recherche dans la liste ouverte du node avec le cout le plus faible. Ce node devient le node courant (current).
 			minimal_cost = MAX_COST;
@@ -720,40 +731,192 @@
 
 
 	static error_e ASTAR_make_the_path(displacement_curve_t *displacements, Uint8 *nb_displacements, PROP_speed_e speed, astar_node_id last_node){
-		astar_node_id id = NO_ID;
-		Uint8 nb_nodes = 0;
+		astar_node_id node = NO_ID;
+		Uint8 nb_nodes = 0; // Nombre de nodes de la trajectoire (départ et arrivée inclus)
 		Sint16 i;
+		Uint8 j;
 		error_e result;
+		Uint8 last_index = 0;
+		double last_angle, angle;
+		Sint16 diff_angle;
+		Uint16 sum_dist, dist;
 
-		id = last_node;
-		// On recherche le nombre de noeuds coinstituant la trajectoire
+
+		// On recherche le nombre de noeuds constituant la trajectoire
+		node = last_node;
+		nb_nodes++;
 		do{
-			id = astar_nodes[id].parent;
+			node = astar_nodes[node].parent;
 			nb_nodes++;
-		}while(id != FROM_NODE);
-		*nb_displacements = nb_nodes;
+		}while(node != FROM_NODE && node != NO_ID);
 
-		// On remplit le tableaux des déplacements
-		debug_printf("\n PATH \n");
-		id = last_node;
-		for(i=nb_nodes-1; i>=0; i--){
-			displacements[i].point = astar_nodes[id].pos;
-			id = astar_nodes[id].parent;
-			debug_printf("[%d] pos(%d;%d)\n", id, astar_nodes[id].pos.x, astar_nodes[id].pos.y);
-		}
+		//On regarde si on a un chemin
 
 		if(last_node == DEST_NODE){
 			// Le chemin est trouvé jusqu'au point d'arrivée
 			result = END_OK;
-		}else if(nb_nodes >=1){
+		}else if(nb_nodes >= 2){ // Noeud de départ + au moins un autre
 			// Si un début de chemin est trouvé, alors surement qu'un adversaire nous bloque le chemin
 			result = FOE_IN_PATH;
 		}else{
 			// Pas de chemin trouvé
-			result = NOT_HANDLED;
+			*nb_displacements = 0;
+			return NOT_HANDLED; // On quitte tout de suite la fonction, il n'y a rien à faire
 		}
+
+		astar_node_id path_id[nb_nodes];
+		bool_e path_enable[nb_nodes];
+
+		// On remplit le tableaux du path
+		debug_printf("\n PATH \n");
+		path_id[0] = FROM_NODE;
+		path_enable[0] = FALSE; //Le point de départ n'est pas dans la trajectoire
+		node = last_node;
+		for(i=nb_nodes-1; i>=1; i--){
+			path_id[i] = astar_nodes[node].id;
+			path_enable[i] = TRUE;
+			node = astar_nodes[node].parent;
+			debug_printf("[%d] pos(%d;%d)\n", node, astar_nodes[node].pos.x, astar_nodes[node].pos.y);
+		}
+		debug_printf("\n");
+
+
+
+		//OPTIMISATION
+
+		//Suppression du premier node si on est trop près
+		if(nb_nodes > 2 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos) <  DISTANCE_TO_DELETE_FIRST_NODE*DISTANCE_TO_DELETE_FIRST_NODE)
+		{
+			path_enable[1] = FALSE;
+			debug_printf("First node (%d) deleted of path\n", path_id[1]);
+		}
+
+		// On cherche le chemin le plus court possible, certains nodes peuvent peut-être être supprimés
+		last_index = 0;
+		for(i=1; i<nb_nodes-1; i++){
+			if(path_enable[i]){
+				if(ASTAR_is_node_visible(astar_nodes[path_id[last_index]].pos, astar_nodes[path_id[i+1]].pos)){
+					path_enable[i] = FALSE;
+					debug_printf("Node %d deleted of path (%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+				}else{
+					last_index = i;
+				}
+			}
+		}
+
+
+		// On remet le tableau en ordre en supprimant les nodes désactivés
+		j = 1; //Le premier c'est le point de départ, on le garde
+		for(i=1; i<nb_nodes+1; i++){
+			if(path_enable[i]){
+				path_id[j] = path_id[i];
+				path_enable[j] = TRUE;
+				j++;
+			}
+		}
+		nb_nodes = j; // On met à jour le nombre de nodes restant dans le tableau
+
+		debug_printf("nb_nodes=%d\n", nb_nodes);
+
+
+#ifdef	ASTAR_OPTIMISATION
+		sum_dist = 0;
+		j = 0;
+
+		for(i=1; i<nb_nodes-2; i++){
+
+			// On calcule les angles
+			last_angle = atan2((double)(astar_nodes[path_id[i]].pos.y - astar_nodes[path_id[i-1]].pos.y),
+					(double)(astar_nodes[path_id[i]].pos.x - astar_nodes[path_id[i-1]].pos.x));
+			angle = atan2((double)(astar_nodes[path_id[i+1]].pos.y - astar_nodes[path_id[i]].pos.y),
+					(double)(astar_nodes[path_id[i+1]].pos.x - astar_nodes[path_id[i]].pos.x));
+			diff_angle = (Sint16)(((angle - last_angle)*PI4096)/M_PI);
+			diff_angle = ASTAR_abs_angle(diff_angle);
+
+			// On calcule la distance
+			dist = GEOMETRY_distance(astar_nodes[path_id[i-1]].pos, astar_nodes[path_id[i]].pos);
+			sum_dist += dist;
+
+			debug_printf("Optim : i=%d (%d;%d) last_angle=%lf angle=%lf diff_angle=%ld\n", i, astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y,
+					last_angle*180.0/M_PI, angle*180.0/M_PI, (diff_angle*180)/PI4096);
+
+
+			// On interprète les données
+			if(diff_angle >= MAX_ANGLE_IN_SLOW_SPEED){
+				//On doit s'arrrêter
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				displacements[j].curve = FALSE;
+				displacements[j].speed = speed;
+				j++;
+				sum_dist = 0;
+			}else if(diff_angle >= MAX_ANGLE_IN_FAST_SPEED && sum_dist >= MAX_DISTANCE_IN_FAST_SPEED){
+				// On doit freiner
+				if(dist > DISTANCE_OF_BRAKING + 100 && speed == FAST){
+					// On calcule un nouveau point dans le path qui sera un point de freinage
+					displacements[j].point.x = astar_nodes[path_id[i]].pos.x + DISTANCE_OF_BRAKING*cos(last_angle+M_PI);
+					displacements[j].point.y = astar_nodes[path_id[i]].pos.y + DISTANCE_OF_BRAKING*sin(last_angle+M_PI);
+					debug_printf("New point added in path pos(%d;%d)\n", displacements[j].point.x, displacements[j].point.y);
+					displacements[j].curve = TRUE;
+					displacements[j].speed = SLOW;
+					j++;
+					displacements[j].point = astar_nodes[path_id[i]].pos;
+					displacements[j].curve = TRUE;
+					displacements[j].speed = speed;
+					j++;
+				}else{
+					displacements[j].point = astar_nodes[path_id[i]].pos;
+					displacements[j].curve = FALSE;
+					if(speed == FAST)
+						displacements[j].speed = SLOW;
+					else
+						displacements[j].speed = speed;
+					j++;
+				}
+				sum_dist = 0;
+			}else{
+				// On continue à la vitesse normale
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				displacements[j].curve = TRUE;
+				displacements[j].speed = speed;
+				j++;
+			}
+
+		}
+
+		//On stoke la position finale
+		displacements[j].point = astar_nodes[path_id[nb_nodes-1]].pos;
+		displacements[j].curve = TRUE;
+		displacements[j].speed = speed;
+		j++;
+
+		*nb_displacements = j;
+
+#else
+		j=0;
+		for(i=1; i<nb_nodes; i++){
+			if(path_enable[i]){
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				displacements[j].curve = TRUE;
+				displacements[j].speed = speed;
+			}
+		}
+		*nb_displacements == j;
+#endif
+
+		debug_printf("\nFINAL PATH is (%d displacements)\n", *nb_displacements);
+		for(i=0; i<*nb_displacements ; i++){
+			debug_printf("pos(%d;%d curve=%d speed=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve, displacements[i].speed);
+		}
+
+		fflush(stdout);
+		while(wait_time(5000, IN_PROGRESS, END_OK) == IN_PROGRESS);
+
 		return result;
 	}
+
+
+
 
 	/** @brief ASTAR_try_going
 	 *		Machine à état réalisant le try_going
@@ -775,7 +938,7 @@
 		static Uint8 nb_displacements;
 		static Uint8 nb_try;
 		static bool_e success_possible;
-		static GEOMETRY_point_t destination;
+		static GEOMETRY_point_t from, dest;
 		static bool_e handles_foes;
 
 		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
@@ -790,6 +953,12 @@
 		switch(state)
 		{
 			case ASTAR_INIT:{
+				from = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+				dest = (GEOMETRY_point_t){x, y};
+
+				// On génère le graphe
+				ASTAR_generate_graph(from, dest);
+
 				switch(avoidance)
 				{
 					case DODGE_AND_WAIT:
@@ -800,8 +969,8 @@
 						nb_try = 1;
 						break;
 				}
-				destination = (GEOMETRY_point_t){x, y};
-				if(ASTAR_is_node_visible((GEOMETRY_point_t){global.pos.x, global.pos.y}, destination)){ // Si le point de destination est directement visible à partir du point de départ
+
+				if(ASTAR_is_node_visible((GEOMETRY_point_t){global.pos.x, global.pos.y}, dest)){ // Si le point de destination est directement visible à partir du point de départ
 					nb_try--; // On le compte comme une tentative
 					state = ASTAR_GO_DIRECTLY;
 				}else{
@@ -832,7 +1001,7 @@
 				break;
 
 			case ASTAR_COMPUTE:
-				result = ASTAR_compute(displacements, &nb_displacements, (GEOMETRY_point_t){global.pos.x, global.pos.y}, destination, speed,  FALSE);
+				result = ASTAR_compute(displacements, &nb_displacements, from, dest, speed,  FALSE);
 
 				if(result == END_OK){
 					success_possible = TRUE;
@@ -949,7 +1118,7 @@
 			cost = MAX_COST_FOES - dist;
 		}else{
 			cost = dist;
-			debug_printf("cost_dist(%d) = %d\n", end_node, dist);
+			//debug_printf("cost_dist(%d) = %d\n", end_node, dist);
 		}
 
 
@@ -971,7 +1140,7 @@
 				current_angle = current_angle*PI4096/M_PI;  // transformation de la valeur en unité PI4096
 				cost += (MAX_COST_ANGLE * ASTAR_abs_angle((Sint16)(new_angle - current_angle)))/TWO_PI4096;
 			//	debug_printf("current_angle=%lf new_angle=%lf\n", current_angle, new_angle);
-				debug_printf("cost_angle(%d) = %d   diff=%d\n", end_node, (MAX_COST_ANGLE * ASTAR_abs_angle((Sint16)(new_angle - current_angle))/PI4096), (Sint16)(new_angle - current_angle));
+				//debug_printf("cost_angle(%d) = %d   diff=%d\n", end_node, (MAX_COST_ANGLE * ASTAR_abs_angle((Sint16)(new_angle - current_angle))/PI4096), (Sint16)(new_angle - current_angle));
 			}
 		}
 
@@ -993,12 +1162,15 @@
 
 	static Uint16 ASTAR_abs_angle(Sint16 angle){
 		Uint16 result = 0;
-		while(angle >= TWO_PI4096)
+		while(angle > PI4096)
 			angle -= TWO_PI4096;
-		while(angle < 0)
+		while(angle <= -PI4096)
 			angle += TWO_PI4096;
 
-		result = (Uint16)angle; // On le cast en unsigned
+		if(angle >= 0)
+			result = (Uint16)angle; // On le cast en unsigned
+		else
+			result = (Uint16)(-angle);
 
 		return result;
 	}
@@ -1053,7 +1225,7 @@
 
 		result = ASTAR_is_link_cut_by_hardlines(p1, p2);
 		if(result)
-			debug_printf("Segement is cut by hardline\n");
+			debug_printf("Segment is cut by hardline\n");
 
 		if(!result){ //Si ce n'est pas coupé par une hardline, on continue les vérifications
 			while(i < astar_nb_polygons && !result){
