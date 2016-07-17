@@ -305,9 +305,11 @@ void ODOMETRY_update_1ms(void){
 	// CALCUL DES VITESSES REELLES	 (on multiplie toujours AVANT de diviser...)
 
 	real_speed_rotation	= -left*(coefs[ODOMETRY_COEF_ROTATION]+coefs[ODOMETRY_COEF_SYM]) + right*(coefs[ODOMETRY_COEF_ROTATION]-coefs[ODOMETRY_COEF_SYM]);
+#warning non homogène
 	//[rad.1024.4096.64/ms] = [impulsions] * [rad.4096.1024.64/impulsions]
 
 	real_speed_translation = ((left + right)*coefs[ODOMETRY_COEF_TRANSLATION]) >> 1;
+#warning cest pas homogène à gauche il y a /5ms pas à droite pour moi ce nest pas une vitesse (mm/5ms) mais une distance (mm) ... parcourue en 5 ms
 	//[mm.65536/5ms] =  [impulsions + impulsions]*[mm.65536/impulsion]/[2]
 	//Diviser par deux pour la moyenne : (a+b)/2=(a+b)>>1
 
@@ -349,8 +351,8 @@ void ODOMETRY_update_1ms(void){
 	//Donc si on a l'impression que le robot perd un centimètre quand il est à fond, et pendant 1 seconde, le coef aura probablement une réglage en dizaine...
 
 	//Mise a jour de la position en x et y
-	x64 += real_speed_x;// + deviation_x;						//[mm.65536.16384]
-	y64 += real_speed_y;// + deviation_y;						//[mm.65536.16384]
+	x64 += real_speed_x + deviation_x;						//[mm.65536.16384]
+	y64 += real_speed_y + deviation_y;						//[mm.65536.16384]
 
 	//Mise à jour de l'angle
 	teta64 += real_speed_rotation;					//[rad.1024.4096.64]

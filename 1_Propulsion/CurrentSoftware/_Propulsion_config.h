@@ -60,7 +60,7 @@
 
 	//COEF_ODOMETRIE_CENTRIFUGE permet de régler la variation d'odométrie en courbe
 	#define SMALL_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
-	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
+	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0) //128/(rad*4096*64) si on considère que les "speed" sont en fait des distances sinon c'est 128*ms*ms/(rad*4096*64)
 
 
 
