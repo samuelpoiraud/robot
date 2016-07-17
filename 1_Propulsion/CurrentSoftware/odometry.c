@@ -286,8 +286,8 @@ void ODOMETRY_update_1ms(void){
 	Sint32 cos32, sin32;
 	Sint32 left, right;
 	//deviation occasionné par la force centrifuge
-	//Sint32 deviation_x;
-	//Sint32 deviation_y;
+	Sint32 deviation_x;
+	Sint32 deviation_y;
 	Sint64 real_speed_x;	//[mm.65536.16384/ms]
 	Sint64 real_speed_y;	//[mm.65536.16384/ms]
 
@@ -343,8 +343,8 @@ void ODOMETRY_update_1ms(void){
 	//TODO les calculs sont faux fin du moins les unitées...
 	//calcul de la deviation du à l'action de la force centrifuge
 	// TODO refaire le calcul de déviation pour l'IT 1ms et le changement d'unité
-	//deviation_x = -(coefs[ODOMETRY_COEF_CENTRIFUGAL]*(real_speed_rotation/128)*(real_speed_y/128))/1024;	//[rad.65536/ms]*[mm/512/ms]
-	//deviation_y = (coefs[ODOMETRY_COEF_CENTRIFUGAL]*(real_speed_rotation/128)*(real_speed_x/128))/1024;		//[rad.65536/ms]*[mm/512/ms]
+	deviation_x = -(coefs[ODOMETRY_COEF_CENTRIFUGAL]*(real_speed_rotation/128)*(real_speed_y/128))/1024;	//[rad.65536/ms]*[mm/512/ms]
+	deviation_y = (coefs[ODOMETRY_COEF_CENTRIFUGAL]*(real_speed_rotation/128)*(real_speed_x/128))/1024;		//[rad.65536/ms]*[mm/512/ms]
 	//Ordre de grandeur : pour 1 unité du coef_odometrie_centrifuge, et à la vitesse max (rot et trans), on corrige de 1mm/secondes environ !
 	//Donc si on a l'impression que le robot perd un centimètre quand il est à fond, et pendant 1 seconde, le coef aura probablement une réglage en dizaine...
 
