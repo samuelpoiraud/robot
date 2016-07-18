@@ -176,6 +176,15 @@ bool_e GEOMETRY_segments_intersects(
 		return FALSE;
 	}
 
+
+	// Rajout d'une protection car deux segements sur une même ligne ne se coupent pas forcément
+	if(  (s1.a.x < MIN(s2.a.x, s2.b.x) &&  s1.b.x < MIN(s2.a.x, s2.b.x))
+	  || (s1.a.x > MAX(s2.a.x, s2.b.x) &&  s1.b.x > MAX(s2.a.x, s2.b.x))
+	  || (s1.a.y < MIN(s2.a.y, s2.b.y) &&  s1.b.y < MIN(s2.a.y, s2.b.y))
+	  || (s1.a.y > MAX(s2.a.y, s2.b.y) &&  s1.b.y > MAX(s2.a.y, s2.b.y))){
+		 return FALSE;
+	}
+
 	return TRUE;
 }
 

@@ -597,6 +597,17 @@ caddr_t _sbrk(int incr) {
 	return (caddr_t) prev_heap_end;
 }
 
+__attribute__((weak))
+void * _sbrk_r(struct _reent *ptr, ptrdiff_t incr)
+{
+  char *ret;
+
+  errno = 0;
+  if ((ret = (char *)(_sbrk (incr))) == (void *) -1 && errno != 0)
+	ptr->_errno = errno;
+  return ret;
+}
+
 /*
  read
  Read a character to a file. `libc' subroutines will use this system routine for input from all files, including stdin

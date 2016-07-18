@@ -11,16 +11,12 @@
  */
 
 #include "astar.h"
-#include <stdarg.h>
 #include <stdlib.h>
 #include <math.h>
 #include "QS/QS_all.h"
-#include "QS/QS_measure.h"
 #include "QS/QS_maths.h"
-#include "QS/QS_sys.h"
 #include "state_machine_helper.h"
 #include "Supervision/SD/SD.h"
-#include "Generic_functions.h"
 
 #ifdef _ASTAR_H_
 
@@ -34,7 +30,7 @@
 
 	// Macros pour les coûts
 	#define MAX_COST (65535)		//Coût global maximal
-	#define MAX_COST_ANGLE (200)	//Coût maximal pouvant être généré par un écart d'angle
+	#define MAX_COST_ANGLE (200)	//Coût maximal pouvant être généré par un écart d'angle (Je m'autorise à faire une distance de MAX_COST_ANGLE supplémentaire au maximum pour avoir un meilleur angle)
 	#define MAX_COST_FOES (600)     //Côût supplémentaire ajouté si on est trop près d'un adversaire
 
 	// Macros pour les polygones
@@ -61,16 +57,21 @@
 	// Macro renvoyant le noeud symétrique suivant la couleur (tout comme COLOR_Y le fait pour les coordonnées
 	#define COLOR_NODE(id) ASTAR_get_symetric_node(id)
 
+	// Nombre de tentatives du pathfind avec dodge en cas d'échec
 	#define NB_TRY_WITH_DODGE (3)
 
-	#define DISTANCE_TO_DELETE_FIRST_NODE (150)
+	// Distance maximale à laquelle on s'autorise la supression du noeud de départ (non utilisé)
+	#define DISTANCE_PROXIMITY_NODE (150)
 
-	#define MAX_DISTANCE_IN_FAST_SPEED (800)
-	#define MAX_ANGLE_IN_FAST_SPEED (PI4096/6) // Angle positif
-	#define MAX_ANGLE_IN_SLOW_SPEED  (PI4096/2)
-	#define DISTANCE_OF_BRAKING (200)
-
+	// Activation de l'optimisation
 	#define ASTAR_OPTIMISATION
+	#define DISTANCE_OF_BRAKING (200)          // Distance de freinage (passage en SLOW)
+	#define MAX_DISTANCE_IN_FAST_SPEED (800)   // A partir de cette distance, on redéfini un point pour passer en vitesse SLOW (protection)
+	#define MAX_ANGLE_IN_FAST_SPEED (PI4096/6) // Angle positif (si angle du robot supérieur, on freine)
+	#define MAX_ANGLE_IN_SLOW_SPEED (PI4096/2) // Angle positif (si angle du robot supérieur, on s'arrête sur le noeud)
+
+
+
 
 //-------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------- Définitions des types structrés ---------------------------------------------------
@@ -181,15 +182,34 @@
 //-------------------------------- Fonctions importantes de l'algo A* (internes au programme)-------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
+	// Définition des coordonnées et des grandeurs des zones interdites modélisées par des polygones et des hardlines
 	static void ASTAR_user_define_obstacles();
+
+	// Fonction permettant de définir un polygone modélisant une zone interdite d'accès par le pathfind sauf si le point de départ et le point d'arrivée sont dedans
 	static void ASTAR_define_polygon(char *name, GEOMETRY_point_t polygon[], Uint8 nb_summits, bool_e enable_polygon, astar_node_id nodesIO[], Uint8 nb_nodesIO);
+
+	// Fonction permettant de définir une hardline, c'est à dire une ligne physiquement infranchissable par le robot
 	static void ASTAR_define_hardline(bool_e protection_extremity_1, GEOMETRY_point_t extremity_1, GEOMETRY_point_t extremity_2, bool_e protection_extremity_2);
+
+	// Fonction pour créer les polygones correspondant aux 2 robots adverses
 	static void ASTAR_create_foe_polygon(Uint16 foeRadius);
+
+	// Fonction permettant d'initialiser les propriétés principales des nodes
 	static void ASTAR_init_nodes();
+
+	// Fonction permettant de construire le graph de nodes à partir des polygones et des hardlines définies, du point de départ et du point d'arrivée
 	static void ASTAR_generate_graph(GEOMETRY_point_t from, GEOMETRY_point_t dest);
+
+	// Fonction permettant de chercher les voisins d'un node (ici utilisé pour le node de départ et le node d'arrivé)
 	static void ASTAR_search_neighbors(astar_node_id nodeId, bool_e my_neighbors);
+
+	//Fonction permettant de chercher les noeuds à ajouter à l'opened_list
 	static void ASTAR_link_nodes_on_path(astar_node_id current, bool_e handle_foes);
+
+	// Fonction permettant de chercher un chemin du point de départ au point d'arrivée
 	static error_e ASTAR_compute(displacement_curve_t *displacements, Uint8 *nb_displacements, GEOMETRY_point_t from, GEOMETRY_point_t dest, PROP_speed_e speed, bool_e handle_foes);
+
+	// Fonction permettant de convertir le chemin trouvé en déplacement réalisable par le robot (+ OPTIMISATION)
 	static error_e ASTAR_make_the_path(displacement_curve_t *displacements, Uint8 *nb_displacements, PROP_speed_e speed, astar_node_id last_node);
 
 
@@ -197,15 +217,30 @@
 //----------------------------------------------- Fonctions annexes (internes au programme) --------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
+	// Renvoie l'id du node symétrique au node demandé (fonctionnement analogue à COLOR_Y)
 	static astar_node_id ASTAR_get_symetric_node(astar_node_id id);
+
+	// Calcul du cout entre deux nodes
 	static Uint16 ASTAR_pathfind_cost(astar_node_id start_node, astar_node_id end_node, bool_e with_angle, bool_e with_foes);
+
+	// Mise à jour du cout des nodes
 	static void ASTAR_update_cost(astar_node_id current_node);
+
+	// Calcul de la valeur absolue de l'angle passé en paramètre
 	static Uint16 ASTAR_abs_angle(Sint16 angle);
+
+	// Fonction pour vérifier si un point est à l'intérieur d'un polygone
 	static bool_e ASTAR_point_is_in_polygon(astar_polygon_t polygon, GEOMETRY_point_t nodeTested);
+
+	// Fonction pour vérifier si un segment [p1;p2] est coupé par une hardline
 	static bool_e ASTAR_is_link_cut_by_hardlines(GEOMETRY_point_t p1, GEOMETRY_point_t p2);
+
+	// Fonction pour vérifier si le point p2 est visible du point p1
 	static bool_e ASTAR_is_node_visible(GEOMETRY_point_t p1, GEOMETRY_point_t p2);
 
+	// Procédure affichant une liste de nodes
 	static void ASTAR_print_list(astar_list_t list);
+
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------- Variables globales ---------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
@@ -252,7 +287,6 @@
 		(astar_node_t){ F5, {1550, 1750}, (1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)|(1ULL<<E2)},
 		(astar_node_t){ F6, {1700, 1900}, (1ULL<<G3)|(1ULL<<G4)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<E2)},
 
-
 		//Rangée [G]
 		(astar_node_t){ G1, {475,  2200}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<F1)|(1ULL<<F2)},
 		(astar_node_t){ G2, {1050, 2250}, (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4)},
@@ -277,6 +311,69 @@
 		(astar_node_t){ DEST_NODE, {0, 0},  0ULL}
 	};
 
+	static astar_neighbor_t astar_curves[NB_NODES] =
+	{
+
+		//Rangée [A]
+		/*A1*/ (1ULL<<B1)|(1ULL<<B2),
+		/*A2*/ (1ULL<<B3)|(1ULL<<B4)|(1<<B5),
+
+		//Rangée [B]
+		/*B1*/ (1ULL<<A1)|(1ULL<<B2)|(1ULL<<C1),
+		/*B2*/ (1ULL<<A1)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C1)|(1ULL<<C2),
+		/*B3*/ (1ULL<<A2)|(1ULL<<B2)|(1ULL<<B4)|(1ULL<<C2)|(1ULL<<C3),
+		/*B4*/ (1ULL<<A2)|(1ULL<<B3)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4),
+		/*B5*/ (1ULL<<A2)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<C4),
+
+		//Rangée [C]
+		/*C1*/ (1ULL<<B1)|(1ULL<<B2)|(1ULL<<D1)|(1ULL<<D2),
+		/*C2*/ (1ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4),
+		/*C3*/ (1ULL<<B3)|(1ULL<<B4)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6),
+		/*C4*/ (1ULL<<B4)|(1ULL<<B5)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D6),
+
+		//Rangée [D]
+		/*D1*/ (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1),
+		/*D2*/ (1ULL<<C1)|(1ULL<<D1)|(1ULL<<E1),
+		/*D3*/ (1ULL<<C2)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<D6),
+		/*D4*/ (1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D5)|(1ULL<<D6),
+		/*D5*/ (1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6)|(1ULL<<E2),
+		/*D6*/ (1ULL<<C3)|(1ULL<<C4)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<E2),
+
+		//Rangée [E]
+		/*E1*/ (1ULL<<D1)|(1ULL<<D2)|(1ULL<<F1)|(1ULL<<F2),
+		/*E2*/ (1ULL<<D5)|(1ULL<<D6)|(1ULL<<F5)|(1ULL<<F6),
+
+		//Rangée [F]
+		/*F1*/ (1ULL<<G1)|(1ULL<<F2)|(1ULL<<E1),
+		/*F2*/ (1ULL<<G1)|(1ULL<<F1)|(1ULL<<E1),
+		/*F3*/ (1ULL<<G2)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<F6),
+		/*F4*/ (1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F5)|(1ULL<<F6),
+		/*F5*/ (1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)|(1ULL<<E2),
+		/*F6*/ (1ULL<<G3)|(1ULL<<G4)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<E2),
+
+		//Rangée [G]
+		/*G1*/ (1ULL<<H1)|(1ULL<<H2)|(1ULL<<F1)|(1ULL<<F2),
+		/*G2*/ (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4),
+		/*G3*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6),
+		/*G4*/ (1ULL<<H4)|(1ULL<<H5)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F6),
+
+		//Rangée [H]
+		/*H1*/ (1ULL<<I1)|(1ULL<<H2)|(1ULL<<G1),
+		/*H2*/ (1ULL<<I1)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<G1)|(1ULL<<G2),
+		/*H3*/ (1ULL<<I2)|(1ULL<<H2)|(1ULL<<H4)|(1ULL<<G2)|(1ULL<<G3),
+		/*H4*/ (1ULL<<I2)|(1ULL<<H3)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4),
+		/*H5*/ (1ULL<<I2)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<G4),
+
+		//Rangée [I]
+		/*I1*/ (1ULL<<H1)|(1ULL<<H2),
+		/*I2*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5),
+
+		//Node de départ (astar_curves non pris e compte on autorise toujours les courbes)
+		0ULL,
+
+		//Node de destination (astar_curves non pris e compte on autorise toujours les courbes)
+		0ULL
+	};
 
 	// Les polygones qui définissent des zones interdites d'accés pendant les trajectoires du pathfind
 	static astar_polygon_t astar_polygons[NB_MAX_POLYGONS];
@@ -298,37 +395,57 @@
 //-------------------------------------------------- Fonctions importantes de l'algo A* ------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-
+	/** @brief ASTAR_init
+	 *		Initialisation de l'astar : initialisation des obstacles
+	 */
 	void ASTAR_init(){
+
+		ASTAR_user_define_obstacles();
+		//ASTAR_print_obstacles();
+
+
+
 		//debug_printf("i_am_in is = %d\n", get_i_am_in());
 		//debug_printf("sizeof = %d\n",sizeof(Uint8));
 		//astar_node_t *machin = (Uint8*)malloc(sizeof(astar_node_t)*9);
 		//debug_printf("i_am_in is = %d\n", get_i_am_in());
+		//debug_printf("Malloc done!!\n");
+		//displacement_curve_t displacements[60];
+		//Uint8 nb_displacements = 0;
+		//Uint8 i;
 
-		displacement_curve_t displacements[60];
-		Uint8 nb_displacements = 0;
-		Uint8 i;
-		ASTAR_user_define_obstacles();
-	//	ASTAR_print_obstacles();
 
+		/// Affichage COLOR_NODES
 		//for(i=0; i<NB_NODES; i++){
 		//	debug_printf("COLOR_NODES of %d is %d\n", i, COLOR_NODE(i));
 		//}
 
+		GEOMETRY_segment_t  s1 = (GEOMETRY_segment_t){(GEOMETRY_point_t){0,800}, (GEOMETRY_point_t){400,800}};
+		GEOMETRY_segment_t  s2 = (GEOMETRY_segment_t){(GEOMETRY_point_t){500,800}, (GEOMETRY_point_t){600,800}};
+		bool_e result = GEOMETRY_segments_intersects(s1, s2);
+		debug_printf("astar is node visible = %d (0)\n", result);
 
+		s1 = (GEOMETRY_segment_t){(GEOMETRY_point_t){0,800}, (GEOMETRY_point_t){400,800}};
+		s2 = (GEOMETRY_segment_t){(GEOMETRY_point_t){400,800}, (GEOMETRY_point_t){400,900}};
+		result = GEOMETRY_segments_intersects(s1, s2);
+		debug_printf("astar is node visible = %d (1)\n", result);
 
-		//bool_e result = ASTAR_is_node_visible((GEOMETRY_point_t){1500, 500}, (GEOMETRY_point_t){300, 2500});
-		//debug_printf("astar is node visible = %d\n", result);
+		s1 = (GEOMETRY_segment_t){(GEOMETRY_point_t){100,800}, (GEOMETRY_point_t){400,800}};
+		s2 = (GEOMETRY_segment_t){(GEOMETRY_point_t){200,600}, (GEOMETRY_point_t){200,900}};
+		result = GEOMETRY_segments_intersects(s1, s2);
+		debug_printf("astar is node visible = %d (1)\n", result);
 
-		//ASTAR_compute(displacements, &nb_displacements, (GEOMETRY_point_t){200, 1500}, (GEOMETRY_point_t){1200, 1700}, FAST, FALSE);
-		//debug_printf("\nAFFICHAGE PATH\n");
-		//for(i=0; i<nb_displacements; i++){
-		//	debug_printf("pos(%d;%d) \n", displacements[i].point.x, displacements[i].point.y);
-		//}
+		s1 = (GEOMETRY_segment_t){(GEOMETRY_point_t){1000,800}, (GEOMETRY_point_t){1500,900}};
+		s2 = (GEOMETRY_segment_t){(GEOMETRY_point_t){200,1600}, (GEOMETRY_point_t){1000,1200}};
+		result = GEOMETRY_segments_intersects(s1, s2);
+		debug_printf("astar is node visible = %d (0)\n", result);
 
 	}
 
 
+	/** @brief ASTAR_user_define_obstacles
+	 *		Définition des coordonnées et des grandeurs des zones interdites modélisées par des polygones et des hardlines
+	 */
 	#define POLYGON_OUR_DEPOSE_ZONE (0)
 	#define POLYGON_ADV_DEPOSE_ZONE (1)
 	#define POLYGON_OUR_START_ZONE	(2)
@@ -380,10 +497,15 @@
 
 	}
 
-	/** @brief ASTAR_disable_nodes_in_polygon
-	 *		Fonction permettant de définir un polygone dans lequel les noeuds seront désactivés (pas pris en compte dans le compute)
-	 *	@param polygon : le polygone définissant la zone souhaité
-	 *  @param nbPoints : le nombre de points du polygone
+	/** @brief ASTAR_define_polygon
+	 *		Fonction permettant de définir un polygone modélisant une zone interdite d'accès par le pathfind
+	 *		sauf si le point de départ et le point d'arrivée sont dedans
+	 *	@param name : le nom de la zone interdite
+	 *  @param polygon : les coordonnees des sommets du polygone
+	 *  @param nb_summits : le nombre de sommets du polygone
+	 *  @param enable_polygon : le polygon doit t-il être actif au début du match (TRUE) ou sera-til activé pendant le match (FALSE)
+	 *	@param nodesIO : les nodes d'entrées/sorties du polygone
+	 *  @param nb_nodesIO : Le nombre de nodes d'entrées/sorties du polygone
 	 */
 	static void ASTAR_define_polygon(char *name, GEOMETRY_point_t polygon[], Uint8 nb_summits, bool_e enable_polygon, astar_node_id nodesIO[], Uint8 nb_nodesIO){
 		int i;
@@ -419,6 +541,14 @@
 		assert(astar_nb_polygons < NB_MAX_POLYGONS);
 	}
 
+
+	/** @brief ASTAR_define_hardline
+	 *		Fonction permettant de définir une hardline, c'est à dire une ligne physiquement infranchissable par le robot
+	 *	@param protection_extremity_1 : est-il nécéssaire de mettre une protection sur l'extrémité 1 de la hardline définie (par défaut TRUE)
+	 *  @param extremity_1 : les coordonnees de l'extrémité 1 du segment modélisant la hardline
+	 *  @param extremity_2 : les coordonnees de l'extrémité 2 du segment modélisant la hardline
+	 *  @param protection_extremity_2 : lest-il nécéssaire de mettre une protection sur l'extrémité 2 de la hardline définie (par défaut TRUE)
+	 */
 	static void ASTAR_define_hardline(bool_e protection_extremity_1, GEOMETRY_point_t extremity_1, GEOMETRY_point_t extremity_2, bool_e protection_extremity_2){
 		double angle;
 		if(protection_extremity_1){
@@ -454,7 +584,6 @@
 
 	/** @brief ASTAR_create_foe_polygon
 	 *		Fonction pour créer les polygones correspondant aux 2 robots adverses
-	 * @param currentId : le numéro d'identité auquel on est rendu
 	 * @param foeRadius : la distance caractéristique du polygone créé (environ égale au rayon)
 	 */
 	static void ASTAR_create_foe_polygon(Uint16 foeRadius){
@@ -515,7 +644,7 @@
 	}
 
 	/** @brief ASTAR_init_nodes
-	 *		Fonction permettant d'initialiser les propriétés principales des nodes
+	 *		Fonction permettant d'initialiser les propriétés principales des nodes (couts, voisins, parent etc...)
 	 */
 	static void ASTAR_init_nodes(){
 		Uint8 i;
@@ -539,6 +668,12 @@
 		astar_nodes[DEST_NODE].neighbors = 0ULL;
 	}
 
+
+	/** @brief ASTAR_generate_graph
+	 *		Fonction permettant de construire le graph de nodes à partir des polygones et des hardlines définies, du point de départ et du point d'arrivée
+	 *  @param from : les coordonnées du point de départ
+	 *  @param dest : les coordonnées du point d'arrivée ou de destination
+	 */
 	static void ASTAR_generate_graph(GEOMETRY_point_t from, GEOMETRY_point_t dest){
 		Uint8 i, j;
 
@@ -575,6 +710,12 @@
 		ASTAR_search_neighbors(DEST_NODE, FALSE);
 	}
 
+
+	/** @brief ASTAR_search_neighbors
+	 *		Fonction permettant de chercher les voisins d'un node (ici utilisé pour le node de départ et le node d'arrivé)
+	 *  @param nodeId : l'id du node pour lequel on doit chercher des voisins
+	 *  @param my_neighbors : est ce que je cherche mes voisins (TRUE) ou est ce que je cherche des nodes qui doivent m'ajouter comme voisin (FALSE)
+	 */
 	static void ASTAR_search_neighbors(astar_node_id nodeId, bool_e my_neighbors){
 		Uint8 i, j;
 		bool_e in_polygon = FALSE;
@@ -638,6 +779,12 @@
 		}
 	}
 
+
+	/** @brief ASTAR_link_nodes_on_path
+	 *		Fonction permettant de chercher les noeuds à ajouter à l'opened_list
+	 *  @param current : l'id du node courant
+	 *  @param handle_foes : doit-on gérer les adversaires ?
+	 */
 	static void ASTAR_link_nodes_on_path(astar_node_id current, bool_e handle_foes){
 		Uint8 neighbor;
 		Uint16 test_cost = 0;
@@ -671,6 +818,15 @@
 		}
 	}
 
+	/** @brief ASTAR_compute
+	 *		Fonction permettant de chercher un chemin du point de départ au point d'arrivée
+	 *  @param displacements : les déplacements du robot
+	 *  @param nb_displacements : le nombre de déplacements du robot
+	 *  @param from : les coordonnées du point de départ
+	 *  @param dest : les coordonnées du point d'arrivée
+	 *  @param speed : la vitesse demandée par l'utilisateur
+	 *  @param handle_foes : doit-on gérer les adversaires ?
+	 */
 	static error_e ASTAR_compute(displacement_curve_t *displacements, Uint8 *nb_displacements, GEOMETRY_point_t from, GEOMETRY_point_t dest, PROP_speed_e speed, bool_e handle_foes){
 		Uint16 minimal_cost = MAX_COST;
 		Uint16 current_node = NO_ID;
@@ -692,8 +848,8 @@
 		// Tant que la liste ouverte n'est pas vide et que le noeud d'arrivée n'a pas été ajouté à la liste fermée
 		while(opened_list != 0ULL && !ASTAR_IS_NODE_IN(DEST_NODE, closed_list)){
 
-			//ASTAR_print_opened_list();
-			//ASTAR_print_closed_list();
+			ASTAR_print_opened_list();
+			ASTAR_print_closed_list();
 
 			//Recherche dans la liste ouverte du node avec le cout le plus faible. Ce node devient le node courant (current).
 			minimal_cost = MAX_COST;
@@ -729,12 +885,20 @@
 	}
 
 
-
+	/** @brief ASTAR_make_the_path
+	 *		Fonction permettant de convertir le chemin trouvé en déplacement réalisable par le robot
+	 *      Si la macro ASTAR_OPTIMISATION est définie, alors une optimisation du chemin est calculée
+	 *  @param displacements : les déplacements du robot
+	 *  @param nb_displacements : le nombre de déplacements du robot
+	 *  @param speed : la vitesse demandée par l'utilisateur
+	 *  @param last_node : le dernier id du node courant renvoyé par la boucle de l'astar
+	 *  @return l'état de succès ou d'échec (A t-on trouvé un chemin ou pas ?)
+	 */
 	static error_e ASTAR_make_the_path(displacement_curve_t *displacements, Uint8 *nb_displacements, PROP_speed_e speed, astar_node_id last_node){
 		astar_node_id node = NO_ID;
 		Uint8 nb_nodes = 0; // Nombre de nodes de la trajectoire (départ et arrivée inclus)
 		Sint16 i;
-		Uint8 j;
+		Uint8 j, curve_index;
 		error_e result;
 		Uint8 last_index = 0;
 		double last_angle, angle;
@@ -785,12 +949,24 @@
 		//OPTIMISATION
 
 		//Suppression du premier node si on est trop près
-		if(nb_nodes > 2 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
-				&& GEOMETRY_squared_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos) <  DISTANCE_TO_DELETE_FIRST_NODE*DISTANCE_TO_DELETE_FIRST_NODE)
+		/*if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
 		{
 			path_enable[1] = FALSE;
 			debug_printf("First node (%d) deleted of path\n", path_id[1]);
-		}
+		}*/
+
+		//Suppression du dernier node si on est trop près
+		/*debug_printf("Last node (%d;%d) -> (%d;%d)\n", astar_nodes[path_id[nb_nodes-3]].pos.x, astar_nodes[path_id[nb_nodes-3]].pos.y, astar_nodes[path_id[nb_nodes-1]].pos.x, astar_nodes[path_id[nb_nodes-1]].pos.y);
+		debug_printf("Last node visible = %d\n", ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos));
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[path_id[nb_nodes-2]].pos, astar_nodes[path_id[nb_nodes-1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[nb_nodes-2] = FALSE;
+			debug_printf("Last node before dest (%d) deleted of path\n", path_id[1]);
+		}*/
+
+
 
 		// On cherche le chemin le plus court possible, certains nodes peuvent peut-être être supprimés
 		last_index = 0;
@@ -808,7 +984,7 @@
 
 		// On remet le tableau en ordre en supprimant les nodes désactivés
 		j = 1; //Le premier c'est le point de départ, on le garde
-		for(i=1; i<nb_nodes+1; i++){
+		for(i=1; i<nb_nodes; i++){
 			if(path_enable[i]){
 				path_id[j] = path_id[i];
 				path_enable[j] = TRUE;
@@ -824,7 +1000,7 @@
 		sum_dist = 0;
 		j = 0;
 
-		for(i=1; i<nb_nodes-2; i++){
+		for(i=1; i<nb_nodes-1; i++){
 
 			// On calcule les angles
 			last_angle = atan2((double)(astar_nodes[path_id[i]].pos.y - astar_nodes[path_id[i-1]].pos.y),
@@ -838,9 +1014,8 @@
 			dist = GEOMETRY_distance(astar_nodes[path_id[i-1]].pos, astar_nodes[path_id[i]].pos);
 			sum_dist += dist;
 
-			debug_printf("Optim : i=%d (%d;%d) last_angle=%lf angle=%lf diff_angle=%ld\n", i, astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y,
-					last_angle*180.0/M_PI, angle*180.0/M_PI, (diff_angle*180)/PI4096);
-
+			debug_printf("Optim : i=%d (%d;%d) last_angle=%d angle=%d diff_angle=%d\n", i, astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y,
+					(Sint16)(last_angle*180.0/M_PI), (Sint16)(angle*180.0/M_PI), ((diff_angle*180)/PI4096));
 
 			// On interprète les données
 			if(diff_angle >= MAX_ANGLE_IN_SLOW_SPEED){
@@ -892,25 +1067,53 @@
 
 		*nb_displacements = j;
 
-#else
-		j=0;
-		for(i=1; i<nb_nodes; i++){
+//#else
+		// SANS OPTIMISATION: utilisation du tableau astar_curves (Pensez à le remplir)
+
+		//Suppression du premier node si on est trop près
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[1] = FALSE;
+			debug_printf("First node (%d) deleted of path\n", path_id[1]);
+		}
+
+		//Suppression du dernier node si on est trop près
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[path_id[nb_nodes-2]].pos, astar_nodes[path_id[nb_nodes-1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[nb_nodes-2] = FALSE;
+			debug_printf("Last node before dest (%d) deleted of path\n", path_id[nb_nodes-2]);
+		}
+
+		// Remplissage du table des déplacements
+		j = 0;
+		for(i=1; i<nb_nodes - 1; i++){
 			if(path_enable[i]){
 				displacements[j].point = astar_nodes[path_id[i]].pos;
-				displacements[j].curve = TRUE;
+				if(j == 0){
+					displacements[j].curve = TRUE; // Quand on vient du point de départ, on autorise la courbe dans tous les cas.
+				}else{
+					curve_index = i+1; // On évite de faire un i+1 dans une macro, c'est risqué
+					displacements[j].curve = ASTAR_IS_NODE_IN(curve_index, astar_curves[i]);
+				}
 				displacements[j].speed = speed;
+				j++;
 			}
 		}
-		*nb_displacements == j;
+		displacements[nb_nodes - 1].point = astar_nodes[path_id[i]].pos;
+		displacements[nb_nodes - 1].curve = TRUE;
+		displacements[nb_nodes - 1].speed = speed;
+		j++;
+
+		*nb_displacements = j;
+
 #endif
 
 		debug_printf("\nFINAL PATH is (%d displacements)\n", *nb_displacements);
 		for(i=0; i<*nb_displacements ; i++){
 			debug_printf("pos(%d;%d curve=%d speed=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve, displacements[i].speed);
 		}
-
-		fflush(stdout);
-		while(wait_time(5000, IN_PROGRESS, END_OK) == IN_PROGRESS);
 
 		return result;
 	}
@@ -919,14 +1122,13 @@
 
 
 	/** @brief ASTAR_try_going
-	 *		Machine à état réalisant le try_going
-	 *
+	 *		Machine à état réalisant le try_going  après appel à l'algorithme astar
 	 * @param x : l'abscisse u point d'arrivée
 	 * @param y : l'ordonnée du point d'arrivée
-	 * @param success_state : l'état courant dans lequel ce ASTAR_try_going est effectué en stratégie
+	 * @param in_progress : l'état courant dans lequel ce ASTAR_try_going est effectué en stratégie
 	 * @param success_state : l'état dans lequel on doit aller en cas de succès
 	 * @param fail_state : l'état dans lequel on doit aller en cas d'échec
-	 * @param speed la vitesse du robot
+	 * @param speed : la vitesse du robot
 	 * @param way : le sens de déplacements du robot
 	 * @param avoidance : le paramètre d'évitement
 	 * @param end_condition : la condition de fin (END_AT_BREAK ou END_AT_LAST_POINT)
@@ -939,7 +1141,7 @@
 		static Uint8 nb_try;
 		static bool_e success_possible;
 		static GEOMETRY_point_t from, dest;
-		static bool_e handles_foes;
+		//static bool_e handles_foes;
 
 		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
 								ASTAR_INIT,
@@ -992,7 +1194,7 @@
 					case NOT_HANDLED:
 					case END_WITH_TIMEOUT:
 					default:
-						debug_printf("result ASTAR_GO_DIRECTLY is %d\n", result);
+						//debug_printf("result ASTAR_GO_DIRECTLY is %d\n", result);
 						if(nb_try == 0)
 							state = ASTAR_FAIL;
 						else
@@ -1044,12 +1246,12 @@
 				}
 				break;
 			case ASTAR_FAIL:
-				debug_printf("Finish with failure\n");
+				//debug_printf("Finish with failure\n");
 				state = ASTAR_INIT;
 				return fail_state;
 				break;
 			case ASTAR_SUCCESS:
-				debug_printf("Finish with success\n");
+				//debug_printf("Finish with success\n");
 				state = ASTAR_INIT;
 				return success_state;
 				break;
@@ -1063,6 +1265,12 @@
 //---------------------------------------------------------- Fonctions annexes ---------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
+
+	/** @brief ASTAR_get_symetric_node
+	 *		Renvoie l'id du node symétrique au node demandé (fonctionnement analogue à COLOR_Y)
+	 * @param id : l'id du node
+	 * @return l'id du node symétrique si TOP_COLOR ou le node lui même si BOT_COLOR
+	 */
 	static astar_node_id ASTAR_get_symetric_node(astar_node_id id){
 		astar_node_id sym_id = 0;
 
@@ -1095,9 +1303,11 @@
 
 
 	/** @brief ASTAR_pathfind_cost
-	 *		Calcul du cout entre deux points
+	 *		Calcul du cout entre deux nodes
 	 * @param start_node : le node de départ
 	 * @param end_node: le node d'arrivée
+	 * @param with_angle : doit-on prendre en compte une optimisation de l'angle dans le calcul
+	 * @param with_foes : doit-on prendre en compte une optimisation de la distance avec les adversaires dans le calcul
 	 * @return le cout entre les deux nodes passés en paramètre
 	 */
 	static Uint16 ASTAR_pathfind_cost(astar_node_id start_node, astar_node_id end_node, bool_e with_angle, bool_e with_foes){
@@ -1147,6 +1357,11 @@
 		return cost;
 	}
 
+
+	/** @brief ASTAR_update_cost
+	 *		Mise à jour du cout des nodes
+	 * @param current_node : le node courant
+	 */
 	static void ASTAR_update_cost(astar_node_id current_node){
 		Uint8 i;
 
@@ -1160,6 +1375,11 @@
 		}
 	}
 
+	/** @brief ASTAR_abs_angle
+	 *		Calcul de la valeur absolue de l'angle passé en paramètre
+	 * @param angle : l'angle dont on veut la valeur absolue
+	 * @return la valeur absolue de l'angle
+	 */
 	static Uint16 ASTAR_abs_angle(Sint16 angle){
 		Uint16 result = 0;
 		while(angle > PI4096)
@@ -1175,11 +1395,11 @@
 		return result;
 	}
 
-	/** @brief ASTAR_point_out_of_polygon
-	 *		Fonction pour vérifier si un point est à l'extérieur d'un polygone
+	/** @brief ASTAR_point_is_in_polygon
+	 *		Fonction pour vérifier si un point est à l'intérieur d'un polygone
 	 * @param polygon : le polygone pris en compte
 	 * @param nodeTested : le node testé
-	 * @return le booléen indiquant si le node est à l'extérieur (TRUE) ou à l'intérieur (FALSE) du polygone considéré
+	 * @return le booléen indiquant si le node est à l'intérieur (TRUE) ou à l'extérieur (FALSE) du polygone considéré
 	 */
 	static bool_e ASTAR_point_is_in_polygon(astar_polygon_t polygon, GEOMETRY_point_t nodeTested){
 		Uint8 nbIntersections=0;
@@ -1202,6 +1422,12 @@
 		return  (nbIntersections%2 == 1);
 	}
 
+	/** @brief ASTAR_is_link_cut_by_hardlines
+	 *		Fonction pour vérifier si le segment [p1;p2] est coupé par une hardline
+	 * @param p1 : les coordonnées de l'extrémité 1 du segment
+	 * @param p2 : les coordonnées de l'extrémité 1 du segment
+	 * @return le booléen indiquant si le segment est coupé par une hardline ou non
+	 */
 	static bool_e ASTAR_is_link_cut_by_hardlines(GEOMETRY_point_t p1, GEOMETRY_point_t p2){
 		Uint8 i = 0;
 		GEOMETRY_segment_t seg_tested = {p1, p2};
@@ -1212,11 +1438,23 @@
 			seg_hardline.a = astar_hardlines[i].ex1;
 			seg_hardline.b = astar_hardlines[i].ex2;
 			result = GEOMETRY_segments_intersects(seg_tested, seg_hardline);
+			if(result){
+				debug_printf("Segment (%d;%d) (%d;%d) is cut by hardline (%d;%d (%d;%d\n",
+							 p1.x, p1.y, p2.x, p2.y, seg_hardline.a.x, seg_hardline.a.y, seg_hardline.b.x, seg_hardline.b.y);
+			}
 			i++;
 		}
 		return result;
 	}
 
+
+	/** @brief ASTAR_is_node_visible
+	 *      Fonction pour vérifier si le point p2 est visible du point p1
+	 *		Autrement dit fonction pour vérifier si le segment [p1;p2] est coupé par une hardline ou par un côté d'un polygone
+	 * @param p1 : les coordonnées de l'extrémité 1 du segment
+	 * @param p2 : les coordonnées de l'extrémité 1 du segment
+	 * @return le booléen indiquant si p2 est visible depuis p1
+	 */
 	static bool_e ASTAR_is_node_visible(GEOMETRY_point_t p1, GEOMETRY_point_t p2){
 		Uint8 i = 0, j = 0;
 		bool_e result = FALSE;
@@ -1235,7 +1473,7 @@
 					seg_polygon.b = astar_polygons[i].summits[j+1];
 					result = GEOMETRY_segments_intersects(seg_tested, seg_polygon);
 					if(result)
-						debug_printf("Segement is cut by polygon[%d] summit[%d] and [%d]\n", i, j, j+1);
+							debug_printf("Segement is cut by polygon[%d] summit[%d] and [%d]\n", i, j, j+1);
 					j++;
 				}
 
@@ -1291,7 +1529,10 @@
 		ASTAR_print_list(closed_list);
 	}
 
-
+	/** @brief ASTAR_print_nodes
+	 *		Procédure affichant la liste des nodes et leurs caractéristiques
+	 * @param  with_neighbors : doit-on aussi afficher les voisins ?
+	 */
 	void ASTAR_print_nodes(bool_e with_neighbors){
 		Uint8 i, j;
 		debug_printf("\nAFFICHAGE DES NODES:\n");
@@ -1310,6 +1551,10 @@
 		}
 	}
 
+
+	/** @brief ASTAR_print_obstacles
+	 *		Procédure affichant la liste des obstacles(zones interdites et hardlines)
+	 */
 	void ASTAR_print_obstacles(){
 		Uint8 i, j;
 		debug_printf("\nAFFICHAGE DES OBSTACLES:\n");
