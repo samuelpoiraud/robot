@@ -27,26 +27,37 @@
 //-------------------------------------------------- Fonctions importantes de l'algo A* ------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-void ASTAR_init();
-Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+	// Initialisation de l'astar
+	void ASTAR_init();
+
+	// Machine à état réalisant le try_going après appel à l'algorithme astar
+	Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------- Fonctions d'affichage ------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-void ASTAR_print_opened_list();
-void ASTAR_print_closed_list();
-void ASTAR_print_nodes(bool_e with_neighbors);
-void ASTAR_print_obstacles();
+	// Procédure affichant la liste ouverte
+	void ASTAR_print_opened_list();
+
+	// Procédure affichant la liste fermée
+	void ASTAR_print_closed_list();
+
+	// Procédure affichant la liste des nodes et leurs caractéristiques
+	void ASTAR_print_nodes(bool_e with_neighbors);
+
+	// Procédure affichant la liste des obstacles(zones interdites et hardlines)
+	void ASTAR_print_obstacles();
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------- Accesseurs -----------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------
 
-void ASTAR_enable_polygon(Uint8 polygon_number);
-void ASTAR_disable_polygon(Uint8 polygon_number);
+	// Procédure permettant d'activer un polygone
+	void ASTAR_enable_polygon(Uint8 polygon_number);
 
-
+	// Procédure permettant de désactiver un polygone
+	void ASTAR_disable_polygon(Uint8 polygon_number);
 
 
 	#endif /* ndef _ASTAR_H_ */
