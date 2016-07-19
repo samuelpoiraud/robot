@@ -320,14 +320,14 @@
 
 		//Rangée [B]
 		/*B1*/ (1ULL<<A1)|(1ULL<<B2)|(1ULL<<C1),
-		/*B2*/ (1ULL<<A1)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C1)|(1ULL<<C2),
+		/*B2*/ (1ULL<<A1)|(1ULL<<B1)|(1ULL<<B3)|(0ULL<<C1)|(1ULL<<C2),
 		/*B3*/ (1ULL<<A2)|(1ULL<<B2)|(1ULL<<B4)|(1ULL<<C2)|(1ULL<<C3),
 		/*B4*/ (1ULL<<A2)|(1ULL<<B3)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4),
 		/*B5*/ (1ULL<<A2)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<C4),
 
 		//Rangée [C]
 		/*C1*/ (1ULL<<B1)|(1ULL<<B2)|(1ULL<<D1)|(1ULL<<D2),
-		/*C2*/ (1ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4),
+		/*C2*/ (0ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4),
 		/*C3*/ (1ULL<<B3)|(1ULL<<B4)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6),
 		/*C4*/ (1ULL<<B4)|(1ULL<<B5)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D6),
 
@@ -352,14 +352,14 @@
 		/*F6*/ (1ULL<<G3)|(1ULL<<G4)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<E2),
 
 		//Rangée [G]
-		/*G1*/ (1ULL<<H1)|(1ULL<<H2)|(1ULL<<F1)|(1ULL<<F2),
+		/*G1*/ (1ULL<<H1)|(0ULL<<H2)|(1ULL<<F1)|(1ULL<<F2),
 		/*G2*/ (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4),
 		/*G3*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6),
 		/*G4*/ (1ULL<<H4)|(1ULL<<H5)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F6),
 
 		//Rangée [H]
 		/*H1*/ (1ULL<<I1)|(1ULL<<H2)|(1ULL<<G1),
-		/*H2*/ (1ULL<<I1)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<G1)|(1ULL<<G2),
+		/*H2*/ (1ULL<<I1)|(1ULL<<H1)|(1ULL<<H3)|(0ULL<<G1)|(1ULL<<G2),
 		/*H3*/ (1ULL<<I2)|(1ULL<<H2)|(1ULL<<H4)|(1ULL<<G2)|(1ULL<<G3),
 		/*H4*/ (1ULL<<I2)|(1ULL<<H3)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4),
 		/*H5*/ (1ULL<<I2)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<G4),
