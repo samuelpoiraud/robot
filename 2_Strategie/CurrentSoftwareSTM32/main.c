@@ -103,10 +103,6 @@ int main (void)
 	}
 #endif
 
-	#ifdef MODE_SIMULATION
-		pull_bp_and_switch();
-	#endif
-
 	UART_init();
 	//RCC_read();
 
@@ -205,15 +201,6 @@ int main (void)
 	}
 	return 0;
 }
-
-void pull_bp_and_switch(void)
-{
-	//En mode simulation, on indique une valeur par défaut des boutons et des switchs..... par l'ajout d'un pull up ou pull down.
-	//PORTS_set_pull(GPIOA, GPIO_Pin_7, GPIO_PuPd_DOWN);	//Verbose : Verbose = 0/ Bin = 1
-	//La présence de laccelermetre empeche le PD d'etre prepondérent sur la broche
-
-}
-
 
 void big_delay(void)
 {

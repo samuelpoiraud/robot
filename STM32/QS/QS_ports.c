@@ -163,6 +163,22 @@ void PORTS_init(void){
 	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_a_mask)) & 0xFFFF9FFF;	//JTMS-SWDIO, JTCK-SWCLK
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	PORTS_set_pull(GPIOA, GPIO_Pin_0, PORT_OPT_A_0);
+	PORTS_set_pull(GPIOA, GPIO_Pin_1, PORT_OPT_A_1);
+	PORTS_set_pull(GPIOA, GPIO_Pin_2, PORT_OPT_A_2);
+	PORTS_set_pull(GPIOA, GPIO_Pin_3, PORT_OPT_A_3);
+	PORTS_set_pull(GPIOA, GPIO_Pin_4, PORT_OPT_A_4);
+	PORTS_set_pull(GPIOA, GPIO_Pin_5, PORT_OPT_A_5);
+	PORTS_set_pull(GPIOA, GPIO_Pin_6, PORT_OPT_A_6);
+	PORTS_set_pull(GPIOA, GPIO_Pin_7, PORT_OPT_A_7);
+	PORTS_set_pull(GPIOA, GPIO_Pin_8, PORT_OPT_A_8);
+	PORTS_set_pull(GPIOA, GPIO_Pin_9, PORT_OPT_A_9);
+	PORTS_set_pull(GPIOA, GPIO_Pin_10, PORT_OPT_A_10);
+	PORTS_set_pull(GPIOA, GPIO_Pin_11, PORT_OPT_A_11);
+	PORTS_set_pull(GPIOA, GPIO_Pin_12, PORT_OPT_A_12);
+	PORTS_set_pull(GPIOA, GPIO_Pin_13, PORT_OPT_A_13);
+	PORTS_set_pull(GPIOA, GPIO_Pin_14, PORT_OPT_A_14);
+	PORTS_set_pull(GPIOA, GPIO_Pin_15, PORT_OPT_A_15);
 
 	/* GPIOB */
 	Uint32 port_b_mask =
@@ -188,6 +204,22 @@ void PORTS_init(void){
 	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_b_mask)) & 0xFFFFFFEF; //JTDO/TRACESWO
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	PORTS_set_pull(GPIOB, GPIO_Pin_0, PORT_OPT_B_0);
+	PORTS_set_pull(GPIOB, GPIO_Pin_1, PORT_OPT_B_1);
+	PORTS_set_pull(GPIOB, GPIO_Pin_2, PORT_OPT_B_2);
+	PORTS_set_pull(GPIOB, GPIO_Pin_3, PORT_OPT_B_3);
+	PORTS_set_pull(GPIOB, GPIO_Pin_4, PORT_OPT_B_4);
+	PORTS_set_pull(GPIOB, GPIO_Pin_5, PORT_OPT_B_5);
+	PORTS_set_pull(GPIOB, GPIO_Pin_6, PORT_OPT_B_6);
+	PORTS_set_pull(GPIOB, GPIO_Pin_7, PORT_OPT_B_7);
+	PORTS_set_pull(GPIOB, GPIO_Pin_8, PORT_OPT_B_8);
+	PORTS_set_pull(GPIOB, GPIO_Pin_9, PORT_OPT_B_9);
+	PORTS_set_pull(GPIOB, GPIO_Pin_10, PORT_OPT_B_10);
+	PORTS_set_pull(GPIOB, GPIO_Pin_11, PORT_OPT_B_11);
+	PORTS_set_pull(GPIOB, GPIO_Pin_12, PORT_OPT_B_12);
+	PORTS_set_pull(GPIOB, GPIO_Pin_13, PORT_OPT_B_13);
+	PORTS_set_pull(GPIOB, GPIO_Pin_14, PORT_OPT_B_14);
+	PORTS_set_pull(GPIOB, GPIO_Pin_15, PORT_OPT_B_15);
 
 	/* GPIOC */
 	Uint32 port_c_mask =
@@ -213,6 +245,22 @@ void PORTS_init(void){
 	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)port_c_mask);
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	PORTS_set_pull(GPIOC, GPIO_Pin_0, PORT_OPT_C_0);
+	PORTS_set_pull(GPIOC, GPIO_Pin_1, PORT_OPT_C_1);
+	PORTS_set_pull(GPIOC, GPIO_Pin_2, PORT_OPT_C_2);
+	PORTS_set_pull(GPIOC, GPIO_Pin_3, PORT_OPT_C_3);
+	PORTS_set_pull(GPIOC, GPIO_Pin_4, PORT_OPT_C_4);
+	PORTS_set_pull(GPIOC, GPIO_Pin_5, PORT_OPT_C_5);
+	PORTS_set_pull(GPIOC, GPIO_Pin_6, PORT_OPT_C_6);
+	PORTS_set_pull(GPIOC, GPIO_Pin_7, PORT_OPT_C_7);
+	PORTS_set_pull(GPIOC, GPIO_Pin_8, PORT_OPT_C_8);
+	PORTS_set_pull(GPIOC, GPIO_Pin_9, PORT_OPT_C_9);
+	PORTS_set_pull(GPIOC, GPIO_Pin_10, PORT_OPT_C_10);
+	PORTS_set_pull(GPIOC, GPIO_Pin_11, PORT_OPT_C_11);
+	PORTS_set_pull(GPIOC, GPIO_Pin_12, PORT_OPT_C_12);
+	PORTS_set_pull(GPIOC, GPIO_Pin_13, PORT_OPT_C_13);
+	PORTS_set_pull(GPIOC, GPIO_Pin_14, PORT_OPT_C_14);
+	PORTS_set_pull(GPIOC, GPIO_Pin_15, PORT_OPT_C_15);
 
 	/* GPIOD */
 	Uint32 port_d_mask =
@@ -238,6 +286,22 @@ void PORTS_init(void){
 	GPIO_InitStructure.GPIO_Pin = ~((uint32_t)port_d_mask);
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+	PORTS_set_pull(GPIOD, GPIO_Pin_0, PORT_OPT_D_0);
+	PORTS_set_pull(GPIOD, GPIO_Pin_1, PORT_OPT_D_1);
+	PORTS_set_pull(GPIOD, GPIO_Pin_2, PORT_OPT_D_2);
+	PORTS_set_pull(GPIOD, GPIO_Pin_3, PORT_OPT_D_3);
+	PORTS_set_pull(GPIOD, GPIO_Pin_4, PORT_OPT_D_4);
+	PORTS_set_pull(GPIOD, GPIO_Pin_5, PORT_OPT_D_5);
+	PORTS_set_pull(GPIOD, GPIO_Pin_6, PORT_OPT_D_6);
+	PORTS_set_pull(GPIOD, GPIO_Pin_7, PORT_OPT_D_7);
+	PORTS_set_pull(GPIOD, GPIO_Pin_8, PORT_OPT_D_8);
+	PORTS_set_pull(GPIOD, GPIO_Pin_9, PORT_OPT_D_9);
+	PORTS_set_pull(GPIOD, GPIO_Pin_10, PORT_OPT_D_10);
+	PORTS_set_pull(GPIOD, GPIO_Pin_11, PORT_OPT_D_11);
+	PORTS_set_pull(GPIOD, GPIO_Pin_12, PORT_OPT_D_12);
+	PORTS_set_pull(GPIOD, GPIO_Pin_13, PORT_OPT_D_13);
+	PORTS_set_pull(GPIOD, GPIO_Pin_14, PORT_OPT_D_14);
+	PORTS_set_pull(GPIOD, GPIO_Pin_15, PORT_OPT_D_15);
 
 	/* GPIOE */
 	Uint32 port_e_mask =
@@ -263,6 +327,22 @@ void PORTS_init(void){
 	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_e_mask)) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
+	PORTS_set_pull(GPIOE, GPIO_Pin_0, PORT_OPT_E_0);
+	PORTS_set_pull(GPIOE, GPIO_Pin_1, PORT_OPT_E_1);
+	PORTS_set_pull(GPIOE, GPIO_Pin_2, PORT_OPT_E_2);
+	PORTS_set_pull(GPIOE, GPIO_Pin_3, PORT_OPT_E_3);
+	PORTS_set_pull(GPIOE, GPIO_Pin_4, PORT_OPT_E_4);
+	PORTS_set_pull(GPIOE, GPIO_Pin_5, PORT_OPT_E_5);
+	PORTS_set_pull(GPIOE, GPIO_Pin_6, PORT_OPT_E_6);
+	PORTS_set_pull(GPIOE, GPIO_Pin_7, PORT_OPT_E_7);
+	PORTS_set_pull(GPIOE, GPIO_Pin_8, PORT_OPT_E_8);
+	PORTS_set_pull(GPIOE, GPIO_Pin_9, PORT_OPT_E_9);
+	PORTS_set_pull(GPIOE, GPIO_Pin_10, PORT_OPT_E_10);
+	PORTS_set_pull(GPIOE, GPIO_Pin_11, PORT_OPT_E_11);
+	PORTS_set_pull(GPIOE, GPIO_Pin_12, PORT_OPT_E_12);
+	PORTS_set_pull(GPIOE, GPIO_Pin_13, PORT_OPT_E_13);
+	PORTS_set_pull(GPIOE, GPIO_Pin_14, PORT_OPT_E_14);
+	PORTS_set_pull(GPIOE, GPIO_Pin_15, PORT_OPT_E_15);
 
 	PORTS_adc_init(NULL, ADC_SampleTime_28Cycles);
 

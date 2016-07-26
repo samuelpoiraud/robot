@@ -34,6 +34,10 @@
 	#define PORT_IO_INPUT	((Uint32)1)
 	#define PORT_IO_OUTPUT	((Uint32)0)
 
+	#define PORT_OPT_NO_PULL	(0)
+	#define PORT_OPT_PULL_UP	(1)
+	#define PORT_OPT_PULL_DOWN	(2)
+
 	#define toggle_led_2(port, pin)   GPIO_WriteBit(port, pin,(GPIO_ReadOutputDataBit(port, pin)?Bit_RESET:Bit_SET))
 	#define toggle_led(port_comma_pin)   GPIO_WriteBit(port_comma_pin,(GPIO_ReadOutputDataBit(port_comma_pin)?Bit_RESET:Bit_SET))
 
