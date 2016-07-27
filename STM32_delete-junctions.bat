@@ -18,6 +18,8 @@ junction.exe -d 6_IHM\CurrentSoftware\QS
 junction.exe -d 6_IHM\CurrentSoftware\stm32f4xx
 junction.exe -d R_D\HokuyoUTM30LX\Software\QS
 junction.exe -d R_D\HokuyoUTM30LX\Software\stm32f4xx
+junction.exe -d R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\QS
+junction.exe -d R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\stm32f4xx
 junction.exe -d R_D\projet_matrice_led\CurrentSoftware\QS
 junction.exe -d R_D\projet_matrice_led\CurrentSoftware\stm32f4xx
 pause
