@@ -185,11 +185,11 @@
 
 	#define PORT_IO_C_6			PORT_IO_OUTPUT
 	#define PORT_OPT_C_6		PORT_OPT_NO_PULL
-		#define MOSFET_1_PIN		GPIOC,GPIO_Pin_6
+		#define MOSFET_2_PIN		GPIOC,GPIO_Pin_6
 
 	#define PORT_IO_C_7			PORT_IO_OUTPUT
 	#define PORT_OPT_C_7		PORT_OPT_NO_PULL
-		#define MOSFET_0_PIN		GPIOC,GPIO_Pin_7
+		#define MOSFET_1_PIN		GPIOC,GPIO_Pin_7
 
 	#define PORT_IO_C_8			PORT_IO_OUTPUT
 	#define PORT_OPT_C_8		PORT_OPT_NO_PULL
@@ -201,11 +201,11 @@
 
 	#define PORT_IO_C_10		PORT_IO_OUTPUT
 	#define PORT_OPT_C_10		PORT_OPT_NO_PULL
-		#define MOSFET_3_PIN		GPIOC,GPIO_Pin_10
+		#define MOSFET_4_PIN		GPIOC,GPIO_Pin_10
 
 	#define PORT_IO_C_11		PORT_IO_OUTPUT
 	#define PORT_OPT_C_11		PORT_OPT_NO_PULL
-		#define MOSFET_2_PIN		GPIOC,GPIO_Pin_11
+		#define MOSFET_3_PIN		GPIOC,GPIO_Pin_11
 
 	#define PORT_IO_C_12		PORT_IO_INPUT
 	#define PORT_OPT_C_12		PORT_OPT_NO_PULL
@@ -237,20 +237,20 @@
 
 	#define PORT_IO_D_2			PORT_IO_OUTPUT
 	#define PORT_OPT_D_2		PORT_OPT_NO_PULL
-		#define MOSFET_4_PIN		GPIOD,GPIO_Pin_2
+		#define MOSFET_5_PIN		GPIOD,GPIO_Pin_2
 
 	#define PORT_IO_D_3			PORT_IO_INPUT			//Pour activer le mosfet, mettre en OUTPUT
 	#define PORT_OPT_D_3		PORT_OPT_NO_PULL
-		//#define MOSFET_5_PIN			GPIOD,GPIO_Pin_3
+		//#define MOSFET_6_PIN			GPIOD,GPIO_Pin_3
 
 	#define PORT_IO_D_4			PORT_IO_INPUT			//Pour activer le mosfet, mettre en OUTPUT
 	#define PORT_OPT_D_4		PORT_OPT_NO_PULL
-		//#define MOSFET_6_PIN			GPIOD,GPIO_Pin_4
+		//#define MOSFET_7_PIN			GPIOD,GPIO_Pin_4
 
 	#define PORT_IO_D_5			PORT_IO_INPUT			//Pour activer le mosfet, mettre en OUTPUT
 	#define PORT_OPT_D_5		PORT_OPT_NO_PULL
 		// Usb LED red
-		//#define MOSFET_7_PIN			GPIOD,GPIO_Pin_5
+		//#define MOSFET_8_PIN			GPIOD,GPIO_Pin_5
 
 	#define PORT_IO_D_6			PORT_IO_INPUT
 	#define PORT_OPT_D_6		PORT_OPT_NO_PULL

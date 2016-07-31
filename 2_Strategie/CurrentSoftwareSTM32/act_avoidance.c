@@ -53,21 +53,20 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Open,		ACT_SAND_LOCKER_RIGHT_LOCK,			0,	0,		60,		0);
 		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Lock_Block,	ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK,	0,	0,		90,		0);
 
-
-		init_new_offset(ACT_QUEUE_Mosfet_act_all,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_5,				0,		0,		0,		60);
-		init_new_offset(ACT_QUEUE_Mosfet_act_all,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_7,				60,		60,		0,		60);
+		init_new_offset(ACT_QUEUE_Mosfet_act_multi,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_5,				0,		0,		0,		60);
+		init_new_offset(ACT_QUEUE_Mosfet_act_multi,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_7,				60,		60,		0,		60);
 
 		//pompe Black front left
-		init_new_offset(ACT_QUEUE_Mosfet_strat_0,	    ACT_AVOID_MOSFET_STRAT_0_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
+		init_new_offset(ACT_QUEUE_Mosfet_strat_1,	    ACT_AVOID_MOSFET_STRAT_0_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 
 		//pompe sand_locker_left
-		init_new_offset(ACT_QUEUE_Mosfet_strat_1,	    ACT_AVOID_MOSFET_STRAT_1_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
+		init_new_offset(ACT_QUEUE_Mosfet_strat_2,	    ACT_AVOID_MOSFET_STRAT_1_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 
 		//pompe sand locker right
-		init_new_offset(ACT_QUEUE_Mosfet_strat_2,	    ACT_AVOID_MOSFET_STRAT_2_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
+		init_new_offset(ACT_QUEUE_Mosfet_strat_3,	    ACT_AVOID_MOSFET_STRAT_2_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 
 		//pompe Black front right
-		init_new_offset(ACT_QUEUE_Mosfet_strat_3,	    ACT_AVOID_MOSFET_STRAT_3_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
+		init_new_offset(ACT_QUEUE_Mosfet_strat_4,	    ACT_AVOID_MOSFET_STRAT_3_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 
 		init_new_offset(ACT_QUEUE_Shovel_dune,			ACT_AVOID_SHOVEL_DUNE_CMD_Take,		ACT_SHOVEL_DUNE_TAKE,				0,		0,		0,		100);
 		init_new_offset(ACT_QUEUE_Shovel_dune,			ACT_AVOID_SHOVEL_DUNE_CMD_Store,	ACT_SHOVEL_DUNE_STORE,				0,		0,		0,		100);
@@ -91,10 +90,10 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Fish_pearl,	        ACT_AVOID_FISH_PEARL_Open,				ACT_FISH_PEARL_OPEN,				0,		150,	0,		0);
 
 		//pompe back right
-		init_new_offset(ACT_QUEUE_Mosfet_act_0,			ACT_AVOID_MOSFET_ACT_0_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
+		init_new_offset(ACT_QUEUE_Mosfet_act_1,			ACT_AVOID_MOSFET_ACT_0_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
 
 		//pompe back left
-		init_new_offset(ACT_QUEUE_Mosfet_act_1,			ACT_AVOID_MOSFET_ACT_1_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
+		init_new_offset(ACT_QUEUE_Mosfet_act_2,			ACT_AVOID_MOSFET_ACT_1_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
 
 		init_new_offset(ACT_QUEUE_Pompe_front_left ,	ACT_AVOID_POMPE_FRONT_LEFT_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
 		init_new_offset(ACT_QUEUE_Pompe_front_left,	    ACT_AVOID_POMPE_FRONT_LEFT_Reverse,	ACT_POMPE_REVERSE,					0,		0,		60,		0);

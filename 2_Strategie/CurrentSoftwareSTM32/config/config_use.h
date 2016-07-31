@@ -58,6 +58,7 @@
 	//Si cette ligne est commentée, on utilise par défaut le mode de déplacement avec pathfind
 
 #define USE_ASTAR				//Activation de l'algorithme ASTAR, avec pathfind par polygones
+#define USE_ASTAR_2
 
 #define USE_PROP_MULTI_POINT	//Utilise le buffer de l'asser pour les trajectoires multi-points et permet d'utiliser les courbes
 
@@ -66,10 +67,6 @@
 #define SD_ENABLE				//Activation de la carte SD
 
 #define USE_SYNC_ELEMENTS
-
-// Utilisation de la carte Mosfets
-#define USE_MOSFETS			//Déclarer l'utilisation du pilote
-#define NB_MOSFETS     5    //Nombre de mosfets à piloter (max = 8)
 
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
@@ -139,6 +136,14 @@
 	#define USE_PWM_MODULE
 		#define PWM_FREQ	50000
 		#define USE_PWM4
+
+/* Réglages de la carte Mosfets */
+	#define USE_MOSFETS_MODULE
+		#define USE_MOSFET_1
+		#define USE_MOSFET_2
+		#define USE_MOSFET_3
+		#define USE_MOSFET_4
+		#define USE_MOSFET_5
 
 #ifdef MAIN_IR_RCVA
 	#define USE_PWM1
