@@ -180,8 +180,8 @@ int main (void)
 		QUEUE_run();
 
 		//Machine à état QS_mosfet
-		#ifdef USE_MOSFETS
-			MOSFET_state_machine(NULL);
+		#if defined(USE_MOSFETS_MODULE) && defined(USE_MOSFET_MULTI)
+			MOSFET_do_order_multi(NULL);
 		#endif
 
 		MAIN_sensor_test();

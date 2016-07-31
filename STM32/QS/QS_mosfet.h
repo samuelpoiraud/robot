@@ -34,7 +34,7 @@
 	#include "../QS/QS_all.h"
 	#include "../QS/QS_CANmsgList.h"
 
-	#ifdef USE_MOSFETS
+	#ifdef USE_MOSFETS_MODULE
 
 		#include "../queue.h"
 
@@ -53,15 +53,23 @@
 		// Réinitialise la configuration
 		void MOSFET_reset_config();
 
-		// Selftest des mosfets en actionneur
+		// Machine à état pour activer en décalé les mosfets
+		bool_e MOSFET_do_order_multi(CAN_msg_t* msg);
+
+		// Lance le selftest d'un mosfet
+		bool_e MOSFET_selftest_this_mosfet(bool_e entrance, ACT_sid_e sid, code_id_e code);
+
+		// Selftest des mosfets en actionneur  //TODO : A enlever lorsque le nouveau selftest sera opé
 		bool_e MOSFET_selftest_act(Uint8 nb_mosfets);
 
-		// Selftest des mosfets en stratégie
+		// Selftest des mosfets en stratégie  //TODO : A enlever lorsque le nouveau selftest sera opé
 		bool_e MOSFET_selftest_strat();
 
-		// Machine à états d'activation décalée des mosfets actionneurs, depuis la strat
-		void MOSFET_state_machine(CAN_msg_t* msg);
+	#endif
 
+	#ifdef I_AM_CARTE_STRAT
+		// Regarde si le sid correspond à celui d'un mosfet géré par la stratégie
+		bool_e MOSFET_isStratMosfetSid(queue_id_e act_id);
 	#endif
 #endif	/* MOSFET_H */
 

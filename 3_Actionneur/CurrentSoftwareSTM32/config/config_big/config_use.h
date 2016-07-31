@@ -44,11 +44,17 @@
 
 /* Réglages ADC */
 
-/* Utilisation de la carte Mosfets*/
-	/* déclarer l'utilisation du pilote */
-	#define USE_MOSFETS
-	/*Nombre de mosfets à piloter (max = 8)*/
-	#define NB_MOSFETS          8
+/* Réglages de la carte Mosfets*/
+	#define USE_MOSFETS_MODULE
+		 #define USE_MOSFET_1
+		 #define USE_MOSFET_2
+		 #define USE_MOSFET_3
+		 #define USE_MOSFET_4
+		 #define USE_MOSFET_5
+		 #define USE_MOSFET_6
+		 #define USE_MOSFET_7
+		 #define USE_MOSFET_8
+		 #define USE_MOSFET_MULTI
 
 
 #endif /* BIG_CONFIG_USE_H */

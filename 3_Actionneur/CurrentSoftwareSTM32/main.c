@@ -172,6 +172,11 @@ int main (void)
 			}
 		#endif
 
+
+		#if defined(USE_MOSFETS_MODULE) && defined(USE_MOSFET_MULTI)
+				MOSFET_do_order_multi(NULL);
+		#endif
+
 	}//Endloop
 	return 0;
 }
