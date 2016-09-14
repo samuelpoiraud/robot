@@ -945,7 +945,7 @@ static void RX24_state_machine(RX24_state_machine_event_e event) {
 					HAL_UART_Transmit_IT(&UART_HandleStructure, &(RX24_get_instruction_packet(state_machine.rx24_sending_index, &state_machine.current_instruction)), 1);
 					state_machine.rx24_sending_index++;
 				} else
-					__HAL_UART_ENABLE_IT(&UART_HandleStructure, UART_IT_TXE);
+					__HAL_UART_DISABLE_IT(&UART_HandleStructure, UART_IT_TXE);
 #endif
 
 //				if(state_machine.sending_index < state_machine.current_instruction.size) {
@@ -1196,7 +1196,7 @@ static void RX24_UART_init(USART_TypeDef* uartPtr, Uint16 baudrate) {
 	UART_HandleStructure.Init.StopBits = UART_STOPBITS_1;
 	UART_HandleStructure.Init.Parity = UART_PARITY_NONE;
 	UART_HandleStructure.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-	UART_HandleStructure.Init.Mode = UART_MODE_TX_RX;
+	UART_HandleStructure.Init.Mode = UART_MODE_TX_RX | USART_Mode_TX;
 	UART_HandleStructure.Init.OverSampling = UART_OVERSAMPLING_8;
 
 	/*On applique les parametres d'initialisation ci-dessus */
