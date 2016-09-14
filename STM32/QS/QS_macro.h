@@ -50,6 +50,16 @@
 	#define PSV_setCurrent(newpsvpag) (newpsvpag = newpsvpag)
 	#define PSV_adjust(array) (void)0
 
+	#define __REV64(x)	(	(((x) & 0xFF00000000000000ULL) >> 56)		\
+						|	(((x) & 0x00FF000000000000ULL) >> 40)		\
+						|	(((x) & 0x0000FF0000000000ULL) >> 24)		\
+						|	(((x) & 0x000000FF00000000ULL) >> 8)		\
+						|	(((x) & 0x00000000FF000000ULL) << 8)		\
+						|	(((x) & 0x0000000000FF0000ULL) << 24)		\
+						|	(((x) & 0x000000000000FF00ULL) << 40)		\
+						|	(((x) & 0x00000000000000FFULL) << 56)		\
+					)
+
 
 	//Utilisé pour éviter un warning à cause d'une variable non utilisée
 	#define UNUSED_VAR(x) (void)(x);

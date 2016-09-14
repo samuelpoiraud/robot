@@ -12,18 +12,15 @@
  */
 
 /** ----------------  Defines possibles  --------------------
- *	USE_UART1					: Créer la fonction pour envoyer un message sur l'UART 1
- *	USE_UART2					: Créer la fonction pour envoyer un message sur l'UART 2
- *	USE_UART3					: Créer la fonction pour envoyer un message sur l'UART 3
- *	USE_UART4					: Créer la fonction pour envoyer un message sur l'UART 4
- *	USE_UART5					: Créer la fonction pour envoyer un message sur l'UART 5
- *	USE_UART6					: Créer la fonction pour envoyer un message sur l'UART 6
- *	USE_UART1RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 1
- *	USE_UART2RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 2
- *	USE_UART3RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 3
- *	USE_UART4RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 4
- *	USE_UART5RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 5
- *	USE_UART6RXINTERRUPT		: Créer la fonction pour recevoir un message sur l'UART 6
+ *	USE_UARTx					: Créer la fonction pour envoyer un message sur l'UART x
+ *	USE_UARTx_RX_INTERRUPT		: Créer la fonction pour recevoir un message sur l'UART x
+ *	USE_UARTx_RX_BUFFER			: Réception dans un buffer
+ *	USE_UARTx_TX_BUFFER			: Envoi via un buffer sinon envoi direct
+ *	USE_UARTx_FLOWCONTROL		: Ajout le contrôle de flux hardware à l'UART x
+ *
+ ** ----------------  Choses à savoir  --------------------
+ *
+ *	x : de 1 à 6
  */
 
 #ifndef QS_UART_H
@@ -31,6 +28,8 @@
 
 	#include "QS_all.h"
 
+
+	typedef void (*UART_dataReceivedFunctionPtr)(Uint8 Byte);
 	/*	fonction initialisant les uart choisis
 		vitesse : 9600 bauds
 		bits de donnees : 8
@@ -41,6 +40,8 @@
 	void UART_init(void);
 	void UART_deInit(void);
 	void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate);
+	void UART_setListenner(Uint8 uart_id, UART_dataReceivedFunctionPtr function);
+
 
 	#ifdef USE_UART1
 
