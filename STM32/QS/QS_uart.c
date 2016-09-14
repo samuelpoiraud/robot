@@ -115,7 +115,8 @@
 	}
 #endif
 
-	static volatile bool_e initialized = FALSE;
+static volatile UART_dataReceivedFunctionPtr listennerDataReceived[6] = {NULL};
+static volatile bool_e initialized = FALSE;
 
 void UART_deInit(void){
 #ifdef USE_UART1
@@ -286,30 +287,59 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
-	switch(uart_id) {
+		switch(uart_id) {
 		case 1:
+			#ifdef USE_UART1_FLOWCONTROL
+				USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+			#endif
 			USART_Init(USART1, &USART_InitStructure);
 			break;
+
 		case 2:
+			#ifdef USE_UART2_FLOWCONTROL
+				USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+			#endif
 			USART_Init(USART2, &USART_InitStructure);
 			break;
+
 		case 3:
+			#ifdef USE_UART3_FLOWCONTROL
+				USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_CTS;
+			#endif
 			USART_Init(USART3, &USART_InitStructure);
 			break;
+
 		case 4:
+			#ifdef USE_UART4_FLOWCONTROL
+				USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+			#endif
 			USART_Init(UART4, &USART_InitStructure);
 			break;
+
 		case 5:
+			#ifdef USE_UART5_FLOWCONTROL
+				USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+			#endif
 			USART_Init(UART5, &USART_InitStructure);
 			break;
+
 		case 6:
+			#ifdef USE_UART6_FLOWCONTROL
+				USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+			#endif
 			USART_Init(USART6, &USART_InitStructure);
 			break;
+
 		default:
 			break;
 	}
 }
 
+void UART_setListenner(Uint8 uart_id, UART_dataReceivedFunctionPtr function){
+	assert(uart_id > 0 && uart_id <= 6);
+
+	listennerDataReceived[uart_id] = function;
+}
 //Appelée par un printf
 int _write(int file, char *ptr, int len)
 {
@@ -662,7 +692,7 @@ int _write(int file, char *ptr, int len)
 
 		void UART3_putc(Uint8 c)
 		{
-			if(USART_GetFlagStatus(USART3, USART_IT_TXE))
+			if(USART_GetITStatus(USART3, USART_IT_TXE))
 				USART_SendData(USART3, c);
 			else
 			{
@@ -704,12 +734,17 @@ int _write(int file, char *ptr, int len)
 					#ifdef LED_UART
 						toggle_led(LED_UART);
 					#endif
-					*(receiveddata++) = USART_ReceiveData(USART3);
-					m_u3rxnum++;
-					m_u3rx = 1;
-					/* pour eviter les comportements indésirables */
-					if (receiveddata - m_u3rxbuf >= UART_RX_BUF_SIZE)
-						receiveddata = m_u3rxbuf;
+					
+					if(listennerDataReceived[3] != NULL){
+						listennerDataReceived[3](USART_ReceiveData(USART3));
+					}else{
+						*(receiveddata++) = USART_ReceiveData(USART3);
+						m_u3rxnum++;
+						m_u3rx = 1;
+						/* pour eviter les comportements indésirables */
+						if (receiveddata - m_u3rxbuf >= UART_RX_BUF_SIZE)
+							receiveddata = m_u3rxbuf;
+					}
 				}
 				USART_ClearITPendingBit(USART3, USART_IT_RXNE);
 				NVIC_ClearPendingIRQ(USART3_IRQn);
@@ -787,7 +822,7 @@ int _write(int file, char *ptr, int len)
 
 		void UART4_putc(Uint8 c)
 		{
-			if(USART_GetFlagStatus(UART4, USART_IT_TXE))
+			if(USART_GetFlagStatus(UART4, USART_FLAG_TXE))
 				USART_SendData(UART4, c);
 			else
 			{
@@ -911,7 +946,7 @@ int _write(int file, char *ptr, int len)
 
 		void UART5_putc(Uint8 c)
 		{
-			if(USART_GetFlagStatus(USART5, USART_IT_TXE))
+			if(USART_GetFlagStatus(USART5, USART_FLAG_TXE))
 				USART_SendData(USART5, c);
 			else
 			{
@@ -1035,7 +1070,7 @@ int _write(int file, char *ptr, int len)
 
 		void UART6_putc(Uint8 c)
 		{
-			if(USART_GetFlagStatus(USART6, USART_IT_TXE))
+			if(USART_GetFlagStatus(USART6, USART_FLAG_TXE))
 				USART_SendData(USART6, c);
 			else
 			{
