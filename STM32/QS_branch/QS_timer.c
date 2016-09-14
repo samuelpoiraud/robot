@@ -477,11 +477,6 @@ void TIMER5_getITStatus(){
 }
 
 //Interrupts management and redirection
-void TIM1_UP_TIM10_IRQHandler() {
-	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_10, TIM_IT_UPDATE))
-		_T5Interrupt();
-}
-
 void TIM1_TRG_COM_TIM11_IRQHandler() {
 	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_11, TIM_IT_UPDATE))
 		_T1Interrupt();
@@ -500,4 +495,9 @@ void TIM8_UP_TIM13_IRQHandler() {
 void TIM8_TRG_COM_TIM14_IRQHandler() {
 	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_14, TIM_IT_UPDATE))
 		_T4Interrupt();
+}
+
+void TIM1_UP_TIM10_IRQHandler() {
+	if(__HAL_TIM_GET_IT_SOURCE(&TIM_HandleStructure_10, TIM_IT_UPDATE))
+		_T5Interrupt();
 }

@@ -283,7 +283,7 @@ void ADC_init(void) {
 	__HAL_LINKDMA(&ADC_HandleStructure, DMA_Handle, DMA_HandleStructure);
 
 	//Configuration des interruptions de la DMA
-	HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);  // Revoir priorité des interruptions
 	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 
 	HAL_ADC_Start_DMA(&ADC_HandleStructure, adc_converted_value, i);

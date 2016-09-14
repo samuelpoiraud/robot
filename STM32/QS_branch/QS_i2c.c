@@ -190,6 +190,7 @@ void I2C1_ER_IRQHandler(void)
 {
 	failed_sr1 = I2C1->SR1;
 	failed_sr2 = I2C1->SR2;
+	__HAL_I2C_CLEAR_FLAG(I2C_FLAG_SMBALER | I2C_FLAG_TIMEOUT | I2C_FLAG_PECERR | I2C_FLAG_OVR | I2C_FLAG_AF | I2C_FLAG_ARLO | I2C_FLAG_BERR);
 	i2c_bus_error = TRUE;
 }
 
@@ -208,6 +209,7 @@ void I2C2_ER_IRQHandler(void)
 {
 	failed_sr1 = I2C2->SR1;
 	failed_sr2 = I2C2->SR2;
+	__HAL_I2C_CLEAR_FLAG(I2C_FLAG_SMBALER | I2C_FLAG_TIMEOUT | I2C_FLAG_PECERR | I2C_FLAG_OVR | I2C_FLAG_AF | I2C_FLAG_ARLO | I2C_FLAG_BERR);
 	i2c_bus_error = TRUE;
 }
 

@@ -41,7 +41,7 @@ void QEI_init()
 	TIM_HandleStructure_2.Instance = TIM2;
 	TIM_HandleStructure_2.Init.Period = 65535;
 
-	TIM_HandleStructure_3.Instance = TIM2;
+	TIM_HandleStructure_3.Instance = TIM3;
 	TIM_HandleStructure_3.Init.Period = 65535;
 
 	//Parametrage des codeurs
@@ -84,7 +84,7 @@ void QEI_init()
 			return 0;
 		}
 
-		return -__HAL_TIM_GET_COUNTER(TIM_HandleStructure_3);
+		return -(Sint16)__HAL_TIM_GET_COUNTER(TIM_HandleStructure_3);
 	}
 
 	void QEI1_set_count(Sint16 count)
@@ -106,7 +106,7 @@ void QEI_init()
 			return 0;
 		}
 
-		return -__HAL_TIM_GET_COUNTER(TIM_HandleStructure_2);
+		return -(Sint16)__HAL_TIM_GET_COUNTER(TIM_HandleStructure_2);
 	}
 
 	void QEI2_set_count(Sint16 count)

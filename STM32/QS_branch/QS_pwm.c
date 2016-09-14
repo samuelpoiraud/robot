@@ -84,8 +84,8 @@ void PWM_init(void)
 	HAL_TIM_OC_Init(&TIM_HandleStructure);
 
 #ifdef USE_PWM1
-	HAL_TIM_OC_ConfigChannel(&TIM_HandleStructure, &TIM_OCInitStructure, TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(&TIM_HandleStructure, TIM_CHANNEL_2);
+	HAL_TIM_OC_ConfigChannel(&TIM_HandleStructure, &TIM_OCInitStructure, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&TIM_HandleStructure, TIM_CHANNEL_1);
 #endif
 
 #ifdef USE_PWM2
@@ -145,22 +145,22 @@ void PWM_run(Uint8 duty /* en pourcents*/, Uint8 channel)
 	{
 #ifdef USE_PWM1
 		case 1:
-			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH1, TIM_CHANNEL_1, (uint32_t)duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure, TIM_CHANNEL_1, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM2
 		case 2:
-			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH2, TIM_CHANNEL_2, (uint32_t)duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure, TIM_CHANNEL_2, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM3
 		case 3:
-			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH3, TIM_CHANNEL_3, (uint32_t)duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure, TIM_CHANNEL_3, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM4
 		case 4:
-			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH4, TIM_CHANNEL_4, (uint32_t)duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure, TIM_CHANNEL_4, (uint32_t)duty);
 			break;
 #endif
 		default:
@@ -224,22 +224,22 @@ void PWM_run_fine(Uint16 duty, Uint8 channel)
 	{
 #ifdef USE_PWM1
 		case 1:
-			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH1, TIM_CHANNEL_1, (uint32_t)duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure, TIM_CHANNEL_1, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM2
 		case 2:
-			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH2, TIM_CHANNEL_2, (uint32_t)duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure, TIM_CHANNEL_2, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM3
 		case 3:
-			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH3, TIM_CHANNEL_3, (uint32_t)duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure, TIM_CHANNEL_3, (uint32_t)duty);
 			break;
 #endif
 #ifdef USE_PWM4
 		case 4:
-			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure_CH4, TIM_CHANNEL_4, (uint32_t)duty);
+			__HAL_TIM_SET_COMPARE(&TIM_HandleStructure, TIM_CHANNEL_4, (uint32_t)duty);
 			break;
 #endif
 		default:
