@@ -17,7 +17,7 @@
 #include "stm32f4xx_spi.h"
 
 #define SPI1_SPI_HANDLE SPI1
-#define SPI1_SPI_CLOCK  RCC_APB1Periph_SPI1
+#define SPI1_SPI_CLOCK  RCC_APB2Periph_SPI1
 
 #define SPI2_SPI_HANDLE SPI2
 #define SPI2_SPI_CLOCK  RCC_APB1Periph_SPI2
@@ -114,11 +114,27 @@ Uint8 SPI1_read()
 	return SPI1_exchange(0x00);
 }
 
+void SPI1_setDataSize(spi_data_size_e spi_data_size){
+	switch(spi_data_size){
+		case SPI_DATA_SIZE_8_BIT:
+			SPI_DataSizeConfig(SPI1_SPI_HANDLE, SPI_DataSize_8b);
+			break;
+
+		case SPI_DATA_SIZE_16_BIT:
+			SPI_DataSizeConfig(SPI1_SPI_HANDLE, SPI_DataSize_16b);
+			break;
+
+		default:
+			error_printf("SPI1_setDataSize argument erroné : %d\n", spi_data_size);
+			break;
+	}
+}
+
 #endif
 
 #ifdef USE_SPI2
 
-Uint8 SPI2_exchange(Uint8 c)
+Uint16 SPI2_exchange(Uint16 c)
 {
 	if(!initialized){
 		error_printf("SPI non initialisé ! Appeller SPI_init\n");
@@ -148,7 +164,7 @@ Uint8 SPI2_exchange(Uint8 c)
 	return SPI_I2S_ReceiveData(SPI2_SPI_HANDLE);
 }
 
-void SPI2_write(Uint8 msg)
+void SPI2_write(Uint16 msg)
 {
 	if(!initialized){
 		error_printf("SPI non initialisé ! Appeller SPI_init\n");
@@ -158,7 +174,7 @@ void SPI2_write(Uint8 msg)
 	SPI2_exchange(msg);
 }
 
-Uint8 SPI2_read()
+Uint16 SPI2_read()
 {
 	if(!initialized){
 		error_printf("SPI non initialisé ! Appeller SPI_init\n");
@@ -167,6 +183,23 @@ Uint8 SPI2_read()
 
 	return  SPI2_exchange(0x00);
 }
+
+void SPI2_setDataSize(spi_data_size_e spi_data_size){
+	switch(spi_data_size){
+		case SPI_DATA_SIZE_8_BIT:
+			SPI_DataSizeConfig(SPI2_SPI_HANDLE, SPI_DataSize_8b);
+			break;
+
+		case SPI_DATA_SIZE_16_BIT:
+			SPI_DataSizeConfig(SPI2_SPI_HANDLE, SPI_DataSize_16b);
+			break;
+
+		default:
+			error_printf("SPI2_setDataSize argument erroné : %d\n", spi_data_size);
+			break;
+	}
+}
+
 
 #endif /* defined(USE_SPI2) */
 
