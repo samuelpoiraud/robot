@@ -807,7 +807,7 @@ void SELFTEST_check_alim(){
 			CAN_send(&msg);
 			state = BATTERY_ENABLE;
 			global.flags.alim = TRUE;
-		}else if(global.alim_value > THRESHOLD_BATTERY_OFF && state != BATTERY_LOW){
+		}else if(global.alim_value > THRESHOLD_BATTERY_OFF && global.alim_value < THRESHOLD_BATTERY_LOW && state != BATTERY_LOW){
 			msg.sid = BROADCAST_ALIM;
 			msg.size = SIZE_BROADCAST_ALIM;
 			msg.data.broadcast_alim.state = BATTERY_LOW | ARU_DISABLE; // On suppose que l'ARU n'est pas enclenché
@@ -815,7 +815,7 @@ void SELFTEST_check_alim(){
 			CAN_send(&msg);
 			state = BATTERY_LOW;
 			global.flags.alim = TRUE;
-		}else if(state != BATTERY_DISABLE){
+		}else if(global.alim_value < THRESHOLD_BATTERY_OFF && state != BATTERY_DISABLE){
 			msg.sid = BROADCAST_ALIM;
 			msg.size = SIZE_BROADCAST_ALIM;
 			msg.data.broadcast_alim.state = BATTERY_DISABLE;  // On ne peut rien dire au sujet de l'ARU
