@@ -18,8 +18,8 @@ message("Using ${CMAKE_BUILD_TYPE} mode")
 # Fichiers à compiler
 ########################
 
-include_directories("${CMAKE_CURRENT_LIST_DIR}/provide_parent_dir")
-include_directories("${CMAKE_CURRENT_LIST_DIR}/LCDTouch")
+include_directories("${CMAKE_CURRENT_LIST_DIR}/QS")
+include_directories("${CMAKE_CURRENT_LIST_DIR}/stm32f4xx")
 
 file(GLOB_RECURSE SRC_LIST FOLLOW_SYMLINKS "*.c" "*.h" "*.S")
 string(REGEX REPLACE "${CMAKE_BINARY_DIR}/CMakeFiles/[^;]+;?" "" SRC_LIST "${SRC_LIST}")
