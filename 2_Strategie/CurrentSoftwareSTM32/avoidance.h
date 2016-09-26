@@ -80,7 +80,7 @@ typedef struct
  *
  * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
  */
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition, zones_list_t list);
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
 
 /*
  * Comme try_going mais avec le support du multipoint

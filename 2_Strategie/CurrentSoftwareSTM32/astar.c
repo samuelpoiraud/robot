@@ -1181,7 +1181,7 @@
 			}break;
 
 			case ASTAR_GO_DIRECTLY:
-				result = try_going(x, y,  IN_PROGRESS, END_OK, NOT_HANDLED, speed, way, avoidance, end_condition, NO_ZONE);
+				result = try_going(x, y,  IN_PROGRESS, END_OK, NOT_HANDLED, speed, way, avoidance, end_condition);
 
 				switch(result)
 				{
