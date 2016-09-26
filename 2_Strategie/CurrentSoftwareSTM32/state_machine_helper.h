@@ -5,7 +5,6 @@
 #include "QS/QS_macro.h"
 #include "queue.h"
 #include "avoidance.h"
-#include "foreach_preprocessor.h"
 
 //ID des machines à états, sur 16 bits.
 //0xRSMM: R: numéro de robot, S: numéro de strat (strat globale comme faire les cadeaux), MM: un octet pour un numéro de machine à état d'un truc précis...
@@ -101,9 +100,6 @@ typedef enum {
 
 } UTILS_state_machine_id_e;
 
-
-#define STATE_CONVERT_TO_STRING(val) #val
-
 // Fonction d'affichage de l'état initiale prototyper ici car besoin dans les macros suivantes
 void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, const char* init_state_name, Uint8 init_state_val);
 
@@ -123,7 +119,7 @@ void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, c
 // Les autres arguments sont les autre états de la machine à états.
 #define CREATE_MAE_WITH_VERBOSE(state_machine_id, init_state, ...) \
 	enum state_e { init_state = 0, __VA_ARGS__ }; \
-	static const char * const state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }; \
+	static const char * const state_str[] = { FOREACH(WORD_CONVERT_TO_STRING, init_state, __VA_ARGS__) }; \
 	static Uint8 size_MAE = sizeof(state_str) / sizeof(const char *); \
 	static enum state_e state = init_state; \
 	static enum state_e last_state = init_state; \
@@ -173,18 +169,6 @@ void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, c
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-//Déclare seulement l'enum state_e et le tableau de correspondance état <-> représentation textuelle
-//Utilisé quand CREATE_MAE_WITH_VERBOSE ne peut l'être (machines à états spéciales)
-#define DECLARE_STATES(...) \
-	enum state_e { __VA_ARGS__ }; \
-	static const char * const state_str[] = { FOREACH(STATE_CONVERT_TO_STRING, __VA_ARGS__) };
-
-// Crée une typedef enum de nom 'enum_name' et une tableau de chaine de caractère de nom 'string_name' contenant toutes les valeurs qui suivent
-#define TYPEDEF_ENUM_WITH_STRING(enum_name, string_name, init_state, ...) \
-	typedef enum { init_state = 0, __VA_ARGS__ } enum_name; \
-	static const char * const string_name[] = { FOREACH(STATE_CONVERT_TO_STRING, init_state, __VA_ARGS__) }
 
 #define STATECHANGE_log(state_define, old_state_name, old_state_id, new_state_name, new_state_id) \
 	UTILS_LOG_state_changed(#state_define, state_define, old_state_name, old_state_id, new_state_name, new_state_id)
