@@ -9,21 +9,19 @@
  *	Version 20110413
  */
 
-#define SUPERVISION_C
 #include "Supervision.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_can_over_xbee.h"
 #include "../QS/QS_outputlog.h"
+#include "../QS/QS_can_over_xbee.h"
+#include "../QS/QS_IHM.h"
 #include "SD/SD.h"
 #include "Selftest.h"
 #include "RTC.h"
 #include "Buffer.h"
 #include "LCD_interface.h"
 #include "Buzzer.h"
-#include "Synchro_balises.h"
-#include "../QS/QS_IHM.h"
 #include "../environment.h"
-#include "../QS/QS_can_over_xbee.h"
 
 //@pre : QS_WHO_I_AM doit être found.
 //@pre : le CAN doit être initialisé...
