@@ -19,6 +19,7 @@
 #include "Supervision/RTC.h"
 #include "Supervision/SD/SD.h"
 #include "Pathfind.h"
+#include "astar.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"
 #include "QS/QS_who_am_i.h"
@@ -168,6 +169,7 @@ void any_match(void)
 			Supervision_send_periodically_pos(20,PI4096/45);	//Demande d'envoi de la position : tout les 20 mm et tout les 4°
 			XBEE_ping_pong_enable(FALSE);						//Désactive le ping/pong... c'est trop tard pour ça...
 			PATHFIND_MAJ_COLOR();								// Configuration du pathfind spécifique à la couleur
+			ASTAR_init();										// Configuration du pathfind A*
 			initZones();										// Configuration des zones suivant la couleur
 			return;
 		}

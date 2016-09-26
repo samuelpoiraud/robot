@@ -152,12 +152,12 @@ int main (void)
 	BRAIN_init();
 	ACT_AVOIDANCE_init();
 	ELEMENTS_init();
-	ASTAR_init();
 	FOE_ANALYSER_init();
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
 
+	// ATTENTION à ce moment, la couleur n'a pas encore été initialisée
 
 	while(1)
 	{
