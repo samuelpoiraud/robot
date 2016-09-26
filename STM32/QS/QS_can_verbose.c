@@ -272,19 +272,20 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 	{
 		case BROADCAST_START:					print(string, len, "| match N°%d  %.2d:%.2d:%.2d %.2d/%.2d/20%.2d\n", msg->data.broadcast_start.matchId, msg->data.broadcast_start.heure, msg->data.broadcast_start.minute, msg->data.broadcast_start.seconde, msg->data.broadcast_start.jour, msg->data.broadcast_start.mois, msg->data.broadcast_start.annee);	break;
 		case BROADCAST_ALIM:				    if(msg->data.broadcast_alim.state & BATTERY_DISABLE)
-													   print(string, len, "| état batterie ALIM_OFF\n");
+													   print(string, len, "| état batterie ALIM_OFF ");
 												if(msg->data.broadcast_alim.state & BATTERY_ENABLE)
-													   print(string, len, "| état batterie : ALIM_ON\n");
+													   print(string, len, "| état batterie : ALIM_ON ");
 												if(msg->data.broadcast_alim.state & BATTERY_LOW)
-													   print(string, len, "| état batterie : ALIM_LOW\n");
+													   print(string, len, "| état batterie : ALIM_LOW ");
 												if(msg->data.broadcast_alim.state & ARU_DISABLE)
-													   print(string, len, "| état aru : ARU_DISABLE\n");
+													   print(string, len, "| état aru : ARU_DISABLE ");
 												if(msg->data.broadcast_alim.state & ARU_ENABLE)
-													   print(string, len, "| état aru : ARU_ENABLE\n");
+													   print(string, len, "| état aru : ARU_ENABLE ");
 												if(msg->data.broadcast_alim.state & HOKUYO_DISABLE)
-													   print(string, len, "| état hokuyo : HOKUYO_POWER_DISABLE\n");
+													   print(string, len, "| état hokuyo : HOKUYO_POWER_DISABLE ");
 												if(msg->data.broadcast_alim.state & HOKUYO_ENABLE)
-													   print(string, len, "| état hokuyo : HOKUYO_POWER_ENABLE\n");
+													   print(string, len, "| état hokuyo : HOKUYO_POWER_ENABLE ");
+												print(string, len,"\n");
 												break;
 		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (msg->data.broadcast_couleur.color == GREEN)?"VERT":"VIOLET"	);		break;
 		case BROADCAST_POSITION_ROBOT:			print(string, len, "| JeSuisEn  x=%4d y=%4d t=0x%8x=%3d° Vt=%4dmm/s Vr=%2drd/s reas=0x%2x st=0x%2x\n", msg->data.broadcast_position_robot.x, msg->data.broadcast_position_robot.y, msg->data.broadcast_position_robot.angle, RAD_TO_DEG(msg->data.broadcast_position_robot.angle), (Uint16)(msg->data.broadcast_position_robot.speed_trans)*250, msg->data.broadcast_position_robot.speed_rot, msg->data.broadcast_position_robot.reason ,msg->data.broadcast_position_robot.error);								break;

@@ -30,7 +30,7 @@
 
 	// Macros pour les coûts
 	#define MAX_COST (65535)		//Coût global maximal
-	#define MAX_COST_ANGLE (200)	//Coût maximal pouvant être généré par un écart d'angle (Je m'autorise à faire une distance de MAX_COST_ANGLE supplémentaire au maximum pour avoir un meilleur angle)
+	#define MAX_COST_ANGLE (0) //(200)	//Coût maximal pouvant être généré par un écart d'angle (Je m'autorise à faire une distance de MAX_COST_ANGLE supplémentaire au maximum pour avoir un meilleur angle)
 	#define MAX_COST_FOES (600)     //Côût supplémentaire ajouté si on est trop près d'un adversaire
 
 	// Macros pour les polygones
@@ -47,7 +47,7 @@
 	#define DISTANCE_NEIGHBOURHOOD (500)
 
 	// Macros pour le traitement des listes
-	#define ASTAR_IS_NODE_IN(nodeId, nodeList)	((nodeList) &  ((1ULL) << nodeId))
+	#define ASTAR_IS_NODE_IN(nodeId, nodeList)	((nodeList) & ((1ULL) << nodeId))
 	#define ASTAR_ADD_NODE_IN(nodeId, nodeList)	((nodeList) |= ((1ULL) << (nodeId)))
 	#define ASTAR_CLR_NODE_IN(nodeId, nodeList)	((nodeList) &= ~((1ULL) << (nodeId)))
 
@@ -65,8 +65,8 @@
 
 	// Activation de l'optimisation
 	#define ASTAR_OPTIMISATION
-	#define DISTANCE_OF_BRAKING (200)          // Distance de freinage (passage en SLOW)
-	#define MAX_DISTANCE_IN_FAST_SPEED (800)   // A partir de cette distance, on redéfini un point pour passer en vitesse SLOW (protection)
+	#define DISTANCE_OF_BRAKING (100)          // Distance de freinage (passage en SLOW)
+	#define MAX_DISTANCE_IN_FAST_SPEED (500)   // A partir de cette distance, on redéfini un point pour passer en vitesse SLOW (protection)
 	#define MAX_ANGLE_IN_FAST_SPEED (PI4096/6) // Angle positif (si angle du robot supérieur, on freine)
 	#define MAX_ANGLE_IN_SLOW_SPEED (PI4096/2) // Angle positif (si angle du robot supérieur, on s'arrête sur le noeud)
 
@@ -123,8 +123,8 @@
 
 	//Type structuré coût d'un noeud
 	typedef struct{
-		Uint16 total;		//Cout total = somme du cout (départ -> node parent) + (step) + (heuristic)
-		Uint16 step;		//Cout de déplacement du node parent vers le node courant (= step)
+		Uint16 total;		//Cout total = lengthPath + heuristic
+		Uint16 lengthPath;  //Cout de déplacement du node de départ au node courant
 		Uint16 heuristic;	//Cout de déplacement du node courant vers le node d'arrivée (= heuristic)
 	}astar_node_cost_t;
 
@@ -263,15 +263,15 @@
 
 		//Rangée [C]
 		(astar_node_t){ C1, {475,  800}, (1ULL<<B1)|(1ULL<<B2)|(1ULL<<D1)|(1ULL<<D2)},
-		(astar_node_t){ C2, {1050, 750}, (1ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4)},
+		(astar_node_t){ C2, {1050, 800}, (1ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4)},
 		(astar_node_t){ C3, {1400, 800}, (1ULL<<B3)|(1ULL<<B4)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6)},
 		(astar_node_t){ C4, {1700, 800}, (1ULL<<B4)|(1ULL<<B5)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D6)},
 
 		//Rangée [D]
-		(astar_node_t){ D1, {250,  1100}, (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)},
+		(astar_node_t){ D1, {350,  1200}, (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)},
 		(astar_node_t){ D2, {475,  1150}, (1ULL<<C1)|(1ULL<<D1)|(1ULL<<E1)},
 		(astar_node_t){ D3, {1050, 1150}, (1ULL<<C2)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<D6)},
-		(astar_node_t){ D4, {1400, 1000}, (1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D5)|(1ULL<<D6)},
+		(astar_node_t){ D4, {1350, 1050}, (1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D5)|(1ULL<<D6)},
 		(astar_node_t){ D5, {1550, 1250}, (1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6)|(1ULL<<E2)},
 		(astar_node_t){ D6, {1700, 1100}, (1ULL<<C3)|(1ULL<<C4)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<E2)},
 
@@ -280,16 +280,16 @@
 		(astar_node_t){ E2, {1700, 1500}, (1ULL<<D5)|(1ULL<<D6)|(1ULL<<F5)|(1ULL<<F6)},
 
 		//Rangée [F]
-		(astar_node_t){ F1, {250,  1900}, (1ULL<<G1)|(1ULL<<F2)|(1ULL<<E1)},
+		(astar_node_t){ F1, {350,  1800}, (1ULL<<G1)|(1ULL<<F2)|(1ULL<<E1)},
 		(astar_node_t){ F2, {475,  1850}, (1ULL<<G1)|(1ULL<<F1)|(1ULL<<E1)},
 		(astar_node_t){ F3, {1050, 1850}, (1ULL<<G2)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<F6)},
-		(astar_node_t){ F4, {1400, 2000}, (1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F5)|(1ULL<<F6)},
+		(astar_node_t){ F4, {1350, 1950}, (1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F5)|(1ULL<<F6)},
 		(astar_node_t){ F5, {1550, 1750}, (1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)|(1ULL<<E2)},
 		(astar_node_t){ F6, {1700, 1900}, (1ULL<<G3)|(1ULL<<G4)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<E2)},
 
 		//Rangée [G]
 		(astar_node_t){ G1, {475,  2200}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<F1)|(1ULL<<F2)},
-		(astar_node_t){ G2, {1050, 2250}, (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4)},
+		(astar_node_t){ G2, {1050, 2200}, (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4)},
 		(astar_node_t){ G3, {1400, 2200}, (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)},
 		(astar_node_t){ G4, {1700, 2200}, (1ULL<<H4)|(1ULL<<H5)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F6)},
 
@@ -315,19 +315,19 @@
 	{
 
 		//Rangée [A]
-		/*A1*/ (1ULL<<B1)|(1ULL<<B2),
+		/*A1*/ (1ULL<<B1)|(1ULL<<B2), //On est en A1, les courbes sont autorisées lorsque l'on vient de B1 ou de B2
 		/*A2*/ (1ULL<<B3)|(1ULL<<B4)|(1<<B5),
 
 		//Rangée [B]
-		/*B1*/ (1ULL<<A1)|(1ULL<<B2)|(1ULL<<C1),
+		/*B1*/ (1ULL<<A1)|(1ULL<<B2)|(0ULL<<C1),
 		/*B2*/ (1ULL<<A1)|(1ULL<<B1)|(1ULL<<B3)|(0ULL<<C1)|(1ULL<<C2),
 		/*B3*/ (1ULL<<A2)|(1ULL<<B2)|(1ULL<<B4)|(1ULL<<C2)|(1ULL<<C3),
 		/*B4*/ (1ULL<<A2)|(1ULL<<B3)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4),
 		/*B5*/ (1ULL<<A2)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<C4),
 
 		//Rangée [C]
-		/*C1*/ (1ULL<<B1)|(1ULL<<B2)|(1ULL<<D1)|(1ULL<<D2),
-		/*C2*/ (0ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4),
+		/*C1*/ (0ULL<<B1)|(0ULL<<B2)|(1ULL<<D1)|(1ULL<<D2),
+		/*C2*/ (1ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4),
 		/*C3*/ (1ULL<<B3)|(1ULL<<B4)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6),
 		/*C4*/ (1ULL<<B4)|(1ULL<<B5)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D6),
 
@@ -341,7 +341,7 @@
 
 		//Rangée [E]
 		/*E1*/ (1ULL<<D1)|(1ULL<<D2)|(1ULL<<F1)|(1ULL<<F2),
-		/*E2*/ (1ULL<<D5)|(1ULL<<D6)|(1ULL<<F5)|(1ULL<<F6),
+		/*E2*/ (0ULL<<D5)|(1ULL<<D6)|(0ULL<<F5)|(1ULL<<F6),
 
 		//Rangée [F]
 		/*F1*/ (1ULL<<G1)|(1ULL<<F2)|(1ULL<<E1),
@@ -352,13 +352,13 @@
 		/*F6*/ (1ULL<<G3)|(1ULL<<G4)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<E2),
 
 		//Rangée [G]
-		/*G1*/ (1ULL<<H1)|(0ULL<<H2)|(1ULL<<F1)|(1ULL<<F2),
+		/*G1*/ (0ULL<<H1)|(0ULL<<H2)|(1ULL<<F1)|(1ULL<<F2),
 		/*G2*/ (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4),
 		/*G3*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6),
 		/*G4*/ (1ULL<<H4)|(1ULL<<H5)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F6),
 
 		//Rangée [H]
-		/*H1*/ (1ULL<<I1)|(1ULL<<H2)|(1ULL<<G1),
+		/*H1*/ (1ULL<<I1)|(1ULL<<H2)|(0ULL<<G1),
 		/*H2*/ (1ULL<<I1)|(1ULL<<H1)|(1ULL<<H3)|(0ULL<<G1)|(1ULL<<G2),
 		/*H3*/ (1ULL<<I2)|(1ULL<<H2)|(1ULL<<H4)|(1ULL<<G2)|(1ULL<<G3),
 		/*H4*/ (1ULL<<I2)|(1ULL<<H3)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4),
@@ -368,10 +368,10 @@
 		/*I1*/ (1ULL<<H1)|(1ULL<<H2),
 		/*I2*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5),
 
-		//Node de départ (astar_curves non pris e compte on autorise toujours les courbes)
+		//Node de départ (astar_curves non pris en compte on autorise toujours les courbes)
 		0ULL,
 
-		//Node de destination (astar_curves non pris e compte on autorise toujours les courbes)
+		//Node de destination (astar_curves non pris en compte on autorise toujours les courbes)
 		0ULL
 	};
 
@@ -401,8 +401,9 @@
 	void ASTAR_init(){
 
 		ASTAR_user_define_obstacles();
-		//ASTAR_print_obstacles();
+		ASTAR_print_obstacles();
 
+		debug_printf("global.color = %d\n", global.color);
 
 
 		//debug_printf("i_am_in is = %d\n", get_i_am_in());
@@ -457,7 +458,7 @@
 													(GEOMETRY_point_t){1350 + OBSTACLE_MARGIN, 1500},
 													(GEOMETRY_point_t){750, 1500}};
 		astar_node_id nodesIO_our_depose_zone[5] = {COLOR_NODE(C2), COLOR_NODE(C3), COLOR_NODE(D4), COLOR_NODE(D5), COLOR_NODE(D6)};
-		ASTAR_define_polygon("our_depose_zone", poly_our_depose_zone, 3, FALSE, nodesIO_our_depose_zone, 5);
+		ASTAR_define_polygon("our_depose_zone", poly_our_depose_zone, 3, TRUE, nodesIO_our_depose_zone, 5);
 
 		// La zone de dépose adverse
 		GEOMETRY_point_t poly_adv_depose_zone[5] = {(GEOMETRY_point_t){750, 1500},
@@ -465,8 +466,8 @@
 													(GEOMETRY_point_t){750 + (600 + OBSTACLE_MARGIN)*cos(M_PI/6.0), COLOR_Y(1500 + (600 + OBSTACLE_MARGIN)*sin(M_PI/6.0))},
 													(GEOMETRY_point_t){750 + (600 + OBSTACLE_MARGIN)*cos(2*M_PI/6.0), COLOR_Y(1500 + (600 + OBSTACLE_MARGIN)*sin(2*M_PI/6.0))},
 													(GEOMETRY_point_t){750, COLOR_Y(2100 + OBSTACLE_MARGIN)}};
-		astar_node_id nodesIO_adv_depose_zone[5] = {COLOR_NODE(G2), COLOR_NODE(G3), COLOR_NODE(F4), COLOR_NODE(F5), COLOR_NODE(F6)};
-		ASTAR_define_polygon("adv_depose_zone", poly_adv_depose_zone, 5, TRUE, nodesIO_adv_depose_zone, 5);
+		astar_node_id nodesIO_adv_depose_zone[4] = {COLOR_NODE(G3), COLOR_NODE(F5), COLOR_NODE(F6), COLOR_NODE(H3)};
+		ASTAR_define_polygon("adv_depose_zone", poly_adv_depose_zone, 5, TRUE, nodesIO_adv_depose_zone, 4);
 
 		// Notre zone de départ
 		GEOMETRY_point_t poly_our_start_zone[4] = {(GEOMETRY_point_t){400, COLOR_Y(0)},
@@ -655,8 +656,8 @@
 			id++;
 			astar_nodes[i].enable = TRUE;
 			astar_nodes[i].parent = NO_ID;
+			astar_nodes[i].cost.lengthPath = MAX_COST;
 			astar_nodes[i].cost.heuristic = MAX_COST;
-			astar_nodes[i].cost.step = MAX_COST;
 			astar_nodes[i].cost.total = MAX_COST;
 
 			// Il faut aussi penser à nettoyer le voisin DEST_NODE de tous les noeuds, la position finale demandée change à chaque fois
@@ -787,7 +788,9 @@
 	 */
 	static void ASTAR_link_nodes_on_path(astar_node_id current, bool_e handle_foes){
 		Uint8 neighbor;
-		Uint16 test_cost = 0;
+		Uint16 tmp_lengthPath = 0;
+		Uint16 tmp_heuristic = 0;
+		Uint16 tmp_total = 0;
 
 		for(neighbor=0; neighbor<NB_NODES; neighbor++){
 			if(astar_nodes[neighbor].enable && ASTAR_IS_NODE_IN(neighbor, astar_nodes[current].neighbors)){
@@ -800,15 +803,22 @@
 						//debug_printf("Le node %d est ajouté à l'opened_list\n", neighbor);
 						ASTAR_ADD_NODE_IN(neighbor, opened_list);
 						astar_nodes[neighbor].parent = current;
-						astar_nodes[neighbor].cost.step = ASTAR_pathfind_cost(current, neighbor, TRUE, handle_foes);
+						// Calcul du cout lengthPath = cout du node de départ au node parent + cout du node parent au node final
+						astar_nodes[neighbor].cost.lengthPath =  astar_nodes[current].cost.lengthPath + ASTAR_pathfind_cost(current, neighbor, FALSE, handle_foes);
+						astar_nodes[neighbor].cost.heuristic =   ASTAR_pathfind_cost(neighbor, DEST_NODE, TRUE, handle_foes);
+						astar_nodes[neighbor].cost.total = astar_nodes[neighbor].cost.lengthPath + astar_nodes[neighbor].cost.heuristic;
 					}else{
 						// Sinon si le cout est inférieur avec le noeud courant en tant que parent,
 						// le noeud courant devient le parent du node en question
-						test_cost = ASTAR_pathfind_cost(current, neighbor, TRUE, handle_foes);
-						if(test_cost < astar_nodes[neighbor].cost.step){
+						tmp_lengthPath = astar_nodes[current].cost.lengthPath + ASTAR_pathfind_cost(current, neighbor, FALSE, handle_foes);
+						tmp_heuristic = ASTAR_pathfind_cost(neighbor, DEST_NODE, FALSE, handle_foes);
+						tmp_total = tmp_lengthPath + tmp_heuristic;
+						if(tmp_total < astar_nodes[neighbor].cost.total){
 							//debug_printf("Le node %d a maintenant pour parent %d\n", neighbor, current);
 							astar_nodes[neighbor].parent = current;
-							astar_nodes[neighbor].cost.step = test_cost;
+							astar_nodes[neighbor].cost.lengthPath = tmp_lengthPath;
+							astar_nodes[neighbor].cost.heuristic = tmp_heuristic;
+							astar_nodes[neighbor].cost.total = tmp_total;
 						}
 					}
 
@@ -833,6 +843,8 @@
 		Uint8 i;
 		error_e result;
 
+		debug_printf("global.color = %d\n", global.color);
+
 		//ASTAR_print_nodes(TRUE);
 
 		// On réinitialise les listes avec des 0 sur 64 bits
@@ -841,7 +853,7 @@
 
 		// On ajoute le noeud de départ (from) à l'opened_list
 		ASTAR_ADD_NODE_IN(FROM_NODE, opened_list);
-		astar_nodes[FROM_NODE].cost.step = 0;
+		astar_nodes[FROM_NODE].cost.lengthPath = 0;
 		astar_nodes[FROM_NODE].cost.heuristic = ASTAR_pathfind_cost(FROM_NODE, DEST_NODE, FALSE, FALSE);
 		astar_nodes[FROM_NODE].cost.total = astar_nodes[FROM_NODE].cost.heuristic; //Le cout total est égal à l'heuristique car le step est nul.
 
@@ -854,7 +866,7 @@
 			//Recherche dans la liste ouverte du node avec le cout le plus faible. Ce node devient le node courant (current).
 			minimal_cost = MAX_COST;
 			current_node = NO_ID;
-			for(i=1; i<NB_NODES; i++){
+			for(i=0; i<NB_NODES; i++){
 				if(ASTAR_IS_NODE_IN(i, opened_list) && astar_nodes[i].cost.total <= minimal_cost){
 					minimal_cost = astar_nodes[i].cost.total;
 					current_node = i;
@@ -872,8 +884,8 @@
 				// On ajoute les noeuds voisins à la liste ouverte
 				ASTAR_link_nodes_on_path(current_node, handle_foes);
 
-				// Mise à jour des coûts des noeuds qui pour parent current_node
-				ASTAR_update_cost(current_node);
+				// Mise à jour des coûts des noeuds qui ont pour parent current_node
+				//ASTAR_update_cost(current_node);
 			}
 
 		}
@@ -895,6 +907,394 @@
 	 *  @return l'état de succès ou d'échec (A t-on trouvé un chemin ou pas ?)
 	 */
 	static error_e ASTAR_make_the_path(displacement_curve_t *displacements, Uint8 *nb_displacements, PROP_speed_e speed, astar_node_id last_node){
+		astar_node_id node = NO_ID;
+		Uint8 nb_nodes = 0; // Nombre de nodes de la trajectoire (départ et arrivée inclus)
+		Sint16 i;
+		Uint8 j, curve_index;
+		error_e result;
+		Uint8 last_index = 0;
+		double last_angle, angle;
+		Sint16 diff_angle;
+		Uint16 sum_dist, dist;
+
+
+		// On recherche le nombre de noeuds constituant la trajectoire
+		node = last_node;
+		nb_nodes++;
+		do{
+			node = astar_nodes[node].parent;
+			nb_nodes++;
+			if(node == NO_ID)
+				debug_printf("Problème un des nodes de la liste de la trajectoire a pour id = NO_ID");
+		}while(node != FROM_NODE && node != NO_ID);
+
+		//On regarde si on a un chemin
+
+		if(last_node == DEST_NODE){
+			// Le chemin est trouvé jusqu'au point d'arrivée
+			result = END_OK;
+		}else if(nb_nodes >= 2){ // Noeud de départ + au moins un autre
+			// Si un début de chemin est trouvé, alors surement qu'un adversaire nous bloque le chemin
+			result = FOE_IN_PATH;
+		}else{
+			// Pas de chemin trouvé
+			*nb_displacements = 0;
+			return NOT_HANDLED; // On quitte tout de suite la fonction, il n'y a rien à faire
+		}
+
+		astar_node_id path_id[nb_nodes];
+		bool_e path_enable[nb_nodes];
+
+		// On remplit le tableaux du path
+		node = last_node;
+		for(i=nb_nodes-1; i>=0; i--){
+			path_id[i] = astar_nodes[node].id;
+			path_enable[i] = TRUE;
+			node = astar_nodes[node].parent;
+		}
+		path_enable[0] = FALSE; //Le point de départ n'est pas dans la trajectoire
+
+
+		// Affichage de la trajectoire non optimisée
+		debug_printf("\n PATH \n");
+		for(i=0; i<nb_nodes; i++){
+			debug_printf("[%d] pos(%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+		}
+		debug_printf("\n");
+		debug_printf("nb_nodes=%d\n", nb_nodes);
+
+#ifdef	ASTAR_OPTIMISATION
+		// Elimination des poinst inutiles
+		// Lorsqu'un point est visible d'un autre point alors tous les points entre les deux peuvent être supprimés
+		last_index = 0;
+		j = 1;
+		for(i=1; i<nb_nodes-1; i++){
+			if(ASTAR_is_node_visible(astar_nodes[path_id[last_index]].pos, astar_nodes[path_id[i+1]].pos)){
+				path_enable[i] = FALSE;
+				debug_printf("Node %d deleted of path (%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+			}else{
+				last_index = i;
+				path_id[j] = path_id[i];
+				j++;
+			}
+		}
+		//On pense à stocker le dernier node
+		path_id[j] = path_id[nb_nodes - 1];
+		nb_nodes = j + 1;
+
+
+		// Affichage de la trajectoire optimisée
+		debug_printf("\n PATH OPTIMISE\n");
+		for(i=0; i<nb_nodes; i++){
+			debug_printf("[%d] pos(%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+		}
+		debug_printf("\n");
+		debug_printf("nb_nodes=%d\n", nb_nodes);
+
+
+		sum_dist = 0;
+		j = 0;
+
+		for(i=1; i<nb_nodes-1; i++){
+
+			// On calcule les angles
+			last_angle = atan2((double)(astar_nodes[path_id[i]].pos.y - astar_nodes[path_id[i-1]].pos.y),
+					(double)(astar_nodes[path_id[i]].pos.x - astar_nodes[path_id[i-1]].pos.x));
+			angle = atan2((double)(astar_nodes[path_id[i+1]].pos.y - astar_nodes[path_id[i]].pos.y),
+					(double)(astar_nodes[path_id[i+1]].pos.x - astar_nodes[path_id[i]].pos.x));
+			diff_angle = (Sint16)(((angle - last_angle)*PI4096)/M_PI);
+			diff_angle = ASTAR_abs_angle(diff_angle);
+
+			// On calcule la distance
+			dist = GEOMETRY_distance(astar_nodes[path_id[i-1]].pos, astar_nodes[path_id[i]].pos);
+			sum_dist += dist;
+
+			debug_printf("Optim : i=%d (%d;%d) last_angle=%d angle=%d diff_angle=%d\n", i, astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y,
+					(Sint16)(last_angle*180.0/M_PI), (Sint16)(angle*180.0/M_PI), ((diff_angle*180)/PI4096));
+
+			// On interprète les données
+			if(diff_angle >= MAX_ANGLE_IN_SLOW_SPEED){
+				//On doit s'arrrêter
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				displacements[j].curve = FALSE;
+				displacements[j].speed = speed;
+				j++;
+				sum_dist = 0;
+			}else if(diff_angle >= MAX_ANGLE_IN_FAST_SPEED && sum_dist >= MAX_DISTANCE_IN_FAST_SPEED){
+				// On doit freiner
+				if(dist > DISTANCE_OF_BRAKING + 100 && speed == FAST){
+					// On calcule un nouveau point dans le path qui sera un point de freinage
+					displacements[j].point.x = astar_nodes[path_id[i]].pos.x + DISTANCE_OF_BRAKING*cos(last_angle+M_PI);
+					displacements[j].point.y = astar_nodes[path_id[i]].pos.y + DISTANCE_OF_BRAKING*sin(last_angle+M_PI);
+					debug_printf("New point added in path pos(%d;%d)\n", displacements[j].point.x, displacements[j].point.y);
+					displacements[j].curve = TRUE;
+					displacements[j].speed = speed;
+					j++;
+					displacements[j].point = astar_nodes[path_id[i]].pos;
+					displacements[j].curve = TRUE;
+					displacements[j].speed = SLOW;
+					j++;
+				}else{
+					displacements[j].point = astar_nodes[path_id[i]].pos;
+					displacements[j].curve = FALSE;
+					if(speed == FAST)
+						displacements[j].speed = SLOW;
+					else
+						displacements[j].speed = speed;
+					j++;
+				}
+				sum_dist = 0;
+			}else{
+				// On continue à la vitesse normale
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				displacements[j].curve = TRUE;
+				displacements[j].speed = speed;
+				j++;
+			}
+
+		}
+
+		//On stoke la position finale
+		displacements[j].point = astar_nodes[path_id[nb_nodes-1]].pos;
+		displacements[j].curve = TRUE;
+		displacements[j].speed = speed;
+		j++;
+
+		*nb_displacements = j;
+
+
+
+#else // SANS OPTIMISATION
+
+		debug_printf("First node at distance = %d\n\n", GEOMETRY_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos));
+		//Suppression du premier node si on est trop près
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[1] = FALSE;
+			debug_printf("First node (%d) deleted of path\n", path_id[1]);
+		}
+
+		//Suppression du dernier node si on est trop près
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[path_id[nb_nodes-2]].pos, astar_nodes[path_id[nb_nodes-1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[nb_nodes-2] = FALSE;
+			debug_printf("Last node before dest (%d) deleted of path\n", path_id[nb_nodes-2]);
+		}
+
+		// Remplissage du tableau des déplacements
+		j = 0;
+		curve_index = 0;
+		for(i=1; i<nb_nodes - 1; i++){
+			if(path_enable[i]){
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				if(j == 0){
+					displacements[j].curve = TRUE; // Quand on vient du point de départ, on autorise la courbe dans tous les cas.
+				}else{
+					if(ASTAR_IS_NODE_IN(curve_index, astar_curves[path_id[i]]))
+						displacements[j].curve = TRUE;
+					else
+						displacements[j].curve = FALSE;
+					debug_printf("Je suis node (%d, %d) et je viens de (%d, %d) : courbe=%d", displacements[j].point.x, displacements[j].point.y, displacements[j-1].point.x, displacements[j-1].point.y, displacements[j].curve);
+				}
+				curve_index = path_id[i];
+				displacements[j].speed = speed;
+				j++;
+			}
+		}
+		displacements[j].point = astar_nodes[path_id[nb_nodes - 1]].pos;
+		displacements[j].curve = TRUE;
+		displacements[j].speed = speed;
+		j++;
+
+		*nb_displacements = j;
+
+#endif /*ASTAR_OPTIMISATION*/
+
+		debug_printf("\nFINAL PATH is (%d displacements)\n", *nb_displacements);
+		for(i=0; i<*nb_displacements ; i++){
+			debug_printf("pos(%d;%d) curve=%d speed=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve, displacements[i].speed);
+		}
+
+		return result;
+
+
+		//OPTIMISATION
+
+		//Suppression du premier node si on est trop près
+		/*if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[1] = FALSE;
+			debug_printf("First node (%d) deleted of path\n", path_id[1]);
+		}*/
+
+		//Suppression du dernier node si on est trop près
+		/*debug_printf("Last node (%d;%d) -> (%d;%d)\n", astar_nodes[path_id[nb_nodes-3]].pos.x, astar_nodes[path_id[nb_nodes-3]].pos.y, astar_nodes[path_id[nb_nodes-1]].pos.x, astar_nodes[path_id[nb_nodes-1]].pos.y);
+		debug_printf("Last node visible = %d\n", ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos));
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[path_id[nb_nodes-2]].pos, astar_nodes[path_id[nb_nodes-1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[nb_nodes-2] = FALSE;
+			debug_printf("Last node before dest (%d) deleted of path\n", path_id[1]);
+		}*/
+
+
+		/// A ETUDIER
+		// On cherche le chemin le plus court possible, certains nodes peuvent peut-être être supprimés
+/*		last_index = 0;
+		for(i=1; i<nb_nodes-1; i++){
+			if(path_enable[i]){
+				if(ASTAR_is_node_visible(astar_nodes[path_id[last_index]].pos, astar_nodes[path_id[i+1]].pos)){
+					path_enable[i] = FALSE;
+					debug_printf("Node %d deleted of path (%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+				}else{
+					last_index = i;
+				}
+			}
+		}*/
+
+
+
+/*
+
+#ifdef	ASTAR_OPTIMISATION
+		sum_dist = 0;
+		j = 0;
+
+		for(i=1; i<nb_nodes-1; i++){
+
+			// On calcule les angles
+			last_angle = atan2((double)(astar_nodes[path_id[i]].pos.y - astar_nodes[path_id[i-1]].pos.y),
+					(double)(astar_nodes[path_id[i]].pos.x - astar_nodes[path_id[i-1]].pos.x));
+			angle = atan2((double)(astar_nodes[path_id[i+1]].pos.y - astar_nodes[path_id[i]].pos.y),
+					(double)(astar_nodes[path_id[i+1]].pos.x - astar_nodes[path_id[i]].pos.x));
+			diff_angle = (Sint16)(((angle - last_angle)*PI4096)/M_PI);
+			diff_angle = ASTAR_abs_angle(diff_angle);
+
+			// On calcule la distance
+			dist = GEOMETRY_distance(astar_nodes[path_id[i-1]].pos, astar_nodes[path_id[i]].pos);
+			sum_dist += dist;
+
+			debug_printf("Optim : i=%d (%d;%d) last_angle=%d angle=%d diff_angle=%d\n", i, astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y,
+					(Sint16)(last_angle*180.0/M_PI), (Sint16)(angle*180.0/M_PI), ((diff_angle*180)/PI4096));
+
+			// On interprète les données
+			if(diff_angle >= MAX_ANGLE_IN_SLOW_SPEED){
+				//On doit s'arrrêter
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				displacements[j].curve = FALSE;
+				displacements[j].speed = speed;
+				j++;
+				sum_dist = 0;
+			}else if(diff_angle >= MAX_ANGLE_IN_FAST_SPEED && sum_dist >= MAX_DISTANCE_IN_FAST_SPEED){
+				// On doit freiner
+				if(dist > DISTANCE_OF_BRAKING + 100 && speed == FAST){
+					// On calcule un nouveau point dans le path qui sera un point de freinage
+					displacements[j].point.x = astar_nodes[path_id[i]].pos.x + DISTANCE_OF_BRAKING*cos(last_angle+M_PI);
+					displacements[j].point.y = astar_nodes[path_id[i]].pos.y + DISTANCE_OF_BRAKING*sin(last_angle+M_PI);
+					debug_printf("New point added in path pos(%d;%d)\n", displacements[j].point.x, displacements[j].point.y);
+					displacements[j].curve = TRUE;
+					displacements[j].speed = SLOW;
+					j++;
+					displacements[j].point = astar_nodes[path_id[i]].pos;
+					displacements[j].curve = TRUE;
+					displacements[j].speed = speed;
+					j++;
+				}else{
+					displacements[j].point = astar_nodes[path_id[i]].pos;
+					displacements[j].curve = FALSE;
+					if(speed == FAST)
+						displacements[j].speed = SLOW;
+					else
+						displacements[j].speed = speed;
+					j++;
+				}
+				sum_dist = 0;
+			}else{
+				// On continue à la vitesse normale
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				displacements[j].curve = TRUE;
+				displacements[j].speed = speed;
+				j++;
+			}
+
+		}
+
+		//On stoke la position finale
+		displacements[j].point = astar_nodes[path_id[nb_nodes-1]].pos;
+		displacements[j].curve = TRUE;
+		displacements[j].speed = speed;
+		j++;
+
+		*nb_displacements = j;
+
+#else
+		// SANS OPTIMISATION: utilisation du tableau astar_curves (Pensez à le remplir)
+
+		debug_printf("\n\nPATH is\n");
+		for(i=0; i<nb_nodes; i++){
+			debug_printf("Node %d in path (%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+		}
+
+		//Suppression du premier node si on est trop près
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[1] = FALSE;
+			debug_printf("First node (%d) deleted of path\n", path_id[1]);
+		}
+
+		//Suppression du dernier node si on est trop près
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos)
+				&& GEOMETRY_squared_distance(astar_nodes[path_id[nb_nodes-2]].pos, astar_nodes[path_id[nb_nodes-1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
+		{
+			path_enable[nb_nodes-2] = FALSE;
+			debug_printf("Last node before dest (%d) deleted of path\n", path_id[nb_nodes-2]);
+		}
+
+		// Remplissage du tableau des déplacements
+		j = 0;
+		curve_index = 0;
+		for(i=1; i<nb_nodes - 1; i++){
+			if(path_enable[i]){
+				displacements[j].point = astar_nodes[path_id[i]].pos;
+				if(j == 0){
+					displacements[j].curve = TRUE; // Quand on vient du point de départ, on autorise la courbe dans tous les cas.
+				}else{
+					//curve_index = i+1; // On évite de faire un i+1 dans une macro, c'est risqué
+					if(ASTAR_IS_NODE_IN(curve_index, astar_curves[path_id[i]]))
+						displacements[j].curve = TRUE;
+					else
+						displacements[j].curve = FALSE;
+					debug_printf("Je suis node (%d, %d) et je viens de (%d, %d) : courbe=%d", displacements[j].point.x, displacements[j].point.y, displacements[j-1].point.x, displacements[j-1].point.y, displacements[j].curve);
+				}
+				curve_index = path_id[i];
+				displacements[j].speed = speed;
+				j++;
+			}
+		}
+		displacements[j].point = astar_nodes[path_id[nb_nodes - 1]].pos;
+		displacements[j].curve = TRUE;
+		displacements[j].speed = speed;
+		j++;
+
+		*nb_displacements = j;
+
+#endif
+
+		debug_printf("\nFINAL PATH is (%d displacements)\n", *nb_displacements);
+		for(i=0; i<*nb_displacements ; i++){
+			debug_printf("pos(%d;%d) curve=%d speed=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve, displacements[i].speed);
+		}
+
+		return result;*/
+	}
+
+
+
+/*static error_e ASTAR_make_the_path(displacement_curve_t *displacements, Uint8 *nb_displacements, PROP_speed_e speed, astar_node_id last_node){
 		astar_node_id node = NO_ID;
 		Uint8 nb_nodes = 0; // Nombre de nodes de la trajectoire (départ et arrivée inclus)
 		Sint16 i;
@@ -949,25 +1349,25 @@
 		//OPTIMISATION
 
 		//Suppression du premier node si on est trop près
-		/*if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
+		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
 				&& GEOMETRY_squared_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
 		{
 			path_enable[1] = FALSE;
 			debug_printf("First node (%d) deleted of path\n", path_id[1]);
-		}*/
+		}
 
 		//Suppression du dernier node si on est trop près
-		/*debug_printf("Last node (%d;%d) -> (%d;%d)\n", astar_nodes[path_id[nb_nodes-3]].pos.x, astar_nodes[path_id[nb_nodes-3]].pos.y, astar_nodes[path_id[nb_nodes-1]].pos.x, astar_nodes[path_id[nb_nodes-1]].pos.y);
+		debug_printf("Last node (%d;%d) -> (%d;%d)\n", astar_nodes[path_id[nb_nodes-3]].pos.x, astar_nodes[path_id[nb_nodes-3]].pos.y, astar_nodes[path_id[nb_nodes-1]].pos.x, astar_nodes[path_id[nb_nodes-1]].pos.y);
 		debug_printf("Last node visible = %d\n", ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos));
 		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[path_id[nb_nodes-3]].pos, astar_nodes[path_id[nb_nodes-1]].pos)
 				&& GEOMETRY_squared_distance(astar_nodes[path_id[nb_nodes-2]].pos, astar_nodes[path_id[nb_nodes-1]].pos) <  DISTANCE_PROXIMITY_NODE*DISTANCE_PROXIMITY_NODE)
 		{
 			path_enable[nb_nodes-2] = FALSE;
 			debug_printf("Last node before dest (%d) deleted of path\n", path_id[1]);
-		}*/
+		}
 
 
-
+		/// A ETUDIER
 		// On cherche le chemin le plus court possible, certains nodes peuvent peut-être être supprimés
 		last_index = 0;
 		for(i=1; i<nb_nodes-1; i++){
@@ -1067,8 +1467,13 @@
 
 		*nb_displacements = j;
 
-//#else
+#else
 		// SANS OPTIMISATION: utilisation du tableau astar_curves (Pensez à le remplir)
+
+		debug_printf("\n\nPATH is\n");
+		for(i=0; i<nb_nodes; i++){
+			debug_printf("Node %d in path (%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+		}
 
 		//Suppression du premier node si on est trop près
 		if(nb_nodes >= 3 && ASTAR_is_node_visible(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[2]].pos)
@@ -1086,24 +1491,30 @@
 			debug_printf("Last node before dest (%d) deleted of path\n", path_id[nb_nodes-2]);
 		}
 
-		// Remplissage du table des déplacements
+		// Remplissage du tableau des déplacements
 		j = 0;
+		curve_index = 0;
 		for(i=1; i<nb_nodes - 1; i++){
 			if(path_enable[i]){
 				displacements[j].point = astar_nodes[path_id[i]].pos;
 				if(j == 0){
 					displacements[j].curve = TRUE; // Quand on vient du point de départ, on autorise la courbe dans tous les cas.
 				}else{
-					curve_index = i+1; // On évite de faire un i+1 dans une macro, c'est risqué
-					displacements[j].curve = ASTAR_IS_NODE_IN(curve_index, astar_curves[i]);
+					//curve_index = i+1; // On évite de faire un i+1 dans une macro, c'est risqué
+					if(ASTAR_IS_NODE_IN(curve_index, astar_curves[path_id[i]]))
+						displacements[j].curve = TRUE;
+					else
+						displacements[j].curve = FALSE;
+					debug_printf("Je suis node (%d, %d) et je viens de (%d, %d) : courbe=%d", displacements[j].point.x, displacements[j].point.y, displacements[j-1].point.x, displacements[j-1].point.y, displacements[j].curve);
 				}
+				curve_index = path_id[i];
 				displacements[j].speed = speed;
 				j++;
 			}
 		}
-		displacements[nb_nodes - 1].point = astar_nodes[path_id[i]].pos;
-		displacements[nb_nodes - 1].curve = TRUE;
-		displacements[nb_nodes - 1].speed = speed;
+		displacements[j].point = astar_nodes[path_id[nb_nodes - 1]].pos;
+		displacements[j].curve = TRUE;
+		displacements[j].speed = speed;
 		j++;
 
 		*nb_displacements = j;
@@ -1112,12 +1523,12 @@
 
 		debug_printf("\nFINAL PATH is (%d displacements)\n", *nb_displacements);
 		for(i=0; i<*nb_displacements ; i++){
-			debug_printf("pos(%d;%d curve=%d speed=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve, displacements[i].speed);
+			debug_printf("pos(%d;%d) curve=%d speed=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve, displacements[i].speed);
 		}
 
 		return result;
 	}
-
+*/
 
 
 
@@ -1144,6 +1555,7 @@
 		//static bool_e handles_foes;
 
 		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
+								ASTAR_CONFIG,
 								ASTAR_INIT,
 								ASTAR_GO_DIRECTLY,
 								ASTAR_COMPUTE,
@@ -1154,13 +1566,7 @@
 
 		switch(state)
 		{
-			case ASTAR_INIT:{
-				from = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-				dest = (GEOMETRY_point_t){x, y};
-
-				// On génère le graphe
-				ASTAR_generate_graph(from, dest);
-
+			case ASTAR_CONFIG:
 				switch(avoidance)
 				{
 					case DODGE_AND_WAIT:
@@ -1171,6 +1577,15 @@
 						nb_try = 1;
 						break;
 				}
+				state = ASTAR_INIT;
+				break;
+
+			case ASTAR_INIT:{
+				from = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+				dest = (GEOMETRY_point_t){x, y};
+
+				// On génère le graphe
+				ASTAR_generate_graph(from, dest);
 
 				if(ASTAR_is_node_visible((GEOMETRY_point_t){global.pos.x, global.pos.y}, dest)){ // Si le point de destination est directement visible à partir du point de départ
 					nb_try--; // On le compte comme une tentative
@@ -1195,10 +1610,13 @@
 					case END_WITH_TIMEOUT:
 					default:
 						//debug_printf("result ASTAR_GO_DIRECTLY is %d\n", result);
-						if(nb_try == 0)
+						if(nb_try == 0){
 							state = ASTAR_FAIL;
-						else
+						}else{
+							from = (GEOMETRY_point_t){global.pos.x, global.pos.y}; // On réinitialise la position de départ
+							ASTAR_generate_graph(from, dest);
 							state = ASTAR_COMPUTE; // On tente en pathfind
+						}
 				}
 				break;
 
@@ -1232,7 +1650,7 @@
 							if(nb_try == 0)
 								state = ASTAR_FAIL;
 							else
-								state = ASTAR_COMPUTE; // On retente
+								state = ASTAR_INIT; // On retente
 						}
 						break;
 					case FOE_IN_PATH:
@@ -1242,17 +1660,17 @@
 						if(nb_try == 0)
 							state = ASTAR_FAIL;
 						else
-							state = ASTAR_COMPUTE; // On retente
+							state = ASTAR_INIT; // On retente
 				}
 				break;
 			case ASTAR_FAIL:
 				//debug_printf("Finish with failure\n");
-				state = ASTAR_INIT;
+				state = ASTAR_CONFIG;
 				return fail_state;
 				break;
 			case ASTAR_SUCCESS:
 				//debug_printf("Finish with success\n");
-				state = ASTAR_INIT;
+				state = ASTAR_CONFIG;
 				return success_state;
 				break;
 		}
@@ -1363,7 +1781,7 @@
 	 * @param current_node : le node courant
 	 */
 	static void ASTAR_update_cost(astar_node_id current_node){
-		Uint8 i;
+	/*	Uint8 i;
 
 		for(i=0; i<NB_NODES; i++){
 			if(astar_nodes[i].parent == current_node){
@@ -1372,7 +1790,7 @@
 				// On veut choisir le meilleur point pour aller à la destination sans s'occuper du chemin parcouru avant
 				astar_nodes[i].cost.total = astar_nodes[i].cost.step + astar_nodes[i].cost.heuristic;
 			}
-		}
+		}*/
 	}
 
 	/** @brief ASTAR_abs_angle
@@ -1505,7 +1923,7 @@
 		for(i=0; i<NB_NODES; i++){
 			if(ASTAR_IS_NODE_IN(i, list)){
 				debug_printf("%d) Node:  pos x=%d  y=%d    parent: id=%d\n", i, astar_nodes[i].pos.x, astar_nodes[i].pos.y, astar_nodes[i].parent);
-				debug_printf("\t costHeuristic=%d  costStep=%d  costTotal=%d\n",astar_nodes[i].cost.heuristic, astar_nodes[i].cost.step, astar_nodes[i].cost.total);
+				debug_printf("\t costLengthPath=%d costHeuristic=%d costTotal=%d\n", astar_nodes[i].cost.lengthPath, astar_nodes[i].cost.heuristic,  astar_nodes[i].cost.total);
 			}
 		}
 		debug_printf("\n\n");
