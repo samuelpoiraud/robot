@@ -31,7 +31,6 @@
 #include "RTC.h"
 #include "Buzzer.h"
 #include "LCD_interface.h"
-#include "Synchro_balises.h"
 
 #define TIMEOUT_SELFTEST_ACT			20000	// en ms
 #define TIMEOUT_SELFTEST_PROP			10000	// en ms

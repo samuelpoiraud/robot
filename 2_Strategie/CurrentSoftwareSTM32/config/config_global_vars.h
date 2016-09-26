@@ -37,7 +37,6 @@
 
 		volatile bool_e go_to_home;
 
-
 	}flag_list_t;
 
 	typedef struct{

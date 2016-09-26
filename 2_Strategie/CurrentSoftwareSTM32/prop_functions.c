@@ -10,8 +10,6 @@
  *	Version 20110313
  */
 
-#define PROP_FUNCTIONS_C
-
 #include "prop_functions.h"
 #include "QS/QS_can.h"
 #include "QS/QS_CANmsgList.h"
