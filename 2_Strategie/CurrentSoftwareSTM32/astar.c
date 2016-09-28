@@ -17,6 +17,7 @@
 #include "QS/QS_maths.h"
 #include "state_machine_helper.h"
 #include "Supervision/SD/SD.h"
+#include "Generic_functions.h"
 
 #ifdef _ASTAR_H_
 
@@ -64,7 +65,8 @@
 	#define DISTANCE_PROXIMITY_NODE (150)
 
 	// Activation de l'optimisation
-	#define ASTAR_OPTIMISATION					// Activation de l'ptimisation de trajectoires
+	//#define ASTAR_OPTIMISATION					// Activation de l'optimisation de trajectoires
+	#define ASTAR_OPTIMISATION_2					// Activation de l'optimisation de trajectoires
 	#define DISTANCE_OF_BRAKING (100)			// Distance de freinage (passage en SLOW)
 	#define MAX_DISTANCE_IN_FAST_SPEED (500)	// A partir de cette distance, on redéfini un point pour passer en vitesse SLOW (protection)
 	#define MAX_ANGLE_IN_FAST_SPEED (PI4096/6)	// Angle positif (si angle du robot supérieur, on freine)
@@ -312,63 +314,63 @@
 	{
 
 		//Rangée [A]
-		/*A1*/ (1ULL<<B1)|(1ULL<<B2), //On est en A1, les courbes sont autorisées lorsque l'on vient de B1 ou de B2
-		/*A2*/ (1ULL<<B3)|(1ULL<<B4)|(1<<B5),
+		/*A1*/ (1ULL<<B1)|(1ULL<<B2)|(1ULL<<FROM_NODE), //On est en A1, les courbes sont autorisées lorsque l'on vient de B1 ou de B2
+		/*A2*/ (1ULL<<B3)|(1ULL<<B4)|(1<<B5)|(1ULL<<FROM_NODE),
 
 		//Rangée [B]
-		/*B1*/ (1ULL<<A1)|(1ULL<<B2)|(0ULL<<C1),
-		/*B2*/ (1ULL<<A1)|(1ULL<<B1)|(1ULL<<B3)|(0ULL<<C1)|(1ULL<<C2),
-		/*B3*/ (1ULL<<A2)|(1ULL<<B2)|(1ULL<<B4)|(1ULL<<C2)|(1ULL<<C3),
-		/*B4*/ (1ULL<<A2)|(1ULL<<B3)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4),
-		/*B5*/ (1ULL<<A2)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<C4),
+		/*B1*/ (1ULL<<A1)|(1ULL<<B2)|(0ULL<<C1)|(1ULL<<FROM_NODE),
+		/*B2*/ (1ULL<<A1)|(1ULL<<B1)|(1ULL<<B3)|(0ULL<<C1)|(1ULL<<C2)|(1ULL<<FROM_NODE),
+		/*B3*/ (1ULL<<A2)|(1ULL<<B2)|(1ULL<<B4)|(1ULL<<C2)|(1ULL<<C3)|(1ULL<<FROM_NODE),
+		/*B4*/ (1ULL<<A2)|(1ULL<<B3)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4)|(1ULL<<FROM_NODE),
+		/*B5*/ (1ULL<<A2)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<C4)|(1ULL<<FROM_NODE),
 
 		//Rangée [C]
-		/*C1*/ (0ULL<<B1)|(0ULL<<B2)|(1ULL<<D1)|(1ULL<<D2),
-		/*C2*/ (1ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4),
-		/*C3*/ (1ULL<<B3)|(1ULL<<B4)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6),
-		/*C4*/ (1ULL<<B4)|(1ULL<<B5)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D6),
+		/*C1*/ (0ULL<<B1)|(0ULL<<B2)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<FROM_NODE),
+		/*C2*/ (1ULL<<B2)|(1ULL<<B3)|(1ULL<<B4)|(1ULL<<C3)|(1ULL<<D3)|(1ULL<<D4)|(1ULL<<FROM_NODE),
+		/*C3*/ (1ULL<<B3)|(1ULL<<B4)|(1ULL<<B5)|(1ULL<<C2)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6)|(1ULL<<FROM_NODE),
+		/*C4*/ (1ULL<<B4)|(1ULL<<B5)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D6)|(1ULL<<FROM_NODE),
 
 		//Rangée [D]
-		/*D1*/ (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1),
-		/*D2*/ (1ULL<<C1)|(1ULL<<D1)|(1ULL<<E1),
-		/*D3*/ (1ULL<<C2)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<D6),
-		/*D4*/ (1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D5)|(1ULL<<D6),
-		/*D5*/ (1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6)|(1ULL<<E2),
-		/*D6*/ (1ULL<<C3)|(1ULL<<C4)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<E2),
+		/*D1*/ (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)|(1ULL<<FROM_NODE),
+		/*D2*/ (1ULL<<C1)|(1ULL<<D1)|(1ULL<<E1)|(1ULL<<FROM_NODE),
+		/*D3*/ (1ULL<<C2)|(1ULL<<C3)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<D6)|(1ULL<<FROM_NODE),
+		/*D4*/ (1ULL<<C2)|(1ULL<<C3)|(1ULL<<C4)|(1ULL<<D3)|(1ULL<<D5)|(1ULL<<D6)|(1ULL<<FROM_NODE),
+		/*D5*/ (1ULL<<D3)|(1ULL<<D4)|(1ULL<<D6)|(1ULL<<E2)|(1ULL<<FROM_NODE),
+		/*D6*/ (1ULL<<C3)|(1ULL<<C4)|(1ULL<<D4)|(1ULL<<D5)|(1ULL<<E2)|(1ULL<<FROM_NODE),
 
 		//Rangée [E]
-		/*E1*/ (1ULL<<D1)|(1ULL<<D2)|(1ULL<<F1)|(1ULL<<F2),
-		/*E2*/ (0ULL<<D5)|(1ULL<<D6)|(0ULL<<F5)|(1ULL<<F6),
+		/*E1*/ (1ULL<<D1)|(1ULL<<D2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<FROM_NODE),
+		/*E2*/ (0ULL<<D5)|(1ULL<<D6)|(0ULL<<F5)|(1ULL<<F6)|(1ULL<<FROM_NODE),
 
 		//Rangée [F]
-		/*F1*/ (1ULL<<G1)|(1ULL<<F2)|(1ULL<<E1),
-		/*F2*/ (1ULL<<G1)|(1ULL<<F1)|(1ULL<<E1),
-		/*F3*/ (1ULL<<G2)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<F6),
-		/*F4*/ (1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F5)|(1ULL<<F6),
-		/*F5*/ (1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)|(1ULL<<E2),
-		/*F6*/ (1ULL<<G3)|(1ULL<<G4)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<E2),
+		/*F1*/ (1ULL<<G1)|(1ULL<<F2)|(1ULL<<E1)|(1ULL<<FROM_NODE),
+		/*F2*/ (1ULL<<G1)|(1ULL<<F1)|(1ULL<<E1)|(1ULL<<FROM_NODE),
+		/*F3*/ (1ULL<<G2)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<F6)|(1ULL<<FROM_NODE),
+		/*F4*/ (1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F5)|(1ULL<<F6)|(1ULL<<FROM_NODE),
+		/*F5*/ (1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)|(1ULL<<E2)|(1ULL<<FROM_NODE),
+		/*F6*/ (1ULL<<G3)|(1ULL<<G4)|(1ULL<<F4)|(1ULL<<F5)|(1ULL<<E2)|(1ULL<<FROM_NODE),
 
 		//Rangée [G]
-		/*G1*/ (0ULL<<H1)|(0ULL<<H2)|(1ULL<<F1)|(1ULL<<F2),
-		/*G2*/ (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4),
-		/*G3*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6),
-		/*G4*/ (1ULL<<H4)|(1ULL<<H5)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F6),
+		/*G1*/ (0ULL<<H1)|(0ULL<<H2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<FROM_NODE),
+		/*G2*/ (1ULL<<H2)|(1ULL<<H3)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<F3)|(1ULL<<F4)|(1ULL<<FROM_NODE),
+		/*G3*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G4)|(1ULL<<F3)|(1ULL<<F4)|(1ULL<<F6)|(1ULL<<FROM_NODE),
+		/*G4*/ (1ULL<<H4)|(1ULL<<H5)|(1ULL<<G3)|(1ULL<<F4)|(1ULL<<F6)|(1ULL<<FROM_NODE),
 
 		//Rangée [H]
-		/*H1*/ (1ULL<<I1)|(1ULL<<H2)|(0ULL<<G1),
-		/*H2*/ (1ULL<<I1)|(1ULL<<H1)|(1ULL<<H3)|(0ULL<<G1)|(1ULL<<G2),
-		/*H3*/ (1ULL<<I2)|(1ULL<<H2)|(1ULL<<H4)|(1ULL<<G2)|(1ULL<<G3),
-		/*H4*/ (1ULL<<I2)|(1ULL<<H3)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4),
-		/*H5*/ (1ULL<<I2)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<G4),
+		/*H1*/ (1ULL<<I1)|(1ULL<<H2)|(0ULL<<G1)|(1ULL<<FROM_NODE),
+		/*H2*/ (1ULL<<I1)|(1ULL<<H1)|(1ULL<<H3)|(0ULL<<G1)|(1ULL<<G2)|(1ULL<<FROM_NODE),
+		/*H3*/ (1ULL<<I2)|(1ULL<<H2)|(1ULL<<H4)|(1ULL<<G2)|(1ULL<<G3)|(1ULL<<FROM_NODE),
+		/*H4*/ (1ULL<<I2)|(1ULL<<H3)|(1ULL<<H5)|(1ULL<<G2)|(1ULL<<G3)|(1ULL<<G4)|(1ULL<<FROM_NODE),
+		/*H5*/ (1ULL<<I2)|(1ULL<<H4)|(1ULL<<G3)|(1ULL<<G4)|(1ULL<<FROM_NODE),
 
 		//Rangée [I]
-		/*I1*/ (1ULL<<H1)|(1ULL<<H2),
-		/*I2*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5),
+		/*I1*/ (1ULL<<H1)|(1ULL<<H2)|(1ULL<<FROM_NODE),
+		/*I2*/ (1ULL<<H3)|(1ULL<<H4)|(1ULL<<H5)|(1ULL<<FROM_NODE),
 
-		//Node de départ (astar_curves non pris en compte on autorise toujours les courbes)
+		//Node de départ (On commence toujours au point de départ donc pas d'importance ici. Par contre, il faut autoriser les courbes en n'importe quel point lorsqu'on vient du point de départ)
 		0ULL,
 
-		//Node de destination (astar_curves non pris en compte on autorise toujours les courbes)
+		//Node de destination (c'est le end_condition qui est pris en compte)
 		0ULL
 	};
 
@@ -862,13 +864,9 @@
 		astar_node_id node = NO_ID;
 		Uint8 nb_nodes = 0; // Nombre de nodes de la trajectoire (départ et arrivée inclus)
 		Sint16 i;
-		Uint8 j, curve_index;
+		Uint8 j;
 		error_e result;
 		Uint8 last_index = 0;
-		double last_angle, angle;
-		Sint16 diff_angle;
-		Uint16 sum_dist, dist;
-
 
 		// On recherche le nombre de noeuds constituant la trajectoire
 		node = last_node;
@@ -896,12 +894,16 @@
 
 		astar_node_id path_id[nb_nodes];
 		bool_e path_enable[nb_nodes];
+		bool_e path_curve[nb_nodes];
+		UNUSED_VAR(path_enable);
+		UNUSED_VAR(path_curve);
 
 		// On remplit le tableaux du path
 		node = last_node;
 		for(i=nb_nodes-1; i>=0; i--){
 			path_id[i] = astar_nodes[node].id;
 			path_enable[i] = TRUE;
+			path_curve[i] = TRUE;
 			node = astar_nodes[node].parent;
 		}
 		path_enable[0] = FALSE; //Le point de départ n'est pas dans la trajectoire
@@ -916,6 +918,10 @@
 		debug_printf("nb_nodes=%d\n", nb_nodes);
 
 #ifdef	ASTAR_OPTIMISATION
+		double last_angle, angle;
+		Sint16 diff_angle;
+		Uint16 sum_dist, dist;
+
 		// Elimination des poinst inutiles
 		// Lorsqu'un point est visible d'un autre point alors tous les points entre les deux peuvent être supprimés
 		last_index = 0;
@@ -1015,8 +1021,63 @@
 		*nb_displacements = j;
 
 
+#elif defined(ASTAR_OPTIMISATION_2)
+
+		for(i=1; i<nb_nodes-1; i++){
+			if(ASTAR_IS_NODE_IN(path_id[i-1], astar_curves[path_id[i]])){
+				path_curve[i] = TRUE;
+			}else{
+				path_curve[i] = FALSE;
+			}
+		}
+
+		// Affichage de la trajectoire avec curve
+		debug_printf("\n PATH CURVE\n");
+		for(i=0; i<nb_nodes; i++){
+			debug_printf("[%d] pos(%d;%d) curve = %d\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y, path_curve[i]);
+		}
+		debug_printf("\n");
+		debug_printf("nb_nodes=%d\n", nb_nodes);
+
+		// Elimination des poinst inutiles
+		// Lorsqu'un point est visible d'un autre point alors tous les points entre les deux peuvent être supprimés
+		last_index = 0;
+		j = 1;
+		for(i=1; i<nb_nodes-1; i++){
+			if(ASTAR_is_node_visible(astar_nodes[path_id[last_index]].pos, astar_nodes[path_id[i+1]].pos)){
+				path_enable[i] = FALSE;
+				debug_printf("Node %d deleted of path (%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+			}else{
+				last_index = i;
+				path_id[j] = path_id[i];
+				path_curve[j] = path_curve[i];
+				j++;
+			}
+		}
+		//On pense à stocker le dernier node
+		path_id[j] = path_id[nb_nodes - 1];
+		path_curve[j] = path_curve[nb_nodes - 1];
+		nb_nodes = j + 1;
+
+
+		// Affichage de la trajectoire optimisée
+		debug_printf("\n PATH OPTIMISE\n");
+		for(i=0; i<nb_nodes; i++){
+			debug_printf("[%d] pos(%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
+		}
+		debug_printf("\n");
+		debug_printf("nb_nodes=%d\n", nb_nodes);
+
+		for(i=1; i<nb_nodes; i++){
+			displacements[i-1].point = astar_nodes[path_id[i]].pos;
+			displacements[i-1].curve = path_curve[i];
+			displacements[i-1].speed = speed;
+		}
+		*nb_displacements = nb_nodes - 1;
 
 #else // SANS OPTIMISATION
+
+		Uint8 curve_index;
 
 		debug_printf("First node at distance = %d\n\n", GEOMETRY_distance(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[1]].pos));
 		//Suppression du premier node si on est trop près
