@@ -1,5 +1,5 @@
-#ifndef STATE_MACHINE_HELPER_H
-#define STATE_MACHINE_HELPER_H
+#ifndef ACTION_CHECKER_H
+#define ACTION_CHECKER_H
 
 #include "../QS/QS_all.h"
 #include "../queue.h"
@@ -14,4 +14,4 @@ Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8
 
 
 
-#endif // STATE_MACHINE_HELPER_H
+#endif // ACTION_CHECKER_H
