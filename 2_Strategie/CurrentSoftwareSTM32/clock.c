@@ -21,7 +21,6 @@
 #include "act_functions.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_ports.h"
-#include "strats_2016/actions_black/actions_black.h"
 
 void CLOCK_run();
 
@@ -76,7 +75,6 @@ void _ISR _T1Interrupt()
 	{
 		local_time = 0;
 		SELFTEST_process_500ms();
-		strat_black_process_it();
 	}
 
 	count_1sec++;

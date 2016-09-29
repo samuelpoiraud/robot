@@ -30,10 +30,8 @@
 #include "Supervision/Buzzer.h"
 #include "zones.h"
 
-#include "strats_2016/actions_both_2016.h"
-#include "strats_2016/actions_pearl/actions_pearl.h"
-#include "strats_2016/actions_black/actions_black.h"
-#include "strats_2016/actions_tests.h"
+#include "strats_2017/actions_both_2017.h"
+#include "strats_2017/inutile/arnaud_strat_inutile.h"
 
 #include "high_level_strat.h"
 
@@ -80,10 +78,10 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_prop",			strat_reglage_prop,						0,					TRUE,					BOTH},
 
 	// Pour Black
-	{"strat_inutile",		strat_inutile_black,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inutile_ar",		arnaud_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
 
 	// Pour Pearl
-	{"strat_inutile",		strat_inutile_pearl,					0,					TRUE,					SMALL}
+	{"strat_inutile_ar",		arnaud_strat_inutile_small,					0,					TRUE,					SMALL}
 };
 
 static const strategy_list_s *list_displayed_strategy[50];
