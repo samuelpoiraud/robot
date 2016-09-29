@@ -10,7 +10,6 @@
  */
 
 #include "environment.h"
-#include "strats_2016/actions_both_2016.h"
 #include "act_functions.h"
 #include "zone_mutex.h"
 #include "fix_beacon.h"
@@ -553,7 +552,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 					global.friend_position_lifetime = 4000;		//Durée de vie pour cette donnée. (attention à la latence du XBEE)
 					global.friend_pos.x = incoming_msg->data.xbee_my_position_is.x;
 					global.friend_pos.y = incoming_msg->data.xbee_my_position_is.y;
-					PEARL_set_state_black_for_com(incoming_msg);
+					//PEARL_set_state_black_for_com(incoming_msg);
 				}
 			}
 			break;

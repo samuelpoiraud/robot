@@ -35,7 +35,6 @@
 #include "act_functions.h"
 #include "act_avoidance.h"
 #include "Supervision/Supervision.h"
-#include "strats_2016/actions_both_2016.h"
 #include "astar.h"
 #include "elements.h"
 #include "foe_analyser.h"
