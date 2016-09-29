@@ -4,7 +4,8 @@
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_can_over_xbee.h"
-#include "state_machine_helper.h"
+#include "utils/actionChecker.h"
+#include "QS/QS_stateMachineHelper.h"
 
 #define LOG_PREFIX "zones: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_STRAT_STATE_CHANGES

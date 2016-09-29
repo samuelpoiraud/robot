@@ -7,7 +7,8 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_can_over_xbee.h"
 #include "QS/QS_watchdog.h"
-#include "state_machine_helper.h"
+#include "utils/actionChecker.h"
+#include "QS/QS_stateMachineHelper.h"
 #include "Generic_functions.h"
 
 volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
