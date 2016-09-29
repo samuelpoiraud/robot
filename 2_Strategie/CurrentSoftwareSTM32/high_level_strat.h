@@ -15,12 +15,6 @@
 #define HIGH_STRAT_LEVEL_H
 
 
-#include "../prop_functions.h"
-#include "../act_functions.h"
-#include "../state_machine_helper.h"
-
-
-
 // Cette variable est mise à TRUE quand une sub action prioritaire urgente doit être faite
 bool_e stop_request; // Initialisé à FALSE dans le brain, si on n'utilise pas la stratégie principale que ce flag n'ai pas d'incidence
 
