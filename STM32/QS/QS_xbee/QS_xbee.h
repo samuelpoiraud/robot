@@ -20,13 +20,17 @@
  *	XBEE_PLUGGED_ON_UART5		: Configuration de l'XBEE via l'UART 2
  *	XBEE_PLUGGED_ON_UART6		: Configuration de l'XBEE via l'UART 2
  *	XBEE_SIMULATION				: Envoi des messages CAN du XBEE sur le CAN
+ *	XBEE_RESET					: Ce mot doit être définit à un port afin d'utiliser le pin reset du module
+ *	XBEE_PROGRAMMABLE			: Si le module XBEE est programmable ce mot doit être définit (afin de dialoguer avec le boot-loader)
  *
  * ----------------  Choses à savoir  --------------------
  *	Il faut définir XBEE_PLUGGED_ON_UART1 ou 2/3/4/5/6 obligatoirement
  *	SD_ENABLE					: Sauvegarde sur la SD des messages transités sur le XBEE	(Ne marche que sur la carte stratégie ayant une SD)
+ *
+ *	Pour utiliser ce module :
+ *	 - Transmission de message : Appeller les fonctions de NetworkFunctionTransmit
+ *	 - Réception de message : S'inscrire au NetworkReceiveManager pour recevoir un type de message donnée
  */
-
-// TODO dire que XBEE_RESET doit etre définit
 
 #include "../QS_all.h"
 

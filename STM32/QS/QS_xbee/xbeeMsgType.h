@@ -5,7 +5,7 @@
 	#ifdef USE_XBEE
 
 		#define XBEE_START_DELIMITER								0x7E
-		#define XBEE_CHECKSUM_BASE_VALUE		0xFF
+		#define XBEE_CHECKSUM_BASE_VALUE							0xFF
 
 		#define XBEE_MAX_DATA_REQUEST 								64
 		#define XBEE_MAX_AT_PARAM									64

@@ -3,7 +3,7 @@
 #include "networkSessionManager.h"
 #include "lowLevel/networkSpreader.h"
 #include "lowLevel/networkReceiver.h"
-#include "../../QS_uart.h"
+#include "../../QS_outputlog.h"
 
 #ifdef USE_XBEE
 	typedef enum{
@@ -11,6 +11,7 @@
 		NETWORK_RESET_XBEE,
 		NETWORK_WAIT_REBOOT,
 		NETWORK_BOOTLOADER,
+		NETWORK_CONFIG_ACCESS,
 		NETWORK_READY
 	}state_e;
 
@@ -45,13 +46,21 @@
 
 			case NETWORK_WAIT_REBOOT:
 				if(global.absolute_time - begin > 5000){
+#ifdef XBEE_PROGRAMMABLE
 					state = NETWORK_BOOTLOADER;
+#else
+					state = NETWORK_CONFIG_ACCESS;
+#endif
 				}
 				break;
 
 			case NETWORK_BOOTLOADER:
 				NETWORK_SPREADER_systemWrite('b');
-				printf("Ready !\n");
+				state = NETWORK_CONFIG_ACCESS;
+				break;
+
+			case NETWORK_CONFIG_ACCESS:
+				info_printf("----- XBEE Ready -----\n");
 				NETWORK_SPREADER_setUser(NETWORK_UART_USER);
 				state = NETWORK_READY;
 				break;
