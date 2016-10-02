@@ -46,7 +46,7 @@ int term_cmd_goangle(int argc, const char *argv[]) {
 	teta *= PI4096;
 	teta /= 180;
 
-	PROP_push_goangle(teta, FAST, TRUE);
+	PROP_goAngle(teta, PROP_ABSOLUTE, FAST, ANY_WAY, FALSE, END_AT_LAST_POINT, 0);
 
 	return 0;
 }

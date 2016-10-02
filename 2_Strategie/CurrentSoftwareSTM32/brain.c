@@ -11,7 +11,6 @@
 
 #include "brain.h"
 
-#include "Stacks.h"
 #include "clock.h"
 #include "button.h"	//pour SWITCH_change_color
 #include "environment.h"
@@ -28,7 +27,10 @@
 #include "QS/QS_sys.h"
 #include "Supervision/Supervision.h"
 #include "Supervision/Buzzer.h"
+#include "utils/actionChecker.h"
 #include "zones.h"
+#include "elements.h"
+#include "foe_analyser.h"
 
 #include "strats_2017/actions_both_2017.h"
 #include "strats_2017/inutile/arnaud_strat_inutile.h"
@@ -38,7 +40,7 @@
 
 //Stratégie par défaut... (modifiable par les codeurs qui auraient la flemme ou l'impossibilité de configurer leur strat sur le LCD à chaque reset...)
 //							Valeur souhaitable pour le commit SVN : high_level_strat
-#define DEFAULT_STRAT_BIG		high_level_strat
+#define DEFAULT_STRAT_BIG		arnaud_strat_inutile_big
 
 
 #define DEFAULT_STRAT_SMALL		high_level_strat
@@ -70,12 +72,12 @@ typedef struct{
 static const strategy_list_s list_strategy[] = {
 
 	// Pour les deux robots
-	//display name			name function							// match duration	// afficher sur le LCD	// stratégie pour quel robot BIG/SMALL/BOTH(les deux)
-	{"high_level_strat",	high_level_strat,						MATCH_DURATION,		TRUE,					BOTH},
-	{"strat_odo_rot",		strat_reglage_odo_rotation,				0,					TRUE,					BOTH},
-	{"strat_odo_tra",		strat_reglage_odo_translation,			0,					TRUE,					BOTH},
-	{"strat_odo_sym",		strat_reglage_odo_symetrie,				0,					TRUE,					BOTH},
-	{"strat_prop",			strat_reglage_prop,						0,					TRUE,					BOTH},
+	//display name			name function									// match duration	// afficher sur le LCD	// stratégie pour quel robot BIG/SMALL/BOTH(les deux)
+	{"high_level_strat",	high_level_strat,								MATCH_DURATION,		TRUE,					BOTH},
+	{"strat_odo_rot",		strat_reglage_odo_rotation,						0,					TRUE,					BOTH},
+	{"strat_odo_tra",		strat_reglage_odo_translation,					0,					TRUE,					BOTH},
+	{"strat_odo_sym",		strat_reglage_odo_symetrie,						0,					TRUE,					BOTH},
+	{"strat_prop",			strat_reglage_prop,								0,					TRUE,					BOTH},
 
 	// Pour Black
 	{"strat_inutile_ar",		arnaud_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
@@ -127,7 +129,6 @@ void any_match(void)
 {
 	static error_e ret;
 	static time32_t t_end_of_match;
-	static bool_e do_parasol = FALSE;
 	static Uint8 ret_parasol = FALSE;
 	static bool_e release_point = FALSE;
 	static bool_e release_pendulum_pum = FALSE;
@@ -196,7 +197,6 @@ void any_match(void)
 		if(global.flags.ask_suspend_match){
 			global.flags.match_suspended = TRUE;
 			CAN_send_sid(BROADCAST_PAUSE_ALL);
-			STACKS_flush_all();
 			QUEUE_reset_all();
 			BUZZER_play(150, NOTE_RE, 2);
 		}
@@ -204,7 +204,6 @@ void any_match(void)
 		if(global.flags.ask_resume_match){
 			global.flags.match_suspended = FALSE;
 			CAN_send_sid(BROADCAST_RESUME_ALL);
-			STACKS_flush_all();
 			QUEUE_reset_all();
 			BUZZER_play(150, NOTE_RE, 2);
 		}
@@ -275,7 +274,6 @@ void any_match(void)
 				Selftest_print_sd_hokuyo_lost();
 				CAN_send_sid(BROADCAST_STOP_ALL);
 				global.flags.match_over = TRUE;
-				STACKS_flush_all();
 				QUEUE_reset_all();
 				BUZZER_play(500,NOTE_SOL,2);
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
@@ -308,12 +306,10 @@ void any_match(void)
 
 				if((global.absolute_time > t_end_of_match + 1000) && I_AM_SMALL()){
 					ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
-					do_parasol = TRUE;
 					nbTryParasol++;
 				}else{
 					ret_parasol = check_act_status(ACT_QUEUE_Parasol, IN_PROGRESS, END_OK, ERROR);
 					if(ret_parasol == ERROR && nbTryParasol < 3){
-						do_parasol = FALSE; //On refait une tentative
 					}
 				}
 			}

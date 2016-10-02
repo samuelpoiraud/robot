@@ -31,7 +31,7 @@
 	void ASTAR_init();
 
 	// Machine à état réalisant le try_going après appel à l'algorithme astar
-	Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+	Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition);
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------- Fonctions d'affichage ------------------------------------------------------

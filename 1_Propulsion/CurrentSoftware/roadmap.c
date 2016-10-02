@@ -29,11 +29,12 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 						prop_buffer_mode_e now,
 						way_e way,
 						border_mode_e border_mode,
-						prop_multipoint_e multipoint,
+						propEndCondition_e propEndCondition,
 						PROP_speed_e speed,
 						acknowledge_e acknowledge,
 						corrector_e corrector,
-						avoidance_e avoidance)
+						avoidance_e avoidance,
+						Uint8 idTraj)
 {
 	order_t order;
 
@@ -41,7 +42,7 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 	order.relative = relative;
 	order.border_mode = border_mode;
 	order.way = way;
-	order.multipoint = multipoint;
+	order.propEndCondition = propEndCondition;
 	order.x = x;
 	order.y = y;
 	order.teta = teta;
@@ -50,6 +51,7 @@ void ROADMAP_add_order(	trajectory_e trajectory,
 	order.corrector = corrector;
 	order.avoidance = avoidance;
 	order.total_wait_time = 0;
+	order.idTraj = idTraj;
 
 	if(now == PROP_NOW)
 	{
@@ -98,4 +100,8 @@ bool_e ROADMAP_get_next(order_t * order)
 
 void ROADMAP_launch_next_order(){
 	new_prioritary_order = TRUE;
+}
+
+void ROADMAP_check_next(order_t * order){
+	BUFFER_check_next(order);
 }

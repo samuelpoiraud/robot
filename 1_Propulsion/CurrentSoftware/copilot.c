@@ -60,6 +60,8 @@ static volatile Sint16 rush_acc_rot_trans = 10;
 static volatile bool_e in_rush = FALSE;
 static volatile bool_e avoid_in_rush = FALSE;
 
+static volatile Uint8 actualTrajID = 0;
+
 /**
  *	Prototypes
  */
@@ -88,7 +90,7 @@ void COPILOT_init(void)
 {
 	arrived = ARRIVED;
 	COPILOT_reset_absolute_destination();
-	current_order = (order_t){TRAJECTORY_NONE, 0,0,0, PROP_ABSOLUTE, PROP_NO_MULTIPOINT, NOT_BORDER_MODE, FORWARD, FAST, ACKNOWLEDGED, 0};
+	current_order = (order_t){TRAJECTORY_NONE, 0,0,0, PROP_ABSOLUTE, PROP_END_AT_POINT, NOT_BORDER_MODE, FORWARD, FAST, ACKNOWLEDGED, 0};
 	braking_translation = NOT_BRAKING;
 	braking_rotation = NOT_BRAKING;
 	already_braking_rotation = NOT_BRAKING;
@@ -177,52 +179,43 @@ static bool_e COPILOT_decision_change_order(bool_e * change_order_in_multipoint_
 	if(current_order.trajectory == WAIT_FOREVER)
 		return FALSE;
 
-	if(current_order.multipoint == PROP_MULTIPOINT)
-	{
-		if(arrived == ARRIVED)
+	if(arrived == ARRIVED){
+		SUPERVISOR_state_machine(EVENT_ARRIVED, 0);
+
+		if(!buffer_vide)		//Il y a un ordre à traiter.
+			return TRUE;
+		else					//Il n'y a rien à faire.
+			SUPERVISOR_state_machine(EVENT_NOTHING_TO_DO, 0);
+	}else{
+
+		if(		(current_order.trajectory == TRAJECTORY_ROTATION && braking_rotation == BRAKING)
+			 ||
+				(
+					(current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
+					&& braking_translation == BRAKING
+					&& (arrived_rotation == ARRIVED || braking_rotation == BRAKING)
+				)
+		  )
 		{
-			if(buffer_vide)
-			{
-				SUPERVISOR_state_machine(EVENT_ARRIVED, 0);
-				SUPERVISOR_state_machine(EVENT_NOTHING_TO_DO, 0);
-			}
-			else
-			{
-				*change_order_in_multipoint_without_reaching_destination = TRUE;
-				return TRUE;
-			}
-		}
-		else
-		{
-			//Si la rotation et la translation ont déjà freiné au moins une fois depuis le début de la trajectoire multipoint
-			//Alors, on passe au point suivant sans même accepter de freiner une fois !!!
-			if( (current_order.trajectory == TRAJECTORY_ROTATION && braking_rotation == BRAKING)
-				|| (current_order.trajectory != TRAJECTORY_ROTATION && braking_translation == BRAKING &&
-					(arrived_rotation == ARRIVED || braking_rotation == BRAKING)))
-			{
-				SUPERVISOR_state_machine(EVENT_BRAKING, 0);
-				if(!buffer_vide)
-				{
+			SUPERVISOR_state_machine(EVENT_BRAKING, 0);
+
+			if(current_order.propEndCondition == PROP_END_AT_BRAKE && !buffer_vide){
+				order_t checkNextOrder;
+				ROADMAP_check_next(&checkNextOrder);
+
+				if(		(checkNextOrder.trajectory == TRAJECTORY_ROTATION && current_order.trajectory == TRAJECTORY_ROTATION)
+					 ||
+						( (checkNextOrder.trajectory == TRAJECTORY_TRANSLATION || checkNextOrder.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
+						 &&
+						  (current_order.trajectory == TRAJECTORY_TRANSLATION || checkNextOrder.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
+						)
+				   ){
 					*change_order_in_multipoint_without_reaching_destination = TRUE;
 					return TRUE;
 				}
 			}
 		}
 	}
-	else //en NON MULTIPOINT
-	{
-		if(arrived == ARRIVED)
-		{
-			//Si je ne suis pas en multipoint et que je suis arrivé.
-			SUPERVISOR_state_machine(EVENT_ARRIVED, 0);
-
-			if(!buffer_vide)		//Il y a un ordre à traiter.
-				return TRUE;
-			else					//Il n'y a rien à faire.
-				SUPERVISOR_state_machine(EVENT_NOTHING_TO_DO, 0);
-		}
-	}
-
 	return FALSE;
 }
 
@@ -346,7 +339,7 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 					BUFFER_add_begin(order);
 
 					//Les rotations préalables pourraient se faire en mode multipoints.
-					order->multipoint = PROP_NO_MULTIPOINT;
+					order->propEndCondition = PROP_END_AT_POINT;
 					order->way = FORWARD;
 
 					//on ne prévient pas la carte P sur rotation préalable ajoutée par nos soins.
@@ -359,7 +352,7 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 				case TRAJECTORY_STOP:
 					BUFFER_add_begin(order);
 					//on ne prévient pas la carte P sur arrêt préalable ajoutée par nos soins.
-					order->multipoint = PROP_NO_MULTIPOINT;
+					order->propEndCondition = PROP_END_AT_POINT;
 					order->acknowledge = NO_ACKNOWLEDGE;
 					order->trajectory = TRAJECTORY_STOP;
 										order->x = 0;
@@ -400,7 +393,7 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 					BUFFER_add_begin(order);
 
 					//Les rotations préalables pourraient se faire en mode multipoints.
-					order->multipoint = PROP_NO_MULTIPOINT;
+					order->propEndCondition = PROP_END_AT_POINT;
 					order->acknowledge = NO_ACKNOWLEDGE;
 					//on ne prévient pas la carte stratégie sur rotation préalable ajoutée par nos soins.
 
@@ -445,13 +438,14 @@ static void COPILOT_do_order(order_t * order)
 				supp.relative = PROP_ABSOLUTE;
 				supp.way = ANY_WAY;
 				supp.border_mode = NOT_BORDER_MODE;
-				supp.multipoint = PROP_NO_MULTIPOINT;
+				supp.propEndCondition = PROP_END_AT_POINT;
 				supp.speed = FAST;
 				supp.acknowledge = NO_ACKNOWLEDGE;
 				supp.corrector = CORRECTOR_ENABLE;
 				supp.avoidance = AVOID_DISABLED;
 				supp.total_wait_time = 0;
 				supp.trajectory = TRAJECTORY_STOP;
+				supp.idTraj = 0;
 			current_order = supp;
 
 			AVOIDANCE_said_foe_detected(FALSE, FALSE);
@@ -467,13 +461,14 @@ static void COPILOT_do_order(order_t * order)
 				supp.relative = PROP_ABSOLUTE;
 				supp.way = ANY_WAY;
 				supp.border_mode = NOT_BORDER_MODE;
-				supp.multipoint = PROP_NO_MULTIPOINT;
+				supp.propEndCondition = PROP_END_AT_POINT;
 				supp.speed = FAST;
 				supp.acknowledge = NO_ACKNOWLEDGE;
 				supp.corrector = CORRECTOR_ENABLE;
 				supp.avoidance = AVOID_DISABLED;
 				supp.total_wait_time = 0;
 				supp.trajectory = WAIT_FOREVER;
+				supp.idTraj = 0;
 
 			BUFFER_add_begin(&supp);
 
@@ -510,6 +505,8 @@ static void COPILOT_do_order(order_t * order)
 			}
 		}
 	}
+
+	actualTrajID = current_order.idTraj;
 
 	//MAJ Vitesse
 	PILOT_set_speed(current_order.speed);
@@ -865,11 +862,12 @@ static braking_e COPILOT_update_brake_state_translation(void)
 							PROP_NOW,			//maintenant
 							ANY_WAY,			//sens de marche
 							NOT_BORDER_MODE,	//mode bordure
-							PROP_NO_MULTIPOINT, //mode multipoints
+							PROP_END_AT_POINT, //mode multipoints
 							FAST,				//Vitesse
 							ACKNOWLEDGE_ASKED,
 							CORRECTOR_ENABLE,
-							AVOID_DISABLED
+							AVOID_DISABLED,
+							current_order.idTraj
 						);
 
 		return NOT_BRAKING;
@@ -1030,6 +1028,10 @@ border_mode_e COPILOT_get_border_mode(void)
 trajectory_e COPILOT_get_trajectory(void)
 {
 	return current_order.trajectory;
+}
+
+Uint8 COPILOT_get_actualTrajID(){
+	return actualTrajID;
 }
 
 void COPILOT_set_in_rush(bool_e in_rush_msg, Sint16 first_traj_acc_msg, Sint16 second_traj_acc_msg, Sint16 brake_acc_msg, Uint8 acc_rot_trans_msg){

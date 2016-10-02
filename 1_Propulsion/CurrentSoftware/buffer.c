@@ -47,7 +47,7 @@ void BUFFER_init()
 	buffer_nb = 0;
 	buffer_read = 0;
 	buffer_write = 0;
-		BUFFER_enable(TRUE);
+	BUFFER_enable(TRUE);
 }
 
 
@@ -131,4 +131,11 @@ void BUFFER_get_next(order_t * order)
 
 	//Màj Buffer_read
 	buffer_read = (buffer_read + 1) % BUFFER_SIZE;
+}
+
+void BUFFER_check_next(order_t * order){
+	if(BUFFER_is_empty() == FALSE)
+		*order = (buffer[buffer_read]);
+	else
+		*order = (order_t){TRAJECTORY_NONE, 0, 0, 0, PROP_ABSOLUTE, PROP_END_AT_POINT, PROP_NO_BORDER_MODE, ANY_WAY, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE, CORRECTOR_ENABLE, 0, 0, 0};
 }

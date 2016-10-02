@@ -31,10 +31,9 @@
 
 	#define SIZE_PROP_TRAJ_MSG			8
 	typedef struct{
-		Sint16 x						:13;		// [mm]
-		Sint8 speed_trans				:3;			// [250 mm/sec]
-		Sint16 y						:13;		// [mm]
-		Sint8 speed_rot					:3;			// [rad/sec]
+		Sint32 x						:13;		// [mm]
+		Sint32 y						:13;		// [mm]
+		Uint8 idTraj					:6;
 		Sint16 angle					:16;		// [PI4096]
 		prop_warning_reason_e reason	:8;
 		SUPERVISOR_error_source_e error	:3;
@@ -505,26 +504,28 @@
 			struct{
 				Sint16 x						:16;	// [mm]
 				Sint16 y						:16;	// [mm]
-				PROP_speed_e speed				:16;
+				PROP_speed_e speed				:10;
+				Uint8 idTraj					:6;
 				way_e way						:2;
 				avoidance_e avoidance			:4;
 				prop_acknowledge_e acknowledge	:1;
 				prop_border_mode_e border_mode	:1;
 				prop_curve_e curve				:1;
-				prop_multipoint_e multipoint	:1;
+				propEndCondition_e propEndCondition	:1;
 				prop_buffer_mode_e buffer_mode	:1;
 				prop_referential_e referential	:1;
 			}prop_go_position;
 
 
 		#define PROP_GO_ANGLE				0x177
-		#define SIZE_PROP_GO_ANGLE			5
+		#define SIZE_PROP_GO_ANGLE			6
 			struct{
 				Sint16 teta						:16;	// [PI4096]
 				PROP_speed_e speed				:16;
+				Uint8 idTraj					:6;
 				way_e way						:2;
 				prop_acknowledge_e acknowledge	:1;
-				prop_multipoint_e multipoint	:1;
+				propEndCondition_e propEndCondition	:1;
 				prop_buffer_mode_e buffer_mode	:1;
 				prop_referential_e referential	:1;
 			}prop_go_angle;

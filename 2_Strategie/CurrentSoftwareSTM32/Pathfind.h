@@ -11,7 +11,6 @@
 #define PATHFIND_H
 
 #include "Generic_functions.h"
-#include "Stacks.h"
 #include "prop_functions.h"
 #include "avoidance.h"
 
@@ -113,7 +112,7 @@ typedef struct {
 void PATHFIND_MAJ_COLOR();
 
 // Fonction a appelée si l'on veut se déplacer sur un node
-Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition);
 
 /*	Fonction de sélection du node le plus proche
  *	Sélectionne le node le plus proche qui présente le moins de différence d'angle

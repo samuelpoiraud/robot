@@ -26,7 +26,6 @@
 #include "QS/QS_rcc.h"
 #include "QS/QS_mosfet.h"
 #include "queue.h"
-#include "Stacks.h"
 #include "environment.h"
 #include "brain.h"
 #include "clock.h"
@@ -117,7 +116,6 @@ int main (void)
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	debug_printf("------- Hello, I'm STRAT (%s) -------\n", QS_WHO_AM_I_get_name());
 
-	STACKS_init();
 	QUEUE_init();
 
 	ADC_init();
@@ -142,6 +140,7 @@ int main (void)
 
 
 	display(sizeof(msg_can_formated_u));
+	display(sizeof(prop_traj_msg_t));
 	if(sizeof(msg_can_formated_u) > 8){
 		printf("Bloquage du main pour un dépassement de taille des données formatées !!!\n");
 		while(1);
@@ -175,7 +174,6 @@ int main (void)
 
 		/* Execution des routines de supervision des piles
 		actionneurs */
-		STACKS_run();
 		QUEUE_run();
 
 		//Machine à état QS_mosfet

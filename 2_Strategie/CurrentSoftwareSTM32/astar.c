@@ -1148,7 +1148,7 @@
 	 * @param end_condition : la condition de fin (END_AT_BREAK ou END_AT_LAST_POINT)
 	 * @return l'état en cours ou l'état de succès ou l'état d'échec
 	 */
-	Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition){
+	Uint8 ASTAR_try_going(Uint16 x, Uint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition){
 		static error_e result = IN_PROGRESS;
 		static displacement_curve_t displacements[NB_NODES];
 		static Uint8 nb_displacements;

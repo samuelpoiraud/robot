@@ -20,37 +20,26 @@
 #include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_watchdog.h"
-
+#include "QS/QS_can.h"
 
 #define LOG_PREFIX "avoid: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_AVOIDANCE
 #include "QS/QS_outputlog.h"
 #include "Supervision/SD/SD.h"
 
-#define WAIT_TIME_DETECTION			1000	//[ms] temps pendant lequel on attend que l'adversaire s'en aille. Ensuite, on abandonne la trajectoire.
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
 #define EXTRACTION_DISTANCE			300
 
-static error_e AVOIDANCE_watch_prop_stack();
 static error_e extraction_of_foe(PROP_speed_e speed);
 static error_e goto_extract_with_avoidance(const displacement_t displacements);
-static error_e wait_move_and_wait_foe();
-
-
-static Uint16 wait_timeout = WAIT_TIME_DETECTION;
-static bool_e prop_detected_foe = FALSE;
 
 //------------------------------------------------------------------- Machines à états de déplacements
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Ne s'arrète qu'à la fin que si aucun autre déplacement n'est demandé.
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition)
 {
 	error_e sub_action;
-	//sub_action = goto_pos_with_scan_foe((displacement_t[]){{{x, y},FAST}},1,way,avoidance);
-	if(end_condition == END_AT_LAST_POINT || end_condition == END_AT_BREAK)
-		sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
-	else
-		sub_action = goto_pos_curve_with_avoidance_and_break((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+	sub_action = goto_pos_curve_with_avoidance((displacement_t[]){{{x, y},speed}}, NULL, 1, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -71,14 +60,10 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
 }
 
 //Action qui gere un déplacement et renvoi le state rentré en arg. Cette fonction permet le multipoint.
-Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
+Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition)
 {
 	error_e sub_action;
-	if(end_condition == END_AT_LAST_POINT || end_condition == END_AT_BREAK)
-		sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
-	else
-		sub_action = goto_pos_curve_with_avoidance_and_break(displacements, NULL, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
-
+	sub_action = goto_pos_curve_with_avoidance(displacements, NULL, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
 	switch(sub_action){
 		case IN_PROGRESS:
 			return in_progress;
@@ -96,47 +81,53 @@ Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displa
 	return in_progress;
 }
 
-//Action qui gere un changement d'angle et renvoi le state rentré en arg.
-Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed)
-{
+Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, STRAT_endCondition_e endCondition){
 	CREATE_MAE(
-			EMPILE,
-			WAIT,
-			DONE,
-			ERROR
+			GO,
+			WAIT
 		);
 
-	Uint8 ret;
-	static bool_e timeout;
-	ret = in_progress;
+	static time32_t begin_time;
+	static Uint8 idTraj;
+
+	Uint8 ret = in_progress;
+
 	switch(state)
 	{
-		case EMPILE:
-			PROP_push_goangle(angle, speed, TRUE);
+		case GO:
+			idTraj = PROP_getNextIdTraj();
+			begin_time = global.absolute_time;
+			PROP_goAngle(angle, PROP_ABSOLUTE, speed, way, FALSE, PROP_END_AT_POINT, idTraj);
 			state = WAIT;
 			break;
-		case WAIT:
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
-				state = DONE;
-			}
-			else if (global.prop.erreur)
+
+		case WAIT:{
+			error_e sub_action = wait_move_and_wait_detection(TRAJECTORY_ROTATION, 1, idTraj, endCondition, begin_time);
+
+			switch(sub_action)
 			{
-				STACKS_flush(PROP);
-				state = ERROR;
+				case END_OK:
+					RESET_MAE();
+					ret = success_state;
+					break;
+
+				case END_WITH_TIMEOUT:
+				case NOT_HANDLED:
+				case FOE_IN_PATH:
+					RESET_MAE();
+					ret = fail_state;
+					break;
+
+				case IN_PROGRESS:
+					break;
+
+				default:
+					RESET_MAE();
+					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+					ret = fail_state;
+					break;
 			}
-			break;
-		case DONE:
-			state = EMPILE;
-			ret = (timeout)? fail_state : success_state;
-			break;
-		case ERROR:
-			state = EMPILE;
-			ret = fail_state;
-			break;
-		default:
-			state = EMPILE;
-			ret = fail_state;
-			break;
+		}break;
 	}
 	return ret;
 }
@@ -171,7 +162,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 				else
 					angle += ((way == BACKWARD)? PI4096 : 0);
 			}
-			state = try_go_angle(angle, FAST_ROTATE, INIT_COEF, ERROR, FAST);
+			state = try_go_angle(angle, FAST_ROTATE, INIT_COEF, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			break;
 
 		case INIT_COEF:
@@ -211,7 +202,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 }
 
 //Action qui gere un déplacement en avance ou arrière et renvoi le state rentré en arg.
-Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
+Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition)
 {
 	static GEOMETRY_point_t compute_point;
 
@@ -267,24 +258,25 @@ Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in
 Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 {
 	CREATE_MAE(
-		STOP,
-		WAIT_AND_CHECK
+		GO,
+		WAIT
 	);
 
-	error_e subaction;
+	static time32_t begin_time;
 
 	switch(state){
-		case STOP :
-			PROP_push_stop();
-			state = WAIT_AND_CHECK;
+		case GO :
+			begin_time = global.absolute_time;
+			PROP_stop();
+			state = WAIT;
 			break;
 
-		case WAIT_AND_CHECK :
-			subaction = AVOIDANCE_watch_prop_stack();
+		case WAIT :{
+			error_e subaction = wait_move_and_wait_detection(TRAJECTORY_STOP, 1, 0, END_AT_LAST_POINT, begin_time);
 			switch (subaction) {
 				case END_OK:
 					debug_printf("PROP_STOP effectué\n");
-					state = STOP;
+					RESET_MAE();
 					return success_state;
 					break;
 
@@ -293,76 +285,126 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 
 				case END_WITH_TIMEOUT:
 					debug_printf("PROP_STOP effectué avec TIMEOUT\n");
-					state = STOP;
+					RESET_MAE();
 					return fail_state;
 					break;
 
 				case NOT_HANDLED:
 					debug_printf("PROP_STOP erreur\n");
-					state = STOP;
+					RESET_MAE();
 					return fail_state;
 					break;
 
 				default:
 					debug_printf("PROP_STOP erreur\n");
-					state = STOP;
+					RESET_MAE();
 					return fail_state;
 					break;
 			}
-			break;
+			}break;
 	}
 	return in_progress;
 }
 
+Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, bool_e asser_rotate, Uint8 thresholdError, Uint8 acceleration){
+	CREATE_MAE(
+			INIT,
+			PUSH_ORDER,
+			WAIT,
+			DONE,
+			FAIL
+		);
 
-//------------------------------------------------------------------- Fonctions relatives à l'évitement
+	static bool_e timeout;
+	static time32_t begin_time;
 
-//Version simplifiée de wait_move_and_scan_foe. on esquive pas la cible ici. (pas de dodge)
-static error_e wait_move_and_wait_foe() {
+	Uint8 ret = in_progress;
 
-	error_e ret = IN_PROGRESS;
-
-	// check fin de trajectoire
-	error_e prop_stack_state = AVOIDANCE_watch_prop_stack();
-	switch(prop_stack_state)
+	switch(state)
 	{
-		case IN_PROGRESS:
+		case INIT:
+			if(thresholdError)
+				PROP_set_threshold_error_translation(thresholdError, FALSE);
+
+			if(acceleration)
+				PROP_set_acceleration(acceleration);
+			begin_time = global.absolute_time;
+			timeout = FALSE;
+			state = PUSH_ORDER;
 			break;
 
-		case END_OK:
-		case END_WITH_TIMEOUT:
-		case NOT_HANDLED:
-			debug_printf("wait_move_and_wait_foe: end state = %d\n", prop_stack_state);
-			ret = prop_stack_state;
+
+		case PUSH_ORDER:
+			PROP_rushInTheWall(way, asser_rotate, angle);
+			state = WAIT;
 			break;
 
-		default: //Ne devrait jamais arriver, AVOIDANCE_watch_prop_stack ne doit pas retourner FOE_IN_PATH car elle ne gère pas d'evitement
-			debug_printf("wait_move_and_wait_foe: DEFAULT prop_stack_state = %d!!\n", prop_stack_state);
-			ret = NOT_HANDLED;
-			break;
-	}
+		case WAIT:{
+			error_e subaction = wait_move_and_wait_detection(TRAJECTORY_STOP, 1, 0, END_AT_LAST_POINT, begin_time);
+			switch (subaction) {
+				case END_OK:
+					debug_printf("try_rush_in_the_wall effectué\n");
+					state = DONE;
+					break;
 
-	// check adversaire détecté
-	if(prop_detected_foe){
-		STACKS_flush(PROP);
-		ret = FOE_IN_PATH;
+				case IN_PROGRESS:
+					break;
+
+				case END_WITH_TIMEOUT:
+					debug_printf("try_rush_in_the_wall effectué avec TIMEOUT\n");
+					timeout = TRUE;
+					state = DONE;
+					break;
+
+				case FOE_IN_PATH:
+					debug_printf("try_rush_in_the_wall erreur adversaire dans le path\n");
+					state = FAIL;
+					break;
+
+				case NOT_HANDLED:
+					debug_printf("try_rush_in_the_wall erreur\n");
+					state = FAIL;
+					break;
+
+				default:
+					debug_printf("try_rush_in_the_wall erreur inconnue\n");
+					state = FAIL;
+					break;
+			}
+			}break;
+
+		case DONE:
+			if(thresholdError)
+				PROP_set_threshold_error_translation(0, TRUE);
+
+			if(acceleration)
+				PROP_set_acceleration(0);
+			RESET_MAE();
+			ret = (timeout)? fail_state : success_state;
+			break;
+
+		case FAIL:
+			if(thresholdError)
+				PROP_set_threshold_error_translation(0, TRUE);
+
+			if(acceleration)
+				PROP_set_acceleration(0);
+			RESET_MAE();
+			ret = fail_state;
+			break;
+
+		default:
+			RESET_MAE();
+			ret = fail_state;
+			break;
 	}
 
 	return ret;
 }
 
 
-void AVOIDANCE_forced_foe_dected(){
-	CAN_msg_t msg;
-	msg.sid = PROP_DEBUG_FORCED_FOE;
-	msg.size = 0;
-	CAN_send(&msg);
-}
+//------------------------------------------------------------------- Fonctions relatives à l'évitement
 
-
-void AVOIDANCE_set_timeout(Uint16 msec) {
-	wait_timeout = msec;
-}
 
 /*
  * Fonction qui réalise un PROP_push_goto tout simple avec la gestion de l'évitement (en courbe)
@@ -381,264 +423,93 @@ void AVOIDANCE_set_timeout(Uint16 msec) {
  * return END_WITH_TIMEOUT : Timeout
  * return FOE_IN_PATH : un adversaire nous bloque
  */
-error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode)
+error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, STRAT_endCondition_e end_condition, prop_border_mode_e border_mode)
 {
 	CREATE_MAE(
+			CHECK,
 			LOAD_MOVE,
 			WAIT_MOVE_AND_SCAN_FOE,
-			EXTRACT,
-			DONE
+			EXTRACT
 		);
 
-	static bool_e timeout = FALSE;
+	static time32_t beginTime;
+	static Uint8 idTraj;
 	static error_e sub_action;
-
-	Uint8 i;
-
-	//Si nouveau déplacement et qu'aucun point n'est donné, on a rien a faire
-	if(state == LOAD_MOVE && nb_displacements == 0)
-		return END_OK;
 
 	switch(state)
 	{
-		case LOAD_MOVE:
-			timeout = FALSE;
-			clear_prop_detected_foe();
+		case CHECK:
+			if(nb_displacements == 0){
+				RESET_MAE();
+				return END_OK;
+			}
+
+			if(displacements == NULL && displacements_curve == NULL){
+				RESET_MAE();
+				return NOT_HANDLED;
+			}
+			state = LOAD_MOVE;
+			break;
+
+		case LOAD_MOVE:{
+			global.prop.detected_foe = FALSE;
 
 			if(displacements)
 				global.destination = displacements[nb_displacements-1].point;
 			else
 				global.destination = displacements_curve[nb_displacements-1].point;
 
-			for(i=nb_displacements-1;i>=1;i--)
+			Uint8 i;
+			for(i=0; i<nb_displacements-1; i++)
 			{
-				if(displacements)
-					PROP_push_goto_multi_point(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVE, avoidance_type, PROP_END_OF_BUFFER, end_condition, border_mode, FALSE);
-				else if(displacements_curve && displacements_curve[i].curve)
-					PROP_push_goto_multi_point(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, PROP_CURVE, avoidance_type, PROP_END_OF_BUFFER, end_condition, border_mode, FALSE);
+				if(displacements || (displacements_curve && displacements_curve[i].curve))
+					PROP_goTo(displacements[i].point.x, displacements[i].point.y, PROP_ABSOLUTE, displacements[i].speed, way, TRUE, PROP_END_AT_BRAKE, PROP_CURVE, avoidance_type, border_mode, 0);
 				else
-					PROP_push_goto(displacements_curve[i].point.x, displacements_curve[i].point.y, displacements_curve[i].speed, way, PROP_NO_CURVE, avoidance_type, end_condition, border_mode, FALSE);
+					PROP_goTo(displacements[i].point.x, displacements[i].point.y, PROP_ABSOLUTE, displacements[i].speed, way, TRUE, PROP_END_AT_POINT, PROP_NO_CURVE, avoidance_type, border_mode, 0);
 			}
-			if(displacements)
-				PROP_push_goto_multi_point(displacements[0].point.x, displacements[0].point.y, displacements[0].speed, way, PROP_CURVE, avoidance_type, PROP_END_OF_BUFFER, end_condition, border_mode, TRUE);
-			else if(displacements_curve && displacements_curve[0].curve)
-				PROP_push_goto_multi_point(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, PROP_CURVE, avoidance_type, PROP_END_OF_BUFFER, end_condition, border_mode, TRUE);
+
+			idTraj = PROP_getNextIdTraj();
+			beginTime = global.absolute_time;
+			if(displacements || (displacements_curve && displacements_curve[nb_displacements-1].curve))
+				PROP_goTo(displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y, PROP_ABSOLUTE, displacements[nb_displacements-1].speed, way, TRUE, PROP_END_AT_BRAKE, PROP_CURVE, avoidance_type, border_mode, idTraj);
 			else
-				PROP_push_goto(displacements_curve[0].point.x, displacements_curve[0].point.y, displacements_curve[0].speed, way, PROP_NO_CURVE, avoidance_type, end_condition, border_mode, TRUE);
+				PROP_goTo(displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y, PROP_ABSOLUTE, displacements[nb_displacements-1].speed, way, TRUE, PROP_END_AT_POINT, PROP_NO_CURVE, avoidance_type, border_mode, idTraj);
 
 			debug_printf("goto_pos_with_scan_foe : load_move\n");
-			if(displacements || displacements_curve)
-				state = WAIT_MOVE_AND_SCAN_FOE;
-			else
-			{
-				state = LOAD_MOVE;
-				return NOT_HANDLED;
-			}
-			break;
+
+			state = WAIT_MOVE_AND_SCAN_FOE;
+			}break;
 
 		case WAIT_MOVE_AND_SCAN_FOE:
-
-			sub_action = wait_move_and_wait_foe();
-
+			sub_action = wait_move_and_wait_detection(TRAJECTORY_TRANSLATION, nb_displacements, idTraj, end_condition, beginTime);
 			switch(sub_action)
 			{
 				case END_OK:
+					RESET_MAE();
 					debug_printf("wait_move_and_scan_foe -- fini\n");
-					state = DONE;
-					break;
+					return END_OK;
 
 				case END_WITH_TIMEOUT:
-					timeout = TRUE;
-					info_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
-					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					state = DONE;
-					break;
-
-				case NOT_HANDLED:
-					info_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
-					wait_timeout = WAIT_TIME_DETECTION;
-					state = LOAD_MOVE;
-					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					return NOT_HANDLED;
-					break;
-
-				case FOE_IN_PATH:
-					info_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
-					wait_timeout = WAIT_TIME_DETECTION;
-					if(avoidance_type == DODGE_AND_WAIT || avoidance_type == DODGE_AND_NO_WAIT)
-						state = EXTRACT;
-					else
-					{
-						state = LOAD_MOVE;
-						global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-						return FOE_IN_PATH;			//Pas d'extraction demandée... on retourne tel quel FOE_IN_PATH !
-					}
-					break;
-
-				case IN_PROGRESS:
-					break;
-
-				default:
-					state = LOAD_MOVE;
-					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					return NOT_HANDLED;
-					break;
-			}
-			break;
-
-		case EXTRACT:
-			sub_action = extraction_of_foe(FAST);//SLOW_TRANSLATION_AND_FAST_ROTATION);
-			switch(sub_action)
-			{
-				case END_OK:
-					state = LOAD_MOVE;
-					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					return FOE_IN_PATH;
-					break;
-
-				case IN_PROGRESS:
-					break;
-
-				case NOT_HANDLED:
-				default:
-					state = LOAD_MOVE;
-					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					return NOT_HANDLED;
-					break;
-			}
-			break;
-
-		case DONE:
-			wait_timeout = WAIT_TIME_DETECTION;
-			state = LOAD_MOVE;
-			return timeout?END_WITH_TIMEOUT:END_OK;
-			break;
-
-		default:
-			warn_printf("Cas Default state, panique !!!\n");
-			state = LOAD_MOVE;
-			global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-			return NOT_HANDLED;
-	}
-	return IN_PROGRESS;
-}
-
-
-/*
- * Fonction qui réalise un PROP_push_goto tout simple avec la gestion de l'évitement (en courbe)
- * Fonction très semblable à goto_pos_curve_with_avoidance mais le changement de point de destination se fait lorsque le robot
- * est arrivé à une certaine distance du point de destination précédent.
- *
- * pre : Etre sur le terrain
- * post : Robot aux coordonnées voulues
- *
- * param displacements : deplacements de la trajectoire
- * param nb_displacement : nombre de deplacements de la trajectoire
- * param way : sens de déplacement
- * end_condition : END_AT_DISTANCE
- *
- * return IN_PROGRESS : En cours
- * return END_OK : Terminé
- * return NOT_HANDLED : Action impossible
- * return END_WITH_TIMEOUT : Timeout
- * return FOE_IN_PATH : un adversaire nous bloque
- */
-error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode)
-{
-	CREATE_MAE(
-			INIT,
-			NEXT_MOVE,
-			LOAD_MOVE,
-			WAIT_MOVE_AND_SCAN_FOE,
-			EXTRACT,
-			DONE
-		);
-
-	static bool_e timeout = FALSE;
-	static error_e sub_action;
-
-	static Sint16 i;
-
-	//Si nouveau déplacement et qu'aucun point n'est donné, on a rien a faire
-	if(state == INIT && nb_displacements == 0)
-		return END_OK;
-
-	switch(state)
-	{
-		case INIT:
-			timeout = FALSE;
-			clear_prop_detected_foe();
-
-			if(displacements)
-				global.destination = displacements[nb_displacements-1].point;
-			else
-				global.destination = displacements_curve[nb_displacements-1].point;
-
-			i = -1;
-			state = NEXT_MOVE;
-			break;
-
-		case NEXT_MOVE:
-			i++;
-			debug_printf("Next move i=%d\n", i);
-			state = LOAD_MOVE;
-			break;
-
-		case LOAD_MOVE:
-			if(i >= nb_displacements){ //Tous les mouvements ont été éffectués
-				state = DONE;
-				debug_printf("Tous les déplacements ont ete effectues avec succes\n");
-			}else if(!displacements && !displacements_curve){ //Si aucun mouvement n'a été défini, on renvoie une erreur
-				state = LOAD_MOVE;
-				debug_printf("Aucun mouvement défini, return NOT HANDLED\n");
-				return NOT_HANDLED;
-			}else{ //Si il reste des mouvements à éffectuer
-					PROP_push_goto(displacements[i].point.x, displacements[i].point.y, displacements[i].speed, way, PROP_CURVE, avoidance_type, end_condition, border_mode, TRUE);
-					debug_printf("Move goto to x=%d  y=%d push NOW\n", displacements[i].point.x, displacements[i].point.y);
-					state = WAIT_MOVE_AND_SCAN_FOE;
-			}
-			debug_printf("goto_pos_with_scan_foe : load_move\n");
-			break;
-
-		case WAIT_MOVE_AND_SCAN_FOE:
-
-			sub_action = wait_move_and_wait_foe();
-
-			switch(sub_action)
-			{
-				case END_OK:
-					debug_printf("wait_move_and_scan_foe -- fini\n");
-					state = NEXT_MOVE;
-					break;
-
-				case END_WITH_TIMEOUT:
-					timeout = TRUE;
+					RESET_MAE();
 					debug_printf("wait_move_and_scan_foe -- timeout\n");
-					info_printf("TIMEOUT on WAIT_MOVE_AND_SCAN_FOE\n");
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					state = DONE;
-					break;
+					return END_OK;
 
 				case NOT_HANDLED:
-					debug_printf("wait_move_and_scan_foe -- probleme\n");
-					info_printf("ERROR on WAIT_MOVE_AND_SCAN_FOE\n");
-					wait_timeout = WAIT_TIME_DETECTION;
-					state = INIT;
+					RESET_MAE();
+					info_printf("wait_move_and_scan_foe -- error\n");
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
 					return NOT_HANDLED;
-					break;
 
 				case FOE_IN_PATH:
-					debug_printf("wait_move_and_scan_foe -- foe in path\n");
-					info_printf("FOE_IN_PATH on WAIT_MOVE_AND_SCAN_FOE\n");
-					wait_timeout = WAIT_TIME_DETECTION;
+					info_printf("wait_move_and_scan_foe -- foe\n");
 					if(avoidance_type == DODGE_AND_WAIT || avoidance_type == DODGE_AND_NO_WAIT)
 						state = EXTRACT;
 					else
 					{
-						state = INIT;
+						RESET_MAE();
 						global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-						return FOE_IN_PATH;			//Pas d'extraction demandée... on retourne tel quel FOE_IN_PATH !
+						return FOE_IN_PATH;
 					}
 					break;
 
@@ -646,83 +517,45 @@ error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacemen
 					break;
 
 				default:
-					state = INIT;
+					RESET_MAE();
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
 					return NOT_HANDLED;
-					break;
 			}
 			break;
 
 		case EXTRACT:
-			sub_action = extraction_of_foe(FAST);//SLOW_TRANSLATION_AND_FAST_ROTATION);
+			sub_action = extraction_of_foe(FAST);
 			switch(sub_action)
 			{
 				case END_OK:
-					state = INIT;
+					RESET_MAE();
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					debug_printf("Extraction success\n");
 					return FOE_IN_PATH;
-					break;
 
 				case IN_PROGRESS:
 					break;
 
 				case NOT_HANDLED:
 				default:
-					state = INIT;
+					RESET_MAE();
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					debug_printf("Extraction fail\n");
 					return NOT_HANDLED;
-					break;
 			}
 			break;
 
-		case DONE:
-			wait_timeout = WAIT_TIME_DETECTION;
-			state = INIT;
-			return timeout?END_WITH_TIMEOUT:END_OK;
-			break;
-
 		default:
-			debug_printf("Cas Default state, panique !!!\n");
-			state = INIT;
+			RESET_MAE();
 			global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
 			return NOT_HANDLED;
 	}
 	return IN_PROGRESS;
 }
-
 
 /* ----------------------------------------------------------------------------- */
 /* 		Fonctions de scrutation de la position de l'adversaire					 */
 /* ----------------------------------------------------------------------------- */
 
-//Retourne si un adversaire est dans le carré dont deux coins 1 et 2 sont passés en paramètres
-bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, foe_type_e foe_type)
-{
-	Uint8 i;
-	for (i=0; i<MAX_NB_FOES; i++)
-	{
-		if(
-			(i < MAX_HOKUYO_FOES && (foe_type == FOE_TYPE_ALL || foe_type == FOE_TYPE_HOKUYO))
-			||
-			(i >= MAX_HOKUYO_FOES && (foe_type == FOE_TYPE_ALL || foe_type == FOE_TYPE_IR))
-			){
-			if (global.foe[i].enable)
-			{
-				if(is_in_square(x1,x2,y1,y2,(GEOMETRY_point_t){global.foe[i].x,global.foe[i].y}))
-				{
-					if(verbose)
-						info_printf("FOE %d[%d;%d] found in zone x[%d->%d] y[%d->%d]\n",i,global.foe[i].x,global.foe[i].y,x1,x2,y1,y2);
-					return TRUE;
-				}
-			}
-		}
-	}
-	if(verbose)
-		info_printf("NO FOE found in zone x[%d->%d] y[%d->%d]\n",x1,x2,y1,y2);
-	return FALSE;
-}
+
 
 //Un point est-t-il une position permettant les rotations sans tapper dans un élément de jeu.
 bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
@@ -949,7 +782,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 
 		case TURN_TRIGO:
 			remaining_try = 3;
-			state = try_go_angle(global.pos.angle + PI4096/2,TURN_TRIGO,COMPUTE,TURN_HORAIRE,FAST);
+			state = try_go_angle(global.pos.angle + PI4096/2, state, COMPUTE, TURN_HORAIRE, FAST, ANY_WAY, END_AT_LAST_POINT);
 
 			if(state == TURN_HORAIRE)
 				sens = TURN_HORAIRE;
@@ -957,7 +790,7 @@ static error_e extraction_of_foe(PROP_speed_e speed){
 
 		case TURN_HORAIRE:
 			remaining_try = 3;
-			state = try_go_angle(global.pos.angle - PI4096/2,TURN_HORAIRE,COMPUTE,TURN_TRIGO,FAST);
+			state = try_go_angle(global.pos.angle - PI4096/2, TURN_HORAIRE, COMPUTE, TURN_TRIGO, FAST, ANY_WAY, END_AT_LAST_POINT);
 
 			if(state == TURN_TRIGO)
 				sens = TURN_TRIGO;
@@ -996,157 +829,66 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 			DONE
 		);
 
-	static bool_e timeout = FALSE;
-	error_e prop_stack_state;
-	static volatile bool_e flag_buzzer = FALSE;
+	static time32_t beginTime;
+	static Uint8 idTraj;
 
 	switch(state)
 	{
 
 		case LOAD_MOVE:
-			clear_prop_detected_foe();
+			global.prop.detected_foe = FALSE;
 			global.destination = displacements.point;
-			PROP_push_goto_multi_point(displacements.point.x, displacements.point.y, displacements.speed, ANY_WAY, PROP_CURVE, AVOID_ENABLED, PROP_END_OF_BUFFER, END_AT_LAST_POINT, PROP_NO_BORDER_MODE, TRUE);
+
+			idTraj = PROP_getNextIdTraj();
+			beginTime = global.absolute_time;
+			PROP_goTo(displacements.point.x, displacements.point.y, PROP_ABSOLUTE, FALSE, PROP_END_AT_POINT, displacements.speed, ANY_WAY, PROP_NO_CURVE, AVOID_ENABLED, PROP_NO_BORDER_MODE, idTraj);
 			debug_printf("goto_extract_with_avoidance : load_move\n");
-			WATCHDOG_create_flag(300, &flag_buzzer);
-			BUZZER_play(200, DEFAULT_NOTE, 1);
 			state = WAIT_MOVE_AND_SCAN_FOE;
 			break;
 
-		case WAIT_MOVE_AND_SCAN_FOE:
-			prop_stack_state = AVOIDANCE_watch_prop_stack();
-			switch(prop_stack_state)
+		case WAIT_MOVE_AND_SCAN_FOE:{
+			error_e subaction = wait_move_and_wait_detection(TRAJECTORY_TRANSLATION, 1, idTraj, END_AT_LAST_POINT, beginTime);
+			switch(subaction)
 			{
 				case END_OK:
+					RESET_MAE();
 					debug_printf("goto_extract_with_avoidance -- fini\n");
-					state = DONE;
-					break;
+					return END_OK;
 
 				case END_WITH_TIMEOUT:
-					timeout = TRUE;
+					RESET_MAE();
 					info_printf("TIMEOUT on goto_extract_with_avoidance");
-					state = DONE;
-					break;
+					return END_OK;
 
 				case NOT_HANDLED:
 					info_printf("ERROR on goto_extract_with_avoidance");
-					state = LOAD_MOVE;
+					RESET_MAE();
 					return NOT_HANDLED;
-					break;
 
 				case IN_PROGRESS:
-					if (flag_buzzer) {
-						BUZZER_play(200, DEFAULT_NOTE, 1);
-						WATCHDOG_create_flag(300, &flag_buzzer);
-					}
 					break;
 
 				default:
-					state = LOAD_MOVE;
+					RESET_MAE();
 					return NOT_HANDLED;
-					break;
 			}
 
 			// check adversaire détecté
-			if(prop_detected_foe){
-				STACKS_flush(PROP);
-				state = LOAD_MOVE;
+			if(global.prop.detected_foe){
+				RESET_MAE();
 				return FOE_IN_PATH;
 			}
-			break;
-
-		case DONE:
-			state = LOAD_MOVE;
-			return timeout?END_WITH_TIMEOUT:END_OK;
-			break;
+			}break;
 
 		default:
+			RESET_MAE();
 			debug_printf("Cas Default state, panique !!!\n");
-			state = LOAD_MOVE;
 			return NOT_HANDLED;
 	}
 	return IN_PROGRESS;
 }
 
-// Vérifie adversaire dans NORTH_US, NORTH_FOE, SOUTH_US, SOUTH_FOE
-foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id)
-{
-	assert(foe_id < MAX_NB_FOES);
-
-	if(global.foe[foe_id].x > 1000)
-	{
-		// Partie SUD
-		if(COLOR_Y(global.foe[foe_id].y) > 1500)
-		{
-			return SOUTH_FOE;
-		}
-		else
-		{
-			return SOUTH_US;
-		}
-	}
-	else
-	{
-		if(COLOR_Y(global.foe[foe_id].y) > 1500)
-		{
-			return NORTH_FOE;
-		}
-		else
-		{
-			return NORTH_US;
-		}
-	}
-}
-
-void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
-	CAN_msg_t msg_to_send;
-	msg_to_send.sid = DEBUG_FOE_REASON;
-	msg_to_send.size = SIZE_DEBUG_FOE_REASON;
-	msg_to_send.data.debug_foe_reason.foe_origine = origin;
-	msg_to_send.data.debug_foe_reason.angle = angle;
-	msg_to_send.data.debug_foe_reason.dist = distance;
-	CAN_send(&msg_to_send);
-}
-
-
-void clear_prop_detected_foe(){
-	prop_detected_foe = FALSE;
-}
-
-void set_prop_detected_foe(CAN_msg_t *msg){
-
-	if(msg->sid == STRAT_PROP_FOE_DETECTED){
-		if(msg->data.strat_prop_foe_detected.in_wait == FALSE){
-			prop_detected_foe = TRUE;
-		}
-	}
-}
-
 //------------------------------------------------------------------- Fonctions autress
-
-/*
- * Surveille l'execution de la pile PROP. Renvoie vrai si toutes les fonctions sont finies
- * Rattrappe le robot quand il part en erreur.
- * Inscrit dans le booléen got_timeout si un timeout a été levé
- */
-static error_e AVOIDANCE_watch_prop_stack ()
-{
-	bool_e timeout = FALSE, action_end;
-
-	action_end = STACKS_wait_end(PROP,&timeout);
-
-	if(timeout){ // S'il y a timeout que la l'ensemble des trajectoires soient finit ou pas, on vide la stack puis on déclare le timeout
-		STACKS_flush(PROP);
-		return END_WITH_TIMEOUT;
-	}else if(action_end) // Si l'ensemble des trajectoires sont finit, on le déclare
-		return END_OK;
-	else if (global.prop.erreur){
-		STACKS_flush(PROP);
-		return NOT_HANDLED;
-	}
-
-	return IN_PROGRESS;
-}
 
 /* Action qui update la position */
 error_e ACTION_update_position()
@@ -1182,40 +924,3 @@ error_e ACTION_update_position()
 	return IN_PROGRESS;
 }
 
-/* Action qui arrête le robot, met la position à jour */
-error_e ACTION_prop_stop()
-{
-	CREATE_MAE(
-			SEND_CAN_MSG,
-			WAIT_RECEPTION
-		);
-
-	static time32_t initial_time;
-
-	switch (state)
-	{
-		case SEND_CAN_MSG :
-			initial_time = global.match_time;
-			STACKS_flush(PROP);
-			CAN_send_sid(PROP_STOP);
-			state = WAIT_RECEPTION;
-			break;
-
-		case WAIT_RECEPTION :
-			if (global.prop.ended || (global.match_time-initial_time > (1000/*ms*/)))
-			{
-				state = SEND_CAN_MSG;
-				return END_OK;
-			}
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-bool_e i_am_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2){
-	return is_in_square(x1, x2, COLOR_Y(y1), COLOR_Y(y2), (GEOMETRY_point_t){global.pos.x, global.pos.y});
-}
-
-bool_e is_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current){
-	return is_in_square(x1, x2, COLOR_Y(y1), COLOR_Y(y2), current);
-}

@@ -15,50 +15,19 @@
 #ifndef PROP_FUNCTIONS_H
 	#define PROP_FUNCTIONS_H
 
-	#include "prop_types.h"
-	#include "Stacks.h"
 	#include "avoidance.h"
-
-
-	typedef struct
-	{
-		Uint16 x,y;
-		Sint16 angle;
-		PROP_speed_e speed;
-		way_e way;
-		prop_curve_e curve;
-		prop_buffer_mode_e priority_order;
-		avoidance_e avoidance;
-		prop_border_mode_e border_mode;
-	}prop_arg_t;
-
-
-
-
 
 // ---------------------------------------------------------------------------- Fonctions de déplacement
 
-	/* Arrête le robot, ne touche pas à la pile */
-	void PROP_push_stop ();
+	void PROP_stop();
 
-	/* ajoute une instruction goto sur la pile asser */
-	void PROP_push_goto (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, PROP_end_condition_e end_condition, prop_border_mode_e border_mode, bool_e run);
+	void PROP_goTo(Sint16 x, Sint16 y, prop_referential_e referential, PROP_speed_e speed, way_e way, bool_e multipoint, propEndCondition_e propEndCondition, Uint8 curve, avoidance_type_e avoidance, prop_border_mode_e border_mode, Uint8 idTraj);
 
-	/* ajoute une instruction goangle sur la pile asser */
-	void PROP_push_goangle (Sint16 angle, PROP_speed_e speed, bool_e run);
+	void PROP_goAngle(Sint16 angle, prop_referential_e referential, PROP_speed_e speed, way_e way, bool_e multipoint, propEndCondition_e propEndCondition, Uint8 idTraj);
 
-	/* ajoute une instruction goto_multi_point sur la pile asser */
-	void PROP_push_goto_multi_point (Sint16 x, Sint16 y, PROP_speed_e speed, way_e way, Uint8 curve, avoidance_type_e avoidance, Uint8 priority_order, PROP_end_condition_e end_condition, prop_border_mode_e border_mode, bool_e run);
+	void PROP_rushInTheWall(way_e way, bool_e asserRot, Sint16 angle);
 
-	/* ajoute une instruction rush_in_the_wall sur la pile asser */
-	void PROP_push_rush_in_the_wall (way_e way, bool_e prop_rotate,Sint16 angle, bool_e run);
-
-	/* ajoute une instruction relative_goangle sur la pile asser */
-	void PROP_push_relative_goangle (Sint16 angle, PROP_speed_e speed, bool_e run);
-
-	/* ajoute une instruction relative_goangle_multi_point sur la pile asser */
-	void PROP_push_relative_goangle_multi_point (Sint16 angle, PROP_speed_e speed, bool_e run);
-
+	error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_trajectory, Uint8 idLastTraj, STRAT_endCondition_e end_condition, time32_t begin_time);
 
 // ---------------------------------------------------------------------------- Fonctions de warner
 
@@ -96,6 +65,8 @@
 	*/
 	void PROP_WARNER_arm_distance(Uint16 distance, Sint16 x, Sint16 y);
 
+	Uint8 PROP_getNextIdTraj();
+
 
 // ---------------------------------------------------------------------------- Fonctions autres
 
@@ -106,12 +77,6 @@
 	// Altération des coordonnées du robot x/y/teta
 
 	void PROP_set_threshold_error_translation(Uint8 value, bool_e reset);
-
-	/* Accesseur en lecture sur les arguments de la pile PROP */
-	prop_arg_t PROP_get_stack_arg(Uint8 index);
-
-	/* Accesseur en écriture sur les arguments de la pile PROP */
-	void PROP_set_stack_arg(prop_arg_t arg, Uint8 index);
 
 	void PROP_set_position(Sint16 x, Sint16 y, Sint16 teta);
 
@@ -124,25 +89,10 @@
 	/* Demande un envoi par la propulsion de l'ensemble de ses coefs */
 	void PROP_ask_propulsion_coefs(void);
 
-	/* fonction retournant si on se situe à moins de 15 cm de la destination.
-	Fonctionne en distance Manhattan */
-	bool_e PROP_near_destination_manhattan();
-
-	/* fonction retournant si on se situe à moins d'une certaine distance de la destination.
-	   Fonctionne en distance euclidienne */
-	bool_e PROP_near_destination_euclidienne(Uint16 distance, GEOMETRY_point_t point);
-
-	/* fonction retournant si on se situe à moins de 2 degrés cm de la destination. */
-	bool_e PROP_near_destination_angle();
-
-	/* Regarde si la pile contient un goto vers (x, y) */
-	bool_e PROP_has_goto(Sint16 x, Sint16 y);
-
-	/* Affiche le contenu formaté de la pile asser, le haut de la pile en premier */
-	void PROP_dump_stack ();
-
 	//Définition de l'accesseur en lecture et en écriture de distance_to_reach
 	void PROP_set_distance_to_reach(Uint16 dist);
 	Uint16 PROP_get_distance_to_reach(void);
+
+	void PROP_set_detected_foe(CAN_msg_t *msg);
 
 #endif /* ndef PROP_FUNCTIONS_H */

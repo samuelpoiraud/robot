@@ -63,7 +63,6 @@
 			}
 			minimal.destination.cost -= (*point).cost;
 			polygon_printf("\n-------\n");
-			STACKS_push(PROP, &wait_forever, TRUE);
 		}
 
 		/* on retourne le coût du voyage */

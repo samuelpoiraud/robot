@@ -19,10 +19,12 @@
 
 	typedef struct
 	{
-		volatile bool_e freine;
+		volatile bool_e brake;
 		volatile bool_e ended;
 		volatile bool_e calibrated;
-		volatile bool_e erreur;
+		volatile bool_e error;
+		volatile bool_e detected_foe;
+		volatile Uint8 idTrajActual;
 		volatile bool_e reach_x;
 		volatile bool_e reach_y;
 		volatile bool_e reach_teta;
@@ -48,8 +50,6 @@
 		volatile Sint16 x;
 		volatile Sint16 y;
 		volatile Uint8 nb_points_reached;	//Nombre de point atteint d'un ensemble de point multipoint, pour savoir à quel moment on s'est arreté en cas d'évitement
-		volatile Sint16 translation_speed;	// [mm/sec] (modulo 250 mm/s)
-		volatile Sint16 rotation_speed;
 		volatile Sint16 cosAngle;/*cosinus de l'angle du robot*/
 		volatile Sint16 sinAngle;/*sinus de l'angle du robot*/
 		volatile time32_t update_time;		//Ce temps sera mis à jour à chaque adversaire nouvellement observé.

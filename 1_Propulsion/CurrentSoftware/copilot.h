@@ -46,4 +46,6 @@
 
 	void COPILOT_set_avoid_in_rush(bool_e avoid);
 
+	Uint8 COPILOT_get_actualTrajID();
+
 #endif	//def _COPILOT_H

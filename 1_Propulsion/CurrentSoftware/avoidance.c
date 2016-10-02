@@ -63,11 +63,12 @@ void AVOIDANCE_process_it(){
 									PROP_NOW,			//maintenant
 									ANY_WAY,			//sens de marche
 									NOT_BORDER_MODE,	//mode bordure
-									PROP_NO_MULTIPOINT, //mode multipoints
+									PROP_END_AT_POINT, //mode multipoints
 									FAST,				//Vitesse
 									NO_ACKNOWLEDGE,
 									CORRECTOR_ENABLE,
-									AVOID_DISABLED
+									AVOID_DISABLED,
+									0
 								);
 
 				// Puis on avertie la stratégie qu'il y a eu évitement
@@ -94,13 +95,14 @@ void AVOIDANCE_process_it(){
 					supp.relative = PROP_ABSOLUTE;
 					supp.way = ANY_WAY;
 					supp.border_mode = NOT_BORDER_MODE;
-					supp.multipoint = PROP_NO_MULTIPOINT;
+					supp.propEndCondition = PROP_END_AT_POINT;
 					supp.speed = FAST;
 					supp.acknowledge = NO_ACKNOWLEDGE;
 					supp.corrector = CORRECTOR_ENABLE;
 					supp.avoidance = AVOID_DISABLED;
 					supp.total_wait_time = 0;
 					supp.trajectory = WAIT_FOREVER;
+					supp.idTraj = 0;
 				BUFFER_add_begin(&supp);
 
 				supp.trajectory = TRAJECTORY_STOP;
@@ -131,11 +133,12 @@ void AVOIDANCE_process_it(){
 								PROP_NOW,			//maintenant
 								ANY_WAY,	//sens de marche
 								NOT_BORDER_MODE,	//mode bordure
-								PROP_NO_MULTIPOINT, 	//mode multipoints
+								PROP_END_AT_POINT, 	//mode multipoints
 								FAST,				//Vitesse
 								NO_ACKNOWLEDGE,
 								CORRECTOR_ENABLE,
-								AVOID_DISABLED
+								AVOID_DISABLED,
+								0
 							);
 
 			AVOIDANCE_said_foe_detected(TRUE, FALSE);
