@@ -4,7 +4,7 @@
 #include "../QS/QS_all.h"
 #include "../QS/QS_can.h"
 #include "queue.h"
-#include "../avoidance.h"
+#include "../propulsion/avoidance.h"
 
 //Info sur la gestion d'erreur des actionneurs:
 //La carte actionneur génère des resultats et détail les erreurs suivant ce qu'elle sait et les envois par message CAN avec ACT_RESULT

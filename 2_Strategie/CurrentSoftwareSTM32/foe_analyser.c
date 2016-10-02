@@ -1,5 +1,5 @@
 #include "foe_analyser.h"
-#include "avoidance.h"
+#include "propulsion/avoidance.h"
 #include "elements.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_can.h"

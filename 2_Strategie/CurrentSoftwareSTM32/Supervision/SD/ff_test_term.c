@@ -13,7 +13,7 @@
 #include "Libraries/fat_sd/ff.h"
 #include "term_io.h"
 #include "ff_test_term.h"
-#include "../../prop_functions.h"
+#include "../../propulsion/prop_functions.h"
 
 #include <string.h>
 #include <ctype.h>

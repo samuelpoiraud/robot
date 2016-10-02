@@ -22,10 +22,10 @@
 #ifndef AVOIDANCE_H
 #define AVOIDANCE_H
 
-#include "QS/QS_all.h"
-#include "QS/QS_maths.h"
-#include "environment.h"
-#include "zones.h"
+#include "../QS/QS_all.h"
+#include "../QS/QS_maths.h"
+#include "../environment.h"
+#include "../zones.h"
 
 //-------------------------------------------------------------------Enumerations
 

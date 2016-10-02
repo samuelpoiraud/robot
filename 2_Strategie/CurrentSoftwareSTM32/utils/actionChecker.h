@@ -3,7 +3,7 @@
 
 #include "../QS/QS_all.h"
 #include "../actuator/queue.h"
-#include "../avoidance.h"
+#include "../propulsion/avoidance.h"
 
 //Vérifie l'état d'un actionneur: action en cours, action terminée correctement ou erreur. S'utilise comme try_going pour les états.
 //Voir act_function.h pour les fonctions des actions et pour un exemple de code.

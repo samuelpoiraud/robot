@@ -5,12 +5,12 @@
  *      Author: cyril, modified
  */
 
-#include "QS/QS_all.h"
+#include "../QS/QS_all.h"
 
 #ifndef PATHFIND_H
 #define PATHFIND_H
 
-#include "Generic_functions.h"
+#include "../Generic_functions.h"
 #include "prop_functions.h"
 #include "avoidance.h"
 

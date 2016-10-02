@@ -7,10 +7,10 @@
 #include "gohome.h"
 #include <errno.h>
 #include "../term_commands_utils.h"
-#include "../../../prop_functions.h"
 #include "../../../QS/QS_all.h"
 #include "../../../QS/QS_who_am_i.h"
-#include "../../../avoidance.h"
+#include "../../../propulsion/avoidance.h"
+#include "../../../propulsion/prop_functions.h"
 
 const char term_cmd_gohome_brief[] = "Déplace le robot à sa position de départ";
 const char term_cmd_gohome_help[] =

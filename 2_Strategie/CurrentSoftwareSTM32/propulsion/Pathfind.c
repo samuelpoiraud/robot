@@ -10,16 +10,15 @@
  */
 
 #include "Pathfind.h"
-#include "config/config_use.h"
-#include "utils/actionChecker.h"
-#include "QS/QS_stateMachineHelper.h"
+#include "../utils/actionChecker.h"
+#include "../QS/QS_stateMachineHelper.h"
 #include "avoidance.h"
 #include <math.h>
 
 #define LOG_PREFIX ""
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PATHFIND
-#include "QS/QS_outputlog.h"
-#include "Supervision/SD/SD.h"
+#include "../QS/QS_outputlog.h"
+#include "../Supervision/SD/SD.h"
 
 #define MANHATTAN_DIST_NODE_BLOQUED_BY_ADVERSARY	400		//Distance manhattan entre un advesaire et les noeuds dont il bloque l'accès
 #define DISTANCE_CONSIDERE_ADVERSARY				1200	//Distance entre nous et l'adversaire pour qu'il soit pris en compte (s'il est loin, on le néglige.. en espérant qu'il bouge d'ici à notre arrivée)
