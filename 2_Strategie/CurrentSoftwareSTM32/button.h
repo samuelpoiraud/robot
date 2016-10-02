@@ -10,18 +10,17 @@
  */
 
 #include "QS/QS_all.h"
-#include "prop_functions.h"
 
 
 #ifndef BUTTON_H
 	#define BUTTON_H
 	#include "QS/QS_all.h"
-	#include "prop_functions.h"
 	#include "QS/QS_timer.h"
 	#include "QS/QS_buttons.h"
 	#include "QS/QS_adc.h"
 	#include "actuator/act_functions.h"
-	#include "avoidance.h"
+	#include "propulsion/avoidance.h"
+	#include "propulsion/prop_functions.h"
 
 	void BUTTON_init();
 	void BUTTON_update();

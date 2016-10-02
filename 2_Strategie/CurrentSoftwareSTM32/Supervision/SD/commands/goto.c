@@ -1,7 +1,7 @@
 #include "goto.h"
 #include <errno.h>
 #include "../term_commands_utils.h"
-#include "../../../prop_functions.h"
+#include "../../../propulsion/prop_functions.h"
 #include "../../../QS/QS_all.h"
 
 const char term_cmd_goto_brief[] = "Déplace le robot à la position voulue";

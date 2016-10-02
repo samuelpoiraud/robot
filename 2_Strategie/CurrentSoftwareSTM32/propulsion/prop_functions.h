@@ -10,7 +10,7 @@
  *	Version 20110313
  */
 
-#include "QS/QS_all.h"
+#include "../QS/QS_all.h"
 
 #ifndef PROP_FUNCTIONS_H
 	#define PROP_FUNCTIONS_H

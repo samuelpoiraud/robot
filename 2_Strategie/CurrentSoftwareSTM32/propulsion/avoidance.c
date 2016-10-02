@@ -11,21 +11,21 @@
 
 #include "avoidance.h"
 #include "prop_functions.h"
-#include "Supervision/Buzzer.h"
-#include "math.h"
-#include "utils/actionChecker.h"
-#include "QS/QS_stateMachineHelper.h"
-#include "QS/QS_maths.h"
-#include "QS/QS_IHM.h"
-#include "QS/QS_maths.h"
-#include "QS/QS_who_am_i.h"
-#include "QS/QS_watchdog.h"
-#include "QS/QS_can.h"
+#include "../Supervision/Buzzer.h"
+#include <math.h>
+#include "../utils/actionChecker.h"
+#include "../QS/QS_stateMachineHelper.h"
+#include "../QS/QS_maths.h"
+#include "../QS/QS_IHM.h"
+#include "../QS/QS_maths.h"
+#include "../QS/QS_who_am_i.h"
+#include "../QS/QS_watchdog.h"
+#include "../QS/QS_can.h"
 
 #define LOG_PREFIX "avoid: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_AVOIDANCE
-#include "QS/QS_outputlog.h"
-#include "Supervision/SD/SD.h"
+#include "../QS/QS_outputlog.h"
+#include "../Supervision/SD/SD.h"
 
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
 #define EXTRACTION_DISTANCE			300

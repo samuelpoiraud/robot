@@ -10,15 +10,14 @@
  *	Version 2
  */
 
-	#include "config/config_use.h"
+#include "../QS/QS_all.h"
 
-
-	#ifdef USE_ASTAR
+#ifdef USE_ASTAR
 
 	#ifndef _ASTAR_H_
 		#define _ASTAR_H_
 
-	#include "QS/QS_who_am_i.h"
+	#include "../QS/QS_who_am_i.h"
 	#include "avoidance.h"
 
 

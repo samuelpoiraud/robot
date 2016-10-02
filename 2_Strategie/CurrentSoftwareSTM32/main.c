@@ -34,7 +34,7 @@
 #include "actuator/act_functions.h"
 #include "actuator/act_avoidance.h"
 #include "Supervision/Supervision.h"
-#include "astar.h"
+#include "propulsion/astar.h"
 #include "elements.h"
 #include "foe_analyser.h"
 

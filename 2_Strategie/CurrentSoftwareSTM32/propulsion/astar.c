@@ -13,18 +13,18 @@
 #include "astar.h"
 #include <stdlib.h>
 #include <math.h>
-#include "QS/QS_all.h"
-#include "QS/QS_maths.h"
-#include "QS/QS_stateMachineHelper.h"
-#include "utils/actionChecker.h"
-#include "Supervision/SD/SD.h"
-#include "Generic_functions.h"
+#include "../QS/QS_all.h"
+#include "../QS/QS_maths.h"
+#include "../QS/QS_stateMachineHelper.h"
+#include "../utils/actionChecker.h"
+#include "../Supervision/SD/SD.h"
+#include "../Generic_functions.h"
 
 #ifdef _ASTAR_H_
 
 #define LOG_PREFIX "astar: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ASTAR
-#include "QS/QS_outputlog.h"
+#include "../QS/QS_outputlog.h"
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------- Macros ---------------------------------------------------------------

@@ -11,14 +11,14 @@
  */
 
 #include "prop_functions.h"
-#include "QS/QS_can.h"
-#include "QS/QS_CANmsgList.h"
-#include "QS/QS_maths.h"
+#include "../QS/QS_can.h"
+#include "../QS/QS_CANmsgList.h"
+#include "../QS/QS_maths.h"
 #include "avoidance.h"
 
 #define LOG_PREFIX "prop_fun: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PROP_FUNCTION
-#include "QS/QS_outputlog.h"
+#include "../QS/QS_outputlog.h"
 
 // Timeout en ms
 #define GOTO_TIMEOUT_TIME							5000	// On n'attend que 3 secondes sur les PROP_push_goto cette année car on ne fait pas de gros déplacements sur le terrain
