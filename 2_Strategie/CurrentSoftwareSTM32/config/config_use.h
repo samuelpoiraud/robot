@@ -54,9 +54,6 @@
 
 #define FDP_2016				//Mode FDP nouvelle génération 2016 !
 
-//#define USE_POLYGON			//Utilise le mode de déplacement avec les polygones
-	//Si cette ligne est commentée, on utilise par défaut le mode de déplacement avec pathfind
-
 #define USE_ASTAR				//Activation de l'algorithme ASTAR, avec pathfind par polygones
 #define USE_ASTAR_2
 

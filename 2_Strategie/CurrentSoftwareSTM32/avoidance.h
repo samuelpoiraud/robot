@@ -27,10 +27,6 @@
 #include "environment.h"
 #include "zones.h"
 
-#ifdef USE_POLYGON
-	#include "polygon.h"
-#endif
-
 //-------------------------------------------------------------------Enumerations
 
 /* Types d'évitements possibles */
