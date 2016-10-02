@@ -36,7 +36,7 @@
 
 	#ifdef USE_MOSFETS_MODULE
 
-		#include "../queue.h"
+		#include "../actuator/queue.h"
 
 		// Initialisation du gestionnaire MOSFET.
 		void MOSFET_init();

@@ -13,9 +13,9 @@
 #ifndef ACT_FUNCTIONS_H
 #define ACT_FUNCTIONS_H
 
-#include "QS/QS_all.h"
+#include "../QS/QS_all.h"
+#include "../QS/QS_CANmsgList.h"
 #include "queue.h"
-#include "QS/QS_CANmsgList.h"
 #include "act_can.h"
 
 //Voir aussi act_can.h et state_machine_helper.h

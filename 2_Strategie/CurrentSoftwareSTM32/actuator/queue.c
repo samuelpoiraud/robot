@@ -18,7 +18,7 @@
 
 #define LOG_PREFIX "queue: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_QUEUE
-#include "QS/QS_outputlog.h"
+#include "../QS/QS_outputlog.h"
 #define component_printf_global(log_level, format, ...) component_printf(log_level, LOG_PREFIX "[all] " format, ## __VA_ARGS__)
 #define component_printf_queue(log_level, queueId, format, ...) component_printf(log_level, LOG_PREFIX "[%d] " format, queueId, ## __VA_ARGS__)
 

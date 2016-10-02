@@ -18,7 +18,7 @@
 #include "Supervision/Selftest.h"
 #include "QS/QS_can_over_xbee.h"
 #include "Supervision/Buzzer.h"
-#include "act_functions.h"
+#include "actuator/act_functions.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_ports.h"
 

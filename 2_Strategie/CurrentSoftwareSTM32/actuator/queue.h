@@ -9,12 +9,12 @@
  *  Version 20130318
  */
 
-#include "QS/QS_all.h"
+#include "../QS/QS_all.h"
 
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include "clock.h"
+#include "../clock.h"
 
 #define QUEUE_SIZE	16
 

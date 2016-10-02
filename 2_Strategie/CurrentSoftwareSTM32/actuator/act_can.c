@@ -1,11 +1,11 @@
 #include "act_can.h"
-#include "QS/QS_CANmsgList.h"
+#include "../QS/QS_CANmsgList.h"
 
 #define LOG_PREFIX "act_c: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
-#include "QS/QS_outputlog.h"
-#include "QS/QS_who_am_i.h"
-#include "QS/QS_mosfet.h"
+#include "../QS/QS_outputlog.h"
+#include "../QS/QS_who_am_i.h"
+#include "../QS/QS_mosfet.h"
 #include "act_functions.h"
 
 #define ACT_DONT_TRY_FALLBACK_ON_SMALL
