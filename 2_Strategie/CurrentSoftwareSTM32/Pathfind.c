@@ -28,8 +28,6 @@
 #define IGNORE_FIRST_POINT_DISTANCE					150		//Distance du noeud en dessous de laquelle on ne s'y rend pas et on attaque directement le voisin
 #define DISTANCE_CHANGING_FIRST_NODE_FOE			600		//Distance à laquelle on décide de choisir le node de départ le plus éloigné de tout les adversaires
 
-#ifndef USE_POLYGON
-
 static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_nb_displacements, Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to);
 static Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool_e handleOpponent);
 
@@ -1067,6 +1065,4 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, PROP_
 
 	return nodes[to].cost;
 }
-#endif
-
 #endif
