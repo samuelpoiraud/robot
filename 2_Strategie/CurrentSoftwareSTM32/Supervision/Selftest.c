@@ -24,7 +24,7 @@
 #include "../QS/QS_ports.h"
 #include "../QS/QS_mosfet.h"
 #include "../elements.h"
-#include "../act_functions.h"
+#include "../actuator/act_functions.h"
 #include "../detection.h"
 #include "SD/Libraries/fat_sd/ff.h"
 #include "SD/SD.h"

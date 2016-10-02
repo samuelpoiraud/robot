@@ -12,7 +12,7 @@
 #define BUTTON_C
 
 #include "button.h"
-#include "act_functions.h"
+#include "actuator/act_functions.h"
 #include "elements.h"
 #include "main.h"
 #include "Supervision/Selftest.h"

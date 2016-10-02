@@ -11,7 +11,7 @@
 #include "../../../QS/QS_all.h"
 #include "../../../QS/QS_CANmsgList.h"
 #include "../../../QS/QS_can.h"
-#include "../../../queue.h"
+#include "../../../actuator/queue.h"
 
 const char term_cmd_stop_brief[] = "Stop tout";
 const char term_cmd_stop_help[] =

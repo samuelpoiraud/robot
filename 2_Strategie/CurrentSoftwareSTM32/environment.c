@@ -10,7 +10,7 @@
  */
 
 #include "environment.h"
-#include "act_functions.h"
+#include "actuator/act_functions.h"
 #include "zone_mutex.h"
 #include "fix_beacon.h"
 #include "Supervision/Buffer.h"

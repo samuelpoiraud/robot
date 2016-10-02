@@ -2,7 +2,7 @@
 #define ACTION_CHECKER_H
 
 #include "../QS/QS_all.h"
-#include "../queue.h"
+#include "../actuator/queue.h"
 #include "../avoidance.h"
 
 //Vérifie l'état d'un actionneur: action en cours, action terminée correctement ou erreur. S'utilise comme try_going pour les états.

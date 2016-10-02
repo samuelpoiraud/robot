@@ -17,7 +17,7 @@
 #include "../QS/QS_ports.h"
 #include "../QS/QS_can.h"
 #ifdef I_AM_CARTE_STRAT
-	#include "../act_functions.h"
+	#include "../actuator/act_functions.h"
 #endif
 
 #define LOG_PREFIX "mosfet : "

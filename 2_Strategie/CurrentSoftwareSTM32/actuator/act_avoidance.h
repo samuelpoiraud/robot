@@ -1,8 +1,8 @@
 #ifndef ACT_AVOIDANCE_H
 #define ACT_AVOIDANCE_H
 
-#include "QS/QS_all.h"
-#include "avoidance.h"
+#include "../QS/QS_all.h"
+#include "../avoidance.h"
 #include "act_functions.h"
 
 

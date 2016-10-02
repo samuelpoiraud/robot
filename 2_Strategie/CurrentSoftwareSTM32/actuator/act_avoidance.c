@@ -3,9 +3,9 @@
 
 #define LOG_PREFIX "act_avoid: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
-#include "QS/QS_outputlog.h"
-#include "QS/QS_who_am_i.h"
-#include "QS/QS_can.h"
+#include "../QS/QS_outputlog.h"
+#include "../QS/QS_who_am_i.h"
+#include "../QS/QS_can.h"
 
 static offset_avoid_s offset_avoid[NB_QUEUE][ACT_AVOID_NB_MAX_CMD] = {{{0}}};
 static offset_avoid_s total_offset_avoid = {0};

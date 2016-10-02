@@ -20,7 +20,7 @@
 	#include "QS/QS_timer.h"
 	#include "QS/QS_buttons.h"
 	#include "QS/QS_adc.h"
-	#include "act_functions.h"
+	#include "actuator/act_functions.h"
 	#include "avoidance.h"
 
 	void BUTTON_init();

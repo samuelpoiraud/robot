@@ -1,9 +1,9 @@
 #include "actionChecker.h"
 #include <stdarg.h>
 #include "../QS/QS_outputlog.h"
-#include "../act_can.h"
+#include "../actuator/act_can.h"
 
-Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state) {
+Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state){
 	ACT_function_result_e result = ACT_get_last_action_result(act_queue_id);
 	switch(result) {
 		case ACT_FUNCTION_InProgress:
@@ -22,7 +22,7 @@ Uint8 check_act_status(queue_id_e act_queue_id, Uint8 in_progress_state, Uint8 s
 	}
 }
 
-Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state) {
+Uint8 check_sub_action_result(error_e sub_action, Uint8 in_progress_state, Uint8 success_state, Uint8 failed_state){
 	switch(sub_action) {
 		case IN_PROGRESS:
 			return in_progress_state;

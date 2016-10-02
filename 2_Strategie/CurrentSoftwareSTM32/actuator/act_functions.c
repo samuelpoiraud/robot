@@ -14,18 +14,17 @@
 
 #define LOG_PREFIX "act_f: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
-#include "QS/QS_outputlog.h"
+#include "../QS/QS_outputlog.h"
+#include "../QS/QS_CANmsgList.h"
+#include "../QS/QS_IHM.h"
+#include "../QS/QS_can_verbose.h"
+#include "../QS/QS_who_am_i.h"
+#include "../QS/QS_buffer_fifo.h"
+#include "../QS/QS_watchdog.h"
+#include "../QS/QS_stateMachineHelper.h"
+#include "../utils/actionChecker.h"
+#include "../Generic_functions.h"
 #include "act_avoidance.h"
-#include "QS/QS_who_am_i.h"
-#include "QS/QS_buffer_fifo.h"
-#include "QS/QS_watchdog.h"
-#include "utils/actionChecker.h"
-#include "QS/QS_stateMachineHelper.h"
-#include "Generic_functions.h"
-#include "QS/QS_CANmsgList.h"
-#include "QS/QS_IHM.h"
-#include "QS/QS_can_verbose.h"
-
 
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
 #define ULU_TIME                        300
