@@ -227,11 +227,12 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								PROP_NOW,			//maintenant
 								ANY_WAY,			//sens de marche
 								NOT_BORDER_MODE,	//mode bordure
-								PROP_NO_MULTIPOINT, //mode multipoints
+								PROP_END_AT_POINT, //mode multipoints
 								FAST,				//Vitesse
 								ACKNOWLEDGE_ASKED,
 								CORRECTOR_ENABLE,
-								AVOID_DISABLED
+								AVOID_DISABLED,
+								0
 							);
 		break;
 
@@ -245,12 +246,13 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								msg->data.prop_go_angle.buffer_mode,//maintenant
 								ANY_WAY,					//sens de marche
 								NOT_BORDER_MODE,					//mode bordure
-								msg->data.prop_go_angle.multipoint, 	//mode multi points
+								msg->data.prop_go_angle.propEndCondition, 	//mode multi points
 								//NOT_MULTIPOINT,
 								msg->data.prop_go_angle.speed,						//Vitesse
 								(msg->data.prop_go_angle.acknowledge == PROP_ACKNOWLEDGE)? ACKNOWLEDGE_ASKED:NO_ACKNOWLEDGE,	//Demande spécifique de NON acquittement
 								CORRECTOR_ENABLE,
-								AVOID_DISABLED
+								AVOID_DISABLED,
+								msg->data.prop_go_angle.idTraj
 							);
 		break;
 
@@ -270,11 +272,12 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								msg->data.prop_go_position.buffer_mode,//maintenant
 								sens_marche,						//sens de marche
 								(msg->data.prop_go_position.border_mode == PROP_BORDER_MODE)?BORDER_MODE:NOT_BORDER_MODE,	//mode bordure
-								msg->data.prop_go_position.multipoint, //mode multipoints
+								msg->data.prop_go_position.propEndCondition, //mode multipoints
 								msg->data.prop_go_position.speed,						//Vitesse
 								(msg->data.prop_go_position.acknowledge == PROP_ACKNOWLEDGE)? ACKNOWLEDGE_ASKED:NO_ACKNOWLEDGE,	//Demande spécifique de NON acquittement,
 								CORRECTOR_ENABLE,
-								msg->data.prop_go_position.avoidance
+								msg->data.prop_go_position.avoidance,
+								msg->data.prop_go_position.idTraj
 							);
 		break;
 
@@ -346,11 +349,12 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								PROP_NOW,			//maintenant
 								ANY_WAY,	//sens de marche
 								NOT_BORDER_MODE,	//mode bordure
-								PROP_NO_MULTIPOINT, 	//mode multipoints
+								PROP_END_AT_POINT, 	//mode multipoints
 								FAST,				//Vitesse
 								ACKNOWLEDGE_ASKED,
 								CORRECTOR_ENABLE,
-								AVOID_DISABLED
+								AVOID_DISABLED,
+								0
 							);
 			// désactivation de tout les avertisseurs.
 			WARNER_init();
@@ -620,23 +624,18 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 void SECRETARY_process_send(Uint11 sid, prop_warning_reason_e reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
 {
 	CAN_msg_t msg;
-	Sint32 rot_speed;
 
 	msg.sid = sid;
 	msg.size = SIZE_BROADCAST_POSITION_ROBOT;
 	msg.data.broadcast_position_robot.x = global.position.x;
 	msg.data.broadcast_position_robot.y = global.position.y;
-	msg.data.broadcast_position_robot.speed_trans = (absolute(global.real_speed_translation)>>10)/5;
-	rot_speed = ((absolute(global.real_speed_rotation)>>10)*200)>>12;
-	if(rot_speed > 7)
-		rot_speed = 7;	//ecretage pour tenir sur 3 bits
-	msg.data.broadcast_position_robot.speed_rot = rot_speed;
 	msg.data.broadcast_position_robot.angle = global.position.teta;
 	msg.data.broadcast_position_robot.reason = reason;
 	msg.data.broadcast_position_robot.error = error_source;
 	msg.data.broadcast_position_robot.way = COPILOT_get_way();
 	msg.data.broadcast_position_robot.in_rotation = global.vitesse_rotation != 0;
 	msg.data.broadcast_position_robot.in_translation = global.vitesse_translation != 0;
+	msg.data.broadcast_position_robot.idTraj = COPILOT_get_actualTrajID();
 	SECRETARY_send_canmsg(&msg);
 }
 

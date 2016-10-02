@@ -39,4 +39,6 @@
 	// Fonction de récupération du prochain ordre dans le buffer
 	void BUFFER_get_next(order_t * order);
 
+	void BUFFER_check_next(order_t * order);
+
 #endif	//def _BUFFER_H

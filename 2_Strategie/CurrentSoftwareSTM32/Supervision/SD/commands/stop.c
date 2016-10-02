@@ -12,7 +12,6 @@
 #include "../../../QS/QS_CANmsgList.h"
 #include "../../../QS/QS_can.h"
 #include "../../../queue.h"
-#include "../../../Stacks.h"
 
 const char term_cmd_stop_brief[] = "Stop tout";
 const char term_cmd_stop_help[] =
@@ -26,8 +25,6 @@ int term_cmd_stop(int argc, const char *argv[]) {
 
 	CAN_send_sid(BROADCAST_STOP_ALL);
 	global.flags.match_over = TRUE;
-	STACKS_flush_all();
-	QUEUE_reset_all();
 
 	return 0;
 }

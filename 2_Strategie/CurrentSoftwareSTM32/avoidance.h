@@ -23,7 +23,6 @@
 #define AVOIDANCE_H
 
 #include "QS/QS_all.h"
-#include "prop_types.h"
 #include "QS/QS_maths.h"
 #include "environment.h"
 #include "zones.h"
@@ -37,8 +36,7 @@
 /* Types d'évitements possibles */
 typedef enum
 {
-	NORMAL_WAIT = 0,		// attente normale puis esquive
-	DODGE_AND_WAIT,// tentative d'évitement immédiate, puis attente
+	DODGE_AND_WAIT = 0,// tentative d'évitement immédiate, puis attente
 	DODGE_AND_NO_WAIT,// tentative d'évitement immédiate, puis NOT_HANDLED
 	NO_DODGE_AND_WAIT,// attente normale, puis NOT_HANDLED
 	NO_DODGE_AND_NO_WAIT,// aucune attente, aucune esquive, on détecte, on NOT_HANDLED !
@@ -60,6 +58,12 @@ typedef struct
 	bool_e curve;
 }displacement_curve_t;
 
+typedef enum
+{
+	END_AT_LAST_POINT = 0,
+	END_AT_BRAKE
+}STRAT_endCondition_e;
+
 
 
 //------------------------------------------------------------------- Machines à états de déplacements
@@ -80,7 +84,7 @@ typedef struct
  *
  * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
  */
-Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition);
 
 /*
  * Comme try_going mais avec le support du multipoint
@@ -96,7 +100,7 @@ Uint8 try_going(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint
  * param success_state état à retourner si le déplacement s'est terminé correctement
  * param fail_state état à retourner si le déplacement ne s'est pas terminé correctement
  */
-Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displacements, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition);
 
 /*
  * Placement du robot dans l'angle demandé
@@ -112,7 +116,7 @@ Uint8 try_going_multipoint(const displacement_t displacements[], Uint8 nb_displa
  *
  * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
  */
-Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed);
+Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, STRAT_endCondition_e endCondition);
 
 /*
  * Fait avancer le robot vers un points jusqu'a ce qu'il rencontre un enemie ou un obstacle
@@ -160,7 +164,7 @@ void compute_advance_point(Uint16 dist, way_e way, GEOMETRY_point_t *point);
  *
  * return le state rentré en argument correspondant au resultat du goto_pos_with_scan_foe
  */
-Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition);
+Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition);
 
 
 /*
@@ -176,6 +180,8 @@ Uint8 try_advance(GEOMETRY_point_t *point, bool_e compute, Uint16 dist, Uint8 in
  */
 Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 
+Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, bool_e asser_rotate, Uint8 thresholdError, Uint8 acceleration);
+
 
 //------------------------------------------------------------------- Fonctions relatives à l'évitement
 
@@ -185,35 +191,7 @@ void AVOIDANCE_forced_foe_dected();
 //Défini le temps de timeout d'evitement (pour *AND_WAIT). Ce temps est valide que pour le prochain mouvement, il est réinitialisé après.
 void AVOIDANCE_set_timeout(Uint16 msec);
 
-typedef enum
-{
-	NORTH_US = 0,
-	NORTH_FOE = 1,
-	SOUTH_US = 2,
-	SOUTH_FOE = 3
-}foe_pos_e;
 
-// Vérifie adversaire dans NORTH_BLUE, NORTH_BOT_COLOR...
-foe_pos_e AVOIDANCE_where_is_foe(Uint8 foe_id);
-
-/*
- * Envoie un message can lors d'un evitement avec les raisons
- *
- */
-void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
-
-typedef enum{
-	FOE_TYPE_ALL = 0,
-	FOE_TYPE_IR,
-	FOE_TYPE_HOKUYO
-}foe_type_e;
-
-bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, foe_type_e foe_type);
-
-
-void clear_prop_detected_foe();
-
-void set_prop_detected_foe(CAN_msg_t *msg);
 
 /*
  * Fonction qui réalise un PROP_push_goto tout simple avec la gestion de l'évitement (en courbe)
@@ -232,10 +210,10 @@ void set_prop_detected_foe(CAN_msg_t *msg);
  * return END_WITH_TIMEOUT : Timeout
  * return FOE_IN_PATH : un adversaire nous bloque
  */
-error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode);
+error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, STRAT_endCondition_e end_condition, prop_border_mode_e border_mode);
 
 // Fonction similaire à goto_pos_curve_with_avoidance pour un try_going avec une end_condition == END_AT_DISTANCE
-error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, PROP_end_condition_e end_condition, prop_border_mode_e border_mode);
+error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, STRAT_endCondition_e end_condition, prop_border_mode_e border_mode);
 
 //------------------------------------------------------------------- Fonctions autres
 
@@ -247,25 +225,11 @@ error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacemen
  */
 error_e ACTION_update_position();
 
-/*
- * Envoie un message CAN à l'asser et attend la reponse
- * return IN_PROGRESS   : requete d'arret envoyée, attente de réponse.
- * return END_OK		: le robot est arrêté et la pile PROP est vidée
- */
-error_e ACTION_prop_stop();
 
 //Le point passé en paramètre permet-il les rotations ?
 bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p);
 
 //Le point passé en paramètre permet-il une extraction ?
 bool_e is_possible_point_for_dodge(GEOMETRY_point_t * p);
-
-/**
- * @brief i_am_in_square_color permet de tester si le robot est dans un carré donnée avec une gestion automatique en miroir avec la couleur
- * @return vrai si nous somme dans le carré
- */
-bool_e i_am_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
-
-bool_e is_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
 
 #endif /* ndef AVOIDANCE_H */

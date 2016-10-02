@@ -282,8 +282,14 @@
 	/*sens de trajectoire - utilisé dans le code propulsion et partagé pour la stratégie... */
 	typedef enum {
 		ANY_WAY=0,
+
+	// Translation
 		BACKWARD,
-		FORWARD
+		FORWARD,
+
+	// Rotation
+		CLOCKWISE = BACKWARD,
+		TRIGOWISE = FORWARD
 	} way_e;
 
 	/*état de la carte propulsion - utilisé dans le code propulsion et partagé pour la stratégie... */
@@ -323,7 +329,7 @@
 		FAST_TRANSLATION_AND_SLOW_ROTATION,
 		EXTREMELY_VERY_SLOW,
 		CUSTOM,	//Les valeurs suivantes sont également valables (jusqu'à 255... et indiquent un choix de vitesse personnalisé !)
-		MAX_SPEED = 0xFFFF
+		MAX_SPEED = 0x03FF
 	 } PROP_speed_e;
 
 	typedef enum{
@@ -337,9 +343,9 @@
 	}prop_curve_e;
 
 	typedef enum{
-		PROP_NO_MULTIPOINT = 0,
-		PROP_MULTIPOINT
-	}prop_multipoint_e;
+		PROP_END_AT_POINT = 0,
+		PROP_END_AT_BRAKE
+	}propEndCondition_e;
 
 	typedef enum{
 		PROP_ABSOLUTE = 0,

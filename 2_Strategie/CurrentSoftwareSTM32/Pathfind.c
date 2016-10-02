@@ -641,7 +641,7 @@ static error_e PATHFIND_compute(displacement_curve_t * displacements, Uint8 * p_
  *
  * @return le state rentré en argument
  */
-Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, PROP_end_condition_e end_condition)
+Uint8 PATHFIND_try_going(pathfind_node_id_t node_wanted, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, PROP_speed_e speed, way_e way, avoidance_type_e avoidance, STRAT_endCondition_e end_condition)
 {
 	error_e sub_action;
 	static displacement_curve_t displacements[PATHFIND_NODE_NB];
@@ -1024,7 +1024,6 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, PROP_
 	/* Si le chemin n'a pas été trouvé */
 	if (!PATHFIND_TST_NODE_IN(to, closedList))
 	{
-		STACKS_push(PROP, &wait_forever, TRUE);
 		return PATHFIND_OPPONENT_COST;
 	}
 
@@ -1065,8 +1064,6 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, PROP_
 			nodes[to].cost -= PATHFIND_STEP_COST;
 		}
 	}
-
-	STACKS_push(PROP, &wait_forever, TRUE);
 
 	return nodes[to].cost;
 }

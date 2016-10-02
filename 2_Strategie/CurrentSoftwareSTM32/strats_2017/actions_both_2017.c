@@ -163,10 +163,10 @@ void strat_tourne_en_rond(void){
 		state = POS_DEPART;
 		break;
 	case POS_DEPART:
-		state = try_going(global.pos.x,200,POS_DEPART,POS_POINT,ERROR,SLOW,(QS_WHO_AM_I_get_name() == BIG_ROBOT)?FORWARD:BACKWARD,NO_AVOIDANCE, END_AT_BREAK);
+		state = try_going(global.pos.x,200,POS_DEPART,POS_POINT,ERROR,SLOW,(QS_WHO_AM_I_get_name() == BIG_ROBOT)?FORWARD:BACKWARD,NO_AVOIDANCE, END_AT_BRAKE);
 		break;
 	case POS_POINT:
-		state = try_going(650,600,POS_POINT,TOUR,ERROR,SLOW,(QS_WHO_AM_I_get_name() == BIG_ROBOT)?FORWARD:BACKWARD,NO_AVOIDANCE, END_AT_BREAK);
+		state = try_going(650,600,POS_POINT,TOUR,ERROR,SLOW,(QS_WHO_AM_I_get_name() == BIG_ROBOT)?FORWARD:BACKWARD,NO_AVOIDANCE, END_AT_BRAKE);
 		break;
 	case TOUR:
 		state = try_going_multipoint(tour,6,TOUR,FIN,ERROR,(QS_WHO_AM_I_get_name() == BIG_ROBOT)?FORWARD:BACKWARD,NO_AVOIDANCE, END_AT_LAST_POINT);
@@ -195,7 +195,6 @@ void strat_reglage_odo_rotation(void){
 		IDLE,
 		WAIT_COEF,
 		INIT_CALAGE,
-		INIT_WAIT_CALAGE,
 		INIT_VAR,
 		AVANCER,
 		BEGIN_PROCESS,
@@ -203,9 +202,7 @@ void strat_reglage_odo_rotation(void){
 		TOUR1,
 		TOUR2,
 		CALAGE1,
-		WAIT_CALAGE1,
 		CALAGE2,
-		WAIT_CALAGE2,
 		COMPARE_N_CORRECT,
 		REPORT,
 		ERROR
@@ -232,17 +229,11 @@ void strat_reglage_odo_rotation(void){
 			break;
 
 		case INIT_CALAGE:
-			PROP_push_rush_in_the_wall(ROT_CALAGE_WAY, TRUE, 0, TRUE);
-			state = INIT_WAIT_CALAGE;
-			break;
-
-		case INIT_WAIT_CALAGE:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
+			state = try_rushInTheWall(0, state, INIT_VAR, INIT_VAR, ROT_CALAGE_WAY, TRUE, 0, 0);
+			if(ON_LEAVE()){
 				PROP_set_position(0, 0, 0);
-				state = INIT_VAR;
 			}
-			}break;
+			break;
 
 		case INIT_VAR:
 			nb_tour_compteur = 0;
@@ -265,53 +256,39 @@ void strat_reglage_odo_rotation(void){
 
 		case TOUR0:
 #if ROT_WAY == ROT_WAY_CLOCK
-			state = try_go_angle(-2*PI4096/3, state, TOUR1, ERROR, ROT_DEFAULT_SPEED);
+			state = try_go_angle(-2*PI4096/3, state, TOUR1, ERROR, ROT_DEFAULT_SPEED, CLOCKWISE, END_AT_BRAKE);
 #else
-			state = try_go_angle(2*PI4096/3, state, TOUR1, ERROR, ROT_DEFAULT_SPEED);
+			state = try_go_angle(2*PI4096/3, state, TOUR1, ERROR, ROT_DEFAULT_SPEED, TRIGOWISE, END_AT_BRAKE);
 #endif
 			break;
 
 
 		case TOUR1:
 #if ROT_WAY == ROT_WAY_CLOCK
-			state = try_go_angle(2*PI4096/3, state, TOUR2, ERROR, ROT_DEFAULT_SPEED);
+			state = try_go_angle(2*PI4096/3, state, TOUR2, ERROR, ROT_DEFAULT_SPEED, CLOCKWISE, END_AT_BRAKE);
 #else
-			state = try_go_angle(-2*PI4096/3, state, TOUR2, ERROR, ROT_DEFAULT_SPEED);
+			state = try_go_angle(-2*PI4096/3, state, TOUR2, ERROR, ROT_DEFAULT_SPEED, TRIGOWISE, END_AT_BRAKE);
 #endif
 			break;
 
 		case TOUR2:
-			state = try_go_angle(0, state, BEGIN_PROCESS, ERROR, ROT_DEFAULT_SPEED);
+			state = try_go_angle(0, state, BEGIN_PROCESS, ERROR, ROT_DEFAULT_SPEED, ANY_WAY, END_AT_BRAKE);
 			if(ON_LEAVING(TOUR2)){
 				nb_tour_compteur++;
 			}
 			break;
 
 		case CALAGE1:
-			PROP_push_rush_in_the_wall(ROT_CALAGE_WAY, TRUE, 0, TRUE);
-			state = WAIT_CALAGE1;
+			state = try_rushInTheWall(0, state, CALAGE2, CALAGE2, ROT_CALAGE_WAY, TRUE, 0, 0);
 			break;
-
-		case WAIT_CALAGE1:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
-				state = CALAGE2;
-			}
-			}break;
 
 		case CALAGE2:
-			PROP_push_rush_in_the_wall(ROT_CALAGE_WAY, FALSE, 0, TRUE);
-			state = WAIT_CALAGE2;
-			break;
-
-		case WAIT_CALAGE2:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
+			state = try_rushInTheWall(0, state, COMPARE_N_CORRECT, COMPARE_N_CORRECT, ROT_CALAGE_WAY, FALSE, 0, 0);
+			if(ON_LEAVE()){
 				positionCalage = global.pos;
 				PROP_set_position(0, 0, 0);
-				state = COMPARE_N_CORRECT;
 			}
-			}break;
+			break;
 
 		case COMPARE_N_CORRECT:
 			// compare l'angle reçu après calage par rapport au ZERO
@@ -415,14 +392,11 @@ void strat_reglage_odo_translation(void){
 		IDLE,
 		WAIT_COEF,
 		INIT_CALAGE,
-		INIT_WAIT_CALAGE,
 		INIT_VAR,
 		AVANCER0,
 		AVANCER1,
 		CALAGE1,
-		WAIT_CALAGE1,
 		CALAGE2,
-		WAIT_CALAGE2,
 		COMPARE_N_CORRECT,
 		REPORT,
 		ERROR
@@ -449,31 +423,25 @@ void strat_reglage_odo_translation(void){
 
 		case INIT_CALAGE:
 #if TRANS_CALAGE_WAY == TRANS_WAY_FORWARD
-			PROP_push_rush_in_the_wall(FORWARD, TRUE, 0, TRUE);
+			state = try_rushInTheWall(0, state, INIT_VAR, INIT_VAR, FORWARD, TRUE, 0, 0);
 #else
-			PROP_push_rush_in_the_wall(BACKWARD, TRUE, 0, TRUE);
+			state = try_rushInTheWall(0, state, INIT_VAR, INIT_VAR, BACKWARD, TRUE, 0, 0);
 #endif
-			state = INIT_WAIT_CALAGE;
-			break;
-
-		case INIT_WAIT_CALAGE:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
+			if(ON_LEAVE()){
 #if TRANS_CALAGE_WAY == TRANS_WAY_FORWARD
-			if(I_AM_BIG())
-				PROP_set_position(-BIG_CALIBRATION_FORWARD_BORDER_DISTANCE, 0, 0);
-			else
-				PROP_set_position(-SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, 0, 0);
+				if(I_AM_BIG())
+					PROP_set_position(-BIG_CALIBRATION_FORWARD_BORDER_DISTANCE, 0, 0);
+				else
+					PROP_set_position(-SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, 0, 0);
 
 #else
-			if(I_AM_BIG())
-				PROP_set_position(BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, 0);
-			else
-				PROP_set_position(SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, 0);
+				if(I_AM_BIG())
+					PROP_set_position(BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, 0);
+				else
+					PROP_set_position(SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, 0);
 #endif
-				state = INIT_VAR;
 			}
-			}break;
+			break;
 
 		case INIT_VAR:
 			state = AVANCER0;
@@ -481,9 +449,9 @@ void strat_reglage_odo_translation(void){
 
 		case AVANCER0:
 #if TRANS_CALAGE_WAY == TRANS_WAY_FORWARD
-			state = try_going(-TRANS_AREA_LENGTG/2, 0, state, AVANCER1, ERROR, TRANS_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_BREAK);
+			state = try_going(-TRANS_AREA_LENGTG/2, 0, state, AVANCER1, ERROR, TRANS_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_BRAKE);
 #else
-			state = try_going(TRANS_AREA_LENGTG/2, 0, state, AVANCER1, ERROR, TRANS_DEFAULT_SPEED, FORWARD, NO_AVOIDANCE, END_AT_BREAK);
+			state = try_going(TRANS_AREA_LENGTG/2, 0, state, AVANCER1, ERROR, TRANS_DEFAULT_SPEED, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
 #endif
 			break;
 
@@ -497,48 +465,34 @@ void strat_reglage_odo_translation(void){
 
 		case CALAGE1:
 #if TRANS_CALAGE_WAY == TRANS_WAY_FORWARD
-			PROP_push_rush_in_the_wall(FORWARD, TRUE, PI4096, TRUE);
+			state = try_rushInTheWall(PI4096, state, CALAGE2, CALAGE2, FORWARD, TRUE, 0, 0);
 #else
-			PROP_push_rush_in_the_wall(BACKWARD, TRUE, PI4096, TRUE);
+			state = try_rushInTheWall(PI4096, state, CALAGE2, CALAGE2, BACKWARD, TRUE, 0, 0);
 #endif
-			state = WAIT_CALAGE1;
 			break;
-
-		case WAIT_CALAGE1:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
-				state = CALAGE2;
-			}
-			}break;
 
 		case CALAGE2:
 #if TRANS_CALAGE_WAY == TRANS_WAY_FORWARD
-			PROP_push_rush_in_the_wall(FORWARD, FALSE, PI4096, TRUE);
+			state = try_rushInTheWall(PI4096, state, COMPARE_N_CORRECT, COMPARE_N_CORRECT, FORWARD, FALSE, 0, 0);
 #else
-			PROP_push_rush_in_the_wall(BACKWARD, FALSE, PI4096, TRUE);
+			state = try_rushInTheWall(PI4096, state, COMPARE_N_CORRECT, COMPARE_N_CORRECT, BACKWARD, FALSE, 0, 0);
 #endif
-			state = WAIT_CALAGE2;
-			break;
-
-		case WAIT_CALAGE2:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
+			if(ON_LEAVE()){
 				positionCalage = global.pos;
 #if TRANS_CALAGE_WAY == TRANS_WAY_FORWARD
-			if(I_AM_BIG())
-				PROP_set_position(-BIG_CALIBRATION_FORWARD_BORDER_DISTANCE, 0, 0);
-			else
-				PROP_set_position(-SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, 0, 0);
+				if(I_AM_BIG())
+					PROP_set_position(-BIG_CALIBRATION_FORWARD_BORDER_DISTANCE, 0, 0);
+				else
+					PROP_set_position(-SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, 0, 0);
 
 #else
-			if(I_AM_BIG())
-				PROP_set_position(BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, 0);
-			else
-				PROP_set_position(SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, 0);
+				if(I_AM_BIG())
+					PROP_set_position(BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, 0);
+				else
+					PROP_set_position(SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, 0);
 #endif
-				state = COMPARE_N_CORRECT;
 			}
-			}break;
+			break;
 
 		case COMPARE_N_CORRECT:
 
@@ -622,7 +576,6 @@ void strat_reglage_odo_symetrie(void){
 		IDLE,
 		WAIT_COEF,
 		INIT_CALAGE,
-		INIT_WAIT_CALAGE,
 		INIT_VAR,
 		AVANCER_APRES_CALAGE,
 		AVANCER1,
@@ -630,9 +583,7 @@ void strat_reglage_odo_symetrie(void){
 		AVANCER3,
 		AVANCER4,
 		CALAGE1,
-		WAIT_CALAGE1,
 		CALAGE2,
-		WAIT_CALAGE2,
 		COMPARE_N_CORRECT,
 		REPORT,
 		ERROR
@@ -660,20 +611,14 @@ void strat_reglage_odo_symetrie(void){
 
 		case INIT_CALAGE:
 #if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			PROP_push_rush_in_the_wall(FORWARD, TRUE, 0, TRUE);
+			state = try_rushInTheWall(PI4096, state, INIT_VAR, INIT_VAR, FORWARD, TRUE, 0, 0);
 #else
-			PROP_push_rush_in_the_wall(BACKWARD, TRUE, 0, TRUE);
+			state = try_rushInTheWall(PI4096, state, INIT_VAR, INIT_VAR, BACKWARD, TRUE, 0, 0);
 #endif
-			state = INIT_WAIT_CALAGE;
-			break;
-
-		case INIT_WAIT_CALAGE:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
+			if(ON_LEAVE()){
 				PROP_set_position(0, 0, 0);
-				state = INIT_VAR;
 			}
-			}break;
+			break;
 
 		case INIT_VAR:
 			state = AVANCER_APRES_CALAGE;
@@ -722,37 +667,23 @@ void strat_reglage_odo_symetrie(void){
 
 		case CALAGE1:
 #if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			PROP_push_rush_in_the_wall(FORWARD, TRUE, 0, TRUE);
+			state = try_rushInTheWall(PI4096, state, CALAGE2, CALAGE2, FORWARD, TRUE, 0, 0);
 #else
-			PROP_push_rush_in_the_wall(BACKWARD, TRUE, 0, TRUE);
+			state = try_rushInTheWall(PI4096, state, CALAGE2, CALAGE2, BACKWARD, TRUE, 0, 0);
 #endif
-			state = WAIT_CALAGE1;
 			break;
-
-		case WAIT_CALAGE1:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
-				state = CALAGE2;
-			}
-			}break;
 
 		case CALAGE2:
 #if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			PROP_push_rush_in_the_wall(FORWARD, FALSE, 0, TRUE);
+			state = try_rushInTheWall(PI4096, state, COMPARE_N_CORRECT, COMPARE_N_CORRECT, FORWARD, FALSE, 0, 0);
 #else
-			PROP_push_rush_in_the_wall(BACKWARD, FALSE, 0, TRUE);
+			state = try_rushInTheWall(PI4096, state, COMPARE_N_CORRECT, COMPARE_N_CORRECT, BACKWARD, FALSE, 0, 0);
 #endif
-			state = WAIT_CALAGE2;
-			break;
-
-		case WAIT_CALAGE2:{
-			static bool_e timeout;
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
+			if(ON_LEAVE()){
 				positionCalage = global.pos;
 				PROP_set_position(0, 0, 0);
-				state = COMPARE_N_CORRECT;
 			}
-			}break;
+			break;
 
 		case COMPARE_N_CORRECT:
 
@@ -1081,7 +1012,7 @@ void strat_reglage_prop(void)
 				duration = global.debug.duration_trajectory_for_test_coefs;
 				state = PRINT_RESULT;
 			}
-			if(global.prop.erreur)
+			if(global.prop.error)
 				state = FAILED;
 			//TODO gestion d'un timeout sur cette action...
 			break;
@@ -1099,7 +1030,7 @@ void strat_reglage_prop(void)
 			state = try_going(1000,500, FAILED, ROTATION_FAILED, ERROR_STATE, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 		case ROTATION_FAILED:
-			state = try_go_angle(PI4096/2, ROTATION_FAILED, COMPUTE_COEFS, FAILED, FAST);
+			state = try_go_angle(PI4096/2, state, COMPUTE_COEFS, FAILED, FAST, ANY_WAY, END_AT_LAST_POINT);
 			break;
 		case ERROR_STATE:
 			if(entrance)
@@ -1196,89 +1127,84 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, bool_e get_
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_X,
 		INIT,
 		RUSH_WALL,
-		WAIT,
+		COMPUTE,
 		GET_OUT,
 		WAIT_FOR_EXIT,
 		DONE
 	);
 
-	static bool_e timeout;
 	static bool_e success = FALSE;
 	static time32_t local_time;
 	static GEOMETRY_point_t escape_point;
 
 	switch(state){
 		case INIT :
-			timeout = FALSE;
 			escape_point = (GEOMETRY_point_t){global.pos.x, global.pos.y};
 			success = FALSE;
 			state = RUSH_WALL;
 			break;
 
 		case RUSH_WALL :
-			PROP_push_rush_in_the_wall(sens, TRUE, angle, TRUE);
-			state = WAIT;
+			state = try_rushInTheWall(angle, state, COMPUTE, COMPUTE, sens, TRUE, 0, 0);
 			break;
 
-		case WAIT :
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
+		case COMPUTE :
 #ifdef ROBOT_VIRTUEL_PARFAIT
 #warning "Désactivation des capteurs pour permettre des recalages en simu"
-				*delta_correction_x = global.pos.x - wanted_x;
-				PROP_set_position(wanted_x, global.pos.y, global.pos.angle);
-				state = (get_out == TRUE)? GET_OUT : DONE;
-				success = TRUE;
+			*delta_correction_x = global.pos.x - wanted_x;
+			PROP_set_position(wanted_x, global.pos.y, global.pos.angle);
+			state = (get_out == TRUE)? GET_OUT : DONE;
+			success = TRUE;
 #else
-				if(
-					  (
-						(absolute(global.pos.x - wanted_x) <= MAX_CORRECT_POS_AT_RUSH)
-						|| (escape_point.x > global.pos.x && global.pos.x < wanted_x) // Si on se cale avec un x descendant et qu'on est moins haut que la position voulue c'est bon
-						|| (escape_point.x < global.pos.x && global.pos.x > wanted_x) // Si on se cale avec un x ascendant et qu'on est plus haut que la position voulue c'est bon
-					  )
-					&& (
-						(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
-						|| (QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD)
-						|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
-						|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD)
-					   )
-					)
-				{
-					success = TRUE;
-					if(set_pos_at_rush){
-						if(delta_correction_x != NULL)
-							*delta_correction_x = global.pos.x - wanted_x;
-						PROP_set_position(wanted_x, global.pos.y, global.pos.angle);
-						info_printf("Correction acceptée : x=%d->%d | y=%d | teta=%d\n", global.pos.x, wanted_x, global.pos.y, global.pos.angle);
-					}else
-						info_printf("Calage réussie sans correction\n");
-				}
-				else
-				{
-					if(absolute(global.pos.x - wanted_x) > MAX_CORRECT_POS_AT_RUSH){
-						info_printf("Correction Refusée (raison : Différence en x trop grande -> %d)\n", absolute(global.pos.x - wanted_x));
-					}else if((QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && !RECALAGE_AV_G && !RECALAGE_AV_D)
-							 || (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD && !RECALAGE_AR_G && !RECALAGE_AR_D)){
-						info_printf("Correction Refusée (raison : Aucune détection de bordure pour les deux capteurs)\n");
-					}else{
-						if(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD){
-							info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur avant %s)\n", (RECALAGE_AV_G)?"droit":"gauche");
-						}else if(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD){
-							info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur arrière %s)\n", (RECALAGE_AR_G)?"droit":"gauche");
-						}if(QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD){
-							info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur arrière %s)\n", (RECALAGE_AR_G)?"droit":"gauche");
-						}else if(QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD){
-							info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur avant %s)\n", (RECALAGE_AV_G)?"droit":"gauche");
-						}else{
-							info_printf("Correction Refusée (raison : Aucun capteur présent dans ce sens de recalage)\n");
-						}
-					}
+			if(
+				  (
+					(absolute(global.pos.x - wanted_x) <= MAX_CORRECT_POS_AT_RUSH)
+					|| (escape_point.x > global.pos.x && global.pos.x < wanted_x) // Si on se cale avec un x descendant et qu'on est moins haut que la position voulue c'est bon
+					|| (escape_point.x < global.pos.x && global.pos.x > wanted_x) // Si on se cale avec un x ascendant et qu'on est plus haut que la position voulue c'est bon
+				  )
+				&& (
+					(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
+					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD)
+					|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
+					|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD)
+				   )
+				)
+			{
+				success = TRUE;
+				if(set_pos_at_rush){
 					if(delta_correction_x != NULL)
-						*delta_correction_x = 0;
-					//BUZZER_play(500, DEFAULT_NOTE, 2);
+						*delta_correction_x = global.pos.x - wanted_x;
+					PROP_set_position(wanted_x, global.pos.y, global.pos.angle);
+					info_printf("Correction acceptée : x=%d->%d | y=%d | teta=%d\n", global.pos.x, wanted_x, global.pos.y, global.pos.angle);
+				}else
+					info_printf("Calage réussie sans correction\n");
+			}
+			else
+			{
+				if(absolute(global.pos.x - wanted_x) > MAX_CORRECT_POS_AT_RUSH){
+					info_printf("Correction Refusée (raison : Différence en x trop grande -> %d)\n", absolute(global.pos.x - wanted_x));
+				}else if((QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && !RECALAGE_AV_G && !RECALAGE_AV_D)
+						 || (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD && !RECALAGE_AR_G && !RECALAGE_AR_D)){
+					info_printf("Correction Refusée (raison : Aucune détection de bordure pour les deux capteurs)\n");
+				}else{
+					if(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD){
+						info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur avant %s)\n", (RECALAGE_AV_G)?"droit":"gauche");
+					}else if(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD){
+						info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur arrière %s)\n", (RECALAGE_AR_G)?"droit":"gauche");
+					}if(QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD){
+						info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur arrière %s)\n", (RECALAGE_AR_G)?"droit":"gauche");
+					}else if(QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD){
+						info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur avant %s)\n", (RECALAGE_AV_G)?"droit":"gauche");
+					}else{
+						info_printf("Correction Refusée (raison : Aucun capteur présent dans ce sens de recalage)\n");
+					}
 				}
-				state = (get_out == TRUE)? GET_OUT : DONE;
+				if(delta_correction_x != NULL)
+					*delta_correction_x = 0;
+				//BUZZER_play(500, DEFAULT_NOTE, 2);
+			}
+			state = (get_out == TRUE)? GET_OUT : DONE;
 #endif
-		}
 		break;
 
 	case GET_OUT :
@@ -1307,13 +1233,12 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, bool_e get_
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_Y,
 		IDLE,
 		RUSH_WALL,
-		WAIT,
+		COMPUTE,
 		GET_OUT,
 		WAIT_FOR_EXIT,
 		DONE
 	);
 
-	static bool_e timeout;
 	static bool_e success = FALSE;
 	static time32_t local_time;
 	static GEOMETRY_point_t escape_point;
@@ -1326,72 +1251,69 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, bool_e get_
 			break;
 
 		case RUSH_WALL :
-			PROP_push_rush_in_the_wall(sens, TRUE, angle, TRUE);
-			state = WAIT;
+			state = try_rushInTheWall(angle, state, COMPUTE, COMPUTE, sens, TRUE, 0, 0);
 			break;
 
-		case WAIT :
-			if(STACKS_wait_end_auto_pull(PROP, &timeout)){
+		case COMPUTE :
 #ifdef ROBOT_VIRTUEL_PARFAIT
 #warning "Désactivation des capteurs pour permettre des recalages en simu"
-				if(delta_correction_y != NULL)
-					*delta_correction_y = global.pos.y - wanted_y;
-				PROP_set_position(global.pos.x, wanted_y, global.pos.angle);
-				state = (get_out == TRUE)? GET_OUT : DONE;
-				success = TRUE;
+			if(delta_correction_y != NULL)
+				*delta_correction_y = global.pos.y - wanted_y;
+			PROP_set_position(global.pos.x, wanted_y, global.pos.angle);
+			state = (get_out == TRUE)? GET_OUT : DONE;
+			success = TRUE;
 #else
 
-				if(
-						(
-						  (absolute(global.pos.y - wanted_y) <= MAX_CORRECT_POS_AT_RUSH)
-						  || (escape_point.y > global.pos.y && global.pos.y < wanted_y) // Si on se cale avec un y descendant et qu'on est moins haut que la position voulue c'est bon
-						  || (escape_point.y < global.pos.y && global.pos.y > wanted_y) // Si on se cale avec un y ascendant et qu'on est plus haut que la position voulue c'est bon
-						)
-					&& (
-						(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
-						|| (QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD)
-						|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
-						|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD)
-					   )
+			if(
+					(
+					  (absolute(global.pos.y - wanted_y) <= MAX_CORRECT_POS_AT_RUSH)
+					  || (escape_point.y > global.pos.y && global.pos.y < wanted_y) // Si on se cale avec un y descendant et qu'on est moins haut que la position voulue c'est bon
+					  || (escape_point.y < global.pos.y && global.pos.y > wanted_y) // Si on se cale avec un y ascendant et qu'on est plus haut que la position voulue c'est bon
 					)
-				{
+				&& (
+					(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
+					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD)
+					|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
+					|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD)
+				   )
+				)
+			{
 
-					success = TRUE;
-					if(set_pos_at_rush){
-						if(delta_correction_y != NULL)
-							*delta_correction_y = global.pos.y - wanted_y;
-						PROP_set_position(global.pos.x, wanted_y, global.pos.angle);
-						info_printf("Correction acceptée : x=%d | y=%d->%d | teta=%d\n", global.pos.x, global.pos.y, wanted_y, global.pos.angle);
-					}
-				}
-				else
-				{
-					if(absolute(global.pos.y - wanted_y) > MAX_CORRECT_POS_AT_RUSH){
-						info_printf("Correction Refusée (raison : Différence en y trop grande -> %d)\n", absolute(global.pos.y - wanted_y));
-					}else if((QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
-							 || (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD && RECALAGE_AR_G && RECALAGE_AR_D)){
-						info_printf("Correction Refusée (raison : Aucune détection de bordure pour les deux capteurs)\n");
-					}else{
-						if(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD){
-							info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur avant %s)\n", (RECALAGE_AV_G)?"droit":"gauche");
-						}else if(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD){
-							info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur arrière %s)\n", (RECALAGE_AR_G)?"droit":"gauche");
-						}if(QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD){
-							info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur arrière %s)\n", (RECALAGE_AR_G)?"droit":"gauche");
-						}else if(QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD){
-							info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur avant %s)\n", (RECALAGE_AV_G)?"droit":"gauche");
-						}else{
-							info_printf("Correction Refusée (raison : Aucun capteur présent dans ce sens de recalage)\n");
-						}
-					}
-					success = FALSE;
+				success = TRUE;
+				if(set_pos_at_rush){
 					if(delta_correction_y != NULL)
-						*delta_correction_y = 0;
-					BUZZER_play(500, DEFAULT_NOTE, 2);
+						*delta_correction_y = global.pos.y - wanted_y;
+					PROP_set_position(global.pos.x, wanted_y, global.pos.angle);
+					info_printf("Correction acceptée : x=%d | y=%d->%d | teta=%d\n", global.pos.x, global.pos.y, wanted_y, global.pos.angle);
 				}
-				state = (get_out == TRUE)? GET_OUT : DONE;
-#endif
 			}
+			else
+			{
+				if(absolute(global.pos.y - wanted_y) > MAX_CORRECT_POS_AT_RUSH){
+					info_printf("Correction Refusée (raison : Différence en y trop grande -> %d)\n", absolute(global.pos.y - wanted_y));
+				}else if((QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
+						 || (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD && RECALAGE_AR_G && RECALAGE_AR_D)){
+					info_printf("Correction Refusée (raison : Aucune détection de bordure pour les deux capteurs)\n");
+				}else{
+					if(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD){
+						info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur avant %s)\n", (RECALAGE_AV_G)?"droit":"gauche");
+					}else if(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD){
+						info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur arrière %s)\n", (RECALAGE_AR_G)?"droit":"gauche");
+					}if(QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD){
+						info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur arrière %s)\n", (RECALAGE_AR_G)?"droit":"gauche");
+					}else if(QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD){
+						info_printf("Correction Refusée (raison : Aucune détection de bordure pour le capteur avant %s)\n", (RECALAGE_AV_G)?"droit":"gauche");
+					}else{
+						info_printf("Correction Refusée (raison : Aucun capteur présent dans ce sens de recalage)\n");
+					}
+				}
+				success = FALSE;
+				if(delta_correction_y != NULL)
+					*delta_correction_y = 0;
+				BUZZER_play(500, DEFAULT_NOTE, 2);
+			}
+			state = (get_out == TRUE)? GET_OUT : DONE;
+#endif
 			break;
 
 		case GET_OUT :

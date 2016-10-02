@@ -412,10 +412,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			global.prop.ended = TRUE;
 			break;
 		case STRAT_PROP_FOE_DETECTED:
-			set_prop_detected_foe(incoming_msg);
+			PROP_set_detected_foe(incoming_msg);
 			break;
 		case STRAT_PROP_ERREUR:
-			global.prop.erreur = TRUE;
+			global.prop.error = TRUE;
 			break;
 		case PROP_ROBOT_CALIBRE:
 			global.prop.calibrated = TRUE;
@@ -458,8 +458,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 
 			break;
 		case STRAT_ROBOT_FREINE:
-			global.prop.freine = TRUE;
-
+			global.prop.brake = TRUE;
 			break;
 		case DEBUG_TRAJECTORY_FOR_TEST_COEFS_DONE:
 			global.debug.duration_trajectory_for_test_coefs = incoming_msg->data.debug_trajectory_for_test_coefs_done.duration;
@@ -631,8 +630,6 @@ void ENV_pos_update (CAN_msg_t* msg)
 	Sint16 cosinus, sinus;
 	global.pos.x = msg->data.broadcast_position_robot.x;
 	global.pos.y = msg->data.broadcast_position_robot.y;
-	global.pos.translation_speed = msg->data.broadcast_position_robot.speed_trans*250;	// [mm/sec]
-	global.pos.rotation_speed =	msg->data.broadcast_position_robot.speed_rot >> 5;		// [rad/sec]
 	global.pos.angle = msg->data.broadcast_position_robot.angle;
 	COS_SIN_4096_get(global.pos.angle, &cosinus, &sinus);
 	global.pos.cosAngle = cosinus;
@@ -642,6 +639,7 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.prop.current_status = msg->data.broadcast_position_robot.error;
 	global.prop.is_in_translation = msg->data.broadcast_position_robot.in_translation;
 	global.prop.is_in_rotation = msg->data.broadcast_position_robot.in_rotation;
+	global.prop.idTrajActual = msg->data.broadcast_position_robot.idTraj;
 
 	global.flags.initial_position_received = TRUE;
 	global.pos.updated = TRUE;
@@ -653,7 +651,6 @@ void ENV_pos_update (CAN_msg_t* msg)
 /* Appelée en début de tache de fond : baisse les drapeaux d'environnement pour préparer la prochaine MaJ */
 void ENV_clean (void)
 {
-	STACKS_clear_timeouts();
 	DETECTION_clean();
 	global.debug.propulsion_coefs_updated = 0x00000000;
 	if(global.color == global.wanted_color)
@@ -662,8 +659,8 @@ void ENV_clean (void)
 	global.flags.ask_start = FALSE;
 	global.flags.ask_suspend_match = FALSE;
 	global.prop.ended = FALSE;
-	global.prop.erreur = FALSE;
-	global.prop.freine = FALSE;
+	global.prop.error = FALSE;
+	global.prop.brake = FALSE;
 	global.prop.reach_x = FALSE;
 	global.prop.reach_y = FALSE;
 	global.prop.reach_teta = FALSE;

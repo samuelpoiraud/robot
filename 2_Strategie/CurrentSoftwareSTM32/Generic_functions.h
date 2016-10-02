@@ -15,10 +15,6 @@
 #ifndef GENERIC_FUNCTIONS_H
 	#define GENERIC_FUNCTIONS_H
 
-	#include "Stacks.h"
-
-	void wait_forever (stack_id_e stack_id, bool_e init);
-
 	Uint8 wait_time(time32_t time, Uint8 in_progress, Uint8 success_state);
 
 	// Fonction à utiliser en entrée et sortie de sub_action pour vérifier le bon placement du robot

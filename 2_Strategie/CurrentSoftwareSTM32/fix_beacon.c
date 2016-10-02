@@ -187,4 +187,3 @@ void FIX_BEACON_process_msg(CAN_msg_t * msg)
 		zones_updated = TRUE;	//Pour éviter d'avoir à scruter les updated de chaque zone pour savoir si qch a changé.
 	}*/
 }
-

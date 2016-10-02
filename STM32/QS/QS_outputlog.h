@@ -48,10 +48,16 @@
 									debug_printf("\n");							\
 									}
 
-	// prec indique la précison (nb de chiffrers après la virgule) 0 pour avoir le maximum
-	// si format ='s' -> affichage scientifique 1.6666666
-	// si format ='f' -> affichage classique 1666.6666
-
+	/**
+	 * @brief ftoa transforme un nombre flottant en chaine de caractère
+	 * @param x			: Le chiffre à traiter
+	 * @param str		: la chaine de sortie
+	 * @param prec		: indique la précison (nb de chiffrers après la virgule) 0 pour avoir le maximum
+	 * @param format	: le format de la représentation de sortie :
+	 *						's' -> affichage scientifique 1.6666666
+	 *						'f' -> affichage classique 1666.6666
+	 * @return
+	 */
 	unsigned char *ftoa (float x, unsigned char *str, char prec, char format);
 
 
