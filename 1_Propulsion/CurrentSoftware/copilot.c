@@ -108,7 +108,7 @@ void COPILOT_process_it(void)
 		COPILOT_reset_absolute_destination();
 
 	// Mise à jours de la vitesses maximum en rotation en cas d'adversaire proche et de vitesse de translation quasiment nulle (rotation sur place)
-	if(AVOIDANCE_foe_near() && absolute(global.vitesse_translation) < 100)
+	if(current_order.avoidance != AVOID_DISABLED && AVOIDANCE_foe_near() && absolute(global.vitesse_translation) < 100)
 		PILOT_set_speed(SLOW);
 	else
 		PILOT_set_speed(current_order.speed);

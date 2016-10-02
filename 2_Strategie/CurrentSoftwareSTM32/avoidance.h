@@ -208,9 +208,6 @@ void AVOIDANCE_set_timeout(Uint16 msec);
  */
 error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, STRAT_endCondition_e end_condition, prop_border_mode_e border_mode);
 
-// Fonction similaire à goto_pos_curve_with_avoidance pour un try_going avec une end_condition == END_AT_DISTANCE
-error_e goto_pos_curve_with_avoidance_and_break(const displacement_t displacements[], const displacement_curve_t displacements_curve[], Uint8 nb_displacements, way_e way, avoidance_type_e avoidance_type, STRAT_endCondition_e end_condition, prop_border_mode_e border_mode);
-
 //------------------------------------------------------------------- Fonctions autres
 
 
