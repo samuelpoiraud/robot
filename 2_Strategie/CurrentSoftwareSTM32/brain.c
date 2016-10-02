@@ -128,13 +128,6 @@ void BRAIN_init(void){
 void any_match(void)
 {
 	static error_e ret;
-	static time32_t t_end_of_match;
-	static Uint8 ret_parasol = FALSE;
-	static bool_e release_point = FALSE;
-	static bool_e release_pendulum_pum = FALSE;
-	static bool_e release_bottom_dune = FALSE;
-	static bool_e release_mid_dune = FALSE;
-	static Uint8 nbTryParasol = 0;
 
 	if (!global.flags.match_started)
 	{
@@ -220,55 +213,6 @@ void any_match(void)
 
 		}else if (!global.flags.match_over && !global.flags.match_suspended) {
 
-			static bool_e dune_do_not_release = FALSE;
-
-			if(!release_mid_dune && global.match_time >= (90000 - 2000) && I_AM_BIG()){
-				if(!i_am_in_square_color(772, 1350, 1200, 1500) && !i_am_in_square_color(0, 300, 0, 2200) && dune_do_not_release == FALSE){
-					ACT_push_order(ACT_MIDDLE_DUNE, ACT_MIDDLE_DUNE_IDLE);
-				}else{
-					dune_do_not_release = TRUE;
-				}
-				release_mid_dune = TRUE;
-			}
-
-			if(!release_bottom_dune && global.match_time >= (90000 - 1500) && I_AM_BIG()){
-				if(!i_am_in_square_color(772, 1350, 1200, 1500) && !i_am_in_square_color(0, 300, 0, 2200) && dune_do_not_release == FALSE){
-					ACT_push_order(ACT_BOTTOM_DUNE, ACT_BOTTOM_DUNE_IDLE);
-				}else{
-					dune_do_not_release = TRUE;
-				}
-				release_bottom_dune = TRUE;
-			}
-
-			if(!release_pendulum_pum && global.match_time >= 90000 - 2000 && I_AM_SMALL()){ // Arrêt de la pompe pendulum pour libération des points
-				ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_STOP);
-				release_pendulum_pum = TRUE;
-			}
-
-			if(!release_point && global.match_time >= 90000 - 1000){ // Libération des points
-				if(I_AM_BIG()){
-					ACT_push_order(ACT_CONE_DUNE, ACT_CONE_DUNE_IDLE);
-					ACT_push_order(ACT_BLACK_SAND_CIRCLE, ACT_BLACK_SAND_CIRCLE_IDLE);
-					if(!i_am_in_square_color(772, 1350, 1200, 1500) && !i_am_in_square_color(0, 300, 0, 2200) && dune_do_not_release == FALSE){
-						ACT_push_order(ACT_BOTTOM_DUNE, ACT_BOTTOM_DUNE_IDLE);
-					}
-					ACT_push_order(ACT_SAND_LOCKER_LEFT, ACT_SAND_LOCKER_LEFT_IDLE);
-					ACT_push_order(ACT_SAND_LOCKER_RIGHT, ACT_SAND_LOCKER_RIGHT_IDLE);
-					ACT_push_order(ACT_SAND_LOCKER_RIGHT, ACT_SAND_LOCKER_RIGHT_IDLE);
-
-				}else{
-					if(ELEMENTS_get_flag(F_ARM_RIGHT_LOCK)){
-						ACT_push_order(ACT_RIGHT_ARM, ACT_RIGHT_ARM_PARALLELE);
-					}
-
-					if(ELEMENTS_get_flag(F_ARM_LEFT_LOCK)){
-						ACT_push_order(ACT_LEFT_ARM, ACT_LEFT_ARM_PARALLELE);
-					}
-					ACT_push_order(ACT_PEARL_SAND_CIRCLE, ACT_PEARL_SAND_CIRCLE_IDLE);
-				}
-				release_point = TRUE;
-			}
-
 			if (match_duration != 0 && (global.match_time >= (match_duration))) {
 				//MATCH QUI SE TERMINE
 				Selftest_print_sd_hokuyo_lost();
@@ -277,18 +221,6 @@ void any_match(void)
 				QUEUE_reset_all();
 				BUZZER_play(500,NOTE_SOL,2);
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
-				t_end_of_match = global.absolute_time;
-				if(I_AM_BIG()){
-					ACT_push_order(ACT_POMPE_BLACK_FRONT_LEFT, ACT_POMPE_STOP);
-					ACT_push_order(ACT_POMPE_BLACK_FRONT_RIGHT, ACT_POMPE_STOP);
-					ACT_push_order(ACT_POMPE_PENDULUM, ACT_POMPE_STOP);
-					ACT_push_order(ACT_POMPE_SAND_LOCKER_LEFT, ACT_POMPE_STOP);
-					ACT_push_order(ACT_POMPE_SAND_LOCKER_RIGHT, ACT_POMPE_STOP);
-					ACT_push_order(ACT_POMPE_ALL, ACT_POMPE_STOP);
-				}else{
-					ACT_push_order(ACT_POMPE_FRONT_LEFT, ACT_POMPE_STOP);
-					ACT_push_order(ACT_POMPE_FRONT_RIGHT, ACT_POMPE_STOP);
-				}
 				SYS_check_stack_level();
 			}
 			else
@@ -299,20 +231,6 @@ void any_match(void)
 		else
 		{
 			/* match is over */
-			if(I_AM_SMALL()){
-#ifdef PLAY_MUSIC_END_MATCH
-				play_some_random_music();
-#endif
-
-				if((global.absolute_time > t_end_of_match + 1000) && I_AM_SMALL()){
-					ACT_push_order(ACT_PARASOL, ACT_PARASOL_OPEN);
-					nbTryParasol++;
-				}else{
-					ret_parasol = check_act_status(ACT_QUEUE_Parasol, IN_PROGRESS, END_OK, ERROR);
-					if(ret_parasol == ERROR && nbTryParasol < 3){
-					}
-				}
-			}
 		}
 	}
 }
