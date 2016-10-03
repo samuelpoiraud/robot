@@ -28,6 +28,7 @@
 #include "QS/QS_can_verbose.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_systick.h"
+#include "QS/QS_mosfet.h"
 #include "terminal/term_io.h"
 #include "queue.h"
 #include "clock.h"

@@ -23,15 +23,12 @@
 #include "joystick.h"
 #include "secretary.h"
 #include "debug.h"
-#include "scan_laser.h"
 #include "hokuyo.h"
 #include "main.h"
 #include "detection.h"
 #include "avoidance.h"
 #include "gyroscope.h"
 #include "detection_choc.h"
-#include "scan_bloc.h"
-#include "scan_fishs.h"
 
 typedef enum{
 	IT_STATE_NONE = 0,
@@ -46,11 +43,9 @@ typedef enum{
 	IT_STATE_MAIN,
 	IT_STATE_HOKUYO,
 	IT_STATE_DETECTION,
-	IT_STATE_SCAN,
 	IT_STATE_CHOC_DETECTION,
 	IT_STATE_DEBUG,
-	IT_STATE_LCD,
-	IT_STATE_SCAN_FISHS
+	IT_STATE_LCD
 }it_state_e;
 
 void IT_test_state(time32_t time_begin, it_state_e it_state, bool_e *over_time);
@@ -154,21 +149,10 @@ void _ISR _T2Interrupt()
 	#endif
 	IT_test_state(begin_it_time, IT_STATE_HOKUYO, &first_overtime);
 
-
-	SCAN_process_it();
-	IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
-
-	#ifdef SCAN_BLOC
-		SCAN_BLOC_process_it();
-	#endif
-
 	#ifdef DETECTION_CHOC
 		DETECTION_CHOC_process_it_tim2();
 		IT_test_state(begin_it_time, IT_STATE_CHOC_DETECTION, &first_overtime);
 	#endif
-
-	SCAN_FISHS_process_it();
-	IT_test_state(begin_it_time, IT_STATE_SCAN_FISHS, &first_overtime);
 
 	DEBUG_process_it();
 	IT_test_state(begin_it_time, IT_STATE_DEBUG, &first_overtime);

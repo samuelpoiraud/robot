@@ -35,15 +35,9 @@
 
 #define VERBOSE_MODE			//Activation du verbose
 
-#define BELGIQUE
-
 //#define PLAY_MUSIC_END_MATCH
 
-#define SCAN_BLOC_BLACK
-
 //#define USE_FOE_ANALYSER
-
-//#define SCAN_BLOC_PEARL
 
 //#define MAIN_IR_RCVA
 #ifdef MAIN_IR_RCVA
@@ -55,7 +49,6 @@
 #define FDP_2016				//Mode FDP nouvelle génération 2016 !
 
 #define USE_ASTAR				//Activation de l'algorithme ASTAR, avec pathfind par polygones
-#define USE_ASTAR_2
 
 #define USE_PROP_MULTI_POINT	//Utilise le buffer de l'asser pour les trajectoires multi-points et permet d'utiliser les courbes
 

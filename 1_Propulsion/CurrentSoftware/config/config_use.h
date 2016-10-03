@@ -68,8 +68,6 @@
 
 	#define BUFFER_SIZE 64	//maximum : 255
 
-	#define SCAN_BLOC
-
 	//#define DISABLED_BALISE_AVOIDANCE		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Désactivation de l'évitement balise
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS

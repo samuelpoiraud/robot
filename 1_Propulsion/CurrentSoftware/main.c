@@ -33,7 +33,6 @@
 #include "it.h"
 #include "roadmap.h"
 #include "secretary.h"
-#include "scan_laser.h"
 #include "sequences.h"
 #include "debug.h"
 #include "joystick.h"
@@ -41,8 +40,6 @@
 #include "gyroscope.h"
 #include "detection.h"
 #include "detection_choc.h"
-#include "scan_fishs.h"
-#include "scan_bloc.h"
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -123,7 +120,7 @@ void initialisation(void)
 	DEBUG_init();
 	ADC_init();
 	BUTTONS_init();
-	SCAN_init();
+
 	IHM_init(&global.flags.match_started);
 	IHM_define_act_button(BP_CALIBRATION_IHM,&SEQUENCES_calibrate,NULL);
 #ifdef MODE_PRINT_FIRST_TRAJ
@@ -229,10 +226,6 @@ int main (void)
 		DETECTION_process_main();
 
 		MAIN_sensor_test();
-
-		SCAN_PROCESS(NULL);
-		SCAN_BLOC_process_main();
-		SCAN_FISHS_process_main();
 
 		#ifdef DETECTION_CHOC
 			 DETECTION_CHOC_process_main();
