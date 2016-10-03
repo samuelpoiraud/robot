@@ -50,13 +50,13 @@
 		TRUE
 	} bool_e;
 
-	#define TOP_COLOR_NAME "YELLOW"
 	#define BOT_COLOR_NAME "BLUE"
+	#define TOP_COLOR_NAME "YELLOW"
 
 	typedef enum
 	{
-		BOT_COLOR = 0, YELLOW=0,
-		TOP_COLOR = 1, BLUE=1
+		BOT_COLOR = 0, BLUE=0,
+		TOP_COLOR = 1, YELLOW=1
 	} color_e;
 
 	typedef enum
