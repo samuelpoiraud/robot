@@ -1,6 +1,6 @@
 
-#ifndef FOE_ANALYSER_H_
-	#define FOE_ANALYSER_H_
+#ifndef AVOIDANCE_H_
+	#define AVOIDANCE_H_
 
 	#include "QS/QS_all.h"
 
@@ -22,8 +22,10 @@
 	void FOE_ANALYSER_process_main();
 
 	bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, foe_type_e foe_type);
-	bool_e i_am_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
 
-	bool_e is_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
+	void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
+
+	// Envoi un message CAN qui va forcer l'évitement du robot à la propulsion
+	void AVOIDANCE_forced_foe_dected();
 
 #endif
