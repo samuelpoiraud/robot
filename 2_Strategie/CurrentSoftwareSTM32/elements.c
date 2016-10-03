@@ -9,7 +9,7 @@
 #include "QS/QS_watchdog.h"
 #include "utils/actionChecker.h"
 #include "QS/QS_stateMachineHelper.h"
-#include "Generic_functions.h"
+#include "generic_functions.h"
 
 volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
 volatile COQUILLAGES_t coquillages[F_COQUILLAGE_NB];

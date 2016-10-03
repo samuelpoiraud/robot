@@ -10,9 +10,9 @@
 #ifndef PATHFIND_H
 #define PATHFIND_H
 
-#include "../Generic_functions.h"
+#include "../generic_functions.h"
 #include "prop_functions.h"
-#include "avoidance.h"
+#include "movement.h"
 
 /*
  * La formule pour changer le numéro du noeud (parallélisme)

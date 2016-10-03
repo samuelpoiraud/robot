@@ -15,7 +15,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../utils/actionChecker.h"
 #include "../QS/QS_stateMachineHelper.h"
-#include "../propulsion/Pathfind.h"
+#include "../propulsion/pathfind.h"
 #include "../propulsion/movement.h"
 #include "../propulsion/astar.h"
 #include "../QS/QS_who_am_i.h"
