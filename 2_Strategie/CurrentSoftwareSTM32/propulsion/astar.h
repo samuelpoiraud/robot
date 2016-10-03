@@ -18,7 +18,7 @@
 		#define _ASTAR_H_
 
 	#include "../QS/QS_who_am_i.h"
-	#include "avoidance.h"
+	#include "movement.h"
 
 
 

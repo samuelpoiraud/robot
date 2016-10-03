@@ -19,7 +19,7 @@
 	#include "QS/QS_buttons.h"
 	#include "QS/QS_adc.h"
 	#include "actuator/act_functions.h"
-	#include "propulsion/avoidance.h"
+	#include "propulsion/movement.h"
 	#include "propulsion/prop_functions.h"
 
 	void BUTTON_init();

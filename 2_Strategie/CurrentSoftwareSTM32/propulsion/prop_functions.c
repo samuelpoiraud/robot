@@ -14,7 +14,7 @@
 #include "../QS/QS_can.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_maths.h"
-#include "avoidance.h"
+#include "movement.h"
 
 #define LOG_PREFIX "prop_fun: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_PROP_FUNCTION

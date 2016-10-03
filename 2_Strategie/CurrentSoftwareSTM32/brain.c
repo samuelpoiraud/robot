@@ -30,7 +30,7 @@
 #include "utils/actionChecker.h"
 #include "zones.h"
 #include "elements.h"
-#include "foe_analyser.h"
+#include "avoidance.h"
 
 #include "strats_2017/actions_both_2017.h"
 #include "strats_2017/inutile/arnaud_strat_inutile.h"
