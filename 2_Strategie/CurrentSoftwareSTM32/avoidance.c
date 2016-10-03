@@ -89,11 +89,3 @@ void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
 	msg_to_send.data.debug_foe_reason.dist = distance;
 	CAN_send(&msg_to_send);
 }
-
-bool_e i_am_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2){
-	return is_in_square(x1, x2, COLOR_Y(y1), COLOR_Y(y2), (GEOMETRY_point_t){global.pos.x, global.pos.y});
-}
-
-bool_e is_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current){
-	return is_in_square(x1, x2, COLOR_Y(y1), COLOR_Y(y2), current);
-}

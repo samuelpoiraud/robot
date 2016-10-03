@@ -19,8 +19,8 @@
  *	actions, au cas par cas.
  */
 
-#ifndef AVOIDANCE_H
-#define AVOIDANCE_H
+#ifndef MOVEMENT_H
+#define MOVEMENT_H
 
 #include "../QS/QS_all.h"
 #include "../QS/QS_maths.h"
@@ -54,6 +54,7 @@ typedef struct
 	bool_e curve;
 }displacement_curve_t;
 
+/* Définition du type de condition de fin (stratégique) */
 typedef enum
 {
 	END_AT_LAST_POINT = 0,
@@ -179,15 +180,7 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state);
 Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 fail_state, way_e way, bool_e asser_rotate, Uint8 thresholdError, Uint8 acceleration);
 
 
-//------------------------------------------------------------------- Fonctions relatives à l'évitement
-
-// Envoi un message CAN qui va forcer l'évitement du robot à la propulsion
-void AVOIDANCE_forced_foe_dected();
-
-//Défini le temps de timeout d'evitement (pour *AND_WAIT). Ce temps est valide que pour le prochain mouvement, il est réinitialisé après.
-void AVOIDANCE_set_timeout(Uint16 msec);
-
-
+//------------------------------------------------------------------- Fonctions interne à usage risqué
 
 /*
  * Fonction qui réalise un PROP_push_goto tout simple avec la gestion de l'évitement (en courbe)
@@ -219,10 +212,5 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 error_e ACTION_update_position();
 
 
-//Le point passé en paramètre permet-il les rotations ?
-bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p);
 
-//Le point passé en paramètre permet-il une extraction ?
-bool_e is_possible_point_for_dodge(GEOMETRY_point_t * p);
-
-#endif /* ndef AVOIDANCE_H */
+#endif /* ndef MOVEMENT_H */
