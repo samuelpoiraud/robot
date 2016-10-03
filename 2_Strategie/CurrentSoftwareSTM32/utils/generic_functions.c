@@ -13,8 +13,8 @@
 #define GENERIC_FUNCTIONS_C
 
 #include "generic_functions.h"
-#include "propulsion/movement.h"
-#include "QS/QS_outputlog.h"
+#include "../propulsion/movement.h"
+#include "../QS/QS_outputlog.h"
 
 Uint8 wait_time(time32_t time, Uint8 in_progress, Uint8 success_state){
 	typedef enum
