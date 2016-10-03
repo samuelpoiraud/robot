@@ -36,7 +36,7 @@
 #include "Supervision/Supervision.h"
 #include "propulsion/astar.h"
 #include "elements.h"
-#include "foe_analyser.h"
+#include "avoidance.h"
 
 void test_bp_switchs(void);
 void test_leds(void);

@@ -15,7 +15,7 @@
 #ifndef PROP_FUNCTIONS_H
 	#define PROP_FUNCTIONS_H
 
-	#include "avoidance.h"
+	#include "movement.h"
 
 // ---------------------------------------------------------------------------- Fonctions de déplacement
 

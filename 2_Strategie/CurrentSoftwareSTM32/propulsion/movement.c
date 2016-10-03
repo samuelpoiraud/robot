@@ -9,7 +9,7 @@
  *	Version 20110426
  */
 
-#include "avoidance.h"
+#include "movement.h"
 #include "prop_functions.h"
 #include "../Supervision/Buzzer.h"
 #include <math.h>

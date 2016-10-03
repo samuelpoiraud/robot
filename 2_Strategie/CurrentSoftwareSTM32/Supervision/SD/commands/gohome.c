@@ -9,7 +9,7 @@
 #include "../term_commands_utils.h"
 #include "../../../QS/QS_all.h"
 #include "../../../QS/QS_who_am_i.h"
-#include "../../../propulsion/avoidance.h"
+#include "../../../propulsion/movement.h"
 #include "../../../propulsion/prop_functions.h"
 
 const char term_cmd_gohome_brief[] = "Déplace le robot à sa position de départ";
