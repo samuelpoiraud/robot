@@ -23,7 +23,7 @@
 #include "../QS/QS_watchdog.h"
 #include "../QS/QS_stateMachineHelper.h"
 #include "../utils/actionChecker.h"
-#include "../Generic_functions.h"
+#include "../generic_functions.h"
 #include "act_avoidance.h"
 
 #define ACT_SENSOR_ANSWER_TIMEOUT		500

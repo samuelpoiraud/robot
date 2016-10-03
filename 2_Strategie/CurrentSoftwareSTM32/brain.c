@@ -17,7 +17,7 @@
 #include "Supervision/Selftest.h"
 #include "Supervision/RTC.h"
 #include "Supervision/SD/SD.h"
-#include "propulsion/Pathfind.h"
+#include "propulsion/pathfind.h"
 #include "propulsion/astar.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can_over_xbee.h"

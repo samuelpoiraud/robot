@@ -18,7 +18,7 @@
 #include "../QS/QS_stateMachineHelper.h"
 #include "../utils/actionChecker.h"
 #include "../Supervision/SD/SD.h"
-#include "../Generic_functions.h"
+#include "../generic_functions.h"
 
 #ifdef _ASTAR_H_
 

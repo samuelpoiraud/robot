@@ -9,10 +9,10 @@
  *	Version 201312
  */
 
-#include "Pathfind.h"
+#include "pathfind.h"
 #include "../utils/actionChecker.h"
 #include "../QS/QS_stateMachineHelper.h"
-#include "avoidance.h"
+#include "movement.h"
 #include <math.h>
 
 #define LOG_PREFIX ""
