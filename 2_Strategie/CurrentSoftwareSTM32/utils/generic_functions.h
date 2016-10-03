@@ -10,7 +10,7 @@
  *	Version 20090111
  */
 
-#include "QS/QS_all.h"
+#include "../QS/QS_all.h"
 
 #ifndef GENERIC_FUNCTIONS_H
 	#define GENERIC_FUNCTIONS_H

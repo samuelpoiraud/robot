@@ -21,7 +21,7 @@
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_watchdog.h"
 #include "../QS/QS_can.h"
-#include "../generic_functions.h"
+#include "../utils/generic_functions.h"
 
 #define LOG_PREFIX "avoid: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_AVOIDANCE
