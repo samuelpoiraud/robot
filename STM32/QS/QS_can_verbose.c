@@ -183,7 +183,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_SCAN_DUNE:							print(string, len, "%x PROP_SCAN_DUNE                         ", PROP_SCAN_DUNE                                 );  break;
 		case PROP_ACTIVE_PID:							print(string, len, "%x PROP_ACTIVE_PID                        ", PROP_ACTIVE_PID                                );  break;
 		case PROP_RUSH:									print(string, len, "%x PROP_RUSH                              ", PROP_RUSH		                                );  break;
-		case PROP_ASK_BLOC_SCAN:                        print(string, len, "%x PROP_ASK_BLOC_SCAN                     ", PROP_ASK_BLOC_SCAN                             );  break;
 
 
 		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING         ", BEACON_ENABLE_PERIODIC_SENDING					);	break;
@@ -197,8 +196,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case XBEE_SYNC_ELEMENTS_FLAGS:					print(string, len, "%x XBEE_SYNC_ELEMENTS_FLAGS		          ", XBEE_SYNC_ELEMENTS_FLAGS						);	break;
 		case XBEE_COMMUNICATION_AVAILABLE:				print(string, len, "%x XBEE_COMMUNICATION_AVAILABLE		      ", XBEE_COMMUNICATION_AVAILABLE					);	break;
 		case XBEE_COMMUNICATION_RESPONSE:				print(string, len, "%x XBEE_COMMUNICATION_RESPONSE	          ", XBEE_COMMUNICATION_RESPONSE					);	break;
-		case XBEE_ASK_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_ASK_CONFIG_COQUILLAGES            ", XBEE_ASK_CONFIG_COQUILLAGES					);	break;
-		case XBEE_SEND_CONFIG_COQUILLAGES:				print(string, len, "%x XBEE_SEND_CONFIG_COQUILLAGES	          ", XBEE_SEND_CONFIG_COQUILLAGES					);	break;
 		case XBEE_ZONE_COMMAND:							print(string, len, "%x XBEE_ZONE_COMMAND			          ", XBEE_ZONE_COMMAND								);	break;
 		case XBEE_MY_POSITION_IS:						print(string, len, "%x XBEE_MY_POSITION_IS			          ", XBEE_MY_POSITION_IS							);	break;
 
@@ -287,7 +284,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 													   print(string, len, "| état hokuyo : HOKUYO_POWER_ENABLE ");
 												print(string, len,"\n");
 												break;
-		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (msg->data.broadcast_couleur.color == GREEN)?"VERT":"VIOLET"	);		break;
+		case BROADCAST_COULEUR:					print(string, len, "| CouleurEst %s\n", (msg->data.broadcast_couleur.color == BLUE)?"BLUE":"YELLOW"	);		break;
 		case BROADCAST_POSITION_ROBOT:			print(string, len, "| JeSuisEn  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x\n", msg->data.broadcast_position_robot.x, msg->data.broadcast_position_robot.y, msg->data.broadcast_position_robot.angle, RAD_TO_DEG(msg->data.broadcast_position_robot.angle), msg->data.broadcast_position_robot.reason ,msg->data.broadcast_position_robot.error);								break;
 
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:		if(msg->data.broadcast_beacon_adversary_position_ir.adv[0].error || msg->data.broadcast_beacon_adversary_position_ir.adv[1].error)
@@ -315,80 +312,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 		case XBEE_SYNC_ELEMENTS_FLAGS:			switch(msg->data.xbee_sync_elements_flags.flagId)
 												{
-													case F_COQUILLAGE_AWAY_ONE:			print(string, len, "COQUILLAGE_AWAY_ONE");			break;
-													case F_COQUILLAGE_AWAY_TWO:			print(string, len, "COQUILLAGE_AWAY_TWO");			break;
-													case F_COQUILLAGE_AWAY_THREE:			print(string, len, "COQUILLAGE_AWAY_THREE");		break;
-													case F_COQUILLAGE_AWAY_FOUR:			print(string, len, "COQUILLAGE_AWAY_FOUR");			break;
-													case F_COQUILLAGE_AWAY_FIVE:			print(string, len, "COQUILLAGE_AWAY_FIVE");			break;
-													case F_COQUILLAGE_AWAY_ROCK_ONE:		print(string, len, "COQUILLAGE_AWAY_ROCK_ONE");		break;
-													case F_COQUILLAGE_AWAY_ROCK_TWO:		print(string, len, "COQUILLAGE_AWAY_ROCK_TWO");		break;
-													case F_COQUILLAGE_AWAY_ROCK_THREE:	print(string, len, "COQUILLAGE_AWAY_ROCK_THREE");	break;
-													case F_COQUILLAGE_NEUTRAL_ONE:		print(string, len, "COQUILLAGE_NEUTRAL_ONE");		break;
-													case F_COQUILLAGE_NEUTRAL_TWO:		print(string, len, "COQUILLAGE_NEUTRAL_TWO");		break;
-													case F_COQUILLAGE_NEUTRAL_THREE:		print(string, len, "COQUILLAGE_NEUTRAL_THREE");		break;
-													case F_COQUILLAGE_NEUTRAL_FOUR:		print(string, len, "COQUILLAGE_NEUTRAL_FOUR");		break;
-													case F_COQUILLAGE_NEUTRAL_FIVE:		print(string, len, "COQUILLAGE_NEUTRAL_FIVE");		break;
-													case F_COQUILLAGE_NEUTRAL_SIX:		print(string, len, "COQUILLAGE_NEUTRAL_SIX");		break;
-													case F_COQUILLAGE_HOME_ONE:			print(string, len, "COQUILLAGE_HOME_ONE");			break;
-													case F_COQUILLAGE_HOME_TWO:			print(string, len, "COQUILLAGE_HOME_TWO");			break;
-													case F_COQUILLAGE_HOME_THREE:			print(string, len, "COQUILLAGE_HOME_THREE");		break;
-													case F_COQUILLAGE_HOME_FOUR:			print(string, len, "COQUILLAGE_HOME_FOUR");			break;
-													case F_COQUILLAGE_HOME_FIVE:			print(string, len, "COQUILLAGE_HOME_FIVE");			break;
-													case F_COQUILLAGE_HOME_ROCK_ONE:		print(string, len, "COQUILLAGE_HOME_ROCK_ONE");		break;
-													case F_COQUILLAGE_HOME_ROCK_TWO:		print(string, len, "COQUILLAGE_HOME_ROCK_TWO");		break;
-													case F_COQUILLAGE_HOME_ROCK_THREE:	print(string, len, "COQUILLAGE_HOME_ROCK_THREE");	break;
-													case F_COQUILLAGE_NB:					print(string, len, "COQUILLAGE_NB");				break;
-													case F_COQUILLAGES_ATTAQUE:			print(string, len, "COQUILLAGES_ATTAQUE");			break;
-													case F_COQUILLAGES_DEFENSE:			print(string, len, "COQUILLAGES_DEFENSE");			break;
-													case F_FIRST_DOOR_CLOSED:				print(string, len, "FIRST_DOOR_CLOSED");			break;
-													case F_SECOND_DOOR_CLOSED:			print(string, len, "SECOND_DOOR_CLOSED");			break;
-													case F_OUR_START_ZONE_BLOC_TAKEN:		print(string, len, "OUR_START_ZONE_BLOC_TAKEN");	break;
-													case F_ADV_START_ZONE_BLOC_TAKEN:		print(string, len, "ADV_START_ZONE_BLOC_TAKEN");	break;
-													case F_OUR_DUNE_BLOC_TAKEN:			print(string, len, "OUR_DUNE_BLOC_TAKEN");			break;
-													case F_ADV_DUNE_BLOC_TAKEN:			print(string, len, "ADV_DUNE_BLOC_TAKEN");			break;
-													case F_FISHS_TAKEN_BY_BLACK:			print(string, len, "FISHS_TAKEN_BY_BLACK");			break;
-													case F_FISHS_TAKEN_BY_PEARL:			print(string, len, "FISHS_TAKEN_BY_PEARL");			break;
-													case F_DUNE_TAKEN:					print(string, len, "DUNE_TAKEN");					break;
-													case F_ENTIRE_DUNE_IN_ROBOT:					print(string, len, "DUNE_IN_ROBOT");				break;
-													//case F_BLOC_DUNE_TRIED:				print(string, len, "BLOC_DUNE_TRIED");				break;
-													//case F_BLOC_START_ZONE_TRIED:			print(string, len, "BLOC_START_ZONE_TRIED");		break;
-													case F_OUR_BLOC_PRESENT:				print(string, len, "OUR_BLOC_PRESENT");				break;
-													case F_OUR_BLOC_ABSENT:				print(string, len, "OUR_BLOC_ABSENT");				break;
-													case F_ADV_BLOC_PRESENT:				print(string, len, "ADV_BLOC_PRESENT");				break;
-													case F_ADV_BLOC_ABSENT:				print(string, len, "ADV_BLOC_ABSENT");				break;
-													case F_APOCALYPSE_SCAN:				print(string, len, "APOCALYPSE_SCAN");				break;
-													case F_APOCALYPSE_TAKEN:				print(string, len, "APOCALYPSE_TAKEN");				break;
-													case F_APOCALYPSE_SECOND_PART:		print(string, len, "APOCALYPSE_SECOND_PART");		break;
-													case F_APOCALYPSE_WTF:				print(string, len, "APOCALYPSE_WTF");				break;
-													case F_APOCALYPSE_TOTAL_DUNE:			print(string, len, "APOCALYPSE_TOTAL_DUNE");		break;
-													case F_APOCALYPSE_ABSENT:				print(string, len, "APOCALYPSE_ABSENT");			break;
-													case F_DEPOSE_POS_0:					print(string, len, "DEPOSE_POS_0");					break;
-													case F_DEPOSE_POS_1:					print(string, len, "DEPOSE_POS_1");					break;
-													case F_DEPOSE_POS_2:					print(string, len, "DEPOSE_POS_2");					break;
-													case F_DEPOSE_POS_3:					print(string, len, "DEPOSE_POS_3");					break;
-													case F_BLACK_DOORS:					print(string, len, "BLACK_DOORS");					break;
-													case F_BLACK_OUR_BLOC_DUNE:			print(string, len, "BLACK_OUR_BLOC_DUNE");			break;
-													case F_BLACK_IN_APOCALYPSE:			print(string, len, "BLACK_IN_APOCALYPSE");			break;
-													case F_BLACK_ADV_BLOC_DUNE:			print(string, len, "BLACK_ADV_BLOC_DUNE");			break;
-													case F_BLACK_OUR_START_ZONE:			print(string, len, "BLACK_OUR_START_ZONE");			break;
-													case F_BLACK_DEPOSE_SAND:				print(string, len, "BLACK_DEPOSE_SAND");			break;
-													case F_BLACK_ADV_START_ZONE:			print(string, len, "BLACK_ADV_START_ZONE");			break;
-													case F_BLACK_DEPOSE_SEASHELL:			print(string, len, "BLACK_DEPOSE_SEASHELL");		break;
-													case F_BLACK_PUSH_SEASHELL:			print(string, len, "BLACK_PUSH_SEASHELL");			break;
-													case F_BLACK_IN_SNOWPLOW:				print(string, len, "BLACK_IN_SNOWPLOW");			break;
-													case F_BLACK_FISH:					print(string, len, "BLACK_FISH");					break;
-													case F_BLACK_CATCH_SEASHELL:			print(string, len, "BLACK_CATCH_SEASHELL");			break;
-													case F_PEARL_CAN_START_MATCH:			print(string, len, "PEARL_CAN_START_MATCH");		break;
-													case F_PEARL_DOORS:					print(string, len, "PEARL_DOORS");					break;
-													case F_PEARL_OUR_BLOC_DUNE:			print(string, len, "PEARL_OUR_BLOC_DUNE");			break;
-													case F_PEARL_ADV_BLOC_DUNE:			print(string, len, "PEARL_ADV_BLOC_DUNE");			break;
-													case F_PEARL_OUR_START_ZONE:			print(string, len, "PEARL_OUR_START_ZONE");			break;
-													case F_PEARL_DEPOSE_SAND:				print(string, len, "PEARL_DEPOSE_SAND");			break;
-													case F_PEARL_ADV_START_ZONE:			print(string, len, "PEARL_ADV_START_ZONE");			break;
-													case F_PEARL_DEPOSE_SEASHELL:			print(string, len, "PEARL_DEPOSE_SEASHELL");		break;
-													case F_PEARL_OUR_SEASHELL:			print(string, len, "PEARL_OUR_SEASHELL");			break;
-													case F_PEARL_ADV_SEASHELL:			print(string, len, "PEARL_ADV_SEASHELL");			break;
-													case F_PEARL_FISH:					print(string, len, "PEARL_FISH");					break;
+													//case F_EXEMPLE:			print(string, len, "EXEMPLE");			break;
 													default:							print(string, len, "UNKNOW : %d : faites un tour dans le verbose ;)", msg->data.xbee_sync_elements_flags.flagId);	break;
 												}
 												print(string, len, " : %s\n",(msg->data.xbee_sync_elements_flags.flag)?"Enable":"Disable");

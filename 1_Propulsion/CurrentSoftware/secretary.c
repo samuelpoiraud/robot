@@ -35,13 +35,10 @@
 #include "joystick.h"
 #include "hokuyo.h"
 #include "supervisor.h"
-#include "scan_laser.h"
 #include "detection.h"
 #include "gyroscope.h"
 #include "hokuyo.h"
 #include "avoidance.h"
-#include "scan_bloc.h"
-#include "scan_fishs.h"
 
 
 typedef struct{
@@ -216,7 +213,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 	{
 		case BROADCAST_RESET:
 			NVIC_SystemReset();
-			break;
+		break;
 
 		case PROP_STOP:
 			ROADMAP_add_order(  TRAJECTORY_STOP,
@@ -283,14 +280,12 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		case PROP_CALIBRATION:	//Autocalage !
 			SEQUENCES_calibrate();
-
 		break;
 
 		// Modifie la position de départ en fonction de la couleur
 		case BROADCAST_COULEUR :
 			//Le type couleur est normalisé en QS...
 			ODOMETRY_set_color(msg->data.broadcast_couleur.color);
-			SCAN_init();
 			//Propagation sur UART (pour un éventuel robot virtuel branché sur notre UART)
 			#ifdef CAN_SEND_OVER_UART
 				CANmsgToU1tx(msg);
@@ -307,8 +302,8 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 							msg->data.prop_set_position.teta	//teta
 						);
 			COPILOT_reset_absolute_destination();
-
 		break;
+
 		case PROP_RUSH_IN_THE_WALL:
 			if(QS_WHO_AM_I_get() == BIG_ROBOT)
 				SEQUENCES_rush_in_the_wall(msg->data.prop_rush_in_the_wall.teta, msg->data.prop_rush_in_the_wall.way, SLOW_TRANSLATION_AND_FAST_ROTATION, ACKNOWLEDGE_ASKED, 0, 0, BORDER_MODE, (msg->data.prop_rush_in_the_wall.asser_rot)?CORRECTOR_ENABLE:CORRECTOR_TRANSLATION_ONLY);	//BORDER_MODE = sans mise à jour de position odométrie !
@@ -318,7 +313,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		case PROP_ACTIVE_PID:
 			global.flags.pid_active = msg->data.prop_active_pid.state;
-			break;
+		break;
 
 		case PROP_RUSH:
 			PILOT_set_in_rush(msg->data.prop_rush.rush);
@@ -330,11 +325,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			if(msg->data.prop_rush.rush == FALSE){
 				CORRECTOR_reset_coef();
 			}
-			break;
-
-		case PROP_ASK_BLOC_SCAN:
-			SCAN_BLOC_canMsg(msg);
-			break;
+		break;
 
 
 		//Stop tout
@@ -375,12 +366,13 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 				global.flags.alim = TRUE;
 			else if(msg->data.broadcast_alim.state & BATTERY_DISABLE)
 				global.flags.alim = FALSE;
-			break;
+		break;
 
 		//Carte stratégie demande la position
 		case PROP_TELL_POSITION:
 			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
 		break;
+
 		case PROP_SET_CORRECTORS:
 			if(msg->data.prop_set_correctors.rot_corrector)	//Rotation
 			{
@@ -397,6 +389,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 					CORRECTOR_PD_enable(CORRECTOR_DISABLE);
 			}
 		break;
+
 		//Une carte nous demande de l'avertir lorsque nous serons en approche d'une position...
 		case PROP_WARN_ANGLE:
 			WARNER_arm_teta(msg->data.prop_warn_angle.angle);
@@ -513,17 +506,9 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 			IHM_process_main(msg);
 			break;
+
 		case PROP_TRANSPARENCY:
 			DETECTON_set_zone_transparency(msg->data.prop_transparency.number, msg->data.prop_transparency.enable);
-			break;
-
-		case PROP_SCAN_DUNE:
-			SCAN_PROCESS(msg);
-			break;
-
-		case PROP_ASK_FISHS_SCAN:
-			SCAN_FISHS_set_start(msg->data.prop_ask_fishs_scan.start);
-			SCAN_FISHS_set_finish(msg->data.prop_ask_fishs_scan.finish);
 			break;
 
 		default :

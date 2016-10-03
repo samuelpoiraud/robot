@@ -36,7 +36,12 @@
 
 	#ifdef USE_MOSFETS_MODULE
 
-		#include "../actuator/queue.h"
+		#ifdef I_AM_CARTE_STRAT
+			#include "../actuator/queue.h"
+
+			// Regarde si le sid correspond à celui d'un mosfet géré par la stratégie
+			bool_e MOSFET_isStratMosfetSid(queue_id_e act_id);
+		#endif
 
 		// Initialisation du gestionnaire MOSFET.
 		void MOSFET_init();
@@ -67,9 +72,6 @@
 
 	#endif
 
-	#ifdef I_AM_CARTE_STRAT
-		// Regarde si le sid correspond à celui d'un mosfet géré par la stratégie
-		bool_e MOSFET_isStratMosfetSid(queue_id_e act_id);
-	#endif
+
 #endif	/* MOSFET_H */
 

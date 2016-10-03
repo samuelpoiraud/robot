@@ -467,24 +467,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			LCD_printf(1, TRUE, FALSE, "Dist:%d", incoming_msg->data.strat_send_report.actual_trans << 1);
 			LCD_printf(2, TRUE, FALSE, "Rot :%4d MRot:%4d", (incoming_msg->data.strat_send_report.actual_rot << 3)*180/PI4096, (incoming_msg->data.strat_send_report.max_rot << 3)*180/PI4096);
 			break;
-		case STRAT_BACK_SCAN:
-			ELEMENTS_set_flag(F_APOCALYPSE_SECOND_PART,incoming_msg->data.strat_back_scan.second_part);
-			ELEMENTS_set_flag(F_APOCALYPSE_TOTAL_DUNE,incoming_msg->data.strat_back_scan.total_dune);
-			ELEMENTS_set_flag(F_APOCALYPSE_ABSENT,incoming_msg->data.strat_back_scan.nothing);
-			ELEMENTS_set_flag(F_APOCALYPSE_WTF,incoming_msg->data.strat_back_scan.wtf);
-			if(ELEMENTS_get_flag(F_APOCALYPSE_SECOND_PART))
-				ELEMENTS_set_middle_apocalypse(incoming_msg->data.strat_back_scan.middle);
-			ELEMENTS_set_flag(F_APOCALYPSE_SCAN,TRUE);
-			break;
-		case STRAT_BLOC_POSITION:
-			global.posBloc.x=incoming_msg->data.strat_bloc_position.x;
-			global.posBloc.y=incoming_msg->data.strat_bloc_position.y;
-			global.scan_bloc_error=incoming_msg->data.strat_bloc_position.error_scan;
-			break;
-
-		case PROP_RESULT_FISHS_SCAN:
-			ACT_set_pos_fishs(incoming_msg->data.prop_result_fishs_scan.y_pos);
-			break;
 
 //****************************** Messages de la carte actionneur *************************/
 		case ACT_RESULT:
@@ -573,10 +555,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ELEMENTS_check_communication(incoming_msg);
 			break;
 
-		case XBEE_ASK_CONFIG_COQUILLAGES:
-			ELEMENTS_send_config_coquillages(incoming_msg);
-			break;
-
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_SELFTEST_DONE :
 		case STRAT_ACT_SELFTEST_DONE :
@@ -599,8 +577,6 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case IHM_SWITCH:
 			IHM_process_main(incoming_msg);
 			ENV_warning_switch();
-			if(incoming_msg->sid == IHM_SWITCH || incoming_msg->sid == IHM_SWITCH_ALL)
-				ELEMENTS_check_configuration_coquillages(TRUE);
 			break;
 		case IHM_BIROUTE_IS_REMOVED:
 			global.flags.ask_start = TRUE;

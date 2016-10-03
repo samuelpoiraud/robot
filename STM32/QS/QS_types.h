@@ -50,13 +50,13 @@
 		TRUE
 	} bool_e;
 
-	#define TOP_COLOR_NAME "GREEN"
-	#define BOT_COLOR_NAME "MAGENTA"
+	#define TOP_COLOR_NAME "YELLOW"
+	#define BOT_COLOR_NAME "BLUE"
 
 	typedef enum
 	{
-		BOT_COLOR = 0, MAGENTA=0,
-		TOP_COLOR = 1, GREEN=1
+		BOT_COLOR = 0, YELLOW=0,
+		TOP_COLOR = 1, BLUE=1
 	} color_e;
 
 	typedef enum
@@ -142,79 +142,8 @@
 
 
 	typedef enum{
-			//Flags coquillages (Veuillez laisser les flags coquillages ici)
-			F_COQUILLAGE_AWAY_ONE,
-			F_COQUILLAGE_AWAY_TWO,
-			F_COQUILLAGE_AWAY_THREE,
-			F_COQUILLAGE_AWAY_FOUR,
-			F_COQUILLAGE_AWAY_FIVE,
-			F_COQUILLAGE_AWAY_ROCK_ONE,
-			F_COQUILLAGE_AWAY_ROCK_TWO,
-			F_COQUILLAGE_AWAY_ROCK_THREE,
-			F_COQUILLAGE_NEUTRAL_ONE,
-			F_COQUILLAGE_NEUTRAL_TWO,
-			F_COQUILLAGE_NEUTRAL_THREE,
-			F_COQUILLAGE_NEUTRAL_FOUR,
-			F_COQUILLAGE_NEUTRAL_FIVE,
-			F_COQUILLAGE_NEUTRAL_SIX,
-			F_COQUILLAGE_HOME_ONE,
-			F_COQUILLAGE_HOME_TWO,
-			F_COQUILLAGE_HOME_THREE,
-			F_COQUILLAGE_HOME_FOUR,
-			F_COQUILLAGE_HOME_FIVE,
-			F_COQUILLAGE_HOME_ROCK_ONE,
-			F_COQUILLAGE_HOME_ROCK_TWO,
-			F_COQUILLAGE_HOME_ROCK_THREE,
-			F_COQUILLAGE_NB, //Sert simplement à la gestion des flags coquillages
-			F_COQUILLAGES_ATTAQUE,
-			F_COQUILLAGES_DEFENSE,
+			//F_EXEMPLE
 
-			//Eléments pris
-			F_FIRST_DOOR_CLOSED,
-			F_SECOND_DOOR_CLOSED,
-			F_OUR_START_ZONE_BLOC_TAKEN,	//on a pris notre bloc de 4
-			F_ADV_START_ZONE_BLOC_TAKEN,	//on a pris le bloc de 4 adv
-			F_OUR_DUNE_BLOC_TAKEN,			//on a pris notre bloc de 8
-			F_ADV_DUNE_BLOC_TAKEN,			//on a pris le bloc de 8 adv
-			F_FISHS_TAKEN_BY_BLACK,			//sub poissons fait par Black
-			F_FISHS_TAKEN_BY_PEARL,			//sub poissons fait par Pearl
-			F_FISH_COMPLETELY_DONE,			//Poissons complètement terminé par l'un des deux.
-
-			//Flags temporaires strat d'attaque pearl
-			//F_BLOC_DUNE_TRIED,				//on a tenté lors de cette strat de prendre le bloc dune adv
-			//F_BLOC_START_ZONE_TRIED,			//on a tenté lors de cette strat de prendre le bloc start zone adv
-
-			//Flags de dépose des blocs de sables
-			F_DEPOSE_POS_0,
-			F_DEPOSE_POS_1,
-			F_DEPOSE_POS_2,
-			F_DEPOSE_POS_3,
-
-			//Flags de subaction
-			F_BLACK_DOORS,
-			F_BLACK_OUR_BLOC_DUNE,
-			F_BLACK_IN_APOCALYPSE,
-			F_BLACK_ADV_BLOC_DUNE,
-			F_BLACK_OUR_START_ZONE,
-			F_BLACK_DEPOSE_SAND,
-			F_BLACK_ADV_START_ZONE,
-			F_BLACK_DEPOSE_SEASHELL,
-			F_BLACK_PUSH_SEASHELL,
-			F_BLACK_IN_SNOWPLOW,
-			F_BLACK_FISH,
-			F_BLACK_CATCH_SEASHELL,
-
-			F_PEARL_CAN_START_MATCH,
-			F_PEARL_DOORS,
-			F_PEARL_OUR_BLOC_DUNE,
-			F_PEARL_ADV_BLOC_DUNE,
-			F_PEARL_OUR_START_ZONE,
-			F_PEARL_DEPOSE_SAND,
-			F_PEARL_ADV_START_ZONE,
-			F_PEARL_DEPOSE_SEASHELL,
-			F_PEARL_OUR_SEASHELL,
-			F_PEARL_ADV_SEASHELL,
-			F_PEARL_FISH,
 
 			F_ELEMENTS_FLAGS_END_SYNCH,	//Les flags au-dessus seront synchro entre les deux robots
 
@@ -224,49 +153,6 @@
 			F_COMMUNICATION_AVAILABLE,
 
 			//Eléments pris (non synchro)
-			F_DUNE_TAKEN,                      //la dune a été prise
-
-			///GESTION DES ELEMENTS DANS LE ROBOT BLACK
-			F_DUNE_TAKEN_WITHOUT_ARMS,		//La dune a été prise mais les bras n'ont pas pu se fermer
-			F_VENTOUSE_AVANT_GAUCHE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
-			F_VENTOUSE_AVANT_DROITE_BLACK,  //La ventouse avant gauche de Black ventouse un coquillage
-			F_FRONT_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'avant du robot: A mettre à jour !!!
-			F_BACK_BLACK_USED,				//flag ppour savoir si on a des blocs de sable à l'arriere du robot: A mettre à jour !!!
-			F_PEARL_IS_OUT,					//flag indiquant que Pearl est resté planté dans la zone de départ
-			F_DUNE_TAKEN_WITH_SHOVEL,       //Flag indiquant que la dune ou ce qu'il en reste a été prise avec la pelle
-
-
-			//Flag de choix pour la suite du match
-			F_BLACK_FORCE_CHOICE_RESCUE,
-
-			//Flag apportant plus d'info sur ce qui a été pris à l'avant et ce qui a été pris à l'arrière
-			F_BLOC_IN_BLACK,                   //un bloc est à l'avant du robot
-			F_FRONT_DUNE_IN_BLACK,             //l'avant de la dune est dans le robot
-			F_ENTIRE_DUNE_IN_ROBOT,            //la dune arrière est entièrement dans le robot, on ne l'a pas encore déposé.
-			F_DUNE_RETOUR_LENT,
-
-			//Apocalypse
-			F_OUR_BLOC_PRESENT,			//on a vu (au scan) notre bloc de 8
-			F_OUR_BLOC_ABSENT,			//on a PAS vu (au scan) notre bloc de 8
-			F_ADV_BLOC_PRESENT,			//on a vu (au scan) le bloc de 8 adv
-			F_ADV_BLOC_ABSENT,			//on a PAS vu (au scan) le bloc de 8 adv
-			F_APOCALYPSE_SCAN,			//on a scanné l'apocalypse (on est passé voir si il y a quelque chose
-			//F_APOCALYPSE_PRESENT,		//on a trouvé l'apocalypse
-			F_APOCALYPSE_TAKEN,			//on a pris l'apocalypse
-			F_APOCALYPSE_SECOND_PART,
-			F_APOCALYPSE_WTF,
-			F_APOCALYPSE_TOTAL_DUNE,
-			F_APOCALYPSE_ABSENT,
-
-			///GESTION DES ELEMNTS DANS LE ROBOT PEARL
-			F_VENTOUSE_AVANT_GAUCHE_PEARL,
-			F_VENTOUSE_AVANT_DROITE_PEARL,
-			F_VENTOUSE_ARRIERE_GAUCHE_PEARL,
-			F_VENTOUSE_ARRIERE_DROITE_PEARL,
-			F_FRONT_PEARL_USED,               //flag pour savoir si il y a quelque chose à l'avant de Pearl
-			F_ARM_RIGHT_LOCK,
-			F_ARM_LEFT_LOCK,
-			F_FISHS_IN_PEARL,                 //flag indiquant que des poissons non-déposé sont dans Pearl
 
 
 			F_ELEMENTS_FLAGS_NB
