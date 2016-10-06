@@ -117,6 +117,15 @@
 	 */
 	bool_e is_in_quadri(GEOMETRY_point_t points[4], GEOMETRY_point_t tested_point);
 
+	/**
+	 * @brief is_in_polygon
+	 * @param polygon Les points du polygone
+	 * @param nb_summits Le nombre de sommets
+	 * @param tested_point Le point que l'on veut tester si il est dans le polygone
+	 * @param ref_point Un point dont on est sur qu'il est en dehors du polygone (par exemple en dehors du terrain
+	 * @return
+	 */
+	bool_e is_in_polygon(GEOMETRY_point_t polygon[], Uint8 nb_summits, GEOMETRY_point_t tested_point, GEOMETRY_point_t ref_point);
 
 
 	#define PI16384				51472

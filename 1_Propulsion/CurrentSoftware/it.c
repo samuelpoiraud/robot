@@ -29,6 +29,7 @@
 #include "avoidance.h"
 #include "gyroscope.h"
 #include "detection_choc.h"
+#include "scan/scan.h"
 
 typedef enum{
 	IT_STATE_NONE = 0,
@@ -42,6 +43,7 @@ typedef enum{
 	IT_STATE_SUPERVISOR,
 	IT_STATE_MAIN,
 	IT_STATE_HOKUYO,
+	IT_STATE_SCAN,
 	IT_STATE_DETECTION,
 	IT_STATE_CHOC_DETECTION,
 	IT_STATE_DEBUG,
@@ -148,6 +150,11 @@ void _ISR _T2Interrupt()
 		HOKUYO_process_it(PERIODE_IT_ASSER);
 	#endif
 	IT_test_state(begin_it_time, IT_STATE_HOKUYO, &first_overtime);
+
+	#ifdef SCAN
+		SCAN_process_it();
+		IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
+	#endif
 
 	#ifdef DETECTION_CHOC
 		DETECTION_CHOC_process_it_tim2();

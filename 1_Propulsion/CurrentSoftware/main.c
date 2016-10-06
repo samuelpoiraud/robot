@@ -40,6 +40,7 @@
 #include "gyroscope.h"
 #include "detection.h"
 #include "detection_choc.h"
+#include "scan/scan.h"
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -131,6 +132,10 @@ void initialisation(void)
 	DETECTION_init();
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
+	#endif
+
+	#ifdef SCAN
+		SCAN_init();
 	#endif
 
 	#ifdef USE_GYROSCOPE
@@ -227,8 +232,12 @@ int main (void)
 
 		MAIN_sensor_test();
 
+		#ifdef SCAN
+			SCAN_process_main();
+		#endif
+
 		#ifdef DETECTION_CHOC
-			 DETECTION_CHOC_process_main();
+			DETECTION_CHOC_process_main();
 		#endif
 
 		if(flag_calibration_asked)
