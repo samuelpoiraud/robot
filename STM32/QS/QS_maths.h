@@ -122,10 +122,10 @@
 	 * @param polygon Les points du polygone
 	 * @param nb_summits Le nombre de sommets
 	 * @param tested_point Le point que l'on veut tester si il est dans le polygone
-	 * @param ref_point Un point dont on est sur qu'il est en dehors du polygone (par exemple en dehors du terrain
+	 * @param out_point Un point dont on est sur qu'il est en dehors du polygone (par exemple en dehors du terrain
 	 * @return
 	 */
-	bool_e is_in_polygon(GEOMETRY_point_t polygon[], Uint8 nb_summits, GEOMETRY_point_t tested_point, GEOMETRY_point_t ref_point);
+	bool_e is_in_polygon(GEOMETRY_point_t polygon[], Uint8 nb_summits, GEOMETRY_point_t tested_point, GEOMETRY_point_t out_point, Uint8 *stock_intersections);
 
 
 	#define PI16384				51472

@@ -327,11 +327,11 @@ bool_e is_in_quadri(GEOMETRY_point_t points[4], GEOMETRY_point_t tested_point){
  * @param ref_point Un point dont on est sur qu'il est en dehors du polygone (par exemple en dehors du terrain
  * @return
  */
-bool_e is_in_polygon(GEOMETRY_point_t polygon[], Uint8 nb_summits, GEOMETRY_point_t tested_point, GEOMETRY_point_t ref_point){
+bool_e is_in_polygon(GEOMETRY_point_t polygon[], Uint8 nb_summits, GEOMETRY_point_t tested_point, GEOMETRY_point_t out_point, Uint8 *stock_intersections){
 	Uint8 nbIntersections=0;
 	Uint8 i;
 	//segment de référence dont une extrémité (x=3000, y=4000) est à l'extérieur du polygone
-	GEOMETRY_segment_t seg1 = {tested_point, ref_point};
+	GEOMETRY_segment_t seg1 = {tested_point, out_point};
 
 	//on compte le nombre d'intersection avec chaque coté du polygone
 	for(i=0; i<nb_summits-1; i++){
@@ -342,6 +342,9 @@ bool_e is_in_polygon(GEOMETRY_point_t polygon[], Uint8 nb_summits, GEOMETRY_poin
 	//Test de l'intersection avec le dernier segment
 	GEOMETRY_segment_t seg2 = {polygon[nb_summits-1], polygon[0]};
 	nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
+
+	if(*stock_intersections)
+		*stock_intersections = nbIntersections;
 
 	//Le point est à l'intérieur du polygone si le nombre d'intersections avec chacun des côté du polygone est un nombre impair.
 	//Si le nombre d'intersection est un nombre pair, le node est donc à l'extérieur du polygone.
