@@ -17,13 +17,8 @@
 static void SCAN_get_data_left();
 static void SCAN_get_data_right();
 
-typedef struct{
-	 GEOMETRY_point_t data[2*NB_SCAN_DATA];
-	 bool_e enable[2*NB_SCAN_DATA];
-}scan_data_t;
-
-static scan_data_t laser_left;
-static scan_data_t laser_right;
+static scan_data_t laser_left[2*NB_SCAN_DATA];
+static scan_data_t laser_right[2*NB_SCAN_DATA];
 static Uint16 index = 0;
 static bool_e flag_1, flag_2;
 
@@ -37,13 +32,13 @@ void SCAN_init(){
 	index = 0;
 
 	for(i=0; i<2*NB_SCAN_DATA; i++){
-		laser_left.enable[i] = FALSE;
-		laser_right.enable[i] = FALSE;
+		laser_left[i].enable = FALSE;
+		laser_right[i].enable = FALSE;
 	}
 }
 
 static void SCAN_get_data_left(){
-	GEOMETRY_point_t p;
+	GEOMETRY_point_t pos_mesure, pos_laser;
 	bool_e enable;
 	Sint16 value;
 	position_t robot;
@@ -57,18 +52,22 @@ static void SCAN_get_data_left(){
 		enable = FALSE;
 	}
 
-	laser_left.enable[index] = enable;
+	laser_left[index].enable = enable;
 
-	if(enable){
-		p.x = robot.x + OFFSET_LENGTH_LASER_LEFT*cos4096(robot.teta) + OFFSET_WIDTH_LASER_LEFT*sin4096(robot.teta);
-		p.y = robot.y + OFFSET_LENGTH_LASER_LEFT*sin4096(robot.teta) - OFFSET_WIDTH_LASER_LEFT*cos4096(robot.teta);
+	// On calcule et on stocke la valeur même si le capteur entre en saturation
+	pos_mesure.x = robot.x + OFFSET_LENGTH_LASER_LEFT*cos4096(robot.teta) + (OFFSET_WIDTH_LASER_LEFT - value)*sin4096(robot.teta);
+	pos_mesure.y = robot.y + OFFSET_LENGTH_LASER_LEFT*sin4096(robot.teta) - (OFFSET_WIDTH_LASER_LEFT - value)*cos4096(robot.teta);
+	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
+	pos_laser.x = robot.x + OFFSET_LENGTH_LASER_LEFT*cos4096(robot.teta) + OFFSET_WIDTH_LASER_LEFT*sin4096(robot.teta);
+	pos_laser.y = robot.y + OFFSET_LENGTH_LASER_LEFT*sin4096(robot.teta) - OFFSET_WIDTH_LASER_LEFT*cos4096(robot.teta);
 
-		laser_left.data[index] = p; // On stocke la valeur
-	}
+	// On stocke les valeurs
+	laser_left[index].pos_mesure = pos_mesure;
+	laser_left[index].pos_laser = pos_laser;
 }
 
 static void SCAN_get_data_right(){
-	GEOMETRY_point_t p;
+	GEOMETRY_point_t pos_mesure, pos_laser;
 	bool_e enable;
 	Sint16 value;
 	position_t robot;
@@ -82,15 +81,18 @@ static void SCAN_get_data_right(){
 		enable = FALSE;
 	}
 
-	laser_right.enable[index] = enable;
+	laser_right[index].enable = enable;
 
+	// On calcule et on stocke la valeur même si le capteur entre en saturation
+	pos_mesure.x = robot.x + OFFSET_LENGTH_LASER_RIGHT*cos4096(robot.teta) + (OFFSET_WIDTH_LASER_RIGHT + value)*sin4096(robot.teta);
+	pos_mesure.y = robot.y + OFFSET_LENGTH_LASER_RIGHT*sin4096(robot.teta) - (OFFSET_WIDTH_LASER_RIGHT + value)*cos4096(robot.teta);
+	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
+	pos_laser.x = robot.x + OFFSET_LENGTH_LASER_RIGHT*cos4096(robot.teta) + OFFSET_WIDTH_LASER_RIGHT*sin4096(robot.teta);
+	pos_laser.y = robot.y + OFFSET_LENGTH_LASER_RIGHT*sin4096(robot.teta) - OFFSET_WIDTH_LASER_RIGHT*cos4096(robot.teta);
 
-	if(enable){
-		p.x = robot.x + OFFSET_LENGTH_LASER_RIGHT*cos4096(robot.teta) + OFFSET_WIDTH_LASER_RIGHT*sin4096(robot.teta);
-		p.y = robot.y + OFFSET_LENGTH_LASER_RIGHT*sin4096(robot.teta) - OFFSET_WIDTH_LASER_RIGHT*cos4096(robot.teta);
-
-		laser_right.data[index] = p; // On stocke la valeur
-	}
+	// On stocke les valeurs
+	laser_right[index].pos_mesure = pos_mesure;
+	laser_right[index].pos_laser = pos_laser;
 }
 
 
@@ -114,16 +116,18 @@ void SCAN_process_it(){
 
 void SCAN_process_main(){
 	Uint16 i;
-	scan_data_treatment_t tab_treatment_left, tab_treatment_right;
+	scan_data_t tab_treatment_left[NB_SCAN_DATA], tab_treatment_right[NB_SCAN_DATA];
 
 	// Copie de la première partie du tableau pendant que la première partie est en train de se remplir
 	if(flag_1){
 		for(i=0; i<NB_SCAN_DATA; i++){
-			tab_treatment_left.pos[i] = laser_left.data[i];
-			tab_treatment_left.enable[i] = laser_left.enable[i];
-			tab_treatment_right.pos[i] = laser_right.data[i];
-			tab_treatment_right.enable[i] = laser_right.enable[i];
-			debug_printf("l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", laser_left.data[i].x, laser_left.data[i].y,laser_left.enable[i], laser_right.data[i].x, laser_right.data[i].y, laser_right.enable[i]);
+			tab_treatment_left[i].pos_mesure = laser_left[i].pos_mesure;
+			tab_treatment_left[i].pos_laser = laser_left[i].pos_laser;
+			tab_treatment_left[i].enable = laser_left[i].enable;
+			tab_treatment_right[i].pos_mesure = laser_right[i].pos_mesure;
+			tab_treatment_right[i].pos_laser = laser_right[i].pos_laser;
+			tab_treatment_right[i].enable = laser_right[i].enable;
+			debug_printf("l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
 		}
 		flag_1 = FALSE;
 	}
@@ -131,11 +135,13 @@ void SCAN_process_main(){
 	// Copie de la seconde partie du tableau pendant que la première partie est en train de se remplir
 	if(flag_2){
 		for(i=NB_SCAN_DATA; i<2*NB_SCAN_DATA; i++){
-			tab_treatment_left.pos[i] = laser_left.data[NB_SCAN_DATA + i];
-			tab_treatment_left.enable[i] = laser_left.enable[NB_SCAN_DATA + i];
-			tab_treatment_right.pos[i] = laser_right.data[NB_SCAN_DATA + i];
-			tab_treatment_right.enable[i] = laser_right.enable[NB_SCAN_DATA + i];
-			debug_printf("l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", laser_left.data[i].x, laser_left.data[i].y,laser_left.enable[i], laser_right.data[i].x, laser_right.data[i].y, laser_right.enable[i]);
+			tab_treatment_left[i].pos_mesure = laser_left[NB_SCAN_DATA + i].pos_mesure;
+			tab_treatment_left[i].pos_laser = laser_left[NB_SCAN_DATA + i].pos_laser;
+			tab_treatment_left[i].enable = laser_left[NB_SCAN_DATA + i].enable;
+			tab_treatment_right[i].pos_mesure = laser_right[NB_SCAN_DATA + i].pos_mesure;
+			tab_treatment_right[i].pos_laser = laser_right[NB_SCAN_DATA + i].pos_laser;
+			tab_treatment_right[i].enable = laser_right[NB_SCAN_DATA + i].enable;
+			debug_printf("l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
 		}
 		flag_2 = FALSE;
 	}
