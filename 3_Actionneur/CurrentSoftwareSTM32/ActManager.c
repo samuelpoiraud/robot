@@ -160,7 +160,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);
 		#endif
 
-		if((responseReceived && isReady) || global.flags.alim) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
+		if((responseReceived && isReady) || global.flags.power) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
 			debug_printf("Init pos\n");
 			for(i = 0; i < NB_ACTIONNEURS; i++) {
 				if(actionneurs[i].onInitPos != NULL)

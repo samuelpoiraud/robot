@@ -20,8 +20,7 @@
 		volatile bool_e match_over;
 		volatile bool_e match_started;
 
-		volatile bool_e alim;
-		volatile bool_e aru;
+		volatile bool_e power;
 
 	}flag_list_t;
 
