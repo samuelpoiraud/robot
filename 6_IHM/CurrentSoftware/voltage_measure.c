@@ -73,7 +73,7 @@ void VOLTAGE_MEASURE_process_main(void){
 		if((valueHokuyo < THRESHOLD_12V_HOKUYO_MIN || valueHokuyo > THRESHOLD_12V_HOKUYO_MAX) && hokuyo_state != HOKUYO_DISABLE){
 			send_msgCAN(HOKUYO_DISABLE);
 			hokuyo_state = HOKUYO_DISABLE;
-		}else if(hokuyo_state != HOKUYO_ENABLE){
+		}else if((valueHokuyo > THRESHOLD_12V_HOKUYO_MIN && valueHokuyo < THRESHOLD_12V_HOKUYO_MAX) && hokuyo_state != HOKUYO_ENABLE){
 			send_msgCAN(HOKUYO_ENABLE);
 			hokuyo_state = HOKUYO_ENABLE;
 		}
