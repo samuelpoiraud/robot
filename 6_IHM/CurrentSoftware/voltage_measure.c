@@ -35,11 +35,11 @@ void VOLTAGE_MEASURE_init(){
 	valuePerm = THRESHOLD_BATTERY_LOW + 1000;
 
 	battery_state = BATTERY_ENABLE;
-	aru_state = ARU_DISABLE;  //ARU non enclenché => disable
-	hokuyo_state = HOKUYO_ENABLE;
+	aru_state = ARU_ENABLE;  //ARU enclenché => enable
+	hokuyo_state = HOKUYO_DISABLE;
 
 	valuePerm = valuePerm*(100-PERCENTAGE_FILTER)/100 + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER/100;
-	send_msgCAN(BATTERY_ENABLE | ARU_DISABLE | HOKUYO_ENABLE);
+	send_msgCAN(BATTERY_ENABLE | ARU_ENABLE | HOKUYO_DISABLE);
 }
 
 void VOLTAGE_MEASURE_process_main(void){
