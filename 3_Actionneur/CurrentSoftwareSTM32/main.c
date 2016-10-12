@@ -588,7 +588,7 @@ static void MAIN_global_var_init(){
 	// Initialisation de la variable global
 	global.flags.match_started = FALSE;
 	global.flags.match_over = FALSE;
-	global.flags.alim = FALSE;
+	global.flags.power = FALSE;
 	global.alim_value = 0;
 	global.absolute_time = 0;
 }

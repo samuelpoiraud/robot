@@ -88,24 +88,20 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			break;
 
 		case BROADCAST_ALIM:
-			if(msg->data.broadcast_alim.state & BATTERY_DISABLE){
-				global.flags.alim = FALSE;
-			}else if(msg->data.broadcast_alim.state & (BATTERY_ENABLE | BATTERY_LOW)){
+			if(msg->data.broadcast_alim.state & (BATTERY_DISABLE | ARU_ENABLE)){
+				global.flags.power = FALSE;
+			}else if(msg->data.broadcast_alim.state & ARU_DISABLE){
 #ifdef USE_DCMOTOR2
 				DCM_reset_integrator();
 #endif
 				static bool_e first_on = TRUE;
-				global.flags.alim = TRUE;
+				global.flags.power = TRUE;
 				if(first_on)
 					first_on = FALSE;
 				else
 					ACTMGR_reset_config();
 			}
 			global.alim_value = msg->data.broadcast_alim.battery_value;
-			if(msg->data.broadcast_alim.state == ARU_DISABLE)
-				global.flags.aru = FALSE;
-			else if(msg->data.broadcast_alim.state == ARU_ENABLE)
-				global.flags.aru = TRUE;
 			break;
 
 		case ACT_PING:
