@@ -463,18 +463,23 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			Uint8 i;
 			for(i=0; i<nb_displacements-1; i++)
 			{
-				if(displacements || (displacements_curve && displacements_curve[i].curve))
+				if(displacements)
 					PROP_goTo(displacements[i].point.x, displacements[i].point.y, PROP_ABSOLUTE, displacements[i].speed, way, TRUE, PROP_END_AT_BRAKE, PROP_CURVE, avoidance_type, border_mode, 0);
+				else if(displacements_curve && displacements_curve[i].curve)
+					PROP_goTo(displacements_curve[i].point.x, displacements_curve[i].point.y, PROP_ABSOLUTE, displacements_curve[i].speed, way, TRUE, PROP_END_AT_BRAKE, PROP_CURVE, avoidance_type, border_mode, 0);
 				else
-					PROP_goTo(displacements[i].point.x, displacements[i].point.y, PROP_ABSOLUTE, displacements[i].speed, way, TRUE, PROP_END_AT_POINT, PROP_NO_CURVE, avoidance_type, border_mode, 0);
+					PROP_goTo(displacements_curve[i].point.x, displacements_curve[i].point.y, PROP_ABSOLUTE, displacements_curve[i].speed, way, TRUE, PROP_END_AT_POINT, PROP_NO_CURVE, avoidance_type, border_mode, 0);
 			}
 
 			idTraj = PROP_getNextIdTraj();
 			beginTime = global.absolute_time;
-			if(displacements || (displacements_curve && displacements_curve[nb_displacements-1].curve))
+
+			if(displacements)
 				PROP_goTo(displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y, PROP_ABSOLUTE, displacements[nb_displacements-1].speed, way, TRUE, PROP_END_AT_BRAKE, PROP_CURVE, avoidance_type, border_mode, idTraj);
+			else if(displacements_curve && displacements_curve[nb_displacements-1].curve)
+				PROP_goTo(displacements_curve[nb_displacements-1].point.x, displacements_curve[nb_displacements-1].point.y, PROP_ABSOLUTE, displacements_curve[nb_displacements-1].speed, way, TRUE, PROP_END_AT_BRAKE, PROP_CURVE, avoidance_type, border_mode, idTraj);
 			else
-				PROP_goTo(displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y, PROP_ABSOLUTE, displacements[nb_displacements-1].speed, way, TRUE, PROP_END_AT_POINT, PROP_NO_CURVE, avoidance_type, border_mode, idTraj);
+				PROP_goTo(displacements_curve[nb_displacements-1].point.x, displacements_curve[nb_displacements-1].point.y, PROP_ABSOLUTE, displacements_curve[nb_displacements-1].speed, way, TRUE, PROP_END_AT_POINT, PROP_NO_CURVE, avoidance_type, border_mode, idTraj);
 
 			debug_printf("goto_pos_with_scan_foe : load_move\n");
 
