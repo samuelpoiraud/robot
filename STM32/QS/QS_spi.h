@@ -20,9 +20,6 @@
 	#define QS_SPI_H
 	#include "QS_all.h"
 
-#define USE_SPI1
-#define USE_SPI2
-
 	typedef enum{
 		SPI_DATA_SIZE_8_BIT,
 		SPI_DATA_SIZE_16_BIT
