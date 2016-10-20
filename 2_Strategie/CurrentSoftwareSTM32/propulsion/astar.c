@@ -232,10 +232,14 @@
 	{
 		//(astar_node_t){ id,  pos, neighbors },
 
+
+		//remove a3, i3 ,d3, f3 ,e2, hardline, (a faire cratère)
+
+
 		//Rangée [A]
 		(astar_node_t){ A1, {600,  300}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)},
 		(astar_node_t){ A2, {1000, 400}, (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)},
-		(astar_node_t){ A3, {1250, 300}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)},
+		(astar_node_t){ A3, {1350, 300}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)},
 
 		//Rangée [B]
 		(astar_node_t){ B1, {900,  700}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)},
@@ -249,16 +253,16 @@
 		//Rangée [D]
 		(astar_node_t){ D1, {300,  1300}, (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)|(1ULL<<F1)},
 		(astar_node_t){ D2, {800,  1300}, (1ULL<<B1)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D1)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F2)},
-		(astar_node_t){ D3, {1200, 1200}, (1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<E2)},
+		(astar_node_t){ D3, {1100, 1100}, (1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<E2)},
 
 		//Rangée [E]
 		(astar_node_t){ E1, {500,  1500}, (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<G1)},
-		(astar_node_t){ E2, {1000, 1500}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
+		(astar_node_t){ E2, {950, 1500}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
 
 		//Rangée [F]
 		(astar_node_t){ F1, {300,  1700}, (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)},
 		(astar_node_t){ F2, {800,  1700}, (1ULL<<D2)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H1)},
-		(astar_node_t){ F3, {1200, 1800}, (1ULL<<E2)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)},
+		(astar_node_t){ F3, {1100, 1900}, (1ULL<<E2)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)},
 
 		//Rangée [G]
 		(astar_node_t){ G1, {700,  2000}, (1ULL<<E1)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)|(1ULL<<H1)},
@@ -272,7 +276,7 @@
 		//Rangée [I]
 		(astar_node_t){ I1, {600,  2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
 		(astar_node_t){ I2, {1000, 2600}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I3)},
-		(astar_node_t){ I3, {1250, 2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)},
+		(astar_node_t){ I3, {1350, 2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)},
 
 		//Node de départ
 		(astar_node_t){ FROM_NODE, {0, 0},  0ULL},
@@ -402,22 +406,22 @@
 		ASTAR_define_polygon("adv_depose_centre_zone", poly_depose_centre_zone, 8, TRUE, nodesIO_depose_centre_zone, 4);
 
 		// notre grand cratère de balle
-		GEOMETRY_point_t poly_our_cratere_zone[6] = {(GEOMETRY_point_t){1464, COLOR_Y(238)},
-												   (GEOMETRY_point_t){1619, COLOR_Y(423)},
-												   (GEOMETRY_point_t){1774, COLOR_Y(531)},
-												   (GEOMETRY_point_t){2004, COLOR_Y(573)},
-		 	 	 	 	 	 	 	 	 	 	   (GEOMETRY_point_t){2000, COLOR_Y(0)},
-												   (GEOMETRY_point_t){1426, COLOR_Y(0)}};
+		GEOMETRY_point_t poly_our_cratere_zone[6] = {(GEOMETRY_point_t){1490, COLOR_Y(0)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(0)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(510)},
+												   (GEOMETRY_point_t){1800, COLOR_Y(470)},
+		 	 	 	 	 	 	 	 	 	 	   (GEOMETRY_point_t){1635, COLOR_Y(365)},
+												   (GEOMETRY_point_t){1530, COLOR_Y(200)}};
 		astar_node_id nodesIO_our_cratere_zone[3] = {COLOR_NODE(A3), COLOR_NODE(B2), COLOR_NODE(B3)};
 		ASTAR_define_polygon("our_cratère", poly_our_cratere_zone, 6, TRUE, nodesIO_our_cratere_zone, 3);
 
 		// La grand cratère de balle adverse
-		GEOMETRY_point_t poly_adv_cratere_zone[6] = {(GEOMETRY_point_t){1464, COLOR_Y(2762)},
-												   (GEOMETRY_point_t){1619, COLOR_Y(2577)},
-												   (GEOMETRY_point_t){1775, COLOR_Y(2469)},
-											       (GEOMETRY_point_t){2005, COLOR_Y(2428)},
+		GEOMETRY_point_t poly_adv_cratere_zone[6] = {(GEOMETRY_point_t){1490, COLOR_Y(3000)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(3000)},
-												   (GEOMETRY_point_t){1426, COLOR_Y(3000)}};
+												   (GEOMETRY_point_t){2000, COLOR_Y(2490)},
+											       (GEOMETRY_point_t){1800, COLOR_Y(2530)},
+												   (GEOMETRY_point_t){1635, COLOR_Y(2635)},
+												   (GEOMETRY_point_t){1530, COLOR_Y(2800)}};
 		astar_node_id nodesIO_adv_cratere_zone[3] = {COLOR_NODE(H2), COLOR_NODE(H3), COLOR_NODE(I3)};
 		ASTAR_define_polygon("adv_cartère", poly_adv_cratere_zone, 6, TRUE, nodesIO_adv_cratere_zone, 3);
 
@@ -475,10 +479,10 @@
 		// zone depose module cote jaune
 		ASTAR_define_hardline(TRUE,(GEOMETRY_point_t){700, 2920}, (GEOMETRY_point_t){1150, 2920}, TRUE);
 		// la zone de départ adverse
-		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){375, 3000}, (GEOMETRY_point_t){375, 1900}, TRUE);
-		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){0, 1900}, (GEOMETRY_point_t){375, 1900}, TRUE);
+		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){360, COLOR_Y(3000)}, (GEOMETRY_point_t){360, COLOR_Y(1930)}, TRUE);
+		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){0, COLOR_Y(1930)}, (GEOMETRY_point_t){360, COLOR_Y(1930)}, TRUE);
 		// tassau notre zone de départ
-		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){375, 0}, (GEOMETRY_point_t){375, 750 + HARDLINE_PROTECTION_LENGTH}, TRUE);
+		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){360, COLOR_Y(0)}, (GEOMETRY_point_t){360, COLOR_Y(710 + HARDLINE_PROTECTION_LENGTH)}, TRUE);
 	}
 
 	/** @brief ASTAR_define_polygon
