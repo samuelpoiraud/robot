@@ -56,15 +56,22 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? (BIG_ROBOT_WIDTH/2) : (SMALL_ROBOT_WIDTH/2);
 	widthRobot += 100;	//Marge !
 
-	// Spécifique Terrain 2016
+	// Spécifique Terrain 2017
 	if(
-			!is_in_square(50 + (widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p)	// Hors Terrain - la zone des portes de cabanes...
-		|| 	is_in_square(0, 200+(widthRobot), 800-(widthRobot), 940+(widthRobot),*p)			        // Tasseau de la dune côté violet + carré de 8 cubes
-		||  is_in_square(0, 200+(widthRobot), 2060-(widthRobot), 2200+(widthRobot),*p)		            // Tasseau de la dune côté vert + carré de 8 cubes
-		||	is_in_square(750-(widthRobot), 1350+(widthRobot), 1460-(widthRobot), 1530+(widthRobot),*p)  // Tasseau verticale de la zone centrale
-		||	is_in_square(750-(widthRobot), 780+(widthRobot), 900-(widthRobot), 2100+(widthRobot),*p)	// Tasseau horizontale de la zone centrale
-		||	is_in_square(1950-(widthRobot), 2000, 910-(widthRobot), 960+(widthRobot),*p)                // Attache filet côté vert
-		||	is_in_square(1950-(widthRobot), 2000, 2040-(widthRobot), 2090+(widthRobot),*p)              // Attache filet côté violet
+			!is_in_square(0 + (widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p)	// Hors Terrain
+		|| 	is_in_square(0, 382+(widthRobot), 0, 710+(widthRobot),*p)						// Tasseau zone de départ bleu + bascule
+		|| 	is_in_square(0, 382+(widthRobot), 2290-(widthRobot), 3000,*p)					// Tasseau zone de départ jaune + bascule
+		|| 	is_in_square(0, 80+(widthRobot), 1110-(widthRobot), 1190+(widthRobot),*p)		// Fusée bleu
+		|| 	is_in_square(0, 80+(widthRobot), 1110-(widthRobot), 1190+(widthRobot),*p)		// Fusée jaune
+		|| 	is_in_square(678-(widthRobot), 1400+(widthRobot), 0, 102+(widthRobot),*p)		// Zone de dépose modules côté bleu + fusée
+		|| 	is_in_square(678-(widthRobot), 1400+(widthRobot), 1898-(widthRobot), 3000,*p)   // Zone de dépose modules côté jaune + fusée
+		|| 	is_in_square(540-85-(widthRobot), 540+85+(widthRobot), 650-85-(widthRobot), 650+85+(widthRobot),*p)   // Petit cratère nord côté bleu
+		|| 	is_in_square(540-85-(widthRobot), 540+85+(widthRobot), 2350-85-(widthRobot), 2350+85+(widthRobot),*p) // Petit cratère nord côté jaune
+		|| 	is_in_square(1400-(widthRobot), 2000, 910-(widthRobot), 2090+(widthRobot),*p)   // Zone du milieu (les 2 petits cratères + les 2 zones de dépose modules inclinées)
+		|| 	is_in_square(1200-(widthRobot), 2000, 1430-(widthRobot), 1570+(widthRobot),*p)	// Zone du de dépose modules du milieu
+		|| 	(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 0}, 510+(widthRobot)}) && is_in_square(1490-(widthRobot), 2000, 0, 510+(widthRobot),*p))			// Gros cratère côté bleu
+		|| 	(is_in_circle(*p, (GEOMETRY_circle_t){(GEOMETRY_point_t){2000, 3000}, 510+(widthRobot)}) && is_in_square(1490-(widthRobot), 2000, 2490-(widthRobot), 3000,*p))  // Gros cratère côté jaune
+
 	  )
 		return FALSE;
 
@@ -77,12 +84,10 @@ bool_e is_possible_point_for_dodge(GEOMETRY_point_t * p)
 	Uint8 widthRobot;
 	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? (BIG_ROBOT_WIDTH/2) : (SMALL_ROBOT_WIDTH/2);
 	widthRobot += 100;	//Marge !
-	GEOMETRY_circle_t zone_depose_adv = {(GEOMETRY_point_t){750, 1500}, 700};
 
-	// Spécifique Terrain 2016
+	// Spécifique Terrain 2017
 	if(
-			(is_in_circle(*p, zone_depose_adv) && is_in_square(750, 1350+(widthRobot), 1500, COLOR_Y(2100+(widthRobot)),*p))  // Zone de dépose adverse
-		||  is_in_square(600-(widthRobot), 1100+(widthRobot), COLOR_Y(2700-(widthRobot)), COLOR_Y(3000),*p) // zone de départ adverse
+			is_in_square(0, 350+(widthRobot), COLOR_Y(1900-(widthRobot)), COLOR_Y(2300),*p) // zone de départ adverse (n'empêche pas de tourner mais on ne doit pas s'extraire dedans)
 	)
 		return FALSE;
 

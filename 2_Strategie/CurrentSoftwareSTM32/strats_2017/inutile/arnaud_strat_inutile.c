@@ -1,9 +1,9 @@
-#include "arnaud_strat_inutile.h"
+#include "strat_inutile.h"
 #include "../../propulsion/movement.h"
 #include "../../QS/QS_stateMachineHelper.h"
 
 void arnaud_strat_inutile_big(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_BOTH_WAIT,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 			INIT,
 			TRANS1,
 			TRANS2,
@@ -20,7 +20,7 @@ void arnaud_strat_inutile_big(){
 			break;
 
 		case TRANS1:
-			state = try_going(500, 500, state , TRANS2, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
+			state = try_going(global.pos.x, global.pos.y+1000, state , DONE, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case TRANS2:

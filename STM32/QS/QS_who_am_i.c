@@ -62,10 +62,10 @@
 		}
 		switch(robot_id){
 			case BIG_ROBOT :
-				return "Black";
+				return "Harry";
 				break;
 			case SMALL_ROBOT :
-				return "Pearl";
+				return "Anne";
 				break;
 			case BEACON_EYE :
 				return "Beacon_Eye";
