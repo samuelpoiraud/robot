@@ -526,9 +526,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 		case XBEE_MY_POSITION_IS:
-			if(QS_WHO_AM_I_get() == PEARL)
+			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
 			{
-				if(incoming_msg->data.xbee_my_position_is.robot_id == BLACK)
+				if(incoming_msg->data.xbee_my_position_is.robot_id == BIG_ROBOT)
 				{
 					global.friend_position_lifetime = 4000;		//Durée de vie pour cette donnée. (attention à la latence du XBEE)
 					global.friend_pos.x = incoming_msg->data.xbee_my_position_is.x;

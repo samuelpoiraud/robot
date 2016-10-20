@@ -16,10 +16,10 @@
 
 	typedef enum
 	{
-		BLACK = 0,
-		PEARL,
-		BIG_ROBOT = BLACK,
-		SMALL_ROBOT = PEARL,
+		HARRY = 0,
+		ANNE,
+		BIG_ROBOT = HARRY,
+		SMALL_ROBOT = ANNE,
 		BEACON_EYE
 	}robot_id_e;
 

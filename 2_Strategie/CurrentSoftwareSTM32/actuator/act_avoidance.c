@@ -28,78 +28,15 @@ void ACT_AVOIDANCE_init(){
 
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
 		//---------------------------------------------------------------------------------------------------------------------left-----right----front---back
-//EXEMPLE:init_new_offset(ACT_AVOID_POP_COLLECT_LEFT,ACT_AVOID_POP_COLLECT_LEFT_Open,ACT_POP_COLLECT_LEFT_OPEN,			60,		0,		0,		60);
 
-		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Open,	ACT_FISH_UNSTICK_ARM_OPEN,			0,		190,	0,		0);
-		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Up_Tapotage,		ACT_FISH_UNSTICK_ARM_UP_TAPOTAGE,	0,		190,	0,		0);
-		init_new_offset(ACT_QUEUE_Fish_unstick_arm,		ACT_AVOID_FISH_UNSTICK_ARM_Down_Tapotage,	ACT_FISH_UNSTICK_ARM_DOWN_TAPOTAGE,	0,		190,	0,		0);
+//EXEMPLE init_new_offset(ACT_QUEUE_Exemple,				ACT_AVOID_EXEMPLE_Open,			ACT_EXEMPLE_OPEN,					0,		190,	0,		0);
+//EXEMPLE init_new_offset(ACT_QUEUE_Exemple_arm,			ACT_AVOID_EXEMPLE_Close,		ACT_EXEMPLE_CLOSE					0,		190,	0,		0);
 
-		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Open,	ACT_FISH_MAGNETIC_ARM_OPEN,			0,		190,	0,		0);
-		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Up_Tapotage,	ACT_FISH_MAGNETIC_ARM_UP_TAPOTAGE,	0,		190,	0,		0);
-		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Down_Tapotage,	ACT_FISH_MAGNETIC_ARM_DOWN_TAPOTAGE,0,		190,	0,		0);
-		init_new_offset(ACT_QUEUE_Fish_magnetic_arm,	ACT_AVOID_FISH_MAGNETIC_ARM_Middle,	ACT_FISH_MAGNETIC_ARM_MIDDLE,		0,		150,	0,		0);
-
-		init_new_offset(ACT_QUEUE_Black_sand_circle,	ACT_AVOID_BLACK_SAND_CIRCLE_Open,	ACT_BLACK_SAND_CIRCLE_LOCK,			0,		0,		120,	0);
-
-		init_new_offset(ACT_QUEUE_Bottom_dune,			ACT_AVOID_BOTTOM_DUNE_Lock,			ACT_BOTTOM_DUNE_LOCK,				0,		0,		0,		60);
-
-		init_new_offset(ACT_QUEUE_Middle_dune,			ACT_AVOID_MIDDLE_DUNE_Lock,			ACT_MIDDLE_DUNE_LOCK,				0,		0,		0,		60);
-
-		init_new_offset(ACT_QUEUE_Cone_dune,			ACT_AVOID_CONE_DUNE_Lock,			ACT_CONE_DUNE_LOCK,					0,		0,		0,		60);
-
-		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Open,		ACT_SAND_LOCKER_LEFT_LOCK,			0,	0,		60,		0);
-		init_new_offset(ACT_QUEUE_Sand_locker_left,		ACT_AVOID_SAND_LOCKER_LEFT_Lock_Block,	ACT_SAND_LOCKER_LEFT_LOCK_BLOCK,	0,	0,		90,		0);
-
-		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Open,		ACT_SAND_LOCKER_RIGHT_LOCK,			0,	0,		60,		0);
-		init_new_offset(ACT_QUEUE_Sand_locker_right,	ACT_AVOID_SAND_LOCKER_RIGHT_Lock_Block,	ACT_SAND_LOCKER_RIGHT_LOCK_BLOCK,	0,	0,		90,		0);
-
-		init_new_offset(ACT_QUEUE_Mosfet_act_multi,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_5,				0,		0,		0,		60);
-		init_new_offset(ACT_QUEUE_Mosfet_act_multi,	    ACT_AVOID_MOSFET_ACT_ALL_Normal,	ACT_POMPE_ALL_NORMAL_7,				60,		60,		0,		60);
-
-		//pompe Black front left
-		init_new_offset(ACT_QUEUE_Mosfet_strat_1,	    ACT_AVOID_MOSFET_STRAT_0_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
-
-		//pompe sand_locker_left
-		init_new_offset(ACT_QUEUE_Mosfet_strat_2,	    ACT_AVOID_MOSFET_STRAT_1_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
-
-		//pompe sand locker right
-		init_new_offset(ACT_QUEUE_Mosfet_strat_3,	    ACT_AVOID_MOSFET_STRAT_2_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
-
-		//pompe Black front right
-		init_new_offset(ACT_QUEUE_Mosfet_strat_4,	    ACT_AVOID_MOSFET_STRAT_3_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
-
-		init_new_offset(ACT_QUEUE_Shovel_dune,			ACT_AVOID_SHOVEL_DUNE_CMD_Take,		ACT_SHOVEL_DUNE_TAKE,				0,		0,		0,		100);
-		init_new_offset(ACT_QUEUE_Shovel_dune,			ACT_AVOID_SHOVEL_DUNE_CMD_Store,	ACT_SHOVEL_DUNE_STORE,				0,		0,		0,		100);
-		init_new_offset(ACT_QUEUE_Shovel_dune,			ACT_AVOID_SHOVEL_DUNE_CMD_Rescue,	ACT_SHOVEL_DUNE_RESCUE,				0,		0,		0,		100);
-
-		init_new_offset(ACT_QUEUE_Brush_dune,			ACT_AVOID_BRUSH_DUNE_CMD_Push_Mid,	ACT_BRUSH_DUNE_PUSH_MID,			0,		0,		0,		50);
-		init_new_offset(ACT_QUEUE_Brush_dune,			ACT_AVOID_BRUSH_DUNE_CMD_Push_All,	ACT_BRUSH_DUNE_PUSH_ALL,			0,		0,		0,		75);
-		init_new_offset(ACT_QUEUE_Brush_dune,			ACT_AVOID_BRUSH_DUNE_CMD_Sucker_Release, ACT_BRUSH_DUNE_SUCKER_RELEASE,	0,		0,		0,		20);
-
+		//TODO 2017 Compléter évitement actionneurs
 
 	}else{ //Seulement sur le petit robot
 
-		init_new_offset(ACT_QUEUE_Pearl_sand_circle,	ACT_AVOID_PEARL_SAND_CIRCLE_Open,	ACT_PEARL_SAND_CIRCLE_LOCK,	     	0,		0,		100,	0);
-
-		init_new_offset(ACT_QUEUE_Left_arm,	            ACT_AVOID_LEFT_ARM_Unlock,	        ACT_LEFT_ARM_UNLOCK,				80,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Left_arm,	            ACT_AVOID_LEFT_ARM_Lock,	        ACT_LEFT_ARM_LOCK,					80,		0,		0,		0);
-
-		init_new_offset(ACT_QUEUE_Right_arm,	        ACT_AVOID_RIGHT_ARM_Unlock,	        ACT_RIGHT_ARM_UNLOCK,				0,		80,		0,		0);
-		init_new_offset(ACT_QUEUE_Right_arm,	        ACT_AVOID_RIGHT_ARM_Lock,	        ACT_RIGHT_ARM_LOCK,					0,		80,		0,		0);
-
-		init_new_offset(ACT_QUEUE_Fish_pearl,	        ACT_AVOID_FISH_PEARL_Open,				ACT_FISH_PEARL_OPEN,				0,		150,	0,		0);
-
-		//pompe back right
-		init_new_offset(ACT_QUEUE_Mosfet_act_1,			ACT_AVOID_MOSFET_ACT_0_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
-
-		//pompe back left
-		init_new_offset(ACT_QUEUE_Mosfet_act_2,			ACT_AVOID_MOSFET_ACT_1_Normal,		ACT_POMPE_NORMAL,					0,		0,		0,		60);
-
-		init_new_offset(ACT_QUEUE_Pompe_front_left ,	ACT_AVOID_POMPE_FRONT_LEFT_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
-		init_new_offset(ACT_QUEUE_Pompe_front_left,	    ACT_AVOID_POMPE_FRONT_LEFT_Reverse,	ACT_POMPE_REVERSE,					0,		0,		60,		0);
-
-		init_new_offset(ACT_QUEUE_Pompe_front_right,	ACT_AVOID_POMPE_FRONT_RIGHT_Normal,	ACT_POMPE_NORMAL,					0,		0,		60,		0);
-		init_new_offset(ACT_QUEUE_Pompe_front_right,	ACT_AVOID_POMPE_FRONT_RIGHT_Reverse,ACT_POMPE_REVERSE,					0,		0,		60,		0);
+		//TODO 2017 Compléter évitement actionneurs
 
 	}
 }

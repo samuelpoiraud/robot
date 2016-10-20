@@ -33,7 +33,7 @@
 #include "avoidance.h"
 
 #include "strats_2017/actions_both_2017.h"
-#include "strats_2017/inutile/arnaud_strat_inutile.h"
+#include "strats_2017/inutile/strat_inutile.h"
 
 #include "high_level_strat.h"
 
@@ -79,11 +79,34 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_odo_sym",		strat_reglage_odo_symetrie,						0,					TRUE,					BOTH},
 	{"strat_prop",			strat_reglage_prop,								0,					TRUE,					BOTH},
 
-	// Pour Black
-	{"strat_inutile_ar",		arnaud_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	// Pour Harry
+	{"strat_inu_arnaud",		arnaud_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_valentin",		valentin_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_guillaumBe",	guillaumeBe_strat_inutile_big,				MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_cailyn",		cailyn_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_corentin",		corentin_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_julien",		julien_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_samuel",		samuel_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_guillaumBu",	guillaumeBu_strat_inutile_big,				MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_guillaumMa",	guillaumeMa_strat_inutile_big,				MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_maxime",		maxime_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_etienne",		etienne_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
+	{"strat_inu_thomas",		thomas_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
 
-	// Pour Pearl
-	{"strat_inutile_ar",		arnaud_strat_inutile_small,					0,					TRUE,					SMALL}
+	// Pour Anne
+	{"strat_inu_arnaud",		arnaud_strat_inutile_small,					MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_valentin",		valentin_strat_inutile_small,				MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_guillaumBe",	guillaumeBe_strat_inutile_small,			MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_cailyn",		cailyn_strat_inutile_small,					MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_corentin",		corentin_strat_inutile_small,				MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_julien",		julien_strat_inutile_small,					MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_samuel",		samuel_strat_inutile_small,					MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_guillaumBu",	guillaumeBu_strat_inutile_small,			MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_guillaumMa",	guillaumeMa_strat_inutile_small,			MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_maxime",		maxime_strat_inutile_small,					MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_etienne",		etienne_strat_inutile_small,				MATCH_DURATION,		TRUE,					SMALL},
+	{"strat_inu_thomas",		thomas_strat_inutile_small,					MATCH_DURATION,		TRUE,					SMALL}
+
 };
 
 static const strategy_list_s *list_displayed_strategy[50];

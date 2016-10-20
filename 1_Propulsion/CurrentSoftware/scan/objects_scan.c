@@ -10,16 +10,23 @@
 #define MIN_POINTS_PER_OBJECT (3)
 
 typedef enum{
-	OBJECTS_NO_DATA,
-	OBJECTS_PRESENT,
-	OBJECTS_ABSENT
+	OBJECT_NO_DATA,
+	OBJECT_PRESENT,
+	OBJECT_ABSENT
 }OBJECTS_SCAN_state_e;
 
+// Fonctions privées
+static bool_e OBJECTS_SCAN_check_absence_circle(GEOMETRY_circle_t circle, GEOMETRY_segment_t seg);
+static bool_e OBJECTS_SCAN_check_presence_circle(GEOMETRY_circle_t circle, GEOMETRY_point_t p);
+
+// Variables globales
 extern OBJECTS_circles_t OBJECTS_circles;	// Variable externe définit dans QS_objects.c
 OBJECTS_SCAN_state_e circles_state[NB_MAX_CIRCLES][MIN_POINTS_PER_OBJECT];
 
 extern OBJECTS_polygons_t OBJECTS_polygons;	// Variable externe définit dans QS_objects.c
 OBJECTS_SCAN_state_e polygons_state[NB_MAX_POLYGONS][MIN_POINTS_PER_OBJECT];
+
+static Uint8 index = 0;
 
 void OBJECTS_SCAN_init(){
 	OBJECTS_init();
@@ -27,40 +34,138 @@ void OBJECTS_SCAN_init(){
 
 
 void OBJECTS_SCAN_treatment(scan_data_t tab[]){
+	assert(OBJECTS_polygons.nb_polygons <= NB_MAX_POLYGONS);
+	assert(OBJECTS_circles.nb_circles <= NB_MAX_CIRCLES);
+	Uint16 i, j, k;
+	Uint8 nb_intersections = 0;
+	bool_e flagIn = FALSE;
+	bool_e object_present, object_absent;
 
-}
 
-
-
-bool_e OBJECTS_SCAN_circle_intersect(GEOMETRY_circle_t circle, GEOMETRY_segment_t seg){
-	GEOMETRY_point_t proj;
-	Uint16 distance_to_laser = 0;
-	bool_e return_value = FALSE;
-
-	// Calcul de l'angle entre le segment seg et le segment liant une des extremité de seg et le centre du cercle
-	Sint16 angleWithCircleCenter = atan2_4096(circle.c.y - seg.a.y, circle.c.x - seg.a.x);
-	Sint16 angleSeg = atan2_4096(seg.b.y- seg.a.y, seg.b.x - seg.a.x);
-	Sint16 angle = GEOMETRY_modulo_angle(angleWithCircleCenter - angleSeg);
-
-	// Calcul de la distance
-	Uint16 dist = GEOMETRY_distance(seg.a, circle.c);
-
-	// Calcul du projeté
-	proj.x = seg.a.x + dist*cos4096(angle);
-	proj.y = seg.a.y + dist*cos4096(angle);
-
-	// Si le projeté est bien sur le segment et qu'il se situe à une distance inférieur au rayon du centre, alors il y a intersection
-	if(proj.x > MIN(seg.a.x, seg.b.x) && proj.x < MAX(seg.a.x, seg.b.x)
-			&& proj.y > MIN(seg.a.y, seg.b.y) && proj.y < MAX(seg.a.y, seg.b.y)){
-		distance_to_laser = GEOMETRY_distance(proj, circle.c);
-		if(distance_to_laser < circle.r){
-			return_value = TRUE;
+	for(i=0; i<NB_SCAN_DATA; i++){
+		// Polygones
+		for(j=0; j<OBJECTS_polygons.nb_polygons; j++){
+			flagIn = is_in_polygon(OBJECTS_polygons.polygons[j].summits, OBJECTS_polygons.polygons[j].nb_summits, tab[i].pos_mesure, tab[i].pos_laser, &nb_intersections);
+			if(flagIn){
+				polygons_state[j][index] = OBJECT_PRESENT;
+			}else if(nb_intersections){ // Si il y a eu des intersections
+				polygons_state[j][index] = OBJECT_ABSENT;
+			}else{
+				polygons_state[j][index] = OBJECT_NO_DATA;
+			}
 		}
+
+		for(j=0; j<OBJECTS_circles.nb_circles; j++){
+			if(OBJECTS_SCAN_check_presence_circle(OBJECTS_circles.circles[j], tab[i].pos_mesure)){
+				circles_state[j][index] = OBJECT_PRESENT;
+			}else if(OBJECTS_SCAN_check_absence_circle(OBJECTS_circles.circles[j], (GEOMETRY_segment_t){tab[i].pos_mesure, tab[i].pos_laser})){
+				circles_state[j][index] = OBJECT_ABSENT;
+			}else{
+				circles_state[j][index] = OBJECT_NO_DATA;
+			}
+		}
+
+		index = (index + 1)%MIN_POINTS_PER_OBJECT; // On incrémente l'index
+
+		object_present = TRUE;
+		object_absent = TRUE;
+		for(j=0; j<OBJECTS_polygons.nb_polygons; j++){
+			for(k=0; k<MIN_POINTS_PER_OBJECT; k++){
+				if(polygons_state[j][k] != OBJECT_PRESENT){
+						object_present = FALSE;
+				}
+				if(polygons_state[j][k] != OBJECT_ABSENT){
+						object_absent = FALSE;
+				}
+			}
+			if(object_present)
+				debug_printf("L'objet polygon %d a été détecté présent\n", j);
+			if(object_absent)
+				debug_printf("L'objet polygon %d a été détecté absent\n", j);
+		}
+
+		object_present = TRUE;
+		object_absent = TRUE;
+		for(j=0; j<OBJECTS_circles.nb_circles; j++){
+			for(k=0; k<MIN_POINTS_PER_OBJECT; k++){
+				if(circles_state[j][k] != OBJECT_PRESENT){
+						object_present = FALSE;
+				}
+				if(circles_state[j][k] != OBJECT_ABSENT){
+						object_absent = FALSE;
+				}
+			}
+			if(object_present)
+				debug_printf("L'objet circle %d a été détecté présent\n", j);
+			if(object_absent)
+				debug_printf("L'objet circle %d a été détecté absent\n", j);
+		}
+
 	}
-	return return_value;
 }
 
 
+
+static bool_e OBJECTS_SCAN_check_absence_circle(GEOMETRY_circle_t circle, GEOMETRY_segment_t seg){
+	double a1, b1, a2, b2;
+	GEOMETRY_point_t p;
+	bool_e onSegment = FALSE, returnValue = FALSE;
+	Uint16 dist;
+
+	// Calcul du projeté du centre du cercle sur le segment
+	if(seg.a.x != seg.b.x && seg.a.y != seg.b.y){
+		// Calcul de l'équation de la droite du segment
+		a1 = (seg.a.y - seg.b.y)/(seg.a.x - seg.b.x);
+		b1 = seg.a.y - a1 * seg.a.x;
+		// Calcul de l'équation de la droite orthogonale passant par le centre du cercle
+		a2 = -1/a1;
+		b2 = circle.c.y - a2 * circle.c.x;
+
+		p.x = (b2 - b1)/(a1 - a2);
+		p.y = a1 * p.x + b1;
+	}else if(seg.a.x != seg.b.x){ // seg.a.y == seg.b.y Gestion du cas particulier où l'équation de la droite du segment est du type y = c
+		p.x = circle.c.x;
+		p.y = seg.a.y;
+	}else{  // seg.a.x == seg.b.x Gestion du cas particulier où l'équation de la droite du segment est du type y = c
+		p.x = seg.a.x;
+		p.y = circle.c.y;
+	}
+
+	// On vérifie que le projeté est bien sur le segment
+	if(p.x > MIN(seg.a.x, seg.b.x) && p.x < MAX(seg.a.x, seg.b.x) && p.y > MIN(seg.a.y, seg.b.y) && p.y < MAX(seg.a.y, seg.b.y)){
+		onSegment = TRUE;
+	}else{
+		onSegment = FALSE;
+	}
+
+	if(onSegment){
+		dist = GEOMETRY_distance(p, circle.c); // Calcul de la distance
+
+		// On regarde si la distance du projeté avec le centre du cercle est inférieure au rayon
+		if(dist < circle.r){
+			returnValue = TRUE; // Si oui, l'objet est absent
+		}else{
+			returnValue = FALSE; // Si non, on ne peut pas savoir
+		}
+	}else{
+		returnValue = FALSE;
+	}
+	return returnValue;
+}
+
+
+static bool_e OBJECTS_SCAN_check_presence_circle(GEOMETRY_circle_t circle, GEOMETRY_point_t p){
+	bool_e returnValue = FALSE;
+	Uint16 dist = GEOMETRY_distance(p, circle.c);
+
+	if(dist < circle.r){
+		returnValue = TRUE;
+	}else{
+		returnValue = FALSE;
+	}
+
+	return returnValue;
+}
 
 
 
