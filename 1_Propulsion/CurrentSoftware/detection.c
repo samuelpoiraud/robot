@@ -38,12 +38,10 @@ typedef struct{
 	bool_e enable;
 }square;
 
-square zone_hokuyo[3]={{750,1350,1400,2190,FALSE},{750,1350,810,1600,FALSE},{0,750,900,2100,FALSE}};
-square zone_balise[3]={{750,1350,1200,2190,FALSE},{750,1350,810,1800,FALSE},{0,750,900,2100,FALSE}};
+//square zone_hokuyo[3]={{750,1350,1400,2190,FALSE},{750,1350,810,1600,FALSE},{0,750,900,2100,FALSE}};
+//square zone_balise[3]={{750,1350,1200,2190,FALSE},{750,1350,810,1800,FALSE},{0,750,900,2100,FALSE}};
 
-/*zone[0]={750,1350,1500,2100,FALSE};
-  zone[1]={750,1350,900,1500,FALSE};
-  zone[2]={0,750,900,2100,FALSE};*/
+
 
 
 
@@ -242,7 +240,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					GEOMETRY_point_t adv_pos;
 					adv_pos.x = adversaries[HOKUYO_MAX_FOES+i].x;
 					adv_pos.y = adversaries[HOKUYO_MAX_FOES+i].y;
-					if(is_in_square(zone_hokuyo[0].x1, zone_hokuyo[0].x2, zone_hokuyo[0].y1, zone_hokuyo[0].y2, pos)){
+					/*if(is_in_square(zone_hokuyo[0].x1, zone_hokuyo[0].x2, zone_hokuyo[0].y1, zone_hokuyo[0].y2, pos)){
 						if(is_in_square(zone_hokuyo[1].x1, zone_hokuyo[1].x2, zone_hokuyo[1].y1, zone_hokuyo[1].y2, adv_pos)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
@@ -273,7 +271,7 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
-					}
+					}*/
 
 					//Mise à jour de l'update_time
 					adversaries[HOKUYO_MAX_FOES+i].update_time = global.absolute_time;
