@@ -105,6 +105,14 @@
 	GEOMETRY_circle_t GEOMETRY_circle_from_diameter(GEOMETRY_segment_t diameter);
 	GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c0, GEOMETRY_circle_t c1);
 
+	/**
+	 * @brief GEOMETRY_proj_on_line
+	 * @param seg Le segment définissat la droite sur laquelle faire le projeté orthogonal
+	 * @param pointToProj Le point à projeté
+	 * @return Le projeté orthogonale
+	 */
+	GEOMETRY_point_t GEOMETRY_proj_on_line(GEOMETRY_segment_t seg, GEOMETRY_point_t pointToProj);
+
 	bool_e is_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
 	bool_e is_in_circle(GEOMETRY_point_t current, GEOMETRY_circle_t circle);
 

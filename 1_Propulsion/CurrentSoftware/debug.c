@@ -13,6 +13,7 @@
 #include "odometry.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_can.h"
+#include "QS/QS_maths.h"
 #include "QS/QS_outputlog.h"
 
 #ifdef MODE_PRINT_FIRST_TRAJ
@@ -350,33 +351,125 @@ void DEBUG_process_it(void)
 					we_touch_border = TRUE;
 				}
 
-				//Spécifique terrain 2016
-				if(global.position.x > 750 && global.position.x < 1350 && global.position.y  >= 1476 - robotSize  && global.position.y  <= 1500 - robotSize)	//plaque centrale en plexi
+				//Spécifique terrain 2017
+
+				// Tasseau zone de départ bleu lorsque le robot est dans la zone de départ
+				if(global.position.x >= 360 - robotSize && global.position.x <= 370 && global.position.y > 0  && global.position.y  < 710)
 				{
 					global.real_speed_translation = 0;
-					global.position.y = 1476-robotSize;
+					global.position.x = 360 - robotSize;
 					we_touch_border = TRUE;
 				}
-				if(global.position.x > 750 && global.position.x < 1350 && global.position.y <= 1524 + robotSize  && global.position.y >= 1500 + robotSize)	//plaque centrale en plexi
+				// Tasseau zone de départ bleu lorsque le robot est en dehors de la zone de départ
+				if(global.position.x >= 371 && global.position.x <= (382 + robotSize) && global.position.y > 0  && global.position.y  < 710)
 				{
 					global.real_speed_translation = 0;
-					global.position.y = 1524+robotSize;
+					global.position.x = 382 + robotSize;
 					we_touch_border = TRUE;
 				}
-				if(global.position.y > 900 && global.position.y < 2100 && global.position.x >= 750 - robotSize && global.position.x <= 766 - robotSize)	//Tasseau horizontal de la zone de construction au nord
+				// Tasseau zone de départ jaune lorsque le robot est dans la zone de départ
+				if(global.position.x >= 360 - robotSize && global.position.x <= 370 && global.position.y > 2290  && global.position.y  < 3000)
 				{
 					global.real_speed_translation = 0;
-					global.position.x = 750-robotSize;
+					global.position.x = 360 - robotSize;
+					we_touch_border = TRUE;
+				}
+				// Tasseau zone de départ jaune lorsque le robot est en dehors de la zone de départ
+				if(global.position.x >= 371 && global.position.x <= 382 + robotSize && global.position.y > 2290  && global.position.y  < 3000)
+				{
+					global.real_speed_translation = 0;
+					global.position.x = 382 + robotSize;
+					we_touch_border = TRUE;
+				}
+				// Tasseau de dépose modules côté bleu à côté de la bordure
+				if(global.position.x > 700 && global.position.x < 1150 && global.position.y > 0  && global.position.y  <= 102 + robotSize)
+				{
+					global.real_speed_translation = 0;
+					global.position.y = 102 + robotSize;
+					we_touch_border = TRUE;
+				}
+				// Tasseau de dépose modules côté jaune à côté de la bordure
+				if(global.position.x > 700 && global.position.x < 1150 && global.position.y >= 2898 - robotSize  && global.position.y  < 3000)
+				{
+					global.real_speed_translation = 0;
+					global.position.y = 2898 - robotSize;
 					we_touch_border = TRUE;
 				}
 
-				if(global.position.y > 900 && global.position.y < 2100 && global.position.x <= 777 + robotSize && global.position.x >= 766 + robotSize)	//Tasseau horizontal de la zone de construction au sud
+				// Tasseau de dépose modules milieu (côté bleu)
+				if(global.position.x > 800 && global.position.x < 2000 && global.position.y >= 1432 - robotSize  && global.position.y  < 1500)
 				{
 					global.real_speed_translation = 0;
-					global.position.x = 777+robotSize;
+					global.position.y = 1432 - robotSize;
+					we_touch_border = TRUE;
+				}
+				// Tasseau de dépose modules milieu (côté jaune)
+				if(global.position.x > 800 && global.position.x < 2000 && global.position.y > 1500  && global.position.y  <= 1568 + robotSize)
+				{
+					global.real_speed_translation = 0;
+					global.position.y = 1568 + robotSize;
 					we_touch_border = TRUE;
 				}
 
+				//Tasseau incliné de dépose modules bleu (côté bleu)
+				GEOMETRY_point_t quadri_bb[4] = {(GEOMETRY_point_t){1434, 934},
+												 (GEOMETRY_point_t){1859, 1359},
+												 (GEOMETRY_point_t){1859 + (68 + robotSize)*cos(-PI4096/4), 1359 + (68 + robotSize)*sin(-PI4096/4)},
+												 (GEOMETRY_point_t){1434 + (68 + robotSize)*cos(-PI4096/4), 934 + (68 + robotSize)*sin(-PI4096/4)}};
+				GEOMETRY_segment_t seg_bb = {quadri_bb[3], quadri_bb[4]};
+				if(is_in_quadri(quadri_bb, (GEOMETRY_point_t){global.position.x, global.position.y}))
+				{
+					global.real_speed_translation = 0;
+					GEOMETRY_point_t proj = GEOMETRY_proj_on_line(seg_bb, (GEOMETRY_point_t){global.position.x, global.position.y});
+					global.position.x = proj.x;
+					global.position.y = proj.y;
+					we_touch_border = TRUE;
+				}
+
+				//Tasseau incliné de dépose modules bleu (côté jaune)
+				GEOMETRY_point_t quadri_bj[4] = {(GEOMETRY_point_t){1434, 934},
+												 (GEOMETRY_point_t){1859, 1359},
+												 (GEOMETRY_point_t){1859 + (68 + robotSize)*cos(3*PI4096/4), 1359 + (68 + robotSize)*sin(3*PI4096/4)},
+												 (GEOMETRY_point_t){1434 + (68 + robotSize)*cos(3*PI4096/4), 934 + (68 + robotSize)*sin(3*PI4096/4)}};
+				GEOMETRY_segment_t seg_bj =  {quadri_bj[3], quadri_bj[4]};
+				if(is_in_quadri(quadri_bj, (GEOMETRY_point_t){global.position.x, global.position.y}))
+				{
+					global.real_speed_translation = 0;
+					GEOMETRY_point_t proj = GEOMETRY_proj_on_line(seg_bj, (GEOMETRY_point_t){global.position.x, global.position.y});
+					global.position.x = proj.x;
+					global.position.y = proj.y;
+					we_touch_border = TRUE;
+				}
+
+				//Tasseau incliné de dépose modules jaune (côté bleu)
+				GEOMETRY_point_t quadri_jb[4] = {(GEOMETRY_point_t){1434, 934},
+												 (GEOMETRY_point_t){1859, 1359},
+												 (GEOMETRY_point_t){1859 + (68 + robotSize)*cos(-3*PI4096/4), 1641 + (68 + robotSize)*sin(-3*PI4096/4)},
+												 (GEOMETRY_point_t){1434 + (68 + robotSize)*cos(-3*PI4096/4), 2066 + (68 + robotSize)*sin(-3*PI4096/4)}};
+				GEOMETRY_segment_t seg_jb = {quadri_jb[3], quadri_jb[4]};
+				if(is_in_quadri(quadri_jb, (GEOMETRY_point_t){global.position.x, global.position.y}))
+				{
+					global.real_speed_translation = 0;
+					GEOMETRY_point_t proj = GEOMETRY_proj_on_line(seg_jb, (GEOMETRY_point_t){global.position.x, global.position.y});
+					global.position.x = proj.x;
+					global.position.y = proj.y;
+					we_touch_border = TRUE;
+				}
+
+				//Tasseau incliné de dépose modules bleu (côté jaune)
+				GEOMETRY_point_t quadri_jj[4] = {(GEOMETRY_point_t){1434, 934},
+												 (GEOMETRY_point_t){1859, 1359},
+												 (GEOMETRY_point_t){1859 + (68 + robotSize)*cos(PI4096/4), 1641 + (68 + robotSize)*sin(PI4096/4)},
+												 (GEOMETRY_point_t){1434 + (68 + robotSize)*cos(PI4096/4), 2066 + (68 + robotSize)*sin(PI4096/4)}};
+				GEOMETRY_segment_t seg_jj =  {quadri_jj[3], quadri_jj[4]};
+				if(is_in_quadri(quadri_jj, (GEOMETRY_point_t){global.position.x, global.position.y}))
+				{
+					global.real_speed_translation = 0;
+					GEOMETRY_point_t proj = GEOMETRY_proj_on_line(seg_jj, (GEOMETRY_point_t){global.position.x, global.position.y});
+					global.position.x = proj.x;
+					global.position.y = proj.y;
+					we_touch_border = TRUE;
+				}
 			}
 		}
 		/*	en gros, la vitesse à prendre en début d'IT est l'écart entre le robot et le nouveau point fictif

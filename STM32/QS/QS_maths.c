@@ -265,6 +265,32 @@ GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c1, GEOMETRY_
 	return points;
 }
 
+GEOMETRY_point_t GEOMETRY_proj_on_line(GEOMETRY_segment_t seg, GEOMETRY_point_t pointToProj){
+	GEOMETRY_point_t proj;
+	double a1, b1, a2, b2;
+
+	// On traite le cas général d'abord
+	if(seg.a.x != seg.b.x && seg.a.y != seg.b.y){
+		// Calcul de l'équation de la droite du segment
+		a1 = (seg.a.y - seg.b.y)/(seg.a.x - seg.b.x);
+		b1 = seg.a.y - a1 * seg.a.x;
+		// Calcul de l'équation de la droite orthogonale passant par le centre du cercle
+		a2 = -1/a1;
+		b2 = pointToProj.y - a2 * pointToProj.x;
+
+		proj.x = (b2 - b1)/(a1 - a2);
+		proj.y = a1 * proj.x + b1;
+	}else if(seg.a.x != seg.b.x){ // seg.a.y == seg.b.y Gestion du cas particulier où l'équation de la droite du segment est du type y = c
+		proj.x = pointToProj.x;
+		proj.y = seg.a.y;
+	}else{  // seg.a.x == seg.b.x Gestion du cas particulier où l'équation de la droite du segment est du type y = c
+		proj.x = seg.a.x;
+		proj.y = pointToProj.y;
+	}
+
+	return proj;
+}
+
 bool_e is_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current){
 	return current.x >= MIN(x1,x2) && current.x <= MAX(x1,x2) && current.y >= MIN(y1,y2) && current.y <= MAX(y1,y2);
 }
