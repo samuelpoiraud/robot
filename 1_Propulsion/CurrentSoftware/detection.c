@@ -40,7 +40,8 @@ typedef struct{
 
 //square zone_hokuyo[3]={{750,1350,1400,2190,FALSE},{750,1350,810,1600,FALSE},{0,750,900,2100,FALSE}};
 //square zone_balise[3]={{750,1350,1200,2190,FALSE},{750,1350,810,1800,FALSE},{0,750,900,2100,FALSE}};
-
+square zone_hokuyo[0];
+square zone_balise[0];
 
 
 
