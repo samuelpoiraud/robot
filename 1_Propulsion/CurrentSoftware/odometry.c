@@ -176,9 +176,9 @@ void ODOMETRY_set(Sint16 x, Sint16 y, Sint16 teta)
 	global.position.y = y;								//[mm]
 	global.position.teta = teta;						//[rad.4096]			(<<12)
 
-	x64	= ((Sint64)x) << 30;							//[mm.65536.16384]		(<<16)
-	y64	= ((Sint64)y) << 30;							//[mm.65536.16384]		(<<16)
-	teta64 = ((Sint64)teta) << 16;						//[mm.65536.16384]		(<<22)
+	x64	= ((Sint64)x) << 30;							//[mm.65536.16384]		(<<30)
+	y64	= ((Sint64)y) << 30;							//[mm.65536.16384]		(<<30)
+	teta64 = ((Sint64)teta) << 16;						//[rad.4096.16384]		(<<16)
 
 	x32_sync = x64 >> 14;
 	y32_sync = y64 >> 14;
@@ -385,7 +385,6 @@ void ODOMETRY_update_1ms(void){
 	}
 	last_real_speed_rotation[0] = real_speed_rotation;
 	last_real_speed_translation[0] = real_speed_translation;
-
 }
 
 void ODOMETRY_update_5ms(void){

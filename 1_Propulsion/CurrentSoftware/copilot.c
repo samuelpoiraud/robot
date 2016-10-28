@@ -207,7 +207,7 @@ static bool_e COPILOT_decision_change_order(bool_e * change_order_in_multipoint_
 					 ||
 						( (checkNextOrder.trajectory == TRAJECTORY_TRANSLATION || checkNextOrder.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
 						 &&
-						  (current_order.trajectory == TRAJECTORY_TRANSLATION || checkNextOrder.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
+						  (current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
 						)
 				   ){
 					*change_order_in_multipoint_without_reaching_destination = TRUE;
