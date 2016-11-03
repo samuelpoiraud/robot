@@ -130,9 +130,8 @@
 	#define PORT_OPT_B_8		PORT_OPT_NO_PULL
 		#define I_AM_READY				GPIOB,GPIO_Pin_8
 
-	#define PORT_IO_B_9			PORT_IO_OUTPUT
+	#define PORT_IO_B_9			PORT_IO_INPUT
 	#define PORT_OPT_B_9		PORT_OPT_NO_PULL
-		#define LCD_RESET_PORT			GPIOB,GPIO_Pin_9
 
 	#define PORT_IO_B_10		PORT_IO_OUTPUT
 	#define PORT_OPT_B_10		PORT_OPT_NO_PULL
@@ -140,9 +139,9 @@
 
 	#define PORT_IO_B_11		PORT_IO_OUTPUT
 	#define PORT_OPT_B_11		PORT_OPT_NO_PULL
-		#define LCD_CS_TOUCH			GPIOB,GPIO_Pin_11
+		#define LCD_RESET_PORT			GPIOB,GPIO_Pin_11
 
-	#define PORT_IO_B_12		PORT_IO_INPUT
+	#define PORT_IO_B_12		PORT_IO_OUTPUT
 	#define PORT_OPT_B_12		PORT_OPT_NO_PULL
 		#define LCD_CS					GPIOB,GPIO_Pin_12
 
@@ -189,6 +188,7 @@
 
 	#define PORT_IO_C_6			PORT_IO_OUTPUT
 	#define PORT_OPT_C_6		PORT_OPT_NO_PULL
+		#define LCD_CS_TOUCH			GPIOC,GPIO_Pin_6
 		#define LED_IHM_OK				GPIOC,GPIO_Pin_6
 
 	#define PORT_IO_C_7			PORT_IO_OUTPUT
@@ -273,6 +273,7 @@
 
 	#define PORT_IO_D_9			PORT_IO_INPUT
 	#define PORT_OPT_D_9		PORT_OPT_NO_PULL
+		#define IRQ_TOUCH			GPIOD->IDR9
 		// U3RX
 
 	#define PORT_IO_D_10		PORT_IO_OUTPUT

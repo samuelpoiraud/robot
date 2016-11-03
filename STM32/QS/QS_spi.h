@@ -13,6 +13,8 @@
 /** ----------------  Defines possibles  --------------------
  *	USE_SPI1					: Activation de l'SPI 1
  *	USE_SPI2					: Activation de l'SPI 2
+ *
+ *	SPI2_ON_DMA					: Activation du DMA sur l'SPI 2
  */
 
 
@@ -27,12 +29,17 @@
 
 	void SPI_init(void);
 
+	/**
+	 * defgroup : SPI_BaudRate_Prescaler
+	 */
+	void SPI_setBaudRate(SPI_TypeDef* SPIx, uint16_t SPI_BaudRatePrescaler);
+	void SPI_setDataSize(SPI_TypeDef* SPIx, spi_data_size_e spi_data_size);
+
 	#ifdef USE_SPI1
 		Uint8 SPI1_exchange(Uint8 c);
 		void SPI1_write(Uint8 msg);
 		Uint8 SPI1_read();
 		#define SPI1_put_byte SPI1_write
-		void SPI1_setDataSize(spi_data_size_e spi_data_size);
 	#endif /* def USE_SPI1 */
 
 	#ifdef USE_SPI2
@@ -40,7 +47,9 @@
 		void SPI2_write(Uint16 msg);
 		Uint16 SPI2_read();
 		#define SPI2_put_byte SPI2_write
-		void SPI2_setDataSize(spi_data_size_e spi_data_size);
+
+		void SPI2_DMA_send16BitLoop(Uint16 msg, Uint32 count);
+		void SPI2_DMA_send16BitArray(Uint16 *data, Uint32 count);
 	#endif /* def USE_SPI2 */
 
 #endif /* ndef QS_SPI_H */
