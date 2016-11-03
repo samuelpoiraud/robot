@@ -47,6 +47,10 @@
 
 	#define UART_RX_BUF_SIZE	512 //Taille de la chaine de caracteres memorisant les caracteres recus sur UART
 
+/* SPI */
+	#define USE_SPI2
+	#define SPI2_ON_DMA
+
 /* Réglages watchdog */
 	#define USE_WATCHDOG
 	#define WATCHDOG_TIMER 3
@@ -57,6 +61,10 @@
 	#define USE_AN5		// Mesure 12V hokuyo
 	#define USE_AN6		// Mesure 24V puissance
 	#define USE_AN10	// Mesure 24V permanence
+
+/* Réglages LCD */
+	#define LCD_DMA
+	#define USE_IRQ_TOUCH_VALIDATION
 
 /* Récapitulatif TIMERs :
  * TIMER 1 : IT				(it.c/h)
