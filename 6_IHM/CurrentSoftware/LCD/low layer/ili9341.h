@@ -131,6 +131,18 @@
 	void ILI9341_puts(Uint16 x, Uint16 y, char* str, FontDef_t *font, Uint16 foreground, Uint32 background);
 
 	/**
+	 * @brief  Puts formated string to LCD
+	 * @param  x: X position of top left corner of first character in string
+	 * @param  y: Y position of top left corner of first character in string
+	 * @param  *font: Pointer to @ref FontDef_t used font
+	 * @param  foreground: Color for string
+	 * @param  background: Color for string background
+	 * @param  format : Formated string like printf
+	 * @retval None
+	 */
+	void ILI9341_printf(Uint16 x, Uint16 y, FontDef_t *font, Uint16 foreground, Uint32 background, const char *format, ...)  __attribute__((format (printf, 6, 7)));
+
+	/**
 	 * @brief  Gets width and height of box with text
 	 * @param  *str: Pointer to first character
 	 * @param  *font: Pointer to @ref FontDef_t used font

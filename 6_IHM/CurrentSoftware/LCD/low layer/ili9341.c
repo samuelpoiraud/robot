@@ -3,6 +3,9 @@
 #include "../../QS/QS_spi.h"
 #include "../../stm32f4xx/stm32f4xx_spi.h"
 
+#include <stdio.h>
+#include <stdarg.h>
+
 /* Pin definitions */
 #define ILI9341_RST_SET()			GPIO_SetBits(LCD_RESET_PORT)
 #define ILI9341_RST_RESET()			GPIO_ResetBits(LCD_RESET_PORT)
@@ -182,6 +185,8 @@ void ILI9341_puts(Uint16 x, Uint16 y, char *str, FontDef_t *font, Uint16 foregro
 		ILI9341_putc(ILI9341_x, ILI9341_y, *str++, font, foreground, background);
 	}
 }
+
+
 
 void ILI9341_getStringSize(char *str, FontDef_t *font, Uint16 *width, Uint16 *height) {
 	uint16_t w = 0;
@@ -408,6 +413,17 @@ void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, const Uint16 *
 /***************************************************************
  *                       Fonctions privées
  ***************************************************************/
+
+void ILI9341_printf(Uint16 x, Uint16 y, FontDef_t *font, Uint16 foreground, Uint32 background, const char *format, ...){
+	char buffer[256];
+
+	va_list args_list;
+	va_start(args_list, format);
+	vsnprintf(buffer, 256, format, args_list);
+	va_end(args_list);
+
+	ILI9341_puts(x, y, buffer, font, foreground, background);
+}
 
 static void ILI9341_setCursorPosition(Uint16 x1, Uint16 y1, Uint16 x2, Uint16 y2) {
 	ILI9341_sendCommand(ILI9341_COLUMN_ADDR);
