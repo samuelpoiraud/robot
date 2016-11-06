@@ -379,6 +379,32 @@ void ILI9341_drawFilledCircle(Uint16 x0, Uint16 y0, Uint16 r, Uint16 color) {
 	}
 }
 
+
+void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, const Uint16 *img, Uint32 size){
+	ILI9341_setCursorPosition(x0, y0, x1, y1);
+
+	/* Set command for GRAM data */
+	ILI9341_sendCommand(ILI9341_GRAM);
+
+	/* Send everything */
+	ILI9341_CS_RESET();
+	ILI9341_WRX_SET();
+
+	/* Go to 16-bit SPI mode */
+	SPI_setDataSize(SPI2, SPI_DATA_SIZE_16_BIT);
+
+#ifndef LCD_DMA
+	Uint32 i;
+	for(i=0;i<size;i++)
+		SPI_write(img[i]);
+#else
+	SPI2_DMA_send16BitArray(img, size);
+#endif
+
+
+	SPI_setDataSize(SPI2, SPI_DATA_SIZE_8_BIT);
+}
+
 /***************************************************************
  *                       Fonctions privées
  ***************************************************************/
@@ -417,7 +443,7 @@ static void ILI9341_INT_fill(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 
 	SPI_setDataSize(SPI2, SPI_DATA_SIZE_16_BIT);
 
 #ifndef LCD_DMA
-	uint32_t i;
+	Uint32 i;
 	for(i=0;i<pixels_count;i++)
 		SPI2_write(color);
 #else
