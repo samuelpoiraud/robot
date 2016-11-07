@@ -451,7 +451,7 @@ static void PILOT_update_acceleration_state(void)
 
 
 	//Ecretage vitesse si la vitesse max a changé...
-	if (etat_acceleration_translation == ACCELERATION_FOR_INCREASE_SPEED
+	if (etat_acceleration_rotation == ACCELERATION_FOR_INCREASE_SPEED
 			&& absolute(global.vitesse_rotation) > absolute(vitesse_rotation_max)
 			&& absolute(global.vitesse_rotation) < absolute(vitesse_rotation_max) * 1.1){
 
