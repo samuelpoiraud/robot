@@ -421,15 +421,9 @@ void ODOMETRY_update_5ms(void){
 	global.position.y = y32_sync >> 16;							//[mm]
 	global.position.teta = teta32_sync >> 10;					//[rad.4096]
 
-	if((!COPILOT_is_arrived()) || (SUPERVISOR_get_state() == SUPERVISOR_ERROR))
-	{	//Si je ne suis pas arrivé à destination, le référentiel me suit... et repart à zéro !)
-		global.real_position_translation = 0;
-		global.real_position_rotation = 0;
-	}
-
 	// Mise à jours des position réelle en rotation translation depuis la dernière RAZ du référentiel IT
-	global.real_position_translation +=  global.real_speed_translation;		//[mm.4096]
-	global.real_position_rotation += global.real_speed_rotation;			//[rad.4096.1024]
+	global.real_position_translation =  global.real_speed_translation;		//[mm.4096]
+	global.real_position_rotation = global.real_speed_rotation;			//[rad.4096.1024]
 
 #else
 
