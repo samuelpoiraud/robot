@@ -67,7 +67,7 @@ void SPI_init(void)
 	#endif
 
 	#ifdef USE_SPI1
-		RCC_APB1PeriphClockCmd(SPI1_SPI_CLOCK, ENABLE);
+		RCC_APB2PeriphClockCmd(SPI1_SPI_CLOCK, ENABLE);
 		SPI_Init(SPI1_SPI_HANDLE, (SPI_InitTypeDef*)&(SPI_InitStructure[0]));
 		SPI_Cmd(SPI1_SPI_HANDLE, ENABLE);
 	#endif /* def USE_SPI1 */
