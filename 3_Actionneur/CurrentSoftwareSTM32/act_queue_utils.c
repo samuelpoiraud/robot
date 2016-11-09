@@ -292,33 +292,11 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 
 	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
-		//Black
-		   case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagnetic";		break;
-		   case ACT_FISH_UNSTICK_ARM & 0xFF:	    originalSidStr = "FishUnstick";			break;
-		   case ACT_BLACK_SAND_CIRCLE & 0xFF:	    originalSidStr = "SandCircle";			break;
-		   case ACT_BOTTOM_DUNE & 0xFF:				originalSidStr = "BottomDune";			break;
-		   case ACT_MIDDLE_DUNE & 0xFF:				originalSidStr = "MiddleDune";			break;
-		   case ACT_CONE_DUNE & 0xFF:				originalSidStr = "ConeDune";			break;
-		   case ACT_SAND_LOCKER_LEFT & 0xFF:		originalSidStr = "SandLockerLeft";      break;
-		   case ACT_SAND_LOCKER_RIGHT & 0xFF:		originalSidStr = "SandLockerRight";     break;
-		   case ACT_SHIFT_CYLINDER & 0xFF:			originalSidStr = "ShiftCylinder";       break;
-		   case ACT_PENDULUM & 0xFF:				originalSidStr = "Pendulum";			break;
-		   case ACT_POMPE_SAND_LOCKER_LEFT & 0xFF:	originalSidStr = "PompeSandLockerLeft"; break;
-		   case ACT_POMPE_SAND_LOCKER_RIGHT & 0xFF:	originalSidStr = "PompeSandLockerRight";break;
-		   case ACT_POMPE_BLACK_FRONT_LEFT & 0xFF:	originalSidStr = "PompeFrontLeft";      break;
-		   case ACT_POMPE_BLACK_FRONT_RIGHT & 0xFF:	originalSidStr = "PompeFrontRight";     break;
-		   case ACT_POMPE_PENDULUM & 0xFF:			originalSidStr = "PompePendulum";		break;
-		   case ACT_SHOVEL_DUNE & 0xFF:				originalSidStr = "ShovelDune";			break;
-		   case ACT_BRUSH_DUNE & 0xFF:				originalSidStr = "BrushDune";			break;
-		 //Pearl
-		   case ACT_LEFT_ARM & 0xFF:		        originalSidStr = "SandLeftArm";         break;
-		   case ACT_RIGHT_ARM & 0xFF:               originalSidStr = "SandRightArm";        break;
+		// Harry
+		   //case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagnetic";		break;
+
+		// Anne
 		   case ACT_VENTILATOR_PEARL & 0xFF:        originalSidStr = "VentilatorPearl";     break;
-		   case ACT_POMPE_FRONT_LEFT & 0xFF:        originalSidStr = "PompeFrontLeft";      break;
-		   case ACT_POMPE_FRONT_RIGHT & 0xFF:       originalSidStr = "PompeFrontRight";     break;
-		   case ACT_PEARL_SAND_CIRCLE & 0xFF:	    originalSidStr = "SandCircle";			break;
-		   case ACT_PARASOL & 0xFF:	                originalSidStr = "Parasol"; 			break;
-		   case ACT_FISH_PEARL & 0xFF:				originalSidStr = "FishPearl"; 			break;
 		default:								    originalSidStr = "Unknown";				break;
 	}
 	switch(result) {

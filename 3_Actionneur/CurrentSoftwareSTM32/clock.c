@@ -14,7 +14,6 @@
 #include "QS/QS_buttons.h"
 #include "QS/QS_DCMotor2.h"
 #include "QS/QS_ports.h"
-#include "Black/Shovel_dune/dc_asser.h"
 
 
 #ifdef CLOCK_TIMER_ID
@@ -49,12 +48,6 @@ void CLOCK_init()
 #include "QS/QS_uart.h"
 void TIMER_SRC_TIMER_interrupt()
 {
-	#ifdef I_AM_ROBOT_BIG
-		#ifdef USE_SHOVEL_DUNE_HELPER
-			DC_ASSER_process_it();
-		#endif
-	#endif
-
 	#ifdef USE_DCMOTOR2
 		DCM_process_it();
 	#endif

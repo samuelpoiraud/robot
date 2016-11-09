@@ -10,22 +10,8 @@
 #include "../clock.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "../Black/Fishs/fish_magnetic_arm_config.h"
-	#include "../Black/Fishs/fish_unstick_arm_config.h"
-	#include "../Black/Bottom_dune/bottom_dune_config.h"
-	#include "../Black/Sand_circle/black_sand_circle_config.h"
-	#include "../Black/Middle_dune/middle_dune_config.h"
-	#include "../Black/Cone_dune/cone_dune_config.h"
-	#include "../Black/Sand_locker/sand_locker_left_config.h"
-	#include "../Black/Sand_locker/sand_locker_right_config.h"
-	#include "../Black/Shift_cylinder/shift_cylinder_config.h"
-	#include "../Black/Pendulum/pendulum_config.h"
+
 #else
-	#include "../Pearl/Sand/left_arm_config.h"
-	#include "../Pearl/Sand/right_arm_config.h"
-	#include "../Pearl/Sand/pearl_sand_circle_config.h"
-	#include "../Pearl/Parasol/parasol_config.h"
-	#include "../Pearl/Fishs_pearl/fish_pearl_config.h"
 
 #endif
 
@@ -65,21 +51,10 @@ typedef struct{
 
 terminal_motor_s terminal_motor[] = {
 	#ifdef I_AM_ROBOT_BIG
-		DECLARE_RX24(2, '0', FISH_MAGNETIC_ARM_RX24),
-		DECLARE_RX24(2, '1', FISH_UNSTICK_ARM_RX24),
-		DECLARE_RX24(2, '2', BLACK_SAND_CIRCLE_RX24),
-		DECLARE_RX24(2, '3', CONE_DUNE_RX24),
-		DECLARE_RX24(2, '4', SAND_LOCKER_LEFT_RX24),
-		DECLARE_RX24(2, '5', SAND_LOCKER_RIGHT_RX24),
-		DECLARE_RX24(2, '6', SHIFT_CYLINDER_RX24),
-		DECLARE_RX24(2, '7', PENDULUM_RX24)
+		//DECLARE_RX24(2, '0', FISH_MAGNETIC_ARM_RX24);
+		//DECLARE_AX12(2, 'A', LEFT_ARM_AX12),
 
 	#else
-		DECLARE_AX12(2, 'A', LEFT_ARM_AX12),
-		DECLARE_AX12(2, 'B', RIGHT_ARM_AX12),
-		DECLARE_AX12(2, 'C', PEARL_SAND_CIRCLE_AX12),
-		DECLARE_AX12(2, 'D', PARASOL_AX12),
-		DECLARE_AX12(2, 'E', FISH_PEARL_AX12)
 
 	#endif
 };

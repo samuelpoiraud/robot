@@ -18,8 +18,8 @@
 /* Réglages PWM */
 	#define USE_PWM_MODULE
 		#define PWM_FREQ	50000
-		#define USE_PWM1     //PWM1 Pompe avant gauche de Pearl
-		#define USE_PWM2     //PWM2 Pompe avant droite de Pearl
+		//#define USE_PWM1
+		//#define USE_PWM2
 
 /* Réglages de la carte Mosfets*/
 	#define USE_MOSFETS_MODULE

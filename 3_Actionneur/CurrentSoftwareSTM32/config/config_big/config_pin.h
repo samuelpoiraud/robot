@@ -49,7 +49,7 @@
 
 	#define PORT_IO_A_8			PORT_IO_OUTPUT
 	#define PORT_OPT_A_8		PORT_OPT_NO_PULL
-		#define SHOVEL_DUNE_HELPER_RIGHT_SENS_PIN		GPIOA,GPIO_Pin_8
+		//
 
 	#define PORT_IO_A_9			PORT_IO_INPUT
 	#define PORT_OPT_A_9		PORT_OPT_NO_PULL
@@ -84,7 +84,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 	#define PORT_IO_B_0			PORT_IO_INPUT
 	#define PORT_OPT_B_0		PORT_OPT_NO_PULL
-		#define ELEVATOR_FDC		!(GPIOB->IDR0)
+		//
 
 	#define PORT_IO_B_1			PORT_IO_INPUT
 	#define PORT_OPT_B_1		PORT_OPT_NO_PULL
@@ -191,7 +191,7 @@
 
 	#define PORT_IO_C_10		PORT_IO_OUTPUT
 	#define PORT_OPT_C_10		PORT_OPT_NO_PULL
-		#define SHOVEL_DUNE_HELPER_LEFT_SENS_PIN		GPIOC,GPIO_Pin_10
+		//
 
 	#define PORT_IO_C_11		PORT_IO_INPUT
 	#define PORT_OPT_C_11		PORT_OPT_NO_PULL
@@ -358,24 +358,7 @@
 
 //--------------------Configuration des ID des actionneurs-----------------------
 // L'id doit être inférieur à 50
-#define FISH_MAGNETIC_ARM_RX24_ID           35
-#define FISH_UNSTICK_ARM_RX24_ID            37
-#define BOTTOM_DUNE_LEFT_RX24_ID            29
-#define BOTTOM_DUNE_RIGHT_RX24_ID           30
-#define MIDDLE_DUNE_LEFT_RX24_ID            33
-#define MIDDLE_DUNE_RIGHT_RX24_ID           28
-#define CONE_DUNE_RX24_ID					31
-#define SHOVEL_DUNE_RIGHT_RX24_ID			23
-#define SHOVEL_DUNE_LEFT_RX24_ID			24
-#define SAND_LOCKER_LEFT_RX24_ID			26
-#define SAND_LOCKER_RIGHT_RX24_ID			34
-#define SHIFT_CYLINDER_RX24_ID				27
-#define PENDULUM_RX24_ID					32
-#define BLACK_SAND_CIRCLE_RX24_ID           25
-#define BRUSH_DUNE_LEFT_RX24_ID				38
-#define BRUSH_DUNE_RIGHT_RX24_ID			36
+//#define FISH_MAGNETIC_ARM_RX24_ID           35
 
-#define SHOVEL_DUNE_HELPER_RIGHT_ID			1
-#define SHOVEL_DUNE_HELPER_LEFT_ID			2
 
 #endif /* BIG_CONFIG_PIN_H */

@@ -16,44 +16,8 @@
 #include "selftest.h"
 
 #ifdef I_AM_ROBOT_BIG
-	#include "Black/Fishs/fish_magnetic_arm.h"
-	#include "Black/Fishs/fish_magnetic_arm_config.h"
-	#include "Black/Fishs/fish_unstick_arm.h"
-	#include "Black/Fishs/fish_unstick_arm_config.h"
-	#include "Black/Sand_circle/black_sand_circle.h"
-	#include "Black/Sand_circle/black_sand_circle_config.h"
-	#include "Black/Bottom_dune/bottom_dune.h"
-	#include "Black/Bottom_dune/bottom_dune_config.h"
-	#include "Black/Middle_dune/middle_dune.h"
-	#include "Black/Middle_dune/middle_dune_config.h"
-	#include "Black/Cone_dune/cone_dune.h"
-	#include "Black/Cone_dune/cone_dune_config.h"
-	#include "Black/Sand_locker/sand_locker_left.h"
-	#include "Black/Sand_locker/sand_locker_left_config.h"
-	#include "Black/Sand_locker/sand_locker_right.h"
-	#include "Black/Sand_locker/sand_locker_right_config.h"
-	#include "Black/Shift_cylinder/shift_cylinder.h"
-	#include "Black/Shift_cylinder/shift_cylinder_config.h"
-	#include "Black/Pendulum/pendulum.h"
-	#include "Black/Pendulum/pendulum_config.h"
-	#include "Black/Shovel_dune/shovel_dune.h"
-	#include "Black/Shovel_dune/shovel_dune_config.h"
-	#include "Black/Brush_dune/brush_dune.h"
-	#include "Black/Brush_dune/brush_dune_config.h"
 	#include "QS/QS_mosfet.h"
 #else
-	#include "Pearl/Sand/left_arm.h"
-	#include "Pearl/Sand/left_arm_config.h"
-	#include "Pearl/Sand/right_arm.h"
-	#include "Pearl/Sand/right_arm_config.h"
-	#include "Pearl/Sand/pearl_sand_circle.h"
-	#include "Pearl/Sand/pearl_sand_circle_config.h"
-	#include "Pearl/Parasol/parasol.h"
-	#include "Pearl/Parasol/parasol_config.h"
-	#include "Pearl/Fishs_pearl/fish_pearl.h"
-	#include "Pearl/Fishs_pearl/fish_pearl_config.h"
-	#include "Pearl/Pompes/pompe_front_left.h"
-	#include "Pearl/Pompes/pompe_front_right.h"
 	#include "QS/QS_mosfet.h"
 #endif
 
@@ -65,26 +29,9 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(MOSFET), //QS_mosfets
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
-		ACT_DECLARE(FISH_MAGNETIC_ARM),
-		ACT_DECLARE(FISH_UNSTICK_ARM),
-		ACT_DECLARE(BLACK_SAND_CIRCLE),
-		ACT_DECLARE(BOTTOM_DUNE),
-		ACT_DECLARE(MIDDLE_DUNE),
-		ACT_DECLARE(CONE_DUNE),
-		ACT_DECLARE(SAND_LOCKER_LEFT),
-		ACT_DECLARE(SAND_LOCKER_RIGHT),
-		ACT_DECLARE(SHIFT_CYLINDER),
-		ACT_DECLARE(PENDULUM)
-		//ACT_DECLARE(SHOVEL_DUNE),
-		//ACT_DECLARE(BRUSH_DUNE)
+		//ACT_DECLARE(FISH_MAGNETIC_ARM),
 	#else  //Small Robot
-		ACT_DECLARE(LEFT_ARM),
-		ACT_DECLARE(RIGHT_ARM),
-		ACT_DECLARE(PEARL_SAND_CIRCLE),
-		ACT_DECLARE(PARASOL),
-		ACT_DECLARE(POMPE_FRONT_LEFT),
-		ACT_DECLARE(POMPE_FRONT_RIGHT),
-		ACT_DECLARE(FISH_PEARL)
+		//ACT_DECLARE(LEFT_ARM),
 	#endif
 };
 
@@ -155,9 +102,9 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	} else {
 		bool_e isReady = FALSE, responseReceived = FALSE;
 		#ifdef I_AM_ROBOT_BIG
-				responseReceived = RX24_async_is_ready(FISH_UNSTICK_ARM_RX24_ID, &isReady);
+				//responseReceived = RX24_async_is_ready(FISH_UNSTICK_ARM_RX24_ID, &isReady); //TODO 2017 Remplacer par les appels adéquats
 		#else
-				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);
+				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);		//TODO 2017 Remplacer par les appels adéquats
 		#endif
 
 		if((responseReceived && isReady) || global.flags.power) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)

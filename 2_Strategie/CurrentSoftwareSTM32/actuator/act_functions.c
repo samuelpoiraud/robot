@@ -38,28 +38,11 @@ typedef enum{
 const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{0,							    NB_QUEUE,						""},
 
-	// Black
-	{ACT_FISH_MAGNETIC_ARM,			ACT_QUEUE_Fish_magnetic_arm,			"Fish magnetic arm"},
-	{ACT_FISH_UNSTICK_ARM,		    ACT_QUEUE_Fish_unstick_arm,		        "Fish unstick arm"},
-	{ACT_BOTTOM_DUNE,				ACT_QUEUE_Bottom_dune,					"Bottom dune left"},
-	{ACT_BLACK_SAND_CIRCLE,			ACT_QUEUE_Black_sand_circle,            "Sand Circle"},
-	{ACT_MIDDLE_DUNE,				ACT_QUEUE_Middle_dune,					"Middle dune"},
-	{ACT_CONE_DUNE,					ACT_QUEUE_Cone_dune,					"Cone dune"},
-	{ACT_SAND_LOCKER_LEFT,			ACT_QUEUE_Sand_locker_left,             "Sand locker left"},
-	{ACT_SAND_LOCKER_RIGHT,			ACT_QUEUE_Sand_locker_right,            "Sand locker right"},
-	{ACT_SHIFT_CYLINDER,			ACT_QUEUE_Shift_cylinder,				"Shift cylinder"},
-	{ACT_PENDULUM,					ACT_QUEUE_Pendulum,						"Pendulum"},
-	{ACT_SHOVEL_DUNE,				ACT_QUEUE_Shovel_dune,					"Shovel dune"},
-	{ACT_BRUSH_DUNE,				ACT_QUEUE_Brush_dune,					"Brush dune"},
+	// Harry
+	//{ACT_FISH_MAGNETIC_ARM,			ACT_QUEUE_Fish_magnetic_arm,			"Fish magnetic arm"},
 
-	// Pearl
-	{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},
-	{ACT_RIGHT_ARM,					ACT_QUEUE_Right_arm,					"Right Arm"},
-	{ACT_POMPE_FRONT_LEFT,			ACT_QUEUE_Pompe_front_left,				"Pompe Front Left"},
-	{ACT_POMPE_FRONT_RIGHT,			ACT_QUEUE_Pompe_front_right,			"Pompe Front Right"},
-	{ACT_PEARL_SAND_CIRCLE,			ACT_QUEUE_Pearl_sand_circle,			"Sand Circle"},
-	{ACT_PARASOL,					ACT_QUEUE_Parasol,						"Parasol"},
-	{ACT_FISH_PEARL,				ACT_QUEUE_Fish_pearl,					"Fish Pearl"},
+	// Anne
+	//{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},
 
 
 	// Mosfets actionneurs

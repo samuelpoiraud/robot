@@ -84,10 +84,11 @@
 ////////////////////////////////////////////////////////////////////////////////////
 	#define PORT_IO_B_0			PORT_IO_INPUT
 	#define PORT_OPT_B_0		PORT_OPT_NO_PULL
+		//
 
 	#define PORT_IO_B_1			PORT_IO_INPUT
 	#define PORT_OPT_B_1		PORT_OPT_NO_PULL
-		#define WT100_CENTER_BOTTOM_PORT	!GPIOB->IDR1
+		//
 
 	#define PORT_IO_B_2			PORT_IO_INPUT
 	#define PORT_OPT_B_2		PORT_OPT_NO_PULL
@@ -175,11 +176,11 @@
 
 	#define PORT_IO_C_6			PORT_IO_INPUT
 	#define PORT_OPT_C_6		PORT_OPT_NO_PULL
-		//PWM1 Pompe avant gauche de Pearl
+		//PWM1
 
 	#define PORT_IO_C_7			PORT_IO_INPUT
 	#define PORT_OPT_C_7		PORT_OPT_NO_PULL
-		//PWM2 Pompe avant droite de Pearl
+		//PWM2
 
 	#define PORT_IO_C_8			PORT_IO_INPUT
 	#define PORT_OPT_C_8		PORT_OPT_NO_PULL
@@ -191,7 +192,7 @@
 
 	#define PORT_IO_C_10		PORT_IO_OUTPUT
 	#define PORT_OPT_C_10		PORT_OPT_NO_PULL
-		 #define POMPE_FRONT_RIGHT_SENS  GPIOC,GPIO_Pin_10
+		//
 
 	#define PORT_IO_C_11		PORT_IO_OUTPUT
 	#define PORT_OPT_C_11		PORT_OPT_NO_PULL
@@ -358,12 +359,6 @@
 //--------------------Configuration des ID des actionneurs-----------------------
 // L'id doit être inférieur à 50
 /* ID des différents AX12 */
-	#define LEFT_ARM_AX12_ID                       5
-	#define RIGHT_ARM_AX12_ID					   6
-	#define PEARL_SAND_CIRCLE_AX12_ID			   13
-	#define	PARASOL_AX12_ID					       8
-	#define FISH_PEARL_AX12_ID					   11
+//	#define LEFT_ARM_AX12_ID                       5
 
-	#define POMPE_FRONT_LEFT_PWM_NUM               1
-	#define POMPE_FRONT_RIGHT_PWM_NUM              2
 #endif /* SMALL_CONFIG_PIN_H */
