@@ -60,8 +60,11 @@
 	#define DISTANCE_PROXIMITY_NODE (150)
 
 	// Activation de l'optimisation
-	//#define ASTAR_OPTIMISATION					// Activation de l'optimisation de trajectoires
-	//#define ASTAR_OPTIMISATION_2					// Activation de l'optimisation de trajectoires
+	#define ASTAR_OPTIMISATION_2				// Activation de l'optimisation de trajectoires	(Optimisation par défaut)
+
+	// ASTAR_OPTIMISATION a été testé mais les résultats de sont pas à la hauteur de nos attentes
+	// Activer de préférence ASTAR_OPTIMISATION_2, l'optimisation par défaut
+	//#define ASTAR_OPTIMISATION				// Activation de l'optimisation de trajectoires
 	#define DISTANCE_OF_BRAKING (100)			// Distance de freinage (passage en SLOW)
 	#define MAX_DISTANCE_IN_FAST_SPEED (500)	// A partir de cette distance, on redéfini un point pour passer en vitesse SLOW (protection)
 	#define MAX_ANGLE_IN_FAST_SPEED (PI4096/6)	// Angle positif (si angle du robot supérieur, on freine)
@@ -410,7 +413,7 @@
 												   (GEOMETRY_point_t){2000, COLOR_Y(0)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(510)},
 												   (GEOMETRY_point_t){1800, COLOR_Y(470)},
-		 	 	 	 	 	 	 	 	 	 	   (GEOMETRY_point_t){1635, COLOR_Y(365)},
+												   (GEOMETRY_point_t){1635, COLOR_Y(365)},
 												   (GEOMETRY_point_t){1530, COLOR_Y(200)}};
 		astar_node_id nodesIO_our_cratere_zone[3] = {COLOR_NODE(A3), COLOR_NODE(B2), COLOR_NODE(B3)};
 		ASTAR_define_polygon("our_cratère", poly_our_cratere_zone, 6, TRUE, nodesIO_our_cratere_zone, 3);
@@ -419,7 +422,7 @@
 		GEOMETRY_point_t poly_adv_cratere_zone[6] = {(GEOMETRY_point_t){1490, COLOR_Y(3000)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(3000)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(2490)},
-											       (GEOMETRY_point_t){1800, COLOR_Y(2530)},
+												   (GEOMETRY_point_t){1800, COLOR_Y(2530)},
 												   (GEOMETRY_point_t){1635, COLOR_Y(2635)},
 												   (GEOMETRY_point_t){1530, COLOR_Y(2800)}};
 		astar_node_id nodesIO_adv_cratere_zone[3] = {COLOR_NODE(H2), COLOR_NODE(H3), COLOR_NODE(I3)};
@@ -701,6 +704,7 @@
 		Uint32 dist_ref = 0;
 		Uint8 nb_search = 0;
 		bool_e finish_search = FALSE;
+		Uint8 tmpNodeId = 0;
 
 		debug_printf("\nGENERATE GRAPH\n");
 		for(i=0; i<astar_nb_polygons; i++){
@@ -710,14 +714,20 @@
 					in_polygon = TRUE;
 					debug_printf("in_polygon TRUE(%s)\n", astar_polygons[i].name);
 					for(j=0; j<astar_polygons[i].nb_nodesIO; j++){
-						if(my_neighbors){
-							// Je cherche mes voisins (voisins de nodeId), donc on ajoute les nodesIO du polygones comme mes voisins
-							debug_printf("Node=%d ajoute comme voisin par FROM_NODE\n", astar_polygons[i].nodesIO[j]);
-							ASTAR_ADD_NODE_IN(astar_polygons[i].nodesIO[j], astar_nodes[nodeId].neighbors);
+						// Le nodeIO est bien considéré comme voisin si il n'est pas coupé par une hardline
+						tmpNodeId = astar_polygons[i].nodesIO[j];
+						if(!ASTAR_is_link_cut_by_hardlines(astar_nodes[nodeId].pos, astar_nodes[tmpNodeId].pos)){
+							if(my_neighbors){
+								// Je cherche mes voisins (voisins de nodeId), donc on ajoute les nodesIO du polygones comme mes voisins
+								debug_printf("Node=%d ajoute comme voisin par FROM_NODE\n", astar_polygons[i].nodesIO[j]);
+								ASTAR_ADD_NODE_IN(astar_polygons[i].nodesIO[j], astar_nodes[nodeId].neighbors);
+							}else{
+								// Je cherche de qui je peut être voisin, les nodesIO du polygone m'ajoute comme voisin
+								debug_printf("Node=%d ajoute comme voisin à DEST_NODE\n", astar_polygons[i].nodesIO[j]);
+								ASTAR_ADD_NODE_IN(nodeId, astar_nodes[astar_polygons[i].nodesIO[j]].neighbors);
+							}
 						}else{
-							// Je cherche de qui je peut être voisin, les nodesIO du polygone m'ajoute comme voisin
-							debug_printf("Node=%d ajoute comme voisin à DEST_NODE\n", astar_polygons[i].nodesIO[j]);
-							ASTAR_ADD_NODE_IN(nodeId, astar_nodes[astar_polygons[i].nodesIO[j]].neighbors);
+							debug_printf("NodeIO %d (%d;%d) of polygon %d NOT neighbor (cut by hardline)\n", tmpNodeId, astar_nodes[tmpNodeId].pos.x, astar_nodes[tmpNodeId].pos.y , i);
 						}
 					}
 				}
@@ -730,7 +740,7 @@
 		if(!in_polygon){
 			do{
 				if(nb_search == 0)
-					dist_ref = DISTANCE_NEIGHBOURHOOD*DISTANCE_NEIGHBOURHOOD; // On pred le carré pour éviter de calculer la racine carrée couteuse en temps CPU
+					dist_ref = DISTANCE_NEIGHBOURHOOD*DISTANCE_NEIGHBOURHOOD; // On prend le carré pour éviter de calculer la racine carrée couteuse en temps CPU
 				else
 					dist_ref = 4*DISTANCE_NEIGHBOURHOOD*DISTANCE_NEIGHBOURHOOD; // Doubler la distance, revient à multiplier par 4 le carré de la distance
 				for(i=0; i<NB_NODES; i++){
@@ -890,8 +900,7 @@
 		Uint8 j;
 		error_e result;
 		Uint8 last_index = 0;
-		GEOMETRY_point_t pointTest;
-		GEOMETRY_point_t pointTest2;
+		UNUSED_VAR(last_index);
 
 		// On recherche le nombre de noeuds constituant la trajectoire
 		node = last_node;
@@ -1134,9 +1143,7 @@
 						displacements[j].curve = TRUE;
 					else
 						displacements[j].curve = FALSE;
-					pointTest = displacements[j].point;
-					pointTest2 = displacements[j-1].point;
-					debug_printf("Je suis node (%d, %d) et je viens de (%d, %d) : courbe=%d", pointTest.x, pointTest.y, pointTest2.x, pointTest2.y, displacements[j].curve);
+					debug_printf("Je suis node (%d, %d) et je viens de (%d, %d) : courbe=%d", displacements[j].point.x, displacements[j].point.y, displacements[j-1].point.x, displacements[j-1].point.y, displacements[j].curve);
 				}
 				curve_index = path_id[i];
 				displacements[j].speed = speed;
@@ -1154,8 +1161,7 @@
 
 		debug_printf("\nFINAL PATH is (%d displacements)\n", *nb_displacements);
 		for(i=0; i<*nb_displacements ; i++){
-			pointTest = displacements[i].point;
-			debug_printf("pos(%d;%d) curve=%d speed=%d\n", pointTest.x, pointTest.y, displacements[i].curve, displacements[i].speed);
+			debug_printf("pos(%d;%d) curve=%d speed=%d\n", displacements[i].point.x, displacements[i].point.y, displacements[i].curve, displacements[i].speed);
 		}
 
 		return result;
@@ -1182,7 +1188,6 @@
 		static Uint8 nb_try;
 		static bool_e success_possible;
 		static GEOMETRY_point_t from, dest;
-		GEOMETRY_point_t pointTest;
 		//static bool_e handles_foes;
 
 		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
