@@ -75,6 +75,7 @@ typedef enum{					// Frame Rate
 static volatile Uint16 ILI9341_x;
 static volatile Uint16 ILI9341_y;
 static volatile ILI931_Options_t ILI9341_Opts;
+static volatile bool_e initialised = FALSE;
 
 /* Private functions */
 static void ILI9341_initLCD(void);
@@ -84,7 +85,11 @@ static void ILI9341_delay(volatile Uint32 delay);
 static void ILI9341_setCursorPosition(Uint16 x1, Uint16 y1, Uint16 x2, Uint16 y2);
 static void ILI9341_INT_fill(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 color);
 
-void ILI9341_init() {
+void ILI9341_init(){
+
+	if(initialised)
+		return;
+	initialised = TRUE;
 
 	/* CS high */
 	ILI9341_CS_SET();
@@ -385,8 +390,8 @@ void ILI9341_drawFilledCircle(Uint16 x0, Uint16 y0, Uint16 r, Uint16 color) {
 }
 
 
-void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, const Uint16 *img, Uint32 size){
-	ILI9341_setCursorPosition(x0, y0, x1, y1);
+void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 width, Uint16 height, const Uint16 *img, Uint32 size){
+	ILI9341_setCursorPosition(x0, y0, x0 + width, y0 + height);
 
 	/* Set command for GRAM data */
 	ILI9341_sendCommand(ILI9341_GRAM);
@@ -400,14 +405,22 @@ void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, const Uint16 *
 
 #ifndef LCD_DMA
 	Uint32 i;
-	for(i=0;i<size;i++)
+	for(i=0; i < size; i++)
 		SPI_write(img[i]);
 #else
-	SPI2_DMA_send16BitArray(img, size);
+	SPI2_DMA_send16BitArray((Uint16 *)img, size);
 #endif
 
 
 	SPI_setDataSize(SPI2, SPI_DATA_SIZE_8_BIT);
+}
+
+void ILI9341_putImageWithTransparence(Uint16 x0, Uint16 y0, Uint16 width, Uint16 height, const Uint16 *img, Uint16 colorTransparence, Uint32 size){
+	Uint32 i;
+	for(i=0; i < size; i++){
+		if(img[i] != colorTransparence)
+			ILI9341_drawPixel(x0 + i % width, y0 + i / width, img[i]);
+	}
 }
 
 /***************************************************************

@@ -209,13 +209,26 @@
 	 * @brief  Put Image on LCD
 	 * @param  x0: X coordinate of starting point
 	 * @param  y0: Y coordinate of starting point
-	 * @param  x1: X coordinate of ending point
-	 * @param  y1: Y coordinate of ending point
+	 * @param  width: width of image
+	 * @param  height: height of image
 	 * @param  img: Pointeur sur le tableau des pixels de l'image en BMP 565
 	 * @param  size: Nombre d'élément dans le tableau
 	 * @retval None
 	 */
-	void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, const Uint16 *img, Uint32 size);
+	void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 width, Uint16 height, const Uint16 *img, Uint32 size);
+
+	/**
+	 * @brief  Put Image with transparence on LCD
+	 * @param  x0: X coordinate of starting point
+	 * @param  y0: Y coordinate of starting point
+	 * @param  width: width of image
+	 * @param  height: height of image
+	 * @param  img: Pointeur sur le tableau des pixels de l'image en BMP 565
+	 * @param  colorTransparence: color of transparence in BMP 565
+	 * @param  size: Nombre d'élément dans le tableau
+	 * @retval None
+	 */
+	void ILI9341_putImageWithTransparence(Uint16 x0, Uint16 y0, Uint16 width, Uint16 height, const Uint16 *img, Uint16 colorTransparence, Uint32 size);
 
 	/**
 	 * @brief   Enables display

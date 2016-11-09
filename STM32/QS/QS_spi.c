@@ -235,6 +235,8 @@ void SPI2_DMA_send16BitLoop(Uint16 data, Uint32 count){
 	}
 	Uint32 index = 0;
 
+	count++;	// Correction condition de fin DMA
+
 	do{
 		SPI2_InitDMA_send16BitLoop(data, (count - index > 0xFFFF) ? 0xFFFF : count - index);
 		SPI2_waitEndDMA();
@@ -248,6 +250,8 @@ void SPI2_DMA_send16BitArray(Uint16 *data, Uint32 count){
 		return;
 	}
 	Uint32 index = 0;
+
+	count++;	// Correction condition de fin DMA
 
 	do{
 		SPI2_InitDMA_send16bitArray(data + index, (count - index > 0xFFFF) ? 0xFFFF : count - index);
