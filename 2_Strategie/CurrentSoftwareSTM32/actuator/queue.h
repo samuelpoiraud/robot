@@ -22,28 +22,11 @@
 
 typedef Uint8 queue_size_t;
 typedef enum {
-	//Black
-	ACT_QUEUE_Fish_magnetic_arm,
-	ACT_QUEUE_Fish_unstick_arm,
-	ACT_QUEUE_Bottom_dune,
-	ACT_QUEUE_Black_sand_circle,
-	ACT_QUEUE_Middle_dune,
-	ACT_QUEUE_Cone_dune,
-	ACT_QUEUE_Sand_locker_left,
-	ACT_QUEUE_Sand_locker_right,
-	ACT_QUEUE_Shift_cylinder,
-	ACT_QUEUE_Pendulum,
-	ACT_QUEUE_Shovel_dune,
-	ACT_QUEUE_Brush_dune,
+	// Harry
+	//ACT_QUEUE_Fish_magnetic_arm,
 
-	//Pearl
-	ACT_QUEUE_Left_arm,
-	ACT_QUEUE_Right_arm,
-	ACT_QUEUE_Pompe_front_left,
-	ACT_QUEUE_Pompe_front_right,
-	ACT_QUEUE_Pearl_sand_circle,
-	ACT_QUEUE_Parasol,
-	ACT_QUEUE_Fish_pearl,
+	// Anne
+	//ACT_QUEUE_Left_arm,
 
 	//Mosfets actionneurs
 	ACT_QUEUE_Mosfet_act_1,
