@@ -390,81 +390,83 @@
 		////////////////////////////////////////// DEFINITION DES POLYGONES ///////////////////////////////////////////////////////
 		// Notre zone de départ  ?sortie c1?
 		GEOMETRY_point_t poly_our_start_zone[4] = {(GEOMETRY_point_t){0, COLOR_Y(0)},
-												   (GEOMETRY_point_t){350, COLOR_Y(0)},
-												   (GEOMETRY_point_t){350, COLOR_Y(750)},
-												   (GEOMETRY_point_t){0, COLOR_Y(750)}};
+												   (GEOMETRY_point_t){350 + OBSTACLE_MARGIN, COLOR_Y(0)},
+												   (GEOMETRY_point_t){350 + OBSTACLE_MARGIN, COLOR_Y(750 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){0, COLOR_Y(750 + OBSTACLE_MARGIN)}};
 		astar_node_id nodesIO_our_start_zone[3] = {COLOR_NODE(C1), COLOR_NODE(D1), COLOR_NODE(E1)};
 		ASTAR_define_polygon("our_start_zone", poly_our_start_zone, 4, TRUE, nodesIO_our_start_zone, 3);
 
 		// La zone central de depose module
-		GEOMETRY_point_t poly_depose_centre_zone[8] = {(GEOMETRY_point_t){1885, COLOR_Y(885)},
-												   (GEOMETRY_point_t){1885, COLOR_Y(985)},
-												   (GEOMETRY_point_t){1200, COLOR_Y(1420)},
-												   (GEOMETRY_point_t){1200, COLOR_Y(1575)},
-												   (GEOMETRY_point_t){1385, COLOR_Y(2018)},
-												   (GEOMETRY_point_t){1485, COLOR_Y(2115)},
-												   (GEOMETRY_point_t){2000, COLOR_Y(1600)},
-												   (GEOMETRY_point_t){2000, COLOR_Y(1400)}};
+		GEOMETRY_point_t poly_depose_centre_zone[8] = {(GEOMETRY_point_t){1485 - (cos(PI4096/4)*OBSTACLE_MARGIN), COLOR_Y(885 - (cos(PI4096/4)*OBSTACLE_MARGIN))},
+												   (GEOMETRY_point_t){1385 - (cos(PI4096/4)*OBSTACLE_MARGIN), COLOR_Y(985 - (cos(PI4096/4)*OBSTACLE_MARGIN))},
+												   (GEOMETRY_point_t){1200 + OBSTACLE_MARGIN, COLOR_Y(1430)},
+												   (GEOMETRY_point_t){1200 + OBSTACLE_MARGIN, COLOR_Y(1575)},
+												   (GEOMETRY_point_t){1385 - cos(PI4096/4)*OBSTACLE_MARGIN, COLOR_Y(2015 + cos(PI4096/4)*OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1485 - cos(PI4096/4)*OBSTACLE_MARGIN, COLOR_Y(2115 + cos(PI4096/4)*OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(1600 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(1400 - OBSTACLE_MARGIN)}};
 		astar_node_id nodesIO_depose_centre_zone[4] = {COLOR_NODE(C2), COLOR_NODE(D3), COLOR_NODE(F3), COLOR_NODE(G2)};
 		ASTAR_define_polygon("adv_depose_centre_zone", poly_depose_centre_zone, 8, TRUE, nodesIO_depose_centre_zone, 4);
 
 		// notre grand cratère de balle
-		GEOMETRY_point_t poly_our_cratere_zone[6] = {(GEOMETRY_point_t){1490, COLOR_Y(0)},
+		GEOMETRY_point_t poly_our_cratere_zone[6] = {(GEOMETRY_point_t){1490 - OBSTACLE_MARGIN, COLOR_Y(0)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(0)},
-												   (GEOMETRY_point_t){2000, COLOR_Y(510)},
-												   (GEOMETRY_point_t){1800, COLOR_Y(470)},
-												   (GEOMETRY_point_t){1635, COLOR_Y(365)},
-												   (GEOMETRY_point_t){1530, COLOR_Y(200)}};
+												   (GEOMETRY_point_t){2000, COLOR_Y(510 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1800 - OBSTACLE_MARGIN, COLOR_Y(470 + OBSTACLE_MARGIN)},
+		 	 	 	 	 	 	 	 	 	 	   (GEOMETRY_point_t){1635 - OBSTACLE_MARGIN, COLOR_Y(365 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1530 - OBSTACLE_MARGIN, COLOR_Y(200 + OBSTACLE_MARGIN)}};
+
 		astar_node_id nodesIO_our_cratere_zone[3] = {COLOR_NODE(A3), COLOR_NODE(B2), COLOR_NODE(B3)};
 		ASTAR_define_polygon("our_cratère", poly_our_cratere_zone, 6, TRUE, nodesIO_our_cratere_zone, 3);
 
 		// La grand cratère de balle adverse
-		GEOMETRY_point_t poly_adv_cratere_zone[6] = {(GEOMETRY_point_t){1490, COLOR_Y(3000)},
+		GEOMETRY_point_t poly_adv_cratere_zone[6] = {(GEOMETRY_point_t){1490 - OBSTACLE_MARGIN, COLOR_Y(3000)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(3000)},
-												   (GEOMETRY_point_t){2000, COLOR_Y(2490)},
-												   (GEOMETRY_point_t){1800, COLOR_Y(2530)},
-												   (GEOMETRY_point_t){1635, COLOR_Y(2635)},
-												   (GEOMETRY_point_t){1530, COLOR_Y(2800)}};
+												   (GEOMETRY_point_t){2000, COLOR_Y(2490 - OBSTACLE_MARGIN)},
+											       (GEOMETRY_point_t){1800 - OBSTACLE_MARGIN, COLOR_Y(2530 - OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1635 - OBSTACLE_MARGIN, COLOR_Y(2635 - OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1530 - OBSTACLE_MARGIN, COLOR_Y(2800 - OBSTACLE_MARGIN)}};
+
 		astar_node_id nodesIO_adv_cratere_zone[3] = {COLOR_NODE(H2), COLOR_NODE(H3), COLOR_NODE(I3)};
 		ASTAR_define_polygon("adv_cartère", poly_adv_cratere_zone, 6, TRUE, nodesIO_adv_cratere_zone, 3);
 
 		// notre petit cratere proche
-		GEOMETRY_point_t poly_our_petit1_cratere_zone[6] = {(GEOMETRY_point_t){580, COLOR_Y(560)},
-												   (GEOMETRY_point_t){480, COLOR_Y(560)},
-												   (GEOMETRY_point_t){436, COLOR_Y(650)},
-												   (GEOMETRY_point_t){480, COLOR_Y(740)},
-												   (GEOMETRY_point_t){580, COLOR_Y(740)},
-												   (GEOMETRY_point_t){624, COLOR_Y(650)}};
+		GEOMETRY_point_t poly_our_petit1_cratere_zone[6] = {(GEOMETRY_point_t){580 + OBSTACLE_MARGIN, COLOR_Y(560 - OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){480 - OBSTACLE_MARGIN, COLOR_Y(560 - OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){436 - OBSTACLE_MARGIN, COLOR_Y(650)},
+												   (GEOMETRY_point_t){480 - OBSTACLE_MARGIN, COLOR_Y(740 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){580 + OBSTACLE_MARGIN, COLOR_Y(740 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){624 + OBSTACLE_MARGIN, COLOR_Y(650)}};
 		astar_node_id nodesIO_our_petit1_cratere_zone[4] = {COLOR_NODE(A1), COLOR_NODE(A2), COLOR_NODE(B1), COLOR_NODE(C1)};
 		ASTAR_define_polygon("our_petit1_cratere_zone", poly_our_petit1_cratere_zone, 6, TRUE, nodesIO_our_petit1_cratere_zone, 4);
 
 		// notre petit cratere loin
-		GEOMETRY_point_t poly_our_petit2_cratere_zone[6] = {(GEOMETRY_point_t){1820, COLOR_Y(980)},
-												   (GEOMETRY_point_t){1776, COLOR_Y(1070)},
-												   (GEOMETRY_point_t){1820, COLOR_Y(1160)},
-												   (GEOMETRY_point_t){1920, COLOR_Y(1160)},
-												   (GEOMETRY_point_t){1964, COLOR_Y(1070)},
-												   (GEOMETRY_point_t){1920, COLOR_Y(980)}};
+		GEOMETRY_point_t poly_our_petit2_cratere_zone[6] = {(GEOMETRY_point_t){1820 - OBSTACLE_MARGIN, COLOR_Y(980 - OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1776 - OBSTACLE_MARGIN, COLOR_Y(1070)},
+												   (GEOMETRY_point_t){1820 - OBSTACLE_MARGIN, COLOR_Y(1160 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1920 + OBSTACLE_MARGIN, COLOR_Y(1160 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1964 + OBSTACLE_MARGIN, COLOR_Y(1070)},
+												   (GEOMETRY_point_t){1920 + OBSTACLE_MARGIN, COLOR_Y(980 - OBSTACLE_MARGIN)}};
 		astar_node_id nodesIO_our_petit2_cratere_zone[1] = {COLOR_NODE(B3)};
 		ASTAR_define_polygon("our_petit2_cratere_zone", poly_our_petit2_cratere_zone, 6, TRUE, nodesIO_our_petit2_cratere_zone, 1);
 
 		// petit cratere proche adverse
-		GEOMETRY_point_t poly_adv_petit1_cratere_zone[6] = {(GEOMETRY_point_t){580, COLOR_Y(2440)},
-													   (GEOMETRY_point_t){480, COLOR_Y(2440)},
-													   (GEOMETRY_point_t){436, COLOR_Y(2350)},
-													   (GEOMETRY_point_t){480, COLOR_Y(2260)},
-													   (GEOMETRY_point_t){580, COLOR_Y(2260)},
-													   (GEOMETRY_point_t){624, COLOR_Y(2350)}};
+		GEOMETRY_point_t poly_adv_petit1_cratere_zone[6] = {(GEOMETRY_point_t){580 + OBSTACLE_MARGIN, COLOR_Y(2440 + OBSTACLE_MARGIN)},
+													   (GEOMETRY_point_t){480 - OBSTACLE_MARGIN, COLOR_Y(2440 + OBSTACLE_MARGIN)},
+													   (GEOMETRY_point_t){436 - OBSTACLE_MARGIN, COLOR_Y(2350)},
+													   (GEOMETRY_point_t){480 - OBSTACLE_MARGIN, COLOR_Y(2260 - OBSTACLE_MARGIN)},
+													   (GEOMETRY_point_t){580 + OBSTACLE_MARGIN, COLOR_Y(2260 - OBSTACLE_MARGIN)},
+													   (GEOMETRY_point_t){624 + OBSTACLE_MARGIN, COLOR_Y(2350)}};
 		astar_node_id nodesIO_adv_petit1_cratere_zone[4] = {COLOR_NODE(G1), COLOR_NODE(H1), COLOR_NODE(I1), COLOR_NODE(I2)};
 		ASTAR_define_polygon("adv_petit1_cratere_zone", poly_adv_petit1_cratere_zone, 6, TRUE, nodesIO_adv_petit1_cratere_zone, 4);
 
 		// petit cratere loin advserse
-		GEOMETRY_point_t poly_adv_petit2_cratere_zone[6] = {(GEOMETRY_point_t){1820, COLOR_Y(2020)},
-												   (GEOMETRY_point_t){1776, COLOR_Y(1930)},
-												   (GEOMETRY_point_t){1820, COLOR_Y(1840)},
-												   (GEOMETRY_point_t){1920, COLOR_Y(1840)},
-												   (GEOMETRY_point_t){1964, COLOR_Y(1930)},
-												   (GEOMETRY_point_t){1920, COLOR_Y(2020)}};
+		GEOMETRY_point_t poly_adv_petit2_cratere_zone[6] = {(GEOMETRY_point_t){1820 - OBSTACLE_MARGIN, COLOR_Y(2020 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1776 - OBSTACLE_MARGIN, COLOR_Y(1930)},
+												   (GEOMETRY_point_t){1820 - OBSTACLE_MARGIN, COLOR_Y(1840 - OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1920 + OBSTACLE_MARGIN, COLOR_Y(1840 - OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1964 + OBSTACLE_MARGIN, COLOR_Y(1930)},
+												   (GEOMETRY_point_t){1920 + OBSTACLE_MARGIN, COLOR_Y(2020 + OBSTACLE_MARGIN)}};
 		astar_node_id nodesIO_adv_petit2_cratere_zone[1] = {COLOR_NODE(H3)};
 		ASTAR_define_polygon("adv_petit2_cratere_zone", poly_adv_petit2_cratere_zone, 6, TRUE, nodesIO_adv_petit2_cratere_zone, 1);
 
