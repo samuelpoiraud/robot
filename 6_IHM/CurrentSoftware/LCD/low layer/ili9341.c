@@ -390,8 +390,8 @@ void ILI9341_drawFilledCircle(Uint16 x0, Uint16 y0, Uint16 r, Uint16 color) {
 }
 
 
-void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 width, Uint16 height, const Uint16 *img, Uint32 size){
-	ILI9341_setCursorPosition(x0, y0, x0 + width, y0 + height);
+void ILI9341_putImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uint16 *img, Uint32 size){
+	ILI9341_setCursorPosition(x, y, x + width, y + height);
 
 	/* Set command for GRAM data */
 	ILI9341_sendCommand(ILI9341_GRAM);
@@ -415,11 +415,19 @@ void ILI9341_putImage(Uint16 x0, Uint16 y0, Uint16 width, Uint16 height, const U
 	SPI_setDataSize(SPI2, SPI_DATA_SIZE_8_BIT);
 }
 
-void ILI9341_putImageWithTransparence(Uint16 x0, Uint16 y0, Uint16 width, Uint16 height, const Uint16 *img, Uint16 colorTransparence, Uint32 size){
+void ILI9341_putImageWithTransparence(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uint16 *img, Uint16 colorTransparence, Uint32 size){
 	Uint32 i;
 	for(i=0; i < size; i++){
 		if(img[i] != colorTransparence)
-			ILI9341_drawPixel(x0 + i % width, y0 + i / width, img[i]);
+			ILI9341_drawPixel(x + i % width, y + i / width, img[i]);
+	}
+}
+
+void ILI9341_putColorInvertedImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, Uint16 replaceColor, const Uint16 *img, Uint16 colorTransparence, Uint32 size){
+	Uint32 i;
+	for(i=0; i < size; i++){
+		if(img[i] != colorTransparence)
+			ILI9341_drawPixel(x + i % width, y + i / width, replaceColor);
 	}
 }
 
