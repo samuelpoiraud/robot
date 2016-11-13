@@ -9,12 +9,6 @@
 
 #define MIN_POINTS_PER_OBJECT (3)
 
-typedef enum{
-	OBJECT_NO_DATA,
-	OBJECT_PRESENT,
-	OBJECT_ABSENT
-}OBJECTS_SCAN_state_e;
-
 // Fonctions privées
 static bool_e OBJECTS_SCAN_check_absence_circle(GEOMETRY_circle_t circle, GEOMETRY_segment_t seg);
 static bool_e OBJECTS_SCAN_check_presence_circle(GEOMETRY_circle_t circle, GEOMETRY_point_t p);
