@@ -59,6 +59,9 @@
 	// Distance maximale à laquelle on s'autorise la supression du noeud de départ (non utilisé)
 	#define DISTANCE_PROXIMITY_NODE (150)
 
+	// Distance de laquelle on doit tenter de bouger si le pathfind a échouer. On doit bouger pour essayer de se débloquer.
+	#define DISTANCE_TO_MOVE_IF_FAIL (600)
+
 	// Activation de l'optimisation
 	#define ASTAR_OPTIMISATION_2				// Activation de l'optimisation de trajectoires	(Optimisation par défaut)
 
@@ -902,6 +905,8 @@
 		Uint8 j;
 		error_e result;
 		Uint8 last_index = 0;
+		Uint16 distToStartNode = 0;
+		Uint16 wantedDistToStartNode = 0;
 		UNUSED_VAR(last_index);
 
 		// On recherche le nombre de noeuds constituant la trajectoire
@@ -945,13 +950,26 @@
 		path_enable[0] = FALSE; //Le point de départ n'est pas dans la trajectoire
 
 
-		// Affichage de la trajectoire non optimisée
+		// Affichage de la trajectoire non optimisée(index 0:point de départ, dernier point: point d'arrivé)
 		debug_printf("\n PATH \n");
 		for(i=0; i<nb_nodes; i++){
 			debug_printf("[%d] pos(%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
 		}
 		debug_printf("\n");
 		debug_printf("nb_nodes=%d\n", nb_nodes);
+
+		// Si on sait déjà qu'on n'arrivera pas à la position d'arrivée souhaité, on cherche juste à se débloquer
+		// On essaie alors de se déplacer un peu pour se débloquer mais ca ne sert à rien d'effectuer tout le début de chemin trouvé pr le pathfind
+		if(result == FOE_IN_PATH){
+			i=1;
+			wantedDistToStartNode = DISTANCE_TO_MOVE_IF_FAIL*DISTANCE_TO_MOVE_IF_FAIL;
+			do{
+				distToStartNode = GEOMETRY_distance_square(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[i]].pos);
+				i++;
+			}while(i < nb_nodes && distToStartNode < wantedDistToStartNode);
+
+			nb_nodes = i; // On supprime les derniers points
+		}
 
 #ifdef	ASTAR_OPTIMISATION
 		double last_angle, angle;
