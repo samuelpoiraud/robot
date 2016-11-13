@@ -8,13 +8,14 @@ void valentin_strat_inutile_big(){
 			INIT,
 			ACTION,
 			ACTION2,
+			ACTION3,
 			ERROR,
 			DONE
 		);
 
 	switch(state){
 		case INIT:
-			state = try_going(1200, COLOR_Y(2000), state , ACTION, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
+			state = try_going(1400, COLOR_Y(1800), state , ACTION, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case ACTION:
@@ -22,7 +23,11 @@ void valentin_strat_inutile_big(){
 			break;
 
 		case ACTION2:
-			state = ASTAR_try_going(200, COLOR_Y(300), state , DONE, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
+			state = ASTAR_try_going(550, COLOR_Y(2700), state , DONE, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
+
+		case ACTION3:
+			state = ASTAR_try_going(200, COLOR_Y(2600), state , DONE, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
