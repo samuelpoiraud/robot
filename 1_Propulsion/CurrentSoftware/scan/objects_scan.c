@@ -15,10 +15,10 @@ static bool_e OBJECTS_SCAN_check_presence_circle(GEOMETRY_circle_t circle, GEOME
 
 // Variables globales
 extern OBJECTS_circles_t OBJECTS_circles;	// Variable externe définit dans QS_objects.c
-OBJECTS_SCAN_state_e circles_state[NB_MAX_CIRCLES][MIN_POINTS_PER_OBJECT];
+OBJECTS_state_e circles_state[NB_MAX_CIRCLES][MIN_POINTS_PER_OBJECT];
 
 extern OBJECTS_polygons_t OBJECTS_polygons;	// Variable externe définit dans QS_objects.c
-OBJECTS_SCAN_state_e polygons_state[NB_MAX_POLYGONS][MIN_POINTS_PER_OBJECT];
+OBJECTS_state_e polygons_state[NB_MAX_POLYGONS][MIN_POINTS_PER_OBJECT];
 
 static Uint8 index = 0;
 
