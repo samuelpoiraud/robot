@@ -17,6 +17,7 @@
 
 #ifdef I_AM_ROBOT_BIG
 	#include "QS/QS_mosfet.h"
+	#include "Harry/Billix/billix_test.h"
 #else
 	#include "QS/QS_mosfet.h"
 #endif
@@ -29,6 +30,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(MOSFET), //QS_mosfets
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
+		ACT_DECLARE(BILLIX_TEST)
 		//ACT_DECLARE(FISH_MAGNETIC_ARM),
 	#else  //Small Robot
 		//ACT_DECLARE(LEFT_ARM),

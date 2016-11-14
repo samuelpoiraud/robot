@@ -359,6 +359,7 @@
 //--------------------Configuration des ID des actionneurs-----------------------
 // L'id doit être inférieur à 50
 //#define FISH_MAGNETIC_ARM_RX24_ID           35
+#define BILLIX_TEST_AX12_ID					  1
 
 
 #endif /* BIG_CONFIG_PIN_H */
