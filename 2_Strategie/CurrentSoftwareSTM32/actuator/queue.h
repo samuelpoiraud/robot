@@ -24,6 +24,7 @@ typedef Uint8 queue_size_t;
 typedef enum {
 	// Harry
 	//ACT_QUEUE_Fish_magnetic_arm,
+	ACT_QUEUE_Billix_test,
 
 	// Anne
 	//ACT_QUEUE_Left_arm,

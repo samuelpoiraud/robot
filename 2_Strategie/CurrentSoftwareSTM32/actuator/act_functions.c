@@ -40,6 +40,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 
 	// Harry
 	//{ACT_FISH_MAGNETIC_ARM,			ACT_QUEUE_Fish_magnetic_arm,			"Fish magnetic arm"},
+	{ACT_BILLIX_TEST,			        ACT_QUEUE_Billix_test,			        "Billix test"},
 
 	// Anne
 	//{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},
