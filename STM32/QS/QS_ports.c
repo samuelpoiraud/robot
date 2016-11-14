@@ -669,19 +669,37 @@ void PORTS_spi_init() {
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 
-	//GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;				//NSS : seulement en Slave
-	//GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	#ifdef USE_SPI1
+		//GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;				//NSS : seulement en Slave
+		//GPIO_Init(GPIOA, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	//GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2);	//NSS : seulement en Slave
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
+		//GPIO_PinAFConfig(GPIOA, GPIO_PinSource15, GPIO_AF_SPI1);	//NSS : seulement en Slave
+		GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);
+		GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_SPI1);
+		GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1);
+	#endif
+
+	#ifdef USE_SPI2
+		//GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;				//NSS : seulement en Slave
+		//GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+		//GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2);	//NSS : seulement en Slave
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
+	#endif
 }
 
 
