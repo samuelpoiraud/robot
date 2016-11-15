@@ -22,7 +22,7 @@
 //Position
 	#define BILLIX_TEST_AX12_IDLE_POS					512
 	#define BILLIX_TEST_AX12_LOCK_POS				    512		//en degré
-	#define BILLIX_TEST_AX12_UNLOCK_POS					512		//en degré
+	#define BILLIX_TEST_AX12_UNLOCK_POS					1023	//en degré
 
 //Position initiale de l'AX12
 	#define BILLIX_TEST_AX12_INIT_POS					BILLIX_TEST_AX12_IDLE_POS
