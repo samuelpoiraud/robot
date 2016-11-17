@@ -416,7 +416,7 @@
 												   (GEOMETRY_point_t){2000, COLOR_Y(0)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(510 + OBSTACLE_MARGIN)},
 												   (GEOMETRY_point_t){1800 - OBSTACLE_MARGIN, COLOR_Y(470 + OBSTACLE_MARGIN)},
-		 	 	 	 	 	 	 	 	 	 	   (GEOMETRY_point_t){1635 - OBSTACLE_MARGIN, COLOR_Y(365 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1635 - OBSTACLE_MARGIN, COLOR_Y(365 + OBSTACLE_MARGIN)},
 												   (GEOMETRY_point_t){1530 - OBSTACLE_MARGIN, COLOR_Y(200 + OBSTACLE_MARGIN)}};
 
 		astar_node_id nodesIO_our_cratere_zone[3] = {COLOR_NODE(A3), COLOR_NODE(B2), COLOR_NODE(B3)};
@@ -426,7 +426,7 @@
 		GEOMETRY_point_t poly_adv_cratere_zone[6] = {(GEOMETRY_point_t){1490 - OBSTACLE_MARGIN, COLOR_Y(3000)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(3000)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(2490 - OBSTACLE_MARGIN)},
-											       (GEOMETRY_point_t){1800 - OBSTACLE_MARGIN, COLOR_Y(2530 - OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1800 - OBSTACLE_MARGIN, COLOR_Y(2530 - OBSTACLE_MARGIN)},
 												   (GEOMETRY_point_t){1635 - OBSTACLE_MARGIN, COLOR_Y(2635 - OBSTACLE_MARGIN)},
 												   (GEOMETRY_point_t){1530 - OBSTACLE_MARGIN, COLOR_Y(2800 - OBSTACLE_MARGIN)}};
 
@@ -912,15 +912,17 @@
 		// On recherche le nombre de noeuds constituant la trajectoire
 		node = last_node;
 		nb_nodes++;
-		do{
+		while(node != FROM_NODE && node != NO_ID){
 			node = astar_nodes[node].parent;
 			nb_nodes++;
 			if(node == NO_ID)
 				debug_printf("Problème un des nodes de la liste de la trajectoire a pour id = NO_ID");
-		}while(node != FROM_NODE && node != NO_ID);
+		}
+
+		if(nb_nodes == 1)
+			debug_printf("ATTENTION, FROM_NODE N'A PAS DE VOISINS !!!\n");
 
 		//On regarde si on a un chemin
-
 		if(last_node == DEST_NODE){
 			// Le chemin est trouvé jusqu'au point d'arrivée
 			result = END_OK;
