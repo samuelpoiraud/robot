@@ -263,7 +263,7 @@
 
 			//Rangée [E]
 			(astar_node_t){ E1, {500,  1500}, (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<G1)},
-			(astar_node_t){ E2, {1000, 1510}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
+			(astar_node_t){ E2, {1010, 1500}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
 
 			//Rangée [F]
 			(astar_node_t){ F1, {300,  1700}, (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)},
