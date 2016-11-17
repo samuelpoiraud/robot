@@ -1,12 +1,12 @@
-/*  Club Robot ESEO 2015 - 2016
- *
- *	Fichier : POMPE_EXEMPLE.c
- *	Package : Carte actionneur
- *	Description : Gestion de la pompe EXEMPLE
- *  Auteur : Valentin
- *  Version 2016
- *  Robot : BIG
- */
+/*  Club Robot ESEO 2016 - 2017
+*
+*	Fichier : pompe_exemple.c
+*	Package : Carte actionneur
+*	Description : Gestion de la pompe EXEMPLE
+*	Auteur :
+*	Version 2017
+*	Robot : BIG
+*/
 
 #include "pompe_exemple.h"
 
@@ -87,10 +87,7 @@ bool_e POMPE_EXEMPLE_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST) {
-		/*SELFTEST_set_actions(&POMPE_EXEMPLE_run_command,  2, (SELFTEST_action_t[]){
-								 {ACT_POMPE_EXEMPLE_NORMAL,  100, QUEUE_ACT_POMPE_EXEMPLE},
-								 {ACT_POMPE_EXEMPLE_STOP, 0, QUEUE_ACT_POMPE_EXEMPLE}
-							 });*/
+
 	}
 
 	return FALSE;

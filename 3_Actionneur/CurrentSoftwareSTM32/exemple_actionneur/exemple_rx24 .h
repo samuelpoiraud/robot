@@ -1,13 +1,12 @@
-/*  Club Robot ESEO 2015 - 2016
- *	BIG
- *
- *	Fichier : fish_braush_back.h
- *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur RX24 EXEMPLE
- *  Auteur :
- *  Version 2016
- *  Robot : BIG
- */
+/*  Club Robot ESEO 2016 - 2017
+*
+*	Fichier : exemple_rx24.h
+*	Package : Carte actionneur
+*	Description : Gestion de l'actionneur RX24 EXEMPLE
+*	Auteur :
+*	Version 2017
+*	Robot : BIG
+*/
 
 #ifndef EXEMPLE_H
 	#define	EXEMPLE_H

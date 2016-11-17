@@ -1,12 +1,12 @@
-/*  Club Robot ESEO 2015 - 2016
- *
- *	Fichier : pompe_exemple.c
- *	Package : Carte actionneur
- *	Description : Gestion de la pompe EXEMPLE
- *  Auteur : Valentin
- *  Version 2016
- *  Robot : SMALL
- */
+/*  Club Robot ESEO 2016 - 2017
+*
+*	Fichier : pompe_exemple.h
+*	Package : Carte actionneur
+*	Description : Gestion de la pompe EXEMPLE
+*	Auteur :
+*	Version 2017
+*	Robot : BIG
+*/
 
 
 #ifndef POMPE_EXEMPLE_H
