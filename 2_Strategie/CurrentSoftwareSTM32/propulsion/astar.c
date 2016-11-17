@@ -242,49 +242,49 @@
 		//remove a3, i3 ,d3, f3 ,e2, hardline, (a faire cratère)
 
 
-		//Rangée [A]
-		(astar_node_t){ A1, {600,  300}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)},
-		(astar_node_t){ A2, {1000, 400}, (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)},
-		(astar_node_t){ A3, {1350, 300}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)},
+			//Rangée [A]
+			(astar_node_t){ A1, {600,  300}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)},
+			(astar_node_t){ A2, {1000, 400}, (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)|(1ULL<<D3)},
+			(astar_node_t){ A3, {1250, 300}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)},
 
-		//Rangée [B]
-		(astar_node_t){ B1, {900,  700}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)},
-		(astar_node_t){ B2, {1300, 700}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C2)|(1ULL<<D3)},
-		(astar_node_t){ B3, {1700, 750}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)},
+			//Rangée [B]
+			(astar_node_t){ B1, {870,  700}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)},
+			(astar_node_t){ B2, {1370, 630}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C2)},
+			(astar_node_t){ B3, {1700, 750}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)},
 
-		//Rangée [C]
-		(astar_node_t){ C1, {700, 1000}, (1ULL<<B1)|(1ULL<<C2)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)},
-		(astar_node_t){ C2, {1050, 950}, (1ULL<<B1)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E2)},
+			//Rangée [C]
+			(astar_node_t){ C1, {670, 1000}, (1ULL<<B1)|(1ULL<<C2)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)},
+			(astar_node_t){ C2, {1130, 845}, (1ULL<<B1)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E2)},
 
-		//Rangée [D]
-		(astar_node_t){ D1, {300,  1300}, (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)|(1ULL<<F1)},
-		(astar_node_t){ D2, {800,  1300}, (1ULL<<B1)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D1)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F2)},
-		(astar_node_t){ D3, {1100, 1100}, (1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<E2)},
+			//Rangée [D]
+			(astar_node_t){ D1, {300,  1300}, (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)|(1ULL<<F1)},
+			(astar_node_t){ D2, {800,  1300}, (1ULL<<B1)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D1)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F2)},
+			(astar_node_t){ D3, {1000, 1135}, (1ULL<<A2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<E2)},
 
-		//Rangée [E]
-		(astar_node_t){ E1, {500,  1500}, (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<G1)},
-		(astar_node_t){ E2, {950, 1500}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
+			//Rangée [E]
+			(astar_node_t){ E1, {500,  1500}, (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<G1)},
+			(astar_node_t){ E2, {1000, 1500}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
 
-		//Rangée [F]
-		(astar_node_t){ F1, {300,  1700}, (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)},
-		(astar_node_t){ F2, {800,  1700}, (1ULL<<D2)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H1)},
-		(astar_node_t){ F3, {1100, 1900}, (1ULL<<E2)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)},
+			//Rangée [F]
+			(astar_node_t){ F1, {300,  1700}, (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)},
+			(astar_node_t){ F2, {800,  1700}, (1ULL<<D2)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H1)},
+			(astar_node_t){ F3, {1100, 1865}, (1ULL<<E2)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<I2)},
 
-		//Rangée [G]
-		(astar_node_t){ G1, {700,  2000}, (1ULL<<E1)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)|(1ULL<<H1)},
-		(astar_node_t){ G2, {1050, 2050}, (1ULL<<E2)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<H1)|(1ULL<<H2)},
+			//Rangée [G]
+			(astar_node_t){ G1, {670,  2000}, (1ULL<<E1)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)|(1ULL<<H1)},
+			(astar_node_t){ G2, {1130, 2155}, (1ULL<<E2)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<H1)|(1ULL<<H2)},
 
-		//Rangée [H]
-		(astar_node_t){ H1, {900,  2300}, (1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
-		(astar_node_t){ H2, {1300, 2300}, (1ULL<<F3)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
-		(astar_node_t){ H3, {1700, 2250}, (1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
+			//Rangée [H]
+			(astar_node_t){ H1, {870,  2300}, (1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
+			(astar_node_t){ H2, {1370, 2370}, (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
+			(astar_node_t){ H3, {1700, 2250}, (1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
 
-		//Rangée [I]
-		(astar_node_t){ I1, {600,  2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
-		(astar_node_t){ I2, {1000, 2600}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I3)},
-		(astar_node_t){ I3, {1350, 2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)},
+			//Rangée [I]
+			(astar_node_t){ I1, {600,  2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
+			(astar_node_t){ I2, {1000, 2600}, (1ULL<<F3)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I3)},
+			(astar_node_t){ I3, {1250, 2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)},
 
-		//Node de départ
+			//Node de départ
 		(astar_node_t){ FROM_NODE, {0, 0},  0ULL},
 
 		//Node de destination
@@ -296,12 +296,12 @@
 
 		//Rangée [A]
 		/*A1*/ (0ULL<<A2)|(0ULL<<A3)|(0ULL<<B1)|(0ULL<<B2)|(1ULL<<FROM_NODE),//On est en A1, les courbes sont autorisées lorsque l'on vient de A2 ou de B1
-		/*A2*/ (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)|(1ULL<<FROM_NODE),
+		/*A2*/ (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)|(0ULL<<D3)|(1ULL<<FROM_NODE),
 		/*A3*/ (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)|(1ULL<<FROM_NODE),
 
 		//Rangée [B]
 		/*B1*/ (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<FROM_NODE),
-		/*B2*/ (1ULL<<A1)|(1ULL<<A2)|(0ULL<<A3)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C2)|(0ULL<<D3)|(1ULL<<FROM_NODE),
+		/*B2*/ (1ULL<<A1)|(1ULL<<A2)|(0ULL<<A3)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C2)|(1ULL<<FROM_NODE),
 		/*B3*/ (0ULL<<A2)|(0ULL<<A3)|(0ULL<<B2)|(1ULL<<FROM_NODE),
 
 		//Rangée [C]
@@ -311,7 +311,7 @@
 		//Rangée [D]
 		/*D1*/ (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)|(1ULL<<F1)|(1ULL<<FROM_NODE),
 		/*D2*/ (1ULL<<B1)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D1)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F2)|(1ULL<<FROM_NODE),
-		/*D3*/ (0ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(0ULL<<E2)|(1ULL<<FROM_NODE),
+		/*D3*/ (0ULL<<A2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<FROM_NODE),
 
 		//Rangée [E]
 		/*E1*/ (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<FROM_NODE),
@@ -320,7 +320,7 @@
 		//Rangée [F]
 		/*F1*/ (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<FROM_NODE),
 		/*F2*/ (1ULL<<D2)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<FROM_NODE),
-		/*F3*/ (0ULL<<E2)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(0ULL<<H2)|(1ULL<<FROM_NODE),
+		/*F3*/ (1ULL<<E2)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(0ULL<<I2)|(1ULL<<FROM_NODE),
 
 		//Rangée [G]
 		/*G1*/ (1ULL<<E1)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<FROM_NODE),
@@ -328,12 +328,12 @@
 
 		//Rangée [H]
 		/*H1*/ (1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)|(1ULL<<FROM_NODE),
-		/*H2*/ (1ULL<<F3)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)|(1ULL<<FROM_NODE),
+		/*H2*/ (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)|(1ULL<<FROM_NODE),
 		/*H3*/ (0ULL<<H2)|(0ULL<<I2)|(0ULL<<I3)|(1ULL<<FROM_NODE),
 
 		//Rangée [I]
 		/*I1*/ (0ULL<<H1)|(0ULL<<H2)|(0ULL<<I2)|(0ULL<<I3)|(1ULL<<FROM_NODE),
-		/*I2*/ (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I3)|(1ULL<<FROM_NODE),
+		/*I2*/ (0ULL<<F3)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I3)|(1ULL<<FROM_NODE),
 		/*I3*/ (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<FROM_NODE),
 
 		//Node de départ (On commence toujours au point de départ donc pas d'importance ici. Par contre, il faut autoriser les courbes en n'importe quel point lorsqu'on vient du point de départ)
