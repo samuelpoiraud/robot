@@ -60,7 +60,7 @@
 	#define DISTANCE_PROXIMITY_NODE (150)
 
 	// Distance de laquelle on doit tenter de bouger si le pathfind a échouer. On doit bouger pour essayer de se débloquer.
-	#define DISTANCE_TO_MOVE_IF_FAIL (600)
+	#define DISTANCE_TO_MOVE_IF_FAIL (400)
 
 	// Activation de l'optimisation
 	#define ASTAR_OPTIMISATION_2				// Activation de l'optimisation de trajectoires	(Optimisation par défaut)
@@ -250,7 +250,7 @@
 			//Rangée [B]
 			(astar_node_t){ B1, {870,  700}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)},
 			(astar_node_t){ B2, {1370, 630}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C2)},
-			(astar_node_t){ B3, {1700, 750}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)},
+			(astar_node_t){ B3, {1700, 730}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)},
 
 			//Rangée [C]
 			(astar_node_t){ C1, {670, 1000}, (1ULL<<B1)|(1ULL<<C2)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)},
@@ -263,7 +263,7 @@
 
 			//Rangée [E]
 			(astar_node_t){ E1, {500,  1500}, (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<G1)},
-			(astar_node_t){ E2, {1000, 1500}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
+			(astar_node_t){ E2, {1000, 1510}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
 
 			//Rangée [F]
 			(astar_node_t){ F1, {300,  1700}, (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)},
@@ -277,7 +277,7 @@
 			//Rangée [H]
 			(astar_node_t){ H1, {870,  2300}, (1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
 			(astar_node_t){ H2, {1370, 2370}, (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
-			(astar_node_t){ H3, {1700, 2250}, (1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
+			(astar_node_t){ H3, {1700, 2270}, (1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
 
 			//Rangée [I]
 			(astar_node_t){ I1, {600,  2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
@@ -296,7 +296,7 @@
 
 		//Rangée [A]
 		/*A1*/ (0ULL<<A2)|(0ULL<<A3)|(0ULL<<B1)|(0ULL<<B2)|(1ULL<<FROM_NODE),//On est en A1, les courbes sont autorisées lorsque l'on vient de A2 ou de B1
-		/*A2*/ (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)|(0ULL<<D3)|(1ULL<<FROM_NODE),
+		/*A2*/ (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)|(1ULL<<D3)|(1ULL<<FROM_NODE),
 		/*A3*/ (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)|(1ULL<<FROM_NODE),
 
 		//Rangée [B]
@@ -311,16 +311,16 @@
 		//Rangée [D]
 		/*D1*/ (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)|(1ULL<<F1)|(1ULL<<FROM_NODE),
 		/*D2*/ (1ULL<<B1)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D1)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F2)|(1ULL<<FROM_NODE),
-		/*D3*/ (0ULL<<A2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<FROM_NODE),
+		/*D3*/ (1ULL<<A2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<FROM_NODE),
 
 		//Rangée [E]
 		/*E1*/ (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<FROM_NODE),
-		/*E2*/ (1ULL<<C2)|(1ULL<<D2)|(0ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(0ULL<<F3)|(1ULL<<G2)|(1ULL<<FROM_NODE),
+		/*E2*/ (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)|(1ULL<<FROM_NODE),
 
 		//Rangée [F]
 		/*F1*/ (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<FROM_NODE),
 		/*F2*/ (1ULL<<D2)|(1ULL<<E1)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<FROM_NODE),
-		/*F3*/ (1ULL<<E2)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(0ULL<<I2)|(1ULL<<FROM_NODE),
+		/*F3*/ (1ULL<<E2)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<I2)|(1ULL<<FROM_NODE),
 
 		//Rangée [G]
 		/*G1*/ (1ULL<<E1)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<FROM_NODE),
@@ -334,7 +334,7 @@
 		//Rangée [I]
 		/*I1*/ (0ULL<<H1)|(0ULL<<H2)|(0ULL<<I2)|(0ULL<<I3)|(1ULL<<FROM_NODE),
 		/*I2*/ (0ULL<<F3)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I3)|(1ULL<<FROM_NODE),
-		/*I3*/ (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<FROM_NODE),
+		/*I3*/ (1ULL<<F3)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<FROM_NODE),
 
 		//Node de départ (On commence toujours au point de départ donc pas d'importance ici. Par contre, il faut autoriser les courbes en n'importe quel point lorsqu'on vient du point de départ)
 		0ULL,
@@ -402,14 +402,15 @@
 		// La zone central de depose module
 		GEOMETRY_point_t poly_depose_centre_zone[8] = {(GEOMETRY_point_t){1485 - (cos(PI4096/4)*OBSTACLE_MARGIN), COLOR_Y(885 - (cos(PI4096/4)*OBSTACLE_MARGIN))},
 												   (GEOMETRY_point_t){1385 - (cos(PI4096/4)*OBSTACLE_MARGIN), COLOR_Y(985 - (cos(PI4096/4)*OBSTACLE_MARGIN))},
-												   (GEOMETRY_point_t){1200 + OBSTACLE_MARGIN, COLOR_Y(1430)},
-												   (GEOMETRY_point_t){1200 + OBSTACLE_MARGIN, COLOR_Y(1575)},
+												   (GEOMETRY_point_t){1200 - OBSTACLE_MARGIN, COLOR_Y(1430)},
+												   (GEOMETRY_point_t){1200 - OBSTACLE_MARGIN, COLOR_Y(1575)},
 												   (GEOMETRY_point_t){1385 - cos(PI4096/4)*OBSTACLE_MARGIN, COLOR_Y(2015 + cos(PI4096/4)*OBSTACLE_MARGIN)},
 												   (GEOMETRY_point_t){1485 - cos(PI4096/4)*OBSTACLE_MARGIN, COLOR_Y(2115 + cos(PI4096/4)*OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){2000, COLOR_Y(1600 + OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){2000, COLOR_Y(1400 - OBSTACLE_MARGIN)}};
-		astar_node_id nodesIO_depose_centre_zone[4] = {COLOR_NODE(C2), COLOR_NODE(D3), COLOR_NODE(F3), COLOR_NODE(G2)};
-		ASTAR_define_polygon("adv_depose_centre_zone", poly_depose_centre_zone, 8, TRUE, nodesIO_depose_centre_zone, 4);
+												   (GEOMETRY_point_t){2000, COLOR_Y(1600)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(1400)}};
+
+		astar_node_id nodesIO_depose_centre_zone[6] = {COLOR_NODE(C2), COLOR_NODE(D3), COLOR_NODE(F3), COLOR_NODE(G2), COLOR_NODE(B2), COLOR_NODE(H2)};
+		ASTAR_define_polygon("depose_centre_zone", poly_depose_centre_zone, 8, TRUE, nodesIO_depose_centre_zone, 6);
 
 		// notre grand cratère de balle
 		GEOMETRY_point_t poly_our_cratere_zone[6] = {(GEOMETRY_point_t){1490 - OBSTACLE_MARGIN, COLOR_Y(0)},
@@ -434,44 +435,40 @@
 		ASTAR_define_polygon("adv_cartère", poly_adv_cratere_zone, 6, TRUE, nodesIO_adv_cratere_zone, 3);
 
 		// notre petit cratere proche
-		GEOMETRY_point_t poly_our_petit1_cratere_zone[6] = {(GEOMETRY_point_t){580 + OBSTACLE_MARGIN, COLOR_Y(560 - OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){480 - OBSTACLE_MARGIN, COLOR_Y(560 - OBSTACLE_MARGIN)},
+		GEOMETRY_point_t poly_our_petit1_cratere_zone[6] = {(GEOMETRY_point_t){675, COLOR_Y(385)},
+												   (GEOMETRY_point_t){385, COLOR_Y(385)},
 												   (GEOMETRY_point_t){436 - OBSTACLE_MARGIN, COLOR_Y(650)},
-												   (GEOMETRY_point_t){480 - OBSTACLE_MARGIN, COLOR_Y(740 + OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){580 + OBSTACLE_MARGIN, COLOR_Y(740 + OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){385, COLOR_Y(915)},
+												   (GEOMETRY_point_t){675, COLOR_Y(915)},
 												   (GEOMETRY_point_t){624 + OBSTACLE_MARGIN, COLOR_Y(650)}};
 		astar_node_id nodesIO_our_petit1_cratere_zone[4] = {COLOR_NODE(A1), COLOR_NODE(A2), COLOR_NODE(B1), COLOR_NODE(C1)};
 		ASTAR_define_polygon("our_petit1_cratere_zone", poly_our_petit1_cratere_zone, 6, TRUE, nodesIO_our_petit1_cratere_zone, 4);
 
 		// notre petit cratere loin
-		GEOMETRY_point_t poly_our_petit2_cratere_zone[6] = {(GEOMETRY_point_t){1820 - OBSTACLE_MARGIN, COLOR_Y(980 - OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){1776 - OBSTACLE_MARGIN, COLOR_Y(1070)},
-												   (GEOMETRY_point_t){1820 - OBSTACLE_MARGIN, COLOR_Y(1160 + OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){1920 + OBSTACLE_MARGIN, COLOR_Y(1160 + OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){1964 + OBSTACLE_MARGIN, COLOR_Y(1070)},
-												   (GEOMETRY_point_t){1920 + OBSTACLE_MARGIN, COLOR_Y(980 - OBSTACLE_MARGIN)}};
+		GEOMETRY_point_t poly_our_petit2_cratere_zone[3] = {(GEOMETRY_point_t){1345, COLOR_Y(745)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(745)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(1400)}};
+
 		astar_node_id nodesIO_our_petit2_cratere_zone[1] = {COLOR_NODE(B3)};
-		ASTAR_define_polygon("our_petit2_cratere_zone", poly_our_petit2_cratere_zone, 6, TRUE, nodesIO_our_petit2_cratere_zone, 1);
+		ASTAR_define_polygon("our_petit2_cratere_zone", poly_our_petit2_cratere_zone, 3, TRUE, nodesIO_our_petit2_cratere_zone, 1);
 
 		// petit cratere proche adverse
-		GEOMETRY_point_t poly_adv_petit1_cratere_zone[6] = {(GEOMETRY_point_t){580 + OBSTACLE_MARGIN, COLOR_Y(2440 + OBSTACLE_MARGIN)},
-													   (GEOMETRY_point_t){480 - OBSTACLE_MARGIN, COLOR_Y(2440 + OBSTACLE_MARGIN)},
+		GEOMETRY_point_t poly_adv_petit1_cratere_zone[6] = {(GEOMETRY_point_t){675, COLOR_Y(2615)},
+													   (GEOMETRY_point_t){385, COLOR_Y(2615)},
 													   (GEOMETRY_point_t){436 - OBSTACLE_MARGIN, COLOR_Y(2350)},
-													   (GEOMETRY_point_t){480 - OBSTACLE_MARGIN, COLOR_Y(2260 - OBSTACLE_MARGIN)},
-													   (GEOMETRY_point_t){580 + OBSTACLE_MARGIN, COLOR_Y(2260 - OBSTACLE_MARGIN)},
+													   (GEOMETRY_point_t){385, COLOR_Y(2085)},
+													   (GEOMETRY_point_t){675, COLOR_Y(2085)},
 													   (GEOMETRY_point_t){624 + OBSTACLE_MARGIN, COLOR_Y(2350)}};
 		astar_node_id nodesIO_adv_petit1_cratere_zone[4] = {COLOR_NODE(G1), COLOR_NODE(H1), COLOR_NODE(I1), COLOR_NODE(I2)};
 		ASTAR_define_polygon("adv_petit1_cratere_zone", poly_adv_petit1_cratere_zone, 6, TRUE, nodesIO_adv_petit1_cratere_zone, 4);
 
 		// petit cratere loin advserse
-		GEOMETRY_point_t poly_adv_petit2_cratere_zone[6] = {(GEOMETRY_point_t){1820 - OBSTACLE_MARGIN, COLOR_Y(2020 + OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){1776 - OBSTACLE_MARGIN, COLOR_Y(1930)},
-												   (GEOMETRY_point_t){1820 - OBSTACLE_MARGIN, COLOR_Y(1840 - OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){1920 + OBSTACLE_MARGIN, COLOR_Y(1840 - OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){1964 + OBSTACLE_MARGIN, COLOR_Y(1930)},
-												   (GEOMETRY_point_t){1920 + OBSTACLE_MARGIN, COLOR_Y(2020 + OBSTACLE_MARGIN)}};
+		GEOMETRY_point_t poly_adv_petit2_cratere_zone[3] = {(GEOMETRY_point_t){1345, COLOR_Y(2255)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(2255)},
+												   (GEOMETRY_point_t){2000, COLOR_Y(1600)}};
+
 		astar_node_id nodesIO_adv_petit2_cratere_zone[1] = {COLOR_NODE(H3)};
-		ASTAR_define_polygon("adv_petit2_cratere_zone", poly_adv_petit2_cratere_zone, 6, TRUE, nodesIO_adv_petit2_cratere_zone, 1);
+		ASTAR_define_polygon("adv_petit2_cratere_zone", poly_adv_petit2_cratere_zone, 3, TRUE, nodesIO_adv_petit2_cratere_zone, 1);
 
 
 
