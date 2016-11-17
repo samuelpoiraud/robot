@@ -90,7 +90,7 @@
 
 	//__attribute__((format (printf, 2, 3)))  permet au compilateur de verifier l'argument format avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
 	void OUTPUTLOG_printf(log_level_e level, const char * format, ...) __attribute__((format (printf, 2, 3)));
-	void OUTPUTLOG_printf_in_it(const char * format, ...) __attribute__((format (printf, 1, 2)));;
+	void OUTPUTLOG_printf_in_it(const char * format, ...) __attribute__((format (printf, 1, 2)));
 	void OUTPUTLOG_set_level(log_level_e level);
 	log_level_e OUTPUTLOG_get_level();
 
