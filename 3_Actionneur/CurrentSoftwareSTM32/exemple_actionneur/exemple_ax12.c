@@ -1,36 +1,35 @@
-/*  Club Robot ESEO 2015 - 2016
- *	BIG
+/*  Club Robot ESEO 2016 - 2017
  *
- *	Fichier : exemple.c
+ *	Fichier : exemple_ax12.c
  *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur exemple
+ *	Description : Gestion de l'actionneur AX12 EXEMPLE
  *  Auteur :
- *  Version 2016
+ *  Version 2017
  *  Robot : BIG
  */
 
-#include "exemple.h"
+#include "exemple_ax12.h"
 
 
 // Exemple d'un actionneur standart avec AX12
 
-// Ajout l'actionneur dans QS_CANmsgList.h
-// Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
-// Formatage : QUEUE_ACT_AX12_EXEMPLE
-// Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
-// Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
-// Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor du type : ACT_DECLARE(EXEMPLE)
-// Un define EXEMPLE_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
-// Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
-// Mise à jour de config/config_debug.h
+// 1) Ajout l'actionneur dans QS_CANmsgList.h (tout à la fin du fichier)
+// 2) Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
+//		Formatage : QUEUE_ACT_AX12_EXEMPLE
+// 3) Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
+// 4) Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
+// 5) Ajout du pilotage via terminal dans le fichier term_io.c dans le tableau terminal_motor du type : ACT_DECLARE(EXEMPLE)
+// 6) Un #define EXEMPLE_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h ou config_small/config_pin.h
+// 7) Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
+// 8) Mise à jour de config/config_debug.h : mettre LOG_PRINT_On
 
 // Optionnel:
 // Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
 // Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFTEST)
 
 // En stratégie
-// ajout d'une d'une valeur dans le tableau act_link_SID_Queue du fichier act_functions.c/h
-// ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
+// 1) ajout d'une d'une valeur dans le tableau act_link_SID_Queue du fichier act_functions.c/h
+// 2) ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
 
 // En stratégie Optionnel
 // ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
@@ -48,7 +47,7 @@
 #include "../selftest.h"
 #include "../ActManager.h"
 
-#include "exemple_config.h"
+#include "exemple_ax12_config.h"
 
 // Les différents define pour le verbose sur uart
 #define LOG_PREFIX "EXEMPLE.c : "
@@ -142,8 +141,8 @@ bool_e EXEMPLE_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_EXEMPLE_IDLE :
-			case ACT_EXEMPLE_OPEN :
-			case ACT_EXEMPLE_CLOSE :
+			case ACT_EXEMPLE_LOCK :
+			case ACT_EXEMPLE_UNLOCK :
 			case ACT_EXEMPLE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_EXEMPLE, &EXEMPLE_run_command, 0,TRUE);
 				break;
@@ -158,12 +157,7 @@ bool_e EXEMPLE_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
-		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-		/*SELFTEST_set_actions(&EXEMPLE_run_command, 3, (SELFTEST_action_t[]){
-								 {ACT_EXEMPLE_IDLE,		0,  QUEUE_ACT_AX12_EXEMPLE},
-								 {ACT_EXEMPLE_OPEN,       0,  QUEUE_ACT_AX12_EXEMPLE},
-								 {ACT_EXEMPLE_IDLE,		0,  QUEUE_ACT_AX12_EXEMPLE}
-							 });*/
+
 	}
 	return FALSE;
 }
@@ -194,8 +188,8 @@ static void EXEMPLE_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_EXEMPLE_IDLE : *ax12_goalPosition = EXEMPLE_AX12_IDLE_POS; break;
-		case ACT_EXEMPLE_CLOSE : *ax12_goalPosition = EXEMPLE_AX12_CLOSE_POS; break;
-		case ACT_EXEMPLE_OPEN : *ax12_goalPosition = EXEMPLE_AX12_OPEN_POS; break;
+		case ACT_EXEMPLE_LOCK : *ax12_goalPosition = EXEMPLE_AX12_LOCK_POS; break;
+		case ACT_EXEMPLE_UNLOCK : *ax12_goalPosition = EXEMPLE_AX12_UNLOCK_POS; break;
 
 		case ACT_EXEMPLE_STOP :
 			AX12_set_torque_enabled(EXEMPLE_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

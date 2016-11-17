@@ -1,13 +1,12 @@
-/*  Club Robot ESEO 2015 - 2016
- *	BIG
- *
- *	Fichier : fich_brush_back_config.h
- *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur RX24 EXEMPLE
- *  Auteur :
- *  Version 2016
- *  Robot : BIG
- */
+/*  Club Robot ESEO 2016 - 2017
+*
+*	Fichier : exemple_rx24_config.c
+*	Package : Carte actionneur
+*	Description : Gestion de l'actionneur RX24 EXEMPLE
+*	Auteur :
+*	Version 2017
+*	Robot : BIG
+*/
 
 #ifndef EXEMPLE_CONFIG_H
 #define	EXEMPLE_CONFIG_H
@@ -21,8 +20,8 @@
 
 //Position
 	#define EXEMPLE_RX24_IDLE_POS					512
-	#define EXEMPLE_RX24_CLOSE_POS			     	512	//en degré
-	#define EXEMPLE_RX24_OPEN_POS					512	//en degré
+	#define EXEMPLE_RX24_LOCK_POS			     	512	//en degré
+	#define EXEMPLE_RX24_UNLOCK_POS					512	//en degré
 
 //Position initiale de l'RX24
 	#define EXEMPLE_RX24_INIT_POS					EXEMPLE_RX24_IDLE_POS

@@ -1,13 +1,13 @@
-/*  Club Robot ESEO 2015 - 2016
- *	BIG
+/*  Club Robot ESEO 2016 - 2017
  *
- *	Fichier : exemple.h
+ *	Fichier : exemple_ax12.h
  *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur exemple
+ *	Description : Gestion de l'actionneur AX12 EXEMPLE
  *  Auteur :
- *  Version 2016
+ *  Version 2017
  *  Robot : BIG
  */
+
 
 #ifndef EXEMPLE_H
 	#define	EXEMPLE_H

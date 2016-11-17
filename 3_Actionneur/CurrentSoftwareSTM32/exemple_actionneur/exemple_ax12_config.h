@@ -1,13 +1,13 @@
-/*  Club Robot ESEO 2015 - 2016
- *	BIG
+/*  Club Robot ESEO 2016 - 2017
  *
- *	Fichier : exemple_config.h
+ *	Fichier : exemple_ax12_config.h
  *	Package : Carte actionneur
- *	Description : Gestion de l'actionneur exemple
+ *	Description : Gestion de l'actionneur AX12 EXEMPLE
  *  Auteur :
- *  Version 2016
+ *  Version 2017
  *  Robot : BIG
  */
+
 
 #ifndef EXEMPLE_CONFIG_H
 #define	EXEMPLE_CONFIG_H
@@ -21,8 +21,8 @@
 
 //Position
 	#define EXEMPLE_AX12_IDLE_POS					512
-	#define EXEMPLE_AX12_CLOSE_POS				    512		//en degré
-	#define EXEMPLE_AX12_OPEN_POS					512		//en degré
+	#define EXEMPLE_AX12_LOCK_POS				    512		//en degré
+	#define EXEMPLE_AX12_UNLOCK_POS					512		//en degré
 
 //Position initiale de l'AX12
 	#define EXEMPLE_AX12_INIT_POS					EXEMPLE_AX12_IDLE_POS
