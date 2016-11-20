@@ -26,7 +26,10 @@ typedef enum{
 	SLIDER,
 	IMAGE,
 	ANIMATED_IMAGE,
-	MULTI_TEXT
+	MULTI_TEXT,
+	RECTANGLE,
+	CIRCLE,
+	LINE
 }objectType_e;
 
 typedef struct{
@@ -51,14 +54,15 @@ typedef struct{
 			buttonStateTouch_e lastStateTouch;
 			Sint16 x;
 			Sint16 y;
-			Sint16 widthButton;
-			Sint16 heightButton;
-			Sint16 widthText;
-			Sint16 heightText;
+			Uint16 widthButton;
+			Uint16 heightButton;
+			Uint16 widthText;
+			Uint16 heightText;
 			char text[OBJECT_TEXT_MAX_SIZE];
 			Uint16 colorText;
 			Uint16 colorButton;
 			Uint16 colorTouch;
+			Uint32 colorBorder;
 			bool_e lockTouch;
 			bool_e *touch;
 		}buttonBase;
@@ -78,8 +82,8 @@ typedef struct{
 		struct{
 			Sint16 x;
 			Sint16 y;
-			Sint16 width;
-			Sint16 height;
+			Uint16 width;
+			Uint16 height;
 			objectOrientation_e orientation;
 			bool_e refreshBack;
 			Uint8 *value;
@@ -89,8 +93,8 @@ typedef struct{
 		struct{
 			Sint16 x;
 			Sint16 y;
-			Sint16 width;
-			Sint16 height;
+			Uint16 width;
+			Uint16 height;
 			Sint32 minValue;
 			Sint32 maxValue;
 			Sint32 *value;
@@ -113,6 +117,31 @@ typedef struct{
 			time32_t timeToRefresh;
 			const animatedImageInfo_s *animatedImageInfo;
 		}animatedImage;
+
+		struct{
+			Sint16 x;
+			Sint16 y;
+			Uint16 width;
+			Uint16 height;
+			Uint32 colorBorder;
+			Uint32 colorCenter;
+		}rectangle;
+
+		struct{
+			Sint16 x;
+			Sint16 y;
+			Uint16 r;
+			Uint32 colorBorder;
+			Uint32 colorCenter;
+		}circle;
+
+		struct{
+			Sint16 x0;
+			Sint16 y0;
+			Sint16 x1;
+			Sint16 y1;
+			Uint16 color;
+		}line;
 
 	}objectData;
 }object_s;
@@ -328,6 +357,29 @@ static void MIDDLEWARE_checkDestroyObject(){
 												background.color);
 					break;
 
+				case RECTANGLE:
+					ILI9341_drawFilledRectangle(objectTab[i].objectData.rectangle.x,
+																	objectTab[i].objectData.rectangle.y,
+																	objectTab[i].objectData.rectangle.x + objectTab[i].objectData.rectangle.width,
+																	objectTab[i].objectData.rectangle.y + objectTab[i].objectData.rectangle.height,
+																	background.color);
+					break;
+
+				case CIRCLE:
+					ILI9341_drawCircle(objectTab[i].objectData.circle.x,
+										objectTab[i].objectData.circle.y,
+										objectTab[i].objectData.circle.r,
+										background.color);
+					break;
+
+				case LINE:
+					ILI9341_drawLine(objectTab[i].objectData.line.x0,
+									objectTab[i].objectData.line.y0,
+									objectTab[i].objectData.line.x1,
+									objectTab[i].objectData.line.y1,
+									background.color);
+					break;
+
 				default:
 					break;
 			}
@@ -425,6 +477,16 @@ static void MIDDLEWARE_rebuildObject(){
 									objectTab[i].objectData.buttonBase.colorText,
 									ILI9341_TRANSPARENT,
 									"%s", objectTab[i].objectData.buttonBase.text);
+
+					if(objectTab[i].objectData.buttonBase.colorBorder != ILI9341_TRANSPARENT){
+						ILI9341_drawRectangle(objectTab[i].objectData.buttonBase.x,
+													objectTab[i].objectData.buttonBase.y,
+													objectTab[i].objectData.buttonBase.x + objectTab[i].objectData.buttonBase.widthButton,
+													objectTab[i].objectData.buttonBase.y + objectTab[i].objectData.buttonBase.heightButton,
+													objectTab[i].objectData.buttonBase.colorBorder
+													);
+					}
+
 					}break;
 
 				case BUTTON_IMG:{
@@ -546,7 +608,7 @@ static void MIDDLEWARE_rebuildObject(){
 				case ANIMATED_IMAGE:{
 					const animatedImageInfo_s *animatedImageInfo = objectTab[i].objectData.animatedImage.animatedImageInfo;
 					Uint8 actualFrame = objectTab[i].objectData.animatedImage.actualFrame;
-					Sint8 lastFrame = objectTab[i].objectData.animatedImage.lastFrame;
+					Uint8 lastFrame = objectTab[i].objectData.animatedImage.lastFrame;
 
 					if(lastFrame != 255){
 						ILI9341_putColorInvertedImage(objectTab[i].objectData.animatedImage.x,
@@ -586,6 +648,48 @@ static void MIDDLEWARE_rebuildObject(){
 					objectTab[i].objectData.animatedImage.timeToRefresh = global.absolute_time + objectTab[i].objectData.animatedImage.animatedImageInfo->speedFrame;
 
 					}break;
+
+				case RECTANGLE:
+					if(objectTab[i].objectData.rectangle.colorCenter != ILI9341_TRANSPARENT){
+						ILI9341_drawFilledRectangle(objectTab[i].objectData.rectangle.x,
+													objectTab[i].objectData.rectangle.y,
+													objectTab[i].objectData.rectangle.x + objectTab[i].objectData.rectangle.width,
+													objectTab[i].objectData.rectangle.y + objectTab[i].objectData.rectangle.height,
+													objectTab[i].objectData.rectangle.colorCenter);
+					}
+
+					if(objectTab[i].objectData.rectangle.colorBorder != ILI9341_TRANSPARENT){
+						ILI9341_drawRectangle(objectTab[i].objectData.rectangle.x,
+													objectTab[i].objectData.rectangle.y,
+													objectTab[i].objectData.rectangle.x + objectTab[i].objectData.rectangle.width,
+													objectTab[i].objectData.rectangle.y + objectTab[i].objectData.rectangle.height,
+													objectTab[i].objectData.rectangle.colorBorder);
+					}
+					break;
+
+				case CIRCLE:
+					if(objectTab[i].objectData.circle.colorCenter != ILI9341_TRANSPARENT){
+						ILI9341_drawFilledCircle(objectTab[i].objectData.circle.x,
+													objectTab[i].objectData.circle.y,
+													objectTab[i].objectData.circle.r,
+													objectTab[i].objectData.circle.colorCenter);
+					}
+
+					if(objectTab[i].objectData.circle.colorBorder != ILI9341_TRANSPARENT){
+						ILI9341_drawCircle(objectTab[i].objectData.circle.x,
+											objectTab[i].objectData.circle.y,
+											objectTab[i].objectData.circle.r,
+											objectTab[i].objectData.circle.colorBorder);
+					}
+					break;
+
+				case LINE:
+					ILI9341_drawLine(objectTab[i].objectData.line.x0,
+									objectTab[i].objectData.line.y0,
+									objectTab[i].objectData.line.x1,
+									objectTab[i].objectData.line.y1,
+									objectTab[i].objectData.line.color);
+					break;
 
 				default:
 					break;
@@ -653,7 +757,7 @@ void MIDDLEWARE_setText(objectId_t id, char * text){
 //---------------------Fonction Création------------------------//
 //////////////////////////////////////////////////////////////////
 
-objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, char * text, Uint16 colorText, Uint32 colorBackground){
+objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, Uint16 colorText, Uint32 colorBackground, const char *text, ...){
 	assert(text != NULL);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
@@ -673,7 +777,12 @@ objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, char * text, Uint16 colorText,
 	objectTab[idFound].objectData.text.y = y;
 	objectTab[idFound].objectData.text.colorText = colorText;
 	objectTab[idFound].objectData.text.colorBackground = colorBackground;
-	strncpy((char *)objectTab[idFound].objectData.text.text, text, OBJECT_TEXT_MAX_SIZE);
+
+	va_list args_list;
+	va_start(args_list, text);
+	vsnprintf((char *)objectTab[idFound].objectData.text.text, OBJECT_TEXT_MAX_SIZE, text, args_list);
+	va_end(args_list);
+
 	objectTab[idFound].use = TRUE;
 
 	return idFound;
@@ -711,7 +820,7 @@ objectId_t MIDDLEWARE_addButtonImg(Sint16 x, Sint16 y, const imageInfo_s *imageN
 	return idFound;
 }
 
-objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Sint16 width, Sint16 height, char * text, bool_e lockTouch, bool_e *touch, Uint16 colorText, Uint16 colorButton, Uint16 colorButtonTouch){
+objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height, char * text, bool_e lockTouch, bool_e *touch, Uint16 colorText, Uint16 colorButton, Uint16 colorButtonTouch, Uint32 colorBorder){
 	assert(touch != NULL);
 	assert(text != NULL);
 
@@ -740,6 +849,7 @@ objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Sint16 width, Sint16 height,
 	objectTab[idFound].objectData.buttonBase.colorText = colorText;
 	objectTab[idFound].objectData.buttonBase.colorButton = colorButton;
 	objectTab[idFound].objectData.buttonBase.colorTouch = colorButtonTouch;
+	objectTab[idFound].objectData.buttonBase.colorBorder = colorBorder;
 	objectTab[idFound].objectData.buttonBase.touch = touch;
 
 	Uint16 widthText, heightText;
@@ -763,7 +873,7 @@ objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Sint16 width, Sint16 height,
 	return idFound;
 }
 
-objectId_t MIDDLEWARE_addProgressBar(Sint16 x, Sint16 y, Sint16 width, Sint16 height, objectOrientation_e orientation, Uint8 *value){
+objectId_t MIDDLEWARE_addProgressBar(Sint16 x, Sint16 y, Uint16 width, Uint16 height, objectOrientation_e orientation, Uint8 *value){
 	assert(value != NULL);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
@@ -792,7 +902,7 @@ objectId_t MIDDLEWARE_addProgressBar(Sint16 x, Sint16 y, Sint16 width, Sint16 he
 	return idFound;
 }
 
-objectId_t MIDDLEWARE_addSlider(Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint32 minValue, Sint32 maxValue, objectOrientation_e orientation, Sint32 *value){
+objectId_t MIDDLEWARE_addSlider(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Sint32 minValue, Sint32 maxValue, objectOrientation_e orientation, Sint32 *value){
 	assert(value != NULL);
 	assert(minValue != maxValue);
 
@@ -840,7 +950,7 @@ objectId_t MIDDLEWARE_addImage(Sint16 x, Sint16 y, const imageInfo_s *image){
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
-	objectTab[idFound].type = ANIMATED_IMAGE;
+	objectTab[idFound].type = IMAGE;
 	objectTab[idFound].toDisplay = TRUE;
 	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.image.x = x;
@@ -873,6 +983,79 @@ objectId_t MIDDLEWARE_addAnimatedImage(Sint16 x, Sint16 y, const animatedImageIn
 	objectTab[idFound].objectData.animatedImage.actualFrame = 0;
 	objectTab[idFound].objectData.animatedImage.lastFrame = 255;
 	objectTab[idFound].objectData.animatedImage.timeToRefresh = 0;
+	objectTab[idFound].use = TRUE;
+
+	return idFound;
+}
+
+objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Uint32 colorBorder, Uint32 colorCenter){
+	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
+	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+		if(objectTab[i].use == FALSE){
+			idFound = i;
+		}
+	}
+
+	if(idFound == OBJECT_ID_ERROR_FULL)
+		return OBJECT_ID_ERROR_FULL;
+
+	objectTab[idFound].type = RECTANGLE;
+	objectTab[idFound].toDisplay = TRUE;
+	objectTab[idFound].toDestroy = FALSE;
+	objectTab[idFound].objectData.rectangle.x = x;
+	objectTab[idFound].objectData.rectangle.y = y;
+	objectTab[idFound].objectData.rectangle.width = width;
+	objectTab[idFound].objectData.rectangle.height = height;
+	objectTab[idFound].objectData.rectangle.colorBorder = colorBorder;
+	objectTab[idFound].objectData.rectangle.colorCenter = colorCenter;
+	objectTab[idFound].use = TRUE;
+
+	return idFound;
+}
+
+objectId_t MIDDLEWARE_addCircle(Sint16 x, Sint16 y, Uint16 r, Uint32 colorBorder, Uint32 colorCenter){
+	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
+	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+		if(objectTab[i].use == FALSE){
+			idFound = i;
+		}
+	}
+
+	if(idFound == OBJECT_ID_ERROR_FULL)
+		return OBJECT_ID_ERROR_FULL;
+
+	objectTab[idFound].type = CIRCLE;
+	objectTab[idFound].toDisplay = TRUE;
+	objectTab[idFound].toDestroy = FALSE;
+	objectTab[idFound].objectData.circle.x = x;
+	objectTab[idFound].objectData.circle.y = y;
+	objectTab[idFound].objectData.circle.r = r;
+	objectTab[idFound].objectData.circle.colorBorder = colorBorder;
+	objectTab[idFound].objectData.circle.colorCenter = colorCenter;
+	objectTab[idFound].use = TRUE;
+
+	return idFound;
+}
+
+objectId_t MIDDLEWARE_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, Uint16 color){
+	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
+	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+		if(objectTab[i].use == FALSE){
+			idFound = i;
+		}
+	}
+
+	if(idFound == OBJECT_ID_ERROR_FULL)
+		return OBJECT_ID_ERROR_FULL;
+
+	objectTab[idFound].type = LINE;
+	objectTab[idFound].toDisplay = TRUE;
+	objectTab[idFound].toDestroy = FALSE;
+	objectTab[idFound].objectData.line.x0 = x0;
+	objectTab[idFound].objectData.line.y0 = y0;
+	objectTab[idFound].objectData.line.x1 = x1;
+	objectTab[idFound].objectData.line.y1 = y1;
+	objectTab[idFound].objectData.line.color = color;
 	objectTab[idFound].use = TRUE;
 
 	return idFound;
