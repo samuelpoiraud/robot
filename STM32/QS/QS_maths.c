@@ -49,7 +49,7 @@ Sint16 atan4096(double tangent)
 
 Sint16 atan2_4096(double y, double x)
 {
-	return (Sint16)(2*atan(y/((x+sqrt(x*x+y*y))*1.0))*4096);
+	return (Sint16)(2*atan(y/(((x+sqrt(x*x+y*y))*1.0)))*4096);
 }
 
 Sint64 puissance(Sint64 value, Uint8 nb){
@@ -369,7 +369,7 @@ bool_e is_in_polygon(GEOMETRY_point_t polygon[], Uint8 nb_summits, GEOMETRY_poin
 	GEOMETRY_segment_t seg2 = {polygon[nb_summits-1], polygon[0]};
 	nbIntersections += GEOMETRY_segments_intersects(seg1, seg2);
 
-	if(*stock_intersections)
+	if(stock_intersections != NULL)
 		*stock_intersections = nbIntersections;
 
 	//Le point est à l'intérieur du polygone si le nombre d'intersections avec chacun des côté du polygone est un nombre impair.

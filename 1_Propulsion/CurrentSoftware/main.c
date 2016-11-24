@@ -136,6 +136,7 @@ void initialisation(void)
 
 	#ifdef SCAN
 		SCAN_init();
+		OBJECTS_SCAN_init();
 	#endif
 
 	#ifdef USE_GYROSCOPE
