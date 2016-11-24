@@ -8,7 +8,7 @@
 *	Robot : BIG
 */
 
-#include "exemple.h"
+#include "exemple_rx24.h"
 
 
 // Exemple d'un actionneur standart avec RX24
@@ -46,7 +46,7 @@
 #include "../selftest.h"
 #include "../ActManager.h"
 
-#include "exemple_config.h"
+#include "exemple_rx24_config.h"
 
 // Les différents define pour le verbose sur uart
 #define LOG_PREFIX "exemple.c : "

@@ -1,4 +1,5 @@
 #include "scan.h"
+#include "objects_scan.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_adc.h"
 
@@ -21,6 +22,8 @@ static volatile scan_data_t laser_left[2*NB_SCAN_DATA];
 static volatile scan_data_t laser_right[2*NB_SCAN_DATA];
 static volatile Uint16 index = 0;
 static volatile bool_e flag_1, flag_2, flag_treatment_too_slow;
+static scan_data_t tab_treatment[NB_SCAN_DATA];
+
 
 
 void SCAN_init(){
@@ -41,29 +44,30 @@ void SCAN_init(){
 static void SCAN_get_data_left(){
 	GEOMETRY_point_t pos_mesure, pos_laser;
 	bool_e enable;
-	Sint16 value;
+	Sint16 valueADC, value;
 	position_t robot;
 	Sint16 cosinus = 0, sinus = 0;
 
-	value = CONVERSION_LASER_LEFT(ADC_getValue(ADC_SENSOR_LASER_LEFT));
+	valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
+	value = CONVERSION_LASER_LEFT(valueADC);
 	robot = global.position; // On récupère la position du robot tout de suite
 	robot.teta = GEOMETRY_modulo_angle(robot.teta);
 	COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
 
 	// On regarde si il y a des saturations
 	enable = TRUE;
-	if(value < SATURATION_LOW || value > SATURATION_HIGH){
+	if(valueADC < SATURATION_LOW || valueADC > SATURATION_HIGH){
 		enable = FALSE;
 	}
 
 	laser_left[index].enable = enable;
 
 	// On calcule et on stocke la valeur même si le capteur entre en saturation
-	pos_mesure.x = robot.x + OFFSET_LENGTH_LASER_LEFT*cosinus + (OFFSET_WIDTH_LASER_LEFT - value)*sinus;
-	pos_mesure.y = robot.y + OFFSET_LENGTH_LASER_LEFT*sinus - (OFFSET_WIDTH_LASER_LEFT - value)*cosinus;
+	pos_mesure.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus + (OFFSET_WIDTH_LASER_LEFT - value)*sinus)/4096.0;
+	pos_mesure.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus - (OFFSET_WIDTH_LASER_LEFT - value)*cosinus)/4096.0;
 	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
-	pos_laser.x = robot.x + OFFSET_LENGTH_LASER_LEFT*cosinus + OFFSET_WIDTH_LASER_LEFT*sinus;
-	pos_laser.y = robot.y + OFFSET_LENGTH_LASER_LEFT*sinus - OFFSET_WIDTH_LASER_LEFT*cosinus;
+	pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus + OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
+	pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus - OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
 
 	// On stocke les valeurs
 	laser_left[index].pos_mesure = pos_mesure;
@@ -73,29 +77,30 @@ static void SCAN_get_data_left(){
 static void SCAN_get_data_right(){
 	GEOMETRY_point_t pos_mesure, pos_laser;
 	bool_e enable;
-	Sint16 value;
+	Sint16 valueADC, value;
 	position_t robot;
 	Sint16 cosinus = 0, sinus = 0;
 
-	value = CONVERSION_LASER_RIGHT(ADC_getValue(ADC_SENSOR_LASER_RIGHT));
+	valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
+	value = CONVERSION_LASER_RIGHT(valueADC);
 	robot = global.position; // On récupère la position du robot tout de suite
 	robot.teta = GEOMETRY_modulo_angle(robot.teta);
 	COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
 
 	// On regarde si il y a des saturations
 	enable = TRUE;
-	if(value < SATURATION_LOW || value > SATURATION_HIGH){
+	if(valueADC < SATURATION_LOW || valueADC > SATURATION_HIGH){
 		enable = FALSE;
 	}
 
 	laser_right[index].enable = enable;
 
 	// On calcule et on stocke la valeur même si le capteur entre en saturation
-	pos_mesure.x = (Sint16) (robot.x + OFFSET_LENGTH_LASER_RIGHT*cosinus + (OFFSET_WIDTH_LASER_RIGHT + value)*sinus);
-	pos_mesure.y = (Sint16) (robot.y + OFFSET_LENGTH_LASER_RIGHT*sinus - (OFFSET_WIDTH_LASER_RIGHT + value)*cosinus);
+	pos_mesure.x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + (OFFSET_WIDTH_LASER_RIGHT + value)*sinus))/4096.0;
+	pos_mesure.y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - (OFFSET_WIDTH_LASER_RIGHT + value)*cosinus))/4096.0;
 	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
-	pos_laser.x = (Sint16) (robot.x + OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus);
-	pos_laser.y = (Sint16) (robot.y + OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus);
+	pos_laser.x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus))/4096.0;
+	pos_laser.y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus))/4096.0;
 
 	// On stocke les valeurs
 	laser_right[index].pos_mesure = pos_mesure;
@@ -139,10 +144,14 @@ void SCAN_process_main(){
 			tab_treatment_right[i].pos_mesure = laser_right[i].pos_mesure;
 			tab_treatment_right[i].pos_laser = laser_right[i].pos_laser;
 			tab_treatment_right[i].enable = laser_right[i].enable;
-			debug_printf("i1=%d\n", i);
+			//debug_printf("i1=%d\n", i);
 			//debug_printf("i1=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
 		}
 		flag_1 = FALSE;
+
+		// Appel de fonctions de scan objets
+		OBJECTS_SCAN_treatment(tab_treatment_left);
+		OBJECTS_SCAN_treatment(tab_treatment_right);
 	}
 
 	// Copie de la seconde partie du tableau pendant que la première partie est en train de se remplir
@@ -155,10 +164,14 @@ void SCAN_process_main(){
 			tab_treatment_right[i].pos_mesure = laser_right[NB_SCAN_DATA + i].pos_mesure;
 			tab_treatment_right[i].pos_laser = laser_right[NB_SCAN_DATA + i].pos_laser;
 			tab_treatment_right[i].enable = laser_right[NB_SCAN_DATA + i].enable;
-			debug_printf("i2=%d\n", i);
+			//debug_printf("i2=%d\n", i);
 			//debug_printf("i2=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
 		}
 		flag_2 = FALSE;
+
+		// Appel des fonctions de scans objets
+		OBJECTS_SCAN_treatment(tab_treatment_left);
+		OBJECTS_SCAN_treatment(tab_treatment_right);
 	}
 
 }
