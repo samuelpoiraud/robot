@@ -92,7 +92,7 @@
 		#define BIG_TOP_COLOR_CALIBRATION_Y  		(3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)
 		#define BIG_TOP_COLOR_CALIBRATION_TETA 		(PI4096/2)
 
-
+/*********************************** POSITIONS INITIALES 2016 ******************************
 //SMALL  Position initiale
 		// BOT_COLOR
 		#define SMALL_BOT_COLOR_START_X  		((1100 - SMALL_ROBOT_WIDTH/2)*65536) 	// Calé au bord de la serviette, coté cabine de plage
@@ -118,6 +118,30 @@
 		#define BIG_TOP_COLOR_START_Y			((3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)  //calé contre la bordure
 		#define BIG_TOP_COLOR_START_TETA		(4216574282LL)			//-PI/2  (il part en marche avant...)
 // Attention écrit directement dans le module ODOMETRIE CAR PB COMPILO
+*/
+
+//*********************************** POSITIONS INITIALES 2017 ******************************
+//SMALL  Position initiale
+		// BOT_COLOR
+		#define SMALL_BOT_COLOR_START_X  		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define SMALL_BOT_COLOR_START_Y			((1070 - SMALL_ROBOT_WIDTH/2)*65536)
+		#define SMALL_BOT_COLOR_START_TETA 		(0LL)			// 0  (il part en marche avant...)
+
+		// TOP_COLOR
+		#define SMALL_TOP_COLOR_START_X 		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define SMALL_TOP_COLOR_START_Y 		((1930 + SMALL_ROBOT_WIDTH/2)*65536)
+		#define SMALL_TOP_COLOR_START_TETA 		(0LL)			// 0  (il part en marche avant...)
+
+	//BIG
+		// BOT_COLOR
+		#define BIG_BOT_COLOR_START_X			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define BIG_BOT_COLOR_START_Y			((1070 - BIG_ROBOT_WIDTH/2)*65536)
+		#define BIG_BOT_COLOR_START_TETA		(0LL)			// 0  (il part en marche avant...)
+
+		// TOP_COLOR
+		#define BIG_TOP_COLOR_START_X			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define BIG_TOP_COLOR_START_Y			((1930 + BIG_ROBOT_WIDTH/2)*65536)
+		#define BIG_TOP_COLOR_START_TETA		(0LL)			// 0  (il part en marche avant...)
 
 
 

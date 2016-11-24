@@ -121,13 +121,13 @@ void ODOMETRY_set_color(color_e new_color)
 		{
 			x64	= (Sint64)SMALL_TOP_COLOR_START_X << 14;			//[mm.65536.16384]		(<<30)
 			y64	= (Sint64)SMALL_TOP_COLOR_START_Y << 14;			//[mm.65536.16384]		(<<30)
-			teta64 = PI_28/2;										//[rad.4096.1024.64]	(<<28)
+			teta64 = SMALL_TOP_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
 		}
 		else
 		{
 			x64	= (Sint64)SMALL_BOT_COLOR_START_X << 14;			//[mm.65536.16384]		(<<30)
 			y64	= (Sint64)SMALL_BOT_COLOR_START_Y << 14;			//[mm.65536.16384]		(<<30)
-			teta64 = -PI_28/2;										//[rad.4096.1024.64]	(<<28)
+			teta64 = SMALL_BOT_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
 		}
 	}
 	else
@@ -137,13 +137,13 @@ void ODOMETRY_set_color(color_e new_color)
 		{
 			x64	= (Sint64)BIG_TOP_COLOR_START_X << 14;				//[mm.65536.16384]		(<<30)
 			y64	= (Sint64)BIG_TOP_COLOR_START_Y << 14;				//[mm.65536.16384]		(<<30)
-			teta64 = PI_28/2;										//[rad.4096.1024.64]	(<<28)
+			teta64 = BIG_TOP_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
 		}
 		else
 		{
 			x64	= (Sint64)BIG_BOT_COLOR_START_X << 14;				//[mm.6553.163846]		(<<30)
 			y64	= (Sint64)BIG_BOT_COLOR_START_Y << 14;				//[mm.65536.16384]		(<<30)
-			teta64 = -PI_28/2;										//[rad.4096.1024.64]	(<<28)
+			teta64 = BIG_BOT_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
 		}
 	}
 
