@@ -125,23 +125,23 @@
 		// BOT_COLOR
 		#define SMALL_BOT_COLOR_START_X  		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define SMALL_BOT_COLOR_START_Y			((1070 - SMALL_ROBOT_WIDTH/2)*65536)
-		#define SMALL_BOT_COLOR_START_TETA 		(0LL)			// 0  (il part en marche avant...)
+		#define SMALL_BOT_COLOR_START_TETA 		(843314856LL)			// PI_28  (il part en marche arriere...)
 
 		// TOP_COLOR
 		#define SMALL_TOP_COLOR_START_X 		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define SMALL_TOP_COLOR_START_Y 		((1930 + SMALL_ROBOT_WIDTH/2)*65536)
-		#define SMALL_TOP_COLOR_START_TETA 		(0LL)			// 0  (il part en marche avant...)
+		#define SMALL_TOP_COLOR_START_TETA 		(843314856LL)			// PI_28  (il part en marche arriere...)
 
 	//BIG
 		// BOT_COLOR
 		#define BIG_BOT_COLOR_START_X			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define BIG_BOT_COLOR_START_Y			((1070 - BIG_ROBOT_WIDTH/2)*65536)
-		#define BIG_BOT_COLOR_START_TETA		(0LL)			// 0  (il part en marche avant...)
+		#define BIG_BOT_COLOR_START_TETA		(843314856LL)			// PI_28  (il part en marche arriere...)
 
 		// TOP_COLOR
 		#define BIG_TOP_COLOR_START_X			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define BIG_TOP_COLOR_START_Y			((1930 + BIG_ROBOT_WIDTH/2)*65536)
-		#define BIG_TOP_COLOR_START_TETA		(0LL)			// 0  (il part en marche avant...)
+		#define BIG_TOP_COLOR_START_TETA		(843314856LL)			// PI_28  (il part en marche arriere...)
 
 
 
@@ -212,7 +212,7 @@
 
 
 
-	#define BIG_ACCELERATION_NORMAL						80		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
+	#define BIG_ACCELERATION_NORMAL						112		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
 	#define BIG_ACCELERATION_MAX						500		//[mm.4096/5ms/5ms]
 	#define BIG_ACCELERATION_AVOIDANCE					160		//[mm.4096/5ms/5ms]
 	#define BIG_ACCELERATION_AVOIDANCE_RUSH				256		//[mm.4096/5ms/5ms]
