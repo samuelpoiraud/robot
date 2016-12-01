@@ -505,6 +505,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			}
 
 			IHM_process_main(msg);
+			ODOMETRY_update_pos_according_to_ihm(msg);
 			break;
 
 		case PROP_TRANSPARENCY:

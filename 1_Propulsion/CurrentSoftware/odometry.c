@@ -23,6 +23,7 @@
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_timer.h"
+#include "QS/QS_IHM.h"
 
 volatile static Sint32 coefs[ODOMETRY_COEF_CENTRIFUGAL+1];
 static Sint32 total_teta = 0;								//[rad.1024.4096]
@@ -107,43 +108,74 @@ Sint32 ODOMETRY_get_coef(PROPULSION_coef_e coef)
 		return 0;
 }
 
-void ODOMETRY_set_color(color_e new_color)
+void ODOMETRY_set_init_pos()
 {
-	color = new_color;
-
 	TIMER5_disableInt();
 	TIMER2_disableInt();
 
 	if(QS_WHO_AM_I_get()==SMALL_ROBOT)
 	{
-		//SMALL
-		if (new_color == TOP_COLOR)
-		{
-			x64	= (Sint64)SMALL_TOP_COLOR_START_X << 14;			//[mm.65536.16384]		(<<30)
-			y64	= (Sint64)SMALL_TOP_COLOR_START_Y << 14;			//[mm.65536.16384]		(<<30)
-			teta64 = SMALL_TOP_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
-		}
-		else
-		{
-			x64	= (Sint64)SMALL_BOT_COLOR_START_X << 14;			//[mm.65536.16384]		(<<30)
-			y64	= (Sint64)SMALL_BOT_COLOR_START_Y << 14;			//[mm.65536.16384]		(<<30)
-			teta64 = SMALL_BOT_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
+		if(IHM_switchs_get(SWITCH_WITH_BASCULE)){
+			// BIG CALIBRATION AVEC BASCULE
+			if (color == TOP_COLOR)
+			{
+				x64	= (Sint64)SMALL_TOP_COLOR_START_BASCULE_X << 14;			//[mm.65536.16384]		(<<30)
+				y64	= (Sint64)SMALL_TOP_COLOR_START_BASCULE_Y << 14;			//[mm.65536.16384]		(<<30)
+				teta64 = SMALL_TOP_COLOR_START_BASCULE_TETA;										//[rad.4096.1024.64]	(<<28)
+			}
+			else
+			{
+				x64	= (Sint64)SMALL_BOT_COLOR_START_BASCULE_X << 14;			//[mm.65536.16384]		(<<30)
+				y64	= (Sint64)SMALL_BOT_COLOR_START_BASCULE_Y << 14;			//[mm.65536.16384]		(<<30)
+				teta64 = SMALL_BOT_COLOR_START_BASCULE_TETA;										//[rad.4096.1024.64]	(<<28)
+			}
+		}else{
+			// SMALL CALIBRATION SANS BASCULE
+			if (color == TOP_COLOR)
+			{
+				x64	= (Sint64)SMALL_TOP_COLOR_START_X << 14;			//[mm.65536.16384]		(<<30)
+				y64	= (Sint64)SMALL_TOP_COLOR_START_Y << 14;			//[mm.65536.16384]		(<<30)
+				teta64 = SMALL_TOP_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
+			}
+			else
+			{
+				x64	= (Sint64)SMALL_BOT_COLOR_START_X << 14;			//[mm.65536.16384]		(<<30)
+				y64	= (Sint64)SMALL_BOT_COLOR_START_Y << 14;			//[mm.65536.16384]		(<<30)
+				teta64 = SMALL_BOT_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
+			}
 		}
 	}
 	else
 	{
-		//BIG
-		if (new_color == TOP_COLOR)
-		{
-			x64	= (Sint64)BIG_TOP_COLOR_START_X << 14;				//[mm.65536.16384]		(<<30)
-			y64	= (Sint64)BIG_TOP_COLOR_START_Y << 14;				//[mm.65536.16384]		(<<30)
-			teta64 = BIG_TOP_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
-		}
-		else
-		{
-			x64	= (Sint64)BIG_BOT_COLOR_START_X << 14;				//[mm.6553.163846]		(<<30)
-			y64	= (Sint64)BIG_BOT_COLOR_START_Y << 14;				//[mm.65536.16384]		(<<30)
-			teta64 = BIG_BOT_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
+
+		if(IHM_switchs_get(SWITCH_WITH_BASCULE)){
+			// BIG CALIBRATION AVEC BASCULE
+			if (color == TOP_COLOR)
+			{
+				x64	= (Sint64)BIG_TOP_COLOR_START_BASCULE_X << 14;				//[mm.65536.16384]		(<<30)
+				y64	= (Sint64)BIG_TOP_COLOR_START_BASCULE_Y << 14;				//[mm.65536.16384]		(<<30)
+				teta64 = BIG_TOP_COLOR_START_BASCULE_TETA;										//[rad.4096.1024.64]	(<<28)
+			}
+			else
+			{
+				x64	= (Sint64)BIG_BOT_COLOR_START_BASCULE_X << 14;				//[mm.6553.163846]		(<<30)
+				y64	= (Sint64)BIG_BOT_COLOR_START_BASCULE_Y << 14;				//[mm.65536.16384]		(<<30)
+				teta64 = BIG_BOT_COLOR_START_BASCULE_TETA;										//[rad.4096.1024.64]	(<<28)
+			}
+		}else{
+			// BIG CALIBRATION SANS BASCULE
+			if (color == TOP_COLOR)
+			{
+				x64	= (Sint64)BIG_TOP_COLOR_START_X << 14;				//[mm.65536.16384]		(<<30)
+				y64	= (Sint64)BIG_TOP_COLOR_START_Y << 14;				//[mm.65536.16384]		(<<30)
+				teta64 = BIG_TOP_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
+			}
+			else
+			{
+				x64	= (Sint64)BIG_BOT_COLOR_START_X << 14;				//[mm.6553.163846]		(<<30)
+				y64	= (Sint64)BIG_BOT_COLOR_START_Y << 14;				//[mm.65536.16384]		(<<30)
+				teta64 = BIG_BOT_COLOR_START_TETA;										//[rad.4096.1024.64]	(<<28)
+			}
 		}
 	}
 
@@ -157,6 +189,12 @@ void ODOMETRY_set_color(color_e new_color)
 
 	TIMER5_enableInt();
 	TIMER2_enableInt();
+}
+
+void ODOMETRY_set_color(color_e new_color)
+{
+	color = new_color;
+	ODOMETRY_set_init_pos();
 }
 
 color_e ODOMETRY_get_color(void)
@@ -504,4 +542,19 @@ void ODOMETRY_referential_reset(void){
 
 
 	TIMER5_enableInt();
+}
+
+void ODOMETRY_update_pos_according_to_ihm(CAN_msg_t *msg){
+	if(msg->sid == IHM_SWITCH && msg->data.ihm_switch.switchs[0].id == SWITCH_WITH_BASCULE){
+		Uint8 i;
+		for(i=0; i<8; i++){
+			if(msg->data.ihm_switch.switchs[i].id == SWITCH_WITH_BASCULE){
+				ODOMETRY_set_init_pos(); //Reset la position initiale si le switch bascule change de position
+			}
+		}
+	}
+
+	if(msg->sid == IHM_SWITCH_ALL){
+		ODOMETRY_set_init_pos(); //Reset la position initiale si le switch bascule change de position
+	}
 }
