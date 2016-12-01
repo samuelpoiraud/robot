@@ -160,12 +160,12 @@ static void XPT2046_convertCoordinateScreenMode(Sint16 * pX, Sint16 * pY){
 		*pY = (4096 - tempY) * screenOption.height / 4096;
 		break;
 
-	case ILI9341_Orientation_Landscape_1 :
+	case ILI9341_Orientation_Landscape_2 :
 		*pX = tempY * screenOption.width / 4096;
 		*pY = tempX * screenOption.height / 4096;
 		break;
 
-	case ILI9341_Orientation_Landscape_2 :
+	case ILI9341_Orientation_Landscape_1 :
 		*pX = (4096 - tempY) * screenOption.width / 4096;
 		*pY = (4096 - tempX) * screenOption.height / 4096;
 		break;
