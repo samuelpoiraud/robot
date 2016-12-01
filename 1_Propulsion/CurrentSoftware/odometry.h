@@ -42,6 +42,9 @@
 	//Par exemple pour les tests de trajectoires rectangles sans se prendre la tete !
 	void ODOMETRY_set(Sint16 x, Sint16 y, Sint16 teta);
 
+	// Reset la position à la position initiale
+	void ODOMETRY_set_init_pos();
+
 	//set la position de départ selon la couleur demandée
 	void ODOMETRY_set_color(color_e color);
 
@@ -50,5 +53,8 @@
 	void ODOMETRY_correct_with_border(way_e way);
 
 	void ODOMETRY_referential_reset(void);
+
+	// Update position according to IHM change (Utilisé en 2017 pour la bascule)
+	void ODOMETRY_update_pos_according_to_ihm(CAN_msg_t *msg);
 
 #endif //def _ODOMETRY_H

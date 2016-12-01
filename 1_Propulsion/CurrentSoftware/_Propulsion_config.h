@@ -69,17 +69,26 @@
 	#define FIELD_SIZE_X 2000	//[mm]
 
 
-// POSITION 2016
-	//SMALL Position calibration
+//*********************************** POSITIONS CALIBRATIONS 2017 ******************************
+	//SMALL
 		//BOT_COLOR
 		#define SMALL_BOT_COLOR_CALIBRATION_X  		1005
 		#define SMALL_BOT_COLOR_CALIBRATION_Y  		SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE //10mm de marge avec le bord de la serviette
 		#define SMALL_BOT_COLOR_CALIBRATION_TETA	(-PI4096/2)
 
+		#define SMALL_BOT_COLOR_CALIBRATION_BASCULE_X			((180)*65536)
+		#define SMALL_BOT_COLOR_CALIBRATION_BASCULE_Y			((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define SMALL_BOT_COLOR_CALIBRATION_BASCULE_TETA 		(PI_28/2)			// PI_28  (il part en marche arriere...)
+
 		//TOP_COLOR
 		#define SMALL_TOP_COLOR_CALIBRATION_X  		1005
 		#define SMALL_TOP_COLOR_CALIBRATION_Y  		(3000 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE) //10mm de marge avec le bord de la serviette
 		#define SMALL_TOP_COLOR_CALIBRATION_TETA	(PI4096/2)
+
+		#define SMALL_TOP_COLOR_CALIBRATION_BASCULE_X 		((180)*65536)
+		#define SMALL_TOP_COLOR_CALIBRATION_BASCULE_Y 		((3000 - SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define SMALL_TOP_COLOR_CALIBRATION_BASCULE_TETA 	(-PI_28/2)			// PI_28  (il part en marche arriere...)
+
 
 	//BIG
 		//BOT_COLOR
@@ -87,61 +96,63 @@
 		#define BIG_BOT_COLOR_CALIBRATION_Y  		BIG_CALIBRATION_FORWARD_BORDER_DISTANCE
 		#define BIG_BOT_COLOR_CALIBRATION_TETA		(-PI4096/2)
 
+		#define BIG_BOT_COLOR_CALIBRATION_BASCULE_X			((180)*65536)
+		#define BIG_BOT_COLOR_CALIBRATION_BASCULE_Y			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define BIG_BOT_COLOR_CALIBRATION_BASCULE_TETA		(PI_28/2)			// PI_28  (il part en marche arriere...)
+
+
 		//TOP_COLOR
 		#define BIG_TOP_COLOR_CALIBRATION_X  		750
 		#define BIG_TOP_COLOR_CALIBRATION_Y  		(3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)
 		#define BIG_TOP_COLOR_CALIBRATION_TETA 		(PI4096/2)
 
-/*********************************** POSITIONS INITIALES 2016 ******************************
-//SMALL  Position initiale
-		// BOT_COLOR
-		#define SMALL_BOT_COLOR_START_X  		((1100 - SMALL_ROBOT_WIDTH/2)*65536) 	// Calé au bord de la serviette, coté cabine de plage
-		#define SMALL_BOT_COLOR_START_Y  		(SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE*65536)
-		#define SMALL_BOT_COLOR_START_TETA 		(-421657428LL)			//-PI/2  (il part en marche arrière...)
-// Attention écrit directement dans le module ODOMETRIE CAR PB COMPILO
+		#define BIG_TOP_COLOR_CALIBRATION_BASCULE_X			((180)*65536)
+		#define BIG_TOP_COLOR_CALIBRATION_BASCULE_Y			((3000 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define BIG_TOP_COLOR_CALIBRATION_BASCULE_TETA		(-PI_28/2)			// PI_28  (il part en marche arriere...)
 
-		// TOP_COLOR
-		#define SMALL_TOP_COLOR_START_X 		((1100 - SMALL_ROBOT_WIDTH/2)*65536)   // Calé au bord de la serviette, coté cabine de plage
-		#define SMALL_TOP_COLOR_START_Y 		((3000 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
-		#define SMALL_TOP_COLOR_START_TETA 		(421657428LL)				//PI/2  (il part en marche arrière...)
-// Attention écrit directement dans le module ODOMETRIE CAR PB COMPILO
 
-	//BIG
-		// BOT_COLOR
-		#define BIG_BOT_COLOR_START_X			((610 + BIG_ROBOT_WIDTH/2)*65536)	   // Calé au bord de la serviette, coté mer
-		#define BIG_BOT_COLOR_START_Y			((BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)  //calé contre la bordure
-		#define BIG_BOT_COLOR_START_TETA		(-421657428LL)				//PI/2  (il part en marche avant...)
-// Attention écrit directement dans le module ODOMETRIE CAR PB COMPILO
-
-		// TOP_COLOR
-		#define BIG_TOP_COLOR_START_X			((610 + BIG_ROBOT_WIDTH/2)*65536)	  // Calé au bord de la serviette, coté mer
-		#define BIG_TOP_COLOR_START_Y			((3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)  //calé contre la bordure
-		#define BIG_TOP_COLOR_START_TETA		(4216574282LL)			//-PI/2  (il part en marche avant...)
-// Attention écrit directement dans le module ODOMETRIE CAR PB COMPILO
-*/
 
 //*********************************** POSITIONS INITIALES 2017 ******************************
 //SMALL  Position initiale
 		// BOT_COLOR
 		#define SMALL_BOT_COLOR_START_X  		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define SMALL_BOT_COLOR_START_Y			((1070 - SMALL_ROBOT_WIDTH/2)*65536)
-		#define SMALL_BOT_COLOR_START_TETA 		(843314856LL)			// PI_28  (il part en marche arriere...)
+		#define SMALL_BOT_COLOR_START_TETA 		(PI_28)			// PI_28  (il part en marche arriere...)
+
+		#define SMALL_BOT_COLOR_START_BASCULE_X  		((180)*65536)
+		#define SMALL_BOT_COLOR_START_BASCULE_Y			((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define SMALL_BOT_COLOR_START_BASCULE_TETA 		(PI_28/2)			// PI_28  (il part en marche arriere...)
 
 		// TOP_COLOR
 		#define SMALL_TOP_COLOR_START_X 		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define SMALL_TOP_COLOR_START_Y 		((1930 + SMALL_ROBOT_WIDTH/2)*65536)
-		#define SMALL_TOP_COLOR_START_TETA 		(843314856LL)			// PI_28  (il part en marche arriere...)
+		#define SMALL_TOP_COLOR_START_TETA 		(PI_28)			// PI_28  (il part en marche arriere...)
+
+		#define SMALL_TOP_COLOR_START_BASCULE_X 		((180)*65536)
+		#define SMALL_TOP_COLOR_START_BASCULE_Y 		((3000 - SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define SMALL_TOP_COLOR_START_BASCULE_TETA 		(-PI_28/2)			// PI_28  (il part en marche arriere...)
+
 
 	//BIG
 		// BOT_COLOR
 		#define BIG_BOT_COLOR_START_X			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define BIG_BOT_COLOR_START_Y			((1070 - BIG_ROBOT_WIDTH/2)*65536)
-		#define BIG_BOT_COLOR_START_TETA		(843314856LL)			// PI_28  (il part en marche arriere...)
+		#define BIG_BOT_COLOR_START_TETA		(PI_28)			// PI_28  (il part en marche arriere...)
+
+		#define BIG_BOT_COLOR_START_BASCULE_X			((180)*65536)
+		#define BIG_BOT_COLOR_START_BASCULE_Y			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define BIG_BOT_COLOR_START_BASCULE_TETA		(PI_28/2)			// PI_28  (il part en marche arriere...)
+
 
 		// TOP_COLOR
 		#define BIG_TOP_COLOR_START_X			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define BIG_TOP_COLOR_START_Y			((1930 + BIG_ROBOT_WIDTH/2)*65536)
-		#define BIG_TOP_COLOR_START_TETA		(843314856LL)			// PI_28  (il part en marche arriere...)
+		#define BIG_TOP_COLOR_START_TETA		(PI_28)			// PI_28  (il part en marche arriere...)
+
+		#define BIG_TOP_COLOR_START_BASCULE_X			((180)*65536)
+		#define BIG_TOP_COLOR_START_BASCULE_Y			((3000 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
+		#define BIG_TOP_COLOR_START_BASCULE_TETA		(-PI_28/2)			// PI_28  (il part en marche arriere...)
+
 
 
 
