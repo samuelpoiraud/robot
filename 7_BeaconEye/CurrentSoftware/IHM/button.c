@@ -21,14 +21,12 @@ void BUTTON_processMain(void) {
 
 #ifdef BUTTON_0_PORT
 	static Uint8 previousButton0 = 1;
-	previousButton0 = BUTTON_0_PORT;
 #endif
 #ifdef BUTTON_1_PORT
 	static Uint8 previousButton1 = 1;
-	previousButton1 = BUTTON_1_PORT;
 #endif
 
-	if((previousTime + ANTI_BOUNCE_TIME) > global.absolute_time){
+	if((previousTime + ANTI_BOUNCE_TIME) < global.absolute_time){
 
 		if(previousButton0 != BUTTON_0_PORT){
 			BUTTON_stateChange0();

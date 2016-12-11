@@ -256,4 +256,27 @@
 	 */
 	void SSD2119_displayOff(void);
 
+	/**
+	 * @brief  Draws round rectangle on LCD
+	 * @param  x0: X coordinate of top left point
+	 * @param  y0: Y coordinate of top left point
+	 * @param  x1: X coordinate of bottom right point
+	 * @param  y1: Y coordinate of bottom right point
+	 * @param  radius radius of corner
+	 * @param  color: Rectangle color
+	 * @retval None
+	 */
+	void SSD2119_drawRoundRectangle(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint8 radius, Uint16 color);
+
+	/**
+	 * @brief  Draws filled rectangle on LCD
+	 * @param  x0: X coordinate of top left point
+	 * @param  y0: Y coordinate of top left point
+	 * @param  x1: X coordinate of bottom right point
+	 * @param  y1: Y coordinate of bottom right point
+	 * @param  color: Rectangle color
+	 * @retval None
+	 */
+	void SSD2119_drawFilledRoundRectangle(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint8 radius, Uint16 color);
+
 #endif

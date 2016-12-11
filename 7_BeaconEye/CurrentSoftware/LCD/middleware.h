@@ -73,6 +73,8 @@
 
 	objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Uint32 colorBorder, Uint32 colorCenter);
 
+	objectId_t MIDDLEWARE_addRoundRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Uint16 radius, Uint32 colorBorder, Uint32 colorCenter);
+
 	objectId_t MIDDLEWARE_addCircle(Sint16 x, Sint16 y, Uint16 r, Uint32 colorBorder, Uint32 colorCenter);
 
 	objectId_t MIDDLEWARE_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, Uint16 color);

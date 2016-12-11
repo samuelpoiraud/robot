@@ -28,6 +28,7 @@ typedef enum{
 	ANIMATED_IMAGE,
 	MULTI_TEXT,
 	RECTANGLE,
+	ROUND_RECTANGLE,
 	CIRCLE,
 	LINE
 }objectType_e;
@@ -126,6 +127,16 @@ typedef struct{
 			Uint32 colorBorder;
 			Uint32 colorCenter;
 		}rectangle;
+
+		struct{
+			Sint16 x;
+			Sint16 y;
+			Uint16 width;
+			Uint16 height;
+			Uint16 radius;
+			Uint32 colorBorder;
+			Uint32 colorCenter;
+		}roundRectangle;
 
 		struct{
 			Sint16 x;
@@ -366,6 +377,15 @@ static void MIDDLEWARE_checkDestroyObject(){
 																	objectTab[i].objectData.rectangle.y,
 																	objectTab[i].objectData.rectangle.x + objectTab[i].objectData.rectangle.width,
 																	objectTab[i].objectData.rectangle.y + objectTab[i].objectData.rectangle.height,
+																	background.color);
+					break;
+
+				case ROUND_RECTANGLE:
+					SSD2119_drawFilledRoundRectangle(objectTab[i].objectData.roundRectangle.x,
+																	objectTab[i].objectData.roundRectangle.y,
+																	objectTab[i].objectData.roundRectangle.x + objectTab[i].objectData.roundRectangle.width,
+																	objectTab[i].objectData.roundRectangle.y + objectTab[i].objectData.roundRectangle.height,
+																	objectTab[i].objectData.roundRectangle.radius,
 																	background.color);
 					break;
 
@@ -668,6 +688,26 @@ static void MIDDLEWARE_rebuildObject(){
 													objectTab[i].objectData.rectangle.x + objectTab[i].objectData.rectangle.width,
 													objectTab[i].objectData.rectangle.y + objectTab[i].objectData.rectangle.height,
 													objectTab[i].objectData.rectangle.colorBorder);
+					}
+					break;
+
+				case ROUND_RECTANGLE:
+					if(objectTab[i].objectData.roundRectangle.colorCenter != SSD2119_TRANSPARENT){
+						SSD2119_drawFilledRoundRectangle(objectTab[i].objectData.roundRectangle.x,
+													objectTab[i].objectData.roundRectangle.y,
+													objectTab[i].objectData.roundRectangle.x + objectTab[i].objectData.roundRectangle.width,
+													objectTab[i].objectData.roundRectangle.y + objectTab[i].objectData.roundRectangle.height,
+													objectTab[i].objectData.roundRectangle.radius,
+													objectTab[i].objectData.roundRectangle.colorCenter);
+					}
+
+					if(objectTab[i].objectData.roundRectangle.colorBorder != SSD2119_TRANSPARENT){
+						SSD2119_drawRoundRectangle(objectTab[i].objectData.roundRectangle.x,
+													objectTab[i].objectData.roundRectangle.y,
+													objectTab[i].objectData.roundRectangle.x + objectTab[i].objectData.roundRectangle.width,
+													objectTab[i].objectData.roundRectangle.y + objectTab[i].objectData.roundRectangle.height,
+													objectTab[i].objectData.roundRectangle.radius,
+													objectTab[i].objectData.roundRectangle.colorBorder);
 					}
 					break;
 
@@ -1012,6 +1052,32 @@ objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 heig
 	objectTab[idFound].objectData.rectangle.height = height;
 	objectTab[idFound].objectData.rectangle.colorBorder = colorBorder;
 	objectTab[idFound].objectData.rectangle.colorCenter = colorCenter;
+	objectTab[idFound].use = TRUE;
+
+	return idFound;
+}
+
+objectId_t MIDDLEWARE_addRoundRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Uint16 radius, Uint32 colorBorder, Uint32 colorCenter){
+	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
+	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+		if(objectTab[i].use == FALSE){
+			idFound = i;
+		}
+	}
+
+	if(idFound == OBJECT_ID_ERROR_FULL)
+		return OBJECT_ID_ERROR_FULL;
+
+	objectTab[idFound].type = ROUND_RECTANGLE;
+	objectTab[idFound].toDisplay = TRUE;
+	objectTab[idFound].toDestroy = FALSE;
+	objectTab[idFound].objectData.roundRectangle.x = x;
+	objectTab[idFound].objectData.roundRectangle.y = y;
+	objectTab[idFound].objectData.roundRectangle.width = width;
+	objectTab[idFound].objectData.roundRectangle.height = height;
+	objectTab[idFound].objectData.roundRectangle.radius = radius;
+	objectTab[idFound].objectData.roundRectangle.colorBorder = colorBorder;
+	objectTab[idFound].objectData.roundRectangle.colorCenter = colorCenter;
 	objectTab[idFound].use = TRUE;
 
 	return idFound;

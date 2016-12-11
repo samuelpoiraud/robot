@@ -20,7 +20,7 @@ void SWITCH_processMain(void) {
 	static Uint8 previousSwitchColor = BOT_COLOR;
 	static time32_t previousTime = 0;
 
-	if((previousTime + ANTI_BOUNCE_TIME) > global.absolute_time){
+	if((previousTime + ANTI_BOUNCE_TIME) < global.absolute_time){
 		if(previousSwitchColor != SWITCH_COLOR_BEACON_EYE){
 			SWITCH_stateChanged();
 			previousSwitchColor = SWITCH_COLOR_BEACON_EYE;
