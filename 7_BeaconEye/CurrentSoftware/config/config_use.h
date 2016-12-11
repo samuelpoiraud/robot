@@ -16,7 +16,7 @@
 	////-------------------------MODE ET USE--------------------------//
 	////////////////////////////////////////////////////////////////////
 
-	//#define USE_BEACON_EYE // Afin de savoir si nous sommes sur la baseboard ou non
+	#define USE_BEACON_EYE // Afin de savoir si nous sommes sur la baseboard ou non
 	#ifndef USE_BEACON_EYE
 		#warning "L'I2C utilisé sur la baseboard est différent de celui sur la beacon Eye... Ce define doit correspondre à la carte programmée pour que le tactile fonctionne."
 	#endif
@@ -86,6 +86,11 @@
 
 /* Réglages I2C */
 	#define USE_I2C2
+
+/* Réglages PWM */
+	#define USE_PWM_MODULE
+	#define PWM_FREQ	50000
+	#define USE_PWM4
 
 
 #endif /* CONFIG_USE_H */

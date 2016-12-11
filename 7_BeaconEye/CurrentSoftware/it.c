@@ -3,6 +3,8 @@
 #include "QS/QS_timer.h"
 #include "main.h"
 #include "IHM/led.h"
+#include "environment.h"
+#include "IHM/buzzer.h"
 
 #define IT_TIME		1		// en ms (maximum 65)
 
@@ -17,22 +19,8 @@ void IT_init(void){
 void _ISR _T1Interrupt(){
 
 	LED_processIt(IT_TIME);
+	ENVIRONMENT_processIt(IT_TIME);
+	BUZZER_processIt(IT_TIME);
 
-	// On met à jour le temps du match si ce dernier est commencé
-	if(global.flags.match_started && !global.flags.match_over && !global.flags.match_suspended) {
-				global.match_time++;
-	}
-
-	// On regarde si le match est terminé
-	if (!global.flags.match_over && !global.flags.match_suspended) {
-		if (90 != 0 && (global.match_time >= (90))) {
-			global.flags.match_over = TRUE;
-		}
-	}
-
-	//ENV_process_it();
-	//ZONE_process_it_1ms();
-	//LCD_process_it_1ms();
-	//SECRETARY_process_ms();
 	TIMER1_AckIT();
 }
