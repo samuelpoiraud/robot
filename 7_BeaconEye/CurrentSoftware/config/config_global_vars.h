@@ -27,6 +27,7 @@
 
 		volatile time32_t match_time;			//temps de match en ms.
 		volatile time32_t absolute_time;		//temps depuis le lancement de la STM32
+		volatile color_e current_color;
 	}global_data_storage_t;
 
 	extern global_data_storage_t global;

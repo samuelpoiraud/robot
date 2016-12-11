@@ -1,5 +1,5 @@
 #include "middleware.h"
-//#include "low layer/xpt2046.h"
+#include "low layer/touch.h"
 #include "low layer/ssd2119.h"
 #include "../QS/QS_outputlog.h"
 #include "image/flecheDroite.h"
@@ -161,7 +161,7 @@ static void MIDDLEWARE_rebuildObject();
 static void MIDDLEWARE_checkDestroyObject();
 
 void MIDDLEWARE_init(){
-	//XPT2046_init();
+	TOUCH_init();
 	SSD2119_init();
 
 	MIDDLEWARE_resetScreen();
@@ -169,13 +169,17 @@ void MIDDLEWARE_init(){
 
 void MIDDLEWARE_processMain(){
 
-	//Sint16 x, y;
+	Sint16 x, y;
 
-	//XPT2046_setConfig();
-	//bool_e touch = XPT2046_getAverageCoordinates(&x, &y, 3, XPT2046_COORDINATE_SCREEN_RELATIVE);
+	TOUCH_setConfig();
+	bool_e touch = TOUCH_getAverageCoordinates(&x, &y, 3, TOUCH_COORDINATE_SCREEN_RELATIVE);
+
+	if(touch == TRUE) {
+		//debug_printf("X = %d | Y = %d\n", x, y);
+	}
 
 	// Check des zones touchés
-	//MIDDLEWARE_checkObjectTouch(touch, x, y);
+	MIDDLEWARE_checkObjectTouch(touch, x, y);
 
 	SSD2119_setConfig();
 

@@ -28,11 +28,11 @@
 ////////////////////////////////////////////////////////////////////////////////////
 	#define PORT_IO_A_0			PORT_IO_INPUT
 	#define PORT_OPT_A_0		PORT_OPT_NO_PULL
-		#define BUTTON0_PORT			GPIOA->IDR0
+		#define BUTTON_0_PORT			GPIOA->IDR0
 
 	#define PORT_IO_A_1			PORT_IO_INPUT
 	#define PORT_OPT_A_1		PORT_OPT_NO_PULL
-		#define BUTTON_LASER_PORT		GPIOA->IDR1
+		#define BUTTON_1_PORT			GPIOA->IDR1
 
 	#define PORT_IO_A_2			PORT_IO_INPUT
 	#define PORT_OPT_A_2		PORT_OPT_NO_PULL
