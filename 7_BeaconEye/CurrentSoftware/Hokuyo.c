@@ -28,7 +28,6 @@
 	#include "uart_via_usb.h"
 	#include "calculator.h"
 	#include "zone.h"
-	#include "environment.h"
 
 	#define HOKUYO_BUFFER_READ_TIMEOUT	500  //ms
 	#define HOKUYO_ECHO_READ_TIMEOUT	100  //ms
@@ -446,7 +445,7 @@ void hokuyo_find_valid_points(void)
 	bool_e point_filtered;
 	nb_valid_points = 0;	//RAZ des points valides.
 
-	if(ENV_get_color() == BOT_COLOR)	//Magenta
+	if(global.current_color == BOT_COLOR)	//Magenta
 	{
 		BEACON_OFFSET_X =1000;
 		BEACON_OFFSET_Y = 0;
@@ -485,7 +484,7 @@ void hokuyo_find_valid_points(void)
 
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
 
-			if(ENV_get_color() == BOT_COLOR)	//Magenta
+			if(global.current_color == BOT_COLOR)	//Magenta
 			{
 				x_absolute = BEACON_OFFSET_X + (distance*(Sint32)(cos))/4096;
 				y_absolute = BEACON_OFFSET_Y + (distance*(Sint32)(sin))/4096;

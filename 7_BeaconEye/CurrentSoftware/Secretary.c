@@ -56,7 +56,6 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_can_over_xbee.h"
 #include "QS/QS_can_verbose.h"
-#include "environment.h"
 
 volatile bool_e flag_new_event = FALSE;
 static zone_event_t events[ZONE_NUMBER];
@@ -136,7 +135,7 @@ void SECRETARY_process_canmsg(CAN_msg_t * msg){
 		case BROADCAST_COULEUR:
 			ZONE_clean_all_detections();	//On réinitialise toutes les zones (évènements par défaut...)
 			if(msg->size >= 1 && msg->data.broadcast_couleur.color <= BOT_COLOR)
-				ENV_set_color(msg->data.broadcast_couleur.color);
+				global.current_color = msg->data.broadcast_couleur.color;
 			break;
 		case ENABLE_WATCHING_ZONE:
 			if(msg->size >= 3 && msg->data.enable_watching_zone.zone < ZONE_NUMBER && msg->data.enable_watching_zone.robot <= SMALL_ROBOT)

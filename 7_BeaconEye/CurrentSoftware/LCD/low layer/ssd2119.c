@@ -438,24 +438,36 @@ void SSD2119_putImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uin
 	SSD2119_writeReg(SSD2119_PWR_CTRL_1_REG, 0x1018);
 }
 
-//TODO : vérifier la variable heigth
 void SSD2119_putImageWithTransparence(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uint16 *img, Uint16 colorTransparence, Uint32 size){
 	Uint32 i;
+
+	// Overclock LCD (Increase consumption)
+	SSD2119_writeReg(SSD2119_PWR_CTRL_1_REG, 0x1008);
+
 	for(i=0; i < size; i++){
 		if(img[i] != colorTransparence) {
 			SSD2119_drawPixel(x + i % width, y + i / width, img[i]);
 		}
 	}
+
+	// DeOverclock LCD (Normal consumption)
+	SSD2119_writeReg(SSD2119_PWR_CTRL_1_REG, 0x1018);
 }
 
-//TODO : vérifier la variable heigth
 void SSD2119_putColorInvertedImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, Uint16 replaceColor, const Uint16 *img, Uint16 colorTransparence, Uint32 size){
 	Uint32 i;
+
+	// Overclock LCD (Increase consumption)
+	SSD2119_writeReg(SSD2119_PWR_CTRL_1_REG, 0x1008);
+
 	for(i=0; i < size; i++){
 		if(img[i] != colorTransparence) {
 			SSD2119_drawPixel(x + i % width, y + i / width, replaceColor);
 		}
 	}
+
+	// DeOverclock LCD (Normal consumption)
+	SSD2119_writeReg(SSD2119_PWR_CTRL_1_REG, 0x1018);
 }
 
 void SSD2119_printf(Uint16 x, Uint16 y, FontDef_t *font, Uint16 foreground, Uint32 background, const char *format, ...){
