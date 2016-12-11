@@ -1,7 +1,8 @@
 #include "switch.h"
 
 #include "../QS/QS_ports.h"
-#include "led.h"
+#include "../environment.h"
+#include "../QS/QS_outputlog.h"
 
 #define ANTI_BOUNCE_TIME (20) // en ms
 
@@ -14,6 +15,8 @@ void SWITCH_init(void) {
 	if(initialized) {
 		return;
 	}
+
+	SWITCH_stateChanged();
 }
 
 void SWITCH_processMain(void) {
@@ -34,12 +37,10 @@ void SWITCH_processMain(void) {
  */
 static void SWITCH_stateChanged(void) {
 
-	// Changement de la couleur
-	global.current_color = (global.current_color==BOT_COLOR)?TOP_COLOR:BOT_COLOR;
+	if(SWITCH_COLOR_BEACON_EYE == TRUE) {
+		ENVIRONMENT_setColor(BOT_COLOR);
+	} else {
+		ENVIRONMENT_setColor(TOP_COLOR);
+	}
 
-	// Mise à jour de la led indiquand la couleur
-	LED_setColor((global.current_color==BOT_COLOR)?LED_COLOR_MAGENTA:LED_COLOR_GREEN);
-
-	// TODO: Mettre à jour les zones
-	// TODO; Rotation de l'écran
 }
