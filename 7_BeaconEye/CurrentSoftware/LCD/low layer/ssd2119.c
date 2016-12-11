@@ -481,6 +481,90 @@ void SSD2119_printf(Uint16 x, Uint16 y, FontDef_t *font, Uint16 foreground, Uint
 	SSD2119_puts(x, y, buffer, font, foreground, background);
 }
 
+void SSD2119_drawRoundRectangle(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint8 radius, Uint16 color) {
+
+	Sint16 tSwitch;
+	Uint16 tmpX = 0, tmpY = radius;
+	tSwitch = 3 - 2 * radius;
+	Uint16 width = x1 - x0;
+	Uint16 height = y1 - y0;
+
+	while (tmpX <= tmpY) {
+		// upper left corner
+		SSD2119_drawPixel(x0+radius - tmpX, y0+radius - tmpY, color); // upper half
+		SSD2119_drawPixel(x0+radius - tmpY, y0+radius - tmpX, color); // lower half
+
+		// upper right corner
+		SSD2119_drawPixel(x0+width-radius + tmpX, y0+radius - tmpY, color); // upper half
+		SSD2119_drawPixel(x0+width-radius + tmpY, y0+radius - tmpX, color); // lower half
+
+		// lower right corner
+		SSD2119_drawPixel(x0+width-radius + tmpX, y0+height-radius + tmpY, color); // lower half
+		SSD2119_drawPixel(x0+width-radius + tmpY, y0+height-radius + tmpX, color); // upper half
+
+		// lower left corner
+		SSD2119_drawPixel(x0+radius - tmpX, y0+height-radius + tmpY, color); // lower half
+		SSD2119_drawPixel(x0+radius - tmpY, y0+height-radius + tmpX, color); // upper half
+
+		if (tSwitch < 0) {
+				tSwitch += (4 * tmpX + 6);
+		} else {
+			tSwitch += (4 * (tmpX - tmpY) + 10);
+			tmpY--;
+		}
+		tmpX++;
+	}
+
+	SSD2119_drawLine(x0 + radius, y0, x1 - radius, y0, color);	// top
+	SSD2119_drawLine(x0 + radius, y1, x1 - radius, y1, color);	// bottom
+	SSD2119_drawLine(x0, y0 + radius, x0, y1 - radius, color);	// left
+	SSD2119_drawLine(x1, y0 + radius, x1, y1 - radius, color);	// right
+}
+
+void SSD2119_drawFilledRoundRectangle(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint8 radius, Uint16 color) {
+
+	Sint16 tSwitch;
+	Uint16 tmpX = 0, tmpY = radius;
+	tSwitch = 3 - 2 * radius;
+	Uint16 width = x1 - x0;
+	Uint16 height = y1 - y0;
+
+	// center block
+	// filling center block first makes it apear to fill faster
+	SSD2119_drawFilledRectangle(x0 + radius, y0, x1 - radius, y1, color);
+
+	while (tmpX <= tmpY)
+	{
+		// left side
+		SSD2119_drawLine(
+			x0+radius - tmpX, y0+radius - tmpY,			// upper left corner upper half
+			x0+radius - tmpX, y0+height-radius + tmpY,	// lower left corner lower half
+			color);
+		SSD2119_drawLine(
+			x0+radius - tmpY, y0+radius - tmpX,			// upper left corner lower half
+			x0+radius - tmpY, y0+height-radius + tmpX,	// lower left corner upper half
+			color);
+
+		// right side
+		SSD2119_drawLine(
+			x0+width-radius + tmpX, y0+radius - tmpY,			// upper right corner upper half
+			x0+width-radius + tmpX, y0+height-radius + tmpY,	// lower right corner lower half
+			color);
+		SSD2119_drawLine(
+			x0+width-radius + tmpY, y0+radius - tmpX,			// upper right corner lower half
+			x0+width-radius + tmpY, y0+height-radius + tmpX,	// lower right corner upper half
+			color);
+
+		if (tSwitch < 0) {
+			tSwitch += (4 * tmpX + 6);
+		} else {
+			tSwitch += (4 * (tmpX - tmpY) + 10);
+			tmpY--;
+		}
+		tmpX++;
+	}
+}
+
 /***************************************************************
  *                       Fonctions privées
  ***************************************************************/

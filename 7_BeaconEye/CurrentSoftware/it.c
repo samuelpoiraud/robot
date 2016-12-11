@@ -2,6 +2,7 @@
 
 #include "QS/QS_timer.h"
 #include "main.h"
+#include "IHM/led.h"
 
 #define IT_TIME		1		// en ms (maximum 65)
 
@@ -14,6 +15,8 @@ void IT_init(void){
 
 //Sur interruption timer 1...
 void _ISR _T1Interrupt(){
+
+	LED_processIt(IT_TIME);
 
 	// On met à jour le temps du match si ce dernier est commencé
 	if(global.flags.match_started && !global.flags.match_over && !global.flags.match_suspended) {
