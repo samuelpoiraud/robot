@@ -296,7 +296,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		   //case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagnetic";		break;
 
 		// Anne
-		   case ACT_VENTILATOR_PEARL & 0xFF:        originalSidStr = "VentilatorPearl";     break;
+		case ACT_VENTILATOR_PEARL & 0xFF:        originalSidStr = "VentilatorPearl";     break;
 		default:								    originalSidStr = "Unknown";				break;
 	}
 	switch(result) {
