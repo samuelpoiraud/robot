@@ -51,7 +51,6 @@ typedef struct{
 
 terminal_motor_s terminal_motor[] = {
 	#ifdef I_AM_ROBOT_BIG
-		//DECLARE_RX24(2, '0', FISH_MAGNETIC_ARM_RX24);
 		//DECLARE_AX12(2, 'A', LEFT_ARM_AX12),
 
 	#else
