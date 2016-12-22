@@ -22,6 +22,8 @@
 // 6) Un #define EXEMPLE_AX12_ID doit avoir été ajouté au fichier config_big/config_pin.h ou config_small/config_pin.h
 // 7) Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
 // 8) Mise à jour de config/config_debug.h : mettre LOG_PRINT_On
+// 9) Include le .h dans act_manager et dans termi_io
+// 10) Enlever le #IF 0 qui se trouve quelques lignes
 
 // Optionnel:
 // Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test

@@ -24,7 +24,33 @@ typedef Uint8 queue_size_t;
 typedef enum {
 	// Harry
 	//ACT_QUEUE_Fish_magnetic_arm,
-	ACT_QUEUE_Billix_test,
+	//ACT_QUEUE_Billix_test,
+	ACT_QUEUE_Ore_gun,
+	ACT_QUEUE_Ore_catch,
+	ACT_QUEUE_Ore_mixer,
+	ACT_QUEUE_Ore_shovel,
+	ACT_QUEUE_Ore_sweeper,
+	ACT_QUEUE_Cylinder_dispenser_left,
+	ACT_QUEUE_Cylinder_dispenser_right,
+	ACT_QUEUE_Cylinder_elevator_left,
+	ACT_QUEUE_Cylinder_elevator_right,
+	ACT_QUEUE_Cylinder_hatch_left,
+	ACT_QUEUE_Cylinder_hatch_right,
+	ACT_QUEUE_Cylinder_pusher_left,
+	ACT_QUEUE_Cylinder_pusher_right,
+	ACT_QUEUE_Cylinder_slider_left,
+	ACT_QUEUE_Cylinder_slider_right,
+	ACT_QUEUE_Cylinder_slope_left,
+	ACT_QUEUE_Cylinder_slope_right,
+	ACT_QUEUE_Cylinder_turn_left_arm,
+	ACT_QUEUE_Cylinder_turn_right_arm,
+	ACT_QUEUE_Bearing_ball_wheel,
+	ACT_QUEUE_Bearing_back_left,
+	ACT_QUEUE_Bearing_back_right,
+	ACT_QUEUE_Bearing_front_left,
+	ACT_QUEUE_Bearing_front_right,
+
+
 
 	// Anne
 	//ACT_QUEUE_Left_arm,
