@@ -10,6 +10,55 @@
 #include "../clock.h"
 
 #ifdef I_AM_ROBOT_BIG
+	#include "../Harry/ore/ore_gun/ore_gun.h"
+	#include "../Harry/ore/ore_gun/ore_gun_config.h"
+	#include "../Harry/ore/ore_shovel/ore_shovel.h"
+	#include "../Harry/ore/ore_shovel/ore_shovel_config.h"
+	#include "../Harry/ore/ore_catch/ore_catch.h"
+	#include "../Harry/ore/ore_catch/ore_catch_config.h"
+	#include "../Harry/ore/ore_mixer/ore_mixer.h"
+	#include "../Harry/ore/ore_mixer/ore_mixer_config.h"
+	#include "../Harry/ore/ore_sweeper/ore_sweeper.h"
+	#include "../Harry/ore/ore_sweeper/ore_sweeper_config.h"
+    #include "../Harry/big_bearing_ball/big_ball_back_left/big_ball_back_left.h"
+    #include "../Harry/big_bearing_ball/big_ball_back_left/big_ball_back_left_config.h"
+    #include "../Harry/big_bearing_ball/big_ball_back_right/big_ball_back_right.h"
+    #include "../Harry/big_bearing_ball/big_ball_back_right/big_ball_back_right_config.h"
+    #include "../Harry/big_bearing_ball/big_ball_front_left/big_ball_front_left.h"
+    #include "../Harry/big_bearing_ball/big_ball_front_left/big_ball_front_left_config.h"
+    #include "../Harry/big_bearing_ball/big_ball_front_right/big_ball_front_right.h"
+    #include "../Harry/big_bearing_ball/big_ball_front_right/big_ball_front_right_config.h"
+	#include "../Harry/cylinder/cylinder_hatch/cylinder_hatch_left.h"
+	#include "../Harry/cylinder/cylinder_hatch/cylinder_hatch_left_config.h"
+	#include "../Harry/cylinder/cylinder_hatch/cylinder_hatch_right.h"
+	#include "../Harry/cylinder/cylinder_hatch/cylinder_hatch_right_config.h"
+	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_left.h"
+	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_left_config.h"
+	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_right.h"
+	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_right_config.h"
+	#include "../Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left.h"
+	#include "../Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left_config.h"
+	#include "../Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right.h"
+	#include "../Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right_config.h"
+    #include "../Harry/big_bearing_ball/bearing_ball_wheel/bearing_ball_wheel.h"
+    #include "../Harry/big_bearing_ball/bearing_ball_wheel/bearing_ball_wheel_config.h"
+    #include "../Harry/cylinder/cylinder_pusher/cylinder_pusher_left.h"
+    #include "../Harry/cylinder/cylinder_pusher/cylinder_pusher_left_config.h"
+    #include "../Harry/cylinder/cylinder_pusher/cylinder_pusher_right.h"
+    #include "../Harry/cylinder/cylinder_pusher/cylinder_pusher_right_config.h"
+    #include "../Harry/cylinder/cylinder_elevator/cylinder_elevator_left.h"
+    #include "../Harry/cylinder/cylinder_elevator/cylinder_elevator_left_config.h"
+    #include "../Harry/cylinder/cylinder_elevator/cylinder_elevator_right.h"
+    #include "../Harry/cylinder/cylinder_elevator/cylinder_elevator_right_config.h"
+    #include "../Harry/cylinder/cylinder_slider/cylinder_slider_left.h"
+    #include "../Harry/cylinder/cylinder_slider/cylinder_slider_left_config.h"
+    #include "../Harry/cylinder/cylinder_slider/cylinder_slider_right.h"
+    #include "../Harry/cylinder/cylinder_slider/cylinder_slider_right_config.h"
+    #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm.h"
+    #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm_config.h"
+    #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
+    #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm_config.h"
+
 
 #else
 
@@ -51,7 +100,31 @@ typedef struct{
 
 terminal_motor_s terminal_motor[] = {
 	#ifdef I_AM_ROBOT_BIG
-		//DECLARE_AX12(2, 'A', LEFT_ARM_AX12),
+		DECLARE_RX24(2, 'O', ORE_GUN_RX24),
+		DECLARE_RX24(2, 'O', ORE_SHOVEL_RX24),
+		DECLARE_AX12(2, 'O', ORE_CATCH_AX12),
+		DECLARE_AX12(2, 'O', ORE_MIXER_AX12),
+		DECLARE_AX12(2, 'O', ORE_SWEEPER_AX12),
+        DECLARE_AX12(2, 'O', BIG_BALL_FRONT_LEFT_AX12),
+        DECLARE_AX12(2, 'O', BIG_BALL_FRONT_RIGHT_AX12),
+        DECLARE_AX12(2, 'O', BIG_BALL_BACK_LEFT_AX12),
+        DECLARE_AX12(2, 'O', BIG_BALL_BACK_RIGHT_AX12),
+		DECLARE_AX12(2, 'O', CYLINDER_HACHT_LEFT_AX12),
+		DECLARE_AX12(2, 'O', CYLINDER_HACHT_RIGHT_AX12),
+		DECLARE_AX12(2, 'O', CYLINDER_SLOPE_LEFT_AX12),
+		DECLARE_AX12(2, 'O', CYLINDER_SLOPE_RIGHT_AX12),
+		DECLARE_AX12(2, 'O', CYLINDER_DISPENSER_LEFT_AX12),
+		DECLARE_AX12(2, 'O', CYLINDER_DISPENSER_RIGHT_AX12),
+        DECLARE_AX12(2, 'O', BEARING_BALL_WHEEL_AX12),
+        DECLARE_AX12(2, 'O', CYLINDER_PUSHER_LEFT_AX12),
+        DECLARE_AX12(2, 'O', CYLINDER_PUSHER_RIGHT_AX12),
+        DECLARE_RX24(2, 'O', CYLINDER_ELEVATOR_LEFT_RX24),
+        DECLARE_RX24(2, 'O', CYLINDER_ELEVATOR_RIGHT_RX24),
+        DECLARE_RX24(2, 'O', CYLINDER_SLIDER_LEFT_RX24),
+        DECLARE_RX24(2, 'O', CYLINDER_SLIDER_RIGHT_RX24),
+        DECLARE_RX24(2, 'O', CYLINDER_TURN_LEFT_ARM_RX24),
+        DECLARE_RX24(2, 'O', CYLINDER_TURN_RIGHT_ARM_RX24),
+
 
 	#else
 

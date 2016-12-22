@@ -658,6 +658,8 @@
 				bool_e state				:1;
 			}prop_active_pid;
 
+		#define PROP_DATALASER				0x11C
+
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
@@ -919,8 +921,31 @@
 		//----------------------------HARRY-----------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		//ACT_FISH_MAGNETIC_ARM	    = (ACT_FILTER | 0x01),
-	ACT_BILLIX_TEST				= (ACT_FILTER | 0x01),
+		ACT_ORE_GUN						= (ACT_FILTER | 0x01),
+		ACT_ORE_SHOVEL					= (ACT_FILTER | 0x02),
+		ACT_ORE_CATCH					= (ACT_FILTER | 0x03),
+		ACT_ORE_MIXER					= (ACT_FILTER | 0x04),
+		ACT_ORE_SWEEPER					= (ACT_FILTER | 0x05),
+        ACT_BIG_BALL_FRONT_LEFT	= (ACT_FILTER | 0x06),
+        ACT_BIG_BALL_FRONT_RIGHT= (ACT_FILTER | 0x07),
+        ACT_BIG_BALL_BACK_LEFT	= (ACT_FILTER | 0x08),
+        ACT_BIG_BALL_BACK_RIGHT	= (ACT_FILTER | 0x09),
+		ACT_CYLINDER_HATCH_LEFT			= (ACT_FILTER | 0x0A),
+		ACT_CYLINDER_HATCH_RIGHT		= (ACT_FILTER | 0x0B),
+		ACT_CYLINDER_SLOPE_LEFT			= (ACT_FILTER | 0x0C),
+		ACT_CYLINDER_SLOPE_RIGHT		= (ACT_FILTER | 0x0D),
+		ACT_CYLINDER_DISPENSER_LEFT		= (ACT_FILTER | 0x0E),
+		ACT_CYLINDER_DISPENSER_RIGHT	= (ACT_FILTER | 0x0F),
+        ACT_BEARING_BALL_WHEEL			= (ACT_FILTER | 0x10),
+        ACT_CYLINDER_PUSHER_LEFT		= (ACT_FILTER | 0x11),
+        ACT_CYLINDER_PUSHER_RIGHT       = (ACT_FILTER | 0x12),
+        ACT_CYLINDER_ELEVATOR_LEFT		= (ACT_FILTER | 0x13),
+        ACT_CYLINDER_ELEVATOR_RIGHT     = (ACT_FILTER | 0x14),
+        ACT_CYLINDER_SLIDER_LEFT		= (ACT_FILTER | 0x15),
+        ACT_CYLINDER_SLIDER_RIGHT       = (ACT_FILTER | 0x16),
+        ACT_CYLINDER_TURN_LEFT_ARM		= (ACT_FILTER | 0x17),
+        ACT_CYLINDER_TURN_RIGHT_ARM     = (ACT_FILTER | 0x18),
+
 
 		//////////////////////////////////////////////////////////////////
 		//-----------------------------ANNE-----------------------------//
