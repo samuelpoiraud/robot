@@ -17,7 +17,33 @@
 
 #ifdef I_AM_ROBOT_BIG
 	#include "QS/QS_mosfet.h"
-	#include "Harry/Billix/billix_test.h"
+	#include "Harry/ore/ore_gun/ore_gun.h"
+	#include "Harry/ore/ore_shovel/ore_shovel.h"
+	#include "Harry/ore/ore_catch/ore_catch.h"
+	#include "Harry/ore/ore_mixer/ore_mixer.h"
+	#include "Harry/ore/ore_sweeper/ore_sweeper.h"
+    #include "Harry/big_bearing_ball/big_ball_back_left/big_ball_back_left.h"
+    #include "Harry/big_bearing_ball/big_ball_back_right/big_ball_back_right.h"
+    #include "Harry/big_bearing_ball/big_ball_front_left/big_ball_front_left.h"
+    #include "Harry/big_bearing_ball/big_ball_front_right/big_ball_front_right.h"
+	#include "Harry/cylinder/cylinder_hatch/cylinder_hatch_left.h"
+	#include "Harry/cylinder/cylinder_hatch/cylinder_hatch_right.h"
+	#include "Harry/cylinder/cylinder_slope/cylinder_slope_left.h"
+	#include "Harry/cylinder/cylinder_slope/cylinder_slope_right.h"
+	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left.h"
+	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right.h"
+    #include "Harry/big_bearing_ball/bearing_ball_wheel/bearing_ball_wheel.h"
+    #include "Harry/cylinder/cylinder_pusher/cylinder_pusher_left.h"
+    #include "Harry/cylinder/cylinder_pusher/cylinder_pusher_right.h"
+    #include "Harry/cylinder/cylinder_elevator/cylinder_elevator_left.h"
+    #include "Harry/cylinder/cylinder_elevator/cylinder_elevator_right.h"
+    #include "Harry/cylinder/cylinder_slider/cylinder_slider_left.h"
+    #include "Harry/cylinder/cylinder_slider/cylinder_slider_right.h"
+    #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm.h"
+    #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
+
+
+
 #else
 	#include "QS/QS_mosfet.h"
 #endif
@@ -30,8 +56,30 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
 static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(MOSFET), //QS_mosfets
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
-		ACT_DECLARE(BILLIX_TEST)
-		//ACT_DECLARE(FISH_MAGNETIC_ARM),
+		ACT_DECLARE(ORE_GUN),
+		ACT_DECLARE(ORE_SHOVEL),
+		ACT_DECLARE(ORE_CATCH),
+		ACT_DECLARE(ORE_SWEEPER),
+        ACT_DECLARE(BIG_BALL_BACK_LEFT),
+        ACT_DECLARE(BIG_BALL_BACK_RIGHT),
+        ACT_DECLARE(BIG_BALL_FRONT_LEFT),
+        ACT_DECLARE(BIG_BALL_FRONT_RIGHT),
+		ACT_DECLARE(CYLINDER_HACHT_LEFT),
+		ACT_DECLARE(CYLINDER_HACHT_RIGHT),
+		ACT_DECLARE(CYLINDER_SLOPE_LEFT),
+		ACT_DECLARE(CYLINDER_SLOPE_RIGHT),
+		ACT_DECLARE(CYLINDER_DISPENSER_LEFT),
+		ACT_DECLARE(CYLINDER_DISPENSER_RIGHT),
+        ACT_DECLARE(BEARING_BALL_WHEEL),
+        ACT_DECLARE(CYLINDER_PUSHER_LEFT),
+        ACT_DECLARE(CYLINDER_PUSHER_RIGHT),
+        ACT_DECLARE(CYLINDER_ELEVATOR_LEFT),
+        ACT_DECLARE(CYLINDER_ELEVATOR_RIGHT),
+        ACT_DECLARE(CYLINDER_SLIDER_LEFT),
+        ACT_DECLARE(CYLINDER_SLIDER_RIGHT),
+        ACT_DECLARE(CYLINDER_TURN_LEFT_ARM),
+        ACT_DECLARE(CYLINDER_TURN_RIGHT_ARM),
+
 	#else  //Small Robot
 		//ACT_DECLARE(LEFT_ARM),
 	#endif

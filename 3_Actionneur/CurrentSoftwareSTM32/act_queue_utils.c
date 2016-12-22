@@ -294,6 +294,30 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 	switch(originalSid) {
 		// Harry
 		   //case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagnetic";		break;
+		   case ACT_ORE_GUN & 0xFF:					originalSidStr = "OreGun";				break;
+		   case ACT_ORE_SHOVEL & 0xFF:				originalSidStr = "OreShovel";			break;
+		   case ACT_ORE_CATCH & 0xFF:				originalSidStr = "OreCatch";			break;
+		   case ACT_ORE_MIXER & 0xFF:				originalSidStr = "OreMixer";			break;
+		   case ACT_ORE_SWEEPER & 0xFF:				originalSidStr = "OreSweeper";			break;
+           case ACT_BIG_BALL_BACK_LEFT & 0xFF:      originalSidStr = "BigBallBackLeft";     break;
+           case ACT_BIG_BALL_BACK_RIGHT & 0xFF:     originalSidStr = "BigBallBackRight";    break;
+           case ACT_BIG_BALL_FRONT_LEFT & 0xFF:     originalSidStr = "BigBallFrontLeft";    break;
+           case ACT_BIG_BALL_FRONT_RIGHT & 0xFF:    originalSidStr = "BigBallFrontRight";	break;
+		   case ACT_CYLINDER_HACHT_LEFT & 0xFF:		originalSidStr = "CylinderHachtLeft";	break;
+		   case ACT_CYLINDER_HACHT_RIGHT & 0xFF:	originalSidStr = "CylinderHachtRight";	break;
+		   case ACT_CYLINDER_SLOPE_LEFT & 0xFF:		originalSidStr = "CylinderSlopeLeft";	break;
+		   case ACT_CYLINDER_SLOPE_RIGHT & 0xFF:	originalSidStr = "CylinderSlopeRight";	break;
+		   case ACT_CYLINDER_DISPENSER_LEFT & 0xFF:	originalSidStr = "CylinderDispenserLeft";	break;
+		   case ACT_CYLINDER_DISPENSER_RIGHT & 0xFF:originalSidStr = "CylinderDispenserRight";	break;
+           case ACT_BEARING_BALL_WHEEL & 0xFF:      originalSidStr = "BearingBallWheel";	break;
+           case ACT_CYLINDER_PUSHER_LEFT & 0xFF:	originalSidStr = "CylinderPusherLeft";	break;
+           case ACT_CYLINDER_PUSHER_RIGHT & 0xFF:   originalSidStr = "CylinderPusherRight";	break;
+           case ACT_CYLINDER_ELEVATOR_LEFT & 0xFF:	originalSidStr = "CylinderElevatorLeft";	break;
+           case ACT_CYLINDER_ELEVATOR_RIGHT & 0xFF: originalSidStr = "CylinderElevatorRight";	break;
+           case ACT_CYLINDER_SLIDER_LEFT & 0xFF:	originalSidStr = "CylinderSliderLeft";	break;
+           case ACT_CYLINDER_SLIDER_RIGHT & 0xFF:   originalSidStr = "CylinderSliderRight";	break;
+           case ACT_CYLINDER_TURN_LEFT_ARM & 0xFF:	originalSidStr = "CylinderTurnLeftArm";	break;
+           case ACT_CYLINDER_TURN_RIGHT_ARM & 0xFF: originalSidStr = "CylinderTurnRightArm";break;
 
 		// Anne
 		case ACT_VENTILATOR_PEARL & 0xFF:        originalSidStr = "VentilatorPearl";     break;
