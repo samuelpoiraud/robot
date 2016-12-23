@@ -303,8 +303,8 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
            case ACT_BIG_BALL_BACK_RIGHT & 0xFF:     originalSidStr = "BigBallBackRight";    break;
            case ACT_BIG_BALL_FRONT_LEFT & 0xFF:     originalSidStr = "BigBallFrontLeft";    break;
            case ACT_BIG_BALL_FRONT_RIGHT & 0xFF:    originalSidStr = "BigBallFrontRight";	break;
-		   case ACT_CYLINDER_HACHT_LEFT & 0xFF:		originalSidStr = "CylinderHachtLeft";	break;
-		   case ACT_CYLINDER_HACHT_RIGHT & 0xFF:	originalSidStr = "CylinderHachtRight";	break;
+		   case ACT_CYLINDER_HATCH_LEFT & 0xFF:		originalSidStr = "CylinderHatchLeft";	break;
+		   case ACT_CYLINDER_HATCH_RIGHT & 0xFF:	originalSidStr = "CylinderHatchRight";	break;
 		   case ACT_CYLINDER_SLOPE_LEFT & 0xFF:		originalSidStr = "CylinderSlopeLeft";	break;
 		   case ACT_CYLINDER_SLOPE_RIGHT & 0xFF:	originalSidStr = "CylinderSlopeRight";	break;
 		   case ACT_CYLINDER_DISPENSER_LEFT & 0xFF:	originalSidStr = "CylinderDispenserLeft";	break;
