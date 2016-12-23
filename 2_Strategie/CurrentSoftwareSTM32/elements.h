@@ -6,6 +6,17 @@
 #include "propulsion/movement.h"
 
 
+	typedef struct{
+		Sint16 xmin;
+		Sint16 xmax;
+		Sint16 ymin;
+		Sint16 ymax;
+		bool_e enable_zone;
+		Uint8 nb_cylinder_max;
+		const Uint8 nb_cylinder;
+	}zone_characteristics;
+
+
 	typedef enum{
 		NO_ELEMENT,
 		OUR_ELEMENT,
