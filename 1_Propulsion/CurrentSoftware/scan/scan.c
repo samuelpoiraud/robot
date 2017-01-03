@@ -3,8 +3,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_adc.h"
 
-
-#define CONVERSION_LASER_LEFT(x)	((Sint32)(-264*(x)+35350)/1000)
+#define CONVERSION_LASER_LEFT(x)	((Sint32)(-263*(x)+350450)/1000)
 #define OFFSET_WIDTH_LASER_LEFT		(-150)
 #define OFFSET_LENGTH_LASER_LEFT	(70)
 

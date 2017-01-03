@@ -441,6 +441,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case DEBUG_PROP_MOVE_POSITION:			print(string, len, "| offset d'aleration x : %d    y : %d    teta : %d\n", msg->data.debug_prop_move_position.xOffset, msg->data.debug_prop_move_position.yOffset, msg->data.debug_prop_move_position.tetaOffset);	break;
 		case PROP_ACTIVE_PID:					print(string, len, "| %s\n",(msg->data.prop_active_pid.state)?"Enable":"Disable");	break;
 		case PROP_RUSH:							print(string, len, "| %s  1_acc : %d   2_acc : %d   brake_acc : %d  rot_trans_coef : %d\n",(msg->data.prop_rush.rush)?"Enable":"Disable", msg->data.prop_rush.first_traj_acc, msg->data.prop_rush.second_traj_acc, msg->data.prop_rush.brake_acc, msg->data.prop_rush.acc_rot_trans);	break;
+		case PROP_DATALASER:					print(string, len, "utilisation des télémetres\n");	break;
+
 
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_SWITCH:						print_ihm_result(msg, &string, &len);			break;

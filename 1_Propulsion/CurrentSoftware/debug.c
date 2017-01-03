@@ -15,39 +15,31 @@
 #include "QS/QS_can.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_adc.h"
+
+#define CONVERSION_LASER_LEFT(x)	((Sint32)(-263*(x)+350450)/1000)
+#define OFFSET_WIDTH_LASER_LEFT		(146)
+#define OFFSET_LENGTH_LASER_LEFT	(60)
+
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(-270*(x)+35580)/1000)
+#define OFFSET_WIDTH_LASER_RIGHT	(146)
+#define OFFSET_LENGTH_LASER_RIGHT	(60)
+
 
 #ifdef MODE_PRINT_FIRST_TRAJ
 	typedef struct{
-		volatile Sint32 acceleration_translation;	//[mm.4096/5ms/5ms]
-		volatile Sint32 vitesse_translation;		//[mm.4096/5ms]
-		volatile Sint32 position_translation; 		//[mm.4096]
 
-		volatile Sint32 acceleration_rotation;		//[rad.4096.1024/5ms/5ms]
-		volatile Sint32 vitesse_rotation;			//[rad.4096.1024/5ms]
-		volatile Sint32 position_rotation;			//[rad.4096.1024]
+		volatile Sint16 pos_x;
+		volatile Sint16 pos_y;
+		volatile Sint16 laser_left_x;
+		volatile Sint16 laser_left_y;
+		volatile Sint16 value_left;
+		volatile Sint16 laser_right_x;
+		volatile Sint16 laser_right_y;
 
-		volatile Sint32 real_speed_translation;		//[mm.4096/5ms]
-		volatile Sint32 real_speed_rotation;		//[rad.4096.1024/5ms]
+}debug_saved_t;
 
-		volatile Sint32 real_position_translation;	//[mm.4096]
-		volatile Sint32 real_position_rotation;		//[rad.4096.1024]
-
-		volatile Sint32 ecart_translation;			//[mm.4096]
-		volatile Sint32 ecart_rotation;				//[rad.4096.1024]
-
-		volatile Sint16 pwmG;						// Rapport cyclique
-		volatile Sint16 pwmD;						// Rapport cyclique
-
-		volatile Sint32 translation_restante;		//[mm.4096]
-		volatile Sint32 rotation_restante;			//[rad.4096.1024]
-
-		volatile Sint32 distance_frein;				//[mm.4096]
-		volatile Sint32 angle_frein;				//[rad.40963.1024]
-
-		volatile position_t pos;					//[mm] et [rad.4096]
-	}debug_saved_t;
-
-	#define DEBUG_TAB_TRAJ_TAILLE 512
+	#define DEBUG_TAB_TRAJ_TAILLE 4096
 
 	static volatile debug_saved_t tab[DEBUG_TAB_TRAJ_TAILLE];
 	static volatile Uint16 index = 0;
@@ -133,7 +125,7 @@ void DEBUG_process_it(void)
 
 #ifdef MODE_PRINT_FIRST_TRAJ
 	if(global.flags.match_started && index < DEBUG_TAB_TRAJ_TAILLE){
-		tab[index].acceleration_rotation = global.acceleration_rotation;
+		/*tab[index].acceleration_rotation = global.acceleration_rotation;
 		tab[index].acceleration_translation = global.acceleration_translation;
 		tab[index].ecart_rotation = global.ecart_rotation;
 		tab[index].ecart_translation = global.ecart_translation;
@@ -153,8 +145,40 @@ void DEBUG_process_it(void)
 		tab[index].translation_restante = global.translation_restante;
 		tab[index].rotation_restante = global.rotation_restante;
 		tab[index].angle_frein = global.angle_frein;
-		tab[index].distance_frein = global.distance_frein;
+		tab[index].distance_frein = global.distance_frein;*/
+
+		GEOMETRY_point_t pos_mesure;
+		bool_e enable;
+		Sint16 valueADC, value;
+		position_t robot;
+		Sint16 cosinus = 0, sinus = 0;
+
+		valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
+		value = CONVERSION_LASER_LEFT(valueADC);
+		robot = global.position; // On récupère la position du robot tout de suite
+		robot.teta = GEOMETRY_modulo_angle(robot.teta);
+		COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+
+		// On calcule et on stocke la valeur même si le capteur entre en saturation
+		if((value>90)&&(value<290)){
+		tab[index].laser_left_x = (Sint16) (robot.x - (-OFFSET_LENGTH_LASER_LEFT*cosinus + (OFFSET_WIDTH_LASER_LEFT + value)*sinus)/4096.0);
+		tab[index].laser_left_y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + (OFFSET_WIDTH_LASER_LEFT + value)*cosinus)/4096.0);
+		tab[index].value_left=(Sint16) value;
+
+		cosinus = 0;
+		sinus = 0;
+
+		valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
+		value = CONVERSION_LASER_RIGHT(valueADC);
+		robot = global.position; // On récupère la position du robot tout de suite
+		robot.teta = GEOMETRY_modulo_angle(robot.teta);
+		COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+
+		// On calcule et on stocke la valeur même si le capteur entre en saturation
+		tab[index].laser_right_x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + (OFFSET_WIDTH_LASER_RIGHT + value)*sinus))/4096.0;
+		tab[index].laser_right_y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - (OFFSET_WIDTH_LASER_RIGHT + value)*cosinus))/4096.0;
 		index++;
+		}
 	}
 #endif
 }
@@ -167,52 +191,14 @@ void DEBUG_process_it(void)
 
 	static void affichage_first_traj(void){
 		Uint16 i;
-		debug_printf("t(ms);");
-		debug_printf("acceleration_rotation;");
-		debug_printf("acceleration_translation;");
-		debug_printf("ecart_rotation;");
-		debug_printf("ecart_translation;");
-		debug_printf("position_rotation;");
-		debug_printf("position_translation;");
-		debug_printf("real_position_rotation;");
-		debug_printf("real_position_translation;");
-		debug_printf("real_speed_rotation;");
-		debug_printf("real_speed_translation;");
-		debug_printf("vitesse_rotation;");
-		debug_printf("vitesse_translation;");
-		debug_printf("pwmD;");
-		debug_printf("pwmG;");
-		debug_printf("translation_restante;");
-		debug_printf("rotation_restante;");
-		debug_printf("distance_frein;");
-		debug_printf("angle_frein;");
-		debug_printf("pos.x;");
-		debug_printf("pos.y;");
-		debug_printf("pos.teta\n");
 
 		for(i = 0; i < DEBUG_TAB_TRAJ_TAILLE && i < index; i++){
 			debug_printf("%d;", i*5);
-			debug_printf("%ld;", tab[i].acceleration_rotation);
-			debug_printf("%ld;", tab[i].acceleration_translation);
-			debug_printf("%ld;", tab[i].ecart_rotation);
-			debug_printf("%ld;", tab[i].ecart_translation);
-			debug_printf("%ld;", tab[i].position_rotation);
-			debug_printf("%ld;", tab[i].position_translation);
-			debug_printf("%ld;", tab[i].real_position_rotation);
-			debug_printf("%ld;", tab[i].real_position_translation);
-			debug_printf("%ld;", tab[i].real_speed_rotation);
-			debug_printf("%ld;", tab[i].real_speed_translation);
-			debug_printf("%ld;", tab[i].vitesse_rotation);
-			debug_printf("%ld;", tab[i].vitesse_translation);
-			debug_printf("%d;", tab[i].pwmD);
-			debug_printf("%d;", tab[i].pwmG);
-			debug_printf("%ld;", tab[i].translation_restante);
-			debug_printf("%ld;", tab[i].rotation_restante);
-			debug_printf("%ld;", tab[i].distance_frein);
-			debug_printf("%ld;", tab[i].angle_frein);
-			debug_printf("%d;", tab[i].pos.x);
-			debug_printf("%d;", tab[i].pos.y);
-			debug_printf("%d\n", tab[i].pos.teta);
+			debug_printf("%d;", tab[i].laser_left_x);
+			debug_printf("%d;", tab[i].laser_left_y);
+			debug_printf("%d;", tab[i].value_left);
+			debug_printf("%d;", tab[i].laser_right_x);
+			debug_printf("%d\n", tab[i].laser_right_y);
 		}
 	}
 #endif
