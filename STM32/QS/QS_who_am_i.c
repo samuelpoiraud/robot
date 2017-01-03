@@ -31,10 +31,10 @@
 
 		#if !defined(DISABLE_WHO_AM_I)
 			//On lit l'entrée...
-			if(PORT_ROBOT_ID)
+			//if(PORT_ROBOT_ID)
 				robot_id = BIG_ROBOT;
-			else
-				robot_id = SMALL_ROBOT;
+			//else
+				//robot_id = SMALL_ROBOT;
 		#elif defined(I_AM_CARTE_BEACON_EYE)
 			robot_id = BEACON_EYE;
 		#elif 1-DISABLE_WHO_AM_I-1 == 2		//Permet de savoir si DISABLE_WHO_AM_I est défini à quelque chose. Si c'est pas le cas, on a 1--1 == 1+1 == 2
