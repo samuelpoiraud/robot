@@ -2,6 +2,7 @@
 #include "../../propulsion/movement.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../propulsion/astar.h"
+#include "../../utils/generic_functions.h"
 
 void maxime_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,

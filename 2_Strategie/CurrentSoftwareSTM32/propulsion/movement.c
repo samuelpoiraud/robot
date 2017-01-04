@@ -23,8 +23,8 @@
 #include "../QS/QS_can.h"
 #include "../utils/generic_functions.h"
 
-#define LOG_PREFIX "avoid: "
-#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_AVOIDANCE
+#define LOG_PREFIX "move: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_MOVEMENT
 #include "../QS/QS_outputlog.h"
 #include "../Supervision/SD/SD.h"
 

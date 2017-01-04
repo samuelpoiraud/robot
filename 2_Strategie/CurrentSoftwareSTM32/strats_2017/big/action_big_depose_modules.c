@@ -2,6 +2,7 @@
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
+#include "../../utils/generic_functions.h"
 
 error_e sub_harry_depose_modules_centre(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,

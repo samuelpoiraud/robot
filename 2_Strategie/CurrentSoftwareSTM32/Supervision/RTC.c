@@ -11,36 +11,22 @@
  *	Version 20110518
  */
 
-#define QS_I2C_C
 #include "RTC.h"
 
-	#include "../QS/QS_i2c.h"
-	#include "../QS/QS_CANmsgList.h"
-	#include "../QS/QS_can.h"
-	#include "../QS/QS_outputlog.h"
+#include "../QS/QS_i2c.h"
+#include "../QS/QS_CANmsgList.h"
+#include "../QS/QS_can.h"
+#include "../QS/QS_outputlog.h"
 
-	#if defined(USE_RTC) && !defined(USE_I2C2)
-		#warning "RTC a besoin de I2C2 pour fonctionner. Veuiller definir USE_I2C2 dans config_qs.h. Le module RTC sera inactif ..."
-		#undef USE_RTC
-	#endif
+#if defined(USE_RTC) && !defined(USE_I2C2)
+	#warning "RTC a besoin de I2C2 pour fonctionner. Veuiller definir USE_I2C2 dans config_qs.h. Le module RTC sera inactif ..."
+	#undef USE_RTC
+#endif
 
-	#define	DS1307_I2C_ADDRESS			0xd0
+#define	DS1307_I2C_ADDRESS			0xd0
 
-	#define	RTC_I2C_START_I2C()					I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE)										//Generate bus start condition
-	#define	RTC_I2C_START_IN_PROGRESS_BIT		FALSE											//Bit indicating start is still in progress
-	#define	RTC_I2C_RESTART_I2C()				I2C_GenerateSTART(I2C2_I2C_HANDLE, ENABLE)								//Generate bus restart condition
-	#define	RTC_I2C_RESTART_IN_PROGRESS_BIT		FALSE									//Bit indicating re-start is still in progress
-	#define	RTC_I2C_STOP_I2C()					I2C_GenerateSTOP(I2C2_I2C_HANDLE, ENABLE)										//Generate bus stop condition
-	#define	RTC_I2C_STOP_IN_PROGRESS_BIT		FALSE									//Bit indicating Stop is still in progress
-	#define	RTC_I2C_WRITE_BYTE(a)				I2C_SendData(I2C2_I2C_HANDLE,a)												//Write byte to I2C device
-	#define	RTC_I2C_TX_IN_PROGRESS_BIT			(!I2C_GetFlagStatus(I2C2_I2C_HANDLE,I2C_FLAG_BTF)										//Bit indicating transmit byte is still in progress
-	#define	RTC_I2C_ACK_NOT_RECEIVED_BIT		I2C_GetFlagStatus(I2C2_I2C_HANDLE,I2C_FLAG_AF)									//Bit that is high when ACK was not received
-	#define	RTC_I2C_READ_BYTE					I2C_ReceiveData(I2C2_I2C_HANDLE)													//Read byte from I2C device function / result byte of RTC_I2C_READ_FUNCTION_START
-	#define RTC_I2C_ACK()							I2C_AcknowledgeConfig(I2C2_I2C_HANDLE,ENABLE)			//Generate bus ACK condition
-	#define RTC_I2C_NOT_ACK()						I2C_AcknowledgeConfig(I2C2_I2C_HANDLE,DISABLE)			//Generate bus Not ACK condition
-	#define	RTC_I2C_IDLE_I2C()					while (I2C_GetFlagStatus(I2C2_I2C_HANDLE,I2C_FLAG_BUSY))			//Test if I2C1 module is idle (wait until it is ready for next operation)
-
-
+static bool_e I2C_read_RTC(Uint8 address, Uint8 cmd, Uint8 * data, Uint8 size);
+static bool_e I2C_write_RTC(Uint8 address, Uint8 * data, Uint8 size);
 
 volatile date_t local_date;
 volatile bool_e local_date_updated = FALSE;
@@ -81,53 +67,49 @@ Uint8 RTC_set_time  (date_t * date)
 		return FALSE;
 	}
 	#ifdef USE_RTC
-	Uint8 temp;
-	Uint8 datas[9];
+		Uint8 temp;
+		Uint8 datas[9];
 
-	datas[0] = 0x00;
+		datas[0] = 0x00;
 
-	temp = (date->seconds / 10);
-	datas[1] = ((date->seconds - (temp * 10)) + (temp << 4)) & 0x7f;	//Bit7 = enable oscillator
+		temp = (date->seconds / 10);
+		datas[1] = ((date->seconds - (temp * 10)) + (temp << 4)) & 0x7f;	//Bit7 = enable oscillator
 
-	temp = (date->minutes / 10);
-	datas[2] = (date->minutes - (temp * 10)) + (temp << 4);
+		temp = (date->minutes / 10);
+		datas[2] = (date->minutes - (temp * 10)) + (temp << 4);
 
-	temp = (date->hours / 10);
-	datas[3] = 	((date->hours - (temp * 10)) + (temp << 4)) & 0x3f;		//Bit6 low = set format to 24 hour
+		temp = (date->hours / 10);
+		datas[3] = 	((date->hours - (temp * 10)) + (temp << 4)) & 0x3f;		//Bit6 low = set format to 24 hour
 
-	temp = (date->day / 10);
-	datas[4] = (date->day - (temp * 10)) + (temp << 4);
+		temp = (date->day / 10);
+		datas[4] = (date->day - (temp * 10)) + (temp << 4);
 
-	temp = (date->date / 10);
-	datas[5] = (date->date - (temp * 10)) + (temp << 4);
+		temp = (date->date / 10);
+		datas[5] = (date->date - (temp * 10)) + (temp << 4);
 
-	temp = (date->month / 10);
-	datas[6] = (date->month - (temp * 10)) + (temp << 4);
+		temp = (date->month / 10);
+		datas[6] = (date->month - (temp * 10)) + (temp << 4);
 
-	temp = (date->year / 10);
-	datas[7] = (date->year - (temp * 10)) + (temp << 4);
+		temp = (date->year / 10);
+		datas[7] = (date->year - (temp * 10)) + (temp << 4);
 
-	datas[8] = 0x00;
+		datas[8] = 0x00;
 
-	local_date_updated = FALSE;	//La date locale n'est plus à jour. On ne prend pas pour autant la nouvelle date comme date locale, puisqu'en cas d'échec, mieux vaut avoir relu la date RTC réelle.
+		local_date_updated = FALSE;	//La date locale n'est plus à jour. On ne prend pas pour autant la nouvelle date comme date locale, puisqu'en cas d'échec, mieux vaut avoir relu la date RTC réelle.
 
-	if(I2C2_write(DS1307_I2C_ADDRESS, datas, 9, TRUE))
-	{
-		debug_printf("RTC mise à jours\n");
-		rtc_updated = TRUE;
-	}
-	else
-	{
-		debug_printf("RTC ERROR I2C\n");
-		return FALSE;
-	}
+		if(I2C_write_RTC(DS1307_I2C_ADDRESS, datas, 9))
+		{
+			debug_printf("RTC mise à jours\n");
+			rtc_updated = TRUE;
+		}
+		else
+		{
+			debug_printf("RTC ERROR I2C\n");
+			return FALSE;
+		}
 
-	return TRUE;
-	#else
-
+		return TRUE;
 	#endif
-
-
 }
 
 
@@ -146,16 +128,14 @@ Uint8 RTC_get_time (date_t * date)
 	date->month = 1;
 	date->year = 0;
 	#ifdef USE_RTC
-	static Uint8 nb_try = 0;
-	Uint8 datas[7];
-	datas[0] = 0x00;	//@ du premier registre
-	if(nb_try < 2 || rtc_updated)
-	{
-		rtc_updated = FALSE;
-		nb_try++;
-		if(I2C2_write(DS1307_I2C_ADDRESS, datas, 1, FALSE))	//Condition de stop non envoyée...
+		static Uint8 nb_try = 0;
+		Uint8 datas[7];
+		Uint8 cmd = 0x00;	//@ du premier registre
+		if(nb_try < 2 || rtc_updated)
 		{
-			if(I2C2_read(DS1307_I2C_ADDRESS, datas, 7))	//Le START sera donc ici un RESTART
+			rtc_updated = FALSE;
+			nb_try++;
+			if(I2C_read_RTC(DS1307_I2C_ADDRESS, cmd, datas, 7))
 			{
 				local_date.seconds 	= (datas[0] & 0x0f) + (((datas[0] & 0x70) >> 4) * 10);		//(Bit 7 is osc flag bit - dump)
 				local_date.minutes 	= (datas[1] & 0x0f) + (((datas[1] & 0x70) >> 4) * 10);
@@ -169,8 +149,6 @@ Uint8 RTC_get_time (date_t * date)
 				return TRUE;
 			}
 		}
-	}
-
 	#endif
 	return FALSE;
 }
@@ -257,4 +235,12 @@ void RTC_can_send(void)
 	CAN_send(&msg);
 }
 
+static bool_e I2C_read_RTC(Uint8 address, Uint8 cmd, Uint8 * data, Uint8 size){
+	Uint8 reg[1] = {cmd};
 
+	return I2C_Read(I2C2_I2C_HANDLE, address, reg, 1, data, size);
+}
+
+static bool_e I2C_write_RTC(Uint8 address, Uint8 * data, Uint8 size){
+	return I2C_Read(I2C2_I2C_HANDLE, address, NULL, 0, data, size);
+}

@@ -1,8 +1,11 @@
 #include "avoidance.h"
 #include "../propulsion/movement.h"
 #include "elements.h"
-#include "QS/QS_outputlog.h"
 #include "QS/QS_can.h"
+
+#define LOG_PREFIX "avoid: "
+#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_AVOIDANCE
+#include "../QS/QS_outputlog.h"
 
 void FOE_ANALYSER_init(){
 
