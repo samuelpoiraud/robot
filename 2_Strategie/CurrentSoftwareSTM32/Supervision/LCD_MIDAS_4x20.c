@@ -61,6 +61,7 @@
 
 static bool_e initialized = FALSE;
 static void LCD_handle_i2c_result(bool_e result);
+static bool_e I2C_write_LCD(Uint8 address, Uint8 * data, Uint8 size);
 
 
 
@@ -113,7 +114,7 @@ void LCD_send_command(Uint8 command)
 	datas[0] = CONTROL_BYTE_FOR_COMMAND;		// Control byte (C0 = 0, D/C = C)
 	datas[1] = command;
 #ifdef USE_LCD
-	LCD_handle_i2c_result(I2C2_write(LCDADDR, datas, 2, TRUE));
+	LCD_handle_i2c_result(I2C_write_LCD(LCDADDR, datas, 2));
 #endif
 }
 
@@ -286,7 +287,7 @@ void LCD_Write_text(char * string)
 		}
 	}
 #ifdef USE_LCD
-	LCD_handle_i2c_result(I2C2_write(LCDADDR, datas, index, TRUE));
+	LCD_handle_i2c_result(I2C_write_LCD(LCDADDR, datas, index));
 #endif
 }
 
@@ -350,3 +351,8 @@ void LCD_bitsReset(bool_e set){
 	msg.data.ihm_lcd_bit_reset.state_set = set;
 	CAN_send(&msg);
 }
+
+static bool_e I2C_write_LCD(Uint8 address, Uint8 * data, Uint8 size){
+	return I2C_Write(I2C2_I2C_HANDLE, address, NULL, 0, data, size);
+}
+
