@@ -221,13 +221,6 @@ void any_match(void)
 			BUZZER_play(150, NOTE_RE, 2);
 		}
 
-		if(global.flags.ask_resume_match){
-			global.flags.match_suspended = FALSE;
-			CAN_send_sid(BROADCAST_RESUME_ALL);
-			QUEUE_reset_all();
-			BUZZER_play(150, NOTE_RE, 2);
-		}
-
 		if(global.flags.go_to_home){
 			debug_printf("Appel de la fonction go to home\n");
 			ret = func_go_to_home();
