@@ -53,7 +53,11 @@ static Sint8 index_strategy = -1;
 static Uint8 number_of_strategy = 0;
 static Uint8 number_of_displayed_strategy = 0;
 static bool_e strat_updated = TRUE;
-static void update_match_duration(void);
+
+static void BRAIN_update_match_duration(void);
+static void BRAIN_action_in_match(void);
+static void BRAIN_action_at_end_of_match(void);
+static void BRAIN_action_after_end_of_match(void);
 
 typedef enum{
 	BIG,
@@ -140,7 +144,7 @@ void BRAIN_init(void){
 		}
 	}
 	if(!found)
-		update_match_duration();
+		BRAIN_update_match_duration();
 }
 
 /* 	execute un match de match_duration secondes à partir de la
@@ -236,7 +240,9 @@ void any_match(void)
 
 		}else if (!global.flags.match_over && !global.flags.match_suspended) {
 
-			if (match_duration != 0 && (global.match_time >= (match_duration))) {
+			BRAIN_action_in_match();
+
+			if(match_duration != 0 && (global.match_time >= (match_duration))) {
 				//MATCH QUI SE TERMINE
 				Selftest_print_sd_hokuyo_lost();
 				CAN_send_sid(BROADCAST_STOP_ALL);
@@ -245,6 +251,7 @@ void any_match(void)
 				BUZZER_play(500,NOTE_SOL,2);
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
 				SYS_check_stack_level();
+				BRAIN_action_at_end_of_match();
 			}
 			else
 			{
@@ -253,6 +260,7 @@ void any_match(void)
 		}
 		else
 		{
+			BRAIN_action_after_end_of_match();
 			/* match is over */
 		}
 	}
@@ -278,7 +286,7 @@ void BRAIN_set_strategy_index(Uint8 i){
 		strategy = list_displayed_strategy[i]->function;
 		strategy_name = list_displayed_strategy[i]->name;
 		index_strategy = i;
-		update_match_duration();
+		BRAIN_update_match_duration();
 		debug_printf("Using strat : %s\n", BRAIN_get_current_strat_name());
 		strat_updated = TRUE;
 	}else
@@ -312,10 +320,25 @@ ia_fun_t BRAIN_get_current_strat_function(void){
 	return strategy;
 }
 
-static void update_match_duration(void)
+static void BRAIN_update_match_duration(void)
 {
 	if(index_strategy != -1)
 		match_duration = list_strategy[index_strategy].match_duration;
 	else
 		match_duration = MATCH_DURATION;
+}
+
+//Executé pendant tout le match
+static void BRAIN_action_in_match(void){
+
+}
+
+//Executé juste une fois à la fin du match
+static void BRAIN_action_at_end_of_match(void){
+
+}
+
+//Executé dés la fin du match
+static void BRAIN_action_after_end_of_match(void){
+
 }
