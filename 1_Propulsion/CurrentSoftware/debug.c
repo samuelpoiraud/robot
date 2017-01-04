@@ -29,6 +29,36 @@
 #ifdef MODE_PRINT_FIRST_TRAJ
 	typedef struct{
 
+		/*
+		volatile Sint32 acceleration_translation;	//[mm.4096/5ms/5ms]
+		volatile Sint32 vitesse_translation;		//[mm.4096/5ms]
+		volatile Sint32 position_translation; 		//[mm.4096]
+
+		volatile Sint32 acceleration_rotation;		//[rad.4096.1024/5ms/5ms]
+		volatile Sint32 vitesse_rotation;			//[rad.4096.1024/5ms]
+		volatile Sint32 position_rotation;			//[rad.4096.1024]
+
+		volatile Sint32 real_speed_translation;		//[mm.4096/5ms]
+		volatile Sint32 real_speed_rotation;		//[rad.4096.1024/5ms]
+
+		volatile Sint32 real_position_translation;	//[mm.4096]
+		volatile Sint32 real_position_rotation;		//[rad.4096.1024]
+
+		volatile Sint32 ecart_translation;			//[mm.4096]
+		volatile Sint32 ecart_rotation;				//[rad.4096.1024]
+
+		volatile Sint16 pwmG;						// Rapport cyclique
+		volatile Sint16 pwmD;						// Rapport cyclique
+
+		volatile Sint32 translation_restante;		//[mm.4096]
+		volatile Sint32 rotation_restante;			//[rad.4096.1024]
+
+		volatile Sint32 distance_frein;				//[mm.4096]
+		volatile Sint32 angle_frein;				//[rad.40963.1024]
+
+		volatile position_t pos;					//[mm] et [rad.4096]
+		 */
+
 		volatile Sint16 pos_x;
 		volatile Sint16 pos_y;
 		volatile Sint16 laser_left_x;
@@ -191,6 +221,31 @@ void DEBUG_process_it(void)
 
 	static void affichage_first_traj(void){
 		Uint16 i;
+
+		/*
+		debug_printf("t(ms);");
+		debug_printf("acceleration_rotation;");
+		debug_printf("acceleration_translation;");
+		debug_printf("ecart_rotation;");
+		debug_printf("ecart_translation;");
+		debug_printf("position_rotation;");
+		debug_printf("position_translation;");
+		debug_printf("real_position_rotation;");
+		debug_printf("real_position_translation;");
+		debug_printf("real_speed_rotation;");
+		debug_printf("real_speed_translation;");
+		debug_printf("vitesse_rotation;");
+		debug_printf("vitesse_translation;");
+		debug_printf("pwmD;");
+		debug_printf("pwmG;");
+		debug_printf("translation_restante;");
+		debug_printf("rotation_restante;");
+		debug_printf("distance_frein;");
+		debug_printf("angle_frein;");
+		debug_printf("pos.x;");
+		debug_printf("pos.y;");
+		debug_printf("pos.teta\n");
+		*/
 
 		for(i = 0; i < DEBUG_TAB_TRAJ_TAILLE && i < index; i++){
 			debug_printf("%d;", i*5);
