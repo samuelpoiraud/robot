@@ -143,8 +143,8 @@ bool_e BIG_BALL_BACK_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
             case ACT_BIG_BALL_BACK_RIGHT_IDLE :
-            case ACT_BIG_BALL_BACK_RIGHT_LOCK :
-            case ACT_BIG_BALL_BACK_RIGHT_UNLOCK :
+            case ACT_BIG_BALL_BACK_RIGHT_UP :
+            case ACT_BIG_BALL_BACK_RIGHT_DOWN :
             case ACT_BIG_BALL_BACK_RIGHT_STOP :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_BIG_BALL_BACK_RIGHT, &BIG_BALL_BACK_RIGHT_run_command, 0,TRUE);
 				break;
@@ -190,8 +190,8 @@ static void BIG_BALL_BACK_RIGHT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_BIG_BALL_BACK_RIGHT_IDLE : *ax12_goalPosition = BIG_BALL_BACK_RIGHT_AX12_IDLE_POS; break;
-        case ACT_BIG_BALL_BACK_RIGHT_LOCK : *ax12_goalPosition = BIG_BALL_BACK_RIGHT_AX12_LOCK_POS; break;
-        case ACT_BIG_BALL_BACK_RIGHT_UNLOCK : *ax12_goalPosition = BIG_BALL_BACK_RIGHT_AX12_UNLOCK_POS; break;
+        case ACT_BIG_BALL_BACK_RIGHT_UP : *ax12_goalPosition = BIG_BALL_BACK_RIGHT_AX12_UP_POS; break;
+        case ACT_BIG_BALL_BACK_RIGHT_DOWN : *ax12_goalPosition = BIG_BALL_BACK_RIGHT_AX12_DOWN_POS; break;
 
         case ACT_BIG_BALL_BACK_RIGHT_STOP :
             AX12_set_torque_enabled(BIG_BALL_BACK_RIGHT_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

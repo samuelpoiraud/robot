@@ -142,8 +142,8 @@ bool_e BEARING_BALL_WHEEL_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
             case ACT_BEARING_BALL_WHEEL_IDLE :
-            case ACT_BEARING_BALL_WHEEL_LOCK :
-            case ACT_BEARING_BALL_WHEEL_UNLOCK :
+            case ACT_BEARING_BALL_WHEEL_UP :
+            case ACT_BEARING_BALL_WHEEL_DOWN :
             case ACT_BEARING_BALL_WHEEL_STOP :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_BEARING_BALL_WHEEL, &BEARING_BALL_WHEEL_run_command, 0,TRUE);
 				break;
@@ -189,8 +189,8 @@ static void BEARING_BALL_WHEEL_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_BEARING_BALL_WHEEL_IDLE : *ax12_goalPosition = BEARING_BALL_WHEEL_AX12_IDLE_POS; break;
-        case ACT_BEARING_BALL_WHEEL_LOCK : *ax12_goalPosition = BEARING_BALL_WHEEL_AX12_LOCK_POS; break;
-        case ACT_BEARING_BALL_WHEEL_UNLOCK : *ax12_goalPosition = BEARING_BALL_WHEEL_AX12_UNLOCK_POS; break;
+        case ACT_BEARING_BALL_WHEEL_UP : *ax12_goalPosition = BEARING_BALL_WHEEL_AX12_UP_POS; break;
+        case ACT_BEARING_BALL_WHEEL_DOWN : *ax12_goalPosition = BEARING_BALL_WHEEL_AX12_DOWN_POS; break;
 
         case ACT_BEARING_BALL_WHEEL_STOP :
             AX12_set_torque_enabled(BEARING_BALL_WHEEL_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
