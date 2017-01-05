@@ -1,6 +1,9 @@
 #include "strat_inutile.h"
 #include "../../propulsion/movement.h"
 #include "../../QS/QS_stateMachineHelper.h"
+#include "../../actuator/act_functions.h"
+#include "../../actuator/queue.h"
+#include "../../utils/actionChecker.h"
 
 void cailyn_strat_inutile_big(bool_e right_side, bool_e left_side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
@@ -15,7 +18,15 @@ void cailyn_strat_inutile_big(bool_e right_side, bool_e left_side){
 			MOVE_BACK_START_ERROR,
 			REPOSITION_START,
 			CHOICE_CYLINDER_GRAB,
-			LEFT_GRAB,
+			LEFT_SLIDE_OUT,
+			LEFT_SLIDE_IN,
+			FAIL_LEFT_SLIDE_OUT,
+			LEFT_ELEVATOR_UP,
+			FAIL_LEFT_SLIDE_IN,
+			LEFT_SLOPE_LOCK,
+			FAIL_LEFT_ELEVATOR_UP,
+			END_LEFT,
+			FAIL_LEFT_SLOPE_LOCK,
 			RIGHT_GRAB,
 			GET_OUT_ERROR,
 			ERROR,
@@ -26,7 +37,8 @@ void cailyn_strat_inutile_big(bool_e right_side, bool_e left_side){
 
 	switch(state){
 		case INIT:
-			if(/* right_side_full && left_side_full */){
+			//if(right_side_full && left_side_full){
+			if(TRUE){
 				state = ERROR;
 			}
 			else if(i_am_in_square_color(0,400,0,3000)){
@@ -84,10 +96,12 @@ void cailyn_strat_inutile_big(bool_e right_side, bool_e left_side){
 			break;
 
 		case CHOICE_CYLINDER_GRAB:
-			if(/* right_side_full */ || left_side || /* right_side_amout > left_side_amount */){
-				state = LEFT_GRAB;
+			//if(right_side_full  || left_side ||  right_side_amout > left_side_amount){
+			if(left_side){
+				state = LEFT_SLIDE_OUT;
 			}
-			else if(/* left_side_full */ || right_side || /* right_side_amout < left_side_amount */){
+			//else if(left_side_full  || right_side || right_side_amout < left_side_amount){
+			else if(right_side){
 				state = RIGHT_GRAB;
 			}
 			else{
@@ -95,18 +109,46 @@ void cailyn_strat_inutile_big(bool_e right_side, bool_e left_side){
 			}
 			break;
 
-		case LEFT_GRAB:
-			//on baisse la plaque de gauche de maintien de cylindres en haut du robot
-			//on baisse le bras de remonté de cylindre côté gauche
-			//on allume la pompe pour le bras de gauche qui va chercher le cylindre dans la fusée
-			//on sors le bras qui va chercher le cylindre dans la fusée
-			//attente
-			//on allume la pompe pour remonter le cylindre côté gauche
-			//on rentre le bras qui va chercher le cylindre dans la fusée
-			//on eteint la pompe pour le bras de gauche qui va chercher le cylindre dans la fusée
-			//attente
-			//on monte le bras de remonté de cylindre côté gauche
-			//on monte la plaque de gauche de maintien de cylindres en haut du robot
+		case LEFT_SLIDE_OUT:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK); //on baisse la plaque de gauche de maintien de cylindres en haut du robot
+				//on éteind la pompe pour remonter le cylindre côté gauche
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_TOP); //on baisse le bras de remonté de cylindre côté gauche
+				//on allume la pompe pour le bras de gauche qui va chercher le cylindre dans la fusée
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_OUT); //on sors le bras qui va chercher le cylindre dans la fusée
+			}
+			check_act_status(ACT_QUEUE_Cylinder_slider_left, LEFT_SLIDE_OUT, LEFT_SLIDE_IN, FAIL_LEFT_SLIDE_OUT);//attente
+			break;
+
+		case LEFT_SLIDE_IN:
+			if(entrance){
+				//on allume la pompe pour remonter le cylindre côté gauche
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN); //on rentre le bras qui va chercher le cylindre dans la fusée
+			}
+			check_act_status(ACT_QUEUE_Cylinder_slider_left, LEFT_SLIDE_IN, LEFT_ELEVATOR_UP, FAIL_LEFT_SLIDE_IN);//attente
+			break;
+
+		case LEFT_ELEVATOR_UP:
+			if(entrance){
+				//on eteint la pompe pour le bras de gauche qui va chercher le cylindre dans la fusée
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_TOP); //on monte le bras de remonté de cylindre côté gauche
+			}
+			check_act_status(ACT_QUEUE_Cylinder_elevator_left, LEFT_ELEVATOR_UP, LEFT_SLOPE_LOCK, FAIL_LEFT_ELEVATOR_UP);//attente
+			break;
+
+		case LEFT_SLOPE_LOCK:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_LOCK); //on monte le bras de remonté de cylindre côté gauche
+			}
+			check_act_status(ACT_QUEUE_Cylinder_elevator_left, LEFT_SLOPE_LOCK, END_LEFT, FAIL_LEFT_SLOPE_LOCK);//attente
+			break;
+
+		case END_LEFT:
+			if(entrance){
+				//on éteind la pompe pour remonter le cylindre côté gauche
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM); //on monte le bras de remonté de cylindre côté gauche
+			}
+			state = CHOICE_CYLINDER_GRAB;
 			break;
 
 		case GET_OUT_ERROR:

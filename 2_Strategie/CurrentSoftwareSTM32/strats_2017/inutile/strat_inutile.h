@@ -6,7 +6,7 @@
 	void arnaud_strat_inutile_big();
 	void arnaud_strat_inutile_small();
 
-	void cailyn_strat_inutile_big();
+	void cailyn_strat_inutile_big(bool_e right_side, bool_e left_side);
 	void cailyn_strat_inutile_small();
 
 	void corentin_strat_inutile_big();
