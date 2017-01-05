@@ -142,8 +142,8 @@ bool_e ORE_SHOVEL_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_ORE_SHOVEL_IDLE :
-			case ACT_ORE_SHOVEL_LOCK :
-			case ACT_ORE_SHOVEL_UNLOCK :
+			case ACT_ORE_SHOVEL_UP :
+			case ACT_ORE_SHOVEL_DOWN :
 			case ACT_ORE_SHOVEL_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_ORE_SHOVEL, &ORE_SHOVEL_run_command, 0,TRUE);
 				break;
@@ -189,8 +189,8 @@ static void ORE_SHOVEL_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_ORE_SHOVEL_IDLE : *rx24_goalPosition = ORE_SHOVEL_RX24_IDLE_POS; break;
-		case ACT_ORE_SHOVEL_LOCK : *rx24_goalPosition = ORE_SHOVEL_RX24_LOCK_POS; break;
-		case ACT_ORE_SHOVEL_UNLOCK : *rx24_goalPosition = ORE_SHOVEL_RX24_UNLOCK_POS; break;
+		case ACT_ORE_SHOVEL_UP : *rx24_goalPosition = ORE_SHOVEL_RX24_LOCK_POS; break;
+		case ACT_ORE_SHOVEL_DOWN : *rx24_goalPosition = ORE_SHOVEL_RX24_UNLOCK_POS; break;
 
 		case ACT_ORE_SHOVEL_STOP :
 			RX24_set_torque_enabled(ORE_SHOVEL_RX24_ID, FALSE); //Stopper l'asservissement du RX24

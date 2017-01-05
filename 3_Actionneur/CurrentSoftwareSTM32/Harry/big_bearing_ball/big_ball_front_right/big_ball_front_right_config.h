@@ -21,8 +21,8 @@
 
 //Position
     #define BIG_BALL_FRONT_RIGHT_AX12_IDLE_POS					512
-    #define BIG_BALL_FRONT_RIGHT_AX12_LOCK_POS				    512		//en degré
-    #define BIG_BALL_FRONT_RIGHT_AX12_UNLOCK_POS					512		//en degré
+    #define BIG_BALL_FRONT_RIGHT_AX12_UP_POS				    512		//en degré
+    #define BIG_BALL_FRONT_RIGHT_AX12_DOWN_POS					512		//en degré
 
 //Position initiale de l'AX12
     #define BIG_BALL_FRONT_RIGHT_AX12_INIT_POS					BIG_BALL_FRONT_RIGHT_AX12_IDLE_POS
