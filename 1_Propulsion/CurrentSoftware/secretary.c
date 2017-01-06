@@ -241,7 +241,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								msg->data.prop_go_angle.teta,	//teta
 								msg->data.prop_go_angle.referential,	//relative
 								msg->data.prop_go_angle.buffer_mode,//maintenant
-								ANY_WAY,					//sens de marche
+								msg->data.prop_go_angle.way,					//sens de marche
 								NOT_BORDER_MODE,					//mode bordure
 								msg->data.prop_go_angle.propEndCondition, 	//mode multi points
 								//NOT_MULTIPOINT,
