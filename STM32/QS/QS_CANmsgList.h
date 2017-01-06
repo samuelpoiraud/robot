@@ -961,25 +961,23 @@
 		//-------------------------MOSFETS ACT--------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		ACT_MOSFET_1                = (ACT_FILTER | 0x60),
-		ACT_VENTILATOR_PEARL        = (ACT_FILTER | 0x60),
-
-		ACT_MOSFET_2				= (ACT_FILTER | 0x61),
-		ACT_MOSFET_3				= (ACT_FILTER | 0x62),
-		ACT_MOSFET_4				= (ACT_FILTER | 0x63),
+		ACT_POMPE_SLIDER_LEFT		= (ACT_FILTER | 0x60),
+		ACT_POMPE_SLIDER_RIGHT		= (ACT_FILTER | 0x61),
+		ACT_POMPE_ELEVATOR_LEFT		= (ACT_FILTER | 0x62),
+		ACT_POMPE_ELEVATOR_RIGHT	= (ACT_FILTER | 0x63),
 		ACT_MOSFET_5				= (ACT_FILTER | 0x64),
 		ACT_MOSFET_6				= (ACT_FILTER | 0x65),
 		ACT_MOSFET_7				= (ACT_FILTER | 0x66),
 		ACT_MOSFET_8			    = (ACT_FILTER | 0x67),
-		ACT_MOSFET_MULTI           = (ACT_FILTER | 0x68),
+		ACT_MOSFET_MULTI			= (ACT_FILTER | 0x68),
 
 	//////////////////////////////////////////////////////////////////
 	//-------------------------MOSFETS STRAT------------------------//
 	//////////////////////////////////////////////////////////////////
-		STRAT_MOSFET_1              = (ACT_FILTER | 0x69),
-		STRAT_MOSFET_2				= (ACT_FILTER | 0x70),
-		STRAT_MOSFET_3				= (ACT_FILTER | 0x71),
-		STRAT_MOSFET_4				= (ACT_FILTER | 0x72),
+		STRAT_POMPE_SLIDER_LEFT		= (ACT_FILTER | 0x69),
+		STRAT_POMPE_SLIDER_RIGHT	= (ACT_FILTER | 0x70),
+		STRAT_POMPE_ELEVATOR_LEFT	= (ACT_FILTER | 0x71),
+		STRAT_POMPE_ELEVATOR_RIGHT	= (ACT_FILTER | 0x72),
 		STRAT_MOSFET_5				= (ACT_FILTER | 0x73),
 		STRAT_MOSFET_6				= (ACT_FILTER | 0x74),
 		STRAT_MOSFET_7				= (ACT_FILTER | 0x75),

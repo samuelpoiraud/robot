@@ -56,10 +56,10 @@ typedef enum {
 	//ACT_QUEUE_Left_arm,
 
 	//Mosfets actionneurs
-	ACT_QUEUE_Mosfet_act_1,
-	ACT_QUEUE_Mosfet_act_2,
-	ACT_QUEUE_Mosfet_act_3,
-	ACT_QUEUE_Mosfet_act_4,
+	ACT_QUEUE_Pompe_act_slider_left,
+	ACT_QUEUE_Pompe_act_slider_right,
+	ACT_QUEUE_Pompe_act_elevator_left,
+	ACT_QUEUE_Pompe_act_elevator_right,
 	ACT_QUEUE_Mosfet_act_5,
 	ACT_QUEUE_Mosfet_act_6,
 	ACT_QUEUE_Mosfet_act_7,
@@ -67,10 +67,10 @@ typedef enum {
 	ACT_QUEUE_Mosfet_act_multi,
 
 	//Mosfets stratégie
-	ACT_QUEUE_Mosfet_strat_1,
-	ACT_QUEUE_Mosfet_strat_2,
-	ACT_QUEUE_Mosfet_strat_3,
-	ACT_QUEUE_Mosfet_strat_4,
+	ACT_QUEUE_Pompe_strat_slider_left,
+	ACT_QUEUE_Pompe_strat_slider_right,
+	ACT_QUEUE_Pompe_strat_elevator_left,
+	ACT_QUEUE_Pompe_strat_elevator_right,
 	ACT_QUEUE_Mosfet_strat_5,
 	ACT_QUEUE_Mosfet_strat_6,
 	ACT_QUEUE_Mosfet_strat_7,
