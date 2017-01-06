@@ -20,7 +20,7 @@ void arnaud_strat_inutile_big(){
 			break;
 
 		case TRANS1:
-			state = try_going(global.pos.x, global.pos.y+1000, state , DONE, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
+			state = try_going(global.pos.x, global.pos.y+1000, state , TRANS2, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case TRANS2:
@@ -28,11 +28,11 @@ void arnaud_strat_inutile_big(){
 			break;
 
 		case ROT1:
-			state = try_go_angle(0, state, ROT2, ERROR, FAST, ANY_WAY, END_AT_BRAKE);
+			state = try_go_angle(0, state, ROT2, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			break;
 
 		case ROT2:
-			state = try_go_angle(PI4096/2, state, ROT3, ERROR, FAST, ANY_WAY, END_AT_BRAKE);
+			state = try_go_angle(PI4096/2, state, ROT3, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 		case ROT3:

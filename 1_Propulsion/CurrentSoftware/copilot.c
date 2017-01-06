@@ -207,7 +207,7 @@ static bool_e COPILOT_decision_change_order(bool_e * change_order_in_multipoint_
 					 ||
 						( (checkNextOrder.trajectory == TRAJECTORY_TRANSLATION || checkNextOrder.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
 						 &&
-						  (current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
+						  (current_order.trajectory == TRAJECTORY_TRANSLATION || checkNextOrder.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
 						)
 				   ){
 					*change_order_in_multipoint_without_reaching_destination = TRUE;
@@ -340,7 +340,7 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 
 					//Les rotations préalables pourraient se faire en mode multipoints.
 					order->propEndCondition = PROP_END_AT_POINT;
-					order->way = FORWARD;
+					order->way = ANY_WAY;
 
 					//on ne prévient pas la carte P sur rotation préalable ajoutée par nos soins.
 					order->acknowledge = NO_ACKNOWLEDGE;
@@ -403,7 +403,7 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 					if(absolute(global.vitesse_translation) > PRECISION_ARRIVE_SPEED_TRANSLATION)
 						order->trajectory = TRAJECTORY_STOP;		//Besoin de faire un arrêt préalable à la rotation préalable
 					else{
-						order->way = FORWARD;
+						order->way = ANY_WAY;
 						order->trajectory = TRAJECTORY_ROTATION;	//Nous sommes bien arretés : nous pouvons faire une rotation préalable !
 					}
 				}
@@ -559,8 +559,24 @@ static void COPILOT_update_destination_rotation(void)
 		angle = current_order.teta << 10;
 	}
 
-	//Si destination plus loin que PI... autant tourner dans l'autre sens !
-	PILOT_set_destination_rotation(CALCULATOR_modulo_angle_22(angle - (global.position.teta << 10)));
+	if((current_order.trajectory == TRAJECTORY_ROTATION && current_order.way == ANY_WAY)
+			||current_order.trajectory != TRAJECTORY_ROTATION){
+
+		//Si destination plus loin que PI... autant tourner dans l'autre sens !
+		PILOT_set_destination_rotation(CALCULATOR_modulo_angle_22(angle - (global.position.teta << 10)));
+
+	}else{
+
+		Sint32 dest_angle = CALCULATOR_modulo_angle_22(angle - (global.position.teta << 10));
+
+		if(current_order.way == CLOCKWISE && dest_angle > 0)
+			PILOT_set_destination_rotation(dest_angle - TWO_PI22);
+		else if(current_order.way == TRIGOWISE && dest_angle < 0)
+			PILOT_set_destination_rotation(dest_angle + TWO_PI22);
+		else
+			PILOT_set_destination_rotation(dest_angle);
+	}
+
 
 	current_order.teta = angle >> 10;
 }
