@@ -320,7 +320,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
            case ACT_CYLINDER_TURN_RIGHT_ARM & 0xFF: originalSidStr = "CylinderTurnRightArm";break;
 
 		// Anne
-		case ACT_VENTILATOR_PEARL & 0xFF:        originalSidStr = "VentilatorPearl";     break;
+		//case ACT_VENTILATOR_PEARL & 0xFF:        originalSidStr = "VentilatorPearl";     break;
 		default:								    originalSidStr = "Unknown";				break;
 	}
 	switch(result) {

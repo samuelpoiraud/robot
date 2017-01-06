@@ -205,20 +205,20 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		//case ACT_LEFT_ARM	 :					    	print(string, len, "%x ACT_LEFT_ARM	                          ", ACT_LEFT_ARM							      	);	break;
 
 // Mosfets
-		case ACT_MOSFET_1:								print(string, len, "%x ACT_MOSFET_1							  ", ACT_MOSFET_1									);	break;
-		case ACT_MOSFET_2:								print(string, len, "%x ACT_MOSFET_2							  ", ACT_MOSFET_2									);	break;
-		case ACT_MOSFET_3:								print(string, len, "%x ACT_MOSFET_3							  ", ACT_MOSFET_3									);	break;
-		case ACT_MOSFET_4:								print(string, len, "%x ACT_MOSFET_4							  ", ACT_MOSFET_4									);	break;
+		case ACT_POMPE_SLIDER_LEFT:						print(string, len, "%x ACT_POMPE_SLIDER_LEFT						  ", ACT_POMPE_SLIDER_LEFT								);	break;
+		case ACT_POMPE_SLIDER_RIGHT:					print(string, len, "%x ACT_POMPE_SLIDER_RIGHT						  ", ACT_POMPE_SLIDER_RIGHT									);	break;
+		case ACT_POMPE_ELEVATOR_LEFT:					print(string, len, "%x ACT_POMPE_ELEVATOR_LEFT							  ", ACT_POMPE_ELEVATOR_LEFT									);	break;
+		case ACT_POMPE_ELEVATOR_RIGHT:					print(string, len, "%x ACT_POMPE_ELEVATOR_RIGHT							  ", ACT_POMPE_ELEVATOR_RIGHT									);	break;
 		case ACT_MOSFET_5:								print(string, len, "%x ACT_MOSFET_5                           ", ACT_MOSFET_5									);	break;
 		case ACT_MOSFET_6:								print(string, len, "%x ACT_MOSFET_6							  ", ACT_MOSFET_6									);	break;
 		case ACT_MOSFET_7:								print(string, len, "%x ACT_MOSFET_7							  ", ACT_MOSFET_7									);	break;
 		case ACT_MOSFET_8:								print(string, len, "%x ACT_MOSFET_8                           ", ACT_MOSFET_8	 								);	break;
 		case ACT_MOSFET_MULTI:							print(string, len, "%x ACT_MOSFET_MULTI                       ", ACT_MOSFET_MULTI								);	break;
 
-		case STRAT_MOSFET_1:							print(string, len, "%x STRAT_MOSFET_1						  ", STRAT_MOSFET_1									);	break;
-		case STRAT_MOSFET_2:							print(string, len, "%x STRAT_MOSFET_2						  ", STRAT_MOSFET_2									);	break;
-		case STRAT_MOSFET_3:							print(string, len, "%x STRAT_MOSFET_3						  ", STRAT_MOSFET_3									);	break;
-		case STRAT_MOSFET_4:							print(string, len, "%x STRAT_MOSFET_4						  ", STRAT_MOSFET_4									);	break;
+		case STRAT_POMPE_SLIDER_LEFT:					print(string, len, "%x STRAT_POMPE_SLIDER_LEFT						  ", STRAT_POMPE_SLIDER_LEFT									);	break;
+		case STRAT_POMPE_SLIDER_RIGHT:					print(string, len, "%x STRAT_POMPE_SLIDER_RIGHT						  ", STRAT_POMPE_SLIDER_RIGHT									);	break;
+		case STRAT_POMPE_ELEVATOR_LEFT:					print(string, len, "%x STRAT_POMPE_ELEVATOR_LEFT						  ", STRAT_POMPE_ELEVATOR_LEFT								);	break;
+		case STRAT_POMPE_ELEVATOR_RIGHT:				print(string, len, "%x STRAT_POMPE_ELEVATOR_RIGHT						  ", STRAT_POMPE_ELEVATOR_RIGHT									);	break;
 		case STRAT_MOSFET_5:                            print(string, len, "%x STRAT_MOSFET_5						  ", STRAT_MOSFET_5									);	break;
 		case STRAT_MOSFET_6:                            print(string, len, "%x STRAT_MOSFET_6                         ", STRAT_MOSFET_6							     	);	break;
 		case STRAT_MOSFET_7:                            print(string, len, "%x STRAT_MOSFET_7                         ", STRAT_MOSFET_7								    );	break;
@@ -304,20 +304,20 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				//case (Uint8)ACT_LEFT_ARM:		     			print(string,len, "ACT_LEFT_ARM ");			        break;
 
 				//Mosfet
-				case (Uint8)ACT_MOSFET_1:						print(string, len, "ACT_MOSFET_2 ");				break;
-				case (Uint8)ACT_MOSFET_2:					    print(string, len, "ACT_MOSFET_2 ");				break;
-				case (Uint8)ACT_MOSFET_3:						print(string, len, "ACT_MOSFET_3 ");				break;
-				case (Uint8)ACT_MOSFET_4:					    print(string, len, "ACT_MOSFET_4 ");				break;
+				case (Uint8)ACT_POMPE_SLIDER_LEFT:				print(string, len, "ACT_POMPE_SLIDER_LEFT ");				break;
+				case (Uint8)ACT_POMPE_SLIDER_RIGHT:				print(string, len, "ACT_POMPE_SLIDER_RIGHT ");				break;
+				case (Uint8)ACT_POMPE_ELEVATOR_LEFT:			print(string, len, "ACT_POMPE_ELEVATOR_LEFT ");				break;
+				case (Uint8)ACT_POMPE_ELEVATOR_RIGHT:			print(string, len, "ACT_POMPE_ELEVATOR_RIGHT ");				break;
 				case (Uint8)ACT_MOSFET_5:					    print(string, len, "ACT_MOSFET_5 ");				break;
 				case (Uint8)ACT_MOSFET_6:						print(string, len, "ACT_MOSFET_6 ");				break;
 				case (Uint8)ACT_MOSFET_7:						print(string, len, "ACT_MOSFET_7 ");				break;
 				case (Uint8)ACT_MOSFET_8:						print(string, len, "ACT_MOSFET_8 ");				break;
 				case (Uint8)ACT_MOSFET_MULTI:					print(string, len, "ACT_MOSFET_MULTI ");            break;
 
-				case (Uint8)STRAT_MOSFET_1:						print(string, len, "STRAT_MOSFET_1 ");				break;
-				case (Uint8)STRAT_MOSFET_2:						print(string, len, "STRAT_MOSFET_2 ");				break;
-				case (Uint8)STRAT_MOSFET_3:						print(string, len, "STRAT_MOSFET_3 ");				break;
-				case (Uint8)STRAT_MOSFET_4:						print(string, len, "STRAT_MOSFET_4 ");				break;
+				case (Uint8)STRAT_POMPE_SLIDER_LEFT:			print(string, len, "STRAT_POMPE_SLIDER_LEFT ");				break;
+				case (Uint8)STRAT_POMPE_SLIDER_RIGHT:			print(string, len, "STRAT_POMPE_SLIDER_RIGHT ");				break;
+				case (Uint8)STRAT_POMPE_ELEVATOR_LEFT:			print(string, len, "STRAT_POMPE_ELEVATOR_LEFT ");				break;
+				case (Uint8)STRAT_POMPE_ELEVATOR_RIGHT:			print(string, len, "STRAT_POMPE_ELEVATOR_RIGHT ");				break;
 				case (Uint8)STRAT_MOSFET_5:                     print(string, len, "STRAT_MOSFET_5 ");				break;
 				case (Uint8)STRAT_MOSFET_6:                     print(string, len, "STRAT_MOSFET_6 ");				break;
 				case (Uint8)STRAT_MOSFET_7:                     print(string, len, "STRAT_MOSFET_7 ");				break;
@@ -342,18 +342,18 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  break;*/
 
 
-				  case (Uint8)ACT_MOSFET_1:
-				  case (Uint8)ACT_MOSFET_2:
-				  case (Uint8)ACT_MOSFET_3:
-				  case (Uint8)ACT_MOSFET_4:
+				  case (Uint8)ACT_POMPE_SLIDER_LEFT:
+				  case (Uint8)ACT_POMPE_SLIDER_RIGHT:
+				  case (Uint8)ACT_POMPE_ELEVATOR_LEFT:
+				  case (Uint8)ACT_POMPE_ELEVATOR_RIGHT:
 				  case (Uint8)ACT_MOSFET_5:
 				  case (Uint8)ACT_MOSFET_6:
 				  case (Uint8)ACT_MOSFET_7:
 				  case (Uint8)ACT_MOSFET_8:
-				  case (Uint8)STRAT_MOSFET_1:
-				  case (Uint8)STRAT_MOSFET_2:
-				  case (Uint8)STRAT_MOSFET_3:
-				  case (Uint8)STRAT_MOSFET_4:
+				  case (Uint8)STRAT_POMPE_SLIDER_LEFT:
+				  case (Uint8)STRAT_POMPE_SLIDER_RIGHT:
+				  case (Uint8)STRAT_POMPE_ELEVATOR_LEFT:
+				  case (Uint8)STRAT_POMPE_ELEVATOR_RIGHT:
 				  case (Uint8)STRAT_MOSFET_5:
 				  case (Uint8)STRAT_MOSFET_6:
 				  case (Uint8)STRAT_MOSFET_7:
