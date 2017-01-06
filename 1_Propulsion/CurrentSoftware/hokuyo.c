@@ -104,12 +104,13 @@
 	__ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core __ALIGN_END;
 	__ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
 
-
-	static Uint8 HOKUYO_datas[NB_BYTES_FROM_HOKUYO]__attribute__((section(".ccm")));				//Données brutes issues du capteur HOKUYO
+#warning Réactiver la CCMRAM ici
+	static Uint8 HOKUYO_datas[NB_BYTES_FROM_HOKUYO];//__attribute__((section(".ccm")));				//Données brutes issues du capteur HOKUYO
 	static Uint32 datas_index=0;									//Index pour ces données
 
 	#define NB_DETECTED_VALID_POINTS	1100
-	static HOKUYO_point_position detected_valid_points[NB_DETECTED_VALID_POINTS]__attribute__((section(".ccm")));	//Points valides détectés par le capteur (X, Y, teta, distance)
+#warning Réactiver la CCMRAM ici
+	static HOKUYO_point_position detected_valid_points[NB_DETECTED_VALID_POINTS];//__attribute__((section(".ccm")));	//Points valides détectés par le capteur (X, Y, teta, distance)
 	static Uint16 nb_valid_points=0;								//Nombre de points valides détectés
 
 	static HOKUYO_adversary_position hokuyo_adversaries[HOKUYO_MAX_FOES];	//Positions des adversaires détectés
@@ -135,7 +136,8 @@
 
 	#define ECART_HOKUYO_A_DROITE 20 //matérialise le fait que l'hokuyo est décalé d'une certaine distance à doite par rapport au centre du robot
 	#define ECART_BALISE 200
-	HOKUYO_point_position points_beacons_valid[NB_DETECTED_VALID_POINTS]__attribute__((section(".ccm")));
+#warning Réactiver la CCMRAM ici
+	HOKUYO_point_position points_beacons_valid[NB_DETECTED_VALID_POINTS];//__attribute__((section(".ccm")));
 	//static Uint8 nb_valid_points_beacons=0;
 
 	#ifdef TRIANGULATION
