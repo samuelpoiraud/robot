@@ -151,6 +151,8 @@ void SCAN_process_main(){
 		// Appel de fonctions de scan objets
 		OBJECTS_SCAN_treatment(tab_treatment_left);
 		OBJECTS_SCAN_treatment(tab_treatment_right);
+        BORDERS_SCAN_treatment(tab_treatment_left);
+        BORDERS_SCAN_treatment(tab_treatment_right);
 	}
 
 	// Copie de la seconde partie du tableau pendant que la première partie est en train de se remplir
