@@ -38,6 +38,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
     Sint64 ymoy=0;
     Sint64 num=0;
     Sint64 den=0;
+    double pente=0;
     Sint16 angle_middle_north=0;
     Sint16 angle_blue_start=0;
     Sint16 angle_blue_corner=0;
@@ -45,6 +46,13 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
     Sint16 angle_yellow_corner=0;
     Sint16 angle_blue_south=0;
     Sint16 angle_yellow_south=0;
+    Sint16 xmoy_middle_north=0;
+    Sint16 ymoy_blue_start=0;
+    Sint16 ymoy_blue_corner=0;
+    Sint16 ymoy_yellow_start=0;
+    Sint16 ymoy_yellow_corner=0;
+    Sint16 xmoy_blue_south=0;
+    Sint16 xmoy_yellow_south=0;
 
 
 
@@ -70,9 +78,11 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                     ymoy=ymoy/NB_DATA_POINTS;
                     for(i=0;i<NB_DATA_POINTS;i++){
                         num+=(middle_north[i].x-xmoy)*(middle_north[i].y-ymoy);
-                        den+=(middle_north[i].x-xmoy)*(middle_north[i].x-xmoy);
+                        den+=(middle_north[i].y-ymoy)*(middle_north[i].y-ymoy); //attention on inverse pour ne pas avoir une pente dementielle
                     }
-                    angle_middle_north=atan4096(num/den);
+                    pente=num/den;
+                    angle_middle_north=atan4096(pente);
+                    xmoy_middle_north=xmoy;
                 }
                 else{
                     for(i=0;i<middle_north_index;i++){
@@ -83,9 +93,11 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                     ymoy=ymoy/middle_north_index;
                     for(i=0;i<middle_north_index;i++){
                         num+=(middle_north[i].x-xmoy)*(middle_north[i].y-ymoy);
-                        den+=(middle_north[i].x-xmoy)*(middle_north[i].x-xmoy);
+                        den+=(middle_north[i].y-ymoy)*(middle_north[i].y-ymoy);//attention inversion
                     }
-                    angle_middle_north=atan4096(num/den);
+                    pente=num/den;
+                    angle_middle_north=atan4096(pente);
+                    xmoy_middle_north=xmoy;
                 }
             }
         }
@@ -113,6 +125,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                         den+=(blue_start[i].x-xmoy)*(blue_start[i].x-xmoy);
                     }
                     angle_blue_start=atan4096(num/den);
+                    ymoy_blue_start=ymoy;
                 }
                 else{
                     for(i=0;i<blue_start_index;i++){
@@ -126,6 +139,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                         den+=(blue_start[i].x-xmoy)*(blue_start[i].x-xmoy);
                     }
                     angle_blue_start=atan4096(num/den);
+                    ymoy_blue_start=ymoy;
                 }
             }
         }
@@ -153,6 +167,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                         den+=(blue_corner[i].x-xmoy)*(blue_corner[i].x-xmoy);
                     }
                     angle_blue_corner=atan4096(num/den);
+                    ymoy_blue_corner=ymoy;
                 }
                 else{
                     for(i=0;i<blue_corner_index;i++){
@@ -166,6 +181,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                         den+=(blue_corner[i].x-xmoy)*(blue_corner[i].x-xmoy);
                     }
                     angle_blue_corner=atan4096(num/den);
+                    ymoy_blue_corner=ymoy;
                 }
             }
         }
@@ -193,6 +209,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                         den+=(yellow_start[i].x-xmoy)*(yellow_start[i].x-xmoy);
                     }
                     angle_yellow_start=atan4096(num/den);
+                    ymoy_yellow_start=ymoy;
                 }
                 else{
                     for(i=0;i<yellow_start_index;i++){
@@ -206,6 +223,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                         den+=(yellow_start[i].x-xmoy)*(yellow_start[i].x-xmoy);
                     }
                     angle_yellow_start=atan4096(num/den);
+                    ymoy_yellow_start=ymoy;
                 }
             }
         }
@@ -233,6 +251,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                         den+=(yellow_corner[i].x-xmoy)*(yellow_corner[i].x-xmoy);
                     }
                     angle_yellow_corner=atan4096(num/den);
+                    ymoy_yellow_corner=ymoy;
                 }
                 else{
                     for(i=0;i<yellow_corner_index;i++){
@@ -246,6 +265,7 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                         den+=(yellow_corner[i].x-xmoy)*(yellow_corner[i].x-xmoy);
                     }
                     angle_yellow_corner=atan4096(num/den);
+                    ymoy_yellow_corner=ymoy;
                 }
             }
         }
@@ -270,9 +290,10 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                     ymoy=ymoy/NB_DATA_POINTS;
                     for(i=0;i<NB_DATA_POINTS;i++){
                         num+=(blue_south[i].x-xmoy)*(blue_south[i].y-ymoy);
-                        den+=(blue_south[i].x-xmoy)*(blue_south[i].x-xmoy);
+                        den+=(blue_south[i].y-ymoy)*(blue_south[i].y-ymoy); //attention inversion
                     }
                     angle_blue_south=atan4096(num/den);
+                    xmoy_blue_south=xmoy;
                 }
                 else{
                     for(i=0;i<blue_south_index;i++){
@@ -283,9 +304,10 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                     ymoy=ymoy/blue_south_index;
                     for(i=0;i<blue_south_index;i++){
                         num+=(blue_south[i].x-xmoy)*(blue_south[i].y-ymoy);
-                        den+=(blue_south[i].x-xmoy)*(blue_south[i].x-xmoy);
+                        den+=(blue_south[i].y-ymoy)*(blue_south[i].y-ymoy);//attention inversion
                     }
                     angle_blue_south=atan4096(num/den);
+                    xmoy_blue_south=xmoy;
                 }
             }
         }
@@ -311,9 +333,10 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                     ymoy=ymoy/NB_DATA_POINTS;
                     for(i=0;i<NB_DATA_POINTS;i++){
                         num+=(yellow_south[i].x-xmoy)*(yellow_south[i].y-ymoy);
-                        den+=(yellow_south[i].x-xmoy)*(yellow_south[i].x-xmoy);
+                        den+=(yellow_south[i].y-ymoy)*(yellow_south[i].y-ymoy);//attention inversion
                     }
                     angle_yellow_south=atan4096(num/den);
+                    xmoy_yellow_south=xmoy;
                 }
                 else{
                     for(i=0;i<yellow_south_index;i++){
@@ -324,9 +347,10 @@ void BORDERS_SCAN_treatment(scan_data_t tab[]){
                     ymoy=ymoy/yellow_south_index;
                     for(i=0;i<yellow_south_index;i++){
                         num+=(yellow_south[i].x-xmoy)*(yellow_south[i].y-ymoy);
-                        den+=(yellow_south[i].x-xmoy)*(yellow_south[i].x-xmoy);
+                        den+=(yellow_south[i].y-ymoy)*(yellow_south[i].y-ymoy);//attention inversion
                     }
                     angle_yellow_south=atan4096(num/den);
+                    xmoy_yellow_south=xmoy;
                 }
             }
         }
