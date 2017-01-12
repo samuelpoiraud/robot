@@ -488,6 +488,11 @@ void SD_print_match(Uint16 nb_match){
 			{
 				UART1_putc(read_byte);		//Si le switch verbose est à OFF, on recrache le fichier brut de fonderie.
 			}
+
+			// Ralentissement du débit de donnée car le simulateur n'encaise pas
+			Uint32 x;
+			for(x=0;x<10000;x++);
+
 		}while(nb_read == 1);
 		//Permet de reconnaitre la fin de l'envoi des trames
 		if(!IHM_switchs_get(SWITCH_VERBOSE)){
