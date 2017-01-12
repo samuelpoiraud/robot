@@ -7,7 +7,7 @@
 #include "../../utils/actionChecker.h"
 #include "../../propulsion/astar.h"
 
-void thomas_strat_inutile_big(bool_e right_side){
+void thomas_strat_inutile_big(/*bool_e right_side*/){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 			INIT,
 			GET_IN_DIRECT,
@@ -30,6 +30,8 @@ void thomas_strat_inutile_big(bool_e right_side){
 
 			DONE
 		);
+
+	bool_e right_side;
 
 		ACT_sid_e Slope_tag;
 		queue_id_e Slope_tag_Queue;
