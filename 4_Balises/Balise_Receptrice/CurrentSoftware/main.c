@@ -70,6 +70,7 @@ int main (void){
 		if(global.absolute_time - begin > 20){
 			debug_printf("L%ld\n", global.absolute_time - begin);
 		}
+		OUTPUTLOG_process_main();
 	}
 
 	return 0;

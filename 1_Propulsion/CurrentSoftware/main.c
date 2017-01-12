@@ -241,6 +241,8 @@ int main (void)
 			DETECTION_CHOC_process_main();
 		#endif
 
+		OUTPUTLOG_process_main();
+
 		if(flag_calibration_asked)
 		{
 			flag_calibration_asked = FALSE;

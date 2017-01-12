@@ -78,6 +78,7 @@ int main (void){
 			SWITCHS_update();			//Surveillance des switchs
 		}
 		VOLTAGE_MEASURE_process_main();	//Surveillance des tensions
+		OUTPUTLOG_process_main();
 	}
 
 	return 0;
