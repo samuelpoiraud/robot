@@ -9,7 +9,16 @@
 	error_e sub_harry_end_of_match();
 
 	// actions_prise_minerais
-	error_e sub_harry_prise_gros_cratere(ELEMENTS_property_e mimerais);
+	error_e sub_harry_take_big_crater(ELEMENTS_property_e mimerais);
+	error_e sub_harry_take_big_crater_move_pos_yellow();
+	error_e sub_harry_take_big_crater_move_pos_blue();
+
+	error_e sub_harry_take_big_crater_yellow_middle();
+	error_e sub_harry_take_big_crater_yellow_fuse();
+	error_e sub_harry_take_big_crater_yellow_corner();
+	error_e sub_harry_take_big_crater_blue_middle();
+	error_e sub_harry_take_big_crater_blue_fuse();
+	error_e sub_harry_take_big_crater_blue_corner();
 
 	// action_big_depose_minerais
 	error_e sub_harry_depose_minerais();
