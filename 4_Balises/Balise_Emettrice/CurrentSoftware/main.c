@@ -78,6 +78,7 @@ int main (void){
 
 		SYNCRF_process_main();
 		SUPERVISION_process_main();
+		OUTPUTLOG_process_main();
 	}
 
 	return 0;
