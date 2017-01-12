@@ -505,7 +505,8 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			msg.size = SIZE_XBEE_SEND_COLOR;
 			msg.data.xbee_send_color.color = global.color;
 			CANMsgToXbee(&msg, FALSE);
-		}case XBEE_PING:
+		}break;
+		case XBEE_PING:
 			//On recoit un ping, on répond par un PONG.
 			//Le lien est établi
 			//Le module QS_CanoverXBee se débrouille pour PONGer
