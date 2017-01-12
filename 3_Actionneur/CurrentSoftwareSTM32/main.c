@@ -177,6 +177,8 @@ int main (void)
 				MOSFET_do_order_multi(NULL);
 		#endif
 
+		OUTPUTLOG_process_main();
+
 	}//Endloop
 	return 0;
 }
