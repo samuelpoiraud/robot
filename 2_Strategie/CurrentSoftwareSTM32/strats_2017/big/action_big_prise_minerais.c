@@ -2,10 +2,6 @@
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
-
-
-
-
 #include  "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
@@ -14,9 +10,6 @@
 error_e sub_harry_take_big_crater(ELEMENTS_property_e mimerais){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER,
 			INIT,
-			ERROR,
-			DONE,
-
 			SUB_MOVE_POS_YELLOW,
 			SUB_TAKE_YELLOW_MIDDLE,
 			SUB_TAKE_YELLOW_FUSE,
@@ -25,12 +18,14 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e mimerais){
 			SUB_TAKE_BLUE_MIDDLE,
 			SUB_TAKE_BLUE_FUSE,
 			SUB_TAKE_BLUE_CORNER,
-			DEBUT_RAMASSAGE
+			COULEUR,
+			ERROR,
+			DONE
 		);
 
 	switch(state){
 		case INIT:
-			state = DONE; // quel couleur ?, quel cote ? //debut ramassage
+			state = COULEUR;
 			break;
 
 		case ERROR:
@@ -44,6 +39,15 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e mimerais){
 			break;
 
 
+		case COULEUR: //decision ou je vais ?  ///// modifier !  quel couleur ?, quel cote ?
+					if(global.color == YELLOW){
+						state = SUB_MOVE_POS_YELLOW;
+					}else if(global.color == BLUE){
+						state = SUB_MOVE_POS_BLUE;
+					}else{
+						state = ERROR;
+					}
+					break;
 
 		case SUB_MOVE_POS_YELLOW:
 			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_yellow(), state, SUB_TAKE_YELLOW_MIDDLE, ERROR);
@@ -91,30 +95,31 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e mimerais){
 
 
 
-//notre cratere
+//cratere jaune modifier !
 error_e sub_harry_take_big_crater_move_pos_yellow(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_MOVE_POS_YELLOW,
 			INIT,
-			ERROR,
-			DONE,
 			GO_OUR_CRATER_FROM_ADV_SQUARE,
 			ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE,
 			GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
 			ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
 			GO_OUR_CRATER_FROM_OUR_SQUARE,
 			ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE,
+			ASTAR_GO_OUR_CRATER,
 			ERROR_ASTAR,
-			GET_IN
+			GET_IN,
+			ERROR,
+			DONE
 
 		);
 
 	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1380, COLOR_Y(400)}, FAST},
+										  {(GEOMETRY_point_t){1390, COLOR_Y(400)}, FAST},
 										  };
 
 	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, COLOR_Y(2200)}, FAST},
 										  {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1380, COLOR_Y(400)}, FAST}
+										  {(GEOMETRY_point_t){1390, COLOR_Y(400)}, FAST}
 										  };
 
 	switch(state){
@@ -133,9 +138,9 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 		else if(i_am_in_square_color(0, 1200, 800, 2200)){
 			state = GO_OUR_CRATER_FROM_MIDDLE_SQUARE;
 		}else{
-			state = ASTAR_try_going(1390, COLOR_Y(400), state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_GO_OUR_CRATER;
 		}
-		break; //1380 400 modifier contition !!!
+		break;
 
 
 	case GO_OUR_CRATER_FROM_ADV_SQUARE:
@@ -148,6 +153,10 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 
 	case GO_OUR_CRATER_FROM_OUR_SQUARE:
 		state = try_going(1390, COLOR_Y(400), state, DONE, ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		break;
+
+	case ASTAR_GO_OUR_CRATER:
+		ASTAR_try_going(1390, COLOR_Y(400), state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
 	//ERROR POSITION
@@ -189,30 +198,31 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 
 
 
-//adv cratere modifier !!! valeur
+//cratere bleu
 error_e sub_harry_take_big_crater_move_pos_blue(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_MOVE_POS_BLUE,
 			INIT,
-			ERROR,
-			DONE,
 			GO_OUR_CRATER_FROM_ADV_SQUARE,
 			ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE,
 			GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
 			ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
 			GO_OUR_CRATER_FROM_OUR_SQUARE,
 			ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE,
+			ASTAR_GO_OUR_CRATER,
 			ERROR_ASTAR,
-			GET_IN
+			GET_IN,
+			ERROR,
+			DONE
 
 		);
 
 	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1380, COLOR_Y(400)}, FAST},
+										  {(GEOMETRY_point_t){1390, COLOR_Y(400)}, FAST},
 										  };
 
 	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, COLOR_Y(2200)}, FAST},
 										  {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1380, COLOR_Y(400)}, FAST}
+										  {(GEOMETRY_point_t){1390, COLOR_Y(400)}, FAST}
 										  };
 
 	switch(state){
@@ -231,9 +241,9 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 		else if(i_am_in_square_color(0, 1200, 800, 2200)){
 			state = GO_OUR_CRATER_FROM_MIDDLE_SQUARE;
 		}else{
-			state = ASTAR_try_going(1390, COLOR_Y(400), state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_GO_OUR_CRATER;
 		}
-		break; //1380 400 modifier contition !!!
+		break;
 
 
 	case GO_OUR_CRATER_FROM_ADV_SQUARE:
@@ -246,6 +256,10 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 
 	case GO_OUR_CRATER_FROM_OUR_SQUARE:
 		state = try_going(1390, COLOR_Y(400), state, DONE, ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		break;
+
+	case ASTAR_GO_OUR_CRATER:
+		ASTAR_try_going(1390, COLOR_Y(400), state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
 	//ERROR POSITION
@@ -288,7 +302,6 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 
 
 
-/////////////////code valide 1.1
 
 
 //sous sub ramassage
@@ -298,8 +311,7 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 // COLLECT_YELLOW_MIDDLE
 error_e sub_harry_take_big_crater_yellow_middle(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW_MIDDLE,
-			DONE,
-			ERROR,
+			INIT,
 			COLLECT_YELLOW_MIDDLE_POSITION,
 			COLLECT_YELLOW_MIDDLE_LINE,
 			COLLECT_YELLOW_MIDDLE_SHOVEL_DOWN,
@@ -307,10 +319,16 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			COLLECT_YELLOW_MIDDLE_SHOVEL_UP,
 			COLLECT_YELLOW_MIDDLE_POSITION_LEFT,
 			COLLECT_YELLOW_MIDDLE_VALIDATE,
-			GET_OUT_COLLECT_YELLOW_MIDDLE
+			GET_OUT_COLLECT_YELLOW_MIDDLE,
+			DONE,
+			ERROR
 		);
 
 	switch(state){
+		case INIT:
+			state = COLLECT_YELLOW_MIDDLE_POSITION;
+			break;
+
 		case COLLECT_YELLOW_MIDDLE_POSITION:
 			state = try_going(1390, 2600, state, COLLECT_YELLOW_MIDDLE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
@@ -357,6 +375,7 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			//lien avec action suivante
+			state = GET_OUT_COLLECT_YELLOW_MIDDLE;
 			break;
 
 		case GET_OUT_COLLECT_YELLOW_MIDDLE:
@@ -384,8 +403,7 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 // COLLECT_YELLOW_FUSE
 error_e sub_harry_take_big_crater_yellow_fuse(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW_FUSE,
-			DONE,
-			ERROR,
+			INIT,
 			COLLECT_YELLOW_FUSE_POSITION,
 			COLLECT_YELLOW_FUSE_LINE,
 			COLLECT_YELLOW_FUSE_SHOVEL_DOWN,
@@ -393,10 +411,16 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			COLLECT_YELLOW_FUSE_SHOVEL_UP,
 			COLLECT_YELLOW_FUSE_POSITION_LEFT,
 			COLLECT_YELLOW_FUSE_VALIDATE,
-			GET_OUT_COLLECT_YELLOW_FUSE
+			GET_OUT_COLLECT_YELLOW_FUSE,
+			DONE,
+			ERROR
 		);
 
 	switch(state){
+		case INIT:
+			state = COLLECT_YELLOW_FUSE_POSITION;
+			break;
+
 		case COLLECT_YELLOW_FUSE_POSITION:
 			state = try_going(1600, 2300, state, COLLECT_YELLOW_FUSE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
@@ -441,6 +465,7 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			//lien avec action suivante
+			state = GET_OUT_COLLECT_YELLOW_FUSE;
 			break;
 
 		case GET_OUT_COLLECT_YELLOW_FUSE:
@@ -469,8 +494,7 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 //COLLECT_YELLOW_CORNER
 	error_e sub_harry_take_big_crater_yellow_corner(){
 		CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW_CORNER,
-				DONE,
-				ERROR,
+				INIT,
 				COLLECT_YELLOW_CORNER_POSITION,
 				COLLECT_YELLOW_CORNER_LINE,
 				COLLECT_YELLOW_CORNER_SHOVEL_DOWN,
@@ -478,10 +502,16 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 				COLLECT_YELLOW_CORNER_SHOVEL_UP,
 				COLLECT_YELLOW_CORNER_POSITION_LEFT,
 				COLLECT_YELLOW_CORNER_VALIDATE,
-				GET_OUT_COLLECT_YELLOW_CORNER
+				GET_OUT_COLLECT_YELLOW_CORNER,
+				DONE,
+				ERROR
 			);
 
 	switch(state){
+		case INIT:
+			state = COLLECT_YELLOW_CORNER_POSITION;
+			break;
+
 		case COLLECT_YELLOW_CORNER_POSITION:
 			state = try_going(1780, 2200, state, COLLECT_YELLOW_CORNER_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
@@ -526,6 +556,7 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			//lien avec action suivante
+			state = GET_OUT_COLLECT_YELLOW_CORNER;
 			break;
 
 		case GET_OUT_COLLECT_YELLOW_CORNER:
@@ -554,8 +585,7 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 //COLLECT_BLUE_MIDDLE
 error_e sub_harry_take_big_crater_blue_middle(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE_MIDDLE,
-			DONE,
-			ERROR,
+			INIT,
 			COLLECT_BLUE_MIDDLE_POSITION,
 			COLLECT_BLUE_MIDDLE_LINE,
 			COLLECT_BLUE_MIDDLE_SHOVEL_DOWN,
@@ -563,10 +593,16 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			COLLECT_BLUE_MIDDLE_SHOVEL_UP,
 			COLLECT_BLUE_MIDDLE_POSITION_LEFT,
 			COLLECT_BLUE_MIDDLE_VALIDATE,
-			GET_OUT_COLLECT_BLUE_MIDDLE
+			GET_OUT_COLLECT_BLUE_MIDDLE,
+			DONE,
+			ERROR
 		);
 
 	switch(state){
+		case INIT:
+			state = COLLECT_BLUE_MIDDLE_POSITION;
+			break;
+
 		case COLLECT_BLUE_MIDDLE_POSITION:
 			state = try_going(1390, 400, state, COLLECT_BLUE_MIDDLE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
@@ -611,6 +647,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			//lien avec action suivante
+			state = GET_OUT_COLLECT_BLUE_MIDDLE;
 			break;
 
 		case GET_OUT_COLLECT_BLUE_MIDDLE:
@@ -640,8 +677,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 error_e sub_harry_take_big_crater_blue_fuse(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE_FUSE,
-			DONE,
-			ERROR,
+			INIT,
 			COLLECT_BLUE_FUSE_POSITION,
 			COLLECT_BLUE_FUSE_LINE,
 			COLLECT_BLUE_FUSE_SHOVEL_DOWN,
@@ -649,10 +685,16 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 			COLLECT_BLUE_FUSE_SHOVEL_UP,
 			COLLECT_BLUE_FUSE_POSITION_LEFT,
 			COLLECT_BLUE_FUSE_VALIDATE,
-			GET_OUT_COLLECT_BLUE_FUSE
+			GET_OUT_COLLECT_BLUE_FUSE,
+			DONE,
+			ERROR
 		);
 
 	switch(state){
+		case INIT:
+			state = COLLECT_BLUE_FUSE_POSITION;
+			break;
+
 		case COLLECT_BLUE_FUSE_POSITION:
 			state = try_going(1600, 700, state, COLLECT_BLUE_FUSE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
@@ -697,6 +739,7 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			//lien avec action suivante
+			state = GET_OUT_COLLECT_BLUE_FUSE;
 			break;
 
 		case GET_OUT_COLLECT_BLUE_FUSE:
@@ -725,8 +768,7 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 //COLLECT_BLUE_CORNER
 error_e sub_harry_take_big_crater_blue_corner(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE_CORNER,
-			DONE,
-			ERROR,
+			INIT,
 			COLLECT_BLUE_CORNER_POSITION,
 			COLLECT_BLUE_CORNER_LINE,
 			COLLECT_BLUE_CORNER_SHOVEL_DOWN,
@@ -734,10 +776,16 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			COLLECT_BLUE_CORNER_SHOVEL_UP,
 			COLLECT_BLUE_CORNER_POSITION_LEFT,
 			COLLECT_BLUE_CORNER_VALIDATE,
-			GET_OUT_COLLECT_BLUE_CORNER
+			GET_OUT_COLLECT_BLUE_CORNER,
+			DONE,
+			ERROR
 		);
 
 	switch(state){
+		case INIT:
+			state = COLLECT_BLUE_CORNER_POSITION;
+			break;
+
 		case COLLECT_BLUE_CORNER_POSITION:
 			state = try_going(1780, 800, state, COLLECT_BLUE_CORNER_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
@@ -782,6 +830,7 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			//lien avec action suivante
+			state = GET_OUT_COLLECT_BLUE_CORNER;
 			break;
 
 		case GET_OUT_COLLECT_BLUE_CORNER:
@@ -1079,7 +1128,8 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 
 //4eme passage
-		/*case RAMASSAGE_JAUNE_PASS4_1:
+
+		 case RAMASSAGE_JAUNE_PASS4_1*:
 			state = try_going(1600, COLOR_Y(700), state, DEBUT_RAMASSAGE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		*/
@@ -1199,7 +1249,8 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 
 			//4eme passage
-					/*case RAMASSAGE_JAUNE_PASS4_1:
+
+					 case RAMASSAGE_JAUNE_PASS4_1:
 						state = try_going(1600, COLOR_Y(700), state, DEBUT_RAMASSAGE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 						break;
 					*/
@@ -1248,14 +1299,6 @@ void guillaumeMa_strat_inutile_big(){
 
 int NBERROR = 0;
 
-		case DEBUT_RAMASSAGE: //decision ou je vais ?
-					if(global.color == YELLOW){
-						state = /*lancé la sous sub ;
-					}else if(global.color == BLUE){
-						state = /*COLLECT_BLUE_MIDDLE_POSITION;
-					}else{
-						state = ERROR;
-					}
-					break;
+
 
 */

@@ -3,6 +3,11 @@
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
 
+#include  "../../propulsion/astar.h"
+#include  "../../utils/generic_functions.h"
+#include "../../actuator/act_functions.h"
+#include "../../actuator/queue.h"
+#include "../../utils/actionChecker.h"
 
 error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PRISE_MODULES_CENTRE,
