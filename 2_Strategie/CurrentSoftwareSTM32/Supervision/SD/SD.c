@@ -490,7 +490,7 @@ void SD_print_match(Uint16 nb_match){
 			}
 
 			// Ralentissement du débit de donnée car le simulateur n'encaise pas
-			Uint32 x;
+			volatile Uint32 x;
 			for(x=0;x<10000;x++);
 
 		}while(nb_read == 1);
