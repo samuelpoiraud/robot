@@ -6,7 +6,56 @@
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
 #include "../../utils/actionChecker.h"
+#include "../big/action_big.h"
 
+void guillaumeMa_strat_inutile_big(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
+
+			INIT,
+			ERROR,
+			TEST,
+			TEST_2,
+			TEST_3,
+			TEST_4,
+			DONE
+	);
+	switch(state){
+
+
+
+		case INIT:
+			state = TEST;
+			break;// depend du point de depard
+
+		case ERROR:
+			state = ERROR;
+			break;
+
+		case DONE:
+			state = DONE;
+			break;
+
+		case TEST:
+			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, DONE, ERROR);
+			break;
+
+		case TEST_2:
+			state = check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT), state, DONE, ERROR);
+			break;
+
+		case TEST_3:
+			state = check_sub_action_result(sub_harry_take_big_crater(NO_ELEMENT), state, DONE, ERROR); // error
+			break;
+
+		case TEST_4:
+			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, DONE, ERROR);
+			break;
+	}
+}
+
+
+
+/*
 void guillaumeMa_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 
@@ -87,7 +136,10 @@ void guillaumeMa_strat_inutile_big(){
 
 
 
-
+// petit sub et dessendre les billes porteuses
+//valider tout les actionneurs
+// test error
+//test mouvement et taille carré
 	switch(state){
 
 
@@ -106,7 +158,7 @@ void guillaumeMa_strat_inutile_big(){
 			else if(i_am_in_square_color(0, 1200, 800, 2200)){
 				state = GO_OUR_CRATER_FROM_MIDDLE_SQUARE;
 			}else{
-				state = ASTAR_try_going(1380, COLOR_Y(400), state, DEBUT_RAMASSAGE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = ASTAR_try_going(1390, COLOR_Y(400), state, DEBUT_RAMASSAGE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break; //1380 400
 
@@ -121,7 +173,7 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 
 		case GO_OUR_CRATER_FROM_OUR_SQUARE:
-			state = try_going(1380, COLOR_Y(400), state, DEBUT_RAMASSAGE, ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1390, COLOR_Y(400), state, DEBUT_RAMASSAGE, ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 //ERROR POSITION
@@ -137,7 +189,7 @@ void guillaumeMa_strat_inutile_big(){
 
 		case ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE:
 			//state = GO_OUR_CRATERE_FROM_OUR_SQUARE;
-			state = ASTAR_try_going(1380, COLOR_Y(400), state, DEBUT_RAMASSAGE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1390, COLOR_Y(400), state, DEBUT_RAMASSAGE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_ASTAR:
@@ -162,7 +214,7 @@ void guillaumeMa_strat_inutile_big(){
 //cote jaune
 //1er passage
 		case COLLECT_YELLOW_MIDDLE_POSITION:
-			state = try_going(1380, 2600, state, COLLECT_YELLOW_MIDDLE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1390, 2600, state, COLLECT_YELLOW_MIDDLE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_YELLOW_MIDDLE_LINE:
@@ -193,7 +245,7 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 
 		case COLLECT_YELLOW_MIDDLE_POSITION_LEFT:
-			state = try_going(1380, 2600, state, COLLECT_YELLOW_FUSE_POSITION,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);;
+			state = try_going(1390, 2600, state, COLLECT_YELLOW_FUSE_POSITION,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			//lien avec action suivante
 			break;
 
@@ -277,11 +329,11 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 		*/
 
-
+/*
 //cote bleu
 //1er passage
 		case COLLECT_BLUE_MIDDLE_POSITION:
-			state = try_going(1380, 400, state, COLLECT_BLUE_MIDDLE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1390, 400, state, COLLECT_BLUE_MIDDLE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_BLUE_MIDDLE_LINE:
@@ -312,7 +364,7 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 
 		case COLLECT_BLUE_MIDDLE_POSITION_LEFT:
-			state = try_going(1380, 400, state, COLLECT_BLUE_FUSE_POSITION,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);;
+			state = try_going(1390, 400, state, COLLECT_BLUE_FUSE_POSITION,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);;
 			//lien avec action suivante
 			break;
 
@@ -409,7 +461,7 @@ void guillaumeMa_strat_inutile_big(){
 
 
 
-
+/*
 
 // fin de subaction sortie
 		case GET_OUT:
@@ -436,7 +488,7 @@ void guillaumeMa_strat_inutile_big(){
 }
 
 
-
+*/
 int NBERROR = 0;
 
 
@@ -526,3 +578,5 @@ void guillaumeMa_strat_inutile_small(){
 			break;
 	}
 }
+
+

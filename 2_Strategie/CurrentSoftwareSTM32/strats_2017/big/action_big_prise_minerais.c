@@ -7,7 +7,7 @@
 #include "../../actuator/queue.h"
 #include "../../utils/actionChecker.h"
 
-error_e sub_harry_take_big_crater(ELEMENTS_property_e mimerais){
+error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT / ADV_ELEMENT
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER,
 			INIT,
 			SUB_MOVE_POS_YELLOW,
@@ -18,14 +18,14 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e mimerais){
 			SUB_TAKE_BLUE_MIDDLE,
 			SUB_TAKE_BLUE_FUSE,
 			SUB_TAKE_BLUE_CORNER,
-			COULEUR,
+			COLOR,
 			ERROR,
 			DONE
 		);
 
 	switch(state){
 		case INIT:
-			state = COULEUR;
+			state = COLOR;
 			break;
 
 		case ERROR:
@@ -39,15 +39,28 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e mimerais){
 			break;
 
 
-		case COULEUR: //decision ou je vais ?  ///// modifier !  quel couleur ?, quel cote ?
-					if(global.color == YELLOW){
-						state = SUB_MOVE_POS_YELLOW;
-					}else if(global.color == BLUE){
-						state = SUB_MOVE_POS_BLUE;
-					}else{
-						state = ERROR;
-					}
-					break;
+		case COLOR:
+			if (minerais != OUR_ELEMENT || minerais != ADV_ELEMENT){
+				RESET_MAE();
+				return NOT_HANDLED;
+
+			}else if(OUR_ELEMENT){
+				if(global.color == YELLOW){
+					state = SUB_MOVE_POS_YELLOW;
+				}else{
+					state = SUB_MOVE_POS_BLUE;
+				}
+
+			}else{
+				if(global.color == YELLOW){
+					state = SUB_MOVE_POS_YELLOW;
+				}else{
+					state = SUB_MOVE_POS_BLUE;
+				}
+
+			}
+
+			break;
 
 		case SUB_MOVE_POS_YELLOW:
 			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_yellow(), state, SUB_TAKE_YELLOW_MIDDLE, ERROR);
