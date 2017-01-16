@@ -1209,7 +1209,7 @@
 		static GEOMETRY_point_t from, dest;
 		//static bool_e handles_foes;
 
-		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
+		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING, 
 								ASTAR_CONFIG,
 								ASTAR_INIT,
 								ASTAR_GO_DIRECTLY,
