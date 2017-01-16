@@ -26,7 +26,8 @@
 	// action_big_prise_modules
 	error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules);
 	error_e sub_harry_fusee_color();
-	error_e sub_harry_fusee_multicolor(ELEMENTS_property_e fusee);
+	error_e init_all_actionneur();
+	error_e sub_harry_fusee_multicolor(ELEMENTS_property_e fusee, bool_e right_side);
 
 	// action_big_depose_modules
 	error_e sub_harry_depose_modules_centre();
