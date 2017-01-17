@@ -902,8 +902,8 @@
 		Uint8 j;
 		error_e result;
 		Uint8 last_index = 0;
-		Uint16 distToStartNode = 0;
-		Uint16 wantedDistToStartNode = 0;
+		Uint32 distToStartNode = 0;
+		Uint32 wantedDistToStartNode = 0;
 		UNUSED_VAR(last_index);
 
 		// On recherche le nombre de noeuds constituant la trajectoire
@@ -961,7 +961,6 @@
 		// On essaie alors de se déplacer un peu pour se débloquer mais ca ne sert à rien d'effectuer tout le début de chemin trouvé pr le pathfind
 		if(result == FOE_IN_PATH){
 			i=1;
-#warning il faut soit mettre la variable wantedDistToStartNode en 32 bit soit revoir le calcul de distance mais il y a un problème
 			wantedDistToStartNode = DISTANCE_TO_MOVE_IF_FAIL*DISTANCE_TO_MOVE_IF_FAIL;
 			do{
 				distToStartNode = GEOMETRY_distance_square(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[i]].pos);
@@ -1210,7 +1209,7 @@
 		static GEOMETRY_point_t from, dest;
 		//static bool_e handles_foes;
 
-		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING, 
+		CREATE_MAE_WITH_VERBOSE(SM_ID_ASTAR_TRY_GOING,
 								ASTAR_CONFIG,
 								ASTAR_INIT,
 								ASTAR_GO_DIRECTLY,
