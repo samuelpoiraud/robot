@@ -157,6 +157,7 @@
 	#define USE_FIFO
 
 /* Réglages ADC */
+	//#define ADC_12_BIT
 	#define USE_AN11		// Télémètre laser gauche (Black) et Télémètre poissons (Pearl)
 	#define USE_AN12		// Télémètre laser droite (Black)
 	#define ADC_SENSOR_LASER_LEFT			ADC_11
