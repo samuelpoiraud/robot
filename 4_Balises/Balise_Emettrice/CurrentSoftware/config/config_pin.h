@@ -118,6 +118,7 @@
 
 	#define PORT_IO_B_6			PORT_IO_INPUT
 	#define PORT_OPT_B_6		PORT_OPT_NO_PULL
+		#define BUZZER_PIN			GPIOB,GPIO_Pin_6
 		// U1TX
 
 	#define PORT_IO_B_7			PORT_IO_INPUT
