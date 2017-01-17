@@ -23,6 +23,7 @@
 #include "can_msg_processing.h"
 #include "supervision.h"
 #include "emission_ir.h"
+#include "buzzer.h"
 
 void init(void){
 	SYS_init();
@@ -39,15 +40,14 @@ void init(void){
 	MOTOR_init();
 	SYNCRF_init();
 	EmissionIR_init();
+	BUZZER_init();
 
 	SUPERVISION_init();
 
 }
 
 int main (void){
-#ifdef CONFIG_RF_RC1240
 	char c;
-#endif
 	CAN_msg_t msg;
 	init();
 
@@ -56,6 +56,8 @@ int main (void){
 	GPIO_WriteBit(LED_BAT, 1);
 
 	while(1){
+
+		BUZZER_processMain();
 
 		/*-------------------------------------
 			Réception CAN et exécution
@@ -68,13 +70,21 @@ int main (void){
 			#endif
 		}
 
-#ifdef CONFIG_RF_RC1240
 		while(UART1_data_ready()){
 			c = UART1_get_next_msg();
-			debug_printf("We will send %c (0x%x) on RF\n", c, c);
-			RF_putc(c);
+
+			if(c == 'O')
+				BUZZER_switchMode(UART_PIN_MODE);
+
+			#ifdef CONFIG_RF_RC1240
+				debug_printf("We will send %c (0x%x) on RF\n", c, c);
+				RF_putc(c);
+			#endif
 		}
-#endif
+
+
+
+
 
 		SYNCRF_process_main();
 		SUPERVISION_process_main();
