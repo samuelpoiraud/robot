@@ -10,6 +10,7 @@
 
 /** ----------------  Defines possibles  --------------------
  *
+ *	ADC_12_BIT					: Configuration de l'ADC en mode 12 bit
  *	USE_AN0						: Activation du convertisseur analogique 0
  *	USE_AN1						: Activation du convertisseur analogique 1
  *	USE_AN2						: Activation du convertisseur analogique 2
