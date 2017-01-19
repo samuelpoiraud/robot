@@ -151,7 +151,7 @@ void ACTMGR_stop() {
 }
 
 void ACTMNG_control_act() {
-	RX24_status_t status_AX12;
+	AX12_status_t status_AX12;
 	RX24_status_t status_RX24;
 	bool_e state_act;
 
@@ -169,12 +169,12 @@ void ACTMNG_control_act() {
 			//Check la dernière erreur rencontrée
 			status_AX12 = AX12_get_last_error(index_AX12);
 
-			if(status_AX12 == AX12_ERROR_OVERLOAD){
+			if(status_AX12.error & AX12_ERROR_OVERLOAD){
 				ACTQ_sendErrorAct(index_AX12, ACT_ERROR_TORQUE_TOO_HIGH);
 				detection_error=TRUE;
 				time_error = global.absolute_time;
 			}
-			else if(status_AX12 == AX12_ERROR_OVERHEATING){
+			else if(status_AX12.error & AX12_ERROR_OVERHEATING){
 				ACTQ_sendErrorAct(index_AX12, ACT_ERROR_OVERHEATING);
 				detection_error=TRUE;
 				time_error = global.absolute_time;
@@ -183,12 +183,12 @@ void ACTMNG_control_act() {
 
 			state_act = RX24_is_ready(index_RX24);
 			status_RX24 = RX24_get_last_error(index_RX24);
-			if(status_RX24 == RX24_ERROR_OVERLOAD){
+			if(status_RX24.error & RX24_ERROR_OVERLOAD){
 				ACTQ_sendErrorAct(index_RX24, ACT_ERROR_TORQUE_TOO_HIGH);
 				detection_error=TRUE;
 				time_error = global.absolute_time;
 			}
-			else if(status_RX24 == RX24_ERROR_OVERHEATING){
+			else if(status_RX24.error & RX24_ERROR_OVERHEATING){
 				ACTQ_sendErrorAct(index_RX24, ACT_ERROR_OVERHEATING);
 				detection_error=TRUE;
 				time_error = global.absolute_time;
