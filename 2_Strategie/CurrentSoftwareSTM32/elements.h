@@ -39,6 +39,22 @@
 	   CONFIG_COQUILLAGES_5
 	}COQUILLAGES_config_e;
 
+	typedef enum{
+		MODULE_EMPTY = 0,
+		MODULE_BLUE,
+		MODULE_YELLOW,
+		MODULE_POLY
+	}moduleType_e;
+
+	typedef enum{
+		MODULE_DROP_MIDDLE,
+		MODULE_DROP_NORTH_CENTER,
+		MODULE_DROP_SOUTH_CENTER,
+		MODULE_DROP_NORTH,
+		MODULE_DROP_SOUTH,
+		NB_MODULE_LOCATION
+	}moduleDropLocation_e;
+
 void ELEMENTS_init();
 void ELEMENTS_process_main();
 

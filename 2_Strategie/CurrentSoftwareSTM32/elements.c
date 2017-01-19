@@ -11,7 +11,16 @@
 #include "QS/QS_stateMachineHelper.h"
 #include "utils/generic_functions.h"
 
+#define MAX_MODULE_DROP			6
+
+typedef struct{
+	Uint8 nbDrop;
+	moduleType_e dropTable[MAX_MODULE_DROP];
+}moduleDropInfo_s;
+
 volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
+
+static volatile moduleDropInfo_s moduleDropInfo[NB_MODULE_LOCATION] = {0};
 
 void ELEMENTS_init(){
 	Uint8 i;
@@ -136,3 +145,26 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 
 }
 
+bool_e modulePlaceIsEmpty(Uint8 place, moduleDropLocation_e location){
+	assert(place < MAX_MODULE_DROP);
+	assert(location < NB_MODULE_LOCATION);
+	return (moduleDropInfo[location].dropTable[place] == MODULE_EMPTY);
+}
+
+Uint8 getNbDrop(moduleDropLocation_e location){
+	return moduleDropInfo[location].nbDrop;
+}
+
+moduleType_e getModuleType(Uint8 place, moduleDropLocation_e location){
+	assert(place < MAX_MODULE_DROP);
+	assert(location < NB_MODULE_LOCATION);
+	return moduleDropInfo[location].dropTable[place];
+}
+
+void addModule(moduleType_e type, moduleDropLocation_e location){
+	Uint8 i;
+	for(i=0; i<MAX_MODULE_DROP-1; i++){
+		moduleDropInfo[location].dropTable[i+1] = moduleDropInfo[location].dropTable[i];
+	}
+	moduleDropInfo[location].dropTable[0] = type;
+}
