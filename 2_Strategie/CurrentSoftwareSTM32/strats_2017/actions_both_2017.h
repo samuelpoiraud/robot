@@ -13,8 +13,9 @@
 #include "../QS/QS_all.h"
 
 #ifndef ACTIONS_BOTH_2017_H
-#define ACTIONS_BOTH_2017_H
+	#define ACTIONS_BOTH_2017_H
 
+	error_e sub_cross_rocker(void);
 
 #endif
 

@@ -57,6 +57,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 	return IN_PROGRESS;
 }
 
+/*
 
 error_e sub_harry_cylinder_depose_manager(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_CYLINDER_DEPOSE_MANAGER,
@@ -174,3 +175,5 @@ error_e sub_harry_cylinder_depose_manager(){
 
 	return IN_PROGRESS;
 }
+
+*/

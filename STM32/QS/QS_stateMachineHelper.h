@@ -58,6 +58,7 @@ typedef enum {
 		SM_ID_SUB_RECALAGE_X							= 0x0201,
 		SM_ID_SUB_RECALAGE_Y							= 0x0202,
 		SM_ID_STRAT_EVITEMENT_TESTS                     = 0x0203,
+		SM_ID_SUB_CROSS_ROCKER							= 0x0204,
 
 
 		//0x300 SUBFUNCTIONS
