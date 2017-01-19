@@ -32,7 +32,7 @@
 #include "elements.h"
 #include "avoidance.h"
 
-#include "strats_2017/actions_both_2017.h"
+#include "strats_2017/actions_both_generic.h"
 #include "strats_2017/inutile/strat_inutile.h"
 
 #include "high_level_strat.h"
