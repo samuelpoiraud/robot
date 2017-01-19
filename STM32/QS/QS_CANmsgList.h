@@ -699,8 +699,6 @@
 			}act_result;
 
 
-
-
 		/*
 		 * Pour tout les SIDs de l'enum ACT_sid_e
 		 */
@@ -725,6 +723,16 @@
 
 				}act_data;
 			}act_msg;
+
+
+		#define ACT_ERROR							0x3EA
+		#define SIZE_ACT_ERROR_MSG					7
+			struct{
+				Uint32 param						:32;
+				Uint8 sid							:8;
+				Uint8 error_code				:8;
+				Uint8 idAct						:8;
+			}act_error;
 
 		#define ACT_ASK_SENSOR				0x3FE
 		#define SIZE_ACT_ASK_SENSOR			1

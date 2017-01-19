@@ -50,6 +50,12 @@
 
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init);
+static Uint8 index_AX12;
+static Uint8 index_RX24;
+static bool_e detection_error = FALSE;
+static time32_t time_error;
+static time32_t check_act_error_time;
+static bool_e init_control_act=TRUE;
 
 #define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_reset_config, &prefix##_CAN_process_msg}
 
@@ -144,6 +150,58 @@ void ACTMGR_stop() {
 	}
 }
 
+void ACTMNG_control_act() {
+	RX24_status_t status_AX12;
+	RX24_status_t status_RX24;
+	bool_e state_act;
+
+	if(init_control_act){
+		check_act_error_time=global.absolute_time;
+		time_error=global.absolute_time;
+		init_control_act=FALSE;
+	}
+	//Délai de 200 ms entre chaque vérification de servo
+	if(global.absolute_time - check_act_error_time > 200){
+
+		if(!detection_error){
+			//Met à jour l'état du servo
+			state_act = AX12_is_ready(index_AX12);
+			//Check la dernière erreur rencontrée
+			status_AX12 = AX12_get_last_error(index_AX12);
+
+			if(status_AX12 == AX12_ERROR_OVERLOAD){
+				ACTQ_sendErrorAct(index_AX12, ACT_ERROR_TORQUE_TOO_HIGH);
+				detection_error=TRUE;
+				time_error = global.absolute_time;
+			}
+			else if(status_AX12 == AX12_ERROR_OVERHEATING){
+				ACTQ_sendErrorAct(index_AX12, ACT_ERROR_OVERHEATING);
+				detection_error=TRUE;
+				time_error = global.absolute_time;
+			}
+			index_AX12=(index_AX12+1)%AX12_NUMBER;
+
+			state_act = RX24_is_ready(index_RX24);
+			status_RX24 = RX24_get_last_error(index_RX24);
+			if(status_RX24 == RX24_ERROR_OVERLOAD){
+				ACTQ_sendErrorAct(index_RX24, ACT_ERROR_TORQUE_TOO_HIGH);
+				detection_error=TRUE;
+				time_error = global.absolute_time;
+			}
+			else if(status_RX24 == RX24_ERROR_OVERHEATING){
+				ACTQ_sendErrorAct(index_RX24, ACT_ERROR_OVERHEATING);
+				detection_error=TRUE;
+				time_error = global.absolute_time;
+			}
+			index_RX24=(index_RX24+1)%RX24_NUMBER;
+
+		//pour éviter de flood le CAN avec le même message d'erreur
+		}else if(detection_error == TRUE && global.absolute_time - time_error > 2000){
+			detection_error = FALSE;
+		}
+		check_act_error_time = global.absolute_time;
+	}
+}
 
 static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 	Uint8 i;
@@ -216,3 +274,5 @@ void ACTMGR_config_RX24(Uint8 id_servo, CAN_msg_t* msg){
 			warn_printf("invalid CAN msg data[2]=%u (configuration impossible)!\n", msg->data.act_msg.act_data.act_config.config);
 	}
 }
+
+

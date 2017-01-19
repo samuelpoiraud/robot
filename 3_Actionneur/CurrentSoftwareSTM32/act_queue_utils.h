@@ -115,6 +115,9 @@
 	//Comme CAN_sendResultWithParam mais le paramètre est considéré comme étant un numéro de ligne.
 	void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 lineNumber);
 
+	//Envoie un message CAN permettant de renvoyer plusieurs erreurs à la strat.
+	void ACTQ_sendErrorAct(Uint8 id_act, Uint8 errorCode);
+
 	//Macro pour avoir la ligne a laquelle cette macro est utilisé comme paramètre à CAN_sendResultWithParam
 	#define ACTQ_sendResultWithLine(originalSid, originalCommand, result, errorCode) ACTQ_sendResultWitExplicitLine(originalSid, originalCommand, result, errorCode, __LINE__)
 

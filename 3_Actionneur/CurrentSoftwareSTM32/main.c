@@ -164,6 +164,8 @@ int main (void)
 			#ifdef CAN_VERBOSE_MODE
 				QS_CAN_VERBOSE_can_msg_print(&msg, VERB_INPUT_MSG);
 			#endif
+			ACTMNG_control_act();
+
 		}
 
 		#ifdef USE_UART

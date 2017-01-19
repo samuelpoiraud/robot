@@ -789,6 +789,11 @@
 	}act_result_error_code_e;
 
 	typedef enum{
+		ACT_ERROR_OVERHEATING = 0,
+		ACT_ERROR_TORQUE_TOO_HIGH=1
+	}act_error;
+
+	typedef enum{
 		SPEED_CONFIG = 0,
 		TORQUE_CONFIG
 	}act_config_e;
