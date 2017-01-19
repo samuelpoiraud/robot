@@ -43,6 +43,8 @@ void ELEMENTS_process_main(){
 
 }
 
+
+
 bool_e ELEMENTS_get_flag(elements_flags_e flag_id)
 {
 	assert(flag_id < F_ELEMENTS_FLAGS_NB);
@@ -77,6 +79,17 @@ void ELEMENTS_receive_flags(CAN_msg_t* msg)
 	}
 }
 #endif
+
+const module_zone_characteristics_s central = {.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=6};
+
+const module_zone_characteristics_s our_diagonal = {.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=6};
+
+const module_zone_characteristics_s our_side = {.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=4};
+
+const module_zone_characteristics_s adv_diagonal = {.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=6};
+
+const module_zone_characteristics_s adv_side = {.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=4};
+
 
 
 #define	TIMEOUT_ANSWER	200

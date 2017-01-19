@@ -13,8 +13,8 @@
 		Sint16 ymax;
 		bool_e enable_zone;
 		Uint8 nb_cylinder_max;
-		const Uint8 nb_cylinder;
 	}module_zone_characteristics_s;
+
 
 
 	typedef enum{
@@ -48,10 +48,10 @@
 
 	typedef enum{
 		MODULE_DROP_MIDDLE,
-		MODULE_DROP_NORTH_CENTER,
-		MODULE_DROP_SOUTH_CENTER,
-		MODULE_DROP_NORTH,
-		MODULE_DROP_SOUTH,
+		MODULE_DROP_OUR_CENTER,
+		MODULE_DROP_ADV_CENTER,
+		MODULE_DROP_OUR_SIDE,
+		MODULE_DROP_ADV_SIDE,
 		NB_MODULE_LOCATION
 	}moduleDropLocation_e;
 

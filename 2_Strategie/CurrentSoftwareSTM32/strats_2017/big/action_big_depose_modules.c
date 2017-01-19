@@ -3,8 +3,11 @@
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../utils/generic_functions.h"
+#include "../../utils/actionChecker.h"
+#include "../../elements.h"
 
-error_e sub_harry_depose_modules_centre(){
+
+error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
 			INIT,
 			ERROR,
@@ -57,67 +60,30 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 	return IN_PROGRESS;
 }
 
-/*
+#if 0
 
 error_e sub_harry_cylinder_depose_manager(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_CYLINDER_DEPOSE_MANAGER,
 			INIT,
 			COMPUTE,
-			FIRST_CHOICE,
-			SECOND_CHOICE,
-			THIRD_CHOICE,
-			FOURTH_CHOICE,
-			FIFTH_CHOICE,
+			MANAGE,
+			GO_TO_MIDDLE,
+			GO_TO_OUR_CENTER,
+			GO_TO_OUR_SIDE,
+			GO_TO_ADV_CENTER,
+			GO_TO_ADV_SIDE,
 			ERROR,
 			DONE
 		);
 
-	zone_characteristics central;
-	central.xmin=0;
-	central.xmax=2000;
-	central.ymin=0;
-	central.ymax=3000;
-	central.enable_zone=FALSE;
-	central.nb_cylinder_max=6;
 
-	zone_characteristics our_diagonal;
-	our_diagonal.xmin=0;
-	our_diagonal.xmax=2000;
-	our_diagonal.ymin=0;
-	our_diagonal.ymax=3000;
-	our_diagonal.enable_zone=FALSE;
-	our_diagonal.nb_cylinder_max=6;
 
-	zone_characteristics our_side;
-	our_side.xmin=0;
-	our_side.xmax=2000;
-	our_side.ymin=0;
-	our_side.ymax=3000;
-	our_side.enable_zone=FALSE;
-	our_side.nb_cylinder_max=4;
-
-	zone_characteristics adv_diagonal;
-	adv_diagonal.xmin=0;
-	adv_diagonal.xmax=2000;
-	adv_diagonal.ymin=0;
-	adv_diagonal.ymax=3000;
-	adv_diagonal.enable_zone=FALSE;
-	adv_diagonal.nb_cylinder_max=6;
-
-	zone_characteristics adv_side;
-	adv_side.xmin=0;
-	adv_side.xmax=2000;
-	adv_side.ymin=0;
-	adv_side.ymax=3000;
-	adv_side.enable_zone=FALSE;
-	adv_side.nb_cylinder_max=4;
-
-	zone_characteristics first_zone=central;
-	zone_characteristics second_zone=our_diagonal;
-	zone_characteristics third_zone=our_side;
-	zone_characteristics fourth_zone=adv_diagonal;
-	zone_characteristics fifth_zone=adv_side;
-
+	moduleDropLocation_e first_zone=MODULE_DROP_MIDDLE;
+	moduleDropLocation_e second_zone=MODULE_DROP_OUR_CENTER;
+	moduleDropLocation_e third_zone=MODULE_DROP_OUR_SIDE;
+	moduleDropLocation_e fourth_zone=MODULE_DROP_ADV_CENTER;
+	moduleDropLocation_e fifth_zone=MODULE_DROP_ADV_SIDE;
+	moduleDropLocation_e prefered_zone;
 
 	switch(state){
 		case INIT:
@@ -129,37 +95,57 @@ error_e sub_harry_cylinder_depose_manager(){
 			break;
 
 		case COMPUTE:
-			if((first_zone.nb_cylinder<first_zone.nb_cylinder_max)&&((first_zone.enable_zone=!TRUE)||(i_am_in_square_color(first_zone.xmin, first_zone.xmax, first_zone.ymin, first_zone.ymax)))){
-				state=FIRST_CHOICE;
-			}else if((second_zone.nb_cylinder<second_zone.nb_cylinder_max)&&((second_zone.enable_zone=!TRUE)||(i_am_in_square_color(second_zone.xmin, second_zone.xmax, second_zone.ymin, second_zone.ymax)))){
-				state=SECOND_CHOICE;
-			}else if((third_zone.nb_cylinder<third_zone.nb_cylinder_max)&&((third_zone.enable_zone=!TRUE)||(i_am_in_square_color(third_zone.xmin, third_zone.xmax, third_zone.ymin, third_zone.ymax)))){
-				state=THIRD_CHOICE;
-			}else if((fourth_zone.nb_cylinder<fourth_zone.nb_cylinder_max)&&((fourth_zone.enable_zone=!TRUE)||(i_am_in_square_color(fourth_zone.xmin, fourth_zone.xmax, fourth_zone.ymin, fourth_zone.ymax)))){
-				state=FOURTH_CHOICE;
-			}else if((fifth_zone.nb_cylinder<fifth_zone.nb_cylinder_max)&&((fifth_zone.enable_zone=!TRUE)||(i_am_in_square_color(fifth_zone.xmin, fifth_zone.xmax, fifth_zone.ymin, fifth_zone.ymax)))){
-				state=FIFTH_CHOICE;
+			if((getNbDrop(first_zone)<module_zone[first_zone].nb_cylinder_max)&&((module_zone[first_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[first_zone].xmin, module_zone[first_zone].xmax, module_zone[first_zone].ymin, module_zone[first_zone].ymax)))){
+				prefered_zone=first_zone;
+				state=MANAGE;
+			}else if((getNbDrop(module_zone[second_zone])<module_zone[second_zone].nb_cylinder_max)&&((module_zone[second_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[second_zone].xmin, module_zone[second_zone].xmax, module_zone[second_zone].ymin, module_zone[second_zone].ymax)))){
+				prefered_zone=second_zone;
+				state=MANAGE;
+			}else if((getNbDrop(module_zone[third_zone])<module_zone[third_zone].nb_cylinder_max)&&((module_zone[third_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[third_zone].xmin, module_zone[third_zone].xmax, module_zone[third_zone].ymin, module_zone[third_zone].ymax)))){
+				prefered_zone=third_zone;
+				state=MANAGE;
+			}else if((getNbDrop(module_zone[fourth_zone])<module_zone[fourth_zone].nb_cylinder_max)&&((module_zone[fourth_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[fourth_zone].xmin, module_zone[fourth_zone].xmax, module_zone[fourth_zone].ymin, module_zone[fourth_zone].ymax)))){
+				prefered_zone=fourth_zone;
+				state=MANAGE;
+			}else if((getNbDrop(module_zone[fifth_zone])<module_zone[fifth_zone].nb_cylinder_max)&&((module_zone[fifth_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[fifth_zone].xmin, module_zone[fifth_zone].xmax, module_zone[fifth_zone].ymin, module_zone[fifth_zone].ymax)))){
+				prefered_zone=fifth_zone;
+				state=MANAGE;
+			}else
+				state=ERROR;
+			break;
+
+		case MANAGE:
+			if(prefered_zone==MODULE_DROP_MIDDLE){
+				state=GO_TO_MIDDLE;
+			}else if(prefered_zone==MODULE_DROP_OUR_CENTER){
+				state=GO_TO_OUR_CENTER;
+			}else if(prefered_zone==MODULE_DROP_OUR_SIDE){
+				state=GO_TO_OUR_SIDE;
+			}else if(prefered_zone==MODULE_DROP_ADV_CENTER){
+				state=GO_TO_ADV_CENTER;
+			}else if(prefered_zone==MODULE_DROP_ADV_SIDE){
+				state=GO_TO_ADV_SIDE;
 			}
 			break;
 
-		case FIRST_CHOICE:
-			//va sur la dépose prioritaire 1
+		case GO_TO_MIDDLE:
+			state=check_sub_action_result(sub_harry_depose_modules_centre(NEUTRAL_ELEMENT),state,DONE,ERROR);
 			break;
 
-		case SECOND_CHOICE:
-			//va sur la dépose prioritaire 2
+		case GO_TO_OUR_CENTER:
+			state=check_sub_action_result(sub_harry_depose_modules_centre(OUR_ELEMENT),state,DONE,ERROR);
 			break;
 
-		case THIRD_CHOICE:
-			//va sur la dépose prioritaire 3
+		case GO_TO_OUR_SIDE:
+			state=check_sub_action_result(sub_harry_depose_modules_side(OUR_ELEMENT),state,DONE,ERROR);
 			break;
 
-		case FOURTH_CHOICE:
-			//va sur la dépose prioritaire 4
+		case GO_TO_ADV_CENTER:
+			state=check_sub_action_result(sub_harry_depose_modules_centre(ADV_ELEMENT),state,DONE,ERROR);
 			break;
 
-		case FIFTH_CHOICE:
-			//va sur la dépose prioritaire 5
+		case GO_TO_ADV_SIDE:
+			state=check_sub_action_result(sub_harry_depose_modules_side(ADV_ELEMENT),state,DONE,ERROR);
 			break;
 
 		case ERROR:
@@ -176,4 +162,4 @@ error_e sub_harry_cylinder_depose_manager(){
 	return IN_PROGRESS;
 }
 
-*/
+#endif
