@@ -64,7 +64,10 @@
 
 	//#define DETECTION_CHOC
 
-	#define FDP_2016
+	//#define DISABLE_SECURE_GPIO_INIT
+	#ifdef DISABLE_SECURE_GPIO_INIT
+		#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
+	#endif
 
 	#define BUFFER_SIZE 64	//maximum : 255
 
