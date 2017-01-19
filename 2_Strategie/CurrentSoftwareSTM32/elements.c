@@ -18,9 +18,16 @@ typedef struct{
 	moduleType_e dropTable[MAX_MODULE_DROP];
 }moduleDropInfo_s;
 
-volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
-
+static volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
 static volatile moduleDropInfo_s moduleDropInfo[NB_MODULE_LOCATION] = {0};
+
+const module_zone_characteristics_s module_zone[NB_MODULE_LOCATION] = {
+		{.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=6},		// MODULE_DROP_MIDDLE
+		{.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=6},		// MODULE_DROP_NORTH_CENTER
+		{.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=4},		// MODULE_DROP_SOUTH_CENTER
+		{.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=6},		// MODULE_DROP_NORTH
+		{.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=4}		// MODULE_DROP_SOUTH
+};
 
 void ELEMENTS_init(){
 	Uint8 i;
