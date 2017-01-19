@@ -14,8 +14,8 @@
 #include "../propulsion/movement.h"
 #include "../QS/QS_watchdog.h"
 
-#ifndef ACTIONS_BOTH_2015_H
-#define ACTIONS_BOTH_2015_H
+#ifndef ACTIONS_BOTH_GENERIC_H
+#define ACTIONS_BOTH_GENERIC_H
 
 #define DIST_CALLAGE_WOOD		83
 #define DIST_CALLAGE_HOLLY		155

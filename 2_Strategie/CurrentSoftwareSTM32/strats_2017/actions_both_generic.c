@@ -10,7 +10,7 @@
  */
 
 
-#include "actions_both_2017.h"
+#include "actions_both_generic.h"
 #include "../environment.h"
 #include "../QS/QS_outputlog.h"
 #include "../utils/actionChecker.h"
