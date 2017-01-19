@@ -20,6 +20,8 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			SUB_TAKE_BLUE_CORNER,
 			COLOR,
 			ERROR,
+			ERROR_SUB_YELLOW,
+			ERROR_SUB_BLUE,
 			DONE
 		);
 
@@ -30,6 +32,18 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 		case ERROR:
 			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case ERROR_SUB_YELLOW:
+			RESET_MAE();
+			//une sous sub a error
+			return NOT_HANDLED;
+			break;
+
+		case ERROR_SUB_BLUE:
+			RESET_MAE();
+			//une sous sub a error
 			return NOT_HANDLED;
 			break;
 
@@ -62,38 +76,42 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 			break;
 
+
+
 		case SUB_MOVE_POS_YELLOW:
-			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_yellow(), state, SUB_TAKE_YELLOW_MIDDLE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_yellow(), state, SUB_TAKE_YELLOW_MIDDLE, ERROR_SUB_YELLOW);
 			break;
 
 		case SUB_TAKE_YELLOW_MIDDLE:
-			state = check_sub_action_result(sub_harry_take_big_crater_yellow_middle(), state, SUB_TAKE_YELLOW_FUSE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_yellow_middle(), state, SUB_TAKE_YELLOW_FUSE, ERROR_SUB_YELLOW);
 			break;
 
 		case SUB_TAKE_YELLOW_FUSE:
-			state = check_sub_action_result(sub_harry_take_big_crater_yellow_fuse(), state, SUB_TAKE_YELLOW_CORNER, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_yellow_fuse(), state, SUB_TAKE_YELLOW_CORNER, ERROR_SUB_YELLOW);
 			break;
 
 		case SUB_TAKE_YELLOW_CORNER:
-			state = check_sub_action_result(sub_harry_take_big_crater_yellow_corner(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_yellow_corner(), state, DONE, ERROR_SUB_YELLOW);
 			break;
+
+
 
 
 
 		case SUB_MOVE_POS_BLUE:
-			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_blue(), state, SUB_TAKE_BLUE_MIDDLE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_blue(), state, SUB_TAKE_BLUE_MIDDLE, ERROR_SUB_BLUE);
 			break;
 
 		case SUB_TAKE_BLUE_MIDDLE:
-			state = check_sub_action_result(sub_harry_take_big_crater_blue_middle(), state, SUB_TAKE_BLUE_FUSE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_blue_middle(), state, SUB_TAKE_BLUE_FUSE, ERROR_SUB_BLUE);
 			break;
 
 		case SUB_TAKE_BLUE_FUSE:
-			state = check_sub_action_result(sub_harry_take_big_crater_blue_fuse(), state, SUB_TAKE_BLUE_CORNER, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_blue_fuse(), state, SUB_TAKE_BLUE_CORNER, ERROR_SUB_BLUE);
 			break;
 
 		case SUB_TAKE_BLUE_CORNER:
-			state = check_sub_action_result(sub_harry_take_big_crater_blue_corner(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_blue_corner(), state, DONE, ERROR_SUB_BLUE);
 			break;
 
 
@@ -108,17 +126,17 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 
 
-//cratere jaune modifier !
+//aller cratere jaune
 error_e sub_harry_take_big_crater_move_pos_yellow(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_MOVE_POS_YELLOW,
 			INIT,
-			GO_OUR_CRATER_FROM_ADV_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE,
-			GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
-			GO_OUR_CRATER_FROM_OUR_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE,
-			ASTAR_GO_OUR_CRATER,
+			GO_YELLOW_CRATER_FROM_ADV_SQUARE,
+			ERROR_GO_YELLOW_CRATER_FROM_ADV_SQUARE,
+			GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE,
+			ERROR_GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE,
+			GO_YELLOW_CRATER_FROM_OUR_SQUARE,
+			ERROR_GO_YELLOW_CRATER_FROM_OUR_SQUARE,
+			ASTAR_GO_YELLOW_CRATER,
 			ERROR_ASTAR,
 			GET_IN,
 			ERROR,
@@ -126,71 +144,72 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 
 		);
 
-	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1390, COLOR_Y(400)}, FAST},
+	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, 2200}, FAST},
+										  {(GEOMETRY_point_t){1390, 2600}, FAST},
 										  };
 
-	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, COLOR_Y(2200)}, FAST},
-										  {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1390, COLOR_Y(400)}, FAST}
+	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, 800}, FAST},
+										  {(GEOMETRY_point_t){1000, 2200}, FAST},
+										  {(GEOMETRY_point_t){1390, 2600}, FAST}
 										  };
 
 	switch(state){
 	// deplacement robot
 	case INIT:
-		state = try_going(1000, COLOR_Y(1500), state,GET_IN , ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-		break;// depend du point de depard
+		state = GET_IN;
+		break;
 
 	case GET_IN:
-		if(i_am_in_square_color(400, 1500, COLOR_Y(0), COLOR_Y(800))){
-			state = GO_OUR_CRATER_FROM_OUR_SQUARE;
+		if(i_am_in_square_color(400, 1500, 0, 800)){
+			state = GO_YELLOW_CRATER_FROM_ADV_SQUARE;
 		}
-		else if(i_am_in_square_color(400, 1500, COLOR_Y(3000), COLOR_Y(2200))){
-			state = GO_OUR_CRATER_FROM_ADV_SQUARE;
+		else if(i_am_in_square_color(400, 1500, 3000, 2200)){
+			state = GO_YELLOW_CRATER_FROM_OUR_SQUARE;
 		}
 		else if(i_am_in_square_color(0, 1200, 800, 2200)){
-			state = GO_OUR_CRATER_FROM_MIDDLE_SQUARE;
+			state = GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE;
 		}else{
-			state = ASTAR_GO_OUR_CRATER;
+			state = ASTAR_GO_YELLOW_CRATER;
 		}
 		break;
 
 
-	case GO_OUR_CRATER_FROM_ADV_SQUARE:
-		state = try_going_multipoint( leave_adv_square, 3, state, DONE, ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case GO_YELLOW_CRATER_FROM_ADV_SQUARE:
+		state = try_going_multipoint( leave_adv_square, 3, state, DONE, ERROR_GO_YELLOW_CRATER_FROM_ADV_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case GO_OUR_CRATER_FROM_MIDDLE_SQUARE:
-		state = try_going_multipoint( leave_middle_square, 2, state, DONE, ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE:
+		state = try_going_multipoint( leave_middle_square, 2, state, DONE, ERROR_GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case GO_OUR_CRATER_FROM_OUR_SQUARE:
-		state = try_going(1390, COLOR_Y(400), state, DONE, ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case GO_YELLOW_CRATER_FROM_OUR_SQUARE:
+		state = try_going(1390, 2600, state, DONE, ERROR_GO_YELLOW_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case ASTAR_GO_OUR_CRATER:
-		ASTAR_try_going(1390, COLOR_Y(400), state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case ASTAR_GO_YELLOW_CRATER:
+		ASTAR_try_going(1390, 2600, state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
 	//ERROR POSITION
 
-	case ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE:
-		state = ASTAR_try_going(1000, COLOR_Y(1500), state, GET_IN, ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case ERROR_GO_YELLOW_CRATER_FROM_ADV_SQUARE:
+		state = ASTAR_try_going(1390, 2600, state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE:
+	case ERROR_GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE:
 		//state = GO_OUR_CRATERE_FROM_ADV_SQUARE;
-		state = GET_IN;
+		state = ASTAR_try_going(1390, 2600, state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE:
+	case ERROR_GO_YELLOW_CRATER_FROM_OUR_SQUARE:
 		//state = GO_OUR_CRATERE_FROM_OUR_SQUARE;
-		state = ASTAR_try_going(1390, COLOR_Y(400), state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		state = ASTAR_try_going(1390, 2600, state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
 	case ERROR_ASTAR:
-		//action impossible abandon;
-		state = DONE;
+		//action, impossible d'allez au cratere
+		RESET_MAE();
+		return NOT_HANDLED;
 		break;
 
 	case ERROR:
@@ -211,17 +230,17 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 
 
 
-//cratere bleu
+//aller cratere bleu
 error_e sub_harry_take_big_crater_move_pos_blue(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_MOVE_POS_BLUE,
 			INIT,
-			GO_OUR_CRATER_FROM_ADV_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE,
-			GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
-			GO_OUR_CRATER_FROM_OUR_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE,
-			ASTAR_GO_OUR_CRATER,
+			GO_BLUE_CRATER_FROM_ADV_SQUARE,
+			ERROR_GO_BLUE_CRATER_FROM_ADV_SQUARE,
+			GO_BLUE_CRATER_FROM_MIDDLE_SQUARE,
+			ERROR_GO_BLUE_CRATER_FROM_MIDDLE_SQUARE,
+			GO_BLUE_CRATER_FROM_OUR_SQUARE,
+			ERROR_GO_BLUE_CRATER_FROM_OUR_SQUARE,
+			ASTAR_GO_BLUE_CRATER,
 			ERROR_ASTAR,
 			GET_IN,
 			ERROR,
@@ -229,71 +248,72 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 
 		);
 
-	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1390, COLOR_Y(400)}, FAST},
+	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, 800}, FAST},
+										  {(GEOMETRY_point_t){1390, 400}, FAST},
 										  };
 
-	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, COLOR_Y(2200)}, FAST},
-										  {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1390, COLOR_Y(400)}, FAST}
+	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, 2200}, FAST},
+										  {(GEOMETRY_point_t){1000, 800}, FAST},
+										  {(GEOMETRY_point_t){1390, 400}, FAST}
 										  };
 
 	switch(state){
 	// deplacement robot
 	case INIT:
-		state = try_going(1000, COLOR_Y(1500), state,GET_IN , ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-		break;// depend du point de depard
+		state = GET_IN;
+		break;
 
 	case GET_IN:
-		if(i_am_in_square_color(400, 1500, COLOR_Y(0), COLOR_Y(800))){
-			state = GO_OUR_CRATER_FROM_OUR_SQUARE;
+		if(i_am_in_square_color(400, 1500, 0, 800)){
+			state = GO_BLUE_CRATER_FROM_OUR_SQUARE;
 		}
-		else if(i_am_in_square_color(400, 1500, COLOR_Y(3000), COLOR_Y(2200))){
-			state = GO_OUR_CRATER_FROM_ADV_SQUARE;
+		else if(i_am_in_square_color(400, 1500, 3000, 2200)){
+			state = GO_BLUE_CRATER_FROM_ADV_SQUARE;
 		}
 		else if(i_am_in_square_color(0, 1200, 800, 2200)){
-			state = GO_OUR_CRATER_FROM_MIDDLE_SQUARE;
+			state = GO_BLUE_CRATER_FROM_MIDDLE_SQUARE;
 		}else{
-			state = ASTAR_GO_OUR_CRATER;
+			state = ASTAR_GO_BLUE_CRATER;
 		}
 		break;
 
 
-	case GO_OUR_CRATER_FROM_ADV_SQUARE:
-		state = try_going_multipoint( leave_adv_square, 3, state, DONE, ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case GO_BLUE_CRATER_FROM_ADV_SQUARE:
+		state = try_going_multipoint( leave_adv_square, 3, state, DONE, ERROR_GO_BLUE_CRATER_FROM_ADV_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case GO_OUR_CRATER_FROM_MIDDLE_SQUARE:
-		state = try_going_multipoint( leave_middle_square, 2, state, DONE, ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case GO_BLUE_CRATER_FROM_MIDDLE_SQUARE:
+		state = try_going_multipoint( leave_middle_square, 2, state, DONE, ERROR_GO_BLUE_CRATER_FROM_MIDDLE_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case GO_OUR_CRATER_FROM_OUR_SQUARE:
-		state = try_going(1390, COLOR_Y(400), state, DONE, ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case GO_BLUE_CRATER_FROM_OUR_SQUARE:
+		state = try_going(1390, 400, state, DONE, ERROR_GO_BLUE_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case ASTAR_GO_OUR_CRATER:
-		ASTAR_try_going(1390, COLOR_Y(400), state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case ASTAR_GO_BLUE_CRATER:
+		ASTAR_try_going(1390, 400, state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
 	//ERROR POSITION
 
-	case ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE:
-		state = ASTAR_try_going(1000, COLOR_Y(1500), state, GET_IN, ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	case ERROR_GO_BLUE_CRATER_FROM_ADV_SQUARE:
+		state = ASTAR_try_going(1390, 400, state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE:
+	case ERROR_GO_BLUE_CRATER_FROM_MIDDLE_SQUARE:
 		//state = GO_OUR_CRATERE_FROM_ADV_SQUARE;
-		state = GET_IN;
+		state = ASTAR_try_going(1390, 400, state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
-	case ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE:
+	case ERROR_GO_BLUE_CRATER_FROM_OUR_SQUARE:
 		//state = GO_OUR_CRATERE_FROM_OUR_SQUARE;
-		state = ASTAR_try_going(1390, COLOR_Y(400), state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		state = ASTAR_try_going(1390, 400, state, DONE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 		break;
 
 	case ERROR_ASTAR:
-		//action impossible abandon;
-		state = DONE;
+		//action, impossible d'allez au cratere
+		RESET_MAE();
+		return NOT_HANDLED;
 		break;
 
 	case ERROR:
@@ -327,12 +347,14 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			INIT,
 			COLLECT_YELLOW_MIDDLE_POSITION,
 			COLLECT_YELLOW_MIDDLE_LINE,
-			COLLECT_YELLOW_MIDDLE_SHOVEL_DOWN,
+			COLLECT_YELLOW_MIDDLE_ACTIVATE,
 			COLLECT_YELLOW_MIDDLE_MOVE_FOWARD,
 			COLLECT_YELLOW_MIDDLE_SHOVEL_UP,
 			COLLECT_YELLOW_MIDDLE_POSITION_LEFT,
 			COLLECT_YELLOW_MIDDLE_VALIDATE,
 			GET_OUT_COLLECT_YELLOW_MIDDLE,
+			ERROR_COLLECT_YELLOW_MIDDLE_MOVE_FOWARD,
+			ERROR_COLLECT_YELLOW_MIDDLE_POSITION_LEFT,
 			DONE,
 			ERROR
 		);
@@ -347,31 +369,52 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			break;
 
 		case COLLECT_YELLOW_MIDDLE_LINE:
-			// rotate ??
-			state = try_going(1390, 2600, state, COLLECT_YELLOW_MIDDLE_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			// rotate ?? sud
+			state = try_going(1390, 2600, state, COLLECT_YELLOW_MIDDLE_ACTIVATE,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case COLLECT_YELLOW_MIDDLE_ACTIVATE:{
+			Uint8 state1=COLLECT_YELLOW_MIDDLE_ACTIVATE;
+			Uint8 state2=COLLECT_YELLOW_MIDDLE_ACTIVATE;
+			Uint8 state3=COLLECT_YELLOW_MIDDLE_ACTIVATE;
+			Uint8 state4=COLLECT_YELLOW_MIDDLE_ACTIVATE;
+			Uint8 state5=COLLECT_YELLOW_MIDDLE_ACTIVATE;
+			Uint8 state6=COLLECT_YELLOW_MIDDLE_ACTIVATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
 			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			// valide ??
-			break;
 
-		case COLLECT_YELLOW_MIDDLE_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_YELLOW_MIDDLE_MOVE_FOWARD;
-			break;
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state2==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state3==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state4==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state5==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state6==COLLECT_YELLOW_MIDDLE_ACTIVATE)){
+	state=COLLECT_YELLOW_MIDDLE_MOVE_FOWARD;
+}
+
+			// valide ??
+		}break;
 
 		case COLLECT_YELLOW_MIDDLE_MOVE_FOWARD:
-			state = try_going(1690, 2600, state, COLLECT_YELLOW_MIDDLE_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1690, 2600, state, COLLECT_YELLOW_MIDDLE_SHOVEL_UP,  ERROR_COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_YELLOW_MIDDLE_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
+			// accelere rouleau
 			state = COLLECT_YELLOW_MIDDLE_POSITION_LEFT;
 			break;
 
@@ -380,16 +423,42 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			//lien avec action suivante
 			break;
 
-		case COLLECT_YELLOW_MIDDLE_VALIDATE:
-			//dessendre les billes porteuses et monter la roue
+
+		case COLLECT_YELLOW_MIDDLE_VALIDATE:{
+			Uint8 state1=COLLECT_YELLOW_MIDDLE_VALIDATE;
+			Uint8 state2=COLLECT_YELLOW_MIDDLE_VALIDATE;
+			Uint8 state3=COLLECT_YELLOW_MIDDLE_VALIDATE;
+			Uint8 state4=COLLECT_YELLOW_MIDDLE_VALIDATE;
+			Uint8 state5=COLLECT_YELLOW_MIDDLE_VALIDATE;
+			Uint8 state6=COLLECT_YELLOW_MIDDLE_VALIDATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
+			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
-			//lien avec action suivante
-			state = GET_OUT_COLLECT_YELLOW_MIDDLE;
-			break;
+
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state2==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state3==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state4==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state5==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state6==COLLECT_YELLOW_MIDDLE_VALIDATE)){
+	state=GET_OUT_COLLECT_YELLOW_MIDDLE;
+}
+
+
+		}break;
 
 		case GET_OUT_COLLECT_YELLOW_MIDDLE:
 			state = DONE;
@@ -405,6 +474,18 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			RESET_MAE();
 			return END_OK;
 			break;
+
+		case ERROR_COLLECT_YELLOW_MIDDLE_MOVE_FOWARD:
+			// il y a quelqu'un dans le cratere
+			state = try_going(1390, 2600, state, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD,  COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_COLLECT_YELLOW_MIDDLE_POSITION_LEFT:
+			// il y a quelqu'un qui bloque la sortie du cratere
+			state = try_going(1690, 2600, state, COLLECT_YELLOW_MIDDLE_POSITION_LEFT,  COLLECT_YELLOW_MIDDLE_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+
 	}
 
 	return IN_PROGRESS;
@@ -419,12 +500,14 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			INIT,
 			COLLECT_YELLOW_FUSE_POSITION,
 			COLLECT_YELLOW_FUSE_LINE,
-			COLLECT_YELLOW_FUSE_SHOVEL_DOWN,
+			COLLECT_YELLOW_FUSE_ACTIVATE,
 			COLLECT_YELLOW_FUSE_MOVE_FOWARD,
 			COLLECT_YELLOW_FUSE_SHOVEL_UP,
 			COLLECT_YELLOW_FUSE_POSITION_LEFT,
 			COLLECT_YELLOW_FUSE_VALIDATE,
 			GET_OUT_COLLECT_YELLOW_FUSE,
+			ERROR_COLLECT_YELLOW_FUSE_MOVE_FOWARD,
+			ERROR_COLLECT_YELLOW_FUSE_POSITION_LEFT,
 			DONE,
 			ERROR
 		);
@@ -439,29 +522,51 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			break;
 
 		case COLLECT_YELLOW_FUSE_LINE:
-			state = try_going(1600, 2300, state,  COLLECT_YELLOW_FUSE_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//rotate
+			state = try_going(1600, 2300, state,  COLLECT_YELLOW_FUSE_ACTIVATE,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+
+			break;
+
+		case COLLECT_YELLOW_FUSE_ACTIVATE:{
+			Uint8 state1=COLLECT_YELLOW_FUSE_ACTIVATE;
+			Uint8 state2=COLLECT_YELLOW_FUSE_ACTIVATE;
+			Uint8 state3=COLLECT_YELLOW_FUSE_ACTIVATE;
+			Uint8 state4=COLLECT_YELLOW_FUSE_ACTIVATE;
+			Uint8 state5=COLLECT_YELLOW_FUSE_ACTIVATE;
+			Uint8 state6=COLLECT_YELLOW_FUSE_ACTIVATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
 			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
 
-		case COLLECT_YELLOW_FUSE_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_YELLOW_FUSE_MOVE_FOWARD;
-			break;
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state2==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state3==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state4==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state5==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state6==COLLECT_YELLOW_FUSE_ACTIVATE)){
+	state=COLLECT_YELLOW_FUSE_MOVE_FOWARD;
+}
+			}break;
 
 		case COLLECT_YELLOW_FUSE_MOVE_FOWARD:
 			state = try_going(1600, 2690, state, COLLECT_YELLOW_FUSE_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_YELLOW_FUSE_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
+			// accelere rouleau
 			state = COLLECT_YELLOW_FUSE_POSITION_LEFT;
 			break;
 
@@ -470,16 +575,41 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			//lien avec action suivante
 			break;
 
-		case COLLECT_YELLOW_FUSE_VALIDATE:
-			//dessendre les billes porteuses et monter la roue
+		case COLLECT_YELLOW_FUSE_VALIDATE:{
+			Uint8 state1=COLLECT_YELLOW_FUSE_VALIDATE;
+			Uint8 state2=COLLECT_YELLOW_FUSE_VALIDATE;
+			Uint8 state3=COLLECT_YELLOW_FUSE_VALIDATE;
+			Uint8 state4=COLLECT_YELLOW_FUSE_VALIDATE;
+			Uint8 state5=COLLECT_YELLOW_FUSE_VALIDATE;
+			Uint8 state6=COLLECT_YELLOW_FUSE_VALIDATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
+			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
-			//lien avec action suivante
-			state = GET_OUT_COLLECT_YELLOW_FUSE;
-			break;
+
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_YELLOW_FUSE_VALIDATE)&&(state2==COLLECT_YELLOW_FUSE_VALIDATE)&&(state3==COLLECT_YELLOW_FUSE_VALIDATE)&&(state4==COLLECT_YELLOW_FUSE_VALIDATE)&&(state5==COLLECT_YELLOW_FUSE_VALIDATE)&&(state6==COLLECT_YELLOW_FUSE_VALIDATE)){
+	state=GET_OUT_COLLECT_YELLOW_FUSE;
+}
+
+
+		}break;
 
 		case GET_OUT_COLLECT_YELLOW_FUSE:
 			state = DONE;
@@ -493,6 +623,16 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 		case DONE:
 			RESET_MAE();
 			return END_OK;
+			break;
+
+		case ERROR_COLLECT_YELLOW_FUSE_MOVE_FOWARD:
+			// il y a quelqu'un dans le cratere
+			state = try_going(1390, 2600, state, COLLECT_YELLOW_FUSE_MOVE_FOWARD,  COLLECT_YELLOW_FUSE_MOVE_FOWARD, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_COLLECT_YELLOW_FUSE_POSITION_LEFT:
+			// il y a quelqu'un qui bloque la sortie du cratere
+			state = try_going(1690, 2600, state, COLLECT_YELLOW_FUSE_POSITION_LEFT,  COLLECT_YELLOW_FUSE_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 			//COLLECT_YELLOW_CORNER_POSITION == GET_OUT_COLLECT_YELLOW_FUSE
@@ -510,12 +650,14 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 				INIT,
 				COLLECT_YELLOW_CORNER_POSITION,
 				COLLECT_YELLOW_CORNER_LINE,
-				COLLECT_YELLOW_CORNER_SHOVEL_DOWN,
+				COLLECT_YELLOW_CORNER_ACTIVATE,
 				COLLECT_YELLOW_CORNER_MOVE_FOWARD,
 				COLLECT_YELLOW_CORNER_SHOVEL_UP,
 				COLLECT_YELLOW_CORNER_POSITION_LEFT,
 				COLLECT_YELLOW_CORNER_VALIDATE,
 				GET_OUT_COLLECT_YELLOW_CORNER,
+				ERROR_COLLECT_YELLOW_CORNER_MOVE_FOWARD,
+				ERROR_COLLECT_YELLOW_CORNER_POSITION_LEFT,
 				DONE,
 				ERROR
 			);
@@ -530,29 +672,51 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			break;
 
 		case COLLECT_YELLOW_CORNER_LINE:
-			state = try_going(1780, 2200, state, COLLECT_YELLOW_CORNER_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//rotate
+			state = try_going(1780, 2200, state, COLLECT_YELLOW_CORNER_ACTIVATE,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+
+		case COLLECT_YELLOW_CORNER_ACTIVATE:{
+			Uint8 state1=COLLECT_YELLOW_CORNER_ACTIVATE;
+			Uint8 state2=COLLECT_YELLOW_CORNER_ACTIVATE;
+			Uint8 state3=COLLECT_YELLOW_CORNER_ACTIVATE;
+			Uint8 state4=COLLECT_YELLOW_CORNER_ACTIVATE;
+			Uint8 state5=COLLECT_YELLOW_CORNER_ACTIVATE;
+			Uint8 state6=COLLECT_YELLOW_CORNER_ACTIVATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
 			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
 
-		case COLLECT_YELLOW_CORNER_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_YELLOW_CORNER_MOVE_FOWARD;
-			break;
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state2==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state3==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state4==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state5==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state6==COLLECT_YELLOW_CORNER_ACTIVATE)){
+	state=COLLECT_YELLOW_CORNER_MOVE_FOWARD;
+}
+			}break;
 
 		case COLLECT_YELLOW_CORNER_MOVE_FOWARD:
 			state = try_going(1780, 2690, state, COLLECT_YELLOW_CORNER_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_YELLOW_CORNER_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
+			// accelere rouleau
 			state = COLLECT_YELLOW_CORNER_POSITION_LEFT;
 			break;
 
@@ -561,16 +725,41 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			//lien avec action suivante
 			break;
 
-		case COLLECT_YELLOW_CORNER_VALIDATE:
-			//dessendre les billes porteuses et monter la roue
+		case COLLECT_YELLOW_CORNER_VALIDATE:{
+			Uint8 state1=COLLECT_YELLOW_CORNER_VALIDATE;
+			Uint8 state2=COLLECT_YELLOW_CORNER_VALIDATE;
+			Uint8 state3=COLLECT_YELLOW_CORNER_VALIDATE;
+			Uint8 state4=COLLECT_YELLOW_CORNER_VALIDATE;
+			Uint8 state5=COLLECT_YELLOW_CORNER_VALIDATE;
+			Uint8 state6=COLLECT_YELLOW_CORNER_VALIDATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
+			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
-			//lien avec action suivante
-			state = GET_OUT_COLLECT_YELLOW_CORNER;
-			break;
+
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_YELLOW_CORNER_VALIDATE)&&(state2==COLLECT_YELLOW_CORNER_VALIDATE)&&(state3==COLLECT_YELLOW_CORNER_VALIDATE)&&(state4==COLLECT_YELLOW_CORNER_VALIDATE)&&(state5==COLLECT_YELLOW_CORNER_VALIDATE)&&(state6==COLLECT_YELLOW_CORNER_VALIDATE)){
+	state=GET_OUT_COLLECT_YELLOW_CORNER;
+}
+
+
+		}break;
 
 		case GET_OUT_COLLECT_YELLOW_CORNER:
 			state = DONE;
@@ -584,6 +773,16 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 		case DONE:
 			RESET_MAE();
 			return END_OK;
+			break;
+
+		case ERROR_COLLECT_YELLOW_CORNER_MOVE_FOWARD:
+			// il y a quelqu'un dans le cratere
+			state = try_going(1390, 2600, state, COLLECT_YELLOW_CORNER_MOVE_FOWARD,  COLLECT_YELLOW_CORNER_MOVE_FOWARD, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_COLLECT_YELLOW_CORNER_POSITION_LEFT:
+			// il y a quelqu'un qui bloque la sortie du cratere
+			state = try_going(1690, 2600, state, COLLECT_YELLOW_CORNER_POSITION_LEFT,  COLLECT_YELLOW_CORNER_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 			//GET_OUT == GET_OUT_COLLECT_YELLOW_CORNER
@@ -601,12 +800,14 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			INIT,
 			COLLECT_BLUE_MIDDLE_POSITION,
 			COLLECT_BLUE_MIDDLE_LINE,
-			COLLECT_BLUE_MIDDLE_SHOVEL_DOWN,
+			COLLECT_BLUE_MIDDLE_ACTIVATE,
 			COLLECT_BLUE_MIDDLE_MOVE_FOWARD,
 			COLLECT_BLUE_MIDDLE_SHOVEL_UP,
 			COLLECT_BLUE_MIDDLE_POSITION_LEFT,
 			COLLECT_BLUE_MIDDLE_VALIDATE,
 			GET_OUT_COLLECT_BLUE_MIDDLE,
+			ERROR_COLLECT_BLUE_MIDDLE_MOVE_FOWARD,
+			ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT,
 			DONE,
 			ERROR
 		);
@@ -621,29 +822,52 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			break;
 
 		case COLLECT_BLUE_MIDDLE_LINE:
-			state = try_going(1390, 400, state, COLLECT_BLUE_MIDDLE_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//rotate
+			state = try_going(1390, 400, state, COLLECT_BLUE_MIDDLE_ACTIVATE,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+
+
+		case COLLECT_BLUE_MIDDLE_ACTIVATE:{
+			Uint8 state1=COLLECT_BLUE_MIDDLE_ACTIVATE;
+			Uint8 state2=COLLECT_BLUE_MIDDLE_ACTIVATE;
+			Uint8 state3=COLLECT_BLUE_MIDDLE_ACTIVATE;
+			Uint8 state4=COLLECT_BLUE_MIDDLE_ACTIVATE;
+			Uint8 state5=COLLECT_BLUE_MIDDLE_ACTIVATE;
+			Uint8 state6=COLLECT_BLUE_MIDDLE_ACTIVATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
 			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
 
-		case COLLECT_BLUE_MIDDLE_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_BLUE_MIDDLE_MOVE_FOWARD;
-			break;
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state2==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state3==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state4==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state5==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state6==COLLECT_BLUE_MIDDLE_ACTIVATE)){
+	state=COLLECT_BLUE_MIDDLE_MOVE_FOWARD;
+}
+			}break;
 
 		case COLLECT_BLUE_MIDDLE_MOVE_FOWARD:
 			state = try_going(1690, 400, state, COLLECT_BLUE_MIDDLE_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_BLUE_MIDDLE_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
+			// accelere rouleau
 			state = COLLECT_BLUE_MIDDLE_POSITION_LEFT;
 			break;
 
@@ -652,16 +876,41 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			//lien avec action suivante
 			break;
 
-		case COLLECT_BLUE_MIDDLE_VALIDATE:
-			//dessendre les billes porteuses et monter la roue
+		case COLLECT_BLUE_MIDDLE_VALIDATE:{
+			Uint8 state1=COLLECT_BLUE_MIDDLE_VALIDATE;
+			Uint8 state2=COLLECT_BLUE_MIDDLE_VALIDATE;
+			Uint8 state3=COLLECT_BLUE_MIDDLE_VALIDATE;
+			Uint8 state4=COLLECT_BLUE_MIDDLE_VALIDATE;
+			Uint8 state5=COLLECT_BLUE_MIDDLE_VALIDATE;
+			Uint8 state6=COLLECT_BLUE_MIDDLE_VALIDATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
+			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
-			//lien avec action suivante
-			state = GET_OUT_COLLECT_BLUE_MIDDLE;
-			break;
+
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state2==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state3==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state4==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state5==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state6==COLLECT_BLUE_MIDDLE_VALIDATE)){
+	state=GET_OUT_COLLECT_BLUE_MIDDLE;
+}
+
+
+		}break;
 
 		case GET_OUT_COLLECT_BLUE_MIDDLE:
 			state = DONE;
@@ -675,6 +924,16 @@ error_e sub_harry_take_big_crater_blue_middle(){
 		case DONE:
 			RESET_MAE();
 			return END_OK;
+			break;
+
+		case ERROR_COLLECT_BLUE_MIDDLE_MOVE_FOWARD:
+			// il y a quelqu'un dans le cratere
+			state = try_going(1390, 2600, state, COLLECT_BLUE_MIDDLE_MOVE_FOWARD,  COLLECT_BLUE_MIDDLE_MOVE_FOWARD, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT:
+			// il y a quelqu'un qui bloque la sortie du cratere
+			state = try_going(1690, 2600, state, COLLECT_BLUE_MIDDLE_POSITION_LEFT,  COLLECT_BLUE_MIDDLE_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 			// COLLECT_BLUE_FUSE_POSITION = GET_OUT_COLLECT_BLUE_MIDDLE
 	}
@@ -693,12 +952,14 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 			INIT,
 			COLLECT_BLUE_FUSE_POSITION,
 			COLLECT_BLUE_FUSE_LINE,
-			COLLECT_BLUE_FUSE_SHOVEL_DOWN,
+			COLLECT_BLUE_FUSE_ACTIVATE,
 			COLLECT_BLUE_FUSE_MOVE_FOWARD,
 			COLLECT_BLUE_FUSE_SHOVEL_UP,
 			COLLECT_BLUE_FUSE_POSITION_LEFT,
 			COLLECT_BLUE_FUSE_VALIDATE,
 			GET_OUT_COLLECT_BLUE_FUSE,
+			ERROR_COLLECT_BLUE_FUSE_MOVE_FOWARD,
+			ERROR_COLLECT_BLUE_FUSE_POSITION_LEFT,
 			DONE,
 			ERROR
 		);
@@ -713,29 +974,52 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 			break;
 
 		case COLLECT_BLUE_FUSE_LINE:
-			state = try_going(1600, 700, state, COLLECT_BLUE_FUSE_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//rotate
+			state = try_going(1600, 700, state, COLLECT_BLUE_FUSE_ACTIVATE,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+
+		case COLLECT_BLUE_FUSE_ACTIVATE:{
+			Uint8 state1=COLLECT_BLUE_FUSE_ACTIVATE;
+			Uint8 state2=COLLECT_BLUE_FUSE_ACTIVATE;
+			Uint8 state3=COLLECT_BLUE_FUSE_ACTIVATE;
+			Uint8 state4=COLLECT_BLUE_FUSE_ACTIVATE;
+			Uint8 state5=COLLECT_BLUE_FUSE_ACTIVATE;
+			Uint8 state6=COLLECT_BLUE_FUSE_ACTIVATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
 			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
 
-		case COLLECT_BLUE_FUSE_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_BLUE_FUSE_MOVE_FOWARD;
-			break;
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_BLUE_FUSE_ACTIVATE)&&(state2==COLLECT_BLUE_FUSE_ACTIVATE)&&(state3==COLLECT_BLUE_FUSE_ACTIVATE)&&(state4==COLLECT_BLUE_FUSE_ACTIVATE)&&(state5==COLLECT_BLUE_FUSE_ACTIVATE)&&(state6==COLLECT_BLUE_FUSE_ACTIVATE)){
+	state=COLLECT_BLUE_FUSE_MOVE_FOWARD;
+}
+			}break;
+
 
 		case COLLECT_BLUE_FUSE_MOVE_FOWARD:
 			state = try_going(1600, 310, state, COLLECT_BLUE_FUSE_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_BLUE_FUSE_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
+			// accelere rouleau
 			state = COLLECT_BLUE_FUSE_POSITION_LEFT;
 			break;
 
@@ -744,16 +1028,41 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 			//lien avec action suivante
 			break;
 
-		case COLLECT_BLUE_FUSE_VALIDATE:
-			//dessendre les billes porteuses et monter la roue
+		case COLLECT_BLUE_FUSE_VALIDATE:{
+			Uint8 state1=COLLECT_BLUE_FUSE_VALIDATE;
+			Uint8 state2=COLLECT_BLUE_FUSE_VALIDATE;
+			Uint8 state3=COLLECT_BLUE_FUSE_VALIDATE;
+			Uint8 state4=COLLECT_BLUE_FUSE_VALIDATE;
+			Uint8 state5=COLLECT_BLUE_FUSE_VALIDATE;
+			Uint8 state6=COLLECT_BLUE_FUSE_VALIDATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
+			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
-			//lien avec action suivante
-			state = GET_OUT_COLLECT_BLUE_FUSE;
-			break;
+
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_BLUE_FUSE_VALIDATE)&&(state2==COLLECT_BLUE_FUSE_VALIDATE)&&(state3==COLLECT_BLUE_FUSE_VALIDATE)&&(state4==COLLECT_BLUE_FUSE_VALIDATE)&&(state5==COLLECT_BLUE_FUSE_VALIDATE)&&(state6==COLLECT_BLUE_FUSE_VALIDATE)){
+	state=GET_OUT_COLLECT_BLUE_FUSE;
+}
+
+
+		}break;
 
 		case GET_OUT_COLLECT_BLUE_FUSE:
 			state = DONE;
@@ -767,6 +1076,16 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 		case DONE:
 			RESET_MAE();
 			return END_OK;
+			break;
+
+		case ERROR_COLLECT_BLUE_FUSE_MOVE_FOWARD:
+			// il y a quelqu'un dans le cratere
+			state = try_going(1390, 2600, state, COLLECT_BLUE_FUSE_MOVE_FOWARD,  COLLECT_BLUE_FUSE_MOVE_FOWARD, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_COLLECT_BLUE_FUSE_POSITION_LEFT:
+			// il y a quelqu'un qui bloque la sortie du cratere
+			state = try_going(1690, 2600, state, COLLECT_BLUE_FUSE_POSITION_LEFT,  COLLECT_BLUE_FUSE_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 			//  COLLECT_BLUE_CORNER_POSITION = GET_OUT_COLLECT_BLUE_FUSE
@@ -784,12 +1103,14 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			INIT,
 			COLLECT_BLUE_CORNER_POSITION,
 			COLLECT_BLUE_CORNER_LINE,
-			COLLECT_BLUE_CORNER_SHOVEL_DOWN,
+			COLLECT_BLUE_CORNER_ACTIVATE,
 			COLLECT_BLUE_CORNER_MOVE_FOWARD,
 			COLLECT_BLUE_CORNER_SHOVEL_UP,
 			COLLECT_BLUE_CORNER_POSITION_LEFT,
 			COLLECT_BLUE_CORNER_VALIDATE,
 			GET_OUT_COLLECT_BLUE_CORNER,
+			ERROR_COLLECT_BLUE_CORNER_MOVE_FOWARD,
+			ERROR_COLLECT_BLUE_CORNER_POSITION_LEFT,
 			DONE,
 			ERROR
 		);
@@ -804,29 +1125,51 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			break;
 
 		case COLLECT_BLUE_CORNER_LINE:
-			state = try_going(1780, 800, state, COLLECT_BLUE_CORNER_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//rotate
+			state = try_going(1780, 800, state, COLLECT_BLUE_CORNER_ACTIVATE,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+
+		case COLLECT_BLUE_CORNER_ACTIVATE:{
+			Uint8 state1=COLLECT_BLUE_CORNER_ACTIVATE;
+			Uint8 state2=COLLECT_BLUE_CORNER_ACTIVATE;
+			Uint8 state3=COLLECT_BLUE_CORNER_ACTIVATE;
+			Uint8 state4=COLLECT_BLUE_CORNER_ACTIVATE;
+			Uint8 state5=COLLECT_BLUE_CORNER_ACTIVATE;
+			Uint8 state6=COLLECT_BLUE_CORNER_ACTIVATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
 			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
 
-		case COLLECT_BLUE_CORNER_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_BLUE_CORNER_MOVE_FOWARD;
-			break;
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_BLUE_CORNER_ACTIVATE)&&(state2==COLLECT_BLUE_CORNER_ACTIVATE)&&(state3==COLLECT_BLUE_CORNER_ACTIVATE)&&(state4==COLLECT_BLUE_CORNER_ACTIVATE)&&(state5==COLLECT_BLUE_CORNER_ACTIVATE)&&(state6==COLLECT_BLUE_CORNER_ACTIVATE)){
+	state=COLLECT_BLUE_CORNER_MOVE_FOWARD;
+}
+			}break;
 
 		case COLLECT_BLUE_CORNER_MOVE_FOWARD:
 			state = try_going(1780, 310, state, COLLECT_BLUE_CORNER_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_BLUE_CORNER_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
+			// accelere rouleau
 			state = COLLECT_BLUE_CORNER_POSITION_LEFT;
 			break;
 
@@ -835,16 +1178,42 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			//lien avec action suivante 1850
 			break;
 
-		case COLLECT_BLUE_CORNER_VALIDATE:
-			//dessendre les billes porteuses et monter la roue
+
+		case COLLECT_BLUE_CORNER_VALIDATE:{
+			Uint8 state1=COLLECT_BLUE_CORNER_VALIDATE;
+			Uint8 state2=COLLECT_BLUE_CORNER_VALIDATE;
+			Uint8 state3=COLLECT_BLUE_CORNER_VALIDATE;
+			Uint8 state4=COLLECT_BLUE_CORNER_VALIDATE;
+			Uint8 state5=COLLECT_BLUE_CORNER_VALIDATE;
+			Uint8 state6=COLLECT_BLUE_CORNER_VALIDATE;
+
+
+			// activer le rouleau
+			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
+			//remonter les billes porteuses et descendre la roue
 			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
 			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
-			//lien avec action suivante
-			state = GET_OUT_COLLECT_BLUE_CORNER;
-			break;
+
+			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+
+
+if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+	state=ERROR;
+}
+else if((state1==COLLECT_BLUE_CORNER_VALIDATE)&&(state2==COLLECT_BLUE_CORNER_VALIDATE)&&(state3==COLLECT_BLUE_CORNER_VALIDATE)&&(state4==COLLECT_BLUE_CORNER_VALIDATE)&&(state5==COLLECT_BLUE_CORNER_VALIDATE)&&(state6==COLLECT_BLUE_CORNER_VALIDATE)){
+	state=GET_OUT_COLLECT_BLUE_CORNER;
+}
+
+
+		}break;
 
 		case GET_OUT_COLLECT_BLUE_CORNER:
 			state = DONE;
@@ -859,6 +1228,16 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			RESET_MAE();
 			return END_OK;
 			break;
+
+		case ERROR_COLLECT_BLUE_CORNER_MOVE_FOWARD:
+			// il y a quelqu'un dans le cratere
+			state = try_going(1390, 2600, state, COLLECT_BLUE_CORNER_MOVE_FOWARD,  COLLECT_BLUE_CORNER_MOVE_FOWARD, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_COLLECT_BLUE_CORNER_POSITION_LEFT:
+			// il y a quelqu'un qui bloque la sortie du cratere
+			state = try_going(1690, 2600, state, COLLECT_BLUE_CORNER_POSITION_LEFT,  COLLECT_BLUE_CORNER_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
 			//GET_OUT_COLLECT_BLUE_CORNER valide sorti
 
 			// GET_OUT= GET_OUT_COLLECT_BLUE_CORNER
@@ -868,450 +1247,3 @@ error_e sub_harry_take_big_crater_blue_corner(){
 }
 
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// faire les nom sub et ajout ,deplacement revoir tout les sub
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-void guillaumeMa_strat_inutile_big(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
-
-			INIT,
-			ERROR,
-			DONE,
-			ERROR_ASTAR,
-			GET_IN,
-			GET_OUT,
-			GET_OUT2,
-
-			//deplacement
-			GO_OUR_CRATER_FROM_ADV_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE,
-			GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE,
-			GO_OUR_CRATER_FROM_OUR_SQUARE,
-			ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE,
-
-			//ramassage
-			DEBUT_RAMASSAGE,
-
-			COLLECT_YELLOW_MIDDLE_POSITION,
-			COLLECT_YELLOW_MIDDLE_LINE,
-			COLLECT_YELLOW_MIDDLE_SHOVEL_DOWN,
-			COLLECT_YELLOW_MIDDLE_MOVE_FOWARD,
-			COLLECT_YELLOW_MIDDLE_SHOVEL_UP,
-			COLLECT_YELLOW_MIDDLE_POSITION_LEFT,
-
-
-			COLLECT_YELLOW_FUSE_POSITION,
-			COLLECT_YELLOW_FUSE_LINE,
-			COLLECT_YELLOW_FUSE_SHOVEL_DOWN,
-			COLLECT_YELLOW_FUSE_MOVE_FOWARD,
-			COLLECT_YELLOW_FUSE_SHOVEL_UP,
-			COLLECT_YELLOW_FUSE_POSITION_LEFT,
-
-			COLLECT_YELLOW_CORNER_POSITION,
-			COLLECT_YELLOW_CORNER_LINE,
-			COLLECT_YELLOW_CORNER_SHOVEL_DOWN,
-			COLLECT_YELLOW_CORNER_MOVE_FOWARD,
-			COLLECT_YELLOW_CORNER_SHOVEL_UP,
-			COLLECT_YELLOW_CORNER_POSITION_LEFT,
-
-
-			COLLECT_BLUE_MIDDLE_POSITION,
-			COLLECT_BLUE_MIDDLE_LINE,
-			COLLECT_BLUE_MIDDLE_SHOVEL_DOWN,
-			COLLECT_BLUE_MIDDLE_MOVE_FOWARD,
-			COLLECT_BLUE_MIDDLE_SHOVEL_UP,
-			COLLECT_BLUE_MIDDLE_POSITION_LEFT,
-
-			COLLECT_BLUE_FUSE_POSITION,
-			COLLECT_BLUE_FUSE_LINE,
-			COLLECT_BLUE_FUSE_SHOVEL_DOWN,
-			COLLECT_BLUE_FUSE_MOVE_FOWARD,
-			COLLECT_BLUE_FUSE_SHOVEL_UP,
-			COLLECT_BLUE_FUSE_POSITION_LEFT,
-
-			COLLECT_BLUE_CORNER_POSITION,
-			COLLECT_BLUE_CORNER_LINE,
-			COLLECT_BLUE_CORNER_SHOVEL_DOWN,
-			COLLECT_BLUE_CORNER_MOVE_FOWARD,
-			COLLECT_BLUE_CORNER_SHOVEL_UP,
-			COLLECT_BLUE_CORNER_POSITION_LEFT
-
-
-		);
-
-	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1380, COLOR_Y(400)}, FAST},
-										  };
-
-	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, COLOR_Y(2200)}, FAST},
-										  {(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
-										  {(GEOMETRY_point_t){1380, COLOR_Y(400)}, FAST}
-										  };
-
-
-
-// petit sub et dessendre les billes porteuses
-//valider tout les actionneurs
-// test error
-//test mouvement et taille carré
-	switch(state){
-
-
-
-		case INIT:
-			state = try_going(1000, COLOR_Y(1500), state,GET_IN , ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;// depend du point de depard
-
-		case GET_IN:
-			if(i_am_in_square_color(400, 1500, COLOR_Y(0), COLOR_Y(800))){
-				state = GO_OUR_CRATER_FROM_OUR_SQUARE;
-			}
-			else if(i_am_in_square_color(400, 1500, COLOR_Y(3000), COLOR_Y(2200))){
-				state = GO_OUR_CRATER_FROM_ADV_SQUARE;
-			}
-			else if(i_am_in_square_color(0, 1200, 800, 2200)){
-				state = GO_OUR_CRATER_FROM_MIDDLE_SQUARE;
-			}else{
-				state = ASTAR_try_going(1390, COLOR_Y(400), state, DEBUT_RAMASSAGE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}
-			break; //1380 400
-
-
-			// deplacement robot
-		case GO_OUR_CRATER_FROM_ADV_SQUARE:
-			state = try_going_multipoint( leave_adv_square, 3, state, DEBUT_RAMASSAGE, ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case GO_OUR_CRATER_FROM_MIDDLE_SQUARE:
-			state = try_going_multipoint( leave_middle_square, 2, state, DEBUT_RAMASSAGE, ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case GO_OUR_CRATER_FROM_OUR_SQUARE:
-			state = try_going(1390, COLOR_Y(400), state, DEBUT_RAMASSAGE, ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-//ERROR POSITION
-
-		case ERROR_GO_OUR_CRATER_FROM_ADV_SQUARE:
-			state = ASTAR_try_going(1000, COLOR_Y(1500), state, GET_IN, ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_GO_OUR_CRATER_FROM_MIDDLE_SQUARE:
-			//state = GO_OUR_CRATERE_FROM_ADV_SQUARE;
-			state = GET_IN;
-			break;
-
-		case ERROR_GO_OUR_CRATER_FROM_OUR_SQUARE:
-			//state = GO_OUR_CRATERE_FROM_OUR_SQUARE;
-			state = ASTAR_try_going(1390, COLOR_Y(400), state, DEBUT_RAMASSAGE,  ERROR_ASTAR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_ASTAR:
-			//action impossible abandon;
-			state = DONE;
-			break;
-
-// possion atteinte debut ramassage
-
-		case DEBUT_RAMASSAGE:
-			if(global.color == YELLOW){
-				state = COLLECT_YELLOW_MIDDLE_POSITION;
-			}else if(global.color == BLUE){
-				state = COLLECT_BLUE_MIDDLE_POSITION;
-			}else{
-				state = ERROR;
-			}
-			break;
-
-
-
-//cote jaune
-//1er passage
-		case COLLECT_YELLOW_MIDDLE_POSITION:
-			state = try_going(1390, 2600, state, COLLECT_YELLOW_MIDDLE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_YELLOW_MIDDLE_LINE:
-			state = try_going(1390, 2600, state, COLLECT_YELLOW_MIDDLE_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
-
-		case COLLECT_YELLOW_MIDDLE_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_YELLOW_MIDDLE_MOVE_FOWARD;
-			break;
-
-		case COLLECT_YELLOW_MIDDLE_MOVE_FOWARD:
-			state = try_going(1690, 2600, state, COLLECT_YELLOW_MIDDLE_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_YELLOW_MIDDLE_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
-			state = COLLECT_YELLOW_MIDDLE_POSITION_LEFT;
-			break;
-
-		case COLLECT_YELLOW_MIDDLE_POSITION_LEFT:
-			state = try_going(1390, 2600, state, COLLECT_YELLOW_FUSE_POSITION,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//lien avec action suivante
-			break;
-
-//2eme passage
-		case COLLECT_YELLOW_FUSE_POSITION:
-			state = try_going(1600, 2300, state, COLLECT_YELLOW_FUSE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_YELLOW_FUSE_LINE:
-			state = try_going(1600, 2310, state,  COLLECT_YELLOW_FUSE_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
-
-		case COLLECT_YELLOW_FUSE_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_YELLOW_FUSE_MOVE_FOWARD;
-			break;
-
-		case COLLECT_YELLOW_FUSE_MOVE_FOWARD:
-			state = try_going(1600, 2690, state, COLLECT_YELLOW_FUSE_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_YELLOW_FUSE_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
-			state = COLLECT_YELLOW_FUSE_POSITION_LEFT;
-			break;
-
-		case COLLECT_YELLOW_FUSE_POSITION_LEFT:
-			state = try_going(1600, 2300, state, COLLECT_YELLOW_CORNER_POSITION,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);;
-			//lien avec action suivante
-			break;
-
-//3eme passage
-		case COLLECT_YELLOW_CORNER_POSITION:
-			state = try_going(1780, 2200, state, COLLECT_YELLOW_CORNER_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_YELLOW_CORNER_LINE:
-			state = try_going(1780, 2210, state, COLLECT_YELLOW_CORNER_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
-
-		case COLLECT_YELLOW_CORNER_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_YELLOW_CORNER_MOVE_FOWARD;
-			break;
-
-		case COLLECT_YELLOW_CORNER_MOVE_FOWARD:
-			state = try_going(1780, 2690, state, COLLECT_YELLOW_CORNER_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_YELLOW_CORNER_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
-			state = COLLECT_YELLOW_CORNER_POSITION_LEFT;
-			break;
-
-		case COLLECT_YELLOW_CORNER_POSITION_LEFT:
-			state = try_going(1780, 2200, state, GET_OUT,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//lien avec action suivante
-			break;
-
-//4eme passage
-
-		 case RAMASSAGE_JAUNE_PASS4_1*:
-			state = try_going(1600, COLOR_Y(700), state, DEBUT_RAMASSAGE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-		*/
-
-
-//cote bleu
-//1er passage
-/*
-		case COLLECT_BLUE_MIDDLE_POSITION:
-			state = try_going(1390, 400, state, COLLECT_BLUE_MIDDLE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_BLUE_MIDDLE_LINE:
-			state = try_going(1690, 400, state, COLLECT_BLUE_MIDDLE_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
-
-		case COLLECT_BLUE_MIDDLE_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_BLUE_MIDDLE_MOVE_FOWARD;
-			break;
-
-		case COLLECT_BLUE_MIDDLE_MOVE_FOWARD:
-			state = try_going(1690, 400, state, COLLECT_BLUE_MIDDLE_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_BLUE_MIDDLE_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
-			state = COLLECT_BLUE_MIDDLE_POSITION_LEFT;
-			break;
-
-		case COLLECT_BLUE_MIDDLE_POSITION_LEFT:
-			state = try_going(1390, 400, state, COLLECT_BLUE_FUSE_POSITION,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);;
-			//lien avec action suivante
-			break;
-
-//2eme passage
-		case COLLECT_BLUE_FUSE_POSITION:
-			state = try_going(1600, 700, state, COLLECT_BLUE_FUSE_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_BLUE_FUSE_LINE:
-			state = try_going(1600, 310, state, COLLECT_BLUE_FUSE_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
-
-		case COLLECT_BLUE_FUSE_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_BLUE_FUSE_MOVE_FOWARD;
-			break;
-
-		case COLLECT_BLUE_FUSE_MOVE_FOWARD:
-			state = try_going(1600, 310, state, COLLECT_BLUE_FUSE_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_BLUE_FUSE_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
-			state = COLLECT_BLUE_FUSE_POSITION_LEFT;
-			break;
-
-		case COLLECT_BLUE_FUSE_POSITION_LEFT:
-			state = try_going(1600, 700, state, COLLECT_BLUE_CORNER_POSITION,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);;
-			//lien avec action suivante
-			break;
-
-//3eme passage
-		case COLLECT_BLUE_CORNER_POSITION:
-			state = try_going(1780, 800, state, COLLECT_BLUE_CORNER_LINE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_BLUE_CORNER_LINE:
-			state = try_going(1780, 310, state, COLLECT_BLUE_CORNER_SHOVEL_DOWN,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
-			break;
-
-		case COLLECT_BLUE_CORNER_SHOVEL_DOWN:
-			// baisser la pelle
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_DOWN);
-			state = COLLECT_BLUE_CORNER_MOVE_FOWARD;
-			break;
-
-		case COLLECT_BLUE_CORNER_MOVE_FOWARD:
-			state = try_going(1780, 310, state, COLLECT_BLUE_CORNER_SHOVEL_UP,  ERROR, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case COLLECT_BLUE_CORNER_SHOVEL_UP:
-			// monter la pelle et mélanger les balles
-			ACT_push_order(ACT_ORE_SHOVEL,  ACT_ORE_SHOVEL_UP);
-			//mélanger les balles
-			state = GET_OUT;
-			break;
-
-		case COLLECT_BLUE_CORNER_POSITION_LEFT:
-			state = try_going(1850, 800, state, GET_OUT,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			//lien avec action suivante
-			break;
-
-			//4eme passage
-
-					 case RAMASSAGE_JAUNE_PASS4_1:
-						state = try_going(1600, COLOR_Y(700), state, DEBUT_RAMASSAGE,  ERROR, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-						break;
-					*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// fin de subaction sortie
-/*
-		case GET_OUT:
-			state = try_going(1300, COLOR_Y(400), state, DONE,  GET_OUT2, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);;
-			break;
-
-		case GET_OUT2:
-			state = try_going(1500, COLOR_Y(550), state, DONE,  GET_OUT, SLOW, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);;
-			break;
-
-
-
-
-		case ERROR:
-			//return NOT_HANDLED; //definir le type et argument bleu/jaune d'entrée !
-			break;
-
-		case DONE:
-			//return END_OK;
-			break;
-
-		//return IN_PROGRESS;
-	}
-}
-
-
-
-int NBERROR = 0;
-
-
-
-*/
