@@ -14,7 +14,7 @@
 		bool_e enable_zone;
 		Uint8 nb_cylinder_max;
 		const Uint8 nb_cylinder;
-	}zone_characteristics;
+	}module_zone_characteristics_s;
 
 
 	typedef enum{
@@ -54,6 +54,9 @@
 		MODULE_DROP_SOUTH,
 		NB_MODULE_LOCATION
 	}moduleDropLocation_e;
+
+	extern const module_zone_characteristics_s module_zone[NB_MODULE_LOCATION];
+	// COMMENTAIRE POUR COCO : module_zone[first_zone].xmin
 
 void ELEMENTS_init();
 void ELEMENTS_process_main();
