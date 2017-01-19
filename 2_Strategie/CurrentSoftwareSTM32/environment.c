@@ -477,6 +477,16 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ACT_sensor_answer(incoming_msg);
 			break;
 
+		case ACT_ERROR:
+			bool_e error_code = incoming_msg->data.act_error;
+			if(error_code == ACT_ERROR_OVERHEATING)
+				error_printf("Surchauffe servomoteur, id = %d",incoming_msg->data.act_error.idAct);
+			else if (error_code == ACT_ERROR_TORQUE_TOO_HIGH)
+				error_printf("Couple du servo trop élevé, id = %d",incoming_msg->data.act_error.idAct);
+			else
+				error_printf("Error servomoteur, id = %d",incoming_msg->data.act_error.idAct);
+			break;
+
 /************************************ Récupération des données de la balise *******************************/
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.

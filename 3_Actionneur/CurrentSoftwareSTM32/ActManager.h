@@ -28,6 +28,9 @@
 	//Stop tous les actionneurs
 	void ACTMGR_stop();
 
+	//Vérifie l'état des actionneurs
+	void ACTMNG_control_act();
+
 	//Configure un AX12 en fonction d'un message CAN
 	void ACTMGR_config_AX12(Uint8 id_servo, CAN_msg_t* msg);
 

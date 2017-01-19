@@ -97,6 +97,18 @@ void ACTQ_sendResultWitExplicitLine(Uint11 originalSid, Uint8 originalCommand, U
 	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Line, line, TRUE);
 }
 
+
+void ACTQ_sendErrorAct(Uint8 id_act, Uint8 errorCode) {
+	CAN_msg_t errorMsg;
+
+	errorMsg.sid = ACT_ERROR;
+	errorMsg.size = SIZE_ACT_ERROR_MSG;
+	errorMsg.data.act_error.error_code = errorCode;
+	errorMsg.data.act_error.idAct = id_act;
+	CAN_send(&errorMsg);
+}
+
+
 bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 pos_epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
 	AX12_reset_last_error(ax12Id);
 
@@ -143,6 +155,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*result = ACT_RESULT_FAILED;
 		*error_code = ACT_RESULT_ERROR_UNKNOWN;
 		*line = error; //0x00xx avec xx = error
+		ACTQ_sendErrorAct(ax12Id, ACT_ERROR_OVERHEATING);
 	} else if(error) {
 		component_printf(LOG_LEVEL_Error, "Error AX12 %d\n", error);
 		return FALSE;
@@ -197,6 +210,7 @@ bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedPos
 		*result = ACT_RESULT_FAILED;
 		*error_code = ACT_RESULT_ERROR_UNKNOWN;
 		*line = error; //0x00xx avec xx = error
+		ACTQ_sendErrorAct(rx24Id,ACT_ERROR_OVERHEATING);
 	} else if(error) {
 		component_printf(LOG_LEVEL_Error, "Error RX24 %d\n", error);
 		return FALSE;
