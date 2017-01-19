@@ -84,7 +84,7 @@ void initialisation(void)
 	// Initialisation du système
 	SYS_init();				// Init système
 
-	#ifndef FDP_2016
+	#ifdef DISABLE_SECURE_GPIO_INIT
 		PORTS_init();	// Config des ports
 	#else
 		if(PORTS_secure_init() == FALSE){

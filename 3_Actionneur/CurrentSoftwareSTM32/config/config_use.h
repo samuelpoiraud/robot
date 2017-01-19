@@ -27,7 +27,10 @@
 
 #define CAN_VERBOSE_MODE		//Activation de la verbosité des messages CAN
 
-#define FDP_2016
+//#define DISABLE_SECURE_GPIO_INIT
+#ifdef DISABLE_SECURE_GPIO_INIT
+	#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
+#endif
 
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//

@@ -69,11 +69,11 @@ int main (void)
 	MAIN_global_var_init();	// Init variable globale
 	SYSTICK_init((time32_t*)&(global.absolute_time));
 
-	#ifndef FDP_2016
+	#ifdef DISABLE_SECURE_GPIO_INIT
 		PORTS_init();	// Config des ports
 	#else
 		if(PORTS_secure_init() == FALSE){
-			error_printf("Blocage car le code ne dÃ©marre pas sur le bon slot !\n");
+			error_printf("Blocage car le code ne démarre pas sur le bon slot !\n");
 			while(1);
 		}
 	#endif

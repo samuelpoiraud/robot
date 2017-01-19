@@ -46,7 +46,10 @@
 
 //#define USE_SENSORS
 
-#define FDP_2016				//Mode FDP nouvelle génération 2016 !
+//#define DISABLE_SECURE_GPIO_INIT
+#ifdef DISABLE_SECURE_GPIO_INIT
+	#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
+#endif
 
 #define USE_ASTAR				//Activation de l'algorithme ASTAR, avec pathfind par polygones
 
