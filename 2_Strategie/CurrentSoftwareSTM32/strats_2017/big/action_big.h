@@ -31,6 +31,7 @@
 
 
 	// action_big_depose_modules
+	error_e sub_harry_cylinder_depose_manager();
 	error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules);
 	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules);
 
