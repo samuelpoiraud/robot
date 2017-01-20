@@ -70,5 +70,12 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg);
 void ELEMENTS_receive_flags(CAN_msg_t* msg);
 #endif
 
+bool_e modulePlaceIsEmpty(Uint8 place, moduleDropLocation_e location);
+
+Uint8 getNbDrop(moduleDropLocation_e location);
+
+moduleType_e getModuleType(Uint8 place, moduleDropLocation_e location);
+
+void addModule(moduleType_e type, moduleDropLocation_e location);
 
 #endif // ELEMENTS_H
