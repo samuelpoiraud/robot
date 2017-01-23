@@ -139,8 +139,8 @@ bool_e ORE_GUN_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_ORE_GUN_IDLE :
-			case ACT_ORE_GUN_LOCK :
-			case ACT_ORE_GUN_UNLOCK :
+            case ACT_ORE_GUN_DOWN :
+            case ACT_ORE_GUN_UP :
 			case ACT_ORE_GUN_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_ORE_GUN, &ORE_GUN_run_command, 0,TRUE);
 				break;
@@ -186,8 +186,8 @@ static void ORE_GUN_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_ORE_GUN_IDLE : *rx24_goalPosition = ORE_GUN_RX24_IDLE_POS; break;
-		case ACT_ORE_GUN_LOCK : *rx24_goalPosition = ORE_GUN_RX24_LOCK_POS; break;
-		case ACT_ORE_GUN_UNLOCK : *rx24_goalPosition = ORE_GUN_RX24_UNLOCK_POS; break;
+        case ACT_ORE_GUN_DOWN : *rx24_goalPosition = ORE_GUN_RX24_DOWN_POS; break;
+        case ACT_ORE_GUN_UP : *rx24_goalPosition = ORE_GUN_RX24_UP_POS; break;
 
 		case ACT_ORE_GUN_STOP :
 			RX24_set_torque_enabled(ORE_GUN_RX24_ID, FALSE); //Stopper l'asservissement du RX24

@@ -23,6 +23,10 @@
 	// action_big_depose_minerais
 	error_e sub_harry_depose_minerais();
 	error_e sub_harry_get_in_depose_minerais();
+	error_e sub_harry_shooting_depose_minerais();
+	error_e sub_harry_depose_minerais_alternative();
+	error_e sub_harry_get_in_depose_minerais_alternative();
+
 
 	// action_big_prise_modules
 	error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules);
