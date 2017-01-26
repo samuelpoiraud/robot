@@ -41,11 +41,17 @@
     #include "Harry/cylinder/cylinder_slider/cylinder_slider_right.h"
     #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm.h"
     #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
+	#include "Harry/ore/ore_wall/ore_wall.h"
+
 
 
 
 #else
 	#include "QS/QS_mosfet.h"
+	#include "Anne/small_bearing_ball/small_ball_back_left/small_ball_back_left.h"
+	#include "Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
+	#include "Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left.h"
+	#include "Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right.h"
 #endif
 
 
@@ -85,9 +91,14 @@ static ACTQ_functions_t actionneurs[] = {
         ACT_DECLARE(CYLINDER_SLIDER_RIGHT),
         ACT_DECLARE(CYLINDER_TURN_LEFT_ARM),
         ACT_DECLARE(CYLINDER_TURN_RIGHT_ARM),
+		ACT_DECLARE(ORE_WALL),
 
 	#else  //Small Robot
 		//ACT_DECLARE(LEFT_ARM),
+		ACT_DECLARE(SMALL_BALL_BACK_LEFT),
+		ACT_DECLARE(SMALL_BALL_BACK_RIGTH),
+		ACT_DECLARE(SMALL_BALL_FRONT_LEFT),
+		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),
 	#endif
 };
 

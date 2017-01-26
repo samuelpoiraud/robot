@@ -383,6 +383,7 @@
 #define CYLINDER_SLIDER_RIGHT_RX24_ID         25
 #define CYLINDER_TURN_LEFT_ARM_RX24_ID        26
 #define CYLINDER_TURN_RIGHT_ARM_RX24_ID       27
+#define ORE_WALL_RX24_ID					  28
 
 
 

@@ -929,7 +929,7 @@
 		//////////////////////////////////////////////////////////////////
 
 		ACT_ORE_GUN						= (ACT_FILTER | 0x01),
-		ACT_ORE_SHOVEL					= (ACT_FILTER | 0x02),
+		ACT_ORE_SHOVEL				= (ACT_FILTER | 0x02),
 		ACT_ORE_CATCH					= (ACT_FILTER | 0x03),
 		ACT_ORE_MIXER					= (ACT_FILTER | 0x04),
 		ACT_ORE_SWEEPER					= (ACT_FILTER | 0x05),
@@ -952,6 +952,8 @@
         ACT_CYLINDER_SLIDER_RIGHT       = (ACT_FILTER | 0x16),
         ACT_CYLINDER_TURN_LEFT_ARM		= (ACT_FILTER | 0x17),
         ACT_CYLINDER_TURN_RIGHT_ARM     = (ACT_FILTER | 0x18),
+		ACT_ORE_WALL					= (ACT_FILTER | 0x19),
+
 
 
 		//////////////////////////////////////////////////////////////////
@@ -959,6 +961,10 @@
 		//////////////////////////////////////////////////////////////////
 
 		//ACT_LEFT_ARM			    = (ACT_FILTER | 0x30),
+		ACT_SMALL_BALL_BACK_LEFT		= (ACT_FILTER | 0x31),
+		ACT_SMALL_BALL_BACK_RIGHT		= (ACT_FILTER | 0x32),
+		ACT_SMALL_BALL_FRONT_LEFT		= (ACT_FILTER | 0x33),
+		ACT_SMALL_BALL_FRONT_RIGHT		= (ACT_FILTER | 0x34),
 
 		//////////////////////////////////////////////////////////////////
 		//-----------------------------BOTH-----------------------------//
