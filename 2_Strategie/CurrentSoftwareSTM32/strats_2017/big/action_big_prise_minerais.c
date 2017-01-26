@@ -393,10 +393,10 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -444,10 +444,10 @@ else if((state1==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state2==COLLECT_YELLOW_MIDDLE
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -547,10 +547,10 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -595,10 +595,10 @@ else if((state1==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state2==COLLECT_YELLOW_FUSE_ACT
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -697,10 +697,10 @@ else if((state1==COLLECT_YELLOW_FUSE_VALIDATE)&&(state2==COLLECT_YELLOW_FUSE_VAL
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -745,10 +745,10 @@ else if((state1==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state2==COLLECT_YELLOW_CORNER
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -848,10 +848,10 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -896,10 +896,10 @@ else if((state1==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state2==COLLECT_BLUE_MIDDLE_ACT
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -999,10 +999,10 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -1048,10 +1048,10 @@ else if((state1==COLLECT_BLUE_FUSE_ACTIVATE)&&(state2==COLLECT_BLUE_FUSE_ACTIVAT
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -1150,10 +1150,10 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
@@ -1199,10 +1199,10 @@ else if((state1==COLLECT_BLUE_CORNER_ACTIVATE)&&(state2==COLLECT_BLUE_CORNER_ACT
 
 			state1= check_act_status(ACT_QUEUE_Ore_shovel, state1, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
 			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Bearing_back_left, state3, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Bearing_back_right, state4, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Bearing_front_left, state5, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Bearing_front_right, state6, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){

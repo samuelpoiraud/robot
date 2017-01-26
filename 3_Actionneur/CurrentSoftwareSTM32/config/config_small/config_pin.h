@@ -359,6 +359,10 @@
 //--------------------Configuration des ID des actionneurs-----------------------
 // L'id doit être inférieur à 50
 /* ID des différents AX12 */
-//	#define LEFT_ARM_AX12_ID                       5
+//	#define LEFT_ARM_AX12_ID                       	5
+#define SMALL_BALL_BACK_LEFT_AX12_ID				6
+#define SMALL_BALL_BACK_RIGHT_AX12_ID				7
+#define SMALL_BALL_FRONT_LEFT_AX12_ID				8
+#define SMALL_BALL_FRONT_RIGHT_AX12_ID				9
 
 #endif /* SMALL_CONFIG_PIN_H */

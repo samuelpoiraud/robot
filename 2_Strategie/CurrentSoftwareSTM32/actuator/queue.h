@@ -45,15 +45,20 @@ typedef enum {
 	ACT_QUEUE_Cylinder_turn_left_arm,
 	ACT_QUEUE_Cylinder_turn_right_arm,
 	ACT_QUEUE_Bearing_ball_wheel,
-	ACT_QUEUE_Bearing_back_left,
-	ACT_QUEUE_Bearing_back_right,
-	ACT_QUEUE_Bearing_front_left,
-	ACT_QUEUE_Bearing_front_right,
+	ACT_QUEUE_Big_bearing_back_left,
+	ACT_QUEUE_Big_bearing_back_right,
+	ACT_QUEUE_Big_bearing_front_left,
+	ACT_QUEUE_Big_bearing_front_right,
+	ACT_QUEUE_Ore_wall,
 
 
 
 	// Anne
 	//ACT_QUEUE_Left_arm,
+	ACT_QUEUE_Small_bearing_back_left,
+	ACT_QUEUE_Small_bearing_back_right,
+	ACT_QUEUE_Small_bearing_front_left,
+	ACT_QUEUE_Small_bearing_front_right,
 
 	//Mosfets actionneurs
 	ACT_QUEUE_Pompe_act_slider_left,

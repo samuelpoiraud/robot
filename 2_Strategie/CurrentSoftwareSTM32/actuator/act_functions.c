@@ -61,14 +61,18 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
     {ACT_CYLINDER_TURN_LEFT_ARM,		ACT_QUEUE_Cylinder_turn_left_arm,		"Cylinder turn left arm"},
     {ACT_CYLINDER_TURN_RIGHT_ARM,		ACT_QUEUE_Cylinder_turn_right_arm,		"Cylinder turn right arm"},
 	{ACT_BEARING_BALL_WHEEL,			ACT_QUEUE_Bearing_ball_wheel,			"Bearing ball wheel"},
-	{ACT_BIG_BALL_FRONT_LEFT,			ACT_QUEUE_Bearing_front_left,			"Bearing ball front left"},
-	{ACT_BIG_BALL_FRONT_RIGHT,			ACT_QUEUE_Bearing_front_right,			"Bearing ball front right"},
-	{ACT_BIG_BALL_BACK_LEFT,			ACT_QUEUE_Bearing_back_left,			"Bearing ball back left"},
-	{ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Bearing_back_right,			"Bearing ball back right"},
+	{ACT_BIG_BALL_FRONT_LEFT,			ACT_QUEUE_Big_bearing_front_left,			"Bearing ball front left"},
+	{ACT_BIG_BALL_FRONT_RIGHT,			ACT_QUEUE_Big_bearing_front_right,			"Bearing ball front right"},
+	{ACT_BIG_BALL_BACK_LEFT,			ACT_QUEUE_Big_bearing_back_left,			"Bearing ball back left"},
+	{ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Big_bearing_back_right,			"Bearing ball back right"},
+	{ACT_ORE_WALL,						ACT_QUEUE_Ore_wall,						"Ore wall"},
 
 	// Anne
 	//{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},
-
+	{ACT_SMALL_BALL_FRONT_LEFT,			ACT_QUEUE_Small_bearing_front_left,			"Bearing ball front left"},
+	{ACT_SMALL_BALL_FRONT_RIGHT,		ACT_QUEUE_Small_bearing_front_right,		"Bearing ball front right"},
+	{ACT_SMALL_BALL_BACK_LEFT,			ACT_QUEUE_Small_bearing_back_left,			"Bearing ball back left"},
+	{ACT_SMALL_BALL_BACK_RIGHT,			ACT_QUEUE_Small_bearing_back_right,			"Bearing ball back right"},
 
 	// Mosfets actionneurs
 	{ACT_POMPE_SLIDER_LEFT,			ACT_QUEUE_Pompe_act_slider_left,		"Mosfet_act_slider_left"},

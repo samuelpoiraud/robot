@@ -58,10 +58,20 @@
     #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm_config.h"
     #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
     #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm_config.h"
+    #include "../Harry/ore/ore_wall/ore_wall.h"
+    #include "../Harry/ore/ore_wall/ore_wall_config.h"
+
 
 
 #else
-
+	#include "../Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right.h"
+    #include "../Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right_config.h"
+	#include "../Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left.h"
+    #include "../Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left_config.h"
+	#include "../Anne/small_bearing_ball/small_ball_back_left/small_ball_back_left.h"
+    #include "../Anne/small_bearing_ball/small_ball_back_left/small_ball_back_left_config.h"
+	#include "../Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
+    #include "../Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right_config.h"
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);
@@ -124,9 +134,15 @@ terminal_motor_s terminal_motor[] = {
         DECLARE_RX24(2, 'O', CYLINDER_SLIDER_RIGHT_RX24),
         DECLARE_RX24(2, 'O', CYLINDER_TURN_LEFT_ARM_RX24),
         DECLARE_RX24(2, 'O', CYLINDER_TURN_RIGHT_ARM_RX24),
+        DECLARE_RX24(2, 'O', ORE_WALL_RX24),
+
 
 
 	#else
+		DECLARE_AX12(2, 'O', SMALL_BALL_BACK_LEFT_AX12),
+		DECLARE_AX12(2, 'O', SMALL_BALL_BACK_RIGHT_AX12),
+		DECLARE_AX12(2, 'O', SMALL_BALL_FRONT_LEFT_AX12),
+		DECLARE_AX12(2, 'O', SMALL_BALL_FRONT_RIGHT_AX12),
 
 	#endif
 };
