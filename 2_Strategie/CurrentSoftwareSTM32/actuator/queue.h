@@ -28,7 +28,7 @@ typedef enum {
 	ACT_QUEUE_Ore_gun,
 	ACT_QUEUE_Ore_catch,
 	ACT_QUEUE_Ore_mixer,
-	ACT_QUEUE_Ore_roller,
+	ACT_QUEUE_Ore_shovel,
 	ACT_QUEUE_Ore_sweeper,
 	ACT_QUEUE_Cylinder_dispenser_left,
 	ACT_QUEUE_Cylinder_dispenser_right,

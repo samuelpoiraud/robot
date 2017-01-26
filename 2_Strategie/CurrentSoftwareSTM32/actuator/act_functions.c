@@ -44,7 +44,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
     {ACT_ORE_GUN,			  		    ACT_QUEUE_Ore_gun,			        	"Ore gun"},
     {ACT_ORE_CATCH,			  		    ACT_QUEUE_Ore_catch,			        "Ore catch"},
     {ACT_ORE_MIXER,			  		    ACT_QUEUE_Ore_mixer,			        "Ore mixer"},
-    {ACT_ORE_ROLLER,			  		ACT_QUEUE_Ore_roller,			        "Ore roller"},
+    {ACT_ORE_SHOVEL,			  		ACT_QUEUE_Ore_shovel,			        "Ore shovel"},
     {ACT_ORE_SWEEPER,			  		ACT_QUEUE_Ore_sweeper,			        "Ore sweeper"},
     {ACT_CYLINDER_DISPENSER_LEFT,		ACT_QUEUE_Cylinder_dispenser_left,		"Cylinder dispenser left"},
     {ACT_CYLINDER_DISPENSER_RIGHT,		ACT_QUEUE_Cylinder_dispenser_right,		"Cylinder dispenser right"},
