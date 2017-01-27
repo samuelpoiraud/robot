@@ -85,9 +85,9 @@ bool_e PORTS_secure_init(void){
 			}
 		}
 	#elif defined(I_AM_CARTE_PROP)
-		//if(!READ_I_AM_PROP && READ_I_AM_ACT && READ_I_AM_STRAT)
+		if(!READ_I_AM_PROP && READ_I_AM_ACT && READ_I_AM_STRAT)
 			i_can_run = TRUE;
-		/*else{
+		else{
 			i_can_run = FALSE;
 			msg.data.broadcast_i_am_and_i_am_where.code_id = CODE_PROP;
 			if(!READ_I_AM_STRAT){
@@ -100,7 +100,7 @@ bool_e PORTS_secure_init(void){
 				error_printf("!!! Code Propulsion sur un emplacement inconnu !!!\n");
 				msg.data.broadcast_i_am_and_i_am_where.slot_id = SLOT_INCONNU;
 			}
-		}*/
+		}
 	#else
 		i_can_run = TRUE;
 	#endif
