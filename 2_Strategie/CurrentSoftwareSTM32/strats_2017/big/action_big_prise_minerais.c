@@ -356,6 +356,8 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			ERROR_COLLECT_YELLOW_MIDDLE_MOVE_FOWARD,
 			ERROR_COLLECT_YELLOW_MIDDLE_POSITION_LEFT,
 			DONE,
+			ERROR_ACT_IN,
+			ERROR_ACT_OUT,
 			ERROR
 		);
 
@@ -400,7 +402,7 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_IN;
 }
 else if((state1==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state2==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state3==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state4==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state5==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state6==COLLECT_YELLOW_MIDDLE_ACTIVATE)){
 	state=COLLECT_YELLOW_MIDDLE_MOVE_FOWARD;
@@ -451,7 +453,7 @@ else if((state1==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state2==COLLECT_YELLOW_MIDDLE
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_OUT;
 }
 else if((state1==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state2==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state3==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state4==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state5==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state6==COLLECT_YELLOW_MIDDLE_VALIDATE)){
 	state=GET_OUT_COLLECT_YELLOW_MIDDLE;
@@ -485,6 +487,15 @@ else if((state1==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state2==COLLECT_YELLOW_MIDDLE
 			state = try_going(1690, 2600, state, COLLECT_YELLOW_MIDDLE_POSITION_LEFT,  COLLECT_YELLOW_MIDDLE_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
+		case ERROR_ACT_IN:
+			// le robot ne pourras pas réussir les actions
+			return NOT_HANDLED;
+			break;
+
+		case ERROR_ACT_OUT:
+			// le robot va avoir des problèmes pour partir
+			return NOT_HANDLED;
+			break;
 
 	}
 
@@ -509,6 +520,8 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			ERROR_COLLECT_YELLOW_FUSE_MOVE_FOWARD,
 			ERROR_COLLECT_YELLOW_FUSE_POSITION_LEFT,
 			DONE,
+			ERROR_ACT_IN,
+			ERROR_ACT_OUT,
 			ERROR
 		);
 
@@ -554,7 +567,7 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_IN;
 }
 else if((state1==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state2==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state3==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state4==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state5==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state6==COLLECT_YELLOW_FUSE_ACTIVATE)){
 	state=COLLECT_YELLOW_FUSE_MOVE_FOWARD;
@@ -602,7 +615,7 @@ else if((state1==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state2==COLLECT_YELLOW_FUSE_ACT
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_OUT;
 }
 else if((state1==COLLECT_YELLOW_FUSE_VALIDATE)&&(state2==COLLECT_YELLOW_FUSE_VALIDATE)&&(state3==COLLECT_YELLOW_FUSE_VALIDATE)&&(state4==COLLECT_YELLOW_FUSE_VALIDATE)&&(state5==COLLECT_YELLOW_FUSE_VALIDATE)&&(state6==COLLECT_YELLOW_FUSE_VALIDATE)){
 	state=GET_OUT_COLLECT_YELLOW_FUSE;
@@ -635,7 +648,15 @@ else if((state1==COLLECT_YELLOW_FUSE_VALIDATE)&&(state2==COLLECT_YELLOW_FUSE_VAL
 			state = try_going(1690, 2600, state, COLLECT_YELLOW_FUSE_POSITION_LEFT,  COLLECT_YELLOW_FUSE_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-			//COLLECT_YELLOW_CORNER_POSITION == GET_OUT_COLLECT_YELLOW_FUSE
+		case ERROR_ACT_IN:
+			// le robot ne pourras pas réussir les actions
+			return NOT_HANDLED;
+			break;
+
+		case ERROR_ACT_OUT:
+			// le robot va avoir des problèmes pour partir
+			return NOT_HANDLED;
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -659,6 +680,8 @@ else if((state1==COLLECT_YELLOW_FUSE_VALIDATE)&&(state2==COLLECT_YELLOW_FUSE_VAL
 				ERROR_COLLECT_YELLOW_CORNER_MOVE_FOWARD,
 				ERROR_COLLECT_YELLOW_CORNER_POSITION_LEFT,
 				DONE,
+				ERROR_ACT_IN,
+				ERROR_ACT_OUT,
 				ERROR
 			);
 
@@ -704,7 +727,7 @@ else if((state1==COLLECT_YELLOW_FUSE_VALIDATE)&&(state2==COLLECT_YELLOW_FUSE_VAL
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_IN;
 }
 else if((state1==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state2==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state3==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state4==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state5==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state6==COLLECT_YELLOW_CORNER_ACTIVATE)){
 	state=COLLECT_YELLOW_CORNER_MOVE_FOWARD;
@@ -752,7 +775,7 @@ else if((state1==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state2==COLLECT_YELLOW_CORNER
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_OUT;
 }
 else if((state1==COLLECT_YELLOW_CORNER_VALIDATE)&&(state2==COLLECT_YELLOW_CORNER_VALIDATE)&&(state3==COLLECT_YELLOW_CORNER_VALIDATE)&&(state4==COLLECT_YELLOW_CORNER_VALIDATE)&&(state5==COLLECT_YELLOW_CORNER_VALIDATE)&&(state6==COLLECT_YELLOW_CORNER_VALIDATE)){
 	state=GET_OUT_COLLECT_YELLOW_CORNER;
@@ -785,7 +808,15 @@ else if((state1==COLLECT_YELLOW_CORNER_VALIDATE)&&(state2==COLLECT_YELLOW_CORNER
 			state = try_going(1690, 2600, state, COLLECT_YELLOW_CORNER_POSITION_LEFT,  COLLECT_YELLOW_CORNER_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-			//GET_OUT == GET_OUT_COLLECT_YELLOW_CORNER
+		case ERROR_ACT_IN:
+			// le robot ne pourras pas réussir les actions
+			return NOT_HANDLED;
+			break;
+
+		case ERROR_ACT_OUT:
+			// le robot va avoir des problèmes pour partir
+			return NOT_HANDLED;
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -809,6 +840,8 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			ERROR_COLLECT_BLUE_MIDDLE_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT,
 			DONE,
+			ERROR_ACT_IN,
+			ERROR_ACT_OUT,
 			ERROR
 		);
 
@@ -855,7 +888,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_IN;
 }
 else if((state1==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state2==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state3==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state4==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state5==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state6==COLLECT_BLUE_MIDDLE_ACTIVATE)){
 	state=COLLECT_BLUE_MIDDLE_MOVE_FOWARD;
@@ -903,7 +936,7 @@ else if((state1==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state2==COLLECT_BLUE_MIDDLE_ACT
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_OUT;
 }
 else if((state1==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state2==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state3==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state4==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state5==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state6==COLLECT_BLUE_MIDDLE_VALIDATE)){
 	state=GET_OUT_COLLECT_BLUE_MIDDLE;
@@ -935,7 +968,16 @@ else if((state1==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state2==COLLECT_BLUE_MIDDLE_VAL
 			// il y a quelqu'un qui bloque la sortie du cratere
 			state = try_going(1690, 2600, state, COLLECT_BLUE_MIDDLE_POSITION_LEFT,  COLLECT_BLUE_MIDDLE_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
-			// COLLECT_BLUE_FUSE_POSITION = GET_OUT_COLLECT_BLUE_MIDDLE
+
+		case ERROR_ACT_IN:
+			// le robot ne pourras pas réussir les actions
+			return NOT_HANDLED;
+			break;
+
+		case ERROR_ACT_OUT:
+			// le robot va avoir des problèmes pour partir
+			return NOT_HANDLED;
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -961,6 +1003,8 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 			ERROR_COLLECT_BLUE_FUSE_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_FUSE_POSITION_LEFT,
 			DONE,
+			ERROR_ACT_IN,
+			ERROR_ACT_OUT,
 			ERROR
 		);
 
@@ -1006,7 +1050,7 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_IN;
 }
 else if((state1==COLLECT_BLUE_FUSE_ACTIVATE)&&(state2==COLLECT_BLUE_FUSE_ACTIVATE)&&(state3==COLLECT_BLUE_FUSE_ACTIVATE)&&(state4==COLLECT_BLUE_FUSE_ACTIVATE)&&(state5==COLLECT_BLUE_FUSE_ACTIVATE)&&(state6==COLLECT_BLUE_FUSE_ACTIVATE)){
 	state=COLLECT_BLUE_FUSE_MOVE_FOWARD;
@@ -1055,7 +1099,7 @@ else if((state1==COLLECT_BLUE_FUSE_ACTIVATE)&&(state2==COLLECT_BLUE_FUSE_ACTIVAT
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_OUT;
 }
 else if((state1==COLLECT_BLUE_FUSE_VALIDATE)&&(state2==COLLECT_BLUE_FUSE_VALIDATE)&&(state3==COLLECT_BLUE_FUSE_VALIDATE)&&(state4==COLLECT_BLUE_FUSE_VALIDATE)&&(state5==COLLECT_BLUE_FUSE_VALIDATE)&&(state6==COLLECT_BLUE_FUSE_VALIDATE)){
 	state=GET_OUT_COLLECT_BLUE_FUSE;
@@ -1088,7 +1132,15 @@ else if((state1==COLLECT_BLUE_FUSE_VALIDATE)&&(state2==COLLECT_BLUE_FUSE_VALIDAT
 			state = try_going(1690, 2600, state, COLLECT_BLUE_FUSE_POSITION_LEFT,  COLLECT_BLUE_FUSE_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-			//  COLLECT_BLUE_CORNER_POSITION = GET_OUT_COLLECT_BLUE_FUSE
+		case ERROR_ACT_IN:
+			// le robot ne pourras pas réussir les actions
+			return NOT_HANDLED;
+			break;
+
+		case ERROR_ACT_OUT:
+			// le robot va avoir des problèmes pour partir
+			return NOT_HANDLED;
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -1112,6 +1164,8 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			ERROR_COLLECT_BLUE_CORNER_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_CORNER_POSITION_LEFT,
 			DONE,
+			ERROR_ACT_IN,
+			ERROR_ACT_OUT,
 			ERROR
 		);
 
@@ -1157,7 +1211,7 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_IN;
 }
 else if((state1==COLLECT_BLUE_CORNER_ACTIVATE)&&(state2==COLLECT_BLUE_CORNER_ACTIVATE)&&(state3==COLLECT_BLUE_CORNER_ACTIVATE)&&(state4==COLLECT_BLUE_CORNER_ACTIVATE)&&(state5==COLLECT_BLUE_CORNER_ACTIVATE)&&(state6==COLLECT_BLUE_CORNER_ACTIVATE)){
 	state=COLLECT_BLUE_CORNER_MOVE_FOWARD;
@@ -1206,7 +1260,7 @@ else if((state1==COLLECT_BLUE_CORNER_ACTIVATE)&&(state2==COLLECT_BLUE_CORNER_ACT
 
 
 if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
-	state=ERROR;
+	state=ERROR_ACT_OUT;
 }
 else if((state1==COLLECT_BLUE_CORNER_VALIDATE)&&(state2==COLLECT_BLUE_CORNER_VALIDATE)&&(state3==COLLECT_BLUE_CORNER_VALIDATE)&&(state4==COLLECT_BLUE_CORNER_VALIDATE)&&(state5==COLLECT_BLUE_CORNER_VALIDATE)&&(state6==COLLECT_BLUE_CORNER_VALIDATE)){
 	state=GET_OUT_COLLECT_BLUE_CORNER;
@@ -1238,9 +1292,16 @@ else if((state1==COLLECT_BLUE_CORNER_VALIDATE)&&(state2==COLLECT_BLUE_CORNER_VAL
 			// il y a quelqu'un qui bloque la sortie du cratere
 			state = try_going(1690, 2600, state, COLLECT_BLUE_CORNER_POSITION_LEFT,  COLLECT_BLUE_CORNER_POSITION_LEFT, SLOW, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
-			//GET_OUT_COLLECT_BLUE_CORNER valide sorti
 
-			// GET_OUT= GET_OUT_COLLECT_BLUE_CORNER
+		case ERROR_ACT_IN:
+			// le robot ne pourras pas réussir les actions
+			return NOT_HANDLED;
+			break;
+
+		case ERROR_ACT_OUT:
+			// le robot va avoir des problèmes pour partir
+			return NOT_HANDLED;
+			break;
 	}
 
 	return IN_PROGRESS;
