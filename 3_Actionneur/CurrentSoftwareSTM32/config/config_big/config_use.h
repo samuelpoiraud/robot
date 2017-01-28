@@ -22,6 +22,11 @@
 	//	#define USE_PWM1
 	//	#define USE_PWM2
 
+/* Réglages DC Speed */
+	//#define USE_DC_MOTOR_SPEED
+		//#define DC_MOTOR_SPEED_NUMBER 		1
+		//#define DC_MOTOR_SPEED_TIME_PERIOD	5
+
 /* Servo-Moteurs standart */
 	//#define SERVO_TIMER 5
 	//#define USE_SERVO
