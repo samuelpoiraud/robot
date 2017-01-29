@@ -15,15 +15,16 @@
 
 	#include "QS_pwm.h"
 
-	#define MAX_STEP_OF_PWM		20   //[%/10ms]
+	#define MAX_STEP_OF_PWM				20   //[%/10ms]
 	#define SPEED_DETECT_LARGE_EPSILON	2
+	#define TIME_OF_MOTOR_STEPPING		50	// [ms]
 
 
 	typedef enum{
-		DC_MOTOR_SPEED_NOT_INITIALIZED = 0,
-		DC_MOTOR_SPEED_INITIALIZED,
-		DC_MOTOR_SPEED_STOPPED
-	}DC_MOTOR_SPEED_init_state_e;
+		DC_MOTOR_SPEED_CONFIG_NOT_INITIALIZED = 0,
+		DC_MOTOR_SPEED_CONFIG_INITIALIZED,
+		DC_MOTOR_SPEED_CONFIG_CHANGING,
+	}DC_MOTOR_SPEED_config_state_e;
 
 /*-----------------------------------------
 		Variables globales privées
@@ -31,18 +32,21 @@
 
 	typedef struct
 	{
-		DC_MOTOR_SPEED_init_state_e init_state;	// flag indiquant si le moteur a été configuré
-		DC_MOTOR_SPEED_config_t config;			// la config du DC_MOTOR_SPEED
-		DC_MOTOR_SPEED_state_e cmd_state;		// Etat de la commande
+		DC_MOTOR_SPEED_config_state_e configState;	// flag indiquant si le moteur a été configuré
+		DC_MOTOR_SPEED_config_t config;				// la config du DC_MOTOR_SPEED
+		DC_MOTOR_SPEED_state_e state;				// Etat de la commande
 
-		Sint32 integrator;						// Integrateur pour le PID
-		Uint16 cmd_time;						// temps depuis la reception de la commande, en ms
+		Sint32 integrator;							// Integrateur pour le PID
+		Uint16 time;								// temps depuis la reception de la commande, en ms
 
-		Uint8 current_pwm_cmd;					// commande PWM actuelle
+		Uint8 currentPwm;							// commande PWM actuelle
+		Uint8 lastPwm;								// commande PWM ancienne
 
-		DC_MOTOR_SPEED_speed last_speed;		// dernière vitesse
-		DC_MOTOR_SPEED_speed wantedSpeed;		// consigne de vitesse
-		DC_MOTOR_SPEED_speed previous_error;	// valeur de l'erreur à l'appel précédent du PID, pour calcul du terme derivé
+		time32_t timeWaitingLimitPwm;				// Temps
+
+		DC_MOTOR_SPEED_speed lastSpeed;				// dernière vitesse
+		DC_MOTOR_SPEED_speed wantedSpeed;			// consigne de vitesse
+		DC_MOTOR_SPEED_speed previousError;			// valeur de l'erreur à l'appel précédent du PID, pour calcul du terme derivé
 	}DC_MOTOR_SPEED_t;
 
 	static DC_MOTOR_SPEED_t dcMotorSpeed[DC_MOTOR_SPEED_NUMBER];
@@ -51,6 +55,7 @@
 
 	static void DC_MOTOR_SPEED_setWay(DC_MOTOR_SPEED_id id, Uint8 value);
 	static Uint8 DC_MOTOR_SPEED_getWay(DC_MOTOR_SPEED_id id);
+	static void DC_MOTOR_SPEED_uninitialize_all();
 
 	/*-----------------------------------------
 			Initialisation
@@ -62,15 +67,14 @@
 		DC_MOTOR_SPEED_initialized = TRUE;
 
 		PWM_init();
-		// Initialisation
 		DC_MOTOR_SPEED_uninitialize_all();
 	}
 
 	DC_MOTOR_SPEED_state_e DC_MOTOR_SPEED_get_state(DC_MOTOR_SPEED_id id)
 	{
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
-		assert((thiss->init_state == DC_MOTOR_SPEED_INITIALIZED) || (thiss->init_state == DC_MOTOR_SPEED_STOPPED));
-		return thiss->cmd_state;
+		assert(thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
+		return thiss->state;
 	}
 
 
@@ -79,24 +83,22 @@
 	{
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		thiss->config = *config;
-		thiss->cmd_state = DC_MOTOR_SPEED_IDLE;
+		thiss->state = DC_MOTOR_SPEED_IDLE;
 		thiss->integrator = 0;
-		thiss->cmd_time = 0;
-		thiss->last_pwm_cmd = 0;
-		thiss->current_pwm_cmd = 0;
-		thiss->last_speed = 0;
+		thiss->time = 0;
+		thiss->currentPwm = 0;
+		thiss->lastSpeed = 0;
 		thiss->wantedSpeed = 0;
-		thiss->previous_error = 0;
+		thiss->previousError = 0;
 
-		thiss->init_state=DC_MOTOR_SPEED_INITIALIZED;
+		thiss->configState=DC_MOTOR_SPEED_CONFIG_INITIALIZED;
 	}
 
-	static void DC_MOTOR_SPEED_uninitialize_all()
-	{
+	static void DC_MOTOR_SPEED_uninitialize_all(){
 		Uint8 i;
 		for (i=0;i<DC_MOTOR_SPEED_NUMBER;i++)
 		{
-			(dcMotorSpeed[i]).init_state = DC_MOTOR_SPEED_NOT_INITIALIZED;
+			(dcMotorSpeed[i]).configState = DC_MOTOR_SPEED_CONFIG_NOT_INITIALIZED;
 		}
 	}
 
@@ -107,7 +109,7 @@
 	static void DC_MOTOR_SPEED_setWay(DC_MOTOR_SPEED_id id, Uint8 value)
 	{
 		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
-		assert((dcMotorSpeed[id].init_state == DC_MOTOR_SPEED_INITIALIZED) || (dcMotorSpeed[id].init_state == DC_MOTOR_SPEED_STOPPED));
+		assert(dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
 		if(value ^ thiss->inverse_way)
 			GPIO_SetBits(thiss->way_latch, thiss->way_bit_number);
 		else
@@ -117,13 +119,13 @@
 	static Uint8 DC_MOTOR_SPEED_getWay(DC_MOTOR_SPEED_id id)
 	{
 		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
-		assert((dcMotorSpeed[id].init_state == DC_MOTOR_SPEED_INITIALIZED) || (dcMotorSpeed[id].init_state == DC_MOTOR_SPEED_STOPPED));
+		assert(dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
 		return GPIO_ReadInputDataBit(thiss->way_latch, thiss->way_bit_number);
 	}
 
 	void DC_MOTOR_SPEED_setInverseWay(DC_MOTOR_SPEED_id id, bool_e inverse){
 		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
-		assert((dcMotorSpeed[id].init_state == DC_MOTOR_SPEED_INITIALIZED) || (dcMotorSpeed[id].init_state == DC_MOTOR_SPEED_STOPPED));
+		assert((dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
 		thiss->inverse_way = inverse;
 	}
 
@@ -133,15 +135,15 @@
 	-----------------------------------------*/
 	DC_MOTOR_SPEED_speed DC_MOTOR_SPEED_getSpeed(DC_MOTOR_SPEED_id id){
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
-		assert((thiss->init_state == DC_MOTOR_SPEED_INITIALIZED) || (thiss->init_state == DC_MOTOR_SPEED_STOPPED));
+		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
 		return thiss->wantedSpeed;
 	}
 
 	void DC_MOTOR_SPEED_setSpeed(DC_MOTOR_SPEED_id id, DC_MOTOR_SPEED_speed speed){
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
-		assert((thiss->init_state == DC_MOTOR_SPEED_INITIALIZED) || (thiss->init_state == DC_MOTOR_SPEED_STOPPED));
+		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
 		thiss->wantedSpeed = speed;
-		thiss->cmd_time = 0;
+		thiss->time = 0;
 	}
 
 	/*-----------------------------------------
@@ -149,16 +151,17 @@
 	-----------------------------------------*/
 	void DC_MOTOR_SPEED_setCoefs(DC_MOTOR_SPEED_id id, Sint16 Kp, Sint16 Ki, Sint16 Kd, Sint16 Kv) {
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
-		assert((thiss->init_state == DC_MOTOR_SPEED_INITIALIZED) || (thiss->init_state == DC_MOTOR_SPEED_STOPPED));
-		DC_MOTOR_SPEED_state_e previousState = thiss->cmd_state;
-		thiss->cmd_state = DC_MOTOR_SPEED_CONFIG; //Aucun calcul d'asservissement ne doit être fait pendant ce temps
+		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
+		DC_MOTOR_SPEED_config_state_e previousConfigState = thiss->configState;
+
+		thiss->configState = DC_MOTOR_SPEED_CONFIG_CHANGING;
 
 		thiss->config.Kp = Kp;
 		thiss->config.Ki = Ki;
 		thiss->config.Kd = Kd;
 		thiss->config.Kv = Kv;
 
-		thiss->init_state = previousState;
+		thiss->configState = previousConfigState;
 	}
 
 	/*-----------------------------------------
@@ -166,7 +169,7 @@
 	-----------------------------------------*/
 	void DC_MOTOR_SPEED_getCoefs(DC_MOTOR_SPEED_id id, Sint16* Kp, Sint16* Ki, Sint16* Kd, Sint16* Kv) {
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
-		assert((thiss->init_state == DC_MOTOR_SPEED_INITIALIZED) || (thiss->init_state == DC_MOTOR_SPEED_STOPPED));
+		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
 
 		if(Kp) *Kp = thiss->config.Kp;
 		if(Ki) *Ki = thiss->config.Ki;
@@ -193,11 +196,9 @@
 	void DC_MOTOR_SPEED_stop(DC_MOTOR_SPEED_id id)
 	{
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
-		if(thiss->init_state == DC_MOTOR_SPEED_INITIALIZED)
+		if(thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED)
 		{
-			thiss->cmd_state = DC_MOTOR_SPEED_IDLE;
-			thiss->init_state = DC_MOTOR_SPEED_STOPPED;
-
+			thiss->state = DC_MOTOR_SPEED_IDLE;
 			PWM_stop(thiss->config.pwm_number);
 		}
 	}
@@ -221,12 +222,11 @@
 	void DC_MOTOR_SPEED_restart(DC_MOTOR_SPEED_id id)
 	{
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
-		if(thiss->init_state == DC_MOTOR_SPEED_STOPPED)
+		if(thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED)
 		{
 			thiss->integrator = 0;
-			thiss->cmd_time = 0;
-			thiss->cmd_state = DC_MOTOR_SPEED_WORKING;
-			thiss->init_state = DC_MOTOR_SPEED_INITIALIZED;
+			thiss->time = 0;
+			thiss->state = DC_MOTOR_SPEED_LAUNCH;
 		}
 	}
 
@@ -264,95 +264,129 @@
 			thiss = &(dcMotorSpeed[id]);
 			config = &(thiss->config);
 
-			if (thiss->init_state == DC_MOTOR_SPEED_INITIALIZED)
+			if (thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED)
 			{
 
 				// Acquisition de la position pour la détection de l'arrêt du moteur
 				speed = (config->sensorRead)();
-				error = thiss->wantedSpeed-speed;
+				error = thiss->wantedSpeed - speed;
+				thiss->time += DC_MOTOR_SPEED_TIME_PERIOD;
 
 				//Gestion des changements d'états
-				switch(thiss->cmd_state) {
-					case DC_MOTOR_SPEED_WORKING:
-						thiss->cmd_time += DC_MOTOR_SPEED_TIME_PERIOD;
-						if(absolute(error) < (Sint16)config->epsilon && absolute(thiss->previous_error) < (Sint16)config->epsilon)
-							thiss->cmd_state = DC_MOTOR_SPEED_IDLE;
-						else if(config->timeout && thiss->cmd_time >= config->timeout){
-							if(absolute(error) < (Sint16)config->large_epsilon && absolute(thiss->previous_error) < (Sint16)config->large_epsilon)
-								thiss->cmd_state = DC_MOTOR_SPEED_IDLE;
-							else
-								thiss->cmd_state = DC_MOTOR_SPEED_TIMEOUT;
-						}
-						break;
+				switch(thiss->state){
 
 					case DC_MOTOR_SPEED_IDLE:
-						thiss->cmd_time = 0;
-						if(absolute(error) < (Sint16)config->large_epsilon)
-							thiss->cmd_state = DC_MOTOR_SPEED_WORKING;
 						break;
 
-					case DC_MOTOR_SPEED_TIMEOUT:
+					case DC_MOTOR_SPEED_INIT_LAUNCH:
+						thiss->time = 0;
+						thiss->state = DC_MOTOR_SPEED_LAUNCH;
+						thiss->timeWaitingLimitPwm = TIME_OF_MOTOR_STEPPING;
 						break;
-				}
 
-				//Gestion des actions dans les états
-				if(thiss->cmd_state == DC_MOTOR_SPEED_TIMEOUT || absolute(thiss->wanted_pos - pos) < config->dead_zone/2){
-					PWM_stop(config->pwm_number);
-				}else{
-
-					/* Integration si on n'est pas en saturation de commande (permet de désaturer plus vite) */
-					if(thiss->current_pwm_cmd != config->max_duty)
-					{
-						thiss->integrator += error; //la multiplication par la période se fait après pour éviter que l'incrément soit nul
-					}
-
-					differential = error - thiss->previous_error;
-
-					// Asservissement PID
-					// Chaque coefficient multiplié par  1024 d'où les divisions
-
-					computed_cmd = 	(config->Kp * error / 1024)
-								+ ((config->Ki * thiss->integrator * DC_MOTOR_SPEED_TIME_PERIOD) >> 20)
-								+ (((config->Kd * differential) / DC_MOTOR_SPEED_TIME_PERIOD) >> 10)
-								+ (config->Kv * speed);
-
-					// Sens et saturation
-					if (computed_cmd > 0)
-						DC_MOTOR_SPEED_setWay(id, 1);
-					else
-						DC_MOTOR_SPEED_setWay(id, 0);
-
-					if (computed_cmd > config->max_duty)
-						thiss->current_pwm_cmd = config->max_duty;
-					else
-						thiss->current_pwm_cmd = (Uint8)computed_cmd;
-
-
-					// Application de la commande
-					Uint8 real_pwm = thiss->current_pwm_cmd;	//On suppose qu'on va prendre la PWM souhaitée.
-
-					if(thiss->time_waiting_limit_pwm != 0)	//on est en 'début d'ordre', une nouvelle consigne est récemment arrivée
-					{
-						if(absolute(thiss->current_cmd - thiss->last_cmd) > MAX_STEP_OF_PWM)
-						{		//Si la dernière PWM est LOIN de la PWM souhaitée... alors on s'en rapproche DOUCEMENT.
-							if(thiss->current_cmd > thiss->last_cmd)
-								real_pwm = thiss->last_cmd + MAX_STEP_OF_PWM;		//Ca monte.. On s'en rapproche en montant.
+					case DC_MOTOR_SPEED_LAUNCH:
+						if(absolute(error) < (Sint16)config->epsilon && absolute(thiss->previousError) < (Sint16)config->epsilon)
+							thiss->state = DC_MOTOR_SPEED_RUN;
+						else if(config->timeout && thiss->time >= config->timeout){
+							if(config->activateRecovery)
+								thiss->state = DC_MOTOR_SPEED_LAUNCH_RECOVERY;
 							else
-								real_pwm = thiss->last_cmd - MAX_STEP_OF_PWM;		//Ca descend..On s'en rapproche en descendant.
+								thiss->state = DC_MOTOR_SPEED_ERROR;
 						}
-					}
+						break;
 
-					if(thiss->time_waiting_limit_pwm > DC_MOTOR_SPEED_TIME_PERIOD)
-						thiss->time_waiting_limit_pwm -= DC_MOTOR_SPEED_TIME_PERIOD;
-					else
-						thiss->time_waiting_limit_pwm = 0;
+					case DC_MOTOR_SPEED_RUN:
+						if(absolute(error) < (Sint16)config->epsilon && absolute(thiss->previousError) < (Sint16)config->epsilon)
+							thiss->state = DC_MOTOR_SPEED_RUN;
+						break;
 
-					thiss->last_cmd = real_pwm;
-					thiss->previous_error = error;
+					case DC_MOTOR_SPEED_INIT_RECOVERY:
+						thiss->time = 0;
+						thiss->state = DC_MOTOR_SPEED_LAUNCH_RECOVERY;
+						thiss->timeWaitingLimitPwm = TIME_OF_MOTOR_STEPPING;
+						break;
 
-					PWM_run(real_pwm, config->pwm_number);
+					case DC_MOTOR_SPEED_LAUNCH_RECOVERY:
+						break;
+
+					case DC_MOTOR_SPEED_RUN_RECOVERY:
+						break;
+
+					case DC_MOTOR_SPEED_ERROR:
+						break;
 				}
 
+				// Gestion des actions
+				switch(thiss->state){
+
+					case DC_MOTOR_SPEED_IDLE:
+					case DC_MOTOR_SPEED_ERROR:
+						PWM_stop(config->pwm_number);
+						break;
+
+					case DC_MOTOR_SPEED_INIT_LAUNCH:
+					case DC_MOTOR_SPEED_INIT_RECOVERY:
+						break;
+
+					case DC_MOTOR_SPEED_LAUNCH:
+					case DC_MOTOR_SPEED_RUN:
+					case DC_MOTOR_SPEED_LAUNCH_RECOVERY:
+					case DC_MOTOR_SPEED_RUN_RECOVERY:
+
+						/* Integration si on n'est pas en saturation de commande (permet de désaturer plus vite) */
+						if(thiss->currentPwm != config->max_duty)
+						{
+							thiss->integrator += error; //la multiplication par la période se fait après pour éviter que l'incrément soit nul
+						}
+
+						differential = error - thiss->previousError;
+
+						// Asservissement PID
+						// Chaque coefficient multiplié par  1024 d'où les divisions
+
+						computed_cmd = 	(config->Kp * error / 1024)
+									+ ((config->Ki * thiss->integrator * DC_MOTOR_SPEED_TIME_PERIOD) >> 20)
+									+ (((config->Kd * differential) / DC_MOTOR_SPEED_TIME_PERIOD) >> 10)
+									+ (config->Kv * speed);
+
+						// Sens et saturation
+						if (computed_cmd > 0)
+							DC_MOTOR_SPEED_setWay(id, 1);
+						else
+							DC_MOTOR_SPEED_setWay(id, 0);
+
+						if (computed_cmd > config->max_duty)
+							thiss->currentPwm = config->max_duty;
+						else
+							thiss->currentPwm = (Uint8)computed_cmd;
+
+
+						// Application de la commande
+						Uint8 realPwm = thiss->currentPwm;	//On suppose qu'on va prendre la PWM souhaitée.
+
+						if(thiss->timeWaitingLimitPwm != 0)	//on est en 'début d'ordre', une nouvelle consigne est récemment arrivée
+						{
+							if(absolute(thiss->currentPwm - thiss->lastPwm) > MAX_STEP_OF_PWM)
+							{		//Si la dernière PWM est LOIN de la PWM souhaitée... alors on s'en rapproche DOUCEMENT.
+								if(thiss->currentPwm > thiss->lastPwm)
+									realPwm = thiss->lastPwm + MAX_STEP_OF_PWM;		//Ca monte.. On s'en rapproche en montant.
+								else
+									realPwm = thiss->lastPwm - MAX_STEP_OF_PWM;		//Ca descend..On s'en rapproche en descendant.
+							}
+						}
+
+						if(thiss->timeWaitingLimitPwm > DC_MOTOR_SPEED_TIME_PERIOD)
+							thiss->timeWaitingLimitPwm -= DC_MOTOR_SPEED_TIME_PERIOD;
+						else
+							thiss->timeWaitingLimitPwm = 0;
+
+						thiss->lastPwm = realPwm;
+						thiss->previousError = error;
+
+						PWM_run(realPwm, config->pwm_number);
+
+						break;
+				}
 			}
 		}
 	}
@@ -363,7 +397,7 @@
 		{
 			DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[i]);
 			thiss->integrator = 0;
-			thiss->cmd_time = 0;
+			thiss->time = 0;
 		}
 	}
 

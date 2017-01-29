@@ -36,8 +36,12 @@
 
 		typedef enum{
 			DC_MOTOR_SPEED_IDLE,
-			DC_MOTOR_SPEED_WORKING,
-			DC_MOTOR_SPEED_CONFIG,
+			DC_MOTOR_SPEED_INIT_LAUNCH,
+			DC_MOTOR_SPEED_LAUNCH,
+			DC_MOTOR_SPEED_RUN,
+			DC_MOTOR_SPEED_INIT_RECOVERY,
+			DC_MOTOR_SPEED_LAUNCH_RECOVERY,
+			DC_MOTOR_SPEED_RUN_RECOVERY,
 			DC_MOTOR_SPEED_ERROR
 		}DC_MOTOR_SPEED_state_e;	//Précise de quel module on parle avec working_state_e, garde la compatibilité avec l'ancien nom.
 
@@ -46,9 +50,11 @@
 			GPIO_TypeDef* way_latch;		// Adresse du port contenant le bit de sens de controle du pont en H (exemple GPIOA)
 			Uint16 way_bit_number;			// Numero du bit de sens dans le port
 			bool_e inverse_way;				// Inverser la pin de sens du controle du moteur
-			Uint8 max_duty;				// Rapport cyclique maximum de la pwm avec le bit sens à 0
+			Uint8 max_duty;					// Rapport cyclique maximum de la pwm avec le bit sens à 0
 
 			Sint32 Kp, Ki, Kd, Kv;			// Valeurs des gains pour le PID
+
+			bool_e activateRecovery;		// Activation du mode recovery
 
 			Uint16 timeout;					// Timeout en ms, si la vitesse demandée n'est pas atteinte avant ce temps, l'asservissement est arreté (évite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
 
