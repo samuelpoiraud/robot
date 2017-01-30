@@ -11,10 +11,12 @@ typedef struct{
 	 GEOMETRY_point_t pos_mesure;
 	 GEOMETRY_point_t pos_laser;
 	 bool_e enable;
+     Uint16 ADCvalue;
 }scan_data_t;
 
 
 void SCAN_init();
+void TELEMETER_process_it();
 void SCAN_process_it();
 void SCAN_process_main();
 

@@ -17,14 +17,25 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_adc.h"
 
-#define CONVERSION_LASER_LEFT(x)	((Sint32)(-263*(x)+350450)/1000)
+/*#define CONVERSION_LASER_LEFT(x)	((Sint32)(-263*(x)+350450)/1000)
 #define OFFSET_WIDTH_LASER_LEFT		(146)
 #define OFFSET_LENGTH_LASER_LEFT	(60)
 
 #define CONVERSION_LASER_RIGHT(x)	((Sint32)(-270*(x)+35580)/1000)
 #define OFFSET_WIDTH_LASER_RIGHT	(146)
 #define OFFSET_LENGTH_LASER_RIGHT	(60)
+*/
 
+
+#define CONVERSION_LASER_LEFT(x)	((Sint32)(37217*(x)-7096800)/10000)//((Sint32)(-263*(x)+350450)/1000)
+#define OFFSET_WIDTH_LASER_LEFT		(150)
+#define OFFSET_LENGTH_LASER_LEFT	(70)
+#define OFFSET_ANGLE_LEFT            -102
+
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36130*(x)-6247900)/10000)
+#define OFFSET_WIDTH_LASER_RIGHT	(150)
+#define OFFSET_LENGTH_LASER_RIGHT	(70)
+#define OFFSET_ANGLE_RIGHT          -221
 
 #ifdef MODE_PRINT_FIRST_TRAJ
 	typedef struct{
@@ -177,7 +188,7 @@ void DEBUG_process_it(void)
 		tab[index].angle_frein = global.angle_frein;
 		tab[index].distance_frein = global.distance_frein;*/
 
-		GEOMETRY_point_t pos_mesure;
+        /*GEOMETRY_point_t pos_mesure;
 		bool_e enable;
 		Sint16 valueADC, value;
 		position_t robot;
@@ -207,8 +218,62 @@ void DEBUG_process_it(void)
 		// On calcule et on stocke la valeur même si le capteur entre en saturation
 		tab[index].laser_right_x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + (OFFSET_WIDTH_LASER_RIGHT + value)*sinus))/4096.0;
 		tab[index].laser_right_y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - (OFFSET_WIDTH_LASER_RIGHT + value)*cosinus))/4096.0;
-		index++;
-		}
+        */
+
+
+
+
+        GEOMETRY_point_t pos_mesure, pos_laser;
+        bool_e enable;
+        Sint16 valueADC, value;
+        position_t robot;
+        Sint16 cosinus = 0, sinus = 0;
+
+        valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
+        value = CONVERSION_LASER_LEFT(valueADC);
+
+        robot = global.position; // On récupère la position du robot tout de suite
+        robot.teta = GEOMETRY_modulo_angle(robot.teta);
+        COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+
+
+        pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus - OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
+        pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
+
+        COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_LEFT, &cosinus, &sinus);
+
+        pos_mesure.x=pos_laser.x-(value * sinus)/4096;
+        pos_mesure.y=pos_laser.y+(value * cosinus)/4096;
+
+#warning 'tes mauvais en trigo abruti'
+
+        tab[index].laser_left_x=pos_mesure.x;
+        tab[index].laser_left_y=pos_mesure.y;
+
+        //tab[index].laser_left_x=pos_mesure.x;
+        //tab[index].laser_left_y=pos_mesure.y;
+
+        valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
+        value = CONVERSION_LASER_RIGHT(valueADC);
+    //    printf("%d\n",valueADC);
+
+        robot = global.position; // On récupère la position du robot tout de suite
+        robot.teta = GEOMETRY_modulo_angle(robot.teta);
+        COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+
+        // On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
+        pos_laser.x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus))/4096.0;
+        pos_laser.y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus))/4096.0;
+
+        COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_RIGHT, &cosinus, &sinus);
+        pos_mesure.x=pos_laser.x+(value) * sinus/4096;
+        pos_mesure.y=pos_laser.y-(value * cosinus)/4096;
+
+        tab[index].laser_right_x=pos_mesure.x;
+        tab[index].laser_right_y=pos_mesure.y;
+
+        index++;
+
 	}
 #endif
 }
@@ -251,7 +316,6 @@ void DEBUG_process_it(void)
 			debug_printf("%d;", i*5);
 			debug_printf("%d;", tab[i].laser_left_x);
 			debug_printf("%d;", tab[i].laser_left_y);
-			debug_printf("%d;", tab[i].value_left);
 			debug_printf("%d;", tab[i].laser_right_x);
 			debug_printf("%d\n", tab[i].laser_right_y);
 		}

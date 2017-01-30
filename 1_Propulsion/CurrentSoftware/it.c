@@ -34,6 +34,7 @@
 typedef enum{
 	IT_STATE_NONE = 0,
 	IT_STATE_ODOMETRY,
+    IT_STATE_TELEMETER,
 	IT_STATE_SECRETARY,
 	IT_STATE_WARNER,
 	IT_STATE_JOYSTICK,
@@ -121,6 +122,11 @@ void _ISR _T2Interrupt()
 	ODOMETRY_update_5ms();
 	IT_test_state(begin_it_time, IT_STATE_ODOMETRY, &first_overtime);
 
+#ifdef SCAN_BORDURE
+    TELEMETER_process_it();
+    IT_test_state(begin_it_time, IT_STATE_TELEMETER, &first_overtime);
+#endif
+
 	//Sauvegarde de l'état du système, en mode debug...
 	SECRETARY_process_it();
 	IT_test_state(begin_it_time, IT_STATE_SECRETARY, &first_overtime);
@@ -151,7 +157,7 @@ void _ISR _T2Interrupt()
 	#endif
 	IT_test_state(begin_it_time, IT_STATE_HOKUYO, &first_overtime);
 
-	#ifdef SCAN
+    #ifdef SCAN_BORDURE
 		SCAN_process_it();
 		IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
 	#endif
