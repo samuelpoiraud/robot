@@ -1307,4 +1307,83 @@ else if((state1==COLLECT_BLUE_CORNER_VALIDATE)&&(state2==COLLECT_BLUE_CORNER_VAL
 	return IN_PROGRESS;
 }
 
+error_e sub_harry_take_north_little_crater(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_NORTH_LITTLE_CRATER,
+			INIT,
+			GET_IN,
+			GO_TO_POSITION,
+			TURN_TO_RUSH,
+			DOWN_SYSTEM,
+			RUSH_TO_CLEAT,
+			MOVE_BACK,
+			GET_OUT,
+			DONE,
+			ERROR
+		);
+
+	switch(state){
+		case INIT:
+			state = GET_IN;
+			break;
+
+		case GET_IN:
+			state=check_sub_action_result(sub_harry_get_in_north_little_crater(), state, GO_TO_POSITION, ERROR);
+			break;
+
+		case GO_TO_POSITION:
+			state=try_going(900, COLOR_Y(650), state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TURN_TO_RUSH:
+			state=try_go_angle(0, state, DOWN_SYSTEM, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			break;
+
+		case DOWN_SYSTEM:{
+			Uint8 state1=state;
+			Uint8 state2=state;
+
+			if (entrance){
+			//	ACT_push_order(le rouleau);
+			//	ACT_push_order(la protection);
+			//	ACT_pusu_order(faire tourner le rouleau);
+			}
+			//state1=check_act_status(le rouleau, DOWN_SYSTEM, RUSH_TO_CLEAT, faut trouver le bon cas derreur);
+			//state2=check_act_status(la protection, DOWN_SYSTEM, RUSH_TO_CLEAT, faut trouver le bon cas derreur);
+			if((state1==ERROR)||(state2==ERROR)){
+				state=ERROR;
+			}else if ((state1==RUSH_TO_CLEAT)&&(state2==RUSH_TO_CLEAT)){
+				state=RUSH_TO_CLEAT;
+			}
+		}
+		break;
+
+		case RUSH_TO_CLEAT:
+			//state=try_advance((700, COLOR_Y(650)), entrance, 200, state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+#warning 'il est difficile de choisir entre try_rush et le try_advance, il y a peut-être une option en utilisant le point du try_advance'
+			break;
+
+		case MOVE_BACK:
+			//state=try_advance((700, COLOR_Y(850)), entrance, 200, state, GET_OUT, RUSH_TO_CLEAT, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_OUT:
+			//state=try_going();
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+
+
+	}
+
+	return IN_PROGRESS;
+}
+
 

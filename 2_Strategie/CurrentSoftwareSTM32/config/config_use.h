@@ -61,6 +61,8 @@
 
 #define USE_SYNC_ELEMENTS
 
+//#define USE_CW_SENSOR
+
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
 //#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN
