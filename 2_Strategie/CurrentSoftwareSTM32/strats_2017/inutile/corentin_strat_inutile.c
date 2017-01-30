@@ -24,11 +24,11 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case START:
-			state=try_advance(NULL, entrance,550,state, FIRST_STRAIGHT, FIRST_STRAIGHT,FAST, BACKWARD, NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_advance(NULL, entrance,600,state, FIRST_STRAIGHT, FIRST_STRAIGHT,FAST, BACKWARD, NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case FIRST_STRAIGHT:
-			state=try_going(1270,310,state,FIRST_ROT,FIRST_ROT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(1270,COLOR_Y(300),state,FIRST_ROT,FIRST_ROT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case FIRST_ROT:
@@ -36,7 +36,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case SECOND_STRAIGHT:
-			state=try_going(500,310,state,SECOND_ROT,SECOND_ROT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(600,COLOR_Y(300),state,SECOND_ROT,SECOND_ROT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case SECOND_ROT:
@@ -44,7 +44,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case THIRD_STRAIGHT:
-			state=try_advance(NULL, entrance,760,state, GIVE_DATA, GIVE_DATA,FAST, BACKWARD, NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_advance(NULL, entrance,730,state, GIVE_DATA, GIVE_DATA,FAST, BACKWARD, NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case GIVE_DATA:{

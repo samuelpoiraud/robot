@@ -953,7 +953,7 @@
         ACT_CYLINDER_TURN_LEFT_ARM		= (ACT_FILTER | 0x17),
         ACT_CYLINDER_TURN_RIGHT_ARM     = (ACT_FILTER | 0x18),
 		ACT_ORE_WALL					= (ACT_FILTER | 0x19),
-
+        ACT_ORE_ROLLER_ARM              = (ACT_FILTER | 0x1A),
 
 
 		//////////////////////////////////////////////////////////////////

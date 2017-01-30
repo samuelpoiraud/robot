@@ -69,6 +69,8 @@
 		#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
 	#endif
 
+//    #define SCAN_BORDURE
+
 	#define BUFFER_SIZE 64	//maximum : 255
 
 	//#define DISABLED_BALISE_AVOIDANCE		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Désactivation de l'évitement balise
@@ -84,7 +86,7 @@
 		#endif
 	#endif
 
-	//#define MODE_PRINT_FIRST_TRAJ		// Il est recommandé de baisser le baudrate pour éviter les erreurs de transmission et le flood du récepteur
+//    #define MODE_PRINT_FIRST_TRAJ		// Il est recommandé de baisser le baudrate pour éviter les erreurs de transmission et le flood du récepteur
 
 	//#define MODE_PRINTF_TABLEAU		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...
 
@@ -161,7 +163,7 @@
 
 /* Réglages ADC */
 	//#define ADC_12_BIT
-	#define USE_AN11		// Télémètre laser gauche (Black) et Télémètre poissons (Pearl)
+    #define USE_AN11		// Télémètre laser gauche (Black) et Télémètre poissons (Pearl)
 	#define USE_AN12		// Télémètre laser droite (Black)
 	#define ADC_SENSOR_LASER_LEFT			ADC_11
 	#define ADC_SENSOR_FISHS				ADC_11
