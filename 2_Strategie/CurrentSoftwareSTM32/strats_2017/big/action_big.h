@@ -19,6 +19,9 @@
 	error_e sub_harry_take_big_crater_blue_middle();
 	error_e sub_harry_take_big_crater_blue_fuse();
 	error_e sub_harry_take_big_crater_blue_corner();
+	error_e sub_harry_take_north_little_crater();
+	error_e sub_harry_get_in_north_little_crater();
+
 
 	// action_big_depose_minerais
 	error_e sub_harry_depose_minerais();
@@ -39,6 +42,7 @@
 	error_e sub_harry_cylinder_depose_manager();
 	error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules);
 	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules);
+	error_e sub_harry_return_modules();
 
 #endif
 

@@ -162,3 +162,38 @@ error_e sub_harry_cylinder_depose_manager(){
 	return IN_PROGRESS;
 }
 
+
+
+error_e sub_harry_return_modules(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_RETURN_MODULES_SIDE,
+			INIT,
+			CHECK_COLOR,
+			ERROR,
+			DONE
+		);
+
+
+
+
+	switch(state){
+		case INIT:
+			state=CHECK_COLOR;
+			break;
+
+		case CHECK_COLOR:
+			state=DONE;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
