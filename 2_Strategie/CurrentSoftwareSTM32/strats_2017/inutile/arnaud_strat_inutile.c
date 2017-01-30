@@ -1,6 +1,7 @@
 #include "strat_inutile.h"
 #include "../../propulsion/movement.h"
 #include "../../QS/QS_stateMachineHelper.h"
+#include "../../avoidance.h"
 
 void arnaud_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
@@ -20,13 +21,17 @@ void arnaud_strat_inutile_big(){
 			break;
 
 		case TRANS1:
-
-			state = try_going(global.pos.x, global.pos.y+1000, state , TRANS2, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_LAST_POINT);
-
+			if(entrance){
+				AVOIDANCE_activeSmallAvoidance(TRUE);
+			}
+			state = try_going(global.pos.x, global.pos.y+1000, state , TRANS2, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(ON_LEAVE()){
+				AVOIDANCE_activeSmallAvoidance(FALSE);
+			}
 			break;
 
 		case TRANS2:
-			state = try_going(1500, 2500, state , ROT1, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
+			state = try_going(1500, 2500, state , ROT1, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ROT1:

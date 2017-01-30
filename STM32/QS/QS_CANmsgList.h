@@ -659,6 +659,12 @@
 
 		#define PROP_DATALASER				0x11C
 
+		#define PROP_CUSTOM_AVOIDANCE		0x11D
+		#define SIZE_PROP_CUSTOM_AVOIDANCE		1
+			struct{
+				bool_e active_small_avoidance :1;
+			}prop_custom_avoidance;
+
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************

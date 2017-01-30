@@ -92,3 +92,11 @@ void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance){
 	msg_to_send.data.debug_foe_reason.dist = distance;
 	CAN_send(&msg_to_send);
 }
+
+void AVOIDANCE_activeSmallAvoidance(bool_e activeSmallAvoidance){
+	CAN_msg_t msg_to_send;
+	msg_to_send.sid = PROP_CUSTOM_AVOIDANCE;
+	msg_to_send.size = SIZE_PROP_CUSTOM_AVOIDANCE;
+	msg_to_send.data.prop_custom_avoidance.active_small_avoidance = activeSmallAvoidance;
+	CAN_send(&msg_to_send);
+}
