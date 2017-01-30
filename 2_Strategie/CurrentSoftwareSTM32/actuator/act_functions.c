@@ -66,6 +66,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_BIG_BALL_BACK_LEFT,			ACT_QUEUE_Big_bearing_back_left,			"Bearing ball back left"},
 	{ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Big_bearing_back_right,			"Bearing ball back right"},
 	{ACT_ORE_WALL,						ACT_QUEUE_Ore_wall,						"Ore wall"},
+    {ACT_ORE_ROLLER_ARM,                ACT_QUEUE_Ore_roller_arm,               "Ore roller arm"},
 
 	// Anne
 	//{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},
