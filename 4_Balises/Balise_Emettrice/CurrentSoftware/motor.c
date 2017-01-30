@@ -28,11 +28,11 @@
 #define AROUND(x)   ((((x)>0)?((Sint16)(x)+0.5):((Sint16)(x)-0.5)))
 
 #define NB_EMISSION_TOUR	(Sint16)(2)	 // Nombre d'emission par tour
-#define KV		 	(Sint16)(8)
-#define KP			(Sint16)(32)
-#define KD			(Sint16)(4)
-#define KI			(Sint16)(2)
-#define COMMAND		(Sint16)(AROUND(2048 * (NB_EMISSION_TOUR * 1000. / (PERIODE_FLASH*2 - NO_FLASH_TIME*2))/500.))  // pas par 2ms
+#define KV		 	(Sint32)(8)
+#define KP			(Sint32)(32)
+#define KD			(Sint32)(4)
+#define KI			(Sint32)(2)
+#define COMMAND		(Sint32)(AROUND(2048 * (NB_EMISSION_TOUR * 1000. / (PERIODE_FLASH*2 - NO_FLASH_TIME*2))/500.))  // pas par 2ms
 								//		 arrondi(2048*	(2 * 1000 / (50*2 - 4*2) )   / 500   )
 									  //	 cela donne :  85
 										//2048*(nb_tour*1000/temps_emission) pas par secondes
@@ -68,7 +68,8 @@ void MOTOR_process_it(Uint8 period_it){
 
 	delta_error = error - error_prec;	//Calcul de la dérivée de l'erreur sur la vitesse
 
-	sum_error += (speed < 10)?0:error;	//Calcul de l'intégrale de l'erreur sur la vitesse (avec sécurité si vitesse faible !)
+	if((Uint32)sum_error + error < 65535)
+		sum_error -= (speed < 10)?0:error;	//Calcul de l'intégrale de l'erreur sur la vitesse (avec sécurité si vitesse faible !)
 
 	//Calcul du rapport cyclique de la PWM à envoyer au moteur.
 	duty = (		KV * COMMAND		//85*8 -> 680   -> /16 -> 42 pour 500 -> 8% de PWM
