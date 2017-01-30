@@ -55,6 +55,8 @@ int main (void){
 	GPIO_WriteBit(LED_R_SYNC, 1);
 	GPIO_WriteBit(LED_BAT, 1);
 
+	BUZZER_play(200, 200, 2);
+
 	while(1){
 
 		BUZZER_processMain();
@@ -73,8 +75,10 @@ int main (void){
 		while(UART1_data_ready()){
 			c = UART1_get_next_msg();
 
-			if(c == 'O')
+			if(c == 'O'){
 				BUZZER_switchMode(UART_PIN_MODE);
+				debug_printf("--- Hello, I'm Beacon transmitter (%s)---\n", (QS_WHO_AM_I_get() == BIG_ROBOT)?"BIG ROBOT":"SMALL ROBOT");
+			}
 
 			#ifdef CONFIG_RF_RC1240
 				debug_printf("We will send %c (0x%x) on RF\n", c, c);

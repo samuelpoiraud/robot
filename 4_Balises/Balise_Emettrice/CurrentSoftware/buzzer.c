@@ -79,13 +79,16 @@ void BUZZER_switchMode(BUZZER_mode_e mode){
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
 	}
+	currentMode = mode;
 }
 
 void BUZZER_play(time32_t durationOn, time32_t durationOff, Uint8 count){
-	currentPlay.actualCount = 0;
-	currentPlay.initialTime = 0;
-	currentPlay.count = count;
-	currentPlay.durationOn = durationOn;
-	currentPlay.durationOff = durationOff;
-	currentPlay.actif = TRUE;
+	if(currentMode == BUZZER_PIN_MODE){
+		currentPlay.actualCount = 0;
+		currentPlay.initialTime = 0;
+		currentPlay.count = count;
+		currentPlay.durationOn = durationOn;
+		currentPlay.durationOff = durationOff;
+		currentPlay.actif = TRUE;
+	}
 }
