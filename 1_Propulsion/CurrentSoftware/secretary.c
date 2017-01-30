@@ -466,6 +466,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			WARNER_enable_counter_trajectory_for_test_coefs_finished();
 		break;
 
+		case PROP_CUSTOM_AVOIDANCE:
 		case PROP_OFFSET_AVOID:
 			AVOIDANCE_process_CAN_msg(msg);
 			break;

@@ -40,6 +40,8 @@ typedef struct{
 
 static offset_avoid_s offset_avoid = {0};
 
+static bool_e active_small_avoidance = FALSE;
+
 void AVOIDANCE_init(){
 
 }
@@ -211,87 +213,106 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 		/*[mm]*/				slow_distance = ((QS_WHO_AM_I_get() == SMALL_ROBOT)? SMALL_ROBOT_DIST_MIN_SPEED_SLOW : BIG_ROBOT_DIST_MIN_SPEED_SLOW);	//Distance à laquelle on souhaite ralentir
 	}
 
-	avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright);
-	avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft;
+	if(active_small_avoidance == FALSE){ // Evitement normal
 
-	if(way == FORWARD || way == ANY_WAY)	//On avance
-		avoidance_rectangle_max_x = break_distance + respect_distance + offset_avoid.Yfront;
-	else
-		avoidance_rectangle_max_x = -100;
+		avoidance_rectangle_width_y_min = -((FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xright);
+		avoidance_rectangle_width_y_max = (FOE_SIZE + ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH))/2 + offset_avoid.Xleft;
 
-	if(way == BACKWARD || way == ANY_WAY)	//On recule
-		avoidance_rectangle_min_x = -(break_distance + respect_distance + offset_avoid.Yback);
-	else
-		avoidance_rectangle_min_x = 100;
+		if(way == FORWARD || way == ANY_WAY)	//On avance
+			avoidance_rectangle_max_x = break_distance + respect_distance + offset_avoid.Yfront;
+		else
+			avoidance_rectangle_max_x = -100;
+
+		if(way == BACKWARD || way == ANY_WAY)	//On recule
+			avoidance_rectangle_min_x = -(break_distance + respect_distance + offset_avoid.Yback);
+		else
+			avoidance_rectangle_min_x = 100;
+
+	}else{
+
+		avoidance_rectangle_width_y_min = -((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH)/2;
+		avoidance_rectangle_width_y_max = ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH)/2;
+
+		if(way == FORWARD || way == ANY_WAY)	//On avance
+			avoidance_rectangle_max_x = break_distance + respect_distance;
+		else
+			avoidance_rectangle_max_x = -100;
+
+		if(way == BACKWARD || way == ANY_WAY)	//On recule
+			avoidance_rectangle_min_x = -(break_distance + respect_distance);
+		else
+			avoidance_rectangle_min_x = 100;
+
+	}
 
 
-		if(global.absolute_time - last_time_refresh_avoid_displayed > WAIT_TIME_DISPLAY_AVOID){
+	if(global.absolute_time - last_time_refresh_avoid_displayed > WAIT_TIME_DISPLAY_AVOID){
 
-				Sint16 angle[4];
-				angle[0] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_max_x)*4096;
-				angle[1] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_max_x)*4096;
-				angle[2] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_min_x)*4096;
-				angle[3] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_min_x)*4096;
+		Sint16 angle[4];
+		angle[0] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_max_x)*4096;
+		angle[1] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_max_x)*4096;
+		angle[2] = global.position.teta + atan2(avoidance_rectangle_width_y_min, avoidance_rectangle_min_x)*4096;
+		angle[3] = global.position.teta + atan2(avoidance_rectangle_width_y_max, avoidance_rectangle_min_x)*4096;
 
-				Uint16 longueur[4];
-				longueur[0] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_max_x});
-				longueur[1] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_max_x});
-				longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_min_x});
-				longueur[3] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_min_x});
+		Uint16 longueur[4];
+		longueur[0] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_max_x});
+		longueur[1] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_max_x});
+		longueur[2] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_min, avoidance_rectangle_min_x});
+		longueur[3] = GEOMETRY_distance((GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){avoidance_rectangle_width_y_max, avoidance_rectangle_min_x});
 
-				avoid_poly[0] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[0])*longueur[0]), ecretage_debug_rect(global.position.y+sin4096(angle[0])*longueur[0])};
-				avoid_poly[1] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[1])*longueur[1]), ecretage_debug_rect(global.position.y+sin4096(angle[1])*longueur[1])};
-				avoid_poly[2] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[2])*longueur[2]), ecretage_debug_rect(global.position.y+sin4096(angle[2])*longueur[2])};
-				avoid_poly[3] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[3])*longueur[3]), ecretage_debug_rect(global.position.y+sin4096(angle[3])*longueur[3])};
+		avoid_poly[0] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[0])*longueur[0]), ecretage_debug_rect(global.position.y+sin4096(angle[0])*longueur[0])};
+		avoid_poly[1] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[1])*longueur[1]), ecretage_debug_rect(global.position.y+sin4096(angle[1])*longueur[1])};
+		avoid_poly[2] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[2])*longueur[2]), ecretage_debug_rect(global.position.y+sin4096(angle[2])*longueur[2])};
+		avoid_poly[3] = (GEOMETRY_point_t){ecretage_debug_rect(global.position.x+cos4096(angle[3])*longueur[3]), ecretage_debug_rect(global.position.y+sin4096(angle[3])*longueur[3])};
 
-				Uint8 nb_point = 4;
-				Uint16 max = AROUND_UP((nb_point+1)/3.);
-				CAN_msg_t msg;
-				msg.sid = DEBUG_AVOIDANCE_POLY;
-				msg.size = SIZE_DEBUG_AVOIDANCE_POLY;
-				for(i=0;i<max;i++){
-					Uint8 num = 0;
-					if(i==0)
-						msg.data.debug_avoidance_poly.new_polygone = TRUE;
-					else
-						msg.data.debug_avoidance_poly.new_polygone = FALSE;
+		Uint8 nb_point = 4;
+		Uint16 max = AROUND_UP((nb_point+1)/3.);
+		CAN_msg_t msg;
+		msg.sid = DEBUG_AVOIDANCE_POLY;
+		msg.size = SIZE_DEBUG_AVOIDANCE_POLY;
+		for(i=0;i<max;i++){
+			Uint8 num = 0;
+			if(i==0)
+				msg.data.debug_avoidance_poly.new_polygone = TRUE;
+			else
+				msg.data.debug_avoidance_poly.new_polygone = FALSE;
 
-					if(i*3 < nb_point){
-						num++;
-						msg.data.debug_avoidance_poly.point[0].x = (Uint8)(avoid_poly[i*3].x >> 4);
-						msg.data.debug_avoidance_poly.point[0].y = (Uint8)(avoid_poly[i*3].y >> 4);
-					}else if(i*3 == nb_point){
-						num++;
-						msg.data.debug_avoidance_poly.point[0].x = (Uint8)(avoid_poly[0].x >> 4);
-						msg.data.debug_avoidance_poly.point[0].y = (Uint8)(avoid_poly[0].y >> 4);
-					}
-
-					if(i*3+1 < nb_point){
-						num++;
-						msg.data.debug_avoidance_poly.point[1].x = (Uint8)(avoid_poly[i*3+1].x >> 4);
-						msg.data.debug_avoidance_poly.point[1].y = (Uint8)(avoid_poly[i*3+1].y >> 4);
-					}else if(i*3+1 == nb_point){
-						num++;
-						msg.data.debug_avoidance_poly.point[1].x = (Uint8)(avoid_poly[0].x >> 4);
-						msg.data.debug_avoidance_poly.point[1].y = (Uint8)(avoid_poly[0].y >> 4);
-					}
-
-					if(i*3+2 < nb_point){
-						num++;
-						msg.data.debug_avoidance_poly.point[2].x = (Uint8)(avoid_poly[i*3+2].x >> 4);
-						msg.data.debug_avoidance_poly.point[2].y = (Uint8)(avoid_poly[i*3+2].y >> 4);
-					}else if(i*3+2 == nb_point){
-						num++;
-						msg.data.debug_avoidance_poly.point[2].x = (Uint8)(avoid_poly[0].x >> 4);
-						msg.data.debug_avoidance_poly.point[2].y = (Uint8)(avoid_poly[0].y >> 4);
-					}
-
-					msg.data.debug_avoidance_poly.first_point_number = num;
-					SECRETARY_send_canmsg_from_it(&msg);
-				}
-
-				last_time_refresh_avoid_displayed = global.absolute_time;
+			if(i*3 < nb_point){
+				num++;
+				msg.data.debug_avoidance_poly.point[0].x = (Uint8)(avoid_poly[i*3].x >> 4);
+				msg.data.debug_avoidance_poly.point[0].y = (Uint8)(avoid_poly[i*3].y >> 4);
+			}else if(i*3 == nb_point){
+				num++;
+				msg.data.debug_avoidance_poly.point[0].x = (Uint8)(avoid_poly[0].x >> 4);
+				msg.data.debug_avoidance_poly.point[0].y = (Uint8)(avoid_poly[0].y >> 4);
 			}
+
+			if(i*3+1 < nb_point){
+				num++;
+				msg.data.debug_avoidance_poly.point[1].x = (Uint8)(avoid_poly[i*3+1].x >> 4);
+				msg.data.debug_avoidance_poly.point[1].y = (Uint8)(avoid_poly[i*3+1].y >> 4);
+			}else if(i*3+1 == nb_point){
+				num++;
+				msg.data.debug_avoidance_poly.point[1].x = (Uint8)(avoid_poly[0].x >> 4);
+				msg.data.debug_avoidance_poly.point[1].y = (Uint8)(avoid_poly[0].y >> 4);
+			}
+
+			if(i*3+2 < nb_point){
+				num++;
+				msg.data.debug_avoidance_poly.point[2].x = (Uint8)(avoid_poly[i*3+2].x >> 4);
+				msg.data.debug_avoidance_poly.point[2].y = (Uint8)(avoid_poly[i*3+2].y >> 4);
+			}else if(i*3+2 == nb_point){
+				num++;
+				msg.data.debug_avoidance_poly.point[2].x = (Uint8)(avoid_poly[0].x >> 4);
+				msg.data.debug_avoidance_poly.point[2].y = (Uint8)(avoid_poly[0].y >> 4);
+			}
+
+			msg.data.debug_avoidance_poly.first_point_number = num;
+			SECRETARY_send_canmsg_from_it(&msg);
+		}
+
+		last_time_refresh_avoid_displayed = global.absolute_time;
+	}
 
 	for(i=0; i<max_foes; i++){
 
@@ -501,12 +522,21 @@ void AVOIDANCE_said_foe_detected(bool_e timeout, bool_e in_wait){
 }
 
 void AVOIDANCE_process_CAN_msg(CAN_msg_t *msg){
-#ifdef USE_ACT_AVOID
-	offset_avoid.Xleft = msg->data.prop_offset_avoid.x_left;
-	offset_avoid.Xright = msg->data.prop_offset_avoid.x_right;
-	offset_avoid.Yfront = msg->data.prop_offset_avoid.y_front;
-	offset_avoid.Yback = msg->data.prop_offset_avoid.y_back;
-#endif
+
+	switch(msg->sid){
+		case PROP_OFFSET_AVOID:
+			#ifdef USE_ACT_AVOID
+				offset_avoid.Xleft = msg->data.prop_offset_avoid.x_left;
+				offset_avoid.Xright = msg->data.prop_offset_avoid.x_right;
+				offset_avoid.Yfront = msg->data.prop_offset_avoid.y_front;
+				offset_avoid.Yback = msg->data.prop_offset_avoid.y_back;
+			#endif
+			break;
+
+		case PROP_CUSTOM_AVOIDANCE:
+			active_small_avoidance = msg->data.prop_custom_avoidance.active_small_avoidance;
+			break;
+	}
 }
 
 bool_e AVOIDANCE_foe_near(){
