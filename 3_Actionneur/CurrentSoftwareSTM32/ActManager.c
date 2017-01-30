@@ -42,6 +42,7 @@
     #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm.h"
     #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
 	#include "Harry/ore/ore_wall/ore_wall.h"
+    #include "Harry/ore/ore_roller_arm/ore_roller_arm.h"
 
 
 
@@ -92,6 +93,7 @@ static ACTQ_functions_t actionneurs[] = {
         ACT_DECLARE(CYLINDER_TURN_LEFT_ARM),
         ACT_DECLARE(CYLINDER_TURN_RIGHT_ARM),
 		ACT_DECLARE(ORE_WALL),
+        ACT_DECLARE(ORE_ROLLER_ARM),
 
 	#else  //Small Robot
 		//ACT_DECLARE(LEFT_ARM),

@@ -333,6 +333,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
            case ACT_CYLINDER_TURN_LEFT_ARM & 0xFF:	originalSidStr = "CylinderTurnLeftArm";	break;
            case ACT_CYLINDER_TURN_RIGHT_ARM & 0xFF: originalSidStr = "CylinderTurnRightArm";break;
            case ACT_ORE_WALL & 0xFF:				originalSidStr = "OreWall";				break;
+           case ACT_ORE_ROLLER_ARM & 0xFF:			originalSidStr = "OreRollerArm";        break;
 
 
 

@@ -60,7 +60,8 @@
     #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm_config.h"
     #include "../Harry/ore/ore_wall/ore_wall.h"
     #include "../Harry/ore/ore_wall/ore_wall_config.h"
-
+    //#include "../Harry/ore/ore_roller_arm/ore_roller_arm.h"
+    //#include "../Harry/ore/ore_roller_arm/ore_roller_arm_config.h"
 
 
 #else
@@ -135,6 +136,8 @@ terminal_motor_s terminal_motor[] = {
         DECLARE_RX24(2, 'O', CYLINDER_TURN_LEFT_ARM_RX24),
         DECLARE_RX24(2, 'O', CYLINDER_TURN_RIGHT_ARM_RX24),
         DECLARE_RX24(2, 'O', ORE_WALL_RX24),
+       // DECLARE_RX24(2, 'O', ORE_ROLLER_ARM_LEFT_RX24),
+       // DECLARE_RX24(2, 'O', ORE_ROLLER_ARM_RIGHT_RX24),
 
 
 
