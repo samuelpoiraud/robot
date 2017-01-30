@@ -20,14 +20,15 @@
 
 	#include "QS_all.h"
 	#include "QS_adc.h"
+	#include "QS_ports.h"
 
 
 	#ifdef USE_CW_SENSOR
 
 		/** Décrit un port d'entrée/sortie */
 		typedef struct {
-			volatile unsigned int* port;
-			Uint8 bit_number;
+			GPIO_TypeDef* port;
+			Uint16 pin;
 			bool_e is_inverted_logic; //TRUE s'il y a detection quand le port est au niveau 0
 		} CW_port_t;
 

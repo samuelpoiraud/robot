@@ -15,9 +15,9 @@
 
 #ifdef USE_CW_SENSOR
 
-#define CW_PORTBIT_SET(p) BIT_SET(*(p).port, (p).bit_number)
-#define CW_PORTBIT_CLR(p) BIT_CLR(*(p).port, (p).bit_number)
-#define CW_PORTBIT_TST(p) BIT_TEST(*(p).port, (p).bit_number)
+#define CW_PORTBIT_SET(p) GPIO_SetBits((p).port, (p).pin)
+#define CW_PORTBIT_CLR(p) GPIO_ResetBits((p).port, (p).pin)
+#define CW_PORTBIT_TST(p) GPIO_ReadInputDataBit((p).port, (p).pin)
 
 typedef struct {
 	//Uint8 current_remote_capture_channel;	// >0 quand on est en train d'envoyer un remote capture; non utilisé/implémenté
@@ -45,7 +45,7 @@ void CW_init() {
 		CW_sensors[i].config.analog_Z = CW_UNUSED_ANALOG_PORT;
 		for(j=0; j < CW_PP_MAXPORTNUM; j++) {
 			CW_sensors[i].config.digital_ports[j].port = CW_UNUSED_PORT;
-			CW_sensors[i].config.digital_ports[j].bit_number = 0;
+			CW_sensors[i].config.digital_ports[j].pin = 0;
 		}
 	}
 }
