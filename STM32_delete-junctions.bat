@@ -22,4 +22,6 @@ junction.exe -d R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\QS
 junction.exe -d R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\stm32f4xx
 junction.exe -d R_D\projet_matrice_led\CurrentSoftware\QS
 junction.exe -d R_D\projet_matrice_led\CurrentSoftware\stm32f4xx
+junction.exe -d R_D\carteMosfet\CurrentSoftware\QS
+junction.exe -d R_D\carteMosfet\CurrentSoftware\stm32f4xx
 pause

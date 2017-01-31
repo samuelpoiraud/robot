@@ -24,5 +24,7 @@ junction.exe R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\QS STM32\QS
 junction.exe R_D\HokuyoUTM30LX\SoftwareURBCallbackInIT\stm32f4xx STM32\stm32f4xx
 junction.exe R_D\projet_matrice_led\CurrentSoftware\QS STM32\QS
 junction.exe R_D\projet_matrice_led\CurrentSoftware\stm32f4xx STM32\stm32f4xx
+junction.exe R_D\carteMosfet\CurrentSoftware\QS STM32\QS
+junction.exe R_D\carteMosfet\CurrentSoftware\stm32f4xx STM32\stm32f4xx
 
 pause
