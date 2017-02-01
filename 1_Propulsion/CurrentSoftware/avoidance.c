@@ -245,7 +245,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 
 	}
 
-
+#ifdef DISPLAY_AVOIDANCE_POLY
 	if(global.absolute_time - last_time_refresh_avoid_displayed > WAIT_TIME_DISPLAY_AVOID){
 
 		Sint16 angle[4];
@@ -313,6 +313,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 
 		last_time_refresh_avoid_displayed = global.absolute_time;
 	}
+#endif
 
 	for(i=0; i<max_foes; i++){
 
