@@ -30,6 +30,9 @@
 	// Renvoi TRUE si nous somme dans la carré passé en paramètre est à l'intérieur (S'inverse automatique en fonction de la couleur)
 	bool_e i_am_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
 
+	// Renvoi TRUE si nous somme dans la carré passé en paramètre est à l'intérieur
+	bool_e i_am_in_square(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2);
+
 	// Renvoi TRUE si le point passé en paramètre est à l'intérieur du carré (S'inverse automatique en fonction de la couleur)
 	bool_e is_in_square_color(Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, GEOMETRY_point_t current);
 
