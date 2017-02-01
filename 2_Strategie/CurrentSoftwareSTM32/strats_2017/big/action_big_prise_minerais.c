@@ -149,12 +149,12 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 
 		);
 
-	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, 2200}, FAST},
+	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){900, 2200}, FAST},
 										  {(GEOMETRY_point_t){1390, 2600}, FAST},
 										  };
 
-	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, 800}, FAST},
-										  {(GEOMETRY_point_t){1000, 2200}, FAST},
+	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){900, 800}, FAST},
+										  {(GEOMETRY_point_t){900, 2200}, FAST},
 										  {(GEOMETRY_point_t){1390, 2600}, FAST}
 										  };
 
@@ -165,13 +165,13 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 		break;
 
 	case GET_IN:
-		if(i_am_in_square(400, 1500, 0, 800)){
+		if(i_am_in_square(400, 1500, 300, 800)){
 			state = GO_YELLOW_CRATER_FROM_ADV_SQUARE;
 		}
-		else if(i_am_in_square(400, 1500, 3000, 2200)){
+		else if(i_am_in_square(400, 1500, 2700, 2200)){
 			state = GO_YELLOW_CRATER_FROM_OUR_SQUARE;
 		}
-		else if(i_am_in_square(0, 1200, 800, 2200)){
+		else if(i_am_in_square(300, 1200, 800, 2200)){
 			state = GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE;
 		}else{
 			state = ASTAR_GO_YELLOW_CRATER;
@@ -236,12 +236,12 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 
 		);
 
-	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){1000, 800}, FAST},
+	const displacement_t leave_middle_square[2] = { {(GEOMETRY_point_t){900, 800}, FAST},
 										  {(GEOMETRY_point_t){1390, 400}, FAST},
 										  };
 
-	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){1000, 2200}, FAST},
-										  {(GEOMETRY_point_t){1000, 800}, FAST},
+	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){900, 2200}, FAST},
+										  {(GEOMETRY_point_t){900, 800}, FAST},
 										  {(GEOMETRY_point_t){1390, 400}, FAST}
 										  };
 
@@ -252,13 +252,13 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 		break;
 
 	case GET_IN:
-		if(i_am_in_square(400, 1500, 0, 800)){
+		if(i_am_in_square(400, 1500, 300, 800)){
 			state = GO_BLUE_CRATER_FROM_OUR_SQUARE;
 		}
-		else if(i_am_in_square(400, 1500, 3000, 2200)){
+		else if(i_am_in_square(400, 1500, 2700, 2200)){
 			state = GO_BLUE_CRATER_FROM_ADV_SQUARE;
 		}
-		else if(i_am_in_square(0, 1200, 800, 2200)){
+		else if(i_am_in_square(300, 1200, 800, 2200)){
 			state = GO_BLUE_CRATER_FROM_MIDDLE_SQUARE;
 		}else{
 			state = ASTAR_GO_BLUE_CRATER;
