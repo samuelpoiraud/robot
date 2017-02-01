@@ -20,7 +20,7 @@
 	//#define MODE_SIMULATION						//Dans ce mode, le bus CAN est désactivé.
 	#define CAN_SEND_OVER_UART					//Envoi des msg can sur l'uart, en utilisant le format normalisé des msg can over uart
 	//#define XBEE_SIMULATION						//Envoi des messages XBEE venant de la simulation sur le CAN
-
+	//#define DISPLAY_AVOIDANCE_POLY				//Envoi des messages contenant les informations du polygone d'évitement pour la simulation graphique
 
 /* MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
  *  1 - activez les 4 defines ci-dessus
