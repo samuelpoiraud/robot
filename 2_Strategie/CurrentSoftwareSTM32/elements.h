@@ -24,6 +24,11 @@
 		NEUTRAL_ELEMENT
 	}ELEMENTS_property_e;
 
+	typedef enum{
+		RIGHT,
+		LEFT
+	}ELEMENTS_side_e;
+
 
 	typedef struct{
 		GEOMETRY_point_t pos;
