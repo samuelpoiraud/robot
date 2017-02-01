@@ -142,7 +142,7 @@ bool_e ORE_WALL_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_ORE_WALL_IDLE :
-			case ACT_ORE_WALL_LOCK :
+			case ACT_ORE_WALL_OUT :
 			case ACT_ORE_WALL_UNLOCK :
 			case ACT_ORE_WALL_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_ORE_WALL, &ORE_WALL_run_command, 0,TRUE);
@@ -189,7 +189,7 @@ static void ORE_WALL_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_ORE_WALL_IDLE : *rx24_goalPosition = ORE_WALL_RX24_IDLE_POS; break;
-		case ACT_ORE_WALL_LOCK : *rx24_goalPosition = ORE_WALL_RX24_LOCK_POS; break;
+		case ACT_ORE_WALL_OUT : *rx24_goalPosition = ORE_WALL_RX24_OUT_POS; break;
 		case ACT_ORE_WALL_UNLOCK : *rx24_goalPosition = ORE_WALL_RX24_UNLOCK_POS; break;
 
 		case ACT_ORE_WALL_STOP :
