@@ -20,7 +20,7 @@
 
 //Position
 	#define ORE_WALL_RX24_IDLE_POS					512
-	#define ORE_WALL_RX24_LOCK_POS			     	512	//en degré
+	#define ORE_WALL_RX24_OUT_POS			     	512	//en degré
 	#define ORE_WALL_RX24_UNLOCK_POS					512	//en degré
 
 //Position initiale de l'RX24

@@ -21,6 +21,8 @@
 	error_e sub_harry_take_big_crater_blue_corner();
 	error_e sub_harry_take_north_little_crater();
 	error_e sub_harry_get_in_north_little_crater();
+	error_e sub_harry_take_south_little_crater();
+	error_e sub_harry_get_in_south_little_crater();
 
 
 	// action_big_depose_minerais

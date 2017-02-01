@@ -1314,7 +1314,7 @@ error_e sub_harry_take_north_little_crater(){
 			GO_TO_POSITION,
 			TURN_TO_RUSH,
 			DOWN_SYSTEM,
-			RUSH_TO_CLEAT,
+			GO_TO_CLEAT,
 			MOVE_BACK,
 			GET_OUT,
 			DONE,
@@ -1323,7 +1323,12 @@ error_e sub_harry_take_north_little_crater(){
 
 	switch(state){
 		case INIT:
-			state = GET_IN;
+			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_OUR_CENTER)||(!ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL))){
+				state=ERROR;
+			}else{
+				state=GET_IN;
+				ELEMENTS_set_flag(FLAG_HARRY_NORTH_CRATER,TRUE);
+			}
 			break;
 
 		case GET_IN:
@@ -1331,7 +1336,7 @@ error_e sub_harry_take_north_little_crater(){
 			break;
 
 		case GO_TO_POSITION:
-			state=try_going(900, COLOR_Y(650), state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state=try_going(950, COLOR_Y(650), state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TURN_TO_RUSH:
@@ -1341,33 +1346,95 @@ error_e sub_harry_take_north_little_crater(){
 		case DOWN_SYSTEM:{
 			Uint8 state1=state;
 			Uint8 state2=state;
-
 			if (entrance){
-			//	ACT_push_order(le rouleau);
-			//	ACT_push_order(la protection);
-			//	ACT_pusu_order(faire tourner le rouleau);
+				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_OUT);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
+			//	ACT_push_order(faire tourner le rouleau);
 			}
-			//state1=check_act_status(le rouleau, DOWN_SYSTEM, RUSH_TO_CLEAT, faut trouver le bon cas derreur);
-			//state2=check_act_status(la protection, DOWN_SYSTEM, RUSH_TO_CLEAT, faut trouver le bon cas derreur);
+			state1=check_act_status(ACT_QUEUE_Ore_roller_arm, DOWN_SYSTEM, GO_TO_CLEAT, ERROR);
+			state2=check_act_status(ACT_QUEUE_Ore_wall, DOWN_SYSTEM, GO_TO_CLEAT, ERROR);
 			if((state1==ERROR)||(state2==ERROR)){
 				state=ERROR;
-			}else if ((state1==RUSH_TO_CLEAT)&&(state2==RUSH_TO_CLEAT)){
-				state=RUSH_TO_CLEAT;
+			}else if ((state1==GO_TO_CLEAT)&&(state2==GO_TO_CLEAT)){
+				state=GO_TO_CLEAT;
 			}
 		}
 		break;
 
-		case RUSH_TO_CLEAT:
-			//state=try_advance((700, COLOR_Y(650)), entrance, 200, state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-#warning 'il est difficile de choisir entre try_rush et le try_advance, il y a peut-être une option en utilisant le point du try_advance'
+		case GO_TO_CLEAT:
+			state=try_going(600, COLOR_Y(650), state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MOVE_BACK:
-			//state=try_advance((700, COLOR_Y(850)), entrance, 200, state, GET_OUT, RUSH_TO_CLEAT, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(800, COLOR_Y(650), state, GET_OUT, GO_TO_CLEAT, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if(ON_LEAVING(MOVE_BACK)){
+				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IDLE);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IDLE);
+				//arrêter le rouleau
+			}
 			break;
 
 		case GET_OUT:
-			//state=try_going();
+			state=try_going(850, COLOR_Y(650), state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_HARRY_NORTH_CRATER,FALSE);
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_HARRY_NORTH_CRATER,FALSE);
+			return END_OK;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+
+error_e sub_harry_get_in_north_little_crater(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_NORTH_LITTLE_CRATER,
+			INIT,
+			GET_IN_OUR_SQUARE,
+			GET_IN_MIDDLE_SQUARE,
+			GET_IN_ADV_SQUARE,
+			PATHFIND,
+			DONE,
+			ERROR
+		);
+
+	switch(state){
+		case INIT:
+			if(i_am_in_square_color(800, 1400, 300, 900)){
+				state = DONE;//GET_IN_OUR_SQUARE;
+			}else if (i_am_in_square_color(100, 1100, 900, 2100)){
+				state = GET_IN_MIDDLE_SQUARE;
+			}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
+				state = GET_IN_ADV_SQUARE;
+			}else
+				state = PATHFIND;
+
+				break;
+
+		case GET_IN_OUR_SQUARE:
+			state = try_going(1000, COLOR_Y(650), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			//pas utiliser pour l'instant je préfère le mettre dans la fonction principale
+			break;
+
+		case GET_IN_MIDDLE_SQUARE:
+			state = try_going(900, COLOR_Y(1000), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_ADV_SQUARE:
+			state = try_going(850, COLOR_Y(2000), state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case PATHFIND:
+			state = ASTAR_try_going(850, COLOR_Y(650), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -1379,8 +1446,150 @@ error_e sub_harry_take_north_little_crater(){
 			RESET_MAE();
 			return END_OK;
 			break;
+	}
+
+	return IN_PROGRESS;
+}
 
 
+error_e sub_harry_take_south_little_crater(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_SOUTH_LITTLE_CRATER,
+			INIT,
+			GET_IN,
+			GO_TO_POSITION,
+			TURN_TO_RUSH,
+			DOWN_SYSTEM,
+			GO_TO_CENTER,
+			MOVE_BACK,
+			GET_OUT,
+			DONE,
+			ERROR
+		);
+
+	switch(state){
+		case INIT:
+			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_SOUTH_UNI)||ELEMENTS_get_flag(FLAG_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)||(!ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL))){
+				state=ERROR;
+			}else{
+				state=GET_IN;
+				ELEMENTS_set_flag(FLAG_HARRY_SOUTH_CRATER,TRUE);
+			}
+			break;
+
+		case GET_IN:
+			state=check_sub_action_result(sub_harry_get_in_south_little_crater(), state, GO_TO_POSITION, ERROR);
+			break;
+
+		case GO_TO_POSITION:
+			state=try_going(1700, COLOR_Y(800), state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TURN_TO_RUSH:
+			state=try_go_angle(COLOR_ANGLE(PI4096/3), state, DOWN_SYSTEM, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			break;
+
+		case DOWN_SYSTEM:{
+			Uint8 state1=state;
+			Uint8 state2=state;
+			if (entrance){
+				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_OUT);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
+			//	ACT_push_order(faire tourner le rouleau);
+			}
+			state1=check_act_status(ACT_QUEUE_Ore_roller_arm, DOWN_SYSTEM, GO_TO_CENTER, ERROR);
+			state2=check_act_status(ACT_QUEUE_Ore_wall, DOWN_SYSTEM, GO_TO_CENTER, ERROR);
+			if((state1==ERROR)||(state2==ERROR)){
+				state=ERROR;
+			}else if ((state1==GO_TO_CENTER)&&(state2==GO_TO_CENTER)){
+				state=GO_TO_CENTER;
+			}
+		}
+		break;
+
+		case GO_TO_CENTER:
+			state=try_going(1790, COLOR_Y(940), state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case MOVE_BACK:
+			state=try_going(800, COLOR_Y(650), state, GET_OUT, GO_TO_CENTER, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if(ON_LEAVING(MOVE_BACK)){
+				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IDLE);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IDLE);
+				//arrêter le rouleau
+			}
+			break;
+
+		case GET_OUT:
+			state=try_going(1700, COLOR_Y(800), state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_HARRY_SOUTH_CRATER,TRUE);
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_HARRY_SOUTH_CRATER,TRUE);
+			return END_OK;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+
+error_e sub_harry_get_in_south_little_crater(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_SOUTH_LITTLE_CRATER,
+			INIT,
+			GET_IN_OUR_SQUARE,
+			GET_IN_MIDDLE_SQUARE,
+			GET_IN_ADV_SQUARE,
+			PATHFIND,
+			DONE,
+			ERROR
+		);
+
+	switch(state){
+		case INIT:
+			if(i_am_in_square_color(800, 1400, 300, 900)){
+				state = DONE;//GET_IN_OUR_SQUARE;
+			}else if (i_am_in_square_color(100, 1100, 900, 2100)){
+				state = GET_IN_MIDDLE_SQUARE;
+			}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
+				state = GET_IN_ADV_SQUARE;
+			}else
+				state = PATHFIND;
+
+				break;
+
+		case GET_IN_OUR_SQUARE:
+			state = try_going(1630, COLOR_Y(700), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_MIDDLE_SQUARE:
+			state = try_going(900, COLOR_Y(1000), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_ADV_SQUARE:
+			state = try_going(850, COLOR_Y(2000), state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case PATHFIND:
+			state = ASTAR_try_going(1630, COLOR_Y(700), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
 	}
 
 	return IN_PROGRESS;
