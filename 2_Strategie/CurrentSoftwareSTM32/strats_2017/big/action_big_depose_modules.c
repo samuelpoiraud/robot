@@ -164,10 +164,13 @@ error_e sub_harry_cylinder_depose_manager(){
 
 
 
-error_e sub_harry_return_modules(){
+error_e sub_harry_return_modules(ELEMENTS_side_e side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_RETURN_MODULES_SIDE,
 			INIT,
-			CHECK_COLOR,
+			START,
+			WAIT_ADV_COLOR,
+			WAIT_WHITE,
+			STOP,
 			ERROR,
 			DONE
 		);
@@ -177,11 +180,58 @@ error_e sub_harry_return_modules(){
 
 	switch(state){
 		case INIT:
-			state=CHECK_COLOR;
+			state=START;
 			break;
 
-		case CHECK_COLOR:
-			state=DONE;
+		case START:
+			if(side==LEFT){
+				//ACT_push_order_with_param(ACT_MOTOR_TURN_LEFT,allume-toi!!!,100);
+			}else{
+				//ACT_push_order_with_param(ACT_MOTOR_TURN_RIGHT,allume-toi!!!,100);
+			}
+			state=WAIT_ADV_COLOR;
+			break;
+
+		case WAIT_ADV_COLOR:
+			if(side==LEFT){
+				if((global.color==BLUE)&&(CW_is_color_detected(0, 2))){ //jaune à gauche
+					state=WAIT_WHITE;
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(0, 1))){ //bleu à gauche
+					state=WAIT_WHITE;
+				}
+			}else{
+				if((global.color==BLUE)&&(CW_is_color_detected(1, 2))){ //jaune à droite
+					state=WAIT_WHITE;
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(1, 1))){ //bleu à droite
+					state=WAIT_WHITE;
+				}
+			}
+			break;
+
+		case WAIT_WHITE:
+			if(side==LEFT){
+				if(CW_is_color_detected(0, 0)){ //blanc à gauche
+					state=STOP;
+				}
+			}else{
+				if(CW_is_color_detected(1, 0)){ //blanc à droite
+					state=STOP;
+				}
+			}
+			break;
+
+		case STOP:{
+			time32_t start_time;
+			if(entrance)
+				start_time=global.match_time;
+			if(global.match_time>start_time+500){
+				state=DONE;
+				if(side==LEFT){
+					//ACT_push_order_with(ACT_MOTOR_TURN_LEFT,éteins-toi!!!);
+				}else{
+					//ACT_push_order_with(ACT_MOTOR_TURN_RIGHT,éteins-toi!!!);
+				}
+			}
 			break;
 
 		case ERROR:
