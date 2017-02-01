@@ -232,7 +232,8 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 					//ACT_push_order_with(ACT_MOTOR_TURN_RIGHT,éteins-toi!!!);
 				}
 			}
-			break;
+		}
+		break;
 
 		case ERROR:
 			RESET_MAE();
