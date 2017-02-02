@@ -39,19 +39,6 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 		case ERROR:
 			RESET_MAE();
-			//le robot a le ventre plein
-			return NOT_HANDLED;
-			break;
-
-		case ERROR_SUB_YELLOW:
-			RESET_MAE();
-			//une sous sub jaune a error
-			return NOT_HANDLED;
-			break;
-
-		case ERROR_SUB_BLUE:
-			RESET_MAE();
-			//une sous sub bleu a error
 			return NOT_HANDLED;
 			break;
 
@@ -192,15 +179,7 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 		break;
 
 	case ASTAR_GO_YELLOW_CRATER:
-		state = ASTAR_try_going(1390, 2600, state, DONE,  ERROR_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-		break;
-
-	//ERROR POSITION
-
-	case ERROR_ASTAR:
-		//action, impossible d'allez au cratere
-		RESET_MAE();
-		return NOT_HANDLED;
+		state = ASTAR_try_going(1390, 2600, state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 		break;
 
 	case ERROR:
@@ -279,14 +258,6 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 
 	case ASTAR_GO_BLUE_CRATER:
 		ASTAR_try_going(1390, 400, state, DONE,  ERROR_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-		break;
-
-	//ERROR POSITION
-
-	case ERROR_ASTAR:
-		//action, impossible d'allez au cratere
-		RESET_MAE();
-		return NOT_HANDLED;
 		break;
 
 	case ERROR:
@@ -456,12 +427,6 @@ else if((state0==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state1==COLLECT_YELLOW_MIDDLE
 
 		case ERROR:
 			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case ERROR_ROTATION:
-			RESET_MAE();
-			// problème dans le virage
 			return NOT_HANDLED;
 			break;
 
@@ -639,12 +604,6 @@ else if((state0==COLLECT_YELLOW_FUSE_VALIDATE)&&(state1==COLLECT_YELLOW_FUSE_VAL
 			return NOT_HANDLED;
 			break;
 
-		case ERROR_ROTATION:
-			RESET_MAE();
-			// problème dans le virage
-			return NOT_HANDLED;
-			break;
-
 		case DONE:
 			RESET_MAE();
 			return END_OK;
@@ -819,12 +778,6 @@ else if((state0==COLLECT_YELLOW_CORNER_VALIDATE)&&(state1==COLLECT_YELLOW_CORNER
 			return NOT_HANDLED;
 			break;
 
-		case ERROR_ROTATION:
-			RESET_MAE();
-			// problème dans le virage
-			return NOT_HANDLED;
-			break;
-
 		case DONE:
 			RESET_MAE();
 			return END_OK;
@@ -996,12 +949,6 @@ else if((state0==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state1==COLLECT_BLUE_MIDDLE_VAL
 
 		case ERROR:
 			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case ERROR_ROTATION:
-			RESET_MAE();
-			// problème dans le virage
 			return NOT_HANDLED;
 			break;
 
@@ -1181,12 +1128,6 @@ else if((state0==COLLECT_BLUE_FUSE_VALIDATE)&&(state1==COLLECT_BLUE_FUSE_VALIDAT
 			return NOT_HANDLED;
 			break;
 
-		case ERROR_ROTATION:
-			RESET_MAE();
-			// problème dans le virage
-			return NOT_HANDLED;
-			break;
-
 		case DONE:
 			RESET_MAE();
 			return END_OK;
@@ -1359,12 +1300,6 @@ else if((state0==COLLECT_BLUE_CORNER_VALIDATE)&&(state1==COLLECT_BLUE_CORNER_VAL
 
 		case ERROR:
 			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case ERROR_ROTATION:
-			RESET_MAE();
-			// problème dans le virage
 			return NOT_HANDLED;
 			break;
 
