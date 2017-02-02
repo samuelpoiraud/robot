@@ -530,7 +530,7 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 
 		case COLLECT_YELLOW_FUSE_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(PI4096, state, COLLECT_YELLOW_FUSE_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(-PI4096/2, state, COLLECT_YELLOW_FUSE_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_YELLOW_FUSE_ACTIVATE:{
@@ -709,7 +709,7 @@ else if((state0==COLLECT_YELLOW_FUSE_VALIDATE)&&(state1==COLLECT_YELLOW_FUSE_VAL
 
 		case COLLECT_YELLOW_CORNER_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(PI4096, state, COLLECT_YELLOW_CORNER_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(-PI4096/2, state, COLLECT_YELLOW_CORNER_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 
@@ -1071,7 +1071,7 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 
 		case COLLECT_BLUE_FUSE_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(PI4096, state, COLLECT_BLUE_FUSE_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(PI4096/2, state, COLLECT_BLUE_FUSE_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 
@@ -1251,7 +1251,7 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 		case COLLECT_BLUE_CORNER_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(PI4096, state, COLLECT_BLUE_CORNER_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(PI4096/2, state, COLLECT_BLUE_CORNER_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 

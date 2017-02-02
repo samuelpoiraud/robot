@@ -5,6 +5,77 @@
 #include "../../utils/actionChecker.h"
 #include "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
+#include "../../avoidance.h"
+
+
+error_e sub_harry_manager_put_off_ore(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_END_OF_MATCH,
+			INIT,
+			FIRST_POS,
+			SECOND_POS,
+			ERROR_FIRST_POS,
+			ERROR_SECOND_POS,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:
+			//regarde ou est le mechant si bloque je fait l'autre
+			if(foe_in_square(TRUE, 0, 0, 360, 360, FOE_TYPE_ALL)==TRUE){		// il y a notre autre robot qui bloque le cassier depuis la zone de départ
+				// on ne pourra pas tiré dans le cassier !
+				state = DONE; //done/error
+			}
+			else if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
+				state = FIRST_POS;
+			}
+			else if((foe_in_square(TRUE, 300, 800, 800, 1320, FOE_TYPE_ALL)==FALSE)||(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// rien ne bloque le tire alternatif
+				state = SECOND_POS;
+			}
+			else{
+				state = ERROR; //tire impossible pour le moment !
+			}
+
+			break;
+
+		case FIRST_POS:
+			state=check_sub_action_result(sub_harry_depose_minerais(),state, DONE, ERROR_FIRST_POS);
+			break;
+
+		case SECOND_POS:
+			state=check_sub_action_result(sub_harry_depose_minerais_alternative(),state, DONE, ERROR_SECOND_POS);
+			break;
+
+		case ERROR_FIRST_POS:	//si je n'ai pas reussi à tirer en normal
+			if(foe_in_square(TRUE, 300, 800, 800, 1320, FOE_TYPE_ALL)==FALSE){
+				state = SECOND_POS;
+				}else{
+					state = ERROR;
+				}
+			break;
+
+		case ERROR_SECOND_POS: //si je n'ai pas reussi à tirer en alternatif
+			if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){
+				state = FIRST_POS;
+				}else{
+					state = ERROR;
+				}
+
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
 
 
 

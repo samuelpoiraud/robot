@@ -26,6 +26,7 @@
 
 
 	// action_big_depose_minerais
+	error_e sub_harry_manager_put_off_ore(); //manager
 	error_e sub_harry_depose_minerais();
 	error_e sub_harry_get_in_depose_minerais();
 	error_e sub_harry_shooting_depose_minerais();
