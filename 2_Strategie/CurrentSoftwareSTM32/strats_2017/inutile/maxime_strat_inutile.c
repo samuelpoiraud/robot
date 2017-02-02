@@ -4,74 +4,99 @@
 #include "../../propulsion/astar.h"
 #include "../../utils/generic_functions.h"
 
+#include "../../actuator/act_functions.h"
+#include "../../actuator/queue.h"
+#include "../../utils/actionChecker.h"
+
 void maxime_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 			INIT,
-			GET_IN,
-			PRENDRE_1ER,
-			GET_IN_DEPUIS_CARRE1,
-			GET_IN_DEPUIS_CARRE2,
-			ROTATION_POUR_1,
-			GET_IN_DEFAULT,
-			PRENDRE_2EME,
-			PRENDRE_3EME,
+			MOVE_BACKWARD,
+			MOVE_FORWARD,
+			RETURN_TO_POS_BACKWARD,
+			RETURN_TO_POS_FORWARD,
+			TEST_POSITION_MOVE_BACKWARD,
+			TEST_POSITION_MOVE_FORWARD,
+			START_TIMER_BACKWARD,
+			START_TIMER_FORWARD,
+			ESCAPE_FROM_BOTTOM,
+			ESCAPE_FROM_TOP,
 			ERROR,
 			DONE
 		);
 
-	bool_e prendreLes3 = TRUE;
 
-	const displacement_t curve_depuis_zone_adverse[3] =
-			{{(GEOMETRY_point_t){860,COLOR_Y(1980)}, FAST},
-			{(GEOMETRY_point_t){717, COLOR_Y(1530)}, FAST},
-			{(GEOMETRY_point_t){670, COLOR_Y(1065)}, FAST},};
+	const displacement_t curve_backward[3] =
+			{{(GEOMETRY_point_t){874,COLOR_Y(1206)}, FAST},
+			{(GEOMETRY_point_t){1016, COLOR_Y(917)}, FAST},
+			{(GEOMETRY_point_t){1263, COLOR_Y(725)}, FAST}};
 
-	switch(state)
-	{
-		case INIT:
-		state = try_going(947,COLOR_Y(2162), INIT, GET_IN, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+	const displacement_t curve_forward[3] =
+			{{(GEOMETRY_point_t){1016, COLOR_Y(916)}, FAST},
+			{(GEOMETRY_point_t){874, COLOR_Y(1206)}, FAST},
+			{(GEOMETRY_point_t){850, COLOR_Y(1521)}, FAST}};
+
+
+	static time32_t tempsDepart;
+
+
+		switch (state){
+		case INIT :
+			state=try_going(850, COLOR_Y(1521), INIT, MOVE_BACKWARD, RESET, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case GET_IN:
-			if (i_am_in_square_color(0,1150,1110,1900)){ //Le carre entre les 2 zones de départ
-				state = GET_IN_DEPUIS_CARRE1;
-			}else if(i_am_in_square_color(400, 2000, 1400, 2885)){ //Le robot est dans la zone adverse
-				state = GET_IN_DEPUIS_CARRE2;
-			}else{
-				state = GET_IN_DEFAULT;
+		case MOVE_BACKWARD :
+			state=try_going_multipoint(curve_backward, 3, MOVE_BACKWARD, MOVE_FORWARD, START_TIMER_BACKWARD, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case MOVE_FORWARD:
+			state=try_going_multipoint(curve_forward, 3, MOVE_FORWARD, MOVE_BACKWARD, START_TIMER_FORWARD, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case START_TIMER_BACKWARD :
+			tempsDepart = global.match_time;
+			state=TEST_POSITION_MOVE_BACKWARD;
+			break;
+
+		case TEST_POSITION_MOVE_BACKWARD :
+			if (global.match_time >= tempsDepart + 5000){
+				if (i_am_in_square_color(761, 1030, 1630, 1390)){
+					state=ESCAPE_FROM_TOP;
+				}else{
+					state=RETURN_TO_POS_BACKWARD;
+				}
 			}
 			break;
 
-		case GET_IN_DEPUIS_CARRE1 :
-			state = try_going(670,COLOR_Y(1065), GET_IN_DEPUIS_CARRE1, PRENDRE_1ER, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case RETURN_TO_POS_BACKWARD :
+			state=try_going(850, COLOR_Y(1521), RETURN_TO_POS_BACKWARD, MOVE_BACKWARD, RETURN_TO_POS_BACKWARD, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case GET_IN_DEPUIS_CARRE2 :
-			state = try_going_multipoint(curve_depuis_zone_adverse, 3, GET_IN_DEPUIS_CARRE2, ROTATION_POUR_1, ERROR, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case START_TIMER_FORWARD :
+			tempsDepart = global.match_time;
+			state=TEST_POSITION_MOVE_FORWARD;
 			break;
 
-		case ROTATION_POUR_1 :
-			state = try_go_angle(-PI4096/4, GET_IN_DEPUIS_CARRE2, PRENDRE_1ER, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
-			break;
-
-		case GET_IN_DEFAULT :
-			state = ASTAR_try_going(670, COLOR_Y(1065), GET_IN_DEFAULT, ROTATION_POUR_1, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case PRENDRE_1ER:
-			state = PRENDRE_2EME; //Normalement on active les actionneurs
-			break;
-
-		case PRENDRE_2EME :
-			if (prendreLes3){
-				state = try_going(1114, COLOR_Y(505), PRENDRE_2EME, PRENDRE_3EME, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
-				state = DONE;
+		case TEST_POSITION_MOVE_FORWARD :
+			if (global.match_time >= tempsDepart + 5000){
+				if (i_am_in_square_color(1064, 1460, 792, 594)){
+					state=ESCAPE_FROM_BOTTOM;
+				}else{
+					state=RETURN_TO_POS_FORWARD;
+				}
 			}
 			break;
 
-		case PRENDRE_3EME :
-			state = try_going(1407, COLOR_Y(857), PRENDRE_3EME, DONE, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case RETURN_TO_POS_FORWARD :
+			state=try_going(1263, COLOR_Y(725), RETURN_TO_POS_FORWARD, MOVE_FORWARD, RETURN_TO_POS_FORWARD, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ESCAPE_FROM_BOTTOM :
+			state=try_going(1524, COLOR_Y(560), ESCAPE_FROM_BOTTOM, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ESCAPE_FROM_TOP :
+			state=try_going(862, COLOR_Y(1862), ESCAPE_FROM_TOP, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
