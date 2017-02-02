@@ -25,6 +25,7 @@ error_e sub_harry_depose_minerais(){
 
 	switch(state){
 		case INIT:
+			ELEMENTS_set_flag(FLAG_STOMACH_IS_FULL,TRUE);
 			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_SOUTH_UNI)||(ELEMENTS_get_flag(FLAG_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL)))){
 				state=ERROR;
 			}else{
@@ -50,7 +51,7 @@ error_e sub_harry_depose_minerais(){
 			break;
 
 		case MOVE_BACK_SHOOTING_POS:
-			state=try_advance(NULL,entrance,50,state,SHOOTING,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_advance(NULL,entrance,100,state,SHOOTING,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case SHOOTING:
@@ -59,12 +60,12 @@ error_e sub_harry_depose_minerais(){
 			break;
 
 		case GET_OUT:
-			state=try_going(800,COLOR_Y(500),state,DONE,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=try_going(850,COLOR_Y(400),state,DONE,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_WAIT,END_AT_BRAKE);
 #warning il faudra mettre une condition dans rush to cleat(ou shooting) pour quil ne reparte tirer
 			break;
 
 		case GET_OUT_ERROR:
-			state=try_going(800,COLOR_Y(500),state,ERROR,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=try_going(850,COLOR_Y(400),state,ERROR,RUSH_TO_CLEAT,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -108,7 +109,7 @@ error_e sub_harry_get_in_depose_minerais(){
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state=try_going(800,COLOR_Y(500),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=try_going(850,COLOR_Y(400),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_MIDDLE_SQUARE:
