@@ -14,10 +14,10 @@
 	error_e sub_harry_take_big_crater_move_pos_blue();
 
 	error_e sub_harry_take_big_crater_yellow_middle();
-	error_e sub_harry_take_big_crater_yellow_fuse();
+	error_e sub_harry_take_big_crater_yellow_rocket();
 	error_e sub_harry_take_big_crater_yellow_corner();
 	error_e sub_harry_take_big_crater_blue_middle();
-	error_e sub_harry_take_big_crater_blue_fuse();
+	error_e sub_harry_take_big_crater_blue_rocket();
 	error_e sub_harry_take_big_crater_blue_corner();
 	error_e sub_harry_take_north_little_crater();
 	error_e sub_harry_get_in_north_little_crater();
@@ -36,10 +36,10 @@
 
 	// action_big_prise_modules
 	error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules);
-	error_e sub_harry_fusee_monocolor();
+	error_e sub_harry_rocket_monocolor();
 	error_e sub_harry_get_in_rocket_monocolor();
 	error_e init_all_actionneur();
-	error_e sub_harry_fusee_multicolor(ELEMENTS_property_e fusee, bool_e right_side);
+	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side);
 
 
 	// action_big_depose_modules
