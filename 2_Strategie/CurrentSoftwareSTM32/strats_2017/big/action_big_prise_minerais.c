@@ -1353,7 +1353,7 @@ error_e sub_harry_take_north_little_crater(){
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_OUR_CENTER)||(!ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL))){
+			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_OUR_CENTER)||(ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL))){
 				state=ERROR;
 			}else{
 				state=GET_IN;
@@ -1499,7 +1499,7 @@ error_e sub_harry_take_south_little_crater(){
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_SOUTH_UNI)||ELEMENTS_get_flag(FLAG_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)||(!ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL))){
+			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_SOUTH_UNI)||ELEMENTS_get_flag(FLAG_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)||ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL)){
 				state=ERROR;
 			}else{
 				state=GET_IN;
@@ -1575,6 +1575,8 @@ error_e sub_harry_take_south_little_crater(){
 error_e sub_harry_get_in_south_little_crater(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_SOUTH_LITTLE_CRATER,
 			INIT,
+			GET_BACK_THERE1,
+			GET_BACK_THERE2,
 			GET_IN_OUR_SQUARE,
 			GET_IN_MIDDLE_SQUARE,
 			GET_IN_ADV_SQUARE,
@@ -1585,7 +1587,9 @@ error_e sub_harry_get_in_south_little_crater(){
 
 	switch(state){
 		case INIT:
-			if(i_am_in_square_color(800, 1400, 300, 900)){
+			if (i_am_in_square_color(0, 300, 0, 3000)){
+				state = GET_BACK_THERE1;
+			}else if(i_am_in_square_color(800, 1400, 300, 900)){
 				state = DONE;//GET_IN_OUR_SQUARE;
 			}else if (i_am_in_square_color(100, 1100, 900, 2100)){
 				state = GET_IN_MIDDLE_SQUARE;
@@ -1595,6 +1599,15 @@ error_e sub_harry_get_in_south_little_crater(){
 				state = PATHFIND;
 
 				break;
+
+		//modifier GET_BACK_THERE
+		case GET_BACK_THERE1:
+			state =	try_going(1150, COLOR_Y(950), state, GET_BACK_THERE2, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_BACK_THERE2:
+			state =	try_going(1300, COLOR_Y(460), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
 
 		case GET_IN_OUR_SQUARE:
 			state = try_going(1630, COLOR_Y(700), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
