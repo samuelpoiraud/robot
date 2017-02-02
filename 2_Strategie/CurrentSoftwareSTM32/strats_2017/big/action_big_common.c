@@ -2,30 +2,31 @@
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
+#include "../actions_both_2017.h"
+#include "../../utils/actionChecker.h"
 
 error_e sub_harry_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INITIALE,
 			INIT,
 			ROCKER,
-			MODULE_AND_FUSE_MULTICOLOR,
+			MODULE_AND_ROCKET_MULTICOLOR,
 			MODULE_AND_ORE,
-			MODULE_AND_FUSE_UNICOLOR,
+			MODULE_AND_ROCKET_UNICOLOR,
 
-			MODULES_AND_FUSE_MULTICOLOR,
+			MODULES_AND_ROCKET_MULTICOLOR,
 			MODULES_AND_ORE,
-			MODULES_AND_FUSE_UNICOLOR,
+			MODULES_AND_ROCKET_UNICOLOR,
 			MODULES_AND_PUT_OFF,
 
 			FUSE_UNICOLOR,
 			FUSE_MULTICOLOR,
 			ORE,
-			MODULE,
 			PUT_OFF,
 			ERROR,
-			GET_OUT,
 			DONE
 		);
 
+//precision quel element !
 	switch(state){
 		case INIT:
 /*
@@ -61,50 +62,50 @@ error_e sub_harry_initiale(){
 			break;
 //if0
 		case ROCKER:
-			//state=check_sub_action_result(sub_bascule,state, INIT, ERROR);
+			state=check_sub_action_result(sub_cross_rocker(),state, INIT, ERROR);
 			break;
 //else1
-		case MODULE_AND_FUSE_MULTICOLOR:
-			//state=check_sub_action_result(sub_module,state, FUSE_MULTICOLOR, ERROR);
+		case MODULE_AND_ROCKET_MULTICOLOR:
+			//state=check_sub_action_result(sub_module , FUSE_MULTICOLOR, ERROR);
 			break;
 		case FUSE_MULTICOLOR:
-			//state=check_sub_action_result(sub_fuse_multicolor,state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_rocket_multicolor(NO_ELEMENT, 0),state, DONE, ERROR);
 			break;
 //else2
 		case MODULE_AND_ORE:
 			//state=check_sub_action_result(sub_module,state, ORE, ERROR);
 			break;
 		case ORE:
-			//state=check_sub_action_result(sub_fuse_multicolor,state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_take_big_crater(NO_ELEMENT),state, DONE, ERROR);
 			break;
 //else3
-		case MODULE_AND_FUSE_UNICOLOR:
+		case MODULE_AND_ROCKET_UNICOLOR:
 			//state=check_sub_action_result(sub_module,state, FUSE_UNICOLOR, ERROR);
 			break;
 		case FUSE_UNICOLOR:
-			//state=check_sub_action_result(sub_fuse_multicolor,state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_rocket_monocolor(),state, DONE, ERROR);
 			break;
 //else4																									//!! moduleSSSS
-		case MODULES_AND_FUSE_MULTICOLOR:
-			//state=check_sub_action_result(sub_moduleS,state, FUSE_MULTICOLOR, ERROR);
+		case MODULES_AND_ROCKET_MULTICOLOR:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, FUSE_MULTICOLOR, ERROR);
 			break;
 
 //else5
 		case MODULES_AND_ORE:
-			//state=check_sub_action_result(sub_moduleS,state, ORE, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, ORE, ERROR);
 			break;
 
 //else6
-		case MODULES_AND_FUSE_UNICOLOR:
-			//state=check_sub_action_result(sub_moduleS,state, FUSE_UNICOLOR, ERROR);
+		case MODULES_AND_ROCKET_UNICOLOR:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, FUSE_UNICOLOR, ERROR);
 			break;
 
 //else7
 		case  MODULES_AND_PUT_OFF:
-			//state=check_sub_action_result(sub_moduleS,state, PUT_OFF, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, PUT_OFF, ERROR);
 			break;
 		case PUT_OFF:
-			//state=check_sub_action_result(sub_depose_module,state, DONE, ERROR);
+			//state=check_sub_action_result(sub_manager_depose,state, DONE, ERROR);  //milieu ou coté ?
 			break;
 
 

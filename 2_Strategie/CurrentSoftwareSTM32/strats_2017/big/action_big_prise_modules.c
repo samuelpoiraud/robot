@@ -149,7 +149,7 @@ error_e sub_harry_get_in_rocket_monocolor(){
 }
 
 //#if 0
-error_e sub_harry_fusee_multicolor(ELEMENTS_property_e fusee, bool_e right_side){
+error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PRISE_ROCKET_MULTICOLOR,
 				INIT,
 

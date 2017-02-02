@@ -14,16 +14,14 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			INIT,
 			SUB_MOVE_POS_YELLOW,
 			SUB_TAKE_YELLOW_MIDDLE,
-			SUB_TAKE_YELLOW_FUSE,
+			SUB_TAKE_YELLOW_ROCKET,
 			SUB_TAKE_YELLOW_CORNER,
 			SUB_MOVE_POS_BLUE,
 			SUB_TAKE_BLUE_MIDDLE,
-			SUB_TAKE_BLUE_FUSE,
+			SUB_TAKE_BLUE_ROCKET,
 			SUB_TAKE_BLUE_CORNER,
 			COLOR,
 			ERROR,
-			ERROR_SUB_YELLOW,
-			ERROR_SUB_BLUE,
 			DONE
 		);
 
@@ -74,19 +72,19 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 
 		case SUB_MOVE_POS_YELLOW:
-			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_yellow(), state, SUB_TAKE_YELLOW_MIDDLE, ERROR_SUB_YELLOW);
+			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_yellow(), state, SUB_TAKE_YELLOW_MIDDLE, ERROR);
 			break;
 
 		case SUB_TAKE_YELLOW_MIDDLE:
-			state = check_sub_action_result(sub_harry_take_big_crater_yellow_middle(), state, SUB_TAKE_YELLOW_FUSE, ERROR_SUB_YELLOW);
+			state = check_sub_action_result(sub_harry_take_big_crater_yellow_middle(), state, SUB_TAKE_YELLOW_ROCKET, ERROR);
 			break;
 
-		case SUB_TAKE_YELLOW_FUSE:
-			state = check_sub_action_result(sub_harry_take_big_crater_yellow_fuse(), state, SUB_TAKE_YELLOW_CORNER, ERROR_SUB_YELLOW);
+		case SUB_TAKE_YELLOW_ROCKET:
+			state = check_sub_action_result(sub_harry_take_big_crater_yellow_rocket(), state, SUB_TAKE_YELLOW_CORNER, ERROR);
 			break;
 
 		case SUB_TAKE_YELLOW_CORNER:
-			state = check_sub_action_result(sub_harry_take_big_crater_yellow_corner(), state, DONE, ERROR_SUB_YELLOW);
+			state = check_sub_action_result(sub_harry_take_big_crater_yellow_corner(), state, DONE, ERROR);
 			break;
 
 
@@ -94,19 +92,19 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 
 		case SUB_MOVE_POS_BLUE:
-			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_blue(), state, SUB_TAKE_BLUE_MIDDLE, ERROR_SUB_BLUE);
+			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_blue(), state, SUB_TAKE_BLUE_MIDDLE, ERROR);
 			break;
 
 		case SUB_TAKE_BLUE_MIDDLE:
-			state = check_sub_action_result(sub_harry_take_big_crater_blue_middle(), state, SUB_TAKE_BLUE_FUSE, ERROR_SUB_BLUE);
+			state = check_sub_action_result(sub_harry_take_big_crater_blue_middle(), state, SUB_TAKE_BLUE_ROCKET, ERROR);
 			break;
 
-		case SUB_TAKE_BLUE_FUSE:
-			state = check_sub_action_result(sub_harry_take_big_crater_blue_fuse(), state, SUB_TAKE_BLUE_CORNER, ERROR_SUB_BLUE);
+		case SUB_TAKE_BLUE_ROCKET:
+			state = check_sub_action_result(sub_harry_take_big_crater_blue_rocket(), state, SUB_TAKE_BLUE_CORNER, ERROR);
 			break;
 
 		case SUB_TAKE_BLUE_CORNER:
-			state = check_sub_action_result(sub_harry_take_big_crater_blue_corner(), state, DONE, ERROR_SUB_BLUE);
+			state = check_sub_action_result(sub_harry_take_big_crater_blue_corner(), state, DONE, ERROR);
 			break;
 
 
@@ -129,7 +127,6 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 			GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE,
 			GO_YELLOW_CRATER_FROM_OUR_SQUARE,
 			ASTAR_GO_YELLOW_CRATER,
-			ERROR_ASTAR,
 			GET_IN,
 			ERROR,
 			DONE
@@ -208,7 +205,6 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 			GO_BLUE_CRATER_FROM_MIDDLE_SQUARE,
 			GO_BLUE_CRATER_FROM_OUR_SQUARE,
 			ASTAR_GO_BLUE_CRATER,
-			ERROR_ASTAR,
 			GET_IN,
 			ERROR,
 			DONE
@@ -257,7 +253,7 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 		break;
 
 	case ASTAR_GO_BLUE_CRATER:
-		ASTAR_try_going(1390, 400, state, DONE,  ERROR_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		ASTAR_try_going(1390, 400, state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 		break;
 
 	case ERROR:
@@ -300,7 +296,6 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			ERROR_COLLECT_YELLOW_MIDDLE_MOVE_FOWARD,
 			ERROR_COLLECT_YELLOW_MIDDLE_POSITION_LEFT,
 			DONE,
-			ERROR_ROTATION,
 			ERROR_ACT_IN,
 			ERROR_ACT_OUT,
 			ERROR
@@ -317,7 +312,7 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 
 		case COLLECT_YELLOW_MIDDLE_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(PI4096, state, COLLECT_YELLOW_MIDDLE_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(PI4096, state, COLLECT_YELLOW_MIDDLE_ACTIVATE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 
 			break;
 
@@ -423,7 +418,7 @@ else if((state0==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state1==COLLECT_YELLOW_MIDDLE
 			RESET_MAE();
 			return END_OK;
 			break;
-			//COLLECT_YELLOW_FUSE_POSITION == GET_OUT_COLLECT_YELLOW_MIDDLE
+			//COLLECT_YELLOW_ROCKET_POSITION == GET_OUT_COLLECT_YELLOW_MIDDLE
 
 		case ERROR:
 			RESET_MAE();
@@ -463,22 +458,21 @@ else if((state0==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state1==COLLECT_YELLOW_MIDDLE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 2
-// COLLECT_YELLOW_FUSE
-error_e sub_harry_take_big_crater_yellow_fuse(){
+// COLLECT_YELLOW_ROCKET
+error_e sub_harry_take_big_crater_yellow_rocket(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW_FUSE,
 			INIT,
-			COLLECT_YELLOW_FUSE_POSITION,
-			COLLECT_YELLOW_FUSE_LINE,
-			COLLECT_YELLOW_FUSE_ACTIVATE,
-			COLLECT_YELLOW_FUSE_MOVE_FOWARD,
-			COLLECT_YELLOW_FUSE_ROLLER_UP,
-			COLLECT_YELLOW_FUSE_POSITION_LEFT,
-			COLLECT_YELLOW_FUSE_VALIDATE,
-			GET_OUT_COLLECT_YELLOW_FUSE,
-			ERROR_COLLECT_YELLOW_FUSE_MOVE_FOWARD,
-			ERROR_COLLECT_YELLOW_FUSE_POSITION_LEFT,
+			COLLECT_YELLOW_ROCKET_POSITION,
+			COLLECT_YELLOW_ROCKET_LINE,
+			COLLECT_YELLOW_ROCKET_ACTIVATE,
+			COLLECT_YELLOW_ROCKET_MOVE_FOWARD,
+			COLLECT_YELLOW_ROCKET_ROLLER_UP,
+			COLLECT_YELLOW_ROCKET_POSITION_LEFT,
+			COLLECT_YELLOW_ROCKET_VALIDATE,
+			GET_OUT_COLLECT_YELLOW_ROCKET,
+			ERROR_COLLECT_YELLOW_ROCKET_MOVE_FOWARD,
+			ERROR_COLLECT_YELLOW_ROCKET_POSITION_LEFT,
 			DONE,
-			ERROR_ROTATION,
 			ERROR_ACT_IN,
 			ERROR_ACT_OUT,
 			ERROR
@@ -486,26 +480,26 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 
 	switch(state){
 		case INIT:
-			state = COLLECT_YELLOW_FUSE_POSITION;
+			state = COLLECT_YELLOW_ROCKET_POSITION;
 			break;
 
-		case COLLECT_YELLOW_FUSE_POSITION:
-			state = try_going(1600, 2300, state, COLLECT_YELLOW_FUSE_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case COLLECT_YELLOW_ROCKET_POSITION:
+			state = try_going(1600, 2300, state, COLLECT_YELLOW_ROCKET_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case COLLECT_YELLOW_FUSE_LINE:
+		case COLLECT_YELLOW_ROCKET_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(-PI4096/2, state, COLLECT_YELLOW_FUSE_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(-PI4096/2, state, COLLECT_YELLOW_ROCKET_ACTIVATE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
-		case COLLECT_YELLOW_FUSE_ACTIVATE:{
-			Uint8 state0=COLLECT_YELLOW_FUSE_ACTIVATE;
-			Uint8 state1=COLLECT_YELLOW_FUSE_ACTIVATE;
-			Uint8 state2=COLLECT_YELLOW_FUSE_ACTIVATE;
-			Uint8 state3=COLLECT_YELLOW_FUSE_ACTIVATE;
-			Uint8 state4=COLLECT_YELLOW_FUSE_ACTIVATE;
-			Uint8 state5=COLLECT_YELLOW_FUSE_ACTIVATE;
-			Uint8 state6=COLLECT_YELLOW_FUSE_ACTIVATE;
+		case COLLECT_YELLOW_ROCKET_ACTIVATE:{
+			Uint8 state0=COLLECT_YELLOW_ROCKET_ACTIVATE;
+			Uint8 state1=COLLECT_YELLOW_ROCKET_ACTIVATE;
+			Uint8 state2=COLLECT_YELLOW_ROCKET_ACTIVATE;
+			Uint8 state3=COLLECT_YELLOW_ROCKET_ACTIVATE;
+			Uint8 state4=COLLECT_YELLOW_ROCKET_ACTIVATE;
+			Uint8 state5=COLLECT_YELLOW_ROCKET_ACTIVATE;
+			Uint8 state6=COLLECT_YELLOW_ROCKET_ACTIVATE;
 
 
 			if (entrance){
@@ -521,45 +515,45 @@ error_e sub_harry_take_big_crater_yellow_fuse(){
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
 
 
 if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
 	state=ERROR_ACT_IN;
 }
-else if((state0==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state1==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state2==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state3==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state4==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state5==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state6==COLLECT_YELLOW_FUSE_ACTIVATE)){
-	state=COLLECT_YELLOW_FUSE_MOVE_FOWARD;
+else if((state0==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state1==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state2==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state3==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state4==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state5==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state6==COLLECT_YELLOW_ROCKET_ACTIVATE)){
+	state=COLLECT_YELLOW_ROCKET_MOVE_FOWARD;
 }
 			}break;
 
-		case COLLECT_YELLOW_FUSE_MOVE_FOWARD:
-			state = try_going(1600, 2690, state, COLLECT_YELLOW_FUSE_ROLLER_UP,  ERROR_COLLECT_YELLOW_FUSE_MOVE_FOWARD, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case COLLECT_YELLOW_ROCKET_MOVE_FOWARD:
+			state = try_going(1600, 2690, state, COLLECT_YELLOW_ROCKET_ROLLER_UP,  ERROR_COLLECT_YELLOW_ROCKET_MOVE_FOWARD, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case COLLECT_YELLOW_FUSE_ROLLER_UP:
+		case COLLECT_YELLOW_ROCKET_ROLLER_UP:
 			// accelere rouleau ou arrêt ...
-			state = COLLECT_YELLOW_FUSE_POSITION_LEFT;
+			state = COLLECT_YELLOW_ROCKET_POSITION_LEFT;
 			break;
 
-		case COLLECT_YELLOW_FUSE_POSITION_LEFT:
-			state = try_going(1600, 2300, state, COLLECT_YELLOW_FUSE_VALIDATE,  ERROR_COLLECT_YELLOW_FUSE_POSITION_LEFT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);;
+		case COLLECT_YELLOW_ROCKET_POSITION_LEFT:
+			state = try_going(1600, 2300, state, COLLECT_YELLOW_ROCKET_VALIDATE,  ERROR_COLLECT_YELLOW_ROCKET_POSITION_LEFT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);;
 			//lien avec action suivante
 			break;
 
-		case COLLECT_YELLOW_FUSE_VALIDATE:{
-			Uint8 state0=COLLECT_YELLOW_FUSE_VALIDATE;
-			Uint8 state1=COLLECT_YELLOW_FUSE_VALIDATE;
-			Uint8 state2=COLLECT_YELLOW_FUSE_VALIDATE;
-			Uint8 state3=COLLECT_YELLOW_FUSE_VALIDATE;
-			Uint8 state4=COLLECT_YELLOW_FUSE_VALIDATE;
-			Uint8 state5=COLLECT_YELLOW_FUSE_VALIDATE;
-			Uint8 state6=COLLECT_YELLOW_FUSE_VALIDATE;
+		case COLLECT_YELLOW_ROCKET_VALIDATE:{
+			Uint8 state0=COLLECT_YELLOW_ROCKET_VALIDATE;
+			Uint8 state1=COLLECT_YELLOW_ROCKET_VALIDATE;
+			Uint8 state2=COLLECT_YELLOW_ROCKET_VALIDATE;
+			Uint8 state3=COLLECT_YELLOW_ROCKET_VALIDATE;
+			Uint8 state4=COLLECT_YELLOW_ROCKET_VALIDATE;
+			Uint8 state5=COLLECT_YELLOW_ROCKET_VALIDATE;
+			Uint8 state6=COLLECT_YELLOW_ROCKET_VALIDATE;
 
 
 			if(entrance){
@@ -575,26 +569,26 @@ else if((state0==COLLECT_YELLOW_FUSE_ACTIVATE)&&(state1==COLLECT_YELLOW_FUSE_ACT
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_FUSE_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
 
 
 if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
 	state=ERROR_ACT_OUT;
 }
-else if((state0==COLLECT_YELLOW_FUSE_VALIDATE)&&(state1==COLLECT_YELLOW_FUSE_VALIDATE)&&(state2==COLLECT_YELLOW_FUSE_VALIDATE)&&(state3==COLLECT_YELLOW_FUSE_VALIDATE)&&(state4==COLLECT_YELLOW_FUSE_VALIDATE)&&(state5==COLLECT_YELLOW_FUSE_VALIDATE)&&(state6==COLLECT_YELLOW_FUSE_VALIDATE)){
-	state=GET_OUT_COLLECT_YELLOW_FUSE;
+else if((state0==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state1==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state2==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state3==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state4==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state5==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state6==COLLECT_YELLOW_ROCKET_VALIDATE)){
+	state=GET_OUT_COLLECT_YELLOW_ROCKET;
 }
 
 
 		}break;
 
-		case GET_OUT_COLLECT_YELLOW_FUSE:
+		case GET_OUT_COLLECT_YELLOW_ROCKET:
 			RESET_MAE();
 			return END_OK;
 			break;
@@ -609,14 +603,14 @@ else if((state0==COLLECT_YELLOW_FUSE_VALIDATE)&&(state1==COLLECT_YELLOW_FUSE_VAL
 			return END_OK;
 			break;
 
-		case ERROR_COLLECT_YELLOW_FUSE_MOVE_FOWARD:
+		case ERROR_COLLECT_YELLOW_ROCKET_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
-			state = try_going(1390, 2600, state, COLLECT_YELLOW_FUSE_MOVE_FOWARD,  COLLECT_YELLOW_FUSE_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1390, 2600, state, COLLECT_YELLOW_ROCKET_MOVE_FOWARD,  COLLECT_YELLOW_ROCKET_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case ERROR_COLLECT_YELLOW_FUSE_POSITION_LEFT:
+		case ERROR_COLLECT_YELLOW_ROCKET_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
-			state = try_going(1690, 2600, state, COLLECT_YELLOW_FUSE_POSITION_LEFT,  COLLECT_YELLOW_FUSE_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1690, 2600, state, COLLECT_YELLOW_ROCKET_POSITION_LEFT,  COLLECT_YELLOW_ROCKET_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_ACT_IN:
@@ -651,7 +645,6 @@ else if((state0==COLLECT_YELLOW_FUSE_VALIDATE)&&(state1==COLLECT_YELLOW_FUSE_VAL
 				ERROR_COLLECT_YELLOW_CORNER_MOVE_FOWARD,
 				ERROR_COLLECT_YELLOW_CORNER_POSITION_LEFT,
 				DONE,
-				ERROR_ROTATION,
 				ERROR_ACT_IN,
 				ERROR_ACT_OUT,
 				ERROR
@@ -668,7 +661,7 @@ else if((state0==COLLECT_YELLOW_FUSE_VALIDATE)&&(state1==COLLECT_YELLOW_FUSE_VAL
 
 		case COLLECT_YELLOW_CORNER_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(-PI4096/2, state, COLLECT_YELLOW_CORNER_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(-PI4096/2, state, COLLECT_YELLOW_CORNER_ACTIVATE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 
@@ -825,7 +818,6 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			ERROR_COLLECT_BLUE_MIDDLE_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT,
 			DONE,
-			ERROR_ROTATION,
 			ERROR_ACT_IN,
 			ERROR_ACT_OUT,
 			ERROR
@@ -842,7 +834,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 		case COLLECT_BLUE_MIDDLE_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(PI4096, state, COLLECT_BLUE_MIDDLE_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(PI4096, state, COLLECT_BLUE_MIDDLE_ACTIVATE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 
@@ -984,24 +976,23 @@ else if((state0==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state1==COLLECT_BLUE_MIDDLE_VAL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 5
-//COLLECT_BLUE_FUSE
+//COLLECT_BLUE_ROCKET
 
 
-error_e sub_harry_take_big_crater_blue_fuse(){
+error_e sub_harry_take_big_crater_blue_rocket(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE_FUSE,
 			INIT,
-			COLLECT_BLUE_FUSE_POSITION,
-			COLLECT_BLUE_FUSE_LINE,
-			COLLECT_BLUE_FUSE_ACTIVATE,
-			COLLECT_BLUE_FUSE_MOVE_FOWARD,
-			COLLECT_BLUE_FUSE_ROLLER_UP,
-			COLLECT_BLUE_FUSE_POSITION_LEFT,
-			COLLECT_BLUE_FUSE_VALIDATE,
-			GET_OUT_COLLECT_BLUE_FUSE,
-			ERROR_COLLECT_BLUE_FUSE_MOVE_FOWARD,
-			ERROR_COLLECT_BLUE_FUSE_POSITION_LEFT,
+			COLLECT_BLUE_ROCKET_POSITION,
+			COLLECT_BLUE_ROCKET_LINE,
+			COLLECT_BLUE_ROCKET_ACTIVATE,
+			COLLECT_BLUE_ROCKET_MOVE_FOWARD,
+			COLLECT_BLUE_ROCKET_ROLLER_UP,
+			COLLECT_BLUE_ROCKET_POSITION_LEFT,
+			COLLECT_BLUE_ROCKET_VALIDATE,
+			GET_OUT_COLLECT_BLUE_ROCKET,
+			ERROR_COLLECT_BLUE_ROCKET_MOVE_FOWARD,
+			ERROR_COLLECT_BLUE_ROCKET_POSITION_LEFT,
 			DONE,
-			ERROR_ROTATION,
 			ERROR_ACT_IN,
 			ERROR_ACT_OUT,
 			ERROR
@@ -1009,27 +1000,27 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 
 	switch(state){
 		case INIT:
-			state = COLLECT_BLUE_FUSE_POSITION;
+			state = COLLECT_BLUE_ROCKET_POSITION;
 			break;
 
-		case COLLECT_BLUE_FUSE_POSITION:
-			state = try_going(1600, 700, state, COLLECT_BLUE_FUSE_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case COLLECT_BLUE_ROCKET_POSITION:
+			state = try_going(1600, 700, state, COLLECT_BLUE_ROCKET_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case COLLECT_BLUE_FUSE_LINE:
+		case COLLECT_BLUE_ROCKET_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(PI4096/2, state, COLLECT_BLUE_FUSE_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(PI4096/2, state, COLLECT_BLUE_ROCKET_ACTIVATE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 
-		case COLLECT_BLUE_FUSE_ACTIVATE:{
-			Uint8 state0=COLLECT_BLUE_FUSE_ACTIVATE;
-			Uint8 state1=COLLECT_BLUE_FUSE_ACTIVATE;
-			Uint8 state2=COLLECT_BLUE_FUSE_ACTIVATE;
-			Uint8 state3=COLLECT_BLUE_FUSE_ACTIVATE;
-			Uint8 state4=COLLECT_BLUE_FUSE_ACTIVATE;
-			Uint8 state5=COLLECT_BLUE_FUSE_ACTIVATE;
-			Uint8 state6=COLLECT_BLUE_FUSE_ACTIVATE;
+		case COLLECT_BLUE_ROCKET_ACTIVATE:{
+			Uint8 state0=COLLECT_BLUE_ROCKET_ACTIVATE;
+			Uint8 state1=COLLECT_BLUE_ROCKET_ACTIVATE;
+			Uint8 state2=COLLECT_BLUE_ROCKET_ACTIVATE;
+			Uint8 state3=COLLECT_BLUE_ROCKET_ACTIVATE;
+			Uint8 state4=COLLECT_BLUE_ROCKET_ACTIVATE;
+			Uint8 state5=COLLECT_BLUE_ROCKET_ACTIVATE;
+			Uint8 state6=COLLECT_BLUE_ROCKET_ACTIVATE;
 
 
 			if (entrance){
@@ -1045,46 +1036,46 @@ error_e sub_harry_take_big_crater_blue_fuse(){
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
 
 
 if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
 	state=ERROR_ACT_IN;
 }
-else if((state0==COLLECT_BLUE_FUSE_ACTIVATE)&&(state1==COLLECT_BLUE_FUSE_ACTIVATE)&&(state2==COLLECT_BLUE_FUSE_ACTIVATE)&&(state3==COLLECT_BLUE_FUSE_ACTIVATE)&&(state4==COLLECT_BLUE_FUSE_ACTIVATE)&&(state5==COLLECT_BLUE_FUSE_ACTIVATE)&&(state6==COLLECT_BLUE_FUSE_ACTIVATE)){
-	state=COLLECT_BLUE_FUSE_MOVE_FOWARD;
+else if((state0==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state1==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state2==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state3==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state4==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state5==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state6==COLLECT_BLUE_ROCKET_ACTIVATE)){
+	state=COLLECT_BLUE_ROCKET_MOVE_FOWARD;
 }
 			}break;
 
 
-		case COLLECT_BLUE_FUSE_MOVE_FOWARD:
-			state = try_going(1600, 310, state, COLLECT_BLUE_FUSE_ROLLER_UP,  ERROR_COLLECT_BLUE_FUSE_MOVE_FOWARD, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case COLLECT_BLUE_ROCKET_MOVE_FOWARD:
+			state = try_going(1600, 310, state, COLLECT_BLUE_ROCKET_ROLLER_UP,  ERROR_COLLECT_BLUE_ROCKET_MOVE_FOWARD, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case COLLECT_BLUE_FUSE_ROLLER_UP:
+		case COLLECT_BLUE_ROCKET_ROLLER_UP:
 			// accelere rouleau ou arrêt ...
-			state = COLLECT_BLUE_FUSE_POSITION_LEFT;
+			state = COLLECT_BLUE_ROCKET_POSITION_LEFT;
 			break;
 
-		case COLLECT_BLUE_FUSE_POSITION_LEFT:
-			state = try_going(1600, 700, state, COLLECT_BLUE_FUSE_VALIDATE,  ERROR_COLLECT_BLUE_FUSE_POSITION_LEFT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);;
+		case COLLECT_BLUE_ROCKET_POSITION_LEFT:
+			state = try_going(1600, 700, state, COLLECT_BLUE_ROCKET_VALIDATE,  ERROR_COLLECT_BLUE_ROCKET_POSITION_LEFT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);;
 			//lien avec action suivante
 			break;
 
-		case COLLECT_BLUE_FUSE_VALIDATE:{
-			Uint8 state0=COLLECT_BLUE_FUSE_VALIDATE;
-			Uint8 state1=COLLECT_BLUE_FUSE_VALIDATE;
-			Uint8 state2=COLLECT_BLUE_FUSE_VALIDATE;
-			Uint8 state3=COLLECT_BLUE_FUSE_VALIDATE;
-			Uint8 state4=COLLECT_BLUE_FUSE_VALIDATE;
-			Uint8 state5=COLLECT_BLUE_FUSE_VALIDATE;
-			Uint8 state6=COLLECT_BLUE_FUSE_VALIDATE;
+		case COLLECT_BLUE_ROCKET_VALIDATE:{
+			Uint8 state0=COLLECT_BLUE_ROCKET_VALIDATE;
+			Uint8 state1=COLLECT_BLUE_ROCKET_VALIDATE;
+			Uint8 state2=COLLECT_BLUE_ROCKET_VALIDATE;
+			Uint8 state3=COLLECT_BLUE_ROCKET_VALIDATE;
+			Uint8 state4=COLLECT_BLUE_ROCKET_VALIDATE;
+			Uint8 state5=COLLECT_BLUE_ROCKET_VALIDATE;
+			Uint8 state6=COLLECT_BLUE_ROCKET_VALIDATE;
 
 
 			if(entrance){
@@ -1099,26 +1090,26 @@ else if((state0==COLLECT_BLUE_FUSE_ACTIVATE)&&(state1==COLLECT_BLUE_FUSE_ACTIVAT
 			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_FUSE_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
 
 
 if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
 	state=ERROR_ACT_OUT;
 }
-else if((state0==COLLECT_BLUE_FUSE_VALIDATE)&&(state1==COLLECT_BLUE_FUSE_VALIDATE)&&(state2==COLLECT_BLUE_FUSE_VALIDATE)&&(state3==COLLECT_BLUE_FUSE_VALIDATE)&&(state4==COLLECT_BLUE_FUSE_VALIDATE)&&(state5==COLLECT_BLUE_FUSE_VALIDATE)&&(state6==COLLECT_BLUE_FUSE_VALIDATE)){
-	state=GET_OUT_COLLECT_BLUE_FUSE;
+else if((state0==COLLECT_BLUE_ROCKET_VALIDATE)&&(state1==COLLECT_BLUE_ROCKET_VALIDATE)&&(state2==COLLECT_BLUE_ROCKET_VALIDATE)&&(state3==COLLECT_BLUE_ROCKET_VALIDATE)&&(state4==COLLECT_BLUE_ROCKET_VALIDATE)&&(state5==COLLECT_BLUE_ROCKET_VALIDATE)&&(state6==COLLECT_BLUE_ROCKET_VALIDATE)){
+	state=GET_OUT_COLLECT_BLUE_ROCKET;
 }
 
 
 		}break;
 
-		case GET_OUT_COLLECT_BLUE_FUSE:
+		case GET_OUT_COLLECT_BLUE_ROCKET:
 			RESET_MAE();
 			return END_OK;
 			break;
@@ -1133,14 +1124,14 @@ else if((state0==COLLECT_BLUE_FUSE_VALIDATE)&&(state1==COLLECT_BLUE_FUSE_VALIDAT
 			return END_OK;
 			break;
 
-		case ERROR_COLLECT_BLUE_FUSE_MOVE_FOWARD:
+		case ERROR_COLLECT_BLUE_ROCKET_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
-			state = try_going(1390, 2600, state, COLLECT_BLUE_FUSE_MOVE_FOWARD,  COLLECT_BLUE_FUSE_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1390, 2600, state, COLLECT_BLUE_ROCKET_MOVE_FOWARD,  COLLECT_BLUE_ROCKET_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case ERROR_COLLECT_BLUE_FUSE_POSITION_LEFT:
+		case ERROR_COLLECT_BLUE_ROCKET_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
-			state = try_going(1690, 2600, state, COLLECT_BLUE_FUSE_POSITION_LEFT,  COLLECT_BLUE_FUSE_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1690, 2600, state, COLLECT_BLUE_ROCKET_POSITION_LEFT,  COLLECT_BLUE_ROCKET_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_ACT_IN:
@@ -1175,7 +1166,6 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			ERROR_COLLECT_BLUE_CORNER_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_CORNER_POSITION_LEFT,
 			DONE,
-			ERROR_ROTATION,
 			ERROR_ACT_IN,
 			ERROR_ACT_OUT,
 			ERROR
@@ -1192,7 +1182,7 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 		case COLLECT_BLUE_CORNER_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(PI4096/2, state, COLLECT_BLUE_CORNER_ACTIVATE, ERROR_ROTATION, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(PI4096/2, state, COLLECT_BLUE_CORNER_ACTIVATE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
 
 
