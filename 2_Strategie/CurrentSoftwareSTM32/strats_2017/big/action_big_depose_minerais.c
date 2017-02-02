@@ -61,7 +61,7 @@ error_e sub_harry_depose_minerais(){
 
 		case GET_OUT:
 			state=try_going(850,COLOR_Y(400),state,DONE,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_WAIT,END_AT_BRAKE);
-#warning il faudra mettre une condition dans rush to cleat(ou shooting) pour quil ne reparte tirer
+#warning 'il faudra mettre une condition dans rush to cleat(ou shooting) pour quil ne reparte tirer'
 			break;
 
 		case GET_OUT_ERROR:
