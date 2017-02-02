@@ -2,11 +2,14 @@
 #include "../../propulsion/movement.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_can.h"
+#include "../big/action_big.h"
 
 
 void corentin_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 			INIT,
+			GO_TO,
+			MAKE_SUB,
 			START,
 			FIRST_STRAIGHT,
 			FIRST_ROT,
@@ -20,7 +23,15 @@ void corentin_strat_inutile_big(){
 
 	switch(state){
 		case INIT:
-			state=START;
+			state=GO_TO;
+			break;
+
+		case GO_TO:
+			state=MAKE_SUB;
+			break;
+
+		case MAKE_SUB:
+			state=check_sub_action_result(sub_harry_depose_minerais(),state,DONE,state);
 			break;
 
 		case START:
