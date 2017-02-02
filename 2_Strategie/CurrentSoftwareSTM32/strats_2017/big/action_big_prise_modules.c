@@ -10,7 +10,7 @@
 #include "../../utils/actionChecker.h"
 
 error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_FUSEE_COLOR,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_CENTER,
 			INIT,
 			ERROR,
 			DONE
@@ -37,15 +37,46 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules){
 
 
 
-error_e sub_harry_fusee_color(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_FUSEE_COLOR,
+error_e sub_harry_rocket_monocolor(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_ROCKET_MONOCOLOR,
 			INIT,
+			GET_IN,
+			TAKE_ROCKET,
+			GET_OUT,
+			GET_OUT_ERROR,
+			AVANCE,
+			AVANCE_ERROR,
 			ERROR,
 			DONE
 		);
 
 	switch(state){
 		case INIT:
+			state=GET_IN;
+			break;
+
+		case GET_IN:
+			state=check_sub_action_result(sub_harry_get_in_rocket_monocolor(),state,TAKE_ROCKET,ERROR);
+			break;
+
+		case TAKE_ROCKET:
+			//state=check_sub_action_result(sub_harry_take_rocket(),state,GET_OUT,GET_OUT_ERROR);
+			break;
+
+		case GET_OUT:
+			state=try_going(500, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_OUT_ERROR:
+			state=try_going(500, global.pos.y, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case AVANCE:
+			state=try_going(220, global.pos.y, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case AVANCE_ERROR:
+			state=try_going(220, global.pos.y, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -61,9 +92,65 @@ error_e sub_harry_fusee_color(){
 
 	return IN_PROGRESS;
 }
+
+
+error_e sub_harry_get_in_rocket_monocolor(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_ROCKET_MONOCOLOR,
+			INIT,
+			GET_IN_MIDDLE_SQUARE,
+			GET_IN_ADV_SQUARE,
+			GET_IN_OUR_SQUARE,
+			PATHFIND,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:
+			if(i_am_in_square_color(800, 1400, 300, 900)){
+				state = DONE;//GET_IN_OUR_SQUARE;
+			}else if (i_am_in_square_color(200, 1100, 900, 2100)){
+				state = GET_IN_MIDDLE_SQUARE;
+			}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
+				state = GET_IN_ADV_SQUARE;
+			}else
+				state = PATHFIND;
+
+				break;
+
+		case GET_IN_OUR_SQUARE:
+			state = try_going(800, COLOR_Y(1000), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_MIDDLE_SQUARE:
+			state = try_going(275, COLOR_Y(1150), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_ADV_SQUARE:
+			state = try_going(800, COLOR_Y(2000), state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case PATHFIND:
+			state = ASTAR_try_going(275, COLOR_Y(1150), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
 //#if 0
 error_e sub_harry_fusee_multicolor(ELEMENTS_property_e fusee, bool_e right_side){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PRISE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PRISE_ROCKET_MULTICOLOR,
 				INIT,
 
 				ALL_THE_GET_IN,
@@ -320,7 +407,7 @@ error_e sub_harry_fusee_multicolor(ELEMENTS_property_e fusee, bool_e right_side)
 //#endif
 
 error_e init_all_actionneur(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_FUSEE_COLOR,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INIT_CYLINDER,
 			INIT,
 			INIT_ACTION_SLOPE_LEFT,
 			INIT_ACTION_SLOPE_RIGHT,
