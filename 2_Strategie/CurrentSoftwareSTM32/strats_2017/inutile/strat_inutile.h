@@ -39,6 +39,9 @@
 	void valentin_strat_inutile_big();
 	void valentin_strat_inutile_small();
 
+	void jakub_strat_inutile_big();
+	void jakub_strat_inutile_small();
+
 
 #endif
 
