@@ -62,7 +62,7 @@ error_e sub_harry_initiale(){
 			break;
 //if0
 		case ROCKER:
-			state=check_sub_action_result(sub_cross_rocker(),state, INIT, ERROR);
+			state=check_sub_action_result(sub_cross_rocker(),state, INIT, ROCKER);
 			break;
 //else1
 		case MODULE_AND_ROCKET_MULTICOLOR:
@@ -105,7 +105,7 @@ error_e sub_harry_initiale(){
 			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, PUT_OFF, ERROR);
 			break;
 		case PUT_OFF:
-			//state=check_sub_action_result(sub_manager_depose,state, DONE, ERROR);  //milieu ou coté ?
+			state=check_sub_action_result(sub_harry_cylinder_depose_manager(),state, DONE, ERROR);
 			break;
 
 
