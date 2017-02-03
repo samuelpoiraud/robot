@@ -3,6 +3,7 @@
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_can.h"
 #include "../big/action_big.h"
+#include "../../utils/actionChecker.h"
 
 
 void corentin_strat_inutile_big(){
