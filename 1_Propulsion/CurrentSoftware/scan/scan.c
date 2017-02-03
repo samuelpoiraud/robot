@@ -55,7 +55,7 @@ static void SCAN_get_data_left(){
     robot = global.position; // On récupère la position du robot tout de suite
     //printf("%d\n",valueADC);
     value = CONVERSION_LASER_LEFT(laser_left[index].ADCvalue);
-    printf("%d\n",value);
+    //printf("%d\n",value);
 
     //robot = global.position; // On récupère la position du robot tout de suite
 	robot.teta = GEOMETRY_modulo_angle(robot.teta);
@@ -97,7 +97,7 @@ static void SCAN_get_data_right(){
 
   //  valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
     value = CONVERSION_LASER_RIGHT(laser_right[index].ADCvalue);
-    //it_printf("%d\n",value);
+   // it_printf("%d\n",value);
 
 	robot = global.position; // On récupère la position du robot tout de suite
 	robot.teta = GEOMETRY_modulo_angle(robot.teta);
@@ -131,8 +131,10 @@ static void SCAN_get_data_right(){
 
 
 void TELEMETER_process_it(){
+	
     laser_left[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_LEFT);
     laser_right[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
+    //printf("%d\n",laser_right[index].ADCvalue);
 }
 
 
@@ -165,6 +167,7 @@ void SCAN_process_main(){
 	if(flag_1){
 		debug_printf("\n\n VIDAGE FLAG_1\n");
 		for(i=0; i<NB_SCAN_DATA; i++){
+            //printf("%d\n",laser_right[i].ADCvalue);
 			tab_treatment_left[i].pos_mesure = laser_left[i].pos_mesure;
 			tab_treatment_left[i].pos_laser = laser_left[i].pos_laser;
 			tab_treatment_left[i].enable = laser_left[i].enable;
@@ -176,8 +179,9 @@ void SCAN_process_main(){
 			//debug_printf("i1=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
 		}
 		flag_1 = FALSE;
-        moy=moy/NB_SCAN_DATA;
         //printf("%ld\n",moy);
+        moy=moy/NB_SCAN_DATA;
+        //printf("\n\n%ld\n\n\n",moy);
 
 		// Appel de fonctions de scan objets
 		OBJECTS_SCAN_treatment(tab_treatment_left);
