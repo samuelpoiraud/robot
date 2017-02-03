@@ -499,7 +499,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 					RESET_MAE();
 					debug_printf("wait_move_and_scan_foe -- timeout\n");
 					global.destination = (GEOMETRY_point_t){global.pos.x, global.pos.y};
-					return END_OK;
+					return END_WITH_TIMEOUT;
 
 				case NOT_HANDLED:
 					RESET_MAE();
