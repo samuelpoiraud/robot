@@ -50,7 +50,7 @@ static volatile RF_module_e RF_module_id = RF_FOE1;
 //Varie de 0 à 50*nbmodules, 100 ms / module
 static volatile Uint8 step_ir = 0;
 
-static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
+static void rf_packet_received_callback(bool_e for_me, RF_header_t header, RF_synchro_data_t data);
 static void SyncRF_next_step(void);
 
 void SYNCRF_init()
@@ -163,7 +163,7 @@ void SYNCRF_sendRequest() {
 }
 
 //Cette fonction est appelée pour tout paquet RF qui est arrivé (crc vérifié)
-static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
+static void rf_packet_received_callback(bool_e for_me, RF_header_t header, RF_synchro_data_t data) {
 	if(for_me && header.type == RF_PT_SynchroResponse)
 	{
 		debug_printf("Callback_recieved\n");
@@ -173,7 +173,7 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 			request_duration = step_ir + TOTAL_STEP_COUNT - TIME_WHEN_SYNCHRO;
 
 		//unités: tick / (us/localtick / us/tick) = tick * us/tick / us/localtick = us/(us/localtick) = localtick
-		Sint16 fullOffset = (data[0] | data[1] << 8) / (DUREE_STEP / TIME_BASE_UNIT);
+		Sint16 fullOffset = data.offset / (DUREE_STEP / TIME_BASE_UNIT);
 
 		offset = fullOffset - (request_duration / 2) + 2; // fullOffset - request_duration/2 + erreur systématique (en step)
 		const Sint16 adjusted = ((Sint16)step_ir) + offset;
