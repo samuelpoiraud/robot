@@ -104,8 +104,7 @@ void strat_stop_robot(){
 
 	switch(state){
 		case IDLE:
-			if(global.flags.ask_suspend_match)
-				state = STOP;
+			state = STOP;
 			break;
 
 		case STOP:
@@ -113,11 +112,9 @@ void strat_stop_robot(){
 			break;
 
 		case END:
-			RESET_MAE();
 			break;
 
 		case FAIL:
-			state = STOP;
 			break;
 	}
 }

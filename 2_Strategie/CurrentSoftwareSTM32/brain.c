@@ -42,7 +42,7 @@
 //							Valeur souhaitable pour le commit SVN : high_level_strat
 
 
-#define DEFAULT_STRAT_BIG		thomas_strat_inutile_big
+#define DEFAULT_STRAT_BIG		corentin_strat_inutile_big
 
 #define DEFAULT_STRAT_SMALL		corentin_strat_inutile_small
 
@@ -217,7 +217,6 @@ void any_match(void)
 
 		if(global.flags.ask_suspend_match){
 			global.flags.match_suspended = TRUE;
-			CAN_send_sid(BROADCAST_PAUSE_ALL);
 			QUEUE_reset_all();
 			BUZZER_play(150, NOTE_RE, 2);
 		}

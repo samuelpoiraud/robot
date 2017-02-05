@@ -68,8 +68,6 @@
 
 		#define BROADCAST_STOP_ALL			0x002
 
-		#define BROADCAST_PAUSE_ALL			0x007
-
 		#define BROADCAST_I_AM_AND_I_AM_HERE	0x009
 		#define SIZE_BROADCAST_I_AM_AND_I_AM_HERE	1
 			struct{
