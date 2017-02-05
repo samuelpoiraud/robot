@@ -41,9 +41,6 @@ void SECRETARY_init(void)
 		CAN_set_direct_treatment_function(SECRETARY_msg_processing_direct_treatment_function);
 	#endif
 
-	global.flags.start_of_match = FALSE;
-	global.flags.end_of_match = FALSE;
-	global.flags.flag_100ms = FALSE;
 	periodic_sending_enabled = 0;
 }
 
@@ -122,25 +119,35 @@ void SECRETARY_process_msg(CAN_msg_t * msg)
 	{
 		case BROADCAST_RESET:
 			NVIC_SystemReset();
-		break;
+			break;
+
 		case BROADCAST_START:
 			global.flags.start_of_match = TRUE;
-		break;
+			break;
+
 		case BEACON_DO_SELFTEST:
 			SECRETARY_selftest();
-		break;
+			break;
+
 		case BEACON_PING:
 			SECRETARY_send_pong();
-		break;
+			break;
+
 		case BROADCAST_COULEUR:
 			SECRETARY_couleur(msg);
-		break;
+			break;
+
 		case STRAT_PROP_FOE_DETECTED:
 			LEDS_set_infos_evitement(msg);
-		break;
-		case  BEACON_WARNING_LOW_BATTERY:
+			break;
+
+		case BEACON_WARNING_LOW_BATTERY:
 			SECRETARY_warning_battery(msg);
-		break;
+			break;
+
+		case BEACON_INFORMATION_XBEE:
+			global.flags.xbeeConnected = msg->data.beacon_information_xbee.xbeeConnected;
+			break;
 		default:
 		break;
 	}

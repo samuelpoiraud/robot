@@ -125,7 +125,7 @@
 	#define RF_CAN_DATA 3
 
 	#define RF_SYNCHRO_REQUEST_SIZE 1
-	#define RF_SYNCHRO_RESPONSE_SIZE 2
+	#define RF_SYNCHRO_RESPONSE_SIZE 3
 	#define RF_CAN_MIN_SIZE 1
 	#define RF_CAN_MAX_DATA_SIZE 10
 
@@ -290,8 +290,8 @@
 		RF_send(RF_PT_SynchroRequest, target_id, &trash, 1);
 	}
 
-	void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset) {
-		RF_send(RF_PT_SynchroResponse, target_id, (Uint8*)&timer_offset, RF_SYNCHRO_RESPONSE_SIZE);
+	void RF_synchro_response(RF_module_e target_id, RF_synchro_data_t data) {
+		RF_send(RF_PT_SynchroResponse, target_id, (Uint8*)(data.raw_data), RF_SYNCHRO_RESPONSE_SIZE);
 	}
 
 	static bool_e RF_recv(Uint8 *c) {
@@ -428,8 +428,14 @@
 				//(*canmsg_received_fct)(&msg);
 			}
 		} else if(header.type != RF_PT_Can) {
+			RF_synchro_data_t syncData;
 			bool_e for_me = header.target_id == RF_BROADCAST || header.target_id == currentModule;
-			(*packet_received_fct)(for_me, header, data, size);
+			Uint8 i;
+			for(i = 0; i < RF_SYNCHRO_RESPONSE_SIZE; i++) {
+				syncData.raw_data[i] = data[i];
+			}
+
+			(*packet_received_fct)(for_me, header, syncData);
 		}
 	}
 

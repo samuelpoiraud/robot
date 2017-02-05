@@ -14,6 +14,7 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_watchdog.h"
+#include "QS/QS_who_am_i.h"
 
 typedef struct{
 	Uint8 angle; 				//Indice de la led repèrant le mieux chaque adversaire
@@ -66,7 +67,7 @@ static bool_e LEDS_blink(bool_e entrance, Uint8 nb_clignotement, Led_balise_colo
 
 //Variables globales
 static volatile Uint8 display_leds[NB_LEDS_COLOR][NB_LEDS]={{0},{0},{0}}; //Tableau manipulé pour les mise à jour dans la tâche de fond (A manipuler)
-static volatile Led_balise_color_e team_color = LEDS_RED;
+static volatile Led_balise_color_e team_color = LEDS_GREEN;
 
 static volatile bool_e foe_detected = FALSE;
 static volatile LEDS_adversary_t foe;
@@ -155,23 +156,38 @@ static void LEDS_update(Led_balise_color_e index_color, Uint8 index_step_color){
 //----------------------------------------------Manager--------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------
-
-
-void LEDS_manager_process_it(){
-
-	enum state_e {
+	typedef enum{
 		INIT = 0,
-		WAIT_BEGIN_NONE,
-		WAIT_BEGIN_SYNC,
-		WAIT_BEGIN_XBEE,
-		WAIT_BEGIN_ALL,
+		WAIT_BEGIN_N_XBEE__N_SYNC,
+		WAIT_BEGIN_N_XBEE__SYNC,
+		WAIT_BEGIN_XBEE__N_SYNC,
+		WAIT_BEGIN_XBEE__SYNC,
 		BEGIN,
 		DURING_MATCH,
 		AVOIDANCE,
-		END_OF_MATCH};
-	static enum state_e state = INIT;
-	static enum state_e last_state = INIT;
-	static enum state_e last_state_for_check_entrance = INIT;
+		END_OF_MATCH
+	}state_e;
+
+state_e LEDS_begin_state_change(state_e state){
+	if(global.flags.start_of_match)
+		return BEGIN;
+	else if(SYNCHRO_is_synchronized() == FALSE && global.flags.xbeeConnected == FALSE)
+		return WAIT_BEGIN_N_XBEE__N_SYNC;
+	else if(SYNCHRO_is_synchronized() == TRUE && global.flags.xbeeConnected == TRUE)
+		return WAIT_BEGIN_XBEE__SYNC;
+	else if(SYNCHRO_is_synchronized() == TRUE)
+		return WAIT_BEGIN_N_XBEE__SYNC;
+	else if(global.flags.xbeeConnected == TRUE)
+		return WAIT_BEGIN_XBEE__N_SYNC;
+	else
+		return state;
+}
+
+void LEDS_manager_process_it(){
+
+	static state_e state = INIT;
+	static state_e last_state = INIT;
+	static state_e last_state_for_check_entrance = INIT;
 	static bool_e initialized = FALSE;
 	bool_e entrance = last_state_for_check_entrance != state || !initialized;
 	if(entrance)
@@ -185,50 +201,71 @@ void LEDS_manager_process_it(){
 
 	switch(state){
 		case INIT :
-			state = WAIT_BEGIN_NONE;
+			state = WAIT_BEGIN_N_XBEE__N_SYNC;
 			break;
 
-		case WAIT_BEGIN_NONE :
+		case WAIT_BEGIN_N_XBEE__N_SYNC :
 			if(entrance)
 				LEDS_set_all(team_color, MAX_LED_VALUE);
 
 			LEDS_track_adversaries_ir(entrance, LEDS_RED);
 
-			if(global.flags.start_of_match)
-				state = BEGIN;
-			else if(SYNCHRO_is_synchronized() == TRUE)
-				state = WAIT_BEGIN_SYNC;
+			state = LEDS_begin_state_change(state);
 			break;
 
-		case WAIT_BEGIN_SYNC:
-			LEDS_phare(entrance, 6, team_color, TRIGO, 3000);
+		case WAIT_BEGIN_N_XBEE__SYNC:{
+			static bool_e ledState = FALSE;
+			bool_e ledCompute;
+
+			if((QS_WHO_AM_I_get() == BIG_ROBOT && (SYNCHRO_getSynchronisedTime() % 6) <= 2)
+					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && (SYNCHRO_getSynchronisedTime() % 6) > 2))
+				ledCompute = TRUE;
+			else
+				ledCompute = FALSE;
+
+			if(ledCompute != ledState || entrance){
+				if(ledCompute)
+					LEDS_set_all(team_color, MAX_LED_VALUE);
+				else
+					LEDS_reset_all(team_color);
+			}
+
+			ledState = ledCompute;
+
 			LEDS_track_adversaries_ir(entrance, LEDS_RED);
 
-			if(global.flags.start_of_match)
-				state = BEGIN;
-			else if(SYNCHRO_is_synchronized() == FALSE)
-				state = WAIT_BEGIN_NONE;
-			else if(0/*XBEE*/)
-				state = WAIT_BEGIN_XBEE;
-			break;
+			state = LEDS_begin_state_change(state);
+			}break;
 
-		case WAIT_BEGIN_XBEE:
-			LEDS_blink(entrance, 1, team_color, 1500, 1500, TRUE);
-			LEDS_track_adversaries_ir(entrance, LEDS_RED);
-
-			if(global.flags.start_of_match)
-				state = BEGIN;
-			else if(SYNCHRO_is_synchronized() == TRUE)
-				state = WAIT_BEGIN_ALL;
-			break;
-
-		case WAIT_BEGIN_ALL:
+		case WAIT_BEGIN_XBEE__N_SYNC:
 			LEDS_phare(entrance, 8, team_color, HORAIRE, 400);
+
 			LEDS_track_adversaries_ir(entrance, LEDS_RED);
 
-			if(global.flags.start_of_match)
-				state = BEGIN;
+			state = LEDS_begin_state_change(state);
 			break;
+
+		case WAIT_BEGIN_XBEE__SYNC:{
+			static bool_e ledState = FALSE;
+			bool_e ledCompute;
+
+			if((QS_WHO_AM_I_get() == BIG_ROBOT && (SYNCHRO_getSynchronisedTime() % 6) <= 2)
+					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && (SYNCHRO_getSynchronisedTime() % 6) > 2))
+				ledCompute = TRUE;
+			else
+				ledCompute = FALSE;
+
+			if(ledCompute)
+				LEDS_phare((ledCompute != ledState || entrance), 8, team_color, HORAIRE, 400);
+			else
+				LEDS_reset_all(team_color);
+
+			ledState = ledCompute;
+
+			LEDS_track_adversaries_ir(entrance, LEDS_RED);
+
+			state = LEDS_begin_state_change(state);
+			}break;
 
 		case BEGIN :
 			if(LEDS_blink(entrance, 2, LEDS_RED, 400, 400, TRUE))

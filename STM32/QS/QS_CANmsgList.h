@@ -683,6 +683,12 @@
 				RF_module_e module          :3;
 			}beacon_warning_low_battery;
 
+		#define BEACON_INFORMATION_XBEE			0x413
+		#define SIZE_BEACON_INFORMATION_XBEE	1
+			struct{
+				bool_e xbeeConnected;
+			}beacon_information_xbee;
+
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
