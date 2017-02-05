@@ -42,9 +42,9 @@ static volatile bool_e is_synchronized = FALSE;
 static volatile bool_e led_synchro = FALSE;
 
 static Uint16 time_base = 0;
+static Uint8 largeSyncCount = 0;
 
-
-static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
+static void rf_packet_received_callback(bool_e for_me, RF_header_t header, RF_synchro_data_t data);
 static void update_rfmodule_here();
 
 void TIMER_SRC_TIMER_interrupt() {
@@ -60,6 +60,16 @@ void TIMER_SRC_TIMER_interrupt() {
 		if(countTime >= 5){
 			countTime = 0;
 			LEDS_rf_sync();
+		}
+	}
+
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
+		static Uint32 count = 0; // 100 µs
+		count++;
+
+		if(count == 10000){
+			largeSyncCount++;
+			count = 0;
 		}
 	}
 
@@ -146,15 +156,19 @@ static Sint16 wrap_timebase(Sint16 val) {
 }
 
 
-static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size) {
+static void rf_packet_received_callback(bool_e for_me, RF_header_t header, RF_synchro_data_t data) {
 	if(header.type == RF_PT_SynchroRequest) {
 		if(REPLY_REQ && for_me) {
+			RF_synchro_data_t returnData;
 			Sint16 offset, expected_time;
 
 			expected_time = TIME_PER_MODULE * header.sender_id;
 			offset = time_base - expected_time;
 
-			RF_synchro_response(header.sender_id, offset);
+			returnData.offset = offset;
+			returnData.count = largeSyncCount;
+
+			RF_synchro_response(header.sender_id, returnData);
 			is_synchronized = TRUE;
 			//debug_printf("Synchro_request for me from %d: send response\n", header.sender_id);
 		}
@@ -162,8 +176,10 @@ static void rf_packet_received_callback(bool_e for_me, RF_header_t header, Uint8
 		//BIG_ROBOT nous à répondu, on maj notre base de temps
 		if(for_me) {
 			TIMER_SRC_TIMER_DisableIT();
-			Sint16 fullOffset = (data[0] | (data[1] << 8));
+			Sint16 fullOffset = data.offset;
 			offset = fullOffset - (wrap_timebase(((Sint16)time_base) - TIME_WHEN_SYNCHRO) / 2);
+
+			largeSyncCount = data.count;
 
 			//On ajoute l'offset au compteur + 6ms. Cette valeur de 6ms a été choisie après des tests.
 			//Cette valeur de 6ms permet d'ajuster la synchro des deux robots très précisément.
@@ -244,4 +260,8 @@ static void update_rfmodule_here()
 	}
 	warner_foe1_is_rf_unreacheable = warner_foe1_is_rf_unreacheable_temp;
 	warner_foe2_is_rf_unreacheable = warner_foe2_is_rf_unreacheable_temp;
+}
+
+Uint8 SYNCHRO_getSynchronisedTime(void){
+	return largeSyncCount;
 }

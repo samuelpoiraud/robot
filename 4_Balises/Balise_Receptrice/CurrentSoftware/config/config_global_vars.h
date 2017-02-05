@@ -18,6 +18,7 @@
 		bool_e flag_100ms;
 		bool_e start_of_match;
 		bool_e end_of_match;
+		bool_e xbeeConnected;
 	}flag_list_t;
 
 	typedef struct{

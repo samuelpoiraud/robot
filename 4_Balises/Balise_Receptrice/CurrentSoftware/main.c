@@ -22,15 +22,22 @@
 #include "secretary.h"
 #include "leds.h"
 
+void init_var(void){
+	global.flags.start_of_match = FALSE;
+	global.flags.end_of_match = FALSE;
+	global.flags.xbeeConnected = FALSE;
+	global.flags.flag_100ms = FALSE;
+}
+
 void init(void){
 	SYS_init();
+	init_var();
 	SYSTICK_init(&global.absolute_time);
 	PORTS_init();
 	QS_WHO_AM_I_find();
 
 	UART_init();
 	CAN_init();
-	IT_init();
 
 	debug_printf("--- Hello, I'm Beacon receiver %s ---\n", QS_WHO_AM_I_get_name());
 
@@ -39,6 +46,8 @@ void init(void){
 	BRAIN_init();
 	SECRETARY_init();
 	LEDS_init();
+
+	IT_init();
 }
 
 int main (void){
