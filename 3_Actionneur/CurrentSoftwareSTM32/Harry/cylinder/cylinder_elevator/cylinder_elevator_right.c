@@ -142,8 +142,9 @@ bool_e CYLINDER_ELEVATOR_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
             case ACT_CYLINDER_ELEVATOR_RIGHT_IDLE :
-            case ACT_CYLINDER_ELEVATOR_RIGHT_LOCK :
-            case ACT_CYLINDER_ELEVATOR_RIGHT_UNLOCK :
+            case ACT_CYLINDER_ELEVATOR_RIGHT_TOP :
+            case ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM :
+            case ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER:
             case ACT_CYLINDER_ELEVATOR_RIGHT_STOP :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_CYLINDER_ELEVATOR_RIGHT, &CYLINDER_ELEVATOR_RIGHT_run_command, 0,TRUE);
 				break;
@@ -189,8 +190,9 @@ static void CYLINDER_ELEVATOR_RIGHT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_CYLINDER_ELEVATOR_RIGHT_IDLE : *rx24_goalPosition = CYLINDER_ELEVATOR_RIGHT_RX24_IDLE_POS; break;
-        case ACT_CYLINDER_ELEVATOR_RIGHT_LOCK : *rx24_goalPosition = CYLINDER_ELEVATOR_RIGHT_RX24_LOCK_POS; break;
-        case ACT_CYLINDER_ELEVATOR_RIGHT_UNLOCK : *rx24_goalPosition = CYLINDER_ELEVATOR_RIGHT_RX24_UNLOCK_POS; break;
+        case ACT_CYLINDER_ELEVATOR_RIGHT_TOP : *rx24_goalPosition = CYLINDER_ELEVATOR_RIGHT_RX24_TOP_POS; break;
+        case ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM : *rx24_goalPosition = CYLINDER_ELEVATOR_RIGHT_RX24_BOTTOM_POS; break;
+        case ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER : *rx24_goalPosition = CYLINDER_ELEVATOR_RIGHT_RX24_LOCK_WITH_CYLINDER_POS; break;
 
         case ACT_CYLINDER_ELEVATOR_RIGHT_STOP :
             RX24_set_torque_enabled(CYLINDER_ELEVATOR_RIGHT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
