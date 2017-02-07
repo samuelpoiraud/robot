@@ -144,6 +144,7 @@ bool_e CYLINDER_ELEVATOR_LEFT_CAN_process_msg(CAN_msg_t* msg) {
             case ACT_CYLINDER_ELEVATOR_LEFT_IDLE :
             case ACT_CYLINDER_ELEVATOR_LEFT_TOP :
             case ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM :
+            case ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER :
             case ACT_CYLINDER_ELEVATOR_LEFT_STOP :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_CYLINDER_ELEVATOR_LEFT, &CYLINDER_ELEVATOR_LEFT_run_command, 0,TRUE);
 				break;
@@ -191,6 +192,7 @@ static void CYLINDER_ELEVATOR_LEFT_command_init(queue_id_t queueId) {
         case ACT_CYLINDER_ELEVATOR_LEFT_IDLE : *rx24_goalPosition = CYLINDER_ELEVATOR_LEFT_RX24_IDLE_POS; break;
         case ACT_CYLINDER_ELEVATOR_LEFT_TOP : *rx24_goalPosition = CYLINDER_ELEVATOR_LEFT_RX24_TOP_POS; break;
         case ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM : *rx24_goalPosition = CYLINDER_ELEVATOR_LEFT_RX24_BOTTOM_POS; break;
+        case ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER : *rx24_goalPosition = CYLINDER_ELEVATOR_LEFT_RX24_LOCK_WITH_CYLINDER_POS; break;
 
         case ACT_CYLINDER_ELEVATOR_LEFT_STOP :
             RX24_set_torque_enabled(CYLINDER_ELEVATOR_LEFT_RX24_ID, FALSE); //Stopper l'asservissement du RX24

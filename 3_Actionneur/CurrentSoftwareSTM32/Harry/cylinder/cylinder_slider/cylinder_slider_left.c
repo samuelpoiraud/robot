@@ -23,6 +23,7 @@
 // 7) Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
 // 8) Mise à jour de config/config_debug.h : mettre LOG_PRINT_On
 // 9) Include le .h dans act_manager et dans termi_io
+
 // 10) Enlever le #IF 0 qui se trouve quelques lignes
 
 
@@ -144,6 +145,8 @@ bool_e CYLINDER_SLIDER_LEFT_CAN_process_msg(CAN_msg_t* msg) {
             case ACT_CYLINDER_SLIDER_LEFT_IDLE :
             case ACT_CYLINDER_SLIDER_LEFT_IN :
             case ACT_CYLINDER_SLIDER_LEFT_OUT :
+            case ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT :
+            case ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER :
             case ACT_CYLINDER_SLIDER_LEFT_STOP :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_CYLINDER_SLIDER_LEFT, &CYLINDER_SLIDER_LEFT_run_command, 0,TRUE);
 				break;
@@ -190,6 +193,8 @@ static void CYLINDER_SLIDER_LEFT_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_CYLINDER_SLIDER_LEFT_IDLE : *rx24_goalPosition = CYLINDER_SLIDER_LEFT_RX24_IDLE_POS; break;
         case ACT_CYLINDER_SLIDER_LEFT_OUT : *rx24_goalPosition = CYLINDER_SLIDER_LEFT_RX24_OUT_POS; break;
+        case ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT : *rx24_goalPosition = CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_POS; break;
+        case ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER : *rx24_goalPosition = CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_WITH_CYLINDER_POS; break;
         case ACT_CYLINDER_SLIDER_LEFT_IN : *rx24_goalPosition = CYLINDER_SLIDER_LEFT_RX24_IN_POS; break;
 
         case ACT_CYLINDER_SLIDER_LEFT_STOP :
