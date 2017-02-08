@@ -2,6 +2,7 @@
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
+#include "../../QS/QS_CapteurCouleurCW.h"
 #include "../../utils/generic_functions.h"
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
@@ -454,7 +455,7 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 
 
 // la place des modules est comptée en partant du centre "Atos"
-error_e manager_return_modules(ELEMENTS_property_e modules){
+error_e manager_return_modules(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
 			INIT,
 			RETURN_MODULE_DROP_MIDDLE,
@@ -469,87 +470,91 @@ error_e manager_return_modules(ELEMENTS_property_e modules){
 	switch(state){
 		case INIT:
 			//module au centre
-			if(getModuleType(1, MODULE_DROP_MIDDLE) == MODULE_POLY){ 				//apelle de fonction pour allez à coté du module
-				state = RETURN_MODULE_DROP_MIDDLE;									//state = try_going + try_go_angle
+			if(getModuleType(1, MODULE_DROP_MIDDLE) == MODULE_POLY){ 				//apelle de fonction pour aller à coté du module
+				state = check_sub_action_result(/*deplacement1*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);	//state = try_going + try_go_angle
 			}
 			if(getModuleType(2, MODULE_DROP_MIDDLE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_MIDDLE;
+				state = check_sub_action_result(/*deplacemen2t*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 			if(getModuleType(3, MODULE_DROP_MIDDLE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_MIDDLE;
+				state = check_sub_action_result(/*deplacement3*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 			if(getModuleType(4, MODULE_DROP_MIDDLE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_MIDDLE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 			if(getModuleType(5, MODULE_DROP_MIDDLE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_MIDDLE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 			if(getModuleType(6, MODULE_DROP_MIDDLE) == MODULE_POLY){ // problème de position
-				state = RETURN_MODULE_DROP_MIDDLE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
+
 			//module a notre centre
 			if(getModuleType(1, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(getModuleType(2, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(getModuleType(3, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(getModuleType(4, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(getModuleType(5, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(getModuleType(6, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
+
 			//module centre adverse
 			if(getModuleType(1, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(getModuleType(2, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(getModuleType(3, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(getModuleType(4, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(getModuleType(5, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(getModuleType(6, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_CENTER;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
+
 			//module notre cote
 			if(getModuleType(1, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_SIDE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
 			if(getModuleType(2, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_SIDE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
 			if(getModuleType(3, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_SIDE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
 			if(getModuleType(4, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_OUR_SIDE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
+
 			//module cote adverse
 			if(getModuleType(1, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_SIDE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			if(getModuleType(2, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_SIDE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			if(getModuleType(3, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_SIDE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			if(getModuleType(4, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
-				state = RETURN_MODULE_DROP_ADV_SIDE;
+				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			else{
 
@@ -559,7 +564,7 @@ error_e manager_return_modules(ELEMENTS_property_e modules){
 			//state = check_sub_action_result(sub_harry_return_modules(RIGHT,LEFT), state, DONE, ERROR);
 
 		case RETURN_MODULE_DROP_MIDDLE:
-			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);   //choix gauche ou droite
 			break;
 
 		case RETURN_MODULE_DROP_OUR_CENTER:
