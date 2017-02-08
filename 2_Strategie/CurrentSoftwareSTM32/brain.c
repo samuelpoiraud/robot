@@ -42,9 +42,9 @@
 //							Valeur souhaitable pour le commit SVN : high_level_strat
 
 
-#define DEFAULT_STRAT_BIG		corentin_strat_inutile_big
+#define DEFAULT_STRAT_BIG		high_level_strat
 
-#define DEFAULT_STRAT_SMALL		corentin_strat_inutile_small
+#define DEFAULT_STRAT_SMALL		high_level_strat
 
 
 static ia_fun_t strategy;
