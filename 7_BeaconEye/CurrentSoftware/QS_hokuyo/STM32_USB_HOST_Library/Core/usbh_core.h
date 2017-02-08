@@ -24,9 +24,9 @@
 #define __USBH_CORE_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "../OTG/usb_hcd.h"
+#include "../../STM32_USB_OTG_Driver/usb_hcd.h"
 #include "usbh_def.h"
-#include "../usbh_conf.h"
+#include "../../usbh_conf.h"
 
 /** @addtogroup USBH_LIB
   * @{

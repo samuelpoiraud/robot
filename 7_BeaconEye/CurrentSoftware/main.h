@@ -14,7 +14,7 @@
 
 #ifndef MAIN_H
 	#define MAIN_H
-	#include "usb_host/Core/usbh_core.h"
+	#include "QS_hokuyo/STM32_USB_HOST_Library/Core/usbh_core.h"
 
 
 

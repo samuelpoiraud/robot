@@ -3,6 +3,7 @@
 #include "IHM/switch.h"
 #include "IHM/button.h"
 #include "LCD/low layer/ssd2119.h"
+#include "IHM/view.h"
 
 void ENVIRONMENT_init() {
 
@@ -36,10 +37,12 @@ void ENVIRONMENT_processIt(Uint8 ms) {
 }
 
 void ENVIRONMENT_processMain() {
-
+#if defined(USE_BEACON_EYE)
 	SWITCH_processMain();
 	BUTTON_processMain();
+#endif
 }
+
 void ENVIRONMENT_setColor(color_e color) {
 
 	// Changement de la couleur
@@ -50,4 +53,8 @@ void ENVIRONMENT_setColor(color_e color) {
 
 	// TODO: Mettre à jour les zones
 
+}
+
+color_e ENVIRONMENT_getColor() {
+	return global.current_color;
 }

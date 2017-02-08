@@ -410,7 +410,7 @@ void SSD2119_drawFilledCircle(Uint16 x0, Uint16 y0, Uint16 r, Uint16 color) {
 
 void SSD2119_putImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uint16 *img, Uint32 size){
 
-	SSD2119_setCursorPosition(x, y, x + width, y + height);
+	SSD2119_setCursorPosition(x, y, x + width - 1, y + height - 1);
 
 	// Overclock LCD (Increase consumption)
 	SSD2119_writeReg(SSD2119_PWR_CTRL_1_REG, 0x1008);

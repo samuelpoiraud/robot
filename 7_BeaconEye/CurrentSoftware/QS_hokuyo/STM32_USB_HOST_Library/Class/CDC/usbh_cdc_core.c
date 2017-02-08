@@ -32,11 +32,11 @@
 
 #include "usbh_cdc_core.h"
 #include "../../Core/usbh_core.h"
-#include "../../../QS/QS_all.h"
+#include "../../../../QS/QS_all.h"
 
 #define LOG_PREFIX "usbh_cdc: "
 #define LOG_COMPONENT OUTPUTLOG_COMPONENT_USBH_CDC
-#include "../../../QS/QS_outputlog.h"
+#include "../../../../QS/QS_outputlog.h"
 
 #define USBH_CDC_ERROR_RETRY_LIMIT 10
 

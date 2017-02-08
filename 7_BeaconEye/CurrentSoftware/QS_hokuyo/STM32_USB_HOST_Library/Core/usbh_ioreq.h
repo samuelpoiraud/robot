@@ -24,7 +24,7 @@
 #define __USBH_IOREQ_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "../usb_conf.h"
+#include "../../usb_conf.h"
 #include "usbh_core.h"
 #include "usbh_def.h"
 

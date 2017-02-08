@@ -13,7 +13,7 @@
 #include "usbh_class_switch.h"
 #include "usbh_class_list.h"
 #include "../Core/usbh_core.h"
-#include "../../QS/QS_outputlog.h"
+#include "../../../QS/QS_outputlog.h"
 
 
 static USBH_Status USBH_ClassSwitch_InterfaceInit(USB_OTG_CORE_HANDLE *pdev, void *phost);

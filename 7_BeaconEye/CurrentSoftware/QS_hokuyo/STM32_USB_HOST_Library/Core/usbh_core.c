@@ -22,7 +22,7 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include "usbh_ioreq.h"
-#include "../OTG/usb_bsp.h"
+#include "../../STM32_USB_OTG_Driver/usb_bsp.h"
 #include "usbh_hcs.h"
 #include "usbh_stdreq.h"
 #include "usbh_core.h"
