@@ -49,10 +49,10 @@ static void BUTTON_stateChange0(void) {
 
 	if(!BUTTON_0_PORT){
 		// Le bouton est appuyé
-		debug_printf("Appuye sur le bouton 0.\n");
+		//debug_printf("Appuye sur le bouton 0.\n");
 	}else{
 		// Le bouton est relâché
-		debug_printf("Relachement du bouton 0.\n");
+		//debug_printf("Relachement du bouton 0.\n");
 	}
 }
 
@@ -63,7 +63,7 @@ static void BUTTON_stateChange1(void) {
 
 	if(!BUTTON_1_PORT){
 		// Le bouton est appuyé
-		debug_printf("Appuye sur le bouton 1.\n");
+		//debug_printf("Appuye sur le bouton 1.\n");
 
 		if(global.flags.LASER == TRUE)
 		{
@@ -78,6 +78,6 @@ static void BUTTON_stateChange1(void) {
 
 	}else{
 		// Le bouton est relâché
-		debug_printf("Relachement du bouton 1.\n");
+		//debug_printf("Relachement du bouton 1.\n");
 	}
 }

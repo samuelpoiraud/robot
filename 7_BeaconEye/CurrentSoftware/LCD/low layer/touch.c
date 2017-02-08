@@ -6,19 +6,12 @@
 #include "../QS/QS_outputlog.h"
 
 typedef struct{
-	float Ax;
-	float Ay;
-	float Bx;
-	float By;
-}TS_COEFF;
-
-typedef struct{
 	Uint16 X;
 	Uint16 Y;
 	Uint16 TouchDetected;
 }TS_ADC;
 
-static TS_COEFF ts_coeff;
+TS_COEFF ts_coeff;
 
 static void TOUCH_getFiltredTouch(TS_ADC *ts_adc, Uint8 nSamples);
 static void TOUCH_convertCoordinateScreenMode(Sint16 * pX, Sint16 * pY);
@@ -32,8 +25,24 @@ void TOUCH_init() {
 	ts_coeff.By = 289.585097;
 }
 
-void TOUCH_setConfig(void){
+void TOUCH_setConfig(void) {
 	// For middleware
+}
+
+void TOUCH_setCoeff(TS_COEFF coeff) {
+	ts_coeff.Ax = coeff.Ax;
+	ts_coeff.Bx = coeff.Bx;
+	ts_coeff.Ay = coeff.Ay;
+	ts_coeff.By = coeff.By;
+	debug_printf("New coeff :\n");
+	debug_printf("Ax = %f\n", ts_coeff.Ax);
+	debug_printf("Bx = %f\n", ts_coeff.Bx);
+	debug_printf("By = %f\n", ts_coeff.By);
+	debug_printf("By = %f\n", ts_coeff.By);
+}
+
+TS_COEFF TOUCH_getCoeff() {
+	return ts_coeff;
 }
 
 bool_e TOUCH_getAverageCoordinates(Sint16 * pX, Sint16 * pY, Uint8 nSamples, TOUCH_coordinateMode_e coordinateMode) {
@@ -42,27 +51,17 @@ bool_e TOUCH_getAverageCoordinates(Sint16 * pX, Sint16 * pY, Uint8 nSamples, TOU
 	nSamples = nSamples * 2;
 	TOUCH_getFiltredTouch(&ts_adc, nSamples);
 
-	/*if(ts_adc.TouchDetected > 0) {
-		debug_printf("X = %d | Y = %d\n", ts_adc.X, ts_adc.Y);
-	}*/
-
-	float xf = ts_coeff.Ax * (float)ts_adc.X + ts_coeff.Bx;
-	float yf = ts_coeff.Ay * (float)ts_adc.Y + ts_coeff.By;
-
-	*pX = (Sint16)xf;
-	*pY = (Sint16)yf;
-
-	/*if(ts_adc.TouchDetected > 0) {
-		debug_printf("%f = %f * %f + %f\n", xf, ts_coeff.Ax, (float)ts_adc.X, ts_coeff.Bx);
-		debug_printf("%f = %f * %f + %f\n", yf, ts_coeff.Ay, (float)ts_adc.Y, ts_coeff.By);
-	}*/
+	*pX = ts_adc.X;
+	*pY = ts_adc.Y;
 
 	if(coordinateMode == TOUCH_COORDINATE_SCREEN_RELATIVE) {
-		TOUCH_convertCoordinateScreenMode(pX, pY);
-	}
+		float xf = ts_coeff.Ax * (float)ts_adc.X + ts_coeff.Bx;
+		float yf = ts_coeff.Ay * (float)ts_adc.Y + ts_coeff.By;
 
-	if(ts_adc.TouchDetected > 0) {
-		debug_printf("X = %d | Y = %d\n", *pX, *pY);
+		*pX = (Sint16)xf;
+		*pY = (Sint16)yf;
+
+		TOUCH_convertCoordinateScreenMode(pX, pY);
 	}
 
 	return (ts_adc.TouchDetected > 0) ? TRUE : FALSE;

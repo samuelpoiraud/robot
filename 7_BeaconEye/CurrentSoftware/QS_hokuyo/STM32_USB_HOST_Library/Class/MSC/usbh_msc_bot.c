@@ -25,7 +25,7 @@
 #include "usbh_msc_bot.h"
 #include "../../Core/usbh_ioreq.h"
 #include "../../Core/usbh_def.h"
-#include "../../OTG/usb_hcd_int.h"
+#include "../../../STM32_USB_OTG_Driver/usb_hcd_int.h"
 
 
 /** @addtogroup USBH_LIB

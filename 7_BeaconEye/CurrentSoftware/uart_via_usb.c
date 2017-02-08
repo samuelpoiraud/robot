@@ -10,7 +10,7 @@
 
 #include "uart_via_usb.h"
 #include "QS/QS_buffer_fifo.h"
-#include "usb_host/Class/CDC/usbh_cdc_core.h"
+#include "QS_hokuyo/STM32_USB_HOST_Library/Class/CDC/usbh_cdc_core.h"
 #include "QS/QS_outputlog.h"
 
 static Uint16 get_tx_data(Uint8 *buffer, Uint16 size);

@@ -25,8 +25,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include "../usb_conf.h"
-#include "../OTG/usb_hcd.h"
+#include "../../usb_conf.h"
+#include "../../STM32_USB_OTG_Driver/usb_hcd.h"
 #include "usbh_core.h"
 #include "usbh_def.h"
 

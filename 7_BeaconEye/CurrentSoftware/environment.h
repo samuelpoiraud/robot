@@ -16,5 +16,7 @@
 
 	void ENVIRONMENT_setColor(color_e color);
 
+	color_e ENVIRONMENT_getColor();
+
 
 #endif /* ndef ENVIRONMENT_H */
