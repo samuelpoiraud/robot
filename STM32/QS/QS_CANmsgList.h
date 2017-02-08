@@ -295,12 +295,11 @@
 				bool_e flag						:1;
 			}xbee_sync_elements_flags;
 
-		#define XBEE_ASK_CONFIG_COQUILLAGES		0x5B3
-		#define XBEE_SEND_CONFIG_COQUILLAGES	0x5B4  //Réponse...
-		#define SIZE_XBEE_SEND_CONFIG_COQUILLAGES   1
+		#define XBEE_ELEMENTS_HARDFLAGS			0x5B3
+		#define SIZE_XBEE_ELEMENTS_HARDFLAGS	8
 			struct{
-				Uint8 config					:8;
-			}xbee_send_config_coquillages;
+				Uint8 flagId[8];
+			}xbee_elements_hardflags;
 
 		#define XBEE_SEND_COLOR					0x5B5
 		#define SIZE_XBEE_SEND_COLOR			1

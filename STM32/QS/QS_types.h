@@ -213,6 +213,12 @@
 			//Ne pas mettre ce flag dans la partie synchro, ce flag est synchro par une machine à état spécifique
 			F_COMMUNICATION_AVAILABLE,
 
+			// Début des hardflags
+			F_ELEMENTS_HARDFLAGS_START,
+
+			// Fin des hardflags
+			F_ELEMENTS_HRDFLAGS_END,
+
 			//Eléments pris (non synchro)
 			FLAG_STOMACH_IS_FULL, //le reservoir de baballe
 
