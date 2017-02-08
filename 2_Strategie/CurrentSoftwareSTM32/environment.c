@@ -567,6 +567,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ELEMENTS_check_communication(incoming_msg);
 			break;
 
+		case XBEE_ELEMENTS_HARDFLAGS:
+			ELEMENTS_receive_hardflags_from_xbee(incoming_msg);
+			break;
+
 /************************************* Récupération des messages liés au selftest ***************************/
 		case STRAT_BEACON_SELFTEST_DONE :
 		case STRAT_ACT_SELFTEST_DONE :

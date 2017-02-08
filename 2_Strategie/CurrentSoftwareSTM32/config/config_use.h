@@ -60,6 +60,7 @@
 #define SD_ENABLE				//Activation de la carte SD
 
 #define USE_SYNC_ELEMENTS
+#define USE_HARDFLAGS
 
 #define USE_CW_SENSOR
 

@@ -78,6 +78,9 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg);
 void ELEMENTS_receive_flags(CAN_msg_t* msg);
 #endif
 
+// Hardflags
+void ELEMENTS_receive_hardflags_from_xbee(CAN_msg_t * msg);
+
 bool_e modulePlaceIsEmpty(Uint8 place, moduleDropLocation_e location);
 
 Uint8 getNbDrop(moduleDropLocation_e location);
