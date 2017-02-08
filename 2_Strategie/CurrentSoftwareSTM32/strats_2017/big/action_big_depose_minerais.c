@@ -22,9 +22,9 @@ error_e sub_harry_manager_put_off_ore(){
 	switch(state){
 		case INIT:
 			//regarde ou est le mechant si bloque je fait l'autre
-			if(foe_in_square(TRUE, 0, 0, 360, 360, FOE_TYPE_ALL)==TRUE){		// il y a notre autre robot qui bloque le cassier depuis la zone de départ
+			if((foe_in_square(TRUE, 0, 0, 360, 360, FOE_TYPE_ALL)==TRUE)&&(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// il y a notre autre robot qui bloque le cassier depuis la zone de départ
 				// on ne pourra pas tiré dans le cassier !
-				state = DONE; //done/error
+				state = ERROR; //le robot ne peut pas tirer de balles , il tire quand même !
 			}
 			else if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
 				state = FIRST_POS;

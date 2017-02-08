@@ -452,3 +452,142 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 	return IN_PROGRESS;
 }
 
+
+// la place des modules est comptée en partant du centre "Atos"
+error_e manager_return_modules(ELEMENTS_property_e modules){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
+			INIT,
+			RETURN_MODULE_DROP_MIDDLE,
+			RETURN_MODULE_DROP_OUR_CENTER,
+			RETURN_MODULE_DROP_ADV_CENTER,
+			RETURN_MODULE_DROP_OUR_SIDE,
+			RETURN_MODULE_DROP_ADV_SIDE,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:
+			//module au centre
+			if(getModuleType(1, MODULE_DROP_MIDDLE) == MODULE_POLY){ 				//apelle de fonction pour allez à coté du module
+				state = RETURN_MODULE_DROP_MIDDLE;									//state = try_going + try_go_angle
+			}
+			if(getModuleType(2, MODULE_DROP_MIDDLE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_MIDDLE;
+			}
+			if(getModuleType(3, MODULE_DROP_MIDDLE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_MIDDLE;
+			}
+			if(getModuleType(4, MODULE_DROP_MIDDLE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_MIDDLE;
+			}
+			if(getModuleType(5, MODULE_DROP_MIDDLE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_MIDDLE;
+			}
+			if(getModuleType(6, MODULE_DROP_MIDDLE) == MODULE_POLY){ // problème de position
+				state = RETURN_MODULE_DROP_MIDDLE;
+			}
+			//module a notre centre
+			if(getModuleType(1, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_CENTER;
+			}
+			if(getModuleType(2, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_CENTER;
+			}
+			if(getModuleType(3, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_CENTER;
+			}
+			if(getModuleType(4, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_CENTER;
+			}
+			if(getModuleType(5, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_CENTER;
+			}
+			if(getModuleType(6, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_CENTER;
+			}
+			//module centre adverse
+			if(getModuleType(1, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_CENTER;
+			}
+			if(getModuleType(2, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_CENTER;
+			}
+			if(getModuleType(3, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_CENTER;
+			}
+			if(getModuleType(4, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_CENTER;
+			}
+			if(getModuleType(5, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_CENTER;
+			}
+			if(getModuleType(6, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_CENTER;
+			}
+			//module notre cote
+			if(getModuleType(1, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_SIDE;
+			}
+			if(getModuleType(2, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_SIDE;
+			}
+			if(getModuleType(3, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_SIDE;
+			}
+			if(getModuleType(4, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_OUR_SIDE;
+			}
+			//module cote adverse
+			if(getModuleType(1, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_SIDE;
+			}
+			if(getModuleType(2, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_SIDE;
+			}
+			if(getModuleType(3, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_SIDE;
+			}
+			if(getModuleType(4, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
+				state = RETURN_MODULE_DROP_ADV_SIDE;
+			}
+			else{
+
+			}
+			break;
+
+			//state = check_sub_action_result(sub_harry_return_modules(RIGHT,LEFT), state, DONE, ERROR);
+
+		case RETURN_MODULE_DROP_MIDDLE:
+			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			break;
+
+		case RETURN_MODULE_DROP_OUR_CENTER:
+			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			break;
+
+		case RETURN_MODULE_DROP_ADV_CENTER:
+			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			break;
+
+		case RETURN_MODULE_DROP_OUR_SIDE:
+			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			break;
+
+		case RETURN_MODULE_DROP_ADV_SIDE:
+			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+	}
+
+	return IN_PROGRESS;
+}

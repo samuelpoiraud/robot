@@ -20,7 +20,6 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			SUB_TAKE_BLUE_MIDDLE,
 			SUB_TAKE_BLUE_ROCKET,
 			SUB_TAKE_BLUE_CORNER,
-			COLOR,
 			ERROR,
 			DONE
 		);
@@ -30,7 +29,26 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			if(ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL)){
 				state = ERROR;
 			}else{
-				state = COLOR;
+
+				if (minerais != OUR_ELEMENT || minerais != ADV_ELEMENT){
+					RESET_MAE();
+					return NOT_HANDLED;
+
+				}else if(minerais ==OUR_ELEMENT){
+					if(global.color == YELLOW){
+						state = SUB_MOVE_POS_YELLOW;
+					}else{
+						state = SUB_MOVE_POS_BLUE;
+					}
+
+				}else{
+					if(global.color == YELLOW){
+						state = SUB_MOVE_POS_BLUE;
+					}else{
+						state = SUB_MOVE_POS_YELLOW;
+					}
+
+				}
 			}
 
 			break;
@@ -44,32 +62,6 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			RESET_MAE();
 			return END_OK;
 			break;
-
-
-		case COLOR:
-			if (minerais != OUR_ELEMENT || minerais != ADV_ELEMENT){
-				RESET_MAE();
-				return NOT_HANDLED;
-
-			}else if(minerais ==OUR_ELEMENT){
-				if(global.color == YELLOW){
-					state = SUB_MOVE_POS_YELLOW;
-				}else{
-					state = SUB_MOVE_POS_BLUE;
-				}
-
-			}else{
-				if(global.color == YELLOW){
-					state = SUB_MOVE_POS_BLUE;
-				}else{
-					state = SUB_MOVE_POS_YELLOW;
-				}
-
-			}
-
-			break;
-
-
 
 		case SUB_MOVE_POS_YELLOW:
 			state = check_sub_action_result(sub_harry_take_big_crater_move_pos_yellow(), state, SUB_TAKE_YELLOW_MIDDLE, ERROR);
@@ -113,6 +105,110 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 	return IN_PROGRESS;
 }
+//sub actionneurs
+error_e sub_act_big_take(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_END_OF_MATCH,
+			INIT,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:{
+
+			Uint8 state1=INIT;
+			Uint8 state2=INIT;
+			Uint8 state3=INIT;
+			Uint8 state4=INIT;
+			Uint8 state5=INIT;
+
+			if(entrance){
+			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
+			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
+			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
+			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
+			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
+			}
+
+			state1= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state1, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Big_bearing_back_left, state2, DONE, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_right, state3, DONE, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_front_left, state4, DONE, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_right, state5, DONE, ERROR);
+
+	if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)){
+		state=ERROR;
+	}
+	else if((state1==DONE)&&(state2==DONE)&&(state3==DONE)){
+		state=DONE;
+	}
+		}break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+
+error_e sub_act_big_off(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_END_OF_MATCH,
+			INIT,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:{
+			Uint8 state1=INIT;
+			Uint8 state2=INIT;
+			Uint8 state3=INIT;
+			Uint8 state4=INIT;
+			Uint8 state5=INIT;
+
+			if(entrance){
+			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
+			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
+			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
+			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
+			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
+			}
+
+			state1= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state1, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Big_bearing_back_left, state2, DONE, ERROR);
+			state3= check_act_status(ACT_QUEUE_Big_bearing_back_right, state3, DONE, ERROR);
+			state4= check_act_status(ACT_QUEUE_Big_bearing_front_left, state4, DONE, ERROR);
+			state5= check_act_status(ACT_QUEUE_Big_bearing_front_right, state5, DONE, ERROR);
+
+	if((state1==ERROR)||(state2==ERROR)||(state3==ERROR)){
+		state=ERROR;
+	}
+	else if((state1==DONE)&&(state2==DONE)&&(state3==DONE)){
+		state=DONE;
+	}
+
+		}break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+	}
+	return IN_PROGRESS;
+}
+
 
 //sous sub deplacement
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -320,38 +416,23 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			Uint8 state0=COLLECT_YELLOW_MIDDLE_ACTIVATE;
 			Uint8 state1=COLLECT_YELLOW_MIDDLE_ACTIVATE;
 			Uint8 state2=COLLECT_YELLOW_MIDDLE_ACTIVATE;
-			Uint8 state3=COLLECT_YELLOW_MIDDLE_ACTIVATE;
-			Uint8 state4=COLLECT_YELLOW_MIDDLE_ACTIVATE;
-			Uint8 state5=COLLECT_YELLOW_MIDDLE_ACTIVATE;
-			Uint8 state6=COLLECT_YELLOW_MIDDLE_ACTIVATE;
 
 			if (entrance){
 			// descendre le mur du rouleau et allumer le rouleau
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			//	ACT_push_order(faire tourner le rouleau);
-
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_IN;
 }
-else if((state0==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state1==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state2==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state3==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state4==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state5==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state6==COLLECT_YELLOW_MIDDLE_ACTIVATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=COLLECT_YELLOW_MIDDLE_MOVE_FOWARD;
 }
 
@@ -377,37 +458,24 @@ else if((state0==COLLECT_YELLOW_MIDDLE_ACTIVATE)&&(state1==COLLECT_YELLOW_MIDDLE
 			Uint8 state0=COLLECT_YELLOW_MIDDLE_VALIDATE;
 			Uint8 state1=COLLECT_YELLOW_MIDDLE_VALIDATE;
 			Uint8 state2=COLLECT_YELLOW_MIDDLE_VALIDATE;
-			Uint8 state3=COLLECT_YELLOW_MIDDLE_VALIDATE;
-			Uint8 state4=COLLECT_YELLOW_MIDDLE_VALIDATE;
-			Uint8 state5=COLLECT_YELLOW_MIDDLE_VALIDATE;
-			Uint8 state6=COLLECT_YELLOW_MIDDLE_VALIDATE;
 
 			if(entrance){
 			// remonter le rouleau et le mur  ! eteindre le rouleau avant !
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_IDLE);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_IDLE);
 			//	ACT_push_order(arreter tourner le rouleau);
-			//descendre les billes porteuses et remonter la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_MIDDLE_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_OUT;
 }
-else if((state0==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state1==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state2==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state3==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state4==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state5==COLLECT_YELLOW_MIDDLE_VALIDATE)&&(state6==COLLECT_YELLOW_MIDDLE_VALIDATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=GET_OUT_COLLECT_YELLOW_MIDDLE;
 }
 
@@ -496,10 +564,6 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 			Uint8 state0=COLLECT_YELLOW_ROCKET_ACTIVATE;
 			Uint8 state1=COLLECT_YELLOW_ROCKET_ACTIVATE;
 			Uint8 state2=COLLECT_YELLOW_ROCKET_ACTIVATE;
-			Uint8 state3=COLLECT_YELLOW_ROCKET_ACTIVATE;
-			Uint8 state4=COLLECT_YELLOW_ROCKET_ACTIVATE;
-			Uint8 state5=COLLECT_YELLOW_ROCKET_ACTIVATE;
-			Uint8 state6=COLLECT_YELLOW_ROCKET_ACTIVATE;
 
 
 			if (entrance){
@@ -507,27 +571,17 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			//	ACT_push_order(faire tourner le rouleau);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_IN;
 }
-else if((state0==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state1==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state2==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state3==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state4==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state5==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state6==COLLECT_YELLOW_ROCKET_ACTIVATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=COLLECT_YELLOW_ROCKET_MOVE_FOWARD;
 }
 			}break;
@@ -550,10 +604,6 @@ else if((state0==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state1==COLLECT_YELLOW_ROCKET
 			Uint8 state0=COLLECT_YELLOW_ROCKET_VALIDATE;
 			Uint8 state1=COLLECT_YELLOW_ROCKET_VALIDATE;
 			Uint8 state2=COLLECT_YELLOW_ROCKET_VALIDATE;
-			Uint8 state3=COLLECT_YELLOW_ROCKET_VALIDATE;
-			Uint8 state4=COLLECT_YELLOW_ROCKET_VALIDATE;
-			Uint8 state5=COLLECT_YELLOW_ROCKET_VALIDATE;
-			Uint8 state6=COLLECT_YELLOW_ROCKET_VALIDATE;
 
 
 			if(entrance){
@@ -561,27 +611,17 @@ else if((state0==COLLECT_YELLOW_ROCKET_ACTIVATE)&&(state1==COLLECT_YELLOW_ROCKET
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_IDLE);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_IDLE);
 			//	ACT_push_order(arreter tourner le rouleau);
-			//descendre les billes porteuses et remonter la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_ROCKET_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_OUT;
 }
-else if((state0==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state1==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state2==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state3==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state4==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state5==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state6==COLLECT_YELLOW_ROCKET_VALIDATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=GET_OUT_COLLECT_YELLOW_ROCKET;
 }
 
@@ -669,10 +709,6 @@ else if((state0==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state1==COLLECT_YELLOW_ROCKET
 			Uint8 state0=COLLECT_YELLOW_CORNER_ACTIVATE;
 			Uint8 state1=COLLECT_YELLOW_CORNER_ACTIVATE;
 			Uint8 state2=COLLECT_YELLOW_CORNER_ACTIVATE;
-			Uint8 state3=COLLECT_YELLOW_CORNER_ACTIVATE;
-			Uint8 state4=COLLECT_YELLOW_CORNER_ACTIVATE;
-			Uint8 state5=COLLECT_YELLOW_CORNER_ACTIVATE;
-			Uint8 state6=COLLECT_YELLOW_CORNER_ACTIVATE;
 
 
 			if (entrance){
@@ -680,27 +716,17 @@ else if((state0==COLLECT_YELLOW_ROCKET_VALIDATE)&&(state1==COLLECT_YELLOW_ROCKET
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			//	ACT_push_order(faire tourner le rouleau);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_IN;
 }
-else if((state0==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state1==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state2==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state3==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state4==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state5==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state6==COLLECT_YELLOW_CORNER_ACTIVATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=COLLECT_YELLOW_CORNER_MOVE_FOWARD;
 }
 			}break;
@@ -723,10 +749,6 @@ else if((state0==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state1==COLLECT_YELLOW_CORNER
 			Uint8 state0=COLLECT_YELLOW_CORNER_VALIDATE;
 			Uint8 state1=COLLECT_YELLOW_CORNER_VALIDATE;
 			Uint8 state2=COLLECT_YELLOW_CORNER_VALIDATE;
-			Uint8 state3=COLLECT_YELLOW_CORNER_VALIDATE;
-			Uint8 state4=COLLECT_YELLOW_CORNER_VALIDATE;
-			Uint8 state5=COLLECT_YELLOW_CORNER_VALIDATE;
-			Uint8 state6=COLLECT_YELLOW_CORNER_VALIDATE;
 
 
 			if(entrance){
@@ -734,27 +756,17 @@ else if((state0==COLLECT_YELLOW_CORNER_ACTIVATE)&&(state1==COLLECT_YELLOW_CORNER
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_IDLE);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_IDLE);
 			//	ACT_push_order(arreter tourner le rouleau);
-			//descendre les billes porteuses et remonter la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_YELLOW_CORNER_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_OUT;
 }
-else if((state0==COLLECT_YELLOW_CORNER_VALIDATE)&&(state1==COLLECT_YELLOW_CORNER_VALIDATE)&&(state2==COLLECT_YELLOW_CORNER_VALIDATE)&&(state3==COLLECT_YELLOW_CORNER_VALIDATE)&&(state4==COLLECT_YELLOW_CORNER_VALIDATE)&&(state5==COLLECT_YELLOW_CORNER_VALIDATE)&&(state6==COLLECT_YELLOW_CORNER_VALIDATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=GET_OUT_COLLECT_YELLOW_CORNER;
 }
 
@@ -843,37 +855,24 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			Uint8 state0=COLLECT_BLUE_MIDDLE_ACTIVATE;
 			Uint8 state1=COLLECT_BLUE_MIDDLE_ACTIVATE;
 			Uint8 state2=COLLECT_BLUE_MIDDLE_ACTIVATE;
-			Uint8 state3=COLLECT_BLUE_MIDDLE_ACTIVATE;
-			Uint8 state4=COLLECT_BLUE_MIDDLE_ACTIVATE;
-			Uint8 state5=COLLECT_BLUE_MIDDLE_ACTIVATE;
-			Uint8 state6=COLLECT_BLUE_MIDDLE_ACTIVATE;
+
 
 			if (entrance){
 			// descendre le mur du rouleau et allumer le rouleau
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			//	ACT_push_order(faire tourner le rouleau);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_IN;
 }
-else if((state0==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state1==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state2==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state3==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state4==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state5==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state6==COLLECT_BLUE_MIDDLE_ACTIVATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=COLLECT_BLUE_MIDDLE_MOVE_FOWARD;
 }
 			}break;
@@ -896,10 +895,6 @@ else if((state0==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state1==COLLECT_BLUE_MIDDLE_ACT
 			Uint8 state0=COLLECT_BLUE_MIDDLE_VALIDATE;
 			Uint8 state1=COLLECT_BLUE_MIDDLE_VALIDATE;
 			Uint8 state2=COLLECT_BLUE_MIDDLE_VALIDATE;
-			Uint8 state3=COLLECT_BLUE_MIDDLE_VALIDATE;
-			Uint8 state4=COLLECT_BLUE_MIDDLE_VALIDATE;
-			Uint8 state5=COLLECT_BLUE_MIDDLE_VALIDATE;
-			Uint8 state6=COLLECT_BLUE_MIDDLE_VALIDATE;
 
 
 			if(entrance){
@@ -907,27 +902,17 @@ else if((state0==COLLECT_BLUE_MIDDLE_ACTIVATE)&&(state1==COLLECT_BLUE_MIDDLE_ACT
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_IDLE);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_IDLE);
 			//	ACT_push_order(arreter tourner le rouleau);
-			//descendre les billes porteuses et remonter la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_MIDDLE_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_OUT;
 }
-else if((state0==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state1==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state2==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state3==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state4==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state5==COLLECT_BLUE_MIDDLE_VALIDATE)&&(state6==COLLECT_BLUE_MIDDLE_VALIDATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=GET_OUT_COLLECT_BLUE_MIDDLE;
 }
 
@@ -1017,10 +1002,6 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 			Uint8 state0=COLLECT_BLUE_ROCKET_ACTIVATE;
 			Uint8 state1=COLLECT_BLUE_ROCKET_ACTIVATE;
 			Uint8 state2=COLLECT_BLUE_ROCKET_ACTIVATE;
-			Uint8 state3=COLLECT_BLUE_ROCKET_ACTIVATE;
-			Uint8 state4=COLLECT_BLUE_ROCKET_ACTIVATE;
-			Uint8 state5=COLLECT_BLUE_ROCKET_ACTIVATE;
-			Uint8 state6=COLLECT_BLUE_ROCKET_ACTIVATE;
 
 
 			if (entrance){
@@ -1028,27 +1009,17 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			//	ACT_push_order(faire tourner le rouleau);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_IN;
 }
-else if((state0==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state1==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state2==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state3==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state4==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state5==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state6==COLLECT_BLUE_ROCKET_ACTIVATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=COLLECT_BLUE_ROCKET_MOVE_FOWARD;
 }
 			}break;
@@ -1072,37 +1043,24 @@ else if((state0==COLLECT_BLUE_ROCKET_ACTIVATE)&&(state1==COLLECT_BLUE_ROCKET_ACT
 			Uint8 state0=COLLECT_BLUE_ROCKET_VALIDATE;
 			Uint8 state1=COLLECT_BLUE_ROCKET_VALIDATE;
 			Uint8 state2=COLLECT_BLUE_ROCKET_VALIDATE;
-			Uint8 state3=COLLECT_BLUE_ROCKET_VALIDATE;
-			Uint8 state4=COLLECT_BLUE_ROCKET_VALIDATE;
-			Uint8 state5=COLLECT_BLUE_ROCKET_VALIDATE;
-			Uint8 state6=COLLECT_BLUE_ROCKET_VALIDATE;
 
 
 			if(entrance){
 			// remonter le rouleau et le mur  ! eteindre le rouleau avant !
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_IDLE);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_IDLE);
-			//descendre les billes porteuses et remonter la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
+			//
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_ROCKET_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_OUT;
 }
-else if((state0==COLLECT_BLUE_ROCKET_VALIDATE)&&(state1==COLLECT_BLUE_ROCKET_VALIDATE)&&(state2==COLLECT_BLUE_ROCKET_VALIDATE)&&(state3==COLLECT_BLUE_ROCKET_VALIDATE)&&(state4==COLLECT_BLUE_ROCKET_VALIDATE)&&(state5==COLLECT_BLUE_ROCKET_VALIDATE)&&(state6==COLLECT_BLUE_ROCKET_VALIDATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=GET_OUT_COLLECT_BLUE_ROCKET;
 }
 
@@ -1190,10 +1148,6 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			Uint8 state0=COLLECT_BLUE_CORNER_ACTIVATE;
 			Uint8 state1=COLLECT_BLUE_CORNER_ACTIVATE;
 			Uint8 state2=COLLECT_BLUE_CORNER_ACTIVATE;
-			Uint8 state3=COLLECT_BLUE_CORNER_ACTIVATE;
-			Uint8 state4=COLLECT_BLUE_CORNER_ACTIVATE;
-			Uint8 state5=COLLECT_BLUE_CORNER_ACTIVATE;
-			Uint8 state6=COLLECT_BLUE_CORNER_ACTIVATE;
 
 
 			if (entrance){
@@ -1201,27 +1155,17 @@ error_e sub_harry_take_big_crater_blue_corner(){
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			//	ACT_push_order(faire tourner le rouleau);
-			//remonter les billes porteuses et descendre la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_IN;
 }
-else if((state0==COLLECT_BLUE_CORNER_ACTIVATE)&&(state1==COLLECT_BLUE_CORNER_ACTIVATE)&&(state2==COLLECT_BLUE_CORNER_ACTIVATE)&&(state3==COLLECT_BLUE_CORNER_ACTIVATE)&&(state4==COLLECT_BLUE_CORNER_ACTIVATE)&&(state5==COLLECT_BLUE_CORNER_ACTIVATE)&&(state6==COLLECT_BLUE_CORNER_ACTIVATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=COLLECT_BLUE_CORNER_MOVE_FOWARD;
 }
 			}break;
@@ -1245,38 +1189,23 @@ else if((state0==COLLECT_BLUE_CORNER_ACTIVATE)&&(state1==COLLECT_BLUE_CORNER_ACT
 			Uint8 state0=COLLECT_BLUE_CORNER_VALIDATE;
 			Uint8 state1=COLLECT_BLUE_CORNER_VALIDATE;
 			Uint8 state2=COLLECT_BLUE_CORNER_VALIDATE;
-			Uint8 state3=COLLECT_BLUE_CORNER_VALIDATE;
-			Uint8 state4=COLLECT_BLUE_CORNER_VALIDATE;
-			Uint8 state5=COLLECT_BLUE_CORNER_VALIDATE;
-			Uint8 state6=COLLECT_BLUE_CORNER_VALIDATE;
-
 
 			if(entrance){
 			// remonter le rouleau et le mur  ! eteindre le rouleau avant !
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_IDLE);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_IDLE);
 			//	ACT_push_order(arreter tourner le rouleau);
-			//descendre les billes porteuses et remonter la roue
-			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
-			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
-			ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			}
 
-			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state2= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state2, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state3= check_act_status(ACT_QUEUE_Big_bearing_back_left, state3, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state4= check_act_status(ACT_QUEUE_Big_bearing_back_right, state4, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state5= check_act_status(ACT_QUEUE_Big_bearing_front_left, state5, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
-			state6= check_act_status(ACT_QUEUE_Big_bearing_front_right, state6, COLLECT_BLUE_CORNER_MOVE_FOWARD, ERROR);
+			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
+			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
-if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)||(state5==ERROR)||(state6==ERROR)){
+if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 	state=ERROR_ACT_OUT;
 }
-else if((state0==COLLECT_BLUE_CORNER_VALIDATE)&&(state1==COLLECT_BLUE_CORNER_VALIDATE)&&(state2==COLLECT_BLUE_CORNER_VALIDATE)&&(state3==COLLECT_BLUE_CORNER_VALIDATE)&&(state4==COLLECT_BLUE_CORNER_VALIDATE)&&(state5==COLLECT_BLUE_CORNER_VALIDATE)&&(state6==COLLECT_BLUE_CORNER_VALIDATE)){
+else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 	state=GET_OUT_COLLECT_BLUE_CORNER;
 }
 
