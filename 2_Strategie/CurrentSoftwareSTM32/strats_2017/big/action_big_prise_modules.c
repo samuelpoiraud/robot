@@ -2,12 +2,14 @@
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
+#include "../../QS/QS_types.h"
 
 #include  "../../propulsion/astar.h"
 #include  "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
 #include "../../utils/actionChecker.h"
+#include "../../elements.h"
 
 error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_CENTER,
