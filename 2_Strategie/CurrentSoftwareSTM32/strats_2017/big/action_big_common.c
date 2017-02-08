@@ -56,6 +56,8 @@ error_e sub_harry_initiale(){
 				state = FUSE_UNICOLOR;
 			}else if(switch_balle){
 				state = state = ORE;
+			}else{
+				state = DONE;
 			}
 */
 
