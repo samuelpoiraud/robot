@@ -197,10 +197,13 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 	switch(state){
 
 		case INIT:{
-				error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left); // on appelle une fonction qui verifie la position initiale de tout nos actionneurs
-				if(result == END_OK){   state=ALL_THE_GET_IN;
-				}else{                  state=FAILED_INIT_ACTION;
-				}}break;
+			error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left); // on appelle une fonction qui verifie la position initiale de tout nos actionneurs
+			if(result == END_OK){
+				state=ALL_THE_GET_IN;
+			}else{
+				state=FAILED_INIT_ACTION;
+			}
+			}break;
 
 		case ALL_THE_GET_IN:
 
@@ -554,10 +557,13 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 
 		case INIT_ACTION_SLIDER_RIGHT:
 			if(entrance){
-				if ((getNbDrop(nb_cylinder_big_right)<6)){ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );}
-				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);}
+				if ((getNbDrop(nb_cylinder_big_right)<6)){
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+				}
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+			}
 			if ((getNbDrop(nb_cylinder_big_right)<5)){
-					state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_ELEVATOR_RIGHT, ERROR);
+				state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_ELEVATOR_RIGHT, ERROR);
 			}else{
 				state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
 			}
@@ -565,8 +571,11 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 
 		case INIT_ACTION_ELEVATOR_RIGHT:
 			if(entrance){
-				if ((getNbDrop(nb_cylinder_big_right)<5)){ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP );}
-				ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_OUT);}
+				if ((getNbDrop(nb_cylinder_big_right)<5)){
+					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP );
+				}
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
+			}
 			if ((getNbDrop(nb_cylinder_big_right)<4)){
 				state= check_act_status(ACT_QUEUE_Cylinder_elevator_right, INIT_ACTION_ELEVATOR_RIGHT, INIT_ACTION_SLOPE_RIGHT, ERROR);
 			}else{
@@ -576,13 +585,16 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 
 		case INIT_ACTION_SLOPE_RIGHT:
 			if(entrance){
-				ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);}
+				ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
+			}
 			state= check_act_status(ACT_QUEUE_Cylinder_slope_right, INIT_ACTION_SLOPE_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
 			break;
 
 		case INIT_ACTION_SLIDER_LEFT:
 			if(entrance){
-				if ((getNbDrop(nb_cylinder_big_left)<6)){ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );}
+				if ((getNbDrop(nb_cylinder_big_left)<6)){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+				}
 				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);}
 			if ((getNbDrop(nb_cylinder_big_left)<5)){
 				state= check_act_status(ACT_QUEUE_Cylinder_slider_left, INIT_ACTION_SLIDER_LEFT, INIT_ACTION_ELEVATOR_LEFT, ERROR);
@@ -593,19 +605,23 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 
 		case INIT_ACTION_ELEVATOR_LEFT:
 			if(entrance){
-				if ((getNbDrop(nb_cylinder_big_right)<5)){ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP );}
-				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);}
-			if ((getNbDrop(nb_cylinder_big_left)<4)){
+				if ((getNbDrop(nb_cylinder_big_right) < 5)){
+					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP );
+				}
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
+			}
+			if ((getNbDrop(nb_cylinder_big_left) < 4)){
 				state= check_act_status(ACT_QUEUE_Cylinder_elevator_left, INIT_ACTION_ELEVATOR_LEFT, INIT_ACTION_SLOPE_LEFT, ERROR);
 			}else{
 				state= check_act_status(ACT_QUEUE_Cylinder_elevator_left, INIT_ACTION_ELEVATOR_LEFT, DONE, ERROR);
 			}
 			break;
 
-		case INIT_ACTION_SLOPE_LEFT:
+		case INIT_ACTION_SLOPE_LEFT :
 			if(entrance){
-			ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);}
-			state= check_act_status(ACT_QUEUE_Cylinder_slope_left, INIT_ACTION_SLOPE_LEFT, DONE, ERROR);
+				ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slope_left, INIT_ACTION_SLOPE_LEFT, DONE, ERROR);
 			break;
 
 		case DONE:
