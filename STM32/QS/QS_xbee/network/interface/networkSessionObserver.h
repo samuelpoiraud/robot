@@ -6,14 +6,19 @@
 		#include "../../xbeeMsgType.h"
 		#include "../../xbeeConfig.h"
 
-		typedef void* networkSessionObserver_ptr;
-		#define NETWORK_CONVERT_SESSION_OBSERVER(x)							((void*)(x))
+		typedef void* networkSessionObserver;
 
-		typedef void (*networkSessionTransmitRequestObserver_ptr)(void *, bool_e transmitted);
-		#define NETWORK_CONVERT_SESSION_TRANSMIT_REQUEST_OBSERVER(x)		((networkSessionTransmitRequestObserver_ptr)(x))
+		typedef void (*networkSessionTransmitRequestObserverFct)(void * param, bool_e transmitted);
+		typedef struct{
+			networkSessionTransmitRequestObserverFct notify;
+			void * param;
+		}networkSessionTransmitRequestObserver;
 
-		typedef void (*networkSessionAtCmdObserver_ptr)(void *, networkMessageReceive_t *frame);
-		#define NETWORK_CONVERT_SESSION_AT_CMD_OBSERVER(x)					((networkSessionAtCmdObserver_ptr)(x))
+		typedef void (*networkSessionAtCmdObserverFct)(void * param, networkMessageReceive_t * frame);
+		typedef struct{
+			networkSessionAtCmdObserverFct notify;
+			void * param;
+		}networkSessionAtCmdObserver;
 
 	#endif // def USE_XBEE
 

@@ -9,7 +9,7 @@
 		#include "interface/networkSessionObserver.h"
 		#include "interface/networkSessionController.h"
 
-		networkSessionController_t transmitRequest(void * Observer, networkSessionTransmitRequestObserver_ptr Notify, Uint8 Data[], Uint8 NbData, bool_e Ack, Uint64 DestinationAddress64bit, Uint16 DestinationAddress16bit);
+		networkSessionController_t transmitRequest(networkSessionTransmitRequestObserver * observer, Uint8 Data[], Uint8 NbData, bool_e Ack, Uint64 DestinationAddress64bit, Uint16 DestinationAddress16bit);
 
 	#endif // def USE_XBEE
 

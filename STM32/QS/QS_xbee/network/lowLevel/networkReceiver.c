@@ -1,9 +1,12 @@
 #include "networkReceiver.h"
 #include "../../../QS_uart.h"
-#include "../../../QS_outputlog.h"
 #include "networkSpreader.h"
 
 #ifdef USE_XBEE
+
+	#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_XBEE
+	#define LOG_PREFIX LOG_PREFIX_XBEE
+	#include "../../../QS_outputlog.h"
 
 	#define XBEE_RECEIVED_BUFFER_SIZE		10
 
@@ -288,9 +291,9 @@
 		for(i=0; i < Data->header.formated.lenght - 1; i++)
 			XBEE_FIFO_ReceivedFrame.buffer[XBEE_FIFO_ReceivedFrame.writeIndex].frame.rawData[i] = Data->frame.rawData[i];
 
-		XBEE_FIFO_incWriteIndex();
+		assert(!XBEE_FIFO_isFull());
 
-		assert(!XBEE_FIFO_isFull());	// Présence d'une préemption
+		XBEE_FIFO_incWriteIndex();
 
 		return TRUE;
 	}

@@ -13,10 +13,16 @@
 
 
 #include "QS_xbee.h"
+
 #ifdef USE_XBEE
 	#include "../QS_uart.h"
-	#include "../QS_outputlog.h"
+	#include "../QS_ports.h"
+	#include "../QS_watchdog.h"
 	#include "network/networkSystem.h"
+
+	#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_XBEE
+	#define LOG_PREFIX LOG_PREFIX_XBEE
+	#include "../QS_outputlog.h"
 
 	static volatile bool_e initialized = FALSE;
 

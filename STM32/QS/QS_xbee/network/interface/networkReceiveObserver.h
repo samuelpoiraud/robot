@@ -6,7 +6,7 @@
 		#include "../../xbeeMsgType.h"
 		#include "../../xbeeConfig.h"
 
-		typedef void (*networkReceiveObserver_ptr)(networkMessageReceive_t *Msg);
+	typedef void (*networkReceiveObserver_ptr)(networkMessageReceive_t *Msg);
 
 	#endif // def USE_XBEE
 

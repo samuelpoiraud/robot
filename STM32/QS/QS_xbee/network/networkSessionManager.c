@@ -1,8 +1,11 @@
 #include "networkSessionManager.h"
 #include "networkReceiveManager.h"
-#include "../../QS_outputlog.h"
 
 #ifdef USE_XBEE
+
+	#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_XBEE
+	#define LOG_PREFIX LOG_PREFIX_XBEE
+	#include "../../QS_outputlog.h"
 
 	#define MAX_NB_SESSION	10
 
