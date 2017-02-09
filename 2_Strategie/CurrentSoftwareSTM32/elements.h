@@ -63,6 +63,18 @@
 		NB_MODULE_FUSEE_MULTICOLOR,
 	}moduleDropLocation_e;
 
+	typedef enum{
+		MODULE_STORAGE_LEFT,
+		MODULE_STORAGE_RIGHT,
+		NB_PLACE_STORAGE
+	}moduleStorageLocation_e;
+
+	typedef enum{
+		NO_DOMINATING,
+		MODULE_MONO_DOMINATING,
+		MODULE_POLY_DOMINATING,
+	}moduleTypeDominating_e;
+
 	extern const module_zone_characteristics_s module_zone[NB_MODULE_LOCATION];
 	// COMMENTAIRE POUR COCO : module_zone[first_zone].xmin
 
@@ -80,6 +92,21 @@ void ELEMENTS_receive_flags(CAN_msg_t* msg);
 
 // Hardflags
 void ELEMENTS_receive_hardflags_from_xbee(CAN_msg_t * msg);
+
+
+//Fonctions pour le stockage
+moduleTypeDominating_e dominatingTypeStock(moduleStorageLocation_e storage);
+
+bool_e moduleStockPlaceIsEmpty(Uint8 place, moduleStorageLocation_e storage);
+
+Uint8 nbModulesStock(moduleStorageLocation_e storage);
+
+void addModuleStock(moduleType_e type, moduleStorageLocation_e storage);
+
+moduleType_e releaseModuleStock(moduleType_e type, moduleStorageLocation_e storage);
+
+
+//Fonctions pour la dépose
 
 bool_e modulePlaceIsEmpty(Uint8 place, moduleDropLocation_e location);
 

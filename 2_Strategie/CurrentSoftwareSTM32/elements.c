@@ -14,11 +14,20 @@
 
 
 #define MAX_MODULE_DROP			6
+#define MAX_MODULE_STOCK		6
 
 typedef struct{
 	Uint8 nbDrop;
 	moduleType_e dropTable[MAX_MODULE_DROP];
 }moduleDropInfo_s;
+
+typedef struct{
+	moduleType_e stockModules[MAX_MODULE_STOCK];
+	Uint8 nb_current_modules;
+	Uint8 nb_modules_multicolor;
+	Uint8 nb_modules_monocolor;
+	moduleTypeDominating_e dominating_modules;
+}gestion_modules_s;
 
 typedef struct{
 	bool_e sending;
@@ -33,6 +42,7 @@ typedef struct{
 
 static volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
 static volatile moduleDropInfo_s moduleDropInfo[NB_MODULE_LOCATION] = {0};
+static volatile gestion_modules_s moduleStockInfo[NB_PLACE_STORAGE] = {0};
 static volatile hardflag_s elements_hardflags[HARDFLAGS_NB];
 
 
@@ -281,7 +291,79 @@ static void ELEMENTS_receive_hardflags()
 }
 
 
+//Code pour le stockage des modules
 
+static void calcul_module_dominant(moduleStorageLocation_e storage){
+	if(moduleStockInfo[storage].nb_modules_monocolor > moduleStockInfo[storage].nb_modules_multicolor){
+		moduleStockInfo[storage].dominating_modules = MODULE_MONO_DOMINATING;
+	}
+	else if (moduleStockInfo[storage].nb_modules_monocolor < moduleStockInfo[storage].nb_modules_multicolor){
+		moduleStockInfo[storage].dominating_modules = MODULE_POLY_DOMINATING;
+	}
+	else{
+		moduleStockInfo[storage].dominating_modules = NO_DOMINATING;
+	}
+}
+
+moduleTypeDominating_e dominatingTypeStock(moduleStorageLocation_e storage){
+	return moduleStockInfo[storage].dominating_modules;
+}
+
+Uint8 nbModulesStock(moduleStorageLocation_e storage){
+	return moduleStockInfo[storage].nb_current_modules;
+}
+
+bool_e moduleStockPlaceIsEmpty(Uint8 place, moduleStorageLocation_e storage){
+	assert(place < MAX_MODULE_STOCK);
+	if(moduleStockInfo[storage].stockModules[place] != MODULE_EMPTY){
+		return FALSE;
+	}
+	else {
+		return TRUE;
+	}
+}
+
+void addModuleStock(moduleType_e type, moduleStorageLocation_e storage){
+	if(type == MODULE_BLUE || type == MODULE_YELLOW){
+		moduleStockInfo[storage].nb_modules_monocolor++;
+	}
+	else if(type == MODULE_POLY){
+		moduleStockInfo[storage].nb_modules_multicolor++;
+	}
+
+	calcul_module_dominant(storage);
+
+	//Stockage du module
+	Uint8 nbModules = moduleStockInfo[storage].nb_current_modules;
+	moduleStockInfo[storage].stockModules[nbModules] = type;
+
+}
+
+moduleType_e releaseModuleStock(moduleType_e type, moduleStorageLocation_e storage){
+	if(moduleStockInfo[storage].nb_current_modules >= 1){
+		moduleType_e module = moduleStockInfo[storage].stockModules[0];
+
+		if(module == MODULE_BLUE || module == MODULE_YELLOW){
+			moduleStockInfo[storage].nb_modules_monocolor--;
+		}
+		else if(module == MODULE_POLY){
+			moduleStockInfo[storage].nb_modules_multicolor--;
+		}
+
+		Uint8 i;
+		for(i=0; i<MAX_MODULE_STOCK-2; i++){
+			moduleStockInfo[storage].stockModules[i] = moduleStockInfo[storage].stockModules[i+1];
+		}
+		moduleStockInfo[storage].nb_current_modules--;
+		return module;
+	}
+	else{
+		return MODULE_EMPTY;
+	}
+}
+
+
+//code pour le placement des modules
 
 bool_e modulePlaceIsEmpty(Uint8 place, moduleDropLocation_e location){
 	assert(place < MAX_MODULE_DROP);
