@@ -44,20 +44,14 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 
 			LES_SQUARE_COLOR,
 			NORD_1,
-
 			NORD_EST_1,
 			NORD_EST_2,
-
 			SUD_EST_1,
 			SUD_EST_2,
 			SUD_EST_3,
-
 			SUD_OUEST_1,
-
 			NORD_OUEST_1,
-
 			PATHFIND,
-
 			FIN_DEPLACEMENTS,
 
 
@@ -66,15 +60,75 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 			DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS,
 			DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER,
 			DETERMINE_NB_CYLINDRE,
+			DETERMINE_NB_CYLINDRE_SUR_BASE_REMONTER_BRAS,
 			DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,
 
+
+		//VERIFIER_COULEUR_CYLINDRE_DEJA_SUR_BASE:
+			SI_4_CYLINDRES,//reflexion à faire sur l'importance de cette action car on ne va pas déposer...
+			SI_3_CYLINDRES,
+			SI_2_CYLINDRES,
+			SI_1_CYLINDRES,
+			SI_0_REPLACEMENT,
+
+			ROTATION_CYLINDRE_DROIT_DESCENDRE_BRAS,
+			ROTATION_CYLINDRE_DROIT,
+			ROTATION_CYLINDRE_DROIT_MONTER_BRAS,
+
+			ROTATION_CYLINDRE_GAUCHE_DESCENDRE_BRAS,
+			ROTATION_CYLINDRE_GAUCHE,
+			ROTATION_CYLINDRE_GAUCHE_MONTER_BRAS,
+
+		//si ce n'est pas un cylindre que l'on à posé:
+			ROTATION_CYLINDRE_INCONU_DROIT_DESCENDRE_BRAS,
+			ROTATION_CYLINDRE_INCONU_DROIT,
+			ROTATION_CYLINDRE_INCONU_DROIT_MONTER_BRAS,
+
+			ROTATION_CYLINDRE_INCONU_GAUCHE_DESCENDRE_BRAS,
+			ROTATION_CYLINDRE_INCONU_GAUCHE,
+			ROTATION_CYLINDRE_INCONU_GAUCHE_MONTER_BRAS,//j'ai rien contre les gauchers... mais je ne le suis pas..
+
+		//Maintenant on peut ajouter des cylindres:    ENFIN!
 			CHOIX_DE_COTE_DEPOSE,
+
+		//procedure de depose du cote droit du robot:
 			DEPOSE_DROIT,
+			DEPOSE_DROIT_DESCENDRE_PUSHER,
+
 			VERIFICATION_COULEUR_DROIT,
 			POUSSER_CYLINDRE_DROIT,
 			PRISE_DE_DECISION
 		);
 
+	//MES VARIABLES:
+	Uint8 nbCylindresSurBase = 0;
+	typedef enum{
+	   OUEST = 0,
+	   EST = 1
+	}endroit_depose_config_e;
+	Uint8 endroit_depose;
+	//
+	if(global.color==BLUE){
+		if(OUR_ELEMENT){
+			endroit_depose = OUEST;
+		}
+		else {
+			endroit_depose = EST;
+		}
+	}
+	else {
+		if(OUR_ELEMENT){
+			endroit_depose = EST;
+		}
+		else {
+			endroit_depose = OUEST;
+		}
+	}
+	typedef enum{
+		NORD = 0,
+		SUD = 1
+	}POINT_DE_ROTATION_config_e;
+	Uint8 mon_point_de_rotation = SUD;
 
 	switch(state){
 		// Vérifier la présance de cylindre dans le robot... je sais pas faire... nul!
@@ -169,64 +223,331 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 				break;
 
 			case DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS:
-				//Descendre bras poussoir gauche
+				if(endroit_depose==OUEST){
+					if(mon_point_de_rotation==SUD){
+						//Descendre bras poussoir gauche;
+					}
+					else{
+						//Descendre bras poussoir droit;
+					}
+				}
+				else{
+					if(mon_point_de_rotation==SUD){
+						//Descendre bras poussoir droit;
+					}
+					else{
+						//Descendre bras poussoir gauche;
+					}
+				}
 				state = DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER;
 				break;
 
 			case DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER:
 				//Avancer doucement jusqu'a bloquage:
-				state = try_rush(600,COLOR_Y(280),DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER,DETERMINE_NB_CYLINDRE,ERROR,FORWARD,NO_DODGE_AND_WAIT,TRUE);
+				if(endroit_depose==OUEST){
+					if(mon_point_de_rotation==SUD){
+						state = try_rush(600,280,DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER,DETERMINE_NB_CYLINDRE,ERROR,FORWARD,NO_DODGE_AND_WAIT,TRUE);
+					}
+					else {
+						state = try_rush(1250,280,DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER,DETERMINE_NB_CYLINDRE,ERROR,FORWARD,NO_DODGE_AND_WAIT,TRUE);
+					}
+				}
+				else {
+					if(mon_point_de_rotation==SUD){
+						state = try_rush(600,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER,DETERMINE_NB_CYLINDRE,ERROR,FORWARD,NO_DODGE_AND_WAIT,TRUE);
+					}
+					else {
+						state = try_rush(1250,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER,DETERMINE_NB_CYLINDRE,ERROR,FORWARD,NO_DODGE_AND_WAIT,TRUE);
+					}
+				}
+
 				break;
 
 			case DETERMINE_NB_CYLINDRE:
-				if (i_am_in_square_color(550,750,0,500)){
-					//J'ai pas de cylindre dans la base:
-					state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
+				if(mon_point_de_rotation==SUD){
+					if (i_am_in_square_color(550,750,0,3000)){
+						nbCylindresSurBase = 0;
+						}
+					else if (i_am_in_square_color(750,850,0,3000)){
+						nbCylindresSurBase = 1;
+						}
+					else if (i_am_in_square_color(850,950,0,3000)){
+						nbCylindresSurBase = 2;
+						}
+					else if (i_am_in_square_color(950,1050,0,3000)){
+						nbCylindresSurBase = 3;
+						}
+					else if (i_am_in_square_color(1050,1150,0,3000)){
+						nbCylindresSurBase = 4;
+						}
+					else{
+						//ERROR
+						state = ERROR;
 					}
-				else if (i_am_in_square_color(750,850,0,500)){
-					//J'ai 1 cylindre dans la base:
-					state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-					}
-				else if (i_am_in_square_color(850,950,0,500)){
-					//J'ai 2 cylindre dans la base:
-					state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-					}
-				else if (i_am_in_square_color(950,1050,0,500)){
-					//J'ai 3 cylindre dans la base:
-					state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-					}
-				else if (i_am_in_square_color(1050,1150,0,500)){
-					//J'ai 4 cylindre dans la base:
-					state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-					}
-				else{
-					//ERROR
-					state = ERROR;
 				}
+				else {
+					if (i_am_in_square_color(550,750,0,3000)){
+						nbCylindresSurBase = 4;
+						}
+					else if (i_am_in_square_color(750,850,0,3000)){
+						nbCylindresSurBase = 3;
+						}
+					else if (i_am_in_square_color(850,950,0,3000)){
+						nbCylindresSurBase = 2;
+						}
+					else if (i_am_in_square_color(950,1050,0,3000)){
+						nbCylindresSurBase = 1;
+						}
+					else if (i_am_in_square_color(1050,1150,0,3000)){
+						nbCylindresSurBase = 0;
+						}
+					else{
+						//ERROR
+						state = ERROR;
+					}
+				}
+				state = DETERMINE_NB_CYLINDRE_SUR_BASE_REMONTER_BRAS;
+				break;
+
+			case DETERMINE_NB_CYLINDRE_SUR_BASE_REMONTER_BRAS:
+				if(endroit_depose==OUEST){
+					if(mon_point_de_rotation==SUD){
+						//MONTER bras poussoir gauche;
+					}
+					else{
+						//MONTER bras poussoir droit;
+					}
+				}
+				else{
+					if(mon_point_de_rotation==SUD){
+						//MONTER bras poussoir droit;
+					}
+					else{
+						//MONTER bras poussoir gauche;
+					}
+				}
+				state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
 				break;
 
 
 			case DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT:
-				//revenir en arrière jusqu'au point (1250,COLOR_Y(280))
-				state = try_going(1250,COLOR_Y(280),DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,DONE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				if(endroit_depose==OUEST){
+					if(mon_point_de_rotation==SUD){
+						if (nbCylindresSurBase == 4){
+							state = try_going(1000,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_4_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 3){
+							state = try_going(900,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 2){
+							state = try_going(800,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 1){
+							state = try_going(700,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 0){
+							state = SI_0_REPLACEMENT;
+						}
+					}
+					else {
+						if (nbCylindresSurBase == 4){
+							state = try_going(750,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_4_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 3){
+							state = try_going(850,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 2){
+							state = try_going(950,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 1){
+							state = try_going(1050,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 0){
+							state = SI_0_REPLACEMENT;
+						}
+					}
+				}
+				else {
+					if(mon_point_de_rotation==SUD){
+						if (nbCylindresSurBase == 4){
+							state = try_going(1000,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_4_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 3){
+							state = try_going(900,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 2){
+							state = try_going(800,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 1){
+							state = try_going(700,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 0){
+							state = SI_0_REPLACEMENT;
+						}
+					}
+					else {
+						if (nbCylindresSurBase == 4){
+							state = try_going(750,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_4_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 3){
+							state = try_going(850,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 2){
+							state = try_going(950,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 1){
+							state = try_going(1050,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+						}
+						else if(nbCylindresSurBase == 0){
+							state = SI_0_REPLACEMENT;
+						}
+					}
+				}
 
-				//if (il reste de la place pour déposer des cylindres
-				//		changer de case ==> CHOIX_DE_COTE_DEPOSE
-				//else
-				//		changer de case ==> END
 				break;
 
+
+
+//VERIFIER_COULEUR_CYLINDRE_DEJA_SUR_BASE:
+//ATTENTION : ROTATION d'un cylindre inconus == monocouleur!
+
+			case SI_4_CYLINDRES:
+				if(endroit_depose == OUEST){
+					if(mon_point_de_rotation==SUD){
+						//rotation cylindre Gauche
+						sub_harry_return_modules(LEFT);
+						state = try_going(900,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						//rotation cylindre Droit
+						sub_harry_return_modules(RIGHT);
+						state = try_going(850,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				else{
+					if(mon_point_de_rotation==SUD){
+						//rotation cylindre Droit
+						sub_harry_return_modules(RIGHT);
+						state = try_going(900,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						//rotation cylindre Gauche
+						sub_harry_return_modules(LEFT);
+						state = try_going(850,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				break;
+
+			case SI_3_CYLINDRES:
+				if(endroit_depose == OUEST){
+					if(mon_point_de_rotation==SUD){
+						//rotation cylindre Gauche
+						sub_harry_return_modules(LEFT);
+						state = try_going(800,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						//rotation cylindre Droit
+						sub_harry_return_modules(RIGHT);
+						state = try_going(950,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				else{
+					if(mon_point_de_rotation==SUD){
+						//rotation cylindre Droit
+						sub_harry_return_modules(RIGHT);
+						state = try_going(800,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						//rotation cylindre Gauche
+						sub_harry_return_modules(LEFT);
+						state = try_going(950,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				break;
+
+			case SI_2_CYLINDRES:
+				if(endroit_depose == OUEST){
+					if(mon_point_de_rotation==SUD){
+						//rotation cylindre Gauche
+						sub_harry_return_modules(LEFT);
+						state = try_going(700,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						//rotation cylindre Droit
+						sub_harry_return_modules(RIGHT);
+						state = try_going(1050,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				else{
+					if(mon_point_de_rotation==SUD){
+						//rotation cylindre Droit
+						sub_harry_return_modules(RIGHT);
+						state = try_going(700,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						//rotation cylindre Gauche
+						sub_harry_return_modules(LEFT);
+						state = try_going(1050,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				break;
+
+			case SI_1_CYLINDRES:
+				if(endroit_depose == OUEST){
+					if(mon_point_de_rotation==SUD){
+						//rotation cylindre Gauche
+						sub_harry_return_modules(LEFT);
+					}
+					else{
+						//rotation cylindre Droit
+						sub_harry_return_modules(RIGHT);
+					}
+				}
+				else{
+					if(mon_point_de_rotation==SUD){
+						//rotation cylindre Droit
+						sub_harry_return_modules(RIGHT);
+					}
+					else{
+						//rotation cylindre Gauche
+						sub_harry_return_modules(LEFT);
+					}
+				}
+				state = SI_0_REPLACEMENT;
+				break;
+
+			case SI_0_REPLACEMENT:
+				if(endroit_depose == OUEST){
+					if(mon_point_de_rotation==SUD){
+						state = try_going(1250,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,CHOIX_DE_COTE_DEPOSE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else {
+						state = try_going(650,280,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,CHOIX_DE_COTE_DEPOSE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				else {
+					if(mon_point_de_rotation==SUD){
+						state = try_going(1250,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,CHOIX_DE_COTE_DEPOSE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else {
+						state = try_going(650,2720,DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,CHOIX_DE_COTE_DEPOSE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				break;
+
+
+
+//rotation pour drop du bon coté:
 			case CHOIX_DE_COTE_DEPOSE:
 				state=DONE;
 				//if (deposer à droite)
-				//		changer de case ==> DEPOSE_DROIT
+					state = try_go_angle(PI4096, state, state, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
 				//else
-				//		changer de case ==> DEPOSE_GAUCHE
+					state = try_go_angle(PI4096, state, state, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
 				break;
 
 			case DEPOSE_DROIT:
 				//Rotation vers PI
-				state = try_go_angle(PI4096, state, state, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
 				//descendre le bras poussoir droit
 				//Lacher le cylindre
 				//ouvrir la trape latérale
@@ -255,7 +576,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 					//END
 				//else{
 					// Est ce qu'il reste de la place dans la base?
-				//if(nb_plade_dispo==6){
+				//if(nb_plade_dispo==4){
 					//END
 				//else{
 				break;
