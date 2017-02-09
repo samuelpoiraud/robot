@@ -7,7 +7,7 @@
 		#include "../../xbeeConfig.h"
 		#include "networkSession.h"
 
-	networkSession_s transmitRequestSession_create(void * Observer, networkSessionTransmitRequestObserver_ptr Notify, networkMessageTransmit_t Msg, bool_e Ack, time32_t Timeout);
+	networkSession_s transmitRequestSession_create(networkSessionTransmitRequestObserver * observer, networkMessageTransmit_t Msg, bool_e Ack, time32_t Timeout);
 
 	#endif // def USE_XBEE
 

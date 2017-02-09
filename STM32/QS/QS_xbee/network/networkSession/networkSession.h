@@ -29,8 +29,7 @@
 		/// Public method
 			void (*run)(struct networkSession *Session);
 			void (*connect)(struct networkSession *Session, networkMessageReceive_t *networkMessage);
-			networkSessionObserver_ptr notify;
-			void * observer;
+			networkSessionObserver observer;
 			networkSessionController_ptr abord;
 		};
 

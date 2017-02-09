@@ -4,6 +4,8 @@
 
 	#ifdef USE_XBEE
 
+		#define LOG_PREFIX_XBEE "xbee :"
+
 		#ifdef XBEE_PLUGGED_ON_UART1
 			#define XBee_uartId	1
 			#define XBee_putc(c) UART1_putc(c)

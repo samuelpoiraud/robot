@@ -3,9 +3,13 @@
 #include "networkSessionManager.h"
 #include "lowLevel/networkSpreader.h"
 #include "lowLevel/networkReceiver.h"
-#include "../../QS_outputlog.h"
 
 #ifdef USE_XBEE
+
+	#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_XBEE
+	#define LOG_PREFIX LOG_PREFIX_XBEE
+	#include "../../QS_outputlog.h"
+
 	typedef enum{
 		NETWORK_INIT,
 		NETWORK_RESET_XBEE,

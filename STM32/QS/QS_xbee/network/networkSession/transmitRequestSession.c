@@ -1,9 +1,12 @@
 #include "transmitRequestSession.h"
 #include "../lowLevel/networkTransmitter.h"
 #include "../networkSessionManager.h"
-#include "../../../QS_outputlog.h"
 
 #ifdef USE_XBEE
+
+	#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_XBEE
+	#define LOG_PREFIX LOG_PREFIX_XBEE
+	#include "../../../QS_outputlog.h"
 
 	typedef enum{
 		STATE_SEND,
@@ -18,7 +21,7 @@
 	static void connect(networkSession_s *Session, networkMessageReceive_t *NetworkMessage);
 	static void abord(void *Session);
 
-	networkSession_s transmitRequestSession_create(void * Observer, networkSessionTransmitRequestObserver_ptr Notify, networkMessageTransmit_t Msg, bool_e Ack, time32_t Timeout){
+	networkSession_s transmitRequestSession_create(networkSessionTransmitRequestObserver * observer, networkMessageTransmit_t Msg, bool_e Ack, time32_t Timeout){
 
 		networkSession_s session;
 
@@ -33,11 +36,10 @@
 
 		session.run = &run;
 		session.connect = &connect;
-		session.notify = NETWORK_CONVERT_SESSION_OBSERVER(Notify);
-		session.observer = Observer;
+		session.observer = (networkSessionObserver)(observer);
 		session.abord = &abord;
 
-		//info_printf("XBEE : %d OPEN\n", session.frameID);
+		info_printf("XBEE : %d OPEN\n", session.frameID);
 
 		return session;
 	}
@@ -66,23 +68,26 @@
 				}
 				break;
 
-			case STATE_END:
-				NETWORK_CONVERT_SESSION_TRANSMIT_REQUEST_OBSERVER(Session->notify)(Session->observer, TRUE);
+			case STATE_END:{
+				networkSessionTransmitRequestObserver * observer = (networkSessionTransmitRequestObserver *)(Session->observer);
+				observer->notify(observer->param, TRUE);
 				NETWORK_SESSION_MNG_closeSession(Session->frameID);
-				//info_printf("XBEE : %d CLOSE\n", Session->frameID);
-				break;
+				info_printf("XBEE : %d CLOSE\n", Session->frameID);
+				}break;
 
-			case STATE_ERROR:
-				NETWORK_CONVERT_SESSION_TRANSMIT_REQUEST_OBSERVER(Session->notify)(Session->observer, FALSE);
+			case STATE_ERROR:{
+				networkSessionTransmitRequestObserver * observer = (networkSessionTransmitRequestObserver *)(Session->observer);
+				observer->notify(observer->param, FALSE);
 				NETWORK_SESSION_MNG_closeSession(Session->frameID);
-				//info_printf("XBEE : %d CLOSE ERROR\n", Session->frameID);
-				break;
+				info_printf("XBEE : %d CLOSE ERROR\n", Session->frameID);
+				}break;
 
-			case STATE_TIMEOUT:
-				NETWORK_CONVERT_SESSION_TRANSMIT_REQUEST_OBSERVER(Session->notify)(Session->observer, FALSE);
+			case STATE_TIMEOUT:{
+				networkSessionTransmitRequestObserver * observer = (networkSessionTransmitRequestObserver *)(Session->observer);
+				observer->notify(observer->param, FALSE);
 				NETWORK_SESSION_MNG_closeSession(Session->frameID);
-				//info_printf("XBEE : %d CLOSE TIMEOUT\n", Session->frameID);
-				break;
+				info_printf("XBEE : %d CLOSE TIMEOUT\n", Session->frameID);
+				}break;
 
 			case STATE_ABORD:
 				NETWORK_SESSION_MNG_closeSession(Session->frameID);
@@ -91,6 +96,9 @@
 	}
 
 	static void connect(networkSession_s *Session, networkMessageReceive_t *NetworkMessage){
+
+		info_printf("XBEE : %d CONNECT\n", Session->frameID);
+
 		if(NetworkMessage->header.formated.frameType != FRAME_TYPE_TRANSMIT_STATUS){
 			error_printf("connect : TRANSMIT_REQUEST : Mauvais frameType\n");
 			return;

@@ -2,6 +2,10 @@
 
 #ifdef USE_XBEE
 
+	#define LOG_COMPONENT OUTPUT_LOG_COMPONENT_XBEE
+	#define LOG_PREFIX LOG_PREFIX_XBEE
+	#include "../../../QS_outputlog.h"
+
 	static volatile NETWORK_SPREADER_UartUser_e uartUser = SYSTEM_UART_USER;
 	static volatile UART_dataReceivedFunctionPtr networkListenner = NULL;
 	static volatile UART_dataReceivedFunctionPtr systemListenner = NULL;
