@@ -4,111 +4,159 @@
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../actions_both_2017.h"
 #include "../../utils/actionChecker.h"
+#include "../../QS/QS_IHM.h"
+#include "../../utils/generic_functions.h"
 
 error_e sub_harry_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INITIALE,
 			INIT,
 			ROCKER,
-			MODULE_AND_ROCKET_MULTICOLOR,
-			MODULE_AND_ORE,
-			MODULE_AND_ROCKET_UNICOLOR,
 
-			MODULES_AND_ROCKET_MULTICOLOR,
-			MODULES_AND_ORE,
+			//ADV
+			MODULES_AND_ROCKET_MULTICOLOR_ADV,
+			MODULES_ADV,
+			ROCKET_MULTICOLOR_ADV,
+			MODULES_AND_ORE_ADV,
+			ORE_ADV,
+
+			//OUR
+			//MODULE_AND_ROCKET_MULTICOLOR_OUR,
+			//MODULE_AND_ORE,
+			//MODULE_AND_ROCKET_UNICOLOR,
+
+			MODULES_AND_ROCKET_MULTICOLOR_OUR,
+			MODULES_AND_ORE_OUR,
 			MODULES_AND_ROCKET_UNICOLOR,
 			MODULES_AND_PUT_OFF,
 
-			FUSE_UNICOLOR,
-			FUSE_MULTICOLOR,
-			ORE,
+			MODULES_OUR,
+			ROCKET_UNICOLOR,
+			ROCKET_MULTICOLOR_OUR,
+			ORE_OUR,
 			PUT_OFF,
 			ERROR,
 			DONE
 		);
 
-//precision quel element !
+//depose element
 	switch(state){
 		case INIT:
-/*
-			if(i_am_in_square_color(0, 360, 0, 360)){   //le robot est dans la zone avant la bascule
-				state = ROCKER;
+
+			if(i_am_in_square_color(0, 360, 0, 360)||IHM_switchs_get(SWITCH_WITH_BASCULE)){   //le robot est dans la zone avant la bascule
+				state = ROCKER; //!boucle infini passage bascule!
 			}
 
-			if(switch_module && switch_fusée_multicolor){
-				state = MODULE_AND_FUSE_MULTICOLOR;
-			}else if(switch_module && switch_balle){
-				state = MODULE_AND_ORE;
-			}else if(switch_module && switch_fusée_unicolor){
-				state = MODULE_AND_FUSE_UNICOLOR
+			//ADV
+			else if(IHM_switchs_get(SWITCH_ADV_MODULES) && IHM_switchs_get(SWITCH_ADV_ROCKET_MULTICOLOR)){
+				state = MODULES_AND_ROCKET_MULTICOLOR_ADV;
 			}
-			else if(switch_modulesssss && switch_fusée_multicolor){ //!!
-				state = MODULE_AND_FUSE_MULTICOLOR;
-			}else if(switch_modulesssss && switch_balle){
-				state = MODULE_AND_ORE;
-			}else if(switch_modulesssss && switch_fusée_unicolor){
-				state = MODULES_AND_FUSE_UNICOLOR;
-			}else if(switch_modulesssss && switch_depose_module){
+			else if(IHM_switchs_get(SWITCH_ADV_MODULES) && IHM_switchs_get(SWITCH_ADV_ORES)){
+				state = MODULES_AND_ORE_ADV;
+			}
+			else if(IHM_switchs_get(SWITCH_ADV_ROCKET_MULTICOLOR)){
+				state = ROCKET_MULTICOLOR_ADV;
+			}
+			else if(IHM_switchs_get(SWITCH_ADV_MODULES)){
+				state = MODULES_ADV;
+			}
+			else if(IHM_switchs_get(SWITCH_ADV_MODULES)){
+				state = ORE_ADV;
+			}
+
+			//OUR
+			else if(IHM_switchs_get(SWITCH_OUR_MODULES) && IHM_switchs_get(SWITCH_OUR_ROCKET_MULTICOLOR)){
+				state = MODULES_AND_ROCKET_MULTICOLOR_OUR;
+			}
+			else if(IHM_switchs_get(SWITCH_OUR_MODULES) && IHM_switchs_get(SWITCH_OUR_ORES)){
+				state = MODULES_AND_ORE_OUR;
+			}
+			else if(IHM_switchs_get(SWITCH_OUR_MODULES) && IHM_switchs_get(SWITCH_OUR_ROCKET_UNICOLOR)){
+				state = MODULES_AND_ROCKET_UNICOLOR;
+			}
+			else if(IHM_switchs_get(SWITCH_OUR_MODULES) && IHM_switchs_get(SWITCH_DISPOSE_MODULES)){
 				state = MODULES_AND_PUT_OFF;
 			}
-			else if(switch_fusée_multicolor){						//!!
-				state = FUSE_MULTICOLOR;
-			}else if(switch_fusée_unicolor){
-				state = FUSE_UNICOLOR;
-			}else if(switch_balle){
-				state = state = ORE;
-			}else{
+			else if(IHM_switchs_get(SWITCH_OUR_ROCKET_MULTICOLOR)){
+				state = ROCKET_MULTICOLOR_OUR;
+			}
+			else if(IHM_switchs_get(SWITCH_OUR_ROCKET_UNICOLOR)){
+				state = ROCKET_UNICOLOR;
+			}
+			else if(IHM_switchs_get(SWITCH_OUR_ORES)){
+				state = ORE_OUR;
+			}
+			else if(IHM_switchs_get(SWITCH_OUR_MODULES)){
+				state = MODULES_OUR;
+			}
+			else{
 				state = DONE;
 			}
-*/
+			break;
 
-			break;
-//if0
+		//bascule
 		case ROCKER:
-			state=check_sub_action_result(sub_cross_rocker(),state, INIT, ROCKER);
+			state=check_sub_action_result(sub_cross_rocker(),state, INIT, ERROR);
 			break;
-//else1
-		case MODULE_AND_ROCKET_MULTICOLOR:
-			//state=check_sub_action_result(sub_module , FUSE_MULTICOLOR, ERROR);
+		//ADV
+		case MODULES_AND_ROCKET_MULTICOLOR_ADV:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(ADV_ELEMENT),state, ROCKET_MULTICOLOR_ADV, ERROR);
 			break;
-		case FUSE_MULTICOLOR:
-			state=check_sub_action_result(sub_harry_rocket_multicolor(NO_ELEMENT, 0),state, DONE, ERROR);
+
+		case MODULES_ADV:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(ADV_ELEMENT),state, DONE, ERROR);
 			break;
-//else2
-		case MODULE_AND_ORE:
-			//state=check_sub_action_result(sub_module,state, ORE, ERROR);
+
+		case ROCKET_MULTICOLOR_ADV:
+			state=check_sub_action_result(sub_harry_rocket_multicolor(ADV_ELEMENT, 4),state, DONE, ERROR);
 			break;
-		case ORE:
-			state=check_sub_action_result(sub_harry_take_big_crater(NO_ELEMENT),state, DONE, ERROR);
+
+		case MODULES_AND_ORE_ADV:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(ADV_ELEMENT),state, ORE_ADV, ERROR);
 			break;
-//else3
-		case MODULE_AND_ROCKET_UNICOLOR:
-			//state=check_sub_action_result(sub_module,state, FUSE_UNICOLOR, ERROR);
+
+		case ORE_ADV:
+			state=check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT),state, DONE, ERROR);
 			break;
-		case FUSE_UNICOLOR:
+
+
+		//OUR 1 action
+		case MODULES_OUR:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT),state, DONE, ERROR);
+			break;
+
+		case ROCKET_MULTICOLOR_OUR:
+			state=check_sub_action_result(sub_harry_rocket_multicolor(OUR_ELEMENT, 4),state, DONE, ERROR);
+			break;
+
+		case ROCKET_UNICOLOR:
 			state=check_sub_action_result(sub_harry_rocket_monocolor(),state, DONE, ERROR);
 			break;
-//else4																									//!! moduleSSSS
-		case MODULES_AND_ROCKET_MULTICOLOR:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, FUSE_MULTICOLOR, ERROR);
+
+		case ORE_OUR:
+			state=check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT),state, DONE, ERROR);
 			break;
 
-//else5
-		case MODULES_AND_ORE:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, ORE, ERROR);
-			break;
-
-//else6
-		case MODULES_AND_ROCKET_UNICOLOR:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, FUSE_UNICOLOR, ERROR);
-			break;
-
-//else7
-		case  MODULES_AND_PUT_OFF:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(NO_ELEMENT),state, PUT_OFF, ERROR);
-			break;
 		case PUT_OFF:
 			state=check_sub_action_result(sub_harry_cylinder_depose_manager(),state, DONE, ERROR);
 			break;
+
+		//OUR 2 actions
+		case MODULES_AND_ROCKET_MULTICOLOR_OUR:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT),state, ROCKET_MULTICOLOR_OUR, ERROR);
+			break;
+
+		case MODULES_AND_ORE_OUR:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT),state, ORE_OUR, ERROR);
+			break;
+
+		case MODULES_AND_ROCKET_UNICOLOR:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT),state, ROCKET_UNICOLOR, ERROR);
+			break;
+
+		case  MODULES_AND_PUT_OFF:
+			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT),state, PUT_OFF, ERROR);
+			break;
+
 
 
 
