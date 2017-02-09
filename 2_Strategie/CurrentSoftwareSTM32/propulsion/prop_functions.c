@@ -116,11 +116,13 @@ error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_traj
 			else
 				timeout_traj = GOTO_TIMEOUT_TIME;
 
-			if(global.prop.idTrajActual == idLastTraj){
-				if(global.prop.ended)
-					ret = END_OK;
-				else if(global.prop.brake && end_condition == END_AT_BRAKE)
-					ret = END_OK;
+			if(global.prop.idTrajActual == idLastTraj
+					&& (global.prop.ended
+						|| (global.prop.brake && end_condition == END_AT_BRAKE)
+						)
+					){
+				ret = END_OK;
+
 			}else if(global.absolute_time - begin_time >= timeout_traj)
 				ret = END_WITH_TIMEOUT;
 			else if(global.prop.error)
@@ -133,11 +135,13 @@ error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_traj
 
 		case TRAJECTORY_ROTATION:
 
-			if(global.prop.idTrajActual == idLastTraj){
-				if(global.prop.ended)
-					ret = END_OK;
-				else if(global.prop.brake && end_condition == END_AT_BRAKE)
-					ret = END_OK;
+			if(global.prop.idTrajActual == idLastTraj
+					&& (global.prop.ended
+						|| (global.prop.brake && end_condition == END_AT_BRAKE)
+						)
+					){
+				ret = END_OK;
+
 			}else if(global.absolute_time - begin_time >= GOANGLE_TIMEOUT_TIME)
 				ret = END_WITH_TIMEOUT;
 			else if(global.prop.error)
