@@ -191,14 +191,9 @@ void USB_OTG_BSP_ConfigVBUS(USB_OTG_CORE_HANDLE *pdev) {
   */
 void USB_OTG_BSP_uDelay (const Uint32 usec) {
 
-	__IO Uint32 count = 0;
-	const Uint32 utime = (120 * usec / 7);
-
-	do {
-		if(++count > utime) {
-			return ;
-		}
-	} while(1);
+	Uint32 i;
+	Uint32 time = 16 * usec;
+	for(i = 0; i < time; i++);
 
 }
 
@@ -210,7 +205,8 @@ void USB_OTG_BSP_uDelay (const Uint32 usec) {
   */
 void USB_OTG_BSP_mDelay (const Uint32 msec) {
 
-	USB_OTG_BSP_uDelay(msec * 1000);
+	time32_t endTime = global.absolute_time + msec;
+	while(global.absolute_time < endTime);
 
 }
 
