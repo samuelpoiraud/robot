@@ -570,9 +570,9 @@ static void COPILOT_update_destination_rotation(void)
 		Sint32 dest_angle = CALCULATOR_modulo_angle_22(angle - (global.position.teta << 10));
 
 		if(current_order.way == CLOCKWISE && dest_angle > 0)
-			PILOT_set_destination_rotation(dest_angle - TWO_PI22);
+			PILOT_set_destination_rotation(CALCULATOR_modulo_angle_22(dest_angle - TWO_PI22));
 		else if(current_order.way == TRIGOWISE && dest_angle < 0)
-			PILOT_set_destination_rotation(dest_angle + TWO_PI22);
+			PILOT_set_destination_rotation(CALCULATOR_modulo_angle_22(dest_angle + TWO_PI22));
 		else
 			PILOT_set_destination_rotation(dest_angle);
 	}
