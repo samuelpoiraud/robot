@@ -5,6 +5,7 @@
 	#ifdef USE_XBEE
 
 		#define LOG_PREFIX_XBEE "xbee :"
+		#define LOG_PREFIX_COMMUNICATION "com :"
 
 		#ifdef XBEE_PLUGGED_ON_UART1
 			#define XBee_uartId	1

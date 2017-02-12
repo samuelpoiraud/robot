@@ -47,5 +47,3 @@
 
 
 #endif //def USE_XBEE
-
-
