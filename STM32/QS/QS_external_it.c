@@ -17,7 +17,15 @@
 #ifdef USE_EXTERNAL_IT
 	#warning "SOYEZ PRUDENT AVEC LES IT EXTERNES"
 
+	typedef enum{
+		EXTERNAL_IT_CALLBACK_IT,
+		EXTERNAL_IT_CALLBACK_IT_WITH_ID
+	}EXTERNAL_IT_type;
+
+	EXTERNAL_IT_type type[16];
 	EXTERNALIT_callback_it_t callbacks[16];
+	EXTERNALIT_callback_it_with_id_t callbacksWithId[16];
+	Uint8 callbackId[16];
 	volatile static bool_e initialized = FALSE;
 
 	void EXTERNALIT_init() {
@@ -34,7 +42,7 @@
 		initialized = TRUE;
 	}
 
-	void EXTERNALIT_configure(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_t callback) {
+	static void EXTERNALIT_configureBase(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge) {
 		NVIC_InitTypeDef NVIC_InitStructure;
 
 		if(pin >= 16)
@@ -43,8 +51,6 @@
 		SYSCFG_EXTILineConfig(port, pin);
 
 		EXTERNALIT_set_edge(port, pin, edge);
-
-		callbacks[pin] = callback;
 
 		if(pin < 5)
 			NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn + pin;
@@ -58,6 +64,27 @@
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
 		NVIC_Init(&NVIC_InitStructure);
+	}
+
+	void EXTERNALIT_configure(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_t callback){
+		if(pin >= 16)
+			return;
+
+		type[pin] = EXTERNAL_IT_CALLBACK_IT;
+		callbacks[pin] = callback;
+
+		EXTERNALIT_configureBase(port, pin, edge);
+	}
+
+	void EXTERNALIT_configureWithId(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_with_id_t callback, Uint8 id){
+		if(pin >= 16)
+			return;
+
+		type[pin] = EXTERNAL_IT_CALLBACK_IT_WITH_ID;
+		callbacksWithId[pin] = callback;
+		callbackId[pin] = id;
+
+		EXTERNALIT_configureBase(port, pin, edge);
 	}
 
 	void EXTERNALIT_set_edge(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge) {
@@ -136,8 +163,13 @@
 	{
 		if(EXTI_GetITStatus(EXTI_Line0))
 		{
-			if(callbacks[0] != NULL)
-				callbacks[0]();
+			if(type[0] == EXTERNAL_IT_CALLBACK_IT){
+				if(callbacks[0] != NULL)
+					callbacks[0]();
+			}else{
+				if(callbacksWithId[0] != NULL)
+					callbacksWithId[0](callbackId[0]);
+			}
 			EXTI_ClearITPendingBit(EXTI_Line0);
 		}
 	}
@@ -146,8 +178,13 @@
 	{
 		if(EXTI_GetITStatus(EXTI_Line1))
 		{
-			if(callbacks[1] != NULL)
-				callbacks[1]();
+			if(type[1] == EXTERNAL_IT_CALLBACK_IT){
+				if(callbacks[1] != NULL)
+					callbacks[1]();
+			}else{
+				if(callbacksWithId[1] != NULL)
+					callbacksWithId[1](callbackId[1]);
+			}
 			EXTI_ClearITPendingBit(EXTI_Line1);
 		}
 	}
@@ -156,8 +193,13 @@
 	{
 		if(EXTI_GetITStatus(EXTI_Line2))
 		{
-			if(callbacks[2] != NULL)
-				callbacks[2]();
+			if(type[2] == EXTERNAL_IT_CALLBACK_IT){
+				if(callbacks[2] != NULL)
+					callbacks[2]();
+			}else{
+				if(callbacksWithId[2] != NULL)
+					callbacksWithId[2](callbackId[2]);
+			}
 			EXTI_ClearITPendingBit(EXTI_Line2);
 		}
 	}
@@ -165,8 +207,13 @@
 	{
 		if(EXTI_GetITStatus(EXTI_Line3))
 		{
-			if(callbacks[3] != NULL)
-				callbacks[3]();
+			if(type[3] == EXTERNAL_IT_CALLBACK_IT){
+				if(callbacks[3] != NULL)
+					callbacks[3]();
+			}else{
+				if(callbacksWithId[3] != NULL)
+					callbacksWithId[3](callbackId[3]);
+			}
 			EXTI_ClearITPendingBit(EXTI_Line3);
 		}
 	}
@@ -174,8 +221,13 @@
 	{
 		if(EXTI_GetITStatus(EXTI_Line4))
 		{
-			if(callbacks[4] != NULL)
-				callbacks[4]();
+			if(type[4] == EXTERNAL_IT_CALLBACK_IT){
+				if(callbacks[4] != NULL)
+					callbacks[4]();
+			}else{
+				if(callbacksWithId[4] != NULL)
+					callbacksWithId[4](callbackId[4]);
+			}
 			EXTI_ClearITPendingBit(EXTI_Line4);
 		}
 	}
@@ -190,8 +242,13 @@
 			EXTI_Line = ((Uint32)(1))<< (i+1);
 			if(EXTI_GetITStatus(EXTI_Line))
 			{
-				if(callbacks[i] != NULL)
-					callbacks[i]();
+				if(type[i] == EXTERNAL_IT_CALLBACK_IT){
+					if(callbacks[i] != NULL)
+						callbacks[i]();
+				}else{
+					if(callbacksWithId[i] != NULL)
+						callbacksWithId[i](callbackId[i]);
+				}
 				EXTI_ClearITPendingBit(EXTI_Line);
 			}
 		}
@@ -206,8 +263,13 @@
 			EXTI_Line = ((Uint32)(1))<< (i);
 			if(EXTI_GetITStatus(EXTI_Line))
 			{
-				if(callbacks[i] != NULL)
-					callbacks[i]();
+				if(type[i] == EXTERNAL_IT_CALLBACK_IT){
+					if(callbacks[i] != NULL)
+						callbacks[i]();
+				}else{
+					if(callbacksWithId[i] != NULL)
+						callbacksWithId[i](callbackId[i]);
+				}
 				EXTI_ClearITPendingBit(EXTI_Line);
 			}
 		}
