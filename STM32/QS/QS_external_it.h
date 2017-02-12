@@ -39,9 +39,11 @@
 	} EXTERNALIT_edge_e;
 
 	typedef void (*EXTERNALIT_callback_it_t)(void);
+	typedef void (*EXTERNALIT_callback_it_with_id_t)(Uint8 id);
 
 	void EXTERNALIT_init();
 	void EXTERNALIT_configure(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_t callback);
+	void EXTERNALIT_configureWithId(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_with_id_t callback, Uint8 id);
 	void EXTERNALIT_set_edge(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge);
 	void EXTERNALIT_set_priority(EXTERNALIT_port_e port, Uint8 pin, Uint8 priority);
 	void EXTERNALIT_disable(EXTERNALIT_port_e port, Uint8 pin);
