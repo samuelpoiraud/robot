@@ -53,6 +53,7 @@
 	#include "Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
 	#include "Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left.h"
 	#include "Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right.h"
+	#include "Anne/motor_test/motor_test.h"
 #endif
 
 
@@ -97,10 +98,11 @@ static ACTQ_functions_t actionneurs[] = {
 
 	#else  //Small Robot
 		//ACT_DECLARE(LEFT_ARM),
-		ACT_DECLARE(SMALL_BALL_BACK_LEFT),
+		/*ACT_DECLARE(SMALL_BALL_BACK_LEFT),
 		ACT_DECLARE(SMALL_BALL_BACK_RIGTH),
 		ACT_DECLARE(SMALL_BALL_FRONT_LEFT),
-		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),
+		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),*/
+		ACT_DECLARE(MOTOR_TEST),
 	#endif
 };
 

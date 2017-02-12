@@ -141,9 +141,10 @@
 
 	void DC_MOTOR_SPEED_setSpeed(DC_MOTOR_SPEED_id id, DC_MOTOR_SPEED_speed speed){
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
-		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
+		assert(thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
 		thiss->wantedSpeed = speed;
 		thiss->time = 0;
+		thiss->state = DC_MOTOR_SPEED_INIT_LAUNCH;
 	}
 
 	/*-----------------------------------------
@@ -347,7 +348,7 @@
 						computed_cmd = 	(config->Kp * error / 1024)
 									+ ((config->Ki * thiss->integrator * DC_MOTOR_SPEED_TIME_PERIOD) >> 20)
 									+ (((config->Kd * differential) / DC_MOTOR_SPEED_TIME_PERIOD) >> 10)
-									+ (config->Kv * speed);
+									+ ((config->Kv * speed)/1024);
 
 						// Sens et saturation
 						if (computed_cmd > 0)

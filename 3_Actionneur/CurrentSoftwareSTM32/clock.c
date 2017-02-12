@@ -13,7 +13,9 @@
 #include "clock.h"
 #include "QS/QS_buttons.h"
 #include "QS/QS_DCMotor2.h"
+#include "QS/QS_DCMotorSpeed.h"
 #include "QS/QS_ports.h"
+#include "QS/QS_rpm_sensor.h"
 
 
 #ifdef CLOCK_TIMER_ID
@@ -52,6 +54,10 @@ void TIMER_SRC_TIMER_interrupt()
 		DCM_process_it();
 	#endif
 
+	RPM_SENSOR_process_it();
+	#ifdef USE_DC_MOTOR_SPEED
+		DC_MOTOR_SPEED_process_it();
+	#endif
 	toggle_led(LED_RUN);
 #if defined(CLOCK_UPDATE_BUTTONS_PRESS_TIME)
 	BUTTONS_process_it();
