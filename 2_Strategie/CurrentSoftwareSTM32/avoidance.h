@@ -28,4 +28,6 @@
 	// Envoi un message CAN qui va forcer l'évitement du robot à la propulsion
 	void AVOIDANCE_forced_foe_dected();
 
+	void AVOIDANCE_activeSmallAvoidance(bool_e activeSmallAvoidance);
+
 #endif
