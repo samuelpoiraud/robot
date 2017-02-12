@@ -37,7 +37,7 @@
 
 #ifdef I_AM_ROBOT_BIG
 #else
-
+#include "Anne/motor_test/motor_test.h"
 #endif
 
 
@@ -164,7 +164,7 @@ int main (void)
 			#ifdef CAN_VERBOSE_MODE
 				QS_CAN_VERBOSE_can_msg_print(&msg, VERB_INPUT_MSG);
 			#endif
-			ACTMNG_control_act();
+			//ACTMNG_control_act();
 
 		}
 
@@ -180,6 +180,8 @@ int main (void)
 		#endif
 
 		OUTPUTLOG_process_main();
+
+		MOTOR_TEST_test();
 
 	}//Endloop
 	return 0;
@@ -256,23 +258,7 @@ static void MAIN_onButton5LongPush() {}
 
 #else // ROBOT_SMALL
 
-static void MAIN_onButton0(){
-	/*static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 7;
-	msg.sid = ACT_RIGHT_ARM;
-
-	if(state == 0){
-		msg.data.act_msg.order = ACT_RIGHT_ARM_UNLOCK;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_RIGHT_ARM_LOCK;
-	}else if(state == 2){
-		msg.data.act_msg.order = ACT_RIGHT_ARM_IDLE;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;*/
-}
+static void MAIN_onButton0(){}
 
 static void MAIN_onButton0LongPush(){}
 
@@ -290,21 +276,7 @@ static void MAIN_onButton3LongPush(){}
 
 static void MAIN_onButton4(){}
 
-static void MAIN_onButton4LongPush(){
-	static Uint8 state = 0;
-	CAN_msg_t msg;
-	msg.size = 7;
-	msg.sid = ACT_VENTILATOR_PEARL;
-
-	if(state == 0){
-		msg.data.act_msg.order = ACT_VENTILATOR_STOP;
-	}else if(state == 1){
-		msg.data.act_msg.order = ACT_VENTILATOR_NORMAL;
-	}
-
-	CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
-}
+static void MAIN_onButton4LongPush(){}
 
 static void MAIN_onButton5(){}
 
