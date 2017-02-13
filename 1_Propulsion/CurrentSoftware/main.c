@@ -233,7 +233,7 @@ int main (void)
 
 		MAIN_sensor_test();
 
-		#ifdef SCAN
+		#ifdef SCAN_BORDURE
 			SCAN_process_main();
 		#endif
 
