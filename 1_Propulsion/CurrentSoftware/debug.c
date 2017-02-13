@@ -16,6 +16,7 @@
 #include "QS/QS_maths.h"
 #include "QS/QS_outputlog.h"
 #include "QS/QS_adc.h"
+#include "scan/scan.h"
 
 /*#define CONVERSION_LASER_LEFT(x)	((Sint32)(-263*(x)+350450)/1000)
 #define OFFSET_WIDTH_LASER_LEFT		(146)
@@ -27,14 +28,14 @@
 */
 
 
-#define CONVERSION_LASER_LEFT(x)	((Sint32)(37217*(x)-7096800)/10000)//((Sint32)(-263*(x)+350450)/1000)
-#define OFFSET_WIDTH_LASER_LEFT		(150)
-#define OFFSET_LENGTH_LASER_LEFT	(70)
+#define CONVERSION_LASER_LEFT(x)	((Sint32)(36148*(x)-6611800)/10000)//((Sint32)(37217*(x)-7096800)/10000)
+#define OFFSET_WIDTH_LASER_LEFT		(144)
+#define OFFSET_LENGTH_LASER_LEFT	(80)
 #define OFFSET_ANGLE_LEFT            -102
 
-#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36130*(x)-6247900)/10000)
-#define OFFSET_WIDTH_LASER_RIGHT	(150)
-#define OFFSET_LENGTH_LASER_RIGHT	(70)
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36052*(x)-6201700)/10000)//((Sint32)(36130*(x)-6247900)/10000)
+#define OFFSET_WIDTH_LASER_RIGHT	(144)
+#define OFFSET_LENGTH_LASER_RIGHT	(80)
 #define OFFSET_ANGLE_RIGHT          -221
 
 #ifdef MODE_PRINT_FIRST_TRAJ
@@ -74,7 +75,7 @@
 		volatile Sint16 pos_y;
 		volatile Sint16 laser_left_x;
 		volatile Sint16 laser_left_y;
-		volatile Sint16 value_left;
+        volatile Sint16 value_right;
 		volatile Sint16 laser_right_x;
 		volatile Sint16 laser_right_y;
 
@@ -229,8 +230,8 @@ void DEBUG_process_it(void)
         position_t robot;
         Sint16 cosinus = 0, sinus = 0;
 
-        valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
-        value = CONVERSION_LASER_LEFT(valueADC);
+//        valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
+        value = CONVERSION_LASER_LEFT(TELEMETER_get_ADCvalue_left());
 
         robot = global.position; // On récupère la position du robot tout de suite
         robot.teta = GEOMETRY_modulo_angle(robot.teta);
@@ -240,12 +241,14 @@ void DEBUG_process_it(void)
         pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus - OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
         pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
 
+
         COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_LEFT, &cosinus, &sinus);
 
         pos_mesure.x=pos_laser.x-(value * sinus)/4096;
         pos_mesure.y=pos_laser.y+(value * cosinus)/4096;
 
 #warning 'tes mauvais en trigo abruti'
+        tab[index].value_right=value;
 
         tab[index].laser_left_x=pos_mesure.x;
         tab[index].laser_left_y=pos_mesure.y;
@@ -253,8 +256,10 @@ void DEBUG_process_it(void)
         //tab[index].laser_left_x=pos_mesure.x;
         //tab[index].laser_left_y=pos_mesure.y;
 
-        valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
-        value = CONVERSION_LASER_RIGHT(valueADC);
+       // valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
+        value = CONVERSION_LASER_RIGHT(TELEMETER_get_ADCvalue_right());
+
+ //       value = CONVERSION_LASER_RIGHT(valueADC);
     //    printf("%d\n",valueADC);
 
         robot = global.position; // On récupère la position du robot tout de suite
@@ -269,6 +274,7 @@ void DEBUG_process_it(void)
         pos_mesure.x=pos_laser.x+(value) * sinus/4096;
         pos_mesure.y=pos_laser.y-(value * cosinus)/4096;
 
+//        tab[index].value_right = value;
         tab[index].laser_right_x=pos_mesure.x;
         tab[index].laser_right_y=pos_mesure.y;
 
@@ -316,6 +322,7 @@ void DEBUG_process_it(void)
 			debug_printf("%d;", i*5);
 			debug_printf("%d;", tab[i].laser_left_x);
 			debug_printf("%d;", tab[i].laser_left_y);
+            debug_printf("%d;", tab[i].value_right);
 			debug_printf("%d;", tab[i].laser_right_x);
 			debug_printf("%d\n", tab[i].laser_right_y);
 		}

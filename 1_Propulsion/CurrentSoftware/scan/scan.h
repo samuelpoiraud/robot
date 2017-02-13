@@ -20,4 +20,7 @@ void TELEMETER_process_it();
 void SCAN_process_it();
 void SCAN_process_main();
 
+Uint16 TELEMETER_get_ADCvalue_left();
+Uint16 TELEMETER_get_ADCvalue_right();
+
 #endif /* SCAN_H */

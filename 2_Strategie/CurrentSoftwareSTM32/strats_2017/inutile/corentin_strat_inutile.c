@@ -24,7 +24,7 @@ void corentin_strat_inutile_big(){
 
 	switch(state){
 		case INIT:
-			state=GO_TO;
+			state=START;
 			break;
 
 		case GO_TO:
@@ -44,11 +44,11 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case FIRST_ROT:
-			state=try_go_angle(0,state,SECOND_STRAIGHT,SECOND_STRAIGHT,FAST,ANY_WAY,END_AT_LAST_POINT);
+			state=try_go_angle(0,state,SECOND_STRAIGHT,SECOND_STRAIGHT,FAST,CLOCKWISE,END_AT_LAST_POINT);
 			break;
 
 		case SECOND_STRAIGHT:
-			state=try_going(600,COLOR_Y(300),state,SECOND_ROT,SECOND_ROT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(600,COLOR_Y(300),state,SECOND_ROT,SECOND_ROT,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case SECOND_ROT:

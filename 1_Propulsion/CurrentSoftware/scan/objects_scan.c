@@ -81,11 +81,11 @@ void OBJECTS_SCAN_treatment(scan_data_t tab[]){
 			}
 			if(object_present){
 				OBJECTS_polygons[j].state = OBJECT_PRESENT;
-				debug_printf("L'objet polygon %d a été détecté présent\n", j);
+            //	debug_printf("L'objet polygon %d a été détecté présent\n", j);
 			}
 			if(object_absent){
 				OBJECTS_polygons[j].state = OBJECT_ABSENT;
-				debug_printf("L'objet polygon %d a été détecté absent\n", j);
+            //	debug_printf("L'objet polygon %d a été détecté absent\n", j);
 			}
 		}
 
@@ -102,11 +102,11 @@ void OBJECTS_SCAN_treatment(scan_data_t tab[]){
 			}
 			if(object_present){
 				OBJECTS_circles[j].state = OBJECT_PRESENT;
-				debug_printf("L'objet circle %d a été détecté présent\n", j);
+                //debug_printf("L'objet circle %d a été détecté présent\n", j);
 			}
 			if(object_absent){
 				OBJECTS_circles[j].state = OBJECT_ABSENT;
-				debug_printf("L'objet circle %d a été détecté absent\n", j);
+                //debug_printf("L'objet circle %d a été détecté absent\n", j);
 			}
 		}
 
