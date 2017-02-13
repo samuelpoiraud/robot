@@ -909,12 +909,12 @@ error_e sub_harry_cylinder_depose_manager(){
 
 
 
-	moduleDropLocation_e first_zone=MODULE_DROP_MIDDLE;
-	moduleDropLocation_e second_zone=MODULE_DROP_OUR_CENTER;
-	moduleDropLocation_e third_zone=MODULE_DROP_OUR_SIDE;
-	moduleDropLocation_e fourth_zone=MODULE_DROP_ADV_CENTER;
-	moduleDropLocation_e fifth_zone=MODULE_DROP_ADV_SIDE;
-	moduleDropLocation_e prefered_zone = first_zone;
+	moduleMoonbaseLocation_e first_zone = MODULE_MOONBASE_MIDDLE;
+	moduleMoonbaseLocation_e second_zone = MODULE_MOONBASE_OUR_CENTER;
+	moduleMoonbaseLocation_e third_zone = MODULE_MOONBASE_OUR_SIDE;
+	moduleMoonbaseLocation_e fourth_zone = MODULE_MOONBASE_ADV_CENTER;
+	moduleMoonbaseLocation_e fifth_zone = MODULE_MOONBASE_ADV_SIDE;
+	moduleMoonbaseLocation_e prefered_zone = first_zone;
 
 	switch(state){
 		case INIT:
@@ -926,19 +926,19 @@ error_e sub_harry_cylinder_depose_manager(){
 			break;
 
 		case COMPUTE:
-			if((getNbDrop(first_zone)<module_zone[first_zone].nb_cylinder_max)&&((module_zone[first_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[first_zone].xmin, module_zone[first_zone].xmax, module_zone[first_zone].ymin, module_zone[first_zone].ymax)))){
+			if((MOONBASES_getNbModules(first_zone) < module_zone[first_zone].nb_cylinder_max)&&((module_zone[first_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[first_zone].xmin, module_zone[first_zone].xmax, module_zone[first_zone].ymin, module_zone[first_zone].ymax)))){
 				prefered_zone=first_zone;
 				state=MANAGE;
-			}else if((getNbDrop(second_zone)<module_zone[second_zone].nb_cylinder_max)&&((module_zone[second_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[second_zone].xmin, module_zone[second_zone].xmax, module_zone[second_zone].ymin, module_zone[second_zone].ymax)))){
+			}else if((MOONBASES_getNbModules(second_zone) < module_zone[second_zone].nb_cylinder_max)&&((module_zone[second_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[second_zone].xmin, module_zone[second_zone].xmax, module_zone[second_zone].ymin, module_zone[second_zone].ymax)))){
 				prefered_zone=second_zone;
 				state=MANAGE;
-			}else if((getNbDrop(third_zone)<module_zone[third_zone].nb_cylinder_max)&&((module_zone[third_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[third_zone].xmin, module_zone[third_zone].xmax, module_zone[third_zone].ymin, module_zone[third_zone].ymax)))){
+			}else if((MOONBASES_getNbModules(third_zone) < module_zone[third_zone].nb_cylinder_max)&&((module_zone[third_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[third_zone].xmin, module_zone[third_zone].xmax, module_zone[third_zone].ymin, module_zone[third_zone].ymax)))){
 				prefered_zone=third_zone;
 				state=MANAGE;
-			}else if((getNbDrop(fourth_zone)<module_zone[fourth_zone].nb_cylinder_max)&&((module_zone[fourth_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[fourth_zone].xmin, module_zone[fourth_zone].xmax, module_zone[fourth_zone].ymin, module_zone[fourth_zone].ymax)))){
+			}else if((MOONBASES_getNbModules(fourth_zone) < module_zone[fourth_zone].nb_cylinder_max)&&((module_zone[fourth_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[fourth_zone].xmin, module_zone[fourth_zone].xmax, module_zone[fourth_zone].ymin, module_zone[fourth_zone].ymax)))){
 				prefered_zone=fourth_zone;
 				state=MANAGE;
-			}else if((getNbDrop(fifth_zone)<module_zone[fifth_zone].nb_cylinder_max)&&((module_zone[fifth_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[fifth_zone].xmin, module_zone[fifth_zone].xmax, module_zone[fifth_zone].ymin, module_zone[fifth_zone].ymax)))){
+			}else if((MOONBASES_getNbModules(fifth_zone) < module_zone[fifth_zone].nb_cylinder_max)&&((module_zone[fifth_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[fifth_zone].xmin, module_zone[fifth_zone].xmax, module_zone[fifth_zone].ymin, module_zone[fifth_zone].ymax)))){
 				prefered_zone=fifth_zone;
 				state=MANAGE;
 			}else
@@ -946,15 +946,15 @@ error_e sub_harry_cylinder_depose_manager(){
 			break;
 
 		case MANAGE:
-			if(prefered_zone==MODULE_DROP_MIDDLE){
+			if(prefered_zone==MODULE_MOONBASE_MIDDLE){
 				state=GO_TO_MIDDLE;
-			}else if(prefered_zone==MODULE_DROP_OUR_CENTER){
+			}else if(prefered_zone==MODULE_MOONBASE_OUR_CENTER){
 				state=GO_TO_OUR_CENTER;
-			}else if(prefered_zone==MODULE_DROP_OUR_SIDE){
+			}else if(prefered_zone==MODULE_MOONBASE_OUR_SIDE){
 				state=GO_TO_OUR_SIDE;
-			}else if(prefered_zone==MODULE_DROP_ADV_CENTER){
+			}else if(prefered_zone==MODULE_MOONBASE_ADV_CENTER){
 				state=GO_TO_ADV_CENTER;
-			}else if(prefered_zone==MODULE_DROP_ADV_SIDE){
+			}else if(prefered_zone==MODULE_MOONBASE_ADV_SIDE){
 				state=GO_TO_ADV_SIDE;
 			}
 			break;
@@ -1111,90 +1111,90 @@ error_e manager_return_modules(){
 	switch(state){
 		case INIT:
 			//module au centre
-			if(getModuleType(1, MODULE_DROP_MIDDLE) == MODULE_POLY){ 				//apelle de fonction pour aller à coté du module
+			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){ 				//apelle de fonction pour aller à coté du module
 				state = check_sub_action_result(/*deplacement1*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);	//state = try_going + try_go_angle
 			}
-			if(getModuleType(2, MODULE_DROP_MIDDLE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacemen2t*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
-			if(getModuleType(3, MODULE_DROP_MIDDLE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement3*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
-			if(getModuleType(4, MODULE_DROP_MIDDLE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
-			if(getModuleType(5, MODULE_DROP_MIDDLE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(5, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
-			if(getModuleType(6, MODULE_DROP_MIDDLE) == MODULE_POLY){ // problème de position
+			if(MOONBASES_getModuleType(6, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){ // problème de position
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 
 			//module a notre centre
-			if(getModuleType(1, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
-			if(getModuleType(2, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
-			if(getModuleType(3, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
-			if(getModuleType(4, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
-			if(getModuleType(5, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(5, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
-			if(getModuleType(6, MODULE_DROP_OUR_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(6, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 
 			//module centre adverse
-			if(getModuleType(1, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
-			if(getModuleType(2, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
-			if(getModuleType(3, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
-			if(getModuleType(4, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
-			if(getModuleType(5, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(5, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
-			if(getModuleType(6, MODULE_DROP_ADV_CENTER) == MODULE_POLY){
+			if(MOONBASES_getModuleType(6, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 
 			//module notre cote
-			if(getModuleType(1, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_OUR_SIDE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
-			if(getModuleType(2, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_OUR_SIDE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
-			if(getModuleType(3, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_OUR_SIDE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
-			if(getModuleType(4, MODULE_DROP_OUR_SIDE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_OUR_SIDE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
 
 			//module cote adverse
-			if(getModuleType(1, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_ADV_SIDE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
-			if(getModuleType(2, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_ADV_SIDE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
-			if(getModuleType(3, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_ADV_SIDE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
-			if(getModuleType(4, MODULE_DROP_ADV_SIDE) == MODULE_POLY){
+			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_ADV_SIDE) == MODULE_POLY){
 				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			else{
