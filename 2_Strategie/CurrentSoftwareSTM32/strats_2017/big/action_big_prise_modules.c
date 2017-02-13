@@ -12,6 +12,7 @@
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
 
+
 error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_CENTER,
 			INIT,
@@ -155,41 +156,27 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 				GET_IN_FROM_FAR_ADV_ZONE,
 				GET_IN_ASTAR,
 
-				FAILED_INIT_ACTION,
-				ACTION_GO_TAKE_CYLINDER,
-				CHECK_STATUS_OTHER_SLINDER,
-				PROTECT_NEXT_FALL,
-				ACTION_BRING_BACK_CYLINDER,
-				CHECK_STATUS_OTHER_SLINDER_2,
-				CHECK_STATUS_ELEVATOR,
-				ACTION_START_BRING_UP_CYLINDER,
-				CHECK_STATUS_SLOPE,
-				ACTION_END_BRING_UP_CYLINDER,
-				CHECK_STATUS_SLIDER,
-				ACTION_STOCK_UP_CYLINDER,
-				CHECK_STATUS_OTHER_SLINDER_3,
-				RESTART_CONDITION,
+				ACTION,
 				ACTION_RETRACT_ALL,
-				ACTION_FINAL_1_ON_3,
-				ACTION_FINAL_2_ON_3,
-				ACTION_FINAL_3_ON_3,
-				CHECK_STATUS_OTHER_CYLINDER_FINAL,
+				FAILED_INIT_ACTION,
+
 
 				ERROR,
 				DONE
 			);
 
-	moduleDropLocation_e nb_cylinder_big_left= NB_MODULE_BIG_LEFT_SIDE;
-	moduleDropLocation_e nb_cylinder_big_right=NB_MODULE_BIG_RIGHT_SIDE;
-	moduleDropLocation_e nb_cylinder_fusee=		NB_MODULE_FUSEE_MULTICOLOR;
-	//rendre fusee public !
-	//initialiser la fusee rempli
-	//enlever module fusee
+	//provisoire, il faut rendre ces valeurs globale !!!
+	moduleStorageLocation_e nb_cylinder_big_left  = MODULE_STORAGE_LEFT;
+	moduleStorageLocation_e nb_cylinder_big_right = MODULE_STORAGE_RIGHT;
+	moduleFuseeLocation_e   nb_cylinder_fusee     =	FUSEE_MULTI_OUR_SIDE;
+	remplirFusee(nb_cylinder_fusee);
+	//rendre les valeurs globale !
 
 	switch(state){
 
 		case INIT:{
-			error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left); // on appelle une fonction qui verifie la position initiale de tout nos actionneurs
+			// on appelle une fonction qui verifie la position initiale de tout nos actionneurs
+			error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left);
 			if(result == END_OK){
 				state=ALL_THE_GET_IN;
 			}else{
@@ -215,7 +202,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 			break;
 
 		case GET_IN_DIRECT:
-			state = try_going(1200, 300, GET_IN_DIRECT, ACTION_GO_TAKE_CYLINDER,
+			state = try_going(1200, 300, GET_IN_DIRECT, ACTION,
 					ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
 			break;
 
@@ -223,287 +210,41 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 			const displacement_t curve_by_our_zone_crat[2] = {
 					{ { 750, 790 }, FAST }, { { 1200, 300 }, FAST } };
 			state = try_going_multipoint(curve_by_our_zone_crat, 2,
-					GET_IN_AVOID_CRATERE, ACTION_GO_TAKE_CYLINDER, ERROR, ANY_WAY,
+					GET_IN_AVOID_CRATERE, ACTION, ERROR, ANY_WAY,
 					DODGE_AND_WAIT, END_AT_BRAKE);
 			}break;
 
 		case GET_IN_AVOID_START_ZONE:{
 			const displacement_t curve_by_our_zone_start[2] = { { { 500, 1250 },FAST }, { { 1200, 300 }, FAST } };
 			state = try_going_multipoint(curve_by_our_zone_start, 2,
-					GET_IN_AVOID_START_ZONE, ACTION_GO_TAKE_CYLINDER, ERROR, ANY_WAY,
+					GET_IN_AVOID_START_ZONE, ACTION, ERROR, ANY_WAY,
 					DODGE_AND_WAIT, END_AT_BRAKE);
 			}break;
 
 		case GET_IN_FROM_CLOSE_ADV_ZONE:{
 			const displacement_t curve_by_our_zone_advclo[2] = { { { 1000, 1725 },FAST }, { { 1200, 300 }, FAST } };
 			state = try_going_multipoint(curve_by_our_zone_advclo, 2,
-					GET_IN_FROM_CLOSE_ADV_ZONE, ACTION_GO_TAKE_CYLINDER, ERROR,
+					GET_IN_FROM_CLOSE_ADV_ZONE, ACTION, ERROR,
 					ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			}break;
 
 		case GET_IN_FROM_FAR_ADV_ZONE:{
 			const displacement_t curve_by_our_zone_advfa[2] = { { { 900, 2400 },FAST }, { { 1200, 300 }, FAST } };
 			state = try_going_multipoint(curve_by_our_zone_advfa, 2,
-					GET_IN_FROM_FAR_ADV_ZONE, ACTION_GO_TAKE_CYLINDER, ERROR,
+					GET_IN_FROM_FAR_ADV_ZONE, ACTION, ERROR,
 					ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			}break;
 
 		case GET_IN_ASTAR:
-			state = ASTAR_try_going(1200, 300, GET_IN_ASTAR, ACTION_GO_TAKE_CYLINDER,
+			state = ASTAR_try_going(1200, 300, GET_IN_ASTAR, ACTION,
 					ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
 			break;
 
-	case ACTION_GO_TAKE_CYLINDER:
-
-		if (right_side){
-			if (entrance) {
-			//On active la pompe avant d'avancer
-			ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT );
-
-			// On avance l'autre bras pour bloquer la chute du cylindre d'apres
-			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT );}
-
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, ACTION_GO_TAKE_CYLINDER,CHECK_STATUS_OTHER_SLINDER, FAILED_INIT_ACTION);
-		}else{
-			if (entrance) {
-			ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL);
-			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT );
-
-			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT );}
-
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, ACTION_GO_TAKE_CYLINDER,CHECK_STATUS_OTHER_SLINDER, FAILED_INIT_ACTION);
-		}
-		break;
-
-	case CHECK_STATUS_OTHER_SLINDER:
-		if (right_side){
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_OTHER_SLINDER,PROTECT_NEXT_FALL, FAILED_INIT_ACTION);
-		}else{
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_OTHER_SLINDER,PROTECT_NEXT_FALL, FAILED_INIT_ACTION);
-		}
-		break;
-
-	case PROTECT_NEXT_FALL:
-		if (right_side){
-			if(entrance){
-			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER);}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, PROTECT_NEXT_FALL,ACTION_BRING_BACK_CYLINDER, FAILED_INIT_ACTION);
-		}else{
-			if(entrance){
-			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER);}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, PROTECT_NEXT_FALL,ACTION_BRING_BACK_CYLINDER, FAILED_INIT_ACTION);
-		}
-		break;
-
-	case ACTION_BRING_BACK_CYLINDER:
-		if (right_side){
-			if (entrance) {
-			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN );
-
-			//On avance en profite pour bouger de l'autre cote
-			ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-			//vacuose ici?
-			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT );
-
-			//On redescend le bras et desactive la pompe du cycle precedent si pas utilise par le stockage
-			// attention a 4 on est quand meme en haut, il faut descendre !
-			if ((getNbDrop(nb_cylinder_big_left)<5)){
-				ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP );
-				//vacuose ici?!
-				ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );}}
-
-			//capteur inuctif fin de course a la place du check at status ?
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, ACTION_BRING_BACK_CYLINDER,CHECK_STATUS_OTHER_SLINDER_2, FAILED_INIT_ACTION);
-		}else{
-			if (entrance) {
-			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN );
-
-			ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-			//vacuose ici?
-			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT );
-
-			if ((getNbDrop(nb_cylinder_big_right)<5)){
-			ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP );
-			//vacuose ici?
-			ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );}}
-
-			//capteur inuctif fin de course a la place du check at status ?
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, ACTION_BRING_BACK_CYLINDER,CHECK_STATUS_OTHER_SLINDER_2, FAILED_INIT_ACTION);
-		}break;
-
-	case CHECK_STATUS_OTHER_SLINDER_2:
-		if (right_side){
-			//pas besoin de verifier l'elevator si il a pas ete actionne
-			if ((getNbDrop(nb_cylinder_big_left)<5)){
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_OTHER_SLINDER_2,CHECK_STATUS_ELEVATOR, FAILED_INIT_ACTION);
-			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_OTHER_SLINDER_2,ACTION_START_BRING_UP_CYLINDER, FAILED_INIT_ACTION);}
-		}else{
-			if ((getNbDrop(nb_cylinder_big_right)<5)){
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_OTHER_SLINDER_2,CHECK_STATUS_ELEVATOR, FAILED_INIT_ACTION);
-			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_OTHER_SLINDER_2,ACTION_START_BRING_UP_CYLINDER, FAILED_INIT_ACTION);}
-		}
-		break;
-
-	case CHECK_STATUS_ELEVATOR:
-		if (right_side){
-			state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, CHECK_STATUS_ELEVATOR,ACTION_START_BRING_UP_CYLINDER, FAILED_INIT_ACTION);
-		}else{
-			state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, CHECK_STATUS_ELEVATOR,ACTION_START_BRING_UP_CYLINDER, FAILED_INIT_ACTION);
-		}
-		break;
-
-	case ACTION_START_BRING_UP_CYLINDER:
-
-		if (right_side){
-			if (entrance) {
-			ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
-			ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
-			// ici rajouter le check de la pompe avec vacuose pour les deux
-			ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER );
-
-			// on redescend en meme temps le clapet du cylindre precedent si il n'est pas bloque
-			if ((getNbDrop(nb_cylinder_big_left)<4)){
-				ACT_push_order( ACT_CYLINDER_SLOPE_LEFT , ACT_CYLINDER_SLOPE_LEFT_UNLOCK );}}
-
-			//la on doit actionner le slider du cote de l'elevator pour qu'il parte en ALMOST_OUT
-			//le plus efficace serait-il d'utiliser Wait() plutot que de creer un nouveau case pour separer la monter en deux ? !!!
-			//Attention le wait peut etre dangereux, mechaniquement, si le slider avance trop tot
-			state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, ACTION_START_BRING_UP_CYLINDER,CHECK_STATUS_SLOPE, FAILED_INIT_ACTION);
-		}else{
-			if (entrance) {
-			ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
-			ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
-			// vacuose
-			ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER );
-			if ((getNbDrop(nb_cylinder_big_right)<4)){ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT , ACT_CYLINDER_SLOPE_RIGHT_UNLOCK );}}
-			state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, ACTION_START_BRING_UP_CYLINDER,CHECK_STATUS_SLOPE, FAILED_INIT_ACTION);
-		}break;
-
-	case CHECK_STATUS_SLOPE:
-		//necessaire de le passer si non utilise?
-		if (right_side){
-			state = check_act_status(ACT_QUEUE_Cylinder_slope_left, CHECK_STATUS_SLOPE,ACTION_END_BRING_UP_CYLINDER, FAILED_INIT_ACTION);
-		}else{
-			state = check_act_status(ACT_QUEUE_Cylinder_slope_right, CHECK_STATUS_SLOPE,ACTION_END_BRING_UP_CYLINDER, FAILED_INIT_ACTION);
-		}
-		break;
-
-	case ACTION_END_BRING_UP_CYLINDER:
-
-		if (right_side){
-			if (entrance) {
-			//on finit le mouvement en simultanee avec la sortie du slider
-			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT );
-			if ((getNbDrop(nb_cylinder_big_right)<4)){
-			ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_TOP );}}
-			state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, ACTION_END_BRING_UP_CYLINDER,CHECK_STATUS_SLIDER, FAILED_INIT_ACTION);
-		}else{
-			if (entrance) {
-			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT );
-			if ((getNbDrop(nb_cylinder_big_left)<4)){ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_TOP );}}
-			state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, ACTION_END_BRING_UP_CYLINDER,CHECK_STATUS_SLIDER, FAILED_INIT_ACTION);
-		}break;
-
-	case CHECK_STATUS_SLIDER:
-		if (right_side){
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_SLIDER,ACTION_STOCK_UP_CYLINDER, FAILED_INIT_ACTION);
-		}else{
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_SLIDER,ACTION_STOCK_UP_CYLINDER, FAILED_INIT_ACTION);
-		}
-		break;
-
-	case ACTION_STOCK_UP_CYLINDER:
-
-		if (right_side){
-			if (entrance) {
-			// on verouille le slope
-			ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT , ACT_CYLINDER_SLOPE_RIGHT_LOCK );
-
-			//et en meme temps on prepare la collecte d'apres
-			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER );}
-
-			state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_STOCK_UP_CYLINDER, CHECK_STATUS_OTHER_SLINDER_3, FAILED_INIT_ACTION);
-
-		}else{
-			if (entrance) {
-			ACT_push_order( ACT_CYLINDER_SLOPE_LEFT , ACT_CYLINDER_SLOPE_LEFT_LOCK );
-			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER );}
-			state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_STOCK_UP_CYLINDER, CHECK_STATUS_OTHER_SLINDER_3, FAILED_INIT_ACTION);}
-		break;
-
-	case CHECK_STATUS_OTHER_SLINDER_3:
-		if (right_side){
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_OTHER_SLINDER_3,RESTART_CONDITION, FAILED_INIT_ACTION);
-		}else{
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_OTHER_SLINDER_3,RESTART_CONDITION, FAILED_INIT_ACTION);
-		}
-		break;
-
-	case RESTART_CONDITION:
-		//subModule(MODULE_POLY,nb_cylinder_fusee);//commande pour soustraire un cyl a la pile nb_cylinder_fusee
-		if ((getNbDrop(nb_cylinder_fusee)>0)){
-			if (right_side){
-				//on actualise le nombre de cylindre stocke dans le robot
-				addModule(MODULE_POLY,nb_cylinder_big_right);
-				//On change de cote
-				right_side = FALSE;
-				if ((getNbDrop(nb_cylinder_big_right)<5)){
-					//et on recommence
-					state = ACTION_BRING_BACK_CYLINDER;
-				}else{
-					state = ACTION_FINAL_1_ON_3;
-				}
-			}else{
-				addModule(MODULE_POLY,nb_cylinder_big_left);
-				right_side = TRUE;
-				if ((getNbDrop(nb_cylinder_big_left)<5)){
-				state = ACTION_BRING_BACK_CYLINDER;
-				}else{state = ACTION_FINAL_1_ON_3;}}
-		}else{
-			state=ACTION_RETRACT_ALL;}
-			break;
-
-		case ACTION_FINAL_1_ON_3:
-			if (right_side){
-				if (entrance) {
-				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT );}
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, ACTION_FINAL_1_ON_3, ACTION_FINAL_2_ON_3, FAILED_INIT_ACTION);
-
-			}else{
-				if (entrance) {
-				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT );}
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, ACTION_FINAL_1_ON_3, ACTION_FINAL_2_ON_3, FAILED_INIT_ACTION);}
-			break;
-
-		case ACTION_FINAL_2_ON_3:
-			//si on arrive ici car notre robot est plein mais il reste des cylindres dans la fusee
-			//on doit quand meme prevoir la chute d'un cylindre
-			if (right_side){
-				if (entrance) {
-				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER );}
-				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_FINAL_2_ON_3, ACTION_FINAL_3_ON_3, FAILED_INIT_ACTION);
-
-			}else{
-				if (entrance) {
-				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER );}
-				state = check_act_status(ACT_QUEUE_Cylinder_slope_left, ACTION_FINAL_2_ON_3, ACTION_FINAL_3_ON_3, FAILED_INIT_ACTION);}
-			break;
-
-		case ACTION_FINAL_3_ON_3:
-			if (entrance) {
-			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN );
-			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN );}
-			state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_FINAL_3_ON_3, CHECK_STATUS_OTHER_CYLINDER_FINAL, FAILED_INIT_ACTION);
-			break;
-
-		case CHECK_STATUS_OTHER_CYLINDER_FINAL :
-			state = check_act_status(ACT_QUEUE_Cylinder_slope_left, CHECK_STATUS_OTHER_CYLINDER_FINAL, ACTION_RETRACT_ALL, FAILED_INIT_ACTION);
-			break;
+		case ACTION:{
+			error_e resultAction = boucle_charge_module( nb_cylinder_big_right, nb_cylinder_big_left, nb_cylinder_fusee, MODULE_POLY, right_side );
+			if(resultAction == END_OK){   state=ACTION_RETRACT_ALL;
+			}else{                  	  state=ERROR;
+			}}break;
 
 		case ACTION_RETRACT_ALL:{
 			error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left);
@@ -517,9 +258,305 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 			break;
 
 		case DONE:
+			break;
+
+		case ERROR:
+			break;
+		}
+
+		return IN_PROGRESS;
+
+}
+
+
+error_e boucle_charge_module(moduleDropLocation_e nb_cylinder_big_right,moduleDropLocation_e nb_cylinder_big_left,moduleDropLocation_e nb_cylinder_fusee, moduleType_e myModule,  bool_e right_side ){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INIT_CYLINDER,
+			INIT,
+			ACTION_GO_TAKE_CYLINDER,
+			CHECK_STATUS_OTHER_SLINDER,
+			PROTECT_NEXT_FALL,
+			ACTION_BRING_BACK_CYLINDER,
+			CHECK_STATUS_OTHER_SLINDER_2,
+			CHECK_STATUS_ELEVATOR,
+			ACTION_START_BRING_UP_CYLINDER,
+			CHECK_STATUS_SLOPE,
+			ACTION_END_BRING_UP_CYLINDER,
+			CHECK_STATUS_SLIDER,
+			ACTION_STOCK_UP_CYLINDER,
+			CHECK_STATUS_OTHER_SLINDER_3,
+			RESTART_CONDITION,
+			ACTION_RETRACT_ALL,
+			ACTION_FINAL_1_ON_3,
+			ACTION_FINAL_2_ON_3,
+			ACTION_FINAL_3_ON_3,
+			CHECK_STATUS_OTHER_CYLINDER_FINAL,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:
+			state = ACTION_GO_TAKE_CYLINDER;
+			break;
+
+		case ACTION_GO_TAKE_CYLINDER:
+
+			if (right_side){
+				if (entrance) {
+				//On active la pompe avant d'avancer
+				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT );
+
+				// On avance l'autre bras pour bloquer la chute du cylindre d'apres
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT );}
+
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, ACTION_GO_TAKE_CYLINDER,CHECK_STATUS_OTHER_SLINDER, ERROR);
+			}else{
+				if (entrance) {
+				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL);
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT );
+
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT );}
+
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, ACTION_GO_TAKE_CYLINDER,CHECK_STATUS_OTHER_SLINDER, ERROR);
+			}
+			break;
+
+		case CHECK_STATUS_OTHER_SLINDER:
+			if (right_side){
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_OTHER_SLINDER,PROTECT_NEXT_FALL, ERROR);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_OTHER_SLINDER,PROTECT_NEXT_FALL, ERROR);
+			}
+			break;
+
+		case PROTECT_NEXT_FALL:
+			if (right_side){
+				if(entrance){
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER);}
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, PROTECT_NEXT_FALL,ACTION_BRING_BACK_CYLINDER, ERROR);
+			}else{
+				if(entrance){
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER);}
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, PROTECT_NEXT_FALL,ACTION_BRING_BACK_CYLINDER, ERROR);
+			}
+			break;
+
+		case ACTION_BRING_BACK_CYLINDER:
+			if (right_side){
+				if (entrance) {
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN );
+
+				//On avance en profite pour bouger de l'autre cote
+				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+				//vacuose ici?
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT );
+
+				//On redescend le bras et desactive la pompe du cycle precedent si pas utilise par le stockage
+				// attention a 4 on est quand meme en haut, il faut descendre !
+				if ((nbModulesStock(nb_cylinder_big_left)<5)){
+					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP );
+					//vacuose ici?!
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );}}
+
+				//capteur inuctif fin de course a la place du check at status ?
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, ACTION_BRING_BACK_CYLINDER,CHECK_STATUS_OTHER_SLINDER_2, ERROR);
+			}else{
+				if (entrance) {
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN );
+
+				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+				//vacuose ici?
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT );
+
+				if ((nbModulesStock(nb_cylinder_big_right)<5)){
+				ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP );
+				//vacuose ici?
+				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );}}
+
+				//capteur inuctif fin de course a la place du check at status ?
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, ACTION_BRING_BACK_CYLINDER,CHECK_STATUS_OTHER_SLINDER_2, ERROR);
+			}break;
+
+		case CHECK_STATUS_OTHER_SLINDER_2:
+			if (right_side){
+				//pas besoin de verifier l'elevator si il a pas ete actionne
+				if ((nbModulesStock(nb_cylinder_big_left)<5)){
+					state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_OTHER_SLINDER_2,CHECK_STATUS_ELEVATOR, ERROR);
+				}else{
+					state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_OTHER_SLINDER_2,ACTION_START_BRING_UP_CYLINDER, ERROR);}
+			}else{
+				if ((nbModulesStock(nb_cylinder_big_right)<5)){
+					state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_OTHER_SLINDER_2,CHECK_STATUS_ELEVATOR, ERROR);
+				}else{
+					state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_OTHER_SLINDER_2,ACTION_START_BRING_UP_CYLINDER, ERROR);}
+			}
+			break;
+
+		case CHECK_STATUS_ELEVATOR:
+			if (right_side){
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, CHECK_STATUS_ELEVATOR,ACTION_START_BRING_UP_CYLINDER, ERROR);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, CHECK_STATUS_ELEVATOR,ACTION_START_BRING_UP_CYLINDER, ERROR);
+			}
+			break;
+
+		case ACTION_START_BRING_UP_CYLINDER:
+
+			if (right_side){
+				if (entrance) {
+				ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+				// ici rajouter le check de la pompe avec vacuose pour les deux
+				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER );
+
+				// on redescend en meme temps le clapet du cylindre precedent si il n'est pas bloque
+				if ((nbModulesStock(nb_cylinder_big_left)<4)){
+					ACT_push_order( ACT_CYLINDER_SLOPE_LEFT , ACT_CYLINDER_SLOPE_LEFT_UNLOCK );}}
+
+				//la on doit actionner le slider du cote de l'elevator pour qu'il parte en ALMOST_OUT
+				//le plus efficace serait-il d'utiliser Wait() plutot que de creer un nouveau case pour separer la monter en deux ? !!!
+				//Attention le wait peut etre dangereux, mechaniquement, si le slider avance trop tot
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, ACTION_START_BRING_UP_CYLINDER,CHECK_STATUS_SLOPE, ERROR);
+			}else{
+				if (entrance) {
+				ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+				// vacuose
+				ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER );
+				if ((nbModulesStock(nb_cylinder_big_right)<4)){ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT , ACT_CYLINDER_SLOPE_RIGHT_UNLOCK );}}
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, ACTION_START_BRING_UP_CYLINDER,CHECK_STATUS_SLOPE, ERROR);
+			}break;
+
+		case CHECK_STATUS_SLOPE:
+			//necessaire de le passer si non utilise?
+			if (right_side){
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_left, CHECK_STATUS_SLOPE,ACTION_END_BRING_UP_CYLINDER, ERROR);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, CHECK_STATUS_SLOPE,ACTION_END_BRING_UP_CYLINDER, ERROR);
+			}
+			break;
+
+		case ACTION_END_BRING_UP_CYLINDER:
+
+			if (right_side){
+				if (entrance) {
+				//on finit le mouvement en simultanee avec la sortie du slider
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT );
+				if ((nbModulesStock(nb_cylinder_big_right)<4)){
+				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_TOP );}}
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, ACTION_END_BRING_UP_CYLINDER,CHECK_STATUS_SLIDER, ERROR);
+			}else{
+				if (entrance) {
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT );
+				if ((nbModulesStock(nb_cylinder_big_left)<4)){ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_TOP );}}
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, ACTION_END_BRING_UP_CYLINDER,CHECK_STATUS_SLIDER, ERROR);
+			}break;
+
+		case CHECK_STATUS_SLIDER:
+			if (right_side){
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_SLIDER,ACTION_STOCK_UP_CYLINDER, ERROR);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_SLIDER,ACTION_STOCK_UP_CYLINDER, ERROR);
+			}
+			break;
+
+		case ACTION_STOCK_UP_CYLINDER:
+
+			if (right_side){
+				if (entrance) {
+				// on verouille le slope
+				ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT , ACT_CYLINDER_SLOPE_RIGHT_LOCK );
+
+				//et en meme temps on prepare la collecte d'apres
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER );}
+
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_STOCK_UP_CYLINDER, CHECK_STATUS_OTHER_SLINDER_3, ERROR);
+
+			}else{
+				if (entrance) {
+				ACT_push_order( ACT_CYLINDER_SLOPE_LEFT , ACT_CYLINDER_SLOPE_LEFT_LOCK );
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER );}
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_STOCK_UP_CYLINDER, CHECK_STATUS_OTHER_SLINDER_3, ERROR);}
+			break;
+
+		case CHECK_STATUS_OTHER_SLINDER_3:
+			if (right_side){
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, CHECK_STATUS_OTHER_SLINDER_3,RESTART_CONDITION, ERROR);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, CHECK_STATUS_OTHER_SLINDER_3,RESTART_CONDITION, ERROR);
+			}
+			break;
+
+		case RESTART_CONDITION:
+			enleveModuleFusee(nb_cylinder_fusee);
+			if ((nbModulesFusee(nb_cylinder_fusee)>0)){
+				if (right_side){
+					//on actualise le nombre de cylindre stocke dans le robot
+					addModuleStock(MODULE_POLY,nb_cylinder_big_right);
+					//On change de cote
+					right_side = FALSE;
+					if ((nbModulesStock(nb_cylinder_big_right)<5)){
+						//et on recommence
+						state = ACTION_BRING_BACK_CYLINDER;
+					}else{
+						state = ACTION_FINAL_1_ON_3;
+					}
+				}else{
+					addModuleStock(MODULE_POLY,nb_cylinder_big_left);
+					right_side = TRUE;
+					if ((nbModulesStock(nb_cylinder_big_left)<5)){
+					state = ACTION_BRING_BACK_CYLINDER;
+					}else{state = ACTION_FINAL_1_ON_3;}}
+			}else{
+				state=DONE;}
+				break;
+
+		case ACTION_FINAL_1_ON_3:
+			if (right_side){
+				if (entrance) {
+				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT );}
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, ACTION_FINAL_1_ON_3, ACTION_FINAL_2_ON_3, ERROR);
+
+			}else{
+				if (entrance) {
+				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT );}
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, ACTION_FINAL_1_ON_3, ACTION_FINAL_2_ON_3, ERROR);}
+			break;
+
+		case ACTION_FINAL_2_ON_3:
+			//si on arrive ici car notre robot est plein mais il reste des cylindres dans la fusee
+			//on doit quand meme prevoir la chute d'un cylindre
+			if (right_side){
+				if (entrance) {
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER );}
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_FINAL_2_ON_3, ACTION_FINAL_3_ON_3, ERROR);
+
+			}else{
+				if (entrance) {
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER );}
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_left, ACTION_FINAL_2_ON_3, ACTION_FINAL_3_ON_3, ERROR);}
+			break;
+
+		case ACTION_FINAL_3_ON_3:
+			if (entrance) {
+			ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN );
+			ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN );}
+			state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_FINAL_3_ON_3, CHECK_STATUS_OTHER_CYLINDER_FINAL, ERROR);
+			break;
+
+		case CHECK_STATUS_OTHER_CYLINDER_FINAL :
+			state = check_act_status(ACT_QUEUE_Cylinder_slope_left, CHECK_STATUS_OTHER_CYLINDER_FINAL, DONE, ERROR);
+			break;
+
+		case DONE:
+
 			RESET_MAE();
 			on_turning_point();
 			return END_OK;
+
 			break;
 
 		case ERROR:
@@ -536,6 +573,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 
 	return IN_PROGRESS;
 }
+
 
 error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDropLocation_e nb_cylinder_big_left){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INIT_CYLINDER,
@@ -559,12 +597,12 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 
 		case INIT_ACTION_SLIDER_RIGHT:
 			if(entrance){
-				if ((getNbDrop(nb_cylinder_big_right)<6)){
+				if ((nbModulesStock(nb_cylinder_big_right)<6)){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
 				}
 				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
 			}
-			if ((getNbDrop(nb_cylinder_big_right)<5)){
+			if ((nbModulesStock(nb_cylinder_big_right)<5)){
 				state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_ELEVATOR_RIGHT, ERROR);
 			}else{
 				state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
@@ -573,12 +611,12 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 
 		case INIT_ACTION_ELEVATOR_RIGHT:
 			if(entrance){
-				if ((getNbDrop(nb_cylinder_big_right)<5)){
+				if ((nbModulesStock(nb_cylinder_big_right)<5)){
 					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP );
 				}
 				ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
 			}
-			if ((getNbDrop(nb_cylinder_big_right)<4)){
+			if ((nbModulesStock(nb_cylinder_big_right)<4)){
 				state= check_act_status(ACT_QUEUE_Cylinder_elevator_right, INIT_ACTION_ELEVATOR_RIGHT, INIT_ACTION_SLOPE_RIGHT, ERROR);
 			}else{
 				state= check_act_status(ACT_QUEUE_Cylinder_elevator_right, INIT_ACTION_ELEVATOR_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
@@ -594,11 +632,11 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 
 		case INIT_ACTION_SLIDER_LEFT:
 			if(entrance){
-				if ((getNbDrop(nb_cylinder_big_left)<6)){
+				if ((nbModulesStock(nb_cylinder_big_left)<6)){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 				}
 				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);}
-			if ((getNbDrop(nb_cylinder_big_left)<5)){
+			if ((nbModulesStock(nb_cylinder_big_left)<5)){
 				state= check_act_status(ACT_QUEUE_Cylinder_slider_left, INIT_ACTION_SLIDER_LEFT, INIT_ACTION_ELEVATOR_LEFT, ERROR);
 			}else{
 				state= check_act_status(ACT_QUEUE_Cylinder_slider_left, INIT_ACTION_SLIDER_LEFT, DONE, ERROR);
@@ -607,12 +645,12 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 
 		case INIT_ACTION_ELEVATOR_LEFT:
 			if(entrance){
-				if ((getNbDrop(nb_cylinder_big_right) < 5)){
+				if ((nbModulesStock(nb_cylinder_big_right) < 5)){
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP );
 				}
 				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
 			}
-			if ((getNbDrop(nb_cylinder_big_left) < 4)){
+			if ((nbModulesStock(nb_cylinder_big_left) < 4)){
 				state= check_act_status(ACT_QUEUE_Cylinder_elevator_left, INIT_ACTION_ELEVATOR_LEFT, INIT_ACTION_SLOPE_LEFT, ERROR);
 			}else{
 				state= check_act_status(ACT_QUEUE_Cylinder_elevator_left, INIT_ACTION_ELEVATOR_LEFT, DONE, ERROR);

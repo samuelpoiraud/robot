@@ -63,9 +63,6 @@
 		MODULE_DROP_OUR_SIDE,
 		MODULE_DROP_ADV_SIDE,
 		NB_MODULE_LOCATION,
-		NB_MODULE_BIG_RIGHT_SIDE,
-		NB_MODULE_BIG_LEFT_SIDE,
-		NB_MODULE_FUSEE_MULTICOLOR,
 	}moduleDropLocation_e;
 
 	typedef enum{
@@ -79,6 +76,13 @@
 		MODULE_MONO_DOMINATING,
 		MODULE_POLY_DOMINATING,
 	}moduleTypeDominating_e;
+
+	typedef enum{
+		FUSEE_MULTI_OUR_SIDE,
+		FUSEE_MULTI_ADV_SIDE,
+		FUSEE_MONO_OUR_SIDE,
+		NB_FUSEE
+	}moduleFuseeLocation_e;
 
 	extern const module_zone_characteristics_s module_zone[NB_MODULE_LOCATION];
 	// COMMENTAIRE POUR COCO : module_zone[first_zone].xmin
@@ -109,6 +113,14 @@ Uint8 nbModulesStock(moduleStorageLocation_e storage);
 void addModuleStock(moduleType_e type, moduleStorageLocation_e storage);
 
 moduleType_e releaseModuleStock(moduleType_e type, moduleStorageLocation_e storage);
+
+// Fonction pour le vidage de la fusee
+
+void remplirFusee(moduleFuseeLocation_e fusee);
+
+Uint8 nbModulesFusee(moduleFuseeLocation_e fusee);
+
+void enleveModuleFusee(moduleStorageLocation_e fusee);
 
 
 //Fonctions pour la dépose
