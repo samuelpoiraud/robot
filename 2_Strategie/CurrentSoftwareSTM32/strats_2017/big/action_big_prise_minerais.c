@@ -1566,6 +1566,9 @@ error_e sub_harry_get_in_south_little_crater(){
 
 	switch(state){
 		case INIT:
+			//if (i_am_in_square_color(0, 300, 0, 3000)){
+			//	state = GET_BACK_THERE1;
+			//}else
 			if(i_am_in_square_color(800, 1400, 300, 900)){
 				state = DONE;//GET_IN_OUR_SQUARE;
 			}else if (i_am_in_square_color(100, 1100, 900, 2100)){

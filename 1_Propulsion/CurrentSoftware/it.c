@@ -157,6 +157,9 @@ void _ISR _T2Interrupt()
 	#endif
 	IT_test_state(begin_it_time, IT_STATE_HOKUYO, &first_overtime);
 
+
+    DEBUG_process_it();
+
     #ifdef SCAN_BORDURE
 		SCAN_process_it();
 		IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
@@ -167,7 +170,7 @@ void _ISR _T2Interrupt()
 		IT_test_state(begin_it_time, IT_STATE_CHOC_DETECTION, &first_overtime);
 	#endif
 
-	DEBUG_process_it();
+    //DEBUG_process_it();
 	IT_test_state(begin_it_time, IT_STATE_DEBUG, &first_overtime);
 
 	// Affichage des leds toutes les 500ms

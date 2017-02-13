@@ -4,14 +4,14 @@
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_adc.h"
 
-#define CONVERSION_LASER_LEFT(x)	((Sint32)(37217*(x)-7096800)/10000)//((Sint32)(-263*(x)+350450)/1000)
-#define OFFSET_WIDTH_LASER_LEFT		(-150)
-#define OFFSET_LENGTH_LASER_LEFT	(70)
+#define CONVERSION_LASER_LEFT(x)	((Sint32)(36148*(x)-6611800)/10000)//((Sint32)(37217*(x)-7096800)/10000)
+#define OFFSET_WIDTH_LASER_LEFT		(-144)
+#define OFFSET_LENGTH_LASER_LEFT	(80)
 #define OFFSET_ANGLE_LEFT            94
 
-#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36130*(x)-6247900)/10000)
-#define OFFSET_WIDTH_LASER_RIGHT	(150)
-#define OFFSET_LENGTH_LASER_RIGHT	(70)
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36052*(x)-6201700)/10000)//((Sint32)(36130*(x)-6247900)/10000)
+#define OFFSET_WIDTH_LASER_RIGHT	(144)
+#define OFFSET_LENGTH_LASER_RIGHT	(80)
 #define OFFSET_ANGLE_RIGHT          -221
 
 
@@ -84,7 +84,7 @@ static void SCAN_get_data_left(){
 	// On stocke les valeurs
 	laser_left[index].pos_mesure = pos_mesure;
 	laser_left[index].pos_laser = pos_laser;
-    laser_left[index].ADCvalue = valueADC;
+    //laser_left[index].ADCvalue = valueADC;
 
 }
 
@@ -126,7 +126,7 @@ static void SCAN_get_data_right(){
 	// On stocke les valeurs
 	laser_right[index].pos_mesure = pos_mesure;
 	laser_right[index].pos_laser = pos_laser;
-    laser_right[index].ADCvalue = valueADC;
+    //laser_right[index].ADCvalue = valueADC;
 }
 
 
@@ -134,7 +134,16 @@ void TELEMETER_process_it(){
 	
     laser_left[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_LEFT);
     laser_right[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
-    //printf("%d\n",laser_right[index].ADCvalue);
+//    printf("%d\n",ADC_getValue(ADC_VREFIN));
+//    it_printf("%d\n",laser_right[index].ADCvalue);
+}
+
+Uint16 TELEMETER_get_ADCvalue_left(){
+    return laser_left[index].ADCvalue;
+}
+
+Uint16 TELEMETER_get_ADCvalue_right(){
+    return laser_right[index].ADCvalue;
 }
 
 
@@ -174,14 +183,14 @@ void SCAN_process_main(){
 			tab_treatment_right[i].pos_mesure = laser_right[i].pos_mesure;
 			tab_treatment_right[i].pos_laser = laser_right[i].pos_laser;
 			tab_treatment_right[i].enable = laser_right[i].enable;
-            moy+=laser_right[i].ADCvalue;
+            moy+=laser_left[i].ADCvalue;
             //debug_printf("i1=%d\n", i);
 			//debug_printf("i1=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
 		}
 		flag_1 = FALSE;
-        //printf("%ld\n",moy);
+       // printf("%ld\n",moy);
         moy=moy/NB_SCAN_DATA;
-        //printf("\n\n%ld\n\n\n",moy);
+        printf("%ld\n",moy);
 
 		// Appel de fonctions de scan objets
 		OBJECTS_SCAN_treatment(tab_treatment_left);

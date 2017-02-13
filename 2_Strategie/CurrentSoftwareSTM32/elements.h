@@ -29,6 +29,11 @@
 		LEFT
 	}ELEMENTS_side_e;
 
+	typedef enum{
+		OUR_SIDE,
+		ADV_SIDE
+	}ELEMENTS_side_match_e;
+
 
 	typedef struct{
 		GEOMETRY_point_t pos;
