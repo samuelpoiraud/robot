@@ -3,6 +3,7 @@
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_CapteurCouleurCW.h"
+#include "../../QS/QS_outputlog.h"
 #include "../../utils/generic_functions.h"
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
@@ -17,16 +18,24 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules){
 
 	switch(state){
 		case INIT:
+			state = DONE;
 			break;
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_depose_modules_centre\n");
 			break;
 	}
 
@@ -140,11 +149,13 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
 			break;
 
@@ -580,6 +591,11 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 					//END
 				//else{
 				break;
+
+			default:
+				if(entrance)
+					debug_printf("default case in sub_harry_depose_modules_side\n");
+				break;
 	}
 
 	return IN_PROGRESS;
@@ -675,12 +691,19 @@ error_e sub_harry_cylinder_depose_manager(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_depose_manager\n");
 			break;
 	}
 
@@ -762,12 +785,19 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_return_modules\n");
 			break;
 	}
 
@@ -906,12 +936,19 @@ error_e manager_return_modules(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in manager_return_modules\n");
 			break;
 	}
 

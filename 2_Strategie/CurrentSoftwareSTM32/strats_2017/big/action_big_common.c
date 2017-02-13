@@ -1,11 +1,13 @@
 #include "action_big.h"
+#include "../actions_both_2017.h"
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
-#include "../../QS/QS_stateMachineHelper.h"
-#include "../actions_both_2017.h"
 #include "../../utils/actionChecker.h"
-#include "../../QS/QS_IHM.h"
 #include "../../utils/generic_functions.h"
+#include "../../QS/QS_IHM.h"
+#include "../../QS/QS_outputlog.h"
+#include "../../QS/QS_stateMachineHelper.h"
+
 
 error_e sub_harry_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INITIALE,
@@ -42,7 +44,7 @@ error_e sub_harry_initiale(){
 	switch(state){
 		case INIT:
 
-			if(i_am_in_square_color(0, 360, 0, 360)||IHM_switchs_get(SWITCH_WITH_BASCULE)){   //le robot est dans la zone avant la bascule
+			if(i_am_in_square_color(0, 360, 0, 360) && IHM_switchs_get(SWITCH_WITH_BASCULE)){   //le robot est dans la zone avant la bascule
 				state = ROCKER; //!boucle infini passage bascule!
 			}
 
@@ -165,12 +167,19 @@ error_e sub_harry_initiale(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_initiale\n");
 			break;
 	}
 
@@ -186,16 +195,24 @@ error_e sub_harry_end_of_match(){
 
 	switch(state){
 		case INIT:
+			state = DONE;
 			break;
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_end_of_match\n");
 			break;
 	}
 

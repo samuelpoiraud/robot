@@ -3,6 +3,7 @@
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
+#include "../../QS/QS_outputlog.h"
 #include "../../utils/actionChecker.h"
 #include "../../utils/generic_functions.h"
 
@@ -43,12 +44,19 @@ error_e sub_harry_manager_defence() {
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_manager_defence\n");
 			break;
 	}
 	return IN_PROGRESS;
@@ -111,12 +119,19 @@ static error_e sub_harry_defence_our_depose_zone(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_defence_our_depose_zone\n");
 			break;
 	}
 	return IN_PROGRESS;
@@ -215,12 +230,19 @@ static error_e sub_harry_defence_middle_depose_zone(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_defence_middle_depose_zone\n");
 			break;
 	}
 	return IN_PROGRESS;

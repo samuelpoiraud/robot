@@ -12,6 +12,7 @@
 
 #include "actions_both_2017.h"
 #include "../QS/QS_stateMachineHelper.h"
+#include "../QS/QS_outputlog.h"
 #include "../propulsion/prop_functions.h"
 #include "../propulsion/movement.h"
 #include "../utils/generic_functions.h"
@@ -55,12 +56,56 @@ error_e sub_cross_rocker(void){
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_cross_rocker\n");
+			break;
 	}
 
 	return IN_PROGRESS;
 }
+
+
+
+error_e sub_wait_1_sec(void){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_WAIT_ONE_SEC,
+							INIT,
+							DONE,
+							ERROR
+							);
+
+
+	switch (state) {
+		case INIT:
+			on_turning_point();
+			state = wait_time(1000, INIT, DONE);
+			break;
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_wait_1_sec\n");
+			break;
+	}
+	return IN_PROGRESS;
+}
+

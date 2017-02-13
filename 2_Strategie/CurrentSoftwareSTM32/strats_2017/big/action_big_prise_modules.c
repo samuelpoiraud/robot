@@ -3,6 +3,7 @@
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_types.h"
+#include "../../QS/QS_outputlog.h"
 
 #include  "../../propulsion/astar.h"
 #include  "../../utils/generic_functions.h"
@@ -20,16 +21,24 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules){
 
 	switch(state){
 		case INIT:
+			state = DONE;
 			break;
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_prise_modules_centre\n");
 			break;
 	}
 
@@ -42,7 +51,11 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules){
 error_e sub_harry_rocket_monocolor(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_ROCKET_MONOCOLOR,
 			INIT,
-			GET_IN,
+			GET_IN_DIRECT,
+			GET_IN_ADV_SQUARE,
+			GET_IN_OUR_SQUARE,
+			PATHFIND,
+			GO_TO_START_POINT,
 			TAKE_ROCKET,
 			GET_OUT,
 			GET_OUT_ERROR,
@@ -54,15 +67,40 @@ error_e sub_harry_rocket_monocolor(){
 
 	switch(state){
 		case INIT:
-			state=GET_IN;
+			if (i_am_in_square_color(200, 1100, 900, 2100)){
+				state = GET_IN_DIRECT;
+			}else if(i_am_in_square_color(800, 1400, 300, 900)){
+				state = GET_IN_OUR_SQUARE;
+			}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
+				state = GET_IN_ADV_SQUARE;
+			}else
+				state = PATHFIND;
+
+				break;
+
+		case GET_IN_OUR_SQUARE:
+			state = try_going(800, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
-		case GET_IN:
-			state=check_sub_action_result(sub_harry_get_in_rocket_monocolor(),state,TAKE_ROCKET,ERROR);
+		case GET_IN_ADV_SQUARE:
+			state = try_going(800, COLOR_Y(2000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
-		case TAKE_ROCKET:
+		case GET_IN_DIRECT:
+			state = try_going(400, COLOR_Y(1150), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case PATHFIND:
+			state = ASTAR_try_going(400, COLOR_Y(1150), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_START_POINT:
+			state = try_going(275, COLOR_Y(1150), state, TAKE_ROCKET, GET_OUT_ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TAKE_ROCKET: // Execution des ordres actionneurs
 			//state=check_sub_action_result(sub_harry_take_rocket(),state,GET_OUT,GET_OUT_ERROR);
+			state = GET_OUT;
 			break;
 
 		case GET_OUT:
@@ -83,12 +121,19 @@ error_e sub_harry_rocket_monocolor(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_rocket_monocolor\n");
 			break;
 	}
 
@@ -96,59 +141,6 @@ error_e sub_harry_rocket_monocolor(){
 }
 
 
-error_e sub_harry_get_in_rocket_monocolor(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_ROCKET_MONOCOLOR,
-			INIT,
-			GET_IN_MIDDLE_SQUARE,
-			GET_IN_ADV_SQUARE,
-			GET_IN_OUR_SQUARE,
-			PATHFIND,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			if(i_am_in_square_color(800, 1400, 300, 900)){
-				state = DONE;//GET_IN_OUR_SQUARE;
-			}else if (i_am_in_square_color(200, 1100, 900, 2100)){
-				state = GET_IN_MIDDLE_SQUARE;
-			}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
-				state = GET_IN_ADV_SQUARE;
-			}else
-				state = PATHFIND;
-
-				break;
-
-		case GET_IN_OUR_SQUARE:
-			state = try_going(800, COLOR_Y(1000), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case GET_IN_MIDDLE_SQUARE:
-			state = try_going(275, COLOR_Y(1150), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case GET_IN_ADV_SQUARE:
-			state = try_going(800, COLOR_Y(2000), state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case PATHFIND:
-			state = ASTAR_try_going(275, COLOR_Y(1150), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
 
 //#if 0
 error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side){
@@ -525,14 +517,24 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 			break;
 
 		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
 			break;
 
 		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
 			break;
-		}
 
-		return IN_PROGRESS;
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_rocket_multicolor\n");
+			break;
+	}
 
+	return IN_PROGRESS;
 }
 
 error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDropLocation_e nb_cylinder_big_left){
@@ -632,6 +634,11 @@ error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right,moduleDro
 		case ERROR:
 			RESET_MAE();
 			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in init_all_actionneur\n");
 			break;
 
 	}

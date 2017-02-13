@@ -16,6 +16,7 @@
 	#define ACTIONS_BOTH_2017_H
 
 	error_e sub_cross_rocker(void);
+	error_e sub_wait_1_sec(void);
 
 #endif
 

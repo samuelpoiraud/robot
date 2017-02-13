@@ -2,6 +2,7 @@
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
+#include "../../QS/QS_outputlog.h"
 #include "../../utils/actionChecker.h"
 #include "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
@@ -65,12 +66,19 @@ error_e sub_harry_manager_put_off_ore(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_manager_put_off_ore\n");
 			break;
 	}
 
@@ -141,14 +149,21 @@ error_e sub_harry_depose_minerais(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			ELEMENTS_set_flag(FLAG_HARRY_ORE_SHOOTING,FALSE);
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			ELEMENTS_set_flag(FLAG_HARRY_ORE_SHOOTING,FALSE);
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_depose_minerais\n");
 			break;
 	}
 
@@ -204,6 +219,11 @@ error_e sub_harry_get_in_depose_minerais(){
 			RESET_MAE();
 			return END_OK;
 			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_get_in_depose_minerais\n");
+			break;
 	}
 
 	return IN_PROGRESS;
@@ -255,12 +275,19 @@ error_e sub_harry_shooting_depose_minerais(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_shooting_depose_minerais\n");
 			break;
 	}
 
@@ -318,12 +345,19 @@ error_e sub_harry_depose_minerais_alternative(){
 
 		case ERROR:
 			RESET_MAE();
+			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
+			on_turning_point();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_depose_minerais_alternative\n");
 			break;
 	}
 
@@ -378,6 +412,11 @@ error_e sub_harry_get_in_depose_minerais_alternative(){
 		case DONE:
 			RESET_MAE();
 			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_get_in_depose_minerais_alternative\n");
 			break;
 	}
 
