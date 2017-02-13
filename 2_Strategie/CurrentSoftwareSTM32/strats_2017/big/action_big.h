@@ -37,7 +37,6 @@
 	// action_big_prise_modules
 	error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules);
 	error_e sub_harry_rocket_monocolor();
-	error_e sub_harry_get_in_rocket_monocolor();
 	error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right ,moduleDropLocation_e nb_cylinder_big_left);
 	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side);
 
