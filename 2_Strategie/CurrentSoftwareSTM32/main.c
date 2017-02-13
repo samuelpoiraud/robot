@@ -40,7 +40,6 @@
 
 void test_bp_switchs(void);
 void test_leds(void);
-void pull_bp_and_switch(void);
 static void MAIN_sensor_test();
 
 

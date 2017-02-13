@@ -3,6 +3,7 @@
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_outputlog.h"
+#include "../../QS/QS_types.h"
 #include  "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
@@ -27,7 +28,7 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL)){
+			if(ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)){
 				state = ERROR;
 			}else{
 
@@ -1315,11 +1316,11 @@ error_e sub_harry_take_north_little_crater(){
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_OUR_CENTER)||(!ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL))){
+			if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_CENTER)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL))){
 				state=ERROR;
 			}else{
 				state=GET_IN;
-				ELEMENTS_set_flag(FLAG_HARRY_NORTH_CRATER,TRUE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_NORTH_CRATER,TRUE);
 			}
 			break;
 
@@ -1373,14 +1374,14 @@ error_e sub_harry_take_north_little_crater(){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_HARRY_NORTH_CRATER,FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_NORTH_CRATER,FALSE);
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_HARRY_NORTH_CRATER,FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_NORTH_CRATER,FALSE);
 			return END_OK;
 			break;
 
@@ -1473,11 +1474,11 @@ error_e sub_harry_take_south_little_crater(){
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_SOUTH_UNI)||ELEMENTS_get_flag(FLAG_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)||(!ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL))){
+			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_SOUTH_UNI)||ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL))){
 				state=ERROR;
 			}else{
 				state=GET_IN;
-				ELEMENTS_set_flag(FLAG_HARRY_SOUTH_CRATER,TRUE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_SOUTH_CRATER,TRUE);
 			}
 			break;
 
@@ -1531,14 +1532,14 @@ error_e sub_harry_take_south_little_crater(){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_HARRY_SOUTH_CRATER,TRUE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_SOUTH_CRATER,TRUE);
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_HARRY_SOUTH_CRATER,TRUE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_SOUTH_CRATER,TRUE);
 			return END_OK;
 			break;
 

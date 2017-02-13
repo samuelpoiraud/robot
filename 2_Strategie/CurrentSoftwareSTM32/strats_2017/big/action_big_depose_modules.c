@@ -397,7 +397,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 	   OUEST = 0,
 	   EST = 1
 	}endroit_depose_config_e;
-	Uint8 endroit_depose;
+	endroit_depose_config_e endroit_depose;
 	//
 	if(global.color==BLUE){
 		if(OUR_ELEMENT){
@@ -419,7 +419,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 		NORD = 0,
 		SUD = 1
 	}POINT_DE_ROTATION_config_e;
-	Uint8 mon_point_de_rotation = SUD;
+	POINT_DE_ROTATION_config_e mon_point_de_rotation = SUD;
 
 	switch(state){
 		// Vérifier la présance de cylindre dans le robot... je sais pas faire... nul!
@@ -906,7 +906,7 @@ error_e sub_harry_cylinder_depose_manager(){
 	moduleDropLocation_e third_zone=MODULE_DROP_OUR_SIDE;
 	moduleDropLocation_e fourth_zone=MODULE_DROP_ADV_CENTER;
 	moduleDropLocation_e fifth_zone=MODULE_DROP_ADV_SIDE;
-	moduleDropLocation_e prefered_zone;
+	moduleDropLocation_e prefered_zone = first_zone;
 
 	switch(state){
 		case INIT:
