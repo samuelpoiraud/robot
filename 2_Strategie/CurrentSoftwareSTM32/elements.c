@@ -12,27 +12,27 @@
 #include "utils/generic_functions.h"
 
 
-#define MAX_MODULE_DROP			6
+#define MAX_MODULE_MOONBASE		6
 #define MAX_MODULE_STOCK		6
-#define MAX_MODULE_FUSEE        4
+#define MAX_MODULE_ROCKET       4
 
 typedef struct{
-	Uint8 nbDrop;
-	moduleType_e dropTable[MAX_MODULE_DROP];
-}moduleDropInfo_s;
+	Uint8 nbCurrentModules;
+	moduleType_e moonbaseModules[MAX_MODULE_MOONBASE];
+}moduleMoonbaseInfo_s;
 
 typedef struct{
 	moduleType_e stockModules[MAX_MODULE_STOCK];
-	Uint8 nb_current_modules;
-	Uint8 nb_modules_multicolor;
-	Uint8 nb_modules_monocolor;
-	moduleTypeDominating_e dominating_modules;
-}gestion_modules_s;
+	Uint8 nbCurrentModules;
+	Uint8 nbModulesMulticolor;
+	Uint8 nbModulesMonocolor;
+	moduleTypeDominating_e dominatingModules;
+}moduleStockInfo_s;
 
 typedef struct{
-	moduleType_e fuseeModules[MAX_MODULE_FUSEE];
-	Uint8 nb_current_modules;
-}gestion_modules_fusee_s;
+	moduleType_e rocketModules[MAX_MODULE_ROCKET];
+	Uint8 nbCurrentModules;
+}moduleRoketInfo_s;
 
 typedef struct{
 	bool_e sending;
@@ -46,13 +46,16 @@ typedef struct{
 #define HARDFLAGS_TIMEOUT  	(HARDFLAGS_PERIOD + 200)
 
 static volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
-static volatile moduleDropInfo_s moduleDropInfo[NB_MODULE_LOCATION] = {0};
-static volatile gestion_modules_s moduleStockInfo[NB_PLACE_STORAGE] = {0};
-static volatile gestion_modules_fusee_s moduleFuseeInfo[NB_FUSEE] = {0};
+static volatile moduleMoonbaseInfo_s moduleMoonbaseInfo[NB_MOONBASES] = {0};
+static volatile moduleStockInfo_s moduleStockInfo[NB_STOCKS] = {0};
+static volatile moduleRoketInfo_s moduleRocketInfo[NB_ROCKETS] = {0};
 static volatile hardflag_s elements_hardflags[HARDFLAGS_NB];
+static void ROCKETS_init();
+static void STOCKS_init();
+static void MOONBASES_init();
 
 
-const module_zone_characteristics_s module_zone[NB_MODULE_LOCATION] = {
+const module_zone_characteristics_s module_zone[NB_MOONBASES] = {
 		{.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=6},		// MODULE_DROP_MIDDLE
 		{.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=6},		// MODULE_DROP_NORTH_CENTER
 		{.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=4},		// MODULE_DROP_SOUTH_CENTER
@@ -88,6 +91,15 @@ void ELEMENTS_init(){
 		elements_hardflags[i].receiving = FALSE;
 		elements_hardflags[i].lastUpdate = global.absolute_time;
 	}
+
+	// Initialisation des fusées
+	ROCKETS_init();
+
+	// Initialisation des stocks des robots
+	STOCKS_init();
+
+	// Initialisation des bases de construction lunaire
+	MOONBASES_init();
 }
 
 void ELEMENTS_process_main(){
@@ -297,70 +309,97 @@ static void ELEMENTS_receive_hardflags()
 }
 
 
-//Code pour le stockage des modules
+//###################################  STOCKAGE DES MODULES DANS LE ROBOT ################################
 
-static void calcul_module_dominant(moduleStorageLocation_e storage){
-	if(moduleStockInfo[storage].nb_modules_monocolor > moduleStockInfo[storage].nb_modules_multicolor){
-		moduleStockInfo[storage].dominating_modules = MODULE_MONO_DOMINATING;
+// Initialisation des stocks du robot
+static void STOCKS_init(){
+	Uint8 i;
+	for(i = 0; i < NB_STOCKS; i++){
+		moduleStockInfo[i].nbCurrentModules = 0;
+		moduleStockInfo[i].nbModulesMonocolor = 0;
+		moduleStockInfo[i].nbModulesMulticolor = 0;
+		moduleStockInfo[i].dominatingModules = NO_DOMINATING;
 	}
-	else if (moduleStockInfo[storage].nb_modules_monocolor < moduleStockInfo[storage].nb_modules_multicolor){
-		moduleStockInfo[storage].dominating_modules = MODULE_POLY_DOMINATING;
+}
+
+// Calul du type de modules dominant
+static void STOCKS_calculModuleDominant(moduleStockLocation_e storage){
+	if(moduleStockInfo[storage].nbModulesMonocolor > moduleStockInfo[storage].nbModulesMulticolor){
+		moduleStockInfo[storage].dominatingModules = MODULE_MONO_DOMINATING;
+	}
+	else if (moduleStockInfo[storage].nbModulesMonocolor < moduleStockInfo[storage].nbModulesMulticolor){
+		moduleStockInfo[storage].dominatingModules = MODULE_POLY_DOMINATING;
 	}
 	else{
-		moduleStockInfo[storage].dominating_modules = NO_DOMINATING;
+		moduleStockInfo[storage].dominatingModules = NO_DOMINATING;
 	}
 }
 
-moduleTypeDominating_e dominatingTypeStock(moduleStorageLocation_e storage){
-	return moduleStockInfo[storage].dominating_modules;
+// Getter du type de modules dominant
+moduleTypeDominating_e STOCKS_getDominatingModulesType(moduleStockLocation_e storage){
+	return moduleStockInfo[storage].dominatingModules;
 }
 
-Uint8 nbModulesStock(moduleStorageLocation_e storage){
-	return moduleStockInfo[storage].nb_current_modules;
+// Getter du nombre de module dans un des stocks du robot
+Uint8 STOCKS_getNbModules(moduleStockLocation_e storage){
+	return moduleStockInfo[storage].nbCurrentModules;
 }
 
-bool_e moduleStockPlaceIsEmpty(Uint8 place, moduleStorageLocation_e storage){
+// Permet de savoir si un des stocks du robot est plein
+bool_e STOCKS_isFull(moduleStockLocation_e storage){
+	return moduleStockInfo[storage].nbCurrentModules == MAX_MODULE_STOCK;
+}
+
+// Permet de savoir si un des stocks du robot est vide
+bool_e STOCKS_isEmpty(moduleStockLocation_e storage){
+	return moduleStockInfo[storage].nbCurrentModules == 0;
+}
+
+#warning A quoi ca sert ? Il faut plutot savoir si tout est plein ou si tout est vide.
+bool_e STOCKS_moduleStockPlaceIsEmpty(Uint8 place, moduleStockLocation_e storage){
 	assert(place < MAX_MODULE_STOCK);
 	if(moduleStockInfo[storage].stockModules[place] != MODULE_EMPTY){
 		return FALSE;
-	}
-	else {
+	} else {
 		return TRUE;
 	}
 }
 
-void addModuleStock(moduleType_e type, moduleStorageLocation_e storage){
+// Permet d'ajouter un module dans un des stocks du robot
+void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage){
 	if(type == MODULE_BLUE || type == MODULE_YELLOW){
-		moduleStockInfo[storage].nb_modules_monocolor++;
+		moduleStockInfo[storage].nbModulesMonocolor++;
 	}
 	else if(type == MODULE_POLY){
-		moduleStockInfo[storage].nb_modules_multicolor++;
+		moduleStockInfo[storage].nbModulesMulticolor++;
 	}
 
-	calcul_module_dominant(storage);
-
 	//Stockage du module
-	Uint8 nbModules = moduleStockInfo[storage].nb_current_modules;
-	moduleStockInfo[storage].stockModules[nbModules] = type;
+	Uint8 index = moduleStockInfo[storage].nbCurrentModules;
+	moduleStockInfo[storage].stockModules[index] = type;
+	moduleStockInfo[storage].nbCurrentModules++;
 
+	// Recalcul du type de modules dominant après ajout de ce nouveau module
+	STOCKS_calculModuleDominant(storage);
 }
 
-moduleType_e releaseModuleStock(moduleType_e type, moduleStorageLocation_e storage){
-	if(moduleStockInfo[storage].nb_current_modules >= 1){
+// Permet de supprimer un module dans un des stocks du robot
+moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
+	if(moduleStockInfo[storage].nbCurrentModules >= 1){
 		moduleType_e module = moduleStockInfo[storage].stockModules[0];
 
 		if(module == MODULE_BLUE || module == MODULE_YELLOW){
-			moduleStockInfo[storage].nb_modules_monocolor--;
+			moduleStockInfo[storage].nbModulesMonocolor--;
 		}
 		else if(module == MODULE_POLY){
-			moduleStockInfo[storage].nb_modules_multicolor--;
+			moduleStockInfo[storage].nbModulesMulticolor--;
 		}
 
 		Uint8 i;
-		for(i=0; i<MAX_MODULE_STOCK-2; i++){
+		for(i=0; i < moduleStockInfo[storage].nbCurrentModules - 1; i++){
 			moduleStockInfo[storage].stockModules[i] = moduleStockInfo[storage].stockModules[i+1];
 		}
-		moduleStockInfo[storage].nb_current_modules--;
+		moduleStockInfo[storage].nbCurrentModules--;
 		return module;
 	}
 	else{
@@ -368,52 +407,84 @@ moduleType_e releaseModuleStock(moduleType_e type, moduleStorageLocation_e stora
 	}
 }
 
-//code pour le vidage des fusee
+//###################################  GESTION DES MODULES DANS LES FUSEES ###############################
 
-void remplirFusee(moduleFuseeLocation_e fusee){
-	if(fusee == 1 || fusee == 2){
-		for(Uint8 i=0; i<MAX_MODULE_FUSEE-1; i++){
-			moduleFuseeInfo[fusee].fuseeModules[i] = MODULE_POLY;
-			moduleFuseeInfo[fusee].nb_current_modules++;
-		}
-	}else if(fusee == 3){
-		for(Uint8 i=0; i<MAX_MODULE_FUSEE-1; i++){
-			moduleFuseeInfo[fusee].fuseeModules[i] = MODULE_BLUE;//??? on sera pas toujours bleu, comment recuperer notre couleur?
-			moduleFuseeInfo[fusee].nb_current_modules++;
+// Initialisation des fusées
+static void ROCKETS_init(){
+	color_e color = global.color;
+	for(Uint8 rocket = 0; rocket < NB_ROCKETS; rocket++){
+		switch(rocket){
+			case MODULE_ROCKET_MULTI_OUR_SIDE:
+			case MODULE_ROCKET_MULTI_ADV_SIDE:
+				for(Uint8 i=0; i < MAX_MODULE_ROCKET - 1; i++){
+					moduleRocketInfo[rocket].rocketModules[i] = MODULE_POLY;
+				}
+				moduleRocketInfo[rocket].nbCurrentModules = MAX_MODULE_ROCKET;
+				break;
+			case MODULE_ROCKET_MONO_OUR_SIDE:
+				for(Uint8 i=0; i < MAX_MODULE_ROCKET - 1; i++){
+					if(color == BLUE){
+						moduleRocketInfo[rocket].rocketModules[i] = MODULE_BLUE;
+					}else{
+						moduleRocketInfo[rocket].rocketModules[i] = MODULE_YELLOW;
+					}
+				}
+				moduleRocketInfo[rocket].nbCurrentModules = MAX_MODULE_ROCKET;
+				break;
 		}
 	}
 }
 
-Uint8 nbModulesFusee(moduleFuseeLocation_e fusee){
-	return moduleFuseeInfo[fusee].nb_current_modules;
+// Getter du nombre de modules dansn une fusée
+Uint8 ROCKETS_getNbModules(moduleRocketLocation_e rocket){
+	return moduleRocketInfo[rocket].nbCurrentModules;
 }
 
-void enleveModuleFusee(moduleStorageLocation_e fusee){
-	moduleFuseeInfo[fusee].nb_current_modules--;
+// Permet de savoir si une fusée est vide
+bool_e ROCKETS_isEmpty(moduleRocketLocation_e rocket){
+	return moduleRocketInfo[rocket].nbCurrentModules == 0;
 }
 
-//code pour le placement des modules
-
-bool_e modulePlaceIsEmpty(Uint8 place, moduleDropLocation_e location){
-	assert(place < MAX_MODULE_DROP);
-	assert(location < NB_MODULE_LOCATION);
-	return (moduleDropInfo[location].dropTable[place] == MODULE_EMPTY);
+// Permet de savoir si une fusée est pleine
+void ROCKETS_removeModule(moduleRocketLocation_e rocket){
+	moduleRocketInfo[rocket].nbCurrentModules--;
 }
 
-Uint8 getNbDrop(moduleDropLocation_e location){
-	return moduleDropInfo[location].nbDrop;
-}
 
-moduleType_e getModuleType(Uint8 place, moduleDropLocation_e location){
-	assert(place < MAX_MODULE_DROP);
-	assert(location < NB_MODULE_LOCATION);
-	return moduleDropInfo[location].dropTable[place];
-}
+//############################  STOCKAGE DES MODULES DANS LES BASES DE CONSTRUCTION ######################
 
-void addModule(moduleType_e type, moduleDropLocation_e location){
+// Initialisation des bases de construction lunaire
+static void MOONBASES_init(){
 	Uint8 i;
-	for(i=0; i<MAX_MODULE_DROP-1; i++){
-		moduleDropInfo[location].dropTable[i+1] = moduleDropInfo[location].dropTable[i];
+	for(i = 0; i < NB_MOONBASES; i++){
+		moduleMoonbaseInfo[i].nbCurrentModules = 0;
 	}
-	moduleDropInfo[location].dropTable[0] = type;
+}
+
+// Permet de savoir si un emplacement d'une base de construction lunaire est vide
+bool_e MOONBASES_modulePlaceIsEmpty(Uint8 place, moduleMoonbaseLocation_e location){
+	assert(place < MAX_MODULE_MOONBASE);
+	assert(location < NB_MOONBASES);
+	return (moduleMoonbaseInfo[location].moonbaseModules[place] == MODULE_EMPTY);
+}
+
+// Getter du nombre de modules dans une base de construction lunaire
+Uint8 MOONBASES_getNbModules(moduleMoonbaseLocation_e location){
+	return moduleMoonbaseInfo[location].nbCurrentModules;
+}
+
+// Getter du type d'un module à un emplacement d'une base de construction lunaire
+moduleType_e MOONBASES_getModuleType(Uint8 place, moduleMoonbaseLocation_e location){
+	assert(place < MAX_MODULE_MOONBASE);
+	assert(location < NB_MOONBASES);
+	return moduleMoonbaseInfo[location].moonbaseModules[place];
+}
+
+// Permet d'ajouter un module dans une base de construction lunaire
+void MOONBASES_addModule(moduleType_e type, moduleMoonbaseLocation_e location){
+	Uint8 i;
+	for(i=0; i < MAX_MODULE_MOONBASE - 1; i++){
+		moduleMoonbaseInfo[location].moonbaseModules[i+1] = moduleMoonbaseInfo[location].moonbaseModules[i];
+	}
+	moduleMoonbaseInfo[location].moonbaseModules[0] = type;
 }
