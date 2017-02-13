@@ -52,7 +52,6 @@
 	static bool_e I2C_writeData(I2C_TypeDef* I2Cx, Uint8 data);
 	static bool_e I2C_readAck(I2C_TypeDef* I2Cx, Uint8 *data);
 	static bool_e I2C_readNack(I2C_TypeDef* I2Cx, Uint8 *data);
-	static void I2C_errorExit(I2C_TypeDef* I2Cx);
 
 	volatile static watchdog_id_t watchdog_id = WATCHDOG_ERROR;
 	volatile static bool_e timeout = FALSE;
@@ -60,6 +59,7 @@
 	volatile static Uint32 failed_sr1 = 0, failed_sr2 = 0;
 
 	#ifdef I2C_DISPLAY_ERROR
+		static void I2C_errorExit(I2C_TypeDef* I2Cx);
 		#define Timed(x) while (x) { if (timeout || i2c_bus_error){ I2C_errorExit(I2Cx); goto errReturn;}}
 	#else
 		#define Timed(x) while (x) { if (timeout || i2c_bus_error){goto errReturn;}}
@@ -436,49 +436,51 @@
 		return FALSE;
 	}
 
-	static void I2C_errorExit(I2C_TypeDef* I2Cx){
-		debug_printf("I2C_failure :\n");
-		if(timeout)
-			debug_printf(" - Timeout\n");
-		if(failed_sr2 & I2C_FLAG_DUALF)			debug_printf(" - I2C_FLAG_DUALF\n");		// Dual flag (Slave mode)
-		if(failed_sr2 & I2C_FLAG_SMBHOST)		debug_printf(" - I2C_FLAG_SMBHOST\n");		// SMBus host header (Slave mode)
-		if(failed_sr2 & I2C_FLAG_SMBDEFAULT)	debug_printf(" - I2C_FLAG_SMBDEFAULT\n");	// SMBus default header (Slave mode)
-		if(failed_sr2 & I2C_FLAG_GENCALL)		debug_printf(" - I2C_FLAG_GENCALL\n");		// General call header flag (Slave mode)
-		if(failed_sr2 & I2C_FLAG_TRA)			debug_printf(" - I2C_FLAG_TRA\n");			// Transmitter/Receiver flag
-		if(failed_sr2 & I2C_FLAG_BUSY)			debug_printf(" - I2C_FLAG_BUSY\n");			// Bus busy flag
-		if(failed_sr2 & I2C_FLAG_MSL  )			debug_printf(" - I2C_FLAG_MSL\n");			// Master/Slave flag
-		if(failed_sr1 & I2C_FLAG_SMBALERT)		debug_printf(" - I2C_FLAG_SMBALERT\n");		// SMBus Alert flag
-		if(failed_sr1 & I2C_FLAG_TIMEOUT)		debug_printf(" - I2C_FLAG_TIMEOUT\n");		// Timeout or Tlow error flag
-		if(failed_sr1 & I2C_FLAG_PECERR)		debug_printf(" - I2C_FLAG_PECERR\n");		// PEC error in reception flag
-		if(failed_sr1 & I2C_FLAG_OVR)			debug_printf(" - I2C_FLAG_OVR\n");			// Overrun/Underrun flag (Slave mode)
-		if(failed_sr1 & I2C_FLAG_AF)			debug_printf(" - I2C_FLAG_AF\n");			// Acknowledge failure flag
-		if(failed_sr1 & I2C_FLAG_ARLO)			debug_printf(" - I2C_FLAG_ARLO\n");			// Arbitration lost flag (Master mode)
-		if(failed_sr1 & I2C_FLAG_BERR)			debug_printf(" - I2C_FLAG_BERR\n");			// Bus error flag
-		if(failed_sr1 & I2C_FLAG_TXE)			debug_printf(" - I2C_FLAG_TXE\n");			// Data register empty flag (Transmitter)
-		if(failed_sr1 & I2C_FLAG_RXNE)			debug_printf(" - I2C_FLAG_RXNE\n");			// Data register not empty (Receiver) flag
-		if(failed_sr1 & I2C_FLAG_STOPF)			debug_printf(" - I2C_FLAG_STOPF\n");		// Stop detection flag (Slave mode)
-		if(failed_sr1 & I2C_FLAG_ADD10)			debug_printf(" - I2C_FLAG_ADD10\n");		// 10-bit header sent flag (Master mode)
-		if(failed_sr1 & I2C_FLAG_BTF)			debug_printf(" - I2C_FLAG_BTF\n");			// Byte transfer finished flag
-		if(failed_sr1 & I2C_FLAG_ADDR)			debug_printf(" - I2C_FLAG_ADDR\n");			// Address sent flag (Master mode) "ADSL", Address matched flag (Slave mode)"ENDAD"
-		if(failed_sr1 & I2C_FLAG_SB)			debug_printf(" - I2C_FLAG_SB\n");			// Start bit flag (Master mode)
-		failed_sr2 = 0;
-		failed_sr1 = 0;
-		timeout = FALSE;
-		debug_printf("\n");
+	#ifdef I2C_DISPLAY_ERROR
+		static void I2C_errorExit(I2C_TypeDef* I2Cx){
+			debug_printf("I2C_failure :\n");
+			if(timeout)
+				debug_printf(" - Timeout\n");
+			if(failed_sr2 & I2C_FLAG_DUALF)			debug_printf(" - I2C_FLAG_DUALF\n");		// Dual flag (Slave mode)
+			if(failed_sr2 & I2C_FLAG_SMBHOST)		debug_printf(" - I2C_FLAG_SMBHOST\n");		// SMBus host header (Slave mode)
+			if(failed_sr2 & I2C_FLAG_SMBDEFAULT)	debug_printf(" - I2C_FLAG_SMBDEFAULT\n");	// SMBus default header (Slave mode)
+			if(failed_sr2 & I2C_FLAG_GENCALL)		debug_printf(" - I2C_FLAG_GENCALL\n");		// General call header flag (Slave mode)
+			if(failed_sr2 & I2C_FLAG_TRA)			debug_printf(" - I2C_FLAG_TRA\n");			// Transmitter/Receiver flag
+			if(failed_sr2 & I2C_FLAG_BUSY)			debug_printf(" - I2C_FLAG_BUSY\n");			// Bus busy flag
+			if(failed_sr2 & I2C_FLAG_MSL  )			debug_printf(" - I2C_FLAG_MSL\n");			// Master/Slave flag
+			if(failed_sr1 & I2C_FLAG_SMBALERT)		debug_printf(" - I2C_FLAG_SMBALERT\n");		// SMBus Alert flag
+			if(failed_sr1 & I2C_FLAG_TIMEOUT)		debug_printf(" - I2C_FLAG_TIMEOUT\n");		// Timeout or Tlow error flag
+			if(failed_sr1 & I2C_FLAG_PECERR)		debug_printf(" - I2C_FLAG_PECERR\n");		// PEC error in reception flag
+			if(failed_sr1 & I2C_FLAG_OVR)			debug_printf(" - I2C_FLAG_OVR\n");			// Overrun/Underrun flag (Slave mode)
+			if(failed_sr1 & I2C_FLAG_AF)			debug_printf(" - I2C_FLAG_AF\n");			// Acknowledge failure flag
+			if(failed_sr1 & I2C_FLAG_ARLO)			debug_printf(" - I2C_FLAG_ARLO\n");			// Arbitration lost flag (Master mode)
+			if(failed_sr1 & I2C_FLAG_BERR)			debug_printf(" - I2C_FLAG_BERR\n");			// Bus error flag
+			if(failed_sr1 & I2C_FLAG_TXE)			debug_printf(" - I2C_FLAG_TXE\n");			// Data register empty flag (Transmitter)
+			if(failed_sr1 & I2C_FLAG_RXNE)			debug_printf(" - I2C_FLAG_RXNE\n");			// Data register not empty (Receiver) flag
+			if(failed_sr1 & I2C_FLAG_STOPF)			debug_printf(" - I2C_FLAG_STOPF\n");		// Stop detection flag (Slave mode)
+			if(failed_sr1 & I2C_FLAG_ADD10)			debug_printf(" - I2C_FLAG_ADD10\n");		// 10-bit header sent flag (Master mode)
+			if(failed_sr1 & I2C_FLAG_BTF)			debug_printf(" - I2C_FLAG_BTF\n");			// Byte transfer finished flag
+			if(failed_sr1 & I2C_FLAG_ADDR)			debug_printf(" - I2C_FLAG_ADDR\n");			// Address sent flag (Master mode) "ADSL", Address matched flag (Slave mode)"ENDAD"
+			if(failed_sr1 & I2C_FLAG_SB)			debug_printf(" - I2C_FLAG_SB\n");			// Start bit flag (Master mode)
+			failed_sr2 = 0;
+			failed_sr1 = 0;
+			timeout = FALSE;
+			debug_printf("\n");
 
-		I2C_ReceiveData(I2Cx);
-		I2C_ClearFlag(I2Cx, I2C_FLAG_SMBALERT | I2C_FLAG_TIMEOUT | I2C_FLAG_PECERR | I2C_FLAG_OVR | I2C_FLAG_AF | I2C_FLAG_ARLO | I2C_FLAG_BERR);
-		I2C_SoftwareResetCmd(I2Cx,ENABLE);
-		debug_printf("Reset and Re-init I2C...\n");
-		GPIOB->ODR10 = 1;
-		GPIOB->ODR11 = 1;
-		I2C_SoftwareResetCmd(I2Cx,DISABLE);
+			I2C_ReceiveData(I2Cx);
+			I2C_ClearFlag(I2Cx, I2C_FLAG_SMBALERT | I2C_FLAG_TIMEOUT | I2C_FLAG_PECERR | I2C_FLAG_OVR | I2C_FLAG_AF | I2C_FLAG_ARLO | I2C_FLAG_BERR);
+			I2C_SoftwareResetCmd(I2Cx,ENABLE);
+			debug_printf("Reset and Re-init I2C...\n");
+			GPIOB->ODR10 = 1;
+			GPIOB->ODR11 = 1;
+			I2C_SoftwareResetCmd(I2Cx,DISABLE);
 
-		I2C_SoftwareResetCmd(I2Cx,ENABLE);
-		I2C_SoftwareResetCmd(I2Cx,DISABLE);
-		I2C_DeInit(I2Cx);
-		I2C_init();
-	}
+			I2C_SoftwareResetCmd(I2Cx,ENABLE);
+			I2C_SoftwareResetCmd(I2Cx,DISABLE);
+			I2C_DeInit(I2Cx);
+			I2C_init();
+		}
+	#endif
 
 	#ifdef USE_I2C1
 		//Interruption appelée en cas d'erreur de communication sur le Bus.

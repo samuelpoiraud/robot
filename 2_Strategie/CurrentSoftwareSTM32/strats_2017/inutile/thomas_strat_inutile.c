@@ -1,11 +1,15 @@
-
 #include "strat_inutile.h"
 #include "../../propulsion/movement.h"
-#include "../../QS/QS_stateMachineHelper.h"
+#include "../../propulsion/astar.h"
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
+#include "../../QS/QS_stateMachineHelper.h"
+#include "../../utils/generic_functions.h"
 #include "../../utils/actionChecker.h"
-#include "../../propulsion/astar.h"
+#include "../../elements.h"
+#include "../../strats_2017/big/action_big.h"
+#include "../../strats_2017/small/action_small.h"
+#include "../../strats_2017/actions_both_2017.h"
 
 
 void thomas_strat_inutile_big(){

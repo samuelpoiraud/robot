@@ -1,6 +1,5 @@
 #include "elements.h"
 #include "environment.h"
-#include "QS/QS_outputlog.h"
 
 #define LOG_PREFIX "element: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ELEMENTS

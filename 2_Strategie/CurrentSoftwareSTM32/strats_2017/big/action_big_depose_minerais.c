@@ -3,6 +3,7 @@
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_outputlog.h"
+#include "../../QS/QS_types.h"
 #include "../../utils/actionChecker.h"
 #include "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
@@ -104,12 +105,11 @@ error_e sub_harry_depose_minerais(){
 
 	switch(state){
 		case INIT:
-			ELEMENTS_set_flag(FLAG_STOMACH_IS_FULL,TRUE);
 			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_SOUTH_UNI)||(ELEMENTS_get_flag(FLAG_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_STOMACH_IS_FULL)))){
 				state=ERROR;
 			}else{
 				state=GET_IN;
-				ELEMENTS_set_flag(FLAG_HARRY_ORE_SHOOTING,TRUE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_ORE_SHOOTING,TRUE);
 			}
 			break;
 
@@ -150,14 +150,14 @@ error_e sub_harry_depose_minerais(){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_HARRY_ORE_SHOOTING,FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_ORE_SHOOTING,FALSE);
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_HARRY_ORE_SHOOTING,FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_ORE_SHOOTING,FALSE);
 			return END_OK;
 			break;
 

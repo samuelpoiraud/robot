@@ -35,7 +35,7 @@
 
 
 	// action_big_prise_modules
-	error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules);
+	error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e threeModules);
 	error_e sub_harry_rocket_monocolor();
 	error_e init_all_actionneur(moduleDropLocation_e nb_cylinder_big_right ,moduleDropLocation_e nb_cylinder_big_left);
 	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side);
@@ -44,7 +44,7 @@
 
 	// action_big_depose_modules
 	error_e sub_harry_cylinder_depose_manager();
-	error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
+	error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules);
 	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules);
 	error_e sub_harry_return_modules(ELEMENTS_side_e side);
 	error_e manager_return_modules();
