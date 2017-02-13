@@ -1474,7 +1474,7 @@ error_e sub_harry_take_south_little_crater(){
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_ANNE_TAKE_CYLINDER_SOUTH_UNI)||ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL))){
+			if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)||ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL))){
 				state=ERROR;
 			}else{
 				state=GET_IN;

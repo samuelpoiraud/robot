@@ -8,6 +8,12 @@
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
 
+// Fonctions privées
+error_e sub_harry_get_in_our_side_depose_module_centre();
+error_e sub_harry_get_in_middle_adv_side_depose_module_centre();
+error_e sub_harry_get_in_adv_side_depose_module_centre();
+error_e sub_harry_get_in_middle_our_side_depose_module_centre();
+
 
 error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
@@ -25,6 +31,8 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 
 		case GET_IN:
 			//state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(modules, basis_side), state, GO_TO_DEPOSE_MODULE, ERROR);
+			state = DONE;
+			break;
 
 		case ERROR:
 			RESET_MAE();
@@ -74,19 +82,19 @@ error_e sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEM
 			break;
 
 		case GET_IN_OUR_SIDE:
-			state = check_sub_action_result(sub_harry_get_in_our_side_depose_module_central(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_get_in_our_side_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_MIDDLE_OUR_SIDE:
-			state = check_sub_action_result(sub_harry_get_in_middle_our_side_depose_module_central(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_get_in_middle_our_side_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_MIDDLE_ADV_SIDE:
-			state = check_sub_action_result(sub_harry_get_in_middle_adv_side_depose_module_central(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_get_in_middle_adv_side_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_ADV_SIDE:
-			state = check_sub_action_result(sub_harry_get_in_adv_side_depose_module_central(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_get_in_adv_side_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case ERROR:
