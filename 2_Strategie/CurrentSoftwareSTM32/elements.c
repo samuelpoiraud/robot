@@ -15,6 +15,7 @@
 
 #define MAX_MODULE_DROP			6
 #define MAX_MODULE_STOCK		6
+#define MAX_MODULE_FUSEE        4
 
 typedef struct{
 	Uint8 nbDrop;
@@ -30,6 +31,11 @@ typedef struct{
 }gestion_modules_s;
 
 typedef struct{
+	moduleType_e fuseeModules[MAX_MODULE_FUSEE];
+	Uint8 nb_current_modules;
+}gestion_modules_fusee_s;
+
+typedef struct{
 	bool_e sending;
 	bool_e receiving;
 	time32_t lastUpdate;
@@ -43,6 +49,7 @@ typedef struct{
 static volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
 static volatile moduleDropInfo_s moduleDropInfo[NB_MODULE_LOCATION] = {0};
 static volatile gestion_modules_s moduleStockInfo[NB_PLACE_STORAGE] = {0};
+static volatile gestion_modules_fusee_s moduleFuseeInfo[NB_FUSEE] = {0};
 static volatile hardflag_s elements_hardflags[HARDFLAGS_NB];
 
 
@@ -362,6 +369,29 @@ moduleType_e releaseModuleStock(moduleType_e type, moduleStorageLocation_e stora
 	}
 }
 
+//code pour le vidage des fusee
+
+void remplirFusee(moduleFuseeLocation_e fusee){
+	if(fusee == 1 || fusee == 2){
+		for(Uint8 i=0; i<MAX_MODULE_FUSEE-1; i++){
+			moduleFuseeInfo[fusee].fuseeModules[i] = MODULE_POLY;
+			moduleFuseeInfo[fusee].nb_current_modules++;
+		}
+	}else if(fusee == 3){
+		for(Uint8 i=0; i<MAX_MODULE_FUSEE-1; i++){
+			moduleFuseeInfo[fusee].fuseeModules[i] = MODULE_BLUE;//??? on sera pas toujours bleu, comment recuperer notre couleur?
+			moduleFuseeInfo[fusee].nb_current_modules++;
+		}
+	}
+}
+
+Uint8 nbModulesFusee(moduleFuseeLocation_e fusee){
+	return moduleFuseeInfo[fusee].nb_current_modules;
+}
+
+void enleveModuleFusee(moduleStorageLocation_e fusee){
+	moduleFuseeInfo[fusee].nb_current_modules--;
+}
 
 //code pour le placement des modules
 
