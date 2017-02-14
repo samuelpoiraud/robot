@@ -120,6 +120,49 @@ void SPI_setDataSize(SPI_TypeDef* SPIx, spi_data_size_e spi_data_size){
 	}
 }
 
+Uint8 SPI_exchange(SPI_TypeDef* SPIx, Uint8 c){
+	assert(IS_SPI_ALL_PERIPH(SPIx));
+	if(!initialized){
+		error_printf("SPI non initialisé ! Appeller SPI_init\n");
+		return 0;
+	}
+
+	while(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
+
+	if(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE) == SET)
+	{
+		debug_printf("SPI : buffer non vide \n");
+		SPI_I2S_ReceiveData(SPIx);
+	}
+
+	SPI_I2S_SendData(SPIx, c);
+	while(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE) == RESET);
+
+
+	//Test si erreur
+	if(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_OVR) || SPI_I2S_GetFlagStatus(SPIx, SPI_FLAG_MODF))
+	{
+		debug_printf("SPI : collision\n");
+		SPI_I2S_ClearFlag(SPIx, SPI_I2S_FLAG_OVR);
+		SPI_I2S_ClearFlag(SPIx, SPI_FLAG_MODF);
+	}
+
+	return SPI_I2S_ReceiveData(SPIx);
+}
+
+void SPI_write(SPI_TypeDef* SPIx, Uint8 msg){
+	assert(IS_SPI_ALL_PERIPH(SPIx));
+
+	SPI_exchange(msg);
+}
+
+Uint8 SPI_read(SPI_TypeDef* SPIx){
+	assert(IS_SPI_ALL_PERIPH(SPIx));
+
+	return SPI_exchange(0x00);
+}
+
+
 #endif  /* defined(USE_SPI1) || defined(USE_SPI2) */
 
 #ifdef USE_SPI1

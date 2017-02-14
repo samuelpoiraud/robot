@@ -35,6 +35,10 @@
 	void SPI_setBaudRate(SPI_TypeDef* SPIx, uint16_t SPI_BaudRatePrescaler);
 	void SPI_setDataSize(SPI_TypeDef* SPIx, spi_data_size_e spi_data_size);
 
+	Uint8 SPI_exchange(SPI_TypeDef* SPIx, Uint8 c);
+	void SPI_write(SPI_TypeDef* SPIx, Uint8 msg);
+	Uint8 SPI_read(SPI_TypeDef* SPIx);
+
 	#ifdef USE_SPI1
 		Uint8 SPI1_exchange(Uint8 c);
 		void SPI1_write(Uint8 msg);
