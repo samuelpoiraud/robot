@@ -23,6 +23,7 @@
 #include "../stm32f4xx/stm32f4xx.h"
 #include "../stm32f4xx/stm32f4xx_gpio.h"
 #include "../stm32f4xx/stm32f4xx_tim.h"
+#include "../config/config_pin.h"
 
 //#define USE_ACCURATE_TIME
 #define TIM_MSEC_DELAY       			   0x01

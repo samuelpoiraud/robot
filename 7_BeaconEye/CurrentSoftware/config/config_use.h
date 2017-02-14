@@ -67,6 +67,9 @@
 	#define XBEE_ENABLE_PING_ALWAYS
 	#define XBEE_PLUGGED_ON_UART2
 
+/* Réglages HOKUYO */
+	#define USE_HOKUYO
+
 /* Réglages WATCHDOG */
 	#define USE_WATCHDOG
 	#define WATCHDOG_TIMER 3

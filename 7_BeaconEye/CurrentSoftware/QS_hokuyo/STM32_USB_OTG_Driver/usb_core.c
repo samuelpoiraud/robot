@@ -22,6 +22,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usb_core.h"
 #include "usb_bsp.h"
+#include "../../QS/QS_all.h"
 
 
 /** @addtogroup USB_OTG_DRIVER

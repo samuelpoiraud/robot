@@ -33,6 +33,9 @@
 #define MASS_STORAGE_CLASS_CODE				0x08
 #define HID_CLASS_CODE						0x03
 
+/* Callback pour la gestion de la deconnexion de l'hokuyo */
+extern void user_callback_DeviceDisconnected(void);
+
 /*  Points to the DEVICE_PROP structure of current device */
 /*  The purpose of this register is to speed up the execution */
 USBH_Usr_cb_TypeDef USR_cb =
