@@ -27,7 +27,8 @@ void guillaumeMa_strat_inutile_big(){
 
 
 		case INIT:
-			state = TEST;
+			state = try_go_angle(0, state, TEST, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			//state = try_going(800, 800, state, TEST, ERROR, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;// depend du point de depard
 
 		case ERROR:
@@ -39,15 +40,15 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 
 		case TEST:
-			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, TEST_2, ERROR);
 			break;
 
 		case TEST_2:
-			state = check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT), state, TEST_3, ERROR);
 			break;
 
 		case TEST_3:
-			state = check_sub_action_result(sub_harry_take_big_crater(NO_ELEMENT), state, DONE, ERROR); // error
+			state = check_sub_action_result(sub_harry_take_big_crater(NO_ELEMENT), state, TEST_4, ERROR); // error
 			break;
 
 		case TEST_4:
