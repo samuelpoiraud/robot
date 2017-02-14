@@ -49,6 +49,11 @@ int main(void) {
 }
 
 static void initialisation(void) {
+
+	Uint32 i;
+
+	for(i=0; i<10000000;i++){}
+
 	SYS_init();											// Initialisation du système
 	SYSTICK_init((time32_t*)&(global.absolute_time));	// Init du compteur de temps
 	ENVIRONMENT_init();
