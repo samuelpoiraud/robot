@@ -11,5 +11,6 @@
 #include "../QS/QS_all.h"
 
 void HOKUYO_init(void);
+void HOKUYO_processMain(void);
 
 #endif /* QS_HOKUYO_QS_HOKUYO_H_ */

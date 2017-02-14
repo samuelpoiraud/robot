@@ -4,6 +4,7 @@
 #include "IHM/button.h"
 #include "LCD/low layer/ssd2119.h"
 #include "IHM/view.h"
+#include "IHM/terminal.h"
 
 void ENVIRONMENT_init() {
 
@@ -49,7 +50,8 @@ void ENVIRONMENT_setColor(color_e color) {
 	global.current_color = color;
 
 	// Mise à jour de la led indiquand la couleur
-	LED_setColor((color == TOP_COLOR) ? LED_COLOR_BLUE : LED_COLOR_YELLOW);
+	LED_setColor((color == TOP_COLOR) ? LED_COLOR_YELLOW : LED_COLOR_BLUE);
+	TERMINAL_printf("New Color : %s", ((color == TOP_COLOR) ? TOP_COLOR_NAME : BOT_COLOR_NAME));
 
 	// TODO: Mettre à jour les zones
 

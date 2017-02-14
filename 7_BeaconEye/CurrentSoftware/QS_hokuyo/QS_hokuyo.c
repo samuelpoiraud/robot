@@ -22,6 +22,12 @@
 #include "STM32_USB_HOST_Library/Class/MSC/usbh_msc_core.h"
 #include "STM32_USB_HOST_Library/Class/usbh_class_switch.h"
 #include "usb_vcp_cdc.h"
+#ifdef USE_BEACON_EYE
+	#include "../IHM/terminal.h"
+	#define Terminal_debug(x)	 TERMINAL_puts(x)
+#else
+	#define Terminal_debug(x)	 (void)0
+#endif
 
 #define LOG_PREFIX "QS_hokuyo : "
 #define LOG_COMPONENT OUTPUTLOG_COMPONENT_QS_HOKUYO
@@ -76,7 +82,7 @@ void HOKUYO_init(void) {
 	hokuyo_initialized = TRUE;
 }
 
-void HOKUYO_process_main(void) {
+void HOKUYO_processMain(void) {
 
 	typedef enum {
 		INIT = 0,
@@ -129,6 +135,7 @@ void HOKUYO_process_main(void) {
 		case HOKUYO_READY:
 			if(entrance) {
 				debug_printf("Pret\n");
+				Terminal_debug("Hokuyo ready");
 			}
 			break;
 

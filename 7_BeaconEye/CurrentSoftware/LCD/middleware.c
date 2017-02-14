@@ -214,7 +214,8 @@ void MIDDLEWARE_processMain(){
 
 	// Refresh background
 	if(background.toDisplay){
-		SSD2119_fill(background.color);
+		//SSD2119_fill(background.color);
+		SSD2119_drawFilledRectangle(0, 0, 320, 199, background.color);
 		background.toDisplay = FALSE;
 	}
 

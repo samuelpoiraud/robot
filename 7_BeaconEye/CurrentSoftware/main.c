@@ -29,6 +29,8 @@
 #include "IHM/buzzer.h"
 #include "LCD/lcd.h"
 #include "QS_hokuyo/QS_hokuyo.h"
+#include "IHM/terminal.h"
+#include "IHM/led.h"
 
 
 
@@ -40,6 +42,7 @@ int main(void) {
 	initialisation();
 
 	debug_printf("------- Hello, I'm BEACON EYE -------\n");
+	TERMINAL_puts("Initialization completed");
 
 	while(1){
 		processMain();
@@ -50,22 +53,29 @@ int main(void) {
 
 static void initialisation(void) {
 
-	Uint32 i;
-
-	for(i=0; i<10000000;i++){}
+	/* Sans ce delai l'hokuyo n'est pas reconnu */
+	#ifdef USE_HOKUYO
+		Uint32 i;
+		for(i=0; i<100000;i++){}
+	#endif
 
 	SYS_init();											// Initialisation du système
 	SYSTICK_init((time32_t*)&(global.absolute_time));	// Init du compteur de temps
+	TERMINAL_init();
 	ENVIRONMENT_init();
 	PORTS_init();
 	UART_init();
 	IT_init();
 	MIDDLEWARE_init();
-	HOKUYO_init();
+	#ifdef USE_HOKUYO
+		HOKUYO_init();
+	#endif
 }
 
 static void processMain(void) {
 	LCD_processMain();
 	ENVIRONMENT_processMain();
-	HOKUYO_process_main();
+#ifdef USE_HOKUYO
+	HOKUYO_processMain();
+#endif
 }
