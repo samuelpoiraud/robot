@@ -5,11 +5,12 @@
 #include "../QS/QS_maths.h"
 #include "../QS/QS_types.h"
 
-#define NB_SCAN_DATA (200)
+#define NB_SCAN_DATA (20)
 
 typedef struct{
 	 GEOMETRY_point_t pos_mesure;
 	 GEOMETRY_point_t pos_laser;
+     position_t pos_robot;
 	 bool_e enable;
      Uint16 ADCvalue;
 }scan_data_t;

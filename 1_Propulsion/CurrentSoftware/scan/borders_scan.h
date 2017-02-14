@@ -4,7 +4,9 @@
 #include "scan.h"
 
 void BORDERS_SCAN_init();
-void BORDERS_SCAN_treatment(scan_data_t tab[]);
+GEOMETRY_point_t* BORDERS_SCAN_treatment(GEOMETRY_point_t pos_mesure);
+
+bool_e calculeZonePublic(GEOMETRY_point_t* zone);
 
 
 

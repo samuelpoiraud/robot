@@ -5,13 +5,13 @@
 #include "../QS/QS_adc.h"
 
 #define CONVERSION_LASER_LEFT(x)	((Sint32)(36148*(x)-6611800)/10000)//((Sint32)(37217*(x)-7096800)/10000)
-#define OFFSET_WIDTH_LASER_LEFT		(144)
+#define OFFSET_WIDTH_LASER_LEFT		(-144)
 #define OFFSET_LENGTH_LASER_LEFT	(80)
 #define OFFSET_ANGLE_LEFT            94
 
-#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36052*(x)-6201700)/10000)//((Sint32)(36130*(x)-6247900)/10000)
-#define OFFSET_WIDTH_LASER_RIGHT	(144)
-#define OFFSET_LENGTH_LASER_RIGHT	(80)
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36130*(x)-6247900)/10000)
+#define OFFSET_WIDTH_LASER_RIGHT	(150)
+#define OFFSET_LENGTH_LASER_RIGHT	(70)
 #define OFFSET_ANGLE_RIGHT          -221
 
 
@@ -69,19 +69,24 @@ static void SCAN_get_data_left(){
 
 	laser_left[index].enable = enable;
 
+	// On calcule et on stocke la valeur même si le capteur entre en saturation
+	pos_mesure.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus + (OFFSET_WIDTH_LASER_LEFT - value)*sinus)/4096.0;
+	pos_mesure.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus - (OFFSET_WIDTH_LASER_LEFT - value)*cosinus)/4096.0;
 	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
-	pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus - OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
-    pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
+	pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus + OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
+    pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus - OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
 
     COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_LEFT, &cosinus, &sinus);
 
-    pos_mesure.x=pos_laser.x-(value * sinus)/4096;
-    pos_mesure.y=pos_laser.y+(value * cosinus)/4096;
+    pos_mesure.x=pos_laser.x+(value) * cosinus/4096;
+    pos_mesure.y=pos_laser.y+(value) * sinus/4096;
 
 	// On stocke les valeurs
 	laser_left[index].pos_mesure = pos_mesure;
 	laser_left[index].pos_laser = pos_laser;
-    //laser_left[index].ADCvalue = valueADC;
+    laser_left[index].ADCvalue = valueADC;
+
+
 }
 
 static void SCAN_get_data_right(){
@@ -122,7 +127,7 @@ static void SCAN_get_data_right(){
 	// On stocke les valeurs
 	laser_right[index].pos_mesure = pos_mesure;
 	laser_right[index].pos_laser = pos_laser;
-    //laser_right[index].ADCvalue = valueADC;
+    laser_right[index].ADCvalue = valueADC;
 }
 
 
@@ -130,72 +135,43 @@ void TELEMETER_process_it(){
 	
     laser_left[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_LEFT);
     laser_right[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
-//    printf("%d\n",ADC_getValue(ADC_VREFIN));
-//    it_printf("%d\n",laser_right[index].ADCvalue);
+    //printf("%d\n",laser_right[index].ADCvalue);
 }
 
-Uint16 TELEMETER_get_ADCvalue_left(){
-    return laser_left[index].ADCvalue;
-}
 
 Uint16 TELEMETER_get_ADCvalue_right(){
     return laser_right[index].ADCvalue;
 }
 
-static position_t previous_pos;
-static volatile bool_e flag_new_point_on_grid;
-static volatile scan_data_t left_point;
-static volatile scan_data_t right_point;
 
 void SCAN_process_it(){
-//	if((index < NB_SCAN_DATA && !flag_1) || (index >= NB_SCAN_DATA && !flag_2)){
+	if((index < NB_SCAN_DATA && !flag_1) || (index >= NB_SCAN_DATA && !flag_2)){
 		SCAN_get_data_left();
 		SCAN_get_data_right();
-/*	}else{
+	}else{
 		flag_treatment_too_slow = TRUE;
 	}
 
-*/
+	index = (index + 1) % (2*NB_SCAN_DATA);
 
 	if(index == 0)
 		flag_2 = TRUE;
 	else if(index == NB_SCAN_DATA)
 		flag_1 = TRUE;
 
-	if(absolute(previous_pos.x - global.position.x) > 10 || absolute(previous_pos.y - global.position.y) > 10)
-	{
-		if(!flag_new_point_on_grid)
-		{
-			flag_new_point_on_grid = TRUE;
-			left_point = laser_left[index];
-			right_point = laser_right[index];
-			previous_pos = global.position;
-		}
-	}
-
-	index = (index + 1) % (2*NB_SCAN_DATA);
 }
 
 void SCAN_process_main(){
 	Uint16 i;
 	scan_data_t tab_treatment_left[NB_SCAN_DATA], tab_treatment_right[NB_SCAN_DATA];
 
-	if(flag_new_point_on_grid)
-	{
-		printf("x%d\ty:%d\tt:%d\tgx:%d\tgy:%d\n",previous_pos.x, previous_pos.y, previous_pos.teta, left_point.pos_mesure.x, left_point.pos_mesure.y);
-
-		//On libère le flag...
-		flag_new_point_on_grid = FALSE;
-	}
-#if 0
-
 	if(flag_treatment_too_slow){
 		debug_printf("problème d'accés conccurents\n");
 	}
-	Uint32 moy=0;
+    Uint32 moy=0;
 	// Copie de la première partie du tableau pendant que la première partie est en train de se remplir
 	if(flag_1){
-	//	debug_printf("\n\n VIDAGE FLAG_1\n");
+		debug_printf("\n\n VIDAGE FLAG_1\n");
 		for(i=0; i<NB_SCAN_DATA; i++){
             //printf("%d\n",laser_right[i].ADCvalue);
 			tab_treatment_left[i].pos_mesure = laser_left[i].pos_mesure;
@@ -204,14 +180,14 @@ void SCAN_process_main(){
 			tab_treatment_right[i].pos_mesure = laser_right[i].pos_mesure;
 			tab_treatment_right[i].pos_laser = laser_right[i].pos_laser;
 			tab_treatment_right[i].enable = laser_right[i].enable;
-            moy+=laser_left[i].ADCvalue;
+            moy+=laser_right[i].ADCvalue;
             //debug_printf("i1=%d\n", i);
 			//debug_printf("i1=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
 		}
 		flag_1 = FALSE;
-       // printf("%ld\n",moy);
+        //printf("%ld\n",moy);
         moy=moy/NB_SCAN_DATA;
-   //     printf("%ld\n",moy);
+        //printf("\n\n%ld\n\n\n",moy);
 
 		// Appel de fonctions de scan objets
 		OBJECTS_SCAN_treatment(tab_treatment_left);
@@ -222,7 +198,7 @@ void SCAN_process_main(){
 
 	// Copie de la seconde partie du tableau pendant que la première partie est en train de se remplir
 	if(flag_2){
-	//	debug_printf("\n\n VIDAGE FLAG_2\n");
+		debug_printf("\n\n VIDAGE FLAG_2\n");
 		for(i=0; i<NB_SCAN_DATA; i++){
 			tab_treatment_left[i].pos_mesure = laser_left[NB_SCAN_DATA + i].pos_mesure;
 			tab_treatment_left[i].pos_laser = laser_left[NB_SCAN_DATA + i].pos_laser;
@@ -241,5 +217,5 @@ void SCAN_process_main(){
 		OBJECTS_SCAN_treatment(tab_treatment_left);
 		OBJECTS_SCAN_treatment(tab_treatment_right);
 	}
-#endif
+
 }
