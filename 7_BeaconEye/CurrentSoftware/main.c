@@ -62,8 +62,8 @@ static void initialisation(void) {
 	SYS_init();											// Initialisation du système
 	SYSTICK_init((time32_t*)&(global.absolute_time));	// Init du compteur de temps
 	TERMINAL_init();
-	ENVIRONMENT_init();
 	PORTS_init();
+	ENVIRONMENT_init();
 	UART_init();
 	IT_init();
 	MIDDLEWARE_init();

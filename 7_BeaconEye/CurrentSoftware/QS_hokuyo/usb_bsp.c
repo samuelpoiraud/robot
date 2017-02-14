@@ -54,7 +54,7 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev) {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
-	//TODO: Vérifier l'utilité de la pin 8
+	/* La pin PA8 permet de controler le MOSFET des lasers */
 
 	/* Configure SOF VBUS ID DM DP Pins */
 	GPIO_InitStructure.GPIO_Pin = /*GPIO_Pin_8  |*/
@@ -87,7 +87,7 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev) {
 
 	//TODO: Initialisation des pins suivantes pour HS normalement ?
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 |
+	/*GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 |
 								  GPIO_Pin_13 |
 								  GPIO_Pin_14 |
 								  GPIO_Pin_15;
@@ -100,7 +100,7 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev) {
 	GPIO_PinAFConfig(GPIOB,GPIO_PinSource13, GPIO_AF_OTG2_FS);
 	GPIO_PinAFConfig(GPIOB,GPIO_PinSource14, GPIO_AF_OTG2_FS);
 	GPIO_PinAFConfig(GPIOB,GPIO_PinSource15, GPIO_AF_OTG2_FS);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_OTG_HS, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_OTG_HS, ENABLE);*/
 
 }
 
