@@ -21,7 +21,6 @@
 #endif
 #include "it.h"
 #include "zone.h"
-#include "Hokuyo.h"
 #include "Secretary.h"
 #include "LCD/middleware.h"
 #include "LCD/low layer/ssd2119.h"
@@ -29,6 +28,7 @@
 #include "LCD/low layer/ssd2119.h"
 #include "IHM/buzzer.h"
 #include "LCD/lcd.h"
+#include "QS_hokuyo/QS_hokuyo.h"
 
 
 

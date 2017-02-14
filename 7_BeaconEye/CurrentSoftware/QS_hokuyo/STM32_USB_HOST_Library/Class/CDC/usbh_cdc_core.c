@@ -34,7 +34,7 @@
 #include "../../Core/usbh_core.h"
 #include "../../../../QS/QS_all.h"
 
-#define LOG_PREFIX "usbh_cdc: "
+#define LOG_PREFIX "usbh_cdc : "
 #define LOG_COMPONENT OUTPUTLOG_COMPONENT_USBH_CDC
 #include "../../../../QS/QS_outputlog.h"
 
@@ -86,7 +86,7 @@ static USBH_Status USBH_CDC_InterfaceInit ( USB_OTG_CORE_HANDLE *pdev,
 {
 	USBH_HOST *pphost = phost;
 
-	debug_printf("Initializing bulk endpoint\n");
+	trace_printf("Initializing bulk endpoint\n");
 
 	if((pphost->device_prop.Itf_Desc[0].bInterfaceClass == CDC_CLASS) && \
 			(pphost->device_prop.Itf_Desc[0].bInterfaceProtocol == CDC_PROTOCOL))
@@ -133,12 +133,12 @@ static USBH_Status USBH_CDC_InterfaceInit ( USB_OTG_CORE_HANDLE *pdev,
 						  EP_TYPE_BULK,
 						  CDC_Machine.MSBulkInEpSize);
 
-		debug_printf("  DONE\n");
+		trace_printf("DONE\n");
 	}
 
 	else
 	{
-		debug_printf("  FAILED  (wrong device interface, inteface_class: %u, interface_subclass: %u, interface_protocol: %u\n",
+		error_printf("FAILED (wrong device interface, inteface_class: %u, interface_subclass: %u, interface_protocol: %u\n",
 					 pphost->device_prop.Itf_Desc[0].bInterfaceClass,
 				pphost->device_prop.Itf_Desc[0].bInterfaceSubClass,
 				pphost->device_prop.Itf_Desc[0].bInterfaceProtocol);
@@ -322,7 +322,7 @@ static USBH_Status USBH_CDC_Handle_extern(USB_OTG_CORE_HANDLE *pdev, void *phost
 					requested_baudrate = 0;
 					cdc_ext_state = CDC_STATE_EXT_WAIT_COMPLETION;
 					//USB_OTG_BSP_mDelay(100);
-					debug_printf("USB Baudrate set to %lu\n", linecoding_config.bitrate);
+					trace_printf("USB Baudrate set to %lu\n", linecoding_config.bitrate);
 				}
 				break;
 			}
@@ -333,12 +333,12 @@ static USBH_Status USBH_CDC_Handle_extern(USB_OTG_CORE_HANDLE *pdev, void *phost
 				out_state = HCD_GetURB_State(pdev, CDC_Machine.hc_num_out);
 
 				if(in_state == URB_ERROR || in_state == URB_STALL) {
-					debug_printf("Error on input channel: %d\n", in_state);
+					error_printf("Error on input channel: %d\n", in_state);
 					host_channel_with_error = CDC_Machine.hc_num_in;
 					cdc_ext_state = CDC_STATE_EXT_ERROR_RECOVER;
 					break;
 				} else if(out_state == URB_ERROR || out_state == URB_STALL) {
-					debug_printf("Error on output channel: %d\n", out_state);
+					error_printf("Error on output channel: %d\n", out_state);
 					host_channel_with_error = CDC_Machine.hc_num_out;
 					cdc_ext_state = CDC_STATE_EXT_ERROR_RECOVER;
 					break;
@@ -399,7 +399,7 @@ static USBH_Status USBH_CDC_Handle_extern(USB_OTG_CORE_HANDLE *pdev, void *phost
 					case USBH_NOT_SUPPORTED:
 						cdc_ext_state = CDC_STATE_EXT_WAIT_COMPLETION;
 						clear_feature_not_supported = TRUE;
-						debug_printf("Can\'t use ClearFeature on channel %u, disabling error recovering\n", host_channel_with_error);
+						error_printf("Can\'t use ClearFeature on channel %u, disabling error recovering\n", host_channel_with_error);
 						break;
 
 					case USBH_BUSY:
@@ -408,7 +408,7 @@ static USBH_Status USBH_CDC_Handle_extern(USB_OTG_CORE_HANDLE *pdev, void *phost
 					default:
 					case USBH_FAIL:
 						cdc_ext_state = CDC_STATE_EXT_WAIT_COMPLETION;
-						debug_printf("Failed to recover error using ClearFeature on channel %u\n", host_channel_with_error);
+						error_printf("Failed to recover error using ClearFeature on channel %u\n", host_channel_with_error);
 						break;
 				}
 				break;

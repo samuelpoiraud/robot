@@ -9,7 +9,7 @@
  *  Puis le teste de la présence ou non d'un robot dans ces zones avec les informations à retourner en fonction des zones
  */
 #include "zone.h"
-#include "Hokuyo.h"
+#include "QS_hokuyo/QS_hokuyo.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_outputlog.h"
 #include "Secretary.h"
@@ -177,7 +177,7 @@ zones_t * ZONE_get_pzone(zone_e i)
 #define CENTER_HEART_X	1100//[mm] Centre du foyer central en X
 #define CENTER_HEART_Y	1500//[mm] Centre du foyer central en Y
 
-static void ZONE_specific_analyse(HOKUYO_adversary_position * a, zones_t * z)
+/*static void ZONE_specific_analyse(HOKUYO_adversary_position * a, zones_t * z)
 {
 	//Analyse spécifique de ce que fait l'objet dans la zone...
 	//PRECONDITION : on sait que l'objet *pa est dans la zone *pz
@@ -243,7 +243,7 @@ void ZONE_detection(void)
 		}
 	}
 }
-
+*/
 
 static void ZONE_analysis(void)
 {
