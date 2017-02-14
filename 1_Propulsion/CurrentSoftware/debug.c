@@ -39,6 +39,7 @@
 #define OFFSET_ANGLE_RIGHT          -221
 
 #ifdef MODE_PRINT_FIRST_TRAJ
+
 	typedef struct{
 
 		/*
@@ -75,13 +76,15 @@
 		volatile Sint16 pos_y;
 		volatile Sint16 laser_left_x;
 		volatile Sint16 laser_left_y;
+        volatile Sint16 laser_right_x;
+        volatile Sint16 laser_right_y;
         volatile Sint16 value_right;
-		volatile Sint16 laser_right_x;
-		volatile Sint16 laser_right_y;
+        volatile Sint16 mesure_right_x;
+        volatile Sint16 mesure_right_y;
 
 }debug_saved_t;
 
-	#define DEBUG_TAB_TRAJ_TAILLE 4096
+    #define DEBUG_TAB_TRAJ_TAILLE 3000
 
 	static volatile debug_saved_t tab[DEBUG_TAB_TRAJ_TAILLE];
 	static volatile Uint16 index = 0;
@@ -267,16 +270,18 @@ void DEBUG_process_it(void)
         COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
 
         // On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
-        pos_laser.x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus))/4096.0;
-        pos_laser.y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus))/4096.0;
+        pos_laser.x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus)/4096.0);
+        pos_laser.y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus)/4096.0);
 
         COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_RIGHT, &cosinus, &sinus);
         pos_mesure.x=pos_laser.x+(value) * sinus/4096;
         pos_mesure.y=pos_laser.y-(value * cosinus)/4096;
 
-//        tab[index].value_right = value;
-        tab[index].laser_right_x=pos_mesure.x;
-        tab[index].laser_right_y=pos_mesure.y;
+        tab[index].laser_right_x=pos_laser.x;
+        tab[index].laser_right_y=pos_laser.y;
+        tab[index].value_right = value;
+        tab[index].mesure_right_x=pos_mesure.x;
+        tab[index].mesure_right_y=pos_mesure.y;
 
         index++;
 
@@ -320,11 +325,9 @@ void DEBUG_process_it(void)
 
 		for(i = 0; i < DEBUG_TAB_TRAJ_TAILLE && i < index; i++){
 			debug_printf("%d;", i*5);
-			debug_printf("%d;", tab[i].laser_left_x);
-			debug_printf("%d;", tab[i].laser_left_y);
-            debug_printf("%d;", tab[i].value_right);
-			debug_printf("%d;", tab[i].laser_right_x);
-			debug_printf("%d\n", tab[i].laser_right_y);
+            debug_printf("%d;", tab[i].laser_left_x);
+            debug_printf("%d\n", tab[i].laser_left_y);
+
 		}
 	}
 #endif
