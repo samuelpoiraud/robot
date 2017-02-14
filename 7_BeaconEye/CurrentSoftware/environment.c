@@ -5,6 +5,7 @@
 #include "LCD/low layer/ssd2119.h"
 #include "IHM/view.h"
 #include "IHM/terminal.h"
+#include "IHM/buzzer.h"
 
 void ENVIRONMENT_init() {
 
@@ -41,6 +42,7 @@ void ENVIRONMENT_processMain() {
 #if defined(USE_BEACON_EYE)
 	SWITCH_processMain();
 	BUTTON_processMain();
+	BUZZER_processMain();
 #endif
 }
 

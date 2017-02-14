@@ -11,6 +11,7 @@
  */
 #include "Buzzer.h"
 #include "../QS/QS_pwm.h"
+#include "../QS/QS_types.h"
 
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BUZZER
 #define LOG_PREFIX "Buzzer : "
@@ -22,6 +23,7 @@
 volatile time32_t t = 0;
 time32_t buzz_duration = 0;
 Uint8 nb_buzz_remaining = 0;
+BUZZER_note_e current_note = DEFAULT_NOTE;
 
 void BUZZER_processIt(Uint8 ms) {
 
@@ -30,9 +32,20 @@ void BUZZER_processIt(Uint8 ms) {
 	}
 }
 
-void BUZZER_play(time32_t duration, Uint8 nbBuzz) {
-	buzz_duration = duration;
-	nb_buzz_remaining = nbBuzz;
+//exemple d'utilisation pour 5 bips de 50ms : BUZZER_play(50, NOTE_DO, 5);
+
+//Demander un buzz pour une durée donnée en ms
+void BUZZER_play_fct_dont_use(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz, const char* fonction, Uint16 ligne)
+{
+	debug_printf("request fct:%s line:%d\n", fonction, ligne);
+
+	buzz_duration = duration_ms;
+	nb_buzz_remaining = nb_buzz;
+	if(current_note != note)
+	{
+		current_note = note;
+		PWM_set_frequency(current_note);
+	}
 }
 
 void BUZZER_processMain(void)
@@ -51,8 +64,10 @@ void BUZZER_processMain(void)
 	switch(state)
 	{
 		case INIT:
+			PWM_init();	//On s'assure que l'init du module PWM est faite..
+			PWM_set_frequency(current_note);	//1kHz
 			t = 0;
-			nb_buzz_remaining = 0;
+			//nb_buzz_remaining = 0;
 			state = IDLE;
 			break;
 		case IDLE:
@@ -63,14 +78,14 @@ void BUZZER_processMain(void)
 		case BUZZ:
 			if(entrance)
 			{
-				BUZZER_RUN();
+				PWM_run(50,4);
 				t = buzz_duration;
 				nb_buzz_remaining--;
 			}
 			if(!t)
 			{
 				//Stop buzz
-				BUZZER_STOP();
+				PWM_stop(4);
 				if(nb_buzz_remaining)
 					state = WAIT;
 				else
@@ -85,5 +100,45 @@ void BUZZER_processMain(void)
 			break;
 		default:
 			break;
+	}
+}
+
+BUZZER_note_e BUZZER_convert_enum_QS(buzzer_play_note_e val){
+	switch(val){
+		case BUZZER_DEFAULT_NOTE :
+			return DEFAULT_NOTE;
+
+		case BUZZER_NOTE_DO0:
+			return NOTE_DO0;
+
+		case BUZZER_NOTE_RE0:
+			return NOTE_RE0;
+
+		case BUZZER_NOTE_MI0:
+			return NOTE_MI0;
+
+		case BUZZER_NOTE_FA:
+			return NOTE_FA;
+
+		case BUZZER_NOTE_SOL:
+			return NOTE_SOL;
+
+		case BUZZER_NOTE_LA:
+			return NOTE_LA;
+
+		case BUZZER_NOTE_SI:
+			return NOTE_SI;
+
+		case BUZZER_NOTE_DO:
+			return NOTE_DO;
+
+		case BUZZER_NOTE_RE:
+			return NOTE_RE;
+
+		case BUZZER_NOTE_MI:
+			return NOTE_MI;
+
+		default:
+			return DEFAULT_NOTE;
 	}
 }
