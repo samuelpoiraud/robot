@@ -239,7 +239,7 @@
 		Uint32 EXTI_Line;
 		for(i = 5; i <= 9; i++)
 		{
-			EXTI_Line = ((Uint32)(1))<< (i+1);
+			EXTI_Line = ((Uint32)(1))<< (i);
 			if(EXTI_GetITStatus(EXTI_Line))
 			{
 				if(type[i] == EXTERNAL_IT_CALLBACK_IT){
