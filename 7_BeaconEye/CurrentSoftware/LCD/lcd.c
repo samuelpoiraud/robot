@@ -74,6 +74,7 @@ void LCD_processMain(void) {
 			LCD_recoverI2C();
 			// Ce que l'on affiche au démarrage de la balise
 			state = CALIBRATION;//DISPLAY_TERRAIN;
+			break;
 		case DISPLAY_TERRAIN:
 			VIEW_drawEmptyTerrain(&terrain);
 			state = DISPLAY_HOKUYO;
