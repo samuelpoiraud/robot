@@ -3,6 +3,7 @@
 #include "../QS/QS_ports.h"
 #include "../environment.h"
 #include "../QS/QS_outputlog.h"
+#include "terminal.h"
 
 #define ANTI_BOUNCE_TIME (20) // en ms
 
@@ -20,7 +21,7 @@ void SWITCH_init(void) {
 }
 
 void SWITCH_processMain(void) {
-	static Uint8 previousSwitchColor = BOT_COLOR;
+	static Uint8 previousSwitchColor = 2;
 	static time32_t previousTime = 0;
 
 	if((previousTime + ANTI_BOUNCE_TIME) < global.absolute_time){
@@ -38,9 +39,9 @@ void SWITCH_processMain(void) {
 static void SWITCH_stateChanged(void) {
 
 	if(SWITCH_COLOR_BEACON_EYE == TRUE) {
-		ENVIRONMENT_setColor(BOT_COLOR);
-	} else {
 		ENVIRONMENT_setColor(TOP_COLOR);
+	} else {
+		ENVIRONMENT_setColor(BOT_COLOR);
 	}
 
 }
