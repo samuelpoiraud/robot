@@ -19,10 +19,10 @@
 	error_e sub_harry_take_big_crater_blue_middle();
 	error_e sub_harry_take_big_crater_blue_rocket();
 	error_e sub_harry_take_big_crater_blue_corner();
-	error_e sub_harry_take_north_little_crater();
-	error_e sub_harry_get_in_north_little_crater();
-	error_e sub_harry_take_south_little_crater();
-	error_e sub_harry_get_in_south_little_crater();
+	error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais);
+	error_e sub_harry_get_in_north_little_crater(ELEMENTS_property_e minerais);
+	error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais);
+	error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais);
 
 
 	// action_big_depose_minerais

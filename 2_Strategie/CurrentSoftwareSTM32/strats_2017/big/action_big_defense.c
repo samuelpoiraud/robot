@@ -25,9 +25,9 @@ error_e sub_harry_manager_defence() {
 	switch(state){
 
 		case INIT:
-			if(activate_our_depose_zone){
+			if(activate_our_depose_zone && !ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE) ){
 				state = DEFENCE_OUR_DEPOSE_ZONE;
-			}else if(activate_midddle_depose_zone){
+			}else if(activate_midddle_depose_zone && !ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_CENTER) && !ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)){
 				state = DEFENCE_MIDDLE_DEPOSE_ZONE;
 			}else{
 				state = DONE;   // Nothing to defend
@@ -81,14 +81,19 @@ static error_e sub_harry_defence_our_depose_zone(){
 	switch(state){
 
 		case INIT:
-			if(i_am_in_square_color(1200, 1300, 250, 350)){ // Cas où on est sur le point SUD => On va au NORD
-				state = MOVE_NORTH;
-			}else if(i_am_in_square_color(400, 1400, 0, 600) || i_am_in_square_color(800, 1200, 600, 900)){
-				state = GET_IN_DIRECT;
-			}else if(i_am_in_square_color(200, 1000, 900, 2100)){
-				state = GET_IN_MIDDLE;
+			if(ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)){ // Anne est déjà en train de défendre à cette position
+				state = ERROR;
 			}else{
-				state = GET_IN_ASTAR;
+				if(i_am_in_square_color(1200, 1300, 250, 350)){ // Cas où on est sur le point SUD => On va au NORD
+					state = MOVE_NORTH;
+				}else if(i_am_in_square_color(400, 1400, 0, 600) || i_am_in_square_color(800, 1200, 600, 900)){
+					state = GET_IN_DIRECT;
+				}else if(i_am_in_square_color(200, 1000, 900, 2100)){
+					state = GET_IN_MIDDLE;
+				}else{
+					state = GET_IN_ASTAR;
+				}
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_OUR_SIDE, TRUE); // On lève le flag de subaction
 			}
 			break;
 
@@ -120,12 +125,14 @@ static error_e sub_harry_defence_our_depose_zone(){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_OUR_SIDE, FALSE);
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_OUR_SIDE, FALSE);
 			return END_OK;
 			break;
 
@@ -140,6 +147,7 @@ static error_e sub_harry_defence_our_depose_zone(){
 static error_e sub_harry_defence_middle_depose_zone(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEFENCE_MIDDLE_DEPOSE_ZONE,
 			INIT,
+			GET_IN,
 			MOVE_BACKWARD,
 			MOVE_FORWARD,
 			RETURN_TO_POS_BACKWARD,
@@ -171,7 +179,20 @@ static error_e sub_harry_defence_middle_depose_zone(){
 
 		switch (state){
 		case INIT :
-			state=try_going(850, COLOR_Y(1521), INIT, MOVE_BACKWARD, RESET, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			if(ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_CENTER) || ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)){
+				state = ERROR; // Anne est déjà en train de défendre à cette position
+			}else{
+				state = GET_IN;
+				// Enrichir les GET_IN ici
+
+				// On lève les flags de subaction
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_CENTER, TRUE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_OUR_DIAGONAL, TRUE);
+			}
+			break;
+
+		case GET_IN:
+			state=try_going(850, COLOR_Y(1521), state, MOVE_BACKWARD, RESET, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MOVE_BACKWARD :
@@ -231,12 +252,16 @@ static error_e sub_harry_defence_middle_depose_zone(){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_CENTER, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_OUR_DIAGONAL, FALSE);
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_CENTER, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_DEPOSE_CYLINDER_OUR_DIAGONAL, FALSE);
 			return END_OK;
 			break;
 

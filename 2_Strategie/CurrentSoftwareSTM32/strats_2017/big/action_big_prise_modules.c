@@ -50,7 +50,7 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyT
 			|| (!onlyTwoModules && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN))){
 				state = DONE; // Il n'y a plus rien à faire
 			}
-			else if(ELEMENTS_get_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER))
+			else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_UNI)) // Si Anne est déjà en train de faire cette action
 			{
 				state = ERROR;
 			}
@@ -294,16 +294,25 @@ error_e sub_harry_rocket_monocolor(){
 
 	switch(state){
 		case INIT:
-			if (i_am_in_square_color(200, 1100, 900, 2100)){
-				state = GET_IN_DIRECT;
-			}else if(i_am_in_square_color(800, 1400, 300, 900)){
-				state = GET_IN_OUR_SQUARE;
-			}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
-				state = GET_IN_ADV_SQUARE;
-			}else
-				state = PATHFIND;
+			if(ROCKETS_isEmpty(MODULE_ROCKET_MONO_OUR_SIDE)){
+				state = DONE; // La fusée a déjà été prise
+			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_UNI)){
+				state = ERROR;
+			}else{
+				if (i_am_in_square_color(200, 1100, 900, 2100)){
+					state = GET_IN_DIRECT;
+				}else if(i_am_in_square_color(800, 1400, 300, 900)){
+					state = GET_IN_OUR_SQUARE;
+				}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
+					state = GET_IN_ADV_SQUARE;
+				}else{
+					state = PATHFIND;
+				}
 
-				break;
+				// On lève le flag de subaction
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, TRUE);
+			}
+			break;
 
 		case GET_IN_OUR_SQUARE:
 			state = try_going(800, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
@@ -327,6 +336,13 @@ error_e sub_harry_rocket_monocolor(){
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
 			//state=check_sub_action_result(sub_harry_take_rocket(),state,GET_OUT,GET_OUT_ERROR);
+
+			// Juste pour les tests
+			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+
 			state = GET_OUT;
 			break;
 
@@ -352,12 +368,14 @@ error_e sub_harry_rocket_monocolor(){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
 			return END_OK;
 			break;
 
@@ -373,7 +391,7 @@ error_e sub_harry_rocket_monocolor(){
 
 
 //#if 0
-error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side){
+error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket, bool_e right_side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PRISE_ROCKET_MULTICOLOR,
 				INIT,
 
@@ -389,7 +407,6 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 				ACTION_RETRACT_ALL,
 				FAILED_INIT_ACTION,
 
-
 				ERROR,
 				DONE
 			);
@@ -404,12 +421,27 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 	switch(state){
 
 		case INIT:{
-			// on appelle une fonction qui verifie la position initiale de tout nos actionneurs
-			error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left);
-			if(result == END_OK){
-				state=ALL_THE_GET_IN;
+			if((rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))
+			|| (rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))){
+				state = DONE;	 // On a déjà vidé cette fusée
+			}else if((rocket == OUR_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_MULTI))
+			|| (rocket == ADV_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_ADV_ROCKET_MULTI)) ){
+				state = ERROR; // Anne est déjà en train de vider cette fusée
 			}else{
-				state=FAILED_INIT_ACTION;
+				// on appelle une fonction qui verifie la position initiale de tout nos actionneurs
+				error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left);
+				if(result == END_OK){
+					state=ALL_THE_GET_IN;
+				}else{
+					state=FAILED_INIT_ACTION;
+				}
+
+				// On lève le flag de subaction
+				if(rocket == OUR_ELEMENT){
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, TRUE);
+				}else{
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI, TRUE);
+				}
 			}
 			}break;
 
@@ -471,15 +503,32 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 
 		case ACTION:{
 			error_e resultAction = boucle_charge_module( nb_cylinder_big_right, nb_cylinder_big_left, nb_cylinder_fusee, MODULE_POLY, right_side );
-			if(resultAction == END_OK){   state=ACTION_RETRACT_ALL;
-			}else{                  	  state=ERROR;
-			}}break;
+			if(resultAction == END_OK){
+				state=ACTION_RETRACT_ALL;
+				if(rocket == OUR_ELEMENT){
+					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
+					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
+					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
+					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
+				}else{
+					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
+					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
+					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
+					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
+				}
+			}else{
+				state=ERROR;
+			}
+			}break;
 
 		case ACTION_RETRACT_ALL:{
 			error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left);
-			if(result == END_OK){   state=DONE;
-			}else{                  state=FAILED_INIT_ACTION;
-			}}break;
+			if(result == END_OK){
+				state=DONE;
+			}else{
+				state=FAILED_INIT_ACTION;
+			}
+			}break;
 
 		case FAILED_INIT_ACTION:
 			//stop?
@@ -488,11 +537,21 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side
 
 		case DONE:
 			RESET_MAE();
+			if(rocket == OUR_ELEMENT){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
+			}else{
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI, FALSE);
+			}
 			return END_OK;
 			break;
 
 		case ERROR:
 			RESET_MAE();
+			if(rocket == OUR_ELEMENT){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
+			}else{
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI, FALSE);
+			}
 			return NOT_HANDLED;
 			break;
 		}

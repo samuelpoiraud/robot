@@ -41,7 +41,7 @@ void jakub_strat_inutile_big(){
 				break;
 
 			case START:
-				state = check_sub_action_result (sub_harry_take_north_little_crater(),state,RETURN1,RETURN1);
+				state = check_sub_action_result (sub_harry_take_north_little_crater(OUR_ELEMENT),state,RETURN1,RETURN1);
 				break;
 
 			case RETURN1:
@@ -49,7 +49,7 @@ void jakub_strat_inutile_big(){
 				break;
 
 			case PHASE1:
-				state = check_sub_action_result (sub_harry_take_south_little_crater(),state,RETURN2,RETURN2);
+				state = check_sub_action_result (sub_harry_take_south_little_crater(OUR_ELEMENT),state,RETURN2,RETURN2);
 				break;
 
 			case RETURN2:
