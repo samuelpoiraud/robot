@@ -4,6 +4,7 @@
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_types.h"
+#include "../../QS/QS_IHM.h"
 #include  "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
@@ -28,9 +29,11 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 	switch(state){
 		case INIT:
-			if((ELEMENTS_get_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN) && minerais == OUR_ELEMENT)
+			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
+				state = ERROR; // L'actionneur minerais a été désactivé
+			}else if((ELEMENTS_get_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN) && minerais == OUR_ELEMENT)
 					|| (ELEMENTS_get_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN) && minerais == ADV_ELEMENT)){
-				state = ERROR;
+				state = DONE;	// L'action a déjà été faite
 			}else{
 
 				if (minerais != OUR_ELEMENT && minerais != ADV_ELEMENT){
@@ -52,7 +55,6 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 				}
 			}
-
 			break;
 
 		case SUB_MOVE_POS_YELLOW:
@@ -1359,7 +1361,11 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_CENTER) || ELEMENTS_get_flag(FLAG_OUR_NORTH_CRATER_IS_TAKEN)){
+			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
+				state = ERROR; // L'actionneur minerais a été désactivé
+			}else if(ELEMENTS_get_flag(FLAG_OUR_NORTH_CRATER_IS_TAKEN)){
+				state = DONE;
+			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_CENTER)){
 				state=ERROR;
 			}else{
 				state=GET_IN;
@@ -1526,7 +1532,11 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI) || ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL) || ELEMENTS_get_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN)){
+			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
+				state = ERROR; // L'actionneur minerais a été désactivé
+			}else if(ELEMENTS_get_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN)){
+				state = DONE;
+			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI) || ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)){
 				state=ERROR;
 			}else{
 				state=GET_IN;

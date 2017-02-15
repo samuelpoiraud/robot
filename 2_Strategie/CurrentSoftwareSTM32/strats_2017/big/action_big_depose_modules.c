@@ -4,6 +4,7 @@
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_CapteurCouleurCW.h"
 #include "../../QS/QS_outputlog.h"
+#include "../../QS/QS_IHM.h"
 #include "../../utils/generic_functions.h"
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
@@ -918,7 +919,9 @@ error_e sub_harry_cylinder_depose_manager(){
 
 	switch(state){
 		case INIT:
-			if(STOCKS_isEmpty(MODULE_STOCK_LEFT) && STOCKS_isEmpty(MODULE_STOCK_LEFT)){
+			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneur désactivé, on a rien pu prendre
+			}else if(STOCKS_isEmpty(MODULE_STOCK_LEFT) && STOCKS_isEmpty(MODULE_STOCK_LEFT)){
 				state = ERROR; // Il n'y a rien à déposer
 			}else{
 #ifdef SCAN_ELEMENTS
