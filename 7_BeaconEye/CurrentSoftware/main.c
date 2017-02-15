@@ -70,6 +70,8 @@ static void initialisation(void) {
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
 	#endif
+
+	//BUZZER_play(50, NOTE_SOL, 2);
 }
 
 static void processMain(void) {

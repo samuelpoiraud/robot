@@ -28,8 +28,10 @@
 #else
 	#define Terminal_debug(x)	 (void)0
 #endif
+#include "Command/cmd_MD.h"
+#include "Command/hokuyoMsgType.h"
 
-#define LOG_PREFIX "QS_hokuyo : "
+#define LOG_PREFIX ""
 #define LOG_COMPONENT OUTPUTLOG_COMPONENT_QS_HOKUYO
 #include "../QS/QS_outputlog.h"
 
@@ -136,7 +138,10 @@ void HOKUYO_processMain(void) {
 			if(entrance) {
 				debug_printf("Pret\n");
 				Terminal_debug("Hokuyo ready");
+				hokuyoSendCommand_s cmd = CMD_MD_create(0, 1080, 1, 0, 1, "Bonjour");
+				//HOKUYO_writeCommand((Uint8*)"MS0000108001001");
 			}
+			HOKUYO_readBuffer();
 			break;
 
 		case ERROR:
@@ -176,6 +181,14 @@ void HOKUYO_processMain(void) {
 	}
 }
 
+void HOKUYO_putsCommand(Uint8 tab[], Uint16 length) {
+	Uint32 i;
+	for(i=0; i < length; i++) {
+		VCP_write(tab[i]);
+	}
+	VCP_write(LINE_FEED);
+}
+
 /**
  * @brief Envoyer une commande à l'hokuyo
  * @param tab La commande sous forme de chaine de caractères
@@ -201,7 +214,7 @@ static bool_e HOKUYO_readBuffer(void) {
 	while(!VCP_isRxEmpty()) {
 		data = VCP_read();
 		HOKUYO_datas[datas_index] = data;
-
+		debug_printf("%c", data);
 		if(datas_index < NB_BYTES_FROM_HOKUYO) {
 			datas_index++;
 		} else {

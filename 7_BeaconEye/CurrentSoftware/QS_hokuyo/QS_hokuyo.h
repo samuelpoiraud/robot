@@ -12,5 +12,6 @@
 
 void HOKUYO_init(void);
 void HOKUYO_processMain(void);
+void HOKUYO_putsCommand(Uint8 tab[], Uint16 length);
 
 #endif /* QS_HOKUYO_QS_HOKUYO_H_ */
