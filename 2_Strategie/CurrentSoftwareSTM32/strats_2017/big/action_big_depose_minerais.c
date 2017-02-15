@@ -25,7 +25,7 @@ error_e sub_harry_manager_put_off_ore(){
 		case INIT:
 			//regarde ou est le mechant si bloque je fait l'autre
 			if((foe_in_square(TRUE, 0, 0, 360, 360, FOE_TYPE_ALL)==TRUE)&&(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// il y a notre autre robot qui bloque le cassier depuis la zone de départ
-				// on ne pourra pas tiré dans le cassier !
+				// on ne pourra pas tiré dans le panier !
 				state = ERROR; //le robot ne peut pas tirer de balles , il tire quand même !
 			}
 			else if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
@@ -51,18 +51,17 @@ error_e sub_harry_manager_put_off_ore(){
 		case ERROR_FIRST_POS:	//si je n'ai pas reussi à tirer en normal
 			if(foe_in_square(TRUE, 300, 800, 800, 1320, FOE_TYPE_ALL)==FALSE){
 				state = SECOND_POS;
-				}else{
-					state = ERROR;
-				}
+			}else{
+				state = ERROR;
+			}
 			break;
 
 		case ERROR_SECOND_POS: //si je n'ai pas reussi à tirer en alternatif
 			if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){
 				state = FIRST_POS;
-				}else{
-					state = ERROR;
-				}
-
+			}else{
+				state = ERROR;
+			}
 			break;
 
 		case ERROR:
@@ -103,6 +102,8 @@ error_e sub_harry_depose_minerais(){
 			DONE
 		);
 
+	Sint16 correction_x = 0;
+
 	switch(state){
 		case INIT:
 			if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)||(ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)))){
@@ -126,21 +127,30 @@ error_e sub_harry_depose_minerais(){
 			break;
 
 		case RUSH_TO_CLEAT:
-			state=try_rush(0,COLOR_Y(300),state,MOVE_BACK_SHOOTING_POS,GET_OUT_ERROR,BACKWARD,NO_DODGE_AND_WAIT,TRUE);
+			// Ca vaudrait peut être le coup de faire un action_recalage ?
+			state = check_sub_action_result(action_recalage_x(BACKWARD, 0,  382 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, &correction_x, FALSE, TRUE), state, MOVE_BACK_SHOOTING_POS, GET_OUT_ERROR);
+			//state=try_rush(0,COLOR_Y(300),state,MOVE_BACK_SHOOTING_POS,GET_OUT_ERROR,BACKWARD,NO_DODGE_AND_WAIT,TRUE);
 			break;
 
 		case MOVE_BACK_SHOOTING_POS:
-			state=try_advance(NULL,entrance,100,state,SHOOTING,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			if(ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)){
+				state=try_advance(NULL, entrance, 100, state, SHOOTING, RUSH_TO_CLEAT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}else{ // On a déjà tirer des balles donc on doit juste faire le GET_OUT
+				state=try_advance(NULL, entrance, 100, state, GET_OUT, RUSH_TO_CLEAT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case SHOOTING:
 			//tu tires !!!
+			//state = check_sub_action_result(sub_harry_shooting_depose_minerais(), GET_OUT, GET_OUT_ERROR);
 			state=GET_OUT;
+			if(ON_LEAVING(SHOOTING) && state == GET_OUT){ // En cas de succès
+				ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, FALSE); // on baisse le flag car on a plus de balles
+			}
 			break;
 
 		case GET_OUT:
 			state=try_going(850,COLOR_Y(400),state,DONE,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_WAIT,END_AT_BRAKE);
-#warning 'il faudra mettre une condition dans rush to cleat(ou shooting) pour quil ne reparte tirer'
 			break;
 
 		case GET_OUT_ERROR:
@@ -306,6 +316,7 @@ error_e sub_harry_depose_minerais_alternative(){
 			GET_OUT,
 			GET_OUT2,
 			GET_OUT_ERROR,
+			GET_OUT_ERROR2,
 			ERROR,
 			DONE
 		);
@@ -319,16 +330,20 @@ error_e sub_harry_depose_minerais_alternative(){
 			break;
 
 		case GO_TO_SHOOTING_POS:
-			state=try_going(500,COLOR_Y(900),state,TURN_TO_SHOOTING_POS,GET_OUT_ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(500,COLOR_Y(1000),state,TURN_TO_SHOOTING_POS,GET_OUT_ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case TURN_TO_SHOOTING_POS:
-			state=try_go_angle(COLOR_ANGLE(PI4096/4),state,SHOOTING,GET_OUT_ERROR,FAST,ANY_WAY,END_AT_LAST_POINT);
+			state=try_go_angle(COLOR_ANGLE(55*PI4096/180),state,SHOOTING,GET_OUT_ERROR,FAST,ANY_WAY,END_AT_LAST_POINT);
 			break;
 
 		case SHOOTING:
 			//tu tires !!!
+			//state = check_sub_action_result(sub_harry_shooting_depose_minerais(), GET_OUT, GET_OUT_ERROR);
 			state=GET_OUT;
+			if(ON_LEAVING(SHOOTING) && state == GET_OUT){ // En cas de succès
+				ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, FALSE); // on baisse le flag car on a plus de balles
+			}
 			break;
 
 		case GET_OUT:
@@ -340,7 +355,11 @@ error_e sub_harry_depose_minerais_alternative(){
 			break;
 
 		case GET_OUT_ERROR:
-			state=try_going(600,COLOR_Y(1150),state,ERROR,GET_OUT2,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=try_going(600,COLOR_Y(1150),state,ERROR,GET_OUT_ERROR2,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_OUT_ERROR2:
+			state=try_going(270,COLOR_Y(1000),state,GET_OUT_ERROR,GET_OUT_ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case ERROR:

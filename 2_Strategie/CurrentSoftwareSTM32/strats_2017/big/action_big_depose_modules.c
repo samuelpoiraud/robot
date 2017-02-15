@@ -918,11 +918,15 @@ error_e sub_harry_cylinder_depose_manager(){
 
 	switch(state){
 		case INIT:
+			if(STOCKS_isEmpty(MODULE_STOCK_LEFT) && STOCKS_isEmpty(MODULE_STOCK_LEFT)){
+				state = ERROR; // Il n'y a rien à déposer
+			}else{
 #ifdef SCAN_ELEMENTS
 			//scan les bases de constructions pour compter et évaluer le remplissage
 #else
 			state=COMPUTE;
 #endif
+			}
 			break;
 
 		case COMPUTE:
@@ -941,8 +945,9 @@ error_e sub_harry_cylinder_depose_manager(){
 			}else if((MOONBASES_getNbModules(fifth_zone) < module_zone[fifth_zone].nb_cylinder_max)&&((module_zone[fifth_zone].enable_zone!=TRUE)||(i_am_in_square_color(module_zone[fifth_zone].xmin, module_zone[fifth_zone].xmax, module_zone[fifth_zone].ymin, module_zone[fifth_zone].ymax)))){
 				prefered_zone=fifth_zone;
 				state=MANAGE;
-			}else
+			}else{
 				state=ERROR;
+			}
 			break;
 
 		case MANAGE:
@@ -956,15 +961,20 @@ error_e sub_harry_cylinder_depose_manager(){
 				state=GO_TO_ADV_CENTER;
 			}else if(prefered_zone==MODULE_MOONBASE_ADV_SIDE){
 				state=GO_TO_ADV_SIDE;
+			}else{
+#warning Que fait t on sinon ? On reste planté là ??
+				state = ERROR;
 			}
 			break;
 
 		case GO_TO_MIDDLE:
 			//state=check_sub_action_result(sub_harry_depose_modules_centre(NEUTRAL_ELEMENT),state,DONE,ERROR);
+			state = DONE;
 			break;
 
 		case GO_TO_OUR_CENTER:
-		//	state=check_sub_action_result(sub_harry_depose_modules_centre(OUR_ELEMENT),state,DONE,ERROR);
+			//state=check_sub_action_result(sub_harry_depose_modules_centre(OUR_ELEMENT),state,DONE,ERROR);
+			state = DONE;
 			break;
 
 		case GO_TO_OUR_SIDE:
@@ -972,7 +982,8 @@ error_e sub_harry_cylinder_depose_manager(){
 			break;
 
 		case GO_TO_ADV_CENTER:
-		//	state=check_sub_action_result(sub_harry_depose_modules_centre(ADV_ELEMENT),state,DONE,ERROR);
+			//state=check_sub_action_result(sub_harry_depose_modules_centre(ADV_ELEMENT),state,DONE,ERROR);
+			state = DONE;
 			break;
 
 		case GO_TO_ADV_SIDE:
@@ -1032,15 +1043,15 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 
 		case WAIT_ADV_COLOR:
 			if(side==LEFT){
-				if((global.color==BLUE)&&(CW_is_color_detected(0, 2))){ //jaune à gauche
+				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow))){ //jaune à gauche
 					state=WAIT_WHITE;
-				}else if((global.color==YELLOW)&&(CW_is_color_detected(0, 1))){ //bleu à gauche
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Blue))){ //bleu à gauche
 					state=WAIT_WHITE;
 				}
 			}else{
-				if((global.color==BLUE)&&(CW_is_color_detected(1, 2))){ //jaune à droite
+				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow))){ //jaune à droite
 					state=WAIT_WHITE;
-				}else if((global.color==YELLOW)&&(CW_is_color_detected(1, 1))){ //bleu à droite
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Blue))){ //bleu à droite
 					state=WAIT_WHITE;
 				}
 			}
@@ -1048,11 +1059,11 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 
 		case WAIT_WHITE:
 			if(side==LEFT){
-				if(CW_is_color_detected(0, 0)){ //blanc à gauche
+				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White)){ //blanc à gauche
 					state=STOP;
 				}
 			}else{
-				if(CW_is_color_detected(1, 0)){ //blanc à droite
+				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White)){ //blanc à droite
 					state=STOP;
 				}
 			}
@@ -1110,6 +1121,9 @@ error_e manager_return_modules(){
 
 	switch(state){
 		case INIT:
+
+#warning Appel récursif de manager_return_modules => voire appel récursif infini...
+#warning Il n y a pas de GET_in, comment fait o pour se rendre au point demandé ?
 			//module au centre
 			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){ 				//apelle de fonction pour aller à coté du module
 				state = check_sub_action_result(/*deplacement1*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);	//state = try_going + try_go_angle
@@ -1205,23 +1219,23 @@ error_e manager_return_modules(){
 			//state = check_sub_action_result(sub_harry_return_modules(RIGHT,LEFT), state, DONE, ERROR);
 
 		case RETURN_MODULE_DROP_MIDDLE:
-			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);   //choix gauche ou droite
+			state = check_sub_action_result(sub_harry_return_modules(RIGHT), state, DONE, ERROR);   //choix gauche ou droite
 			break;
 
 		case RETURN_MODULE_DROP_OUR_CENTER:
-			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_return_modules(RIGHT), state, DONE, ERROR);
 			break;
 
 		case RETURN_MODULE_DROP_ADV_CENTER:
-			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_return_modules(RIGHT), state, DONE, ERROR);
 			break;
 
 		case RETURN_MODULE_DROP_OUR_SIDE:
-			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_return_modules(RIGHT), state, DONE, ERROR);
 			break;
 
 		case RETURN_MODULE_DROP_ADV_SIDE:
-			state = check_sub_action_result(sub_harry_return_modules(0), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_return_modules(RIGHT), state, DONE, ERROR);
 			break;
 
 		case ERROR:

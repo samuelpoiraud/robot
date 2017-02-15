@@ -48,8 +48,11 @@
 		 */
 		typedef enum {
 			CW_PP_Channel0 = 0,
+			CW_Channel_White = 0,
 			CW_PP_Channel1 = 1,
+			CW_Channel_Blue = 1,
 			CW_PP_Channel2 = 2,
+			CW_Channel_Yellow = 2,
 			CW_PP_Channel3 = 3,
 			CW_PP_Gate = 4,
 			CW_PP_RemoteControl = 5,
@@ -73,6 +76,15 @@
 			adc_id_e analog_Y;
 			adc_id_e analog_Z;
 		} CW_config_t;
+
+		/**
+		 * Enumération des capteurs utilisés
+		 */
+		typedef enum{
+			CW_SENSOR_LEFT,
+			CW_SENSOR_RIGHT,
+			CW_SENSOR_NUMBER
+		}CW_sensor_e;
 
 		/** Constante utilisé quand un port analogique n'est pas utilisé.
 		 * @see CW_config_t
