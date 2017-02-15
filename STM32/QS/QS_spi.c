@@ -27,9 +27,11 @@
 #define SPI2_DMA_STREAM	DMA1_Stream4
 #define SPI2_DMA_CHAN	DMA_Channel_0
 
-static Uint8 SPI2_InitDMA_send16BitLoop(Uint16 value, Uint16 count);
-static Uint8 SPI2_InitDMA_send16bitArray(Uint16 *data, Uint16 count);
-static void SPI2_waitEndDMA(void);
+#ifdef USE_SPI2
+	static Uint8 SPI2_InitDMA_send16BitLoop(Uint16 value, Uint16 count);
+	static Uint8 SPI2_InitDMA_send16bitArray(Uint16 *data, Uint16 count);
+	static void SPI2_waitEndDMA(void);
+#endif
 
 static volatile SPI_InitTypeDef SPI_InitStructure[2];
 static volatile bool_e initialized = FALSE;
@@ -120,7 +122,7 @@ void SPI_setDataSize(SPI_TypeDef* SPIx, spi_data_size_e spi_data_size){
 	}
 }
 
-Uint8 SPI_exchange(SPI_TypeDef* SPIx, Uint8 c){
+Uint16 SPI_exchange(SPI_TypeDef* SPIx, Uint16 c){
 	assert(IS_SPI_ALL_PERIPH(SPIx));
 	if(!initialized){
 		error_printf("SPI non initialisé ! Appeller SPI_init\n");
@@ -150,16 +152,16 @@ Uint8 SPI_exchange(SPI_TypeDef* SPIx, Uint8 c){
 	return SPI_I2S_ReceiveData(SPIx);
 }
 
-void SPI_write(SPI_TypeDef* SPIx, Uint8 msg){
+void SPI_write(SPI_TypeDef* SPIx, Uint16 msg){
 	assert(IS_SPI_ALL_PERIPH(SPIx));
 
-	SPI_exchange(msg);
+	SPI_exchange(SPIx, msg);
 }
 
-Uint8 SPI_read(SPI_TypeDef* SPIx){
+Uint16 SPI_read(SPI_TypeDef* SPIx){
 	assert(IS_SPI_ALL_PERIPH(SPIx));
 
-	return SPI_exchange(0x00);
+	return SPI_exchange(SPIx, 0x00);
 }
 
 
