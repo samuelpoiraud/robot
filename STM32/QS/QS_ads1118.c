@@ -58,7 +58,9 @@
 		configReg.operatingMode = operatingMode;
 		configReg.dataRate = dataRate;
 		configReg.temperatureSensorMode = temperatureSensorMode;
-		configReg.pullup;
+		configReg.pullup = pullup;
+		configReg.secureWrite = ADS1118_CONFIG_SECURE_WRITE;
+		configReg.reservedReg = ADS1118_CONFIG_RESERVED;
 
 		GPIO_SetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
 
