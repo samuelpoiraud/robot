@@ -1369,7 +1369,13 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 				state=ERROR;
 			}else{
 				state=GET_IN;
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_NORTH_CRATER,TRUE);
+
+				// On lève le flag de subaction
+				if(minerais == OUR_ELEMENT){
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_NORTH_CRATER, TRUE);
+				}else{
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_NORTH_CRATER, TRUE);
+				}
 			}
 			break;
 
@@ -1378,11 +1384,19 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 			break;
 
 		case GO_TO_POSITION:
-			state=try_going(950, COLOR_Y(650), state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_going(950, 650, state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}else{
+				state=try_going(950, 2350, state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case TURN_TO_RUSH:
-			state=try_go_angle(0, state, DOWN_SYSTEM, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_go_angle(0, state, DOWN_SYSTEM, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			}else{
+				state=try_go_angle(180, state, DOWN_SYSTEM, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			}
 			break;
 
 		case DOWN_SYSTEM:{
@@ -1407,11 +1421,19 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 		break;
 
 		case GO_TO_CLEAT:
-			state=try_going(600, COLOR_Y(650), state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_going(600, 650, state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}else{
+				state=try_going(600, 2350, state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case MOVE_BACK:
-			state=try_going(800, COLOR_Y(650), state, GET_OUT, GO_TO_CLEAT, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_going(800, 650, state, GET_OUT, GO_TO_CLEAT, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state=try_going(800, 2350, state, GET_OUT, GO_TO_CLEAT, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			if(ON_LEAVING(MOVE_BACK)){
 				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IDLE);
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IDLE);
@@ -1420,24 +1442,33 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 			break;
 
 		case GET_OUT:
-			state=try_going(850, COLOR_Y(650), state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_going(850, 650, state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state=try_going(850, 2350, state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_NORTH_CRATER,FALSE);
+			if(minerais == OUR_ELEMENT){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_NORTH_CRATER, FALSE);
+			}else{
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_NORTH_CRATER, FALSE);
+			}
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_NORTH_CRATER,FALSE);
 			if(minerais == OUR_ELEMENT){
-				ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN, TRUE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_NORTH_CRATER, FALSE);	// flag subaction
+				ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN, TRUE);	// flag element
 			}else{
-				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);
+				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);	// flag subaction
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_NORTH_CRATER, FALSE);	// flag element
 			}
 			ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
 			return END_OK;
@@ -1468,32 +1499,62 @@ error_e sub_harry_get_in_north_little_crater(ELEMENTS_property_e minerais){
 
 	switch(state){
 		case INIT:
-			if(i_am_in_square_color(800, 1400, 300, 900)){
-				state = DONE;//GET_IN_OUR_SQUARE;
-			}else if (i_am_in_square_color(100, 1100, 900, 2100)){
-				state = GET_IN_MIDDLE_SQUARE;
-			}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
-				state = GET_IN_ADV_SQUARE;
-			}else{
-				state = PATHFIND;
+			// Prise cratère côté jaune
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				if(i_am_in_square(800, 1400, 300, 900)){
+					state = DONE;//GET_IN_OUR_SQUARE;
+				}else if (i_am_in_square(100, 1100, 900, 2100)){
+					state = GET_IN_MIDDLE_SQUARE;
+				}else if (i_am_in_square(800, 1400, 2100, 2700)){
+					state = GET_IN_ADV_SQUARE;
+				}else{
+					state = PATHFIND;
+				}
+			}else{ // Prise cratère coté bleu
+				if(i_am_in_square(800, 1400, 2100, 2700)){
+					state = DONE;//GET_IN_OUR_SQUARE;
+				}else if (i_am_in_square(100, 1100, 900, 2100)){
+					state = GET_IN_MIDDLE_SQUARE;
+				}else if (i_am_in_square(800, 1400, 300, 900)){
+					state = GET_IN_ADV_SQUARE;
+				}else{
+					state = PATHFIND;
+				}
 			}
 			break;
 
 		case GET_IN_OUR_SQUARE:
-			state = try_going(1000, COLOR_Y(650), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			//pas utiliser pour l'instant je préfère le mettre dans la fonction principale
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state = try_going(1000, 650, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				//pas utiliser pour l'instant je préfère le mettre dans la fonction principale
+			}else{
+				state = try_going(1000, 2350, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				//pas utiliser pour l'instant je préfère le mettre dans la fonction principale
+			}
 			break;
 
 		case GET_IN_MIDDLE_SQUARE:
-			state = try_going(900, COLOR_Y(1000), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state = try_going(900, 1000, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(900, 2000, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case GET_IN_ADV_SQUARE:
-			state = try_going(850, COLOR_Y(2000), state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state = try_going(850, 2000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(850, 1000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(850, COLOR_Y(650), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state = ASTAR_try_going(850, 650, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state = ASTAR_try_going(850, 2350, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case ERROR:
@@ -1536,11 +1597,18 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 				state = ERROR; // L'actionneur minerais a été désactivé
 			}else if(ELEMENTS_get_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN)){
 				state = DONE;
-			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI) || ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)){
+			}else if((minerais == OUR_ELEMENT && (ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI) || ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)))
+					|| (minerais == ADV_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_ADV_DIAGONAL))){
 				state=ERROR;
 			}else{
 				state=GET_IN;
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_SOUTH_CRATER,TRUE);
+
+				// On lève le flag de subaction
+				if(minerais == OUR_ELEMENT){
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_SOUTH_CRATER, TRUE);
+				}else{
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_SOUTH_CRATER, TRUE);
+				}
 			}
 			break;
 
@@ -1549,11 +1617,19 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 			break;
 
 		case GO_TO_POSITION:
-			state=try_going(1700, COLOR_Y(800), state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_going(1750, 800, state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}else{
+				state=try_going(1750, 2200, state, TURN_TO_RUSH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case TURN_TO_RUSH:
-			state=try_go_angle(COLOR_ANGLE(PI4096/3), state, DOWN_SYSTEM, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_go_angle(-2*PI4096/3, state, DOWN_SYSTEM, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			}else{
+				state=try_go_angle(2*PI4096/3, state, DOWN_SYSTEM, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			}
 			break;
 
 		case DOWN_SYSTEM:{
@@ -1579,11 +1655,19 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 		break;
 
 		case GO_TO_CENTER:
-			state=try_going(1790, COLOR_Y(940), state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_going(1820, 980, state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}else{
+				state=try_going(1820, 2020, state, MOVE_BACK, MOVE_BACK, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case MOVE_BACK:
-			state=try_going(800, COLOR_Y(650), state, GET_OUT, GO_TO_CENTER, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_going(1750, 800, state, GET_OUT, GO_TO_CENTER, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state=try_going(1750, 2200, state, GET_OUT, GO_TO_CENTER, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			if(ON_LEAVING(MOVE_BACK)){
 				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IDLE);
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IDLE);
@@ -1592,24 +1676,34 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 			break;
 
 		case GET_OUT:
-			state=try_going(1700, COLOR_Y(800), state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state=try_going(1500, 650, state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state=try_going(1500, 2350, state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_SOUTH_CRATER,TRUE);
+			if(minerais == OUR_ELEMENT){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_SOUTH_CRATER, FALSE);
+			}else{
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_SOUTH_CRATER, FALSE);
+			}
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_SOUTH_CRATER,TRUE);
+
 			if(minerais == OUR_ELEMENT){
-				ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN, TRUE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_SOUTH_CRATER, FALSE); // flag subaction
+				ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN, TRUE);  // flag element
 			}else{
-				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_SOUTH_CRATER, FALSE);	// flag subaction
+				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);	// flag element
 			}
 			ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
 			return END_OK;
@@ -1639,34 +1733,60 @@ error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais){
 
 	switch(state){
 		case INIT:
-			//if (i_am_in_square_color(0, 300, 0, 3000)){
-			//	state = GET_BACK_THERE1;
-			//}else
-			if(i_am_in_square_color(800, 1400, 300, 900)){
-				state = DONE;//GET_IN_OUR_SQUARE;
-			}else if (i_am_in_square_color(100, 1100, 900, 2100)){
-				state = GET_IN_MIDDLE_SQUARE;
-			}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
-				state = GET_IN_ADV_SQUARE;
-			}else{
-				state = PATHFIND;
+			// Prise cratère coté jaune
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				if(i_am_in_square(800, 1400, 300, 900)){
+					state = DONE; //GET_IN_OUR_SQUARE;
+				}else if (i_am_in_square(100, 1100, 900, 2100)){
+					state = GET_IN_MIDDLE_SQUARE;
+				}else if (i_am_in_square(800, 1400, 2100, 2700)){
+					state = GET_IN_ADV_SQUARE;
+				}else{
+					state = PATHFIND;
+				}
+			}else{	// Prise cratère coté bleu
+				if(i_am_in_square(800, 1400, 2100, 2700)){
+					state = DONE;//GET_IN_OUR_SQUARE;
+				}else if (i_am_in_square(100, 1100, 900, 2100)){
+					state = GET_IN_MIDDLE_SQUARE;
+				}else if (i_am_in_square(800, 1400, 300, 900)){
+					state = GET_IN_ADV_SQUARE;
+				}else{
+					state = PATHFIND;
+				}
 			}
 			break;
 
 		case GET_IN_OUR_SQUARE:
-			state = try_going(1630, COLOR_Y(700), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state = try_going(1300, 600, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(1300, 2400, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case GET_IN_MIDDLE_SQUARE:
-			state = try_going(900, COLOR_Y(1000), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state = try_going(900, 1000, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(900, 2000, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case GET_IN_ADV_SQUARE:
-			state = try_going(850, COLOR_Y(2000), state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state = try_going(850, 2000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(850, 1000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(1630, COLOR_Y(700), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
+				state = ASTAR_try_going(1630, 700, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}else{
+				state = ASTAR_try_going(1630, 2300, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case ERROR:
