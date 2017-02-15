@@ -67,11 +67,11 @@ void LCD_processMain(void) {
 
 	switch(state) {
 		case INIT_LCD:
-			LCD_recoverI2C();
+			//LCD_recoverI2C();
 			state = DISPLAY_TERRAIN;
 			break;
 		case INIT_TOUCH:
-			LCD_recoverI2C();
+			//LCD_recoverI2C();
 			// Ce que l'on affiche au démarrage de la balise
 			state = CALIBRATION;//DISPLAY_TERRAIN;
 			break;
