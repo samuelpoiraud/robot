@@ -4,6 +4,7 @@
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_types.h"
+#include "../../QS/QS_IHM.h"
 #include "../../utils/actionChecker.h"
 #include "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
@@ -24,20 +25,23 @@ error_e sub_harry_manager_put_off_ore(){
 	switch(state){
 		case INIT:
 			//regarde ou est le mechant si bloque je fait l'autre
-			if((foe_in_square(TRUE, 0, 0, 360, 360, FOE_TYPE_ALL)==TRUE)&&(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// il y a notre autre robot qui bloque le cassier depuis la zone de départ
-				// on ne pourra pas tiré dans le panier !
-				state = ERROR; //le robot ne peut pas tirer de balles , il tire quand même !
+			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
+				state = ERROR; // L'actionneur minerais a été désactivé
+			}else{
+				if((foe_in_square(TRUE, 0, 0, 360, 360, FOE_TYPE_ALL)==TRUE)&&(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// il y a notre autre robot qui bloque le cassier depuis la zone de départ
+					// on ne pourra pas tiré dans le panier !
+					state = ERROR; //le robot ne peut pas tirer de balles , il tire quand même !
+				}
+				else if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
+					state = FIRST_POS;
+				}
+				else if((foe_in_square(TRUE, 300, 800, 800, 1320, FOE_TYPE_ALL)==FALSE)||(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// rien ne bloque le tire alternatif
+					state = SECOND_POS;
+				}
+				else{
+					state = ERROR; //tire impossible pour le moment !
+				}
 			}
-			else if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
-				state = FIRST_POS;
-			}
-			else if((foe_in_square(TRUE, 300, 800, 800, 1320, FOE_TYPE_ALL)==FALSE)||(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// rien ne bloque le tire alternatif
-				state = SECOND_POS;
-			}
-			else{
-				state = ERROR; //tire impossible pour le moment !
-			}
-
 			break;
 
 		case FIRST_POS:
@@ -106,7 +110,9 @@ error_e sub_harry_depose_minerais(){
 
 	switch(state){
 		case INIT:
-			if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)||(ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)))){
+			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
+				state = ERROR; // L'actionneur minerais a été désactivé
+			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)||(ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)))){
 				state=ERROR;
 			}else{
 				state=GET_IN;
@@ -323,6 +329,12 @@ error_e sub_harry_depose_minerais_alternative(){
 
 	switch(state){
 		case INIT:
+			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
+				state = ERROR; // L'actionneur minerais a été désactivé
+			}else{
+				state=GET_IN;
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_ORE_SHOOTING,TRUE);
+			}
 			break;
 
 		case GET_IN:

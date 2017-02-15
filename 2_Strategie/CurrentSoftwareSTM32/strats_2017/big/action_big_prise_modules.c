@@ -4,7 +4,7 @@
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_types.h"
 #include "../../QS/QS_outputlog.h"
-
+#include "../../QS/QS_IHM.h"
 #include  "../../propulsion/astar.h"
 #include  "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
@@ -46,7 +46,9 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyT
 
 	switch(state){
 		case INIT:
-			if( (onlyTwoModules && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN))
+			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
+			}else if( (onlyTwoModules && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN))
 			|| (!onlyTwoModules && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN))){
 				state = DONE; // Il n'y a plus rien à faire
 			}
@@ -294,7 +296,9 @@ error_e sub_harry_rocket_monocolor(){
 
 	switch(state){
 		case INIT:
-			if(ROCKETS_isEmpty(MODULE_ROCKET_MONO_OUR_SIDE)){
+			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
+			}else if(ROCKETS_isEmpty(MODULE_ROCKET_MONO_OUR_SIDE)){
 				state = DONE; // La fusée a déjà été prise
 			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_UNI)){
 				state = ERROR;
@@ -421,7 +425,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket, bool_e right_sid
 	switch(state){
 
 		case INIT:{
-			if((rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))
+			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
+			}else if((rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))
 			|| (rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))){
 				state = DONE;	 // On a déjà vidé cette fusée
 			}else if((rocket == OUR_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_MULTI))
