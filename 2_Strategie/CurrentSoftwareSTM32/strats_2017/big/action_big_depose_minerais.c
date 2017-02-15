@@ -217,7 +217,7 @@ error_e sub_harry_get_in_depose_minerais(){
 			break;
 
 		case PATHFIND:
-			state=ASTAR_try_going(800,COLOR_Y(500),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=ASTAR_try_going(650,COLOR_Y(300),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case ERROR:

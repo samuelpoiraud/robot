@@ -85,7 +85,9 @@ error_e sub_wait_1_sec(void){
 
 	switch (state) {
 		case INIT:
-			on_turning_point();
+			if(entrance){
+				on_turning_point();
+			}
 			state = wait_time(1000, INIT, DONE);
 			break;
 

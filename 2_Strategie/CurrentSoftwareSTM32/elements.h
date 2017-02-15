@@ -55,6 +55,21 @@
 	}moduleStockLocation_e;
 
 	typedef enum{
+		STOCK_POS_CONTAINER = 0,
+		STOCK_POS_1_TO_OUT = 0,
+		STOCK_POS_2_TO_OUT = 1,
+		STOCK_POS_3_TO_OUT = 2,
+		STOCK_POS_4_TO_OUT = 3,
+		STOCK_POS_ELEVATOR = 4,
+		STOCK_POS_ENTRY = 5
+	}moduleStockPosition_e;
+
+	typedef enum{
+		STOCK_PLACE_CONTAINER,
+		STOCK_PLACE_ELEVATOR
+	}moduleStockPlace_e;
+
+	typedef enum{
 		NO_DOMINATING,
 		MODULE_MONO_DOMINATING,
 		MODULE_POLY_DOMINATING,
@@ -92,7 +107,9 @@ moduleTypeDominating_e STOCKS_getDominatingModulesType(moduleStockLocation_e sto
 Uint8 STOCKS_getNbModules(moduleStockLocation_e storage);
 bool_e STOCKS_isFull(moduleStockLocation_e storage);
 bool_e STOCKS_isEmpty(moduleStockLocation_e storage);
+bool_e STOCKS_moduleStockPlaceIsEmpty(moduleStockPosition_e place, moduleStockLocation_e storage);
 void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage);
+void STOCK_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage);
 moduleType_e STOCKS_removeModule(moduleStockLocation_e storage);
 
 // Fonction pour le vidage de la fusee

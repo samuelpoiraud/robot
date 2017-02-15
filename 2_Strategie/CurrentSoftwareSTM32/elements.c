@@ -355,8 +355,7 @@ bool_e STOCKS_isEmpty(moduleStockLocation_e storage){
 	return moduleStockInfo[storage].nbCurrentModules == 0;
 }
 
-#warning A quoi ca sert ? Il faut plutot savoir si tout est plein ou si tout est vide.
-bool_e STOCKS_moduleStockPlaceIsEmpty(Uint8 place, moduleStockLocation_e storage){
+bool_e STOCKS_moduleStockPlaceIsEmpty(moduleStockPosition_e place, moduleStockLocation_e storage){
 	assert(place < MAX_MODULE_STOCK);
 	if(moduleStockInfo[storage].stockModules[place] != MODULE_EMPTY){
 		return FALSE;
@@ -367,26 +366,67 @@ bool_e STOCKS_moduleStockPlaceIsEmpty(Uint8 place, moduleStockLocation_e storage
 
 // Permet d'ajouter un module dans un des stocks du robot
 void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage){
-	if(type == MODULE_BLUE || type == MODULE_YELLOW){
-		moduleStockInfo[storage].nbModulesMonocolor++;
-	}
-	else if(type == MODULE_POLY){
-		moduleStockInfo[storage].nbModulesMulticolor++;
-	}
+	if(moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] == MODULE_EMPTY){
+		if(type == MODULE_BLUE || type == MODULE_YELLOW){
+			moduleStockInfo[storage].nbModulesMonocolor++;
+		}
+		else if(type == MODULE_POLY){
+			moduleStockInfo[storage].nbModulesMulticolor++;
+		}
 
-	//Stockage du module
-	Uint8 index = moduleStockInfo[storage].nbCurrentModules;
-	moduleStockInfo[storage].stockModules[index] = type;
-	moduleStockInfo[storage].nbCurrentModules++;
+		//Stockage du module en position STOCK_POS_ENTRY
+		moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] = type;
+		moduleStockInfo[storage].nbCurrentModules++;
 
-	// Recalcul du type de modules dominant après ajout de ce nouveau module
-	STOCKS_calculModuleDominant(storage);
+		// Recalcul du type de modules dominant après ajout de ce nouveau module
+		STOCKS_calculModuleDominant(storage);
+	}else{
+		error_printf("ERROR STOCKAGE MODULE in STOCK_addModule\n");
+	}
 }
+
+void STOCK_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage){
+	switch(place){
+		case STOCK_PLACE_ELEVATOR:
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] != MODULE_EMPTY && moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] == MODULE_EMPTY){
+				// On change le module de place
+				moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] = moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY];
+				moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] = MODULE_EMPTY;
+			}else{
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_ELEVATOR\n");
+			}
+			break;
+
+		case STOCK_PLACE_CONTAINER:
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] != MODULE_EMPTY && moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] == MODULE_EMPTY){
+				// On change le module de place
+				if(moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] == MODULE_EMPTY){
+					moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
+				}else if(moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] == MODULE_EMPTY){
+					moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
+				}else if(moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT] == MODULE_EMPTY){
+					moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
+				}else{	// STOCK_POS_4_TO_OUT
+					moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
+				}
+				moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] = MODULE_EMPTY;
+			}else{
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_CONTAINER\n");
+			}
+			break;
+
+		default:
+			error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo default case\n");
+			break;
+	}
+}
+
+
 
 // Permet de supprimer un module dans un des stocks du robot
 moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
-	if(moduleStockInfo[storage].nbCurrentModules >= 1){
-		moduleType_e module = moduleStockInfo[storage].stockModules[0];
+	if(moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] != MODULE_EMPTY){
+		moduleType_e module = moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT];
 
 		if(module == MODULE_BLUE || module == MODULE_YELLOW){
 			moduleStockInfo[storage].nbModulesMonocolor--;
@@ -396,9 +436,10 @@ moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
 		}
 
 		Uint8 i;
-		for(i=0; i < moduleStockInfo[storage].nbCurrentModules - 1; i++){
+		for(i=0; i < STOCK_POS_3_TO_OUT; i++){
 			moduleStockInfo[storage].stockModules[i] = moduleStockInfo[storage].stockModules[i+1];
 		}
+		moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] = MODULE_EMPTY;
 		moduleStockInfo[storage].nbCurrentModules--;
 		return module;
 	}

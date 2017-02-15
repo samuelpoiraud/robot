@@ -46,8 +46,8 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyT
 
 	switch(state){
 		case INIT:
-			if( (onlyTwoModules && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN))
-			|| (!onlyTwoModules && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN))){
+			if( (onlyTwoModules && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN))
+			|| (!onlyTwoModules && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN))){
 				state = DONE; // Il n'y a plus rien à faire
 			}
 			else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_UNI)) // Si Anne est déjà en train de faire cette action
@@ -331,7 +331,7 @@ error_e sub_harry_rocket_monocolor(){
 			break;
 
 		case GO_TO_START_POINT:
-			state = try_going(275, COLOR_Y(1150), state, TAKE_ROCKET, GET_OUT_ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(275, COLOR_Y(1150), state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
@@ -430,6 +430,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket, bool_e right_sid
 			}else{
 				// on appelle une fonction qui verifie la position initiale de tout nos actionneurs
 				error_e result = init_all_actionneur(nb_cylinder_big_right, nb_cylinder_big_left);
+				result = END_OK;
 				if(result == END_OK){
 					state=ALL_THE_GET_IN;
 				}else{
@@ -503,6 +504,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket, bool_e right_sid
 
 		case ACTION:{
 			error_e resultAction = boucle_charge_module( nb_cylinder_big_right, nb_cylinder_big_left, nb_cylinder_fusee, MODULE_POLY, right_side );
+			resultAction = END_OK;
 			if(resultAction == END_OK){
 				state=ACTION_RETRACT_ALL;
 				if(rocket == OUR_ELEMENT){
