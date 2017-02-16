@@ -224,7 +224,8 @@
 
 			//Eléments pris (non synchro)
 			FLAG_HARRY_STOMACH_IS_FULL, //le reservoir de baballe
-
+			FLAG_HARRY_DISABLE_MODULE_RIGHT,	// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
+			FLAG_HARRY_DISABLE_MODULE_LEFT,	// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
 
 
 			F_ELEMENTS_FLAGS_NB

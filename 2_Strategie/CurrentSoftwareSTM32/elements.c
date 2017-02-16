@@ -11,11 +11,6 @@
 #include "QS/QS_stateMachineHelper.h"
 #include "utils/generic_functions.h"
 
-
-#define MAX_MODULE_MOONBASE		6
-#define MAX_MODULE_STOCK		6
-#define MAX_MODULE_ROCKET       4
-
 typedef struct{
 	Uint8 nbCurrentModules;
 	moduleType_e moonbaseModules[MAX_MODULE_MOONBASE];
@@ -313,12 +308,16 @@ static void ELEMENTS_receive_hardflags()
 
 // Initialisation des stocks du robot
 static void STOCKS_init(){
-	Uint8 i;
+	Uint8 i, j;
 	for(i = 0; i < NB_STOCKS; i++){
 		moduleStockInfo[i].nbCurrentModules = 0;
 		moduleStockInfo[i].nbModulesMonocolor = 0;
 		moduleStockInfo[i].nbModulesMulticolor = 0;
 		moduleStockInfo[i].dominatingModules = NO_DOMINATING;
+
+		for(j = 0; j < MAX_MODULE_ROCKET; j++){
+			moduleStockInfo[i].stockModules[j] = MODULE_EMPTY;
+		}
 	}
 }
 
@@ -448,6 +447,28 @@ moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
 	}
 }
 
+void STOCKS_print(moduleStockLocation_e storage){
+	Uint8 i;
+	debug_printf("\n\n Affichage STOCK :\n");
+	for(i = 0; i < MAX_MODULE_STOCK; i++){
+		switch(moduleStockInfo[storage].stockModules[i]){
+			case MODULE_EMPTY:
+				debug_printf(" - MODULE_EMPTY\n");
+				break;
+			case MODULE_BLUE:
+				debug_printf(" - MODULE_BLUE\n");
+				break;
+			case MODULE_YELLOW:
+				debug_printf(" - MODULE_YELLOW\n");
+				break;
+			case MODULE_POLY:
+				debug_printf(" - MODULE_POLY\n");
+				break;
+		}
+	}
+	debug_printf("\n");
+}
+
 //###################################  GESTION DES MODULES DANS LES FUSEES ###############################
 
 // Initialisation des fusées
@@ -457,13 +478,13 @@ static void ROCKETS_init(){
 		switch(rocket){
 			case MODULE_ROCKET_MULTI_OUR_SIDE:
 			case MODULE_ROCKET_MULTI_ADV_SIDE:
-				for(Uint8 i=0; i < MAX_MODULE_ROCKET - 1; i++){
+				for(Uint8 i=0; i < MAX_MODULE_ROCKET; i++){
 					moduleRocketInfo[rocket].rocketModules[i] = MODULE_POLY;
 				}
 				moduleRocketInfo[rocket].nbCurrentModules = MAX_MODULE_ROCKET;
 				break;
 			case MODULE_ROCKET_MONO_OUR_SIDE:
-				for(Uint8 i=0; i < MAX_MODULE_ROCKET - 1; i++){
+				for(Uint8 i=0; i < MAX_MODULE_ROCKET; i++){
 					if(color == BLUE){
 						moduleRocketInfo[rocket].rocketModules[i] = MODULE_BLUE;
 					}else{
@@ -486,10 +507,42 @@ bool_e ROCKETS_isEmpty(moduleRocketLocation_e rocket){
 	return moduleRocketInfo[rocket].nbCurrentModules == 0;
 }
 
-// Permet de savoir si une fusée est pleine
+// Enlève un module de la fusée
 void ROCKETS_removeModule(moduleRocketLocation_e rocket){
 	moduleRocketInfo[rocket].nbCurrentModules--;
+	moduleRocketInfo[rocket].rocketModules[moduleRocketInfo[rocket].nbCurrentModules] = MODULE_EMPTY;
 }
+
+// Enlève tous les modules de la fusée
+void ROCKETS_removeAllModules(moduleRocketLocation_e rocket){
+	moduleRocketInfo[rocket].nbCurrentModules = 0;
+	for(Uint8 i=0; i < MAX_MODULE_ROCKET; i++){
+		moduleRocketInfo[rocket].rocketModules[i] = MODULE_EMPTY;
+	}
+}
+
+void ROCKETS_print(moduleRocketLocation_e rocket){
+	Uint8 i;
+	debug_printf("\n\n Affichage ROCKET :\n");
+	for(i = 0; i < MAX_MODULE_ROCKET; i++){
+		switch(moduleRocketInfo[rocket].rocketModules[i]){
+			case MODULE_EMPTY:
+				debug_printf(" - MODULE_EMPTY\n");
+				break;
+			case MODULE_BLUE:
+				debug_printf(" - MODULE_BLUE\n");
+				break;
+			case MODULE_YELLOW:
+				debug_printf(" - MODULE_YELLOW\n");
+				break;
+			case MODULE_POLY:
+				debug_printf(" - MODULE_POLY\n");
+				break;
+		}
+	}
+	debug_printf("\n");
+}
+
 
 
 //############################  STOCKAGE DES MODULES DANS LES BASES DE CONSTRUCTION ######################
