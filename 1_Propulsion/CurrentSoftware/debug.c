@@ -250,7 +250,6 @@ void DEBUG_process_it(void)
         pos_mesure.x=pos_laser.x-(value * sinus)/4096;
         pos_mesure.y=pos_laser.y+(value * cosinus)/4096;
 
-#warning 'tes mauvais en trigo abruti'
         tab[index].value_right=value;
 
         tab[index].laser_left_x=pos_mesure.x;

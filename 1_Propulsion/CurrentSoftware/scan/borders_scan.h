@@ -4,9 +4,22 @@
 #include "scan.h"
 
 void BORDERS_SCAN_init();
-GEOMETRY_point_t* BORDERS_SCAN_treatment(GEOMETRY_point_t pos_mesure);
 
-bool_e calculeZonePublic(GEOMETRY_point_t* zone);
+typedef enum{
+    BLUE_NORTH,
+    MIDDLE_NORTH,
+    YELLOW_NORTH,
+    BLUE_START,
+    BLUE_CORNER,
+    YELLOW_START,
+    YELLOW_CORNER,
+    BLUE_SOUTH,
+    YELLOW_SOUTH
+}scan_zone_e;
+
+scan_zone_e BORDERS_SCAN_treatment(GEOMETRY_point_t pos_mesure);
+
+bool_e calculeZonePublic(scan_zone_e zone);
 
 
 
