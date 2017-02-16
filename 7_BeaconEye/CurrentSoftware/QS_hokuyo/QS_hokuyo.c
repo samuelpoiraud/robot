@@ -137,12 +137,15 @@ void HOKUYO_processMain(void) {
 		case HOKUYO_READY:
 			if(entrance) {
 				debug_printf("Pret\n");
-				Terminal_debug("Hokuyo ready");
+				Terminal_debug("Hokuyo ready v1.01");
+				debug_printf("Avant création commander\n");
 				cmd = CMD_MS_create(0, 1080, 1, 0, 1, "Bonjour");
+				debug_printf("Commande créer\n");
 			}
 
 			if(CMD_MS_sendCommand(&cmd) == HOKUYO_CMD_DONE) {
 				state = DONE;
+				debug_printf("Commande OK\n");
 			}
 			break;
 
