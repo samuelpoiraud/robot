@@ -40,7 +40,7 @@
 	error_e init_all_actionneur(moduleStockLocation_e nb_cylinder_big_right,moduleStockLocation_e nb_cylinder_big_left);
 	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side);
 	error_e boucle_charge_module(moduleStockLocation_e nb_cylinder_big_right,moduleStockLocation_e nb_cylinder_big_left,moduleRocketLocation_e nb_cylinder_fusee, moduleType_e myModule,  bool_e right_side );
-
+	error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top);
 
 	// action_big_depose_modules
 	error_e sub_harry_cylinder_depose_manager();

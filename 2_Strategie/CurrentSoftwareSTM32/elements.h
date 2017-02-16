@@ -23,6 +23,7 @@
 	}ELEMENTS_property_e;
 
 	typedef enum{
+		NO_SIDE,
 		RIGHT,
 		LEFT
 	}ELEMENTS_side_e;
@@ -85,6 +86,9 @@
 	extern const module_zone_characteristics_s module_zone[NB_MOONBASES];
 	// COMMENTAIRE POUR COCO : module_zone[first_zone].xmin
 
+	#define MAX_MODULE_MOONBASE		6
+	#define MAX_MODULE_STOCK		6
+	#define MAX_MODULE_ROCKET       4
 
 // Fonctions pour la gestion des flags
 void ELEMENTS_init();
@@ -111,11 +115,14 @@ bool_e STOCKS_moduleStockPlaceIsEmpty(moduleStockPosition_e place, moduleStockLo
 void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage);
 void STOCK_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage);
 moduleType_e STOCKS_removeModule(moduleStockLocation_e storage);
+void STOCKS_print(moduleStockLocation_e storage);
 
 // Fonction pour le vidage de la fusee
 Uint8 ROCKETS_getNbModules(moduleRocketLocation_e rocket);
 bool_e ROCKETS_isEmpty(moduleRocketLocation_e rocket);
 void ROCKETS_removeModule(moduleRocketLocation_e rocket);
+void ROCKETS_removeAllModules(moduleRocketLocation_e rocket);
+void ROCKETS_print(moduleRocketLocation_e rocket);
 
 //Fonctions pour la dépose
 bool_e MOONBASES_modulePlaceIsEmpty(Uint8 place, moduleMoonbaseLocation_e location);

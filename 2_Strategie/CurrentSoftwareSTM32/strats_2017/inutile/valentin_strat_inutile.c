@@ -22,17 +22,30 @@ void valentin_strat_inutile_big(){
 	switch(state){
 
 		case INIT:
-			state = try_going(900, COLOR_Y(2500), state , ACTION, DONE, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			if(entrance){
+				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
+			}
+			state = try_going(900, COLOR_Y(1500), state , ACTION, DONE, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ACTION:
-			state = check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT, TRUE), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MULTI_OUR_SIDE, LEFT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
 			break;
 
 		case ERROR:
+			if(entrance){
+				ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
+				STOCKS_print(MODULE_STOCK_LEFT);
+				STOCKS_print(MODULE_STOCK_RIGHT);
+			}
 			break;
 
 		case DONE:
+			if(entrance){
+				ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
+				STOCKS_print(MODULE_STOCK_LEFT);
+				STOCKS_print(MODULE_STOCK_RIGHT);
+			}
 			break;
 	}
 }
