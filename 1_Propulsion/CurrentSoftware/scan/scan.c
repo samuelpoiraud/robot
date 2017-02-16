@@ -5,18 +5,19 @@
 #include "../QS/QS_adc.h"
 
 #define CONVERSION_LASER_LEFT(x)	((Sint32)(36148*(x)-6611800)/10000)//((Sint32)(37217*(x)-7096800)/10000)
-#define OFFSET_WIDTH_LASER_LEFT		(-144)
+#define OFFSET_WIDTH_LASER_LEFT		(144)
 #define OFFSET_LENGTH_LASER_LEFT	(80)
-#define OFFSET_ANGLE_LEFT            94
+#define OFFSET_ANGLE_LEFT           -102
 
-#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36130*(x)-6247900)/10000)
-#define OFFSET_WIDTH_LASER_RIGHT	(150)
-#define OFFSET_LENGTH_LASER_RIGHT	(70)
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(36052*(x)-6201700)/10000)//((Sint32)(36130*(x)-6247900)/10000)
+#define OFFSET_WIDTH_LASER_RIGHT	(144)
+#define OFFSET_LENGTH_LASER_RIGHT	(80)
 #define OFFSET_ANGLE_RIGHT          -221
 
 
-#define SATURATION_LOW (300)
+#define SATURATION_LOW (200)
 #define SATURATION_HIGH (1000)
+
 
 static void SCAN_get_data_left();
 static void SCAN_get_data_right();
@@ -45,17 +46,20 @@ void SCAN_init(){
 }
 
 static void SCAN_get_data_left(){
-	GEOMETRY_point_t pos_mesure, pos_laser;
+    GEOMETRY_point_t pos_mesure, pos_laser;
 	bool_e enable;
 	Sint16 valueADC, value;
 	position_t robot;
 	Sint16 cosinus = 0, sinus = 0;
 
+    static scan_zone_e previous_zone = {0};
+    static scan_zone_e zone = {0};
+    static GEOMETRY_point_t previous_pos = {0,0};
+
   //  valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
     robot = global.position; // On récupère la position du robot tout de suite
     //printf("%d\n",valueADC);
     value = CONVERSION_LASER_LEFT(laser_left[index].ADCvalue);
-    //printf("%d\n",value);
 
     //robot = global.position; // On récupère la position du robot tout de suite
 	robot.teta = GEOMETRY_modulo_angle(robot.teta);
@@ -63,30 +67,39 @@ static void SCAN_get_data_left(){
 
 	// On regarde si il y a des saturations
 	enable = TRUE;
-	if(valueADC < SATURATION_LOW || valueADC > SATURATION_HIGH){
+    if(laser_left[index].ADCvalue < SATURATION_LOW || laser_left[index].ADCvalue > SATURATION_HIGH){
 		enable = FALSE;
 	}
-
 	laser_left[index].enable = enable;
 
-	// On calcule et on stocke la valeur même si le capteur entre en saturation
-	pos_mesure.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus + (OFFSET_WIDTH_LASER_LEFT - value)*sinus)/4096.0;
-	pos_mesure.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus - (OFFSET_WIDTH_LASER_LEFT - value)*cosinus)/4096.0;
 	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
-	pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus + OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
-    pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus - OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
+    pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus - OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
+    pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
 
     COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_LEFT, &cosinus, &sinus);
 
-    pos_mesure.x=pos_laser.x+(value) * cosinus/4096;
-    pos_mesure.y=pos_laser.y+(value) * sinus/4096;
+    // On calcule et on stocke la valeur même si le capteur entre en saturation
+    if(enable==TRUE){
+        pos_mesure.x=pos_laser.x-(value * sinus)/4096;
+        pos_mesure.y=pos_laser.y+(value * cosinus)/4096;
+    }
+
+    if(absolute(previous_pos.x - pos_mesure.x) > 15 || absolute(previous_pos.y - pos_mesure.y) > 15)
+    {
+        previous_zone=zone;
+        zone=BORDERS_SCAN_treatment(pos_mesure);
+        previous_pos = pos_mesure;
+        if(previous_zone!=zone){
+            it_printf("j\n");
+            calculeZonePublic(previous_zone);
+        }
+    }
 
 	// On stocke les valeurs
 	laser_left[index].pos_mesure = pos_mesure;
 	laser_left[index].pos_laser = pos_laser;
     laser_left[index].ADCvalue = valueADC;
-
-
+    laser_left[index].pos_robot = robot;
 }
 
 static void SCAN_get_data_right(){
@@ -139,6 +152,10 @@ void TELEMETER_process_it(){
 }
 
 
+Uint16 TELEMETER_get_ADCvalue_left(){
+    return laser_left[index].ADCvalue;
+}
+
 Uint16 TELEMETER_get_ADCvalue_right(){
     return laser_right[index].ADCvalue;
 }
@@ -166,12 +183,12 @@ void SCAN_process_main(){
 	scan_data_t tab_treatment_left[NB_SCAN_DATA], tab_treatment_right[NB_SCAN_DATA];
 
 	if(flag_treatment_too_slow){
-		debug_printf("problème d'accés conccurents\n");
+    //	debug_printf("problème d'accés conccurents\n");
 	}
     Uint32 moy=0;
 	// Copie de la première partie du tableau pendant que la première partie est en train de se remplir
 	if(flag_1){
-		debug_printf("\n\n VIDAGE FLAG_1\n");
+        //debug_printf("\n\n VIDAGE FLAG_1\n");
 		for(i=0; i<NB_SCAN_DATA; i++){
             //printf("%d\n",laser_right[i].ADCvalue);
 			tab_treatment_left[i].pos_mesure = laser_left[i].pos_mesure;
@@ -192,13 +209,13 @@ void SCAN_process_main(){
 		// Appel de fonctions de scan objets
 		OBJECTS_SCAN_treatment(tab_treatment_left);
 		OBJECTS_SCAN_treatment(tab_treatment_right);
-        BORDERS_SCAN_treatment(tab_treatment_left);
-        BORDERS_SCAN_treatment(tab_treatment_right);
+       // BORDERS_SCAN_treatment(tab_treatment_left);
+       // BORDERS_SCAN_treatment(tab_treatment_right);
 	}
 
 	// Copie de la seconde partie du tableau pendant que la première partie est en train de se remplir
 	if(flag_2){
-		debug_printf("\n\n VIDAGE FLAG_2\n");
+        //debug_printf("\n\n VIDAGE FLAG_2\n");
 		for(i=0; i<NB_SCAN_DATA; i++){
 			tab_treatment_left[i].pos_mesure = laser_left[NB_SCAN_DATA + i].pos_mesure;
 			tab_treatment_left[i].pos_laser = laser_left[NB_SCAN_DATA + i].pos_laser;
