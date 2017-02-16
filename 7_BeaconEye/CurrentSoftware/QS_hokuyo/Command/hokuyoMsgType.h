@@ -10,7 +10,7 @@
 
 #define COMMAND_SYMBOL_SIZE		2
 #define PARAMETERS_MAX_SIZE		10
-#define STRING_CHARACTERS_SIZE  18
+#define STRING_CHARACTERS_SIZE  16
 #define SEND_COMMAND_SIZE		35
 
 typedef enum{
@@ -27,6 +27,20 @@ typedef enum{
 	CMD_PP		= 0x5050,
 	CMD_II		= 0x4949
 }commandSymbol_e;
+
+typedef enum{
+	CMD_ECHO_IN_PROGRESS = 0,
+	CMD_ECHO_DONE,
+	CMD_ECHO_TIMEOUT,
+	CMD_ECHO_ERROR
+}commandEchoStatus_e;
+
+typedef enum{
+	HOKUYO_CMD_IN_PROGRESS = 0,
+	HOKUYO_CMD_DONE,
+	HOKUYO_CMD_TIMEOUT,
+	HOKUYO_CMD_ERROR
+}HOKUYO_commandStatus_e;
 
 typedef enum{
 	CONTROL_CODE_ADJUST_MODE_ON		= 0x00,

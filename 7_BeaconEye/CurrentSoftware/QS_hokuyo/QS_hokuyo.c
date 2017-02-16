@@ -28,7 +28,7 @@
 #else
 	#define Terminal_debug(x)	 (void)0
 #endif
-#include "Command/cmd_MD.h"
+#include "Command/cmd_MS.h"
 #include "Command/hokuyoMsgType.h"
 
 #define LOG_PREFIX ""
@@ -39,7 +39,6 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE      USB_OTG_Core 	__ALIGN_END;
 __ALIGN_BEGIN USBH_HOST                USB_Host 		__ALIGN_END;
 
 /* Private defines */
-#define LINE_FEED				0x0A							// Caractère de retour à la ligne
 #define NB_BYTES_FROM_HOKUYO	2500							// Taille du buffer pour la trame hokuyo reçue
 
 /* Private variables */
@@ -55,7 +54,6 @@ volatile bool_e flag_device_disconnected = FALSE;				// Indique que le capteur a
 #endif
 
 /* Private functions */
-static void   HOKUYO_writeCommand(Uint8 tab[]);
 static bool_e HOKUYO_readBuffer(void);
 
 void HOKUYO_init(void) {
@@ -108,6 +106,8 @@ void HOKUYO_processMain(void) {
 
 	last_state = state;
 
+	static hokuyoSendCommand_s cmd;
+
 	/* Process main du périphérique USB */
 	USBH_Process(&USB_OTG_Core, &USB_Host);
 
@@ -138,10 +138,12 @@ void HOKUYO_processMain(void) {
 			if(entrance) {
 				debug_printf("Pret\n");
 				Terminal_debug("Hokuyo ready");
-				hokuyoSendCommand_s cmd = CMD_MD_create(0, 1080, 1, 0, 1, "Bonjour");
-				//HOKUYO_writeCommand((Uint8*)"MS0000108001001");
+				cmd = CMD_MS_create(0, 1080, 1, 0, 1, "Bonjour");
 			}
-			HOKUYO_readBuffer();
+
+			if(CMD_MS_sendCommand(&cmd) == HOKUYO_CMD_DONE) {
+				state = DONE;
+			}
 			break;
 
 		case ERROR:
@@ -174,6 +176,9 @@ void HOKUYO_processMain(void) {
 			break;
 
 		case DONE:
+			if(entrance) {
+				debug_printf("Commande OK\n");
+			}
 			break;
 
 		default:
@@ -194,7 +199,7 @@ void HOKUYO_putsCommand(Uint8 tab[], Uint16 length) {
  * @param tab La commande sous forme de chaine de caractères
  * @remark Le caractère de retour à la ligne est automatiquement envoyé à la fin de la commande
  */
-static void HOKUYO_writeCommand(Uint8 tab[]) {
+void HOKUYO_writeCommand(Uint8 tab[]) {
 	Uint32 i;
 	for(i=0;tab[i];i++) {
 		VCP_write(tab[i]);
@@ -235,6 +240,10 @@ void user_callback_DeviceDisconnected(void) {
 #ifdef USE_HOKUYO
 	flag_device_disconnected = TRUE;
 #endif
+}
+
+Uint8 HOKUYO_convertChecksum(Uint8 checksum) {
+	return (checksum & 0x3F) + 0x30;
 }
 
 /**
