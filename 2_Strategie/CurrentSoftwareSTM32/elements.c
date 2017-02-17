@@ -384,9 +384,10 @@ void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage){
 	}
 }
 
-void STOCK_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage){
+void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage){
+	Uint8 i;
 	switch(place){
-		case STOCK_PLACE_ELEVATOR:
+		case STOCK_PLACE_ENTRY_TO_ELEVATOR:
 			if(moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] != MODULE_EMPTY && moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] == MODULE_EMPTY){
 				// On change le module de place
 				moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] = moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY];
@@ -396,12 +397,12 @@ void STOCK_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e 
 			}
 			break;
 
-		case STOCK_PLACE_CONTAINER:
+		case STOCK_PLACE_ELEVATOR_TO_CONTAINER_IN:
 			if(moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] != MODULE_EMPTY && moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] == MODULE_EMPTY){
 				// On change le module de place
-				if(moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] == MODULE_EMPTY){
-					moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
-				}else if(moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] == MODULE_EMPTY){
+				if(moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] == MODULE_EMPTY &&
+				( (storage == MODULE_STOCK_LEFT && !ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_LEFT_OUT))
+				  || (storage == MODULE_STOCK_RIGHT && !ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT)))){
 					moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
 				}else if(moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT] == MODULE_EMPTY){
 					moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
@@ -411,6 +412,25 @@ void STOCK_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e 
 				moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] = MODULE_EMPTY;
 			}else{
 				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_CONTAINER\n");
+			}
+			break;
+
+		case STOCK_PLACE_CONTAINER_IN_TO_DISPENSER:
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] == MODULE_EMPTY){
+				moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT];
+				moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT];
+				moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] = MODULE_EMPTY;
+			}else{
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_CONTAINER_IN_TO_DISPENSER\n");
+			}
+			break;
+
+		case STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT:
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] != MODULE_EMPTY){
+				moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT];
+				moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] = MODULE_EMPTY;
+			}else{
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT\n");
 			}
 			break;
 
@@ -434,11 +454,7 @@ moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
 			moduleStockInfo[storage].nbModulesMulticolor--;
 		}
 
-		Uint8 i;
-		for(i=0; i < STOCK_POS_3_TO_OUT; i++){
-			moduleStockInfo[storage].stockModules[i] = moduleStockInfo[storage].stockModules[i+1];
-		}
-		moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] = MODULE_EMPTY;
+		moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] = MODULE_EMPTY; // Le module le plus près de la trappe est tombé
 		moduleStockInfo[storage].nbCurrentModules--;
 		return module;
 	}

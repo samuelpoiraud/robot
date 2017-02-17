@@ -223,10 +223,11 @@
 			F_ELEMENTS_HRDFLAGS_END,
 
 			//Eléments pris (non synchro)
-			FLAG_HARRY_STOMACH_IS_FULL, //le reservoir de baballe
+			FLAG_HARRY_STOMACH_IS_FULL, 		//le reservoir de baballe
 			FLAG_HARRY_DISABLE_MODULE_RIGHT,	// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
-			FLAG_HARRY_DISABLE_MODULE_LEFT,	// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
-
+			FLAG_HARRY_DISABLE_MODULE_LEFT,		// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
+			FLAG_HARRY_DISPENSER_LEFT_OUT,		// Flag dispenser temporaire à supprimer dès que MAE_current_state ok
+			FLAG_HARRY_DISPENSER_RIGHT_OUT,		// Flag dispenser temporaire à supprimer dès que MAE_current_state ok
 
 			F_ELEMENTS_FLAGS_NB
 		}elements_flags_e;
