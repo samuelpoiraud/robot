@@ -8,11 +8,13 @@
 #include "low layer/fonts.h"
 #include "../QS_hokuyo/hokuyo.h"
 #include "../QS_hokuyo/hokuyo_config.h"
+#include "../IHM/led.h"
 
 #define REFRESH_TIME	(100) // Temps en ms entre chaque affichage des positions hokuyo
 #define NB_MAX_CIRCLE	(HOKUYO_MAX_FOES)
 #define CIRCLE_COLOR	(SSD2119_COLOR_RED)
 #define CROSS_MARGIN	(20)
+#define FIELD_TO_LCD(x)	(x / 10)
 
 typedef enum{
 	INIT_LCD,
@@ -98,7 +100,6 @@ void LCD_processMain(void) {
 					LCD_saveAdv(&hokuyoPosition.data[i], adv);
 				}
 
-
 				// On affiche les nouvelles positions
 				for(i = 0; i < hokuyoPosition.size; i++) {
 					VIEW_drawCircle(hokuyoPosition.data[i].x, hokuyoPosition.data[i].y, hokuyoPosition.data[i].r, FALSE, CIRCLE_COLOR, &terrain);
@@ -128,13 +129,8 @@ void LCD_processMain(void) {
 }
 
 static void LCD_saveAdv(LCD_Circle_s *circle, HOKUYO_adversary_position *adv) {
-	if(ENVIRONMENT_getColor() == BOT_COLOR) {
-		circle->y = adv->coordX / 10;
-		circle->x = 320 - adv->coordY/10 - 10;
-	} else {
-		circle->y = adv->coordX;
-		circle->x = 320 - adv->coordY/10 - 10;
-	}
+	circle->y = FIELD_TO_LCD(adv->coordX);
+	circle->x = FIELD_TO_LCD(adv->coordY) + PLATFORM_SIZE;
 	circle->r = 4;
 }
 
