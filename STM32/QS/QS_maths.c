@@ -97,6 +97,11 @@ Uint32 GEOMETRY_squared_distance(GEOMETRY_point_t a, GEOMETRY_point_t b)
 	return dx*dx+dy*dy;
 }
 
+Uint16 GEOMETRY_manhattan_distance(GEOMETRY_point_t a, GEOMETRY_point_t b)
+{
+	return (a.x>b.x ? a.x-b.x : b.x-a.x) + (a.y>b.y ? a.y-b.y : b.y-a.y);
+}
+
 Sint16 GEOMETRY_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destination_x, Sint16 destination_y)
 {
 	Sint16 deltaX,deltaY;
