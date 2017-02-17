@@ -13,14 +13,6 @@
 #define TERRAIN_WIDTH				(300)
 #define TERRAIN_HEIGHT				(200)
 
-// Stationary platforms
-#define PLATFORM_SIZE				(10)
-#define PLATFORM_X_LEFT				(0)
-#define PLATFORM_X_RIGHT			(PLATFORM_SIZE + TERRAIN_WIDTH)
-#define PLATFORM_Y_TOP				(0)
-#define PLATFORM_Y_MIDDLE			((TERRAIN_HEIGHT / 2) - (PLATFORM_SIZE / 2))
-#define PLATFORM_Y_BOTTOM			(TERRAIN_HEIGHT - PLATFORM_SIZE)
-
 static void VIEW_drawPixelOnTerrain(Uint16 x, Uint16 y, bool_e erase, Uint16 color, const imageInfo_s *terrain);
 
 void VIEW_drawEmptyTerrain(const imageInfo_s *terrain) {

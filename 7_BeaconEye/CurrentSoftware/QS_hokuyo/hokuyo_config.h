@@ -68,8 +68,8 @@
 #define HOKUYO_OFFSET_SMALL_POS_X			0		// [mm] Position x de l'hokuyo par rapport au centre du petit robot
 #define HOKUYO_OFFSET_SMALL_POS_Y			0		// [mm] Position y de l'hokuyo par rapport au centre du petit robot
 #define HOKUYO_OFFSET_BEACON_EYE_X			1000	// [mm] Position x du centre de l'hokuyo par rapport au terrain
-#define HOKUYO_OFFSET_BEACON_EYE_Y_BOT		0		// [mm] Position y du centre de l'hokuyo par rapport au terrain pour la BOT_COLOR
-#define HOKUYO_OFFSET_BEACON_EYE_Y_TOP		3000	// [mm] Position y du centre de l'hokuyo par rapport au terrain pour la TOP_COLOR
+#define HOKUYO_OFFSET_BEACON_EYE_Y_BOT		3062	// [mm] Position y du centre de l'hokuyo par rapport au terrain pour la BOT_COLOR
+#define HOKUYO_OFFSET_BEACON_EYE_Y_TOP		-62		// [mm] Position y du centre de l'hokuyo par rapport au terrain pour la TOP_COLOR
 #define TOO_CLOSE_DISTANCE_BIG				250		// [mm] Distance d'un point trop proche de nous qui doit être ignoré pour le gros robot
 #define TOO_CLOSE_DISTANCE_SMALL			150		// [mm] Distance d'un point trop proche de nous qui doit être ignoré pour le petit robot
 #define TOO_CLOSE_DISTANCE_BEACON_EYE		100		// [mm] Distance d'un point trop proche de nous qui doit être ignoré pour la BeaconEye

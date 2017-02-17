@@ -192,7 +192,6 @@ void HOKUYO_processMain(void) {
 			if(HOKUYO_readBuffer()) {
 				if(HOKUYO_datas[datas_index - 2] == LINE_FEED && HOKUYO_datas[datas_index - 1] == LINE_FEED && datas_index >= 21){
 					state = BUFFER_READ;
-					debug_printf("Echo received\n");
 				} else if(datas_index > 30) {
 					state = ASK_NEW_MEASUREMENT;
 				}
@@ -225,7 +224,6 @@ void HOKUYO_processMain(void) {
 
 				if(HOKUYO_datas[datas_index - 2] == LINE_FEED && HOKUYO_datas[datas_index - 1] == LINE_FEED && datas_index >= 2257) {
 					state = TREATMENT_DATA;
-					debug_printf("Data received\n");
 				} else {
 					state=ASK_NEW_MEASUREMENT;
 				}
@@ -313,7 +311,7 @@ void HOKUYO_processMain(void) {
 void HOKUYO_displayAdversariesPosition(void) {
 	Uint8 i;
 	for(i = 0; i < adversaries_number; i++){
-		debug_printf("\nAdv n%d X=[%ld]", i, hokuyo_adversaries[i].coordX);
+		debug_printf("Adv n°%d X=[%ld]", i, hokuyo_adversaries[i].coordX);
 		debug_printf(" and Y=[%ld]\n", hokuyo_adversaries[i].coordY);
 	}
 }
@@ -507,11 +505,11 @@ static void HOKUYO_parseDataFrame(void) {
 			teta_absolute = GEOMETRY_modulo_angle(teta_relative);
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
 			if(ENVIRONMENT_getColor() == BOT_COLOR) {
-				x_absolute = HOKUYO_OFFSET_BEACON_EYE_X + (distance*(Sint32)(cos))/4096;
-				y_absolute = HOKUYO_OFFSET_BEACON_EYE_Y_BOT + (distance*(Sint32)(sin))/4096;
+				x_absolute = HOKUYO_OFFSET_BEACON_EYE_X - (distance*(Sint32)(cos))/4096;
+				y_absolute = HOKUYO_OFFSET_BEACON_EYE_Y_BOT - (distance*(Sint32)(sin))/4096;
 			} else {
-				x_absolute = HOKUYO_OFFSET_BEACON_EYE_X -(distance*(Sint32)(cos))/4096;
-				y_absolute = HOKUYO_OFFSET_BEACON_EYE_Y_TOP -(distance*(Sint32)(sin))/4096;
+				x_absolute = HOKUYO_OFFSET_BEACON_EYE_X + (distance*(Sint32)(cos))/4096;
+				y_absolute = HOKUYO_OFFSET_BEACON_EYE_Y_TOP + (distance*(Sint32)(sin))/4096;
 			}
 #endif
 

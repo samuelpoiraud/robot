@@ -2,6 +2,7 @@
 
 #include "../QS/QS_ports.h"
 #include "../QS/QS_outputlog.h"
+#include "../QS_hokuyo/hokuyo.h"
 
 #define ANTI_BOUNCE_TIME (20) // en ms
 
@@ -50,6 +51,7 @@ static void BUTTON_stateChange0(void) {
 	if(!BUTTON_0_PORT){
 		// Le bouton est appuyé
 		//debug_printf("Appuye sur le bouton 0.\n");
+		HOKUYO_displayAdversariesPosition();
 	}else{
 		// Le bouton est relâché
 		//debug_printf("Relachement du bouton 0.\n");
