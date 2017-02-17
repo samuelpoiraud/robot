@@ -45,9 +45,10 @@ typedef struct{
 	Uint8 size;
 }LCD_hokuyoPosition_s;
 
-static volatile LCD_hokuyoPosition_s hokuyoPosition;
+static LCD_hokuyoPosition_s hokuyoPosition;
 static CALIBRATION_state_e LCD_calibrate(void);
 static void LCD_recoverI2C(void);
+static void LCD_saveAdv(LCD_Circle_s *circle, HOKUYO_adversary_position *adv);
 
 void LCD_processMain(void) {
 	static LCD_state_e state = INIT_LCD;
@@ -94,9 +95,7 @@ void LCD_processMain(void) {
 				hokuyoPosition.size = HOKUYO_getAdversariesNumber();
 				for(i = 0; i < hokuyoPosition.size; i++) {
 					HOKUYO_adversary_position *adv = HOKUYO_getAdversaryPosition(i);
-					hokuyoPosition.data[i].x = adv->coordX / 10;
-					hokuyoPosition.data[i].y = adv->coordY / 10;
-					hokuyoPosition.data[i].r = 4;
+					LCD_saveAdv(&hokuyoPosition.data[i], adv);
 				}
 
 
@@ -126,6 +125,17 @@ void LCD_processMain(void) {
 			break;
 	}
 
+}
+
+static void LCD_saveAdv(LCD_Circle_s *circle, HOKUYO_adversary_position *adv) {
+	if(ENVIRONMENT_getColor() == BOT_COLOR) {
+		circle->y = adv->coordX / 10;
+		circle->x = 320 - adv->coordY/10 - 10;
+	} else {
+		circle->y = adv->coordX;
+		circle->x = 320 - adv->coordY/10 - 10;
+	}
+	circle->r = 4;
 }
 
 static CALIBRATION_state_e LCD_calibrate(void) {
