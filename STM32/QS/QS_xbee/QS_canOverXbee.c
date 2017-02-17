@@ -61,11 +61,16 @@
 	}
 
 	void CAN_OVER_XBEE_sendCANMsg(Uint8 nbMsg, CAN_msg_t * msg){
-		comSession_s session;
+		comSession_s * session;
 
-		sendCANMsg_create(&session, COM_SESSION_DEFAULT_TIMEOUT, -1, nbMsg, msg);
+		if(COM_SESSION_MNG_allocateSession(&session) == FALSE){
+			error_printf("Envoi de message CAN impossible, allocation de session impossible\n");
+			return;
+		}
 
-		COM_SESSION_MNG_openSession(&session);
+		sendCANMsg_create(session, COM_SESSION_DEFAULT_TIMEOUT, -1, nbMsg, msg);
+
+		COM_SESSION_MNG_openSession(session);
 	}
 
 #endif
