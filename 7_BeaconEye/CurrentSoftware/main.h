@@ -1,29 +1,13 @@
 /*
- *	Club Robot ESEO 2008 - 2012
- *	Archi'Tech, CHOMP, CheckNorris, Shark & Fish
+ * main.h
  *
- *	Fichier : main.h
- *	Package : Carte Principale
- *	Description : Ordonnancement de la carte Principale
- *	Auteur : Jacen, modifié par Gonsevi
- *	Version 2012/01/14
+ *  Created on: 17 févr. 2017
+ *      Author: guill
  */
+
+#ifndef MAIN_H_
+#define MAIN_H_
 
 #include "QS/QS_all.h"
 
-
-#ifndef MAIN_H
-	#define MAIN_H
-	#include "QS_hokuyo/STM32_USB_HOST_Library/Core/usbh_core.h"
-
-
-
-	//Fonction appelée en boucle par le module USB lorsqu'un périphérique mass storage est connecté.
-	int user_callback_MSC_Application(void);
-	void user_callback_MSC_Application_Deinit(void);
-
-
-	extern USB_OTG_CORE_HANDLE          USB_OTG_Core;
-	extern USBH_HOST                    USB_Host;
-
-#endif /* ndef MAIN_H */
+#endif /* MAIN_H_ */

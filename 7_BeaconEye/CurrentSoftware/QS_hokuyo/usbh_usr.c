@@ -22,7 +22,7 @@
 #include "usbh_usr.h"
 #include "STM32_USB_HOST_Library/Class/CDC/usbh_cdc_core.h"
 #include "STM32_USB_HOST_Library/Class/MSC/usbh_msc_core.h"
-#include "../main.h"
+#include "hokuyo.h"
 
 #define LOG_PREFIX "usbh_usr : "
 #define LOG_COMPONENT OUTPUTLOG_COMPONENT_USBH_USR
@@ -32,9 +32,6 @@
 #define COMMUNICATION_DEVICE_CLASS_CODE		0x02
 #define MASS_STORAGE_CLASS_CODE				0x08
 #define HID_CLASS_CODE						0x03
-
-/* Callback pour la gestion de la deconnexion de l'hokuyo */
-extern void user_callback_DeviceDisconnected(void);
 
 /*  Points to the DEVICE_PROP structure of current device */
 /*  The purpose of this register is to speed up the execution */
@@ -60,8 +57,6 @@ USBH_Usr_cb_TypeDef USR_cb =
 	USBH_USR_UnrecoveredError
 };
 
-extern void user_callback_DeviceDisconnected(void);
-
 /**
 * @brief  USBH_USR_Init 
 *         Displays the message on LCD for host lib initialization
@@ -70,7 +65,7 @@ extern void user_callback_DeviceDisconnected(void);
 */
 void USBH_USR_Init(void) {
   
-	debug_printf("Init\n");
+	trace_printf("Init\n");
 
 	static Uint8 startup = 0;
 
@@ -87,7 +82,7 @@ void USBH_USR_Init(void) {
 * @retval None
 */
 void USBH_USR_DeviceAttached(void) {
-	debug_printf("Device Attached\n");
+	trace_printf("Device Attached\n");
 }
 
 /**
@@ -96,7 +91,7 @@ void USBH_USR_DeviceAttached(void) {
 * @retval None
 */
 void USBH_USR_UnrecoveredError(void) {
-	debug_printf("Unrecovered Error\n");
+	error_printf("Unrecovered Error\n");
 }
 
 /**
@@ -106,8 +101,8 @@ void USBH_USR_UnrecoveredError(void) {
 * @retval Staus
 */
 void USBH_USR_DeviceDisconnected(void) {
-	debug_printf("Device Disconnected\n");
-	user_callback_DeviceDisconnected();
+	trace_printf("Device Disconnected\n");
+	HOKUYO_deviceDisconnected();
 }
 
 /**
@@ -116,7 +111,7 @@ void USBH_USR_DeviceDisconnected(void) {
 * @retval None
 */
 void USBH_USR_ResetDevice(void) {
-	debug_printf("Reset Device\n");
+	trace_printf("Reset Device\n");
 }
 
 /**
@@ -128,13 +123,13 @@ void USBH_USR_ResetDevice(void) {
 void USBH_USR_DeviceSpeedDetected(Uint8 DeviceSpeed) {
 
 	if(DeviceSpeed == HPRT0_PRTSPD_HIGH_SPEED) {
-		debug_printf("High speed device detected\n");
+		trace_printf("High speed device detected\n");
 	} else if(DeviceSpeed == HPRT0_PRTSPD_FULL_SPEED) {
-		debug_printf("Full speed device detected\n");
+		trace_printf("Full speed device detected\n");
 	} else if(DeviceSpeed == HPRT0_PRTSPD_LOW_SPEED) {
-		debug_printf("Low speed device detected\n");
+		trace_printf("Low speed device detected\n");
 	} else {
-		debug_printf("Device fault speed detection\n");
+		trace_printf("Device fault speed detection\n");
 	}
 
 }
@@ -150,8 +145,8 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc) {
 	USBH_DevDesc_TypeDef *hs;
 	hs = DeviceDesc;
   
-	debug_printf("VID : %04lXh\n", (Uint32)(*hs).idVendor);
-	debug_printf("PID : %04lXh\n", (Uint32)(*hs).idProduct);
+	trace_printf("VID : %04lXh\n", (Uint32)(*hs).idVendor);
+	trace_printf("PID : %04lXh\n", (Uint32)(*hs).idProduct);
 
 }
 
@@ -162,7 +157,7 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc) {
 * @retval None
 */
 void USBH_USR_DeviceAddressAssigned(void) {
-	debug_printf("Device Address Assigned\n");
+	trace_printf("Device Address Assigned\n");
 }
 
 /**
@@ -177,11 +172,11 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef *cfgDesc, USBH_In
 	id = itfDesc;
   
 	if((*id).bInterfaceClass  == MASS_STORAGE_CLASS_CODE) {
-		debug_printf("Mass storage device connected\n");
+		trace_printf("Mass storage device connected\n");
 	} else if((*id).bInterfaceClass  == HID_CLASS_CODE) {
-		debug_printf("HID device connected\n");
+		trace_printf("HID device connected\n");
 	} else if((*id).bInterfaceClass  == COMMUNICATION_DEVICE_CLASS_CODE) {
-		debug_printf("CDC device connected\n");
+		trace_printf("CDC device connected\n");
 	}
 
 }
@@ -193,7 +188,7 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef *cfgDesc, USBH_In
 * @retval None
 */
 void USBH_USR_Manufacturer_String(void *ManufacturerString) {
-	debug_printf("Manufacturer : %s\n", (char *)ManufacturerString);
+	trace_printf("Manufacturer : %s\n", (char *)ManufacturerString);
 }
 
 /**
@@ -203,7 +198,7 @@ void USBH_USR_Manufacturer_String(void *ManufacturerString) {
 * @retval None
 */
 void USBH_USR_Product_String(void *ProductString) {
-	debug_printf("Product : %s\n", (char *)ProductString);
+	trace_printf("Product : %s\n", (char *)ProductString);
 }
 
 /**
@@ -213,7 +208,7 @@ void USBH_USR_Product_String(void *ProductString) {
 * @retval None
 */
 void USBH_USR_SerialNum_String(void *SerialNumString) {
-	debug_printf( "Serial Number : %s\n", (char *)SerialNumString);
+	trace_printf( "Serial Number : %s\n", (char *)SerialNumString);
 }
 
 /**
@@ -223,7 +218,7 @@ void USBH_USR_SerialNum_String(void *SerialNumString) {
 * @retval None
 */
 void USBH_USR_EnumerationDone(void) {
-	debug_printf("Enumeration completed\n");
+	trace_printf("Enumeration completed\n");
 }
 
 /**
@@ -233,7 +228,7 @@ void USBH_USR_EnumerationDone(void) {
 * @retval None
 */
 void USBH_USR_DeviceNotSupported(void) {
-	debug_printf("Device not supported\n");
+	trace_printf("Device not supported\n");
 }  
 
 /**
@@ -253,7 +248,7 @@ USBH_USR_Status USBH_USR_UserInput(void) {
 * @retval Staus
 */
 void USBH_USR_OverCurrentDetected (void) {
-	debug_printf("Overcurrent detected\n");
+	error_printf("Overcurrent detected\n");
 }
 
 /**
@@ -263,7 +258,7 @@ void USBH_USR_OverCurrentDetected (void) {
 * @retval Staus
 */
 int USBH_USR_MSC_Application(void) {
-	debug_printf("IN THIS CODE, MSC IS DISABLED, BECAUSE USELESS\n");
+	trace_printf("IN THIS CODE, MSC IS DISABLED, BECAUSE USELESS\n");
 	return 0;
 }
 
@@ -274,5 +269,5 @@ int USBH_USR_MSC_Application(void) {
 * @retval None
 */
 void USBH_USR_DeInit(void) {
-	debug_printf("DeInit\n");
+	trace_printf("DeInit\n");
 }
