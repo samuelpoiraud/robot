@@ -10,6 +10,7 @@
 		void COM_SESSION_MNG_init();
 		void COM_SESSION_MNG_processMain();
 
+		bool_e COM_SESSION_MNG_allocateSession(comSession_s ** session);
 		bool_e COM_SESSION_MNG_openSession(comSession_s * session);
 		void COM_SESSION_MNG_closeSession(comSession_s * session);
 		void COM_SESSION_MNG_connectSession(comMsg_t *msg);
