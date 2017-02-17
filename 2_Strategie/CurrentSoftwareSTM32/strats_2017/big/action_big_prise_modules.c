@@ -1476,3 +1476,260 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 	return IN_PROGRESS;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+error_e sub_act_harry_mae_modules(moduleStockLocation_e storage ){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_MODULES,
+			INIT,
+
+			COMPUTE_ACTION,
+			ELEVATOR_GO_BOTTOM,
+			ACTION_PREPARE_ELEVATOR,
+			CHECK_CONTAINER_IS_AVAILABLE,
+			ELEVATOR_GO_MID_POS,
+			PREPARE_SLOPE_FOR_ELEVATOR,
+			ELEVATOR_GO_TOP_POS,
+			STOCK_MODULE_IN_CONTAINER,
+
+			ERROR_DISABLE_ACT,
+			ERROR,
+			DONE
+		);
+
+
+	static enum state_e stateRight = INIT, stateLeft = INIT;
+	static error_e stateAct = IN_PROGRESS;
+
+	if(storage == MODULE_STOCK_RIGHT){
+		state = stateRight;
+	}else if(storage == MODULE_STOCK_LEFT){
+		state = stateLeft;
+	}else{
+		error_printf("sub_act_harry_mae_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
+		return NOT_HANDLED;
+	}
+
+
+	switch(state){
+		case INIT:
+			if(STOCKS_isFull(storage)){
+				state = DONE;	// Il n'y a rien à faire
+			}else{
+				state = COMPUTE_ACTION; // Stockage possible
+			}
+			break;
+
+		case COMPUTE_ACTION:
+			if((storage == MODULE_STOCK_RIGHT && ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT))
+			|| (storage == MODULE_STOCK_LEFT && ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_LEFT))){
+				state = ERROR;
+			}else if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, storage) && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT, storage)){  // L'élévateur n'est pas vide et le stockage est possible
+				state = PREPARE_SLOPE_FOR_ELEVATOR; // On cherche a stocker le module déjà présent dans l'élévateur
+			}else if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, storage) && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, storage)){ // Il y a un module en bas et l'élévateur est vide
+				state = ELEVATOR_GO_BOTTOM; // On cherche a stocker le module qui est en bas
+			}else{ // les stocks sont plein ou il n'y a plus rien à faire
+				state = DONE;
+			}
+			break;
+
+
+		case ELEVATOR_GO_BOTTOM:
+			if(entrance){
+				// On descend l'élévateur
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
+				}else{
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_PREPARE_ELEVATOR, ERROR_DISABLE_ACT);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_PREPARE_ELEVATOR, ERROR_DISABLE_ACT);
+			}
+			break;
+
+		case ACTION_PREPARE_ELEVATOR:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+
+					// Si c'est possible, on prépare la SLOPE pour un futur stockage
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT)){
+						ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
+					}
+				}else{
+					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+
+					// Si c'est possible, on prépare la SLOPE pour un futur stockage
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT)){
+						ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
+					}
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_slope_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}else{
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_slope_left, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}
+
+			if((storage == MODULE_STOCK_RIGHT && stateAct == END_OK && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT))
+			|| (storage == MODULE_STOCK_LEFT && stateAct == END_OK && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT))
+			|| (storage == MODULE_STOCK_RIGHT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT))
+			|| (storage == MODULE_STOCK_LEFT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT))){
+				state = CHECK_CONTAINER_IS_AVAILABLE;
+			}else{
+				state = ERROR_DISABLE_ACT;
+				if(storage == MODULE_STOCK_RIGHT){
+					ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
+				}else{
+					ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
+				}
+			}
+
+			// Mise à jour des données
+			STOCK_makeModuleProgressTo(STOCK_PLACE_ELEVATOR, storage);
+			break;
+
+		case CHECK_CONTAINER_IS_AVAILABLE:
+			if((storage == MODULE_STOCK_RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT))
+			|| (storage == MODULE_STOCK_LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT)) ){
+				state = ELEVATOR_GO_TOP_POS;
+			}else{
+				state = ELEVATOR_GO_MID_POS;
+			}
+			break;
+
+		case ELEVATOR_GO_MID_POS:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
+				}else{
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER);
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, COMPUTE_ACTION, ERROR_DISABLE_ACT);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, COMPUTE_ACTION, ERROR_DISABLE_ACT);
+			}
+			break;
+
+		case PREPARE_SLOPE_FOR_ELEVATOR:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
+				}else{
+					ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, state, ELEVATOR_GO_TOP_POS, ERROR_DISABLE_ACT);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_left, state, ELEVATOR_GO_TOP_POS, ERROR_DISABLE_ACT);
+			}
+			break;
+
+		case ELEVATOR_GO_TOP_POS:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_TOP);
+				}else{
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_TOP);
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, STOCK_MODULE_IN_CONTAINER, ERROR_DISABLE_ACT);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, STOCK_MODULE_IN_CONTAINER, ERROR_DISABLE_ACT);
+			}
+			break;
+
+		case STOCK_MODULE_IN_CONTAINER:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
+					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_LOCK);
+				}else{
+					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
+					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_LOCK);
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_slope_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}else{
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_slope_left, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}
+
+			if(stateAct == END_OK){
+				state = COMPUTE_ACTION;
+
+				// Mise à jour des données
+				STOCK_makeModuleProgressTo(STOCK_PLACE_CONTAINER, storage);
+			}else{
+				state = ERROR_DISABLE_ACT;
+			}
+			break;
+
+		case ERROR_DISABLE_ACT:
+			if(storage == MODULE_STOCK_RIGHT){
+				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
+			}else{
+				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
+			}
+			state = ERROR; // On ne peut plus rien faire
+			break;
+
+		case DONE:
+			if(entrance){
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);
+			}
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_act_harry_mae_modules\n");
+			break;
+	}
+
+	if(storage == MODULE_STOCK_RIGHT){
+		stateRight = state;
+	}else if(storage == MODULE_STOCK_LEFT){
+		state = stateLeft = state;
+	} // else L'erreur a déjà été affichée
+
+	return IN_PROGRESS;
+}
+
