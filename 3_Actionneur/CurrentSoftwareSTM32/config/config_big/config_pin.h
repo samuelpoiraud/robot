@@ -360,10 +360,6 @@
 // L'id doit être inférieur à 50
 
 #define ORE_GUN_RX24_ID						  4
-#define ORE_SHOVEL_RX24_ID					  5
-#define ORE_CATCH_AX12_ID					  6
-#define ORE_MIXER_AX12_ID					  7
-#define ORE_SWEEPER_AX12_ID					  8
 #define BIG_BALL_BACK_LEFT_AX12_ID            9
 #define BIG_BALL_BACK_RIGHT_AX12_ID           10
 #define BIG_BALL_FRONT_LEFT_AX12_ID           11
@@ -386,6 +382,7 @@
 #define ORE_WALL_RX24_ID					  28
 #define ORE_ROLLER_ARM_LEFT_RX24_ID           29
 #define ORE_ROLLER_ARM_RIGHT_RX24_ID          30
+#define ROCKET_AX12_ID					  31
 
 
 

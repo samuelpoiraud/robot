@@ -309,10 +309,6 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 		// Harry
 		   //case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagnetic";		break;
 		   case ACT_ORE_GUN & 0xFF:					originalSidStr = "OreGun";				break;
-		   case ACT_ORE_SHOVEL & 0xFF:				originalSidStr = "OreShovel";			break;
-		   case ACT_ORE_CATCH & 0xFF:				originalSidStr = "OreCatch";			break;
-		   case ACT_ORE_MIXER & 0xFF:				originalSidStr = "OreMixer";			break;
-		   case ACT_ORE_SWEEPER & 0xFF:				originalSidStr = "OreSweeper";			break;
            case ACT_BIG_BALL_BACK_LEFT & 0xFF:      originalSidStr = "BigBallBackLeft";     break;
            case ACT_BIG_BALL_BACK_RIGHT & 0xFF:     originalSidStr = "BigBallBackRight";    break;
            case ACT_BIG_BALL_FRONT_LEFT & 0xFF:     originalSidStr = "BigBallFrontLeft";    break;
@@ -334,6 +330,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
            case ACT_CYLINDER_TURN_RIGHT_ARM & 0xFF: originalSidStr = "CylinderTurnRightArm";break;
            case ACT_ORE_WALL & 0xFF:				originalSidStr = "OreWall";				break;
            case ACT_ORE_ROLLER_ARM & 0xFF:			originalSidStr = "OreRollerArm";        break;
+           case ACT_ROCKET & 0xFF:                  originalSidStr = "Rocket";              break;
 
 
 
