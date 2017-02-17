@@ -6,9 +6,11 @@
 #include "low layer/touch.h"
 #include "../QS/QS_outputlog.h"
 #include "low layer/fonts.h"
+#include "../QS_hokuyo/hokuyo.h"
+#include "../QS_hokuyo/hokuyo_config.h"
 
 #define REFRESH_TIME	(100) // Temps en ms entre chaque affichage des positions hokuyo
-#define NB_MAX_CIRCLE	(50)
+#define NB_MAX_CIRCLE	(HOKUYO_MAX_FOES)
 #define CIRCLE_COLOR	(SSD2119_COLOR_RED)
 #define CROSS_MARGIN	(20)
 
@@ -89,6 +91,14 @@ void LCD_processMain(void) {
 				}
 
 				// On récupère les positions hokuyo
+				hokuyoPosition.size = HOKUYO_getAdversariesNumber();
+				for(i = 0; i < hokuyoPosition.size; i++) {
+					HOKUYO_adversary_position *adv = HOKUYO_getAdversaryPosition(i);
+					hokuyoPosition.data[i].x = adv->coordX / 10;
+					hokuyoPosition.data[i].y = adv->coordY / 10;
+					hokuyoPosition.data[i].r = 4;
+				}
+
 
 				// On affiche les nouvelles positions
 				for(i = 0; i < hokuyoPosition.size; i++) {

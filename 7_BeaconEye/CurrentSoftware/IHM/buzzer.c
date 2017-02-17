@@ -35,10 +35,8 @@ void BUZZER_processIt(Uint8 ms) {
 //exemple d'utilisation pour 5 bips de 50ms : BUZZER_play(50, NOTE_DO, 5);
 
 //Demander un buzz pour une durée donnée en ms
-void BUZZER_play_fct_dont_use(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz, const char* fonction, Uint16 ligne)
+void BUZZER_play(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz)
 {
-	debug_printf("request fct:%s line:%d\n", fonction, ligne);
-
 	buzz_duration = duration_ms;
 	nb_buzz_remaining = nb_buzz;
 	if(current_note != note)

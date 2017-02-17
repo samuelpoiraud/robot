@@ -9,11 +9,10 @@
  *  Puis le teste de la présence ou non d'un robot dans ces zones avec les informations à retourner en fonction des zones
  */
 #include "zone.h"
-#include "QS_hokuyo/QS_hokuyo.h"
+#include "QS_hokuyo/hokuyo.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_outputlog.h"
 #include "Secretary.h"
-#include "calculator.h"
 
 
 	static volatile time32_t absolute_time = 0;

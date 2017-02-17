@@ -28,7 +28,7 @@
 #include "LCD/low layer/ssd2119.h"
 #include "IHM/buzzer.h"
 #include "LCD/lcd.h"
-#include "QS_hokuyo/QS_hokuyo.h"
+#include "QS_hokuyo/hokuyo.h"
 #include "IHM/terminal.h"
 #include "IHM/led.h"
 
@@ -71,7 +71,9 @@ static void initialisation(void) {
 		HOKUYO_init();
 	#endif
 
+
 	BUZZER_play(50, NOTE_SOL, 2);
+
 }
 
 static void processMain(void) {

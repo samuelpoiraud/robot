@@ -36,14 +36,10 @@
 void BUZZER_processIt(Uint8 ms);
 
 
-//Demander un buzz pour une durée donnée en ms
-#define BUZZER_play(duration_ms, note, nb_buzz) \
-	BUZZER_play_fct_dont_use(duration_ms, note, nb_buzz, __FUNCTION__, __LINE__)
-
-// Appelle via macro afin d'avoir une tracabilité
-void BUZZER_play_fct_dont_use(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz, const char* fonction, Uint16 ligne);
+void BUZZER_play(time32_t duration_ms, BUZZER_note_e note, Uint8 nb_buzz);
 
 void BUZZER_processMain(void);
 
 BUZZER_note_e BUZZER_convert_enum_QS(buzzer_play_note_e val);
+
 #endif /* ndef BUZZER_H */
