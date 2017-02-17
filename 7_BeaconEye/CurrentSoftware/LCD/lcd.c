@@ -100,6 +100,10 @@ void LCD_processMain(void) {
 					LCD_saveAdv(&hokuyoPosition.data[i], adv);
 				}
 
+				if(HOKUYO_getAdversariesNumber() > 0) {
+					TERMINAL_printf("Nb adv : %2d   (%d ms)", HOKUYO_getAdversariesNumber(), HOKUYO_getLastMeasureDuration());
+				}
+
 				// On affiche les nouvelles positions
 				for(i = 0; i < hokuyoPosition.size; i++) {
 					VIEW_drawCircle(hokuyoPosition.data[i].x, hokuyoPosition.data[i].y, hokuyoPosition.data[i].r, FALSE, CIRCLE_COLOR, &terrain);

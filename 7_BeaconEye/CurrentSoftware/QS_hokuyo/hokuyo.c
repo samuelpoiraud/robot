@@ -65,6 +65,12 @@ volatile bool_e flag_device_disconnected = FALSE;
 /* Temps en [ms] depuis le dernier envoi des adversaires */
 volatile Uint16 time_since_last_sent_adversaries_datas = 0;
 
+/* Nombre de déconnexion de l'hokuyo depuis le lancement de la carte */
+static Uint16 nb_hokuyo_disconnection = 0;
+
+/* Temps en [ms] de la dernière mesure */
+static time32_t duration_last_measure = 0;
+
 //---------------------------------------------------
 
 
@@ -131,6 +137,8 @@ void HOKUYO_processMain(void) {
 	static state_e state = INIT, last_state = INIT;
 	bool_e entrance;
 	static time32_t buffer_read_time_begin = 0;
+	static time32_t ask_measure_time_begin = 0;
+	static bool_e isFirst = TRUE;
 
 	if((state == INIT && last_state == INIT) || state != last_state) {
 		entrance = TRUE;
@@ -165,6 +173,18 @@ void HOKUYO_processMain(void) {
 		break;
 
 		case ASK_NEW_MEASUREMENT:
+			if(entrance) {
+				if(!isFirst) {
+					duration_last_measure = global.absolute_time - ask_measure_time_begin;
+				} else {
+					isFirst = FALSE;
+				}
+
+				ask_measure_time_begin = global.absolute_time;
+
+			}
+
+			/* On s'assure que le buffer de réception est vide avant de lancer une mesure */
 			HOKUYO_readBuffer();
 
 			if(VCP_isRxEmpty()) {
@@ -262,11 +282,6 @@ void HOKUYO_processMain(void) {
 			HOKUYO_refreshAdversaries();
 #endif
 
-			//terminal_debug("Nb Adversaires : %d sur %d", HOKUYO_getAdversariesNumber(), HOKUYO_getNbValidPoints());
-			if(HOKUYO_getAdversariesNumber() != 0) {
-				terminal_debug("Nb Adversaires : %d sur %d", HOKUYO_getAdversariesNumber(), HOKUYO_getNbValidPoints());
-			}
-
 			state=ASK_NEW_MEASUREMENT;
 			break;
 
@@ -341,8 +356,17 @@ HOKUYO_adversary_position* HOKUYO_getAdversaryPosition(Uint8 i) {
 	return &hokuyo_adversaries[i];
 }
 
+Uint16 HOKUYO_getNbHokuyoDisconnection(void) {
+	return nb_hokuyo_disconnection;
+}
+
+time32_t HOKUYO_getLastMeasureDuration(void) {
+	return duration_last_measure;
+}
+
 void HOKUYO_deviceDisconnected(void) {
 	flag_device_disconnected = TRUE;
+	nb_hokuyo_disconnection++;
 }
 
 #ifndef I_AM_CARTE_BEACON_EYE
