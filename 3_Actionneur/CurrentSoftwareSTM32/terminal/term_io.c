@@ -12,14 +12,6 @@
 #ifdef I_AM_ROBOT_BIG
 	#include "../Harry/ore/ore_gun/ore_gun.h"
 	#include "../Harry/ore/ore_gun/ore_gun_config.h"
-	#include "../Harry/ore/ore_shovel/ore_shovel.h"
-	#include "../Harry/ore/ore_shovel/ore_shovel_config.h"
-	#include "../Harry/ore/ore_catch/ore_catch.h"
-	#include "../Harry/ore/ore_catch/ore_catch_config.h"
-	#include "../Harry/ore/ore_mixer/ore_mixer.h"
-	#include "../Harry/ore/ore_mixer/ore_mixer_config.h"
-	#include "../Harry/ore/ore_sweeper/ore_sweeper.h"
-	#include "../Harry/ore/ore_sweeper/ore_sweeper_config.h"
     #include "../Harry/big_bearing_ball/big_ball_back_left/big_ball_back_left.h"
     #include "../Harry/big_bearing_ball/big_ball_back_left/big_ball_back_left_config.h"
     #include "../Harry/big_bearing_ball/big_ball_back_right/big_ball_back_right.h"
@@ -60,8 +52,8 @@
     #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm_config.h"
     #include "../Harry/ore/ore_wall/ore_wall.h"
     #include "../Harry/ore/ore_wall/ore_wall_config.h"
-    //#include "../Harry/ore/ore_roller_arm/ore_roller_arm.h"
-    //#include "../Harry/ore/ore_roller_arm/ore_roller_arm_config.h"
+    #include "../Harry/rocket/rocket.h"
+    #include "../Harry/rocket/rocket_config.h"
 
 
 #else
@@ -111,33 +103,28 @@ typedef struct{
 
 terminal_motor_s terminal_motor[] = {
 	#ifdef I_AM_ROBOT_BIG
-		DECLARE_RX24(2, 'O', ORE_GUN_RX24),
-		DECLARE_RX24(2, 'O', ORE_SHOVEL_RX24),
-		DECLARE_AX12(2, 'O', ORE_CATCH_AX12),
-		DECLARE_AX12(2, 'O', ORE_MIXER_AX12),
-		DECLARE_AX12(2, 'O', ORE_SWEEPER_AX12),
-        DECLARE_AX12(2, 'O', BIG_BALL_FRONT_LEFT_AX12),
-        DECLARE_AX12(2, 'O', BIG_BALL_FRONT_RIGHT_AX12),
-        DECLARE_AX12(2, 'O', BIG_BALL_BACK_LEFT_AX12),
-        DECLARE_AX12(2, 'O', BIG_BALL_BACK_RIGHT_AX12),
-		DECLARE_AX12(2, 'O', CYLINDER_HATCH_LEFT_AX12),
-		DECLARE_AX12(2, 'O', CYLINDER_HATCH_RIGHT_AX12),
-		DECLARE_AX12(2, 'O', CYLINDER_SLOPE_LEFT_AX12),
-		DECLARE_AX12(2, 'O', CYLINDER_SLOPE_RIGHT_AX12),
-		DECLARE_AX12(2, 'O', CYLINDER_DISPENSER_LEFT_AX12),
-		DECLARE_AX12(2, 'O', CYLINDER_DISPENSER_RIGHT_AX12),
-        DECLARE_AX12(2, 'O', BEARING_BALL_WHEEL_AX12),
-        DECLARE_AX12(2, 'O', CYLINDER_PUSHER_LEFT_AX12),
-        DECLARE_AX12(2, 'O', CYLINDER_PUSHER_RIGHT_AX12),
+        DECLARE_RX24(2, 'A', ORE_GUN_RX24),
+        DECLARE_AX12(2, 'B', BIG_BALL_FRONT_LEFT_AX12),
+        DECLARE_AX12(2, 'C', BIG_BALL_FRONT_RIGHT_AX12),
+        DECLARE_AX12(2, 'D', BIG_BALL_BACK_LEFT_AX12),
+        DECLARE_AX12(2, 'E', BIG_BALL_BACK_RIGHT_AX12),
+        DECLARE_AX12(2, 'F', CYLINDER_HATCH_LEFT_AX12),
+        DECLARE_AX12(2, 'G', CYLINDER_HATCH_RIGHT_AX12),
+        DECLARE_AX12(2, 'H', CYLINDER_SLOPE_LEFT_AX12),
+        DECLARE_AX12(2, 'I', CYLINDER_SLOPE_RIGHT_AX12),
+        DECLARE_AX12(2, 'J', CYLINDER_DISPENSER_LEFT_AX12),
+        DECLARE_AX12(2, 'K', CYLINDER_DISPENSER_RIGHT_AX12),
+        DECLARE_AX12(2, 'L', BEARING_BALL_WHEEL_AX12),
+        DECLARE_AX12(2, 'M', CYLINDER_PUSHER_LEFT_AX12),
+        DECLARE_AX12(2, 'N', CYLINDER_PUSHER_RIGHT_AX12),
         DECLARE_RX24(2, 'O', CYLINDER_ELEVATOR_LEFT_RX24),
-        DECLARE_RX24(2, 'O', CYLINDER_ELEVATOR_RIGHT_RX24),
-        DECLARE_RX24(2, 'O', CYLINDER_SLIDER_LEFT_RX24),
-        DECLARE_RX24(2, 'O', CYLINDER_SLIDER_RIGHT_RX24),
-        DECLARE_RX24(2, 'O', CYLINDER_TURN_LEFT_ARM_RX24),
-        DECLARE_RX24(2, 'O', CYLINDER_TURN_RIGHT_ARM_RX24),
-        DECLARE_RX24(2, 'O', ORE_WALL_RX24),
-       // DECLARE_RX24(2, 'O', ORE_ROLLER_ARM_LEFT_RX24),
-       // DECLARE_RX24(2, 'O', ORE_ROLLER_ARM_RIGHT_RX24),
+        DECLARE_RX24(2, 'P', CYLINDER_ELEVATOR_RIGHT_RX24),
+        DECLARE_RX24(2, 'Q', CYLINDER_SLIDER_LEFT_RX24),
+        DECLARE_RX24(2, 'R', CYLINDER_SLIDER_RIGHT_RX24),
+        DECLARE_RX24(2, 'S', CYLINDER_TURN_LEFT_ARM_RX24),
+        DECLARE_RX24(2, 'T', CYLINDER_TURN_RIGHT_ARM_RX24),
+        DECLARE_RX24(2, 'U', ORE_WALL_RX24),
+        DECLARE_AX12(2, 'V', ROCKET_AX12),
 
 
 

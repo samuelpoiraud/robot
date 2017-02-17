@@ -18,10 +18,6 @@
 #ifdef I_AM_ROBOT_BIG
 	#include "QS/QS_mosfet.h"
 	#include "Harry/ore/ore_gun/ore_gun.h"
-	#include "Harry/ore/ore_shovel/ore_shovel.h"
-	#include "Harry/ore/ore_catch/ore_catch.h"
-	#include "Harry/ore/ore_mixer/ore_mixer.h"
-	#include "Harry/ore/ore_sweeper/ore_sweeper.h"
     #include "Harry/big_bearing_ball/big_ball_back_left/big_ball_back_left.h"
     #include "Harry/big_bearing_ball/big_ball_back_right/big_ball_back_right.h"
     #include "Harry/big_bearing_ball/big_ball_front_left/big_ball_front_left.h"
@@ -43,6 +39,8 @@
     #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
 	#include "Harry/ore/ore_wall/ore_wall.h"
     #include "Harry/ore/ore_roller_arm/ore_roller_arm.h"
+    #include "Harry/rocket/rocket.h"
+
 
 
 
@@ -71,9 +69,6 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(MOSFET), //QS_mosfets
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
 		ACT_DECLARE(ORE_GUN),
-		ACT_DECLARE(ORE_SHOVEL),
-		ACT_DECLARE(ORE_CATCH),
-		ACT_DECLARE(ORE_SWEEPER),
         ACT_DECLARE(BIG_BALL_BACK_LEFT),
         ACT_DECLARE(BIG_BALL_BACK_RIGHT),
         ACT_DECLARE(BIG_BALL_FRONT_LEFT),
@@ -95,6 +90,7 @@ static ACTQ_functions_t actionneurs[] = {
         ACT_DECLARE(CYLINDER_TURN_RIGHT_ARM),
 		ACT_DECLARE(ORE_WALL),
         ACT_DECLARE(ORE_ROLLER_ARM),
+        ACT_DECLARE(ROCKET),
 
 	#else  //Small Robot
 		//ACT_DECLARE(LEFT_ARM),
