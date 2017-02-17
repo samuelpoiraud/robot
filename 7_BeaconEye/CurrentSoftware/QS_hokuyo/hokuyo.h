@@ -10,19 +10,32 @@
 
 #include "../QS/QS_all.h"
 
-typedef struct{
+typedef struct {
 	Sint32 dist;
 	Sint16 teta;
 	Sint32 coordX;
 	Sint32 coordY;
-}HOKUYO_adversary_position;
+} HOKUYO_adversary_position;
 
-typedef struct{
+typedef struct {
 	Sint16 power_intensity;
 	Sint16 teta;
 	Sint32 coordX;
 	Sint32 coordY;
-}HOKUYO_point_position;
+} HOKUYO_point_position;
+
+typedef enum {
+	HOKUYO_MSG_IS_ALIVE = 0,
+	HOKUYO_MSG_ERROR
+} HOKUYO_observerMessageType_e;
+
+typedef struct {
+	HOKUYO_observerMessageType_e;
+
+	union {
+
+	};
+} HOKUYO_observerMessage_t;
 
 /**
  * @brief Initialisation de l'hokuyo et de l'USB
@@ -68,6 +81,18 @@ Uint16 HOKUYO_getNbValidPoints(void);
  * @retval La position de l'adversaire choisi
  */
 HOKUYO_adversary_position* HOKUYO_getAdversaryPosition(Uint8 i);
+
+/**
+ * @brief Obtenir le nombre de déconnexion de l'hokuyo
+ * @retval Le nombre de déconnexion de l'hokuyo depuis l'allumage de la carte
+ */
+Uint16 HOKUYO_getNbHokuyoDisconnection(void);
+
+/**
+ * @brief Obtenir la durée de la dernière mesure
+ * @retval La durée de la dernière mesure
+ */
+time32_t HOKUYO_getLastMeasureDuration(void);
 
 /**
  * @brief Permet de prévenir le module Hokuyo que le périphérique est déconnecté
