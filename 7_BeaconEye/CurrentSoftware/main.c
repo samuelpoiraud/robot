@@ -31,8 +31,8 @@
 #include "QS_hokuyo/hokuyo.h"
 #include "IHM/terminal.h"
 #include "IHM/led.h"
-
-
+#include "IHM/MusicPlayer/musicPlayer.h"
+#include "IHM/MusicPlayer/song/songs.h"
 
 static void initialisation(void);
 static void processMain(void);
@@ -67,16 +67,26 @@ static void initialisation(void) {
 	UART_init();
 	IT_init();
 	MIDDLEWARE_init();
+	MUSIC_PLAYER_init();
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
 	#endif
 
+	MUSIC_PLAYER_addSongToPlaylist(missionImpossible);
+	MUSIC_PLAYER_addSongToPlaylist(flinstones);
+	MUSIC_PLAYER_addSongToPlaylist(imperialMarch);
+	MUSIC_PLAYER_addSongToPlaylist(letItGo);
 
-	BUZZER_play(50, NOTE_SOL, 2);
+
+	MUSIC_PLAYER_play();
+
+	//BUZZER_play(50, NOTE_SOL, 2);
 
 }
 
 static void processMain(void) {
+
+	MUSIC_PLAYER_processMain();
 	LCD_processMain();
 	ENVIRONMENT_processMain();
 #ifdef USE_HOKUYO
