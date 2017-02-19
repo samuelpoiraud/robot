@@ -60,7 +60,7 @@
 
 // Les fonctions internes au fonctionnement de l'actionneur
 static void MOTOR_TEST_config(CAN_msg_t* msg);
-static void MOTOR_TEST_sensorRPM();
+static DC_MOTOR_SPEED_speed MOTOR_TEST_sensorRPM();
 
 static volatile RPM_SENSOR_id_t id = 0xFF;
 
@@ -79,30 +79,32 @@ void MOTOR_TEST_init() {
 
 	DC_MOTOR_SPEED_config_t config;
 	config.activateRecovery = TRUE;
+	config.speedRecovery = - 25;
+	config.timeRecovery = 1500;
 	config.Kd = 0;
 	config.Ki = 0;
-	config.Kp = 10;
+	config.Kp = 50;
 	config.Kv = 256;
-	config.epsilon = 10;
-	config.inverse_way = FALSE;
+	config.epsilon = 8;
 	config.max_duty = 100;
 	config.pwm_number = 1;
 	config.sensorRead = &MOTOR_TEST_sensorRPM;
-	config.timeout = 1000;
+	config.simulateWay = TRUE;
+	config.timeout = 500;
 	config.way_bit_number = 8;
 	config.way_latch = GPIOA;
 
 	DC_MOTOR_SPEED_config(0, &config);
 }
 
-static void MOTOR_TEST_sensorRPM(){
-	RPM_SENSOR_getSpeed(id);
+static DC_MOTOR_SPEED_speed MOTOR_TEST_sensorRPM(){
+	return RPM_SENSOR_getSpeed(id);
 }
 
 // Fonction appellée si la carte IHM a détecté une grosse chutte de la tension d'alimentation des servos
 // Pour éviter les problèmes d'utilisation de servo non initialisé
 void MOTOR_TEST_reset_config(){
-	DC_MOTOR_SPEED_setSpeed(0, 100);
+	DC_MOTOR_SPEED_setSpeed(0, 120);
 }
 
 // Fonction appellée pour la modification des configurations de l'ax12 telle que la vitesse et le couple (via ActManager)
@@ -120,7 +122,7 @@ void MOTOR_TEST_config(CAN_msg_t* msg){
 
 // Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
 void MOTOR_TEST_init_pos(){
-	DC_MOTOR_SPEED_setSpeed(0, 100);
+	DC_MOTOR_SPEED_setSpeed(0, 120);
 
 }
 
@@ -141,6 +143,6 @@ void MOTOR_TEST_run_command(queue_id_t queueId, bool_e init) {
 }
 
 void MOTOR_TEST_test(){
-
+	display(RPM_SENSOR_getSpeed(id));
 }
 #endif

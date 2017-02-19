@@ -47,6 +47,9 @@
 		DC_MOTOR_SPEED_speed lastSpeed;				// dernière vitesse
 		DC_MOTOR_SPEED_speed wantedSpeed;			// consigne de vitesse
 		DC_MOTOR_SPEED_speed previousError;			// valeur de l'erreur à l'appel précédent du PID, pour calcul du terme derivé
+		time32_t timeInError;						// Temps du début de l'erreur
+
+		time32_t timeBeginRecovery;					// Temps du début du mode recovery
 	}DC_MOTOR_SPEED_t;
 
 	static DC_MOTOR_SPEED_t dcMotorSpeed[DC_MOTOR_SPEED_NUMBER];
@@ -90,6 +93,8 @@
 		thiss->lastSpeed = 0;
 		thiss->wantedSpeed = 0;
 		thiss->previousError = 0;
+		thiss->timeInError = 0;
+		thiss->timeBeginRecovery = 0;
 
 		thiss->configState=DC_MOTOR_SPEED_CONFIG_INITIALIZED;
 	}
@@ -110,25 +115,18 @@
 	{
 		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
 		assert(dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
-		if(value ^ thiss->inverse_way)
-			GPIO_SetBits(thiss->way_latch, thiss->way_bit_number);
+		if(value)
+			GPIO_SetBits(thiss->way_latch, 1 << thiss->way_bit_number);
 		else
-			GPIO_ResetBits(thiss->way_latch, thiss->way_bit_number);
+			GPIO_ResetBits(thiss->way_latch, 1 << thiss->way_bit_number);
 	}
 
 	static Uint8 DC_MOTOR_SPEED_getWay(DC_MOTOR_SPEED_id id)
 	{
 		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
 		assert(dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
-		return GPIO_ReadInputDataBit(thiss->way_latch, thiss->way_bit_number);
+		return GPIO_ReadOutputDataBit(thiss->way_latch, thiss->way_bit_number);
 	}
-
-	void DC_MOTOR_SPEED_setInverseWay(DC_MOTOR_SPEED_id id, bool_e inverse){
-		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
-		assert((dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
-		thiss->inverse_way = inverse;
-	}
-
 
 	/*-----------------------------------------
 			Ordre de déplacement
@@ -258,7 +256,7 @@
 		Sint32 differential;
 		Sint32 computed_cmd;
 		Sint32 error;
-		DC_MOTOR_SPEED_speed speed;
+		DC_MOTOR_SPEED_speed speed, wantedSpeed;
 
 		for (id=0; id<DC_MOTOR_SPEED_NUMBER; id++)
 		{
@@ -268,9 +266,26 @@
 			if (thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED)
 			{
 
+				// Simulation du sens de rotation du moteur
+				if(config->simulateWay){
+					if(DC_MOTOR_SPEED_getWay(id)){
+						speed = -(config->sensorRead)();
+					}else{
+						speed = (config->sensorRead)();
+					}
+				}else{
+					speed = (config->sensorRead)();
+				}
+
 				// Acquisition de la position pour la détection de l'arrêt du moteur
-				speed = (config->sensorRead)();
-				error = thiss->wantedSpeed - speed;
+				if(thiss->state == DC_MOTOR_SPEED_INIT_RECOVERY || thiss->state == DC_MOTOR_SPEED_LAUNCH_RECOVERY || thiss->state == DC_MOTOR_SPEED_RUN_RECOVERY){
+					wantedSpeed = config->speedRecovery;
+				}else{
+					wantedSpeed = thiss->wantedSpeed;
+				}
+
+				error = wantedSpeed - speed;
+
 				thiss->time += DC_MOTOR_SPEED_TIME_PERIOD;
 
 				//Gestion des changements d'états
@@ -281,6 +296,8 @@
 
 					case DC_MOTOR_SPEED_INIT_LAUNCH:
 						thiss->time = 0;
+						thiss->timeInError = 0;
+						thiss->timeBeginRecovery = 0;
 						thiss->state = DC_MOTOR_SPEED_LAUNCH;
 						thiss->timeWaitingLimitPwm = TIME_OF_MOTOR_STEPPING;
 						break;
@@ -290,27 +307,46 @@
 							thiss->state = DC_MOTOR_SPEED_RUN;
 						else if(config->timeout && thiss->time >= config->timeout){
 							if(config->activateRecovery)
-								thiss->state = DC_MOTOR_SPEED_LAUNCH_RECOVERY;
+								thiss->state = DC_MOTOR_SPEED_INIT_RECOVERY;
 							else
 								thiss->state = DC_MOTOR_SPEED_ERROR;
 						}
 						break;
 
 					case DC_MOTOR_SPEED_RUN:
-						if(absolute(error) < (Sint16)config->epsilon && absolute(thiss->previousError) < (Sint16)config->epsilon)
-							thiss->state = DC_MOTOR_SPEED_RUN;
+						if(absolute(error) > (Sint16)config->epsilon){
+							if(thiss->timeInError == 0)
+								thiss->timeInError = global.absolute_time;
+							else if(global.absolute_time - thiss->timeInError > config->timeout){
+								if(config->activateRecovery)
+									thiss->state = DC_MOTOR_SPEED_LAUNCH_RECOVERY;
+								else
+									thiss->state = DC_MOTOR_SPEED_ERROR;
+							}
+						}else{
+							thiss->timeInError = 0;
+						}
+
 						break;
 
 					case DC_MOTOR_SPEED_INIT_RECOVERY:
 						thiss->time = 0;
+						thiss->timeInError = 0;
+						thiss->timeBeginRecovery = global.absolute_time;
 						thiss->state = DC_MOTOR_SPEED_LAUNCH_RECOVERY;
 						thiss->timeWaitingLimitPwm = TIME_OF_MOTOR_STEPPING;
 						break;
 
 					case DC_MOTOR_SPEED_LAUNCH_RECOVERY:
+						if(absolute(error) < (Sint16)config->epsilon && absolute(thiss->previousError) < (Sint16)config->epsilon)
+							thiss->state = DC_MOTOR_SPEED_RUN_RECOVERY;
+						else if(global.absolute_time - thiss->timeBeginRecovery > config->timeRecovery)
+							thiss->state = DC_MOTOR_SPEED_INIT_LAUNCH;
 						break;
 
 					case DC_MOTOR_SPEED_RUN_RECOVERY:
+						if(global.absolute_time - thiss->timeBeginRecovery > config->timeRecovery)
+							thiss->state = DC_MOTOR_SPEED_INIT_LAUNCH;
 						break;
 
 					case DC_MOTOR_SPEED_ERROR:
@@ -335,8 +371,7 @@
 					case DC_MOTOR_SPEED_RUN_RECOVERY:
 
 						/* Integration si on n'est pas en saturation de commande (permet de désaturer plus vite) */
-						if(thiss->currentPwm != config->max_duty)
-						{
+						if(thiss->currentPwm != config->max_duty){
 							thiss->integrator += error; //la multiplication par la période se fait après pour éviter que l'incrément soit nul
 						}
 
@@ -348,13 +383,15 @@
 						computed_cmd = 	(config->Kp * error / 1024)
 									+ ((config->Ki * thiss->integrator * DC_MOTOR_SPEED_TIME_PERIOD) >> 20)
 									+ (((config->Kd * differential) / DC_MOTOR_SPEED_TIME_PERIOD) >> 10)
-									+ ((config->Kv * speed)/1024);
+									+ ((config->Kv * wantedSpeed)/1024);
 
 						// Sens et saturation
 						if (computed_cmd > 0)
-							DC_MOTOR_SPEED_setWay(id, 1);
-						else
 							DC_MOTOR_SPEED_setWay(id, 0);
+						else
+							DC_MOTOR_SPEED_setWay(id, 1);
+
+						computed_cmd = absolute(computed_cmd);
 
 						if (computed_cmd > config->max_duty)
 							thiss->currentPwm = config->max_duty;
