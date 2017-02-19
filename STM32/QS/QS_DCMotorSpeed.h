@@ -29,7 +29,7 @@
 	#ifdef USE_DC_MOTOR_SPEED
 
 		typedef Uint8 DC_MOTOR_SPEED_id;
-		typedef Uint16 DC_MOTOR_SPEED_speed;	//[RPM]
+		typedef Sint16 DC_MOTOR_SPEED_speed;	//[RPM]
 
 		//Fonction sans argument renvoyant une vitesse en [RPM]
 		typedef DC_MOTOR_SPEED_speed(*DC_MOTOR_SPEED_sensor_read_fun_t)(void);
@@ -46,21 +46,23 @@
 		}DC_MOTOR_SPEED_state_e;	//Précise de quel module on parle avec working_state_e, garde la compatibilité avec l'ancien nom.
 
 		typedef struct{
-			Uint8 pwm_number;				// Numero de la sortie PWM à utiliser (conformément à PWM_run(...))
-			GPIO_TypeDef* way_latch;		// Adresse du port contenant le bit de sens de controle du pont en H (exemple GPIOA)
-			Uint16 way_bit_number;			// Numero du bit de sens dans le port
-			bool_e inverse_way;				// Inverser la pin de sens du controle du moteur
-			Uint8 max_duty;					// Rapport cyclique maximum de la pwm avec le bit sens à 0
+			Uint8 pwm_number;								// Numero de la sortie PWM à utiliser (conformément à PWM_run(...))
+			GPIO_TypeDef* way_latch;						// Adresse du port contenant le bit de sens de controle du pont en H (exemple GPIOA)
+			Uint16 way_bit_number;							// Numero du bit de sens dans le port
+			Uint8 max_duty;									// Rapport cyclique maximum de la pwm avec le bit sens à 0
 
-			Sint32 Kp, Ki, Kd, Kv;			// Valeurs des gains pour le PID
+			Sint32 Kp, Ki, Kd, Kv;							// Valeurs des gains pour le PID
 
-			bool_e activateRecovery;		// Activation du mode recovery
+			bool_e activateRecovery;						// Activation du mode recovery
+			DC_MOTOR_SPEED_speed speedRecovery;				// Vitesse du mode recovery
+			time32_t timeRecovery;							// Temps du mode recovery
 
-			Uint16 timeout;					// Timeout en ms, si la vitesse demandée n'est pas atteinte avant ce temps, l'asservissement est arreté (évite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
+			Uint16 timeout;									// Timeout en ms, si la vitesse demandée n'est pas atteinte avant ce temps, l'asservissement est arreté (évite de cramer des moteurs). Si cette valeur est 0, il n'y a pas de timeout.
 
-			DC_MOTOR_SPEED_speed epsilon;	// Epsilon, si l'erreur devient inférieur à cette variable, la vitesse est considéré comme atteinte
+			DC_MOTOR_SPEED_speed epsilon;					// Epsilon, si l'erreur devient inférieur à cette variable, la vitesse est considéré comme atteinte
 
-			DC_MOTOR_SPEED_sensor_read_fun_t sensorRead;
+			DC_MOTOR_SPEED_sensor_read_fun_t sensorRead;	// Pointeur de fonction permettant la lecture de la vitesse
+			bool_e simulateWay;								// Simulation du sens de rotation
 		}DC_MOTOR_SPEED_config_t;
 
 		/*-------------------------------------
