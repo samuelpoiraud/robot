@@ -1,5 +1,5 @@
 #include "middleware.h"
-#include "low layer/touch.h"
+#include "low layer/stmpe811.h"
 #include "low layer/ssd2119.h"
 #include "../QS/QS_outputlog.h"
 #include "image/flecheDroite.h"
@@ -169,17 +169,12 @@ static volatile background_s background;
 static void MIDDLEWARE_checkRebuildObject();
 static void MIDDLEWARE_rebuildObject();
 static void MIDDLEWARE_checkDestroyObject();
-
-#ifdef USE_TOUCH
 static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, Uint16 width, Uint16 height);
 static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y);
-#endif
 
 void MIDDLEWARE_init(){
 
-#ifdef USE_TOUCH
-	TOUCH_init();
-#endif
+	STMPE811_init();
 
 	SSD2119_init();
 
@@ -188,21 +183,12 @@ void MIDDLEWARE_init(){
 
 void MIDDLEWARE_processMain(){
 
-#ifdef USE_TOUCH
-
 	Sint16 x, y;
 
-	TOUCH_setConfig();
-	bool_e touch = TOUCH_getAverageCoordinates(&x, &y, 3, TOUCH_COORDINATE_SCREEN_RELATIVE);
-
-	if(touch == TRUE) {
-		//debug_printf("X = %d | Y = %d\n", x, y);
-	}
+	bool_e touch = STMPE811_getAverageCoordinates(&x, &y, 3, STMPE811_COORDINATE_SCREEN_RELATIVE);
 
 	// Check des zones touchés
 	MIDDLEWARE_checkObjectTouch(touch, x, y);
-
-#endif
 
 	SSD2119_setConfig();
 
@@ -226,8 +212,6 @@ void MIDDLEWARE_processMain(){
 //////////////////////////////////////////////////////////////////
 //-------------------------Fonction Main------------------------//
 //////////////////////////////////////////////////////////////////
-
-#ifdef USE_TOUCH
 
 static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y){
 	Uint8 i;
@@ -322,8 +306,6 @@ static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y){
 		}
 	}
 }
-
-#endif
 
 static void MIDDLEWARE_checkDestroyObject(){
 	Uint8 i;
@@ -761,11 +743,9 @@ static void MIDDLEWARE_rebuildObject(){
 	}
 }
 
-#ifdef USE_TOUCH
 static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, Uint16 width, Uint16 height){
 	return 	(xT >= x && xT <= (x + width) && yT >= y && yT <= (y + height));
 }
-#endif
 
 //////////////////////////////////////////////////////////////////
 //---------------------Fonction Mutation------------------------//
