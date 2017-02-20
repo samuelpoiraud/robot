@@ -9,6 +9,8 @@
 #include "../QS_hokuyo/hokuyo.h"
 #include "../QS_hokuyo/hokuyo_config.h"
 #include "../IHM/led.h"
+#include "../IHM/terminal.h"
+#include "../environment.h"
 
 #define REFRESH_TIME	(100) // Temps en ms entre chaque affichage des positions hokuyo
 #define NB_MAX_CIRCLE	(HOKUYO_MAX_FOES)
@@ -82,6 +84,7 @@ void LCD_processMain(void) {
 			break;
 		case DISPLAY_TERRAIN:
 			VIEW_drawEmptyTerrain(&terrain);
+			VIEW_drawBeaconPosition(ENVIRONMENT_getColor());
 			state = DISPLAY_HOKUYO;
 			break;
 		case DISPLAY_HOKUYO:
@@ -101,7 +104,7 @@ void LCD_processMain(void) {
 				}
 
 				if(HOKUYO_getAdversariesNumber() > 0) {
-					TERMINAL_printf("Nb adv : %2d   (%d ms)", HOKUYO_getAdversariesNumber(), HOKUYO_getLastMeasureDuration());
+					TERMINAL_printf("Nb adv : %2d   (%d ms)   |   %d", HOKUYO_getAdversariesNumber(), HOKUYO_getLastMeasureDuration(), HOKUYO_getNbValidPoints());
 				}
 
 				// On affiche les nouvelles positions

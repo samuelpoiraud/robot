@@ -55,6 +55,9 @@ void ENVIRONMENT_setColor(color_e color) {
 	LED_setColor((color == TOP_COLOR) ? LED_COLOR_YELLOW : LED_COLOR_BLUE);
 	TERMINAL_printf("New Color : %s", ((color == TOP_COLOR) ? TOP_COLOR_NAME : BOT_COLOR_NAME));
 
+	// Changement de l'emplacement de la balise sur l'écran
+	VIEW_drawBeaconPosition(color);
+
 	// TODO: Mettre à jour les zones
 
 }

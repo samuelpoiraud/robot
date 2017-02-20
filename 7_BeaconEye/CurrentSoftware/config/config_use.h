@@ -69,6 +69,7 @@
 
 /* Réglages HOKUYO */
 	#define USE_HOKUYO
+	//#define USE_CCMRAM
 
 /* Réglages WATCHDOG */
 	#define USE_WATCHDOG

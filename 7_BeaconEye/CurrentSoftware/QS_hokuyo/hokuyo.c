@@ -16,9 +16,18 @@
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_maths.h"
+#include <string.h>
 
 #ifdef STM32F40XX
 	#include "../QS/QS_sys.h"
+#endif
+
+#ifdef I_AM_CARTE_BEACON_EYE
+	#include "../IHM/terminal.h"
+	#include "../environment.h"
+	#define terminal_debug(...)	 TERMINAL_printf(__VA_ARGS__)
+#else
+	#define terminal_debug(...)	 (void)0
 #endif
 
 //------------------- USB Library -------------------
@@ -38,6 +47,79 @@ __ALIGN_BEGIN USBH_HOST                USB_Host 		__ALIGN_END;
 //---------------------------------------------------
 
 
+//---------------- Privates defines -----------------
+
+/* Hokuyo frame */
+#define LINE_FEED							0x0A	// Caractère de retour à la ligne
+#define DATA_BLOCK_SIZE						64
+#ifdef USE_COMMAND_ME
+	#define NB_BYTES_FROM_HOKUYO			6750
+	#define HOKUYO_COMMAND					((Uint8*)"ME0000108001001")
+#else
+	#define NB_BYTES_FROM_HOKUYO			2500
+	#define HOKUYO_COMMAND					((Uint8*)"MS0000108001001")
+#endif
+
+/* Hokuyo specification */
+#define FIRST_MEASUREMENT_POINT				0
+#define SENSOR_FRONT_STEP					540
+#define LAST_MEASUREMENT_POINT				1080
+#define SLIT_DIVISION						1440	// Nombre de pas de mesures pour 360°
+#define FIRST_STEP_DEG						4500	// [°*100]
+#define FRONT_STEP_DEG						18000   // [°*100]
+#define LAST_POINT_DEG						31525   // [°*100]
+#define NB_STEP_MAX							(LAST_MEASUREMENT_POINT - FIRST_MEASUREMENT_POINT + 1)
+#define ANGLE_RESOLUTION					(360 * 100 / SLIT_DIVISION) // [°*100]
+
+/* Utility */
+#define DEG100_TO_PI4096(x)					((((Sint32)(x))*183)>>8) 																// [°*100] en [PI4096]
+#define TWO_CHARACTER_DECODING(a, b)		((((Uint16)a)-0x30)<<6)+((((Uint16)b)-0x30)&0x3F)										// Decode octets hokuyo, algo pour 2 caractères
+#define THREE_CHARACTER_DECODING(a, b, c)	((((Uint16)a)-0x30)<<12)+(((((Uint16)b)&0x3F)-0x30)<<6)+((((Uint16)c)-0x30)&0x3f)		// Decode octets hokuyo, algo pour 3 caractères
+
+/* Command specification */
+#define STARTING_STEP_SIZE					4		// Taille du champs startingStep
+#define END_STEP_SIZE						4		// Taille du champs endStep
+#define CLUSTER_COUNT_SIZE					2		// Taille du champs clusterCount
+#define CLUSTER_COUNT_MIN					1		// Valeur minimum (incluse) pour le champs clusterCount
+#define CLUSTER_COUNT_MAX					99		// Valeur maximale (incluse) pour le champs clusterCount
+#define SCAN_INTERVAL_SIZE					1		// Taille du champs scanInterval
+#define SCAN_INTERVAL_MIN					0		// Valeur minimum (incluse) pour le champs scanInterval
+#define SCAN_INTERVAL_MAX					9		// Valeur maximale (incluse) pour le champs scanInterval
+#define NUMBER_OF_SCANS_SIZE				2		// Taille du champs numberOfScans
+#define NUMBER_OF_SCANS_MIN					0		// Valeur minimum (incluse) pour le champs numberOfScans
+#define NUMBER_OF_SCANS_MAX					99		// Valeur maximale (incluse) pour le champs numberOfScans
+#define COMMAND_SYMBOL_SIZE					2		// Taille du symbol d'une commande
+#define STRING_CHARACTERS_SIZE  			16		// Taille maximale de la chaine de caractères de la commande
+#define COMMAND_SIZE_MAX					35		// Taille maximale d'une commande
+
+/* Command */
+#define CMD_STEP_BLIND						(BLIND_ANGLE * 100 / ANGLE_RESOLUTION)
+#define CMD_STARTING_STEP					(FIRST_MEASUREMENT_POINT + CMD_STEP_BLIND)
+#define CMD_END_STEP						(LAST_MEASUREMENT_POINT - CMD_STEP_BLIND)
+#define BLOCK_DATA_SIZE						64
+#define CHECKSUM_SIZE						1
+#ifdef USE_COMMAND_ME
+	#define COMMAND_SYMBOL					CMD_ME
+	#define CMD_ECHO_SIZE					47
+
+#else
+	#define COMMAND_SYMBOL					CMD_MS
+	#define CMD_ECHO_SIZE					26
+#endif
+
+//---------------------------------------------------
+
+
+//----------------- Privates types ------------------
+
+typedef enum{
+	CMD_MS		= 0x4D53,
+	CMD_ME		= 0x4D45
+} commandSymbol_e;
+
+//---------------------------------------------------
+
+
 //--------------- Privates variables ----------------
 
 /* Stockage des données brutes issues du capteur */
@@ -49,7 +131,7 @@ __ALIGN_BEGIN USBH_HOST                USB_Host 		__ALIGN_END;
 static Uint32 datas_index = 0;
 
 /* Points considés comme valides après traitement */
-static HOKUYO_adversary_position detected_valid_points[NB_STEP_MAX];
+static HOKUYO_point_position detected_valid_points[NB_STEP_MAX];
 static Uint16 nb_valid_points = 0;
 
 /* Adversaires détectés après traitement */
@@ -59,8 +141,9 @@ static Uint8 adversaries_number = 0;
 /* Sécurité contre la double initialisation */
 static bool_e hokuyo_initialized = FALSE;
 
-/* Flag indiquant que l'hokuyo est doconnecté */
+/* Flag indiquant que l'hokuyo est connecté ou déconnecté */
 volatile bool_e flag_device_disconnected = FALSE;
+volatile bool_e flag_device_connected = FALSE;
 
 /* Temps en [ms] depuis le dernier envoi des adversaires */
 volatile Uint16 time_since_last_sent_adversaries_datas = 0;
@@ -71,6 +154,12 @@ static Uint16 nb_hokuyo_disconnection = 0;
 /* Temps en [ms] de la dernière mesure */
 static time32_t duration_last_measure = 0;
 
+/* Commande que l'on envoi périodiquement à l'hokuyo pour demander un scan */
+Uint8 cmd[COMMAND_SIZE_MAX];
+
+/* Taille de la commande reçue */
+Uint16 received_frame_size = 0;
+
 //---------------------------------------------------
 
 
@@ -80,6 +169,11 @@ static void HOKUYO_putsCommand(Uint8 cmd[]);
 static bool_e HOKUYO_readBuffer(void);
 static void HOKUYO_parseDataFrame(void);
 static void HOKUYO_detectRobots(void);
+static Uint16 HOKUYO_calculateFrameSize(commandSymbol_e commandSymbol);
+static bool_e HOKUYO_isValidPoint(Sint32 x, Sint32 y);
+static void HOKUYO_generateCommand( Uint8 *cmd, commandSymbol_e commandSymbol, Uint16 startingStep,
+									  Uint16 endStep, Uint8 clusterCount, Uint8 scanInterval,
+									  Uint8 numberOfScans, char *stringCharacters);
 
 #ifndef I_AM_CARTE_BEACON_EYE
 	static void HOKUYO_computeDistanceTeta(void);
@@ -121,7 +215,6 @@ void HOKUYO_processMain(void) {
 		INIT = 0,
 		HOKUYO_WAIT,
 		ASK_NEW_MEASUREMENT,
-		WAIT_ECHO_COMMAND,
 		BUFFER_READ,
 		TREATMENT_DATA,
 		DETECTION_ADVERSARIES,
@@ -139,6 +232,7 @@ void HOKUYO_processMain(void) {
 	static time32_t buffer_read_time_begin = 0;
 	static time32_t ask_measure_time_begin = 0;
 	static bool_e isFirst = TRUE;
+	static bool_e isFirstReceiveFrame = TRUE;
 
 	if((state == INIT && last_state == INIT) || state != last_state) {
 		entrance = TRUE;
@@ -155,6 +249,7 @@ void HOKUYO_processMain(void) {
 		flag_device_disconnected = FALSE;
 		hokuyo_initialized = FALSE;
 		HOKUYO_init();
+		isFirstReceiveFrame = FALSE;
 		state = INIT;
 	}
 
@@ -168,6 +263,10 @@ void HOKUYO_processMain(void) {
 
 		case HOKUYO_WAIT:
 			if(USBH_CDC_is_ready_to_run()) {
+				/* Génération de la commande à envoyer */
+				HOKUYO_generateCommand(cmd, COMMAND_SYMBOL, CMD_STARTING_STEP, CMD_END_STEP, 1, 0, 1, "");
+				/* Calcul de la longueur de la trame */
+				received_frame_size = HOKUYO_calculateFrameSize(COMMAND_SYMBOL);
 				state = ASK_NEW_MEASUREMENT;
 			}
 		break;
@@ -184,16 +283,9 @@ void HOKUYO_processMain(void) {
 
 			}
 
-			/* On s'assure que le buffer de réception est vide avant de lancer une mesure */
-			HOKUYO_readBuffer();
-
-			if(VCP_isRxEmpty()) {
-				HOKUYO_putsCommand(HOKUYO_COMMAND);
-				datas_index = 0;
-				state = WAIT_ECHO_COMMAND;
-			} else {
-				debug_printf("Nouvelle mesure avec un buffer non vide\n");
-			}
+			HOKUYO_putsCommand(cmd);
+			datas_index = 0;
+			state = BUFFER_READ;
 
 #ifndef I_AM_CARTE_BEACON_EYE
 			/* On enregistre la position du robot avant de lancer le scan */
@@ -202,53 +294,28 @@ void HOKUYO_processMain(void) {
 
 		break;
 
-		case WAIT_ECHO_COMMAND:
-			if(entrance) {
-				buffer_read_time_begin = global.absolute_time;
-			}
-
-			//TODO Vérifier la taille des données et récupérer code d'erreur
-
-			if(HOKUYO_readBuffer()) {
-				if(HOKUYO_datas[datas_index - 2] == LINE_FEED && HOKUYO_datas[datas_index - 1] == LINE_FEED && datas_index >= 21){
-					state = BUFFER_READ;
-				} else if(datas_index > 30) {
-					state = ASK_NEW_MEASUREMENT;
-				}
-			}
-
-			if(global.absolute_time - buffer_read_time_begin > HOKUYO_ECHO_READ_TIMEOUT) {
-				debug_printf("TimeOut Hokuyo echo\n");
-				flag_device_disconnected = TRUE;
-			}
-		break;
-
 		case BUFFER_READ:
 			if(entrance) {
 				buffer_read_time_begin = global.absolute_time;
 			}
 
-			//TODO Vérifier le code d'erreur et la taille des données
-
 			if(HOKUYO_readBuffer()) {
 
 #ifdef USE_COMMAND_ME
-#warning "le code ci dessous, dans le mode ME n'est pas débogué... il est dégeu."
-			if(datas_index > 1 && HOKUYO_datas[datas_index-2]==0x0A && HOKUYO_datas[datas_index-1]==0x0A && datas_index>=6730) // 0x0A -> LF (en ASCII)
-				state=TREATMENT_DATA;
-			else if(datas_index>6738)
-				state=ASK_NEW_MEASUREMENT;
-			else if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT)
-				state=ASK_NEW_MEASUREMENT;
-#else
+				if(HOKUYO_datas[datas_index - 2] == LINE_FEED && HOKUYO_datas[datas_index - 1] == LINE_FEED && datas_index >= received_frame_size) {
+					state = TREATMENT_DATA;
+				} else if (datas_index > received_frame_size){
+					state=ASK_NEW_MEASUREMENT;
+				}
 
-				if(HOKUYO_datas[datas_index - 2] == LINE_FEED && HOKUYO_datas[datas_index - 1] == LINE_FEED && datas_index >= 2257) {
+#else
+				if(HOKUYO_datas[datas_index - 2] == LINE_FEED && HOKUYO_datas[datas_index - 1] == LINE_FEED && datas_index >= received_frame_size) {
 					state = TREATMENT_DATA;
 				} else {
 					state=ASK_NEW_MEASUREMENT;
 				}
-
 #endif
+
 			}
 
 			if(global.absolute_time - buffer_read_time_begin > HOKUYO_BUFFER_READ_TIMEOUT) {
@@ -258,6 +325,10 @@ void HOKUYO_processMain(void) {
 		break;
 
 		case TREATMENT_DATA:
+			if(isFirstReceiveFrame) {
+				terminal_debug("hokuyo is alive");
+				isFirstReceiveFrame = FALSE;
+			}
 			HOKUYO_parseDataFrame();
 			state=DETECTION_ADVERSARIES;
 		break;
@@ -343,7 +414,7 @@ Uint8 HOKUYO_getAdversariesNumber(void) {
 	return adversaries_number;
 }
 
-HOKUYO_adversary_position* HOKUYO_getValidPoints(void) {
+HOKUYO_point_position* HOKUYO_getValidPoints(void) {
 	return detected_valid_points;
 }
 
@@ -367,6 +438,10 @@ time32_t HOKUYO_getLastMeasureDuration(void) {
 void HOKUYO_deviceDisconnected(void) {
 	flag_device_disconnected = TRUE;
 	nb_hokuyo_disconnection++;
+}
+
+void HOKUYO_deviceConnected(void) {
+	flag_device_connected = TRUE;
 }
 
 #ifndef I_AM_CARTE_BEACON_EYE
@@ -457,7 +532,7 @@ static bool_e HOKUYO_readBuffer(void) {
  * 		  supprimer ceux qui sont hors du terrain ou dans des zones définies.
  */
 static void HOKUYO_parseDataFrame(void) {
-	Uint16 a, b;							// Octets pour former la distance
+	Sint16 power_intensity = -1;					// Intensité lumineuse pour le point mesuré
 	Uint16 i;								// Index pour la boucle for
 	Sint32 distance;						// Distance entre l'hokuyo et le point courant
 	Sint32 angle = 0;						// Angle relatif au premier point mesurable par l'hokuyo en [°*100]
@@ -467,13 +542,19 @@ static void HOKUYO_parseDataFrame(void) {
 	Sint32 y_absolute;						// Position en y sur le terrain du point en cours
 	Sint16 cos;								// Cosinus de l'angle en cours
 	Sint16 sin;								// Sinus de l'angle en cours
-	bool_e point_filtered;					// Le point courant est-il pris en compte
 	Sint32 to_close_distance;				// Distance minimum pour que le point soit pris en compte
 	nb_valid_points = 0;					// Remise à zéro des points valides
 	Sint16 angle_offset_rad = 0;			// Offset en [PI_4096] entre le centre de l'angle mort de l'hokuyo et le premier point mesuré
 
-	angle_offset_rad = ((Sint32)(FIRST_STEP_DEG)) +
-							  ((Sint32)(STARTING_STEP * ANGLE_RESOLUTION));
+#ifdef USE_COMMAND_ME
+	Uint16 a, b, c;							// Octets pour former la distance
+	Uint16 d, e, f;							// Octets pour former l'intensité
+#else
+	Uint16 a, b;							// Octets pour former la distance
+#endif
+
+	angle_offset_rad = ((Sint32)(FIRST_STEP_DEG)) -
+							  ((Sint32)(CMD_STARTING_STEP * ANGLE_RESOLUTION));
 	angle_offset_rad = DEG100_TO_PI4096(angle_offset_rad);
 
 #ifndef I_AM_CARTE_BEACON_EYE
@@ -495,23 +576,39 @@ static void HOKUYO_parseDataFrame(void) {
 	to_close_distance = TOO_CLOSE_DISTANCE_BEACON_EYE;
 #endif
 
-	for(i = 26; i < datas_index - 3;) {
+	for(i = CMD_ECHO_SIZE; i < datas_index - 3;) {
 
 		/* Fin d'un bloc de données, on saute le checksum et le LINE_FEED */
 		if(HOKUYO_datas[i+1] == '\n') {
 			i+=2;
 		}
-
 		/* Encore un LINE_FEED, c'est la fin de la trame Hokuyo */
 		if(HOKUYO_datas[i] == '\n') {
 			break;
 		}
-
 		a = (Uint16)HOKUYO_datas[i++];
 		b = (Uint16)HOKUYO_datas[i++];
 
-		//distance = TWO_CHARACTER_DECODING(a, b);
-		distance = ((a-0x30)<<6)+((b-0x30)&0x3f);
+#ifdef USE_COMMAND_ME
+		if(HOKUYO_datas[i+1] == '\n') {
+			i+=2;
+		}
+		c = (Uint16)HOKUYO_datas[i++];
+		d = (Uint16)HOKUYO_datas[i++];
+		if(HOKUYO_datas[i+1] == '\n') {
+			i+=2;
+		}
+		e = (Uint16)HOKUYO_datas[i++];
+		f = (Uint16)HOKUYO_datas[i++];
+
+		distance = THREE_CHARACTER_DECODING(a, b, c);
+		/* Décale de 3, car 18 bits(16 bits ici) et bit de signe */
+		power_intensity = ((((Sint32)(d)-0x30)<<12) + ((((Sint32)(e)-0x30)&0x3f)<<6) +((((Sint32)(f)-0x30)&0x3f))) >> 3;
+		power_intensity = (power_intensity > 0)?power_intensity : -1;
+
+#else
+		distance = TWO_CHARACTER_DECODING(a, b);
+#endif
 
 		/* On élimine des distances trop petites (ET LES CAS DE REFLEXIONS TROP GRANDE OU LE CAPTEUR RENVOIE 1 !) */
 		if(distance	> to_close_distance) {
@@ -537,45 +634,45 @@ static void HOKUYO_parseDataFrame(void) {
 			}
 #endif
 
-			/* On garde les points qui sont sur le terrain */
-			if(		x_absolute 	< 	FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					x_absolute	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					y_absolute 	< 	FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
-					y_absolute 	>	HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
-			{
-
-				point_filtered = FALSE;	//On suppose que le point n'est pas filtré
-
-				/* Les 4 coins et deux balises fixes */
-				if( x_absolute > FIELD_SIZE_X - MARGIN_BEACON_FIELD	 ||
-					x_absolute < MARGIN_BEACON_FIELD	 ||
-					absolute(x_absolute - FIELD_SIZE_X/2) < MARGIN_BEACON_FIELD	)
-				{
-					if(y_absolute < MARGIN_BEACON_FIELD	 || y_absolute > FIELD_SIZE_Y - MARGIN_BEACON_FIELD	) {
-						point_filtered = TRUE;
-					}
-
-				}
-
-				//TODO A compléter pour le terrain de cette année
-
-				/* On retire les points qui sont dans la zone que l'on veut aveugle */
-				if(angle < 100 * BLIND_ANGLE || angle > 100 * (270 - BLIND_ANGLE)) {
-					point_filtered = TRUE;
-				}
-
-				if(point_filtered == FALSE && nb_valid_points < NB_STEP_MAX) {
-					detected_valid_points[nb_valid_points].teta = teta_relative; // Pour l'évitement
-					detected_valid_points[nb_valid_points].coordX = x_absolute;
-					detected_valid_points[nb_valid_points].coordY = y_absolute;
-					nb_valid_points++;
-				}
+			if(HOKUYO_isValidPoint(x_absolute, y_absolute) && nb_valid_points < NB_STEP_MAX) {
+				detected_valid_points[nb_valid_points].teta = teta_relative; 	// Pour l'évitement
+				detected_valid_points[nb_valid_points].coordX = x_absolute;
+				detected_valid_points[nb_valid_points].coordY = y_absolute;
+				detected_valid_points[nb_valid_points].power_intensity = power_intensity;
+				nb_valid_points++;
 			}
 		}
 
 		angle += ANGLE_RESOLUTION * ((CLUSTER_COUNT == 0) ? 1 : CLUSTER_COUNT);
 
 	}
+}
+
+static bool_e HOKUYO_isValidPoint(Sint32 x, Sint32 y) {
+
+	bool_e isValid = TRUE;					// Le point est-il pris en compte
+
+	/* On test tout d'abord que le point est sur le terrain */
+	if(	x < FIELD_SIZE_X - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+		x > HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+		y < FIELD_SIZE_Y - HOKUYO_MARGIN_FIELD_SIDE_IGNORE &&
+		y > HOKUYO_MARGIN_FIELD_SIDE_IGNORE)
+	{
+
+		/* Les 4 coins et deux balises fixes */
+		if(x > FIELD_SIZE_X - MARGIN_BEACON_FIELD || x < MARGIN_BEACON_FIELD || absolute(x - FIELD_SIZE_X/2) < MARGIN_BEACON_FIELD) {
+			if(y < MARGIN_BEACON_FIELD || y > FIELD_SIZE_Y - MARGIN_BEACON_FIELD) {
+				isValid = FALSE;
+			}
+		}
+
+		//TODO A compléter pour le terrain de cette année
+
+	} else {
+		isValid = FALSE;
+	}
+
+	return isValid;
 }
 
 /**
@@ -600,7 +697,7 @@ static void HOKUYO_detectRobots(void) {
 	y_comp = detected_valid_points[0].coordY;
 	sumX = detected_valid_points[0].coordX;
 	sumY = detected_valid_points[0].coordY;
-	nb_pts=1;
+	nb_pts = 1;
 
 	/* Pour tous les points valides à partir du second */
 	for(i=1;i<nb_valid_points;i++) {
@@ -640,6 +737,83 @@ static void HOKUYO_detectRobots(void) {
 		hokuyo_adversaries[adversaries_number].coordY = sumY / nb_pts;
 		adversaries_number++;
 	}
+}
+
+static void HOKUYO_generateCommand( Uint8* cmd,
+									commandSymbol_e commandSymbol,
+									Uint16 startingStep,
+									Uint16 endStep,
+									Uint8 clusterCount,
+									Uint8 scanInterval,
+									Uint8 numberOfScans,
+									char *stringCharacters)
+{
+	/* Vérification de tous les paramètres */
+	if(startingStep < FIRST_MEASUREMENT_POINT) {
+		startingStep = FIRST_MEASUREMENT_POINT;
+	}
+	if(startingStep > LAST_MEASUREMENT_POINT) {
+		startingStep = LAST_MEASUREMENT_POINT;
+	}
+	if(endStep < startingStep) {
+		endStep = startingStep;
+	}
+	if(endStep > LAST_MEASUREMENT_POINT) {
+		endStep = LAST_MEASUREMENT_POINT;
+	}
+	if(clusterCount < CLUSTER_COUNT_MIN) {
+		clusterCount = CLUSTER_COUNT_MIN;
+	}
+	if(clusterCount > CLUSTER_COUNT_MAX) {
+		clusterCount = CLUSTER_COUNT_MAX;
+	}
+	if(scanInterval < SCAN_INTERVAL_MIN) {
+		scanInterval = SCAN_INTERVAL_MIN;
+	}
+	if(scanInterval > SCAN_INTERVAL_MAX) {
+		scanInterval = SCAN_INTERVAL_MAX;
+	}
+	if(numberOfScans < NUMBER_OF_SCANS_MIN) {
+		numberOfScans = NUMBER_OF_SCANS_MIN;
+	}
+	if(numberOfScans > NUMBER_OF_SCANS_MAX) {
+		numberOfScans = NUMBER_OF_SCANS_MAX;
+	}
+
+	Uint8 index = 0;
+	sprintf((char*)cmd, "%c%c", ((commandSymbol >> 8) & 0xFF), ((commandSymbol) & 0xFF));
+	index += COMMAND_SYMBOL_SIZE;
+	sprintf((char*)(cmd + index), "%04d", startingStep);
+	index += STARTING_STEP_SIZE;
+	sprintf((char*)(cmd + index), "%04d", endStep);
+	index += END_STEP_SIZE;
+	sprintf((char*)(cmd + index), "%02d", clusterCount);
+	index += CLUSTER_COUNT_SIZE;
+	sprintf((char*)(cmd + index), "%01d", scanInterval);
+	index += SCAN_INTERVAL_SIZE;
+	sprintf((char*)(cmd + index), "%02d", numberOfScans);
+	index += NUMBER_OF_SCANS_SIZE;
+	strcpy((char*)(cmd + index), stringCharacters);
+}
+
+static Uint16 HOKUYO_calculateFrameSize(commandSymbol_e commandSymbol) {
+	Uint16 size = 0;
+	Uint16 nbDataBlock = 0;
+	Uint16 nbEncodedStep = 0;
+
+	/* Nombre d'octet pour encoder les points mesurés (les bornes sont incluses d'où le +1) */
+	nbEncodedStep = (CMD_END_STEP - CMD_STARTING_STEP + 1) * ((commandSymbol == CMD_MS) ? 2 : 6);
+	/* Nombre de bloc de données */
+	nbDataBlock = (nbEncodedStep / BLOCK_DATA_SIZE) + (((nbEncodedStep % BLOCK_DATA_SIZE) > 0) ? 1 : 0);
+
+
+	/* Echo de la commande envoyée */
+	size += CMD_ECHO_SIZE +		// Echo de la commande envoyée
+			nbEncodedStep +		// Nombre d'octet pour encoder chaque point mesuré
+			nbDataBlock + 1 +	// Nombre de LINE_FEED (un après chaque bloc de données + 1 à la fin en plus)
+			nbDataBlock;		// Nombre de checksum (un après chaque bloc de données)
+
+	return size;
 }
 
 /**

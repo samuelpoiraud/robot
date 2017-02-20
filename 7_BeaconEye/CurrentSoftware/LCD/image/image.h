@@ -16,5 +16,6 @@
 	#include "waiting.h"
 	#include "buttonOff.h"
 	#include "buttonOn.h"
+	#include "beacon.h"
 
 #endif /* IMAGE_H_ */
