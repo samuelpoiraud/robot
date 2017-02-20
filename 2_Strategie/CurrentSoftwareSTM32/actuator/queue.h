@@ -51,7 +51,7 @@ typedef enum {
 	ACT_QUEUE_Big_bearing_front_right,
 	ACT_QUEUE_Ore_wall,
     ACT_QUEUE_Ore_roller_arm,
-
+    ACT_QUEUE_Rocket,
 
 
 	// Anne

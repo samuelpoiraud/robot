@@ -938,14 +938,10 @@
 		//////////////////////////////////////////////////////////////////
 
 		ACT_ORE_GUN						= (ACT_FILTER | 0x01),
-		ACT_ORE_SHOVEL				= (ACT_FILTER | 0x02),
-		ACT_ORE_CATCH					= (ACT_FILTER | 0x03),
-		ACT_ORE_MIXER					= (ACT_FILTER | 0x04),
-		ACT_ORE_SWEEPER					= (ACT_FILTER | 0x05),
-        ACT_BIG_BALL_FRONT_LEFT	= (ACT_FILTER | 0x06),
-        ACT_BIG_BALL_FRONT_RIGHT= (ACT_FILTER | 0x07),
-        ACT_BIG_BALL_BACK_LEFT	= (ACT_FILTER | 0x08),
-        ACT_BIG_BALL_BACK_RIGHT	= (ACT_FILTER | 0x09),
+        ACT_BIG_BALL_FRONT_LEFT         = (ACT_FILTER | 0x06),
+        ACT_BIG_BALL_FRONT_RIGHT        = (ACT_FILTER | 0x07),
+        ACT_BIG_BALL_BACK_LEFT          = (ACT_FILTER | 0x08),
+        ACT_BIG_BALL_BACK_RIGHT         = (ACT_FILTER | 0x09),
 		ACT_CYLINDER_HATCH_LEFT			= (ACT_FILTER | 0x0A),
 		ACT_CYLINDER_HATCH_RIGHT		= (ACT_FILTER | 0x0B),
 		ACT_CYLINDER_SLOPE_LEFT			= (ACT_FILTER | 0x0C),
@@ -963,6 +959,9 @@
         ACT_CYLINDER_TURN_RIGHT_ARM     = (ACT_FILTER | 0x18),
 		ACT_ORE_WALL					= (ACT_FILTER | 0x19),
         ACT_ORE_ROLLER_ARM              = (ACT_FILTER | 0x1A),
+        ACT_ROCKET                      = (ACT_FILTER | 0x1B),
+
+
 
 
 		//////////////////////////////////////////////////////////////////

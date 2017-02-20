@@ -61,12 +61,14 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
     {ACT_CYLINDER_TURN_LEFT_ARM,		ACT_QUEUE_Cylinder_turn_left_arm,		"Cylinder turn left arm"},
     {ACT_CYLINDER_TURN_RIGHT_ARM,		ACT_QUEUE_Cylinder_turn_right_arm,		"Cylinder turn right arm"},
 	{ACT_BEARING_BALL_WHEEL,			ACT_QUEUE_Bearing_ball_wheel,			"Bearing ball wheel"},
-	{ACT_BIG_BALL_FRONT_LEFT,			ACT_QUEUE_Big_bearing_front_left,			"Bearing ball front left"},
-	{ACT_BIG_BALL_FRONT_RIGHT,			ACT_QUEUE_Big_bearing_front_right,			"Bearing ball front right"},
-	{ACT_BIG_BALL_BACK_LEFT,			ACT_QUEUE_Big_bearing_back_left,			"Bearing ball back left"},
-	{ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Big_bearing_back_right,			"Bearing ball back right"},
+    {ACT_BIG_BALL_FRONT_LEFT,			ACT_QUEUE_Big_bearing_front_left,		"Bearing ball front left"},
+    {ACT_BIG_BALL_FRONT_RIGHT,			ACT_QUEUE_Big_bearing_front_right,		"Bearing ball front right"},
+    {ACT_BIG_BALL_BACK_LEFT,			ACT_QUEUE_Big_bearing_back_left,		"Bearing ball back left"},
+    {ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Big_bearing_back_right,		"Bearing ball back right"},
 	{ACT_ORE_WALL,						ACT_QUEUE_Ore_wall,						"Ore wall"},
     {ACT_ORE_ROLLER_ARM,                ACT_QUEUE_Ore_roller_arm,               "Ore roller arm"},
+    {ACT_ROCKET,                        ACT_QUEUE_Rocket,                       "Rocket"},
+
 
 	// Anne
 	//{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},

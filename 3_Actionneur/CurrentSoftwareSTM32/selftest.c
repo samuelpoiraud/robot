@@ -238,9 +238,99 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 #endif
 
 // Harry
-					/*case ACT_FISH_MAGNETIC_ARM:
-						failed_act_tests[i] = SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM;
-						break;*/
+                    case ACT_BEARING_BALL_WHEEL:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_BEARING_BALL_WHEEL;
+                        break;
+
+                    case ACT_BIG_BALL_BACK_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_BIG_BALL_BACK_LEFT;
+                        break;
+
+                    case ACT_BIG_BALL_BACK_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_BIG_BALL_BACK_RIGHT;
+                        break;
+
+                    case ACT_BIG_BALL_FRONT_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_BIG_BALL_FRONT_LEFT;
+                        break;
+
+                    case ACT_BIG_BALL_FRONT_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT;
+                        break;
+
+                    case ACT_CYLINDER_DISPENSER_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_DISPENSER_LEFT;
+                        break;
+
+                    case ACT_CYLINDER_DISPENSER_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_DISPENSER_RIGHT;
+                        break;
+
+                    case ACT_CYLINDER_ELEVATOR_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_LEFT;
+                        break;
+
+                    case ACT_CYLINDER_ELEVATOR_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT;
+                        break;
+
+                    case ACT_CYLINDER_HATCH_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_HATCH_LEFT;
+                        break;
+
+                    case ACT_CYLINDER_HATCH_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_HATCH_RIGHT;
+                        break;
+
+                    case ACT_CYLINDER_PUSHER_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT;
+                        break;
+
+                    case ACT_CYLINDER_PUSHER_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_PUSHER_RIGHT;
+                        break;
+
+                    case ACT_CYLINDER_SLIDER_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT;
+                        break;
+
+                    case ACT_CYLINDER_SLIDER_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT;
+                        break;
+
+                    case ACT_CYLINDER_SLOPE_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_SLOPE_LEFT;
+                        break;
+
+                    case ACT_CYLINDER_SLOPE_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT;
+                        break;
+
+                    case ACT_CYLINDER_TURN_LEFT_ARM:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_LEFT;
+                        break;
+
+                    case ACT_CYLINDER_TURN_RIGHT_ARM:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_RIGHT;
+                        break;
+
+                    case ACT_ORE_GUN:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_ORE_GUN;
+                        break;
+
+                    case ACT_ORE_ROLLER_ARM:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_ORE_ROLLER_ARM;
+                        break;
+
+                    case ACT_ORE_WALL:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_ORE_WALL;
+                        break;
+
+                    case ACT_ROCKET:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_ROCKET;
+                        break;
+
+
 
 // Anne
 
@@ -251,6 +341,7 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
 						failed_act_tests[i] = SELFTEST_ACT_UNKNOWN_ACT;
 						break;
 				}
+
 				break;
 			}
 		}
