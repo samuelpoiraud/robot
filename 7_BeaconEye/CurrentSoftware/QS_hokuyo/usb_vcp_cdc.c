@@ -13,7 +13,8 @@
 #define LOG_PREFIX "VCP : "
 #include "../QS/QS_outputlog.h"
 
-#define VCP_BUFFER_SIZE 4096
+#define VCP_BUFFER_RX_SIZE 4096
+#define VCP_BUFFER_TX_SIZE 100
 
 static Uint16 get_tx_data(Uint8 *buffer, Uint16 size);
 static void put_rx_data(const Uint8 *buffer, Uint16 size);
@@ -27,16 +28,16 @@ CDC_uart_interface_t cdc_interface = {
 	&rx_available
 };
 
-static Uint8 fifo_buffer_tx[VCP_BUFFER_SIZE];
-static Uint8 fifo_buffer_rx[VCP_BUFFER_SIZE];
+static Uint8 fifo_buffer_tx[VCP_BUFFER_TX_SIZE];
+static Uint8 fifo_buffer_rx[VCP_BUFFER_RX_SIZE];
 static FIFO_t fifo_tx;
 static FIFO_t fifo_rx;
 
 static bool_e overflow;
 
 bool_e VCP_init(Uint32 baudrate) {
-	FIFO_init(&fifo_tx, fifo_buffer_tx, VCP_BUFFER_SIZE, 1);
-	FIFO_init(&fifo_rx, fifo_buffer_rx, VCP_BUFFER_SIZE, 1);
+	FIFO_init(&fifo_tx, fifo_buffer_tx, VCP_BUFFER_TX_SIZE, 1);
+	FIFO_init(&fifo_rx, fifo_buffer_rx, VCP_BUFFER_RX_SIZE, 1);
 
 	USB_CDC_set_interface(cdc_interface);
 	USB_CDC_set_baudrate(baudrate);
@@ -123,5 +124,5 @@ static bool_e is_tx_empty() {
 }
 
 static Uint16 rx_available() {
-	return VCP_BUFFER_SIZE - FIFO_availableElements(&fifo_rx) - 1;
+	return VCP_BUFFER_RX_SIZE - FIFO_availableElements(&fifo_rx) - 1;
 }
