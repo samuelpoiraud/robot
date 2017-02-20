@@ -12,201 +12,33 @@
 #include "../../strats_2017/actions_both_2017.h"
 
 void etienne_strat_inutile_big(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_BOTH_WAIT,
-			INIT,
-
-			LES_SQUARE_COLOR,
-			CARRE_BAS_GAUCHE,
-			CARRE_BAS_DROIT,
-			CARRE_MILIEU_GAUCHE,
-			CARRE_MILIEU_DROIT_BAS,
-			CARRE_MILIEU_DROIT_HAUT,
-			CARRE_HAUT_DROIT,
-			CARRE_HAUT_GAUCHE,
-
-			DETERMINE_NB_CYLINDRE_SUR_BASE,
-			DETERMINE_NB_CYLINDRE_SUR_BASE_ROTATION,
-			DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS,
-			DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER,
-			DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT,
-
-			CHOIX_DE_COTE_DEPOSE,
-			DEPOSE_DROIT,
-			VERIFICATION_COULEUR_DROIT,
-			POUSSER_CYLINDRE_DROIT,
-			PRISE_DE_DECISION,
-
-			DEFAUT,
-			ERROR,
-			DONE
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
+				INIT,
+				INIT1,
+				ERROR,
+				DONE
 			);
 
-	switch(state){
+		switch(state){
+			case INIT:
+				//state = try_advance(NULL,entrance,400,state,INIT1,ERROR,FAST,BACKWARD,DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = INIT1;
+				break;
 
-		// Vérifier la présance de cylindre dans le robot... je sais pas faire... nul!
+			case INIT1:
+				state = check_sub_action_result(sub_harry_depose_modules_side(OUR_ELEMENT),INIT1,DONE,ERROR);
+				break;
+
+			case ERROR:
+				break;
+
+			case DONE:
+				break;
+		}
+}
+/*
 
 		case INIT:
-			//test pour avoir un point de départ:
-			state = try_going(2000,COLOR_Y(1000),INIT,INIT,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case LES_SQUARE_COLOR:
-			if (i_am_in_square_color(372,750,1198,0)){
-				state = CARRE_BAS_GAUCHE;
-			}
-
-			else if (i_am_in_square_color(1199,1004,2000,0)){
-				state = CARRE_BAS_DROIT;
-			}
-
-			else if (i_am_in_square_color(0,2250,1198,760)){
-				state = CARRE_MILIEU_GAUCHE;
-			}
-
-			else if (i_am_in_square_color(1201,1505,2000,1000)){
-				state = CARRE_MILIEU_DROIT_BAS;
-			}
-
-			else if (i_am_in_square_color(1203,2000,2000,1500)){
-				state = CARRE_MILIEU_DROIT_HAUT;
-			}
-
-			else if (i_am_in_square_color(1191,3000,2000,2000)){
-				state = CARRE_HAUT_DROIT;
-			}
-
-			else if (i_am_in_square_color(372,3000,1204,2245)){
-				state = CARRE_HAUT_GAUCHE;
-			}
-			else{
-				state = DEFAUT;
-			}
-			break;
-
-		case CARRE_BAS_GAUCHE:
-			state = try_going(1140,COLOR_Y(200),CARRE_BAS_GAUCHE,DETERMINE_NB_CYLINDRE_SUR_BASE,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case CARRE_BAS_DROIT:
-			state = try_going(1250,COLOR_Y(300),CARRE_BAS_DROIT,DETERMINE_NB_CYLINDRE_SUR_BASE,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case CARRE_MILIEU_GAUCHE:
-			state = try_going(1130,COLOR_Y(845),CARRE_MILIEU_GAUCHE,DETERMINE_NB_CYLINDRE_SUR_BASE,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case CARRE_MILIEU_DROIT_BAS:
-			state = try_going(1130,COLOR_Y(845),CARRE_MILIEU_DROIT_BAS,DETERMINE_NB_CYLINDRE_SUR_BASE,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case CARRE_MILIEU_DROIT_HAUT:
-			state = try_going(1000,COLOR_Y(1700),CARRE_MILIEU_DROIT_HAUT,DETERMINE_NB_CYLINDRE_SUR_BASE,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case CARRE_HAUT_DROIT:
-			state = try_going(1345,COLOR_Y(2255),CARRE_HAUT_DROIT,DETERMINE_NB_CYLINDRE_SUR_BASE,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case CARRE_HAUT_GAUCHE:
-			state = try_going(950,COLOR_Y(2250),CARRE_HAUT_GAUCHE,DETERMINE_NB_CYLINDRE_SUR_BASE,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case DETERMINE_NB_CYLINDRE_SUR_BASE_ROTATION:
-			//Rotation vers PI:
-			state = try_go_angle(PI4096, state, state, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
-			break;
-
-		case DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS:
-			//Descendre bras poussoir gauche
-			break;
-
-		case DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER:
-			//Avancer doucement jusqu'a bloquage:
-			state = try_advance(NULL, FALSE,600,state, state, ERROR,SLOW,FORWARD,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
-
-			//refaire 5 if (i_am_in_square_color()) OU (global.pos.x) pour savoir combien il y a de cylindre:
-			if (i_am_in_square_color(372,750,1198,0)){
-				//Il y a 5 cylindre:
-#warning			state = DONE;
-			}
-			if (i_am_in_square_color(372,750,1198,0)){
-				//Il y a 4 cylindre:
-				state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-			}
-			if (i_am_in_square_color(372,750,1198,0)){
-				//Il y a 3 cylindre:
-				state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-			}
-			if (i_am_in_square_color(372,750,1198,0)){
-				//Il y a 2 cylindre:
-				state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-			}
-			if (i_am_in_square_color(372,750,1198,0)){
-				//Il y a 1 cylindre:
-				state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-			}
-			if (i_am_in_square_color(372,750,1198,0)){
-				//Il y a 0 cylindre:
-				state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
-			}
-
-			break;
-
-		case DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT:
-			//revenir en arrière jusqu'au point (1140,COLOR_Y(200))
-			state = try_going(1140,COLOR_Y(200),CARRE_HAUT_DROIT,DETERMINE_NB_CYLINDRE_SUR_BASE,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-
-			//if (il reste de la place pour déposer des cylindres //// global.pos.x
-			//		changer de case ==> CHOIX_DE_COTE_DEPOSE
-			//else
-			//		changer de case ==> END
-			break;
-
-		case CHOIX_DE_COTE_DEPOSE:
-			//if (deposer à droite)
-			//		changer de case ==> DEPOSE_DROIT
-			//else
-			//		changer de case ==> DEPOSE_GAUCHE
-			break;
-
-		case DEPOSE_DROIT:
-			//Rotation vers PI
-			state = try_go_angle(PI4096, state, state, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
-			//descendre le bras poussoir droit
-
-			//Lacher le cylindre
-				//ouvrir la trape latérale
-			//changer de case ==> VERIFICATION_COULEUR
-			state = VERIFICATION_COULEUR_DROIT;
-			break;
-
-		case VERIFICATION_COULEUR_DROIT:
-			//if(le cylindre est monochrome:
-					state = POUSSER_CYLINDRE_DROIT;
-			//else:
-					//BON LA C'EST LE BORDEL!!!
-					//Mais une fois que le cylindre est de la bonne couleur:
-					state = POUSSER_CYLINDRE_DROIT;
-			break;
-
-		case POUSSER_CYLINDRE_DROIT:
-			//On pousse le cylindre
-			//Puis on revien en position de depart:
-			state = try_going(950,COLOR_Y(2250),POUSSER_CYLINDRE_DROIT,PRISE_DE_DECISION,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case PRISE_DE_DECISION:
-		state = try_going(950,COLOR_Y(2250),POUSSER_CYLINDRE_DROIT,PRISE_DE_DECISION,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-
-			// Est ce qu'il reste des cylindres dans le robot?
-		//if(nb_cylidre==0){
-			//END
-		//else{
-
-			// Est ce qu'il reste de la place dans la base
-
-
-/*		case INIT:
 			state=try_advance(NULL, entrance, 204, state, GO_ZONEDEPART, state, SLOW,BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
@@ -288,14 +120,6 @@ void etienne_strat_inutile_big(){
 			};
 			state = try_going_multipoint(curve, 6, state, DONE, ERROR, BACKWARD, DODGE_AND_WAIT, END_AT_BRAKE);
 		}break;*/
-
-		case ERROR:
-			break;
-
-		case DONE:
-			break;
-	}
-}
 
 
 void etienne_strat_inutile_small(){
