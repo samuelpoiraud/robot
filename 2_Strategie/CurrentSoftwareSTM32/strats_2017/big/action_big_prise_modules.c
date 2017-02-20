@@ -275,6 +275,707 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyT
 }
 
 
+error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_START_CENTER,
+			INIT,
+			GO_TO_START_POINT_UP,
+			GO_TO_START_POINT_SIDE,
+			GO_TO_START_POINT_DOWN,
+			GET_IN_CLOSE_ADV_ZONE,
+			GET_IN_FAR_ADV_ZONE,
+			GET_IN_ASTAR,
+			TAKE_FIRST_MODULE_UP,
+			TAKE_FIRST_MODULE_SIDE,
+			TAKE_FIRST_MODULE_DOWN,
+
+			STORAGE_LEFT,
+			STORAGE_RIGHT,
+
+			ERROR,
+			DONE
+		);
+
+		const displacement_t curve_far_zone_yellow[2] = {(displacement_t){(GEOMETRY_point_t){1000, 2400}, FAST},
+													     (displacement_t){(GEOMETRY_point_t){950, 2000}, FAST},
+													    };
+
+		const displacement_t curve_far_zone_blue[2] = {(displacement_t){(GEOMETRY_point_t){1000, 600}, FAST},
+													   (displacement_t){(GEOMETRY_point_t){950, 1000}, FAST},
+													  };
+
+		switch(state){
+			case INIT:
+				if (ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+					state = DONE; // Il n'y a plus rien à faire
+				}
+				else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_UNI)) // Si Anne est déjà en train de faire cette action
+				{
+					state = ERROR;
+				}
+				else
+				{
+					// Si on prend les modules du coté BLUE		(utiliser i_am_in_square et pas i_am_in_square_color)
+					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+						if(i_am_in_square(0, 550, 800, 1200)){
+							state = GO_TO_START_POINT_UP;
+						}else if(i_am_in_square(0, 1000, 1200, 2100)){
+							state = GO_TO_START_POINT_SIDE;
+						}else if(i_am_in_square(700,1400,0,800)){
+							state = GO_TO_START_POINT_DOWN;
+						}else if(i_am_in_square(700, 1400, 2100, 2600)){
+							state = GET_IN_CLOSE_ADV_ZONE;
+						}else if(i_am_in_square(700, 1400, 2600, 2800)){
+							state = GET_IN_FAR_ADV_ZONE;
+						}else{
+							state = GET_IN_ASTAR;
+						}
+					}
+					else	// Si on prend les modules du coté YELLOW	(utiliser i_am_in_square et pas i_am_in_square_color)
+					{
+						if(i_am_in_square(0, 550, 1800, 2200)){
+							state = GO_TO_START_POINT_UP;
+						}else if(i_am_in_square(0, 1000, 900, 1800)){
+							state = GO_TO_START_POINT_SIDE;
+						}else if(i_am_in_square(700,1400,2200,3000)){
+							state = GO_TO_START_POINT_DOWN;
+						}else if(i_am_in_square(700, 1400, 400, 1100)){
+							state = GET_IN_CLOSE_ADV_ZONE;
+						}else if(i_am_in_square(700, 1400, 200, 400)){
+							state = GET_IN_FAR_ADV_ZONE;
+						}else{
+							state = GET_IN_ASTAR;
+						}
+					}
+
+					// On lève le flag de subaction
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, TRUE);
+				}
+			break;
+
+			case GET_IN_CLOSE_ADV_ZONE:
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(900, 2000, state, GO_TO_START_POINT_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				}else{
+					state = try_going(900, 1000, state, GO_TO_START_POINT_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				}
+				break;
+
+			case GET_IN_FAR_ADV_ZONE:
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_START_POINT_SIDE, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				}else{
+					state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_START_POINT_SIDE, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				}
+				break;
+
+			case GET_IN_ASTAR:
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = ASTAR_try_going(600, 1250, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = ASTAR_try_going(600, 1750, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+				break;
+
+			case GO_TO_START_POINT_UP:
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(350, 950, state, TAKE_FIRST_MODULE_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(350, 2050, state, TAKE_FIRST_MODULE_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+				break;
+
+			case GO_TO_START_POINT_SIDE:
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(650, 1250, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(650, 1750, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+				break;
+
+			case GO_TO_START_POINT_DOWN:
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(830, 860, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(830, 2140, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+				break;
+
+			case TAKE_FIRST_MODULE_UP:
+				if(side == LEFT || side == NO_SIDE){
+					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+						state = try_going(650, 950, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					}else{
+						state = try_going(650, 2050, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					}
+				}
+				else{
+					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+						state = try_going(620, 1075, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					}else{
+						state = try_going(620, 2025, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					}
+				}
+				break;
+
+			case TAKE_FIRST_MODULE_SIDE:
+				if(side == LEFT || side == NO_SIDE){
+					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+						state = try_going(525, 980, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					}else{
+						state = try_going(525, 2020, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					}
+				}
+				else{
+					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+						state = try_going(650, 950, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					}else{
+						state = try_going(650, 2050, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					}
+				}
+				break;
+
+			case TAKE_FIRST_MODULE_DOWN:
+				if(side == LEFT || side == NO_SIDE){
+					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+						state = try_going(650, 1100, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					}else{
+						state = try_going(650, 1900, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					}
+				}
+				else{
+					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+						state = try_going(500, 920, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					}else{
+						state = try_going(500, 2080, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					}
+				}
+				break;
+
+
+			case STORAGE_LEFT:
+				state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_LEFT),state,DONE,ERROR);
+				if(ON_LEAVING(state)){
+					if(state==DONE){
+						ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN, TRUE);	// Flag element
+					}
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
+					set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				}
+				break;
+
+			case STORAGE_RIGHT:
+				state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_RIGHT),state,DONE,ERROR);
+				if(ON_LEAVING(state)){
+					if(state==DONE){
+						ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN, TRUE);	// Flag element
+					}
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
+					set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				}
+				break;
+
+			case ERROR:
+				RESET_MAE();
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+				on_turning_point();
+				return NOT_HANDLED;
+				break;
+
+			case DONE:
+				RESET_MAE();
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+				on_turning_point();
+				return END_OK;
+				break;
+
+			default:
+				if(entrance)
+					debug_printf("default case in sub_harry_prise_modules_centre\n");
+				break;
+		}
+	return IN_PROGRESS;
+}
+
+
+error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_SIDE_CENTER,
+			INIT,
+
+			GET_IN_CLOSE_ADV_ZONE,
+			GET_IN_FAR_ADV_ZONE,
+			GET_IN_ASTAR,
+			AVOID_MODULE_START,
+
+
+			GO_TO_SIDE_POINT_UP,
+			GO_TO_SIDE_POINT_FROM_DEPOSE_SIDE,
+			GO_TO_SIDE_POINT_FROM_LEFT_SIDE,
+			TAKE_SIDE_MODULE_FROM_START_ZONE,
+			TAKE_SIDE_MODULE_FROM_DEPOSE_SIDE,
+			TAKE_SIDE_MODULE_FROM_LEFT_SIDE,
+
+			STORAGE_LEFT,
+			STORAGE_RIGHT,
+
+			ERROR,
+			DONE
+		);
+
+	const displacement_t curve_far_zone_yellow[2] = {(displacement_t){(GEOMETRY_point_t){1000, 2400}, FAST},
+												     (displacement_t){(GEOMETRY_point_t){950, 2000}, FAST},
+												    };
+
+	const displacement_t curve_far_zone_blue[2] = {(displacement_t){(GEOMETRY_point_t){1000, 600}, FAST},
+												   (displacement_t){(GEOMETRY_point_t){950, 1000}, FAST},
+												  };
+
+	const displacement_t curve_avoid_module_start_yellow[2] = {(displacement_t){(GEOMETRY_point_t){600, 1700}, FAST},
+																 (displacement_t){(GEOMETRY_point_t){900, 2000}, FAST},
+																};
+
+	const displacement_t curve_avoid_module_start_blue[2] = {(displacement_t){(GEOMETRY_point_t){600, 1300}, FAST},
+															 (displacement_t){(GEOMETRY_point_t){900, 1000}, FAST},
+															};
+
+
+	switch(state){
+		case INIT:
+			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
+			}else if (ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN)){
+					state = DONE; // Il n'y a plus rien à faire
+			}
+			else
+			{
+				// Si on prend les modules du coté BLUE		(utiliser i_am_in_square et pas i_am_in_square_color)
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					if(i_am_in_square(0, 550, 800, 1200) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+						state = AVOID_MODULE_START;
+					}else if(i_am_in_square(0, 550, 800, 1200) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+						state = GO_TO_SIDE_POINT_UP;
+					}else if(i_am_in_square(350,1000,0,500)){
+						state = GO_TO_SIDE_POINT_FROM_LEFT_SIDE;
+					}else if(i_am_in_square(0, 1000, 1200, 2100)){
+						state = GO_TO_SIDE_POINT_UP;
+					}else if(i_am_in_square(700, 1400, 2100, 2600)){
+						state = GET_IN_CLOSE_ADV_ZONE;
+					}else if(i_am_in_square(700, 1400, 2600, 2800)){
+						state = GET_IN_FAR_ADV_ZONE;
+					}else{
+						state = GET_IN_ASTAR;
+					}
+				}
+				else	// Si on prend les modules du coté YELLOW	(utiliser i_am_in_square et pas i_am_in_square_color)
+				{
+					if(i_am_in_square(0, 550, 1800, 2200) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+						state = AVOID_MODULE_START;
+					}else if(i_am_in_square(0, 550, 1800, 2200) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+						state = GO_TO_SIDE_POINT_UP;
+					}else if(i_am_in_square(350,1000,2500,3000)){
+						state = GO_TO_SIDE_POINT_FROM_LEFT_SIDE;
+					}else if(i_am_in_square(0, 1000, 900, 1800)){
+						state = GO_TO_SIDE_POINT_UP;
+					}else if(i_am_in_square(700, 1400, 400, 1100)){
+						state = GET_IN_CLOSE_ADV_ZONE;
+					}else if(i_am_in_square(700, 1400, 200, 400)){
+						state = GET_IN_FAR_ADV_ZONE;
+					}else{
+						state = GET_IN_ASTAR;
+					}
+				}
+
+				// On lève le flag de subaction
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, TRUE);
+			}
+			break;
+
+		case AVOID_MODULE_START:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going_multipoint(curve_avoid_module_start_blue, 2, state, GO_TO_SIDE_POINT_UP, ERROR, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			}else{
+				state = try_going_multipoint(curve_avoid_module_start_yellow, 2, state, GO_TO_SIDE_POINT_UP, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_IN_CLOSE_ADV_ZONE:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going(900, 2000, state, GO_TO_SIDE_POINT_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(900, 1000, state, GO_TO_SIDE_POINT_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_IN_FAR_ADV_ZONE:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_SIDE_POINT_UP, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_SIDE_POINT_UP, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_IN_ASTAR:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = ASTAR_try_going(870, 700, state, GO_TO_SIDE_POINT_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = ASTAR_try_going(870, 2400, state, GO_TO_SIDE_POINT_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+
+		case GO_TO_SIDE_POINT_UP:
+			if(entrance){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, TRUE);
+			}
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going(940, 650, state, TAKE_SIDE_MODULE_FROM_START_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			else{
+				state = try_going(940, 2350, state, TAKE_SIDE_MODULE_FROM_START_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case TAKE_SIDE_MODULE_FROM_START_ZONE:
+			if(side == LEFT){
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1075, 400, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1075, 2600, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			else{
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1230, 540, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1230, 2460, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			break;
+
+
+		case GO_TO_SIDE_POINT_FROM_DEPOSE_SIDE:
+			if(entrance){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, TRUE);
+			}
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going(1270, 640, state, TAKE_SIDE_MODULE_FROM_DEPOSE_SIDE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(1270, 2360, state, TAKE_SIDE_MODULE_FROM_DEPOSE_SIDE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+
+
+		case TAKE_SIDE_MODULE_FROM_DEPOSE_SIDE:
+			if(side == LEFT){
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(990, 525, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(990, 2475, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			else{
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1125, 400, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1125, 2600, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			break;
+
+
+		case GO_TO_SIDE_POINT_FROM_LEFT_SIDE:
+			if(entrance){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, TRUE);
+			}
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going(950, 350, state, TAKE_SIDE_MODULE_FROM_LEFT_SIDE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(950, 2650, state, TAKE_SIDE_MODULE_FROM_LEFT_SIDE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case TAKE_SIDE_MODULE_FROM_LEFT_SIDE:
+			if(side == LEFT){
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1220, 495, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1220, 1505, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			else{
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1080, 590, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1080, 2410, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			break;
+
+		case STORAGE_LEFT:
+			state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_LEFT),state,DONE,ERROR);
+			if(ON_LEAVING(state)){
+				if(state==DONE){
+					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
+				}
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+			}
+			break;
+
+		case STORAGE_RIGHT:
+			state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_RIGHT),state,DONE,ERROR);
+			if(ON_LEAVING(state)){
+				if(state==DONE){
+					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
+				}
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+			}
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_prise_modules_centre\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_BASE_CENTER,
+			INIT,
+
+			GET_IN_CLOSE_ADV_ZONE,
+			GET_IN_FAR_ADV_ZONE,
+			GET_IN_ASTAR,
+			AVOID_MODULE_START,
+
+			GO_TO_CLOSE_POINT,
+			GO_TO_MID_POINT,
+
+			GO_TO_MODULE_FROM_MIDDLE,
+			GO_TO_MODULE_FROM_DOWN,
+			TAKE_BASE_MODULE,
+
+			STORAGE_LEFT,
+			STORAGE_RIGHT,
+			MOVE_BACK,
+
+			ERROR,
+			DONE
+		);
+
+	const displacement_t curve_far_zone_yellow[2] = {(displacement_t){(GEOMETRY_point_t){1000, 2400}, FAST},
+												     (displacement_t){(GEOMETRY_point_t){950, 2000}, FAST},
+												    };
+
+	const displacement_t curve_far_zone_blue[2] = {(displacement_t){(GEOMETRY_point_t){1000, 600}, FAST},
+												   (displacement_t){(GEOMETRY_point_t){950, 1000}, FAST},
+												  };
+
+	const displacement_t curve_avoid_module_start_yellow[2] = {(displacement_t){(GEOMETRY_point_t){600, 1700}, FAST},
+																 (displacement_t){(GEOMETRY_point_t){900, 2000}, FAST},
+																};
+
+	const displacement_t curve_avoid_module_start_blue[2] = {(displacement_t){(GEOMETRY_point_t){600, 1300}, FAST},
+															 (displacement_t){(GEOMETRY_point_t){900, 1000}, FAST},
+															};
+
+
+	switch(state){
+		case INIT:
+			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
+			}else if (ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN)){
+					state = DONE; // Il n'y a plus rien à faire
+			}
+			else
+			{
+				// Si on prend les modules du coté BLUE		(utiliser i_am_in_square et pas i_am_in_square_color)
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					if(i_am_in_square(0, 550, 800, 1200) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+						state = AVOID_MODULE_START;
+					}else if(i_am_in_square(0, 550, 800, 1200) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+						state = GO_TO_CLOSE_POINT;
+					}else if(i_am_in_square(0, 1000, 1200, 2100)){
+						state = GO_TO_MID_POINT;
+					}else if(i_am_in_square(700, 1400, 2100, 2600)){
+						state = GET_IN_CLOSE_ADV_ZONE;
+					}else if(i_am_in_square(700, 1400, 2600, 2800)){
+						state = GET_IN_FAR_ADV_ZONE;
+					}else{
+						state = GET_IN_ASTAR;
+					}
+				}
+				else	// Si on prend les modules du coté YELLOW	(utiliser i_am_in_square et pas i_am_in_square_color)
+				{
+					if(i_am_in_square(0, 550, 1800, 2200) && ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+						state = AVOID_MODULE_START;
+					}else if(i_am_in_square(0, 550, 1800, 2200) && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+						state = GO_TO_CLOSE_POINT;
+					}else if(i_am_in_square(0, 1000, 900, 1800)){
+						state = GO_TO_MID_POINT;
+					}else if(i_am_in_square(700, 1400, 400, 1100)){
+						state = GET_IN_CLOSE_ADV_ZONE;
+					}else if(i_am_in_square(700, 1400, 200, 400)){
+						state = GET_IN_FAR_ADV_ZONE;
+					}else{
+						state = GET_IN_ASTAR;
+					}
+				}
+
+				// On lève le flag de subaction
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, TRUE);
+			}
+			break;
+
+		case AVOID_MODULE_START:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going_multipoint(curve_avoid_module_start_blue, 2, state, GO_TO_CLOSE_POINT, ERROR, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			}else{
+				state = try_going_multipoint(curve_avoid_module_start_yellow, 2, state, GO_TO_CLOSE_POINT, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_IN_CLOSE_ADV_ZONE:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going(900, 2000, state, GO_TO_MID_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(900, 1000, state, GO_TO_MID_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_IN_FAR_ADV_ZONE:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_MID_POINT, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_MID_POINT, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_IN_ASTAR:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = ASTAR_try_going(1000, 1135, state, GO_TO_MID_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = ASTAR_try_going(1000, 2865, state, GO_TO_MID_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GO_TO_MID_POINT:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going(1100, 950, state, GO_TO_CLOSE_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			else{
+				state = try_going(1100, 2050, state, GO_TO_CLOSE_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case GO_TO_CLOSE_POINT:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going(1250, 700, state, TAKE_BASE_MODULE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			else{
+				state = try_going(1250, 2300, state, TAKE_BASE_MODULE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case TAKE_BASE_MODULE:
+			if(side == LEFT || side == NO_SIDE){
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1425, 785, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1425, 1215, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			else{
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1280, 920, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1280, 2080, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			break;
+
+		case STORAGE_LEFT:
+		state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_LEFT),state,MOVE_BACK,ERROR);
+		if(ON_LEAVING(state)){
+			if(state==DONE){
+				ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
+			}
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
+			set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+		}
+		break;
+
+		case STORAGE_RIGHT:
+			state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_RIGHT),state,MOVE_BACK,ERROR);
+			if(ON_LEAVING(state)){
+				if(state==DONE){
+					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
+				}
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+			}
+			break;
+
+		case MOVE_BACK:
+			state = try_advance(NULL, entrance, 300, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			if(ON_LEAVING(state)){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE); // Activation de la dépose
+			}
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_prise_modules_centre\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
 
 
 error_e sub_harry_rocket_monocolor(){
