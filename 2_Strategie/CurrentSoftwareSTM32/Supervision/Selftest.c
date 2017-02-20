@@ -597,18 +597,34 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_IHM_UNREACHABLE:					debug_printf("SELFTEST_IHM_UNREACHABLE");						break;
 
 				// Actionneurs
-				case SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM:       debug_printf("SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM");            break;
-				case SELFTEST_ACT_RX24_FISH_UNSTICK_ARM:		debug_printf("SELFTEST_ACT_RX24_FISH_UNSTICK_ARM");             break;
-				case SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE:		debug_printf("SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE");            break;
-				case SELFTEST_ACT_RX24_BOTTOM_DUNE:				debug_printf("SELFTEST_ACT_RX24_BOTTOM_DUNE");                  break;
-				case SELFTEST_ACT_RX24_MIDDLE_DUNE:				debug_printf("SELFTEST_ACT_RX24_MIDDLE_DUNE");                  break;
-				case SELFTEST_ACT_RX24_CONE_DUNE:				debug_printf("SELFTEST_ACT_RX24_CONE_DUNE");                    break;
-				case SELFTEST_ACT_RX24_SHOVEL_DUNE:				debug_printf("SELFTEST_ACT_RX24_SHOVEL_DUNE");                  break;
-				case SELFTEST_ACT_RX24_BRUSH_DUNE:				debug_printf("SELFTEST_ACT_RX24_BRUSH_DUNE");					break;
-				case SELFTEST_ACT_RX24_SAND_LOCKER_LEFT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_LEFT");             break;
-				case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		debug_printf("SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT");            break;
-				case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			debug_printf("SELFTEST_ACT_RX24_SHIFT_CYLINDER");               break;
-				case SELFTEST_ACT_RX24_PENDULUM:				debug_printf("SELFTEST_ACT_RX24_PENDULUM");                     break;
+                case SELFTEST_ACT_AX12_BEARING_BALL_WHEEL:		debug_printf("SELFTEST_ACT_AX12_BEARING_BALL_WHEEL");           break;
+                case SELFTEST_ACT_AX12_BIG_BALL_BACK_LEFT:		debug_printf("SELFTEST_ACT_AX12_BIG_BALL_BACK_LEFT");           break;
+                case SELFTEST_ACT_AX12_BIG_BALL_BACK_RIGHT:		debug_printf("SELFTEST_ACT_AX12_BIG_BALL_BACK_RIGHT");          break;
+                case SELFTEST_ACT_AX12_BIG_BALL_FRONT_LEFT:		debug_printf("SELFTEST_ACT_AX12_BIG_BALL_FRONT_LEFT");          break;
+                case SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT:	debug_printf("SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT");         break;
+                case SELFTEST_ACT_RX24_ORE_GUN:                 debug_printf("SELFTEST_ACT_RX24_ORE_GUN");                      break;
+                case SELFTEST_ACT_AX12_CYLINDER_HATCH_LEFT:     debug_printf("SELFTEST_ACT_AX12_CYLINDER_HATCH_LEFT");          break;
+                case SELFTEST_ACT_AX12_CYLINDER_HATCH_RIGHT:    debug_printf("SELFTEST_ACT_AX12_CYLINDER_HATCH_RIGHT");         break;
+                case SELFTEST_ACT_AX12_CYLINDER_DISPENSER_LEFT: debug_printf("SELFTEST_ACT_AX12_CYLINDER_DISPENSER_LEFT");      break;
+                case SELFTEST_ACT_AX12_CYLINDER_DISPENSER_RIGHT:debug_printf("SELFTEST_ACT_AX12_CYLINDER_DISPENSER_RIGHT");     break;
+                case SELFTEST_ACT_AX12_CYLINDER_SLOPE_LEFT:     debug_printf("SELFTEST_ACT_AX12_CYLINDER_SLOPE_LEFT");          break;
+                case SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT:    debug_printf("SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT");         break;
+                case SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT:    debug_printf("SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT");         break;
+                case SELFTEST_ACT_AX12_CYLINDER_PUSHER_RIGHT:   debug_printf("SELFTEST_ACT_AX12_CYLINDER_PUSHER_RIGHT");        break;
+                case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_LEFT:  debug_printf("SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_LEFT");       break;
+                case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT: debug_printf("SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT");      break;
+                case SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT:    debug_printf("SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT");         break;
+                case SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT:   debug_printf("SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT");        break;
+                case SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_LEFT:  debug_printf("SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_LEFT");       break;
+                case SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_RIGHT: debug_printf("SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_RIGHT");      break;
+                case SELFTEST_ACT_RX24_ORE_GUN:                 debug_printf("SELFTEST_ACT_RX24_ORE_GUN");                      break;
+                case SELFTEST_ACT_RX24_ORE_ROLLER_ARM:          debug_printf("SELFTEST_ACT_RX24_ORE_ROLLER_ARM");               break;
+                case SELFTEST_ACT_RX24_ORE_WALL:                debug_printf("SELFTEST_ACT_RX24_ORE_WALL");                     break;
+                case SELFTEST_ACT_AX12_ROCKET:                  debug_printf("SELFTEST_ACT_AX12_ROCKET");                       break;
+
+
+
+
 
 				case SELFTEST_ACT_AX12_LEFT_ARM:				debug_printf("SELFTEST_ACT_AX12_LEFT_ARM");                     break;
 				case SELFTEST_ACT_AX12_RIGHT_ARM:				debug_printf("SELFTEST_ACT_AX12_RIGHT_ARM");                    break;
@@ -904,18 +920,32 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unknown ACT";		break;
-		case SELFTEST_ACT_RX24_FISH_MAGNETIC_ARM:       return "ACT FISH MAGNETIC";     break;
-		case SELFTEST_ACT_RX24_FISH_UNSTICK_ARM:		return "ACT FISH UNSTICK";      break;
-		case SELFTEST_ACT_RX24_BLACK_SAND_CIRCLE:		return "ACT BLACK CIRCLE";      break;
-		case SELFTEST_ACT_RX24_BOTTOM_DUNE:				return "ACT BOTTOM DUNE";       break;
-		case SELFTEST_ACT_RX24_MIDDLE_DUNE:				return "ACT MIDDLE DUNE";       break;
-		case SELFTEST_ACT_RX24_CONE_DUNE:				return "ACT CONE DUNE";         break;
-		case SELFTEST_ACT_RX24_SHOVEL_DUNE:				return "ACT SHOVEL DUNE";        break;
-		case SELFTEST_ACT_RX24_BRUSH_DUNE:				return "ACT BRUSH DUNE";        break;
-		case SELFTEST_ACT_RX24_SAND_LOCKER_LEFT:		return "ACT LOCKER LEFT";		break;
-		case SELFTEST_ACT_RX24_SAND_LOCKER_RIGHT:		return "ACT LOCKER RIGHT";      break;
-		case SELFTEST_ACT_RX24_SHIFT_CYLINDER:			return "ACT SHIFT CYLINDER";    break;
-		case SELFTEST_ACT_RX24_PENDULUM:				return "ACT PENDULUM";          break;
+        case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_LEFT:  return "ACT ELEVATOR LEFT";     break;
+        case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT: return "ACT ELEVATOR RIGHT";    break;
+        case SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT:    return "ACT SLIDER LEFT";       break;
+        case SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT:   return "ACT SLIDER RIGHT";      break;
+        case SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_LEFT:  return "ACT TURN ARM LEFT";     break;
+        case SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_RIGHT: return "ACT TURN ARM RIGHT";    break;
+        case SELFTEST_ACT_RX24_ORE_GUN:                 return "ACT ORE GUN";           break;
+        case SELFTEST_ACT_RX24_ORE_ROLLER_ARM:          return "ACT ROLLER ARM";        break;
+        case SELFTEST_ACT_RX24_ORE_WALL:                return "ACT ORE WALL";          break;
+        case SELFTEST_ACT_AX12_BEARING_BALL_WHEEL:      return "ACT WHEEL";             break;
+        case SELFTEST_ACT_AX12_BIG_BALL_BACK_LEFT:      return "ACT BACK LEFT";         break;
+        case SELFTEST_ACT_AX12_BIG_BALL_BACK_RIGHT:     return "ACT BACK RIGHT";        break;
+        case SELFTEST_ACT_AX12_BIG_BALL_FRONT_LEFT:     return "ACT FRONT LEFT";        break;
+        case SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT:    return "ACT FRONT RIGHT";       break;
+        case SELFTEST_ACT_AX12_CYLINDER_DISPENSER_LEFT: return "ACT DISPENSER LEFT";    break;
+        case SELFTEST_ACT_AX12_CYLINDER_DISPENSER_RIGHT:return "ACT DISPENSER RIGHT";   break;
+        case SELFTEST_ACT_AX12_CYLINDER_HATCH_LEFT:     return "ACT HATCH LEFT";        break;
+        case SELFTEST_ACT_AX12_CYLINDER_HATCH_RIGHT:    return "ACT HATCH RIGHT";       break;
+        case SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT:    return "ACT PUSHER LEFT";       break;
+        case SELFTEST_ACT_AX12_CYLINDER_PUSHER_RIGHT:   return "ACT PUSHER RIGHT";      break;
+        case SELFTEST_ACT_AX12_CYLINDER_SLOPE_LEFT:     return "ACT SLOPE LEFT";        break;
+        case SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT:    return "ACT SLOPE RIGHT";       break;
+        case SELFTEST_ACT_AX12_ROCKET:                  return "ACT ROCKET";            break;
+
+
+
 
 		case SELFTEST_ACT_AX12_LEFT_ARM:				return "ACT LEFT ARM";          break;
 		case SELFTEST_ACT_AX12_RIGHT_ARM:				return "ACT RIGHT ARM";         break;
