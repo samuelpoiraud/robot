@@ -54,10 +54,8 @@ __ALIGN_BEGIN USBH_HOST                USB_Host 		__ALIGN_END;
 #define DATA_BLOCK_SIZE						64
 #ifdef USE_COMMAND_ME
 	#define NB_BYTES_FROM_HOKUYO			6750
-	#define HOKUYO_COMMAND					((Uint8*)"ME0000108001001")
 #else
 	#define NB_BYTES_FROM_HOKUYO			2500
-	#define HOKUYO_COMMAND					((Uint8*)"MS0000108001001")
 #endif
 
 /* Hokuyo specification */
@@ -264,7 +262,10 @@ void HOKUYO_processMain(void) {
 		case HOKUYO_WAIT:
 			if(USBH_CDC_is_ready_to_run()) {
 				/* Génération de la commande à envoyer */
-				HOKUYO_generateCommand(cmd, COMMAND_SYMBOL, CMD_STARTING_STEP, CMD_END_STEP, 1, 0, 1, "");
+				if(VCP_isIdle()){
+					HOKUYO_generateCommand(cmd, COMMAND_SYMBOL, CMD_STARTING_STEP, CMD_END_STEP, 1, 0, 1, "");
+				}
+
 				/* Calcul de la longueur de la trame */
 				received_frame_size = HOKUYO_calculateFrameSize(COMMAND_SYMBOL);
 				state = ASK_NEW_MEASUREMENT;
