@@ -83,6 +83,7 @@ void USBH_USR_Init(void) {
 */
 void USBH_USR_DeviceAttached(void) {
 	trace_printf("Device Attached\n");
+	HOKUYO_deviceConnected();
 }
 
 /**

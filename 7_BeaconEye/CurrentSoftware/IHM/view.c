@@ -4,7 +4,7 @@
 #include "../environment.h"
 #include "../QS/QS_outputlog.h"
 #include "../LCD/low layer/ssd2119.h"
-#include "../LCD/image/beacon.h"
+#include "../LCD/image/image.h"
 
 
 #define FIRST_COLOR					(0x0396)

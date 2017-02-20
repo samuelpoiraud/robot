@@ -24,18 +24,6 @@ typedef struct {
 	Sint32 coordY;
 } HOKUYO_point_position;
 
-typedef enum {
-	HOKUYO_MSG_IS_ALIVE = 0,
-	HOKUYO_MSG_ERROR
-} HOKUYO_observerMessageType_e;
-
-typedef struct {
-	HOKUYO_observerMessageType_e;
-
-	union {
-
-	};
-} HOKUYO_observerMessage_t;
 
 /**
  * @brief Initialisation de l'hokuyo et de l'USB
@@ -67,7 +55,7 @@ Uint8 HOKUYO_getAdversariesNumber(void);
  * @brief Obtenir les points filtrés de l'hokuyo
  * @retval Le tableau de points filtrés de l'hokuyo
  */
-HOKUYO_adversary_position* HOKUYO_getValidPoints(void);
+HOKUYO_point_position* HOKUYO_getValidPoints(void);
 
 /**
  * @brief Obtenir le nombre de points filtrés de l'hokuyo
@@ -98,5 +86,7 @@ time32_t HOKUYO_getLastMeasureDuration(void);
  * @brief Permet de prévenir le module Hokuyo que le périphérique est déconnecté
  */
 void HOKUYO_deviceDisconnected(void);
+
+void HOKUYO_deviceConnected(void);
 
 #endif /* QS_HOKUYO_HOKUYO_H_ */
