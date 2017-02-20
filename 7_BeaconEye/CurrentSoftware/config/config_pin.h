@@ -218,7 +218,7 @@
 
 	#define PORT_IO_C_13		PORT_IO_INPUT
 	#define PORT_OPT_C_13		PORT_OPT_NO_PULL
-		//
+		#define IRQ_TOUCH			GPIOC->IDR13
 
 	#define PORT_IO_C_14		PORT_IO_INPUT
 	#define PORT_OPT_C_14		PORT_OPT_NO_PULL
