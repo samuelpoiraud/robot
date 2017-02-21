@@ -203,6 +203,16 @@
 	void SSD2119_drawFilledCircle(Uint16 x0, Uint16 y0, Uint16 r, Uint16 color);
 
 	/**
+	 * @brief  Draws cross on LCD
+	 * @param  x: X coordinate of center cross point
+	 * @param  y: Y coordinate of center cross point
+	 * @param  size: Cross size
+	 * @param  color: Cross color
+	 * @retval None
+	 */
+	void SSD2119_drawCross(Uint16 x, Uint16 y, Uint16 size, Uint16 color);
+
+	/**
 	 * @brief  Put Image on LCD
 	 * @param  x: X coordinate of starting point
 	 * @param  y: Y coordinate of starting point
