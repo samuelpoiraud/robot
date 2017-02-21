@@ -86,7 +86,7 @@ void LCD_processMain(void) {
 	switch(state) {
 		case INIT_LCD:
 			//LCD_recoverI2C();
-			state = DISPLAY_MENU;
+			state = DISPLAY_TERRAIN;
 			break;
 		case INIT_TOUCH:
 			//LCD_recoverI2C();

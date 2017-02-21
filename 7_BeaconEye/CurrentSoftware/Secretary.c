@@ -57,6 +57,8 @@
 #include "QS/QS_can_over_xbee.h"
 #include "QS/QS_can_verbose.h"
 
+#if 0
+
 volatile bool_e flag_new_event = FALSE;
 static zone_event_t events[ZONE_NUMBER];
 
@@ -205,3 +207,5 @@ static void SECRETARY_send_callback(CAN_msg_t * can_msg){
 	QS_CAN_VERBOSE_can_msg_print(can_msg, VERB_OUTPUT_MSG);
 #endif
 }
+
+#endif

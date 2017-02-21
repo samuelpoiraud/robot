@@ -15,6 +15,6 @@ void SECRETARY_process_main(void);
 void SECRETARY_set_zones_updated(void);
 void SECRETARY_process_ms(void);
 
-void SECRETARY_set_event(zone_e i, zone_event_t event);
+void SECRETARY_set_event(ZONE_zoneId_e i, ZONE_event_t event);
 
 #endif //SECRETARY_H_
