@@ -23,6 +23,8 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			SUB_TAKE_BLUE_MIDDLE,
 			SUB_TAKE_BLUE_ROCKET,
 			SUB_TAKE_BLUE_CORNER,
+			GET_OUT_YELLOW,
+			GET_OUT_BLUE,
 			ERROR,
 			DONE
 		);
@@ -35,8 +37,8 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 					|| (ELEMENTS_get_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN) && minerais == ADV_ELEMENT)){
 				state = DONE;	// L'action a déjà été faite
 			}else{
-
 				if (minerais != OUR_ELEMENT && minerais != ADV_ELEMENT){
+
 					state = ERROR;
 
 				}else if(minerais ==OUR_ELEMENT){
@@ -52,8 +54,10 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 					}else{
 						state = SUB_MOVE_POS_YELLOW;
 					}
-
 				}
+
+
+
 			}
 			break;
 
@@ -70,7 +74,11 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			break;
 
 		case SUB_TAKE_YELLOW_CORNER:
-			state = check_sub_action_result(sub_harry_take_big_crater_yellow_corner(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_yellow_corner(), state, GET_OUT_YELLOW, ERROR);
+			break;
+
+		case GET_OUT_YELLOW:
+			state = try_going(1390, 2600, GET_OUT_YELLOW, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 
@@ -90,7 +98,12 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			break;
 
 		case SUB_TAKE_BLUE_CORNER:
-			state = check_sub_action_result(sub_harry_take_big_crater_blue_corner(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_take_big_crater_blue_corner(), state, GET_OUT_BLUE, ERROR);
+			break;
+
+
+		case GET_OUT_BLUE: //try go
+			state = try_going(1390, 2600, GET_OUT_BLUE, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -98,6 +111,7 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			on_turning_point();
 			return NOT_HANDLED;
 			break;
+
 
 		case DONE:
 			RESET_MAE();
@@ -450,7 +464,6 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 		case COLLECT_YELLOW_MIDDLE_LINE:
 			// rotation nord avant de reculer dans le cratère
 			state = try_go_angle(PI4096, state, COLLECT_YELLOW_MIDDLE_ACTIVATE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
-
 			break;
 
 		case COLLECT_YELLOW_MIDDLE_ACTIVATE:{
@@ -1370,12 +1383,14 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 			}else{
 				state=GET_IN;
 
+
 				// On lève le flag de subaction
 				if(minerais == OUR_ELEMENT){
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_NORTH_CRATER, TRUE);
 				}else{
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_NORTH_CRATER, TRUE);
 				}
+
 			}
 			break;
 
@@ -1452,17 +1467,20 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
+
 			if(minerais == OUR_ELEMENT){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_NORTH_CRATER, FALSE);
 			}else{
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_NORTH_CRATER, FALSE);
 			}
+
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
+
 			if(minerais == OUR_ELEMENT){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_NORTH_CRATER, FALSE);	// flag subaction
 				ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN, TRUE);	// flag element
@@ -1471,6 +1489,7 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_NORTH_CRATER, FALSE);	// flag element
 			}
 			ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
+
 			return END_OK;
 			break;
 
@@ -1603,12 +1622,14 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 			}else{
 				state=GET_IN;
 
+
 				// On lève le flag de subaction
 				if(minerais == OUR_ELEMENT){
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_SOUTH_CRATER, TRUE);
 				}else{
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_SOUTH_CRATER, TRUE);
 				}
+
 			}
 			break;
 
@@ -1686,17 +1707,20 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
+
 			if(minerais == OUR_ELEMENT){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_SOUTH_CRATER, FALSE);
 			}else{
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_SOUTH_CRATER, FALSE);
 			}
+
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
+
 
 			if(minerais == OUR_ELEMENT){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_SOUTH_CRATER, FALSE); // flag subaction
@@ -1706,6 +1730,7 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);	// flag element
 			}
 			ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
+
 			return END_OK;
 			break;
 
