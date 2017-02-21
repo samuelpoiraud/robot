@@ -15,7 +15,6 @@
 #define LOG_PREFIX "act_f: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ACTFUNCTION
 #include "../QS/QS_outputlog.h"
-#include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_IHM.h"
 #include "../QS/QS_can_verbose.h"
 #include "../QS/QS_who_am_i.h"
@@ -42,10 +41,11 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	//{ACT_FISH_MAGNETIC_ARM,			ACT_QUEUE_Fish_magnetic_arm,			"Fish magnetic arm"},
     //{ACT_BILLIX_TEST,			        ACT_QUEUE_Billix_test,			        "Billix test"},
     {ACT_ORE_GUN,			  		    ACT_QUEUE_Ore_gun,			        	"Ore gun"},
-    {ACT_ORE_CATCH,			  		    ACT_QUEUE_Ore_catch,			        "Ore catch"},
+#warning bug
+    /*{ACT_ORE_CATCH,			  		    ACT_QUEUE_Ore_catch,			        "Ore catch"},
     {ACT_ORE_MIXER,			  		    ACT_QUEUE_Ore_mixer,			        "Ore mixer"},
     {ACT_ORE_SHOVEL,			  		ACT_QUEUE_Ore_shovel,			        "Ore shovel"},
-    {ACT_ORE_SWEEPER,			  		ACT_QUEUE_Ore_sweeper,			        "Ore sweeper"},
+    {ACT_ORE_SWEEPER,			  		ACT_QUEUE_Ore_sweeper,			        "Ore sweeper"},*/
     {ACT_CYLINDER_DISPENSER_LEFT,		ACT_QUEUE_Cylinder_dispenser_left,		"Cylinder dispenser left"},
     {ACT_CYLINDER_DISPENSER_RIGHT,		ACT_QUEUE_Cylinder_dispenser_right,		"Cylinder dispenser right"},
     {ACT_CYLINDER_ELEVATOR_LEFT,		ACT_QUEUE_Cylinder_elevator_left,		"Cylinder elevator left"},

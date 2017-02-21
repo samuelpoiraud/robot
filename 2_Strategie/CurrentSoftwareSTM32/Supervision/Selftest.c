@@ -617,7 +617,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
                 case SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT:   debug_printf("SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT");        break;
                 case SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_LEFT:  debug_printf("SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_LEFT");       break;
                 case SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_RIGHT: debug_printf("SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_RIGHT");      break;
-                case SELFTEST_ACT_RX24_ORE_GUN:                 debug_printf("SELFTEST_ACT_RX24_ORE_GUN");                      break;
                 case SELFTEST_ACT_RX24_ORE_ROLLER_ARM:          debug_printf("SELFTEST_ACT_RX24_ORE_ROLLER_ARM");               break;
                 case SELFTEST_ACT_RX24_ORE_WALL:                debug_printf("SELFTEST_ACT_RX24_ORE_WALL");                     break;
                 case SELFTEST_ACT_AX12_ROCKET:                  debug_printf("SELFTEST_ACT_AX12_ROCKET");                       break;

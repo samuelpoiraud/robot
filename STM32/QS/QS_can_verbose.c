@@ -380,7 +380,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  }
 				  break;
 
-				  case (Uint8)ACT_BIG_BALL_BACK_LEFT:
+#warning bug
+				  /*case (Uint8)ACT_BIG_BALL_BACK_LEFT:
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_BIG_BALL_BACK_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
 						  	  case (Uint8)ACT_BIG_BALL_BACK_LEFT_UP:	print(string,len, "| UP |");			break;
@@ -388,7 +389,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  	  case (Uint8)ACT_BIG_BALL_BACK_LEFT_STOP:	print(string,len, "| STOP |");			break;
 						  	  default:                                  print(string,len, "| UNKNOW cmd |");	break;
 						  }
-				  break;
+				  break;*/
 
 				  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT:
 						  switch(msg->data.act_result.cmd){
@@ -679,8 +680,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 					  		default:                                    print(string,len, "| UNKNOW cmd |\n");	break;
 					  	}
 			  	  break;
-
-				  case (Uint8)ACT_BIG_BALL_BACK_RIGHT:
+#warning bug
+				  /*case (Uint8)ACT_BIG_BALL_BACK_RIGHT:
 						switch(msg->data.act_result.cmd){
 							case (Uint8)ACT_BIG_BALL_BACK_RIGHT_IDLE:	print(string,len, "| IDLE |\n");			break;
 							case (Uint8)ACT_BIG_BALL_BACK_RIGHT_UP:		print(string,len, "| UP |\n");			break;
@@ -688,9 +689,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 							case (Uint8)ACT_BIG_BALL_BACK_RIGHT_STOP:	print(string,len, "| STOP |\n");			break;
 							default:                                    print(string,len, "| UNKNOW cmd |\n");	break;
 						}
-				  break;
+				  break;*/
 
-				  case (Uint8)ACT_BIG_BALL_FRONT_LEFT:
+				 /*case (Uint8)ACT_BIG_BALL_FRONT_LEFT:
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_IDLE:	print(string,len, "| IDLE |\n");			break;
 						  	  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_UP:	print(string,len, "| UP |\n");			break;
@@ -698,9 +699,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  	  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_STOP:	print(string,len, "| STOP |\n");			break;
 						  	  default:                                  print(string,len, "| UNKNOW cmd |\n");	break;
 						  }
-				  break;
+				  break;*/
 
-				  case (Uint8)ACT_BIG_BALL_BACK_LEFT:
+				 /*case (Uint8)ACT_BIG_BALL_BACK_LEFT:
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_BIG_BALL_BACK_LEFT_IDLE:	print(string,len, "| IDLE |\n");			break;
 						  	  case (Uint8)ACT_BIG_BALL_BACK_LEFT_UP:	print(string,len, "| UP |\n");			break;
@@ -708,7 +709,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  	  case (Uint8)ACT_BIG_BALL_BACK_LEFT_STOP:	print(string,len, "| STOP |\n");			break;
 						  	  default:                                  print(string,len, "| UNKNOW cmd |\n");	break;
 						  }
-				  break;
+				  break;*/
 
 				  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT:
 						  switch(msg->data.act_result.cmd){
@@ -801,8 +802,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  	  default:                                  	print(string,len, "| UNKNOW cmd |\n");	break;
 						  }
 				  break;
-
-				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT:
+#warning bug
+				  /*case (Uint8)ACT_CYLINDER_SLIDER_LEFT:
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IDLE:print(string,len, "| IDLE |\n");			break;
 						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT:	print(string,len, "| A OUT |\n");	break;
@@ -812,7 +813,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_STOP:print(string,len, "| STOP |\n");			break;
 						  	  default:                                  print(string,len, "| UNKNOW cmd |\n");	break;
 						  }
-				  break;
+				  break;*/
 
 				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT:
 						  switch(msg->data.act_result.cmd){
@@ -865,8 +866,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  	  default:                           		    print(string,len, "| UNKNOW cmd |\n");	break;
 						  }
 				  break;
-
-				  case (Uint8)ACT_ORE_GUN:
+#warning bug
+				 /*case (Uint8)ACT_ORE_GUN:
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_ORE_GUN_IDLE:	print(string,len, "| IDLE |\n");		break;
 						  	  case (Uint8)ACT_ORE_GUN_DOWN:	print(string,len, "| DOWN |\n");		break;
@@ -874,7 +875,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  	  case (Uint8)ACT_ORE_GUN_STOP:	print(string,len, "| STOP |\n");		break;
 						  	  default:                      print(string,len, "| UNKNOW cmd |\n");break;
 						  }
-				  break;
+				  break;*/
 
 				  case (Uint8)ACT_ORE_ROLLER_ARM:
 						  switch(msg->data.act_result.cmd){
@@ -915,16 +916,16 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 		case DEBUG_PROPULSION_ERREUR_RECOUVREMENT_IT :	print(string, len, "| duration : %dms  section : %s\n", msg->data.debug_propulsion_erreur_recouvrement_it.duration, it_state_name[msg->data.debug_propulsion_erreur_recouvrement_it.id_it_state_name]);										break;
 
-		case STRAT_TRAJ_FINIE:					print(string, len, "| J'arrive  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x\n", msg->data.strat_traj_finie.x, msg->data.strat_traj_finie.y, msg->data.strat_traj_finie.angle, RAD_TO_DEG(msg->data.strat_traj_finie.angle), msg->data.strat_traj_finie.reason ,msg->data.strat_traj_finie.error);								break;
-		case STRAT_PROP_ERREUR:					print(string, len, "| J'erreur  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x\n", msg->data.strat_prop_erreur.x, msg->data.strat_prop_erreur.y, msg->data.strat_prop_erreur.angle, RAD_TO_DEG(msg->data.strat_prop_erreur.angle), msg->data.strat_prop_erreur.reason ,msg->data.strat_prop_erreur.error);								break;
-		case STRAT_ROBOT_FREINE:				print(string, len, "| J'freine  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x\n", msg->data.strat_robot_freine.x, msg->data.strat_robot_freine.y, msg->data.strat_robot_freine.angle, RAD_TO_DEG(msg->data.strat_robot_freine.angle), msg->data.strat_robot_freine.reason ,msg->data.strat_robot_freine.error);								break;
+		case STRAT_TRAJ_FINIE:					print(string, len, "| J'arrive  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x id=%d\n", msg->data.strat_traj_finie.x, msg->data.strat_traj_finie.y, msg->data.strat_traj_finie.angle, RAD_TO_DEG(msg->data.strat_traj_finie.angle), msg->data.strat_traj_finie.reason ,msg->data.strat_traj_finie.error, msg->data.strat_traj_finie.idTraj);								break;
+		case STRAT_PROP_ERREUR:					print(string, len, "| J'erreur  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x id=%d\n", msg->data.strat_prop_erreur.x, msg->data.strat_prop_erreur.y, msg->data.strat_prop_erreur.angle, RAD_TO_DEG(msg->data.strat_prop_erreur.angle), msg->data.strat_prop_erreur.reason ,msg->data.strat_prop_erreur.error, msg->data.strat_prop_erreur.idTraj);								break;
+		case STRAT_ROBOT_FREINE:				print(string, len, "| J'freine  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x id=%d\n", msg->data.strat_robot_freine.x, msg->data.strat_robot_freine.y, msg->data.strat_robot_freine.angle, RAD_TO_DEG(msg->data.strat_robot_freine.angle), msg->data.strat_robot_freine.reason ,msg->data.strat_robot_freine.error, msg->data.strat_robot_freine.idTraj);								break;
 		case STRAT_PROP_FOE_DETECTED:			print(string, len, "| x : %d   y : %d   dist : %d   angle : %d   %s   %s\n", msg->data.strat_prop_foe_detected.x, msg->data.strat_prop_foe_detected.y, msg->data.strat_prop_foe_detected.dist, msg->data.strat_prop_foe_detected.angle,(msg->data.strat_prop_foe_detected.hokuyo_detection)?"hokuyo":"balise", (msg->data.strat_prop_foe_detected.timeout)?"avec timeout":"");	break;
 		case STRAT_SEND_REPORT:					print(string, len, "| Distance : %d | Rotation : %u° | Rotation max : %d°\n", msg->data.strat_send_report.actual_trans, RAD_TO_DEG(msg->data.strat_send_report.actual_rot), RAD_TO_DEG(msg->data.strat_send_report.max_rot));	break;
 
 		case PROP_ROBOT_CALIBRE:				print(string, len, "| J'calibre  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x\n", msg->data.prop_robot_calibre.x, msg->data.prop_robot_calibre.y, msg->data.prop_robot_calibre.angle, RAD_TO_DEG(msg->data.prop_robot_calibre.angle), msg->data.prop_robot_calibre.reason ,msg->data.prop_robot_calibre.error);								break;
-		case PROP_GO_ANGLE:						print(string, len, "| VaAngle   teta=%d=%d° %s %s %s %d%s %s\n", msg->data.prop_go_angle.teta, RAD_TO_DEG(msg->data.prop_go_angle.teta), (msg->data.prop_go_angle.propEndCondition == PROP_END_AT_BRAKE)?"multi":" ", (msg->data.prop_go_angle.buffer_mode == PROP_NOW)?"now":"pas_now", (msg->data.prop_go_angle.referential == PROP_RELATIVE)?"relatif":" ", msg->data.prop_go_angle.speed,(msg->data.prop_go_angle.speed == FAST)?"=rapide":((msg->data.prop_go_angle.speed == SLOW)?"=lente":""), (msg->data.prop_go_angle.way == FORWARD)?"avant":((msg->data.prop_go_angle.way == BACKWARD)?"arrière":"any_way")	);						break;
+		case PROP_GO_ANGLE:						print(string, len, "| VaAngle   teta=%d=%d° %s %s %s %d%s %s id=%d\n", msg->data.prop_go_angle.teta, RAD_TO_DEG(msg->data.prop_go_angle.teta), (msg->data.prop_go_angle.propEndCondition == PROP_END_AT_BRAKE)?"multi":" ", (msg->data.prop_go_angle.buffer_mode == PROP_NOW)?"now":"pas_now", (msg->data.prop_go_angle.referential == PROP_RELATIVE)?"relatif":" ", msg->data.prop_go_angle.speed,(msg->data.prop_go_angle.speed == FAST)?"=rapide":((msg->data.prop_go_angle.speed == SLOW)?"=lente":""), (msg->data.prop_go_angle.way == FORWARD)?"avant":((msg->data.prop_go_angle.way == BACKWARD)?"arrière":"any_way"),  msg->data.prop_go_position.idTraj);						break;
 		case PROP_OFFSET_AVOID:					print(string, len, "| Xleft : %d  Xright : %d  Yfront : %d  Yback : %d\n", msg->data.prop_offset_avoid.x_left, msg->data.prop_offset_avoid.x_right, msg->data.prop_offset_avoid.y_front, msg->data.prop_offset_avoid.y_back);		break;
-		case PROP_GO_POSITION:					print(string, len, "| VaPos     x=%d y=%d %s %s %s vitesse %d%s %s %s\n", msg->data.prop_go_position.x, msg->data.prop_go_position.y, (msg->data.prop_go_position.propEndCondition == PROP_END_AT_BRAKE)?"multi":" ", (msg->data.prop_go_position.buffer_mode == PROP_NOW)?"now":"pas_now", (msg->data.prop_go_position.referential == PROP_RELATIVE)?"relatif":" ", msg->data.prop_go_position.speed,(msg->data.prop_go_position.speed == FAST)?"=rapide":((msg->data.prop_go_position.speed == SLOW)?"=lente":""), (msg->data.prop_go_position.way == FORWARD)?"avant":((msg->data.prop_go_position.way == BACKWARD)?"arrière":"any_way"), ((msg->data.prop_go_position.border_mode == PROP_BORDER_MODE)?"mode bordure":""));	break;
+		case PROP_GO_POSITION:					print(string, len, "| VaPos     x=%d y=%d %s %s %s vitesse %d%s %s %s id=%d\n", msg->data.prop_go_position.x, msg->data.prop_go_position.y, (msg->data.prop_go_position.propEndCondition == PROP_END_AT_BRAKE)?"multi":" ", (msg->data.prop_go_position.buffer_mode == PROP_NOW)?"now":"pas_now", (msg->data.prop_go_position.referential == PROP_RELATIVE)?"relatif":" ", msg->data.prop_go_position.speed,(msg->data.prop_go_position.speed == FAST)?"=rapide":((msg->data.prop_go_position.speed == SLOW)?"=lente":""), (msg->data.prop_go_position.way == FORWARD)?"avant":((msg->data.prop_go_position.way == BACKWARD)?"arrière":"any_way"), ((msg->data.prop_go_position.border_mode == PROP_BORDER_MODE)?"mode bordure":""), msg->data.prop_go_position.idTraj);	break;
 		case PROP_SET_POSITION:					print(string, len, "| PrendPos  X=%d | Y=%d | teta=0x%x=%d°\n", msg->data.prop_set_position.x, msg->data.prop_set_position.y, RAD_TO_DEG(msg->data.prop_set_position.teta), msg->data.prop_set_position.teta);													break;
 		case PROP_SEND_PERIODICALLY_POSITION: 	print(string, len, "| DitPos    période=%d | translation = %dmm | rotation = %d°\n", msg->data.prop_send_periodically_position.period, msg->data.prop_send_periodically_position.translation, msg->data.prop_send_periodically_position.rotation);										break;
 		case PROP_RUSH_IN_THE_WALL:				print(string, len, "| sens %s | asservissement rotation %sactivée\n", (msg->data.prop_rush_in_the_wall.way == BACKWARD)?"arrière":((msg->data.prop_rush_in_the_wall.way == FORWARD)?"avant":"quelconque"), (msg->data.prop_rush_in_the_wall.asser_rot)?"":"dés");				break;
