@@ -18,6 +18,10 @@
 #define SATURATION_LOW (200)
 #define SATURATION_HIGH (1000)
 
+typedef enum{
+	SCAN_SIDE_LEFT,
+	SCAN_SIDE_RIGHT
+}SCAN_side_e;
 
 static void SCAN_get_data_left();
 static void SCAN_get_data_right();
@@ -45,8 +49,91 @@ void SCAN_init(){
 	}
 }
 
-static void SCAN_get_data(){
-	// TODO !
+static void SCAN_get_data(SCAN_side_e side){
+
+	// Variable static
+	static scan_zone_e previous_zone_left = OTHER_ZONE;
+	static scan_zone_e zone_left = OTHER_ZONE;
+	static GEOMETRY_point_t previous_pos_left = {0,0};
+	static scan_zone_e previous_zone_right = OTHER_ZONE;
+	static scan_zone_e zone_right = OTHER_ZONE;
+	static GEOMETRY_point_t previous_pos_right = {0,0};
+
+	GEOMETRY_point_t pos_mesure, pos_laser;
+	bool_e enable;
+	Sint16 value;
+	position_t robot;
+	Sint16 cosinus = 0, sinus = 0;
+	Sint32 offsetLenghtLaser, offsetWidthLaser, offsetAngle;
+	scan_zone_e *previous_zone;
+	scan_zone_e *zone;
+	GEOMETRY_point_t *previous_pos;
+	scan_data_t *laser_data;
+
+	if(side == SCAN_SIDE_LEFT){
+		offsetLenghtLaser = OFFSET_LENGTH_LASER_LEFT;
+		offsetWidthLaser = OFFSET_WIDTH_LASER_LEFT;
+		offsetAngle = OFFSET_ANGLE_LEFT;
+		previous_zone = &previous_zone_left;
+		zone = &zone_left;
+		previous_pos = &previous_pos_left;
+		laser_data = laser_left;
+
+		value = CONVERSION_LASER_LEFT(laser_data[index].ADCvalue);
+
+	}else{
+		offsetLenghtLaser = OFFSET_LENGTH_LASER_RIGHT;
+		offsetWidthLaser = OFFSET_WIDTH_LASER_RIGHT;
+		offsetAngle = OFFSET_ANGLE_RIGHT;
+		previous_zone = &previous_zone_right;
+		zone = &zone_right;
+		previous_pos = &previous_pos_right;
+		laser_data = laser_right;
+
+		value = CONVERSION_LASER_RIGHT(laser_data[index].ADCvalue);
+	}
+
+	robot = global.position; // On récupère la position du robot tout de suite
+
+	robot.teta = GEOMETRY_modulo_angle(robot.teta);
+	COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+
+	// On regarde si il y a des saturations
+	enable = TRUE;
+	if(laser_data[index].ADCvalue < SATURATION_LOW || laser_data[index].ADCvalue > SATURATION_HIGH){
+		enable = FALSE;
+	}
+	laser_data[index].enable = enable;
+
+	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
+	pos_laser.x = robot.x + (offsetLenghtLaser * cosinus - offsetWidthLaser * sinus)/4096;
+	pos_laser.y = robot.y + (offsetLenghtLaser * sinus + offsetWidthLaser * cosinus)/4096;
+
+	COS_SIN_4096_get(robot.teta + offsetAngle, &cosinus, &sinus);
+
+	// On calcule et on stocke la valeur sauf si le capteur entre en saturation
+	if(enable == TRUE){
+		pos_mesure.x = pos_laser.x - (value * sinus)/4096;
+		pos_mesure.y = pos_laser.y + (value * cosinus)/4096;
+	}
+
+	if(absolute(previous_pos->x - pos_mesure.x) > 15 || absolute(previous_pos->y - pos_mesure.y) > 15)
+	{
+		*previous_zone = *zone;
+		*zone = BORDERS_SCAN_treatment(pos_mesure);
+		*previous_pos = pos_mesure;
+		if(*previous_zone != *zone){
+			it_printf("j\n");
+			calculeZonePublic(*previous_zone);
+		}
+	}
+
+	// On stocke les valeurs
+	laser_data[index].pos_mesure = pos_mesure;
+	laser_data[index].pos_laser = pos_laser;
+	//laser_data[index].ADCvalue = value;
+	laser_data[index].pos_robot = robot;
+
 }
 
 static void SCAN_get_data_left(){
