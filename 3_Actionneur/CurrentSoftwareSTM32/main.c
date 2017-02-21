@@ -181,7 +181,7 @@ int main (void)
 
 		OUTPUTLOG_process_main();
 
-		MOTOR_TEST_test();
+        //MOTOR_TEST_test();
 
 	}//Endloop
 	return 0;
