@@ -322,30 +322,30 @@
 		#define ENABLE_WATCHING_ZONE			0x5BE
 		#define SIZE_ENABLE_WATCHING_ZONE		3
 			struct{
-				zone_e zone						:8;
+				ZONE_zoneId_e zone				:8;
 				robot_id_e robot				:8;
-				zone_event_t event				:8;
+				ZONE_event_t event				:8;
 			}enable_watching_zone;
 
 		#define DISABLE_WATCHING_ZONES			0x5BD
 		#define SIZE_DISABLE_WATCHING_ZONES		2
 			struct{
-				zone_e zone						:8;
+				ZONE_zoneId_e zone				:8;
 				robot_id_e robot				:8;
 			}disable_watching_zone;
 
 		#define GET_ZONE_INFOS					0x5B1
 		#define SIZE_GET_ZONE_INFOS				2
 			struct{
-				zone_e zone						:8;
+				ZONE_zoneId_e zone				:8;
 				robot_id_e robot				:8;
 			}get_zone_infos;
 
 		#define STRAT_ZONE_INFOS				0x551
 		#define SIZE_STRAT_ZONE_INFOS			7
 			struct{
-				zone_e zone						:8;
-				zone_event_t event				:8;
+				ZONE_zoneId_e zone				:8;
+				ZONE_event_t event				:8;
 				time32_t min_detection_time		:8;
 				Uint16 specific_param_x			:8;
 				Uint16 specific_param_y			:8;

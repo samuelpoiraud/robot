@@ -459,13 +459,12 @@
 		EVENT_NO_EVENT	= 0b00000000,
 		EVENT_GET_IN	= 0b00000001,
 		EVENT_GET_OUT	= 0b00000010,
-		EVENT_TIME_IN	= 0b00000100,
-		EVENT_SPECIAL	= 0b00001000
-	}zone_event_t;
+		EVENT_TIME_IN	= 0b00000100
+	} ZONE_event_t;
 
 	typedef enum{
 		ZONE_NUMBER		//Nombre de zones...
-	}zone_e;
+	} ZONE_zoneId_e;
 
 	typedef enum{
 		NO_AREA = 0,
