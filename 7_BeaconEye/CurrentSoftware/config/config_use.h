@@ -101,7 +101,7 @@
 	#define USE_PWM4
 
 /* Réglages LCD */
-	//#define USE_IRQ_TOUCH_VALIDATION
+	#define USE_IRQ_TOUCH_VALIDATION
 
 
 #endif /* CONFIG_USE_H */

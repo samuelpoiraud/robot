@@ -167,6 +167,9 @@ void STMPE811_init(void) {
 	mode = STMPE811_readData8(STMPE811_INT_EN);
 	mode |= 0x01;
 	STMPE811_writeData(STMPE811_INT_EN, mode);
+	mode = STMPE811_readData8(STMPE811_INT_CTRL);
+	mode |= 0x01;
+	STMPE811_writeData(STMPE811_INT_CTRL, mode);
 #endif
 
 	/* Wait for 2 ms delay */
@@ -189,10 +192,9 @@ bool_e STMPE811_getCoordinates(Sint16 * pX, Sint16 * pY, STMPE811_coordinateMode
 	STMPE811_writeData(STMPE811_FIFO_STA, 0x01);
 	STMPE811_writeData(STMPE811_FIFO_STA, 0x00);
 
-	if(coordinateMode == STMPE811_COORDINATE_SCREEN_RELATIVE)
+	if(coordinateMode == STMPE811_COORDINATE_SCREEN_RELATIVE) {
 		STMPE811_convertCoordinateScreenMode(pX, pY);
-
-	return TRUE;
+	}
 
 #ifdef USE_IRQ_TOUCH_VALIDATION
 	if(*pX != 0 && *pY != 4095 && !IRQ_TOUCH)
