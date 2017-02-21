@@ -26,6 +26,10 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			GET_OUT_YELLOW,
 			GET_OUT_BLUE,
 			ERROR,
+			ERROR_GET_OUT_YELLOW,
+			ERROR_GET_OUT_BLUE,
+			ERROR_GET_OUT_YELLOW_CRATER,
+			ERROR_GET_OUT_BLUE_CRATER,
 			DONE
 		);
 
@@ -78,7 +82,7 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			break;
 
 		case GET_OUT_YELLOW:
-			state = try_going(1390, 2600, GET_OUT_YELLOW, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1310, 2560, GET_OUT_YELLOW, DONE,  ERROR_GET_OUT_YELLOW, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 
@@ -103,7 +107,24 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 
 		case GET_OUT_BLUE: //try go
-			state = try_going(1390, 2600, GET_OUT_BLUE, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1310, 440, GET_OUT_BLUE, DONE,  ERROR_GET_OUT_BLUE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+
+		case ERROR_GET_OUT_YELLOW: //val
+			state = try_going(1780, 2200, ERROR_GET_OUT_YELLOW, GET_OUT_YELLOW,  ERROR_GET_OUT_YELLOW_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_GET_OUT_BLUE: //tvl
+			state = try_going(1780, 800, ERROR_GET_OUT_BLUE, GET_OUT_BLUE,  ERROR_GET_OUT_BLUE_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_GET_OUT_YELLOW_CRATER: //tvl
+			state = try_going(1780, 2690, ERROR_GET_OUT_BLUE_CRATER, GET_OUT_YELLOW,  ERROR_GET_OUT_YELLOW, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR_GET_OUT_BLUE_CRATER: //tvl
+			state = try_going(1780, 310, ERROR_GET_OUT_BLUE_CRATER, GET_OUT_BLUE,  ERROR_GET_OUT_BLUE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -268,9 +289,9 @@ error_e sub_act_big_off(){
 error_e sub_harry_take_big_crater_move_pos_yellow(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_MOVE_POS_YELLOW,
 			INIT,
-			GO_YELLOW_CRATER_FROM_ADV_SQUARE,
+			GO_YELLOW_CRATER_FROM_BLUE_SQUARE,
 			GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE,
-			GO_YELLOW_CRATER_FROM_OUR_SQUARE,
+			GO_YELLOW_CRATER_FROM_YELLOW_SQUARE,
 			ASTAR_GO_YELLOW_CRATER,
 			GET_IN,
 			ERROR,
@@ -282,7 +303,7 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 										  {(GEOMETRY_point_t){1390, 2600}, FAST},
 										  };
 
-	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){900, 800}, FAST},
+	const displacement_t leave_blue_square[3] = { {(GEOMETRY_point_t){900, 800}, FAST},
 										  {(GEOMETRY_point_t){900, 2200}, FAST},
 										  {(GEOMETRY_point_t){1390, 2600}, FAST}
 										  };
@@ -295,10 +316,10 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 
 		case GET_IN:
 			if(i_am_in_square(400, 1500, 300, 800)){
-				state = GO_YELLOW_CRATER_FROM_ADV_SQUARE;
+				state = GO_YELLOW_CRATER_FROM_BLUE_SQUARE;
 			}
 			else if(i_am_in_square(400, 1500, 2700, 2200)){
-				state = GO_YELLOW_CRATER_FROM_OUR_SQUARE;
+				state = GO_YELLOW_CRATER_FROM_YELLOW_SQUARE;
 			}
 			else if(i_am_in_square(300, 1200, 800, 2200)){
 				state = GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE;
@@ -308,20 +329,20 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 			break;
 
 
-		case GO_YELLOW_CRATER_FROM_ADV_SQUARE:
-			state = try_going_multipoint( leave_adv_square, 3, state, DONE, ASTAR_GO_YELLOW_CRATER, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case GO_YELLOW_CRATER_FROM_BLUE_SQUARE:
+			state = try_going_multipoint( leave_blue_square, 3, state, DONE, ASTAR_GO_YELLOW_CRATER, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE:
 			state = try_going_multipoint( leave_middle_square, 2, state, DONE, ASTAR_GO_YELLOW_CRATER, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case GO_YELLOW_CRATER_FROM_OUR_SQUARE:
+		case GO_YELLOW_CRATER_FROM_YELLOW_SQUARE:
 			state = try_going(1390, 2600, state, DONE, ASTAR_GO_YELLOW_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ASTAR_GO_YELLOW_CRATER:
-			state = ASTAR_try_going(1390, 2600, state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1390, 2600, state, DONE,  ASTAR_GO_YELLOW_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -349,9 +370,9 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 error_e sub_harry_take_big_crater_move_pos_blue(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_MOVE_POS_BLUE,
 			INIT,
-			GO_BLUE_CRATER_FROM_ADV_SQUARE,
+			GO_BLUE_CRATER_FROM_YELLOW_SQUARE,
 			GO_BLUE_CRATER_FROM_MIDDLE_SQUARE,
-			GO_BLUE_CRATER_FROM_OUR_SQUARE,
+			GO_BLUE_CRATER_FROM_BLUE_SQUARE,
 			ASTAR_GO_BLUE_CRATER,
 			GET_IN,
 			ERROR,
@@ -363,7 +384,7 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 										  {(GEOMETRY_point_t){1390, 400}, FAST},
 										  };
 
-	const displacement_t leave_adv_square[3] = { {(GEOMETRY_point_t){900, 2200}, FAST},
+	const displacement_t leave_yellow_square[3] = { {(GEOMETRY_point_t){900, 2200}, FAST},
 										  {(GEOMETRY_point_t){900, 800}, FAST},
 										  {(GEOMETRY_point_t){1390, 400}, FAST}
 										  };
@@ -376,10 +397,10 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 
 		case GET_IN:
 			if(i_am_in_square(400, 1500, 300, 800)){
-				state = GO_BLUE_CRATER_FROM_OUR_SQUARE;
+				state = GO_BLUE_CRATER_FROM_BLUE_SQUARE;
 			}
 			else if(i_am_in_square(400, 1500, 2700, 2200)){
-				state = GO_BLUE_CRATER_FROM_ADV_SQUARE;
+				state = GO_BLUE_CRATER_FROM_YELLOW_SQUARE;
 			}
 			else if(i_am_in_square(300, 1200, 800, 2200)){
 				state = GO_BLUE_CRATER_FROM_MIDDLE_SQUARE;
@@ -388,20 +409,20 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 			}
 			break;
 
-		case GO_BLUE_CRATER_FROM_ADV_SQUARE:
-			state = try_going_multipoint( leave_adv_square, 3, state, DONE, ASTAR_GO_BLUE_CRATER, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case GO_BLUE_CRATER_FROM_YELLOW_SQUARE:
+			state = try_going_multipoint( leave_yellow_square, 3, state, DONE, ASTAR_GO_BLUE_CRATER, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GO_BLUE_CRATER_FROM_MIDDLE_SQUARE:
 			state = try_going_multipoint( leave_middle_square, 2, state, DONE, ASTAR_GO_BLUE_CRATER, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case GO_BLUE_CRATER_FROM_OUR_SQUARE:
+		case GO_BLUE_CRATER_FROM_BLUE_SQUARE:
 			state = try_going(1390, 400, state, DONE, ASTAR_GO_BLUE_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ASTAR_GO_BLUE_CRATER:
-			state = ASTAR_try_going(1390, 400, state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1390, 400, state, DONE,  ASTAR_GO_BLUE_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -699,12 +720,12 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 		case ERROR_COLLECT_YELLOW_ROCKET_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
-			state = try_going(1390, 2600, state, COLLECT_YELLOW_ROCKET_MOVE_FOWARD,  COLLECT_YELLOW_ROCKET_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1600, 2300, state, COLLECT_YELLOW_ROCKET_MOVE_FOWARD,  COLLECT_YELLOW_ROCKET_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_COLLECT_YELLOW_ROCKET_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
-			state = try_going(1690, 2600, state, COLLECT_YELLOW_ROCKET_POSITION_LEFT,  COLLECT_YELLOW_ROCKET_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1600, 2690, state, COLLECT_YELLOW_ROCKET_POSITION_LEFT,  COLLECT_YELLOW_ROCKET_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_ACT_IN:
@@ -852,12 +873,12 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 		case ERROR_COLLECT_YELLOW_CORNER_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
-			state = try_going(1390, 2600, state, COLLECT_YELLOW_CORNER_MOVE_FOWARD,  COLLECT_YELLOW_CORNER_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1780, 2200, state, COLLECT_YELLOW_CORNER_MOVE_FOWARD,  COLLECT_YELLOW_CORNER_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_COLLECT_YELLOW_CORNER_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
-			state = try_going(1690, 2600, state, COLLECT_YELLOW_CORNER_POSITION_LEFT,  COLLECT_YELLOW_CORNER_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1780, 2690, state, COLLECT_YELLOW_CORNER_POSITION_LEFT,  COLLECT_YELLOW_CORNER_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_ACT_IN:
@@ -1006,12 +1027,12 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 		case ERROR_COLLECT_BLUE_MIDDLE_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
-			state = try_going(1390, 2600, state, COLLECT_BLUE_MIDDLE_MOVE_FOWARD,  COLLECT_BLUE_MIDDLE_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1390, 400, state, COLLECT_BLUE_MIDDLE_MOVE_FOWARD,  COLLECT_BLUE_MIDDLE_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
-			state = try_going(1690, 2600, state, COLLECT_BLUE_MIDDLE_POSITION_LEFT,  COLLECT_BLUE_MIDDLE_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1690, 400, state, COLLECT_BLUE_MIDDLE_POSITION_LEFT,  COLLECT_BLUE_MIDDLE_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_ACT_IN:
@@ -1162,12 +1183,12 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 
 		case ERROR_COLLECT_BLUE_ROCKET_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
-			state = try_going(1390, 2600, state, COLLECT_BLUE_ROCKET_MOVE_FOWARD,  COLLECT_BLUE_ROCKET_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1600, 700, state, COLLECT_BLUE_ROCKET_MOVE_FOWARD,  COLLECT_BLUE_ROCKET_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_COLLECT_BLUE_ROCKET_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
-			state = try_going(1690, 2600, state, COLLECT_BLUE_ROCKET_POSITION_LEFT,  COLLECT_BLUE_ROCKET_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1600, 310, state, COLLECT_BLUE_ROCKET_POSITION_LEFT,  COLLECT_BLUE_ROCKET_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_ACT_IN:
@@ -1316,12 +1337,12 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 		case ERROR_COLLECT_BLUE_CORNER_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
-			state = try_going(1390, 2600, state, COLLECT_BLUE_CORNER_MOVE_FOWARD,  COLLECT_BLUE_CORNER_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1780, 800, state, COLLECT_BLUE_CORNER_MOVE_FOWARD,  COLLECT_BLUE_CORNER_MOVE_FOWARD, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_COLLECT_BLUE_CORNER_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
-			state = try_going(1690, 2600, state, COLLECT_BLUE_CORNER_POSITION_LEFT,  COLLECT_BLUE_CORNER_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1780, 310, state, COLLECT_BLUE_CORNER_POSITION_LEFT,  COLLECT_BLUE_CORNER_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_ACT_IN:
