@@ -107,9 +107,14 @@ static void SSD2119_writeReg(Uint8 reg, Uint16 value);
 static Uint16 SSD2119_readReg(Uint8 reg);
 static void SSD2119_writeRAMPrepare(void);
 static void SSD2119_writeRAM(Uint16 RGB_Code);
-static Uint16 SSD2119_readRAM(void);
+static Uint16 SSD2119_readRAM(void) __attribute__ ((unused));
 
 void SSD2119_init() {
+
+	// Suppression des warnings */
+	UNUSED_VAR(SSD2119_readRAM);
+	UNUSED_VAR(SSD2119_defaultInit);
+	UNUSED_VAR(SSD2119_readReg);
 
 	if(initialised) {
 		return;
@@ -406,6 +411,11 @@ void SSD2119_drawFilledCircle(Uint16 x0, Uint16 y0, Uint16 r, Uint16 color) {
 		SSD2119_drawLine(x0 + y, y0 + x, x0 - y, y0 + x, color);
 		SSD2119_drawLine(x0 + y, y0 - x, x0 - y, y0 - x, color);
 	}
+}
+
+void SSD2119_drawCross(Uint16 x, Uint16 y, Uint16 size, Uint16 color) {
+	SSD2119_drawLine(x - size / 2, y, x + size / 2, y, color);
+	SSD2119_drawLine(x, y - size / 2, x, y + size / 2, color);
 }
 
 void SSD2119_putImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uint16 *img, Uint32 size){
@@ -1005,7 +1015,6 @@ static void SSD2119_writeRAM(Uint16 RGB_Code) {
   * @version 1.0
   */
 static Uint16 SSD2119_readRAM(void) {
-
 	// Read 16-bit GRAM Reg
 	return LCD_Data;
 }

@@ -68,8 +68,10 @@
 	#define XBEE_PLUGGED_ON_UART2
 
 /* Réglages HOKUYO */
-	//#define USE_HOKUYO
+#ifdef USE_BEACON_EYE
+	#define USE_HOKUYO
 	//#define USE_CCMRAM
+#endif
 
 /* Réglages WATCHDOG */
 	#define USE_WATCHDOG
