@@ -8,229 +8,156 @@
  * Fonctions de créations des 14 zones importantes du plateau de jeux ainsi que l'initialisation de ces zones
  *  Puis le teste de la présence ou non d'un robot dans ces zones avec les informations à retourner en fonction des zones
  */
+
 #include "zone.h"
 #include "QS_hokuyo/hokuyo.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_outputlog.h"
 #include "Secretary.h"
+#include "environment.h"
+#include "QS/QS_maths.h"
+#include "IHM/terminal.h"
+
+static ZONE_zone_t zones[ZONE_NUMBER];
 
 
-	static volatile time32_t absolute_time = 0;
-	static zones_t zones[ZONE_NUMBER];
-	static bool_e datas_updated = FALSE;
+static void ZONE_initFields(ZONE_zoneId_e id, ZONE_rectangle_t rectangle, bool_e isDependingOnColor, time32_t thresholdDetectionTime);
+static void ZONE_reset(ZONE_zoneId_e id);
+static void ZONE_verbose(ZONE_zoneId_e id);
+static bool_e ZONE_objectIsInZone(ZONE_zoneId_e id, GEOMETRY_point_t objectPosition);
+static Uint8* ZONE_getZoneName(ZONE_zoneId_e id);
+static bool_e ZONE_objectIsInZone(ZONE_zoneId_e id, GEOMETRY_point_t objectPosition);
 
 
-	static void ZONE_detection(void);
-	static void ZONE_analysis(void);
-	static void ZONE_verbose(zone_e i);
-	static void ZONE_init_fields(zone_e i, Uint16 x_min, Uint16 x_max, Uint16 y_min, Uint16 y_max, time32_t min_detection_time, specific_analyse_mode_e specific_analyse_mode);
-
-
-
-
-//Fonction appelée au début du match, pour nettoyer toutes les précédentes observations...
-void ZONE_init(void)
-{
-	zone_e i;
-	//				 Identifiant de la zone						coordonnées			time_ms, Positionnement spécifique
-//	ZONE_init_fields(ZONE_FRESQUO, 								1,	28,	110,189,	1500,	FRESCO_LOCATOR); 					//fresque
-
-	ZONE_new_color(BOT_COLOR);	//Couleur par défaut...
-
-	//Vérification que toutes les zones sont initialisées
-	for(i=0;i<ZONE_NUMBER;i++)
-		if(zones[i].initialized == FALSE)
-			debug_printf("WARNING : ZONE %d is not initialized !!!!!!!\n",i);
+void ZONE_init(void) {
+	UNUSED_VAR(ZONE_initFields);
+	UNUSED_VAR(ZONE_reset);
+	UNUSED_VAR(ZONE_verbose);
+	UNUSED_VAR(ZONE_getZoneName);
+	UNUSED_VAR(ZONE_objectIsInZone);
 }
 
+void ZONE_processMain(void) {
 
-void ZONE_process_main(void)
-{
-	if(datas_updated)
-	{
-		datas_updated = FALSE;
-		ZONE_detection();
-		ZONE_analysis();
+}
+
+void ZONE_enable(ZONE_zoneId_e id, robot_id_e robot_id, ZONE_event_t events) {
+	ZONE_zone_t *z = ZONE_getZone(id);
+
+	if(robot_id == BIG_ROBOT) {
+		z->eventsBig = events;
+		z->enable |= ZONE_ENABLE_FOR_BIG;
 	}
-}
-
-//Activations par défaut en fonction de notre couleur...
-void ZONE_new_color(color_e c){
-	//Attention, on désactive TOUTES les activations précédemment activées !
-	ZONE_disable_all();
-
-//	ZONE_enable(BIG_ROBOT, ZONE_CENTRAL_QUATER_HEART_RED_MAMMOTH, 		EVENT_GET_IN | EVENT_TIME_IN | EVENT_GET_OUT);	//Foyer central
-
-}
-
-void ZONE_process_it_1ms(void)
-{
-	absolute_time++;
-}
-
-void ZONE_enable(robot_id_e robot_id, zone_e i, zone_event_t events)
-{
-	if(robot_id == BIG_ROBOT)
-	{
-		zones[i].events_for_big = events;
-		zones[i].enable |= ZONE_ENABLE_FOR_BIG;
+	if(robot_id == SMALL_ROBOT) {
+		z->eventsSmall = events;
+		z->enable |= ZONE_ENABLE_FOR_SMALL;
 	}
-	if(robot_id == SMALL_ROBOT)
-	{
-		zones[i].events_for_small = events;
-		zones[i].enable |= ZONE_ENABLE_FOR_SMALL;
-	}
-	zones[i].events = zones[i].events_for_big | zones[i].events_for_small;
+	z->events = zones[id].eventsBig | z->eventsSmall;
 }
 
-void ZONE_disable(robot_id_e robot_id, zone_e i)
-{
-	if(robot_id == BIG_ROBOT)
-	{
-		zones[i].events_for_big = EVENT_NO_EVENT;
-		zones[i].enable &= ~ZONE_ENABLE_FOR_BIG;
+void ZONE_disable(ZONE_zoneId_e id, robot_id_e robot_id) {
+	ZONE_zone_t *z = ZONE_getZone(id);
+
+	if(robot_id == BIG_ROBOT) {
+		z->eventsBig = EVENT_NO_EVENT;
+		z->enable &= ~ZONE_ENABLE_FOR_BIG;
 	}
-	if(robot_id == SMALL_ROBOT)
-	{
-		zones[i].events_for_small = EVENT_NO_EVENT;
-		zones[i].enable &= ~ZONE_ENABLE_FOR_SMALL;
+	if(robot_id == SMALL_ROBOT)	{
+		z->eventsSmall = EVENT_NO_EVENT;
+		z->enable &= ~ZONE_ENABLE_FOR_SMALL;
 	}
-	if(zones[i].enable != ZONE_NOT_ENABLED)
-		debug_printf("WARNING : l'un des robots a désactivé une zone que l'autre avait aussi activé. Attention, elle reste activé pour l'autre.. !!!\n");
-	zones[i].events = zones[i].events_for_big | zones[i].events_for_small;
+	z->events = z->eventsBig | z->eventsSmall;
 }
 
-void ZONE_disable_all(void)
-{
+void ZONE_disableAll(void) {
 	Uint8 i;
-	for(i=0;i<ZONE_NUMBER;i++)
-	{
-		zones[i].events_for_big = EVENT_NO_EVENT;
-		zones[i].events_for_big = EVENT_NO_EVENT;
+	for(i = 0; i < ZONE_NUMBER; i++) {
+		zones[i].eventsBig = EVENT_NO_EVENT;
+		zones[i].eventsSmall = EVENT_NO_EVENT;
 		zones[i].enable = ZONE_NOT_ENABLED;
 	}
 }
 
-void ZONE_set_datas_updated(void)
-{
-	datas_updated = TRUE;
+ZONE_zone_t* ZONE_getZone(ZONE_zoneId_e id) {
+	assert(id < ZONE_NUMBER);
+	return &zones[id];
 }
 
-static void ZONE_init_fields(zone_e i, Uint16 x_min, Uint16 x_max, Uint16 y_min, Uint16 y_max, time32_t min_detection_time, specific_analyse_mode_e specific_analyse_mode){
-	zones_t * z;
-	z = &zones[i];
+static void ZONE_initFields(ZONE_zoneId_e id, ZONE_rectangle_t rectangle, bool_e isDependingOnColor, time32_t thresholdDetectionTime) {
+	ZONE_zone_t *z = ZONE_getZone(id);
 
-	z->x_min = x_min;
-	z->x_max = x_max;
-	z->y_min = y_min;
-	z->y_max = y_max;
+	z->rectangle = rectangle;
+	z->isDependingOnColor = isDependingOnColor;
+
 	z->enable = ZONE_NOT_ENABLED;
-	z->specific_analyse_mode = specific_analyse_mode;
+
 	z->events = EVENT_NO_EVENT;
-	z->min_detection_time = min_detection_time;
-	z->someone_is_here = FALSE;
-	z->input_time = 0;
-	z->presence_duration = 0;
-	z->busy_state = NOBODY_IN_ZONE;
-	if(specific_analyse_mode == FRESCO_LOCATOR)
-		z->specific_analyse_param_x = 500;
-	else
-		z->specific_analyse_param_x = 0;
-	z->specific_analyse_param_y = 0;
-	z->alert_was_send = FALSE;
-	z->initialized = TRUE;
+	z->eventsBig = EVENT_NO_EVENT;
+	z->eventsSmall = EVENT_NO_EVENT;
+
+	z->inputTime = 0;
+	z->presenceTime = 0;
+	z->thresholdDetectionTime = thresholdDetectionTime;
+
+	z->alertSent = FALSE;
+
+	z->isInitialized = TRUE;
 }
 
-void ZONE_clean_all_detections(void)
-{
-	Uint8 i;
-	zones_t * z;
-	for(i=0;i<ZONE_NUMBER;i++)
-	{
-		z = &zones[i];
-		z->busy_state = NOBODY_IN_ZONE;
-		z->someone_is_here = FALSE;
-		z->alert_was_send = FALSE;
-		z->presence_duration = 0;
-		z->input_time = 0;
-		z->specific_analyse_param_x = 0;
-		z->specific_analyse_param_y = 0;
-		if(z->specific_analyse_mode == FRESCO_LOCATOR)
-			z->specific_analyse_param_x = 500;
-		else
-			z->specific_analyse_param_x = 0;
-		z->specific_analyse_param_y = 0;
+static void ZONE_reset(ZONE_zoneId_e id) {
+	ZONE_zone_t *z = ZONE_getZone(id);
+
+	z->enable = ZONE_NOT_ENABLED;
+
+	z->events = EVENT_NO_EVENT;
+	z->eventsBig = EVENT_NO_EVENT;
+	z->eventsSmall = EVENT_NO_EVENT;
+
+	z->inputTime = 0;
+	z->presenceTime = 0;
+
+	z->alertSent = FALSE;
+}
+
+static void ZONE_verbose(ZONE_zoneId_e id) {
+
+}
+
+static Uint8* ZONE_getZoneName(ZONE_zoneId_e id) {
+	switch(id) {
+		default:
+			return (Uint8*)"UNKNOW_ZONE";
 	}
 }
 
+static bool_e ZONE_objectIsInZone(ZONE_zoneId_e id, GEOMETRY_point_t objectPosition) {
+	ZONE_zone_t *z = ZONE_getZone(id);
+	ZONE_rectangle_t rec = z->rectangle;
 
-zones_t * ZONE_get_pzone(zone_e i)
-{
-	assert(i<ZONE_NUMBER);
-	return &zones[i];
-}
-
-
-
-
-#define CENTER_HEART_X	1100//[mm] Centre du foyer central en X
-#define CENTER_HEART_Y	1500//[mm] Centre du foyer central en Y
-
-/*static void ZONE_specific_analyse(HOKUYO_adversary_position * a, zones_t * z)
-{
-	//Analyse spécifique de ce que fait l'objet dans la zone...
-	//PRECONDITION : on sait que l'objet *pa est dans la zone *pz
-	//Analyse des zones activées et occupées
-	switch (z->specific_analyse_mode)
-	{
-		case NORMAL_MODE:
-			break;
-		case FRESCO_LOCATOR:
-			//On sauvegarde la coordonnée du point le plus faible en X...
-			//Cette coordonnée sera envoyée lorsque l'objet quittera la zone
-			if(a->coordX < z->specific_analyse_param_x)
-			{
-				z->specific_analyse_param_x = a->coordX;
-				z->specific_analyse_param_y = a->coordY;
-			}
-			break;
-		case DISPOSE_ON_HEART_POSITION_LOCATOR:
-			//On recherche la coordonnée la plus proche du centre (on suppose que le robot pose là où il est le plus prêt du centre !)
-			if(		CALCULATOR_squared_distance(a->coordX, a->coordY, CENTER_HEART_X, CENTER_HEART_Y) 		<
-					CALCULATOR_squared_distance(z->specific_analyse_param_x, z->specific_analyse_param_y, CENTER_HEART_X, CENTER_HEART_Y))
-			{
-				z->specific_analyse_param_x = a->coordX;
-				z->specific_analyse_param_y = a->coordY;
-			}
-			break;
-		default :
-			break;
+	if(z->isDependingOnColor) {
+		return is_in_square( rec.origin.x, rec.origin.x + rec.width,
+				    		 COLOR_Y(rec.origin.y), COLOR_Y(rec.origin.y + rec.height),
+							 objectPosition);
+	} else {
+		return is_in_square( rec.origin.x, rec.origin.x + rec.width,
+						     rec.origin.y, rec.origin.y + rec.height,
+							 objectPosition);
 	}
-
 }
 
-bool_e ZONE_object_is_in_zone(HOKUYO_adversary_position * a, zones_t * z)
-{
-	if(	a->coordX/10>=z->x_min &&
-		a->coordX/10<=z->x_max &&
-		a->coordY/10>=z->y_min &&
-		a->coordY/10<=z->y_max )
-		return TRUE;
-	return FALSE;
-}
-
-
-void ZONE_detection(void)
-{
-	zone_e i;
+#if 0
+void ZONE_detection(void) {
+	ZONE_zoneId_e id;
 	Uint8 j;
-	for (i=0;i<ZONE_NUMBER;i++) 							//Regarde toutes les zones
-	{
-		zones[i].someone_is_here=FALSE;		 			//On suppose qu'il n'y a personne dans la zone activée
-		if (zones[i].enable != ZONE_NOT_ENABLED)			//La zones est activée
-		{
-			for(j=0;j<HOKUYO_get_adversaries_number();j++) 	//Pour chaque objet
-			{
+
+	for(id = 0; id < ZONE_NUMBER; id++) {
+		ZONE_zone_t *z = ZONE_getZone(id);
+
+		/* On suppose que la zone n'est pas occupée */
+		z->isSomeone = FALSE;
+
+		if (z->enable != ZONE_NOT_ENABLED) {
+			for(j = 0; j < HOKUYO_get_adversaries_number(); j++) {
 				if(ZONE_object_is_in_zone(HOKUYO_get_adversary_position(j), &zones[i]))
 				{
 					zones[i].someone_is_here=TRUE;          //La zone est occupée par un des robots
@@ -242,7 +169,7 @@ void ZONE_detection(void)
 		}
 	}
 }
-*/
+
 
 static void ZONE_analysis(void)
 {
@@ -329,7 +256,7 @@ static void ZONE_verbose(zone_e i)
 	debug_printf("%s\n",str);
 }
 
-
+#endif
 
 
 

@@ -8,6 +8,9 @@
 	#define GAME_ZONE_SIZE_X			2000 //2000 mm
 	#define GAME_ZONE_SIZE_Y			3000 //3000 mm
 
+	// Macros permettant de symétriser le terrain
+	#define COLOR_Y(y)		((global.current_color == BOT_COLOR) ? (y) : (GAME_ZONE_SIZE_Y - (y)))
+
 	void ENVIRONMENT_init();
 
 	void ENVIRONMENT_processIt(Uint8 ms);

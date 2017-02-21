@@ -169,12 +169,17 @@ static volatile background_s background;
 static void MIDDLEWARE_checkRebuildObject();
 static void MIDDLEWARE_rebuildObject();
 static void MIDDLEWARE_checkDestroyObject();
-static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, Uint16 width, Uint16 height);
-static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y);
+
+#ifdef USE_TOUCH
+	static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, Uint16 width, Uint16 height);
+	static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y);
+#endif
 
 void MIDDLEWARE_init(){
 
+#ifdef USE_TOUCH
 	STMPE811_init();
+#endif
 
 	SSD2119_init();
 
@@ -183,12 +188,14 @@ void MIDDLEWARE_init(){
 
 void MIDDLEWARE_processMain(){
 
+#ifdef USE_TOUCH
 	Sint16 x, y;
 
 	bool_e touch = STMPE811_getAverageCoordinates(&x, &y, 3, STMPE811_COORDINATE_SCREEN_RELATIVE);
 
 	// Check des zones touchés
 	MIDDLEWARE_checkObjectTouch(touch, x, y);
+#endif
 
 	SSD2119_setConfig();
 
@@ -213,6 +220,7 @@ void MIDDLEWARE_processMain(){
 //-------------------------Fonction Main------------------------//
 //////////////////////////////////////////////////////////////////
 
+#ifdef USE_TOUCH
 static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y){
 	Uint8 i;
 	for(i=0;i<NB_OBJECT;i++){
@@ -306,6 +314,7 @@ static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y){
 		}
 	}
 }
+#endif
 
 static void MIDDLEWARE_checkDestroyObject(){
 	Uint8 i;
@@ -743,9 +752,11 @@ static void MIDDLEWARE_rebuildObject(){
 	}
 }
 
+#ifdef USE_TOUCH
 static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, Uint16 width, Uint16 height){
 	return 	(xT >= x && xT <= (x + width) && yT >= y && yT <= (y + height));
 }
+#endif
 
 //////////////////////////////////////////////////////////////////
 //---------------------Fonction Mutation------------------------//

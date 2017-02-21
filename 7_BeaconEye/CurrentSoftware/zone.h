@@ -12,79 +12,57 @@
 #include "QS/QS_all.h"
 #include "QS/QS_who_am_i.h"
 #include "QS/QS_CANmsgList.h"
+#include "QS/QS_maths.h"
 
+/* Evènement associé à une zone */
+typedef Uint8 ZONE_enable_t;
+#define ZONE_NOT_ENABLED				0x00
+#define ZONE_ENABLE_FOR_BIG				0x01
+#define ZONE_ENABLE_FOR_SMALL 			0x02
+#define ZONE_ENABLE_FOR_BIG_AND_SMALL 	(ZONE_ENABLE_FOR_BIG | ZONE_ENABLE_FOR_SMALL)
 
-/**
- * \enum mode_analyse_zone_e
- * \brief mode d'analyse pour les zone
-*/
-typedef enum
-{
-	NORMAL_MODE = 0,	/*!<analyse d'un passage ou non peut importe le temps*/
-	FRESCO_LOCATOR,	/*!<on recherche une valeur précise de y*/
-	DISPOSE_ON_HEART_POSITION_LOCATOR
-}specific_analyse_mode_e;
+typedef struct {
+	GEOMETRY_point_t origin;			/* Origine du rectangle */
+	Uint16 width;						/* Largueur du rectangle */
+	Uint16 height;						/* Hauteur du rectangle */
+} ZONE_rectangle_t;
 
+typedef enum {
+	BUSY_STATE_NOBODY = 0,				/* Aucun objet dans la zone */
+	BUSY_STATE_SOMEONE,					/* Un objet est dans la zone*/
+	BUSY_STATE_SOMEONE_WITH_MIN_TIME,	/* Un objet est dans la zone depuis un temps défini */
+	BUSY_STATE_GET_OUT					/* L'objet sort de la zone */
+} ZONE_busyState_e;
 
-typedef enum
-{
-	NOBODY_IN_ZONE = 0,
-	SOMEONE_IS_IN,							//Un ou des objets sont	 	actuellement dans la zone
-	SOMEONE_IS_IN_SINCE_MIN_DETECTION_TIME,	//Un ou des objets sont 	actuellement dans la zone depuis au moins le temps mini de détection
-	SOMEONE_GET_OUT						//Un ou des objets sortent 	actuellement de la zone
-}busy_state_e;
+typedef struct {
+	ZONE_rectangle_t rectangle;			/* Rectangle définissant la zone */
+	bool_e isDependingOnColor;			/* Indique si la zone dépend de la couleur, dans ce cas on prendra le symétrique si l'on change de couleur */
 
+	ZONE_enable_t enable;				/* Activation ou non de la zone et pour quel robot */
 
-typedef Uint8 zone_enable_t;
-#define ZONE_NOT_ENABLED			0x00
-#define ZONE_ENABLE_FOR_BIG			0x01
-#define ZONE_ENABLE_FOR_SMALL 		0x02
-#define ZONE_ENABLE_FOR_BIG_AND_SMALL (ZONE_ENABLE_FOR_BIG | ZONE_ENABLE_FOR_SMALL)
+	ZONE_event_t events;				/* Evènements que l'on souhaite observés sur la zone */
+	ZONE_event_t eventsBig;				/* Evènements que l'on souhaite observés sur la zone pour le gros robot */
+	ZONE_event_t eventsSmall;			/* Evènements que l'on souhaite observés sur la zone pour le petit robot */
 
-/**
- * \struct zones_t
- * \brief Objet Zone Physique
- *
- * zones_t définition d'une zone avec sa taille et son identité
- * ainsi que son mode d'analyse
-*/
-typedef struct{
-    Uint16 x_min;					/*!<coordonées x minimum*/
-    Uint16 x_max;					/*!<coordonées x maximum*/
-    Uint16 y_min;					/*!<coordonées y minimum*/
-    Uint16 y_max;					/*!<coordonées y maximum*/
+	ZONE_busyState_e busyState;			/* Etat d'occupation de la zone */
+	bool_e isSomeone;					/* Variable intermédiaire pour gérer l'état d'occupation */
 
-    bool_e someone_is_here;			//Il y a un ou plusieurs objets dans la zone
+	time32_t inputTime;					/* Date à laquelle l'objet est rentré dans la zone */
+	time32_t presenceTime;				/* Temps de présence de l'objet dans la zone depuis son entrée */
+	time32_t thresholdDetectionTime;	/* Seuil de déclenchement de présence dans la zone pour l'évènement "BUSY_STATE_SOMEONE_WITH_MIN_TIME" */
 
-    zone_enable_t enable;
-    zone_event_t events;					//Evenements que l'on observe... (cumul possible)
-    zone_event_t events_for_big;					//Evenements que l'on observe... (cumul possible)
-    zone_event_t events_for_small;					//Evenements que l'on observe... (cumul possible)
+	bool_e alertSent;					/* Indique si l'alerte a été envoyé */
 
-    time32_t min_detection_time;	//Temps nécessaire de présence d'un objet pour lever un évènement de présence. 0 pour lever immédiatement l'évènement.
-    specific_analyse_mode_e specific_analyse_mode;		//Mode de traitement spécific de la zone
-
-    time32_t input_time;			//Instant de l'entrée d'un objet dans la zone
-    time32_t presence_duration;		//Durée de présence d'un objet dans la zone
-    busy_state_e busy_state;
-    Uint16 specific_analyse_param_x;
-    Uint16 specific_analyse_param_y;
-
-    bool_e alert_was_send;	//Un message a été envoyé à propos de cette zone (essentiellement destiné à l'affichage sur l'écran)
-    bool_e initialized;
-}zones_t;
-
+	bool_e isInitialized;				/* Indique si la zone est initialisée */
+} ZONE_zone_t;
 
 void ZONE_init(void);
-void ZONE_clean_all_detections(void);
-void ZONE_enable(robot_id_e robot_id, zone_e i, zone_event_t events);
-void ZONE_disable(robot_id_e robot_id, zone_e i);
-void ZONE_disable_all(void);
-void test_zones(void);
-zones_t * ZONE_get_pzone(Uint8 i);
-void ZONE_set_datas_updated(void);
-void ZONE_process_main(void);
-void ZONE_new_color(color_e c);
-void ZONE_process_it_1ms(void);
+void ZONE_processMain(void);
+void ZONE_enable(ZONE_zoneId_e id, robot_id_e robot_id, ZONE_event_t events);
+void ZONE_disable(ZONE_zoneId_e id, robot_id_e robot_id);
+void ZONE_disableAll(void);
+ZONE_zone_t* ZONE_getZone(ZONE_zoneId_e id);
+
+
 
 #endif /* ZONE_H_ */
