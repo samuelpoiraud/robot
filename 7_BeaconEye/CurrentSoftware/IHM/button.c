@@ -4,6 +4,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_hokuyo/hokuyo.h"
 #include "MusicPlayer/musicPlayer.h"
+#include "terminal.h"
 
 #define ANTI_BOUNCE_TIME (20) // en ms
 
@@ -54,6 +55,7 @@ static void BUTTON_stateChange0(void) {
 		//debug_printf("Appuye sur le bouton 0.\n");
 		HOKUYO_displayAdversariesPosition();
 		MUSIC_PLAYER_play();
+		TERMINAL_launchCounter();
 	}else{
 		// Le bouton est relâché
 		//debug_printf("Relachement du bouton 0.\n");
@@ -68,6 +70,7 @@ static void BUTTON_stateChange1(void) {
 	if(!BUTTON_1_PORT){
 		// Le bouton est appuyé
 		//debug_printf("Appuye sur le bouton 1.\n");
+		TERMINAL_resetCounter();
 
 		if(global.flags.LASER == TRUE)
 		{

@@ -27,19 +27,48 @@
 #define LINE_1					204
 #define LINE_2					(LINE_1 + FONT_HEIGHT + GAP)
 #define LINE_3					(LINE_2 + FONT_HEIGHT + GAP)
+#define COUNTDOWN_MARGE			4
+#define COUNTDOWN_THICKNESS_1	1
+#define COUNTDOWN_THICKNESS_2	2
+#define COUNTDOWN_RADIUS		5
+
+#define COUNTER_VALUE			90
 
 static char lines[NB_LINE][LINE_SIZE_MAX + 1];
 static bool_e isInitialized = FALSE;							// Protection contre le double initialisation
+static volatile Uint16 counter = COUNTER_VALUE;
+static bool_e isLaunch = FALSE;
+static time32_t beginTime = 0;
 
 static void TERMINAL_clear();
 static void TERMINAL_updateDisplay();
 static void TERMINAL_writeLine(Uint8 line, char *str);
+static void TERMINAL_drawCountDown();
+static void TERMINAL_countDown(Uint8 value);
 
 void TERMINAL_init() {
 	if(!isInitialized) {
 		TERMINAL_clear();
+		TERMINAL_drawCountDown();
 		isInitialized = TRUE;
 	}
+}
+
+void TERMINAL_processMain() {
+	if(isLaunch && (global.absolute_time / 1000.0 + counter) > (beginTime / 1000.0 + COUNTER_VALUE) && counter > 0) {
+		TERMINAL_countDown(--counter);
+	}
+}
+
+void TERMINAL_launchCounter() {
+	isLaunch = TRUE;
+	beginTime = global.absolute_time;
+}
+
+void TERMINAL_resetCounter() {
+	isLaunch = FALSE;
+	counter = COUNTER_VALUE;
+	TERMINAL_countDown(counter);
 }
 
 void TERMINAL_puts(char *str) {
@@ -58,6 +87,25 @@ void TERMINAL_printf(const char *format, ...) {
 	va_end(args_list);
 
 	TERMINAL_puts(buffer);
+}
+
+static void TERMINAL_countDown(Uint8 value) {
+	SSD2119_printf(290, 212, &Font_11x18, SSD2119_COLOR_RED, SSD2119_COLOR_WHITE, "%02d", value);
+}
+
+static void TERMINAL_drawCountDown() {
+	SSD2119_drawFilledRoundRectangle( TERMINAL_WIDTH + COUNTDOWN_MARGE, TERMINAL_Y + COUNTDOWN_MARGE,
+									  SSD2119_WIDTH - COUNTDOWN_MARGE, SSD2119_HEIGHT - COUNTDOWN_MARGE,
+									  COUNTDOWN_RADIUS, SSD2119_COLOR_WHITE);
+	SSD2119_drawFilledRoundRectangle( TERMINAL_WIDTH + COUNTDOWN_MARGE + COUNTDOWN_THICKNESS_1, TERMINAL_Y + COUNTDOWN_MARGE + COUNTDOWN_THICKNESS_1,
+									  SSD2119_WIDTH - COUNTDOWN_MARGE - COUNTDOWN_THICKNESS_1, SSD2119_HEIGHT - COUNTDOWN_MARGE - COUNTDOWN_THICKNESS_1,
+									  COUNTDOWN_RADIUS, SSD2119_COLOR_RED);
+	SSD2119_drawFilledRoundRectangle( TERMINAL_WIDTH + COUNTDOWN_MARGE + COUNTDOWN_THICKNESS_1 + COUNTDOWN_THICKNESS_2,
+									  TERMINAL_Y + COUNTDOWN_MARGE + COUNTDOWN_THICKNESS_1 + COUNTDOWN_THICKNESS_2,
+									  SSD2119_WIDTH - COUNTDOWN_MARGE - COUNTDOWN_THICKNESS_1 - COUNTDOWN_THICKNESS_2,
+									  SSD2119_HEIGHT - COUNTDOWN_MARGE - COUNTDOWN_THICKNESS_1 - COUNTDOWN_THICKNESS_2,
+									  COUNTDOWN_RADIUS, SSD2119_COLOR_WHITE);
+	TERMINAL_countDown(counter);
 }
 
 static void TERMINAL_updateDisplay() {

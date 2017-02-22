@@ -56,7 +56,6 @@ static void initialisation(void) {
 
 	SYS_init();											// Initialisation du système
 	SYSTICK_init((time32_t*)&(global.absolute_time));	// Init du compteur de temps
-	TERMINAL_init();
 	PORTS_init();
 	ENVIRONMENT_init();
 	UART_init();
@@ -67,6 +66,7 @@ static void initialisation(void) {
 		HOKUYO_init();
 	#endif
 	ZONE_init();
+	TERMINAL_init();
 
 	MUSIC_PLAYER_addSongToPlaylist(smurfs);
 	MUSIC_PLAYER_addSongToPlaylist(missionImpossible);
@@ -84,4 +84,5 @@ static void processMain(void) {
 #endif
 	MUSIC_PLAYER_processMain();
 	ZONE_processMain();
+	TERMINAL_processMain();
 }
