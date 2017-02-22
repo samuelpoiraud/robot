@@ -10,7 +10,7 @@
  */
 
 #include "zone.h"
-#include "QS_hokuyo/hokuyo.h"
+#include "QS/QS_hokuyo/hokuyo.h"
 #include "QS/QS_CANmsgList.h"
 #include "QS/QS_outputlog.h"
 #include "Secretary.h"

@@ -2,7 +2,7 @@
 
 #include "../QS/QS_ports.h"
 #include "../QS/QS_outputlog.h"
-#include "../QS_hokuyo/hokuyo.h"
+#include "../QS/QS_hokuyo/hokuyo.h"
 
 #define ANTI_BOUNCE_TIME (20) // en ms
 
