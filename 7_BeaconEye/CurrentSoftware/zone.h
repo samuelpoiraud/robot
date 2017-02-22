@@ -22,9 +22,10 @@ typedef Uint8 ZONE_enable_t;
 #define ZONE_ENABLE_FOR_BIG_AND_SMALL 	(ZONE_ENABLE_FOR_BIG | ZONE_ENABLE_FOR_SMALL)
 
 typedef struct {
-	GEOMETRY_point_t origin;			/* Origine du rectangle */
-	Uint16 width;						/* Largueur du rectangle */
-	Uint16 height;						/* Hauteur du rectangle */
+	Uint16 x0;
+	Uint16 y0;
+	Uint16 x1;
+	Uint16 y1;
 } ZONE_rectangle_t;
 
 typedef enum {
@@ -49,7 +50,7 @@ typedef struct {
 
 	time32_t inputTime;					/* Date à laquelle l'objet est rentré dans la zone */
 	time32_t presenceTime;				/* Temps de présence de l'objet dans la zone depuis son entrée */
-	time32_t thresholdDetectionTime;	/* Seuil de déclenchement de présence dans la zone pour l'évènement "BUSY_STATE_SOMEONE_WITH_MIN_TIME" */
+	time32_t thresholdDetectionTime;	/* Seuil de déclenchement de présence dans la zone pour l'évènement "BUSY_STATE_SOMEONE_WITH_MIN_TIME" (0 = pas actif)*/
 
 	bool_e alertSent;					/* Indique si l'alerte a été envoyé */
 
@@ -62,6 +63,8 @@ void ZONE_enable(ZONE_zoneId_e id, robot_id_e robot_id, ZONE_event_t events);
 void ZONE_disable(ZONE_zoneId_e id, robot_id_e robot_id);
 void ZONE_disableAll(void);
 ZONE_zone_t* ZONE_getZone(ZONE_zoneId_e id);
+void ZONE_requestUpdate();
+void ZONE_colorChange();
 
 
 

@@ -93,3 +93,73 @@ void VIEW_drawCircle(Uint16 x0, Uint16 y0, Uint16 r, bool_e erase, Uint16 color,
 		VIEW_drawPixelOnTerrain(x0 - y, y0 - x, erase, color, terrain);
 	}
 }
+
+void VIEW_drawRectangle(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, bool_e erase, Uint16 color, const imageInfo_s *terrain) {
+
+	VIEW_drawLine(x0, y0, x1, y0, erase, color, terrain);	//Top
+	VIEW_drawLine(x0, y0, x0, y1, erase, color, terrain);	//Left
+	VIEW_drawLine(x1, y0, x1, y1, erase, color, terrain);	//Right
+	VIEW_drawLine(x0, y1, x1, y1, erase, color, terrain);	//Bottom
+}
+
+void VIEW_drawLine(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, bool_e erase, Uint16 color, const imageInfo_s *terrain) {
+
+	Sint16 dx, dy, sx, sy, err, e2;
+	Uint16 tmp;
+	SSD2119_Options_t opt = SSD2119_getOptions();
+
+	// Check for overflow
+	if (x0 >= opt.width) {
+		x0 = opt.width - 1;
+	}
+	if (x1 >= opt.width) {
+		x1 = opt.width - 1;
+	}
+	if (y0 >= opt.height) {
+		y0 = opt.height - 1;
+	}
+	if (y1 >= opt.height) {
+		y1 = opt.height - 1;
+	}
+
+	// Check correction
+	if (x0 > x1) {
+		tmp = x0;
+		x0 = x1;
+		x1 = tmp;
+	}
+	if (y0 > y1) {
+		tmp = y0;
+		y0 = y1;
+		y1 = tmp;
+	}
+
+	dx = x1 - x0;
+	dy = y1 - y0;
+
+	// Vertical or horizontal line
+	/*if (dx == 0 || dy == 0) {
+		SSD2119_INT_fill(x0, y0, x1, y1, color);
+		return;
+	}*/
+
+	sx = (x0 < x1) ? 1 : -1;
+	sy = (y0 < y1) ? 1 : -1;
+	err = ((dx > dy) ? dx : -dy) / 2;
+
+	while (1) {
+		VIEW_drawPixelOnTerrain(x0, y0, erase, color, terrain);
+		if (x0 == x1 && y0 == y1) {
+			break;
+		}
+		e2 = err;
+		if (e2 > -dx) {
+			err -= dy;
+			x0 += sx;
+		}
+		if (e2 < dy) {
+			err += dx;
+			y0 += sy;
+		}
+	}
+}
