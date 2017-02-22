@@ -3,6 +3,7 @@
 #include "../QS/QS_ports.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_hokuyo/hokuyo.h"
+#include "MusicPlayer/musicPlayer.h"
 
 #define ANTI_BOUNCE_TIME (20) // en ms
 
@@ -52,6 +53,7 @@ static void BUTTON_stateChange0(void) {
 		// Le bouton est appuyé
 		//debug_printf("Appuye sur le bouton 0.\n");
 		HOKUYO_displayAdversariesPosition();
+		MUSIC_PLAYER_play();
 	}else{
 		// Le bouton est relâché
 		//debug_printf("Relachement du bouton 0.\n");

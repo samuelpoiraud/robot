@@ -28,7 +28,7 @@
 #define LINE_2					(LINE_1 + FONT_HEIGHT + GAP)
 #define LINE_3					(LINE_2 + FONT_HEIGHT + GAP)
 
-static char lines[NB_LINE][LINE_SIZE_MAX];
+static char lines[NB_LINE][LINE_SIZE_MAX + 1];
 static bool_e isInitialized = FALSE;							// Protection contre le double initialisation
 
 static void TERMINAL_clear();
