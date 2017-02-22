@@ -8,7 +8,8 @@
 #ifndef QS_HOKUYO_HOKUYO_H_
 #define QS_HOKUYO_HOKUYO_H_
 
-#include "../QS/QS_all.h"
+#include "../QS_all.h"
+#include "hokuyo_config.h"
 
 typedef struct {
 	Sint32 dist;
@@ -34,6 +35,11 @@ void HOKUYO_init(void);
  * @brief Tache de fond de l'hokuyo qui gère le rafraichissement de la position des robots adverses
  */
 void HOKUYO_processMain(void);
+
+/**
+ * @brief Tache d'interruption du module hokuyo
+ */
+void HOKUYO_processIt(Uint8 ms);
 
 /**
  * @brief Affichage de la position des adversaires dans un terminal
@@ -82,11 +88,22 @@ Uint16 HOKUYO_getNbHokuyoDisconnection(void);
  */
 time32_t HOKUYO_getLastMeasureDuration(void);
 
+#ifndef I_AM_CARTE_BEACON_EYE
+	/**
+	 * @brief Etat de fonctionnement de l'hokuyo
+	 * @retval Indique si l'hokuyo fonctionne bien
+	 */
+	bool_e HOKUYO_isWorkingWell(void);
+#endif
+
 /**
  * @brief Permet de prévenir le module Hokuyo que le périphérique est déconnecté
  */
 void HOKUYO_deviceDisconnected(void);
 
+/**
+ * @brief Permet de prévenir le module Hokuyo que le périphérique est connecté
+ */
 void HOKUYO_deviceConnected(void);
 
 #endif /* QS_HOKUYO_HOKUYO_H_ */
