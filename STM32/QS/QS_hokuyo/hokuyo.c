@@ -17,18 +17,21 @@
 #include "../QS_maths.h"
 #include "../QS_macro.h"
 #include <string.h>
+#include "../../config/config_use.h"
 
 #ifdef STM32F40XX
 	#include "../QS/QS_sys.h"
 #endif
 
-#ifdef I_AM_CARTE_BEACON_EYE
+#if defined(I_AM_CARTE_BEACON_EYE)
 	#include "../IHM/terminal.h"
 	#include "../environment.h"
 	#define terminal_debug(...)	 TERMINAL_printf(__VA_ARGS__)
-#else
+#elif defined(I_AM_CARTE_PROP)
 	#include "../../detection.h"
 	#include "../../secretary.h"
+	#define terminal_debug(...)	 (void)0
+#else
 	#define terminal_debug(...)	 (void)0
 #endif
 
@@ -160,7 +163,7 @@ Uint8 cmd[COMMAND_SIZE_MAX];
 /* Taille de la commande reçue */
 Uint16 received_frame_size = 0;
 
-#ifndef I_AM_CARTE_BEACON_EYE
+#ifdef I_AM_CARTE_PROP
 	static position_t robot_position_during_measurement;
 #endif
 
@@ -176,10 +179,10 @@ static void HOKUYO_detectRobots(void);
 static Uint16 HOKUYO_calculateFrameSize(commandSymbol_e commandSymbol);
 static bool_e HOKUYO_isValidPoint(Sint32 x, Sint32 y);
 static void HOKUYO_generateCommand( Uint8 *cmd, commandSymbol_e commandSymbol, Uint16 startingStep,
-									  Uint16 endStep, Uint8 clusterCount, Uint8 scanInterval,
-									  Uint8 numberOfScans, char *stringCharacters);
+									Uint16 endStep, Uint8 clusterCount, Uint8 scanInterval,
+									Uint8 numberOfScans, char *stringCharacters);
 
-#ifndef I_AM_CARTE_BEACON_EYE
+#ifdef I_AM_CARTE_PROP
 	static void HOKUYO_computeDistanceTeta(void);
 	static void HOKUYO_refreshAdversaries(void);
 	static void HOKUYO_sendAdversariesDatas(void);
@@ -300,7 +303,7 @@ void HOKUYO_processMain(void) {
 			datas_index = 0;
 			state = BUFFER_READ;
 
-#ifndef I_AM_CARTE_BEACON_EYE
+#ifdef I_AM_CARTE_PROP
 			/* On enregistre la position du robot avant de lancer le scan */
 			robot_position_during_measurement = global.position;
 #endif
@@ -349,7 +352,7 @@ void HOKUYO_processMain(void) {
 		case DETECTION_ADVERSARIES:
 			HOKUYO_detectRobots();
 
-#ifndef I_AM_CARTE_BEACON_EYE
+#ifdef I_AM_CARTE_PROP
 			HOKUYO_computeDistanceTeta();
 #endif
 
@@ -358,7 +361,7 @@ void HOKUYO_processMain(void) {
 
 		case SEND_ADVERSARIES_DATAS:
 
-#ifndef I_AM_CARTE_BEACON_EYE
+#ifdef I_AM_CARTE_PROP
 			if(time_since_last_sent_adversaries_datas > PERIOD_SEND_ADVERSARIES_DATAS) {
 				time_since_last_sent_adversaries_datas = 0;
 				HOKUYO_sendAdversariesDatas();
@@ -436,7 +439,7 @@ Uint16 HOKUYO_getNbValidPoints(void) {
 }
 
 HOKUYO_adversary_position* HOKUYO_getAdversaryPosition(Uint8 i) {
-	assert(i < adversaries_number);
+	//assert(i < adversaries_number);
 	return &hokuyo_adversaries[i];
 }
 
@@ -457,7 +460,7 @@ void HOKUYO_deviceConnected(void) {
 	flag_device_connected = TRUE;
 }
 
-#ifndef I_AM_CARTE_BEACON_EYE
+#ifdef I_AM_CARTE_PROP
 
 bool_e HOKUYO_isWorkingWell(void) {
 	if(time_since_last_sent_adversaries_datas < 2*PERIOD_SEND_ADVERSARIES_DATAS) {
@@ -554,17 +557,17 @@ static bool_e HOKUYO_readBuffer(void) {
  * 		  supprimer ceux qui sont hors du terrain ou dans des zones définies.
  */
 static void HOKUYO_parseDataFrame(void) {
-	Sint16 power_intensity = -1;					// Intensité lumineuse pour le point mesuré
+	Sint16 power_intensity = -1;			// Intensité lumineuse pour le point mesuré
 	Uint16 i;								// Index pour la boucle for
 	Sint32 distance;						// Distance entre l'hokuyo et le point courant
 	Sint32 angle = 0;						// Angle relatif au premier point mesurable par l'hokuyo en [°*100]
-	Sint16 teta_relative;					// Angle relatif au robot en [rad4096]
+	Sint16 teta_relative = 0;				// Angle relatif au robot en [rad4096]
 	Sint16 teta_absolute;					// Angle absolu par rapport au terrain en [rad4096]
-	Sint32 x_absolute;						// Position en x sur le terrain du point en cours
-	Sint32 y_absolute;						// Position en y sur le terrain du point en cours
+	Sint32 x_absolute = 0;					// Position en x sur le terrain du point en cours
+	Sint32 y_absolute = 0;					// Position en y sur le terrain du point en cours
 	Sint16 cos;								// Cosinus de l'angle en cours
 	Sint16 sin;								// Sinus de l'angle en cours
-	Sint32 to_close_distance;				// Distance minimum pour que le point soit pris en compte
+	Sint32 to_close_distance = 0;			// Distance minimum pour que le point soit pris en compte
 	nb_valid_points = 0;					// Remise à zéro des points valides
 	Sint16 angle_offset_rad = 0;			// Offset en [PI_4096] entre le centre de l'angle mort de l'hokuyo et le premier point mesuré
 
@@ -579,7 +582,7 @@ static void HOKUYO_parseDataFrame(void) {
 							  ((Sint32)(CMD_STARTING_STEP * ANGLE_RESOLUTION));
 	angle_offset_rad = DEG100_TO_PI4096(angle_offset_rad);
 
-#ifndef I_AM_CARTE_BEACON_EYE
+#if defined(I_AM_CARTE_PROP)
 	Sint16 offset_x, offset_y;				// Offset sur les valeurs de position sur le terrain
 	Sint16 offset_pos_x, offset_pos_y;		// Offset sur les valeurs de position sur le terrain par rapport au placement de l'hokuyo sur le robot
 
@@ -594,8 +597,12 @@ static void HOKUYO_parseDataFrame(void) {
 		offset_pos_y = HOKUYO_OFFSET_SMALL_POS_Y;
 		angle_offset_rad += HOKUYO_OFFSET_ANGLE_SMALL;
 	}
-#else
+#elif defined(I_AM_CARTE_BEACON_EYE)
 	to_close_distance = TOO_CLOSE_DISTANCE_BEACON_EYE;
+#else
+	UNUSED_VAR(teta_absolute);
+	UNUSED_VAR(cos);
+	UNUSED_VAR(sin);
 #endif
 
 	for(i = CMD_ECHO_SIZE; i < datas_index - 3;) {
@@ -635,7 +642,7 @@ static void HOKUYO_parseDataFrame(void) {
 		/* On élimine des distances trop petites (ET LES CAS DE REFLEXIONS TROP GRANDE OU LE CAPTEUR RENVOIE 1 !) */
 		if(distance	> to_close_distance) {
 
-#ifndef I_AM_CARTE_BEACON_EYE
+#if defined(I_AM_CARTE_PROP)
 			teta_relative = GEOMETRY_modulo_angle(DEG100_TO_PI4096(angle) - angle_offset_rad);
 			teta_absolute = GEOMETRY_modulo_angle(teta_relative + robot_position_during_measurement.teta);
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
@@ -643,7 +650,7 @@ static void HOKUYO_parseDataFrame(void) {
 			offset_y = (Sint16)(offset_pos_y*sin/4096.);
 			x_absolute = (distance*(Sint32)(cos))/4096 + robot_position_during_measurement.x + offset_x;
 			y_absolute = (distance*(Sint32)(sin))/4096 + robot_position_during_measurement.y + offset_y;
-#else
+#elif defined(I_AM_CARTE_BEACON_EYE)
 			teta_relative = DEG100_TO_PI4096(angle) - angle_offset_rad;
 			teta_absolute = GEOMETRY_modulo_angle(teta_relative);
 			COS_SIN_4096_get(teta_absolute,&cos,&sin);
