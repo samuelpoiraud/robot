@@ -24,6 +24,7 @@
 #include "QS/QS_ports.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_can_verbose.h"
+#include "QS/QS_hokuyo/hokuyo.h"
 #include "pilot.h"
 #include "warner.h"
 #include "corrector.h"
@@ -33,11 +34,9 @@
 #include "copilot.h"
 #include "supervisor.h"
 #include "joystick.h"
-#include "hokuyo.h"
 #include "supervisor.h"
 #include "detection.h"
 #include "gyroscope.h"
-#include "hokuyo.h"
 #include "avoidance.h"
 
 
@@ -563,7 +562,7 @@ void SECRETARY_send_selftest_result(bool_e result)
 	i = 0;
 	if(result == FALSE)
 		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_FAILED;
-	if(HOKUYO_is_working_well() == FALSE)
+	if(HOKUYO_isWorkingWell() == FALSE)
 		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_HOKUYO_FAILED;
 	if(ADC_getValue(ADC_SENSOR_LASER_LEFT) < 15)
 		msg.data.strat_prop_selftest_done.error_code[i++] = SELFTEST_PROP_LASER_SENSOR_LEFT;

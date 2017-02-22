@@ -17,7 +17,6 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
-#include "hokuyo.h"
 #include "../config/config_pin.h"
 
 volatile static Uint32 hokuyo_update_time = 0;
