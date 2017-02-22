@@ -9,13 +9,13 @@
 #define QS_HOKUYO_HOKUYO_C_
 
 #include "hokuyo.h"
-#include "hokuyo_config.h"
-#include "../QS/QS_ports.h"
-#include "../QS/QS_uart.h"
-#include "../QS/QS_buttons.h"
-#include "../QS/QS_who_am_i.h"
-#include "../QS/QS_outputlog.h"
-#include "../QS/QS_maths.h"
+#include "../QS_ports.h"
+#include "../QS_uart.h"
+#include "../QS_buttons.h"
+#include "../QS_who_am_i.h"
+#include "../QS_outputlog.h"
+#include "../QS_maths.h"
+#include "../QS_macro.h"
 #include <string.h>
 
 #ifdef STM32F40XX
@@ -27,6 +27,8 @@
 	#include "../environment.h"
 	#define terminal_debug(...)	 TERMINAL_printf(__VA_ARGS__)
 #else
+	#include "../../detection.h"
+	#include "../../secretary.h"
 	#define terminal_debug(...)	 (void)0
 #endif
 
@@ -158,6 +160,10 @@ Uint8 cmd[COMMAND_SIZE_MAX];
 /* Taille de la commande reçue */
 Uint16 received_frame_size = 0;
 
+#ifndef I_AM_CARTE_BEACON_EYE
+	static position_t robot_position_during_measurement;
+#endif
+
 //---------------------------------------------------
 
 
@@ -206,6 +212,11 @@ void HOKUYO_init(void) {
 
 	hokuyo_initialized = TRUE;
 }
+
+void HOKUYO_processIt(Uint8 ms) {
+	time_since_last_sent_adversaries_datas += ms;
+}
+
 
 void HOKUYO_processMain(void) {
 
@@ -448,18 +459,27 @@ void HOKUYO_deviceConnected(void) {
 
 #ifndef I_AM_CARTE_BEACON_EYE
 
+bool_e HOKUYO_isWorkingWell(void) {
+	if(time_since_last_sent_adversaries_datas < 2*PERIOD_SEND_ADVERSARIES_DATAS) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
 static void HOKUYO_computeDistanceTeta(void) {
 	Uint8 i;
 	Sint16 teta;
 
 	for(i = 0; i < adversaries_number; i++) {
-		hokuyo_adversaries[i].dist = CALCULATOR_distance(robot_position_during_measurement.x,
-														 robot_position_during_measurement.y,
-														 hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
-		teta = CALCULATOR_viewing_angle(robot_position_during_measurement.x,
-				 	 	 	 	 	 	robot_position_during_measurement.y,
-										hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
-		hokuyo_adversaries[i].teta = CALCULATOR_modulo_angle(teta - robot_position_during_measurement.teta);
+		hokuyo_adversaries[i].dist = GEOMETRY_distance( (GEOMETRY_point_t) {robot_position_during_measurement.x, robot_position_during_measurement.y},
+														(GEOMETRY_point_t) {hokuyo_adversaries[i].coordX, hokuyo_adversaries[i].coordY});
+
+		teta = GEOMETRY_viewing_angle( robot_position_during_measurement.x,
+				 	 	 	 	 	   robot_position_during_measurement.y,
+									   hokuyo_adversaries[i].coordX,hokuyo_adversaries[i].coordY);
+
+		hokuyo_adversaries[i].teta = GEOMETRY_modulo_angle(teta - robot_position_during_measurement.teta);
 	}
 }
 

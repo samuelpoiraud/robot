@@ -111,12 +111,53 @@ Sint16 GEOMETRY_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destination
 	return (Sint16)((float)atan2(destination_y - start_y , destination_x - start_x)*4096);
 }
 
+/* calcul de la distance que l'on a à parcourir entre la position actuelle et la position finale ( en mm ) OK
+et calcul de l'angle */
+Sint32 GEOMETRY_viewing_algebric_distance(Sint32 start_x, Sint32 start_y, Sint32 destination_x, Sint32 destination_y, Sint32 angle_de_vue)
+{
+	Sint32 deltaX,deltaY;
+	deltaX= absolute(destination_x - start_x);
+	deltaY= absolute(destination_y - start_y);
+	//debug_printf("deltaX %ld, deltaY %ld sqrt %ld", deltaX, deltaY, (Sint32)sqrt( deltaX*deltaX + deltaY*deltaY ));
+
+	if(absolute(angle_de_vue) > PI4096/2)
+		return -(Sint32)sqrt( deltaX*deltaX + deltaY*deltaY );
+	else
+		return (Sint32)sqrt( deltaX*deltaX + deltaY*deltaY );
+	// en mm
+}
+
+/* calcul de la distance que l'on a à parcourir entre la position actuelle et la position finale ( en mm.4096 ) OK
+et calcul de l'angle, valeur d'entrée en [mm.16] et [rad.4096]*/
+Sint32 GEOMETRY_viewing_algebric_distance_mm16(Sint32 start_x, Sint32 start_y, Sint32 destination_x, Sint32 destination_y, Sint32 angle_de_vue)
+{
+	Sint32 deltaX,deltaY;
+	deltaX= absolute(destination_x - start_x);
+	deltaY= absolute(destination_y - start_y);
+
+	if(absolute(angle_de_vue) > PI4096/2)
+		return -(float)sqrt( deltaX*deltaX + deltaY*deltaY )*256;
+	else
+		return (float)sqrt( deltaX*deltaX + deltaY*deltaY )*256;
+	// en mm
+}
+
 Sint16 GEOMETRY_modulo_angle(Sint16 angle)
 {
 	while(angle > PI4096)
 			angle -= 2*PI4096;
 	while(angle < -PI4096)
 			angle += 2*PI4096;
+
+	return angle;
+}
+
+Sint32 GEOMETRY_modulo_angle_22(Sint32 angle)	//rad/4096/1024
+{
+	if(angle > TWO_PI22/2)
+		angle -= TWO_PI22;
+	if(angle < -TWO_PI22/2)
+		angle += TWO_PI22;
 
 	return angle;
 }

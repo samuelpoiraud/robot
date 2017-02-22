@@ -102,7 +102,10 @@
 	bool_e GEOMETRY_segments_intersects(GEOMETRY_segment_t s1,GEOMETRY_segment_t s2);
 	bool_e GEOMETRY_segments_parallel(GEOMETRY_segment_t seg1, GEOMETRY_segment_t seg2);
 	Sint16 GEOMETRY_viewing_angle(Sint16 start_x, Sint16 start_y, Sint16 destination_x, Sint16 destination_y);
+	Sint32 GEOMETRY_viewing_algebric_distance(Sint32 start_x, Sint32 start_y, Sint32 destination_x, Sint32 destination_y, Sint32 angle_de_vue);
+	Sint32 GEOMETRY_viewing_algebric_distance_mm16(Sint32 start_x, Sint32 start_y, Sint32 destination_x, Sint32 destination_y, Sint32 angle_de_vue);
 	Sint16 GEOMETRY_modulo_angle(Sint16 angle);
+	Sint32 GEOMETRY_modulo_angle_22(Sint32 angle);
 	GEOMETRY_point_t GEOMETRY_segment_middle(GEOMETRY_segment_t s);
 	GEOMETRY_circle_t GEOMETRY_circle_from_diameter(GEOMETRY_segment_t diameter);
 	GEOMETRY_segment_t GEOMETRY_circle_intersections(GEOMETRY_circle_t c0, GEOMETRY_circle_t c1);
