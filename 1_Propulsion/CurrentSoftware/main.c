@@ -25,6 +25,7 @@
 #include "QS/QS_adc.h"
 #include "QS/QS_IHM.h"
 #include "QS/QS_rcc.h"
+#include "QS/QS_hokuyo/hokuyo.h"
 #include "odometry.h"
 #include "copilot.h"
 #include "pilot.h"
@@ -36,7 +37,6 @@
 #include "sequences.h"
 #include "debug.h"
 #include "joystick.h"
-#include "hokuyo.h"
 #include "gyroscope.h"
 #include "detection.h"
 #include "detection_choc.h"
@@ -226,7 +226,7 @@ int main (void)
 		WARNER_process_main();		//Communication avec l'extérieur. (Envois des messages)
 
 		#ifdef USE_HOKUYO
-			HOKUYO_process_main();
+			HOKUYO_processMain();
 		#endif
 
 		DETECTION_process_main();

@@ -15,6 +15,7 @@
 
 #include "QS/QS_timer.h"
 #include "QS/QS_ports.h"
+#include "QS/QS_hokuyo/hokuyo.h"
 #include "odometry.h"
 #include "copilot.h"
 #include "pilot.h"
@@ -23,7 +24,6 @@
 #include "joystick.h"
 #include "secretary.h"
 #include "debug.h"
-#include "hokuyo.h"
 #include "main.h"
 #include "detection.h"
 #include "avoidance.h"
@@ -153,8 +153,9 @@ void _ISR _T2Interrupt()
 	IT_test_state(begin_it_time, IT_STATE_MAIN, &first_overtime);
 
 	#ifdef USE_HOKUYO
-		HOKUYO_process_it(PERIODE_IT_ASSER);
+		HOKUYO_processIt(PERIODE_IT_ASSER);
 	#endif
+
 	IT_test_state(begin_it_time, IT_STATE_HOKUYO, &first_overtime);
 
 

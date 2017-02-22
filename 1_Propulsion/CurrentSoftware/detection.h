@@ -14,8 +14,8 @@
 
 	#include "QS/QS_all.h"
 	#include "QS/QS_can.h"
-	#include "hokuyo.h"
 	#include "QS/QS_maths.h"
+	#include "QS/QS_hokuyo/hokuyo.h"
 
 	typedef struct
 	{
