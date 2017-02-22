@@ -11,12 +11,12 @@
 #include "../IHM/terminal.h"
 #include "../environment.h"
 #include "low layer/stmpe811.h"
+#include "../zone.h"
 
 #define REFRESH_TIME	(100) // Temps en ms entre chaque affichage des positions hokuyo
 #define NB_MAX_CIRCLE	(HOKUYO_MAX_FOES)
 #define CIRCLE_COLOR	(SSD2119_COLOR_RED)
 #define CROSS_MARGIN	(20)
-#define FIELD_TO_LCD(x)	(x / 10)
 
 #define LCD_COLOR_BACKGROUND		SSD2119_COLOR_BLACK
 #define LCD_COLOR_BUTTON_TEXT		SSD2119_COLOR_WHITE
@@ -115,13 +115,15 @@ void LCD_processMain(void) {
 				}
 
 				if(HOKUYO_getAdversariesNumber() > 0) {
-					TERMINAL_printf("Nb adv : %2d   (%d ms)   |   %d", HOKUYO_getAdversariesNumber(), HOKUYO_getLastMeasureDuration(), HOKUYO_getNbValidPoints());
+					//TERMINAL_printf("Nb adv : %2d   (%d ms)   |   %d", HOKUYO_getAdversariesNumber(), HOKUYO_getLastMeasureDuration(), HOKUYO_getNbValidPoints());
 				}
 
 				// On affiche les nouvelles positions
 				for(i = 0; i < hokuyoPosition.size; i++) {
 					VIEW_drawCircle(hokuyoPosition.data[i].x, hokuyoPosition.data[i].y, hokuyoPosition.data[i].r, FALSE, CIRCLE_COLOR, &terrain);
 				}
+
+				ZONE_requestUpdate();
 
 				previousTime = global.absolute_time;
 			}
@@ -149,7 +151,7 @@ void LCD_processMain(void) {
 
 static void LCD_saveAdv(LCD_Circle_s *circle, HOKUYO_adversary_position *adv) {
 	circle->y = FIELD_TO_LCD(adv->coordX);
-	circle->x = FIELD_TO_LCD(adv->coordY) + PLATFORM_SIZE;
+	circle->x = FIELD_TO_LCD(adv->coordY);
 	circle->r = 4;
 }
 

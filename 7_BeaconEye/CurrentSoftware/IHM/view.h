@@ -11,11 +11,16 @@
 #define PLATFORM_Y_TOP				(0)
 #define PLATFORM_Y_MIDDLE			((TERRAIN_HEIGHT / 2) - (PLATFORM_SIZE / 2))
 #define PLATFORM_Y_BOTTOM			(TERRAIN_HEIGHT - PLATFORM_SIZE)
+#define FIELD_TO_LCD(x)				((x) / 10)
 
 void VIEW_drawEmptyTerrain(const imageInfo_s *terrain);
 
 void VIEW_drawBeaconPosition(color_e color);
 
 void VIEW_drawCircle(Uint16 x0, Uint16 y0, Uint16 r, bool_e erase, Uint16 color, const imageInfo_s *terrain);
+
+void VIEW_drawLine(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, bool_e erase, Uint16 color, const imageInfo_s *terrain);
+
+void VIEW_drawRectangle(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, bool_e erase, Uint16 color, const imageInfo_s *terrain);
 
 #endif /* ndef VIEW_H */

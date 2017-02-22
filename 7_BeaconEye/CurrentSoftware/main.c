@@ -28,6 +28,7 @@
 #include "IHM/terminal.h"
 #include "IHM/MusicPlayer/musicPlayer.h"
 #include "IHM/MusicPlayer/song/songs.h"
+#include "zone.h"
 
 static void initialisation(void);
 static void processMain(void);
@@ -65,9 +66,13 @@ static void initialisation(void) {
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
 	#endif
+	ZONE_init();
 
-	//BUZZER_play(50, NOTE_SOL, 2);
-
+	MUSIC_PLAYER_addSongToPlaylist(smurfs);
+	MUSIC_PLAYER_addSongToPlaylist(missionImpossible);
+	MUSIC_PLAYER_addSongToPlaylist(superMarioBros);
+	MUSIC_PLAYER_addSongToPlaylist(letItGo);
+	MUSIC_PLAYER_addSongToPlaylist(imperialMarch);
 }
 
 static void processMain(void) {
@@ -78,4 +83,5 @@ static void processMain(void) {
 	HOKUYO_processMain();
 #endif
 	MUSIC_PLAYER_processMain();
+	ZONE_processMain();
 }

@@ -6,6 +6,7 @@
 #include "IHM/view.h"
 #include "IHM/terminal.h"
 #include "IHM/buzzer.h"
+#include "zone.h"
 
 void ENVIRONMENT_init() {
 
@@ -57,6 +58,9 @@ void ENVIRONMENT_setColor(color_e color) {
 
 	// Changement de l'emplacement de la balise sur l'écran
 	VIEW_drawBeaconPosition(color);
+
+	// Mise à jour des zones
+	ZONE_colorChange();
 
 	// TODO: Mettre à jour les zones
 
