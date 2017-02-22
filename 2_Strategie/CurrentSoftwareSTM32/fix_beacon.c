@@ -23,7 +23,7 @@ volatile bool_e zones_updated = FALSE;
 
 void FIX_BEACON_init(void)
 {
-	zone_e i;
+	ZONE_zoneId_e i;
 	for(i = 0; i<ZONE_NUMBER; i++)
 	{
 		zones[i].events = EVENT_NO_EVENT;
@@ -41,7 +41,7 @@ void FIX_BEACON_init(void)
 //Doit être appelé après le any_match (car reset des flag updated)
 void FIX_BEACON_clean(void)
 {
-	zone_e i;
+	ZONE_zoneId_e i;
 	if(!initialized)
 		return;
 	if(zones_updated)
@@ -57,14 +57,14 @@ void FIX_BEACON_clean(void)
 		}
 	}
 }
-zone_t * FIX_BEACON_get_pzone(zone_e i)
+zone_t * FIX_BEACON_get_pzone(ZONE_zoneId_e i)
 {
 	return &zones[i];
 }
 
 
 //Demande l'activation d'une zone
-void FIX_BEACON_zone_enable(zone_e zone, zone_event_t events)
+void FIX_BEACON_zone_enable(ZONE_zoneId_e zone, ZONE_event_t events)
 {
 	CAN_msg_t msg;
 	msg.sid = ENABLE_WATCHING_ZONE;
@@ -75,7 +75,7 @@ void FIX_BEACON_zone_enable(zone_e zone, zone_event_t events)
 	CANMsgToXBeeDestination(&msg,BALISE_MERE);
 }
 
-void FIX_BEACON_zone_disable(zone_e zone)
+void FIX_BEACON_zone_disable(ZONE_zoneId_e zone)
 {
 	CAN_msg_t msg;
 	msg.sid = DISABLE_WATCHING_ZONES;
@@ -85,7 +85,7 @@ void FIX_BEACON_zone_disable(zone_e zone)
 	CANMsgToXBeeDestination(&msg,BALISE_MERE);
 }
 
-static void FIX_BEACON_ask_infos(zone_e zone)
+static void FIX_BEACON_ask_infos(ZONE_zoneId_e zone)
 {
 	CAN_msg_t msg;
 	msg.sid = GET_ZONE_INFOS;
@@ -98,7 +98,7 @@ static void FIX_BEACON_ask_infos(zone_e zone)
 #define TIMEOUT_FOR_GETTING_INFOS	500	//500ms
 //Sub-action demandant une info sur une zone
 //Il FAUT envoyer NULL dans le paramètre msg !!!
-error_e FIX_BEACON_get_infos(zone_e zone, CAN_msg_t * msg)
+error_e FIX_BEACON_get_infos(ZONE_zoneId_e zone, CAN_msg_t * msg)
 {
 	typedef enum
 	{
@@ -110,7 +110,7 @@ error_e FIX_BEACON_get_infos(zone_e zone, CAN_msg_t * msg)
 	static state_e state = INIT;
 	static bool_e flag_timeout = FALSE;
 	static watchdog_id_t watchdog_id;
-	static zone_e current_zone = ZONE_NUMBER;	//Aucune zone...
+	static ZONE_zoneId_e current_zone = ZONE_NUMBER;	//Aucune zone...
 	error_e ret;
 	ret = IN_PROGRESS;
 
