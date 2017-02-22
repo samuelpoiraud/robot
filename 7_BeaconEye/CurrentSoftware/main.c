@@ -20,17 +20,12 @@
 #include "QS/QS_sys.h"
 #endif
 #include "it.h"
-#include "zone.h"
-#include "Secretary.h"
 #include "LCD/middleware.h"
-#include "LCD/low layer/ssd2119.h"
 #include "environment.h"
-#include "LCD/low layer/ssd2119.h"
 #include "IHM/buzzer.h"
 #include "LCD/lcd.h"
-#include "QS_hokuyo/hokuyo.h"
+#include "QS/QS_hokuyo/hokuyo.h"
 #include "IHM/terminal.h"
-#include "IHM/led.h"
 #include "IHM/MusicPlayer/musicPlayer.h"
 #include "IHM/MusicPlayer/song/songs.h"
 
@@ -42,7 +37,6 @@ int main(void) {
 	initialisation();
 
 	debug_printf("------- Hello, I'm BEACON EYE -------\n");
-	TERMINAL_puts("Initialization completed");
 
 	while(1){
 		processMain();
@@ -72,24 +66,16 @@ static void initialisation(void) {
 		HOKUYO_init();
 	#endif
 
-	MUSIC_PLAYER_addSongToPlaylist(missionImpossible);
-	MUSIC_PLAYER_addSongToPlaylist(flinstones);
-	MUSIC_PLAYER_addSongToPlaylist(imperialMarch);
-	MUSIC_PLAYER_addSongToPlaylist(letItGo);
-
-
-	MUSIC_PLAYER_play();
-
 	//BUZZER_play(50, NOTE_SOL, 2);
 
 }
 
 static void processMain(void) {
 
-	MUSIC_PLAYER_processMain();
 	LCD_processMain();
 	ENVIRONMENT_processMain();
 #ifdef USE_HOKUYO
 	HOKUYO_processMain();
 #endif
+	MUSIC_PLAYER_processMain();
 }
