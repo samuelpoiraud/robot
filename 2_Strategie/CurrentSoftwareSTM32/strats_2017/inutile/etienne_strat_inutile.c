@@ -21,12 +21,16 @@ void etienne_strat_inutile_big(){
 
 		switch(state){
 			case INIT:
+				if(entrance){
+					global.color==YELLOW;
+					//global.color==BLUE;
+				}
 				//state = try_advance(NULL,entrance,400,state,INIT1,ERROR,FAST,BACKWARD,DODGE_AND_WAIT, END_AT_LAST_POINT);
 				state = INIT1;
 				break;
 
 			case INIT1:
-				state = check_sub_action_result(sub_harry_depose_modules_side(OUR_ELEMENT),INIT1,DONE,ERROR);
+				state = check_sub_action_result(sub_harry_depose_modules_side(ADV_ELEMENT),state,DONE,ERROR);
 				break;
 
 			case ERROR:
