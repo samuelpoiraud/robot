@@ -28,13 +28,12 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			ERROR,
 			ERROR_GET_OUT_YELLOW,
 			ERROR_GET_OUT_BLUE,
-			ERROR_GET_OUT_YELLOW_CRATER,
-			ERROR_GET_OUT_BLUE_CRATER,
 			DONE
 		);
 
 	switch(state){
 		case INIT:
+			debug_printf("flag_our:%d\tflag_adv:%d", ELEMENTS_get_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN), ELEMENTS_get_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN));
 			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
 			}else if((ELEMENTS_get_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN) && minerais == OUR_ELEMENT)
@@ -111,20 +110,12 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			break;
 
 
-		case ERROR_GET_OUT_YELLOW: //val
-			state = try_going(1780, 2200, ERROR_GET_OUT_YELLOW, GET_OUT_YELLOW,  ERROR_GET_OUT_YELLOW_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case ERROR_GET_OUT_YELLOW:
+			state = try_going(1780, 2200, ERROR_GET_OUT_YELLOW, GET_OUT_YELLOW,  GET_OUT_YELLOW, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case ERROR_GET_OUT_BLUE: //tvl
-			state = try_going(1780, 800, ERROR_GET_OUT_BLUE, GET_OUT_BLUE,  ERROR_GET_OUT_BLUE_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_GET_OUT_YELLOW_CRATER: //tvl
-			state = try_going(1780, 2690, ERROR_GET_OUT_BLUE_CRATER, GET_OUT_YELLOW,  ERROR_GET_OUT_YELLOW, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_GET_OUT_BLUE_CRATER: //tvl
-			state = try_going(1780, 310, ERROR_GET_OUT_BLUE_CRATER, GET_OUT_BLUE,  ERROR_GET_OUT_BLUE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+		case ERROR_GET_OUT_BLUE:
+			state = try_going(1780, 800, ERROR_GET_OUT_BLUE, GET_OUT_BLUE,  GET_OUT_BLUE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -315,7 +306,7 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 			break;
 
 		case GET_IN:
-			if(i_am_in_square(400, 1500, 300, 800)){
+			if(i_am_in_square(400, 1500, 200, 800)){
 				state = GO_YELLOW_CRATER_FROM_BLUE_SQUARE;
 			}
 			else if(i_am_in_square(400, 1500, 2700, 2200)){
@@ -327,7 +318,6 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 				state = ASTAR_GO_YELLOW_CRATER;
 			}
 			break;
-
 
 		case GO_YELLOW_CRATER_FROM_BLUE_SQUARE:
 			state = try_going_multipoint( leave_blue_square, 3, state, DONE, ASTAR_GO_YELLOW_CRATER, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
@@ -396,7 +386,7 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 			break;
 
 		case GET_IN:
-			if(i_am_in_square(400, 1500, 300, 800)){
+			if(i_am_in_square(400, 1500, 200, 800)){
 				state = GO_BLUE_CRATER_FROM_BLUE_SQUARE;
 			}
 			else if(i_am_in_square(400, 1500, 2700, 2200)){
@@ -408,6 +398,7 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 				state = ASTAR_GO_BLUE_CRATER;
 			}
 			break;
+
 
 		case GO_BLUE_CRATER_FROM_YELLOW_SQUARE:
 			state = try_going_multipoint( leave_yellow_square, 3, state, DONE, ASTAR_GO_BLUE_CRATER, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
@@ -457,30 +448,24 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 error_e sub_harry_take_big_crater_yellow_middle(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW_MIDDLE,
 			INIT,
-			COLLECT_YELLOW_MIDDLE_POSITION,
+
 			COLLECT_YELLOW_MIDDLE_LINE,
 			COLLECT_YELLOW_MIDDLE_ACTIVATE,
 			COLLECT_YELLOW_MIDDLE_MOVE_FOWARD,
 			COLLECT_YELLOW_MIDDLE_ROLLER_UP,
 			COLLECT_YELLOW_MIDDLE_POSITION_LEFT,
 			COLLECT_YELLOW_MIDDLE_VALIDATE,
-			GET_OUT_COLLECT_YELLOW_MIDDLE,
 			ERROR_COLLECT_YELLOW_MIDDLE_MOVE_FOWARD,
 			ERROR_COLLECT_YELLOW_MIDDLE_POSITION_LEFT,
 			DONE,
-			ERROR_ACT_IN,
-			ERROR_ACT_OUT,
 			ERROR
 		);
 
 	switch(state){
 		case INIT:
-			state = COLLECT_YELLOW_MIDDLE_POSITION;
-			break;
-
-		case COLLECT_YELLOW_MIDDLE_POSITION:
 			state = try_going(1390, 2600, state, COLLECT_YELLOW_MIDDLE_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
+
 
 		case COLLECT_YELLOW_MIDDLE_LINE:
 			// rotation nord avant de reculer dans le cratère
@@ -505,7 +490,7 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_IN;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 				state=COLLECT_YELLOW_MIDDLE_MOVE_FOWARD;
@@ -549,21 +534,29 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 			state2= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_OUT;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
-				state=GET_OUT_COLLECT_YELLOW_MIDDLE;
+				if(global.color == YELLOW){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_MIDDLE_CRATER_IS_TAKEN,TRUE);
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_MIDDLE_CRATER_IS_TAKEN,TRUE);
+				}
+				state=DONE;
 			}
 			else{ // Add a else just to be secure
-				state=GET_OUT_COLLECT_YELLOW_MIDDLE;
+				if(global.color == YELLOW){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_MIDDLE_CRATER_IS_TAKEN,TRUE);
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_MIDDLE_CRATER_IS_TAKEN,TRUE);
+				}
+				state=DONE;
 			}
 
 		}break;
 
-		case GET_OUT_COLLECT_YELLOW_MIDDLE:
-			state = DONE;
-			break;
-			//COLLECT_YELLOW_ROCKET_POSITION == GET_OUT_COLLECT_YELLOW_MIDDLE
 
 		case ERROR_COLLECT_YELLOW_MIDDLE_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
@@ -573,16 +566,6 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 		case ERROR_COLLECT_YELLOW_MIDDLE_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
 			state = try_going(1690, 2600, state, COLLECT_YELLOW_MIDDLE_POSITION_LEFT,  COLLECT_YELLOW_MIDDLE_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_ACT_IN:
-			// le robot ne pourras pas réussir les actions
-			state = ERROR;
-			break;
-
-		case ERROR_ACT_OUT:
-			// le robot va avoir des problèmes pour partir
-			state = ERROR;
 			break;
 
 		case ERROR:
@@ -612,30 +595,24 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 error_e sub_harry_take_big_crater_yellow_rocket(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW_FUSE,
 			INIT,
-			COLLECT_YELLOW_ROCKET_POSITION,
+
 			COLLECT_YELLOW_ROCKET_LINE,
 			COLLECT_YELLOW_ROCKET_ACTIVATE,
 			COLLECT_YELLOW_ROCKET_MOVE_FOWARD,
 			COLLECT_YELLOW_ROCKET_ROLLER_UP,
 			COLLECT_YELLOW_ROCKET_POSITION_LEFT,
 			COLLECT_YELLOW_ROCKET_VALIDATE,
-			GET_OUT_COLLECT_YELLOW_ROCKET,
 			ERROR_COLLECT_YELLOW_ROCKET_MOVE_FOWARD,
 			ERROR_COLLECT_YELLOW_ROCKET_POSITION_LEFT,
 			DONE,
-			ERROR_ACT_IN,
-			ERROR_ACT_OUT,
 			ERROR
 		);
 
 	switch(state){
 		case INIT:
-			state = COLLECT_YELLOW_ROCKET_POSITION;
-			break;
-
-		case COLLECT_YELLOW_ROCKET_POSITION:
 			state = try_going(1600, 2300, state, COLLECT_YELLOW_ROCKET_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
+
 
 		case COLLECT_YELLOW_ROCKET_LINE:
 			// rotation nord avant de reculer dans le cratère
@@ -661,7 +638,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_IN;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 				state=COLLECT_YELLOW_ROCKET_MOVE_FOWARD;
@@ -704,19 +681,27 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_OUT;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
-				state=GET_OUT_COLLECT_YELLOW_ROCKET;
+				if(global.color == YELLOW){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_ROCKET_CRATER_IS_TAKEN,TRUE);
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_ROCKET_CRATER_IS_TAKEN,TRUE);
+				}
+				state=DONE;
 			}
 			else{ // Add a else just to be secure
-				state=GET_OUT_COLLECT_YELLOW_ROCKET;
+				if(global.color == YELLOW){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_ROCKET_CRATER_IS_TAKEN,TRUE);
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_ROCKET_CRATER_IS_TAKEN,TRUE);
+				}
+				state=DONE;
 			}
 		}break;
-
-		case GET_OUT_COLLECT_YELLOW_ROCKET:
-			state = DONE;
-			break;
 
 		case ERROR_COLLECT_YELLOW_ROCKET_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
@@ -726,16 +711,6 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 		case ERROR_COLLECT_YELLOW_ROCKET_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
 			state = try_going(1600, 2690, state, COLLECT_YELLOW_ROCKET_POSITION_LEFT,  COLLECT_YELLOW_ROCKET_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_ACT_IN:
-			// le robot ne pourras pas réussir les actions
-			state = ERROR;
-			break;
-
-		case ERROR_ACT_OUT:
-			// le robot va avoir des problèmes pour partir
-			state = ERROR;
 			break;
 
 		case ERROR:
@@ -764,30 +739,24 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 	error_e sub_harry_take_big_crater_yellow_corner(){
 		CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW_CORNER,
 				INIT,
-				COLLECT_YELLOW_CORNER_POSITION,
+
 				COLLECT_YELLOW_CORNER_LINE,
 				COLLECT_YELLOW_CORNER_ACTIVATE,
 				COLLECT_YELLOW_CORNER_MOVE_FOWARD,
 				COLLECT_YELLOW_CORNER_ROLLER_UP,
 				COLLECT_YELLOW_CORNER_POSITION_LEFT,
 				COLLECT_YELLOW_CORNER_VALIDATE,
-				GET_OUT_COLLECT_YELLOW_CORNER,
 				ERROR_COLLECT_YELLOW_CORNER_MOVE_FOWARD,
 				ERROR_COLLECT_YELLOW_CORNER_POSITION_LEFT,
 				DONE,
-				ERROR_ACT_IN,
-				ERROR_ACT_OUT,
 				ERROR
 			);
 
 	switch(state){
 		case INIT:
-			state = COLLECT_YELLOW_CORNER_POSITION;
-			break;
-
-		case COLLECT_YELLOW_CORNER_POSITION:
 			state = try_going(1780, 2200, state, COLLECT_YELLOW_CORNER_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
+
 
 		case COLLECT_YELLOW_CORNER_LINE:
 			// rotation nord avant de reculer dans le cratère
@@ -814,7 +783,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_IN;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 				state=COLLECT_YELLOW_CORNER_MOVE_FOWARD;
@@ -857,19 +826,31 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_OUT;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
-				state=GET_OUT_COLLECT_YELLOW_CORNER;
+				if(global.color == YELLOW){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CORNER_CRATER_IS_TAKEN,TRUE);
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CORNER_CRATER_IS_TAKEN,TRUE);
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+				}
+				state=DONE;
 			}
 			else{ // Add a else just to be secure
-				state=GET_OUT_COLLECT_YELLOW_CORNER;
+				if(global.color == YELLOW){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CORNER_CRATER_IS_TAKEN,TRUE);
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CORNER_CRATER_IS_TAKEN,TRUE);
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+				}
+				state=DONE;
 			}
 		}break;
-
-		case GET_OUT_COLLECT_YELLOW_CORNER:
-			state = DONE;
-			break;
 
 		case ERROR_COLLECT_YELLOW_CORNER_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
@@ -879,16 +860,6 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 		case ERROR_COLLECT_YELLOW_CORNER_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
 			state = try_going(1780, 2690, state, COLLECT_YELLOW_CORNER_POSITION_LEFT,  COLLECT_YELLOW_CORNER_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_ACT_IN:
-			// le robot ne pourras pas réussir les actions
-			state = ERROR;
-			break;
-
-		case ERROR_ACT_OUT:
-			// le robot va avoir des problèmes pour partir
-			state = ERROR;
 			break;
 
 		case ERROR:
@@ -917,30 +888,24 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 error_e sub_harry_take_big_crater_blue_middle(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE_MIDDLE,
 			INIT,
-			COLLECT_BLUE_MIDDLE_POSITION,
+
 			COLLECT_BLUE_MIDDLE_LINE,
 			COLLECT_BLUE_MIDDLE_ACTIVATE,
 			COLLECT_BLUE_MIDDLE_MOVE_FOWARD,
 			COLLECT_BLUE_MIDDLE_ROLLER_UP,
 			COLLECT_BLUE_MIDDLE_POSITION_LEFT,
 			COLLECT_BLUE_MIDDLE_VALIDATE,
-			GET_OUT_COLLECT_BLUE_MIDDLE,
 			ERROR_COLLECT_BLUE_MIDDLE_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT,
 			DONE,
-			ERROR_ACT_IN,
-			ERROR_ACT_OUT,
 			ERROR
 		);
 
 	switch(state){
 		case INIT:
-			state = COLLECT_BLUE_MIDDLE_POSITION;
-			break;
-
-		case COLLECT_BLUE_MIDDLE_POSITION:
 			state = try_going(1390, 400, state, COLLECT_BLUE_MIDDLE_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
+
 
 		case COLLECT_BLUE_MIDDLE_LINE:
 			// rotation nord avant de reculer dans le cratère
@@ -968,7 +933,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_IN;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 				state=COLLECT_BLUE_MIDDLE_MOVE_FOWARD;
@@ -1011,19 +976,28 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 
 		if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-			state=ERROR_ACT_OUT;
+			state=ERROR;
 		}
 		else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
-			state=GET_OUT_COLLECT_BLUE_MIDDLE;
+			if(global.color == BLUE){
+				ELEMENTS_set_flag(FLAG_OUR_CORNER_MIDDLE_CRATER_IS_TAKEN,TRUE);
+			}
+			else{
+				ELEMENTS_set_flag(FLAG_ADV_CORNER_MIDDLE_CRATER_IS_TAKEN,TRUE);
+			}
+			state=DONE;
 		}
 		else{ // Add a else just to be secure
-			state=GET_OUT_COLLECT_BLUE_MIDDLE;
+			if(global.color == BLUE){
+				ELEMENTS_set_flag(FLAG_OUR_CORNER_MIDDLE_CRATER_IS_TAKEN,TRUE);
+			}
+			else{
+				ELEMENTS_set_flag(FLAG_ADV_CORNER_MIDDLE_CRATER_IS_TAKEN,TRUE);
+			}
+			state=DONE;
 		}
 		}break;
 
-		case GET_OUT_COLLECT_BLUE_MIDDLE:
-			state = DONE;
-			break;
 
 		case ERROR_COLLECT_BLUE_MIDDLE_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
@@ -1033,16 +1007,6 @@ error_e sub_harry_take_big_crater_blue_middle(){
 		case ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
 			state = try_going(1690, 400, state, COLLECT_BLUE_MIDDLE_POSITION_LEFT,  COLLECT_BLUE_MIDDLE_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_ACT_IN:
-			// le robot ne pourras pas réussir les actions
-			state = ERROR;
-			break;
-
-		case ERROR_ACT_OUT:
-			// le robot va avoir des problèmes pour partir
-			state = ERROR;
 			break;
 
 		case ERROR:
@@ -1073,30 +1037,24 @@ error_e sub_harry_take_big_crater_blue_middle(){
 error_e sub_harry_take_big_crater_blue_rocket(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE_FUSE,
 			INIT,
-			COLLECT_BLUE_ROCKET_POSITION,
+
 			COLLECT_BLUE_ROCKET_LINE,
 			COLLECT_BLUE_ROCKET_ACTIVATE,
 			COLLECT_BLUE_ROCKET_MOVE_FOWARD,
 			COLLECT_BLUE_ROCKET_ROLLER_UP,
 			COLLECT_BLUE_ROCKET_POSITION_LEFT,
 			COLLECT_BLUE_ROCKET_VALIDATE,
-			GET_OUT_COLLECT_BLUE_ROCKET,
 			ERROR_COLLECT_BLUE_ROCKET_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_ROCKET_POSITION_LEFT,
 			DONE,
-			ERROR_ACT_IN,
-			ERROR_ACT_OUT,
 			ERROR
 		);
 
 	switch(state){
 		case INIT:
-			state = COLLECT_BLUE_ROCKET_POSITION;
-			break;
-
-		case COLLECT_BLUE_ROCKET_POSITION:
 			state = try_going(1600, 700, state, COLLECT_BLUE_ROCKET_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
+
 
 		case COLLECT_BLUE_ROCKET_LINE:
 			// rotation nord avant de reculer dans le cratère
@@ -1123,7 +1081,7 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_IN;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 				state=COLLECT_BLUE_ROCKET_MOVE_FOWARD;
@@ -1167,19 +1125,28 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_OUT;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
-				state=GET_OUT_COLLECT_BLUE_ROCKET;
+				if(global.color == BLUE){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_ROCKET_CRATER_IS_TAKEN,TRUE);
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_ROCKET_CRATER_IS_TAKEN,TRUE);
+				}
+				state=DONE;
 			}
 			else{ // Add a else just to be secure
-				state=GET_OUT_COLLECT_BLUE_ROCKET;
+				if(global.color == BLUE){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_ROCKET_CRATER_IS_TAKEN,TRUE);
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_ROCKET_CRATER_IS_TAKEN,TRUE);
+				}
+				state=DONE;
 			}
 			}break;
 
-		case GET_OUT_COLLECT_BLUE_ROCKET:
-			state = DONE;
-			break;
 
 		case ERROR_COLLECT_BLUE_ROCKET_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
@@ -1189,16 +1156,6 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 		case ERROR_COLLECT_BLUE_ROCKET_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
 			state = try_going(1600, 310, state, COLLECT_BLUE_ROCKET_POSITION_LEFT,  COLLECT_BLUE_ROCKET_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_ACT_IN:
-			// le robot ne pourras pas réussir les actions
-			state = ERROR;
-			break;
-
-		case ERROR_ACT_OUT:
-			// le robot va avoir des problèmes pour partir
-			state = ERROR;
 			break;
 
 		case ERROR:
@@ -1228,30 +1185,24 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 error_e sub_harry_take_big_crater_blue_corner(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE_CORNER,
 			INIT,
-			COLLECT_BLUE_CORNER_POSITION,
+
 			COLLECT_BLUE_CORNER_LINE,
 			COLLECT_BLUE_CORNER_ACTIVATE,
 			COLLECT_BLUE_CORNER_MOVE_FOWARD,
 			COLLECT_BLUE_CORNER_ROLLER_UP,
 			COLLECT_BLUE_CORNER_POSITION_LEFT,
 			COLLECT_BLUE_CORNER_VALIDATE,
-			GET_OUT_COLLECT_BLUE_CORNER,
 			ERROR_COLLECT_BLUE_CORNER_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_CORNER_POSITION_LEFT,
 			DONE,
-			ERROR_ACT_IN,
-			ERROR_ACT_OUT,
 			ERROR
 		);
 
 	switch(state){
 		case INIT:
-			state = COLLECT_BLUE_CORNER_POSITION;
-			break;
-
-		case COLLECT_BLUE_CORNER_POSITION:
 			state = try_going(1780, 800, state, COLLECT_BLUE_CORNER_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
+
 
 		case COLLECT_BLUE_CORNER_LINE:
 			// rotation nord avant de reculer dans le cratère
@@ -1278,7 +1229,7 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_IN;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
 				state=COLLECT_BLUE_CORNER_MOVE_FOWARD;
@@ -1321,19 +1272,32 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
-				state=ERROR_ACT_OUT;
+				state=ERROR;
 			}
 			else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)){
-				state=GET_OUT_COLLECT_BLUE_CORNER;
+				if(global.color == BLUE){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CORNER_CRATER_IS_TAKEN,TRUE);
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CORNER_CRATER_IS_TAKEN,TRUE);
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+				}
+				state=DONE;
 			}
 			else{	// Add a else just to be secure
-				state=GET_OUT_COLLECT_BLUE_CORNER;
+				if(global.color == BLUE){
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CORNER_CRATER_IS_TAKEN,TRUE);
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+				}
+				else{
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CORNER_CRATER_IS_TAKEN,TRUE);
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+				}
+				state=DONE;
 			}
 			}break;
 
-		case GET_OUT_COLLECT_BLUE_CORNER:
-			state = DONE;
-			break;
 
 		case ERROR_COLLECT_BLUE_CORNER_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
@@ -1343,16 +1307,6 @@ error_e sub_harry_take_big_crater_blue_corner(){
 		case ERROR_COLLECT_BLUE_CORNER_POSITION_LEFT:
 			// il y a quelqu'un qui bloque la sortie du cratere
 			state = try_going(1780, 310, state, COLLECT_BLUE_CORNER_POSITION_LEFT,  COLLECT_BLUE_CORNER_POSITION_LEFT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR_ACT_IN:
-			// le robot ne pourras pas réussir les actions
-			state = ERROR;
-			break;
-
-		case ERROR_ACT_OUT:
-			// le robot va avoir des problèmes pour partir
-			state = ERROR;
 			break;
 
 		case ERROR:
@@ -1397,8 +1351,10 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 		case INIT:
 			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
-			}else if(ELEMENTS_get_flag(FLAG_OUR_NORTH_CRATER_IS_TAKEN)){
+			}else if(ELEMENTS_get_flag(FLAG_OUR_NORTH_CRATER_IS_TAKEN)&&minerais == OUR_ELEMENT){
 				state = DONE;
+			}else if(ELEMENTS_get_flag(FLAG_ADV_NORTH_CRATER_IS_TAKEN)&&minerais == ADV_ELEMENT){
+							state = DONE;
 			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_CENTER)){
 				state=ERROR;
 			}else{
@@ -1479,9 +1435,9 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 
 		case GET_OUT:
 			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(850, 650, state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(950, 650, state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}else{
-				state=try_going(850, 2350, state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(950, 2350, state, DONE, DONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}
 			break;
 
@@ -1504,12 +1460,12 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 
 			if(minerais == OUR_ELEMENT){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_NORTH_CRATER, FALSE);	// flag subaction
-				ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN, TRUE);	// flag element
+				ELEMENTS_set_flag(FLAG_OUR_NORTH_CRATER_IS_TAKEN, TRUE);	// flag element
 			}else{
-				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);	// flag subaction
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_NORTH_CRATER, FALSE);	// flag element
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_NORTH_CRATER, FALSE);	// flag subaction
+				ELEMENTS_set_flag(FLAG_ADV_NORTH_CRATER_IS_TAKEN, TRUE);	// flag element
 			}
-			ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
+			//ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
 
 			return END_OK;
 			break;
@@ -1635,8 +1591,10 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 		case INIT:
 			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
-			}else if(ELEMENTS_get_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN)){
+			}else if(ELEMENTS_get_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN)&&minerais == OUR_ELEMENT){
 				state = DONE;
+			}else if(ELEMENTS_get_flag(FLAG_ADV_SOUTH_CRATER_IS_TAKEN)&&minerais == ADV_ELEMENT){
+							state = DONE;
 			}else if((minerais == OUR_ELEMENT && (ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI) || ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_DIAGONAL)))
 					|| (minerais == ADV_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_ADV_DIAGONAL))){
 				state=ERROR;
@@ -1745,12 +1703,12 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 
 			if(minerais == OUR_ELEMENT){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_SOUTH_CRATER, FALSE); // flag subaction
-				ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN, TRUE);  // flag element
+				ELEMENTS_set_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN, TRUE);  // flag element
 			}else{
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_SOUTH_CRATER, FALSE);	// flag subaction
-				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);	// flag element
+				ELEMENTS_set_flag(FLAG_ADV_SOUTH_CRATER_IS_TAKEN, TRUE);	// flag element
 			}
-			ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
+			//ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
 
 			return END_OK;
 			break;
