@@ -48,7 +48,7 @@
 //MODES INDISPENSABLES EN MATCHS
 	#define PERIODE_IT_ASSER (5)		//[ms] ne pas y toucher sans savoir ce qu'on fait, (ou bien vous voulez vraiment tout casser !)
 
-	#define USE_HOKUYO					//Active le module HOKUYO et la détection des ennemis... !
+    #define USE_HOKUYO					//Active le module HOKUYO et la détection des ennemis... !
 
 	//#define USE_GYROSCOPE				//Activation du gyroscope
 
@@ -58,13 +58,15 @@
 
 	#define VERBOSE_MODE				//Activation du verbose
 
-	//#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
+    //#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
 
 	#define LIMITATION_PWM_BORDER_MODE
 
 	//#define DETECTION_CHOC
 
-	//#define DISABLE_SECURE_GPIO_INIT
+	#define USE_AN_VREFIN
+
+    //#define DISABLE_SECURE_GPIO_INIT
 	#ifdef DISABLE_SECURE_GPIO_INIT
 		#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
 	#endif
@@ -86,7 +88,7 @@
 		#endif
 	#endif
 
-//    #define MODE_PRINT_FIRST_TRAJ		// Il est recommandé de baisser le baudrate pour éviter les erreurs de transmission et le flood du récepteur
+    //#define MODE_PRINT_FIRST_TRAJ		// Il est recommandé de baisser le baudrate pour éviter les erreurs de transmission et le flood du récepteur
 
 	//#define MODE_PRINTF_TABLEAU		//Module permettant de visualiser après coup une grande série de valeur quelconque pour chaque IT...
 
@@ -124,7 +126,7 @@
 /* Réglages UART */
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
-	#define UART1_BAUDRATE		230400	//9600
+    #define UART1_BAUDRATE		9600//230400	//9600
 	#define USE_UART1TXINTERRUPT
 	#define BUFFER_U1TX_SIZE	128
 

@@ -249,21 +249,38 @@ bool_e calculeZone(volatile GEOMETRY_point_t zone[], volatile Uint8 *zone_index,
 				}
 
 			}else{
-//                for(i=0;i<nb_points_in_zone;i++){
-//                    if(a!=0)
-//                        pseudovariance+=absolute(zone[i].x-(b-zone[i].y)/a);
-//                    else
-//                        pseudovariance+=absolute(zone[i].x-xmoy);
-//                }
+                for(i=0;i<nb_points_in_zone;i++){
+					if((zone[i].x != 0) || (zone[i].y != 0)){		// Si c'est un point valide
+	                    if(a!=0){
+	                    	distance+=absolute(zone[i].x-(b-zone[i].y)/a);
+	                    }else{
+	                    	distance+=absolute(zone[i].x-xmoy);
+	                    }
+	                    if(distance > DISTANCE_MAX){
+							zone[i].x = 0;
+							zone[i].y = 0;
+							flag_correction = FALSE;
+						}
+						pseudovariance += distance;
+					}
+                }
 			}
 		}else{
-//			if(mode_den != BORDER_SCAN_MODE_DEN_X){
-//				return FALsSE;
-//			}else{
-//				for(i=0;i<nb_points_in_zone;i++){
-//					pseudovariance += absolute(zone[i].x - xmoy);
-//				}
-//			}
+		if(mode_den != BORDER_SCAN_MODE_DEN_X){
+				return FALSE;
+			}else{
+				for(i=0;i<nb_points_in_zone;i++){
+					if((zone[i].x != 0) || (zone[i].y != 0)){		// Si c'est un point valide
+	                    distance+=absolute(zone[i].x - xmoy);
+	                    if(distance > DISTANCE_MAX){
+							zone[i].x = 0;
+							zone[i].y = 0;
+							flag_correction = FALSE;
+						}
+						pseudovariance += distance;
+					}
+				}
+			}
 		}
 	}while(flag_correction == FALSE);
 
