@@ -123,7 +123,6 @@ static void SCAN_get_data(SCAN_side_e side){
 		*zone = BORDERS_SCAN_treatment(pos_mesure);
 		*previous_pos = pos_mesure;
 		if(*previous_zone != *zone){
-			it_printf("j\n");
 			calculeZonePublic(*previous_zone);
 		}
 	}
