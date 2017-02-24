@@ -1004,6 +1004,210 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 }
 
 
+error_e sub_harry_prise_module_unicolor_north(ELEMENTS_property_e module, ELEMENTS_side_e side){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_UNICOLOR_NORTH,
+			INIT,
+
+			GET_IN_DIRECT_LEFT,
+			GET_IN_DIRECT_RIGHT,
+			GET_IN_MIDDLE,
+			GET_IN_CLOSE_ADV_ZONE,
+			GET_IN_FAR_ADV_ZONE,
+			GET_IN_ASTAR_LEFT,
+			GET_IN_ASTAR_RIGHT,
+
+			TAKE_MODULE_LEFT,
+			TAKE_MODULE_RIGHT,
+			STORAGE_LEFT,
+			STORAGE_RIGHT,
+
+			GET_OUT_RIGHT,
+			MOVE_BACK_RIGHT,
+
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:
+			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
+			}else if (module == OUR_ELEMENT && ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN)){
+					state = DONE; // Il n'y a plus rien à faire
+			}
+#warning Ajouter flag actionneur dépose et module
+			else
+			{
+
+				if(i_am_in_square_color(600, 1400, 100, 600) || i_am_in_square_color(800, 1400, 600, 1000)){
+					if(side == LEFT){
+						state = GET_IN_DIRECT_LEFT;
+					}else{
+						state = GET_IN_DIRECT_RIGHT;
+					}
+				}else if(i_am_in_square_color(200, 1000, 1000, 2000)){
+					state = GET_IN_MIDDLE;
+				}else if(i_am_in_square_color(600, 1400, 2400, 2900)){
+					state = GET_IN_FAR_ADV_ZONE;
+				}else if(i_am_in_square_color(800, 1400, 2000, 2400)){
+					state = GET_IN_CLOSE_ADV_ZONE;
+				}else{
+					if(side == LEFT){
+						state = GET_IN_ASTAR_LEFT;
+					}else{
+						state = GET_IN_ASTAR_RIGHT;
+					}
+				}
+
+				// On lève le flag de subaction
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_NORTH_UNI, TRUE);
+			}
+			break;
+
+		case GET_IN_DIRECT_LEFT:	// Point d'accès pour stockage à gauche
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = try_going(700, 350, state, TAKE_MODULE_LEFT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(700, 2650, state, TAKE_MODULE_LEFT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case GET_IN_DIRECT_RIGHT:	// Point d'accès pour stockage à droite
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = try_going(750, 450, state, TAKE_MODULE_RIGHT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(750, 2550, state, TAKE_MODULE_RIGHT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case GET_IN_MIDDLE:
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				if(side == LEFT){
+					state = try_going(900, 900, state, TAKE_MODULE_LEFT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+				}else{
+					state = try_going(900, 900, state, TAKE_MODULE_RIGHT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+				}
+			}else{
+				if(side == LEFT){
+					state = try_going(900, 2100, state, TAKE_MODULE_LEFT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+				}else{
+					state = try_going(900, 2100, state, TAKE_MODULE_RIGHT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+				}
+			}
+			break;
+
+		case GET_IN_CLOSE_ADV_ZONE:
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = try_going(800, 1800, state, GET_IN_MIDDLE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(800, 1200, state, GET_IN_MIDDLE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_IN_FAR_ADV_ZONE:
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = try_going(1000, 2300, state, GET_IN_CLOSE_ADV_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(1000, 700, state, GET_IN_CLOSE_ADV_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_IN_ASTAR_LEFT:	// Point d'accès pour stockage à gauche
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = ASTAR_try_going(700, 350, state, TAKE_MODULE_LEFT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = ASTAR_try_going(700, 2650, state, TAKE_MODULE_LEFT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case GET_IN_ASTAR_RIGHT:	// Point d'accès pour stockage à droite
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = ASTAR_try_going(750, 450, state, TAKE_MODULE_RIGHT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = ASTAR_try_going(750, 2550, state, TAKE_MODULE_RIGHT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case TAKE_MODULE_LEFT:
+			if(entrance){
+				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_NORMAL);
+			}
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = ASTAR_try_going(650, 300, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = ASTAR_try_going(650, 2700, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case STORAGE_LEFT:
+			if(entrance){
+				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+			}
+			state = check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_LEFT), state, MOVE_BACK_RIGHT, ERROR);
+			break;
+
+
+		case TAKE_MODULE_RIGHT:
+			if(entrance){
+				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_NORMAL);
+			}
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = ASTAR_try_going(700, 250, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = ASTAR_try_going(2300, 2750, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+
+		case STORAGE_RIGHT:
+			if(entrance){
+				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+			}
+			state = check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_RIGHT), state, GET_OUT_RIGHT, ERROR);
+			break;
+
+		case GET_OUT_RIGHT:
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = try_going(750, 450, state, DONE, MOVE_BACK_RIGHT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(750, 2550, state, DONE, MOVE_BACK_RIGHT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case MOVE_BACK_RIGHT:
+			if((global.color == BLUE && module == OUR_ELEMENT) || (global.color == YELLOW && module == ADV_ELEMENT)){
+				state = ASTAR_try_going(700, 250, state, GET_OUT_RIGHT, GET_OUT_RIGHT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = ASTAR_try_going(2300, 2750, state, GET_OUT_RIGHT, GET_OUT_RIGHT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_NORTH_UNI, FALSE); // Flag subaction
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE: // Pas de GET_OUT dans le cas LEFT, ca doit pouvoir passer
+			RESET_MAE();
+			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_NORTH_UNI, FALSE); // Flag subaction
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_prise_module_unicolor_north\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
 error_e sub_harry_rocket_monocolor(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_ROCKET_MONOCOLOR,
 			INIT,
@@ -2214,7 +2418,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 
 
-error_e sub_act_harry_mae_modules(moduleStockLocation_e storage ){
+error_e sub_act_harry_mae_modules(moduleStockLocation_e storage){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_MODULES,
 			INIT,
 			COMPUTE_ACTION,
@@ -2688,7 +2892,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage ){
 	if(storage == MODULE_STOCK_RIGHT){
 		stateRight = state;
 	}else if(storage == MODULE_STOCK_LEFT){
-		state = stateLeft = state;
+		stateLeft = state;
 	} // else L'erreur a déjà été affichée
 
 	return IN_PROGRESS;
