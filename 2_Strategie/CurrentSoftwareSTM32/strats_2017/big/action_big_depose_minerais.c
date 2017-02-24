@@ -1,4 +1,5 @@
 #include "action_big.h"
+#include "../actions_both_generic.h"
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
@@ -134,7 +135,7 @@ error_e sub_harry_depose_minerais(){
 
 		case RUSH_TO_CLEAT:
 			// Ca vaudrait peut être le coup de faire un action_recalage ?
-			state = check_sub_action_result(action_recalage_x(BACKWARD, 0,  382 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, &correction_x, FALSE, TRUE), state, MOVE_BACK_SHOOTING_POS, GET_OUT_ERROR);
+			state = check_sub_action_result(action_recalage_x(BACKWARD, 0,  382 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, FALSE, &correction_x, TRUE), state, MOVE_BACK_SHOOTING_POS, GET_OUT_ERROR);
 			//state=try_rush(0,COLOR_Y(300),state,MOVE_BACK_SHOOTING_POS,GET_OUT_ERROR,BACKWARD,NO_DODGE_AND_WAIT,TRUE);
 			break;
 
