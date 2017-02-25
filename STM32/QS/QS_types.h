@@ -471,6 +471,8 @@
 	} ZONE_event_t;
 
 	typedef enum{
+		ZONE_MIDDLE,
+		ZONE_BOTTOM,
 		ZONE_NUMBER		//Nombre de zones...
 	} ZONE_zoneId_e;
 

@@ -83,7 +83,9 @@ void USBH_USR_Init(void) {
 */
 void USBH_USR_DeviceAttached(void) {
 	trace_printf("Device Attached\n");
+#if defined(USE_HOKUYO)
 	HOKUYO_deviceConnected();
+#endif
 }
 
 /**
@@ -103,7 +105,9 @@ void USBH_USR_UnrecoveredError(void) {
 */
 void USBH_USR_DeviceDisconnected(void) {
 	trace_printf("Device Disconnected\n");
+#if defined(USE_HOKUYO)
 	HOKUYO_deviceDisconnected();
+#endif
 }
 
 /**
