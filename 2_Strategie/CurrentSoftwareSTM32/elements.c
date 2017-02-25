@@ -385,7 +385,6 @@ void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage){
 }
 
 void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage){
-	Uint8 i;
 	switch(place){
 		case STOCK_PLACE_ENTRY_TO_ELEVATOR:
 			if(moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] != MODULE_EMPTY && moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] == MODULE_EMPTY){

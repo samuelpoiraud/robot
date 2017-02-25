@@ -214,7 +214,7 @@ void HOKUYO_init(void) {
 				  &USBH_CDC_cb,
 				  &USR_cb);
 
-		debug_printf("Fin Init usb for Hokuyo (%d ms)\n", (global.absolute_time - startTime));
+		debug_printf("Fin Init usb for Hokuyo (%ld ms)\n", (global.absolute_time - startTime));
 	}
 
 	hokuyo_initialized = TRUE;
