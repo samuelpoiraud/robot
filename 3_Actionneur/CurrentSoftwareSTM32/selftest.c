@@ -143,6 +143,7 @@ void SELFTEST_state_machine(void){
 	//Et pas : state_act_tests[QUEUE_ACT_EXEMPLE] != SELFTEST_IN_PROGRESS
 	//Car les indices de la Queue et le l'enum ACT sont peut-être dans un ordre différent
 	static time32_t time_for_timeout;
+	UNUSED_VAR(time_for_timeout);
 	bool_e entrance = (last_state == state)? FALSE:TRUE;
 	last_state = state;
 	if(entrance)

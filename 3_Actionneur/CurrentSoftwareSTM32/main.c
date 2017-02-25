@@ -295,6 +295,9 @@ static void MAIN_global_var_init(){
 
 static void MAIN_sensor_test(){
 	static bool_e led_on = FALSE;
+
+	UNUSED_VAR(led_on);
+
 #ifdef I_AM_ROBOT_BIG
 	/* EXEMPLE
 	 if(CUP_NIPPER_FDC || ELEVATOR_FDC){

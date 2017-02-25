@@ -17,6 +17,8 @@ static void refresh_total_offset_avoid();
 void ACT_AVOIDANCE_init(){
 	Uint8 i, j;
 
+	UNUSED_VAR(init_new_offset(ACT_QUEUE_Ore_gun, 0, 0, 0, 0, 0, 0));
+
 	// Initialisation de tout les offsets à FALSE pour être sûr de ne pas imposer un offset non controlé
 	for(i=0;i<NB_QUEUE;i++){
 		for(j=0;j<ACT_AVOID_NB_MAX_CMD;j++)
