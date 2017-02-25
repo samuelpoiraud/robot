@@ -9,6 +9,10 @@
 #define QS_HOKUYO_HOKUYO_H_
 
 #include "../QS_all.h"
+#include "../../config/config_use.h"
+
+#if defined(USE_HOKUYO)
+
 #include "hokuyo_config.h"
 
 typedef struct {
@@ -107,3 +111,5 @@ void HOKUYO_deviceDisconnected(void);
 void HOKUYO_deviceConnected(void);
 
 #endif /* QS_HOKUYO_HOKUYO_H_ */
+
+#endif

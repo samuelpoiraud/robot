@@ -163,7 +163,9 @@ void USB_OTG_BSP_DriveVBUS(USB_OTG_CORE_HANDLE *pdev, Uint8 state) {
   */
 void USB_OTG_BSP_ConfigVBUS(USB_OTG_CORE_HANDLE *pdev) {
 
+#ifdef USE_HOKUYO
 	GPIO_ResetBits(USB_POWER_ON);
+#endif
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 

@@ -5,6 +5,10 @@
  *      Author: guill
  */
 
+#include "../../config/config_use.h"
+
+#if defined(USE_HOKUYO)
+
 #include "usb_vcp_cdc.h"
 #include "../QS/QS_buffer_fifo.h"
 #include "STM32_USB_HOST_Library/Class/CDC/usbh_cdc_core.h"
@@ -32,6 +36,7 @@ static Uint8 fifo_buffer_tx[VCP_BUFFER_TX_SIZE];
 static Uint8 fifo_buffer_rx[VCP_BUFFER_RX_SIZE];
 static FIFO_t fifo_tx;
 static FIFO_t fifo_rx;
+
 
 static bool_e overflow;
 
@@ -126,3 +131,5 @@ static bool_e is_tx_empty() {
 static Uint16 rx_available() {
 	return VCP_BUFFER_RX_SIZE - FIFO_availableElements(&fifo_rx) - 1;
 }
+
+#endif

@@ -9,6 +9,9 @@
 #define QS_HOKUYO_USB_VCP_CDC_H_
 
 #include "../QS/QS_all.h"
+#include "../../config/config_use.h"
+
+#if defined(USE_HOKUYO)
 
 bool_e VCP_init(Uint32 baudrate);
 void VCP_write(Uint8 data);
@@ -19,6 +22,8 @@ bool_e VCP_isIdle();
 bool_e VCP_hasOverflow();
 bool_e VCP_hasFrameError();
 bool_e VCP_resetErrors();	//retourne TRUE si il y avait des erreurs
+
+#endif
 
 
 #endif /* QS_HOKUYO_USB_VCP_CDC_H_ */

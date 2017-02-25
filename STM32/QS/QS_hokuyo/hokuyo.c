@@ -8,6 +8,10 @@
 #ifndef QS_HOKUYO_HOKUYO_C_
 #define QS_HOKUYO_HOKUYO_C_
 
+#include "../../config/config_use.h"
+
+#if defined(USE_HOKUYO)
+
 #include "hokuyo.h"
 #include "../QS_ports.h"
 #include "../QS_uart.h"
@@ -863,3 +867,5 @@ void OTG_HS_IRQHandler(void)
 }
 
 #endif /* QS_HOKUYO_HOKUYO_C_ */
+
+#endif
