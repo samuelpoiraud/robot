@@ -43,7 +43,7 @@ static offset_avoid_s offset_avoid = {0};
 static bool_e active_small_avoidance = FALSE;
 
 void AVOIDANCE_init(){
-
+	UNUSED_VAR(ecretage_debug_rect(0));
 }
 
 void AVOIDANCE_process_it(){
@@ -183,6 +183,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 	Sint32 relative_foe_y;
 
 	static time32_t last_time_refresh_avoid_displayed = 0;
+	UNUSED_VAR(last_time_refresh_avoid_displayed);
 
 	vtrans = global.vitesse_translation;
 	teta = global.position.teta;

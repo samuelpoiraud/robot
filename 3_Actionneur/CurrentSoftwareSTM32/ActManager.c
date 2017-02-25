@@ -166,6 +166,8 @@ void ACTMNG_control_act() {
 	RX24_status_t status_RX24;
 	bool_e state_act;
 
+	UNUSED_VAR(state_act);
+
 	if(init_control_act){
 		check_act_error_time=global.absolute_time;
 		time_error=global.absolute_time;
