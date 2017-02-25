@@ -25,16 +25,16 @@ void valentin_strat_inutile_big(){
 			if(entrance){
 				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
 			}
-			state = try_going(900, COLOR_Y(1500), state , ACTION, DONE, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(1100, COLOR_Y(2100), state , ACTION, DONE, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION:
-			state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MULTI_OUR_SIDE, LEFT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_prise_module_unicolor_north(LEFT), state, DONE, ERROR);
 			break;
 
 		case ERROR:
 			if(entrance){
-				ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
+				//ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
 				STOCKS_print(MODULE_STOCK_LEFT);
 				STOCKS_print(MODULE_STOCK_RIGHT);
 			}
@@ -42,7 +42,7 @@ void valentin_strat_inutile_big(){
 
 		case DONE:
 			if(entrance){
-				ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
+				//ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
 				STOCKS_print(MODULE_STOCK_LEFT);
 				STOCKS_print(MODULE_STOCK_RIGHT);
 			}
