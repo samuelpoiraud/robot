@@ -170,17 +170,19 @@ static void SCAN_get_data_left(){
 	// On calcule et on stocke la valeur sauf si le capteur entre en saturation
 	if(enable==TRUE){
 		pos_mesure.x = pos_laser.x - (value * sinus)/4096;
-		pos_mesure.y = pos_laser.y + (value * cosinus)/4096;
-	}
+		//it_printf("pos_mes:%d\tpos_las:%d\tvalue:%d\n",pos_mesure.x,pos_laser.x,value);
 
-	if(absolute(previous_pos.x - pos_mesure.x) > 15 || absolute(previous_pos.y - pos_mesure.y) > 15)
-	{
-		previous_zone = zone;
-		zone = BORDERS_SCAN_treatment(pos_mesure);
-		previous_pos = pos_mesure;
-		if(previous_zone != zone){
-			it_printf("j\n");
-			calculeZonePublic(previous_zone);
+		pos_mesure.y = pos_laser.y + (value * cosinus)/4096;
+
+		if(absolute(previous_pos.x - pos_mesure.x) > 15 || absolute(previous_pos.y - pos_mesure.y) > 15)
+		{
+			previous_zone = zone;
+			zone = BORDERS_SCAN_treatment(pos_mesure);
+			previous_pos = pos_mesure;
+			if(previous_zone != zone){
+				//it_printf("j\n");
+				calculeZonePublic(previous_zone);
+			}
 		}
 	}
 

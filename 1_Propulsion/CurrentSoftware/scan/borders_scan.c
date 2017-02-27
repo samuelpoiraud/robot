@@ -185,13 +185,13 @@ bool_e calculeZone(volatile GEOMETRY_point_t zone[], volatile Uint8 *zone_index,
 	Uint8 nb_points_in_zone=0;
 	Uint16 distance=0;
 	bool_e flag_correction=TRUE;
+	bool_e vertical=FALSE;
 
-	if (zone_enable)
-		nb_points_in_zone = NB_DATA_POINTS;
-	else
-		nb_points_in_zone = (*zone_index);
+	it_printf("b");
 
 	do{
+		it_printf("c\n");
+
 		xmoy = 0;
 		ymoy = 0;
 		num = 0;
@@ -199,8 +199,7 @@ bool_e calculeZone(volatile GEOMETRY_point_t zone[], volatile Uint8 *zone_index,
 		pseudovariance = 0;
 
 		flag_correction = TRUE;
-		if(nb_points_in_zone < NB_POINTS_MINI)
-			return FALSE;
+		vertical=FALSE;
 
 		nb_points_in_zone = 0;
 		for(i=0; i<NB_DATA_POINTS; i++){
@@ -211,37 +210,52 @@ bool_e calculeZone(volatile GEOMETRY_point_t zone[], volatile Uint8 *zone_index,
 			}
 			//it_printf("x=%d\ty=%d\txmoy=%d\tymoy=%d\n",zone[i].x,zone[i].y,xmoy,ymoy);
 		}
+
+		if(nb_points_in_zone < NB_POINTS_MINI)
+			return FALSE;
+
 		xmoy = xmoy / nb_points_in_zone;
 		ymoy = ymoy / nb_points_in_zone;
 
-		//it_printf("xmoy=%d\tymoy=%d\n",xmoy,ymoy);
+		it_printf("\nfalbala xmoy=%d\tymoy=%d\n\n",xmoy,ymoy);
 
 		for(i=0; i<NB_DATA_POINTS; i++){
 			if((zone[i].x != 0) || (zone[i].y != 0)){		// Si c'est un point valide
 				num += (zone[i].x - xmoy)*(zone[i].y - ymoy);
-				//if(mode_den == BORDER_SCAN_MODE_DEN_X)
-				den += (zone[i].x - xmoy)*(zone[i].x - xmoy);
-				//else
-				//    den+=(zone[i].y-ymoy)*(zone[i].y-ymoy);
+				if(mode_den == BORDER_SCAN_MODE_DEN_X)
+					den += (zone[i].x - xmoy)*(zone[i].x - xmoy);
+				else
+				    den+=(zone[i].y-ymoy)*(zone[i].y-ymoy);
 			}
 		}
 		if(den != 0){
 			a = (double)num / (double)den;
+			if(mode_den != BORDER_SCAN_MODE_DEN_X){
+				if(a!=0){
+					a= -1/a;
+				}else{
+					vertical=TRUE;
+				}
+			}
+
 			b = ymoy - a * xmoy;
 			//if(mode_den == BORDER_SCAN_MODE_DEN_X)
 			//*moy_border = xmoy;
 			//else
 			//    *moy_border = ymoy;
 			if(mode_den != BORDER_SCAN_MODE_DEN_X){
-
+				it_printf("a=%ld.%3ld\tb=%d\tnbpoints=%d\n", (Uint32)(a), (((Uint32)(a*1000))%1000), b, nb_points_in_zone);
 				for(i=0; i<NB_DATA_POINTS; i++){
 
 					if((zone[i].x != 0) || (zone[i].y != 0)){		// Si c'est un point valide
+						it_printf("x=%d\ty=%d\n",zone[i].x,zone[i].y);
 
 						distance = absolute(zone[i].y - (a * zone[i].x + b));
 						if(distance > DISTANCE_MAX){
+							it_printf("dist:\t%d\n",distance);
 							zone[i].x = 0;
 							zone[i].y = 0;
+							printf("cest ici\n");
 							flag_correction = FALSE;
 						}
 						pseudovariance += distance;
@@ -249,16 +263,23 @@ bool_e calculeZone(volatile GEOMETRY_point_t zone[], volatile Uint8 *zone_index,
 				}
 
 			}else{
-                for(i=0;i<nb_points_in_zone;i++){
+				it_printf("a=%ld.%3ld\tb=%d\tnbpoints=%d\n", (Uint32)(a), (((Uint32)(a*1000))%1000), b, nb_points_in_zone);
+
+                for(i=0;i<NB_DATA_POINTS;i++){
 					if((zone[i].x != 0) || (zone[i].y != 0)){		// Si c'est un point valide
-	                    if(a!=0){
-	                    	distance+=absolute(zone[i].x-(b-zone[i].y)/a);
+						it_printf("x=%d\ty=%d\n",zone[i].x,zone[i].y);
+
+						if((a!=0)&&(vertical==FALSE)){
+	                    	distance+=absolute(zone[i].x+(b-zone[i].y)/a);
 	                    }else{
 	                    	distance+=absolute(zone[i].x-xmoy);
 	                    }
 	                    if(distance > DISTANCE_MAX){
+							it_printf("dist:\t%d\n",distance);
+
 							zone[i].x = 0;
 							zone[i].y = 0;
+							it_printf("cest la\n");
 							flag_correction = FALSE;
 						}
 						pseudovariance += distance;
@@ -266,39 +287,26 @@ bool_e calculeZone(volatile GEOMETRY_point_t zone[], volatile Uint8 *zone_index,
                 }
 			}
 		}else{
-		if(mode_den != BORDER_SCAN_MODE_DEN_X){
-				return FALSE;
-			}else{
-				for(i=0;i<nb_points_in_zone;i++){
-					if((zone[i].x != 0) || (zone[i].y != 0)){		// Si c'est un point valide
-	                    distance+=absolute(zone[i].x - xmoy);
-	                    if(distance > DISTANCE_MAX){
-							zone[i].x = 0;
-							zone[i].y = 0;
-							flag_correction = FALSE;
-						}
-						pseudovariance += distance;
-					}
-				}
-			}
+			return FALSE;
 		}
+		it_printf("\nflag_correc:%d\n\n",flag_correction);
+		it_printf("a");
 	}while(flag_correction == FALSE);
 
 	pseudovariance = pseudovariance / nb_points_in_zone;
 
-	it_printf("pseudov%d\n", pseudovariance);
-	it_printf("a=%f\tb=%d\tnbpoints=%d", a, b, nb_points_in_zone);
+	//it_printf("pseudov%d\n", pseudovariance);
+	//it_printf("a=%ld.%3ld\tb=%d\tnbpoints=%d", (Uint32)(a), (((Uint32)(a*1000))%1000), b, nb_points_in_zone);
 
 	if (pseudovariance < BORDER_SCAN_PSEUDO_VARIANCE_SEUIL){
 		*xmoy_border = xmoy;
 		*ymoy_border = ymoy;
-		//it_printf("xmoy=%d\tymoy=%d\n",xmoy,ymoy);
+		it_printf("xmoy=%d\tymoy=%d\n",xmoy,ymoy);
 		return TRUE;
 	}else{
 		for(i=0; i<NB_DATA_POINTS; i++){
 			it_printf("%d\t%d\n", zone[i].x, zone[i].y);
 		}
-		//it_printf("a=%f\tb=%d\tnbpoints=%d",a,b,nb_points_in_zone);
 		return FALSE;
 	}
 }
