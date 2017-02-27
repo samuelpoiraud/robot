@@ -13,6 +13,120 @@
 #include "../../elements.h"
 #include "../../high_level_strat.h"
 
+error_e init_all_actionneur(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INIT_CYLINDER,
+			INIT,
+			INIT_ACTION_SLIDER_LEFT,
+			INIT_ACTION_SLIDER_RIGHT,
+			INIT_ACTION_ELEVATOR_LEFT,
+			INIT_ACTION_ELEVATOR_RIGHT,
+			INIT_ACTION_SLOPE_LEFT,
+			INIT_ACTION_SLOPE_RIGHT,
+			ERROR,
+			DONE
+		);
+
+	//l'initalisation des pompes est-elle necesaire ?
+
+	switch(state){
+		case INIT:
+			state = INIT_ACTION_SLIDER_RIGHT;
+			break;
+
+		case INIT_ACTION_SLIDER_RIGHT:
+			if(entrance){
+				/*
+				if (STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY , MODULE_STOCK_RIGHT)){
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+				}*/
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+			}
+			if (STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR , MODULE_STOCK_RIGHT)){
+				state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_ELEVATOR_RIGHT, ERROR);
+			}else{
+				state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
+			}
+			break;
+
+		case INIT_ACTION_ELEVATOR_RIGHT:
+			if(entrance){
+				/*
+				if (STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR , MODULE_STOCK_LEFT)){
+					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP );
+				}*/
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
+			}
+			if (STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT)){
+				state= check_act_status(ACT_QUEUE_Cylinder_elevator_right, INIT_ACTION_ELEVATOR_RIGHT, INIT_ACTION_SLOPE_RIGHT, ERROR);
+			}else{
+				state= check_act_status(ACT_QUEUE_Cylinder_elevator_right, INIT_ACTION_ELEVATOR_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
+			}
+			break;
+
+		case INIT_ACTION_SLOPE_RIGHT:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
+			}
+			state= check_act_status(ACT_QUEUE_Cylinder_slope_right, INIT_ACTION_SLOPE_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
+			break;
+
+		case INIT_ACTION_SLIDER_LEFT:
+			if(entrance){
+				/*
+				if (STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY , MODULE_STOCK_LEFT)){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+				}*/
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);}
+			if (STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR , MODULE_STOCK_LEFT)){
+				state= check_act_status(ACT_QUEUE_Cylinder_slider_left, INIT_ACTION_SLIDER_LEFT, INIT_ACTION_ELEVATOR_LEFT, ERROR);
+			}else{
+				state= check_act_status(ACT_QUEUE_Cylinder_slider_left, INIT_ACTION_SLIDER_LEFT, DONE, ERROR);
+			}
+			break;
+
+		case INIT_ACTION_ELEVATOR_LEFT:
+			if(entrance){
+				/*
+				if (STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR , MODULE_STOCK_LEFT)){
+					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP );
+				}*/
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
+			}
+			if (STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT)){
+				state= check_act_status(ACT_QUEUE_Cylinder_elevator_left, INIT_ACTION_ELEVATOR_LEFT, INIT_ACTION_SLOPE_LEFT, ERROR);
+			}else{
+				state= check_act_status(ACT_QUEUE_Cylinder_elevator_left, INIT_ACTION_ELEVATOR_LEFT, DONE, ERROR);
+			}
+			break;
+
+		case INIT_ACTION_SLOPE_LEFT :
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slope_left, INIT_ACTION_SLOPE_LEFT, DONE, ERROR);
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in init_all_actionneur\n");
+			break;
+
+	}
+
+	return IN_PROGRESS;
+}
+
+
 // Subaction actionneur de prise fusée v1
 error_e boucle_charge_module(moduleStockLocation_e nb_cylinder_big_right,moduleStockLocation_e nb_cylinder_big_left,moduleRocketLocation_e nb_cylinder_fusee, moduleType_e myModule,  bool_e right_side ){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INIT_CYLINDER,
@@ -319,162 +433,6 @@ error_e boucle_charge_module(moduleStockLocation_e nb_cylinder_big_right,moduleS
 
 	return IN_PROGRESS;
 }
-
-
-error_e init_all_actionneur(moduleStockLocation_e nb_cylinder_big_right,moduleStockLocation_e nb_cylinder_big_left){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INIT_CYLINDER,
-			INIT,
-			INIT_ACTION_SLIDER_LEFT,
-			INIT_ACTION_SLIDER_RIGHT,
-			INIT_ACTION_ELEVATOR_LEFT,
-			INIT_ACTION_ELEVATOR_RIGHT,
-			INIT_ACTION_SLOPE_LEFT,
-			INIT_ACTION_SLOPE_RIGHT,
-			ERROR,
-			DONE
-		);
-
-	//l'initalisation des pompes est-elle necesaire ?
-
-	switch(state){
-		case INIT:
-			state = INIT_ACTION_SLIDER_RIGHT;
-			break;
-
-		case INIT_ACTION_SLIDER_RIGHT:
-			if(entrance){
-				if ((STOCKS_getNbModules(nb_cylinder_big_right)<6)){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
-				}
-				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
-			}
-			if ((STOCKS_getNbModules(nb_cylinder_big_right)<5)){
-				state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_ELEVATOR_RIGHT, ERROR);
-			}else{
-				state= check_act_status(ACT_QUEUE_Cylinder_slider_right, INIT_ACTION_SLIDER_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
-			}
-			break;
-
-		case INIT_ACTION_ELEVATOR_RIGHT:
-			if(entrance){
-				if ((STOCKS_getNbModules(nb_cylinder_big_right)<5)){
-					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP );
-				}
-				ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
-			}
-			if ((STOCKS_getNbModules(nb_cylinder_big_right)<4)){
-				state= check_act_status(ACT_QUEUE_Cylinder_elevator_right, INIT_ACTION_ELEVATOR_RIGHT, INIT_ACTION_SLOPE_RIGHT, ERROR);
-			}else{
-				state= check_act_status(ACT_QUEUE_Cylinder_elevator_right, INIT_ACTION_ELEVATOR_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
-			}
-			break;
-
-		case INIT_ACTION_SLOPE_RIGHT:
-			if(entrance){
-				ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
-			}
-			state= check_act_status(ACT_QUEUE_Cylinder_slope_right, INIT_ACTION_SLOPE_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
-			break;
-
-		case INIT_ACTION_SLIDER_LEFT:
-			if(entrance){
-				if ((STOCKS_getNbModules(nb_cylinder_big_left)<6)){
-					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
-				}
-				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);}
-			if ((STOCKS_getNbModules(nb_cylinder_big_left)<5)){
-				state= check_act_status(ACT_QUEUE_Cylinder_slider_left, INIT_ACTION_SLIDER_LEFT, INIT_ACTION_ELEVATOR_LEFT, ERROR);
-			}else{
-				state= check_act_status(ACT_QUEUE_Cylinder_slider_left, INIT_ACTION_SLIDER_LEFT, DONE, ERROR);
-			}
-			break;
-
-		case INIT_ACTION_ELEVATOR_LEFT:
-			if(entrance){
-				if ((STOCKS_getNbModules(nb_cylinder_big_right) < 5)){
-					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP );
-				}
-				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
-			}
-			if ((STOCKS_getNbModules(nb_cylinder_big_left) < 4)){
-				state= check_act_status(ACT_QUEUE_Cylinder_elevator_left, INIT_ACTION_ELEVATOR_LEFT, INIT_ACTION_SLOPE_LEFT, ERROR);
-			}else{
-				state= check_act_status(ACT_QUEUE_Cylinder_elevator_left, INIT_ACTION_ELEVATOR_LEFT, DONE, ERROR);
-			}
-			break;
-
-		case INIT_ACTION_SLOPE_LEFT :
-			if(entrance){
-				ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
-			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slope_left, INIT_ACTION_SLOPE_LEFT, DONE, ERROR);
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		default:
-			if(entrance)
-				debug_printf("default case in init_all_actionneur\n");
-			break;
-
-	}
-
-	return IN_PROGRESS;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -920,10 +878,6 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 	return IN_PROGRESS;
 }
-
-
-
-
 
 
 

@@ -23,6 +23,11 @@
 	}ELEMENTS_property_e;
 
 	typedef enum{
+		START_LEFT_SIDE,
+		START_RIGHT_SIDE
+	}start_side_prise_module_e;
+
+	typedef enum{
 		NO_SIDE,
 		RIGHT,
 		LEFT
@@ -56,12 +61,13 @@
 	}moduleStockLocation_e;
 
 	typedef enum{
-		STOCK_POS_1_TO_OUT = 0,
-		STOCK_POS_2_TO_OUT = 1,
-		STOCK_POS_3_TO_OUT = 2,
-		STOCK_POS_4_TO_OUT = 3,
-		STOCK_POS_ELEVATOR = 4,
-		STOCK_POS_ENTRY = 5
+		STOCK_POS_0_TO_OUT = 0,
+		STOCK_POS_1_TO_OUT = 1,
+		STOCK_POS_2_TO_OUT = 2,
+		STOCK_POS_3_TO_OUT = 3,
+		STOCK_POS_4_TO_OUT = 4,
+		STOCK_POS_ELEVATOR = 5,
+		STOCK_POS_ENTRY = 6
 	}moduleStockPosition_e;
 
 	typedef enum{
@@ -88,7 +94,7 @@
 	// COMMENTAIRE POUR COCO : module_zone[first_zone].xmin
 
 	#define MAX_MODULE_MOONBASE		6
-	#define MAX_MODULE_STOCK		6
+	#define MAX_MODULE_STOCK		7
 	#define MAX_MODULE_ROCKET       4
 
 // Fonctions pour la gestion des flags
