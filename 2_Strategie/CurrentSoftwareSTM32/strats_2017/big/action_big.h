@@ -42,12 +42,8 @@
 	error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side);
 	error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side);
 	error_e sub_harry_rocket_monocolor();
-	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e fusee, bool_e right_side);
-
-
-	// action_big_act_modules
-	error_e boucle_charge_module(moduleStockLocation_e nb_cylinder_big_right,moduleStockLocation_e nb_cylinder_big_left,moduleRocketLocation_e nb_cylinder_fusee, moduleType_e myModule,  bool_e right_side );
-	error_e init_all_actionneur(moduleStockLocation_e nb_cylinder_big_right,moduleStockLocation_e nb_cylinder_big_left);
+	error_e init_all_actionneur();
+	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket, start_side_prise_module_e start_side, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top);
 	error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top);
 	error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger);
 

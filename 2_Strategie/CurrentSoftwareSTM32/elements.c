@@ -315,7 +315,7 @@ static void STOCKS_init(){
 		moduleStockInfo[i].nbModulesMulticolor = 0;
 		moduleStockInfo[i].dominatingModules = NO_DOMINATING;
 
-		for(j = 0; j < MAX_MODULE_ROCKET; j++){
+		for(j = 0; j < MAX_MODULE_STOCK; j++){
 			moduleStockInfo[i].stockModules[j] = MODULE_EMPTY;
 		}
 	}
