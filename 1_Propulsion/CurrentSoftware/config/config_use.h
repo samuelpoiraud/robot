@@ -71,7 +71,7 @@
 		#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
 	#endif
 
-    #define SCAN_BORDURE
+   // #define SCAN_BORDURE
 
 	#define BUFFER_SIZE 64	//maximum : 255
 
@@ -126,7 +126,7 @@
 /* Réglages UART */
 	#define USE_UART1
 	#define USE_UART1RXINTERRUPT
-    #define UART1_BAUDRATE		9600//230400	//9600
+    #define UART1_BAUDRATE			230400	//9600
 	#define USE_UART1TXINTERRUPT
 	#define BUFFER_U1TX_SIZE	128
 
