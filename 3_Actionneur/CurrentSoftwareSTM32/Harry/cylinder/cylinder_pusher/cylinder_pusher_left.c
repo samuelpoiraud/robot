@@ -44,6 +44,7 @@
 // Les différents includes nécessaires...
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ax12.h"
+#include "../QS/QS_can.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../ActManager.h"
@@ -59,10 +60,18 @@
 static void CYLINDER_PUSHER_LEFT_command_run(queue_id_t queueId);
 static void CYLINDER_PUSHER_LEFT_initAX12();
 static void CYLINDER_PUSHER_LEFT_command_init(queue_id_t queueId);
-static void CYLINDER_PUSHER_LEFT_config(CAN_msg_t* msg);
+static void CYLINDER_PUSHER_LEFT_set_config(CAN_msg_t* msg);
+static ACT_order_e CYLINDER_PUSHER_LEFT_get_position_config();
+static void CYLINDER_PUSHER_LEFT_get_config(CAN_msg_t *incoming_msg);
+static void CYLINDER_PUSHER_LEFT_set_warner(CAN_msg_t *msg);
+static void CYLINDER_PUSHER_LEFT_check_warner();
 
 // Booléen contenant l'état actuel de l'initialisation de l'AX12 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e ax12_is_initialized = FALSE;
+
+// Warner de l'actionneur : Déclenche l'envoi d'un message CAN lorsqu'une certaine position est franchi
+static act_warner_s warner;
+
 
 // Fonction appellée au lancement de la carte (via ActManager)
 void CYLINDER_PUSHER_LEFT_init() {
@@ -105,7 +114,7 @@ static void CYLINDER_PUSHER_LEFT_initAX12() {
 
 // Fonction appellée pour la modification des configurations de l'ax12 telle que la vitesse et le couple (via ActManager)
 // Dans le cas de multiple actionneur appartenant à un même actionneur, ajouter des defines dans QS_CANmsgList.h afin de pouvoir les choisirs facilement depuis la stratégie
-void CYLINDER_PUSHER_LEFT_config(CAN_msg_t* msg){
+void CYLINDER_PUSHER_LEFT_set_config(CAN_msg_t* msg){
 	switch(msg->data.act_msg.act_data.act_config.sub_act_id){
 		case DEFAULT_MONO_ACT : // Premier élement de l'actionneur
             ACTMGR_config_AX12(CYLINDER_PUSHER_LEFT_AX12_ID, msg);
@@ -115,6 +124,44 @@ void CYLINDER_PUSHER_LEFT_config(CAN_msg_t* msg){
 			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data.act_msg.act_data.act_config.sub_act_id);
 	}
 }
+
+static void CYLINDER_PUSHER_LEFT_get_config(CAN_msg_t *incoming_msg){
+	CAN_msg_t msg;
+	msg.sid = ACT_GET_CONFIG_ANSWER;
+	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
+	msg.data.act_get_config_answer.sid = 0xFF & ACT_CYLINDER_PUSHER_LEFT;
+	msg.data.act_get_config_answer.config = incoming_msg->data.act_msg.act_data.config;
+
+	switch(incoming_msg->data.act_msg.act_data.config){
+		case POSITION_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.pos = CYLINDER_PUSHER_LEFT_get_position_config();
+			CAN_send(&msg); // Envoi du message CAN
+			break;
+		case SPEED_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.speed = AX12_get_speed_percentage(CYLINDER_PUSHER_LEFT_AX12_ID);
+			CAN_send(&msg); // Envoi du message CAN
+			break;
+		default:
+			warn_printf("This config is not available \n");
+	}
+}
+
+static ACT_order_e CYLINDER_PUSHER_LEFT_get_position_config(){
+	ACT_order_e current_state = ACT_CYLINDER_PUSHER_LEFT_STOP;
+	Uint16 position = AX12_get_position(CYLINDER_PUSHER_LEFT_AX12_ID);
+	Uint16 epsilon = CYLINDER_PUSHER_LEFT_AX12_ASSER_POS_EPSILON;
+
+	if(position > CYLINDER_PUSHER_LEFT_AX12_LOCK_POS - epsilon && position < CYLINDER_PUSHER_LEFT_AX12_LOCK_POS + epsilon){
+		current_state = ACT_CYLINDER_PUSHER_LEFT_LOCK;
+	}else if(position > CYLINDER_PUSHER_LEFT_AX12_UNLOCK_POS - epsilon && position < CYLINDER_PUSHER_LEFT_AX12_UNLOCK_POS + epsilon){
+		current_state = ACT_CYLINDER_PUSHER_LEFT_UNLOCK;
+	}else if(position > CYLINDER_PUSHER_LEFT_AX12_IDLE_POS - epsilon && position < CYLINDER_PUSHER_LEFT_AX12_IDLE_POS + epsilon){
+		current_state = ACT_CYLINDER_PUSHER_LEFT_IDLE;
+	}
+
+	return current_state;
+}
+
 
 // Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
 void CYLINDER_PUSHER_LEFT_init_pos(){
@@ -148,8 +195,16 @@ bool_e CYLINDER_PUSHER_LEFT_CAN_process_msg(CAN_msg_t* msg) {
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CYLINDER_PUSHER_LEFT, &CYLINDER_PUSHER_LEFT_run_command, 0,TRUE);
 				break;
 
-			case ACT_CONFIG :
-                CYLINDER_PUSHER_LEFT_config(msg);
+            case ACT_WARNER:
+				CYLINDER_PUSHER_LEFT_set_warner(msg);
+				break;
+
+			case ACT_GET_CONFIG:
+				CYLINDER_PUSHER_LEFT_get_config(msg);
+				break;
+
+			case ACT_SET_CONFIG :
+                CYLINDER_PUSHER_LEFT_set_config(msg);
 				break;
 
 
@@ -233,5 +288,47 @@ static void CYLINDER_PUSHER_LEFT_command_run(queue_id_t queueId) {
 
     if(ACTQ_check_status_ax12(queueId, CYLINDER_PUSHER_LEFT_AX12_ID, QUEUE_get_arg(queueId)->param, CYLINDER_PUSHER_LEFT_AX12_ASSER_POS_EPSILON, CYLINDER_PUSHER_LEFT_AX12_ASSER_TIMEOUT, CYLINDER_PUSHER_LEFT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
         QUEUE_next(queueId, ACT_CYLINDER_PUSHER_LEFT, result, errorCode, line);
+
+    // On ne surveille le warner que si il est activé
+	if(warner.activated)
+		CYLINDER_PUSHER_LEFT_check_warner();
+}
+
+static void CYLINDER_PUSHER_LEFT_set_warner(CAN_msg_t *msg){
+	warner.activated = TRUE;
+	warner.last_pos = AX12_get_position(CYLINDER_PUSHER_LEFT_AX12_ID);
+
+	switch(msg->data.act_msg.act_data.warner_pos){
+		/*case ACT_CYLINDER_PUSHER_LEFT_WARNER:
+			warner.warner_pos = CYLINDER_PUSHER_LEFT_AX12_WARNER_POS;
+			break;*/
+		default:{
+			warner.activated = FALSE;
+			warn_printf("This position is not available for setting a warner\n");
+		}
+	}
+}
+
+static void CYLINDER_PUSHER_LEFT_check_warner(){
+	CAN_msg_t msg;
+
+	Uint16 pos = AX12_get_position(CYLINDER_PUSHER_LEFT_AX12_ID);
+
+	if( (warner.last_pos < pos && warner.last_pos < warner.warner_pos && pos > warner.warner_pos)
+     || (warner.last_pos > pos && warner.last_pos > warner.warner_pos && pos < warner.warner_pos)
+	 || (warner.last_pos > AX12_MAX_WARNER && pos < AX12_MIN_WARNER	&& (warner.last_pos < warner.warner_pos || pos > warner.warner_pos))
+	 || (warner.last_pos < AX12_MIN_WARNER && pos > AX12_MAX_WARNER	&& (warner.last_pos > warner.warner_pos || pos < warner.warner_pos))
+	){
+		// Envoi du message CAN pour prévenir la strat
+		msg.sid = ACT_WARNER_ANSWER;
+		msg.size = SIZE_ACT_WARNER_ANSWER;
+		msg.data.act_warner_answer.sid = 0xFF & ACT_CYLINDER_PUSHER_LEFT;
+		CAN_send(&msg);
+
+		// Désactivation du warner
+		warner.activated = FALSE;
+	}
+
+	warner.last_pos = pos;
 }
 #endif

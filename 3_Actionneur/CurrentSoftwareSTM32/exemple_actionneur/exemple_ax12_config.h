@@ -24,6 +24,8 @@
 	#define EXEMPLE_AX12_LOCK_POS				    512		//en degré
 	#define EXEMPLE_AX12_UNLOCK_POS					512		//en degré
 
+	#define EXEMPLE_AX12_WARNER_POS					512
+
 //Position initiale de l'AX12
 	#define EXEMPLE_AX12_INIT_POS					EXEMPLE_AX12_IDLE_POS
 

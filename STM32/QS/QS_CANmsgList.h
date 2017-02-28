@@ -712,13 +712,16 @@
 		 * Pour tout les SIDs de l'enum ACT_sid_e
 		 */
 		#define SIZE_ACT_MSG				8
-		#define SIZE_ACT_CONFIG				7
+		#define SIZE_ACT_SET_CONFIG			7
+		#define SIZE_ACT_GET_CONFIG			2
+		#define SIZE_ACT_WARNER				2
 			struct{
 				ACT_order_e order					:8;
 				union{
 
 					Uint16 act_optionnal_data[3];
 
+					// For setting a config
 					struct{
 						act_config_e config			:8;
 						act_sub_act_id_e sub_act_id :8;
@@ -729,6 +732,12 @@
 							Uint8 torque			:7;
 						}data_config;
 					}act_config;
+
+					// For getting a config
+					act_config_e config				:8;
+
+					// For setting a warner
+					ACT_order_e warner_pos			:8;
 
 				}act_data;
 			}act_msg;
@@ -754,6 +763,24 @@
 			struct{
 				bool_e enable					:1;
 			}act_boost_asser;
+
+		#define ACT_GET_CONFIG_ANSWER		0x130
+		#define SIZE_ACT_GET_CONFIG_ANSWER	4
+			struct{
+				Uint16 sid						:8;
+				act_config_e config				:8;
+
+				union{
+					Uint16 pos					:16;
+					Uint16 speed				:16;
+				}act_get_config_data;
+			}act_get_config_answer;
+
+		#define ACT_WARNER_ANSWER			0x131
+		#define SIZE_ACT_WARNER_ANSWER		4
+			struct{
+				Uint16 sid						:8;
+			}act_warner_answer;
 
 
 	/**********************************************************************************************************************

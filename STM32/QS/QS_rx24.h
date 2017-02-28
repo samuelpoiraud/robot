@@ -997,6 +997,9 @@
 	#define RX24_MIN_VOLTAGE		70
 	#define RX24_MAX_VOLTAGE		146
 
+	// Positions pour gérer les effets de bords des warner
+	#define RX24_MIN_WARNER			200
+	#define RX24_MAX_WARNER			823
 
 #endif /* def USE_RX24_SERVO */
 #endif /* ndef QS_RX24_H */
