@@ -23,6 +23,8 @@
 	#define EXEMPLE_RX24_LOCK_POS			     	512	//en degré
 	#define EXEMPLE_RX24_UNLOCK_POS					512	//en degré
 
+	#define EXEMPLE_RX24_WARNER_POS					512
+
 //Position initiale de l'RX24
 	#define EXEMPLE_RX24_INIT_POS					EXEMPLE_RX24_IDLE_POS
 

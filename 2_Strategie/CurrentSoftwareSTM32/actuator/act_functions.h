@@ -26,6 +26,12 @@ typedef struct{
 	char * name;
 }act_link_SID_Queue_s;
 
+typedef struct{
+	bool_e info_received;
+	Uint16 pos;
+	Uint16 speed;
+}act_config_s;
+
 extern const act_link_SID_Queue_s act_link_SID_Queue[];
 Uint8 ACT_search_link_SID_Queue(ACT_sid_e sid);
 
@@ -66,11 +72,31 @@ void ACT_sensor_answer(CAN_msg_t* msg);
 
 // -------------------------------- Fonctions de configuration des actionneurs
 
-bool_e ACT_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value);
+bool_e ACT_set_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value);
+
+// -------------------------------- Fonctions permettant de récupérer l'état courant de l'actionneur (uniquement pour AX12 et RX24)
+
+/**
+ * @brief ACT_get_current_state
+ * @arg sid : le sid de l'actionneur
+ * @arg order : l'ordre que l'on veut vérifier
+ * @return : END_OK  				-> l'actionneur est dans la position demandé
+ * 			 NOT_HANDLED   			-> l'actionneur n'est pas dans la position demandé
+ * 			 END_WITH_TIMEOUT		-> pas de réponse actionneur
+ * 			 IN_PROGRESS			-> demande en cours
+ *
+ * Exemple : ACT_get_current_state(MY_ACT, MY_ACT_OPEN_POS)
+ * La valeur de retour sera END_OK si l'actionneur MY_ACT est bien dans la position MY_ACT_OPEN_POS.
+ * La valeur de retour sera END_OK si l'actionneur MY_ACT est dans une position différente de MY_ACT_OPEN_POS.
+ */
+error_e ACT_check_position_config(Uint16 sid, ACT_order_e order);
+
+void ACT_get_config_answer(CAN_msg_t* msg);
+bool_e ACT_get_config_request(Uint16 sid, act_config_e config);
 
 
-void ACT_set_pos_fishs(Sint16 value[]);
-Uint8 ACT_get_nb_fishs();
-void ACT_get_pos_fishs(Sint16 *value);
+bool_e ACT_set_warner(Uint16 sid, ACT_order_e pos);
+void ACT_warner_answer(CAN_msg_t* msg);
+bool_e ACT_get_warner(Uint16 sid);
 
 #endif /* ndef ACT_FUNCTIONS_H */

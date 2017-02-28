@@ -25,6 +25,7 @@
 #include "../utils/generic_functions.h"
 #include "act_avoidance.h"
 
+#define ACT_CONFIG_ANSWER_TIMEOUT		500
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
 #define ULU_TIME                        300
 
@@ -38,8 +39,6 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{0,							    NB_QUEUE,						""},
 
 	// Harry
-	//{ACT_FISH_MAGNETIC_ARM,			ACT_QUEUE_Fish_magnetic_arm,			"Fish magnetic arm"},
-    //{ACT_BILLIX_TEST,			        ACT_QUEUE_Billix_test,			        "Billix test"},
     {ACT_ORE_GUN,			  		    ACT_QUEUE_Ore_gun,			        	"Ore gun"},
 #warning bug
     /*{ACT_ORE_CATCH,			  		    ACT_QUEUE_Ore_catch,			        "Ore catch"},
@@ -71,7 +70,6 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 
 
 	// Anne
-	//{ACT_LEFT_ARM,					ACT_QUEUE_Left_arm,						"Left Arm"},
 	{ACT_SMALL_BALL_FRONT_LEFT,			ACT_QUEUE_Small_bearing_front_left,			"Bearing ball front left"},
 	{ACT_SMALL_BALL_FRONT_RIGHT,		ACT_QUEUE_Small_bearing_front_right,		"Bearing ball front right"},
 	{ACT_SMALL_BALL_BACK_LEFT,			ACT_QUEUE_Small_bearing_back_left,			"Bearing ball back left"},
@@ -99,11 +97,17 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{STRAT_MOSFET_8,                ACT_QUEUE_Mosfet_strat_8,		        "Mosfet_strat_8"},
 	{STRAT_MOSFET_MULTI,	        ACT_QUEUE_Mosfet_strat_multi,			"Mosfet_strat_multi"},
 
-
 };
 
 static const Uint8 act_link_SID_Queue_size = sizeof(act_link_SID_Queue)/sizeof(act_link_SID_Queue_s);
 
+// Config actionneurs
+static act_config_s act_config[sizeof(act_link_SID_Queue)/sizeof(act_link_SID_Queue_s)] = {0};
+
+// Warner actionneurs
+static bool_e act_warner[sizeof(act_link_SID_Queue)/sizeof(act_link_SID_Queue_s)] = {0};
+
+// Capteurs
 volatile act_sensor_e sensor_answer[NB_ACT_SENSOR] = {0};
 
 
@@ -130,7 +134,7 @@ volatile act_sensor_e sensor_answer[NB_ACT_SENSOR] = {0};
 //FONCTIONS D'ACTIONNEURS
 
 ////////////////////////////////////////
-///////////// BLACK & PEARL ////////////
+////////// ORDRES ACTIONNEURS //////////
 ////////////////////////////////////////
 
 //Recherche l'indice de la case du tableau act_link_SID_Queue ayant pour sid le sid passé en paramètre
@@ -212,16 +216,16 @@ bool_e ACT_push_order_with_param(ACT_sid_e sid,  ACT_order_e order, Uint16 param
 }
 
 ////////////////////////////////////////
-//////////////// COMMON ////////////////
+//////////////// CONFIG ////////////////
 ////////////////////////////////////////
 
-bool_e ACT_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value){
+bool_e ACT_set_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value){
 	QUEUE_arg_t args;
 	CAN_msg_t msg;
 
 	msg.sid = sid;
-	msg.size = SIZE_ACT_CONFIG;
-	msg.data.act_msg.order = ACT_CONFIG;
+	msg.size = SIZE_ACT_SET_CONFIG;
+	msg.data.act_msg.order = ACT_SET_CONFIG;
 	msg.data.act_msg.act_data.act_config.sub_act_id = sub_act;
 	msg.data.act_msg.act_data.act_config.config = cmd;
 	msg.data.act_msg.act_data.act_config.data_config.raw_data = value;
@@ -236,9 +240,104 @@ bool_e ACT_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value){
 	return ACT_push_operation(act_link_SID_Queue[ACT_search_link_SID_Queue(sid)].queue_id, &args);
 }
 
+bool_e ACT_get_config_request(Uint16 sid, act_config_e config){
+	QUEUE_arg_t args;
+	CAN_msg_t msg;
+
+	msg.sid = sid;
+	msg.size = SIZE_ACT_GET_CONFIG;
+	msg.data.act_msg.order = ACT_GET_CONFIG;
+	msg.data.act_msg.act_data.config = config;
+
+	ACT_arg_init_with_msg(&args, msg);
+	ACT_arg_set_timeout(&args, 0);
+
+	return ACT_push_operation(act_link_SID_Queue[ACT_search_link_SID_Queue(sid)].queue_id, &args);
+}
+
+void ACT_get_config_answer(CAN_msg_t* msg){
+	assert(msg->sid == ACT_GET_CONFIG_ANSWER);
+	Uint8 i = ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_get_config_answer.sid));
+
+	switch(msg->data.act_get_config_answer.config){
+		case POSITION_CONFIG:
+			act_config[i].pos = msg->data.act_get_config_answer.act_get_config_data.pos;
+			break;
+		case SPEED_CONFIG:
+			act_config[i].speed = msg->data.act_get_config_answer.act_get_config_data.speed;
+			break;
+		default:
+			error_printf("Error config recieved but not requested !! file %s line %d\n", __FILE__, __LINE__);
+	}
+
+	act_config[i].info_received = TRUE; // On vient de recevoir une réponse
+}
+
+error_e ACT_check_position_config(Uint16 sid, ACT_order_e order){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+	static Uint8 i = 0;
+	error_e ret = IN_PROGRESS;
+
+	switch(state){
+		case SEND:
+			i = ACT_search_link_SID_Queue(sid);
+			ACT_ask_current_state(sid);
+			act_config[i].info_received = FALSE;
+			begin_time = global.absolute_time;
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.absolute_time - begin_time > ACT_CONFIG_ANSWER_TIMEOUT){
+				RESET_MAE();
+				ret = END_WITH_TIMEOUT;
+			}else if(act_config[i].info_received && act_config[i].pos == order){ // On a recu une réponse
+				RESET_MAE();
+				ret = END_OK;
+			}else if(act_config[i].info_received){
+				RESET_MAE();
+				ret = NOT_HANDLED;
+			}
+			break;
+	}
+	return ret;
+}
+
 ////////////////////////////////////////
-//////////////// MAE  //////////////////
+//////////////// WARNER ////////////////
 ////////////////////////////////////////
+
+bool_e ACT_set_warner(Uint16 sid, ACT_order_e pos){
+	QUEUE_arg_t args;
+	CAN_msg_t msg;
+	Uint8 i = ACT_search_link_SID_Queue(sid);
+
+	msg.sid = sid;
+	msg.size = SIZE_ACT_WARNER;
+	msg.data.act_msg.order = ACT_WARNER;
+	msg.data.act_msg.act_data.warner_pos = pos;
+
+	ACT_arg_init_with_msg(&args, msg);
+	ACT_arg_set_timeout(&args, 0);
+
+	act_warner[i] = FALSE; // On baisse le flag
+
+	return ACT_push_operation(act_link_SID_Queue[i].queue_id, &args);
+}
+
+void ACT_warner_answer(CAN_msg_t* msg){
+	assert(msg->sid == ACT_WARNER_ANSWER);
+	Uint8 i = ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_warner_answer.sid));
+
+	act_warner[i] = TRUE; // On lève le flag
+}
+
+bool_e ACT_get_warner(Uint16 sid){
+	return act_warner[ACT_search_link_SID_Queue(sid)];
+}
 
 
 ////////////////////////////////////////

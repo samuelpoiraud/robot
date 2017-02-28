@@ -18,6 +18,7 @@
 // Les différents includes nécessaires...
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_rx24.h"
+#include "../QS/QS_can.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../ActManager.h"
@@ -34,11 +35,19 @@ static void ORE_ROLLER_ARM_command_run(queue_id_t queueId);
 static void ORE_ROLLER_ARM_initRX24();
 static void ORE_ROLLER_ARM_command_init(queue_id_t queueId);
 static void ORE_ROLLER_ARM_config(CAN_msg_t* msg);
+static void ORE_ROLLER_ARM_get_config(CAN_msg_t *incoming_msg);
+static ACT_order_e ORE_ROLLER_ARM_get_position_config();
+static void ORE_ROLLER_ARM_set_warner(CAN_msg_t *msg);
+static void ORE_ROLLER_ARM_check_warner();
 static void ORE_ROLLER_ARM_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *right_pos, Uint16 *left_pos);
 
 // Booléen contenant l'état actuel de l'initialisation du RX24 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e rx24_is_initialized_left = FALSE;
 static bool_e rx24_is_initialized_right = FALSE;
+
+// Warner de l'actionneur : Déclenche l'envoi d'un message CAN lorsqu'une certaine position est franchi
+static act_warner_s warner;
+
 
 // Fonction appellée au lancement de la carte (via ActManager)
 void ORE_ROLLER_ARM_init() {
@@ -121,6 +130,52 @@ void ORE_ROLLER_ARM_config(CAN_msg_t* msg){
 	}
 }
 
+// Fonction permettant d'obtenir des infos de configuration du rx24 telle que la position ou la vitesse
+static void ORE_ROLLER_ARM_get_config(CAN_msg_t *incoming_msg){
+	CAN_msg_t msg;
+	msg.sid = ACT_GET_CONFIG_ANSWER;
+	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
+	msg.data.act_get_config_answer.sid = 0xFF & ACT_ORE_ROLLER_ARM;
+	msg.data.act_get_config_answer.config = incoming_msg->data.act_msg.act_data.config;
+
+	switch(incoming_msg->data.act_msg.act_data.config){
+		case POSITION_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.pos = ORE_ROLLER_ARM_get_position_config();
+			CAN_send(&msg); // Envoi du message CAN
+			break;
+		case SPEED_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.speed = RX24_get_speed_percentage(ORE_ROLLER_ARM_LEFT_RX24_ID);
+			CAN_send(&msg); // Envoi du message CAN
+			break;
+		default:
+			warn_printf("This config is not available \n");
+	}
+}
+
+// Fonction permettant d'obtenir la position du rx24 en tant que "ordre actionneur"
+// Cette fonction convertit la position du rx24 entre 0 et 1023 en une position en tant que "ordre actionneur"
+static ACT_order_e ORE_ROLLER_ARM_get_position_config(){
+	ACT_order_e current_state = ACT_ORE_ROLLER_ARM_STOP;
+	Uint16 position = RX24_get_position(ORE_ROLLER_ARM_LEFT_RX24_ID);
+	Uint16 epsilon = ORE_ROLLER_ARM_RX24_ASSER_POS_EPSILON;
+
+	if(position > ORE_ROLLER_ARM_L_RX24_OUT_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_OUT_POS + epsilon){
+		current_state = ACT_ORE_ROLLER_ARM_OUT;
+	}else if(position > ORE_ROLLER_ARM_L_RX24_UNLOCK_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_UNLOCK_POS + epsilon){
+		current_state = ACT_ORE_ROLLER_ARM_UNLOCK;
+	}else if(position > ORE_ROLLER_ARM_L_RX24_MID_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_MID_POS + epsilon){
+		current_state = ACT_ORE_ROLLER_ARM_MID;
+	}else if(position > ORE_ROLLER_ARM_L_RX24_RESCUE_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_RESCUE_POS + epsilon){
+		current_state = ACT_ORE_ROLLER_ARM_RESCUE;
+	}else if(position > ORE_ROLLER_ARM_L_RX24_CHECK_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_CHECK_POS + epsilon){
+		current_state = ACT_ORE_ROLLER_ARM_CHECK;
+	}else if(position > ORE_ROLLER_ARM_L_RX24_IDLE_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_IDLE_POS + epsilon){
+		current_state = ACT_ORE_ROLLER_ARM_IDLE;
+	}
+
+	return current_state;
+}
+
 // Fonction appellée pour l'initialisation en position du rx24 dés l'arrivé de l'alimentation (via ActManager)
 void ORE_ROLLER_ARM_init_pos(){
     ORE_ROLLER_ARM_initRX24();
@@ -164,7 +219,15 @@ bool_e ORE_ROLLER_ARM_CAN_process_msg(CAN_msg_t* msg) {
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_ORE_ROLLER_ARM, &ORE_ROLLER_ARM_run_command, 0,TRUE);
 				break;
 
-			case ACT_CONFIG :
+            case ACT_WARNER:
+				ORE_ROLLER_ARM_set_warner(msg);
+				break;
+
+			case ACT_GET_CONFIG:
+				ORE_ROLLER_ARM_get_config(msg);
+				break;
+
+			case ACT_SET_CONFIG :
                 ORE_ROLLER_ARM_config(msg);
 				break;
 
@@ -174,12 +237,7 @@ bool_e ORE_ROLLER_ARM_CAN_process_msg(CAN_msg_t* msg) {
 		}
 		return TRUE;
 	}else if(msg->sid == ACT_DO_SELFTEST){
-		// Lister les différents états que l'actionneur doit réaliser pour réussir le selftest
-        /*SELFTEST_set_actions(&ORE_ROLLER_ARM_run_command, 3, (SELFTEST_action_t[]){
-                                 {ACT_ORE_ROLLER_ARM_IDLE,		0,  QUEUE_ACT_RX24_ORE_ROLLER_ARM},
-                                 {ACT_ORE_ROLLER_ARM_OPEN,       0,  QUEUE_ACT_RX24_ORE_ROLLER_ARM},
-                                 {ACT_ORE_ROLLER_ARM_IDLE,		0,  QUEUE_ACT_RX24_ORE_ROLLER_ARM}
-							 });*/
+
 	}
 	return FALSE;
 }
@@ -298,7 +356,52 @@ static void ORE_ROLLER_ARM_command_run(queue_id_t queueId) {
             QUEUE_next(queueId, ACT_ORE_ROLLER_ARM, result_left, errorCode_left, line_left);
 		}
 	}
+
+	// On ne surveille le warner que si il est activé
+	if(warner.activated)
+		ORE_ROLLER_ARM_check_warner();
 }
+
+// Fonction permettant d'activer un warner sur une position du rx24
+static void ORE_ROLLER_ARM_set_warner(CAN_msg_t *msg){
+	warner.activated = TRUE;
+	warner.last_pos = RX24_get_position(ORE_ROLLER_ARM_LEFT_RX24_ID);
+
+	switch(msg->data.act_msg.act_data.warner_pos){
+		/*case ACT_ORE_ROLLER_ARM_WARNER:
+			warner.warner_pos = ORE_ROLLER_ARM_LEFT_RX24_WARNER_POS;
+			break;*/
+		default:{
+			warner.activated = FALSE;
+			warn_printf("This position is not available for setting a warner\n");
+		}
+	}
+}
+
+// Fonction permettant de vérifier si le warner est franchi lors du mouvement du rx24
+static void ORE_ROLLER_ARM_check_warner(){
+	CAN_msg_t msg;
+
+	Uint16 pos = RX24_get_position(ORE_ROLLER_ARM_LEFT_RX24_ID);
+
+	if( (warner.last_pos < pos && warner.last_pos < warner.warner_pos && pos > warner.warner_pos)
+     || (warner.last_pos > pos && warner.last_pos > warner.warner_pos && pos < warner.warner_pos)
+	 || (warner.last_pos > RX24_MAX_WARNER && pos < RX24_MIN_WARNER	&& (warner.last_pos < warner.warner_pos || pos > warner.warner_pos))
+	 || (warner.last_pos < RX24_MIN_WARNER && pos > RX24_MAX_WARNER	&& (warner.last_pos > warner.warner_pos || pos < warner.warner_pos))
+	){
+		// Envoi du message CAN pour prévenir la strat
+		msg.sid = ACT_WARNER_ANSWER;
+		msg.size = SIZE_ACT_WARNER_ANSWER;
+		msg.data.act_warner_answer.sid = 0xFF & ACT_ORE_ROLLER_ARM;
+		CAN_send(&msg);
+
+		// Désactivation du warner
+		warner.activated = FALSE;
+	}
+
+	warner.last_pos = pos;
+}
+
 
 static void ORE_ROLLER_ARM_get_position(QUEUE_act_e act_id, Uint8 command, Uint16 *right_pos, Uint16 *left_pos){
     if(act_id == QUEUE_ACT_RX24_ORE_ROLLER_ARM){

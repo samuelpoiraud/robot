@@ -1019,6 +1019,9 @@
 	#define AX12_MIN_VOLTAGE		70
 	#define AX12_MAX_VOLTAGE		146
 
+	// Positions pour gérer les effets de bords des warner
+	#define AX12_MIN_WARNER			200
+	#define AX12_MAX_WARNER			823
 
 #endif /* def USE_AX12_SERVO */
 #endif /* ndef QS_AX12_H */

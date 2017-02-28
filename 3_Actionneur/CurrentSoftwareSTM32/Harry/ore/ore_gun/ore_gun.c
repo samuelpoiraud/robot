@@ -41,6 +41,7 @@
 // Les différents includes nécessaires...
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_rx24.h"
+#include "../QS/QS_can.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 #include "../ActManager.h"
@@ -56,10 +57,17 @@
 static void ORE_GUN_command_run(queue_id_t queueId);
 static void ORE_GUN_initRX24();
 static void ORE_GUN_command_init(queue_id_t queueId);
-static void ORE_GUN_config(CAN_msg_t* msg);
+static void ORE_GUN_set_config(CAN_msg_t* msg);
+static ACT_order_e ORE_GUN_get_position_config();
+static void ORE_GUN_get_config(CAN_msg_t *incoming_msg);
+static void ORE_GUN_set_warner(CAN_msg_t *msg);
+static void ORE_GUN_check_warner();
 
 // Booléen contenant l'état actuel de l'initialisation du RX24 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e rx24_is_initialized = FALSE;
+
+// Warner de l'actionneur : Déclenche l'envoi d'un message CAN lorsqu'une certaine position est franchi
+static act_warner_s warner;
 
 // Fonction appellée au lancement de la carte (via ActManager)
 void ORE_GUN_init() {
@@ -102,7 +110,7 @@ static void ORE_GUN_initRX24() {
 
 // Fonction appellée pour la modification des configurations du rx24 telle que la vitesse et le couple (via ActManager)
 // Dans le cas de multiple actionneur appartenant à un même actionneur, ajouter des defines dans QS_CANmsgList.h afin de pouvoir les choisirs facilement depuis la stratégie
-void ORE_GUN_config(CAN_msg_t* msg){
+void ORE_GUN_set_config(CAN_msg_t* msg){
 	switch(msg->data.act_msg.act_data.act_config.sub_act_id){
 		case DEFAULT_MONO_ACT : // Premier élement de l'actionneur
 			ACTMGR_config_RX24(ORE_GUN_RX24_ID, msg);
@@ -111,6 +119,43 @@ void ORE_GUN_config(CAN_msg_t* msg){
 		default :
 			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data.act_msg.act_data.act_config.sub_act_id);
 	}
+}
+
+static void ORE_GUN_get_config(CAN_msg_t *incoming_msg){
+	CAN_msg_t msg;
+	msg.sid = ACT_GET_CONFIG_ANSWER;
+	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
+	msg.data.act_get_config_answer.sid = 0xFF & ACT_ORE_GUN;
+	msg.data.act_get_config_answer.config = incoming_msg->data.act_msg.act_data.config;
+
+	switch(incoming_msg->data.act_msg.act_data.config){
+		case POSITION_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.pos = ORE_GUN_get_position_config();
+			CAN_send(&msg); // Envoi du message CAN
+			break;
+		case SPEED_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.speed = RX24_get_speed_percentage(ORE_GUN_RX24_ID);
+			CAN_send(&msg); // Envoi du message CAN
+			break;
+		default:
+			warn_printf("This config is not available \n");
+	}
+}
+
+static ACT_order_e ORE_GUN_get_position_config(){
+	ACT_order_e current_state = ACT_ORE_GUN_STOP;
+	Uint16 position = RX24_get_position(ORE_GUN_RX24_ID);
+	Uint16 epsilon = ORE_GUN_RX24_ASSER_POS_EPSILON;
+
+	if(position > ORE_GUN_RX24_DOWN_POS - epsilon && position < ORE_GUN_RX24_DOWN_POS + epsilon){
+		current_state = ACT_ORE_GUN_DOWN;
+	}else if(position > ORE_GUN_RX24_UP_POS - epsilon && position < ORE_GUN_RX24_UP_POS + epsilon){
+		current_state = ACT_ORE_GUN_UP;
+	}else if(position > ORE_GUN_RX24_IDLE_POS - epsilon && position < ORE_GUN_RX24_IDLE_POS + epsilon){
+		current_state = ACT_ORE_GUN_IDLE;
+	}
+
+	return current_state;
 }
 
 // Fonction appellée pour l'initialisation en position du rx24 dés l'arrivé de l'alimentation (via ActManager)
@@ -145,8 +190,16 @@ bool_e ORE_GUN_CAN_process_msg(CAN_msg_t* msg) {
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_ORE_GUN, &ORE_GUN_run_command, 0,TRUE);
 				break;
 
-			case ACT_CONFIG :
-				ORE_GUN_config(msg);
+			case ACT_WARNER:
+				ORE_GUN_set_warner(msg);
+				break;
+
+			case ACT_GET_CONFIG:
+				ORE_GUN_get_config(msg);
+				break;
+
+			case ACT_SET_CONFIG :
+				ORE_GUN_set_config(msg);
 				break;
 
 
@@ -230,6 +283,47 @@ static void ORE_GUN_command_run(queue_id_t queueId) {
 
 	if(ACTQ_check_status_rx24(queueId, ORE_GUN_RX24_ID, QUEUE_get_arg(queueId)->param, ORE_GUN_RX24_ASSER_POS_EPSILON, ORE_GUN_RX24_ASSER_TIMEOUT, ORE_GUN_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_ORE_GUN, result, errorCode, line);
+
+    // On ne surveille le warner que si il est activé
+	if(warner.activated)
+		ORE_GUN_check_warner();
 }
 
+static void ORE_GUN_set_warner(CAN_msg_t *msg){
+	warner.activated = TRUE;
+	warner.last_pos = RX24_get_position(ORE_GUN_RX24_ID);
+
+	switch(msg->data.act_msg.act_data.warner_pos){
+		/*case ACT_ORE_GUN_WARNER:
+			warner.warner_pos = ORE_GUN_RX24_WARNER_POS;
+			break;*/
+		default:{
+			warner.activated = FALSE;
+			warn_printf("This position is not available for setting a warner\n");
+		}
+	}
+}
+
+static void ORE_GUN_check_warner(){
+	CAN_msg_t msg;
+
+	Uint16 pos = RX24_get_position(ORE_GUN_RX24_ID);
+
+	if( (warner.last_pos < pos && warner.last_pos < warner.warner_pos && pos > warner.warner_pos)
+     || (warner.last_pos > pos && warner.last_pos > warner.warner_pos && pos < warner.warner_pos)
+	 || (warner.last_pos > RX24_MAX_WARNER && pos < RX24_MIN_WARNER	&& (warner.last_pos < warner.warner_pos || pos > warner.warner_pos))
+	 || (warner.last_pos < RX24_MIN_WARNER && pos > RX24_MAX_WARNER	&& (warner.last_pos > warner.warner_pos || pos < warner.warner_pos))
+	){
+		// Envoi du message CAN pour prévenir la strat
+		msg.sid = ACT_WARNER_ANSWER;
+		msg.size = SIZE_ACT_WARNER_ANSWER;
+		msg.data.act_warner_answer.sid = 0xFF & ACT_ORE_GUN;
+		CAN_send(&msg);
+
+		// Désactivation du warner
+		warner.activated = FALSE;
+	}
+
+	warner.last_pos = pos;
+}
 #endif
