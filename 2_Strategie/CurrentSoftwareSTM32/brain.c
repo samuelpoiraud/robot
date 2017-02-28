@@ -50,6 +50,7 @@
 static ia_fun_t strategy;
 static char *strategy_name;
 static time32_t match_duration = MATCH_DURATION;
+static time32_t time_end_of_match;
 static Sint8 index_strategy = -1;
 static Uint8 number_of_strategy = 0;
 static Uint8 number_of_displayed_strategy = 0;
@@ -242,6 +243,7 @@ void any_match(void)
 				global.flags.match_over = TRUE;
 				QUEUE_reset_all();
 				BUZZER_play(500,NOTE_SOL,2);
+				time_end_of_match = global.absolute_time;
 				Supervision_send_periodically_pos(1, PI4096/180); // Tous les milimetres et degrés: ca flood mais on est pas en match donc pas déplacment
 				SYS_check_stack_level();
 				BRAIN_action_at_end_of_match();
@@ -333,5 +335,19 @@ static void BRAIN_action_at_end_of_match(void){
 
 //Executé dés la fin du match
 static void BRAIN_action_after_end_of_match(void){
+	static bool_e rocket_launched = FALSE;
+	static Uint8 nb_try = 0;
+	error_e status;
 
+	// On attend 1 seconde avant de faire la funny_action
+	if(global.absolute_time > time_end_of_match + 1000 && I_AM_BIG() && !rocket_launched){
+		ACT_push_order(ACT_ROCKET, ACT_ROCKET_LAUNCH);	// Funny action
+		rocket_launched = TRUE;
+		nb_try++;
+	}else{
+		status = check_act_status(ACT_QUEUE_Rocket, IN_PROGRESS, END_OK, ERROR);
+		if(status == ERROR && nb_try < 3){
+			rocket_launched = FALSE;  // On refait une tentative
+		}
+	}
 }
