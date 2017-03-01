@@ -23,11 +23,6 @@
 	}ELEMENTS_property_e;
 
 	typedef enum{
-		START_LEFT_SIDE,
-		START_RIGHT_SIDE
-	}start_side_prise_module_e;
-
-	typedef enum{
 		NO_SIDE,
 		RIGHT,
 		LEFT
