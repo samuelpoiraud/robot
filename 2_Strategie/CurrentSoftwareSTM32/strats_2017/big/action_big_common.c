@@ -109,7 +109,7 @@ error_e sub_harry_initiale(){
 			break;
 
 		case ROCKET_MULTICOLOR_ADV:
-			state=check_sub_action_result(sub_harry_rocket_multicolor(ADV_ELEMENT, START_RIGHT_SIDE, ADV_SIDE, ADV_SIDE, ADV_SIDE, ADV_SIDE),state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_rocket_multicolor(ADV_ELEMENT),state, DONE, ERROR);
 			break;
 
 		case MODULES_AND_ORE_ADV:
@@ -127,7 +127,7 @@ error_e sub_harry_initiale(){
 			break;
 
 		case ROCKET_MULTICOLOR_OUR:
-			state=check_sub_action_result(sub_harry_rocket_multicolor(OUR_ELEMENT, START_RIGHT_SIDE, OUR_SIDE, OUR_SIDE, OUR_SIDE, OUR_SIDE),state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_rocket_multicolor(OUR_ELEMENT),state, DONE, ERROR);
 			break;
 
 		case ROCKET_UNICOLOR:
