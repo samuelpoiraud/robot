@@ -1455,7 +1455,7 @@ error_e sub_harry_rocket_monocolor(){
 error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PRISE_ROCKET_MULTICOLOR,
 				INIT,
-				INIT_ALL_ACTIONNEUR,
+				//INIT_ALL_ACTIONNEUR,
 				ALL_THE_GET_IN,
 				GET_IN_MIDDLE_SQUARE,
 				GET_IN_OUR_SQUARE,
@@ -1497,7 +1497,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			}break;
-
+		/*
 		case INIT_ALL_ACTIONNEUR:
 			// on appelle une fonction qui verifie la position initiale de tout nos actionneurs
 			static error_e result;
@@ -1510,6 +1510,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				state=ERROR;
 			}
 			break;
+			*/
 
 		case ALL_THE_GET_IN:
 
