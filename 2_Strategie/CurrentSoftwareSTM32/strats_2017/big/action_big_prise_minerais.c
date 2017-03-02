@@ -39,22 +39,28 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			}else if((ELEMENTS_get_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN) && minerais == OUR_ELEMENT)
 					|| (ELEMENTS_get_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN) && minerais == ADV_ELEMENT)){
 				state = DONE;	// L'action a déjà été faite
-			}else{
+			}/*else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_ORE)){ 			//! anne peut prendre les minerais
+				state=ERROR; // L'autre robot fait la sub
+			}*/else{
 				if (minerais != OUR_ELEMENT && minerais != ADV_ELEMENT){
 
 					state = ERROR;
 
 				}else if(minerais ==OUR_ELEMENT){
 					if(global.color == YELLOW){
+						ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_CORNER_CRATER, TRUE);
 						state = SUB_MOVE_POS_YELLOW;
 					}else{
+						ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_CORNER_CRATER, TRUE);
 						state = SUB_MOVE_POS_BLUE;
 					}
 
 				}else{
 					if(global.color == YELLOW){
+						ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_CORNER_CRATER, TRUE);
 						state = SUB_MOVE_POS_BLUE;
 					}else{
+						ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_CORNER_CRATER, TRUE);
 						state = SUB_MOVE_POS_YELLOW;
 					}
 				}
@@ -129,8 +135,10 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 			RESET_MAE();
 			on_turning_point();
 			if(minerais == OUR_ELEMENT){
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_OUR_CORNER_CRATER, FALSE);
 				ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN, TRUE);
 			}else{
+				ELEMENTS_set_flag(FLAG_SUB_HARRY_ADV_CORNER_CRATER, FALSE);
 				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);
 			}
 			ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
