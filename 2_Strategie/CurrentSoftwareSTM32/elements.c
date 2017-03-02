@@ -161,6 +161,7 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 			END);
 	static bool_e watchdog_flag = FALSE;
 	static watchdog_id_t watchdog_id = 0;
+	static time32_t local_time = 0;
 
 	switch(state)
 	{
@@ -199,7 +200,12 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 			break;
 
 		case WAIT_TIMEOUT:
-			state = wait_time(1000, WAIT_TIMEOUT,TIMEOUT);
+			if(entrance){
+				local_time = global.absolute_time;
+			}
+			if(global.absolute_time > local_time + 1000){
+				state = TIMEOUT;
+			}
 			break;
 		case TIMEOUT:
 			RESET_MAE();

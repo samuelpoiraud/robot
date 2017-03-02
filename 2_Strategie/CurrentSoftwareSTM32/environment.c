@@ -670,6 +670,8 @@ void ENV_clean (void)
 	global.debug.force_foe = FALSE;
 	global.debug.duration_trajectory_for_test_coefs = 0;
 	FIX_BEACON_clean();	//Doit être après le any_match !
+
+	ACT_reset_all_warner(); // Reset de tous les warner actionneurs
 }
 
 /* envoie un message CAN BROADCAST_COULEUR à jour */

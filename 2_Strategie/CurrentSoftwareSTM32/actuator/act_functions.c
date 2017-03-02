@@ -284,7 +284,7 @@ error_e ACT_check_position_config(Uint16 sid, ACT_order_e order){
 	switch(state){
 		case SEND:
 			i = ACT_search_link_SID_Queue(sid);
-			ACT_ask_current_state(sid);
+			ACT_get_config_request(sid, POSITION_CONFIG);
 			act_config[i].info_received = FALSE;
 			begin_time = global.absolute_time;
 			state = WAIT;
@@ -339,6 +339,12 @@ bool_e ACT_get_warner(Uint16 sid){
 	return act_warner[ACT_search_link_SID_Queue(sid)];
 }
 
+void ACT_reset_all_warner(){
+	Uint8 i;
+	for(i = 0; i < sizeof(act_link_SID_Queue)/sizeof(act_link_SID_Queue_s); i++){
+		act_warner[i] = FALSE;
+	}
+}
 
 ////////////////////////////////////////
 //////////////// SENSOR ////////////////

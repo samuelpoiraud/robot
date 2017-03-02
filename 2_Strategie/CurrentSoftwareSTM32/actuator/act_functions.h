@@ -98,5 +98,6 @@ bool_e ACT_get_config_request(Uint16 sid, act_config_e config);
 bool_e ACT_set_warner(Uint16 sid, ACT_order_e pos);
 void ACT_warner_answer(CAN_msg_t* msg);
 bool_e ACT_get_warner(Uint16 sid);
+void ACT_reset_all_warner();
 
 #endif /* ndef ACT_FUNCTIONS_H */

@@ -713,8 +713,8 @@
 		 */
 		#define SIZE_ACT_MSG				8
 		#define SIZE_ACT_SET_CONFIG			7
-		#define SIZE_ACT_GET_CONFIG			2
-		#define SIZE_ACT_WARNER				2
+		#define SIZE_ACT_GET_CONFIG			7
+		#define SIZE_ACT_WARNER				7
 			struct{
 				ACT_order_e order					:8;
 				union{
@@ -764,7 +764,7 @@
 				bool_e enable					:1;
 			}act_boost_asser;
 
-		#define ACT_GET_CONFIG_ANSWER		0x130
+		#define ACT_GET_CONFIG_ANSWER		0x21B
 		#define SIZE_ACT_GET_CONFIG_ANSWER	4
 			struct{
 				Uint16 sid						:8;
@@ -776,7 +776,7 @@
 				}act_get_config_data;
 			}act_get_config_answer;
 
-		#define ACT_WARNER_ANSWER			0x131
+		#define ACT_WARNER_ANSWER			0x21C
 		#define SIZE_ACT_WARNER_ANSWER		4
 			struct{
 				Uint16 sid						:8;
