@@ -338,8 +338,12 @@ error_e sub_harry_get_in_adv_side_depose_modules_centre(){
 
 error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 	//liste de ce que je dois faire:
-		//mieu definir les chemins après le square color
-		//
+		//gérer les actionneurs pour la dépose
+		//DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS ACT_push_order...
+		//VERIFICATION_ACTIONNEUR a faire!!!!
+		//faire Procedure de depose
+
+
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_SIDE,
 			INIT,
 			ERROR,
@@ -368,39 +372,53 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 
 
 		//VERIFIER_COULEUR_CYLINDRE_DEJA_SUR_BASE:
-			SI_4_CYLINDRES,//reflexion à faire sur l'importance de cette action car on ne va pas déposer...
+			SI_4_CYLINDRES,//A revoir car on ne peut plus tourner les cylindres...
 			SI_3_CYLINDRES,
 			SI_2_CYLINDRES,
 			SI_1_CYLINDRES,
 			SI_0_REPLACEMENT,
 
-			ROTATION_CYLINDRE_DROIT_DESCENDRE_BRAS,
-			ROTATION_CYLINDRE_DROIT,
-			ROTATION_CYLINDRE_DROIT_MONTER_BRAS,
-
-			ROTATION_CYLINDRE_GAUCHE_DESCENDRE_BRAS,
-			ROTATION_CYLINDRE_GAUCHE,
-			ROTATION_CYLINDRE_GAUCHE_MONTER_BRAS,
-
-		//si ce n'est pas un cylindre que l'on à posé:
-			ROTATION_CYLINDRE_INCONU_DROIT_DESCENDRE_BRAS,
-			ROTATION_CYLINDRE_INCONU_DROIT,
-			ROTATION_CYLINDRE_INCONU_DROIT_MONTER_BRAS,
-
-			ROTATION_CYLINDRE_INCONU_GAUCHE_DESCENDRE_BRAS,
-			ROTATION_CYLINDRE_INCONU_GAUCHE,
-			ROTATION_CYLINDRE_INCONU_GAUCHE_MONTER_BRAS,//j'ai rien contre les gauchers... mais je ne le suis pas..
-
 		//Maintenant on peut ajouter des cylindres:    ENFIN!
 			CHOIX_DE_COTE_DEPOSE,
 
-		//procedure de depose du cote droit du robot:
-			DEPOSE_DROIT,
-			DEPOSE_DROIT_DESCENDRE_PUSHER,
+		//Procedure de depose OUEST:
+			ROTATION_MODULE_OUEST,
+			PREPARATION_NEXT_MODULE_FOR_ROTATION_OUEST,
+			TAKE_MODULE_OUEST,
+			POMPE_ACTIVATION_OUEST,
+			DROP_MODULE_OUEST,
+			POMPE_STOP_OUEST,
+			PUSHER_DOWN_OUEST,
 
-			VERIFICATION_COULEUR_DROIT,
-			POUSSER_CYLINDRE_DROIT,
-			PRISE_DE_DECISION
+			PUSH_MODULES_OUEST,
+			PUSH_MODULES_RETURN_TO_POSITION_OUEST,
+
+			PUSHER_UP_OUEST,
+			DROP_PUT_AWAY_OUEST,
+
+		//Procedure de depose EST:
+			ROTATION_MODULE_EST,
+			PREPARATION_NEXT_MODULE_FOR_ROTATION_EST,
+			TAKE_MODULE_EST,
+			POMPE_ACTIVATION_EST,
+			DROP_MODULE_EST,
+			POMPE_STOP_EST,
+			PUSHER_DOWN_EST,
+
+			PUSH_MODULES_EST,
+			PUSH_MODULES_RETURN_TO_POSITION_EST,
+
+			PUSHER_UP_EST,
+			DROP_PUT_AWAY_EST,
+
+		//Procédure de fin de sub!!!!
+			VERIFICATION_ACTIONNEUR,
+
+			FIN_TENTATIVE_SUD,
+			FIN_TENTATIVE_NORD,
+			POINT_DE_ROTATION1,
+			POINT_DE_ROTATION2,
+			POINT_DE_ROTATION3
 		);
 
 	//MES VARIABLES:
@@ -417,7 +435,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 		SUD = 1
 	}POINT_DE_ROTATION_config_e;
 	POINT_DE_ROTATION_config_e mon_point_de_rotation = SUD;
-	endroit_depose = EST;
+	endroit_depose = OUEST;
 
 
 	switch(state){
@@ -444,7 +462,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 			}
 
 			//test pour avoir un point de départ:
-			state = try_going(1800,COLOR_Y(2200),state,LES_SQUARE_COLOR,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT,END_AT_LAST_POINT);
+			state = try_going(900,COLOR_Y(1500),state,LES_SQUARE_COLOR,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -884,14 +902,15 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 
 //rotation pour drop du bon coté:
 			case CHOIX_DE_COTE_DEPOSE:
-				state=DONE;
+				state=FIN_TENTATIVE_NORD;
 				//if (deposer à droite)
 					//state = try_go_angle(PI4096, state, state, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
 				//else
 					//state = try_go_angle(PI4096, state, state, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
 				break;
-
+/*
 			case DEPOSE_DROIT:
+				//ACT_push_order_with_param();
 				//Rotation vers PI
 				//descendre le bras poussoir droit
 				//Lacher le cylindre
@@ -930,11 +949,41 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 				if(entrance)
 					debug_printf("default case in sub_harry_depose_modules_side\n");
 				break;
-	}
+*/
 
+//PROCEDURE DE FIN:
+			case FIN_TENTATIVE_SUD:
+				if(endroit_depose == OUEST){
+					state = try_going(1250,DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION1,FIN_TENTATIVE_NORD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				}
+				else {
+					state = try_going(1250,3000-DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION1,FIN_TENTATIVE_NORD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				}
+				break;
+
+			case FIN_TENTATIVE_NORD:
+				if(endroit_depose == OUEST){
+					state = try_going(650,DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION2,FIN_TENTATIVE_SUD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				}
+				else {
+					state = try_going(650,3000-DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION2,FIN_TENTATIVE_SUD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				}
+				break;
+
+			case POINT_DE_ROTATION1:
+				state = try_going(1200,COLOR_Y(380),state,DONE,POINT_DE_ROTATION3,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				break;
+
+			case POINT_DE_ROTATION2:
+				state = try_going(1000,COLOR_Y(380),state,DONE,POINT_DE_ROTATION3,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				break;
+
+			case POINT_DE_ROTATION3:
+				state = try_going(800,COLOR_Y(380),state,DONE,POINT_DE_ROTATION1,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				break;
+	}
 	return IN_PROGRESS;
 }
-
 
 
 error_e sub_harry_cylinder_depose_manager(){

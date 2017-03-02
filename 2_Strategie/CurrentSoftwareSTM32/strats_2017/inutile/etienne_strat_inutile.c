@@ -22,7 +22,7 @@ void etienne_strat_inutile_big(){
 		switch(state){
 			case INIT:
 				if(entrance){
-					global.color==YELLOW;
+					//global.color==YELLOW;
 					//global.color==BLUE;
 				}
 				//state = try_advance(NULL,entrance,400,state,INIT1,ERROR,FAST,BACKWARD,DODGE_AND_WAIT, END_AT_LAST_POINT);
