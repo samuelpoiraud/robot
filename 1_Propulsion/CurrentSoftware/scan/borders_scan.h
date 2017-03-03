@@ -18,8 +18,16 @@ typedef enum{
 	OTHER_ZONE
 }scan_zone_e;
 
+typedef struct{
+	GEOMETRY_point_t scan_point;
+	Uint16 scan_time;//en nombre d'it
+}scan_point_time_t;
+
+
 scan_zone_e BORDERS_SCAN_treatment(GEOMETRY_point_t pos_mesure);
 
 bool_e calculeZonePublic(scan_zone_e zone);
+
+void afficheDebug();
 
 #endif /* BORDERS_SCAN_H */

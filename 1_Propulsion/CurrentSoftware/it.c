@@ -51,6 +51,9 @@ typedef enum{
 	IT_STATE_LCD
 }it_state_e;
 
+Uint16 IT_counter = 0;
+
+
 void IT_test_state(time32_t time_begin, it_state_e it_state, bool_e *over_time);
 static void display_led(void);
 
@@ -118,6 +121,9 @@ void _ISR _T2Interrupt()
 	GPIO_ResetBits(LED_USER); //Permet de visualiser a l'oscillo le temps de passage dans l'IT
 	TIMER2_AckIT(); /* interruption traitée */
 
+	if(global.flags.match_started){
+		IT_counter++;
+	}
 	//A FAIRE EN TOUT DEBUT D'IT POUR AVOIR UNE VITESSE LA PLUS CONSTANTE POSSIBLE...
 	ODOMETRY_update_5ms();
 	IT_test_state(begin_it_time, IT_STATE_ODOMETRY, &first_overtime);
@@ -273,3 +279,8 @@ void IT_test_state(time32_t time_begin, it_state_e it_state, bool_e* over_time){
 		*over_time = TRUE;
 	}
 }
+
+Uint16 IT_get_counter(){
+	return IT_counter;
+}
+

@@ -29,5 +29,7 @@
 	#else
 		void _ISR _T1Interrupt(void); //Sur interruption timer 1...
 	#endif
+
+	Uint16 IT_get_counter();
 	
 #endif	//def _IT_H

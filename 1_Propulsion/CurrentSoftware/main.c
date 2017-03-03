@@ -41,6 +41,7 @@
 #include "detection.h"
 #include "detection_choc.h"
 #include "scan/scan.h"
+#include "scan/borders_scan.h"
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -127,7 +128,7 @@ void initialisation(void)
 #ifdef MODE_PRINT_FIRST_TRAJ
 	IHM_define_act_button(BP_PRINTMATCH_IHM,&DEBUG_display,NULL);
 #endif
-	BUTTONS_define_actions(BUTTON0,&blue_button_action, &calibration_button_action, 1);
+	BUTTONS_define_actions(BUTTON0, &afficheDebug, NULL, 1);
 
 	DETECTION_init();
 	#ifdef USE_HOKUYO
@@ -242,6 +243,8 @@ int main (void)
 		#endif
 
 		OUTPUTLOG_process_main();
+
+		BORDERS_SCAN_process_main();
 
 		if(flag_calibration_asked)
 		{
