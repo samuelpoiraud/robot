@@ -12,7 +12,7 @@
 #define CONVERSION_LASER_RIGHT(x)	((Sint32)(36052*(x)-6201700)/10000)//((Sint32)(36130*(x)-6247900)/10000)
 #define OFFSET_WIDTH_LASER_RIGHT	(144)
 #define OFFSET_LENGTH_LASER_RIGHT	(80)
-#define OFFSET_ANGLE_RIGHT          -221
+#define OFFSET_ANGLE_RIGHT          39
 
 
 #define SATURATION_LOW (200)
@@ -106,27 +106,37 @@ static void SCAN_get_data(SCAN_side_e side){
 	laser_data[index].enable = enable;
 
 	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
-	pos_laser.x = robot.x + (offsetLenghtLaser * cosinus - offsetWidthLaser * sinus)/4096;
-	pos_laser.y = robot.y + (offsetLenghtLaser * sinus + offsetWidthLaser * cosinus)/4096;
+	if(side == SCAN_SIDE_LEFT){
+		pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus - OFFSET_WIDTH_LASER_LEFT*sinus)/4096;
+		pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + OFFSET_WIDTH_LASER_LEFT*cosinus)/4096;
+	}else{
+		pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus)/4096;
+		pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus)/4096;
+	}
 
 	COS_SIN_4096_get(robot.teta + offsetAngle, &cosinus, &sinus);
 
 	// On calcule et on stocke la valeur sauf si le capteur entre en saturation
 	if(enable == TRUE){
-		pos_mesure.x = pos_laser.x - (value * sinus)/4096;
-		pos_mesure.y = pos_laser.y + (value * cosinus)/4096;
-	}
+		if(side == SCAN_SIDE_LEFT){
+			pos_mesure.x = pos_laser.x - (value * sinus)/4096;
+			pos_mesure.y = pos_laser.y + (value * cosinus)/4096;
+		}else{
+			pos_mesure.x = pos_laser.x + (value * sinus)/4096;
+			pos_mesure.y = pos_laser.y - (value * cosinus)/4096;
+		}
 
-	if(absolute(previous_pos->x - pos_mesure.x) > 15 || absolute(previous_pos->y - pos_mesure.y) > 15)
-	{
-		*previous_zone = *zone;
-		*zone = BORDERS_SCAN_treatment(pos_mesure);
-		*previous_pos = pos_mesure;
-		if(*previous_zone != *zone){
-			calculeZonePublic(*previous_zone);
+		if(absolute(previous_pos->x - pos_mesure.x) > 15 || absolute(previous_pos->y - pos_mesure.y) > 15)
+		{
+			*previous_zone = *zone;
+			*zone = BORDERS_SCAN_treatment(pos_mesure);
+			*previous_pos = pos_mesure;
+			if(*previous_zone != *zone){
+				calculeZonePublic(*previous_zone);
+
+			}
 		}
 	}
-
 	// On stocke les valeurs
 	laser_data[index].pos_mesure = pos_mesure;
 	laser_data[index].pos_laser = pos_laser;
@@ -254,8 +264,10 @@ Uint16 TELEMETER_get_ADCvalue_right(){
 
 void SCAN_process_it(){
 	if((index < NB_SCAN_DATA && !flag_1) || (index >= NB_SCAN_DATA && !flag_2)){
-		SCAN_get_data_left();
-		SCAN_get_data_right();
+		SCAN_get_data(SCAN_SIDE_LEFT);
+		SCAN_get_data(SCAN_SIDE_RIGHT);
+//		SCAN_get_data_left();
+//		SCAN_get_data_right();
 	}else{
 		flag_treatment_too_slow = TRUE;
 	}
