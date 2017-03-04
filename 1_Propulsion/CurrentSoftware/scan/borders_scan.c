@@ -302,7 +302,7 @@ bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index
 				tabDebug[indexDebug].num = num;
 				tabDebug[indexDebug].xmoy = xmoy;
 				tabDebug[indexDebug].ymoy = ymoy;
-				it_printf("numero de run : %d\n",indexDebug);
+			//	it_printf("numero de run : %d\n",indexDebug);
 
 				indexDebug++;
 				firstLoop = FALSE;
@@ -373,7 +373,7 @@ bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index
 		*xmoy_border = xmoy;
 		*ymoy_border = ymoy;
 		*date_point=IT_get_counter();
-		it_printf("xmoy=%d\tymoy=%d\n",xmoy,ymoy);
+		//it_printf("xmoy=%d\tymoy=%d\n",xmoy,ymoy);
 		scan_try_proposition = TRUE;
 		return TRUE;
 	}else{
@@ -438,26 +438,33 @@ void BORDERS_SCAN_process_main(){
 	Sint32 new_angle = 0;
 
 	if(scan_try_proposition){
-		if(date_blue_north > (IT_get_counter()-3000)){
+		scan_try_proposition = FALSE;
+		//printf("a\n");
+		if((date_blue_north != 0)&&(date_blue_north > (IT_get_counter()-3000))){
 			counter_north_border++;
 		}
-		if(date_middle_north > (IT_get_counter()-3000)){
+		if((date_middle_north != 0)&&(date_middle_north > (IT_get_counter()-3000))){
 			counter_north_border++;
 		}
-		if(date_yellow_north > (IT_get_counter()-3000)){
+		if((date_yellow_north != 0)&&(date_yellow_north > (IT_get_counter()-3000))){
 			counter_north_border++;
 		}
 		if(counter_north_border >= 2){
+
 			north_zone_enable = TRUE;
 			if((date_yellow_north < date_middle_north)&&(date_yellow_north < date_blue_north)){
 				middle_north_zone_enable = TRUE;
 				blue_north_zone_enable = TRUE;
+				//printf("b\n");
+
 				if(date_middle_north < date_blue_border){
 					date_north_border = date_middle_north;
 				}else{
 					date_north_border = date_blue_north;
 				}
 			}else if((date_yellow_north > date_middle_north)&&(date_yellow_north > date_blue_north)){
+				printf("c\n");
+
 				if(date_middle_north > date_blue_border){
 					middle_north_zone_enable = TRUE;
 					yellow_north_zone_enable = TRUE;
@@ -468,6 +475,8 @@ void BORDERS_SCAN_process_main(){
 					date_north_border = date_blue_north;
 				}
 			}else{
+				//printf("d\n");
+
 				date_north_border = date_yellow_north;
 				if(date_middle_north < date_blue_border){
 					blue_north_zone_enable = TRUE;
@@ -478,8 +487,10 @@ void BORDERS_SCAN_process_main(){
 				}
 			}
 		}
-		if((date_blue_start > (IT_get_counter()-3000))||(date_blue_corner > (IT_get_counter()-3000))){
+		if((date_blue_start != 0)&&((date_blue_start > (IT_get_counter()-3000))||(date_blue_corner > (IT_get_counter()-3000)))){
 			blue_zone_enable = TRUE;
+			//printf("e\n");
+
 			if(date_blue_start > date_blue_corner){
 				date_blue_border = date_blue_corner;
 
@@ -487,16 +498,20 @@ void BORDERS_SCAN_process_main(){
 				date_blue_border = date_blue_start;
 			}
 		}
-		if((date_yellow_start > (IT_get_counter()-3000))||(date_yellow_corner > (IT_get_counter()-3000))){
+		if((date_yellow_start != 0)&&((date_yellow_start > (IT_get_counter()-3000))||(date_yellow_corner > (IT_get_counter()-3000)))){
 			yellow_zone_enable = TRUE;
+			//printf("f\n");
+
 			if(date_yellow_start > date_yellow_corner){
 				date_yellow_border = date_yellow_corner;
 			}else{
 				date_yellow_border = date_yellow_start;
 			}
 		}
-		if((date_blue_south > (IT_get_counter()-3000))&&(date_yellow_south > (IT_get_counter()-3000))){
+		if((date_blue_south != 0)&&(date_yellow_south != 0)&&((date_blue_south > (IT_get_counter()-3000))&&(date_yellow_south > (IT_get_counter()-3000)))){
 			south_zone_enable = TRUE;
+			//printf("g\n");
+
 			if(date_blue_south > date_yellow_south){
 				date_south_border = date_yellow_south;
 			}else{
@@ -505,6 +520,8 @@ void BORDERS_SCAN_process_main(){
 		}
 
 		if((date_south_border < date_north_border)&&(north_zone_enable)){ //c'est parti on se fait chier pour le nord (c'était un mauvaise idée cette troisième bordure
+			//printf("h\n");
+
 			if(yellow_north_zone_enable && blue_north_zone_enable){
 				a_north = (double)(ymoy_yellow_north - ymoy_blue_north)/(double)(xmoy_yellow_north - xmoy_blue_north);
 				b_north = ymoy_yellow_north - a_yellow * xmoy_yellow_north;
@@ -516,11 +533,13 @@ void BORDERS_SCAN_process_main(){
 				b_north = ymoy_middle_north - a_yellow * xmoy_middle_north;
 			}
 			if((date_blue_border < date_yellow_border)&&(yellow_zone_enable)){
+				printf("k\n");
+
 				a_yellow = (double)(ymoy_yellow_start - ymoy_yellow_corner)/(double)(xmoy_yellow_start - xmoy_yellow_corner);
 				b_yellow = ymoy_yellow_start - a_yellow * xmoy_yellow_start;
 				//on accepte une erreur d'angle entre les droites de 1° cos²(89°)=   en PI4096
 				cos_produit_scalaire=((a_yellow * a_north + 1) * (a_yellow * a_north + 1))/((a_yellow * a_yellow + 1) * (a_north * a_north + 1));
-				if((5110>cos_produit_scalaire)||(-5110<cos_produit_scalaire)){
+				if((5110<cos_produit_scalaire)||(-5110>cos_produit_scalaire)){
 					return;// l'angle les droites n'est pas droit
 				}
 				new_intersection_x = (double)(b_yellow - b_north)/(double)(a_north - a_yellow);
@@ -528,10 +547,12 @@ void BORDERS_SCAN_process_main(){
 				new_correction_angle = atan4096(a_yellow);
 
 			}else if (blue_zone_enable){
+				printf("l\n");
+
 				a_blue = (double)(ymoy_blue_start - ymoy_blue_corner)/(double)(xmoy_blue_start - xmoy_blue_corner);
 				b_blue = ymoy_blue_start - a_blue * xmoy_blue_start;
 				cos_produit_scalaire=((a_blue * a_north + 1) * (a_blue * a_north + 1))/((a_blue * a_blue + 1) * (a_north * a_north + 1));
-				if((5110>cos_produit_scalaire)||(-5110<cos_produit_scalaire)){
+				if((5110<cos_produit_scalaire)||(-5110>cos_produit_scalaire)){
 					return; // l'angle les droites n'est pas droit
 				}
 				new_intersection_x = (double)(b_blue - b_north)/(double)(a_north - a_blue);
@@ -540,27 +561,40 @@ void BORDERS_SCAN_process_main(){
 
 			}
 		}else if (south_zone_enable){
-			a_south = (double)(ymoy_blue_south-ymoy_yellow_south)/(double)(xmoy_blue_south-xmoy_yellow_south);
+			//printf("i\n");
+			printf("yb:%d\tyy:%d\txb:%d\txy:%d\t\n", ymoy_blue_south, ymoy_yellow_south, xmoy_blue_south, xmoy_yellow_south);
+
+			a_south = (double)(ymoy_blue_south - ymoy_yellow_south)/(double)(xmoy_blue_south - xmoy_yellow_south);
 			b_south = ymoy_yellow_south - a_yellow * xmoy_yellow_south;
 
 			if((date_blue_border < date_yellow_border)&&(yellow_zone_enable)){
-				a_yellow = (double)(ymoy_yellow_start-ymoy_yellow_corner)/(double)(xmoy_yellow_start-xmoy_yellow_corner);
+
+				a_yellow = (double)(ymoy_yellow_start - ymoy_yellow_corner)/(double)(xmoy_yellow_start - xmoy_yellow_corner);
 				b_yellow = ymoy_yellow_start - a_yellow * xmoy_yellow_start;
 				cos_produit_scalaire=((a_yellow * a_south + 1) * (a_yellow * a_south + 1))/((a_yellow * a_yellow + 1) * (a_south * a_south + 1));
-				if((5110>cos_produit_scalaire)||(-5110<cos_produit_scalaire)){
+				if((5110<cos_produit_scalaire)||(-5110>cos_produit_scalaire)){
 					return; // l'angle les droites n'est pas droit
 				}
+				printf("m\n");
+				printf("byel:%d\tbsou:%d\tasou:%d\tayel:%d\t\n", b_yellow, b_south, a_south, a_yellow);
+#warning 'à sécuriser contre la division par 0, ça doit pas arriver mais si il y a un bug ba de toute façon on est mort'
 				new_intersection_x = (double)(b_yellow - b_south)/(double)(a_south - a_yellow);
 				new_intersection_y = a_south * new_intersection_x + b_south;
 				new_correction_angle = atan4096(a_yellow);
+				printf("%d\n",new_intersection_x);
+
 
 			}else if(blue_zone_enable){
+				//printf("j\n");
+
 				a_blue = (double)(ymoy_blue_start-ymoy_blue_corner)/(double)(xmoy_blue_start-xmoy_blue_corner);
 				b_blue = ymoy_blue_start - a_blue * xmoy_blue_start;
 				cos_produit_scalaire=((a_blue * a_south + 1) * (a_blue * a_south + 1))/((a_blue * a_blue + 1) * (a_south * a_south + 1));
-				if((5110>cos_produit_scalaire)||(-5110<cos_produit_scalaire)){
+				if((5110<cos_produit_scalaire)||(-5110>cos_produit_scalaire)){
 					return; // l'angle les droites n'est pas droit
 				}
+				printf("n\n");
+
 				new_intersection_x = (double)(b_blue - b_south)/(double)(a_south - a_blue);
 				new_intersection_y = a_south * new_intersection_x + b_south;
 				new_correction_angle = atan4096(a_blue);
@@ -570,10 +604,11 @@ void BORDERS_SCAN_process_main(){
 		if((new_correction_angle != 0)||(new_intersection_x != 0)||(new_intersection_y != 0)){
 			Sint16 cosinus, sinus;
 			COS_SIN_4096_get(new_correction_angle, &cosinus, &sinus);
-#warning 'le offset ne doit vraiment pas être mis avant la rotation'
 			new_point_x = cosinus * global.position.x - sinus * global.position.y + new_intersection_x;
 			new_point_y = sinus * global.position.x + cosinus * global.position.y + new_intersection_y;
 			new_angle = global.position.teta;
+			printf("newx:%d\tnewy:%d\tnewang:%d\tdeltax:%d\tdeltay:%d\tdeltaang:%d\n", new_point_x, new_point_y, new_angle, new_intersection_x, new_intersection_y, new_angle);
 		}
+
 	}
 }
