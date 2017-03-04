@@ -21,8 +21,8 @@
 
 //Position
 	#define SMALL_BALL_BACK_RIGHT_AX12_IDLE_POS					512
-	#define SMALL_BALL_BACK_RIGHT_AX12_LOCK_POS				    512		//en degré
-	#define SMALL_BALL_BACK_RIGHT_AX12_UNLOCK_POS					512		//en degré
+	#define SMALL_BALL_BACK_RIGHT_AX12_DOWN_POS				    512		//en degré
+	#define SMALL_BALL_BACK_RIGHT_AX12_UP_POS					512		//en degré
 
 //Position initiale de l'AX12
 	#define SMALL_BALL_BACK_RIGHT_AX12_INIT_POS					SMALL_BALL_BACK_RIGHT_AX12_IDLE_POS

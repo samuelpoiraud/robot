@@ -39,18 +39,16 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{0,							    NB_QUEUE,						""},
 
 	// Harry
-    {ACT_ORE_GUN,			  		    ACT_QUEUE_Ore_gun,			        	"Ore gun"},
-#warning bug
-    /*{ACT_ORE_CATCH,			  		    ACT_QUEUE_Ore_catch,			        "Ore catch"},
-    {ACT_ORE_MIXER,			  		    ACT_QUEUE_Ore_mixer,			        "Ore mixer"},
-    {ACT_ORE_SHOVEL,			  		ACT_QUEUE_Ore_shovel,			        "Ore shovel"},
-    {ACT_ORE_SWEEPER,			  		ACT_QUEUE_Ore_sweeper,			        "Ore sweeper"},*/
+	{ACT_BEARING_BALL_WHEEL,			ACT_QUEUE_Bearing_ball_wheel,			"Bearing ball wheel"},
+    {ACT_BIG_BALL_FRONT_LEFT,			ACT_QUEUE_Big_bearing_front_left,		"Bearing ball front left"},
+    {ACT_BIG_BALL_FRONT_RIGHT,			ACT_QUEUE_Big_bearing_front_right,		"Bearing ball front right"},
+    {ACT_BIG_BALL_BACK_LEFT,			ACT_QUEUE_Big_bearing_back_left,		"Bearing ball back left"},
+    {ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Big_bearing_back_right,		"Bearing ball back right"},
+
     {ACT_CYLINDER_DISPENSER_LEFT,		ACT_QUEUE_Cylinder_dispenser_left,		"Cylinder dispenser left"},
     {ACT_CYLINDER_DISPENSER_RIGHT,		ACT_QUEUE_Cylinder_dispenser_right,		"Cylinder dispenser right"},
     {ACT_CYLINDER_ELEVATOR_LEFT,		ACT_QUEUE_Cylinder_elevator_left,		"Cylinder elevator left"},
     {ACT_CYLINDER_ELEVATOR_RIGHT,		ACT_QUEUE_Cylinder_elevator_right,		"Cylinder elevator right"},
-    {ACT_CYLINDER_HATCH_LEFT,			ACT_QUEUE_Cylinder_hatch_left,			"Cylinder hatch left"},
-    {ACT_CYLINDER_HATCH_RIGHT,			ACT_QUEUE_Cylinder_hatch_right,			"Cylinder hatch right"},
     {ACT_CYLINDER_PUSHER_LEFT,			ACT_QUEUE_Cylinder_pusher_left,			"Cylinder pusher left"},
     {ACT_CYLINDER_PUSHER_RIGHT,			ACT_QUEUE_Cylinder_pusher_right,		"Cylinder pusher right"},
     {ACT_CYLINDER_SLIDER_LEFT,			ACT_QUEUE_Cylinder_slider_left,			"Cylinder slider left"},
@@ -59,13 +57,15 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
     {ACT_CYLINDER_SLOPE_RIGHT,			ACT_QUEUE_Cylinder_slope_right,			"Cylinder slope right"},
     {ACT_CYLINDER_TURN_LEFT_ARM,		ACT_QUEUE_Cylinder_turn_left_arm,		"Cylinder turn left arm"},
     {ACT_CYLINDER_TURN_RIGHT_ARM,		ACT_QUEUE_Cylinder_turn_right_arm,		"Cylinder turn right arm"},
-	{ACT_BEARING_BALL_WHEEL,			ACT_QUEUE_Bearing_ball_wheel,			"Bearing ball wheel"},
-    {ACT_BIG_BALL_FRONT_LEFT,			ACT_QUEUE_Big_bearing_front_left,		"Bearing ball front left"},
-    {ACT_BIG_BALL_FRONT_RIGHT,			ACT_QUEUE_Big_bearing_front_right,		"Bearing ball front right"},
-    {ACT_BIG_BALL_BACK_LEFT,			ACT_QUEUE_Big_bearing_back_left,		"Bearing ball back left"},
-    {ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Big_bearing_back_right,		"Bearing ball back right"},
+	{ACT_CYLINDER_COLOR_LEFT,			ACT_QUEUE_Cylinder_color_left,			"Cylinder color left"},
+	{ACT_CYLINDER_COLOR_RIGHT,			ACT_QUEUE_Cylinder_color_right,			"Cylinder color right"},
+	{ACT_CYLINDER_DISPOSE_LEFT,			ACT_QUEUE_Cylinder_dispose_left,		"Cylinder dispose left"},
+	{ACT_CYLINDER_DISPOSE_RIGHT,		ACT_QUEUE_Cylinder_dispose_right,		"Cylinder dispose right"},
+
+	{ACT_ORE_GUN,			  		    ACT_QUEUE_Ore_gun,			        	"Ore gun"},
 	{ACT_ORE_WALL,						ACT_QUEUE_Ore_wall,						"Ore wall"},
     {ACT_ORE_ROLLER_ARM,                ACT_QUEUE_Ore_roller_arm,               "Ore roller arm"},
+
     {ACT_ROCKET,                        ACT_QUEUE_Rocket,                       "Rocket"},
 
 
@@ -80,17 +80,17 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_POMPE_SLIDER_RIGHT,		ACT_QUEUE_Pompe_act_slider_right,		"Mosfet_act_slider_right"},
 	{ACT_POMPE_ELEVATOR_LEFT,		ACT_QUEUE_Pompe_act_elevator_left,		"Mosfet_act_elevator_left"},
 	{ACT_POMPE_ELEVATOR_RIGHT,		ACT_QUEUE_Pompe_act_elevator_right,		"Mosfet_act_elevator_right"},
-	{ACT_MOSFET_5,					ACT_QUEUE_Mosfet_act_5,				     "Mosfet_act_5"},
-	{ACT_MOSFET_6,					ACT_QUEUE_Mosfet_act_6,			         "Mosfet_act_6"},
-	{ACT_MOSFET_7,					ACT_QUEUE_Mosfet_act_7,			         "Mosfet_act_7"},
-	{ACT_MOSFET_8,					ACT_QUEUE_Mosfet_act_8,				     "Mosfet_act_8"},
-	{ACT_MOSFET_MULTI,      		ACT_QUEUE_Mosfet_act_multi,		         "Mosfet_act_multi"},
+	{ACT_POMPE_DISPOSE_LEFT,		ACT_QUEUE_Pompe_act_dispose_left,		"Mosfet_act_dispose_left"},
+	{ACT_POMPE_DISPOSE_RIGHT,		ACT_QUEUE_Pompe_act_dispose_right,		"Mosfet_act_dispose_right"},
+	{ACT_MOSFET_7,					ACT_QUEUE_Mosfet_act_7,			        "Mosfet_act_7"},
+	{ACT_MOSFET_8,					ACT_QUEUE_Mosfet_act_8,				    "Mosfet_act_8"},
+	{ACT_MOSFET_MULTI,      		ACT_QUEUE_Mosfet_act_multi,		        "Mosfet_act_multi"},
 
 	//Mosfets stratégie
-	{STRAT_POMPE_SLIDER_LEFT,		ACT_QUEUE_Pompe_strat_slider_left,		"Mosfet_strat_slider_left"},
-	{STRAT_POMPE_SLIDER_RIGHT,		ACT_QUEUE_Pompe_strat_slider_right,		"Mosfet_strat_slider_right"},
-	{STRAT_POMPE_ELEVATOR_LEFT,		ACT_QUEUE_Pompe_strat_elevator_left,	"Mosfet_strat_elevator_left"},
-	{STRAT_POMPE_ELEVATOR_RIGHT,	ACT_QUEUE_Pompe_strat_elevator_right,	"Mosfet_strat_elevator_right"},
+	{STRAT_MOSFET_1,				ACT_QUEUE_Mosfet_strat_1,				"Mosfet_strat_0"},
+	{STRAT_MOSFET_2,				ACT_QUEUE_Mosfet_strat_2,				"Mosfet_strat_1"},
+	{STRAT_MOSFET_3,				ACT_QUEUE_Mosfet_strat_3,				"Mosfet_strat_2"},
+	{STRAT_MOSFET_4,				ACT_QUEUE_Mosfet_strat_4,				"Mosfet_strat_3"},
 	{STRAT_MOSFET_5,	           	ACT_QUEUE_Mosfet_strat_5,				"Mosfet_strat_5"},
 	{STRAT_MOSFET_6,                ACT_QUEUE_Mosfet_strat_6,               "Mosfet_strat_6"},
 	{STRAT_MOSFET_7,               	ACT_QUEUE_Mosfet_strat_7,               "Mosfet_strat_7"},

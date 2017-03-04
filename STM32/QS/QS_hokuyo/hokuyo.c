@@ -699,7 +699,27 @@ static bool_e HOKUYO_isValidPoint(Sint32 x, Sint32 y) {
 			}
 		}
 
-		//TODO A compléter pour le terrain de cette année
+		// ZONES 2017
+
+		// Fusée bleu unicouleur
+		if(y > 1100 - MARGIN_BEACON_FIELD && y < 1200 + MARGIN_BEACON_FIELD && x < 100 + MARGIN_BEACON_FIELD ) {
+				isValid = FALSE;
+		}
+
+		// Fusée jaune unicouleur
+		if(y > 1800 - MARGIN_BEACON_FIELD && y < 1900 + MARGIN_BEACON_FIELD && x < 100 + MARGIN_BEACON_FIELD ) {
+				isValid = FALSE;
+		}
+
+		// Fusée multicouleur côté bleu
+		if(x > 1300 - MARGIN_BEACON_FIELD && x < 1400 + MARGIN_BEACON_FIELD && y < 100 + MARGIN_BEACON_FIELD ) {
+				isValid = FALSE;
+		}
+
+		// Fusée multicouleur côté jaune
+		if(x > 1300 - MARGIN_BEACON_FIELD && x < 1400 + MARGIN_BEACON_FIELD && y > 2900 - MARGIN_BEACON_FIELD ) {
+				isValid = FALSE;
+		}
 
 	} else {
 		isValid = FALSE;

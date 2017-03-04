@@ -359,18 +359,17 @@
 //--------------------Configuration des ID des actionneurs-----------------------
 // L'id doit être inférieur à 50
 
-#define ORE_GUN_RX24_ID						  4
+
 #define BIG_BALL_BACK_LEFT_AX12_ID            9
 #define BIG_BALL_BACK_RIGHT_AX12_ID           10
 #define BIG_BALL_FRONT_LEFT_AX12_ID           11
 #define BIG_BALL_FRONT_RIGHT_AX12_ID          12
-#define CYLINDER_HATCH_LEFT_AX12_ID			  13
-#define CYLINDER_HATCH_RIGHT_AX12_ID		  14
+#define	BEARING_BALL_WHEEL_AX12_ID			  19
+
 #define CYLINDER_SLOPE_LEFT_AX12_ID			  15
 #define CYLINDER_SLOPE_RIGHT_AX12_ID		  16
 #define CYLINDER_DISPENSER_LEFT_AX12_ID		  17
 #define CYLINDER_DISPENSER_RIGHT_AX12_ID	  18
-#define	BEARING_BALL_WHEEL_AX12_ID			  19
 #define CYLINDER_PUSHER_LEFT_AX12_ID          20
 #define CYLINDER_PUSHER_RIGHT_AX12_ID         21
 #define CYLINDER_ELEVATOR_LEFT_RX24_ID        22
@@ -379,11 +378,17 @@
 #define CYLINDER_SLIDER_RIGHT_RX24_ID         25
 #define CYLINDER_TURN_LEFT_ARM_RX24_ID        26
 #define CYLINDER_TURN_RIGHT_ARM_RX24_ID       27
+#define CYLINDER_COLOR_LEFT_RX24_ID			  32
+#define CYLINDER_COLOR_RIGHT_RX24_ID		  33
+#define CYLINDER_DISPOSE_LEFT_AX12_ID	      34
+#define CYLINDER_DISPOSE_RIGHT_AX12_ID		  35
+
+#define ORE_GUN_RX24_ID						  4
 #define ORE_WALL_RX24_ID					  28
 #define ORE_ROLLER_ARM_LEFT_RX24_ID           29
 #define ORE_ROLLER_ARM_RIGHT_RX24_ID          30
-#define ROCKET_AX12_ID					  31
 
+#define ROCKET_AX12_ID					  	  31
 
 
 

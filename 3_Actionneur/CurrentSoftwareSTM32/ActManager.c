@@ -17,18 +17,17 @@
 
 #ifdef I_AM_ROBOT_BIG
 	#include "QS/QS_mosfet.h"
-	#include "Harry/ore/ore_gun/ore_gun.h"
+
     #include "Harry/big_bearing_ball/big_ball_back_left/big_ball_back_left.h"
     #include "Harry/big_bearing_ball/big_ball_back_right/big_ball_back_right.h"
     #include "Harry/big_bearing_ball/big_ball_front_left/big_ball_front_left.h"
     #include "Harry/big_bearing_ball/big_ball_front_right/big_ball_front_right.h"
-	#include "Harry/cylinder/cylinder_hatch/cylinder_hatch_left.h"
-	#include "Harry/cylinder/cylinder_hatch/cylinder_hatch_right.h"
+    #include "Harry/big_bearing_ball/bearing_ball_wheel/bearing_ball_wheel.h"
+
 	#include "Harry/cylinder/cylinder_slope/cylinder_slope_left.h"
 	#include "Harry/cylinder/cylinder_slope/cylinder_slope_right.h"
 	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left.h"
 	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right.h"
-    #include "Harry/big_bearing_ball/bearing_ball_wheel/bearing_ball_wheel.h"
     #include "Harry/cylinder/cylinder_pusher/cylinder_pusher_left.h"
     #include "Harry/cylinder/cylinder_pusher/cylinder_pusher_right.h"
     #include "Harry/cylinder/cylinder_elevator/cylinder_elevator_left.h"
@@ -37,11 +36,16 @@
     #include "Harry/cylinder/cylinder_slider/cylinder_slider_right.h"
     #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm.h"
     #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
+	#include "Harry/cylinder/cylinder_color/cylinder_color_left.h"
+	#include "Harry/cylinder/cylinder_color/cylinder_color_right.h"
+	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left.h"
+	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right.h"
+
+	#include "Harry/ore/ore_gun/ore_gun.h"
 	#include "Harry/ore/ore_wall/ore_wall.h"
     #include "Harry/ore/ore_roller_arm/ore_roller_arm.h"
+
     #include "Harry/rocket/rocket.h"
-
-
 
 
 
@@ -68,18 +72,17 @@ static bool_e init_control_act=TRUE;
 static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(MOSFET), //QS_mosfets
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
-		ACT_DECLARE(ORE_GUN),
+
         ACT_DECLARE(BIG_BALL_BACK_LEFT),
         ACT_DECLARE(BIG_BALL_BACK_RIGHT),
         ACT_DECLARE(BIG_BALL_FRONT_LEFT),
         ACT_DECLARE(BIG_BALL_FRONT_RIGHT),
-		ACT_DECLARE(CYLINDER_HATCH_LEFT),
-		ACT_DECLARE(CYLINDER_HATCH_RIGHT),
+		ACT_DECLARE(BEARING_BALL_WHEEL),
+
 		ACT_DECLARE(CYLINDER_SLOPE_LEFT),
 		ACT_DECLARE(CYLINDER_SLOPE_RIGHT),
 		ACT_DECLARE(CYLINDER_DISPENSER_LEFT),
 		ACT_DECLARE(CYLINDER_DISPENSER_RIGHT),
-        ACT_DECLARE(BEARING_BALL_WHEEL),
         ACT_DECLARE(CYLINDER_PUSHER_LEFT),
         ACT_DECLARE(CYLINDER_PUSHER_RIGHT),
         ACT_DECLARE(CYLINDER_ELEVATOR_LEFT),
@@ -88,9 +91,17 @@ static ACTQ_functions_t actionneurs[] = {
         ACT_DECLARE(CYLINDER_SLIDER_RIGHT),
         ACT_DECLARE(CYLINDER_TURN_LEFT_ARM),
         ACT_DECLARE(CYLINDER_TURN_RIGHT_ARM),
+		ACT_DECLARE(CYLINDER_COLOR_LEFT),
+		ACT_DECLARE(CYLINDER_COLOR_RIGHT),
+		ACT_DECLARE(CYLINDER_DISPOSE_LEFT),
+		ACT_DECLARE(CYLINDER_DISPOSE_RIGHT),
+
+		ACT_DECLARE(ORE_GUN),
 		ACT_DECLARE(ORE_WALL),
         ACT_DECLARE(ORE_ROLLER_ARM),
+
         ACT_DECLARE(ROCKET),
+
 
 	#else  //Small Robot
 		//ACT_DECLARE(LEFT_ARM),
@@ -222,6 +233,7 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 		//Init des actionneurs
 	} else {
 		bool_e isReady = FALSE, responseReceived = FALSE;
+
 		#ifdef I_AM_ROBOT_BIG
 				//responseReceived = RX24_async_is_ready(FISH_UNSTICK_ARM_RX24_ID, &isReady); //TODO 2017 Remplacer par les appels adéquats
 		#else

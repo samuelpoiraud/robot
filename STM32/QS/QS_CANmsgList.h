@@ -964,30 +964,35 @@
 		//----------------------------HARRY-----------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		ACT_ORE_GUN						= (ACT_FILTER | 0x01),
-        ACT_BIG_BALL_FRONT_LEFT         = (ACT_FILTER | 0x06),
-        ACT_BIG_BALL_FRONT_RIGHT        = (ACT_FILTER | 0x07),
-        ACT_BIG_BALL_BACK_LEFT          = (ACT_FILTER | 0x08),
-        ACT_BIG_BALL_BACK_RIGHT         = (ACT_FILTER | 0x09),
-		ACT_CYLINDER_HATCH_LEFT			= (ACT_FILTER | 0x0A),
-		ACT_CYLINDER_HATCH_RIGHT		= (ACT_FILTER | 0x0B),
-		ACT_CYLINDER_SLOPE_LEFT			= (ACT_FILTER | 0x0C),
-		ACT_CYLINDER_SLOPE_RIGHT		= (ACT_FILTER | 0x0D),
-		ACT_CYLINDER_DISPENSER_LEFT		= (ACT_FILTER | 0x0E),
-		ACT_CYLINDER_DISPENSER_RIGHT	= (ACT_FILTER | 0x0F),
-        ACT_BEARING_BALL_WHEEL			= (ACT_FILTER | 0x10),
-        ACT_CYLINDER_PUSHER_LEFT		= (ACT_FILTER | 0x11),
-        ACT_CYLINDER_PUSHER_RIGHT       = (ACT_FILTER | 0x12),
-        ACT_CYLINDER_ELEVATOR_LEFT		= (ACT_FILTER | 0x13),
-        ACT_CYLINDER_ELEVATOR_RIGHT     = (ACT_FILTER | 0x14),
-        ACT_CYLINDER_SLIDER_LEFT		= (ACT_FILTER | 0x15),
-        ACT_CYLINDER_SLIDER_RIGHT       = (ACT_FILTER | 0x16),
-        ACT_CYLINDER_TURN_LEFT_ARM		= (ACT_FILTER | 0x17),
-        ACT_CYLINDER_TURN_RIGHT_ARM     = (ACT_FILTER | 0x18),
-		ACT_ORE_WALL					= (ACT_FILTER | 0x19),
-        ACT_ORE_ROLLER_ARM              = (ACT_FILTER | 0x1A),
-        ACT_ROCKET                      = (ACT_FILTER | 0x1B),
 
+        ACT_BIG_BALL_FRONT_LEFT         = (ACT_FILTER | 0x01),
+        ACT_BIG_BALL_FRONT_RIGHT        = (ACT_FILTER | 0x02),
+        ACT_BIG_BALL_BACK_LEFT          = (ACT_FILTER | 0x03),
+        ACT_BIG_BALL_BACK_RIGHT         = (ACT_FILTER | 0x04),
+        ACT_BEARING_BALL_WHEEL			= (ACT_FILTER | 0x05),
+
+		ACT_CYLINDER_SLOPE_LEFT			= (ACT_FILTER | 0x06),
+		ACT_CYLINDER_SLOPE_RIGHT		= (ACT_FILTER | 0x07),
+		ACT_CYLINDER_DISPENSER_LEFT		= (ACT_FILTER | 0x08),
+		ACT_CYLINDER_DISPENSER_RIGHT	= (ACT_FILTER | 0x09),
+        ACT_CYLINDER_PUSHER_LEFT		= (ACT_FILTER | 0x0A),
+        ACT_CYLINDER_PUSHER_RIGHT       = (ACT_FILTER | 0x0B),
+        ACT_CYLINDER_ELEVATOR_LEFT		= (ACT_FILTER | 0x0C),
+        ACT_CYLINDER_ELEVATOR_RIGHT     = (ACT_FILTER | 0x0D),
+        ACT_CYLINDER_SLIDER_LEFT		= (ACT_FILTER | 0x0E),
+        ACT_CYLINDER_SLIDER_RIGHT       = (ACT_FILTER | 0x0F),
+        ACT_CYLINDER_TURN_LEFT_ARM		= (ACT_FILTER | 0x10),
+        ACT_CYLINDER_TURN_RIGHT_ARM     = (ACT_FILTER | 0x11),
+		ACT_CYLINDER_COLOR_LEFT			= (ACT_FILTER | 0x12),
+		ACT_CYLINDER_COLOR_RIGHT		= (ACT_FILTER | 0x13),
+		ACT_CYLINDER_DISPOSE_LEFT		= (ACT_FILTER | 0x14),
+		ACT_CYLINDER_DISPOSE_RIGHT		= (ACT_FILTER | 0x15),
+
+		ACT_ORE_GUN						= (ACT_FILTER | 0x16),
+		ACT_ORE_WALL					= (ACT_FILTER | 0x17),
+        ACT_ORE_ROLLER_ARM              = (ACT_FILTER | 0x18),
+
+        ACT_ROCKET                      = (ACT_FILTER | 0x19),
 
 
 
@@ -995,7 +1000,6 @@
 		//-----------------------------ANNE-----------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		//ACT_LEFT_ARM			    = (ACT_FILTER | 0x30),
 		ACT_SMALL_BALL_BACK_LEFT		= (ACT_FILTER | 0x31),
 		ACT_SMALL_BALL_BACK_RIGHT		= (ACT_FILTER | 0x32),
 		ACT_SMALL_BALL_FRONT_LEFT		= (ACT_FILTER | 0x33),
@@ -1014,8 +1018,8 @@
 		ACT_POMPE_SLIDER_RIGHT		= (ACT_FILTER | 0x61),
 		ACT_POMPE_ELEVATOR_LEFT		= (ACT_FILTER | 0x62),
 		ACT_POMPE_ELEVATOR_RIGHT	= (ACT_FILTER | 0x63),
-		ACT_MOSFET_5				= (ACT_FILTER | 0x64),
-		ACT_MOSFET_6				= (ACT_FILTER | 0x65),
+		ACT_POMPE_DISPOSE_LEFT		= (ACT_FILTER | 0x64),
+		ACT_POMPE_DISPOSE_RIGHT		= (ACT_FILTER | 0x65),
 		ACT_MOSFET_7				= (ACT_FILTER | 0x66),
 		ACT_MOSFET_8			    = (ACT_FILTER | 0x67),
 		ACT_MOSFET_MULTI			= (ACT_FILTER | 0x68),
@@ -1023,10 +1027,10 @@
 	//////////////////////////////////////////////////////////////////
 	//-------------------------MOSFETS STRAT------------------------//
 	//////////////////////////////////////////////////////////////////
-		STRAT_POMPE_SLIDER_LEFT		= (ACT_FILTER | 0x69),
-		STRAT_POMPE_SLIDER_RIGHT	= (ACT_FILTER | 0x70),
-		STRAT_POMPE_ELEVATOR_LEFT	= (ACT_FILTER | 0x71),
-		STRAT_POMPE_ELEVATOR_RIGHT	= (ACT_FILTER | 0x72),
+		STRAT_MOSFET_1				= (ACT_FILTER | 0x69),
+		STRAT_MOSFET_2				= (ACT_FILTER | 0x70),
+		STRAT_MOSFET_3				= (ACT_FILTER | 0x71),
+		STRAT_MOSFET_4				= (ACT_FILTER | 0x72),
 		STRAT_MOSFET_5				= (ACT_FILTER | 0x73),
 		STRAT_MOSFET_6				= (ACT_FILTER | 0x74),
 		STRAT_MOSFET_7				= (ACT_FILTER | 0x75),
