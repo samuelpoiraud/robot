@@ -576,12 +576,12 @@ void BORDERS_SCAN_process_main(){
 					return; // l'angle les droites n'est pas droit
 				}
 				printf("m\n");
-				printf("byel:%d\tbsou:%d\tasou:%d\tayel:%d\t\n", b_yellow, b_south, a_south, a_yellow);
+				//printf("byel:%ld\tbsou:%ld\tasou:%ld\tayel:%ld\t\n", b_yellow, b_south, a_south, a_yellow);
 #warning 'à sécuriser contre la division par 0, ça doit pas arriver mais si il y a un bug ba de toute façon on est mort'
 				new_intersection_x = (double)(b_yellow - b_south)/(double)(a_south - a_yellow);
 				new_intersection_y = a_south * new_intersection_x + b_south;
 				new_correction_angle = atan4096(a_yellow);
-				printf("%d\n",new_intersection_x);
+				printf("%ld\n",new_intersection_x);
 
 
 			}else if(blue_zone_enable){
@@ -604,10 +604,10 @@ void BORDERS_SCAN_process_main(){
 		if((new_correction_angle != 0)||(new_intersection_x != 0)||(new_intersection_y != 0)){
 			Sint16 cosinus, sinus;
 			COS_SIN_4096_get(new_correction_angle, &cosinus, &sinus);
-			new_point_x = cosinus * global.position.x - sinus * global.position.y + new_intersection_x;
-			new_point_y = sinus * global.position.x + cosinus * global.position.y + new_intersection_y;
+			new_point_x = (cosinus * global.position.x - sinus * global.position.y)/4096 + new_intersection_x;
+			new_point_y = (sinus * global.position.x + cosinus * global.position.y)/4096 + new_intersection_y;
 			new_angle = global.position.teta;
-			printf("newx:%d\tnewy:%d\tnewang:%d\tdeltax:%d\tdeltay:%d\tdeltaang:%d\n", new_point_x, new_point_y, new_angle, new_intersection_x, new_intersection_y, new_angle);
+			printf("newx:%ld\tnewy:%ld\tnewang:%ld\tdeltax:%ld\tdeltay:%ld\tdeltaang:%ld\n", new_point_x, new_point_y, new_angle, new_intersection_x, new_intersection_y, new_angle);
 		}
 
 	}
