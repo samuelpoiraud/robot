@@ -275,14 +275,6 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
                         failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT;
                         break;
 
-                    case ACT_CYLINDER_HATCH_LEFT:
-                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_HATCH_LEFT;
-                        break;
-
-                    case ACT_CYLINDER_HATCH_RIGHT:
-                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_HATCH_RIGHT;
-                        break;
-
                     case ACT_CYLINDER_PUSHER_LEFT:
                         failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT;
                         break;

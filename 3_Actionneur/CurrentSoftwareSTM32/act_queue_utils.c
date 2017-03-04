@@ -306,40 +306,42 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 
 	originalSid = originalSid & 0xFF;
 	switch(originalSid) {
-		// Harry
-		   //case ACT_FISH_MAGNETIC_ARM & 0xFF:		originalSidStr = "FishMagnetic";		break;
-		   case ACT_ORE_GUN & 0xFF:					originalSidStr = "OreGun";				break;
-           case ACT_BIG_BALL_BACK_LEFT & 0xFF:      originalSidStr = "BigBallBackLeft";     break;
-           case ACT_BIG_BALL_BACK_RIGHT & 0xFF:     originalSidStr = "BigBallBackRight";    break;
-           case ACT_BIG_BALL_FRONT_LEFT & 0xFF:     originalSidStr = "BigBallFrontLeft";    break;
-           case ACT_BIG_BALL_FRONT_RIGHT & 0xFF:    originalSidStr = "BigBallFrontRight";	break;
-		   case ACT_CYLINDER_HATCH_LEFT & 0xFF:		originalSidStr = "CylinderHatchLeft";	break;
-		   case ACT_CYLINDER_HATCH_RIGHT & 0xFF:	originalSidStr = "CylinderHatchRight";	break;
-		   case ACT_CYLINDER_SLOPE_LEFT & 0xFF:		originalSidStr = "CylinderSlopeLeft";	break;
-		   case ACT_CYLINDER_SLOPE_RIGHT & 0xFF:	originalSidStr = "CylinderSlopeRight";	break;
-		   case ACT_CYLINDER_DISPENSER_LEFT & 0xFF:	originalSidStr = "CylinderDispenserLeft";	break;
-		   case ACT_CYLINDER_DISPENSER_RIGHT & 0xFF:originalSidStr = "CylinderDispenserRight";	break;
-           case ACT_BEARING_BALL_WHEEL & 0xFF:      originalSidStr = "BearingBallWheel";	break;
-           case ACT_CYLINDER_PUSHER_LEFT & 0xFF:	originalSidStr = "CylinderPusherLeft";	break;
-           case ACT_CYLINDER_PUSHER_RIGHT & 0xFF:   originalSidStr = "CylinderPusherRight";	break;
-           case ACT_CYLINDER_ELEVATOR_LEFT & 0xFF:	originalSidStr = "CylinderElevatorLeft";	break;
-           case ACT_CYLINDER_ELEVATOR_RIGHT & 0xFF: originalSidStr = "CylinderElevatorRight";	break;
-           case ACT_CYLINDER_SLIDER_LEFT & 0xFF:	originalSidStr = "CylinderSliderLeft";	break;
-           case ACT_CYLINDER_SLIDER_RIGHT & 0xFF:   originalSidStr = "CylinderSliderRight";	break;
-           case ACT_CYLINDER_TURN_LEFT_ARM & 0xFF:	originalSidStr = "CylinderTurnLeftArm";	break;
-           case ACT_CYLINDER_TURN_RIGHT_ARM & 0xFF: originalSidStr = "CylinderTurnRightArm";break;
-           case ACT_ORE_WALL & 0xFF:				originalSidStr = "OreWall";				break;
-           case ACT_ORE_ROLLER_ARM & 0xFF:			originalSidStr = "OreRollerArm";        break;
-           case ACT_ROCKET & 0xFF:                  originalSidStr = "Rocket";              break;
+			// Harry
+           case ACT_BIG_BALL_BACK_LEFT & 0xFF:      	originalSidStr = "BigBallBackLeft";     	break;
+           case ACT_BIG_BALL_BACK_RIGHT & 0xFF:     	originalSidStr = "BigBallBackRight";    	break;
+           case ACT_BIG_BALL_FRONT_LEFT & 0xFF:     	originalSidStr = "BigBallFrontLeft";    	break;
+           case ACT_BIG_BALL_FRONT_RIGHT & 0xFF:    	originalSidStr = "BigBallFrontRight";		break;
+           case ACT_BEARING_BALL_WHEEL & 0xFF:      	originalSidStr = "BearingBallWheel";		break;
+
+           case ACT_CYLINDER_SLOPE_LEFT & 0xFF:			originalSidStr = "CylinderSlopeLeft";		break;
+		   case ACT_CYLINDER_SLOPE_RIGHT & 0xFF:		originalSidStr = "CylinderSlopeRight";		break;
+		   case ACT_CYLINDER_DISPENSER_LEFT & 0xFF:		originalSidStr = "CylinderDispenserLeft";	break;
+		   case ACT_CYLINDER_DISPENSER_RIGHT & 0xFF:	originalSidStr = "CylinderDispenserRight";	break;
+           case ACT_CYLINDER_PUSHER_LEFT & 0xFF:		originalSidStr = "CylinderPusherLeft";		break;
+           case ACT_CYLINDER_PUSHER_RIGHT & 0xFF:   	originalSidStr = "CylinderPusherRight";		break;
+           case ACT_CYLINDER_ELEVATOR_LEFT & 0xFF:		originalSidStr = "CylinderElevatorLeft";	break;
+           case ACT_CYLINDER_ELEVATOR_RIGHT & 0xFF: 	originalSidStr = "CylinderElevatorRight";	break;
+           case ACT_CYLINDER_SLIDER_LEFT & 0xFF:		originalSidStr = "CylinderSliderLeft";		break;
+           case ACT_CYLINDER_SLIDER_RIGHT & 0xFF:   	originalSidStr = "CylinderSliderRight";		break;
+           case ACT_CYLINDER_TURN_LEFT_ARM & 0xFF:		originalSidStr = "CylinderTurnLeftArm";		break;
+           case ACT_CYLINDER_TURN_RIGHT_ARM & 0xFF: 	originalSidStr = "CylinderTurnRightArm";	break;
+           case ACT_CYLINDER_COLOR_LEFT & 0xFF:			originalSidStr = "CylinderColorLeft";		break;
+		   case ACT_CYLINDER_COLOR_RIGHT & 0xFF:		originalSidStr = "CylinderColorRight";		break;
+		   case ACT_CYLINDER_DISPOSE_LEFT & 0xFF:		originalSidStr = "CylinderDispenserLeft";	break;
+		   case ACT_CYLINDER_DISPOSE_RIGHT & 0xFF:		originalSidStr = "CylinderDispenserRight";	break;
+
+           case ACT_ORE_GUN & 0xFF:						originalSidStr = "OreGun";					break;
+           case ACT_ORE_WALL & 0xFF:					originalSidStr = "OreWall";					break;
+           case ACT_ORE_ROLLER_ARM & 0xFF:				originalSidStr = "OreRollerArm";       	 	break;
+
+           case ACT_ROCKET & 0xFF:                  	originalSidStr = "Rocket";             	 	break;
 
 
-
-		// Anne
-		//case ACT_VENTILATOR_PEARL & 0xFF:        originalSidStr = "VentilatorPearl";     break;
-          case ACT_SMALL_BALL_BACK_LEFT & 0xFF:					originalSidStr = "SmallBallBackLeft";				break;
-          case ACT_SMALL_BALL_BACK_RIGHT & 0xFF:				originalSidStr = "SmallBallBackRight";				break;
-          case ACT_SMALL_BALL_FRONT_LEFT & 0xFF:				originalSidStr = "SmallBallFrontLeft";				break;
-          case ACT_SMALL_BALL_FRONT_RIGHT & 0xFF:				originalSidStr = "SmallBallFrontRight";				break;
+           // Anne
+          case ACT_SMALL_BALL_BACK_LEFT & 0xFF:			originalSidStr = "SmallBallBackLeft";		break;
+          case ACT_SMALL_BALL_BACK_RIGHT & 0xFF:		originalSidStr = "SmallBallBackRight";		break;
+          case ACT_SMALL_BALL_FRONT_LEFT & 0xFF:		originalSidStr = "SmallBallFrontLeft";		break;
+          case ACT_SMALL_BALL_FRONT_RIGHT & 0xFF:		originalSidStr = "SmallBallFrontRight";		break;
 
 
 		default:								    originalSidStr = "Unknown";				break;

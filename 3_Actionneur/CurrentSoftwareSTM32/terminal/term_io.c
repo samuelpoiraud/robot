@@ -20,10 +20,6 @@
     #include "../Harry/big_bearing_ball/big_ball_front_left/big_ball_front_left_config.h"
     #include "../Harry/big_bearing_ball/big_ball_front_right/big_ball_front_right.h"
     #include "../Harry/big_bearing_ball/big_ball_front_right/big_ball_front_right_config.h"
-	#include "../Harry/cylinder/cylinder_hatch/cylinder_hatch_left.h"
-	#include "../Harry/cylinder/cylinder_hatch/cylinder_hatch_left_config.h"
-	#include "../Harry/cylinder/cylinder_hatch/cylinder_hatch_right.h"
-	#include "../Harry/cylinder/cylinder_hatch/cylinder_hatch_right_config.h"
 	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_left.h"
 	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_left_config.h"
 	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_right.h"
@@ -54,6 +50,14 @@
     #include "../Harry/ore/ore_wall/ore_wall_config.h"
     #include "../Harry/rocket/rocket.h"
     #include "../Harry/rocket/rocket_config.h"
+	#include "../Harry/cylinder/cylinder_color/cylinder_color_left.h"
+	#include "../Harry/cylinder/cylinder_color/cylinder_color_left_config.h"
+	#include "../Harry/cylinder/cylinder_color/cylinder_color_right.h"
+	#include "../Harry/cylinder/cylinder_color/cylinder_color_right_config.h"
+	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_left.h"
+	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_left_config.h"
+	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_right.h"
+	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_right_config.h"
 
 
 #else
@@ -108,8 +112,6 @@ terminal_motor_s terminal_motor[] = {
         DECLARE_AX12(2, 'C', BIG_BALL_FRONT_RIGHT_AX12),
         DECLARE_AX12(2, 'D', BIG_BALL_BACK_LEFT_AX12),
         DECLARE_AX12(2, 'E', BIG_BALL_BACK_RIGHT_AX12),
-        DECLARE_AX12(2, 'F', CYLINDER_HATCH_LEFT_AX12),
-        DECLARE_AX12(2, 'G', CYLINDER_HATCH_RIGHT_AX12),
         DECLARE_AX12(2, 'H', CYLINDER_SLOPE_LEFT_AX12),
         DECLARE_AX12(2, 'I', CYLINDER_SLOPE_RIGHT_AX12),
         DECLARE_AX12(2, 'J', CYLINDER_DISPENSER_LEFT_AX12),
@@ -125,7 +127,10 @@ terminal_motor_s terminal_motor[] = {
         DECLARE_RX24(2, 'T', CYLINDER_TURN_RIGHT_ARM_RX24),
         DECLARE_RX24(2, 'U', ORE_WALL_RX24),
         DECLARE_AX12(2, 'V', ROCKET_AX12),
-
+        DECLARE_RX24(2, 'W', CYLINDER_COLOR_LEFT_RX24),
+        DECLARE_RX24(2, 'Y', CYLINDER_COLOR_RIGHT_RX24),
+		DECLARE_AX12(2, 'Z', CYLINDER_DISPOSE_LEFT_AX12),
+		DECLARE_AX12(2, '1', CYLINDER_DISPOSE_RIGHT_AX12),
 
 
 	#else
