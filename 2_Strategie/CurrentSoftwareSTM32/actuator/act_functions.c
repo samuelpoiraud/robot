@@ -45,8 +45,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
     {ACT_BIG_BALL_BACK_LEFT,			ACT_QUEUE_Big_bearing_back_left,		"Bearing ball back left"},
     {ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Big_bearing_back_right,		"Bearing ball back right"},
 
-    {ACT_CYLINDER_DISPENSER_LEFT,		ACT_QUEUE_Cylinder_dispenser_left,		"Cylinder dispenser left"},
-    {ACT_CYLINDER_DISPENSER_RIGHT,		ACT_QUEUE_Cylinder_dispenser_right,		"Cylinder dispenser right"},
+    {ACT_CYLINDER_BALANCER_LEFT,		ACT_QUEUE_Cylinder_balancer_left,		"Cylinder dispenser left"},
+    {ACT_CYLINDER_BALANCER_RIGHT,		ACT_QUEUE_Cylinder_balnacer_right,		"Cylinder dispenser right"},
     {ACT_CYLINDER_ELEVATOR_LEFT,		ACT_QUEUE_Cylinder_elevator_left,		"Cylinder elevator left"},
     {ACT_CYLINDER_ELEVATOR_RIGHT,		ACT_QUEUE_Cylinder_elevator_right,		"Cylinder elevator right"},
     {ACT_CYLINDER_PUSHER_LEFT,			ACT_QUEUE_Cylinder_pusher_left,			"Cylinder pusher left"},
@@ -55,8 +55,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
     {ACT_CYLINDER_SLIDER_RIGHT,			ACT_QUEUE_Cylinder_slider_right,		"Cylinder slider right"},
     {ACT_CYLINDER_SLOPE_LEFT,			ACT_QUEUE_Cylinder_slope_left,			"Cylinder slope left"},
     {ACT_CYLINDER_SLOPE_RIGHT,			ACT_QUEUE_Cylinder_slope_right,			"Cylinder slope right"},
-    {ACT_CYLINDER_TURN_LEFT_ARM,		ACT_QUEUE_Cylinder_turn_left_arm,		"Cylinder turn left arm"},
-    {ACT_CYLINDER_TURN_RIGHT_ARM,		ACT_QUEUE_Cylinder_turn_right_arm,		"Cylinder turn right arm"},
+    {ACT_CYLINDER_ARM_LEFT,				ACT_QUEUE_Cylinder_arm_left,		"Cylinder turn left arm"},
+    {ACT_CYLINDER_ARM_RIGHT,			ACT_QUEUE_Cylinder_arm_right,		"Cylinder turn right arm"},
 	{ACT_CYLINDER_COLOR_LEFT,			ACT_QUEUE_Cylinder_color_left,			"Cylinder color left"},
 	{ACT_CYLINDER_COLOR_RIGHT,			ACT_QUEUE_Cylinder_color_right,			"Cylinder color right"},
 	{ACT_CYLINDER_DISPOSE_LEFT,			ACT_QUEUE_Cylinder_dispose_left,		"Cylinder dispose left"},
@@ -261,10 +261,16 @@ void ACT_get_config_answer(CAN_msg_t* msg){
 
 	switch(msg->data.act_get_config_answer.config){
 		case POSITION_CONFIG:
-			act_config[i].pos = msg->data.act_get_config_answer.act_get_config_data.pos;
+			act_config[i].pos = msg->data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order;
 			break;
-		case SPEED_CONFIG:
-			act_config[i].speed = msg->data.act_get_config_answer.act_get_config_data.speed;
+		case TORQUE_CONFIG:
+			act_config[i].torque = msg->data.act_get_config_answer.act_get_config_data.torque;
+			break;
+		case TEMPERATURE_CONFIG:
+			act_config[i].temperature = msg->data.act_get_config_answer.act_get_config_data.temperature;
+			break;
+		case LOAD_CONFIG:
+			act_config[i].load = msg->data.act_get_config_answer.act_get_config_data.load;
 			break;
 		default:
 			error_printf("Error config recieved but not requested !! file %s line %d\n", __FILE__, __LINE__);

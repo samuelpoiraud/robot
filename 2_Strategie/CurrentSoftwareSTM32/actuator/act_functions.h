@@ -28,8 +28,10 @@ typedef struct{
 
 typedef struct{
 	bool_e info_received;
-	Uint16 pos;
-	Uint16 speed;
+	ACT_order_e pos;
+	Sint8 torque;
+	Uint8 temperature;
+	Sint8 load;
 }act_config_s;
 
 extern const act_link_SID_Queue_s act_link_SID_Queue[];

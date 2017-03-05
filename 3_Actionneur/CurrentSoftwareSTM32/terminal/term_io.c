@@ -24,10 +24,10 @@
 	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_left_config.h"
 	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_right.h"
 	#include "../Harry/cylinder/cylinder_slope/cylinder_slope_right_config.h"
-	#include "../Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left.h"
-	#include "../Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left_config.h"
-	#include "../Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right.h"
-	#include "../Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right_config.h"
+	#include "../Harry/cylinder/cylinder_balancer/cylinder_balancer_left.h"
+	#include "../Harry/cylinder/cylinder_balancer/cylinder_balancer_left_config.h"
+	#include "../Harry/cylinder/cylinder_balancer/cylinder_balancer_right.h"
+	#include "../Harry/cylinder/cylinder_balancer/cylinder_balancer_right_config.h"
     #include "../Harry/big_bearing_ball/bearing_ball_wheel/bearing_ball_wheel.h"
     #include "../Harry/big_bearing_ball/bearing_ball_wheel/bearing_ball_wheel_config.h"
     #include "../Harry/cylinder/cylinder_pusher/cylinder_pusher_left.h"
@@ -42,10 +42,10 @@
     #include "../Harry/cylinder/cylinder_slider/cylinder_slider_left_config.h"
     #include "../Harry/cylinder/cylinder_slider/cylinder_slider_right.h"
     #include "../Harry/cylinder/cylinder_slider/cylinder_slider_right_config.h"
-    #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm.h"
-    #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm_config.h"
-    #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
-    #include "../Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm_config.h"
+    #include "../Harry/cylinder/cylinder_arm/cylinder_arm_left.h"
+    #include "../Harry/cylinder/cylinder_arm/cylinder_arm_left_config.h"
+    #include "../Harry/cylinder/cylinder_arm/cylinder_arm_right.h"
+    #include "../Harry/cylinder/cylinder_arm/cylinder_arm_right_config.h"
     #include "../Harry/ore/ore_wall/ore_wall.h"
     #include "../Harry/ore/ore_wall/ore_wall_config.h"
     #include "../Harry/rocket/rocket.h"
@@ -114,8 +114,8 @@ terminal_motor_s terminal_motor[] = {
         DECLARE_AX12(2, 'E', BIG_BALL_BACK_RIGHT_AX12),
         DECLARE_AX12(2, 'H', CYLINDER_SLOPE_LEFT_AX12),
         DECLARE_AX12(2, 'I', CYLINDER_SLOPE_RIGHT_AX12),
-        DECLARE_AX12(2, 'J', CYLINDER_DISPENSER_LEFT_AX12),
-        DECLARE_AX12(2, 'K', CYLINDER_DISPENSER_RIGHT_AX12),
+        DECLARE_AX12(2, 'J', CYLINDER_BALANCER_LEFT_AX12),
+        DECLARE_AX12(2, 'K', CYLINDER_BALANCER_RIGHT_AX12),
         DECLARE_AX12(2, 'L', BEARING_BALL_WHEEL_AX12),
         DECLARE_AX12(2, 'M', CYLINDER_PUSHER_LEFT_AX12),
         DECLARE_AX12(2, 'N', CYLINDER_PUSHER_RIGHT_AX12),
@@ -123,8 +123,8 @@ terminal_motor_s terminal_motor[] = {
         DECLARE_RX24(2, 'P', CYLINDER_ELEVATOR_RIGHT_RX24),
         DECLARE_RX24(2, 'Q', CYLINDER_SLIDER_LEFT_RX24),
         DECLARE_RX24(2, 'R', CYLINDER_SLIDER_RIGHT_RX24),
-        DECLARE_RX24(2, 'S', CYLINDER_TURN_LEFT_ARM_RX24),
-        DECLARE_RX24(2, 'T', CYLINDER_TURN_RIGHT_ARM_RX24),
+        DECLARE_RX24(2, 'S', CYLINDER_ARM_LEFT_RX24),
+        DECLARE_RX24(2, 'T', CYLINDER_ARM_RIGHT_RX24),
         DECLARE_RX24(2, 'U', ORE_WALL_RX24),
         DECLARE_AX12(2, 'V', ROCKET_AX12),
         DECLARE_RX24(2, 'W', CYLINDER_COLOR_LEFT_RX24),

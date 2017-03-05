@@ -26,20 +26,20 @@
 
 	#include "Harry/cylinder/cylinder_slope/cylinder_slope_left.h"
 	#include "Harry/cylinder/cylinder_slope/cylinder_slope_right.h"
-	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left.h"
-	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right.h"
+	#include "Harry/cylinder/cylinder_balancer/cylinder_balancer_left.h"
+	#include "Harry/cylinder/cylinder_balancer/cylinder_balancer_right.h"
     #include "Harry/cylinder/cylinder_pusher/cylinder_pusher_left.h"
     #include "Harry/cylinder/cylinder_pusher/cylinder_pusher_right.h"
     #include "Harry/cylinder/cylinder_elevator/cylinder_elevator_left.h"
     #include "Harry/cylinder/cylinder_elevator/cylinder_elevator_right.h"
     #include "Harry/cylinder/cylinder_slider/cylinder_slider_left.h"
     #include "Harry/cylinder/cylinder_slider/cylinder_slider_right.h"
-    #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_left_arm.h"
-    #include "Harry/cylinder/cylinder_turn_arm/cylinder_turn_right_arm.h"
+    #include "Harry/cylinder/cylinder_arm/cylinder_arm_left.h"
+    #include "Harry/cylinder/cylinder_arm/cylinder_arm_right.h"
 	#include "Harry/cylinder/cylinder_color/cylinder_color_left.h"
 	#include "Harry/cylinder/cylinder_color/cylinder_color_right.h"
-	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_left.h"
-	#include "Harry/cylinder/cylinder_dispenser/cylinder_dispenser_right.h"
+	#include "Harry/cylinder/cylinder_dispose/cylinder_dispose_left.h"
+	#include "Harry/cylinder/cylinder_dispose/cylinder_dispose_right.h"
 
 	#include "Harry/ore/ore_gun/ore_gun.h"
 	#include "Harry/ore/ore_wall/ore_wall.h"
@@ -81,16 +81,16 @@ static ACTQ_functions_t actionneurs[] = {
 
 		ACT_DECLARE(CYLINDER_SLOPE_LEFT),
 		ACT_DECLARE(CYLINDER_SLOPE_RIGHT),
-		ACT_DECLARE(CYLINDER_DISPENSER_LEFT),
-		ACT_DECLARE(CYLINDER_DISPENSER_RIGHT),
+		ACT_DECLARE(CYLINDER_BALANCER_LEFT),
+		ACT_DECLARE(CYLINDER_BALANCER_RIGHT),
         ACT_DECLARE(CYLINDER_PUSHER_LEFT),
         ACT_DECLARE(CYLINDER_PUSHER_RIGHT),
         ACT_DECLARE(CYLINDER_ELEVATOR_LEFT),
         ACT_DECLARE(CYLINDER_ELEVATOR_RIGHT),
         ACT_DECLARE(CYLINDER_SLIDER_LEFT),
         ACT_DECLARE(CYLINDER_SLIDER_RIGHT),
-        ACT_DECLARE(CYLINDER_TURN_LEFT_ARM),
-        ACT_DECLARE(CYLINDER_TURN_RIGHT_ARM),
+        ACT_DECLARE(CYLINDER_ARM_LEFT),
+        ACT_DECLARE(CYLINDER_ARM_RIGHT),
 		ACT_DECLARE(CYLINDER_COLOR_LEFT),
 		ACT_DECLARE(CYLINDER_COLOR_RIGHT),
 		ACT_DECLARE(CYLINDER_DISPOSE_LEFT),

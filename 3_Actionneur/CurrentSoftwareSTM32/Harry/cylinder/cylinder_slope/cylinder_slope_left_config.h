@@ -21,8 +21,8 @@
 
 //Position
 	#define CYLINDER_SLOPE_LEFT_AX12_IDLE_POS					512
-	#define CYLINDER_SLOPE_LEFT_AX12_LOCK_POS				    512		//en degré
-	#define CYLINDER_SLOPE_LEFT_AX12_UNLOCK_POS					512		//en degré
+	#define CYLINDER_SLOPE_LEFT_AX12_DOWN_POS				    512		//en degré
+	#define CYLINDER_SLOPE_LEFT_AX12_UP_POS						512		//en degré
 
 //Position initiale de l'AX12
 	#define CYLINDER_SLOPE_LEFT_AX12_INIT_POS					CYLINDER_SLOPE_LEFT_AX12_IDLE_POS
