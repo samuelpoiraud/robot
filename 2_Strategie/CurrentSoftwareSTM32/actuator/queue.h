@@ -54,19 +54,18 @@ typedef enum {
 
 
 	// Anne
-	//ACT_QUEUE_Left_arm,
 	ACT_QUEUE_Small_bearing_back_left,
 	ACT_QUEUE_Small_bearing_back_right,
 	ACT_QUEUE_Small_bearing_front_left,
 	ACT_QUEUE_Small_bearing_front_right,
 
 	//Mosfets actionneurs
-	ACT_QUEUE_Pompe_act_slider_left,
-	ACT_QUEUE_Pompe_act_slider_right,
-	ACT_QUEUE_Pompe_act_elevator_left,
-	ACT_QUEUE_Pompe_act_elevator_right,
-	ACT_QUEUE_Pompe_act_dispose_left,
-	ACT_QUEUE_Pompe_act_dispose_right,
+	ACT_QUEUE_Mosfet_act_1,
+	ACT_QUEUE_Mosfet_act_2,
+	ACT_QUEUE_Mosfet_act_3,
+	ACT_QUEUE_Mosfet_act_4,
+	ACT_QUEUE_Mosfet_act_5,
+	ACT_QUEUE_Mosfet_act_6,
 	ACT_QUEUE_Mosfet_act_7,
 	ACT_QUEUE_Mosfet_act_8,
 	ACT_QUEUE_Mosfet_act_multi,
@@ -84,7 +83,15 @@ typedef enum {
 
 	//Common
 
-	NB_QUEUE
+	NB_QUEUE,
+
+	ACT_QUEUE_Pompe_act_slider_left = ACT_QUEUE_Mosfet_act_1,
+	ACT_QUEUE_Pompe_act_slider_right = ACT_QUEUE_Mosfet_act_2,
+	ACT_QUEUE_Pompe_act_elevator_left = ACT_QUEUE_Mosfet_act_3,
+	ACT_QUEUE_Pompe_act_elevator_right = ACT_QUEUE_Mosfet_act_4,
+	ACT_QUEUE_Pompe_act_dispose_left = ACT_QUEUE_Mosfet_act_5,
+	ACT_QUEUE_Pompe_act_dispose_right = ACT_QUEUE_Mosfet_act_6
+
 } queue_id_e;
 
 #define ACT_ARG_NOTIMEOUT ((time32_t)-1)

@@ -65,7 +65,7 @@ error_e init_all_actionneur(){
 
 		case INIT_ACTION_SLOPE_RIGHT:
 			if(entrance){
-				ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
+				ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_DOWN);
 			}
 			state= check_act_status(ACT_QUEUE_Cylinder_slope_right, INIT_ACTION_SLOPE_RIGHT, INIT_ACTION_SLIDER_LEFT, ERROR);
 			break;
@@ -101,7 +101,7 @@ error_e init_all_actionneur(){
 
 		case INIT_ACTION_SLOPE_LEFT :
 			if(entrance){
-				ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
+				ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_DOWN);
 			}
 			state = check_act_status(ACT_QUEUE_Cylinder_slope_left, INIT_ACTION_SLOPE_LEFT, DONE, ERROR);
 			break;
@@ -271,7 +271,7 @@ error_e boucle_charge_module(moduleStockLocation_e nb_cylinder_big_right,moduleS
 
 				// on redescend en meme temps le clapet du cylindre precedent si il n'est pas bloque
 				if ((STOCKS_getNbModules(nb_cylinder_big_left)<4)){
-					ACT_push_order( ACT_CYLINDER_SLOPE_LEFT , ACT_CYLINDER_SLOPE_LEFT_UNLOCK );}}
+					ACT_push_order( ACT_CYLINDER_SLOPE_LEFT , ACT_CYLINDER_SLOPE_LEFT_DOWN );}}
 
 				//la on doit actionner le slider du cote de l'elevator pour qu'il parte en ALMOST_OUT
 				//le plus efficace serait-il d'utiliser Wait() plutot que de creer un nouveau case pour separer la monter en deux ? !!!
@@ -283,7 +283,7 @@ error_e boucle_charge_module(moduleStockLocation_e nb_cylinder_big_right,moduleS
 				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 				// vacuose
 				ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER );
-				if ((STOCKS_getNbModules(nb_cylinder_big_right)<4)){ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT , ACT_CYLINDER_SLOPE_RIGHT_UNLOCK );}}
+				if ((STOCKS_getNbModules(nb_cylinder_big_right)<4)){ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT , ACT_CYLINDER_SLOPE_RIGHT_DOWN );}}
 				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, ACTION_START_BRING_UP_CYLINDER,CHECK_STATUS_SLOPE, ERROR);
 			}break;
 
@@ -325,7 +325,7 @@ error_e boucle_charge_module(moduleStockLocation_e nb_cylinder_big_right,moduleS
 			if (right_side){
 				if (entrance) {
 				// on verouille le slope
-				ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT , ACT_CYLINDER_SLOPE_RIGHT_LOCK );
+				ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT , ACT_CYLINDER_SLOPE_RIGHT_UP );
 
 				//et en meme temps on prepare la collecte d'apres
 				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER );}
@@ -334,7 +334,7 @@ error_e boucle_charge_module(moduleStockLocation_e nb_cylinder_big_right,moduleS
 
 			}else{
 				if (entrance) {
-				ACT_push_order( ACT_CYLINDER_SLOPE_LEFT , ACT_CYLINDER_SLOPE_LEFT_LOCK );
+				ACT_push_order( ACT_CYLINDER_SLOPE_LEFT , ACT_CYLINDER_SLOPE_LEFT_UP );
 				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER );}
 				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, ACTION_STOCK_UP_CYLINDER, CHECK_STATUS_OTHER_SLINDER_3, ERROR);}
 			break;
@@ -559,11 +559,11 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			// Vérification des ordres effectués
 			if(moduleToTake == RIGHT){
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
-				state2 = check_act_status(ACT_QUEUE_Pompe_strat_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
+				state2 = check_act_status(ACT_QUEUE_Pompe_act_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
 				state3= check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}else{
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
-				state2 = check_act_status(ACT_QUEUE_Pompe_strat_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
+				state2 = check_act_status(ACT_QUEUE_Pompe_act_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
 				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
@@ -636,11 +636,11 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			// Vérification des ordres effectués
 			if(moduleToTake == RIGHT){
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
-				state2 = check_act_status(ACT_QUEUE_Pompe_strat_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
+				state2 = check_act_status(ACT_QUEUE_Pompe_act_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
 				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}else{
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
-				state2 = check_act_status(ACT_QUEUE_Pompe_strat_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
+				state2 = check_act_status(ACT_QUEUE_Pompe_act_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
 				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
@@ -764,7 +764,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 					// Si c'est possible, on prépare la SLOPE pour un futur stockage
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT)){
-						ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
+						ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_DOWN);
 					}
 				}else{
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
@@ -772,7 +772,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 					// Si c'est possible, on prépare la SLOPE pour un futur stockage
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT)){
-						ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
+						ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_DOWN);
 					}
 				}
 			}
@@ -1093,7 +1093,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 					// Si c'est possible, on prépare la SLOPE pour un futur stockage
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT)){
-						ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
+						ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_DOWN);
 					}
 
 					// On bouge le dispenser si possible
@@ -1108,7 +1108,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 					// Si c'est possible, on prépare la SLOPE pour un futur stockage
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT)){
-						ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
+						ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_DOWN);
 					}
 
 					// On bouge le dispenser si possible
@@ -1188,9 +1188,9 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 		case PREPARE_SLOPE_FOR_ELEVATOR:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UNLOCK);
+					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_DOWN);
 				}else{
-					ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UNLOCK);
+					ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_DOWN);
 				}
 			}
 
@@ -1237,10 +1237,10 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
-					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_LOCK);
+					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UP);
 				}else{
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
-					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_LOCK);
+					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UP);
 				}
 			}
 

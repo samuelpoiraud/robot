@@ -1014,11 +1014,17 @@
 		//-------------------------MOSFETS ACT--------------------------//
 		//////////////////////////////////////////////////////////////////
 
+		ACT_MOSFET_1				= (ACT_FILTER | 0x60),
 		ACT_POMPE_SLIDER_LEFT		= (ACT_FILTER | 0x60),
+		ACT_MOSFET_2				= (ACT_FILTER | 0x61),
 		ACT_POMPE_SLIDER_RIGHT		= (ACT_FILTER | 0x61),
+		ACT_MOSFET_3				= (ACT_FILTER | 0x62),
 		ACT_POMPE_ELEVATOR_LEFT		= (ACT_FILTER | 0x62),
+		ACT_MOSFET_4				= (ACT_FILTER | 0x63),
 		ACT_POMPE_ELEVATOR_RIGHT	= (ACT_FILTER | 0x63),
+		ACT_MOSFET_5				= (ACT_FILTER | 0x64),
 		ACT_POMPE_DISPOSE_LEFT		= (ACT_FILTER | 0x64),
+		ACT_MOSFET_6				= (ACT_FILTER | 0x65),
 		ACT_POMPE_DISPOSE_RIGHT		= (ACT_FILTER | 0x65),
 		ACT_MOSFET_7				= (ACT_FILTER | 0x66),
 		ACT_MOSFET_8			    = (ACT_FILTER | 0x67),
