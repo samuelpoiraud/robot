@@ -134,9 +134,11 @@ static void CYLINDER_ELEVATOR_LEFT_get_config(CAN_msg_t *incoming_msg){
 	switch(incoming_msg->data.act_msg.act_data.config){
 		case POSITION_CONFIG:
 			msg.data.act_get_config_answer.act_get_config_data.pos = CYLINDER_ELEVATOR_LEFT_get_position_config();
+			debug_printf("POSITION_CONFIG\n");
 			CAN_send(&msg); // Envoi du message CAN
 			break;
 		case SPEED_CONFIG:
+			debug_printf("SPEED_CONFIG\n");
 			msg.data.act_get_config_answer.act_get_config_data.speed = RX24_get_speed_percentage(CYLINDER_ELEVATOR_LEFT_RX24_ID);
 			CAN_send(&msg); // Envoi du message CAN
 			break;
@@ -303,6 +305,7 @@ static void CYLINDER_ELEVATOR_LEFT_set_warner(CAN_msg_t *msg){
 	switch(msg->data.act_msg.act_data.warner_pos){
 		case ACT_CYLINDER_ELEVATOR_LEFT_WARNER:
 			warner.warner_pos = CYLINDER_ELEVATOR_LEFT_RX24_WARNER_POS;
+			debug_printf("WARNER is set \n\n");
 			break;
 		default:{
 			warner.activated = FALSE;
@@ -329,6 +332,8 @@ static void CYLINDER_ELEVATOR_LEFT_check_warner(){
 
 		// Désactivation du warner
 		warner.activated = FALSE;
+
+		debug_printf("WARNER ANSWER SEND\n\n");
 	}
 
 	warner.last_pos = pos;

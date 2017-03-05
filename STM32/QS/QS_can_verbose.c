@@ -450,8 +450,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_CYLINDER_SLOPE_LEFT:
 						  switch(msg->data.act_result.cmd){
 							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_LOCK:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_UNLOCK:	print(string,len, "| UNLOCK |");	break;
+							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
+							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_UP:	print(string,len, "| UP |");	break;
 							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_STOP:	print(string,len, "| STOP |");			break;
 							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
 						  }
@@ -460,8 +460,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT:
 						  switch(msg->data.act_result.cmd){
 							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_DOWN:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_UNLOCK:	print(string,len, "| UNLOCK |");	break;
+							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
+							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_UP:		print(string,len, "| UP |");			break;
 							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_STOP:	print(string,len, "| STOP |");			break;
 							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
 						  }
@@ -490,8 +490,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 			     case (Uint8)ACT_CYLINDER_PUSHER_LEFT:
 						  switch(msg->data.act_result.cmd){
 							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_LOCK:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_UNLOCK:	print(string,len, "| UNLOCK |");	break;
+							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IN:		print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_OUT:		print(string,len, "| OUT |");	break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_STOP:	print(string,len, "| STOP |");			break;
 							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
 						  }
@@ -500,8 +500,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT:
 						  switch(msg->data.act_result.cmd){
 							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_LOCK:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_UNLOCK:	print(string,len, "| UNLOCK |");		break;
+							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_IN:		print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_OUT:	print(string,len, "| OUT |");		break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
 							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
