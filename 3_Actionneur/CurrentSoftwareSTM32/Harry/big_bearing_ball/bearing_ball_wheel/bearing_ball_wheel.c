@@ -52,7 +52,7 @@
 #include "bearing_ball_wheel_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "BEARING_BALL_WHEEL.c : "
+#define LOG_PREFIX "bearing_ball_wheel.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BEARING_BALL_WHEEL
 #include "../QS/QS_outputlog.h"
 
@@ -61,10 +61,10 @@ static void BEARING_BALL_WHEEL_command_run(queue_id_t queueId);
 static void BEARING_BALL_WHEEL_initAX12();
 static void BEARING_BALL_WHEEL_command_init(queue_id_t queueId);
 static void BEARING_BALL_WHEEL_set_config(CAN_msg_t* msg);
-static ACT_order_e BEARING_BALL_WHEEL_get_position_config();
+static void BEARING_BALL_WHEEL_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
 static void BEARING_BALL_WHEEL_get_config(CAN_msg_t *incoming_msg);
 static void BEARING_BALL_WHEEL_set_warner(CAN_msg_t *msg);
-static void BEARING_BALL_WHEEL_check_warner();
+static void BEARING_BALL_WHEEL_check_warner(Uint16 pos);
 
 // Booléen contenant l'état actuel de l'initialisation de l'AX12 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e ax12_is_initialized = FALSE;
@@ -125,6 +125,9 @@ void BEARING_BALL_WHEEL_set_config(CAN_msg_t* msg){
 }
 
 static void BEARING_BALL_WHEEL_get_config(CAN_msg_t *incoming_msg){
+	bool_e error = FALSE;
+	Uint16 pos = 0;;
+	ACT_order_e order = 0;
 	CAN_msg_t msg;
 	msg.sid = ACT_GET_CONFIG_ANSWER;
 	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
@@ -133,32 +136,47 @@ static void BEARING_BALL_WHEEL_get_config(CAN_msg_t *incoming_msg){
 
 	switch(incoming_msg->data.act_msg.act_data.config){
 		case POSITION_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.pos = BEARING_BALL_WHEEL_get_position_config();
-			CAN_send(&msg); // Envoi du message CAN
+			BEARING_BALL_WHEEL_get_position_config(&order, &pos);
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = order;
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = pos;
 			break;
-		case SPEED_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.speed = AX12_get_speed_percentage(BEARING_BALL_WHEEL_AX12_ID);
-			CAN_send(&msg); // Envoi du message CAN
+		case TORQUE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.torque = AX12_get_speed_percentage(BEARING_BALL_WHEEL_AX12_ID);
+			break;
+		case TEMPERATURE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.temperature = AX12_get_temperature(BEARING_BALL_WHEEL_AX12_ID);
+			break;
+		case LOAD_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.load = AX12_get_load_percentage(BEARING_BALL_WHEEL_AX12_ID);
 			break;
 		default:
+			error = TRUE;
 			warn_printf("This config is not available \n");
+	}
+
+	if(!error){
+		CAN_send(&msg); // Envoi du message CAN
 	}
 }
 
-static ACT_order_e BEARING_BALL_WHEEL_get_position_config(){
-	ACT_order_e current_state = ACT_BEARING_BALL_WHEEL_STOP;
+static void BEARING_BALL_WHEEL_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
+	ACT_order_e order = ACT_BEARING_BALL_WHEEL_STOP;
 	Uint16 position = AX12_get_position(BEARING_BALL_WHEEL_AX12_ID);
 	Uint16 epsilon = BEARING_BALL_WHEEL_AX12_ASSER_POS_EPSILON;
 
 	if(position > BEARING_BALL_WHEEL_AX12_UP_POS - epsilon && position < BEARING_BALL_WHEEL_AX12_UP_POS + epsilon){
-		current_state = ACT_BEARING_BALL_WHEEL_UP;
+		order = ACT_BEARING_BALL_WHEEL_UP;
 	}else if(position > BEARING_BALL_WHEEL_AX12_DOWN_POS - epsilon && position < BEARING_BALL_WHEEL_AX12_DOWN_POS + epsilon){
-		current_state = ACT_BEARING_BALL_WHEEL_DOWN;
+		order = ACT_BEARING_BALL_WHEEL_DOWN;
 	}else if(position > BEARING_BALL_WHEEL_AX12_IDLE_POS - epsilon && position < BEARING_BALL_WHEEL_AX12_IDLE_POS + epsilon){
-		current_state = ACT_BEARING_BALL_WHEEL_IDLE;
+		order = ACT_BEARING_BALL_WHEEL_IDLE;
 	}
 
-	return current_state;
+	if(pOrder != NULL)
+		*pOrder = order;
+
+	if(pPos != NULL)
+		*pPos = position;
 }
 
 // Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
@@ -284,12 +302,14 @@ static void BEARING_BALL_WHEEL_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-    if(ACTQ_check_status_ax12(queueId, BEARING_BALL_WHEEL_AX12_ID, QUEUE_get_arg(queueId)->param, BEARING_BALL_WHEEL_AX12_ASSER_POS_EPSILON, BEARING_BALL_WHEEL_AX12_ASSER_TIMEOUT, BEARING_BALL_WHEEL_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+	Uint16 pos = AX12_get_position(BEARING_BALL_WHEEL_AX12_ID);
+
+    if(ACTQ_check_status_ax12(queueId, BEARING_BALL_WHEEL_AX12_ID, QUEUE_get_arg(queueId)->param, pos, BEARING_BALL_WHEEL_AX12_ASSER_POS_EPSILON, BEARING_BALL_WHEEL_AX12_ASSER_TIMEOUT, BEARING_BALL_WHEEL_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
         QUEUE_next(queueId, ACT_BEARING_BALL_WHEEL, result, errorCode, line);
 
     // On ne surveille le warner que si il est activé
 	if(warner.activated)
-		BEARING_BALL_WHEEL_check_warner();
+		BEARING_BALL_WHEEL_check_warner(pos);
 }
 
 static void BEARING_BALL_WHEEL_set_warner(CAN_msg_t *msg){
@@ -307,10 +327,8 @@ static void BEARING_BALL_WHEEL_set_warner(CAN_msg_t *msg){
 	}
 }
 
-static void BEARING_BALL_WHEEL_check_warner(){
+static void BEARING_BALL_WHEEL_check_warner(Uint16 pos){
 	CAN_msg_t msg;
-
-	Uint16 pos = AX12_get_position(BEARING_BALL_WHEEL_AX12_ID);
 
 	if( (warner.last_pos < pos && warner.last_pos < warner.warner_pos && pos > warner.warner_pos)
      || (warner.last_pos > pos && warner.last_pos > warner.warner_pos && pos < warner.warner_pos)

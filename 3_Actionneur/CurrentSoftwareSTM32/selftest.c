@@ -259,12 +259,12 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
                         failed_act_tests[i] = SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT;
                         break;
 
-                    case ACT_CYLINDER_DISPENSER_LEFT:
-                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_DISPENSER_LEFT;
+                    case ACT_CYLINDER_BALANCER_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_BALANCER_LEFT;
                         break;
 
-                    case ACT_CYLINDER_DISPENSER_RIGHT:
-                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_DISPENSER_RIGHT;
+                    case ACT_CYLINDER_BALANCER_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT;
                         break;
 
                     case ACT_CYLINDER_ELEVATOR_LEFT:
@@ -299,12 +299,12 @@ static void SELFTEST_done_test(Uint11 act_sid, bool_e test_ok) {
                         failed_act_tests[i] = SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT;
                         break;
 
-                    case ACT_CYLINDER_TURN_LEFT_ARM:
-                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_LEFT;
+                    case ACT_CYLINDER_ARM_LEFT:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT;
                         break;
 
-                    case ACT_CYLINDER_TURN_RIGHT_ARM:
-                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_TURN_ARM_RIGHT;
+                    case ACT_CYLINDER_ARM_RIGHT:
+                        failed_act_tests[i] = SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT;
                         break;
 
                     case ACT_ORE_GUN:

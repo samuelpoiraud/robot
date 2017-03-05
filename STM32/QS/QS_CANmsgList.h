@@ -765,14 +765,19 @@
 			}act_boost_asser;
 
 		#define ACT_GET_CONFIG_ANSWER		0x21B
-		#define SIZE_ACT_GET_CONFIG_ANSWER	4
+		#define SIZE_ACT_GET_CONFIG_ANSWER	5
 			struct{
 				Uint16 sid						:8;
 				act_config_e config				:8;
 
 				union{
-					Uint16 pos					:16;
-					Uint16 speed				:16;
+					struct{
+						ACT_order_e order		:8;
+						Uint16 pos				:16;
+					}act_get_config_pos_answer;
+					Sint8 torque				:8;
+					Uint8 temperature			:8;
+					Sint8 load					:8;
 				}act_get_config_data;
 			}act_get_config_answer;
 
@@ -973,16 +978,16 @@
 
 		ACT_CYLINDER_SLOPE_LEFT			= (ACT_FILTER | 0x06),
 		ACT_CYLINDER_SLOPE_RIGHT		= (ACT_FILTER | 0x07),
-		ACT_CYLINDER_DISPENSER_LEFT		= (ACT_FILTER | 0x08),
-		ACT_CYLINDER_DISPENSER_RIGHT	= (ACT_FILTER | 0x09),
+		ACT_CYLINDER_BALANCER_LEFT		= (ACT_FILTER | 0x08),
+		ACT_CYLINDER_BALANCER_RIGHT		= (ACT_FILTER | 0x09),
         ACT_CYLINDER_PUSHER_LEFT		= (ACT_FILTER | 0x0A),
         ACT_CYLINDER_PUSHER_RIGHT       = (ACT_FILTER | 0x0B),
         ACT_CYLINDER_ELEVATOR_LEFT		= (ACT_FILTER | 0x0C),
         ACT_CYLINDER_ELEVATOR_RIGHT     = (ACT_FILTER | 0x0D),
         ACT_CYLINDER_SLIDER_LEFT		= (ACT_FILTER | 0x0E),
         ACT_CYLINDER_SLIDER_RIGHT       = (ACT_FILTER | 0x0F),
-        ACT_CYLINDER_TURN_LEFT_ARM		= (ACT_FILTER | 0x10),
-        ACT_CYLINDER_TURN_RIGHT_ARM     = (ACT_FILTER | 0x11),
+        ACT_CYLINDER_ARM_LEFT			= (ACT_FILTER | 0x10),
+        ACT_CYLINDER_ARM_RIGHT     		= (ACT_FILTER | 0x11),
 		ACT_CYLINDER_COLOR_LEFT			= (ACT_FILTER | 0x12),
 		ACT_CYLINDER_COLOR_RIGHT		= (ACT_FILTER | 0x13),
 		ACT_CYLINDER_DISPOSE_LEFT		= (ACT_FILTER | 0x14),

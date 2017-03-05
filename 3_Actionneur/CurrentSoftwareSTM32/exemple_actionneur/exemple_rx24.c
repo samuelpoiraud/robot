@@ -64,9 +64,9 @@ static void EXEMPLE_initRX24();
 static void EXEMPLE_command_init(queue_id_t queueId);
 static void EXEMPLE_set_config(CAN_msg_t* msg);
 static void EXEMPLE_get_config(CAN_msg_t *incoming_msg);
-static ACT_order_e EXEMPLE_get_position_config();
+static void EXEMPLE_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
 static void EXEMPLE_set_warner(CAN_msg_t *msg);
-static void EXEMPLE_check_warner();
+static void EXEMPLE_check_warner(Uint16 pos);
 
 // Booléen contenant l'état actuel de l'initialisation du RX24 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e rx24_is_initialized = FALSE;
@@ -128,6 +128,9 @@ void EXEMPLE_set_config(CAN_msg_t* msg){
 
 // Fonction permettant d'obtenir des infos de configuration du rx24 telle que la position ou la vitesse
 static void EXEMPLE_get_config(CAN_msg_t *incoming_msg){
+	bool_e error = FALSE;
+	Uint16 pos = 0;;
+	ACT_order_e order = 0;
 	CAN_msg_t msg;
 	msg.sid = ACT_GET_CONFIG_ANSWER;
 	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
@@ -136,34 +139,49 @@ static void EXEMPLE_get_config(CAN_msg_t *incoming_msg){
 
 	switch(incoming_msg->data.act_msg.act_data.config){
 		case POSITION_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.pos = EXEMPLE_get_position_config();
-			CAN_send(&msg); // Envoi du message CAN
+			EXEMPLE_get_position_config(&order, &pos);
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = order;
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = pos;
 			break;
-		case SPEED_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.speed = RX24_get_speed_percentage(EXEMPLE_RX24_ID);
-			CAN_send(&msg); // Envoi du message CAN
+		case TORQUE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.torque = RX24_get_speed_percentage(EXEMPLE_RX24_ID);
+			break;
+		case TEMPERATURE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.temperature = RX24_get_temperature(EXEMPLE_RX24_ID);
+			break;
+		case LOAD_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.load = RX24_get_load_percentage(EXEMPLE_RX24_ID);
 			break;
 		default:
+			error = TRUE;
 			warn_printf("This config is not available \n");
+	}
+
+	if(!error){
+		CAN_send(&msg); // Envoi du message CAN
 	}
 }
 
 // Fonction permettant d'obtenir la position du rx24 en tant que "ordre actionneur"
 // Cette fonction convertit la position du rx24 entre 0 et 1023 en une position en tant que "ordre actionneur"
-static ACT_order_e EXEMPLE_get_position_config(){
-	ACT_order_e current_state = ACT_EXEMPLE_STOP;
+static void EXEMPLE_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
+	ACT_order_e order = ACT_EXEMPLE_STOP;
 	Uint16 position = RX24_get_position(EXEMPLE_RX24_ID);
 	Uint16 epsilon = EXEMPLE_RX24_ASSER_POS_EPSILON;
 
 	if(position > EXEMPLE_RX24_LOCK_POS - epsilon && position < EXEMPLE_RX24_LOCK_POS + epsilon){
-		current_state = ACT_EXEMPLE_LOCK;
+		order = ACT_EXEMPLE_LOCK;
 	}else if(position > EXEMPLE_RX24_UNLOCK_POS - epsilon && position < EXEMPLE_RX24_UNLOCK_POS + epsilon){
-		current_state = ACT_EXEMPLE_UNLOCK;
+		order = ACT_EXEMPLE_UNLOCK;
 	}else if(position > EXEMPLE_RX24_IDLE_POS - epsilon && position < EXEMPLE_RX24_IDLE_POS + epsilon){
-		current_state = ACT_EXEMPLE_IDLE;
+		order = ACT_EXEMPLE_IDLE;
 	}
 
-	return current_state;
+	if(pOrder != NULL)
+		*pOrder = order;
+
+	if(pPos != NULL)
+		*pPos = position;
 }
 
 // Fonction appellée pour l'initialisation en position du rx24 dés l'arrivé de l'alimentation (via ActManager)
@@ -289,12 +307,14 @@ static void EXEMPLE_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	if(ACTQ_check_status_rx24(queueId, EXEMPLE_RX24_ID, QUEUE_get_arg(queueId)->param, EXEMPLE_RX24_ASSER_POS_EPSILON, EXEMPLE_RX24_ASSER_TIMEOUT, EXEMPLE_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+	Uint16 pos = RX24_get_position(EXEMPLE_RX24_ID);
+
+	if(ACTQ_check_status_rx24(queueId, EXEMPLE_RX24_ID, QUEUE_get_arg(queueId)->param, pos, EXEMPLE_RX24_ASSER_POS_EPSILON, EXEMPLE_RX24_ASSER_TIMEOUT, EXEMPLE_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_EXEMPLE, result, errorCode, line);
 
     // On ne surveille le warner que si il est activé
 	if(warner.activated)
-		EXEMPLE_check_warner();
+		EXEMPLE_check_warner(pos);
 }
 
 // Fonction permettant d'activer un warner sur une position du rx24
@@ -314,10 +334,8 @@ static void EXEMPLE_set_warner(CAN_msg_t *msg){
 }
 
 // Fonction permettant de vérifier si le warner est franchi lors du mouvement du rx24
-static void EXEMPLE_check_warner(){
+static void EXEMPLE_check_warner(Uint16 pos){
 	CAN_msg_t msg;
-
-	Uint16 pos = RX24_get_position(EXEMPLE_RX24_ID);
 
 	if( (warner.last_pos < pos && warner.last_pos < warner.warner_pos && pos > warner.warner_pos)
      || (warner.last_pos > pos && warner.last_pos > warner.warner_pos && pos < warner.warner_pos)

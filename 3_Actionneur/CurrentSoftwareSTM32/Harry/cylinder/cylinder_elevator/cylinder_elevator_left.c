@@ -52,7 +52,7 @@
 #include "cylinder_elevator_left_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "CYLINDER_ELEVATOR_LEFT.c : "
+#define LOG_PREFIX "cylinder_elevator_left.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CYLINDER_ELEVATOR_LEFT
 #include "../QS/QS_outputlog.h"
 
@@ -61,10 +61,10 @@ static void CYLINDER_ELEVATOR_LEFT_command_run(queue_id_t queueId);
 static void CYLINDER_ELEVATOR_LEFT_initRX24();
 static void CYLINDER_ELEVATOR_LEFT_command_init(queue_id_t queueId);
 static void CYLINDER_ELEVATOR_LEFT_set_config(CAN_msg_t* msg);
-static ACT_order_e CYLINDER_ELEVATOR_LEFT_get_position_config();
+static void CYLINDER_ELEVATOR_LEFT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
 static void CYLINDER_ELEVATOR_LEFT_get_config(CAN_msg_t *incoming_msg);
 static void CYLINDER_ELEVATOR_LEFT_set_warner(CAN_msg_t *msg);
-static void CYLINDER_ELEVATOR_LEFT_check_warner();
+static void CYLINDER_ELEVATOR_LEFT_check_warner(Uint16 pos);
 
 // Booléen contenant l'état actuel de l'initialisation du RX24 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e rx24_is_initialized = FALSE;
@@ -125,6 +125,9 @@ void CYLINDER_ELEVATOR_LEFT_set_config(CAN_msg_t* msg){
 }
 
 static void CYLINDER_ELEVATOR_LEFT_get_config(CAN_msg_t *incoming_msg){
+	bool_e error = FALSE;
+	Uint16 pos = 0;;
+	ACT_order_e order = 0;
 	CAN_msg_t msg;
 	msg.sid = ACT_GET_CONFIG_ANSWER;
 	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
@@ -133,36 +136,49 @@ static void CYLINDER_ELEVATOR_LEFT_get_config(CAN_msg_t *incoming_msg){
 
 	switch(incoming_msg->data.act_msg.act_data.config){
 		case POSITION_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.pos = CYLINDER_ELEVATOR_LEFT_get_position_config();
-			debug_printf("POSITION_CONFIG\n");
-			CAN_send(&msg); // Envoi du message CAN
+			CYLINDER_ELEVATOR_LEFT_get_position_config(&order, &pos);
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = order;
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = pos;
 			break;
-		case SPEED_CONFIG:
-			debug_printf("SPEED_CONFIG\n");
-			msg.data.act_get_config_answer.act_get_config_data.speed = RX24_get_speed_percentage(CYLINDER_ELEVATOR_LEFT_RX24_ID);
-			CAN_send(&msg); // Envoi du message CAN
+		case TORQUE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.torque = RX24_get_speed_percentage(CYLINDER_ELEVATOR_LEFT_RX24_ID);
+			break;
+		case TEMPERATURE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.temperature = RX24_get_temperature(CYLINDER_ELEVATOR_LEFT_RX24_ID);
+			break;
+		case LOAD_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.load = RX24_get_load_percentage(CYLINDER_ELEVATOR_LEFT_RX24_ID);
 			break;
 		default:
+			error = TRUE;
 			warn_printf("This config is not available \n");
+	}
+
+	if(!error){
+		CAN_send(&msg); // Envoi du message CAN
 	}
 }
 
-static ACT_order_e CYLINDER_ELEVATOR_LEFT_get_position_config(){
-	ACT_order_e current_state = ACT_CYLINDER_ELEVATOR_LEFT_STOP;
+static void CYLINDER_ELEVATOR_LEFT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
+	ACT_order_e order = ACT_CYLINDER_ELEVATOR_LEFT_STOP;
 	Uint16 position = RX24_get_position(CYLINDER_ELEVATOR_LEFT_RX24_ID);
 	Uint16 epsilon = CYLINDER_ELEVATOR_LEFT_RX24_ASSER_POS_EPSILON;
 
 	if(position > CYLINDER_ELEVATOR_LEFT_RX24_TOP_POS - epsilon && position < CYLINDER_ELEVATOR_LEFT_RX24_TOP_POS + epsilon){
-		current_state = ACT_CYLINDER_ELEVATOR_LEFT_TOP;
+		order = ACT_CYLINDER_ELEVATOR_LEFT_TOP;
 	}else if(position > CYLINDER_ELEVATOR_LEFT_RX24_BOTTOM_POS - epsilon && position < CYLINDER_ELEVATOR_LEFT_RX24_BOTTOM_POS + epsilon){
-		current_state = ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM;
+		order = ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM;
 	}else if(position > CYLINDER_ELEVATOR_LEFT_RX24_LOCK_WITH_CYLINDER_POS - epsilon && position < CYLINDER_ELEVATOR_LEFT_RX24_LOCK_WITH_CYLINDER_POS + epsilon){
-		current_state = ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER;
+		order = ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER;
 	}else if(position > CYLINDER_ELEVATOR_LEFT_RX24_IDLE_POS - epsilon && position < CYLINDER_ELEVATOR_LEFT_RX24_IDLE_POS + epsilon){
-		current_state = ACT_CYLINDER_ELEVATOR_LEFT_IDLE;
+		order = ACT_CYLINDER_ELEVATOR_LEFT_IDLE;
 	}
 
-	return current_state;
+	if(pOrder != NULL)
+		*pOrder = order;
+
+	if(pPos != NULL)
+		*pPos = position;
 }
 
 // Fonction appellée pour l'initialisation en position du rx24 dés l'arrivé de l'alimentation (via ActManager)
@@ -290,12 +306,14 @@ static void CYLINDER_ELEVATOR_LEFT_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-    if(ACTQ_check_status_rx24(queueId, CYLINDER_ELEVATOR_LEFT_RX24_ID, QUEUE_get_arg(queueId)->param, CYLINDER_ELEVATOR_LEFT_RX24_ASSER_POS_EPSILON, CYLINDER_ELEVATOR_LEFT_RX24_ASSER_TIMEOUT, CYLINDER_ELEVATOR_LEFT_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+	Uint16 pos = RX24_get_position(CYLINDER_ELEVATOR_LEFT_RX24_ID);
+
+    if(ACTQ_check_status_rx24(queueId, CYLINDER_ELEVATOR_LEFT_RX24_ID, QUEUE_get_arg(queueId)->param, pos, CYLINDER_ELEVATOR_LEFT_RX24_ASSER_POS_EPSILON, CYLINDER_ELEVATOR_LEFT_RX24_ASSER_TIMEOUT, CYLINDER_ELEVATOR_LEFT_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
         QUEUE_next(queueId, ACT_CYLINDER_ELEVATOR_LEFT, result, errorCode, line);
 
     // On ne surveille le warner que si il est activé
 	if(warner.activated)
-		CYLINDER_ELEVATOR_LEFT_check_warner();
+		CYLINDER_ELEVATOR_LEFT_check_warner(pos);
 }
 
 static void CYLINDER_ELEVATOR_LEFT_set_warner(CAN_msg_t *msg){
@@ -314,10 +332,8 @@ static void CYLINDER_ELEVATOR_LEFT_set_warner(CAN_msg_t *msg){
 	}
 }
 
-static void CYLINDER_ELEVATOR_LEFT_check_warner(){
+static void CYLINDER_ELEVATOR_LEFT_check_warner(Uint16 pos){
 	CAN_msg_t msg;
-
-	Uint16 pos = RX24_get_position(CYLINDER_ELEVATOR_LEFT_RX24_ID);
 
 	if( (warner.last_pos < pos && warner.last_pos < warner.warner_pos && pos > warner.warner_pos)
      || (warner.last_pos > pos && warner.last_pos > warner.warner_pos && pos < warner.warner_pos)

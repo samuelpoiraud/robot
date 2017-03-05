@@ -52,7 +52,7 @@
 #include "big_ball_front_left_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "BIG_BALL_FRONT_LEFT.c : "
+#define LOG_PREFIX "big_ball_front_left.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_BIG_BALL_FRONT_LEFT
 #include "../QS/QS_outputlog.h"
 
@@ -61,10 +61,10 @@ static void BIG_BALL_FRONT_LEFT_command_run(queue_id_t queueId);
 static void BIG_BALL_FRONT_LEFT_initAX12();
 static void BIG_BALL_FRONT_LEFT_command_init(queue_id_t queueId);
 static void BIG_BALL_FRONT_LEFT_set_config(CAN_msg_t* msg);
-static ACT_order_e BIG_BALL_FRONT_LEFT_get_position_config();
+static void BIG_BALL_FRONT_LEFT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
 static void BIG_BALL_FRONT_LEFT_get_config(CAN_msg_t *incoming_msg);
 static void BIG_BALL_FRONT_LEFT_set_warner(CAN_msg_t *msg);
-static void BIG_BALL_FRONT_LEFT_check_warner();
+static void BIG_BALL_FRONT_LEFT_check_warner(Uint16 pos);
 
 // Booléen contenant l'état actuel de l'initialisation de l'AX12 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e ax12_is_initialized = FALSE;
@@ -125,6 +125,9 @@ void BIG_BALL_FRONT_LEFT_set_config(CAN_msg_t* msg){
 }
 
 static void BIG_BALL_FRONT_LEFT_get_config(CAN_msg_t *incoming_msg){
+	bool_e error = FALSE;
+	Uint16 pos = 0;;
+	ACT_order_e order = 0;
 	CAN_msg_t msg;
 	msg.sid = ACT_GET_CONFIG_ANSWER;
 	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
@@ -133,32 +136,47 @@ static void BIG_BALL_FRONT_LEFT_get_config(CAN_msg_t *incoming_msg){
 
 	switch(incoming_msg->data.act_msg.act_data.config){
 		case POSITION_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.pos = BIG_BALL_FRONT_LEFT_get_position_config();
-			CAN_send(&msg); // Envoi du message CAN
+			BIG_BALL_FRONT_LEFT_get_position_config(&order, &pos);
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = order;
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = pos;
 			break;
-		case SPEED_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.speed = AX12_get_speed_percentage(BIG_BALL_FRONT_LEFT_AX12_ID);
-			CAN_send(&msg); // Envoi du message CAN
+		case TORQUE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.torque = AX12_get_speed_percentage(BIG_BALL_FRONT_LEFT_AX12_ID);
+			break;
+		case TEMPERATURE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.temperature = AX12_get_temperature(BIG_BALL_FRONT_LEFT_AX12_ID);
+			break;
+		case LOAD_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.load = AX12_get_load_percentage(BIG_BALL_FRONT_LEFT_AX12_ID);
 			break;
 		default:
+			error = TRUE;
 			warn_printf("This config is not available \n");
+	}
+
+	if(!error){
+		CAN_send(&msg); // Envoi du message CAN
 	}
 }
 
-static ACT_order_e BIG_BALL_FRONT_LEFT_get_position_config(){
-	ACT_order_e current_state = ACT_BIG_BALL_FRONT_LEFT_STOP;
+static void BIG_BALL_FRONT_LEFT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
+	ACT_order_e order = ACT_BIG_BALL_FRONT_LEFT_STOP;
 	Uint16 position = AX12_get_position(BIG_BALL_FRONT_LEFT_AX12_ID);
 	Uint16 epsilon = BIG_BALL_FRONT_LEFT_AX12_ASSER_POS_EPSILON;
 
 	if(position > BIG_BALL_FRONT_LEFT_AX12_UP_POS - epsilon && position < BIG_BALL_FRONT_LEFT_AX12_UP_POS + epsilon){
-		current_state = ACT_BIG_BALL_FRONT_LEFT_UP;
+		order = ACT_BIG_BALL_FRONT_LEFT_UP;
 	}else if(position > BIG_BALL_FRONT_LEFT_AX12_DOWN_POS - epsilon && position < BIG_BALL_FRONT_LEFT_AX12_DOWN_POS + epsilon){
-		current_state = ACT_BIG_BALL_FRONT_LEFT_DOWN;
+		order = ACT_BIG_BALL_FRONT_LEFT_DOWN;
 	}else if(position > BIG_BALL_FRONT_LEFT_AX12_IDLE_POS - epsilon && position < BIG_BALL_FRONT_LEFT_AX12_IDLE_POS + epsilon){
-		current_state = ACT_BIG_BALL_FRONT_LEFT_IDLE;
+		order = ACT_BIG_BALL_FRONT_LEFT_IDLE;
 	}
 
-	return current_state;
+	if(pOrder != NULL)
+		*pOrder = order;
+
+	if(pPos != NULL)
+		*pPos = position;
 }
 
 // Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
@@ -284,12 +302,14 @@ static void BIG_BALL_FRONT_LEFT_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-    if(ACTQ_check_status_ax12(queueId, BIG_BALL_FRONT_LEFT_AX12_ID, QUEUE_get_arg(queueId)->param, BIG_BALL_FRONT_LEFT_AX12_ASSER_POS_EPSILON, BIG_BALL_FRONT_LEFT_AX12_ASSER_TIMEOUT, BIG_BALL_FRONT_LEFT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+	Uint16 pos = AX12_get_position(BIG_BALL_FRONT_LEFT_AX12_ID);
+
+    if(ACTQ_check_status_ax12(queueId, BIG_BALL_FRONT_LEFT_AX12_ID, QUEUE_get_arg(queueId)->param, pos, BIG_BALL_FRONT_LEFT_AX12_ASSER_POS_EPSILON, BIG_BALL_FRONT_LEFT_AX12_ASSER_TIMEOUT, BIG_BALL_FRONT_LEFT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
         QUEUE_next(queueId, ACT_BIG_BALL_FRONT_LEFT, result, errorCode, line);
 
     // On ne surveille le warner que si il est activé
 	if(warner.activated)
-		BIG_BALL_FRONT_LEFT_check_warner();
+		BIG_BALL_FRONT_LEFT_check_warner(pos);
 }
 
 static void BIG_BALL_FRONT_LEFT_set_warner(CAN_msg_t *msg){
@@ -307,10 +327,8 @@ static void BIG_BALL_FRONT_LEFT_set_warner(CAN_msg_t *msg){
 	}
 }
 
-static void BIG_BALL_FRONT_LEFT_check_warner(){
+static void BIG_BALL_FRONT_LEFT_check_warner(Uint16 pos){
 	CAN_msg_t msg;
-
-	Uint16 pos = AX12_get_position(BIG_BALL_FRONT_LEFT_AX12_ID);
 
 	if( (warner.last_pos < pos && warner.last_pos < warner.warner_pos && pos > warner.warner_pos)
      || (warner.last_pos > pos && warner.last_pos > warner.warner_pos && pos < warner.warner_pos)

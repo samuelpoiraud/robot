@@ -52,7 +52,7 @@
 #include "cylinder_slope_right_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "CYLINDER_SLOPE_RIGHT.c : "
+#define LOG_PREFIX "cylinder_slope_right.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_CYLINDER_SLOPE_RIGHT
 #include "../QS/QS_outputlog.h"
 
@@ -61,10 +61,10 @@ static void CYLINDER_SLOPE_RIGHT_command_run(queue_id_t queueId);
 static void CYLINDER_SLOPE_RIGHT_initAX12();
 static void CYLINDER_SLOPE_RIGHT_command_init(queue_id_t queueId);
 static void CYLINDER_SLOPE_RIGHT_set_config(CAN_msg_t* msg);
-static ACT_order_e CYLINDER_SLOPE_RIGHT_get_position_config();
+static void CYLINDER_SLOPE_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
 static void CYLINDER_SLOPE_RIGHT_get_config(CAN_msg_t *incoming_msg);
 static void CYLINDER_SLOPE_RIGHT_set_warner(CAN_msg_t *msg);
-static void CYLINDER_SLOPE_RIGHT_check_warner();
+static void CYLINDER_SLOPE_RIGHT_check_warner(Uint16 pos);
 
 // Booléen contenant l'état actuel de l'initialisation de l'AX12 (Plusieurs booléens si plusieurs servo dans l'actionneur)
 static bool_e ax12_is_initialized = FALSE;
@@ -125,6 +125,9 @@ void CYLINDER_SLOPE_RIGHT_set_config(CAN_msg_t* msg){
 }
 
 static void CYLINDER_SLOPE_RIGHT_get_config(CAN_msg_t *incoming_msg){
+	bool_e error = FALSE;
+	Uint16 pos = 0;;
+	ACT_order_e order = 0;
 	CAN_msg_t msg;
 	msg.sid = ACT_GET_CONFIG_ANSWER;
 	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
@@ -133,32 +136,47 @@ static void CYLINDER_SLOPE_RIGHT_get_config(CAN_msg_t *incoming_msg){
 
 	switch(incoming_msg->data.act_msg.act_data.config){
 		case POSITION_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.pos = CYLINDER_SLOPE_RIGHT_get_position_config();
-			CAN_send(&msg); // Envoi du message CAN
+			CYLINDER_SLOPE_RIGHT_get_position_config(&order, &pos);
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = order;
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = pos;
 			break;
-		case SPEED_CONFIG:
-			msg.data.act_get_config_answer.act_get_config_data.speed = AX12_get_speed_percentage(CYLINDER_SLOPE_RIGHT_AX12_ID);
-			CAN_send(&msg); // Envoi du message CAN
+		case TORQUE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.torque = AX12_get_speed_percentage(CYLINDER_SLOPE_RIGHT_AX12_ID);
+			break;
+		case TEMPERATURE_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.temperature = AX12_get_temperature(CYLINDER_SLOPE_RIGHT_AX12_ID);
+			break;
+		case LOAD_CONFIG:
+			msg.data.act_get_config_answer.act_get_config_data.load = AX12_get_load_percentage(CYLINDER_SLOPE_RIGHT_AX12_ID);
 			break;
 		default:
+			error = TRUE;
 			warn_printf("This config is not available \n");
+	}
+
+	if(!error){
+		CAN_send(&msg); // Envoi du message CAN
 	}
 }
 
-static ACT_order_e CYLINDER_SLOPE_RIGHT_get_position_config(){
-	ACT_order_e current_state = ACT_CYLINDER_SLOPE_RIGHT_STOP;
+static void CYLINDER_SLOPE_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
+	ACT_order_e order = ACT_CYLINDER_SLOPE_RIGHT_STOP;
 	Uint16 position = AX12_get_position(CYLINDER_SLOPE_RIGHT_AX12_ID);
 	Uint16 epsilon = CYLINDER_SLOPE_RIGHT_AX12_ASSER_POS_EPSILON;
 
-	if(position > CYLINDER_SLOPE_RIGHT_AX12_LOCK_POS - epsilon && position < CYLINDER_SLOPE_RIGHT_AX12_LOCK_POS + epsilon){
-		current_state = ACT_CYLINDER_SLOPE_RIGHT_LOCK;
-	}else if(position > CYLINDER_SLOPE_RIGHT_AX12_UNLOCK_POS - epsilon && position < CYLINDER_SLOPE_RIGHT_AX12_UNLOCK_POS + epsilon){
-		current_state = ACT_CYLINDER_SLOPE_RIGHT_UNLOCK;
+	if(position > CYLINDER_SLOPE_RIGHT_AX12_DOWN_POS - epsilon && position < CYLINDER_SLOPE_RIGHT_AX12_DOWN_POS + epsilon){
+		order = ACT_CYLINDER_SLOPE_RIGHT_DOWN;
+	}else if(position > CYLINDER_SLOPE_RIGHT_AX12_UP_POS - epsilon && position < CYLINDER_SLOPE_RIGHT_AX12_UP_POS + epsilon){
+		order = ACT_CYLINDER_SLOPE_RIGHT_UP;
 	}else if(position > CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS - epsilon && position < CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS + epsilon){
-		current_state = ACT_CYLINDER_SLOPE_RIGHT_IDLE;
+		order = ACT_CYLINDER_SLOPE_RIGHT_IDLE;
 	}
 
-	return current_state;
+	if(pOrder != NULL)
+		*pOrder = order;
+
+	if(pPos != NULL)
+		*pPos = position;
 }
 
 // Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
@@ -187,8 +205,8 @@ bool_e CYLINDER_SLOPE_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CYLINDER_SLOPE_RIGHT_IDLE :
-			case ACT_CYLINDER_SLOPE_RIGHT_LOCK :
-			case ACT_CYLINDER_SLOPE_RIGHT_UNLOCK :
+			case ACT_CYLINDER_SLOPE_RIGHT_DOWN :
+			case ACT_CYLINDER_SLOPE_RIGHT_UP :
 			case ACT_CYLINDER_SLOPE_RIGHT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CYLINDER_SLOPE_RIGHT, &CYLINDER_SLOPE_RIGHT_run_command, 0,TRUE);
 				break;
@@ -242,8 +260,8 @@ static void CYLINDER_SLOPE_RIGHT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_CYLINDER_SLOPE_RIGHT_IDLE : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS; break;
-		case ACT_CYLINDER_SLOPE_RIGHT_LOCK : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_LOCK_POS; break;
-		case ACT_CYLINDER_SLOPE_RIGHT_UNLOCK : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_UNLOCK_POS; break;
+		case ACT_CYLINDER_SLOPE_RIGHT_DOWN : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_DOWN_POS; break;
+		case ACT_CYLINDER_SLOPE_RIGHT_UP : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_UP_POS; break;
 
 		case ACT_CYLINDER_SLOPE_RIGHT_STOP :
 			AX12_set_torque_enabled(CYLINDER_SLOPE_RIGHT_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
@@ -284,12 +302,14 @@ static void CYLINDER_SLOPE_RIGHT_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	if(ACTQ_check_status_ax12(queueId, CYLINDER_SLOPE_RIGHT_AX12_ID, QUEUE_get_arg(queueId)->param, CYLINDER_SLOPE_RIGHT_AX12_ASSER_POS_EPSILON, CYLINDER_SLOPE_RIGHT_AX12_ASSER_TIMEOUT, CYLINDER_SLOPE_RIGHT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+	Uint16 pos = AX12_get_position(CYLINDER_SLOPE_RIGHT_AX12_ID);
+
+	if(ACTQ_check_status_ax12(queueId, CYLINDER_SLOPE_RIGHT_AX12_ID, QUEUE_get_arg(queueId)->param, pos, CYLINDER_SLOPE_RIGHT_AX12_ASSER_POS_EPSILON, CYLINDER_SLOPE_RIGHT_AX12_ASSER_TIMEOUT, CYLINDER_SLOPE_RIGHT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_CYLINDER_SLOPE_RIGHT, result, errorCode, line);
 
 	// On ne surveille le warner que si il est activé
 	if(warner.activated)
-		CYLINDER_SLOPE_RIGHT_check_warner();
+		CYLINDER_SLOPE_RIGHT_check_warner(pos);
 }
 
 static void CYLINDER_SLOPE_RIGHT_set_warner(CAN_msg_t *msg){
@@ -307,10 +327,8 @@ static void CYLINDER_SLOPE_RIGHT_set_warner(CAN_msg_t *msg){
 	}
 }
 
-static void CYLINDER_SLOPE_RIGHT_check_warner(){
+static void CYLINDER_SLOPE_RIGHT_check_warner(Uint16 pos){
 	CAN_msg_t msg;
-
-	Uint16 pos = AX12_get_position(CYLINDER_SLOPE_RIGHT_AX12_ID);
 
 	if( (warner.last_pos < pos && warner.last_pos < warner.warner_pos && pos > warner.warner_pos)
      || (warner.last_pos > pos && warner.last_pos > warner.warner_pos && pos < warner.warner_pos)

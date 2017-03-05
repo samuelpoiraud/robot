@@ -986,11 +986,11 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 			if(entrance){
 				// On remet le dispenser en position LOCK
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order( ACT_CYLINDER_DISPENSER_RIGHT, ACT_CYLINDER_DISPENSER_RIGHT_LOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT, FALSE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT, MODULE_STOCK_RIGHT);
 				}else{
-					ACT_push_order( ACT_CYLINDER_DISPENSER_LEFT, ACT_CYLINDER_DISPENSER_LEFT_LOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_LEFT_OUT, FALSE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT, MODULE_STOCK_LEFT);
 				}
@@ -1014,11 +1014,11 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 			if(entrance){
 				// On fait descendre un module grâce au dispenser
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order( ACT_CYLINDER_DISPENSER_RIGHT, ACT_CYLINDER_DISPENSER_RIGHT_UNLOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT, TRUE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_IN_TO_DISPENSER, MODULE_STOCK_RIGHT);
 				}else{
-					ACT_push_order( ACT_CYLINDER_DISPENSER_LEFT, ACT_CYLINDER_DISPENSER_LEFT_UNLOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_LEFT_OUT, TRUE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_IN_TO_DISPENSER, MODULE_STOCK_LEFT);
 				}
@@ -1043,11 +1043,11 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 			if(entrance){
 				// On remet le dispenser en position LOCK
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order( ACT_CYLINDER_DISPENSER_RIGHT, ACT_CYLINDER_DISPENSER_RIGHT_LOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT, FALSE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT, MODULE_STOCK_RIGHT);
 				}else{
-					ACT_push_order( ACT_CYLINDER_DISPENSER_LEFT, ACT_CYLINDER_DISPENSER_LEFT_LOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_LEFT_OUT, FALSE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT, MODULE_STOCK_LEFT);
 				}
@@ -1098,7 +1098,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 					// On bouge le dispenser si possible
 					if(!ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT) && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_1_TO_OUT, MODULE_STOCK_RIGHT)){
-						ACT_push_order( ACT_CYLINDER_DISPENSER_RIGHT, ACT_CYLINDER_DISPENSER_RIGHT_UNLOCK);
+						ACT_push_order( ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
 						ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT, TRUE);
 						STOCKS_makeModuleProgressTo(STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT, MODULE_STOCK_RIGHT);
 					}
@@ -1113,7 +1113,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 					// On bouge le dispenser si possible
 					if(!ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_LEFT_OUT) && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_1_TO_OUT, MODULE_STOCK_LEFT)){
-						ACT_push_order( ACT_CYLINDER_DISPENSER_LEFT, ACT_CYLINDER_DISPENSER_LEFT_UNLOCK);
+						ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
 						ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_LEFT_OUT, TRUE);
 						STOCKS_makeModuleProgressTo(STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT, MODULE_STOCK_LEFT);
 					}
@@ -1161,7 +1161,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 					// On bouge le dispenser si possible
 					if(ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT)){
-						ACT_push_order( ACT_CYLINDER_DISPENSER_RIGHT, ACT_CYLINDER_DISPENSER_RIGHT_LOCK);
+						ACT_push_order( ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 						ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT, FALSE);
 						STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_IN_TO_DISPENSER, MODULE_STOCK_RIGHT);
 					}
@@ -1170,7 +1170,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 					// On bouge le dispenser si possible
 					if(ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_LEFT_OUT)){
-						ACT_push_order( ACT_CYLINDER_DISPENSER_LEFT, ACT_CYLINDER_DISPENSER_LEFT_LOCK);
+						ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 						ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_LEFT_OUT, FALSE);
 						STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_IN_TO_DISPENSER, MODULE_STOCK_LEFT);
 					}
@@ -1209,7 +1209,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 					// On bouge le dispenser si possible
 					if(ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT)){
-						ACT_push_order( ACT_CYLINDER_DISPENSER_RIGHT, ACT_CYLINDER_DISPENSER_RIGHT_LOCK);
+						ACT_push_order( ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 						ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT, FALSE);
 						STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_IN_TO_DISPENSER, MODULE_STOCK_RIGHT);
 					}
@@ -1218,7 +1218,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 					// On bouge le dispenser si possible
 					if(ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_LEFT_OUT)){
-						ACT_push_order( ACT_CYLINDER_DISPENSER_LEFT, ACT_CYLINDER_DISPENSER_LEFT_LOCK);
+						ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 						ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_LEFT_OUT, FALSE);
 						STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_IN_TO_DISPENSER, MODULE_STOCK_LEFT);
 					}
@@ -1291,11 +1291,11 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 			if(entrance){
 				// On fait descendre un module grâce au dispenser
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order( ACT_CYLINDER_DISPENSER_RIGHT, ACT_CYLINDER_DISPENSER_RIGHT_UNLOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT, TRUE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT, MODULE_STOCK_RIGHT);
 				}else{
-					ACT_push_order( ACT_CYLINDER_DISPENSER_LEFT, ACT_CYLINDER_DISPENSER_LEFT_UNLOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_LEFT_OUT, TRUE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT, MODULE_STOCK_LEFT);
 				}
@@ -1303,9 +1303,9 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_dispenser_right, state, WAIT_DISPENSER_TO_END, ERROR_DISABLE_ACT);
+				state = check_act_status(ACT_QUEUE_Cylinder_balnacer_right, state, WAIT_DISPENSER_TO_END, ERROR_DISABLE_ACT);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_dispenser_left, state, WAIT_DISPENSER_TO_END, ERROR_DISABLE_ACT);
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, WAIT_DISPENSER_TO_END, ERROR_DISABLE_ACT);
 			}
 			break;
 
@@ -1317,11 +1317,11 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 			if(entrance){
 				// On remet le dispenser en position LOCK
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order( ACT_CYLINDER_DISPENSER_RIGHT, ACT_CYLINDER_DISPENSER_RIGHT_LOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT, FALSE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_IN_TO_DISPENSER, MODULE_STOCK_RIGHT);
 				}else{
-					ACT_push_order( ACT_CYLINDER_DISPENSER_LEFT, ACT_CYLINDER_DISPENSER_LEFT_LOCK);
+					ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 					ELEMENTS_set_flag(FLAG_HARRY_DISPENSER_LEFT_OUT, FALSE);
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_IN_TO_DISPENSER, MODULE_STOCK_LEFT);
 				}
@@ -1329,9 +1329,9 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_dispenser_right, state, DONE, DONE);	// On considère que c'est ok
+				state = check_act_status(ACT_QUEUE_Cylinder_balnacer_right, state, DONE, DONE);	// On considère que c'est ok
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_dispenser_left, state, DONE, DONE);		// On considère que c'est ok
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, DONE, DONE);		// On considère que c'est ok
 			}
 			break;
 

@@ -210,16 +210,16 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 		case  ACT_CYLINDER_SLOPE_LEFT:					print(string, len, "%x  ACT_CYLINDER_SLOPE_LEFT               ",  ACT_CYLINDER_SLOPE_LEFT						);	break;
 		case  ACT_CYLINDER_SLOPE_RIGHT:					print(string, len, "%x  ACT_CYLINDER_SLOPE_RIGHT              ",  ACT_CYLINDER_SLOPE_RIGHT						);	break;
-		case  ACT_CYLINDER_DISPENSER_LEFT:				print(string, len, "%x  ACT_CYLINDER_DISPENSER_LEFT           ",  ACT_CYLINDER_DISPENSER_LEFT					);	break;
-		case  ACT_CYLINDER_DISPENSER_RIGHT:				print(string, len, "%x  ACT_CYLINDER_DISPENSER_RIGHT          ",  ACT_CYLINDER_DISPENSER_RIGHT					);	break;
+		case  ACT_CYLINDER_BALANCER_LEFT:				print(string, len, "%x  ACT_CYLINDER_BALANCER_LEFT           ",  ACT_CYLINDER_BALANCER_LEFT						);	break;
+		case  ACT_CYLINDER_BALANCER_RIGHT:				print(string, len, "%x  ACT_CYLINDER_BALANCER_RIGHT          ",  ACT_CYLINDER_BALANCER_RIGHT					);	break;
 		case  ACT_CYLINDER_PUSHER_LEFT:					print(string, len, "%x  ACT_CYLINDER_PUSHER_LEFT           	  ",  ACT_CYLINDER_PUSHER_LEFT						);	break;
 		case  ACT_CYLINDER_PUSHER_RIGHT:				print(string, len, "%x  ACT_CYLINDER_PUSHER_RIGHT          	  ",  ACT_CYLINDER_PUSHER_RIGHT						);	break;
 		case  ACT_CYLINDER_ELEVATOR_LEFT:				print(string, len, "%x  ACT_CYLINDER_ELEVATOR_LEFT            ",  ACT_CYLINDER_ELEVATOR_LEFT					);	break;
 		case  ACT_CYLINDER_ELEVATOR_RIGHT:				print(string, len, "%x  ACT_CYLINDER_ELEVATOR_RIGHT           ",  ACT_CYLINDER_ELEVATOR_RIGHT					);	break;
 		case  ACT_CYLINDER_SLIDER_LEFT:					print(string, len, "%x  ACT_CYLINDER_SLIDER_LEFT              ",  ACT_CYLINDER_SLIDER_LEFT						);	break;
 	    case  ACT_CYLINDER_SLIDER_RIGHT:				print(string, len, "%x  ACT_CYLINDER_SLIDER_RIGHT             ",  ACT_CYLINDER_SLIDER_RIGHT						);	break;
-	    case  ACT_CYLINDER_TURN_LEFT_ARM:				print(string, len, "%x  ACT_CYLINDER_TURN_LEFT_ARM            ",  ACT_CYLINDER_TURN_LEFT_ARM					);	break;
-	    case  ACT_CYLINDER_TURN_RIGHT_ARM:				print(string, len, "%x  ACT_CYLINDER_TURN_RIGHT_ARM           ",  ACT_CYLINDER_TURN_RIGHT_ARM					);	break;
+	    case  ACT_CYLINDER_ARM_LEFT:					print(string, len, "%x  ACT_CYLINDER_ARM_LEFT     			  ",  ACT_CYLINDER_ARM_LEFT 						);	break;
+	    case  ACT_CYLINDER_ARM_RIGHT:					print(string, len, "%x  ACT_CYLINDER_ARM_RIGHT          	  ",  ACT_CYLINDER_ARM_RIGHT						);	break;
 	    case  ACT_CYLINDER_COLOR_LEFT:					print(string, len, "%x  ACT_CYLINDER_COLOR_LEFT            	  ",  ACT_CYLINDER_COLOR_LEFT						);	break;
 	    case  ACT_CYLINDER_COLOR_RIGHT:					print(string, len, "%x  ACT_CYLINDER_COLOR_RIGHT           	  ",  ACT_CYLINDER_COLOR_RIGHT						);	break;
 	    case  ACT_CYLINDER_DISPOSE_LEFT:				print(string, len, "%x  ACT_CYLINDER_DISPOSE_LEFT             ",  ACT_CYLINDER_DISPOSE_LEFT						);	break;
@@ -341,16 +341,16 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				case (Uint8)ACT_CYLINDER_SLOPE_LEFT:	    	print(string,len, "ACT_CYLINDER_SLOPE_LEFT ");		break;
 				case (Uint8)ACT_CYLINDER_SLOPE_RIGHT:	    	print(string,len, "ACT_CYLINDER_SLOPE_RIGHT ");		break;
-				case (Uint8)ACT_CYLINDER_DISPENSER_LEFT:	    print(string,len, "ACT_CYLINDER_DISPENSER_LEFT ");	break;
-				case (Uint8)ACT_CYLINDER_DISPENSER_RIGHT:	    print(string,len, "ACT_CYLINDER_DISPENSER_RIGHT ");	break;
+				case (Uint8)ACT_CYLINDER_BALANCER_LEFT:	    	print(string,len, "ACT_CYLINDER_BALANCER_LEFT ");	break;
+				case (Uint8)ACT_CYLINDER_BALANCER_RIGHT:	    print(string,len, "ACT_CYLINDER_BALANCER_RIGHT ");	break;
 				case (Uint8)ACT_CYLINDER_PUSHER_LEFT:	    	print(string,len, "ACT_CYLINDER_PUSHER_LEFT ");		break;
 				case (Uint8)ACT_CYLINDER_PUSHER_RIGHT:	    	print(string,len, "ACT_CYLINDER_PUSHER_RIGHT ");	break;
 				case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT:	    	print(string,len, "ACT_CYLINDER_ELEVATOR_LEFT ");	break;
 				case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT:	    print(string,len, "ACT_CYLINDER_ELEVATOR_RIGHT ");	break;
 				case (Uint8)ACT_CYLINDER_SLIDER_LEFT:	    	print(string,len, "ACT_CYLINDER_SLIDER_LEFT ");		break;
 				case (Uint8)ACT_CYLINDER_SLIDER_RIGHT:	    	print(string,len, "ACT_CYLINDER_SLIDER_RIGHT ");	break;
-				case (Uint8)ACT_CYLINDER_TURN_LEFT_ARM:	    	print(string,len, "ACT_CYLINDER_TURN_LEFT_ARM ");	break;
-				case (Uint8)ACT_CYLINDER_TURN_RIGHT_ARM:	    print(string,len, "ACT_CYLINDER_TURN_RIGHT_ARM ");	break;
+				case (Uint8)ACT_CYLINDER_ARM_LEFT:	    		print(string,len, "ACT_CYLINDER_ARM_LEFT ");		break;
+				case (Uint8)ACT_CYLINDER_ARM_RIGHT:	    		print(string,len, "ACT_CYLINDER_ARM_RIGHT ");		break;
 				case (Uint8)ACT_CYLINDER_COLOR_LEFT:	    	print(string,len, "ACT_CYLINDER_COLOR_LEFT ");		break;
 				case (Uint8)ACT_CYLINDER_COLOR_RIGHT:	    	print(string,len, "ACT_CYLINDER_COLOR_RIGHT ");		break;
 				case (Uint8)ACT_CYLINDER_DISPOSE_LEFT:	    	print(string,len, "ACT_CYLINDER_DISPOSE_LEFT ");	break;
@@ -467,22 +467,22 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  }
 				  break;
 
-				  case (Uint8)ACT_CYLINDER_DISPENSER_LEFT:
+				  case (Uint8)ACT_CYLINDER_BALANCER_LEFT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_DISPENSER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_DISPENSER_LEFT_LOCK:	print(string,len, "| LOCK |");			break;
-						  	  case (Uint8)ACT_CYLINDER_DISPENSER_LEFT_UNLOCK:	print(string,len, "| UNLOCK |");	break;
-						  	  case (Uint8)ACT_CYLINDER_DISPENSER_LEFT_STOP:	print(string,len, "| STOP |");			break;
+						  	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+						  	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IN:	print(string,len, "| IN |");			break;
+						  	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_OUT:	print(string,len, "| OUT |");			break;
+						  	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_STOP:	print(string,len, "| STOP |");			break;
 						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 			  	  break;
 
-				  case (Uint8)ACT_CYLINDER_DISPENSER_RIGHT:
+				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT:
 						  switch(msg->data.act_result.cmd){
-					  	  	  case (Uint8)ACT_CYLINDER_DISPENSER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-					  	  	  case (Uint8)ACT_CYLINDER_DISPENSER_RIGHT_LOCK:	print(string,len, "| LOCK |");			break;
-					  	  	  case (Uint8)ACT_CYLINDER_DISPENSER_RIGHT_UNLOCK:	print(string,len, "| UNLOCK |");		break;
-					  	  	  case (Uint8)ACT_CYLINDER_DISPENSER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+					  	  	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
+					  	  	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IN:	print(string,len, "| IN |");			break;
+					  	  	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_OUT:	print(string,len, "| OUT |");			break;
+					  	  	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
 					  	  	  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
@@ -555,22 +555,22 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 
 
-				  case (Uint8)ACT_CYLINDER_TURN_LEFT_ARM:
+				  case (Uint8)ACT_CYLINDER_ARM_LEFT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_TURN_LEFT_ARM_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_TURN_LEFT_ARM_LOCK:	print(string,len, "| LOCK |");			break;
-						  	  case (Uint8)ACT_CYLINDER_TURN_LEFT_ARM_UNLOCK:print(string,len, "| UNLOCK |");		break;
-						  	  case (Uint8)ACT_CYLINDER_TURN_LEFT_ARM_STOP:	print(string,len, "| STOP |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_IN:		print(string,len, "| IN |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_OUT:	print(string,len, "| OUT |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_STOP:	print(string,len, "| STOP |");			break;
 						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
-				  case (Uint8)ACT_CYLINDER_TURN_RIGHT_ARM:
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_TURN_RIGHT_ARM_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_TURN_RIGHT_ARM_LOCK:	print(string,len, "| LOCK |");			break;
-						  	  case (Uint8)ACT_CYLINDER_TURN_RIGHT_ARM_UNLOCK:	print(string,len, "| UNLOCK |");	break;
-						  	  case (Uint8)ACT_CYLINDER_TURN_RIGHT_ARM_STOP:	print(string,len, "| STOP |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IN:	print(string,len, "| IN |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_OUT:	print(string,len, "| OUT |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_STOP:	print(string,len, "| STOP |");			break;
 						  	  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
