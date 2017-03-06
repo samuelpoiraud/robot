@@ -41,6 +41,7 @@
 	error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);
 	error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side);
 	error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side);
+	error_e sub_harry_prise_modules_manager();
 	error_e sub_harry_rocket_monocolor();
 	error_e init_all_actionneur();
 	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket);
