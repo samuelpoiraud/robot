@@ -1303,7 +1303,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_balnacer_right, state, WAIT_DISPENSER_TO_END, ERROR_DISABLE_ACT);
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, WAIT_DISPENSER_TO_END, ERROR_DISABLE_ACT);
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, WAIT_DISPENSER_TO_END, ERROR_DISABLE_ACT);
 			}
@@ -1329,7 +1329,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_balnacer_right, state, DONE, DONE);	// On considère que c'est ok
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, DONE, DONE);	// On considère que c'est ok
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, DONE, DONE);		// On considère que c'est ok
 			}

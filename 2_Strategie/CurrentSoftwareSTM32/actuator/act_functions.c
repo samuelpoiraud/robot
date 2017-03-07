@@ -46,7 +46,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
     {ACT_BIG_BALL_BACK_RIGHT,			ACT_QUEUE_Big_bearing_back_right,		"Bearing ball back right"},
 
     {ACT_CYLINDER_BALANCER_LEFT,		ACT_QUEUE_Cylinder_balancer_left,		"Cylinder dispenser left"},
-    {ACT_CYLINDER_BALANCER_RIGHT,		ACT_QUEUE_Cylinder_balnacer_right,		"Cylinder dispenser right"},
+    {ACT_CYLINDER_BALANCER_RIGHT,		ACT_QUEUE_Cylinder_balancer_right,		"Cylinder dispenser right"},
     {ACT_CYLINDER_ELEVATOR_LEFT,		ACT_QUEUE_Cylinder_elevator_left,		"Cylinder elevator left"},
     {ACT_CYLINDER_ELEVATOR_RIGHT,		ACT_QUEUE_Cylinder_elevator_right,		"Cylinder elevator right"},
     {ACT_CYLINDER_PUSHER_LEFT,			ACT_QUEUE_Cylinder_pusher_left,			"Cylinder pusher left"},
