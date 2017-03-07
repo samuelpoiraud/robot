@@ -19,6 +19,8 @@ error_e sub_harry_manager_defence() {
 			DONE
 		);
 
+#warning erreur de déclaration :Déclarer MAE dans QS_stateMachineHelper();
+
 	static bool_e activate_our_depose_zone = TRUE;
 	static bool_e activate_midddle_depose_zone = TRUE;
 

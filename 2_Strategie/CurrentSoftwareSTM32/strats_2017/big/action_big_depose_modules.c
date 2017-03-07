@@ -343,6 +343,14 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 		//VERIFICATION_ACTIONNEUR a faire!!!!
 		//faire Procedure de depose
 
+	/*
+	 * Tu peux créer une autre sub pour tes get_in/déplacements
+	 *
+	 * Pour voir si tu as un module, tu utilises la fonction STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, param );
+	 * Si ça t'intéresse elle est utilisée dans le fichier action_big_act_modules.c dans la sub sub_act_harry_mae_modules()
+	 *
+	 * Autre commentaire : line 455
+	 */
 
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_SIDE,
 			INIT,
@@ -444,6 +452,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 		case INIT:
 			if(entrance){
 				if(global.color==BLUE){
+/*
+ * c est la variable modules (param de ta sub) qui te permet de savoir si on va dans OUR_ELEMENT ou ADV_ELEMENT
+ * De base OUR_ELEMENT vaut 1 et sera donc toujours vrai
+ */
 					if(OUR_ELEMENT){
 						endroit_depose = OUEST;
 					}

@@ -23,6 +23,9 @@ error_e sub_harry_manager_put_off_ore(){
 			DONE
 		);
 
+#warning erreur de déclaration :Déclarer MAE dans QS_stateMachineHelper();
+#warning Gérer la couleur dans l init de cette sub
+
 	switch(state){
 		case INIT:
 			//regarde ou est le mechant si bloque je fait l'autre
@@ -36,6 +39,7 @@ error_e sub_harry_manager_put_off_ore(){
 				else if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
 					state = FIRST_POS;
 				}
+#warning La deuxième partie de la condition ci-dessous est actuellement inutile (déjà vu dans le cas précédent)
 				else if((foe_in_square(TRUE, 300, 800, 800, 1320, FOE_TYPE_ALL)==FALSE)||(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// rien ne bloque le tire alternatif
 					state = SECOND_POS;
 				}
@@ -113,6 +117,8 @@ error_e sub_harry_depose_minerais(){
 		case INIT:
 			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
+#warning CYLINDER_SOUTH_UNI correspond au cylindre du côté opposé à la zone de départ, il n empêche pas la dépose des minerais\
+	peut-être vaut il mieux checker le FLAG_SUB_ANNE_TAKE_CYLINDER_NORTH_UNI en cas de dépose alternative
 			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)||(ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)))){
 				state=ERROR;
 			}else{
