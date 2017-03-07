@@ -23,6 +23,7 @@
 	#define STRAT_FILTER				0x200
 	#define ACT_FILTER					0x300
 	#define BALISE_FILTER				0x400
+	#define MOSFET_FILTER				0x500
 	#define IHM_FILTER					0x600
 	#define DEBUG_FILTER				0x700
 
@@ -786,6 +787,33 @@
 			struct{
 				Uint16 sid						:8;
 			}act_warner_answer;
+
+
+	/**********************************************************************************************************************
+	 **********************************************************************************************************************
+	 **										Carte Strat <-> Carte Act													 **
+	 **********************************************************************************************************************
+	 *********************************************************************************************************************/
+
+		#define MOSFET_BOARD_SET_MOSFET						0x500
+		#define SIZE_MOSFET_BOARD_SET_MOSFET				1
+			struct{
+				Uint8 id									:4;			// De 0 à 7
+				bool_e state								:1;
+			}mosfet_board_set_mosfet;
+
+		#define MOSFET_BOARD_GET_MOSFET_CURRENT_STATE		0x501
+		#define SIZE_MOSFET_BOARD_GET_MOSFET_CURRENT_STATE	1
+			struct{
+				Uint8 id									:4;			// De 0 à 7
+			}mosfet_board_get_mosfet_state;
+
+		#define MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE		0x502
+		#define SIZE_MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE	1
+			struct{
+				Uint8 id									:4;			// De 0 à 7
+				MOSFET_BOARD_CURRENT_MEASURE_state_e state	:4;
+			}mosfet_board_tell_mosfet_state;
 
 
 	/**********************************************************************************************************************
