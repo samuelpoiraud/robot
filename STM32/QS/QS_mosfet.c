@@ -86,6 +86,7 @@ bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
 	msg_result.data.act_result.cmd = msg->data.act_msg.order;
 	msg_result.data.act_result.result = ACT_RESULT_DONE;
 	msg_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;
+	UNUSED_VAR(msg_result);
 #endif
 
 	switch(msg->sid){
@@ -470,6 +471,8 @@ bool_e MOSFET_do_order_multi(CAN_msg_t* new_msg){
 	static bool_e entrance;
 	static CAN_msg_t *msg;
 	Uint8 command;
+
+	UNUSED_VAR(command);
 
 	if(new_msg != NULL){
 		msg = new_msg;
