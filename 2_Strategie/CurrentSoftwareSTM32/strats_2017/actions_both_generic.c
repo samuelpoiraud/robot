@@ -1160,9 +1160,9 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, bool_e get_
 				  )
 				&& (
 					(QS_WHO_AM_I_get() == SMALL_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
-					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD)
+					|| (QS_WHO_AM_I_get() == SMALL_ROBOT && sens == BACKWARD && RECALAGE_AR_G && RECALAGE_AR_D)
 					|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == FORWARD && RECALAGE_AV_G && RECALAGE_AV_D)
-					|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD)
+					|| (QS_WHO_AM_I_get() == BIG_ROBOT && sens == BACKWARD && RECALAGE_AR_G && RECALAGE_AR_D)
 				   )
 				)
 			{

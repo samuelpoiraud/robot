@@ -166,18 +166,18 @@
 
 	#define PORT_IO_C_1			PORT_IO_INPUT
 	#define PORT_OPT_C_1		PORT_OPT_NO_PULL
-		#define RECALAGE_AV_G		!GPIOC->IDR1
+		//
 
 	#define PORT_IO_C_2			PORT_IO_INPUT
 	#define PORT_OPT_C_2		PORT_OPT_NO_PULL
-		#define RECALAGE_AV_D		!GPIOC->IDR2
+		#define RECALAGE_AR_G		!GPIOC->IDR2
 
 	#define PORT_IO_C_3			PORT_IO_INPUT
 	#define PORT_OPT_C_3		PORT_OPT_NO_PULL
 
 	#define PORT_IO_C_4			PORT_IO_INPUT
 	#define PORT_OPT_C_4		PORT_OPT_NO_PULL
-		#define WT100_CENTER_TOP	!GPIOC->IDR4		//Pearl
+		#define RECALAGE_AR_D		!GPIOC->IDR2
 
 	#define PORT_IO_C_5			PORT_IO_INPUT
 	#define PORT_OPT_C_5		PORT_OPT_NO_PULL
@@ -365,7 +365,7 @@
 	#define PORT_OPT_E_15		PORT_OPT_NO_PULL
 		//
 
-#define RECALAGE_AR_D		1
-#define RECALAGE_AR_G		1
+#define RECALAGE_AV_D		1
+#define RECALAGE_AV_G		1
 
 #endif /* CONFIG_PIN_H */
