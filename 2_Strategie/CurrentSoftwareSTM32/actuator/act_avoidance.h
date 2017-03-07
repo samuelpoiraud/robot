@@ -20,13 +20,41 @@ typedef struct{
 
 #define ACT_AVOID_NB_MAX_CMD		5
 
+typedef enum {
+	ACT_AVOID_PUSHER_LEFT_Out
+} ACT_AVOID_PUSHER_LEFT_CMD;
 
-//EXEMPLE
-//typedef enum {
-//	ACT_AVOID_EXEMPLE_Open,
-//	ACT_AVOID_EXEMPLE_Close
-//} ACT_AVOID_EXEMPLE_CMD;
+typedef enum {
+	ACT_AVOID_PUSHER_RIGHT_Out
+} ACT_AVOID_PUSHER_RIGHT_CMD;
 
+typedef enum {
+	ACT_AVOID_SLIDER_LEFT_Out,
+	ACT_AVOID_SLIDER_LEFT_Almost_out,
+	ACT_AVOID_SLIDER_LEFT_Almost_out_with_cylinder
+} ACT_AVOID_SLIDER_LEFT_CMD;
+
+typedef enum {
+	ACT_AVOID_SLIDER_RIGHT_Out,
+	ACT_AVOID_SLIDER_RIGHT_Almost_out,
+	ACT_AVOID_SLIDER_RIGHT_Almost_out_with_cylinder
+} ACT_AVOID_SLIDER_RIGHT_CMD;
+
+typedef enum {
+	ACT_AVOID_ARM_LEFT_Out
+} ACT_AVOID_ARM_LEFT_CMD;
+
+typedef enum {
+	ACT_AVOID_ARM_RIGHT_Out
+} ACT_AVOID_ARM_RIGHT_CMD;
+
+typedef enum {
+	ACT_AVOID_ORE_GUN_Down
+} ACT_AVOID_ORE_GUN_CMD;
+
+typedef enum {
+	ACT_AVOID_ORE_ROLLER_ARM_Out
+} ACT_AVOID_ORE_ROLLER_ARM_CMD;
 
 
 void ACT_AVOIDANCE_init();

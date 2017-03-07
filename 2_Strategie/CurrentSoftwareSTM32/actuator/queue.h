@@ -30,7 +30,7 @@ typedef enum {
 	ACT_QUEUE_Big_bearing_front_right,
 
 	ACT_QUEUE_Cylinder_balancer_left,
-	ACT_QUEUE_Cylinder_balnacer_right,
+	ACT_QUEUE_Cylinder_balancer_right,
 	ACT_QUEUE_Cylinder_elevator_left,
 	ACT_QUEUE_Cylinder_elevator_right,
 	ACT_QUEUE_Cylinder_pusher_left,
