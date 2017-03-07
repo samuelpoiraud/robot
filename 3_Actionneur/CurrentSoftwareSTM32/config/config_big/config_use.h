@@ -51,7 +51,7 @@
 
 
 /* Réglages de la carte Mosfets*/
-	//#define USE_MOSFETS_MODULE
+	#define USE_MOSFETS_MODULE
 	//#define USE_MOSFET_1
 	//#define USE_MOSFET_2
 	//#define USE_MOSFET_3
