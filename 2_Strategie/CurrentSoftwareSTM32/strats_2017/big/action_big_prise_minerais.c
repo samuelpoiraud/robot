@@ -162,6 +162,7 @@ error_e sub_act_big_take(){
 			DONE
 		);
 
+#warning erreur de déclaration :Déclarer MAE dans QS_stateMachineHelper();
 	switch(state){
 		case INIT:{
 
@@ -223,6 +224,8 @@ error_e sub_act_big_off(){
 			ERROR,
 			DONE
 		);
+
+#warning erreur de déclaration :Déclarer MAE dans QS_stateMachineHelper();
 
 	switch(state){
 		case INIT:{
