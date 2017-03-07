@@ -31,6 +31,8 @@
 	#define MY_FILTER	BALISE_FILTER
 #elif defined I_AM_CARTE_IHM
 	#define MY_FILTER	IHM_FILTER
+#elif defined I_AM_CARTE_MOSFET
+	#define MY_FILTER	MOSFET_FILTER
 #elif defined I_AM_CARTE_BEACON_EYE	//(I_AM == I_AM_CARTE_BEACON_EYE)
 
 #else
