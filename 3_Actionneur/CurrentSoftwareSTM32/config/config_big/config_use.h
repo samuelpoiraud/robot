@@ -19,8 +19,8 @@
 /* Réglages PWM */
 	#define USE_PWM_MODULE
 		#define PWM_FREQ	50000
-	//	#define USE_PWM1
-	//	#define USE_PWM2
+		#define USE_PWM3	// Moteur rouleau
+		#define USE_PWM4	// Moteur tourniquet
 
 /* Réglages DC Speed */
 	//#define USE_DC_MOTOR_SPEED
@@ -46,18 +46,21 @@
 	//#define USE_QUEI2
 
 /* Réglages ADC */
+	#define USE_AN9
+	#define ADC_MOSFETS_5V		ADC_9
+
 
 /* Réglages de la carte Mosfets*/
-	#define USE_MOSFETS_MODULE
-	#define USE_MOSFET_1
-	#define USE_MOSFET_2
-	#define USE_MOSFET_3
-	#define USE_MOSFET_4
-	//	 #define USE_MOSFET_5
-	//	 #define USE_MOSFET_6
-	//	 #define USE_MOSFET_7
-	//	 #define USE_MOSFET_8
-	//	 #define USE_MOSFET_MULTI
+	//#define USE_MOSFETS_MODULE
+	//#define USE_MOSFET_1
+	//#define USE_MOSFET_2
+	//#define USE_MOSFET_3
+	//#define USE_MOSFET_4
+	//#define USE_MOSFET_5
+	//#define USE_MOSFET_6
+	//#define USE_MOSFET_7
+	//#define USE_MOSFET_8
+	//#define USE_MOSFET_MULTI
 
 
 #endif /* BIG_CONFIG_USE_H */
