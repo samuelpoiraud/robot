@@ -41,7 +41,7 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed
 void SEQUENCES_calibrate(void)
 {
 #ifndef SIMULATION_VIRTUAL_PERFECT_ROBOT	// Pour ne pas avoir de warning
-	//Sint16 x, y, teta;
+	Sint16 x, y, teta;
 #endif
 	color_e color;
 	color = ODOMETRY_get_color();
@@ -63,8 +63,31 @@ void SEQUENCES_calibrate(void)
 #else
 	if(QS_WHO_AM_I_get() == BIG_ROBOT)
 	{
-/*      //2015
+		//2017
 		//Eloignement de la bordure
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 150, 0, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, BACKWARD, NOT_BORDER_MODE, PROP_END_AT_POINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE, AVOID_DISABLED, 0);
+
+		//angle d'écartement
+		if(color == BOT_COLOR) //BLUE
+			teta = PI4096*5/4;
+		else
+			teta = -PI4096*5/4;
+		ROADMAP_add_order(TRAJECTORY_ROTATION, 0, 0, teta, PROP_ABSOLUTE, PROP_END_OF_BUFFER, BACKWARD /*sens*/, NOT_BORDER_MODE, PROP_END_AT_POINT, SLOW, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE, AVOID_DISABLED, 1);
+
+		//position sur l'axe de calage
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 200, 200, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, BACKWARD /*sens*/, NOT_BORDER_MODE, PROP_END_AT_POINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE, AVOID_DISABLED, 2);
+
+		//angle de calage
+		if(color == BOT_COLOR) //BLUE
+					teta = PI4096*19/16;
+				else
+					teta = -PI4096*19/16;
+				ROADMAP_add_order(TRAJECTORY_ROTATION, 0, 0, teta, PROP_ABSOLUTE, PROP_END_OF_BUFFER, FORWARD /*sens inverse*/, NOT_BORDER_MODE, PROP_END_AT_POINT, SLOW, ACKNOWLEDGE_CALIBRATION, CORRECTOR_ENABLE, AVOID_DISABLED, 3);
+
+		//position de calage
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, BIG_CALIBRATION_FORWARD_BORDER_DISTANCE+30, 1050-(BIG_ROBOT_WIDTH/2), 0, PROP_ABSOLUTE, PROP_END_OF_BUFFER, FORWARD /*sens inverse*/, NOT_BORDER_MODE, PROP_END_AT_POINT, FAST, NO_ACKNOWLEDGE, CORRECTOR_ENABLE, AVOID_DISABLED, 4);
+/*
+		//2015
 		if(color == BOT_COLOR)
 			y = 150;
 		else
