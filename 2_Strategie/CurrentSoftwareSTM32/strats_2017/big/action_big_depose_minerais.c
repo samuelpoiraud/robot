@@ -13,7 +13,7 @@
 
 
 error_e sub_harry_manager_put_off_ore(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_END_OF_MATCH,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_ORE_DEPOSE_MANAGER,
 			INIT,
 			FIRST_POS,
 			SECOND_POS,
@@ -23,8 +23,6 @@ error_e sub_harry_manager_put_off_ore(){
 			DONE
 		);
 
-#warning erreur de déclaration :Déclarer MAE dans QS_stateMachineHelper();
-#warning Gérer la couleur dans l init de cette sub
 
 	switch(state){
 		case INIT:
@@ -32,15 +30,14 @@ error_e sub_harry_manager_put_off_ore(){
 			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
 			}else{
-				if((foe_in_square(TRUE, 0, 0, 360, 360, FOE_TYPE_ALL)==TRUE)&&(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// il y a notre autre robot qui bloque le cassier depuis la zone de départ
+				if((foe_in_square(TRUE, 0, 0, COLOR_Y(360), COLOR_Y(360), FOE_TYPE_ALL)==TRUE)&&(foe_in_square(TRUE, 400, 850, COLOR_Y(30), COLOR_Y(600), FOE_TYPE_ALL)==FALSE)){		// il y a notre autre robot qui bloque le cassier depuis la zone de départ
 					// on ne pourra pas tiré dans le panier !
-					state = ERROR; //le robot ne peut pas tirer de balles , il tire quand même !
+					state = ERROR; //le robot ne peut pas tirer de balles , il tire quand même ?
 				}
-				else if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
+				else if(foe_in_square(TRUE, 400, 850, COLOR_Y(30), COLOR_Y(600), FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
 					state = FIRST_POS;
 				}
-#warning La deuxième partie de la condition ci-dessous est actuellement inutile (déjà vu dans le cas précédent)
-				else if((foe_in_square(TRUE, 300, 800, 800, 1320, FOE_TYPE_ALL)==FALSE)||(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE)){		// rien ne bloque le tire alternatif
+				else if(foe_in_square(TRUE, 300, 800, COLOR_Y(800), COLOR_Y(1320), FOE_TYPE_ALL)==FALSE){		// rien ne bloque le tire alternatif
 					state = SECOND_POS;
 				}
 				else{
@@ -58,7 +55,7 @@ error_e sub_harry_manager_put_off_ore(){
 			break;
 
 		case ERROR_FIRST_POS:	//si je n'ai pas reussi à tirer en normal
-			if(foe_in_square(TRUE, 300, 800, 800, 1320, FOE_TYPE_ALL)==FALSE){
+			if(foe_in_square(TRUE, 300, 800, COLOR_Y(800), COLOR_Y(1320), FOE_TYPE_ALL)==FALSE){
 				state = SECOND_POS;
 			}else{
 				state = ERROR;
@@ -66,7 +63,7 @@ error_e sub_harry_manager_put_off_ore(){
 			break;
 
 		case ERROR_SECOND_POS: //si je n'ai pas reussi à tirer en alternatif
-			if(foe_in_square(TRUE, 400, 850, 30, 600, FOE_TYPE_ALL)==FALSE){
+			if(foe_in_square(TRUE, 400, 850, COLOR_Y(30), COLOR_Y(600), FOE_TYPE_ALL)==FALSE){
 				state = FIRST_POS;
 			}else{
 				state = ERROR;

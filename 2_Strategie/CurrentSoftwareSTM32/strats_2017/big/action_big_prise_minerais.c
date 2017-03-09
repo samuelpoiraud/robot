@@ -10,7 +10,7 @@
 #include "../../actuator/queue.h"
 #include "../../utils/actionChecker.h"
 
-// flag de  sub l'autre robot
+// flag de  sub l'autre robot, crater south
 
 error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT / ADV_ELEMENT
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER,
@@ -156,13 +156,12 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 }
 //sub actionneurs
 error_e sub_act_big_take(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_END_OF_MATCH,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_START_TAKE,
 			INIT,
 			ERROR,
 			DONE
 		);
 
-#warning erreur de déclaration :Déclarer MAE dans QS_stateMachineHelper();
 	switch(state){
 		case INIT:{
 
@@ -219,13 +218,12 @@ error_e sub_act_big_take(){
 
 
 error_e sub_act_big_off(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_END_OF_MATCH,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_END_OF_STRAT,
 			INIT,
 			ERROR,
 			DONE
 		);
 
-#warning erreur de déclaration :Déclarer MAE dans QS_stateMachineHelper();
 
 	switch(state){
 		case INIT:{
