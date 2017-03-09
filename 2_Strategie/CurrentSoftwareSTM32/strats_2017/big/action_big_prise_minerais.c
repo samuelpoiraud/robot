@@ -748,7 +748,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 	error_e sub_harry_take_big_crater_yellow_corner(){
 		CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW_CORNER,
 				INIT,
-
+				COLLECT_YELLOW_CORNER_POS,
 				COLLECT_YELLOW_CORNER_LINE,
 				COLLECT_YELLOW_CORNER_ACTIVATE,
 				COLLECT_YELLOW_CORNER_MOVE_FOWARD,
@@ -763,6 +763,18 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 	switch(state){
 		case INIT:
+			if((global.color == YELLOW)&&(!ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN))){
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_south(NO_SIDE),state, COLLECT_YELLOW_CORNER_POS, ERROR);
+			}
+			else if((global.color == BLUE)&&(!ELEMENTS_get_flag(FLAG_ADV_UNICOLOR_SOUTH_IS_TAKEN))){
+				state = ERROR;//pas possible
+			}
+			else{
+				state=COLLECT_YELLOW_CORNER_POS;
+			}
+			break;
+
+		case COLLECT_YELLOW_CORNER_POS:
 			state = try_going(1780, 2200, state, COLLECT_YELLOW_CORNER_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
@@ -1194,7 +1206,7 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 error_e sub_harry_take_big_crater_blue_corner(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE_CORNER,
 			INIT,
-
+			COLLECT_BLUE_CORNER_POS,
 			COLLECT_BLUE_CORNER_LINE,
 			COLLECT_BLUE_CORNER_ACTIVATE,
 			COLLECT_BLUE_CORNER_MOVE_FOWARD,
@@ -1209,6 +1221,18 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 	switch(state){
 		case INIT:
+			if((global.color == BLUE)&&(!ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN))){
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_south(NO_SIDE),state, COLLECT_BLUE_CORNER_POS, ERROR);
+			}
+			else if((global.color == YELLOW)&&(!ELEMENTS_get_flag(FLAG_ADV_UNICOLOR_SOUTH_IS_TAKEN))){
+				state = ERROR;//pas possible
+			}
+			else{
+				state=COLLECT_BLUE_CORNER_POS;
+			}
+			break;
+
+		case COLLECT_BLUE_CORNER_POS:
 			state = try_going(1780, 800, state, COLLECT_BLUE_CORNER_LINE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 

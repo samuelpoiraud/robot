@@ -15,6 +15,8 @@
 error_e sub_harry_manager_put_off_ore(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_ORE_DEPOSE_MANAGER,
 			INIT,
+			MODULE_IN_WAY_TO_FIRST_POS,
+			MODULE_IN_WAY_TO_SECOND_POS,
 			FIRST_POS,
 			SECOND_POS,
 			ERROR_FIRST_POS,
@@ -35,10 +37,10 @@ error_e sub_harry_manager_put_off_ore(){
 					state = ERROR; //le robot ne peut pas tirer de balles , il tire quand même ?
 				}
 				else if(foe_in_square(TRUE, 400, 850, COLOR_Y(30), COLOR_Y(600), FOE_TYPE_ALL)==FALSE){	 // il n'y a pas un adv dans la zone
-					state = FIRST_POS;
+					state = MODULE_IN_WAY_TO_FIRST_POS;
 				}
 				else if(foe_in_square(TRUE, 300, 800, COLOR_Y(800), COLOR_Y(1320), FOE_TYPE_ALL)==FALSE){		// rien ne bloque le tire alternatif
-					state = SECOND_POS;
+					state = MODULE_IN_WAY_TO_SECOND_POS;
 				}
 				else{
 					state = ERROR; //tire impossible pour le moment !
@@ -46,8 +48,26 @@ error_e sub_harry_manager_put_off_ore(){
 			}
 			break;
 
+		case MODULE_IN_WAY_TO_FIRST_POS:
+			if(!ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN)){
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_north(NO_SIDE),state, FIRST_POS, ERROR_FIRST_POS);
+			}
+			else{
+				state=FIRST_POS;
+			}
+			break;
+
 		case FIRST_POS:
-			state=check_sub_action_result(sub_harry_depose_minerais(),state, DONE, ERROR_FIRST_POS);
+				state=check_sub_action_result(sub_harry_depose_minerais(),state, DONE, ERROR_FIRST_POS);
+			break;
+
+		case MODULE_IN_WAY_TO_SECOND_POS:
+			if(!ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_north(NO_SIDE),state, SECOND_POS, ERROR_SECOND_POS);
+			}
+			else{
+				state=SECOND_POS;
+			}
 			break;
 
 		case SECOND_POS:
