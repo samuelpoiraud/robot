@@ -336,7 +336,7 @@ error_e sub_harry_get_in_adv_side_depose_modules_centre(){
 
 
 
-error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
+error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side){
 	//liste de ce que je dois faire:
 		//gérer les actionneurs pour la dépose
 		//DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS ACT_push_order...
@@ -389,35 +389,36 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 		//Maintenant on peut ajouter des cylindres:    ENFIN!
 			CHOIX_DE_COTE_DEPOSE,
 
-		//Procedure de depose OUEST:
-			ROTATION_MODULE_OUEST,
-			PREPARATION_NEXT_MODULE_FOR_ROTATION_OUEST,
-			TAKE_MODULE_OUEST,
-			POMPE_ACTIVATION_OUEST,
-			DROP_MODULE_OUEST,
-			POMPE_STOP_OUEST,
-			PUSHER_DOWN_OUEST,
 
+//Procedure de depose partie comune à l'ouset et l'est:
+			PREPARATION_NEXT,
+			ROTATION_MODULE,
+			TAKE_MODULE,
+			POMPE_ACTIVATION,
+			DROP_MODULE,
+			POMPE_STOP,
+
+//Procedure de depose OUEST:
+
+			PREPARATION_PUSHER_OUEST,
+			PUSHER_DOWN_OUEST,
 			PUSH_MODULES_OUEST,
+			PUSHER_UP_OUEST,
 			PUSH_MODULES_RETURN_TO_POSITION_OUEST,
 
-			PUSHER_UP_OUEST,
 			DROP_PUT_AWAY_OUEST,
 
 		//Procedure de depose EST:
-			ROTATION_MODULE_EST,
-			PREPARATION_NEXT_MODULE_FOR_ROTATION_EST,
-			TAKE_MODULE_EST,
-			POMPE_ACTIVATION_EST,
-			DROP_MODULE_EST,
-			POMPE_STOP_EST,
-			PUSHER_DOWN_EST,
 
+			PREPARATION_PUSHER_EST,
+			PUSHER_DOWN_EST,
 			PUSH_MODULES_EST,
+			PUSHER_UP_EST,
 			PUSH_MODULES_RETURN_TO_POSITION_EST,
 
-			PUSHER_UP_EST,
 			DROP_PUT_AWAY_EST,
+
+
 
 		//Procédure de fin de sub!!!!
 			VERIFICATION_ACTIONNEUR,
@@ -442,21 +443,38 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 		NORD = 0,
 		SUD = 1
 	}POINT_DE_ROTATION_config_e;
-	POINT_DE_ROTATION_config_e mon_point_de_rotation = SUD;
-	endroit_depose = OUEST;
+	POINT_DE_ROTATION_config_e mon_point_de_rotation;
 
+
+	typedef enum{
+		DROITE = 0,
+		GAUCHE = 1
+	}COTE_DE_DEPOSE_config_e;
+	COTE_DE_DEPOSE_config_e cote_depose;
+
+	mon_point_de_rotation = SUD;
+	endroit_depose = OUEST;
+	cote_depose = DROITE;
 
 	switch(state){
 		// Vérifier la présance de cylindre dans le robot... je sais pas faire... nul!
 
 		case INIT:
 			if(entrance){
+				// Vérifier la présance de cylindre dans le robot:
+				if(robot_side==LEFT){
+					if(STOCKS_isEmpty(MODULE_STOCK_LEFT)){
+						state = DONE;
+					}
+				}
+				if(robot_side==RIGHT){
+					if(STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
+						state = DONE;
+					}
+				}
+
 				if(global.color==BLUE){
-/*
- * c est la variable modules (param de ta sub) qui te permet de savoir si on va dans OUR_ELEMENT ou ADV_ELEMENT
- * De base OUR_ELEMENT vaut 1 et sera donc toujours vrai
- */
-					if(OUR_ELEMENT){
+					if(basis_side==OUR_SIDE){
 						endroit_depose = OUEST;
 					}
 					else {
@@ -464,7 +482,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 					}
 				}
 				else {
-					if(OUR_ELEMENT){
+					if(basis_side==OUR_SIDE){
 						endroit_depose = EST;
 					}
 					else {
@@ -920,48 +938,193 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules){
 				//else
 					//state = try_go_angle(PI4096, state, state, ERROR, FAST, FORWARD, END_AT_LAST_POINT);
 				break;
-/*
-			case DEPOSE_DROIT:
-				//ACT_push_order_with_param();
-				//Rotation vers PI
-				//descendre le bras poussoir droit
-				//Lacher le cylindre
-				//ouvrir la trape latérale
-				//changer de case ==> VERIFICATION_COULEUR
-				state = VERIFICATION_COULEUR_DROIT;
+
+
+//DEPOSE:
+			case PREPARATION_NEXT:
+				if(cote_depose == DROITE){
+					//actionneur pour metre en place la rotation: state = ROTATION_MODULE;
+				}
+				else{
+					//actionneur pour metre en place la rotation: state = ROTATION_MODULE;
+				}
 				break;
 
-			case VERIFICATION_COULEUR_DROIT:
-				//if(le cylindre est monochrome:
-					state = POUSSER_CYLINDRE_DROIT;
-				//else:
-					//BON LA C'EST LE BORDEL!!!
-					//Mais une fois que le cylindre est de la bonne couleur:
-					state = POUSSER_CYLINDRE_DROIT;
+			case ROTATION_MODULE:
+				if(modules == NEUTRAL_ELEMENT){
+					if(cote_depose == DROITE){
+						//FONCTION DE ROTATION DROIT: state = TAKE_MODULE
+					}
+					else{
+						//FONCTION DE ROTATION GAUCHE: state = TAKE_MODULE
+					}
+				}
+				else{
+					state = TAKE_MODULE;
+				}
+				break;
+			case TAKE_MODULE:
+				if(cote_depose == DROITE){
+					//actoinneur poser vantouse sur le cylindre à retirer: state = POMPE_ACTIVATION
+				}
+				else{
+					//actoinneur poser vantouse sur le cylindre à retirer: state = POMPE_ACTIVATION
+				}
 				break;
 
-			case POUSSER_CYLINDRE_DROIT:
-				//On pousse le cylindre
-				//Puis on revien en position de depart:
-				state = try_going(950,COLOR_Y(2250),POUSSER_CYLINDRE_DROIT,PRISE_DE_DECISION,ERROR,FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			case POMPE_ACTIVATION:
+				if(cote_depose == DROITE){
+					//activer pompe droite: state = DROP_MODULE
+				}
+				else{
+					//activer pompe gauche: state = DROP_MODULE
+				}
 				break;
 
-			case PRISE_DE_DECISION:
-				// Est ce qu'il reste des cylindres dans le robot?
-				//if(nb_cylidre==0){
-					//END
-				//else{
-					// Est ce qu'il reste de la place dans la base?
-				//if(nb_plade_dispo==4){
-					//END
-				//else{
+			case DROP_MODULE:
+				if(cote_depose == DROITE){
+					//actoinneur poser vantouse sur le cylindre à retirer: state = POMPE_STOP
+				}
+				else{
+					//actoinneur poser vantouse sur le cylindre à retirer: state = POMPE_STOP
+				}
 				break;
 
-			default:
-				if(entrance)
-					debug_printf("default case in sub_harry_depose_modules_side\n");
+			case POMPE_STOP:
+				if(cote_depose == DROITE){
+					//desactiver pompe droite: state =
+				}
+				else{
+					//desactiver pompe gauche: state =
+				}
 				break;
-*/
+
+
+//DEPOSE OUEST:
+			case PREPARATION_PUSHER_OUEST:
+				if(mon_point_de_rotation==NORD){
+					if(cote_depose==DROITE){
+						state = PUSHER_DOWN_OUEST;
+					}
+					else{
+						state = try_going(550,DISTANCE_BASE_SIDE_ET_ROBOT,state,PUSHER_DOWN_OUEST,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				else{
+					if(cote_depose==DROITE){
+						state = try_going(1200,DISTANCE_BASE_SIDE_ET_ROBOT,state,PUSHER_DOWN_OUEST,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						state = PUSHER_DOWN_OUEST;
+					}
+				}
+				break;
+
+			case PUSHER_DOWN_OUEST:
+				if(cote_depose==DROITE){
+					//bras poussoir droit down
+				}
+				else{
+					//bras poussoir gauche down
+				}
+				break;
+			case PUSH_MODULES_OUEST:
+				if(nbCylindresSurBase!=4){
+					if(mon_point_de_rotation==NORD){
+						state = try_going(850,DISTANCE_BASE_SIDE_ET_ROBOT,state,PUSHER_UP_OUEST,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						state = try_going(1000,DISTANCE_BASE_SIDE_ET_ROBOT,state,PUSHER_UP_OUEST,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				else{
+					state = PUSHER_UP_OUEST;
+				}
+				break;
+
+			case PUSHER_UP_OUEST:
+				if(cote_depose==DROITE){
+					//bras poussoir droit up
+				}
+				else{
+					//bras poussoir gauche up
+				}
+				break;
+
+			case PUSH_MODULES_RETURN_TO_POSITION_OUEST:
+				if(mon_point_de_rotation==SUD){
+					state = try_going(1250,DISTANCE_BASE_SIDE_ET_ROBOT,state,CHOIX_DE_COTE_DEPOSE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				}
+				else {
+					state = try_going(650,DISTANCE_BASE_SIDE_ET_ROBOT,state,CHOIX_DE_COTE_DEPOSE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				}
+				break;
+
+
+
+//DEPOSE EST:
+			case PREPARATION_PUSHER_EST:
+				if(mon_point_de_rotation==NORD){
+					if(cote_depose==DROITE){
+						state = PUSHER_DOWN_EST;
+					}
+					else{
+						state = try_going(550,DISTANCE_BASE_SIDE_ET_ROBOT,state,PUSHER_DOWN_EST,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				else{
+					if(cote_depose==DROITE){
+						state = try_going(1200,DISTANCE_BASE_SIDE_ET_ROBOT,state,PUSHER_DOWN_EST,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						state = PUSHER_DOWN_EST;
+					}
+				}
+				break;
+
+			case PUSHER_DOWN_EST:
+				if(cote_depose==DROITE){
+					//bras poussoir droit down
+				}
+				else{
+					//bras poussoir gauche down
+				}
+				break;
+
+			case PUSH_MODULES_EST:
+				if(nbCylindresSurBase!=4){
+					if(mon_point_de_rotation==NORD){
+						state = try_going(850,DISTANCE_BASE_SIDE_ET_ROBOT,state,PUSHER_UP_EST,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+					else{
+						state = try_going(1000,DISTANCE_BASE_SIDE_ET_ROBOT,state,PUSHER_UP_EST,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+					}
+				}
+				else{
+					state = PUSHER_UP_EST;
+				}
+				break;
+
+			case PUSHER_UP_EST:
+				if(cote_depose==DROITE){
+					//bras poussoir droit up
+				}
+				else{
+					//bras poussoir gauche up
+				}
+				break;
+
+			case PUSH_MODULES_RETURN_TO_POSITION_EST:
+				if(mon_point_de_rotation==SUD){
+					state = try_going(1250,DISTANCE_BASE_SIDE_ET_ROBOT,state,CHOIX_DE_COTE_DEPOSE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				}
+				else {
+					state = try_going(650,DISTANCE_BASE_SIDE_ET_ROBOT,state,CHOIX_DE_COTE_DEPOSE,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+				}
+				break;
+
+
+
 
 //PROCEDURE DE FIN:
 			case FIN_TENTATIVE_SUD:
@@ -1085,7 +1248,7 @@ error_e sub_harry_cylinder_depose_manager(){
 			break;
 
 		case GO_TO_OUR_SIDE:
-			state=check_sub_action_result(sub_harry_depose_modules_side(OUR_ELEMENT),state,DONE,ERROR);
+			state=check_sub_action_result(sub_harry_depose_modules_side(OUR_ELEMENT,RIGHT, OUR_SIDE),state,DONE,ERROR);
 			break;
 
 		case GO_TO_ADV_CENTER:
@@ -1094,7 +1257,7 @@ error_e sub_harry_cylinder_depose_manager(){
 			break;
 
 		case GO_TO_ADV_SIDE:
-			state=check_sub_action_result(sub_harry_depose_modules_side(ADV_ELEMENT),state,DONE,ERROR);
+			state=check_sub_action_result(sub_harry_depose_modules_side(ADV_ELEMENT,RIGHT, OUR_SIDE),state,DONE,ERROR);
 			break;
 
 		case ERROR:
