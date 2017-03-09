@@ -189,7 +189,7 @@ int main (void)
 
 
 #ifdef I_AM_ROBOT_BIG
-static void MAIN_onButton0() {
+//static void MAIN_onButton0() {
 	/*static Uint8 state = 0;
 	CAN_msg_t msg1, msg2;
 	msg1.size = 1;
@@ -230,12 +230,96 @@ static void MAIN_onButton0() {
 		CAN_process_msg(&msg2);
 	state = (state == 5)? 0 : state + 1;*/
 
+	static void MAIN_onButton0() {
+		static Uint8 state = 0;
+		CAN_msg_t msg1, msg2;
+		msg1.size = 1;
+		msg2.size = 1;
 
-}
+		if(state == 0){
+			msg1.sid = ACT_CYLINDER_SLIDER_RIGHT;
+			msg1.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_OUT;
+		}else if(state == 1){
+			msg1.sid = ACT_CYLINDER_SLIDER_RIGHT;
+			msg1.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
+		}else if(state == 2){
+			msg1.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
+			msg1.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_TOP;
+		}else if(state == 3){
+			msg1.sid = ACT_CYLINDER_SLOPE_RIGHT;
+			msg1.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_UP;
+		}else if(state == 4){
+			msg1.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
+			msg1.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
+		}
+		if(msg1.sid != 0)
+			CAN_process_msg(&msg1);
+		if(msg2.sid != 0)
+			CAN_process_msg(&msg2);
+		state = (state == 4)? 0 : state + 1;
 
-static void MAIN_onButton0LongPush() {}
 
-static void MAIN_onButton1() {}
+	}
+
+	static void MAIN_onButton0LongPush() {
+		static Uint8 state = 0;
+			CAN_msg_t msg1, msg2;
+			msg1.size = 1;
+			msg2.size = 1;
+
+			if(state == 0){
+				msg1.sid = ACT_POMPE_SLIDER_RIGHT;
+				msg1.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_OUT;
+			}else if(state == 1){
+				msg1.sid = ACT_POMPE_SLIDER_RIGHT;
+				msg1.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
+			}else if(state == 2){
+				msg1.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
+				msg1.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_TOP;
+			}else if(state == 3){
+				msg1.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
+				msg1.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
+			}
+			if(msg1.sid != 0)
+				CAN_process_msg(&msg1);
+			if(msg2.sid != 0)
+				CAN_process_msg(&msg2);
+			state = (state == 1)? 0 : state + 1;
+
+
+		}
+
+	static void MAIN_onButton1() {
+			static Uint8 state = 0;
+				CAN_msg_t msg1, msg2;
+				msg1.size = 1;
+				msg2.size = 1;
+
+				if(state == 0){
+					msg1.sid = ACT_CYLINDER_BALANCER_RIGHT;
+					msg1.data.act_msg.order = ACT_CYLINDER_BALANCER_RIGHT_OUT;
+					msg2.sid = 0;
+				}else if(state == 1){
+					msg1.sid = ACT_CYLINDER_ARM_RIGHT;
+					msg1.data.act_msg.order = ACT_CYLINDER_ARM_RIGHT_OUT;
+				}else if(state == 2){
+					msg1.sid = ACT_CYLINDER_COLOR_RIGHT;
+					msg1.data.act_msg.order = ACT_CYLINDER_COLOR_RIGHT_UNLOCK;
+				}else if(state == 3){
+					msg1.sid = ACT_CYLINDER_DISPOSE_RIGHT;
+					msg1.data.act_msg.order = ACT_CYLINDER_DISPOSE_RIGHT_UNLOCK;
+				}else if(state == 4){
+					msg1.sid = ACT_CYLINDER_PUSHER_RIGHT;
+					msg1.data.act_msg.order = ACT_CYLINDER_PUSHER_RIGHT_IN;
+				}
+				if(msg1.sid != 0)
+					CAN_process_msg(&msg1);
+				if(msg2.sid != 0)
+					CAN_process_msg(&msg2);
+				state = (state == 4)? 0 : state + 1;
+
+	}
+
 
 static void MAIN_onButton1LongPush() {}
 
