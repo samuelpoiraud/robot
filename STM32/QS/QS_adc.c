@@ -36,7 +36,7 @@ void ADC_init(void) {
 #ifdef MAIN_IR_RCVA
 	static const Uint8 ADC_sampleTime = ADC_SampleTime_3Cycles;
 #else
-    static const Uint8 ADC_sampleTime = ADC_SampleTime_56Cycles;
+    static const Uint8 ADC_sampleTime = ADC_SampleTime_84Cycles;
 #endif
 
 

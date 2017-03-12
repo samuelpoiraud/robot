@@ -62,9 +62,11 @@
 		configReg.secureWrite = ADS1118_CONFIG_SECURE_WRITE;
 		configReg.reservedReg = ADS1118_CONFIG_RESERVED;
 
-		GPIO_SetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#ifdef USE_ADS_1118_CS_PIN
+			GPIO_ResetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#endif
 
-		if(ADS1118_isAvailable(sensorConfig))
+		if(ADS1118_isAvailable(sensorConfig) == FALSE)
 			return FALSE;
 
 		SPI_setDataSize(sensorConfig->SPI_handle, SPI_DATA_SIZE_16_BIT);
@@ -75,7 +77,9 @@
 
 		SPI_setDataSize(sensorConfig->SPI_handle, SPI_DATA_SIZE_8_BIT);
 
-		GPIO_ResetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#ifdef USE_ADS_1118_CS_PIN
+			GPIO_SetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#endif
 
 		return TRUE;
 	}
@@ -93,9 +97,11 @@
 
 		ADS1118_config_reg_s configReg;
 
-		GPIO_SetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#ifdef USE_ADS_1118_CS_PIN
+			GPIO_ResetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#endif
 
-		if(ADS1118_isAvailable(sensorConfig))
+		if(ADS1118_isAvailable(sensorConfig) == FALSE)
 			return FALSE;
 
 		SPI_setDataSize(sensorConfig->SPI_handle, SPI_DATA_SIZE_16_BIT);
@@ -106,7 +112,9 @@
 
 		SPI_setDataSize(sensorConfig->SPI_handle, SPI_DATA_SIZE_8_BIT);
 
-		GPIO_ResetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#ifdef USE_ADS_1118_CS_PIN
+			GPIO_SetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#endif
 
 		if(singleShotStart != NULL)
 			*singleShotStart = configReg.singleShotStart;
@@ -136,9 +144,11 @@
 		assert(sensorConfig != NULL);
 		assert(value != NULL);
 
-		GPIO_SetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#ifdef USE_ADS_1118_CS_PIN
+			GPIO_ResetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#endif
 
-		if(ADS1118_isAvailable(sensorConfig))
+		if(ADS1118_isAvailable(sensorConfig) == FALSE)
 			return FALSE;
 
 		SPI_setDataSize(sensorConfig->SPI_handle, SPI_DATA_SIZE_16_BIT);
@@ -147,7 +157,9 @@
 
 		SPI_setDataSize(sensorConfig->SPI_handle, SPI_DATA_SIZE_8_BIT);
 
-		GPIO_ResetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#ifdef USE_ADS_1118_CS_PIN
+			GPIO_SetBits(sensorConfig->GPIO_cs.GPIOx, sensorConfig->GPIO_cs.GPIO_Pin);
+		#endif
 
 		return TRUE;
 	}
