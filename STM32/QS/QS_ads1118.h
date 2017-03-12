@@ -20,6 +20,8 @@
 
 		#include "QS_ports.h"
 
+		#define USE_ADS_1118_CS_PIN							// Active l'utilisation de la broche CS du chip
+
 		typedef enum{
 			ADS1118_CONFIG_SINGLE_SHOT_OFF		= 0,			// No effect
 			ADS1118_CONFIG_SINGLE_SHOT_START	= 1				// Start a single conversion (when in power-down state)
@@ -76,11 +78,11 @@
 		typedef struct{
 			struct{
 				GPIO_TypeDef* GPIOx;
-				uint16_t GPIO_Pin;
+				uint16_t GPIO_Pin;								// @ref GPIO_pins_define
 			}GPIO_cs;
 			struct{
 				GPIO_TypeDef* GPIOx;
-				uint16_t GPIO_Pin;
+				uint16_t GPIO_Pin;								// @ref GPIO_pins_define
 			}GPIO_din;
 			SPI_TypeDef* SPI_handle;
 		}ADS1118_sensorConfig_t;
