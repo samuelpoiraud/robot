@@ -341,7 +341,7 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 			break;
 
 		case ASTAR_GO_YELLOW_CRATER:
-			state = ASTAR_try_going(1390, 2600, state, DONE,  ASTAR_GO_YELLOW_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1390, 2600, state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -422,7 +422,7 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 			break;
 
 		case ASTAR_GO_BLUE_CRATER:
-			state = ASTAR_try_going(1390, 400, state, DONE,  ASTAR_GO_BLUE_CRATER, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1390, 400, state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
