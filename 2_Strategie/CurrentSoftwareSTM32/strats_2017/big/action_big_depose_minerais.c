@@ -50,7 +50,7 @@ error_e sub_harry_manager_put_off_ore(){
 
 		case MODULE_IN_WAY_TO_FIRST_POS:
 			if(!ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN)){
-				state = check_sub_action_result(sub_harry_prise_module_unicolor_north(NO_SIDE),state, FIRST_POS, ERROR_FIRST_POS);
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_north(LEFT),state, FIRST_POS, ERROR_FIRST_POS);
 			}
 			else{
 				state=FIRST_POS;
@@ -63,7 +63,7 @@ error_e sub_harry_manager_put_off_ore(){
 
 		case MODULE_IN_WAY_TO_SECOND_POS:
 			if(!ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
-				state = check_sub_action_result(sub_harry_prise_module_unicolor_north(NO_SIDE),state, SECOND_POS, ERROR_SECOND_POS);
+				state = check_sub_action_result(sub_harry_prise_module_start_centre(OUR_ELEMENT, LEFT),state, SECOND_POS, ERROR_SECOND_POS);
 			}
 			else{
 				state=SECOND_POS;
@@ -148,8 +148,8 @@ error_e sub_harry_depose_minerais(){
 			state=check_sub_action_result(sub_harry_get_in_depose_minerais(),state,GO_TO_SHOOTING_POS,ERROR);
 			break;
 
-		case GO_TO_SHOOTING_POS:
-			state=try_going(650,COLOR_Y(300),state,TURN_TO_SHOOTING_POS,GET_OUT_ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+		case GO_TO_SHOOTING_POS: // Ne surtout pas mettre GET_OUT_ERROR pour le cas d'erreur, sinon on fonce dans l'adversaire (Val)
+			state=try_going(650,COLOR_Y(300),state,TURN_TO_SHOOTING_POS,ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case TURN_TO_SHOOTING_POS:
@@ -158,7 +158,7 @@ error_e sub_harry_depose_minerais(){
 
 		case RUSH_TO_CLEAT:
 			// Ca vaudrait peut être le coup de faire un action_recalage ?
-			state = check_sub_action_result(action_recalage_x(BACKWARD, 0,  382 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, FALSE, &correction_x, TRUE), state, MOVE_BACK_SHOOTING_POS, GET_OUT_ERROR);
+			state = check_sub_action_result(action_recalage_x(BACKWARD, 0,  382 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, FALSE, &correction_x, TRUE), state, MOVE_BACK_SHOOTING_POS, MOVE_BACK_SHOOTING_POS);
 			//state=try_rush(0,COLOR_Y(300),state,MOVE_BACK_SHOOTING_POS,GET_OUT_ERROR,BACKWARD,NO_DODGE_AND_WAIT,TRUE);
 			break;
 
@@ -288,7 +288,7 @@ error_e sub_harry_shooting_depose_minerais(){
 
 		case DOWN_GUN:
 			ACT_push_order(ACT_ORE_GUN,ACT_ORE_GUN_DOWN);
-			//ACT_push_order(,);Turbine
+			ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
 			state=check_act_status(ACT_QUEUE_Ore_gun,state,ROTATION_TRIHOLE,ERROR);
 			break;
 
@@ -309,7 +309,7 @@ error_e sub_harry_shooting_depose_minerais(){
 
 		case GUN_UP:
 			ACT_push_order(ACT_ORE_GUN,ACT_ORE_GUN_UP);
-			//ACT_push_order(,);Turbine
+			ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
 			state=check_act_status(ACT_QUEUE_Ore_gun,state,DONE,ERROR);
 			break;
 

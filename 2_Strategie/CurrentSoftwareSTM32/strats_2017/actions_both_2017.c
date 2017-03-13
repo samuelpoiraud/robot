@@ -23,6 +23,8 @@ error_e sub_cross_rocker(void){
 			CROSS,
 			CORRECT_ODOMETRY_MATH,
 			CORRECT_ODOMETRY_MEASURE,
+			GET_OUT,
+			GO_BACK,
 			ERROR,
 			DONE
 		);
@@ -36,7 +38,7 @@ error_e sub_cross_rocker(void){
 			break;
 
 		case CROSS:
-			state = try_going(175, COLOR_Y(950), state, CORRECT_ODOMETRY_MATH, ERROR, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(175, COLOR_Y(900), state, CORRECT_ODOMETRY_MATH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case CORRECT_ODOMETRY_MATH:{
@@ -51,7 +53,15 @@ error_e sub_cross_rocker(void){
 
 			// COCO ON T'ATTEND !
 
-			state = DONE;
+			state = GET_OUT;
+			break;
+
+		case GET_OUT:
+			state = try_going(250, COLOR_Y(1000), state, DONE, GO_BACK, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case GO_BACK:
+			state = try_going(175, COLOR_Y(900), state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case DONE:
