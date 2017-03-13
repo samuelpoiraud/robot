@@ -135,7 +135,7 @@ void initialisation(void)
 		HOKUYO_init();
 	#endif
 
-	#ifdef SCAN
+	#ifdef SCAN_BORDURE
 		SCAN_init();
 		OBJECTS_SCAN_init();
 	#endif
@@ -205,8 +205,18 @@ int main (void)
 //WATCHDOG_create(1000, &GYRO_test, TRUE);
 	#endif
 
+	double varTest = 0.001;
+	bool_e done = FALSE;
+
 	while(1)
 	{
+
+		Sint16 resultTest = atan4096(varTest);
+
+		if(!done){
+			debug_printf("MAIN result atan = %d\n", resultTest);
+			done = TRUE;
+		}
 
 		#ifdef USE_QSx86
 			// Update pour EVE

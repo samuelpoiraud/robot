@@ -604,6 +604,10 @@ void BORDERS_SCAN_process_main(){
 			}
 			if((date_blue_border < date_yellow_border) && (yellow_zone_enable) && ((xmoy_yellow_start - xmoy_yellow_corner) != 0)){
 				printf("k\n");
+				display(ymoy_blue_start);
+				display(ymoy_blue_corner);
+				display(xmoy_blue_start);
+				display(xmoy_blue_corner);
 				a_yellow = (double)(ymoy_yellow_start - ymoy_yellow_corner)/(double)(xmoy_yellow_start - xmoy_yellow_corner);
 				b_yellow = ymoy_yellow_start - a_yellow * xmoy_yellow_start;
 				//on accepte une erreur d'angle entre les droites de 1° cos²(89°)=   en PI4096
@@ -619,7 +623,7 @@ void BORDERS_SCAN_process_main(){
 				}
 				printf("byel:%ld\tbnor:%ld\n", b_yellow, b_north);
 				display_float(a_north);
-				display_float(a_yellow);
+				display_float(a_yellow*1000);
 
 				if(a_vertical){
 					new_intersection_x = b_north;
