@@ -75,32 +75,32 @@ volatile bool_e BORDERS_SCAN_zone_yellow_corner_enable = FALSE;
 volatile bool_e BORDERS_SCAN_zone_blue_south_enable = FALSE;
 volatile bool_e BORDERS_SCAN_zone_yellow_south_enable = FALSE;
 
-volatile Sint16 xmoy_blue_north = 0;
-volatile Sint16 ymoy_blue_north = 0;
+volatile Sint32 xmoy_blue_north = 0;
+volatile Sint32 ymoy_blue_north = 0;
 volatile Uint16 date_blue_north = 0;
-volatile Sint16 xmoy_middle_north = 0;
-volatile Sint16 ymoy_middle_north = 0;
+volatile Sint32 xmoy_middle_north = 0;
+volatile Sint32 ymoy_middle_north = 0;
 volatile Uint16 date_middle_north = 0;
-volatile Sint16 xmoy_yellow_north = 0;
-volatile Sint16 ymoy_yellow_north = 0;
+volatile Sint32 xmoy_yellow_north = 0;
+volatile Sint32 ymoy_yellow_north = 0;
 volatile Uint16 date_yellow_north = 0;
-volatile Sint16 xmoy_blue_start = 0;
-volatile Sint16 ymoy_blue_start = 0;
+volatile Sint32 xmoy_blue_start = 0;
+volatile Sint32 ymoy_blue_start = 0;
 volatile Uint16 date_blue_start = 0;
-volatile Sint16 xmoy_blue_corner = 0;
-volatile Sint16 ymoy_blue_corner = 0;
+volatile Sint32 xmoy_blue_corner = 0;
+volatile Sint32 ymoy_blue_corner = 0;
 volatile Uint16 date_blue_corner = 0;
-volatile Sint16 xmoy_yellow_start = 0;
-volatile Sint16 ymoy_yellow_start = 0;
+volatile Sint32 xmoy_yellow_start = 0;
+volatile Sint32 ymoy_yellow_start = 0;
 volatile Uint16 date_yellow_start = 0;
-volatile Sint16 xmoy_yellow_corner = 0;
-volatile Sint16 ymoy_yellow_corner = 0;
+volatile Sint32 xmoy_yellow_corner = 0;
+volatile Sint32 ymoy_yellow_corner = 0;
 volatile Uint16 date_yellow_corner = 0;
-volatile Sint16 xmoy_blue_south = 0;
-volatile Sint16 ymoy_blue_south = 0;
+volatile Sint32 xmoy_blue_south = 0;
+volatile Sint32 ymoy_blue_south = 0;
 volatile Uint16 date_blue_south = 0;
-volatile Sint16 xmoy_yellow_south = 0;
-volatile Sint16 ymoy_yellow_south = 0;
+volatile Sint32 xmoy_yellow_south = 0;
+volatile Sint32 ymoy_yellow_south = 0;
 volatile Uint16 date_yellow_south = 0;
 
 
@@ -111,90 +111,90 @@ typedef enum{
 
 
 static void addPointZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e *zone_enable, GEOMETRY_point_t pos_mesure);
-bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e zone_enable, Sint16 * xmoy_border, Sint16 * ymoy_border, Uint16 *date_point, border_scan_mode_den_e mode_den);
+bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e zone_enable, Sint32 * xmoy_border, Sint32 * ymoy_border, Uint16 *date_point, border_scan_mode_den_e mode_den);
 
 
 scan_zone_e BORDERS_SCAN_treatment(GEOMETRY_point_t pos_mesure){
 
 	if ((pos_mesure.x<20)&&(pos_mesure.y<1050)&&(pos_mesure.y>50)&&(pos_mesure.x>-1000)){
-		pos_mesure.x = 0;
-		pos_mesure.y = 55 + blue_north_index*15;
-		pos_mesure.x = 0.001745 * pos_mesure.y;
+		//pos_mesure.x = 0;
+		//pos_mesure.y = 55 + blue_north_index*15;
+		//pos_mesure.x = 0.1745 * pos_mesure.y;
 		addPointZone(blue_north, &blue_north_index, &blue_north_enable, pos_mesure);
 		//calculeZone(middle_north, &middle_north_index, middle_north_enable, &angle_blue_north, &xmoy_blue_north, BORDER_SCAN_MODE_DEN_X);
 		return BLUE_NORTH;
 	}
 	else if ((pos_mesure.x<20)&&(pos_mesure.y<1750)&&(pos_mesure.y>1250)&&(pos_mesure.x>-1000)){
-		pos_mesure.x = 0;
-		pos_mesure.y = 1255 + middle_north_index*5;
-		pos_mesure.x = 0.001745 * pos_mesure.y;
+		//pos_mesure.x = 0;
+		//pos_mesure.y = 1255 + middle_north_index*5;
+		//pos_mesure.x = -0.01745 * pos_mesure.y;
 
 		addPointZone(middle_north, &middle_north_index, &middle_north_enable, pos_mesure);
 		//calculeZone(middle_north, &middle_north_index, middle_north_enable, &angle_middle_north, &xmoy_middle_north, BORDER_SCAN_MODE_DEN_X);
 		return MIDDLE_NORTH;
 	}
 	else if ((pos_mesure.x<20)&&(pos_mesure.y>1950)&&(pos_mesure.y<2950)&&(pos_mesure.x>-1000)){
-		pos_mesure.x = 0;
-		pos_mesure.y = 1955 + yellow_north_index*15;
-		pos_mesure.x = 0.001745 * pos_mesure.y;
+		//pos_mesure.x = 0;
+		//pos_mesure.y = 1955 + yellow_north_index*15;
+		//pos_mesure.x = -0.01745 * pos_mesure.y;
 
 		addPointZone(yellow_north, &yellow_north_index, &yellow_north_enable, pos_mesure);
 		//calculeZone(yellow_north, &yellow_north_index, yellow_north_enable, &angle_yellow_north, &xmoy_yellow_north, BORDER_SCAN_MODE_DEN_X);
 		return YELLOW_NORTH;
 	}
 	else if ((pos_mesure.y<20)&&(pos_mesure.x<580)&&(pos_mesure.x>50)&&(pos_mesure.y>-1000)){
-		pos_mesure.y = 0;
-		pos_mesure.x = 55 + blue_start_index*5;
-		pos_mesure.y = -0.001745 * pos_mesure.x;
+		//pos_mesure.y = 0;
+		//pos_mesure.x = 55 + blue_start_index*5;
+		//pos_mesure.y = 0.01745 * pos_mesure.x;
 
 		addPointZone(blue_start, &blue_start_index, &blue_start_enable, pos_mesure);
 		//calculeZone(blue_start, &blue_start_index, blue_start_enable, &angle_blue_start, &ymoy_blue_start, BORDER_SCAN_MODE_DEN_Y);
 		return BLUE_START;
 	}
 	else if ((pos_mesure.y<20)&&(pos_mesure.x<1950)&&(pos_mesure.x>1450)&&(pos_mesure.y>-1000)){
-		pos_mesure.y = 0;
-		pos_mesure.x = 1455 + blue_corner_index*5;
-		pos_mesure.y = -0.001745 * pos_mesure.x;
+		//pos_mesure.y = 0;
+		//pos_mesure.x = 1455 + blue_corner_index*5;
+		//pos_mesure.y = 0.01745 * pos_mesure.x;
 
 		addPointZone(blue_corner, &blue_corner_index, &blue_corner_enable, pos_mesure);
 		//calculeZone(blue_corner, &blue_corner_index, blue_corner_enable, &angle_blue_corner, &ymoy_blue_corner, BORDER_SCAN_MODE_DEN_Y);
 		return BLUE_CORNER;
 	}
 	else if ((pos_mesure.y>2980)&&(pos_mesure.x<580)&&(pos_mesure.x>50)&&(pos_mesure.y<4000)){
-		pos_mesure.y = 3000;
-		pos_mesure.x = 55 + yellow_start_index*5;
-		pos_mesure.y -= 0.001745 * pos_mesure.x;
-		pos_mesure.x += 5;
+		//pos_mesure.y = 3000;
+		//pos_mesure.x = 55 + yellow_start_index*5;
+		//pos_mesure.y += 0.01745 * pos_mesure.x;
+		//pos_mesure.x -= 50;
 
 		addPointZone(yellow_start, &yellow_start_index, &yellow_start_enable, pos_mesure);
 		//calculeZone(yellow_start, &yellow_start_index, yellow_start_enable, &angle_yellow_start, &ymoy_yellow_start, BORDER_SCAN_MODE_DEN_Y);
 		return YELLOW_START;
 	}
 	else if ((pos_mesure.y>2980)&&(pos_mesure.x<1950)&&(pos_mesure.x>1450)&&(pos_mesure.y<4000)){
-		pos_mesure.y = 3000;
-		pos_mesure.x = 1455 + yellow_corner_index*5;
-		pos_mesure.y -= 0.001745 * pos_mesure.x;
-		pos_mesure.x += 5;
+		//pos_mesure.y = 3000;
+		//pos_mesure.x = 1455 + yellow_corner_index*5;
+		//pos_mesure.y += 0.01745 * pos_mesure.x;
+		//pos_mesure.x -= 50;
 
 		addPointZone(yellow_corner, &yellow_corner_index, &yellow_corner_enable, pos_mesure);
 		//calculeZone(yellow_corner, &yellow_corner_index, yellow_corner_enable, &angle_yellow_corner, &ymoy_yellow_corner, BORDER_SCAN_MODE_DEN_Y);
 		return YELLOW_CORNER;
 	}
 	else if ((pos_mesure.x>1980)&&(pos_mesure.y<1200)&&(pos_mesure.y>50)&&(pos_mesure.x<3000)){
-		pos_mesure.x = 2000;
-		pos_mesure.y = 55 + blue_south_index*15;
-		pos_mesure.x += 0.001745 * pos_mesure.y;
-		pos_mesure.y -= 4;
+		//pos_mesure.x = 2000;
+		//pos_mesure.y = 55 + blue_south_index*15;
+		//pos_mesure.x -= 0.01745 * pos_mesure.y;
+		//pos_mesure.y += 40;
 
 		addPointZone(blue_south, &blue_south_index, &blue_south_enable, pos_mesure);
 		//calculeZone(blue_south, &blue_south_index, blue_south_enable, &angle_blue_south, &xmoy_blue_south, BORDER_SCAN_MODE_DEN_X);
 		return BLUE_SOUTH;
 	}
 	else if ((pos_mesure.x>1980)&&(pos_mesure.y<2950)&&(pos_mesure.y>1800)&&(pos_mesure.x<3000)){
-		pos_mesure.x = 2000;
-		pos_mesure.y = 1985 + blue_north_index*15;
-		pos_mesure.x += 0.001745 * pos_mesure.y;
-		pos_mesure.y -= 4;
+		//pos_mesure.x = 2000;
+		//pos_mesure.y = 1985 + blue_north_index*15;
+		//pos_mesure.x -= 0.01745 * pos_mesure.y;
+		//pos_mesure.y += 40;
 
 		addPointZone(yellow_south, &yellow_south_index, &yellow_south_enable, pos_mesure);
 		//calculeZone(yellow_south, &yellow_south_index, yellow_south_enable, &angle_yellow_south, &xmoy_yellow_south, BORDER_SCAN_MODE_DEN_X);
@@ -254,8 +254,8 @@ bool_e calculeZonePublic(scan_zone_e zone){
 }
 
 
-bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e zone_enable, Sint16 *xmoy_border, Sint16 *ymoy_border, Uint16 *date_point, border_scan_mode_den_e mode_den){
-	Sint32 xmoy=0, ymoy=0, num=0, den=0;
+bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e zone_enable, Sint32 *xmoy_border, Sint32 *ymoy_border, Uint16 *date_point, border_scan_mode_den_e mode_den){
+	Sint32 xmoy=0, ymoy=0, num=0, den=0, xmoyfinal=0, ymoyfinal=0;
 	Uint8 i;
 	double a=0;
 	Sint32 b=0;
@@ -278,12 +278,12 @@ bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index
 		}
 	}
 
-
-
 	do{
 
 		xmoy = 0;
 		ymoy = 0;
+		xmoyfinal = 0;
+		ymoyfinal = 0;
 		num = 0;
 		den = 0;
 		pseudovariance = 0;
@@ -308,8 +308,10 @@ bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index
 		if(nb_points_in_zone < NB_POINTS_MINI)
 			return FALSE;
 
-		xmoy = xmoy / nb_points_in_zone;
-		ymoy = ymoy / nb_points_in_zone;
+		xmoyfinal = (xmoy<<10) / nb_points_in_zone;
+		xmoy = xmoyfinal>>10;
+		ymoyfinal = (ymoy<<10) / nb_points_in_zone;
+		ymoy = ymoyfinal>>10;
 
 		//it_printf("\nfalbala xmoy=%d\tymoy=%d\n\n",xmoy,ymoy);
 
@@ -411,10 +413,10 @@ bool_e calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index
 	//it_printf("a=%ld.%3ld\tb=%d\tnbpoints=%d", (Uint32)(a), (((Uint32)(a*1000))%1000), b, nb_points_in_zone);
 
 	if (pseudovariance < BORDER_SCAN_PSEUDO_VARIANCE_SEUIL){
-		*xmoy_border = xmoy;
+		*xmoy_border = xmoyfinal;
 		//display(xmoy);
 		//display(ymoy);
-		*ymoy_border = ymoy;
+		*ymoy_border = ymoyfinal;
 		*date_point=IT_get_counter();
 		//it_printf("xmoy=%d\tymoy=%d\n",xmoy,ymoy);
 		scan_try_proposition = TRUE;
@@ -499,6 +501,11 @@ void BORDERS_SCAN_process_main(){
 		if((date_yellow_north != 0)&&(date_yellow_north > (IT_get_counter()-3000))){
 			counter_north_border++;
 		}
+		display(date_blue_north);
+		display(date_middle_north);
+		display(date_yellow_north);
+		display(counter_north_border);
+
 		if(counter_north_border >= 2){
 
 			north_zone_enable = TRUE;
@@ -537,8 +544,8 @@ void BORDERS_SCAN_process_main(){
 				}
 			}
 		}
-#warning faut mettre un define ici
-		if((date_blue_start != 0) && ((date_blue_start > (IT_get_counter()-3000)) || (date_blue_corner > (IT_get_counter()-3000)))){
+#warning 'faut mettre un define ici'
+		if((date_blue_start != 0) && (date_blue_corner != 0) && ((date_blue_start > (IT_get_counter()-3000)) || (date_blue_corner > (IT_get_counter()-3000)))){
 			display(date_blue_corner);
 			blue_zone_enable = TRUE;
 			printf("e\n");
@@ -550,7 +557,7 @@ void BORDERS_SCAN_process_main(){
 				date_blue_border = date_blue_start;
 			}
 		}
-		if((date_yellow_start != 0) && ((date_yellow_start > (IT_get_counter()-3000)) || (date_yellow_corner > (IT_get_counter()-3000)))){
+		if((date_yellow_start != 0) && (date_yellow_corner != 0) && ((date_yellow_start > (IT_get_counter()-3000)) || (date_yellow_corner > (IT_get_counter()-3000)))){
 			yellow_zone_enable = TRUE;
 			printf("f\n");
 
@@ -578,28 +585,28 @@ void BORDERS_SCAN_process_main(){
 				den_division = xmoy_yellow_north - xmoy_blue_north;
 				if (den_division == 0){
 					a_vertical = TRUE;
-					b_north = xmoy_yellow_north; //ici je l'utilise pour l'offset c'est degueulasse mais je vois pas en quoi ce serait plus lisible de rajouter une enième variable
+					b_north = xmoy_yellow_north>>10; //ici je l'utilise pour l'offset c'est degueulasse mais je vois pas en quoi ce serait plus lisible de rajouter une enième variable
 				}else{
 					a_north = (double)(ymoy_yellow_north - ymoy_blue_north)/(double)(den_division);
-					b_north = ymoy_yellow_north - a_north * xmoy_yellow_north;
+					b_north = (ymoy_yellow_north>>10) - ((Sint32)(a_north * xmoy_yellow_north)>>10);
 				}
 			}else if(yellow_north_zone_enable && middle_north_zone_enable){
 				den_division = xmoy_yellow_north - xmoy_middle_north;
 				if (den_division == 0){
 					a_vertical = TRUE;
-					b_north = xmoy_yellow_north;
+					b_north = xmoy_yellow_north>>10;
 				}else{
 					a_north = (double)(ymoy_yellow_north - ymoy_middle_north)/(double)(den_division);
-					b_north = ymoy_yellow_north - a_north * xmoy_yellow_north;
+					b_north = (ymoy_yellow_north>>10) - ((Sint32)(a_north * xmoy_yellow_north)>>10);
 				}
 			}else{
 				den_division = xmoy_middle_north - xmoy_blue_north;
 				if (den_division == 0){
 					a_vertical = TRUE;
-					b_north = xmoy_blue_north;
+					b_north = xmoy_blue_north>>10;
 				}else{
 					a_north = (double)(ymoy_middle_north - ymoy_blue_north)/(double)(den_division);
-					b_north = ymoy_middle_north - a_north * xmoy_middle_north;
+					b_north = (ymoy_middle_north>>10) - ((Sint32)(a_north * xmoy_middle_north)>>10);
 				}
 			}
 			if((date_blue_border < date_yellow_border) && (yellow_zone_enable) && ((xmoy_yellow_start - xmoy_yellow_corner) != 0)){
@@ -609,7 +616,7 @@ void BORDERS_SCAN_process_main(){
 				display(xmoy_blue_start);
 				display(xmoy_blue_corner);
 				a_yellow = (double)(ymoy_yellow_start - ymoy_yellow_corner)/(double)(xmoy_yellow_start - xmoy_yellow_corner);
-				b_yellow = ymoy_yellow_start - a_yellow * xmoy_yellow_start;
+				b_yellow = (ymoy_yellow_start>>10) - ((Sint32)(a_yellow * xmoy_yellow_start)>>10);
 				//on accepte une erreur d'angle entre les droites de 1° cos²(89°)=   en PI4096
 				if(a_vertical){
 					cos_produit_scalaire=(double)(a_yellow * a_yellow)/(double)(a_yellow * a_yellow + 1);
@@ -617,13 +624,15 @@ void BORDERS_SCAN_process_main(){
 					cos_produit_scalaire=(double)((a_yellow * a_north + 1) * (a_yellow * a_north + 1))/(double)((a_yellow * a_yellow + 1) * (a_north * a_north + 1));
 				}
 
-#warning faut mettre un define ici
+#warning 'faut mettre un define ici'
 				if((0.00030458649<cos_produit_scalaire)||(-0.00030458649>cos_produit_scalaire)){
 					return;// l'angle les droites n'est pas droit
 				}
 				printf("byel:%ld\tbnor:%ld\n", b_yellow, b_north);
 				display_float(a_north);
 				display_float(a_yellow*1000);
+
+				new_correction_angle = atan4096(a_yellow);
 
 				if(a_vertical){
 					new_intersection_x = b_north;
@@ -633,8 +642,8 @@ void BORDERS_SCAN_process_main(){
 					new_intersection_x = ((double)(num_div_de_merde))/((double)(den_div_de_merde));
 				}
 				new_intersection_y = (a_yellow * new_intersection_x + b_yellow);
-				new_correction_angle = atan4096(a_yellow);
-				new_intersection_y -= 3000/cos4096(new_correction_angle);
+				new_intersection_x += 3000*sin4096(new_correction_angle);
+				new_intersection_y -= 3000*cos4096(new_correction_angle);
 
 			}else if ((blue_zone_enable) && (xmoy_blue_start - xmoy_blue_corner != 0)){
 				printf("l\n");
@@ -645,7 +654,7 @@ void BORDERS_SCAN_process_main(){
 				display(xmoy_blue_corner);
 
 				a_blue = (double)(ymoy_blue_start - ymoy_blue_corner)/(double)(xmoy_blue_start - xmoy_blue_corner);
-				b_blue = ymoy_blue_start - a_blue * xmoy_blue_start;
+				b_blue = (ymoy_blue_start>>10) - ((Sint32)(a_blue * xmoy_blue_start)>>10);
 				if(a_vertical){
 					printf("vertical\n");
 					cos_produit_scalaire=(a_blue * a_blue)/(a_blue * a_blue + 1);
@@ -681,15 +690,15 @@ void BORDERS_SCAN_process_main(){
 			den_division = xmoy_blue_south - xmoy_yellow_south;
 			if (den_division == 0){
 				a_vertical = TRUE;
-				b_south = xmoy_blue_south;
+				b_south = xmoy_blue_south>>10;
 			}else{
 				a_south = (double)(ymoy_blue_south - ymoy_yellow_south)/(double)(den_division);
-				b_south = ymoy_yellow_south - a_yellow * xmoy_yellow_south;
+				b_south = (ymoy_yellow_south>>10) - ((Sint32)(a_yellow * xmoy_yellow_south)>>10);
 			}
 			if((date_blue_border < date_yellow_border) && (yellow_zone_enable) && (xmoy_yellow_start - xmoy_yellow_corner != 0)){
 
 				a_yellow = (double)(ymoy_yellow_start - ymoy_yellow_corner)/(double)(xmoy_yellow_start - xmoy_yellow_corner);
-				b_yellow = ymoy_yellow_start - a_yellow * xmoy_yellow_start;
+				b_yellow = (ymoy_yellow_start>>10) - ((Sint32)(a_yellow * xmoy_yellow_start)>>10);
 
 				if(a_vertical){
 					cos_produit_scalaire=(a_yellow * a_yellow)/(a_yellow * a_yellow + 1);
@@ -715,16 +724,20 @@ void BORDERS_SCAN_process_main(){
 					new_intersection_x = ((double)(num_div_de_merde))/((double)(den_div_de_merde));
 					new_correction_angle = atan4096(a_yellow);
 					new_intersection_y = (Sint32)(a_yellow * new_intersection_x + b_yellow);
-					new_intersection_x -= 2000/cos4096(new_correction_angle);
-					new_intersection_y -= 3000/cos4096(new_correction_angle);
+					new_intersection_x += 3000*sin4096(new_correction_angle)-2000*cos4096(new_correction_angle);
+					new_intersection_y += -3000*cos4096(new_correction_angle)-2000*sin4096(new_correction_angle);
+#warning 'A TESTER'
 				}
+
+
+
 				//printf("%ld\n",new_intersection_x);
 
 			}else if((blue_zone_enable) && (xmoy_blue_start-xmoy_blue_corner != 0)){
 				printf("j\n");
 
 				a_blue = (double)(ymoy_blue_start-ymoy_blue_corner)/(double)(xmoy_blue_start-xmoy_blue_corner);
-				b_blue = ymoy_blue_start - a_blue * xmoy_blue_start;
+				b_blue = (ymoy_blue_start>>10) - ((Sint32)(a_blue * xmoy_blue_start)>>10);
 				if(a_vertical){
 					cos_produit_scalaire=(a_blue * a_blue)/(a_blue * a_blue + 1);
 				}else{
@@ -744,15 +757,17 @@ void BORDERS_SCAN_process_main(){
 					new_intersection_x = ((double)(num_div_de_merde))/((double)(den_div_de_merde));
 					new_intersection_y = (Sint32)(a_south * new_intersection_x + b_south);
 					new_correction_angle = atan4096(a_blue);
-					new_intersection_x -= 2000/cos4096(new_correction_angle);
+					new_intersection_x -= 2000*cos4096(new_correction_angle);
+					new_intersection_y -= 2000*sin4096(new_correction_angle);
+#warning 'A TESTER'
 				}
 			}
 		}//eh ben je peux rien faire pour toi
 		if((new_correction_angle != 0)||(new_intersection_x != 0)||(new_intersection_y != 0)){
 			Sint16 cosinus, sinus;
 			COS_SIN_4096_get(new_correction_angle, &cosinus, &sinus);
-			new_point_x = (cosinus * global.position.x - sinus * global.position.y)/4096 - new_intersection_x;
-			new_point_y = (sinus * global.position.x + cosinus * global.position.y)/4096 - new_intersection_y;
+			new_point_x = (cosinus * (global.position.x-new_intersection_x) - sinus * (global.position.y-new_intersection_x))/4096;
+			new_point_y = (sinus * (global.position.x-new_intersection_y) + cosinus * (global.position.y-new_intersection_y))/4096;
 			new_angle = global.position.teta - new_correction_angle;
 			printf("newx:%ld\tnewy:%ld\tnewang:%d\n", new_point_x, new_point_y, new_angle);
 			display_float(new_intersection_x);
