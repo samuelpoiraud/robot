@@ -439,6 +439,16 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 			}
 			break;
 
+
+		case STOCK_CONTAINER_OUT_TO_OUTSIDE:
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_0_TO_OUT] != MODULE_EMPTY){
+				moduleStockInfo[storage].stockModules[STOCK_POS_0_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT];
+				moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] = MODULE_EMPTY;
+			}else{
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_CONTAINER_OUT_TO_OUTSIDE\n");
+			}
+			break;
+
 		default:
 			error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo default case\n");
 			break;
