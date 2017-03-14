@@ -1,45 +1,17 @@
 #include "SelftestActionneur.h"
-#include "../QS/QS_outputlog.h"
-#include "../QS/QS_CANmsgList.h"
-#include "../QS/QS_uart.h"
-#include "../QS/QS_watchdog.h"
-#include "../QS/QS_can_over_uart.h"
-#include "../QS/QS_adc.h"
-#include "../QS/QS_who_am_i.h"
-#include "../QS/QS_can_over_xbee.h"
-#include "../QS/QS_IHM.h"
-#include "../QS/QS_IHM.h"
-#include "../QS/QS_ports.h"
-#include "../QS/QS_mosfet.h"
-#include "../elements.h"
-#include "../actuator/act_functions.h"
-#include "../detection.h"
-#include "SD/Libraries/fat_sd/ff.h"
-#include "SD/SD.h"
-#include "RTC.h"
-#include "Buzzer.h"
-#include "LCD_interface.h"
-
-#include "../propulsion/movement.h"
-#include "../propulsion/astar.h"
 #include "../QS/QS_stateMachineHelper.h"
-#include "../QS/QS_types.h"
 #include "../QS/QS_outputlog.h"
-#include "../propulsion/astar.h"
-#include "../utils/generic_functions.h"
 #include "../actuator/act_functions.h"
-#include "../actuator/queue.h"
+#include "../utils/generic_functions.h"
 #include "../utils/actionChecker.h"
-#include "../elements.h"
-#include "../high_level_strat.h"
 
 #if 0
 
 //Pour Valentin :
 // Il s'agit d'une premiere version, le code n'est en rien optimise
 
-error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyTwoModules){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_CENTER,
+error_e selftest_act(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SELFTEST_ACT,
 			INIT,
 			MOVE_ACTIONNEUR,
 			CHECK_STATUS,
@@ -66,6 +38,8 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyT
 			//matrice a completer avec les actionneurs arm, color et dispose
 	};
 
+	#define LAST_ETAPE   (4)
+
 	static const Uint8 nombre_actions = sizeof(tableau_selftest);
 	//static error_e liste_etat_actionneur[nombre_actions];
 	static error_e liste_etat_actionneur[50];
@@ -83,22 +57,20 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyT
 
 		case MOVE_ACTIONNEUR:
 
-			while( tableau_selftest[indice][0] == etape_en_cours){
-				ACT_push_order(tableau_selftest[indice][1],tableau_selftest[indice][2]);
+			while( tableau_selftest[indice].numero_etape == etape_en_cours){
+				ACT_push_order(tableau_selftest[indice].actionneur, tableau_selftest[indice].position);
 				indice += 1;
 			}
-			wait(1000);
-			state = CHECK_STATUS;
+			state = wait_time(1000, state, CHECK_STATUS); // Attention au wait_time ici
 			break;
 
 		case CHECK_STATUS:
 
-			while(tableau_selftest[indice_check][0] == etape_en_cours){
-				liste_etat_actionneur[indice_check] = Check_at_status(tableau_selftest[indice_check][3], IN_PROGRESS, END_OK, NOT_HANDLED);
+			while(tableau_selftest[indice_check].numero_etape == etape_en_cours){
+				liste_etat_actionneur[indice_check] = check_act_status(tableau_selftest[indice_check].position, IN_PROGRESS, END_OK, NOT_HANDLED);
 				indice_check += 1;
 			}
-			wait(1000);
-			state = COMPUTE_NEXT_ETAPE;
+			state = wait_time(1000, state, COMPUTE_NEXT_ETAPE); // Attention au wait_time ici
 			break;
 
 		case COMPUTE_NEXT_ETAPE:

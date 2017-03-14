@@ -98,7 +98,8 @@ typedef enum {
 		SM_ID_PATHFIND_TRY_GOING						= 0x0406,
 		SM_ID_EXTRACTION_OF_FOE							= 0x0407,
 		SM_ID_ASTAR_TRY_GOING							= 0x0408,
-		SM_ID_GO_TO_START_ZONE							= 0x0409
+		SM_ID_GO_TO_START_ZONE							= 0x0409,
+		SM_ID_SELFTEST_ACT								= 0x040A
 #endif
 
 #ifdef I_AM_CARTE_PROP
