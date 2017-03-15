@@ -1024,8 +1024,10 @@
 		ACT_ORE_GUN						= (ACT_FILTER | 0x16),
 		ACT_ORE_WALL					= (ACT_FILTER | 0x17),
         ACT_ORE_ROLLER_ARM              = (ACT_FILTER | 0x18),
+        ACT_ORE_ROLLER_FOAM             = (ACT_FILTER | 0x19),
+        ACT_ORE_TRIHOLE		            = (ACT_FILTER | 0x20),
 
-        ACT_ROCKET                      = (ACT_FILTER | 0x19),
+        ACT_ROCKET                      = (ACT_FILTER | 0x21),
 
 
 

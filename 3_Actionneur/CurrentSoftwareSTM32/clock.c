@@ -54,7 +54,10 @@ void TIMER_SRC_TIMER_interrupt()
 		DCM_process_it();
 	#endif
 
-	RPM_SENSOR_process_it();
+	#ifdef USE_RPM_SENSOR
+		RPM_SENSOR_process_it();
+	#endif
+
 	#ifdef USE_DC_MOTOR_SPEED
 		DC_MOTOR_SPEED_process_it();
 	#endif

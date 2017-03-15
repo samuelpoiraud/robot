@@ -14,6 +14,7 @@
 	#include "QS/QS_all.h"
 	#include "queue.h"
 	#include "QS/QS_CANmsgList.h"
+	#include "QS/QS_DCMotorSpeed.h"
 
 	typedef void (*ACT_OnInit)();
 	typedef void (*ACT_OnInitPos)();
@@ -85,6 +86,17 @@
 	 * @return TRUE si le moteur a fini sa commande, FALSE sinon
 	 */
 	bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line);
+
+	/** Verifie l'état d'un moteur DC asservie en vitesse et gère la file en conséquence.
+	 *
+	 * @param id identifiant du moteur (passé en parametre des fonctions de QS_DCMotorSpeed.h)
+	 *
+	 * @param result pointeur vers une variable qui contiendra le résultat de l'opération si la fonction retourne TRUE (ACT_RESULT*)
+	 * @param error_code pointeur vers une variable qui contiendra le l'erreur lié a l'opération si la fonction retourne TRUE (ACT_RESULT_ERROR*)
+	 * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
+	 * @return TRUE si le moteur a fini sa commande, FALSE sinon
+	 */
+	bool_e ACTQ_check_status_dcMotorSpeed(DC_MOTOR_SPEED_id id, Uint8* result, Uint8* error_code, Uint16* line);
 
 	/** Vérifie si le temps timeout à été dépassé
 	 *

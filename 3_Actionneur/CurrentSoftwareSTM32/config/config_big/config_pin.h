@@ -358,6 +358,10 @@
 
 
 //--------------------Configuration des ID des actionneurs-----------------------
+
+#define MOTOR_TURN_TRIHOLE_ID				0
+#define MOTOR_ROLLER_FOAM_ID				1
+
 // L'id doit être inférieur à 50
 
 

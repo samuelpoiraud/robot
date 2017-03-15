@@ -37,7 +37,6 @@
 
 #ifdef I_AM_ROBOT_BIG
 #else
-#include "Anne/motor_test/motor_test.h"
 #endif
 
 
