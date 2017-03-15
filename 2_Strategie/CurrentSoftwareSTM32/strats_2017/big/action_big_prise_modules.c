@@ -296,11 +296,11 @@ error_e sub_harry_prise_modules_manager(){
 			DONE
 		);
 
-	ELEMENTS_property_e modules = OUR_ELEMENT;
+	static ELEMENTS_property_e modules = OUR_ELEMENT;
 
 	static ELEMENTS_side_e side_not_allowed = NO_SIDE;
 	static ELEMENTS_side_e side = NO_SIDE;
-	static manager_prise_modules state_order_up_zone[] = {
+	static manager_prise_modules state_order[] = {
 			{.num_state = GET_MODULE_START_ZONE,	.flag = FLAG_OUR_MULTICOLOR_START_IS_TAKEN},
 			{.num_state = GET_MODULE_SIDE_ZONE,		.flag = FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN},
 			{.num_state = GET_MODULE_MID_ZONE, 		.flag = FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN},
@@ -317,21 +317,24 @@ error_e sub_harry_prise_modules_manager(){
 
 	const Uint8 NUM_PATHS = 3; //3 subs dans chaque chemins.
 
-	static Uint8 start_path[] = {0,1,8};
-	static Uint8 basic_our_path[] = {0,1,2}; //correspond au numéro de l'état ci-dessus
-	static Uint8 reverse_our_path[] = {1,2,0};
+	//En partant de la zone de départ
+	static Uint8 start_path[] = {0,1,8};		//Chemin de base pour aller vers notre fusée
+	static Uint8 basic_our_path[] = {0,1,2}; 	//Ramassage de nos 3 modules en finissant sur celui proche de la zone de dépose
+
+	//En partant de la zone des minerais
+	static Uint8 reverse_our_path[] = {1,2,0};	//Ramassage des 3 modules en commmençant par celui du milieu
+
+	//Récupération des modules unicolor
 	static Uint8 get_uni_north[] = {6, 8};
 	static Uint8 get_uni_south[] = {7, 8};
 
+	//Récupérer modules adverses
 	static Uint8 basic_adv_path[] = {3,4,5};
 	//static Uint8 reverse_adv_path[] = {4,3,5};
 
 	static Uint8 i=0;
 	static Uint8 count_paths = 0;
 
-	const Uint8 NB_STATE_MAX_OUR_ELEMENT = 3;
-	const Uint8 NB_STATE_MAX_ADV_ELEMENT = 6;
-	//const Uint8 NB_STATE_MAX = 6;
 
 
 	static Uint8 *path;
@@ -359,7 +362,7 @@ error_e sub_harry_prise_modules_manager(){
 
 		case CHOOSE_ACTION:
 			if(IHM_switchs_get(SWITCH_ADV_MODULES)){
-				count_paths = NB_STATE_MAX_OUR_ELEMENT;
+				count_paths = 0;
 				modules = ADV_ELEMENT;
 
 				//Choix du trajet
@@ -367,7 +370,7 @@ error_e sub_harry_prise_modules_manager(){
 
 				state = ADV_MODULES;
 			}
-			else if(IHM_switchs_get(SWITCH_OUR_MODULES)){
+			else if(!IHM_switchs_get(SWITCH_OUR_MODULES)){
 				count_paths = 0;
 				modules = OUR_ELEMENT;
 
@@ -402,24 +405,24 @@ error_e sub_harry_prise_modules_manager(){
 			//Vérif des actions déjà réalisées sur ce chemin
 			count_paths = 0;
 			i = 0;
-			while(count_paths < NUM_PATHS && ELEMENTS_get_flag(state_order_up_zone[path[i]].flag)==TRUE){
+			while(count_paths < NUM_PATHS && ELEMENTS_get_flag(state_order[path[i]].flag)==TRUE){
 				count_paths++;
 				i++;
-				if(count_paths < NUM_PATHS && state_order_up_zone[path[i]].num_state == DONE){ //Si l'état qui n'a pas été effectué équivaut à DONE on sort du manager.
+				if(count_paths < NUM_PATHS && state_order[path[i]].num_state == DONE){ //Si l'état qui n'a pas été effectué équivaut à DONE on sort du manager.
 					count_paths = NUM_PATHS;
 				}
 			}
-
-			debug_printf("nombre de flag activé : %d : %d %d %d %d %d %d flag1 : %d, flag2 : %d, flag3 : %d\n", count_paths, path[0], basic_our_path[1], path[2], state_order_up_zone[path[0]].flag, state_order_up_zone[path[1]].flag,state_order_up_zone[path[2]].flag,ELEMENTS_get_flag(state_order_up_zone[path[0]].flag),ELEMENTS_get_flag(state_order_up_zone[path[1]].flag),ELEMENTS_get_flag(state_order_up_zone[path[2]].flag));
+//pas cratère si module en bas
+			//debug_printf("nombre de flag activé : %d : %d %d %d %d %d %d flag1 : %d, flag2 : %d, flag3 : %d\n", count_paths, path[0], basic_our_path[1], path[2], state_order_up_zone[path[0]].flag, state_order_up_zone[path[1]].flag,state_order_up_zone[path[2]].flag,ELEMENTS_get_flag(state_order_up_zone[path[0]].flag),ELEMENTS_get_flag(state_order_up_zone[path[1]].flag),ELEMENTS_get_flag(state_order_up_zone[path[2]].flag));
 			if(count_paths < NUM_PATHS){
 				//Si on peut stocker un module, on cherche l'action qui n'a pas encore été faite puis on l'envoie vers l'état correspondant
 				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) < MAX_MODULE_STOCK && STOCKS_getNbModules(MODULE_STOCK_RIGHT) < MAX_MODULE_STOCK){
-					state = state_order_up_zone[path[i]].num_state;
+					state = state_order[path[i]].num_state;
 				}
 				else if(STOCKS_getNbModules(MODULE_STOCK_LEFT) < MAX_MODULE_STOCK){
 					if(side_not_allowed == NO_SIDE || side_not_allowed == RIGHT){
 						side = LEFT;
-						state = state_order_up_zone[path[i]].num_state;
+						state = state_order[path[i]].num_state;
 					}
 					else if(side_not_allowed == LEFT){
 						state = DONE;
@@ -432,7 +435,7 @@ error_e sub_harry_prise_modules_manager(){
 				else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) < MAX_MODULE_STOCK){
 					if(side_not_allowed == NO_SIDE || side_not_allowed == LEFT){
 						side = RIGHT;
-						state = state_order_up_zone[path[i]].num_state;
+						state = state_order[path[i]].num_state;
 					}
 					else if(side_not_allowed == RIGHT){
 						state = DONE;
@@ -457,40 +460,46 @@ error_e sub_harry_prise_modules_manager(){
 		//case pour récup les modules de l'adversaire
 		case ADV_MODULES:
 
-			while(count_paths < NUM_PATHS && ELEMENTS_get_flag(state_order_up_zone[path[i]].flag)==TRUE){
+			//Vérif des actions déjà réalisées sur ce chemin
+			count_paths = 0;
+			i = 0;
+			while(count_paths < NUM_PATHS && ELEMENTS_get_flag(state_order[path[i]].flag)==TRUE){
 				count_paths++;
 				i++;
+				if(count_paths < NUM_PATHS && state_order[path[i]].num_state == DONE){ //Si l'état qui n'a pas été effectué équivaut à DONE on sort du manager.
+					count_paths = NUM_PATHS;
+				}
 			}
 
-			if(count_paths < NB_STATE_MAX_ADV_ELEMENT){
+			if(count_paths < NUM_PATHS){
 				//Si on peut stocker un module, on cherche l'action qui n'a pas encore été faite puis on l'envoie vers l'état correspondant
 				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) < MAX_MODULE_STOCK && STOCKS_getNbModules(MODULE_STOCK_RIGHT) < MAX_MODULE_STOCK){
-					state = state_order_up_zone[path[i]].num_state;
+					state = state_order[path[i]].num_state;
 				}
 				else if(STOCKS_getNbModules(MODULE_STOCK_LEFT) < MAX_MODULE_STOCK){
 					if(side_not_allowed == NO_SIDE || side_not_allowed == RIGHT){
 						side = LEFT;
-						state = state_order_up_zone[path[i]].num_state;
+						state = state_order[path[i]].num_state;
 					}
 					else if(side_not_allowed == LEFT){
 						state = DONE;
 					}
 					else {
 						state = ERROR;
-						debug_printf("Error in the manager of big_prise_modules, no side found in OUR_MODULES");
+						debug_printf("Error in the manager of big_prise_modules, no side found in ADV_MODULES");
 					}
 				}
 				else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) < MAX_MODULE_STOCK){
 					if(side_not_allowed == NO_SIDE || side_not_allowed == LEFT){
 						side = RIGHT;
-						state = state_order_up_zone[path[i]].num_state;
+						state = state_order[path[i]].num_state;
 					}
 					else if(side_not_allowed == RIGHT){
 						state = DONE;
 					}
 					else{
 						state = ERROR;
-						debug_printf("Error in the manager of big_prise_modules, no side found in OUR_MODULES");
+						debug_printf("Error in the manager of big_prise_modules, no side found in ADV_MODULES");
 					}
 				}
 				else{//On ne peut plus stocker d'élements
@@ -567,6 +576,7 @@ error_e sub_harry_prise_modules_manager(){
 error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_START_CENTER,
 			INIT,
+			CHECK_FIRST_ELEMENT,
 			GO_TO_START_POINT_UP,
 			GO_TO_START_POINT_SIDE,
 			GO_TO_START_POINT_DOWN,
@@ -606,7 +616,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 					// Si on prend les modules du coté BLUE		(utiliser i_am_in_square et pas i_am_in_square_color)
 					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
 						if(i_am_in_square(0, 550, 800, 1200)){
-							state = GO_TO_START_POINT_UP;
+							state = CHECK_FIRST_ELEMENT;
 						}else if(i_am_in_square(0, 1000, 1200, 2100)){
 							state = GO_TO_START_POINT_SIDE;
 						}else if(i_am_in_square(700,1400,0,800)){
@@ -622,7 +632,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 					else	// Si on prend les modules du coté YELLOW	(utiliser i_am_in_square et pas i_am_in_square_color)
 					{
 						if(i_am_in_square(0, 550, 1800, 2200)){
-							state = GO_TO_START_POINT_UP;
+							state = CHECK_FIRST_ELEMENT;
 						}else if(i_am_in_square(0, 1000, 900, 1800)){
 							state = GO_TO_START_POINT_SIDE;
 						}else if(i_am_in_square(700,1400,2200,3000)){
@@ -640,6 +650,16 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, TRUE);
 				}
 			break;
+
+
+			case CHECK_FIRST_ELEMENT:
+				if(modules == ADV_ELEMENT){
+					state = try_going(350,COLOR_Y(1400), CHECK_FIRST_ELEMENT, GO_TO_START_POINT_UP, ERROR, FAST, ANY_WAY, DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				}
+				else{
+					state = GO_TO_START_POINT_UP;
+				}
+				break;
 
 			case GET_IN_CLOSE_ADV_ZONE:
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
@@ -1133,7 +1153,8 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 
 			STORAGE_LEFT,
 			STORAGE_RIGHT,
-			MOVE_BACK,
+			GET_OUT,
+			GET_OUT_ERROR,
 
 			ERROR,
 			DONE
@@ -1268,16 +1289,16 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 		case TAKE_BASE_MODULE:
 			if(side == LEFT || side == NO_SIDE){
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-					state = try_going(1380, 785, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1380, 785, state, STORAGE_LEFT, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
-					state = try_going(1380, 2215, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1380, 2215, state, STORAGE_LEFT, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
 			}
 			else{
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-					state = try_going(1310, 810, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1310, 810, state, STORAGE_RIGHT, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
-					state = try_going(1310, 2190, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1310, 2190, state, STORAGE_RIGHT, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
 			}
 			break;
@@ -1291,13 +1312,14 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 				}
 			}
 
-			state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_LEFT, TRUE),state,MOVE_BACK,ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_LEFT, TRUE),state,GET_OUT,ERROR);
 
-			if(state==MOVE_BACK){
+			if(state==GET_OUT){
 				if(modules == OUR_ELEMENT)
 					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
-				else
+				else{
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
+				}
 			}
 			if(ON_LEAVING(state)){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
@@ -1314,9 +1336,9 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 				}
 			}
 
-			state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_RIGHT, TRUE),state,MOVE_BACK,ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_RIGHT, TRUE),state,GET_OUT,ERROR);
 
-			if(state==MOVE_BACK){
+			if(state==GET_OUT){
 				if(modules == OUR_ELEMENT)
 					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 				else
@@ -1328,11 +1350,32 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 			break;
 
-		case MOVE_BACK:
-			state = try_advance(NULL, entrance, 150, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case GET_OUT:
+			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+				state = try_going(1260, 700, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(1260, 2300, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
 			if(ON_LEAVING(state)){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE); // Activation de la dépose
+			}
+			break;
+
+		case GET_OUT_ERROR:
+			if(side == LEFT || side == NO_SIDE){
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1380, 785, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1380, 2215, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}
+			else{
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(1310, 810, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1310, 2190, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
 			}
 			break;
 
