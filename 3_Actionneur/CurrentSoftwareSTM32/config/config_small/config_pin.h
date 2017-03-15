@@ -84,11 +84,9 @@
 ////////////////////////////////////////////////////////////////////////////////////
 	#define PORT_IO_B_0			PORT_IO_INPUT
 	#define PORT_OPT_B_0		PORT_OPT_NO_PULL
-		//
 
 	#define PORT_IO_B_1			PORT_IO_INPUT
 	#define PORT_OPT_B_1		PORT_OPT_NO_PULL
-		//
 
 	#define PORT_IO_B_2			PORT_IO_INPUT
 	#define PORT_OPT_B_2		PORT_OPT_NO_PULL

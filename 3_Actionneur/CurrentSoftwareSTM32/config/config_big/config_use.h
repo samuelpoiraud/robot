@@ -23,9 +23,9 @@
 		#define USE_PWM4	// Moteur tourniquet
 
 /* Réglages DC Speed */
-	//#define USE_DC_MOTOR_SPEED
-		//#define DC_MOTOR_SPEED_NUMBER 		1
-		//#define DC_MOTOR_SPEED_TIME_PERIOD	5
+	#define USE_DC_MOTOR_SPEED
+		#define DC_MOTOR_SPEED_NUMBER 		2
+		#define DC_MOTOR_SPEED_TIME_PERIOD	10
 
 /* Servo-Moteurs standart */
 	//#define SERVO_TIMER 5
@@ -62,5 +62,8 @@
 	//#define USE_MOSFET_8
 	//#define USE_MOSFET_MULTI
 
+/* Réglages IT externe */
+	#define USE_EXTERNAL_IT
+	#define USE_RPM_SENSOR
 
 #endif /* BIG_CONFIG_USE_H */

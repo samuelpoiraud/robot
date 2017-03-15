@@ -44,6 +44,8 @@
 	#include "Harry/ore/ore_gun/ore_gun.h"
 	#include "Harry/ore/ore_wall/ore_wall.h"
     #include "Harry/ore/ore_roller_arm/ore_roller_arm.h"
+    #include "Harry/ore/motor_roller_foam/motor_roller_foam.h"
+    #include "Harry/ore/motor_turn_trihole/motor_turn_trihole.h"
 
     #include "Harry/rocket/rocket.h"
 
@@ -55,7 +57,6 @@
 	#include "Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
 	#include "Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left.h"
 	#include "Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right.h"
-	#include "Anne/motor_test/motor_test.h"
 #endif
 
 
@@ -99,6 +100,8 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(ORE_GUN),
 		ACT_DECLARE(ORE_WALL),
         ACT_DECLARE(ORE_ROLLER_ARM),
+        ACT_DECLARE(MOTOR_ROLLER_FOAM),
+        ACT_DECLARE(MOTOR_TURN_TRIHOLE),
 
         ACT_DECLARE(ROCKET),
 
@@ -109,7 +112,6 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(SMALL_BALL_BACK_RIGTH),
 		ACT_DECLARE(SMALL_BALL_FRONT_LEFT),
 		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),*/
-		ACT_DECLARE(MOTOR_TEST),
 	#endif
 };
 
