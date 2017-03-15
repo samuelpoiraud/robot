@@ -48,10 +48,15 @@
 	error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top);
 	error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger);
 
-
 	// action_big_depose_modules
 	error_e sub_harry_cylinder_depose_manager();
 	error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
+	error_e sub_harry_get_in_pos_1_depose_module_centre();
+	error_e sub_harry_get_in_pos_2_depose_module_centre();
+	error_e sub_harry_get_in_pos_3_depose_module_centre();
+	error_e sub_harry_get_in_pos_4_depose_module_centre();
+	error_e sub_harry_get_in_pos_5_depose_module_centre();
+	error_e sub_harry_get_in_pos_6_depose_module_centre();
 	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
 	error_e sub_harry_return_modules(ELEMENTS_side_e side);
 	error_e manager_return_modules();

@@ -63,10 +63,12 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 error_e sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_match_e basis_side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_DEPOSE_MODULES_CENTRE,
 			INIT,
-			GET_IN_OUR_SIDE,
-			GET_IN_MIDDLE_OUR_SIDE,
-			GET_IN_MIDDLE_ADV_SIDE,
-			GET_IN_ADV_SIDE,
+			GET_IN_POS_1,
+			GET_IN_POS_2,
+			GET_IN_POS_3,
+			GET_IN_POS_4,
+			GET_IN_POS_5,
+			GET_IN_POS_6,
 			ERROR,
 			DONE
 		);
@@ -74,31 +76,43 @@ error_e sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEM
 	switch(state){
 		case INIT:
 			if((modules == OUR_ELEMENT) && (basis_side == OUR_SIDE)){
-				state = GET_IN_OUR_SIDE;
-			}else if(((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)) || ((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE))){
-				state = GET_IN_MIDDLE_OUR_SIDE;
-			}else if(((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE))||((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE))){
-				state = GET_IN_MIDDLE_ADV_SIDE;
+				state = GET_IN_POS_1;
+			}else if((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)){
+				state = GET_IN_POS_2;
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
+				state = GET_IN_POS_3;
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
+				state = GET_IN_POS_4;
+			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
+				state = GET_IN_POS_5;
 			}else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
-				state = GET_IN_ADV_SIDE;
+				state = GET_IN_POS_6;
 			}else
 				state = ERROR;
 			break;
 
-		case GET_IN_OUR_SIDE:
-			state = check_sub_action_result(sub_harry_get_in_our_side_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_POS_1:
+			state = check_sub_action_result(sub_harry_get_in_pos_1_depose_module_centre(), state, DONE, ERROR);
 			break;
 
-		case GET_IN_MIDDLE_OUR_SIDE:
-			state = check_sub_action_result(sub_harry_get_in_middle_our_side_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_POS_2:
+			state = check_sub_action_result(sub_harry_get_in_pos_2_depose_module_centre(), state, DONE, ERROR);
 			break;
 
-		case GET_IN_MIDDLE_ADV_SIDE:
-			state = check_sub_action_result(sub_harry_get_in_middle_adv_side_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_POS_3:
+			state = check_sub_action_result(sub_harry_get_in_pos_3_depose_module_centre(), state, DONE, ERROR);
 			break;
 
-		case GET_IN_ADV_SIDE:
-			state = check_sub_action_result(sub_harry_get_in_adv_side_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_POS_4:
+			state = check_sub_action_result(sub_harry_get_in_pos_4_depose_module_centre(), state, DONE, ERROR);
+			break;
+
+		case GET_IN_POS_5:
+			state = check_sub_action_result(sub_harry_get_in_pos_5_depose_module_centre(), state, DONE, ERROR);
+			break;
+
+		case GET_IN_POS_6:
+			state = check_sub_action_result(sub_harry_get_in_pos_6_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case ERROR:
@@ -116,8 +130,8 @@ error_e sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEM
 }
 
 
-error_e sub_harry_get_in_our_side_depose_modules_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_OUR_SIDE_DEPOSE_MODULES_CENTRE,
+error_e sub_harry_get_in_pos_1_depose_module_centre(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_1_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
 			GET_IN_FROM_MIDDLE_SQUARE,
@@ -171,8 +185,8 @@ error_e sub_harry_get_in_our_side_depose_modules_centre(){
 }
 
 
-error_e sub_harry_get_in_middle_our_side_depose_modules_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_MIDDLE_OUR_SIDE_DEPOSE_MODULES_CENTRE,
+error_e sub_harry_get_in_pos_2_depose_module_centre(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_2_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
 			GET_IN_FROM_MIDDLE_SQUARE,
@@ -225,8 +239,117 @@ error_e sub_harry_get_in_middle_our_side_depose_modules_centre(){
 	return IN_PROGRESS;
 }
 
-error_e sub_harry_get_in_middle_adv_side_depose_modules_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_MIDDLE_ADV_SIDE_DEPOSE_MODULES_CENTRE,
+error_e sub_harry_get_in_pos_3_depose_module_centre(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_3_DEPOSE_MODULES_CENTRE,
+			INIT,
+			GET_IN_FROM_OUR_SQUARE,
+			GET_IN_FROM_MIDDLE_SQUARE,
+			GET_IN_FROM_ADV_SQUARE,
+			PATHFIND,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:
+			if((i_am_in_square(800, 1400, 300, 900))||(i_am_in_square(200, 1100, 900, 2100))){
+				state = GET_IN_FROM_OUR_SQUARE;
+			//}else if(i_am_in_square(200, 1100, 900, 2100)){
+			//	state = GET_IN_FROM_MIDDLE_SQUARE;
+			}else if(i_am_in_square(800, 1400, 2100, 2700)){
+				state = GET_IN_FROM_ADV_SQUARE;
+			}else{
+				state = PATHFIND;
+			}
+			break;
+
+		case GET_IN_FROM_OUR_SQUARE:
+			state = try_going(975, COLOR_Y(1300), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_FROM_MIDDLE_SQUARE:
+			state = try_going(1000, COLOR_Y(1250), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_FROM_ADV_SQUARE:
+			state = try_going(825, COLOR_Y(2000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case PATHFIND:
+			state = ASTAR_try_going(975, COLOR_Y(1300), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e sub_harry_get_in_pos_4_depose_module_centre(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_4_DEPOSE_MODULES_CENTRE,
+			INIT,
+			GET_IN_FROM_OUR_SQUARE,
+			GET_IN_FROM_MIDDLE_SQUARE,
+			GET_IN_FROM_ADV_SQUARE,
+			PATHFIND,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+		case INIT:
+			if(i_am_in_square(800, 1400, 300, 900)){
+				state = GET_IN_FROM_OUR_SQUARE;
+		//	}else if(i_am_in_square(200, 1100, 900, 2100)){
+		//		state = GET_IN_FROM_MIDDLE_SQUARE;
+			}else if((i_am_in_square(800, 1400, 2100, 2700))||(i_am_in_square(200, 1100, 900, 2100))){
+				state = GET_IN_FROM_ADV_SQUARE;
+			}else{
+				state = PATHFIND;
+			}
+			break;
+
+		case GET_IN_FROM_OUR_SQUARE:
+			state = try_going(975, COLOR_Y(1700), state, GET_IN_FROM_ADV_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_FROM_MIDDLE_SQUARE:
+			state = try_going(1000, COLOR_Y(1750), state, GET_IN_FROM_ADV_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_FROM_ADV_SQUARE:
+			state = try_going(825, COLOR_Y(1900), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case PATHFIND:
+			state = ASTAR_try_going(925, COLOR_Y(1700), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e sub_harry_get_in_pos_5_depose_module_centre(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_5_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
 			GET_IN_FROM_MIDDLE_SQUARE,
@@ -280,8 +403,8 @@ error_e sub_harry_get_in_middle_adv_side_depose_modules_centre(){
 }
 
 
-error_e sub_harry_get_in_adv_side_depose_modules_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_ADV_SIDE_DEPOSE_MODULES_CENTRE,
+error_e sub_harry_get_in_pos_6_depose_module_centre(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_6_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
 			GET_IN_FROM_MIDDLE_SQUARE,
@@ -305,15 +428,15 @@ error_e sub_harry_get_in_adv_side_depose_modules_centre(){
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(900, COLOR_Y(1000), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(900, COLOR_Y(1000), state, GET_IN_FROM_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_FROM_MIDDLE_SQUARE:
-			state = try_going(1000, COLOR_Y(2000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1000, COLOR_Y(2000), state, GET_IN_FROM_ADV_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(1450, COLOR_Y(2400), state, GET_IN_FROM_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1450, COLOR_Y(2400), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case PATHFIND:
