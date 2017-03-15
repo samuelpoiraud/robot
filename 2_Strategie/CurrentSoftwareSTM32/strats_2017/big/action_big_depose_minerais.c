@@ -134,9 +134,7 @@ error_e sub_harry_depose_minerais(){
 		case INIT:
 			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
-#warning CYLINDER_SOUTH_UNI correspond au cylindre du côté opposé à la zone de départ, il n empêche pas la dépose des minerais\
-	peut-être vaut il mieux checker le FLAG_SUB_ANNE_TAKE_CYLINDER_NORTH_UNI en cas de dépose alternative
-			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)||(ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)))){
+			}else if((ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)))){
 				state=ERROR;
 			}else{
 				state=GET_IN;

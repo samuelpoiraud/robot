@@ -11,15 +11,13 @@ static error_e sub_harry_defence_our_depose_zone();
 static error_e sub_harry_defence_middle_depose_zone();
 
 error_e sub_harry_manager_defence() {
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MANAGER_DEFENCE,
 			INIT,
 			DEFENCE_OUR_DEPOSE_ZONE,
 			DEFENCE_MIDDLE_DEPOSE_ZONE,
 			ERROR,
 			DONE
 		);
-
-#warning erreur de déclaration :Déclarer MAE dans QS_stateMachineHelper();
 
 	static bool_e activate_our_depose_zone = TRUE;
 	static bool_e activate_midddle_depose_zone = TRUE;
