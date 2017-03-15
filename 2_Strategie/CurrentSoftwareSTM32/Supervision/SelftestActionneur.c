@@ -10,7 +10,7 @@
 //Pour Valentin :
 // Il s'agit d'une premiere version, le code n'est en rien optimise
 
-error_e selftest_act(){
+error_e SELFTESTACT_run(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SELFTEST_ACT,
 			INIT,
 			MOVE_ACTIONNEUR,
@@ -39,10 +39,12 @@ error_e selftest_act(){
 	};
 
 	#define LAST_ETAPE   (4)
+	//Utiliser plutot NB_ACTIONS plutot que nombre_actions
+	#define NB_ACTIONS	 sizeof(tableau_selftest) / sizeof(struct_selftest_t)
 
-	static const Uint8 nombre_actions = sizeof(tableau_selftest);
+	static const Uint8 nombre_actions = sizeof(tableau_selftest) / sizeof(struct_selftest_t); // A supprimer, utiliser plutot NB_ACTIONS
 	//static error_e liste_etat_actionneur[nombre_actions];
-	static error_e liste_etat_actionneur[50];
+	static error_e liste_etat_actionneur[NB_ACTIONS];
 	static Uint8 indice = 0; //static?
 	static Uint8 indice_check = 0;
 	static Uint8 etape_en_cours = 1;
@@ -50,37 +52,38 @@ error_e selftest_act(){
 	switch(state){
 		case INIT:
 			for(int i=0; i<nombre_actions; i++){
-				liste_etat_actionneur[i]= IN_PROGRESS;
+				liste_etat_actionneur[i] = IN_PROGRESS;
 			}
 			state = MOVE_ACTIONNEUR;
 			break;
 
 		case MOVE_ACTIONNEUR:
 
-			while( tableau_selftest[indice].numero_etape == etape_en_cours){
+			while(tableau_selftest[indice].numero_etape == etape_en_cours && indice < nombre_actions){
 				ACT_push_order(tableau_selftest[indice].actionneur, tableau_selftest[indice].position);
 				indice += 1;
 			}
-			state = wait_time(1000, state, CHECK_STATUS); // Attention au wait_time ici
+			state = wait_time(1000, state, CHECK_STATUS); // Attention au wait_time ici, à remplacer par une attente global.absolute_time
 			break;
 
 		case CHECK_STATUS:
 
-			while(tableau_selftest[indice_check].numero_etape == etape_en_cours){
-				liste_etat_actionneur[indice_check] = check_act_status(tableau_selftest[indice_check].position, IN_PROGRESS, END_OK, NOT_HANDLED);
+			while(tableau_selftest[indice_check].numero_etape == etape_en_cours && indice < nombre_actions){
+				liste_etat_actionneur[indice_check] = check_act_status(tableau_selftest[indice_check].queue_id, IN_PROGRESS, END_OK, NOT_HANDLED);
 				indice_check += 1;
 			}
-			state = wait_time(1000, state, COMPUTE_NEXT_ETAPE); // Attention au wait_time ici
+			state = wait_time(1000, state, COMPUTE_NEXT_ETAPE); // Attention au wait_time ici, à remplacer par une attente global.absolute_time
 			break;
 
 		case COMPUTE_NEXT_ETAPE:
 			etape_en_cours += 1;
 			if (etape_en_cours <= LAST_ETAPE){
-				state = INIT;
+				state = MOVE_ACTIONNEUR;
 			}else{
+				// Ici il faudra penser à envoyer les erreurs à l'algo de selftest
+				// Utiliser et compléter la fonction suivante : SELFTESTACT_check_errors()
 				state = DONE;
 			}
-
 			break;
 
 		case ERROR:
@@ -97,11 +100,27 @@ error_e selftest_act(){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_prise_modules_centre\n");
+				debug_printf("default case in SELFTESTACT_run\n");
 			break;
 	}
 
 	return IN_PROGRESS;
 }
+
+/*
+void SELFTESTACT_check_errors(){
+	SELFTEST_error_code_e error;
+	for(tous les ordres actionneur){
+		switch(liste_etat_actionneur[i].actionneur){
+		case ACT_CYLINDER_ELEVATOR_RIGHT :
+			error = SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT;
+			break;
+		case etc....
+		}
+		SELFTEST_declare_errors(NULL, error);
+	}
+}
+*/
+
 #endif
 
