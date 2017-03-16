@@ -31,10 +31,12 @@
 
 	void SPI_init(void);
 
-	/**
-	 * defgroup : SPI_BaudRate_Prescaler
-	 */
+	// @ref SPI_BaudRate_Prescaler
 	void SPI_setBaudRate(SPI_TypeDef* SPIx, uint16_t SPI_BaudRatePrescaler);
+
+	// @ref SPI_Clock_Phase
+	void SPI_setCPHA(SPI_TypeDef* SPIx, uint16_t SPI_CPHA);
+
 	void SPI_setDataSize(SPI_TypeDef* SPIx, spi_data_size_e spi_data_size);
 
 	Uint16 SPI_exchange(SPI_TypeDef* SPIx, Uint16 c);

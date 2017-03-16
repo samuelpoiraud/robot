@@ -172,7 +172,11 @@
 	#define PORT_OPT_C_1		PORT_OPT_NO_PULL
 		//
 
+#ifdef USE_ADS1118_ON_ADC
+	#define PORT_IO_C_2			PORT_IO_OUTPUT
+#else
 	#define PORT_IO_C_2			PORT_IO_INPUT
+#endif
 	#define PORT_OPT_C_2		PORT_OPT_NO_PULL
 		//
 
