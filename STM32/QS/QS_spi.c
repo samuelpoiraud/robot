@@ -14,7 +14,6 @@
 #include "QS_ports.h"
 #include "QS_outputlog.h"
 #include "QS_watchdog.h"
-#include "stm32f4xx_spi.h"
 #include "stm32f4xx_dma.h"
 
 #define SPI1_SPI_HANDLE SPI1
@@ -137,6 +136,11 @@
 			return 0;
 		}
 
+		if(SPI_initTimeout() == FALSE){
+			error_printf("Création watchdog impossible !\n");
+			return 0;
+		}
+
 		Timed(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
 
 		if(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE) == SET)
@@ -243,11 +247,6 @@
 	{
 		if(!initialized){
 			error_printf("SPI non initialisé ! Appeller SPI_init\n");
-			return 0;
-		}
-
-		if(SPI_initTimeout() == FALSE){
-			error_printf("Création watchdog impossible !\n");
 			return 0;
 		}
 

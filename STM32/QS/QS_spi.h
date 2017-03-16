@@ -22,6 +22,8 @@
 	#define QS_SPI_H
 	#include "QS_all.h"
 
+	#include "stm32f4xx_spi.h"
+
 	typedef enum{
 		SPI_DATA_SIZE_8_BIT,
 		SPI_DATA_SIZE_16_BIT
