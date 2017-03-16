@@ -66,12 +66,14 @@
 
 	#define USE_AN_VREFIN
 
-    //#define DISABLE_SECURE_GPIO_INIT
+	//#define DISABLE_SECURE_GPIO_INIT
 	#ifdef DISABLE_SECURE_GPIO_INIT
 		#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
 	#endif
 
-   // #define SCAN_BORDURE
+	//#define SCAN_BORDURE
+
+	//#define SCAN
 
 	#define BUFFER_SIZE 64	//maximum : 255
 
@@ -101,6 +103,8 @@
 
 
 	//#define CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION //Inutile... Voir wiki...
+
+	//#define USE_ADS1118_ON_ADC
 
 
 
@@ -152,8 +156,13 @@
 		#define USE_PWM4    //moteur gauche
 
 /* Réglages SPI */
-	#ifdef USE_GYROSCOPE
+	#if defined(USE_GYROSCOPE) || defined(USE_ADS1118_ON_ADC)
 		#define USE_SPI2 // GYROSCOPE
+	#endif
+
+/* Réglages ADS 1118 */
+	#ifdef USE_ADS1118_ON_ADC
+		#define USE_ADS_1118
 	#endif
 
 /* Réglages QEI */
@@ -165,8 +174,10 @@
 
 /* Réglages ADC */
 	//#define ADC_12_BIT
-    #define USE_AN11		// Télémètre laser gauche (Black) et Télémètre poissons (Pearl)
-	#define USE_AN12		// Télémètre laser droite (Black)
+	#define USE_AN11		// Télémètre laser gauche (Black) et Télémètre poissons (Pearl)
+	#ifndef USE_ADS1118_ON_ADC
+		#define USE_AN12		// Télémètre laser droite (Black)
+	#endif
 	#define ADC_SENSOR_LASER_LEFT			ADC_11
 	#define ADC_SENSOR_FISHS				ADC_11
 	#define ADC_SENSOR_LASER_RIGHT			ADC_12

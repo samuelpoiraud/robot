@@ -3,6 +3,7 @@
 #include "borders_scan.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_adc.h"
+#include "../QS/QS_ads1118.h"
 
 #define CONVERSION_LASER_LEFT(x)	((Sint32)(36148*(x)-6611800)/10000)//((Sint32)(37217*(x)-7096800)/10000)
 #define OFFSET_WIDTH_LASER_LEFT		(144)
@@ -32,6 +33,9 @@ static volatile Uint16 index = 0;
 static volatile bool_e flag_1, flag_2, flag_treatment_too_slow;
 static scan_data_t tab_treatment[NB_SCAN_DATA];
 
+#ifdef USE_ADS1118_ON_ADC
+	static ADS1118_sensorConfig_t sensorLeftConfig, sensorRightConfig;
+#endif
 
 
 void SCAN_init(){
@@ -47,6 +51,32 @@ void SCAN_init(){
 		laser_left[i].enable = FALSE;
 		laser_right[i].enable = FALSE;
 	}
+
+	#ifdef USE_ADS1118_ON_ADC
+		sensorRightConfig.GPIO_cs.GPIOx = GPIOC;
+		sensorRightConfig.GPIO_cs.GPIO_Pin = GPIO_Pin_2;
+		sensorRightConfig.GPIO_din.GPIOx = GPIOB;
+		sensorRightConfig.GPIO_din.GPIO_Pin = GPIO_Pin_14;
+		sensorRightConfig.SPI_handle = SPI2;
+
+		ADS1118_init(&sensorRightConfig);
+
+		bool_e res;
+		res = ADS1118_setConfig(&sensorRightConfig,
+				ADS1118_CONFIG_SINGLE_SHOT_OFF,
+				ADS1118_CONFIG_INPUT_MULTIPLEXER__AINP_IS_AIN0__AINN_IS_GND,
+				ADS1118_CONFIG_GAIN_AMPLIFIER_FSR_4_096,
+				ADS1118_CONFIG_MODE_CONTINUOUS_CONVERSION,
+				ADS1118_CONFIG_DATA_RATE_860_SPS,
+				ADS1118_CONFIG_SENSOR_MODE_ADC,
+				ADS1118_CONFIG_PULLUP_ENABLE,
+				TRUE);
+		if(res)
+			debug_printf("Configuration de l'ADC ADS1118 réussie\n");
+		else
+			debug_printf("Configuration de l'ADC ADS1118 échoué !!!!!!!!!!!!!!\n");
+
+	#endif
 }
 
 static void SCAN_get_data(SCAN_side_e side){
@@ -248,7 +278,12 @@ static void SCAN_get_data_right(){
 void TELEMETER_process_it(){
 	
 	laser_left[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_LEFT);
+#ifdef USE_ADS1118_ON_ADC
+	bool_e res = ADS1118_getValue(&sensorRightConfig, &(laser_right[index].ADCvalue));
+#else
 	laser_right[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
+#endif
+
 	//printf("%d\n",laser_right[index].ADCvalue);
 }
 

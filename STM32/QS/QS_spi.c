@@ -89,7 +89,33 @@
 
 	}
 
+	void SPI_setCPHA(SPI_TypeDef* SPIx, uint16_t SPI_CPHA){
+		assert(IS_SPI_ALL_PERIPH(SPIx));
+
+		SPI_Cmd(SPIx, DISABLE);
+		SPI_DeInit(SPIx);
+
+		switch((Uint32)SPIx){
+			case (Uint32)SPI1:
+				SPI_InitStructure[0].SPI_CPHA = SPI_CPHA;
+				SPI_Init(SPIx, (SPI_InitTypeDef*)&(SPI_InitStructure[0]));
+				break;
+
+			case (Uint32)SPI2:
+				SPI_InitStructure[1].SPI_CPHA = SPI_CPHA;
+				SPI_Init(SPIx, (SPI_InitTypeDef*)&(SPI_InitStructure[1]));
+				break;
+
+			default :
+				error_printf("SPI_setCPHA SPIx valeur impossible\n");
+				break;
+		}
+		SPI_Cmd(SPIx, ENABLE);
+	}
+
 	void SPI_setBaudRate(SPI_TypeDef* SPIx, uint16_t SPI_BaudRatePrescaler){
+		assert(IS_SPI_ALL_PERIPH(SPIx));
+
 		SPI_Cmd(SPIx, DISABLE);
 		SPI_DeInit(SPIx);
 

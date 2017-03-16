@@ -89,8 +89,10 @@
 
 		/**
 		 * @brief ADS1118_init : Initialisation du module QS_ADS1118
+		 *
+		 * @param sensorConfig : Pointeur d'une structure définisant le chip ADS1118 en question
 		 */
-		void ADS1118_init(void);
+		void ADS1118_init(ADS1118_sensorConfig_t * sensorConfig);
 
 		/**
 		 * @brief ADS1118_setConfig : Ecriture de la configuration du chip ADS1118
@@ -103,6 +105,7 @@
 		 * @param dataRate : Configuration du nombre d'échantillon par seconde
 		 * @param temperatureSensorMode : Configuration du mode thermocouple
 		 * @param pullup : Configuration des résistances de tirage
+		 * @param configurationCheck : Vérification de la configuration du capteur par lecture et comparaison
 		 *
 		 * @return Si l'écriture de la configuration c'est bien passé (TRUE : Ok, FALSE : Erreur)
 		 */
@@ -113,7 +116,8 @@
 								ADS1118_CONFIG_operatingMode operatingMode,
 								ADS1118_CONFIG_dataRate dataRate,
 								ADS1118_CONFIG_temperatureSensorMode temperatureSensorMode,
-								ADS1118_CONFIG_pullup pullup);
+								ADS1118_CONFIG_pullup pullup,
+								bool_e configurationCheck);
 
 		/**
 		 * @brief ADS1118_getConfig : Lecture de la configuration du chip ADS1118 il est possible de lire
@@ -138,6 +142,7 @@
 								ADS1118_CONFIG_dataRate * dataRate,
 								ADS1118_CONFIG_temperatureSensorMode * temperatureSensorMode,
 								ADS1118_CONFIG_pullup * pullup);
+
 
 		/**
 		 * @brief ADS1118_getValue : Lecture de la valeur mesuré par l'ADC
