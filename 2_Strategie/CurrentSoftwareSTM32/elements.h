@@ -41,6 +41,17 @@
 	}moduleType_e;
 
 	typedef enum{
+		MODULE_OUR_START,
+		MODULE_OUR_SIDE,
+		MODULE_OUR_MID,
+		MODULE_ADV_START,
+		MODULE_ADV_SIDE,
+		MODULE_ADV_MID,
+		MODULE_OUR_ORE_UNI,
+		MODULE_OUR_START_ZONE_UNI
+	}ELEMENTS_modules_numbers_e;
+
+	typedef enum{
 		MODULE_MOONBASE_MIDDLE,
 		MODULE_MOONBASE_OUR_CENTER,
 		MODULE_MOONBASE_ADV_CENTER,
@@ -85,6 +96,12 @@
 		MODULE_ROCKET_MONO_OUR_SIDE,
 		NB_ROCKETS
 	}moduleRocketLocation_e;
+
+	typedef struct{
+		ELEMENTS_modules_numbers_e numero;
+		ELEMENTS_side_e side;
+		Uint8 flag;
+	}get_this_module_s;
 
 	extern const module_zone_characteristics_s module_zone[NB_MOONBASES];
 	// COMMENTAIRE POUR COCO : module_zone[first_zone].xmin

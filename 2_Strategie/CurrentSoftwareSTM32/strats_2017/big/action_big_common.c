@@ -40,6 +40,17 @@ error_e sub_harry_initiale(){
 			DONE
 		);
 
+static get_this_module_s list_modules[8] = {
+		{.numero = MODULE_OUR_START,		.side = LEFT,			.flag = FLAG_OUR_MULTICOLOR_START_IS_TAKEN},
+		{.numero = MODULE_OUR_SIDE, 		.side = RIGHT,			.flag = FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN},
+		{.numero = MODULE_OUR_MID, 			.side = LEFT,			.flag = FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN},
+		{.numero = MODULE_ADV_START,		.side = LEFT,			.flag = FLAG_ADV_MULTICOLOR_START_IS_TAKEN},
+		{.numero = MODULE_ADV_SIDE, 		.side = RIGHT,			.flag = FLAG_ADV_MULTICOLOR_SIDE_IS_TAKEN},
+		{.numero = MODULE_ADV_MID, 			.side = LEFT,			.flag = FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN},
+		{.numero = MODULE_OUR_ORE_UNI,		.side = NO_SIDE,		.flag = FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN},
+		{.numero = MODULE_OUR_START_ZONE_UNI, .side = NO_SIDE,		.flag = FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN}
+};
+
 //depose element
 	switch(state){
 		case INIT:
@@ -101,11 +112,11 @@ error_e sub_harry_initiale(){
 			break;
 		//ADV
 		case MODULES_AND_ROCKET_MULTICOLOR_ADV:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(ADV_ELEMENT, FALSE),state, ROCKET_MULTICOLOR_ADV, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(&list_modules[3], 2),state, ROCKET_MULTICOLOR_ADV, ERROR);
 			break;
 
 		case MODULES_ADV:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(ADV_ELEMENT, FALSE),state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(&list_modules[3], 3),state, DONE, ERROR);
 			break;
 
 		case ROCKET_MULTICOLOR_ADV:
@@ -113,7 +124,7 @@ error_e sub_harry_initiale(){
 			break;
 
 		case MODULES_AND_ORE_ADV:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(ADV_ELEMENT, FALSE),state, ORE_ADV, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(&list_modules[3], 3),state, ORE_ADV, ERROR);
 			break;
 
 		case ORE_ADV:
@@ -123,7 +134,7 @@ error_e sub_harry_initiale(){
 
 		//OUR 1 action
 		case MODULES_OUR:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT, TRUE),state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 3),state, DONE, ERROR);
 			break;
 
 		case ROCKET_MULTICOLOR_OUR:
@@ -144,19 +155,19 @@ error_e sub_harry_initiale(){
 
 		//OUR 2 actions
 		case MODULES_AND_ROCKET_MULTICOLOR_OUR:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT, TRUE),state, ROCKET_MULTICOLOR_OUR, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 2),state, ROCKET_MULTICOLOR_OUR, ERROR);
 			break;
 
 		case MODULES_AND_ORE_OUR:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT, FALSE),state, ORE_OUR, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 3),state, ORE_OUR, ERROR);
 			break;
 
 		case MODULES_AND_ROCKET_UNICOLOR:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT, FALSE),state, ROCKET_UNICOLOR, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 3),state, ROCKET_UNICOLOR, ERROR);
 			break;
 
 		case  MODULES_AND_PUT_OFF:
-			state=check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT, FALSE),state, PUT_OFF, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 3),state, PUT_OFF, ERROR);
 			break;
 
 

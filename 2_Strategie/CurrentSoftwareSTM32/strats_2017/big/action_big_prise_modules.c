@@ -278,11 +278,12 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyT
 	return IN_PROGRESS;
 }
 
-error_e sub_harry_prise_modules_manager(){
+error_e sub_harry_prise_modules_manager(get_this_module_s * list_modules, Uint8 modules_nb){ //Passer un tableau avec les modules choisis et leur nombre
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULES_MANAGER,
 			INIT,
 			CHECK_SIDE_ACT,
 			CHOOSE_ACTION,
+			TAKE_MODULE,
 			GET_MODULE_START_ZONE,
 			GET_MODULE_MID_ZONE,
 			GET_MODULE_SIDE_ZONE,
@@ -297,47 +298,10 @@ error_e sub_harry_prise_modules_manager(){
 		);
 
 	static ELEMENTS_property_e modules = OUR_ELEMENT;
-
 	static ELEMENTS_side_e side_not_allowed = NO_SIDE;
-	static ELEMENTS_side_e side = NO_SIDE;
-	static manager_prise_modules state_order[] = {
-			{.num_state = GET_MODULE_START_ZONE,	.flag = FLAG_OUR_MULTICOLOR_START_IS_TAKEN},
-			{.num_state = GET_MODULE_SIDE_ZONE,		.flag = FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN},
-			{.num_state = GET_MODULE_MID_ZONE, 		.flag = FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN},
 
-			{.num_state = GET_MODULE_START_ZONE, 	.flag = FLAG_ADV_MULTICOLOR_START_IS_TAKEN},
-			{.num_state = GET_MODULE_SIDE_ZONE, 	.flag = FLAG_ADV_MULTICOLOR_SIDE_IS_TAKEN},
-			{.num_state = GET_MODULE_MID_ZONE, 		.flag = FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN},
+	static Uint8 actions_done = 0;
 
-			{.num_state = GET_MODULE_NORTH_ZONE,	.flag = FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN},
-			{.num_state = GET_MODULE_SOUTH_ZONE,	.flag = FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN},
-
-			{.num_state = DONE, 					}
-	};
-
-	const Uint8 NUM_PATHS = 3; //3 subs dans chaque chemins.
-
-	//En partant de la zone de départ
-	static Uint8 start_path[] = {0,1,8};		//Chemin de base pour aller vers notre fusée
-	static Uint8 basic_our_path[] = {0,1,2}; 	//Ramassage de nos 3 modules en finissant sur celui proche de la zone de dépose
-
-	//En partant de la zone des minerais
-	static Uint8 reverse_our_path[] = {1,2,0};	//Ramassage des 3 modules en commmençant par celui du milieu
-
-	//Récupération des modules unicolor
-	static Uint8 get_uni_north[] = {6, 8};
-	static Uint8 get_uni_south[] = {7, 8};
-
-	//Récupérer modules adverses
-	static Uint8 basic_adv_path[] = {3,4,5};
-	//static Uint8 reverse_adv_path[] = {4,3,5};
-
-	static Uint8 i=0;
-	static Uint8 count_paths = 0;
-
-
-
-	static Uint8 *path;
 
 	switch(state){
 		case INIT:
@@ -357,209 +321,154 @@ error_e sub_harry_prise_modules_manager(){
 				side_not_allowed = LEFT;
 			}
 
-			state = CHOOSE_ACTION;
+			state = TAKE_MODULE;
 			break;
 
-		case CHOOSE_ACTION:
-			if(IHM_switchs_get(SWITCH_ADV_MODULES)){
-				count_paths = 0;
-				modules = ADV_ELEMENT;
+		case TAKE_MODULE:
+			debug_printf("Nombre de modules :%d\n actions_effectuées :%d\n",modules_nb, actions_done);
 
-				//Choix du trajet
-				path = basic_adv_path;
-
-				state = ADV_MODULES;
+			while(actions_done < modules_nb && ELEMENTS_get_flag(list_modules[actions_done].flag)==TRUE){
+				actions_done++;
 			}
-			else if(!IHM_switchs_get(SWITCH_OUR_MODULES)){
-				count_paths = 0;
-				modules = OUR_ELEMENT;
-
-				//choix du trajet
-				if(i_am_in_square_color(1400,2000,600,1000) && ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN) == FALSE){
-					path = get_uni_south;
-				}
-				else if(i_am_in_square_color(400,900,0,600) && ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN) == FALSE){
-					path = get_uni_north;
-				}
-				else if(i_am_in_square_color(0,350,0,1100)){
-					path = start_path;
-				}
-				else if(i_am_in_square_color(0,2000,1000,3000)){
-					path = basic_our_path;
-				}
-				else{
-					path = reverse_our_path;
-				}
-
-				state = OUR_MODULES;
-			}
-			else {
-				state = ERROR;
-				debug_printf("Manager prise modules : Aucun switch d'activé pour le côté de prise des modules\n");
-			}
-			break;
-
-
-		//Case pour récup nos modules
-		case OUR_MODULES:
-			//Vérif des actions déjà réalisées sur ce chemin
-			count_paths = 0;
-			i = 0;
-			while(count_paths < NUM_PATHS && ELEMENTS_get_flag(state_order[path[i]].flag)==TRUE){
-				count_paths++;
-				i++;
-				if(count_paths < NUM_PATHS && state_order[path[i]].num_state == DONE){ //Si l'état qui n'a pas été effectué équivaut à DONE on sort du manager.
-					count_paths = NUM_PATHS;
-				}
-			}
-//pas cratère si module en bas
-			//debug_printf("nombre de flag activé : %d : %d %d %d %d %d %d flag1 : %d, flag2 : %d, flag3 : %d\n", count_paths, path[0], basic_our_path[1], path[2], state_order_up_zone[path[0]].flag, state_order_up_zone[path[1]].flag,state_order_up_zone[path[2]].flag,ELEMENTS_get_flag(state_order_up_zone[path[0]].flag),ELEMENTS_get_flag(state_order_up_zone[path[1]].flag),ELEMENTS_get_flag(state_order_up_zone[path[2]].flag));
-			if(count_paths < NUM_PATHS){
-				//Si on peut stocker un module, on cherche l'action qui n'a pas encore été faite puis on l'envoie vers l'état correspondant
-				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) < MAX_MODULE_STOCK && STOCKS_getNbModules(MODULE_STOCK_RIGHT) < MAX_MODULE_STOCK){
-					state = state_order[path[i]].num_state;
-				}
-				else if(STOCKS_getNbModules(MODULE_STOCK_LEFT) < MAX_MODULE_STOCK){
-					if(side_not_allowed == NO_SIDE || side_not_allowed == RIGHT){
-						side = LEFT;
-						state = state_order[path[i]].num_state;
-					}
-					else if(side_not_allowed == LEFT){
-						state = DONE;
-					}
-					else {
-						state = ERROR;
-						debug_printf("Error in the manager of big_prise_modules, no selection of Elements_side_e");
-					}
-				}
-				else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) < MAX_MODULE_STOCK){
-					if(side_not_allowed == NO_SIDE || side_not_allowed == LEFT){
-						side = RIGHT;
-						state = state_order[path[i]].num_state;
-					}
-					else if(side_not_allowed == RIGHT){
-						state = DONE;
-					}
-					else{
-						state = ERROR;
-						debug_printf("Error in the manager of big_prise_modules, no side found in OUR_MODULES");
-					}
-				}
-				else{//On ne peut plus stocker d'éléments
-					state = DONE;
-				}
-			}
-			else{
-				i = 0;
-				count_paths = 0;
-				state = DONE;
-			}
-			break;
-
-
-		//case pour récup les modules de l'adversaire
-		case ADV_MODULES:
-
-			//Vérif des actions déjà réalisées sur ce chemin
-			count_paths = 0;
-			i = 0;
-			while(count_paths < NUM_PATHS && ELEMENTS_get_flag(state_order[path[i]].flag)==TRUE){
-				count_paths++;
-				i++;
-				if(count_paths < NUM_PATHS && state_order[path[i]].num_state == DONE){ //Si l'état qui n'a pas été effectué équivaut à DONE on sort du manager.
-					count_paths = NUM_PATHS;
-				}
-			}
-
-			if(count_paths < NUM_PATHS){
-				//Si on peut stocker un module, on cherche l'action qui n'a pas encore été faite puis on l'envoie vers l'état correspondant
-				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) < MAX_MODULE_STOCK && STOCKS_getNbModules(MODULE_STOCK_RIGHT) < MAX_MODULE_STOCK){
-					state = state_order[path[i]].num_state;
-				}
-				else if(STOCKS_getNbModules(MODULE_STOCK_LEFT) < MAX_MODULE_STOCK){
-					if(side_not_allowed == NO_SIDE || side_not_allowed == RIGHT){
-						side = LEFT;
-						state = state_order[path[i]].num_state;
-					}
-					else if(side_not_allowed == LEFT){
-						state = DONE;
-					}
-					else {
-						state = ERROR;
-						debug_printf("Error in the manager of big_prise_modules, no side found in ADV_MODULES");
-					}
-				}
-				else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) < MAX_MODULE_STOCK){
-					if(side_not_allowed == NO_SIDE || side_not_allowed == LEFT){
-						side = RIGHT;
-						state = state_order[path[i]].num_state;
-					}
-					else if(side_not_allowed == RIGHT){
-						state = DONE;
-					}
-					else{
-						state = ERROR;
-						debug_printf("Error in the manager of big_prise_modules, no side found in ADV_MODULES");
-					}
-				}
-				else{//On ne peut plus stocker d'élements
-					state = DONE;
-				}
-			}
-
-			else{
-				count_paths = 0; //si on veut par la suite ramassé nos modules
-				i = 0;
+			if(actions_done == modules_nb){
 				state = DONE;
 			}
 
+			if(actions_done < modules_nb){
+				switch(list_modules[actions_done].numero){
+					case MODULE_OUR_START:
+						modules = OUR_ELEMENT;
+						state = GET_MODULE_START_ZONE;
+						break;
+
+					case MODULE_OUR_SIDE:
+						modules = OUR_ELEMENT;
+						state = GET_MODULE_SIDE_ZONE;
+						break;
+
+					case MODULE_OUR_MID:
+						modules = OUR_ELEMENT;
+						state = GET_MODULE_MID_ZONE;
+						break;
+
+					case MODULE_ADV_START:
+						modules = ADV_ELEMENT;
+						state = GET_MODULE_START_ZONE;
+						break;
+
+					case MODULE_ADV_SIDE:
+						modules = ADV_ELEMENT;
+						state = GET_MODULE_SIDE_ZONE;
+						break;
+
+					case MODULE_ADV_MID:
+						modules = ADV_ELEMENT;
+						state = GET_MODULE_MID_ZONE;
+						break;
+
+					case MODULE_OUR_ORE_UNI:
+						state = GET_MODULE_SOUTH_ZONE;
+						break;
+
+					case MODULE_OUR_START_ZONE_UNI:
+						state = GET_MODULE_NORTH_ZONE;
+						break;
+
+					default:
+						state = ERROR;
+						break;
+				}
+			}
+			else{
+				state=DONE;
+			}
+
 			break;
 
 
+			//à voir si on essaie pas d'attrapper les modules suivants même si on a eu une erreur au préalable.
 		case GET_MODULE_START_ZONE:
+			if(entrance){
+				if(side_not_allowed == LEFT && list_modules[actions_done].side == LEFT){
+					list_modules[actions_done].side = RIGHT;
+				}
+				else if(side_not_allowed == RIGHT && list_modules[actions_done].side == RIGHT){
+					list_modules[actions_done].side = LEFT;
+				}
+
+				if(STOCKS_isFull(list_modules[actions_done].side)){
+					state = ERROR;
+				}
+			}
 			if(modules == OUR_ELEMENT){
-				state = check_sub_action_result(sub_harry_prise_module_start_centre(modules, side), state, OUR_MODULES, ERROR);
+				state = check_sub_action_result(sub_harry_prise_module_start_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
+				if(state == TAKE_MODULE){
+					actions_done++;
+				}
 			}
 			else{
-				state = check_sub_action_result(sub_harry_prise_module_start_centre(modules, side), state, ADV_MODULES, ERROR);
+				state = check_sub_action_result(sub_harry_prise_module_start_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
+				if(state == TAKE_MODULE){
+					actions_done++;
+				}
 			}
 			break;
 
 		case GET_MODULE_MID_ZONE:
 			if(modules == OUR_ELEMENT){
-				state = check_sub_action_result(sub_harry_prise_module_base_centre(modules, side), state, OUR_MODULES, ERROR);
+				state = check_sub_action_result(sub_harry_prise_module_base_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
+				if(state == TAKE_MODULE){
+					actions_done++;
+				}
 			}
 			else{
-				state = check_sub_action_result(sub_harry_prise_module_base_centre(modules, side), state, ADV_MODULES, ERROR);
+				state = check_sub_action_result(sub_harry_prise_module_base_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
+				if(state == TAKE_MODULE){
+					actions_done++;
+				}
 			}
 			break;
 
 		case GET_MODULE_SIDE_ZONE:
 			if(modules == OUR_ELEMENT){
-				state = check_sub_action_result(sub_harry_prise_module_side_centre(modules, side), state, OUR_MODULES, ERROR);
+				state = check_sub_action_result(sub_harry_prise_module_side_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
+				if(state == TAKE_MODULE){
+					actions_done++;
+				}
 			}
 			else{
-				state = check_sub_action_result(sub_harry_prise_module_side_centre(modules, side), state, ADV_MODULES, ERROR);
+				state = check_sub_action_result(sub_harry_prise_module_side_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
+				if(state == TAKE_MODULE){
+					actions_done++;
+				}
 			}
 			break;
 
 		case GET_MODULE_NORTH_ZONE:
-			state = check_sub_action_result(sub_harry_prise_module_unicolor_north(side), state, OUR_MODULES, ERROR);
+			state = check_sub_action_result(sub_harry_prise_module_unicolor_north(list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
+			if(state == TAKE_MODULE){
+				actions_done++;
+			}
 			break;
 
 		case GET_MODULE_SOUTH_ZONE:
-			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(side), state, OUR_MODULES, ERROR);
+			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
+			if(state == TAKE_MODULE){
+				actions_done++;
+			}
 			break;
 
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
+			actions_done = 0;
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
+			actions_done = 0;
 			return END_OK;
 			break;
 
@@ -1988,7 +1897,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
 				state = try_go_angle(-PI4096/2, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			}else{
-				state = try_go_angle(-PI4096/2, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+				state = try_go_angle(PI4096/2, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			}
 			break;
 
