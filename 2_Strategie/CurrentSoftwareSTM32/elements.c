@@ -613,3 +613,38 @@ void MOONBASES_addModule(moduleType_e type, moduleMoonbaseLocation_e location){
 	}
 	moduleMoonbaseInfo[location].moonbaseModules[0] = type;
 }
+
+
+elements_flags_e ELEMENTS_get_flag_module(ELEMENTS_modules_numbers_e module){
+	assert(module <= 7);
+	elements_flags_e flag = 0;
+	switch(module){
+		case MODULE_OUR_START :
+			flag = FLAG_OUR_MULTICOLOR_START_IS_TAKEN;
+			break;
+		case MODULE_OUR_SIDE :
+			flag = FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN;
+			break;
+		case MODULE_OUR_MID :
+			flag = FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN;
+			break;
+		case MODULE_ADV_START :
+			flag = FLAG_ADV_MULTICOLOR_START_IS_TAKEN;
+			break;
+		case MODULE_ADV_SIDE :
+			flag = FLAG_ADV_MULTICOLOR_SIDE_IS_TAKEN;
+			break;
+		case MODULE_ADV_MID :
+			flag = FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN;
+			break;
+		case MODULE_OUR_ORE_UNI :
+			flag = FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN;
+			break;
+		case MODULE_OUR_START_ZONE_UNI :
+			flag = FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN;
+			break;
+		default:
+			break;
+	}
+	return ELEMENTS_get_flag(flag);
+}

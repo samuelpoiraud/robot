@@ -100,7 +100,6 @@
 	typedef struct{
 		ELEMENTS_modules_numbers_e numero;
 		ELEMENTS_side_e side;
-		Uint8 flag;
 	}get_this_module_s;
 
 	extern const module_zone_characteristics_s module_zone[NB_MOONBASES];
@@ -149,5 +148,9 @@ bool_e MOONBASES_modulePlaceIsEmpty(Uint8 place, moduleMoonbaseLocation_e locati
 Uint8 MOONBASES_getNbModules(moduleMoonbaseLocation_e location);
 moduleType_e MOONBASES_getModuleType(Uint8 place, moduleMoonbaseLocation_e location);
 void MOONBASES_addModule(moduleType_e type, moduleMoonbaseLocation_e location);
+
+
+// Retourne le flag correspondant au module passé en paramètre
+elements_flags_e ELEMENTS_get_flag_module(ELEMENTS_modules_numbers_e module);
 
 #endif // ELEMENTS_H

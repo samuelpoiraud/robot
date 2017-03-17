@@ -345,8 +345,8 @@ static void BRAIN_action_after_end_of_match(void){
 		rocket_launched = TRUE;
 		nb_try++;
 	}else{
-		status = check_act_status(ACT_QUEUE_Rocket, IN_PROGRESS, END_OK, ERROR);
-		if(status == ERROR && nb_try < 3){
+		status = check_act_status(ACT_QUEUE_Rocket, IN_PROGRESS, END_OK, NOT_HANDLED);
+		if(status == NOT_HANDLED && nb_try < 3){
 			rocket_launched = FALSE;  // On refait une tentative
 		}
 	}

@@ -12,10 +12,14 @@
 #ifndef MOTOR_ROLLER_FOAM_CONFIG_H
 	#define	MOTOR_ROLLER_FOAM_CONFIG_H
 
+	#include "../../../stm32f4xx/stm32f4xx_gpio.h"
+	#include "../QS/QS_external_it.h"
+	#include "../QS/QS_types.h"
+
 // Configuration moteurs
 	#define MOTOR_ROLLER_FOAM_PWM_NUM					2
 	#define MOTOR_ROLLER_FOAM_PORT_WAY					GPIOC
-	#define MOTOR_ROLLER_FOAM_PORT_WAY_BIT				GPIO_Pin_10
+	#define MOTOR_ROLLER_FOAM_PORT_WAY_BIT				GPIO_PinSource10
 	#define MOTOR_ROLLER_FOAM_MAX_PWM					100
 	#define MOTOR_ROLLER_FOAM_SIMUATE_WAY				TRUE
 	#define MOTOR_ROLLER_FOAM_RECOVERY_MODE				TRUE
@@ -23,7 +27,7 @@
 
 // Configuration capteur vitesse
 	#define MOTOR_ROLLER_FOAM_PORT_SENSOR				EXTIT_GpioB
-	#define MOTOR_ROLLER_FOAM_PORT_SENSOR_BIT			GPIO_Pin_10
+	#define MOTOR_ROLLER_FOAM_PORT_SENSOR_BIT			GPIO_PinSource10
 	#define MOTOR_ROLLER_FOAM_SENSOR_EDGE				EXTIT_Edge_Rising
 	#define MOTOR_ROLLER_FOAM_SENSOR_TICK_PER_REV		3
 

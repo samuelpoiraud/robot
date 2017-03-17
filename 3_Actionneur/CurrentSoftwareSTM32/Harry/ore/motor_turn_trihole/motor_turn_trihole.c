@@ -57,7 +57,6 @@
 #include "../QS/QS_outputlog.h"
 
 // Les fonctions internes au fonctionnement de l'actionneur
-static void MOTOR_TURN_TRIHOLE_config(CAN_msg_t* msg);
 static DC_MOTOR_SPEED_speed MOTOR_TURN_TRIHOLE_sensorRPM();
 static void MOTOR_TURN_TRIHOLE_command_run(queue_id_t queueId);
 static void MOTOR_TURN_TRIHOLE_command_init(queue_id_t queueId);
@@ -107,18 +106,6 @@ static DC_MOTOR_SPEED_speed MOTOR_TURN_TRIHOLE_sensorRPM(){
 // Fonction appellée si la carte IHM a détecté une grosse chutte de la tension d'alimentation des servos
 // Pour éviter les problèmes d'utilisation de servo non initialisé
 void MOTOR_TURN_TRIHOLE_reset_config(){}
-
-// Fonction appellée pour la modification des configurations de l'ax12 telle que la vitesse et le couple (via ActManager)
-// Dans le cas de multiple actionneur appartenant à un même actionneur, ajouter des defines dans QS_CANmsgList.h afin de pouvoir les choisirs facilement depuis la stratégie
-void MOTOR_TURN_TRIHOLE_config(CAN_msg_t* msg){
-	switch(msg->data.act_msg.act_data.act_config.sub_act_id){
-		case DEFAULT_MONO_ACT:
-			break;
-
-		default :
-			warn_printf("invalid CAN msg data[1]=%u (sous actionneur inexistant)!\n", msg->data.act_msg.act_data.act_config.sub_act_id);
-	}
-}
 
 // Fonction appellée pour l'initialisation en position de l'AX12 dés l'arrivé de l'alimentation (via ActManager)
 /// Ignoré ici mise en position fait par le process_main

@@ -44,7 +44,7 @@
 	static void display_pos(Uint8 line);
 	static void display_beacon(Uint8 line);
 	static void display_strats(Uint8 line);
-	static void display_debug_msg(Uint8 line);
+	//static void display_debug_msg(Uint8 line);
 	static void display_subaction_struct(Uint8 line, subaction_id_e subaction);
 	static void display_other_robot_color(Uint8 line);
 	void clear_line(Uint8 line);
@@ -864,10 +864,10 @@ static void display_strats(Uint8 line)
 }
 
 /* Affiche le dernier message demandé par l'utilisateur sur la derniere ligne du mode info */
-static void display_debug_msg(Uint8 line)
+/*static void display_debug_msg(Uint8 line)
 {
 	sprintf_line(line,"%s",free_msg[0]);
-}
+}*/
 
 /* Affiche les strats sélectionnées pour le match à la troisieme ligne du mode info */
 static void display_subaction_struct(Uint8 line, subaction_id_e subaction)

@@ -40,16 +40,33 @@ error_e sub_harry_initiale(){
 			DONE
 		);
 
-static get_this_module_s list_modules[8] = {
-		{.numero = MODULE_OUR_START,		.side = LEFT,			.flag = FLAG_OUR_MULTICOLOR_START_IS_TAKEN},
-		{.numero = MODULE_OUR_SIDE, 		.side = RIGHT,			.flag = FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN},
-		{.numero = MODULE_OUR_MID, 			.side = LEFT,			.flag = FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN},
-		{.numero = MODULE_ADV_START,		.side = LEFT,			.flag = FLAG_ADV_MULTICOLOR_START_IS_TAKEN},
-		{.numero = MODULE_ADV_SIDE, 		.side = RIGHT,			.flag = FLAG_ADV_MULTICOLOR_SIDE_IS_TAKEN},
-		{.numero = MODULE_ADV_MID, 			.side = LEFT,			.flag = FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN},
-		{.numero = MODULE_OUR_ORE_UNI,		.side = NO_SIDE,		.flag = FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN},
-		{.numero = MODULE_OUR_START_ZONE_UNI, .side = NO_SIDE,		.flag = FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN}
+#define SIZE_OUR_MODULES  (3)
+const get_this_module_s our_modules[SIZE_OUR_MODULES] = {
+		{.numero = MODULE_OUR_START,		.side = COLOR_EXP(LEFT, RIGHT)},  // Utiliser COLOR_EXP pour changer le côté de stockage suivant la couleur
+		{.numero = MODULE_OUR_SIDE, 		.side = COLOR_EXP(LEFT, RIGHT)},
+		{.numero = MODULE_OUR_MID, 			.side = COLOR_EXP(LEFT, RIGHT)}
 };
+
+#define SIZE_OUR_MODULES_WITH_ROCKET  (2)   // Prise des modules suivi de la fusée multicouleur
+const get_this_module_s our_modules_with_rocket[SIZE_OUR_MODULES_WITH_ROCKET] = {
+		{.numero = MODULE_OUR_START,		.side = COLOR_EXP(LEFT, RIGHT)},	// Utiliser COLOR_EXP pour changer le côté de stockage suivant la couleur
+		{.numero = MODULE_OUR_SIDE, 		.side = COLOR_EXP(LEFT, RIGHT)}
+};
+
+#define SIZE_ADV_MODULES  (3)
+const get_this_module_s adv_modules[SIZE_ADV_MODULES] = {
+		{.numero = MODULE_ADV_START,		.side = COLOR_EXP(LEFT, RIGHT)},	// Utiliser COLOR_EXP pour changer le côté de stockage suivant la couleur
+		{.numero = MODULE_ADV_SIDE, 		.side = COLOR_EXP(LEFT, RIGHT)},
+		{.numero = MODULE_ADV_MID, 			.side = COLOR_EXP(LEFT, RIGHT)}
+};
+
+#define SIZE_ADV_MODULES_WITH_ROCKET  (2)	// Prise des modules suivi de la fusée multicouleur
+const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = {
+		{.numero = MODULE_ADV_START,		.side = COLOR_EXP(LEFT, RIGHT)},	// Utiliser COLOR_EXP pour changer le côté de stockage suivant la couleur
+		{.numero = MODULE_ADV_SIDE, 		.side = COLOR_EXP(LEFT, RIGHT)}
+};
+
+
 
 //depose element
 	switch(state){
@@ -112,11 +129,11 @@ static get_this_module_s list_modules[8] = {
 			break;
 		//ADV
 		case MODULES_AND_ROCKET_MULTICOLOR_ADV:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(&list_modules[3], 2),state, ROCKET_MULTICOLOR_ADV, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(adv_modules_with_rocket, SIZE_ADV_MODULES_WITH_ROCKET),state, ROCKET_MULTICOLOR_ADV, ERROR);
 			break;
 
 		case MODULES_ADV:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(&list_modules[3], 3),state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(adv_modules, SIZE_ADV_MODULES),state, DONE, ERROR);
 			break;
 
 		case ROCKET_MULTICOLOR_ADV:
@@ -124,7 +141,7 @@ static get_this_module_s list_modules[8] = {
 			break;
 
 		case MODULES_AND_ORE_ADV:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(&list_modules[3], 3),state, ORE_ADV, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(adv_modules, SIZE_ADV_MODULES),state, ORE_ADV, ERROR);
 			break;
 
 		case ORE_ADV:
@@ -134,7 +151,7 @@ static get_this_module_s list_modules[8] = {
 
 		//OUR 1 action
 		case MODULES_OUR:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 3),state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(our_modules, SIZE_OUR_MODULES),state, DONE, ERROR);
 			break;
 
 		case ROCKET_MULTICOLOR_OUR:
@@ -155,19 +172,19 @@ static get_this_module_s list_modules[8] = {
 
 		//OUR 2 actions
 		case MODULES_AND_ROCKET_MULTICOLOR_OUR:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 2),state, ROCKET_MULTICOLOR_OUR, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(our_modules_with_rocket, SIZE_OUR_MODULES_WITH_ROCKET),state, ROCKET_MULTICOLOR_OUR, ERROR);
 			break;
 
 		case MODULES_AND_ORE_OUR:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 3),state, ORE_OUR, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(our_modules, SIZE_OUR_MODULES),state, ORE_OUR, ERROR);
 			break;
 
 		case MODULES_AND_ROCKET_UNICOLOR:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 3),state, ROCKET_UNICOLOR, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(our_modules, SIZE_OUR_MODULES),state, ROCKET_UNICOLOR, ERROR);
 			break;
 
 		case  MODULES_AND_PUT_OFF:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(list_modules, 3),state, PUT_OFF, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_manager(our_modules, SIZE_OUR_MODULES),state, PUT_OFF, ERROR);
 			break;
 
 
