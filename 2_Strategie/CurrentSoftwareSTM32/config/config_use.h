@@ -134,12 +134,9 @@
 		#define USE_PWM4
 
 /* Réglages de la carte Mosfets */
-	#define USE_MOSFETS_MODULE
-		#define USE_MOSFET_1
-		#define USE_MOSFET_2
-		#define USE_MOSFET_3
-		#define USE_MOSFET_4
-		#define USE_MOSFET_5
+	//#define USE_MOSFETS_MODULE
+	//	#define USE_MOSFET_1
+
 
 #ifdef MAIN_IR_RCVA
 	#define USE_PWM1

@@ -495,22 +495,24 @@ error_e SELFTEST_strategy(bool_e reset)
 			break;
 
 		case TEST_STRAT_MOSFETS:
-			if(I_AM_BIG()){
+			/*if(I_AM_BIG()){
 				if(MOSFET_selftest_strat())
 					state = TEST_ACT_MOSFETS;
 			}else{
 				state = TEST_ACT_MOSFETS;
-			}
+			}*/
+			state = TEST_ACT_MOSFETS;
 			break;
 
 		case TEST_ACT_MOSFETS:
-			if(I_AM_BIG()){
+			/*if(I_AM_BIG()){
 				if(MOSFET_selftest_act(8))  //huit mosfets à tester
 					state = TEST_SD_CARD;
 			}else{
 				if(MOSFET_selftest_act(1))  //un mosfet à tester
 					state = TEST_SD_CARD;
-			}
+			}*/
+			state = TEST_SD_CARD;
 			break;
 
 		case TEST_SD_CARD:

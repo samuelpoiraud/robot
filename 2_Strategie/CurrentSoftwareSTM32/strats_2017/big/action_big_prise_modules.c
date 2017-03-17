@@ -13,12 +13,7 @@
 #include "../../elements.h"
 #include "../../high_level_strat.h"
 
-typedef struct{
-	Uint8 num_state;
-	Uint8 flag;
-}manager_prise_modules;
-
-error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyTwoModules){
+/*error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyTwoModules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_CENTER,
 			INIT,
 			GO_TO_START_POINT_UP,
@@ -276,11 +271,13 @@ error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e onlyT
 	}
 
 	return IN_PROGRESS;
-}
+}*/
 
-error_e sub_harry_prise_modules_manager(get_this_module_s * list_modules, Uint8 modules_nb){ //Passer un tableau avec les modules choisis et leur nombre
+
+error_e sub_harry_prise_modules_manager(const get_this_module_s list_modules[], Uint8 modules_nb){ //Passer un tableau avec les modules choisis et leur nombre
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULES_MANAGER,
 			INIT,
+			CHOOSE_MODULE,
 			CHECK_SIDE_ACT,
 			CHOOSE_ACTION,
 			TAKE_MODULE,
@@ -297,163 +294,139 @@ error_e sub_harry_prise_modules_manager(get_this_module_s * list_modules, Uint8 
 			DONE
 		);
 
-	static ELEMENTS_property_e modules = OUR_ELEMENT;
-	static ELEMENTS_side_e side_not_allowed = NO_SIDE;
+	static ELEMENTS_property_e module = OUR_ELEMENT;
+	static ELEMENTS_side_e side = NO_SIDE;
 
 	static Uint8 actions_done = 0;
 
 
 	switch(state){
 		case INIT:
+			actions_done = 0;
 			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
 				state = ERROR; //Prise des modules impossible
 			}
 			else{
+				state = CHOOSE_MODULE;
+			}
+			break;
+
+		case CHOOSE_MODULE:		// Choix du module à prendre
+			while(actions_done < modules_nb && ELEMENTS_get_flag_module(list_modules[actions_done].numero)){
+				actions_done++;
+			}
+
+			debug_printf("\nflag FLAG_OUR_MULTICOLOR_START_IS_TAKEN = %d\n", ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN));
+			debug_printf("flag FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN = %d\n", ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN));
+			debug_printf("flag FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN = %d\n", ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN));
+			debug_printf("flag FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN = %d\n", ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN));
+			debug_printf("flag FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN = %d\n", ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN));
+			debug_printf("actions_done = %d\n", actions_done);
+
+			if(actions_done >= modules_nb){
+				state = DONE; // On a récupéré tous les modules demandés
+			}else{
 				state = CHECK_SIDE_ACT;
 			}
 			break;
 
-		case CHECK_SIDE_ACT:
-			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT)){
-				side_not_allowed = RIGHT;
+		case CHECK_SIDE_ACT:	// Choix du côté de stockage
+			if(list_modules[actions_done].side == RIGHT && !IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && !STOCKS_isFull(RIGHT)){
+				side = RIGHT;  // On demande RIGHT et RIGHT est possible
+				state = TAKE_MODULE;
+			}else if(list_modules[actions_done].side == LEFT && !IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT) && !STOCKS_isFull(LEFT)){
+				side = LEFT;  // On demande LEFT et LEFT est possible
+				state = TAKE_MODULE;
+			}else if(list_modules[actions_done].side == RIGHT && !IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT) && !STOCKS_isFull(LEFT)){
+				side = LEFT;  // On demande RIGHT, RIGHT n'est pas possible mais LEFT est possible
+				state = TAKE_MODULE;
+			}else if(list_modules[actions_done].side == LEFT && !IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && !STOCKS_isFull(RIGHT)){
+				side = RIGHT;  // On demande LEFT, LEFT n'est pas possible mais RIGHT est possible
+				state = TAKE_MODULE;
+			}else{
+				state = ERROR; // Les stocks sont pleins, on devra repasser plus tard
 			}
-			else if (IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
-				side_not_allowed = LEFT;
-			}
-
-			state = TAKE_MODULE;
 			break;
 
-		case TAKE_MODULE:
-			debug_printf("Nombre de modules :%d\n actions_effectuées :%d\n",modules_nb, actions_done);
+		case TAKE_MODULE:	// Si on arrive ici, c'est qu'on peut prendre le module demandé
+			switch(list_modules[actions_done].numero){
+				case MODULE_OUR_START:
+					module = OUR_ELEMENT;
+					state = GET_MODULE_START_ZONE;
+					break;
 
-			while(actions_done < modules_nb && ELEMENTS_get_flag(list_modules[actions_done].flag)==TRUE){
-				actions_done++;
-			}
-			if(actions_done == modules_nb){
-				state = DONE;
-			}
+				case MODULE_OUR_SIDE:
+					module = OUR_ELEMENT;
+					state = GET_MODULE_SIDE_ZONE;
+					break;
 
-			if(actions_done < modules_nb){
-				switch(list_modules[actions_done].numero){
-					case MODULE_OUR_START:
-						modules = OUR_ELEMENT;
-						state = GET_MODULE_START_ZONE;
-						break;
+				case MODULE_OUR_MID:
+					module = OUR_ELEMENT;
+					state = GET_MODULE_MID_ZONE;
+					break;
 
-					case MODULE_OUR_SIDE:
-						modules = OUR_ELEMENT;
-						state = GET_MODULE_SIDE_ZONE;
-						break;
+				case MODULE_ADV_START:
+					module = ADV_ELEMENT;
+					state = GET_MODULE_START_ZONE;
+					break;
 
-					case MODULE_OUR_MID:
-						modules = OUR_ELEMENT;
-						state = GET_MODULE_MID_ZONE;
-						break;
+				case MODULE_ADV_SIDE:
+					module = ADV_ELEMENT;
+					state = GET_MODULE_SIDE_ZONE;
+					break;
 
-					case MODULE_ADV_START:
-						modules = ADV_ELEMENT;
-						state = GET_MODULE_START_ZONE;
-						break;
+				case MODULE_ADV_MID:
+					module = ADV_ELEMENT;
+					state = GET_MODULE_MID_ZONE;
+					break;
 
-					case MODULE_ADV_SIDE:
-						modules = ADV_ELEMENT;
-						state = GET_MODULE_SIDE_ZONE;
-						break;
+				case MODULE_OUR_ORE_UNI:
+					state = GET_MODULE_SOUTH_ZONE;
+					break;
 
-					case MODULE_ADV_MID:
-						modules = ADV_ELEMENT;
-						state = GET_MODULE_MID_ZONE;
-						break;
+				case MODULE_OUR_START_ZONE_UNI:
+					state = GET_MODULE_NORTH_ZONE;
+					break;
 
-					case MODULE_OUR_ORE_UNI:
-						state = GET_MODULE_SOUTH_ZONE;
-						break;
-
-					case MODULE_OUR_START_ZONE_UNI:
-						state = GET_MODULE_NORTH_ZONE;
-						break;
-
-					default:
-						state = ERROR;
-						break;
-				}
-			}
-			else{
-				state=DONE;
-			}
-
-			break;
-
-
-			//à voir si on essaie pas d'attrapper les modules suivants même si on a eu une erreur au préalable.
-		case GET_MODULE_START_ZONE:
-			if(entrance){
-				if(side_not_allowed == LEFT && list_modules[actions_done].side == LEFT){
-					list_modules[actions_done].side = RIGHT;
-				}
-				else if(side_not_allowed == RIGHT && list_modules[actions_done].side == RIGHT){
-					list_modules[actions_done].side = LEFT;
-				}
-
-				if(STOCKS_isFull(list_modules[actions_done].side)){
+				default:
 					state = ERROR;
-				}
+					break;
 			}
-			if(modules == OUR_ELEMENT){
-				state = check_sub_action_result(sub_harry_prise_module_start_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
-				if(state == TAKE_MODULE){
-					actions_done++;
-				}
-			}
-			else{
-				state = check_sub_action_result(sub_harry_prise_module_start_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
-				if(state == TAKE_MODULE){
-					actions_done++;
-				}
+			break;
+
+
+		//à voir si on essaie pas d'attrapper les modules suivants même si on a eu une erreur au préalable.
+		case GET_MODULE_START_ZONE:
+			state = check_sub_action_result(sub_harry_prise_module_start_centre(module, side), state, CHOOSE_MODULE, CHOOSE_MODULE);
+			if(ON_LEAVING(GET_MODULE_START_ZONE)){
+				actions_done++;
 			}
 			break;
 
 		case GET_MODULE_MID_ZONE:
-			if(modules == OUR_ELEMENT){
-				state = check_sub_action_result(sub_harry_prise_module_base_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
-				if(state == TAKE_MODULE){
-					actions_done++;
-				}
-			}
-			else{
-				state = check_sub_action_result(sub_harry_prise_module_base_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
-				if(state == TAKE_MODULE){
-					actions_done++;
-				}
+			state = check_sub_action_result(sub_harry_prise_module_base_centre(module, side), state, CHOOSE_MODULE, CHOOSE_MODULE);
+			if(ON_LEAVING(GET_MODULE_MID_ZONE)){
+				actions_done++;
 			}
 			break;
 
 		case GET_MODULE_SIDE_ZONE:
-			if(modules == OUR_ELEMENT){
-				state = check_sub_action_result(sub_harry_prise_module_side_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
-				if(state == TAKE_MODULE){
-					actions_done++;
-				}
-			}
-			else{
-				state = check_sub_action_result(sub_harry_prise_module_side_centre(modules, list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
-				if(state == TAKE_MODULE){
-					actions_done++;
-				}
+			state = check_sub_action_result(sub_harry_prise_module_side_centre(module, side), state, CHOOSE_MODULE, CHOOSE_MODULE);
+			if(ON_LEAVING(GET_MODULE_SIDE_ZONE)){
+				actions_done++;
 			}
 			break;
 
 		case GET_MODULE_NORTH_ZONE:
-			state = check_sub_action_result(sub_harry_prise_module_unicolor_north(list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
-			if(state == TAKE_MODULE){
+			state = check_sub_action_result(sub_harry_prise_module_unicolor_north(side), state, CHOOSE_MODULE, CHOOSE_MODULE);
+			if(ON_LEAVING(GET_MODULE_NORTH_ZONE)){
 				actions_done++;
 			}
 			break;
 
 		case GET_MODULE_SOUTH_ZONE:
-			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(list_modules[actions_done].side), state, TAKE_MODULE, ERROR);
-			if(state == TAKE_MODULE){
+			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(side), state, CHOOSE_MODULE, CHOOSE_MODULE);
+			if(ON_LEAVING(GET_MODULE_SOUTH_ZONE)){
 				actions_done++;
 			}
 			break;
@@ -461,20 +434,18 @@ error_e sub_harry_prise_modules_manager(get_this_module_s * list_modules, Uint8 
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			actions_done = 0;
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
-			actions_done = 0;
 			return END_OK;
 			break;
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_prise_modules_centre\n");
+				debug_printf("default case in sub_harry_prise_modules_manager\n");
 			break;
 	}
 
@@ -1594,7 +1565,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				}else{
 					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT);
 				}
-				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
+				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			state = check_sub_action_result(sub_act_harry_mae_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);

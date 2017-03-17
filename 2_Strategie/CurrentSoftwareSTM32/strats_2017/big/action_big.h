@@ -35,13 +35,13 @@
 
 
 	// action_big_prise_modules
-	error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e threeModules);
+	//error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e threeModules);
 	error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);
 	error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);
 	error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);
 	error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side);
 	error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side);
-	error_e sub_harry_prise_modules_manager(get_this_module_s * list_modules, Uint8 modules_nb);
+	error_e sub_harry_prise_modules_manager(const get_this_module_s list_modules[], Uint8 modules_nb);
 	error_e sub_harry_rocket_monocolor();
 	error_e init_all_actionneur();
 	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket);
@@ -59,7 +59,7 @@
 	error_e sub_harry_get_in_pos_6_depose_module_centre();
 	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
 	error_e sub_harry_return_modules(ELEMENTS_side_e side);
-	error_e manager_return_modules();
+	//error_e manager_return_modules(); //Fonction à ne pas utiliser car dangeureuse et très incomplète
 
 #endif
 

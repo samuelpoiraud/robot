@@ -481,20 +481,20 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_
 			DONE,
 
 			LES_SQUARE_COLOR,
-			NORD_1,
-			NORD_EST_1,
-			NORD_EST_2,
-			SUD_EST_1,
-			SUD_EST_2,
-			SUD_EST_3,
-			SUD_OUEST_1,
-			NORD_OUEST_1,
+			//NORD_1,
+			//NORD_EST_1,
+			//NORD_EST_2,
+			//SUD_EST_1,
+			//SUD_EST_2,
+			//SUD_EST_3,
+			//SUD_OUEST_1,
+			//NORD_OUEST_1,
 			PATHFIND,
 			FIN_DEPLACEMENTS,
 
 
-			DETERMINE_NB_CYLINDRE_SUR_BASE,
-			DETERMINE_NB_CYLINDRE_SUR_BASE_ROTATION,
+			//DETERMINE_NB_CYLINDRE_SUR_BASE,
+			//DETERMINE_NB_CYLINDRE_SUR_BASE_ROTATION,
 			DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS,
 			DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER,
 			DETERMINE_NB_CYLINDRE,
@@ -529,7 +529,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_
 			PUSHER_UP_OUEST,
 			PUSH_MODULES_RETURN_TO_POSITION_OUEST,
 
-			DROP_PUT_AWAY_OUEST,
+			//DROP_PUT_AWAY_OUEST,
 
 		//Procedure de depose EST:
 
@@ -539,12 +539,12 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_
 			PUSHER_UP_EST,
 			PUSH_MODULES_RETURN_TO_POSITION_EST,
 
-			DROP_PUT_AWAY_EST,
+			//DROP_PUT_AWAY_EST,
 
 
 
 		//Procédure de fin de sub!!!!
-			VERIFICATION_ACTIONNEUR,
+			//VERIFICATION_ACTIONNEUR,
 
 			FIN_TENTATIVE_SUD,
 			FIN_TENTATIVE_NORD,
@@ -1355,7 +1355,7 @@ error_e sub_harry_cylinder_depose_manager(){
 			}else if(prefered_zone==MODULE_MOONBASE_ADV_SIDE){
 				state=GO_TO_ADV_SIDE;
 			}else{
-#warning Que fait t on sinon ? On reste planté là ??
+#warning CORENTIN : Que fait t on sinon ? On reste planté là ??
 				state = ERROR;
 			}
 			break;
@@ -1500,7 +1500,7 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 
 
 // la place des modules est comptée en partant du centre "Atos"
-error_e manager_return_modules(){
+/*error_e manager_return_modules(){ => Fonction à ne pas utiliser
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
 			INIT,
 			RETURN_MODULE_DROP_MIDDLE,
@@ -1515,94 +1515,93 @@ error_e manager_return_modules(){
 	switch(state){
 		case INIT:
 
-#warning Appel récursif de manager_return_modules => voire appel récursif infini...
-#warning Il n y a pas de GET_in, comment fait o pour se rendre au point demandé ?
+// ATTENTION : Il n y a pas de GET_in, comment fait on pour se rendre au point demandé ?
 			//module au centre
 			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){ 				//apelle de fonction pour aller à coté du module
-				state = check_sub_action_result(/*deplacement1*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);	//state = try_going + try_go_angle
+				state = check_sub_action_result(deplacement1, state, RETURN_MODULE_DROP_MIDDLE, ERROR);	//state = try_going + try_go_angle
 			}
 			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacemen2t*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
+				state = check_sub_action_result(deplacemen2t, state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement3*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
+				state = check_sub_action_result(deplacement3, state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 			if(MOONBASES_getModuleType(5, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 			if(MOONBASES_getModuleType(6, MODULE_MOONBASE_MIDDLE) == MODULE_POLY){ // problème de position
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_MIDDLE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_MIDDLE, ERROR);
 			}
 
 			//module a notre centre
 			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(5, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(6, MODULE_MOONBASE_OUR_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_CENTER, ERROR);
 			}
 
 			//module centre adverse
 			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(5, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 			if(MOONBASES_getModuleType(6, MODULE_MOONBASE_ADV_CENTER) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_CENTER, ERROR);
 			}
 
 			//module notre cote
 			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_OUR_SIDE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
 			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_OUR_SIDE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
 			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_OUR_SIDE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
 			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_OUR_SIDE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_OUR_SIDE, ERROR);
 			}
 
 			//module cote adverse
 			if(MOONBASES_getModuleType(1, MODULE_MOONBASE_ADV_SIDE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			if(MOONBASES_getModuleType(2, MODULE_MOONBASE_ADV_SIDE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			if(MOONBASES_getModuleType(3, MODULE_MOONBASE_ADV_SIDE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			if(MOONBASES_getModuleType(4, MODULE_MOONBASE_ADV_SIDE) == MODULE_POLY){
-				state = check_sub_action_result(/*deplacement*/manager_return_modules(), state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
+				state = check_sub_action_result(deplacement, state, RETURN_MODULE_DROP_ADV_SIDE, ERROR);
 			}
 			else{
 
@@ -1650,4 +1649,4 @@ error_e manager_return_modules(){
 	}
 
 	return IN_PROGRESS;
-}
+}*/

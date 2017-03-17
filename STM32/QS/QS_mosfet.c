@@ -9,16 +9,17 @@
  */
 
 #include "QS_all.h"
+#include "QS_mosfet.h"
 
 #ifdef USE_MOSFETS_MODULE
 
-#include "QS_mosfet.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_ports.h"
 #include "../QS/QS_can.h"
+#include "../QS/QS_types.h"
 #ifdef I_AM_CARTE_STRAT
 	#include "../actuator/act_functions.h"
-#endif
+#endif /* I_AM_CARTE_STRAT */
 
 #define LOG_PREFIX "mosfet : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_MOSFET
@@ -75,212 +76,6 @@ void MOSFET_init_pos(){
 }
 
 
-//Fonction de gestions des messages CAN pour les mosfets situés sur une carte Mosfet commandée par la stratégie
-bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
-	bool_e result;
-#if defined(I_AM_CARTE_ACT)
-	CAN_msg_t msg_result;
-	msg_result.sid = ACT_RESULT;
-	msg_result.size = SIZE_ACT_RESULT;
-	msg_result.data.act_result.sid = msg->sid;
-	msg_result.data.act_result.cmd = msg->data.act_msg.order;
-	msg_result.data.act_result.result = ACT_RESULT_DONE;
-	msg_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;
-	UNUSED_VAR(msg_result);
-#endif
-
-	switch(msg->sid){
-#ifdef USE_MOSFET_1
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_1:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_1:
-#endif
-		{
-			switch(msg->data.act_msg.order) {
-				case ACT_MOSFET_NORMAL:
-				case ACT_MOSFET_STOP:
-					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
-					#if defined(I_AM_CARTE_ACT)
-						CAN_send(&msg_result);
-					#elif defined(I_AM_CARTE_STRAT)
-						ACT_set_result(ACT_QUEUE_Mosfet_strat_1, ACT_RESULT_Ok);
-					#endif
-					break;
-				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-			}
-			result = TRUE;
-		}break;
-#endif
-#ifdef USE_MOSFET_2
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_2:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_2:
-#endif
-		{
-			switch(msg->data.act_msg.order) {
-				case ACT_MOSFET_NORMAL:
-				case ACT_MOSFET_STOP:
-					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
-					#if defined(I_AM_CARTE_ACT)
-						CAN_send(&msg_result);
-					#elif defined(I_AM_CARTE_STRAT)
-						ACT_set_result(ACT_QUEUE_Mosfet_strat_2, ACT_RESULT_Ok);
-					#endif
-					break;
-				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-			}
-			result = TRUE;
-		}break;
-#endif
-#ifdef USE_MOSFET_3
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_3:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_3:
-#endif
-		{
-			switch(msg->data.act_msg.order) {
-				case ACT_MOSFET_NORMAL:
-				case ACT_MOSFET_STOP:
-					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
-					#if defined(I_AM_CARTE_ACT)
-						CAN_send(&msg_result);
-					#elif defined(I_AM_CARTE_STRAT)
-						ACT_set_result(ACT_QUEUE_Mosfet_strat_3, ACT_RESULT_Ok);
-					#endif
-					break;
-				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-			}
-			result = TRUE;
-		}break;
-#endif
-#ifdef USE_MOSFET_4
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_4:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_4:
-#endif
-		{
-			switch(msg->data.act_msg.order) {
-				case ACT_MOSFET_NORMAL:
-				case ACT_MOSFET_STOP:
-					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
-					#if defined(I_AM_CARTE_ACT)
-						CAN_send(&msg_result);
-					#elif defined(I_AM_CARTE_STRAT)
-						ACT_set_result(ACT_QUEUE_Mosfet_strat_4, ACT_RESULT_Ok);
-					#endif
-					break;
-				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-			}
-			result = TRUE;
-		}break;
-#endif
-#ifdef USE_MOSFET_5
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_5:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_5:
-#endif
-		{
-			switch(msg->data.act_msg.order) {
-				case ACT_MOSFET_NORMAL:
-				case ACT_MOSFET_STOP:
-					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
-					#if defined(I_AM_CARTE_ACT)
-						CAN_send(&msg_result);
-					#elif defined(I_AM_CARTE_STRAT)
-						ACT_set_result(ACT_QUEUE_Mosfet_strat_5, ACT_RESULT_Ok);
-					#endif
-					break;
-				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-			}
-			result = TRUE;
-		}break;
-#endif
-#ifdef USE_MOSFET_6
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_6:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_6:
-#endif
-		{
-			switch(msg->data.act_msg.order) {
-				case ACT_MOSFET_NORMAL:
-				case ACT_MOSFET_STOP:
-					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
-					#if defined(I_AM_CARTE_ACT)
-						CAN_send(&msg_result);
-					#elif defined(I_AM_CARTE_STRAT)
-						ACT_set_result(ACT_QUEUE_Mosfet_strat_6, ACT_RESULT_Ok);
-					#endif
-					break;
-				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-			}
-			result = TRUE;
-		}break;
-#endif
-#ifdef USE_MOSFET_7
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_7:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_7:
-#endif
-		{
-			switch(msg->data.act_msg.order) {
-				case ACT_MOSFET_NORMAL:
-				case ACT_MOSFET_STOP:
-					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
-					#if defined(I_AM_CARTE_ACT)
-						CAN_send(&msg_result);
-					#elif defined(I_AM_CARTE_STRAT)
-						ACT_set_result(ACT_QUEUE_Mosfet_strat_7, ACT_RESULT_Ok);
-					#endif
-					break;
-				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-			}
-			result = TRUE;
-		}break;
-#endif
-#ifdef USE_MOSFET_8
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_8:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_8:
-#endif
-		{
-			switch(msg->data.act_msg.order) {
-				case ACT_MOSFET_NORMAL:
-				case ACT_MOSFET_STOP:
-					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
-					#if defined(I_AM_CARTE_ACT)
-						CAN_send(&msg_result);
-					#elif defined(I_AM_CARTE_STRAT)
-						ACT_set_result(ACT_QUEUE_Mosfet_strat_8, ACT_RESULT_Ok);
-					#endif
-					break;
-				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
-			}
-			result = TRUE;
-		}break;
-#endif
-#ifdef USE_MOSFET_MULTI
-#if defined(I_AM_CARTE_ACT)
-		case ACT_MOSFET_MULTI:
-#elif defined(I_AM_CARTE_STRAT)
-		case STRAT_MOSFET_MULTI:
-#endif
-			MOSFET_do_order_multi(msg);
-			result = TRUE;
-		break;
-#endif
-		default :
-			result = FALSE;
-	}
-	return result;
-}
 
 
 
@@ -1057,3 +852,211 @@ bool_e MOSFET_selftest_strat(){
 	return FALSE;
 }
 #endif
+
+//Fonction de gestions des messages CAN pour les mosfets situés sur une carte Mosfet commandée par la stratégie
+bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg) {
+	bool_e result;
+#if defined(I_AM_CARTE_ACT)
+	CAN_msg_t msg_result;
+	msg_result.sid = ACT_RESULT;
+	msg_result.size = SIZE_ACT_RESULT;
+	msg_result.data.act_result.sid = msg->sid;
+	msg_result.data.act_result.cmd = msg->data.act_msg.order;
+	msg_result.data.act_result.result = ACT_RESULT_DONE;
+	msg_result.data.act_result.error_code = ACT_RESULT_ERROR_OK;
+	UNUSED_VAR(msg_result);
+#endif
+
+	switch(msg->sid){
+#ifdef USE_MOSFET_1
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_1:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_1:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_1, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_2
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_2:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_2:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_2, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_3
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_3:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_3:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_3, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_4
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_4:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_4:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_4, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_5
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_5:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_5:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_5, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_6
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_6:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_6:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_6, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_7
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_7:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_7:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_7, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_8
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_8:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_8:
+#endif
+		{
+			switch(msg->data.act_msg.order) {
+				case ACT_MOSFET_NORMAL:
+				case ACT_MOSFET_STOP:
+					MOSFET_do_order(msg->sid, msg->data.act_msg.order);
+					#if defined(I_AM_CARTE_ACT)
+						CAN_send(&msg_result);
+					#elif defined(I_AM_CARTE_STRAT)
+						ACT_set_result(ACT_QUEUE_Mosfet_strat_8, ACT_RESULT_Ok);
+					#endif
+					break;
+				default: component_printf(LOG_LEVEL_Warning, "invalid CAN msg data[0]=%u !\n", msg->data.act_msg.order);
+			}
+			result = TRUE;
+		}break;
+#endif
+#ifdef USE_MOSFET_MULTI
+#if defined(I_AM_CARTE_ACT)
+		case ACT_MOSFET_MULTI:
+#elif defined(I_AM_CARTE_STRAT)
+		case STRAT_MOSFET_MULTI:
+#endif
+			MOSFET_do_order_multi(msg);
+			result = TRUE;
+		break;
+#endif
+		default :
+			result = FALSE;
+	}
+	return result;
+}
+

@@ -84,7 +84,7 @@ void jakub_strat_inutile_big(){
 		case INIT:
 			if (i_am_in_square_color(0,0,1000,1500))
 				state = CARRE_BAS_GAUCHE;
-			/*{
+			{
 				if (){
 					state = CARRE_BAS_GAUCHE;
 				}
@@ -101,9 +101,9 @@ void jakub_strat_inutile_big(){
 					state = DONE;
 				}
 			}
-			*/
-			/*
-			 *
+
+
+
 			else if (i_am_in_square_color(0,1500,1000,3000))
 			{
 				state = CARRE_HAUT_GAUCHE;

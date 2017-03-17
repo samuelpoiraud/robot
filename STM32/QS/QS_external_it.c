@@ -90,8 +90,6 @@
 	void EXTERNALIT_set_edge(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge) {
 		EXTI_InitTypeDef EXTI_InitStructure;
 
-		port = port;
-
 		EXTI_InitStructure.EXTI_Line = 1 << pin;
 		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 
@@ -132,8 +130,6 @@
 
 	void EXTERNALIT_disable(EXTERNALIT_port_e port, Uint8 pin) {
 		EXTI_InitTypeDef EXTI_InitStructure;
-
-		port = port;
 
 		EXTI_InitStructure.EXTI_Line = 1 << pin;
 		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
