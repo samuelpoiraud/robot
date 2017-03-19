@@ -886,8 +886,8 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 
 // Subaction actionneur de stockage
-error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_MODULES,
+error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e trigger){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_STORE_MODULES,
 			WAIT_TRIGGER,
 			INIT,
 			COMPUTE_ACTION,
@@ -931,7 +931,7 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 	}else{
-		error_printf("sub_act_harry_mae_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
+		error_printf("sub_act_harry_mae_store_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
 	}
 
@@ -1361,7 +1361,91 @@ error_e sub_act_harry_mae_modules(moduleStockLocation_e storage, bool_e trigger)
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_act_harry_mae_modules\n");
+				debug_printf("default case in sub_act_harry_mae_store_modules\n");
+			break;
+	}
+
+	if(storage == MODULE_STOCK_RIGHT){
+		stateRight = state;
+	}else if(storage == MODULE_STOCK_LEFT){
+		stateLeft = state;
+	} // else L'erreur a déjà été affichée
+
+	return IN_PROGRESS;
+}
+
+
+
+
+
+
+
+// Subaction actionneur de dépose des modules
+error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES,
+			INIT,
+
+			ERROR,
+			DONE
+		);
+
+
+	static enum state_e stateRight = INIT, stateLeft = INIT;
+	static error_e stateAct = IN_PROGRESS;
+
+	if(storage == MODULE_STOCK_RIGHT){
+		state = stateRight;
+	}else if(storage == MODULE_STOCK_LEFT){
+		state = stateLeft;
+	}else{
+		error_printf("sub_act_harry_mae_dispose_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
+		return NOT_HANDLED;
+	}
+
+
+	switch(state){
+
+		case INIT:
+			if(STOCKS_isEmpty(storage)){
+				state = DONE;	// Il n'y a rien à faire
+			}else{
+				state = DONE; // Dépose possible
+			}
+			break;
+
+		// Sortir le bras
+		// Tourner balancer pour positionner un cylindre sur le retourneur de couleur (voir stockage si necéssaire)
+		// Tourner le cylindre pour la couleur + tourner balancer pour recharger un cylindre
+		// Ventousage du cylindre
+		// Monter le bras
+		// Sortir le cylindre du robot
+		// Dépose du cylindre (1er mouvement) + balancer
+		// Dépose du cylindre (2eme mouvement) + couleur + balancer pour recharger un cylindre
+		// Replier le bras (en 2 mouvements)
+
+		// Parallélisation des actions : mouvements du bras // couleur // balancer
+		// Pour la couleur : ca serait bien d'avoir une fonction ou une MAE indépendante avec déclenchement par trigger (un flag indique quand l'action est finie)
+		// En gros il faudrait baser la subaction sur les mouvements du bras. les mouvements du balancer et la couleur
+		// peuvent être parallèlisés et être rajoutés par la suite.
+		// Ici il n'y a pas de boucle a priori dans cette MAE
+
+		// Remarque :  est il pertinent de n'avoir que cette subaction qui bouge le balancer ?
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_act_harry_mae_dispose_modules\n");
 			break;
 	}
 
