@@ -24,14 +24,14 @@ typedef enum{
 	SCAN_SIDE_RIGHT
 }SCAN_side_e;
 
-static void SCAN_get_data_left();
-static void SCAN_get_data_right();
+//static void SCAN_get_data_left();
+//static void SCAN_get_data_right();
 
 static volatile scan_data_t laser_left[2*NB_SCAN_DATA];
 static volatile scan_data_t laser_right[2*NB_SCAN_DATA];
 static volatile Uint16 index = 0;
 static volatile bool_e flag_1, flag_2, flag_treatment_too_slow;
-static scan_data_t tab_treatment[NB_SCAN_DATA];
+//static scan_data_t tab_treatment[NB_SCAN_DATA];
 
 #ifdef USE_ADS1118_ON_ADC
 	static ADS1118_sensorConfig_t sensorLeftConfig, sensorRightConfig;
@@ -94,15 +94,16 @@ static void SCAN_get_data(SCAN_side_e side){
 	Sint16 value;
 	position_t robot;
 	Sint16 cosinus = 0, sinus = 0;
-	Sint32 offsetLenghtLaser, offsetWidthLaser, offsetAngle;
+	//Sint32 offsetLenghtLaser, offsetWidthLaser
+	Sint32 offsetAngle;
 	scan_zone_e *previous_zone;
 	scan_zone_e *zone;
 	GEOMETRY_point_t *previous_pos;
-	scan_data_t *laser_data;
+	volatile scan_data_t *laser_data;
 
 	if(side == SCAN_SIDE_LEFT){
-		offsetLenghtLaser = OFFSET_LENGTH_LASER_LEFT;
-		offsetWidthLaser = OFFSET_WIDTH_LASER_LEFT;
+		//offsetLenghtLaser = OFFSET_LENGTH_LASER_LEFT;
+		//offsetWidthLaser = OFFSET_WIDTH_LASER_LEFT;
 		offsetAngle = OFFSET_ANGLE_LEFT;
 		previous_zone = &previous_zone_left;
 		zone = &zone_left;
@@ -112,8 +113,8 @@ static void SCAN_get_data(SCAN_side_e side){
 		value = CONVERSION_LASER_LEFT(laser_data[index].ADCvalue);
 
 	}else{
-		offsetLenghtLaser = OFFSET_LENGTH_LASER_RIGHT;
-		offsetWidthLaser = OFFSET_WIDTH_LASER_RIGHT;
+		//offsetLenghtLaser = OFFSET_LENGTH_LASER_RIGHT;
+		//offsetWidthLaser = OFFSET_WIDTH_LASER_RIGHT;
 		offsetAngle = OFFSET_ANGLE_RIGHT;
 		previous_zone = &previous_zone_right;
 		zone = &zone_right;
@@ -175,7 +176,7 @@ static void SCAN_get_data(SCAN_side_e side){
 
 }
 
-static void SCAN_get_data_left(){
+/*static void SCAN_get_data_left(){
 	GEOMETRY_point_t pos_mesure, pos_laser;
 	bool_e enable;
 	Sint16 value;
@@ -250,6 +251,7 @@ static void SCAN_get_data_right(){
 
 	// On regarde si il y a des saturations
 	enable = TRUE;
+#warning Ici on doit regarder la saturation de l ADC donc value doit être la valeur en sortie de l ADC et pas une distance
 	if(value < SATURATION_LOW || value > SATURATION_HIGH){
 		enable = FALSE;
 	}
@@ -272,7 +274,7 @@ static void SCAN_get_data_right(){
 	laser_right[index].pos_mesure = pos_mesure;
 	laser_right[index].pos_laser = pos_laser;
     laser_right[index].ADCvalue = valueADC;
-}
+}*/
 
 
 void TELEMETER_process_it(){
