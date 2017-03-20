@@ -20,9 +20,10 @@
 	#define CYLINDER_SLOPE_RIGHT_AX12_MAX_TEMPERATURE			60		// Température maximale en degré
 
 //Position
-	#define CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS					512
-	#define CYLINDER_SLOPE_RIGHT_AX12_DOWN_POS				    512		//en degré
-	#define CYLINDER_SLOPE_RIGHT_AX12_UP_POS					512		//en degré
+	#define CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS					666
+	#define CYLINDER_SLOPE_RIGHT_AX12_DOWN_POS				    666		//en degré
+	#define CYLINDER_SLOPE_RIGHT_AX12_UP_POS					495		//en degré
+	//#define CYLINDER_SLOPE_RIGHT_AX12_UP_POS					390
 
 //Position initiale de l'AX12
 	#define CYLINDER_SLOPE_RIGHT_AX12_INIT_POS					CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS
