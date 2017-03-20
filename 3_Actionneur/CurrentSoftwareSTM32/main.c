@@ -399,18 +399,91 @@ static void MAIN_onButton2LongPush() {
 }
 
 static void MAIN_onButton3(){
+	static Uint8 state = 0;
+		CAN_msg_t msg;
+		msg.size = 1;
 
+		if(state == 0){
+			msg.sid = ACT_CYLINDER_SLOPE_RIGHT;
+			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_UP;
+		}else if(state == 1){
+			msg.sid = ACT_CYLINDER_SLOPE_LEFT;
+			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_DOWN;
+		}
+
+		CAN_process_msg(&msg);
+		state = (state == 1)? 0 : state + 1;
 }
 
 static void MAIN_onButton3LongPush() {}
 
-static void MAIN_onButton4() {}
+static void MAIN_onButton4() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
 
-static void MAIN_onButton4LongPush() {}
+	if(state == 0){
+		msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
+		msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_OUT;
+	}else if(state == 1){
+		msg.sid = ACT_CYLINDER_SLIDER_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
+	}
 
-static void MAIN_onButton5() {}
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
 
-static void MAIN_onButton5LongPush() {}
+static void MAIN_onButton4LongPush() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+
+	if(state == 0){
+		msg.sid = ACT_POMPE_SLIDER_RIGHT;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 1){
+		msg.sid = ACT_POMPE_SLIDER_RIGHT;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton5() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+
+	if(state == 0){
+		msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
+		msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_TOP;
+	}else if(state == 1){
+		msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton5LongPush() {
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+
+	if(state == 0){
+		msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 1){
+		msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}
+
+	CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
 
 
 #else // ROBOT_SMALL

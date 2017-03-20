@@ -359,41 +359,41 @@
 
 //--------------------Configuration des ID des actionneurs-----------------------
 
-#define MOTOR_TURN_TRIHOLE_ID				0
-#define MOTOR_ROLLER_FOAM_ID				1
+#define MOTOR_TURN_TRIHOLE_ID				49
+#define MOTOR_ROLLER_FOAM_ID				49
 
 // L'id doit être inférieur à 50
 
 
-#define BIG_BALL_BACK_LEFT_AX12_ID            9
-#define BIG_BALL_BACK_RIGHT_AX12_ID           10
-#define BIG_BALL_FRONT_LEFT_AX12_ID           11
-#define BIG_BALL_FRONT_RIGHT_AX12_ID          12
-#define	BEARING_BALL_WHEEL_AX12_ID			  19
+#define BIG_BALL_BACK_LEFT_AX12_ID            49
+#define BIG_BALL_BACK_RIGHT_AX12_ID           49
+#define BIG_BALL_FRONT_LEFT_AX12_ID           49
+#define BIG_BALL_FRONT_RIGHT_AX12_ID          49
+#define	BEARING_BALL_WHEEL_AX12_ID			  49
 
-#define CYLINDER_SLOPE_LEFT_AX12_ID			  15
-#define CYLINDER_SLOPE_RIGHT_AX12_ID		  16
-#define CYLINDER_BALANCER_LEFT_AX12_ID		  17
-#define CYLINDER_BALANCER_RIGHT_AX12_ID	  	  18
-#define CYLINDER_PUSHER_LEFT_AX12_ID          20
-#define CYLINDER_PUSHER_RIGHT_AX12_ID         21
-#define CYLINDER_ELEVATOR_LEFT_RX24_ID        22
-#define CYLINDER_ELEVATOR_RIGHT_RX24_ID       23
-#define CYLINDER_SLIDER_LEFT_RX24_ID          24
-#define CYLINDER_SLIDER_RIGHT_RX24_ID         25
-#define CYLINDER_ARM_LEFT_RX24_ID        	  26
-#define CYLINDER_ARM_RIGHT_RX24_ID       	  27
-#define CYLINDER_COLOR_LEFT_RX24_ID			  32
-#define CYLINDER_COLOR_RIGHT_RX24_ID		  33
-#define CYLINDER_DISPOSE_LEFT_AX12_ID	      34
-#define CYLINDER_DISPOSE_RIGHT_AX12_ID		  35
+#define CYLINDER_SLOPE_LEFT_AX12_ID			  49
+#define CYLINDER_SLOPE_RIGHT_AX12_ID		  3
+#define CYLINDER_BALANCER_LEFT_AX12_ID		  49
+#define CYLINDER_BALANCER_RIGHT_AX12_ID	  	  49
+#define CYLINDER_PUSHER_LEFT_AX12_ID          49
+#define CYLINDER_PUSHER_RIGHT_AX12_ID         49
+#define CYLINDER_ELEVATOR_LEFT_RX24_ID        29
+#define CYLINDER_ELEVATOR_RIGHT_RX24_ID       35
+#define CYLINDER_SLIDER_LEFT_RX24_ID          31
+#define CYLINDER_SLIDER_RIGHT_RX24_ID         26
+#define CYLINDER_ARM_LEFT_RX24_ID        	  49
+#define CYLINDER_ARM_RIGHT_RX24_ID       	  49
+#define CYLINDER_COLOR_LEFT_RX24_ID			  49
+#define CYLINDER_COLOR_RIGHT_RX24_ID		  49
+#define CYLINDER_DISPOSE_LEFT_AX12_ID	      49
+#define CYLINDER_DISPOSE_RIGHT_AX12_ID		  49
 
-#define ORE_GUN_RX24_ID						  4
-#define ORE_WALL_RX24_ID					  28
-#define ORE_ROLLER_ARM_LEFT_RX24_ID           29
-#define ORE_ROLLER_ARM_RIGHT_RX24_ID          30
+#define ORE_GUN_RX24_ID						  49
+#define ORE_WALL_RX24_ID					  49
+#define ORE_ROLLER_ARM_LEFT_RX24_ID           49
+#define ORE_ROLLER_ARM_RIGHT_RX24_ID          49
 
-#define ROCKET_AX12_ID					  	  31
+#define ROCKET_AX12_ID					  	  49
 
 
 
