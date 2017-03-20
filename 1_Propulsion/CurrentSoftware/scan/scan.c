@@ -93,7 +93,7 @@ static void SCAN_get_data(SCAN_side_e side){
 	bool_e enable;
 	Sint16 value;
 	position_t robot;
-	Sint16 cosinus = 0, sinus = 0;
+	Sint16 cosinus1 = 0, sinus1 = 0, cosinus2 = 0, sinus2 = 0;
 	//Sint32 offsetLenghtLaser, offsetWidthLaser
 	Sint32 offsetAngle;
 	scan_zone_e *previous_zone;
@@ -127,7 +127,7 @@ static void SCAN_get_data(SCAN_side_e side){
 	robot = global.position; // On récupère la position du robot tout de suite
 
 	robot.teta = GEOMETRY_modulo_angle(robot.teta);
-	COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+	COS_SIN_4096_get(robot.teta, &cosinus1, &sinus1);
 
 	// On regarde si il y a des saturations
 	enable = TRUE;
@@ -138,23 +138,24 @@ static void SCAN_get_data(SCAN_side_e side){
 
 	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
 	if(side == SCAN_SIDE_LEFT){
-		pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus - OFFSET_WIDTH_LASER_LEFT*sinus)/4096;
-		pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + OFFSET_WIDTH_LASER_LEFT*cosinus)/4096;
+		pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus1 - OFFSET_WIDTH_LASER_LEFT*sinus1)/4096;
+		pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus1 + OFFSET_WIDTH_LASER_LEFT*cosinus1)/4096;
+
 	}else{
-		pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus)/4096;
-		pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus)/4096;
+		pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus1 + OFFSET_WIDTH_LASER_RIGHT*sinus1)/4096;
+		pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus1 - OFFSET_WIDTH_LASER_RIGHT*cosinus1)/4096;
 	}
 
-	COS_SIN_4096_get(robot.teta + offsetAngle, &cosinus, &sinus);
+	COS_SIN_4096_get(robot.teta + offsetAngle, &cosinus2, &sinus2);
 
 	// On calcule et on stocke la valeur sauf si le capteur entre en saturation
 	if(enable == TRUE){
 		if(side == SCAN_SIDE_LEFT){
-			pos_mesure.x = pos_laser.x - (value * sinus)/4096;
-			pos_mesure.y = pos_laser.y + (value * cosinus)/4096;
+			pos_mesure.x = robot.x + ((OFFSET_LENGTH_LASER_LEFT*cosinus1 - OFFSET_WIDTH_LASER_LEFT*sinus1) - (value * sinus2))/4096;
+			pos_mesure.y = robot.y + ((OFFSET_LENGTH_LASER_LEFT*sinus1 + OFFSET_WIDTH_LASER_LEFT*cosinus1) + (value * cosinus2))/4096;
 		}else{
-			pos_mesure.x = pos_laser.x + (value * sinus)/4096;
-			pos_mesure.y = pos_laser.y - (value * cosinus)/4096;
+			pos_mesure.x = robot.x + ((OFFSET_LENGTH_LASER_RIGHT*cosinus1 + OFFSET_WIDTH_LASER_RIGHT*sinus1) + (value * sinus2))/4096;
+			pos_mesure.y = robot.y + ((OFFSET_LENGTH_LASER_RIGHT*sinus1 - OFFSET_WIDTH_LASER_RIGHT*cosinus1) - (value * cosinus2))/4096;
 		}
 
 		if(absolute(previous_pos->x - pos_mesure.x) > 15 || absolute(previous_pos->y - pos_mesure.y) > 15)
@@ -163,8 +164,7 @@ static void SCAN_get_data(SCAN_side_e side){
 			*zone = BORDERS_SCAN_treatment(pos_mesure);
 			*previous_pos = pos_mesure;
 			if(*previous_zone != *zone){
-				calculeZonePublic(*previous_zone);
-
+				BORDERS_SCAN_calculeZonePublic(*previous_zone);
 			}
 		}
 	}
@@ -282,6 +282,7 @@ void TELEMETER_process_it(){
 	laser_left[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_LEFT);
 #ifdef USE_ADS1118_ON_ADC
 	bool_e res = ADS1118_getValue(&sensorRightConfig, &(laser_right[index].ADCvalue));
+	printf("ADCSPI: %d\n", laser_right[index].ADCvalue);
 #else
 	laser_right[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
 #endif

@@ -26,8 +26,8 @@ typedef struct{
 
 scan_zone_e BORDERS_SCAN_treatment(GEOMETRY_point_t pos_mesure);
 
-bool_e calculeZonePublic(scan_zone_e zone);
+bool_e BORDERS_SCAN_calculeZonePublic(scan_zone_e zone);
 
-void afficheDebug();
+void BORDERS_SCAN_afficheDebug();
 
 #endif /* BORDERS_SCAN_H */
