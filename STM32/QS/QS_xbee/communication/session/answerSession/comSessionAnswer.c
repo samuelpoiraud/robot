@@ -36,7 +36,7 @@
 				if(session->availableSend != 0){
 					if(session->availableSend != -1)
 						session->availableSend--;
-					COM_TRANSMITTER_send(&(session->observer), &(session->msg));
+					COM_TRANSMITTER_send(&(session->observer), session->destinationAddress64bit, &(session->msg));
 					session->state = ANSWER_RUN_STATE_WAIT_ACK;
 				}else{
 					session->state = ANSWER_RUN_STATE_END_ERROR;

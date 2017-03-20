@@ -17,6 +17,7 @@
 	static bool_e COM_RECEIVER_parse(networkMessageReceive_t * msgNetwork, comMsg_t * msgCom);
 
 	void COM_RECEIVER_init(){
+		NETWORK_RECEIVE_MANAGER_init();
 		NETWORK_RECEIVE_MANAGER_attach(&COM_RECEIVER_notify, FRAME_TYPE_RECEIVE_PACKET);
 	}
 
@@ -34,12 +35,7 @@
 			return FALSE;
 		}
 
-		if(msgNetwork->header.formated.lenght < RECEIVE_PACKET_SIZE + COM_MSG_SIZE_MAX){
-			error_printf("parse : Message trop court %d\n", msgNetwork->header.formated.lenght);
-			return FALSE;
-		}
-
-		if(CAN_OVER_XBEE_getRobotByDestinationAddress64bit(msgNetwork->frame.receivePacket.destinationAddress64bit)){
+		if(CAN_OVER_XBEE_getRobotByDestinationAddress64bit(msgNetwork->frame.receivePacket.destinationAddress64bit) == 0xFF){
 			error_printf("parse : Provenance ( 0x%llx )incorrecte\n", msgNetwork->frame.receivePacket.destinationAddress64bit);
 			return FALSE;
 		}

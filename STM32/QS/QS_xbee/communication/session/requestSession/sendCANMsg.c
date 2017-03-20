@@ -14,11 +14,11 @@
 
 	static const char sessionName[] = "SEND_CAN_MSG";
 
-	void sendCANMsg_create(comSession_s * session, time32_t timeout, Sint8 availableSend, Uint8 nbMsg, CAN_msg_t * msg){
+	void sendCANMsg_create(comSession_s * session, time32_t timeout, Sint8 availableSend, Uint64 destinationAddress64bit, Uint8 nbMsg, CAN_msg_t * msg){
 
 		comMsgId_t idFrame = COM_SESSION_MNG_getNextId();
 
-		comSessionRequestCreate(session, sessionName, timeout, availableSend, idFrame);
+		comSessionRequestCreate(session, sessionName, destinationAddress64bit, timeout, availableSend, idFrame);
 
 		session->connect = &connect;
 		session->end = &end;

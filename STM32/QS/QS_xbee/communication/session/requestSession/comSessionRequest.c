@@ -9,7 +9,7 @@
 	#define LOG_PREFIX LOG_PREFIX_COMMUNICATION
 	#include "../../../../QS_outputlog.h"
 
-	void comSessionRequestCreate(comSession_s * session, const char * sessionName, time32_t timeout, Sint8 availableSend, comMsgId_t idFrame){
+	void comSessionRequestCreate(comSession_s * session, const char * sessionName, Uint64 destinationAddress64bit, time32_t timeout, Sint8 availableSend, comMsgId_t idFrame){
 		debug_printf("create\n");
 		session->timeout = timeout;
 		session->availableSend = availableSend;
@@ -20,6 +20,8 @@
 		session->msgReceived = FALSE;
 		session->idFrame = idFrame;
 		session->sessionName = sessionName;
+
+		session->destinationAddress64bit = destinationAddress64bit;
 
 		session->run = &comSessionRequestRun;
 		session->observer.param = session;
@@ -38,7 +40,7 @@
 				if(session->availableSend != 0){
 					if(session->availableSend != -1)
 						session->availableSend--;
-					session->networkSessionController = COM_TRANSMITTER_send(&(session->observer), &(session->msg));
+					session->networkSessionController = COM_TRANSMITTER_send(&(session->observer), session->destinationAddress64bit, &(session->msg));
 					session->state = REQUEST_RUN_STATE_WAIT_ACK;
 				}else{
 					session->state = REQUEST_RUN_STATE_ERROR;

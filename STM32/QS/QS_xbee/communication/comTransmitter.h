@@ -8,7 +8,7 @@
 		#include "../../QS_xbee/network/interface/networkSessionObserver.h"
 		#include "../../QS_xbee/network/interface/networkSessionController.h"
 
-		networkSessionController_t COM_TRANSMITTER_send(networkSessionTransmitRequestObserver * observer, comMsg_t * msg);
+		networkSessionController_t COM_TRANSMITTER_send(networkSessionTransmitRequestObserver * observer, Uint64 destinationAddress64bit, comMsg_t * msg);
 
 	#endif
 

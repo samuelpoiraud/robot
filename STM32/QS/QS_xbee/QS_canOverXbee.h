@@ -6,17 +6,33 @@
 	#ifdef USE_XBEE
 
 		#include "communication/comType.h"
-		#include "xbeeConfig.h"
+
+		typedef void(*CAN_OVER_XBEE_callbackAction_t)(robot_id_e robotId, CAN_msg_t * can_msg);
 
 		void CAN_OVER_XBEE_init();
 
 		void CAN_OVER_XBEE_processMain(void);
 
-		Uint64 CAN_OVER_XBEE_getDestinationAddress64bit();
 
-		robot_id_e CAN_OVER_XBEE_getRobotByDestinationAddress64bit(Uint64 destinationAddress64bit);
+		bool_e CAN_OVER_XBEE_InputMsgIsReady();
 
-		void CAN_OVER_XBEE_sendCANMsg(Uint8 nbMsg, CAN_msg_t * msg);
+		bool_e CAN_OVER_XBEE_getInputMsg(robot_id_e * robotId, CAN_msg_t * msg);
+
+
+
+		void CAN_OVER_XBEE_sendBroadcastCANMsg(CAN_msg_t * msg);
+
+		void CAN_OVER_XBEE_sendCANMsgToModule(robot_id_e robotId, CAN_msg_t * msg);
+
+		void CAN_OVER_XBEE_sendCANMsg(CAN_msg_t * msg);
+
+
+		//Enregistre un pointeur sur fonction qui sera appelé à chaque message CAN envoyé.
+		void CAN_OVER_XBEE_setSendCallback(CAN_OVER_XBEE_callbackAction_t action);
+
+
+		// Ne pas utilisé cette fonction
+		void CAN_OVER_XBEE_addInputMsg(robot_id_e robotId, CAN_msg_t * msg);
 
 	#endif
 
