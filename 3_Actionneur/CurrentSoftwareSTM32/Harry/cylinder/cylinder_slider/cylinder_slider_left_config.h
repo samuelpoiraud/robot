@@ -20,10 +20,10 @@
 
 //Position
     #define CYLINDER_SLIDER_LEFT_RX24_IDLE_POS								512
-    #define CYLINDER_SLIDER_LEFT_RX24_IN_POS						     	512	//en degré
-    #define CYLINDER_SLIDER_LEFT_RX24_OUT_POS								512	//en degré
-    #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_POS						512	//en degré
-    #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_WITH_CYLINDER_POS			512	//en degré
+    #define CYLINDER_SLIDER_LEFT_RX24_IN_POS						     	179	//en degré
+    #define CYLINDER_SLIDER_LEFT_RX24_OUT_POS								667	//en degré
+    #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_POS						241	//en degré
+    //#define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_WITH_CYLINDER_POS			617	//en degré
 
 
 //Position initiale de l'RX24
