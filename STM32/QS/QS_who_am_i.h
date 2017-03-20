@@ -20,8 +20,14 @@
 		ANNE,
 		BIG_ROBOT = HARRY,
 		SMALL_ROBOT = ANNE,
-		BEACON_EYE
+		BEACON_EYE,
+		NB_ROBOT_ID
 	}robot_id_e;
+	#define IS_ROBOT_ID(x)		(						\
+									((x) == BIG_ROBOT)	\
+								||  ((x) == SMALL_ROBOT)\
+								||  ((x) == BEACON_EYE) \
+								)
 
 	#include "QS_all.h"
 

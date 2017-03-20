@@ -7,7 +7,7 @@
 		#include "../../comType.h"
 		#include "../comSessionType.h"
 
-		void sendCANMsg_create(comSession_s *Session, time32_t Timeout, Sint8 AvailableSend, Uint8 nbMsg, CAN_msg_t * msg);
+		void sendCANMsg_create(comSession_s * session, time32_t timeout, Sint8 availableSend, Uint64 destinationAddress64bit, Uint8 nbMsg, CAN_msg_t * msg);
 
 	#endif
 

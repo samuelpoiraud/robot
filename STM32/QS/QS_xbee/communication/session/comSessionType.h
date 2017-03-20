@@ -29,6 +29,7 @@
 			bool_e ackState;
 			networkSessionController_t networkSessionController;
 			const char * sessionName;
+			Uint64 destinationAddress64bit;
 
 			/// Public method
 			void (*run)(struct comSession *session);

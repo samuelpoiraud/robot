@@ -11,14 +11,14 @@
 
 	static void COM_TRANSMITTER_serialize(comMsg_t * Msg, Uint8 Data[], Uint8 *NbData);
 
-	networkSessionController_t COM_TRANSMITTER_send(networkSessionTransmitRequestObserver * observer, comMsg_t * msg){
+	networkSessionController_t COM_TRANSMITTER_send(networkSessionTransmitRequestObserver * observer, Uint64 destinationAddress64bit, comMsg_t * msg){
 		Uint8 data[COM_MSG_SIZE_MAX];
 		Uint8 nbData;
 
 		info_printf("O - %d  |  %d  |  %s\n", msg->header.type, msg->header.id, (msg->header.way == COM_MSG_WAY_SEND)?"COM_MSG_WAY_SEND":"COM_MSG_WAY_ACK");
 		COM_TRANSMITTER_serialize(msg, data, &nbData);
 
-		return transmitRequest(observer, data, nbData, TRUE, CAN_OVER_XBEE_getDestinationAddress64bit(), 0xFFFE);
+		return transmitRequest(observer, data, nbData, TRUE, destinationAddress64bit, 0xFFFE);
 	}
 
 	static void COM_TRANSMITTER_serialize(comMsg_t * msg, Uint8 data[], Uint8 *nbData){

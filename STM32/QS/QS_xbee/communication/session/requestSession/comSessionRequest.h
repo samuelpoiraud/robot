@@ -17,7 +17,7 @@
 			REQUEST_RUN_STATE_ERROR
 		}comSessionRequestRunState_e;
 
-		void comSessionRequestCreate(comSession_s * session, const char * sessionName, time32_t timeout, Sint8 availableSend, comMsgId_t IdFrame);
+		void comSessionRequestCreate(comSession_s * session, const char * sessionName,  Uint64 destinationAddress64bit, time32_t timeout, Sint8 availableSend, comMsgId_t IdFrame);
 		void comSessionRequestRun(comSession_s * session);
 		void comSessionRequestNotify(comSession_s * session, bool_e transmitted);
 		bool_e comSessionRequestConnectCheck(comSession_s * session, comMsg_t * Msg, comMsgType_e msgType);
