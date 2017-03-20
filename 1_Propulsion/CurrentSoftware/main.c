@@ -128,7 +128,7 @@ void initialisation(void)
 #ifdef MODE_PRINT_FIRST_TRAJ
 	IHM_define_act_button(BP_PRINTMATCH_IHM,&DEBUG_display,NULL);
 #endif
-	BUTTONS_define_actions(BUTTON0, &afficheDebug, NULL, 1);
+	BUTTONS_define_actions(BUTTON0, &BORDERS_SCAN_afficheDebug, NULL, 1);
 
 	DETECTION_init();
 	#ifdef USE_HOKUYO
