@@ -38,6 +38,7 @@
 #include "detection.h"
 #include "gyroscope.h"
 #include "avoidance.h"
+#include "scan/scan.h"
 
 
 typedef struct{
@@ -54,6 +55,7 @@ static void SECRETARY_send_all_coefs(void);
 static void SECRETARY_mailbox_out_add(CAN_msg_t * msg, MAIL_from_to_e from_to);
 static void SECRETARY_mailbox_out_process_main(void);
 static void SECRETARY_mailbox_in_add(CAN_msg_t * msg, MAIL_from_to_e from_to);
+static void SECRETARY_onPower();
 
 volatile static Uint8 mailbox_in_index_read;
 volatile static Uint8 mailbox_in_index_write;
@@ -361,9 +363,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		case BROADCAST_ALIM :
 			global.alim_value = msg->data.broadcast_alim.battery_value;
-			if(msg->data.broadcast_alim.state & (BATTERY_ENABLE | BATTERY_LOW))
+			if(msg->data.broadcast_alim.state & (BATTERY_ENABLE | BATTERY_LOW)){
 				global.flags.alim = TRUE;
-			else if(msg->data.broadcast_alim.state & BATTERY_DISABLE)
+				SECRETARY_onPower();
+			}else if(msg->data.broadcast_alim.state & BATTERY_DISABLE)
 				global.flags.alim = FALSE;
 		break;
 
@@ -796,4 +799,9 @@ static void SECRETARY_send_all_coefs(void)
 	PROPULSION_coef_e i;
 	for(i=(PROPULSION_coef_e)(0);i<PROPULSION_NUMBER_COEFS;i++)
 		SECRETARY_send_coef(i);
+}
+
+static void SECRETARY_onPower(){
+	debug_printf("Power recovery !\n");
+	SCAN_onPower();
 }

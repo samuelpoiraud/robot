@@ -71,6 +71,9 @@
 				return "Beacon_Eye";
 				break;
 
+			case NB_ROBOT_ID:		// Normalement impossible
+				break;
+
 			//Pas de default pour avoir un warning quand un cas de robot_id n'est pas géré dans ce switch
 		}
 		return "Robot inconnu";
