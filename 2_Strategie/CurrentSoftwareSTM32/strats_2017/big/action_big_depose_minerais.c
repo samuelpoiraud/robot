@@ -132,14 +132,15 @@ error_e sub_harry_depose_minerais(){
 
 	switch(state){
 		case INIT:
-			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
+#warning 'désactivation pour test'
+			/*if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
 			}else if((ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)))){
 				state=ERROR;
-			}else{
+			}else{*/
 				state=GET_IN;
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_ORE_SHOOTING,TRUE);
-			}
+			//}
 			break;
 
 		case GET_IN:
@@ -147,7 +148,7 @@ error_e sub_harry_depose_minerais(){
 			break;
 
 		case GO_TO_SHOOTING_POS: // Ne surtout pas mettre GET_OUT_ERROR pour le cas d'erreur, sinon on fonce dans l'adversaire (Val)
-			state=try_going(650,COLOR_Y(300),state,TURN_TO_SHOOTING_POS,ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(700,COLOR_Y(300),state,TURN_TO_SHOOTING_POS,ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case TURN_TO_SHOOTING_POS:
@@ -224,7 +225,7 @@ error_e sub_harry_get_in_depose_minerais(){
 			//si j'ai rien à déposer je vais en erreur
 			if(i_am_in_square_color(800,1400,300,900))
 				state=GET_IN_FROM_OUR_SQUARE;
-			else if(i_am_in_square_color(100,1100,900,2100))
+			else if(i_am_in_square_color(250,1100,900,2100))
 				state=GET_IN_MIDDLE_SQUARE;
 			else if(i_am_in_square_color(800,1400,2100,2700))
 				state=GET_IN_FROM_ADV_SQUARE;
@@ -233,19 +234,21 @@ error_e sub_harry_get_in_depose_minerais(){
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state=try_going(850,COLOR_Y(400),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=try_going(950,COLOR_Y(400),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
-		case GET_IN_MIDDLE_SQUARE:
-			state=try_going(1000,COLOR_Y(1000),state,GET_IN_FROM_OUR_SQUARE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
-			break;
+		case GET_IN_MIDDLE_SQUARE:{
+			const displacement_t start_curve_middle[2] = {{(GEOMETRY_point_t){1000, COLOR_Y(1000)}, FAST},//ne pas changer ces valeurs il y a un risque de péter la prop
+														  {(GEOMETRY_point_t){1000, COLOR_Y(450)}, FAST}};
+			state=try_going_multipoint(start_curve_middle, 2, state, GET_IN_FROM_OUR_SQUARE, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+		}break;
 
 		case GET_IN_FROM_ADV_SQUARE:
 			state=try_going(1000,COLOR_Y(2000),state,GET_IN_MIDDLE_SQUARE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case PATHFIND:
-			state=ASTAR_try_going(650,COLOR_Y(300),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=ASTAR_try_going(850,COLOR_Y(300),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case ERROR:

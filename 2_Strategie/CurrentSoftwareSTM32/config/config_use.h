@@ -64,6 +64,12 @@
 
 #define USE_CW_SENSOR
 
+//#define ADV_SIDE_ON_OUR_MOONBASE
+
+//#define ADV_SIDE_ON_CENTRAL_MOONBASE
+
+//#define ADV_SIDE_ON_ADV_MOONBASE
+
 //#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
 //#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN

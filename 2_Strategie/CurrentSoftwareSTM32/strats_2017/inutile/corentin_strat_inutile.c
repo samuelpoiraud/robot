@@ -30,11 +30,11 @@ void corentin_strat_inutile_big(){
 
 	switch(state){
 		case INIT:
-			state=START;
+			state=GO_TO;
 			break;
 
 		case GO_TO:
-			state=MAKE_SUB;
+			state=try_going(999, COLOR_Y(2099), state, MAKE_SUB, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MAKE_SUB:
