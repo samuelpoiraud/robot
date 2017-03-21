@@ -407,7 +407,7 @@ static void MAIN_onButton3(){
 			msg.sid = ACT_CYLINDER_SLOPE_RIGHT;
 			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_UP;
 		}else if(state == 1){
-			msg.sid = ACT_CYLINDER_SLOPE_LEFT;
+			msg.sid = ACT_CYLINDER_SLOPE_RIGHT;
 			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_DOWN;
 		}
 
@@ -426,7 +426,7 @@ static void MAIN_onButton4() {
 		msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
 		msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_OUT;
 	}else if(state == 1){
-		msg.sid = ACT_CYLINDER_SLIDER_LEFT;
+		msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
 		msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
 	}
 
@@ -460,7 +460,7 @@ static void MAIN_onButton5() {
 		msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
 		msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_TOP;
 	}else if(state == 1){
-		msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+		msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
 		msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
 	}
 

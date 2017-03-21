@@ -19,7 +19,7 @@
     #define CYLINDER_SLIDER_RIGHT_RX24_MAX_TEMPERATURE			60		// Température maximale en degré
 
 //Position
-    #define CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS								512
+    #define CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS								821
     #define CYLINDER_SLIDER_RIGHT_RX24_IN_POS						     	821	//en degré
     #define CYLINDER_SLIDER_RIGHT_RX24_OUT_POS								333	//en degré
     #define CYLINDER_SLIDER_RIGHT_RX24_ALMOST_OUT_POS						785	//en degré
