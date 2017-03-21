@@ -79,6 +79,34 @@ void SCAN_init(){
 	#endif
 }
 
+void SCAN_onPower(){
+	#ifdef USE_ADS1118_ON_ADC
+		sensorRightConfig.GPIO_cs.GPIOx = GPIOC;
+		sensorRightConfig.GPIO_cs.GPIO_Pin = GPIO_Pin_2;
+		sensorRightConfig.GPIO_din.GPIOx = GPIOB;
+		sensorRightConfig.GPIO_din.GPIO_Pin = GPIO_Pin_14;
+		sensorRightConfig.SPI_handle = SPI2;
+
+		ADS1118_init(&sensorRightConfig);
+
+		bool_e res;
+		res = ADS1118_setConfig(&sensorRightConfig,
+				ADS1118_CONFIG_SINGLE_SHOT_OFF,
+				ADS1118_CONFIG_INPUT_MULTIPLEXER__AINP_IS_AIN0__AINN_IS_GND,
+				ADS1118_CONFIG_GAIN_AMPLIFIER_FSR_4_096,
+				ADS1118_CONFIG_MODE_CONTINUOUS_CONVERSION,
+				ADS1118_CONFIG_DATA_RATE_860_SPS,
+				ADS1118_CONFIG_SENSOR_MODE_ADC,
+				ADS1118_CONFIG_PULLUP_ENABLE,
+				TRUE);
+		if(res)
+			debug_printf("Configuration de l'ADC ADS1118 réussie\n");
+		else
+			debug_printf("Configuration de l'ADC ADS1118 échoué !!!!!!!!!!!!!!\n");
+
+	#endif
+}
+
 static void SCAN_get_data(SCAN_side_e side){
 
 	// Variable static

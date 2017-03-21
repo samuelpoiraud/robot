@@ -20,6 +20,7 @@ void SCAN_init();
 void TELEMETER_process_it();
 void SCAN_process_it();
 void SCAN_process_main();
+void SCAN_onPower();
 
 Uint16 TELEMETER_get_ADCvalue_left();
 Uint16 TELEMETER_get_ADCvalue_right();
