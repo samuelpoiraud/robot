@@ -102,6 +102,7 @@ static void CYLINDER_ARM_LEFT_initRX24() {
 
         RX24_config_set_maximal_angle(CYLINDER_ARM_LEFT_RX24_ID, CYLINDER_ARM_LEFT_RX24_MAX_VALUE);
         RX24_config_set_minimal_angle(CYLINDER_ARM_LEFT_RX24_ID, CYLINDER_ARM_LEFT_RX24_MIN_VALUE);
+        RX24_set_move_to_position_speed(CYLINDER_ARM_LEFT_RX24_ID, CYLINDER_ARM_LEFT_RX24_SPEED);
 
         RX24_config_set_error_before_led(CYLINDER_ARM_LEFT_RX24_ID, RX24_BEFORE_LED);
         RX24_config_set_error_before_shutdown(CYLINDER_ARM_LEFT_RX24_ID, RX24_BEFORE_SHUTDOWN);

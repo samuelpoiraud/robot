@@ -19,6 +19,7 @@
     #define ORE_ROLLER_ARM_RX24_MAX_TORQUE_PERCENT		        50		// Couple maximum en pourcentage de le RX24. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager le RX24.
     #define ORE_ROLLER_ARM_RX24_MAX_TEMPERATURE			    65		// Température maximale en degré
     #define ORE_ROLLER_ARM_RX24_MAX_SPEED                      50      // Vitesse maximale en pourcent
+	#define ORE_ROLLER_ARM_RX24_SPEED						100		// Vitesse par défaut du RX24
 
 //Position
     #define ORE_ROLLER_ARM_L_RX24_IDLE_POS					    743

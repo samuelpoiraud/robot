@@ -102,6 +102,7 @@ static void BEARING_BALL_WHEEL_initAX12() {
 
         AX12_config_set_maximal_angle(BEARING_BALL_WHEEL_AX12_ID, BEARING_BALL_WHEEL_AX12_MAX_VALUE);
         AX12_config_set_minimal_angle(BEARING_BALL_WHEEL_AX12_ID, BEARING_BALL_WHEEL_AX12_MIN_VALUE);
+        AX12_set_move_to_position_speed(BEARING_BALL_WHEEL_AX12_ID, BEARING_BALL_WHEEL_AX12_SPEED);
 
         AX12_config_set_error_before_led(BEARING_BALL_WHEEL_AX12_ID, AX12_BEFORE_LED);
         AX12_config_set_error_before_shutdown(BEARING_BALL_WHEEL_AX12_ID, AX12_BEFORE_SHUTDOWN);
