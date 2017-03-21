@@ -104,6 +104,7 @@ static void EXEMPLE_initRX24() {
 
 		RX24_config_set_maximal_angle(EXEMPLE_RX24_ID, EXEMPLE_RX24_MAX_VALUE);
 		RX24_config_set_minimal_angle(EXEMPLE_RX24_ID, EXEMPLE_RX24_MIN_VALUE);
+		RX24_set_move_to_position_speed(EXEMPLE_RX24_ID, EXEMPLE_RX24_SPEED);
 
 		RX24_config_set_error_before_led(EXEMPLE_RX24_ID, RX24_BEFORE_LED);
 		RX24_config_set_error_before_shutdown(EXEMPLE_RX24_ID, RX24_BEFORE_SHUTDOWN);

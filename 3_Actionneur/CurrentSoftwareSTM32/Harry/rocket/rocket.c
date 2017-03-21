@@ -103,6 +103,7 @@ static void ROCKET_initAX12() {
 
         AX12_config_set_maximal_angle(ROCKET_AX12_ID, ROCKET_AX12_MAX_VALUE);
         AX12_config_set_minimal_angle(ROCKET_AX12_ID, ROCKET_AX12_MIN_VALUE);
+        AX12_set_move_to_position_speed(ROCKET_AX12_ID, ROCKET_AX12_SPEED);
 
         AX12_config_set_error_before_led(ROCKET_AX12_ID, AX12_BEFORE_LED);
         AX12_config_set_error_before_shutdown(ROCKET_AX12_ID, AX12_BEFORE_SHUTDOWN);

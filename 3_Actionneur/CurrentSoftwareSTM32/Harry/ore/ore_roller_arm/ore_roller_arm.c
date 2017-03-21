@@ -88,6 +88,7 @@ static void ORE_ROLLER_ARM_initRX24() {
 
         RX24_config_set_maximal_angle(ORE_ROLLER_ARM_LEFT_RX24_ID, ORE_ROLLER_ARM_RX24_MAX_VALUE);
         RX24_config_set_minimal_angle(ORE_ROLLER_ARM_LEFT_RX24_ID, ORE_ROLLER_ARM_RX24_MIN_VALUE);
+        RX24_set_move_to_position_speed(ORE_ROLLER_ARM_LEFT_RX24_ID, ORE_ROLLER_ARM_RX24_SPEED);
 
         RX24_config_set_error_before_led(ORE_ROLLER_ARM_LEFT_RX24_ID, RX24_BEFORE_LED);
         RX24_config_set_error_before_shutdown(ORE_ROLLER_ARM_LEFT_RX24_ID, RX24_BEFORE_SHUTDOWN);
@@ -107,6 +108,7 @@ static void ORE_ROLLER_ARM_initRX24() {
 
         RX24_config_set_maximal_angle(ORE_ROLLER_ARM_RIGHT_RX24_ID, ORE_ROLLER_ARM_RX24_MAX_VALUE);
         RX24_config_set_minimal_angle(ORE_ROLLER_ARM_RIGHT_RX24_ID, ORE_ROLLER_ARM_RX24_MIN_VALUE);
+        RX24_set_move_to_position_speed(ORE_ROLLER_ARM_RIGHT_RX24_ID, ORE_ROLLER_ARM_RX24_SPEED);
 
         RX24_config_set_error_before_led(ORE_ROLLER_ARM_RIGHT_RX24_ID, RX24_BEFORE_LED);
         RX24_config_set_error_before_shutdown(ORE_ROLLER_ARM_RIGHT_RX24_ID, RX24_BEFORE_SHUTDOWN);
