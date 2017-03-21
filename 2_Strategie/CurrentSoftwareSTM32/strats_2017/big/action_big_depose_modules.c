@@ -13,10 +13,10 @@
 #define DISTANCE_BASE_SIDE_ET_ROBOT	((Uint16) 120+200)
 
 // Fonctions privées
-error_e sub_harry_get_in_our_side_depose_module_centre();
-error_e sub_harry_get_in_middle_adv_side_depose_module_centre();
-error_e sub_harry_get_in_adv_side_depose_module_centre();
-error_e sub_harry_get_in_middle_our_side_depose_module_centre();
+//error_e sub_harry_get_in_our_side_depose_module_centre();
+//error_e sub_harry_get_in_middle_adv_side_depose_module_centre();
+//error_e sub_harry_get_in_adv_side_depose_module_centre();
+//error_e sub_harry_get_in_middle_our_side_depose_module_centre();
 
 
 error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side){
@@ -1298,14 +1298,14 @@ error_e sub_harry_cylinder_depose_manager(){
 			DONE
 		);
 
-
-
 	moduleMoonbaseLocation_e first_zone = MODULE_MOONBASE_MIDDLE;
 	moduleMoonbaseLocation_e second_zone = MODULE_MOONBASE_OUR_CENTER;
 	moduleMoonbaseLocation_e third_zone = MODULE_MOONBASE_OUR_SIDE;
 	moduleMoonbaseLocation_e fourth_zone = MODULE_MOONBASE_ADV_CENTER;
 	moduleMoonbaseLocation_e fifth_zone = MODULE_MOONBASE_ADV_SIDE;
 	moduleMoonbaseLocation_e prefered_zone = first_zone;
+
+	ELEMENTS_side_match_e depose_side;
 
 	switch(state){
 		case INIT:
@@ -1346,6 +1346,7 @@ error_e sub_harry_cylinder_depose_manager(){
 		case MANAGE:
 			if(prefered_zone==MODULE_MOONBASE_MIDDLE){
 				state=GO_TO_MIDDLE;
+
 			}else if(prefered_zone==MODULE_MOONBASE_OUR_CENTER){
 				state=GO_TO_OUR_CENTER;
 			}else if(prefered_zone==MODULE_MOONBASE_OUR_SIDE){
@@ -1355,18 +1356,28 @@ error_e sub_harry_cylinder_depose_manager(){
 			}else if(prefered_zone==MODULE_MOONBASE_ADV_SIDE){
 				state=GO_TO_ADV_SIDE;
 			}else{
-#warning CORENTIN : Que fait t on sinon ? On reste planté là ??
+#warning 'CORENTIN : Que fait t on sinon ? On reste planté là ??'
 				state = ERROR;
 			}
 			break;
 
 		case GO_TO_MIDDLE:
-			//state=check_sub_action_result(sub_harry_depose_modules_centre(NEUTRAL_ELEMENT),state,DONE,ERROR);
+#ifdef ADV_SIDE_ON_CENTRAL_MOONBASE
+			depose_side = ADV_SIDE;
+#else
+			depose_side = OUR_SIDE;
+#endif
+			//state=check_sub_action_result(sub_harry_depose_modules_centre(NEUTRAL_ELEMENT, , depose_side),state,DONE,ERROR);
 			state = DONE;
 			break;
 
 		case GO_TO_OUR_CENTER:
-			//state=check_sub_action_result(sub_harry_depose_modules_centre(OUR_ELEMENT),state,DONE,ERROR);
+#ifdef ADV_SIDE_ON_OUR_MOONBASE
+			depose_side = ADV_SIDE;
+#else
+			depose_side = OUR_SIDE;
+#endif
+			//state=check_sub_action_result(sub_harry_depose_modules_centre(OUR_ELEMENT, , depose_side),state,DONE,ERROR);
 			state = DONE;
 			break;
 
@@ -1375,7 +1386,12 @@ error_e sub_harry_cylinder_depose_manager(){
 			break;
 
 		case GO_TO_ADV_CENTER:
-			//state=check_sub_action_result(sub_harry_depose_modules_centre(ADV_ELEMENT),state,DONE,ERROR);
+#ifdef ADV_SIDE_ON_ADV_MOONBASE
+			depose_side = ADV_SIDE;
+#else
+			depose_side = OUR_SIDE;
+#endif
+			//state=check_sub_action_result(sub_harry_depose_modules_centre(ADV_ELEMENT, , depose_side),state,DONE,ERROR);
 			state = DONE;
 			break;
 
