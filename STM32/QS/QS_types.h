@@ -236,6 +236,8 @@
 			FLAG_HARRY_DISABLE_MODULE_LEFT,		// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
 			FLAG_HARRY_DISPENSER_LEFT_OUT,		// Flag dispenser temporaire à supprimer dès que MAE_current_state ok
 			FLAG_HARRY_DISPENSER_RIGHT_OUT,		// Flag dispenser temporaire à supprimer dès que MAE_current_state ok
+			FLAG_HARRY_MODULE_COLOR_RIGHT_DONE,	// Flag levé lorsqu'un module est prêt à être déposer (il a été retourné de la bonne couleur)
+			FLAG_HARRY_MODULE_COLOR_LEFT_DONE,  // Flag levé lorsqu'un module est prêt à être déposer (il a été retourné de la bonne couleur)
 
 			F_ELEMENTS_FLAGS_NB
 		}elements_flags_e;

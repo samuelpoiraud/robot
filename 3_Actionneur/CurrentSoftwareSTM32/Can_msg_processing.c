@@ -35,7 +35,8 @@ void CAN_process_init(){
 
 void CAN_process_msg(CAN_msg_t* msg) {
 	CAN_msg_t answer;
-	if(ACTMGR_process_msg(msg)) {
+	// Les messages de broadcast ne doivent pas passer dans le if qui suit
+	if((msg->sid & 0xF00) == ACT_FILTER && ACTMGR_process_msg(msg)) {
 		component_printf(LOG_LEVEL_Debug, "Act Msg SID: 0x%03x, cmd: 0x%x(%u), size: %d\n", msg->sid, msg->data.act_msg.order, msg->data.act_msg.order, msg->size);
 		return;  //Le message a déja été géré
 	}

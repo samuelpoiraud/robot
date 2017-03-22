@@ -1380,6 +1380,210 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 
 
+
+// Subaction actionneur de préparation de la dépose des modules
+error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e storage, bool_e trigger){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE,
+			WAIT_TRIGGER,
+			INIT,
+			MOVE_BALANCER_OUT,
+			TURN_FOR_COLOR,
+			WAIT_ADV_COLOR,
+			WAIT_WHITE,
+			STOP_TURN,
+			END_CHECK_POSITION_BALANCER,
+			END_MOVE_BALANCER_IN,
+			ERROR,
+			DONE
+		);
+
+
+	static enum state_e stateRight = WAIT_TRIGGER, stateLeft = WAIT_TRIGGER;
+	static error_e stateAct = IN_PROGRESS;
+
+	if(storage == MODULE_STOCK_RIGHT){
+		state = stateRight;
+	}else if(storage == MODULE_STOCK_LEFT){
+		state = stateLeft;
+	}else{
+		error_printf("sub_act_harry_mae_prepare_modules_for_dispose could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
+		return NOT_HANDLED;
+	}
+
+	switch(state){
+
+		case WAIT_TRIGGER:
+			if(trigger){
+				state = INIT;
+
+				// On baisse le flag dans le cas où cela n'a pas encore été fait
+				if(storage == MODULE_STOCK_RIGHT){
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_DONE, FALSE);
+				}else{
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_DONE, FALSE);
+				}
+			}
+			break;
+
+		case INIT:
+			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_1_TO_OUT, storage)){ // TODO : A revoir
+				state = MOVE_BALANCER_OUT; // Préparation de la dépose possible
+			}else{
+				state = ERROR;	// Il n'y a pas de cylindre disponible
+			}
+			break;
+
+		case MOVE_BALANCER_OUT:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
+				}else{
+					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, TURN_FOR_COLOR, ERROR);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, TURN_FOR_COLOR, ERROR);
+			}
+			break;
+
+		case TURN_FOR_COLOR:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					// A modifier
+					//ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT);
+				}else{
+					// A modifier
+					//ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT);
+				}
+			}
+			// Aucune vérification ici
+			state = WAIT_ADV_COLOR;
+			break;
+
+		case WAIT_ADV_COLOR:
+			if(storage == MODULE_STOCK_RIGHT){
+				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow))){ //jaune à droite
+					state=WAIT_WHITE;
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Blue))){ //bleu à droite
+					state=WAIT_WHITE;
+				}
+			}else{
+				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow))){ //jaune à gauche
+					state=WAIT_WHITE;
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Blue))){ //bleu à gauche
+					state=WAIT_WHITE;
+				}
+			}
+			break;
+
+		case WAIT_WHITE:
+			// On en profite pour retourner le balancer vers l'intérieur du robot pour gagner du temps
+			// Pas de vérification du résultat ici, la couleur est prioritaire.
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
+				}else{
+					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
+				}
+			}
+
+			// On attend la couleur blanche
+			if(storage == MODULE_STOCK_RIGHT){
+				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White)){ //blanc à gauche
+					state=STOP_TURN;
+				}
+			}else{
+				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White)){ //blanc à droite
+					state=STOP_TURN;
+				}
+			}
+			break;
+
+		case STOP_TURN:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					// A modifier
+					//ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT);
+				}else{
+					// A modifier
+					//ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT);
+				}
+			}
+			// Aucune vérification ici
+			state = END_CHECK_POSITION_BALANCER;
+			break;
+
+		case END_CHECK_POSITION_BALANCER:
+			if(storage == MODULE_STOCK_RIGHT){
+				stateAct = ACT_check_position_config(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
+			}else{
+				stateAct = ACT_check_position_config(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
+			}
+
+			if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
+				state = END_MOVE_BALANCER_IN;
+			}else{
+				state = DONE;  // C'est bon l'actionneur est en position
+			}
+			break;
+
+		case END_MOVE_BALANCER_IN:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
+				}else{
+					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
+				}
+			}
+
+			// Aucune vérification
+			state = DONE;
+			break;
+
+
+		case DONE:
+			if(storage == MODULE_STOCK_RIGHT){
+				ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_DONE, TRUE);
+			}else{
+				ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_DONE, TRUE);
+			}
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_act_harry_mae_prepare_modules_for_dispose\n");
+			break;
+	}
+
+	if(storage == MODULE_STOCK_RIGHT){
+		stateRight = state;
+	}else if(storage == MODULE_STOCK_LEFT){
+		stateLeft = state;
+	} // else L'erreur a déjà été affichée
+
+	return IN_PROGRESS;
+}
+
+
+
+
+
+
+
+
 // Subaction actionneur de dépose des modules
 error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES,
@@ -1456,5 +1660,5 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage){
 	} // else L'erreur a déjà été affichée
 
 	return IN_PROGRESS;
-}
+}*/
 
