@@ -5,6 +5,7 @@
 #include "../../QS/QS_types.h"
 #include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_IHM.h"
+#include "../../QS/QS_CapteurCouleurCW.h"
 #include  "../../propulsion/astar.h"
 #include  "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
@@ -1105,12 +1106,10 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 				}else{
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
-
 					// Si c'est possible, on prépare la SLOPE pour un futur stockage
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT)){
 						ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_DOWN);
 					}
-
 					// On bouge le dispenser si possible
 					if(!ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_LEFT_OUT) && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_1_TO_OUT, MODULE_STOCK_LEFT)){
 						ACT_push_order( ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
@@ -1140,7 +1139,6 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 					ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
 				}
 			}
-
 			// Mise à jour des données
 			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, storage);
 			break;
@@ -1660,5 +1658,5 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage){
 	} // else L'erreur a déjà été affichée
 
 	return IN_PROGRESS;
-}*/
+}
 
