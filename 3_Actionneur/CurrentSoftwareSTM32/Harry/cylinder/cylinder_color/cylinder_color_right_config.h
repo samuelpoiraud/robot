@@ -20,9 +20,9 @@
 	#define CYLINDER_COLOR_RIGHT_RX24_SPEED						100		// Vitesse par défaut du RX24
 
 //Position
-	#define CYLINDER_COLOR_RIGHT_RX24_IDLE_POS					512
-	#define CYLINDER_COLOR_RIGHT_RX24_LOCK_POS			     	512	//en degré
-	#define CYLINDER_COLOR_RIGHT_RX24_UNLOCK_POS				512	//en degré
+	#define CYLINDER_COLOR_RIGHT_RX24_IDLE_SPEED				0		// 0% de vitesse
+	#define CYLINDER_COLOR_RIGHT_RX24_NORMAL_SPEED			    100		// 100% de vitesse
+	#define CYLINDER_COLOR_RIGHT_RX24_ZERO_SPEED				0		// 0% de vitesse
 
 	#define CYLINDER_COLOR_RIGHT_RX24_WARNER_POS				512
 

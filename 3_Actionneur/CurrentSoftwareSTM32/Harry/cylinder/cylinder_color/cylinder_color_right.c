@@ -63,7 +63,7 @@ static void CYLINDER_COLOR_RIGHT_initRX24();
 static void CYLINDER_COLOR_RIGHT_command_init(queue_id_t queueId);
 static void CYLINDER_COLOR_RIGHT_set_config(CAN_msg_t* msg);
 static void CYLINDER_COLOR_RIGHT_get_config(CAN_msg_t *incoming_msg);
-static void CYLINDER_COLOR_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
+//static void CYLINDER_COLOR_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
 static void CYLINDER_COLOR_RIGHT_set_warner(CAN_msg_t *msg);
 static void CYLINDER_COLOR_RIGHT_check_warner(Uint16 pos);
 
@@ -96,6 +96,10 @@ void CYLINDER_COLOR_RIGHT_reset_config(){
 static void CYLINDER_COLOR_RIGHT_initRX24() {
 	if(rx24_is_initialized == FALSE && RX24_is_ready(CYLINDER_COLOR_RIGHT_RX24_ID) == TRUE) {
 		rx24_is_initialized = TRUE;
+
+		// Set the servo in wheel mode
+		RX24_set_wheel_mode_enabled(CYLINDER_COLOR_RIGHT_RX24_ID, TRUE);
+
 		RX24_config_set_lowest_voltage(CYLINDER_COLOR_RIGHT_RX24_ID, RX24_MIN_VOLTAGE);
 		RX24_config_set_highest_voltage(CYLINDER_COLOR_RIGHT_RX24_ID, RX24_MAX_VOLTAGE);
 		RX24_set_torque_limit(CYLINDER_COLOR_RIGHT_RX24_ID, CYLINDER_COLOR_RIGHT_RX24_MAX_TORQUE_PERCENT);
@@ -139,9 +143,9 @@ static void CYLINDER_COLOR_RIGHT_get_config(CAN_msg_t *incoming_msg){
 
 	switch(incoming_msg->data.act_msg.act_data.config){
 		case POSITION_CONFIG:
-			CYLINDER_COLOR_RIGHT_get_position_config(&order, &pos);
-			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = order;
-			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = pos;
+			//CYLINDER_COLOR_RIGHT_get_position_config(&order, &pos);
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = 0;
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = 0;
 			break;
 		case TORQUE_CONFIG:
 			msg.data.act_get_config_answer.act_get_config_data.torque = RX24_get_speed_percentage(CYLINDER_COLOR_RIGHT_RX24_ID);
@@ -162,7 +166,7 @@ static void CYLINDER_COLOR_RIGHT_get_config(CAN_msg_t *incoming_msg){
 	}
 }
 
-static void CYLINDER_COLOR_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
+/*static void CYLINDER_COLOR_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
 	ACT_order_e order = ACT_CYLINDER_COLOR_RIGHT_STOP;
 	Uint16 position = RX24_get_position(CYLINDER_COLOR_RIGHT_RX24_ID);
 	Uint16 epsilon = CYLINDER_COLOR_RIGHT_RX24_ASSER_POS_EPSILON;
@@ -180,7 +184,7 @@ static void CYLINDER_COLOR_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16
 
 	if(pPos != NULL)
 		*pPos = position;
-}
+}*/
 
 // Fonction appellée pour l'initialisation en position du rx24 dés l'arrivé de l'alimentation (via ActManager)
 void CYLINDER_COLOR_RIGHT_init_pos(){
@@ -190,7 +194,7 @@ void CYLINDER_COLOR_RIGHT_init_pos(){
 		return;
 
 	debug_printf("Init pos : \n");
-	if(!RX24_set_position(CYLINDER_COLOR_RIGHT_RX24_ID, CYLINDER_COLOR_RIGHT_RX24_INIT_POS))
+	if(!RX24_set_speed_percentage(CYLINDER_COLOR_RIGHT_RX24_ID, CYLINDER_COLOR_RIGHT_RX24_IDLE_SPEED))
 		debug_printf("   Le RX24 n°%d n'est pas là\n", CYLINDER_COLOR_RIGHT_RX24_ID);
 	else
 		debug_printf("   Le RX24 n°%d a été initialisé en position\n", CYLINDER_COLOR_RIGHT_RX24_ID);
@@ -208,8 +212,8 @@ bool_e CYLINDER_COLOR_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CYLINDER_COLOR_RIGHT_IDLE :
-			case ACT_CYLINDER_COLOR_RIGHT_LOCK :
-			case ACT_CYLINDER_COLOR_RIGHT_UNLOCK :
+			case ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED :
+			case ACT_CYLINDER_COLOR_RIGHT_ZERO_SPEED :
 			case ACT_CYLINDER_COLOR_RIGHT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_CYLINDER_COLOR_RIGHT, &CYLINDER_COLOR_RIGHT_run_command, 0,TRUE);
 				break;
@@ -262,9 +266,9 @@ static void CYLINDER_COLOR_RIGHT_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_CYLINDER_COLOR_RIGHT_IDLE : *rx24_goalPosition = CYLINDER_COLOR_RIGHT_RX24_IDLE_POS; break;
-		case ACT_CYLINDER_COLOR_RIGHT_LOCK : *rx24_goalPosition = CYLINDER_COLOR_RIGHT_RX24_LOCK_POS; break;
-		case ACT_CYLINDER_COLOR_RIGHT_UNLOCK : *rx24_goalPosition = CYLINDER_COLOR_RIGHT_RX24_UNLOCK_POS; break;
+		case ACT_CYLINDER_COLOR_RIGHT_IDLE : *rx24_goalPosition = CYLINDER_COLOR_RIGHT_RX24_IDLE_SPEED; break;
+		case ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED : *rx24_goalPosition = CYLINDER_COLOR_RIGHT_RX24_NORMAL_SPEED; break;
+		case ACT_CYLINDER_COLOR_RIGHT_ZERO_SPEED : *rx24_goalPosition = CYLINDER_COLOR_RIGHT_RX24_ZERO_SPEED; break;
 
 		case ACT_CYLINDER_COLOR_RIGHT_STOP :
 			RX24_set_torque_enabled(CYLINDER_COLOR_RIGHT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
@@ -291,7 +295,7 @@ static void CYLINDER_COLOR_RIGHT_command_init(queue_id_t queueId) {
 	}
 
 	RX24_reset_last_error(CYLINDER_COLOR_RIGHT_RX24_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
-	if(!RX24_set_position(CYLINDER_COLOR_RIGHT_RX24_ID, *rx24_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que le RX24 ne répond pas a cet envoi, on l'indique à la carte stratégie
+	if(!RX24_set_speed_percentage(CYLINDER_COLOR_RIGHT_RX24_ID, *rx24_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que le RX24 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		error_printf("RX24_set_position error: 0x%x\n", RX24_get_last_error(CYLINDER_COLOR_RIGHT_RX24_ID).error);
 		QUEUE_next(queueId, ACT_CYLINDER_COLOR_RIGHT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
