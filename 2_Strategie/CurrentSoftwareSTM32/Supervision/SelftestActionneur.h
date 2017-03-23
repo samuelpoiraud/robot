@@ -17,6 +17,7 @@
 			ACT_sid_e actionneur;
 			ACT_order_e position;
 			queue_id_e queue_id;
+			SELFTEST_error_code_e error_code;
 	}struct_selftest_t;
 
 
