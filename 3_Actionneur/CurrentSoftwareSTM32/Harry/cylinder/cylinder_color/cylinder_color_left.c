@@ -107,7 +107,7 @@ static void CYLINDER_COLOR_LEFT_initRX24() {
 
 		RX24_config_set_maximal_angle(CYLINDER_COLOR_LEFT_RX24_ID, CYLINDER_COLOR_LEFT_RX24_MAX_VALUE);
 		RX24_config_set_minimal_angle(CYLINDER_COLOR_LEFT_RX24_ID, CYLINDER_COLOR_LEFT_RX24_MIN_VALUE);
-		RX24_set_move_to_position_speed(CYLINDER_COLOR_LEFT_RX24_ID, CYLINDER_COLOR_LEFT_RX24_SPEED);
+		//RX24_set_move_to_position_speed(CYLINDER_COLOR_LEFT_RX24_ID, CYLINDER_COLOR_LEFT_RX24_SPEED);
 
 		RX24_config_set_error_before_led(CYLINDER_COLOR_LEFT_RX24_ID, RX24_BEFORE_LED);
 		RX24_config_set_error_before_shutdown(CYLINDER_COLOR_LEFT_RX24_ID, RX24_BEFORE_SHUTDOWN);
@@ -133,8 +133,8 @@ void CYLINDER_COLOR_LEFT_set_config(CAN_msg_t* msg){
 // Fonction permettant d'obtenir des infos de configuration du rx24 telle que la position ou la vitesse
 static void CYLINDER_COLOR_LEFT_get_config(CAN_msg_t *incoming_msg){
 	bool_e error = FALSE;
-	Uint16 pos = 0;;
-	ACT_order_e order = 0;
+	//Uint16 pos = 0;;
+	//ACT_order_e order = 0;
 	CAN_msg_t msg;
 	msg.sid = ACT_GET_CONFIG_ANSWER;
 	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
@@ -300,6 +300,7 @@ static void CYLINDER_COLOR_LEFT_command_init(queue_id_t queueId) {
 		QUEUE_next(queueId, ACT_CYLINDER_COLOR_LEFT, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
+
 	//La commande a été envoyée et le RX24 l'a bien reçu
 	debug_printf("Move CYLINDER_COLOR_LEFT rx24 to %d\n", *rx24_goalPosition);
 }
