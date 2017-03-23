@@ -342,7 +342,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 }
 
 error_e sub_harry_get_in_pos_4_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_3_DEPOSE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_4_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
 			//GET_IN_FROM_MIDDLE_SQUARE,
@@ -399,7 +399,7 @@ error_e sub_harry_get_in_pos_4_depose_module_centre(){
 
 
 error_e sub_harry_get_in_pos_5_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_2_DEPOSE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_5_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
 			GET_IN_FROM_MIDDLE_SQUARE,
@@ -453,7 +453,7 @@ error_e sub_harry_get_in_pos_5_depose_module_centre(){
 }
 
 error_e sub_harry_get_in_pos_6_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_1_DEPOSE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_6_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
 			GET_IN_FROM_MIDDLE_SQUARE,
@@ -614,7 +614,7 @@ error_e sub_harry_pos_3_depose_module_centre(){
 
 
 error_e sub_harry_pos_4_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_3_DEPOSE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_4_DEPOSE_MODULES_CENTRE,
 			INIT,
 			ROTATE,
 			ADVANCE,
@@ -649,7 +649,7 @@ error_e sub_harry_pos_4_depose_module_centre(){
 }
 
 error_e sub_harry_pos_5_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_2_DEPOSE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_5_DEPOSE_MODULES_CENTRE,
 			INIT,
 			ROTATE,
 			ADVANCE,
@@ -684,7 +684,7 @@ error_e sub_harry_pos_5_depose_module_centre(){
 }
 
 error_e sub_harry_pos_6_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_1_DEPOSE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_6_DEPOSE_MODULES_CENTRE,
 			INIT,
 			ROTATE,
 			ADVANCE,
