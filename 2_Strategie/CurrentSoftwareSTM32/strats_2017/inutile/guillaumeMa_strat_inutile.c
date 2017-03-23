@@ -26,8 +26,9 @@ void guillaumeMa_strat_inutile_big(){
 
 
 
-		case INIT:
-			state = try_go_angle(0, state, TEST, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+		case INIT: //+150x +0y
+			state = try_going(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE+150, 1100-(BIG_ROBOT_WIDTH/2), state, TEST, ERROR, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			//state = try_go_angle(0, state, TEST, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			//state = try_going(800, 800, state, TEST, ERROR, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;// depend du point de depard
 
@@ -39,20 +40,29 @@ void guillaumeMa_strat_inutile_big(){
 			state = DONE;
 			break;
 
-		case TEST:
-			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, TEST_2, ERROR);
+		case TEST: //clocksise (y)
+			state = try_go_angle(PI4096*9/8, state, TEST_2, ERROR, SLOW, CLOCKWISE, END_AT_LAST_POINT);
+
+
+//#define BIG_ROBOT_WIDTH									292  //310		//Largeur du gros robot [mm]
+//#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE			96		//Distance entre le 'centre' du robot et l'arrière en calage [mm]
+//#define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE			146		//Distance entre le 'centre' du robot et l'avant en calage [mm]
+
+			//state = check_sub_action_result(sub_harry_take_north_little_crater(OUR_ELEMENT), state, TEST_2, ERROR);
 			break;
 
 		case TEST_2:
-			state = check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT), state, TEST_3, ERROR);
+			state = try_going(496, 1054, state, TEST_3, ERROR, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			//state = check_sub_action_result(sub_harry_take_north_little_crater(ADV_ELEMENT), state, TEST_3, ERROR);
 			break;
 
 		case TEST_3:
-			state = check_sub_action_result(sub_harry_take_big_crater(NO_ELEMENT), state, TEST_4, ERROR); // error
+			state = try_go_angle(PI4096*19/16, state, TEST_4, ERROR, SLOW, TRIGOWISE, END_AT_LAST_POINT);
+			//state = check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT), state, TEST_4, ERROR);
 			break;
 
 		case TEST_4:
-			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, DONE, ERROR);
+			state = try_going(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE+20, 1020-(BIG_ROBOT_WIDTH/2), state, DONE, ERROR, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 	}
 }
