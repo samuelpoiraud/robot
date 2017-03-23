@@ -59,6 +59,12 @@
 	error_e sub_harry_get_in_pos_4_depose_module_centre();
 	error_e sub_harry_get_in_pos_5_depose_module_centre();
 	error_e sub_harry_get_in_pos_6_depose_module_centre();
+	error_e sub_harry_get_1_depose_module_centre();
+	error_e sub_harry_get_2_depose_module_centre();
+	error_e sub_harry_get_3_depose_module_centre();
+	error_e sub_harry_get_4_depose_module_centre();
+	error_e sub_harry_get_5_depose_module_centre();
+	error_e sub_harry_get_6_depose_module_centre();
 	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
 	error_e sub_harry_return_modules(ELEMENTS_side_e side);
 	//error_e manager_return_modules(); //Fonction à ne pas utiliser car dangeureuse et très incomplète
