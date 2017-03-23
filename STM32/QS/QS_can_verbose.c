@@ -577,20 +577,20 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				 case (Uint8)ACT_CYLINDER_COLOR_LEFT:
 						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_LOCK:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_UNLOCK:print(string,len, "| UNLOCK |");		break;
-							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_STOP:	print(string,len, "| STOP |");			break;
+							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_IDLE:			print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED:	print(string,len, "| NORMAL_SPEED |");	break;
+							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_ZERO_SPEED:	print(string,len, "| ZERO_SPEED |");	break;
+							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_STOP:			print(string,len, "| STOP |");			break;
 							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
 				  case (Uint8)ACT_CYLINDER_COLOR_RIGHT:
 						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_LOCK:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_UNLOCK:	print(string,len, "| UNLOCK |");	break;
-							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_IDLE:		print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED:print(string,len, "| NORMAL_SPEED |");	break;
+							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_ZERO_SPEED:	print(string,len, "| ZERO_SPEED |");	break;
+							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_STOP:		print(string,len, "| STOP |");			break;
 							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;

@@ -1452,11 +1452,9 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 		case TURN_FOR_COLOR:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					// A modifier
-					//ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT);
+					ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED);
 				}else{
-					// A modifier
-					//ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT);
+					ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED);
 				}
 			}
 			// Aucune vérification ici
@@ -1505,11 +1503,9 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 		case STOP_TURN:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					// A modifier
-					//ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT);
+					ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT_ZERO_SPEED);
 				}else{
-					// A modifier
-					//ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT);
+					ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT_ZERO_SPEED);
 				}
 			}
 			// Aucune vérification ici
