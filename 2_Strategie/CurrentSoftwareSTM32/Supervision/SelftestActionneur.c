@@ -8,11 +8,9 @@
 
 #if 1
 
-//Pour Valentin :
-// Il s'agit d'une premiere version, le code n'est en rien optimise
 
 error_e SELFTESTACT_run(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SELFTEST_ACT,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SELFTEST_ACT, //da declarer
 			INIT,
 			MOVE_ACTIONNEUR,
 			CHECK_STATUS,
@@ -35,7 +33,17 @@ error_e SELFTESTACT_run(){
 			{4, ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN, ACT_QUEUE_Cylinder_slider_right},
 			{4, ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_DOWN, ACT_QUEUE_Cylinder_slope_right},
 			{4, ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_DOWN, ACT_QUEUE_Cylinder_slope_left},
+			//{5,ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN,  ACT_QUEUE_Cylinder_slope_left},
+			//{5,ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN,  ACT_QUEUE_Cylinder_slope_right},
+			//{5,ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT,  ACT_QUEUE_Cylinder_slope_left},
+			//{5,ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT,  ACT_QUEUE_Cylinder_slope_right},
+			//{6,ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_IN,  ACT_QUEUE_Cylinder_arm_left},
+			//{6,ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_IN,  ACT_QUEUE_Cylinder_arm_right},
+			//{7,ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_OUT,  ACT_QUEUE_Cylinder_arm_left},
+			//{7,ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_OUT,  ACT_QUEUE_Cylinder_arm_right},
+
 			//matrice a completer avec les actionneurs arm, color et dispose
+
 	};
 
 	#define LAST_ETAPE_SELFTEST   (4)
