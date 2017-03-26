@@ -102,6 +102,13 @@
 		ELEMENTS_side_e side;
 	}get_this_module_s;
 
+	// Type défini pour la machine à état de dépose des cylindres
+	typedef enum{
+		ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER,
+		ARG_DISPOSE_ONE_CYLINDER_AND_FINISH,
+		ARG_STORE_ARM
+	}arg_dipose_mae_e;
+
 	extern const module_zone_characteristics_s module_zone[NB_MOONBASES];
 	// COMMENTAIRE POUR COCO : module_zone[first_zone].xmin
 

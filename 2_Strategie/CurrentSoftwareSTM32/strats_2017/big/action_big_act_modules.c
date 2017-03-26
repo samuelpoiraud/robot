@@ -1396,9 +1396,12 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			DONE
 		);
 
+	#define TIMEOUT_COLOR	(4)
+
 
 	static enum state_e stateRight = WAIT_TRIGGER, stateLeft = WAIT_TRIGGER;
 	static error_e stateAct = IN_PROGRESS;
+	static time32_t time_timeout = 0;
 
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
@@ -1417,9 +1420,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 				// On baisse le flag dans le cas où cela n'a pas encore été fait
 				if(storage == MODULE_STOCK_RIGHT){
-					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_DONE, FALSE);
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS, FALSE);
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH, FALSE);
 				}else{
-					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_DONE, FALSE);
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS, FALSE);
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH, FALSE);
 				}
 			}
 			break;
@@ -1451,6 +1456,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 		case TURN_FOR_COLOR:
 			if(entrance){
+				time_timeout = global.absolute_time + TIMEOUT_COLOR;
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED);
 				}else{
@@ -1462,7 +1468,9 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			break;
 
 		case WAIT_ADV_COLOR:
-			if(storage == MODULE_STOCK_RIGHT){
+			if(global.absolute_time > time_timeout){
+				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
+			}else if(storage == MODULE_STOCK_RIGHT){
 				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow))){ //jaune à droite
 					state=WAIT_WHITE;
 				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Blue))){ //bleu à droite
@@ -1489,12 +1497,16 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}
 
 			// On attend la couleur blanche
-			if(storage == MODULE_STOCK_RIGHT){
+			if(global.absolute_time > time_timeout){
+				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
+			}else if(storage == MODULE_STOCK_RIGHT){
 				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White)){ //blanc à gauche
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
 			}else{
 				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White)){ //blanc à droite
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
 			}
@@ -1539,12 +1551,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			state = DONE;
 			break;
 
-
 		case DONE:
 			if(storage == MODULE_STOCK_RIGHT){
-				ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_DONE, TRUE);
+				ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH, TRUE);
 			}else{
-				ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_DONE, TRUE);
+				ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH, TRUE);
 			}
 			RESET_MAE();
 			on_turning_point();
@@ -1552,6 +1563,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			break;
 
 		case ERROR:
+			if(storage == MODULE_STOCK_RIGHT){
+				ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH, TRUE);
+			}else{
+				ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH, TRUE);
+			}
 			RESET_MAE();
 			on_turning_point();
 			return NOT_HANDLED;
@@ -1580,9 +1596,25 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 
 // Subaction actionneur de dépose des modules
-error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage){
+error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dipose_mae_e arg_dispose){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES,
 			INIT,
+			INIT_ARM_SERVO,
+			INIT_DISPOSE_SERVO,
+			TRIGGER_CYLINDER_PREPARATION,
+			WAIT_CYLINDER_PREPARATION,
+			TAKE_CYLINDER,
+			RAISE_CYLINDER,
+			GET_OUT_CYLINDER_OF_ROBOT,
+			UNFOLD_DISPOSE_SERVO,
+			GO_TO_DISPOSE_POS,
+			DISPOSE_CYLINDER,
+
+			CHOOSE_ARM_STORAGE_POS,
+			S1_MOVE_DISPOSE_SERVO,
+			S1_MOVE_ARM_SERVO,
+			S2_MOVE_DISPOSE_SERVO,
+			S2_MOVE_ARM_SERVO,
 
 			ERROR,
 			DONE
@@ -1591,6 +1623,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage){
 
 	static enum state_e stateRight = INIT, stateLeft = INIT;
 	static error_e stateAct = IN_PROGRESS;
+	static bool_e anotherDisposeWillFollow = FALSE;
 
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
@@ -1608,7 +1641,16 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage){
 			if(STOCKS_isEmpty(storage)){
 				state = DONE;	// Il n'y a rien à faire
 			}else{
-				state = DONE; // Dépose possible
+				if(arg_dispose == ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER){
+					state = INIT_ARM_SERVO; // Dépose possible
+					anotherDisposeWillFollow = TRUE; // Cette dépose n'est pas la dernière, une autre va suivre
+				}else if(arg_dispose == ARG_DISPOSE_ONE_CYLINDER_AND_FINISH){
+					state = INIT_ARM_SERVO; // Dépose possible
+					anotherDisposeWillFollow = FALSE; // Cette dépose est la dernière, on doit ranger le bras à la fin
+				}else{	// arg == ARG_STORE_ARM
+					state = CHOOSE_ARM_STORAGE_POS;
+					anotherDisposeWillFollow = FALSE; // Important : il n'y a pas de dépose à suivre, on tente de ranger le bras dans le robot
+				}
 			}
 			break;
 
@@ -1629,6 +1671,237 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage){
 		// Ici il n'y a pas de boucle a priori dans cette MAE
 
 		// Remarque :  est il pertinent de n'avoir que cette subaction qui bouge le balancer ?
+
+
+		case INIT_ARM_SERVO:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, INIT_DISPOSE_SERVO, INIT_DISPOSE_SERVO);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, INIT_DISPOSE_SERVO, INIT_DISPOSE_SERVO);
+			}
+			break;
+
+		case INIT_DISPOSE_SERVO:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_DISPOSE_RIGHT, ACT_CYLINDER_DISPOSE_RIGHT_TAKE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_DISPOSE_LEFT, ACT_CYLINDER_DISPOSE_LEFT_TAKE);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, TRIGGER_CYLINDER_PREPARATION, TRIGGER_CYLINDER_PREPARATION);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, TRIGGER_CYLINDER_PREPARATION, TRIGGER_CYLINDER_PREPARATION);
+			}
+			break;
+
+		case TRIGGER_CYLINDER_PREPARATION:
+			if(storage == MODULE_STOCK_RIGHT){
+				if(ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH)){
+					state = TAKE_CYLINDER;
+				}else{
+					sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, TRUE); // On lance la préparation d'un cylindre : balancer + mise en position pour la bonne couleur
+					state = WAIT_CYLINDER_PREPARATION;
+				}
+			}else{
+				if(ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH)){
+					state = TAKE_CYLINDER;
+				}else{
+					sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, TRUE); // On lance la préparation d'un cylindre : balancer + mise en position pour la bonne couleur
+					state = WAIT_CYLINDER_PREPARATION;
+				}
+			}
+			break;
+
+		case WAIT_CYLINDER_PREPARATION :	// Ajouter un timeout
+			// On attend la préparation du cylinder (retournement couleur)
+			if((storage == MODULE_STOCK_RIGHT && ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH))
+			|| (storage == MODULE_STOCK_LEFT && ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH))){
+				state = TAKE_CYLINDER;
+			}
+			break;
+
+		case TAKE_CYLINDER:  // On ventouse le cylindre pour le prendre
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_POMPE_DISPOSE_RIGHT, ACT_POMPE_NORMAL);
+					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_TAKE);
+				}else{
+					ACT_push_order(ACT_POMPE_DISPOSE_LEFT, ACT_POMPE_NORMAL);
+					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_TAKE);
+				}
+			}
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, RAISE_CYLINDER, RAISE_CYLINDER);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, RAISE_CYLINDER, RAISE_CYLINDER);
+			}
+			break;
+
+
+		case RAISE_CYLINDER:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_DISPOSE_RIGHT, ACT_CYLINDER_DISPOSE_RIGHT_RAISE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_DISPOSE_LEFT, ACT_CYLINDER_DISPOSE_LEFT_RAISE);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, GET_OUT_CYLINDER_OF_ROBOT, GET_OUT_CYLINDER_OF_ROBOT);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, GET_OUT_CYLINDER_OF_ROBOT, GET_OUT_CYLINDER_OF_ROBOT);
+			}
+			break;
+
+		case GET_OUT_CYLINDER_OF_ROBOT:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_OUT);
+				}else{
+					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_OUT);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
+			}
+			break;
+
+		case UNFOLD_DISPOSE_SERVO:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_DISPOSE_RIGHT, ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_DISPOSE_LEFT, ACT_CYLINDER_DISPOSE_LEFT_DISPOSE);
+				}
+
+				// Une autre dépose va suivre, on peut dès à présent lancer la préparation du module suivant
+				if(anotherDisposeWillFollow){
+					sub_act_harry_mae_prepare_modules_for_dispose(storage, TRUE);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, GO_TO_DISPOSE_POS, GO_TO_DISPOSE_POS);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, GO_TO_DISPOSE_POS, GO_TO_DISPOSE_POS);
+			}
+			break;
+
+		case GO_TO_DISPOSE_POS:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_DISPOSE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_DISPOSE);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
+			}
+			break;
+
+		case DISPOSE_CYLINDER:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_POMPE_DISPOSE_RIGHT, ACT_POMPE_STOP);
+				}else{
+					ACT_push_order(ACT_POMPE_DISPOSE_LEFT, ACT_POMPE_STOP);
+				}
+			}
+
+			// Pas de vérification ici car les pompes retournent toujours vrai
+			state = CHOOSE_ARM_STORAGE_POS;
+			break;
+
+		case CHOOSE_ARM_STORAGE_POS:
+			if(anotherDisposeWillFollow){
+				state = S1_MOVE_DISPOSE_SERVO;	// Scénarion 1: On doit positionner le bras pour une autre dépose
+			}else{
+				state = S2_MOVE_DISPOSE_SERVO;	// Scénario 2: on doit ranger le bras dans le robot
+			}
+			break;
+
+		case S1_MOVE_DISPOSE_SERVO:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_DISPOSE_RIGHT, ACT_CYLINDER_DISPOSE_RIGHT_TAKE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_DISPOSE_LEFT, ACT_CYLINDER_DISPOSE_LEFT_TAKE);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, S1_MOVE_ARM_SERVO, S1_MOVE_ARM_SERVO);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, S1_MOVE_ARM_SERVO, S1_MOVE_ARM_SERVO);
+			}
+			break;
+
+		case S1_MOVE_ARM_SERVO:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE);
+				}
+			}
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DONE, DONE);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DONE, DONE);
+			}
+			break;
+
+		case S2_MOVE_DISPOSE_SERVO:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_DISPOSE_RIGHT, ACT_CYLINDER_DISPOSE_RIGHT_IDLE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_DISPOSE_LEFT, ACT_CYLINDER_DISPOSE_LEFT_IDLE);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, S2_MOVE_ARM_SERVO, S2_MOVE_ARM_SERVO);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, S2_MOVE_ARM_SERVO, S2_MOVE_ARM_SERVO);
+			}
+			break;
+
+		case S2_MOVE_ARM_SERVO:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_IN);
+				}else{
+					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_IN);
+				}
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DONE, DONE);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DONE, DONE);
+			}
+			break;
+
 
 		case DONE:
 			RESET_MAE();

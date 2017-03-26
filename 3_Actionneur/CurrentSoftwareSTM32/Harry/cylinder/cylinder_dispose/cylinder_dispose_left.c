@@ -166,10 +166,12 @@ static void CYLINDER_DISPOSE_LEFT_get_position_config(ACT_order_e *pOrder, Uint1
 	Uint16 position = AX12_get_position(CYLINDER_DISPOSE_LEFT_AX12_ID);
 	Uint16 epsilon = CYLINDER_DISPOSE_LEFT_AX12_ASSER_POS_EPSILON;
 
-	if(position > CYLINDER_DISPOSE_LEFT_AX12_LOCK_POS - epsilon && position < CYLINDER_DISPOSE_LEFT_AX12_LOCK_POS + epsilon){
-		order = ACT_CYLINDER_DISPOSE_LEFT_LOCK;
-	}else if(position > CYLINDER_DISPOSE_LEFT_AX12_UNLOCK_POS - epsilon && position < CYLINDER_DISPOSE_LEFT_AX12_UNLOCK_POS + epsilon){
-		order = ACT_CYLINDER_DISPOSE_LEFT_UNLOCK;
+	if(position > CYLINDER_DISPOSE_LEFT_AX12_TAKE_POS - epsilon && position < CYLINDER_DISPOSE_LEFT_AX12_TAKE_POS + epsilon){
+		order = ACT_CYLINDER_DISPOSE_LEFT_TAKE;
+	}else if(position > CYLINDER_DISPOSE_LEFT_AX12_RAISE_POS - epsilon && position < CYLINDER_DISPOSE_LEFT_AX12_RAISE_POS + epsilon){
+		order = ACT_CYLINDER_DISPOSE_LEFT_RAISE;
+	}else if(position > CYLINDER_DISPOSE_LEFT_AX12_DISPOSE_POS - epsilon && position < CYLINDER_DISPOSE_LEFT_AX12_DISPOSE_POS + epsilon){
+			order = ACT_CYLINDER_DISPOSE_LEFT_DISPOSE;
 	}else if(position > CYLINDER_DISPOSE_LEFT_AX12_IDLE_POS - epsilon && position < CYLINDER_DISPOSE_LEFT_AX12_IDLE_POS + epsilon){
 		order = ACT_CYLINDER_DISPOSE_LEFT_IDLE;
 	}
@@ -207,8 +209,9 @@ bool_e CYLINDER_DISPOSE_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_CYLINDER_DISPOSE_LEFT_IDLE :
-			case ACT_CYLINDER_DISPOSE_LEFT_LOCK :
-			case ACT_CYLINDER_DISPOSE_LEFT_UNLOCK :
+			case ACT_CYLINDER_DISPOSE_LEFT_TAKE :
+			case ACT_CYLINDER_DISPOSE_LEFT_RAISE :
+			case ACT_CYLINDER_DISPOSE_LEFT_DISPOSE :
 			case ACT_CYLINDER_DISPOSE_LEFT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CYLINDER_DISPOSE_LEFT, &CYLINDER_DISPOSE_LEFT_run_command, 0,TRUE);
 				break;
@@ -262,8 +265,9 @@ static void CYLINDER_DISPOSE_LEFT_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_CYLINDER_DISPOSE_LEFT_IDLE : *ax12_goalPosition = CYLINDER_DISPOSE_LEFT_AX12_IDLE_POS; break;
-		case ACT_CYLINDER_DISPOSE_LEFT_LOCK : *ax12_goalPosition = CYLINDER_DISPOSE_LEFT_AX12_LOCK_POS; break;
-		case ACT_CYLINDER_DISPOSE_LEFT_UNLOCK : *ax12_goalPosition = CYLINDER_DISPOSE_LEFT_AX12_UNLOCK_POS; break;
+		case ACT_CYLINDER_DISPOSE_LEFT_TAKE : *ax12_goalPosition = CYLINDER_DISPOSE_LEFT_AX12_TAKE_POS; break;
+		case ACT_CYLINDER_DISPOSE_LEFT_RAISE : *ax12_goalPosition = CYLINDER_DISPOSE_LEFT_AX12_RAISE_POS; break;
+		case ACT_CYLINDER_DISPOSE_LEFT_DISPOSE : *ax12_goalPosition = CYLINDER_DISPOSE_LEFT_AX12_DISPOSE_POS; break;
 
 		case ACT_CYLINDER_DISPOSE_LEFT_STOP :
 			AX12_set_torque_enabled(CYLINDER_DISPOSE_LEFT_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

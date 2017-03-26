@@ -11,6 +11,7 @@
 
 
 #include "Selftest.h"
+#include "SelftestActionneur.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_CANmsgList.h"
 #include "../QS/QS_uart.h"
@@ -280,7 +281,13 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				else
 					state = SELFTEST_PROP;
 			}
-			if(CAN_msg_received != NULL)
+			// Appel du nouveau selftest
+			if(act_ping_ok && SELFTESTACT_run() != IN_PROGRESS){	//La fonction SELFTESTACT_run déclare elle-même ses erreurs.
+				SELFTESTACT_run();
+				state = SELFTEST_PROP;
+			}
+			/*  Ancien Selftest
+			 if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_ACT_SELFTEST_DONE)
 				{
 					//Retour de la carte actionneur
@@ -289,6 +296,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 						WATCHDOG_stop(watchdog_id);
 					state = SELFTEST_PROP;
 				}
+			*/
 			if(flag_timeout)	//Timeout
 			{
 				debug_printf("SELFTEST ACT TIMEOUT\r\n");
