@@ -167,6 +167,12 @@ static void CYLINDER_ARM_LEFT_get_position_config(ACT_order_e *pOrder, Uint16 *p
 
 	if(position > CYLINDER_ARM_LEFT_RX24_IN_POS - epsilon && position < CYLINDER_ARM_LEFT_RX24_IN_POS + epsilon){
 		order = ACT_CYLINDER_ARM_LEFT_IN;
+	}else if(position > CYLINDER_ARM_LEFT_RX24_PREPARE_TO_TAKE_POS - epsilon && position < CYLINDER_ARM_LEFT_RX24_PREPARE_TO_TAKE_POS + epsilon){
+		order = ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE;
+	}else if(position > CYLINDER_ARM_LEFT_RX24_TAKE_POS - epsilon && position < CYLINDER_ARM_LEFT_RX24_TAKE_POS + epsilon){
+		order = ACT_CYLINDER_ARM_LEFT_TAKE;
+	}else if(position > CYLINDER_ARM_LEFT_RX24_DISPOSE_POS - epsilon && position < CYLINDER_ARM_LEFT_RX24_DISPOSE_POS + epsilon){
+		order = ACT_CYLINDER_ARM_LEFT_DISPOSE;
 	}else if(position > CYLINDER_ARM_LEFT_RX24_OUT_POS - epsilon && position < CYLINDER_ARM_LEFT_RX24_OUT_POS + epsilon){
 		order = ACT_CYLINDER_ARM_LEFT_OUT;
 	}else if(position > CYLINDER_ARM_LEFT_RX24_IDLE_POS - epsilon && position < CYLINDER_ARM_LEFT_RX24_IDLE_POS + epsilon){
@@ -207,6 +213,9 @@ bool_e CYLINDER_ARM_LEFT_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
             case ACT_CYLINDER_ARM_LEFT_IDLE :
             case ACT_CYLINDER_ARM_LEFT_IN :
+            case ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE :
+            case ACT_CYLINDER_ARM_LEFT_TAKE :
+            case ACT_CYLINDER_ARM_LEFT_DISPOSE :
             case ACT_CYLINDER_ARM_LEFT_OUT :
             case ACT_CYLINDER_ARM_LEFT_STOP :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_CYLINDER_ARM_LEFT, &CYLINDER_ARM_LEFT_run_command, 0,TRUE);
@@ -262,6 +271,9 @@ static void CYLINDER_ARM_LEFT_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_CYLINDER_ARM_LEFT_IDLE : *rx24_goalPosition = CYLINDER_ARM_LEFT_RX24_IDLE_POS; break;
         case ACT_CYLINDER_ARM_LEFT_IN : *rx24_goalPosition = CYLINDER_ARM_LEFT_RX24_IN_POS; break;
+        case ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE : *rx24_goalPosition = CYLINDER_ARM_LEFT_RX24_PREPARE_TO_TAKE_POS; break;
+        case ACT_CYLINDER_ARM_LEFT_TAKE : *rx24_goalPosition = CYLINDER_ARM_LEFT_RX24_TAKE_POS; break;
+        case ACT_CYLINDER_ARM_LEFT_DISPOSE : *rx24_goalPosition = CYLINDER_ARM_LEFT_RX24_DISPOSE_POS; break;
         case ACT_CYLINDER_ARM_LEFT_OUT : *rx24_goalPosition = CYLINDER_ARM_LEFT_RX24_OUT_POS; break;
 
         case ACT_CYLINDER_ARM_LEFT_STOP :

@@ -236,8 +236,10 @@
 			FLAG_HARRY_DISABLE_MODULE_LEFT,		// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
 			FLAG_HARRY_DISPENSER_LEFT_OUT,		// Flag dispenser temporaire à supprimer dès que MAE_current_state ok
 			FLAG_HARRY_DISPENSER_RIGHT_OUT,		// Flag dispenser temporaire à supprimer dès que MAE_current_state ok
-			FLAG_HARRY_MODULE_COLOR_RIGHT_DONE,	// Flag levé lorsqu'un module est prêt à être déposer (il a été retourné de la bonne couleur)
-			FLAG_HARRY_MODULE_COLOR_LEFT_DONE,  // Flag levé lorsqu'un module est prêt à être déposer (il a été retourné de la bonne couleur)
+			FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS,	// Flag levé lorsqu'un module a été retourné de la bonne couleur
+			FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS,  	// Flag levé lorsqu'un module a été retourné de la bonne couleur
+			FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH,	// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
+			FLAG_HARRY_MODULE_COLOR_LEFT_FINISH,  	// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
 
 			F_ELEMENTS_FLAGS_NB
 		}elements_flags_e;
@@ -801,13 +803,19 @@
 
         ACT_CYLINDER_ARM_RIGHT_STOP = 0,
         ACT_CYLINDER_ARM_RIGHT_IDLE,
-        ACT_CYLINDER_ARM_RIGHT_IN,
-        ACT_CYLINDER_ARM_RIGHT_OUT,
+        ACT_CYLINDER_ARM_RIGHT_IN,				// Position intiale
+		ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE,	// Position prêt à prendre
+		ACT_CYLINDER_ARM_RIGHT_TAKE,			// Position de prise
+		ACT_CYLINDER_ARM_RIGHT_DISPOSE,			// Position de dépose
+        ACT_CYLINDER_ARM_RIGHT_OUT,				// Position de sortie max (lorsqu'on sort le cylindre du robot)
 
         ACT_CYLINDER_ARM_LEFT_STOP = 0,
         ACT_CYLINDER_ARM_LEFT_IDLE,
-        ACT_CYLINDER_ARM_LEFT_IN,
-        ACT_CYLINDER_ARM_LEFT_OUT,
+        ACT_CYLINDER_ARM_LEFT_IN,				// Position intiale
+		ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE,  // Position prêt à prendre
+		ACT_CYLINDER_ARM_LEFT_TAKE,				// Position de prise
+		ACT_CYLINDER_ARM_LEFT_DISPOSE,			// Position de dépose
+        ACT_CYLINDER_ARM_LEFT_OUT,				// Position de sortie max (lorsqu'on sort le cylindre du robot)
 
 		ACT_CYLINDER_COLOR_RIGHT_STOP = 0,		// A ne surtout pas utiliser pour mettre la vitesse du servo à 0%
 		ACT_CYLINDER_COLOR_RIGHT_IDLE,
@@ -821,13 +829,15 @@
 
 		ACT_CYLINDER_DISPOSE_RIGHT_STOP = 0,
 		ACT_CYLINDER_DISPOSE_RIGHT_IDLE,
-		ACT_CYLINDER_DISPOSE_RIGHT_LOCK,
-		ACT_CYLINDER_DISPOSE_RIGHT_UNLOCK,
+		ACT_CYLINDER_DISPOSE_RIGHT_TAKE,	// Position de prise
+		ACT_CYLINDER_DISPOSE_RIGHT_RAISE,	// Position où on lève légèrement le cylindre avant de la sortir du robot
+		ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE, // Position de dépose
 
 		ACT_CYLINDER_DISPOSE_LEFT_STOP = 0,
 		ACT_CYLINDER_DISPOSE_LEFT_IDLE,
-		ACT_CYLINDER_DISPOSE_LEFT_LOCK,
-		ACT_CYLINDER_DISPOSE_LEFT_UNLOCK,
+		ACT_CYLINDER_DISPOSE_LEFT_TAKE,		// Position de prise
+		ACT_CYLINDER_DISPOSE_LEFT_RAISE,	// Position où on lève légèrement le cylindre avant de la sortir du robot
+		ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,	// Position de dépose
 
         ACT_ORE_WALL_STOP = 0,
         ACT_ORE_WALL_IDLE,

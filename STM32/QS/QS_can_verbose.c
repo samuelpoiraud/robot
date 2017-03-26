@@ -559,6 +559,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
 						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_IN:		print(string,len, "| IN |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				print(string,len, "| TAKE |");				break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			print(string,len, "| DISPOSE |");			break;
 						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_OUT:	print(string,len, "| OUT |");			break;
 						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_STOP:	print(string,len, "| STOP |");			break;
 						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
@@ -569,6 +572,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
 						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IN:	print(string,len, "| IN |");			break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				print(string,len, "| TAKE |");				break;
+						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			print(string,len, "| DISPOSE |");			break;
 						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_OUT:	print(string,len, "| OUT |");			break;
 						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_STOP:	print(string,len, "| STOP |");			break;
 						  	  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
@@ -598,8 +604,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_CYLINDER_DISPOSE_LEFT:
 						  switch(msg->data.act_result.cmd){
 							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_LOCK:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_UNLOCK:print(string,len, "| UNLOCK |");		break;
+							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_TAKE:	print(string,len, "| TAKE |");			break;
+							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_RAISE:  print(string,len, "| RAISE |");			break;
+							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_DISPOSE:  print(string,len, "| DISPOSE |");			break;
 							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_STOP:	print(string,len, "| STOP |");			break;
 							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
@@ -608,8 +615,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT:
 						  switch(msg->data.act_result.cmd){
 							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_LOCK:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_UNLOCK:	print(string,len, "| UNLOCK |");	break;
+							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_TAKE:	print(string,len, "| TAKE |");			break;
+							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_RAISE:	print(string,len, "| RAISE |");			break;
+							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE:	print(string,len, "| DISPOSE |");	break;
 							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_STOP:	print(string,len, "| STOP |");			break;
 							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
 						  }

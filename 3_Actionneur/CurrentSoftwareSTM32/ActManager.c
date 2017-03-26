@@ -151,10 +151,11 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 
 	Uint8 i;
 
-	if(msg->sid == ACT_DO_SELFTEST) {
+	// Mise en commentaire du selftest côté actionneur car ajout du nouveau selftest actionneur côté stratégie
+	/*if(msg->sid == ACT_DO_SELFTEST) {
 		if(SELFTEST_new_selftest(NB_ACTIONNEURS) == FALSE)
 			return TRUE;  //si selftest déjà en cours, ne pas le refaire
-	}
+	}*/
 
 	for(i = 0; i < NB_ACTIONNEURS; i++) {
 		//Dans le cas du selftest, on fait le test pour tous les actionneurs, qu'ils gèrent ou non le message

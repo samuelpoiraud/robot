@@ -20,5 +20,6 @@
 			SELFTEST_error_code_e error_code;
 	}struct_selftest_t;
 
+	error_e SELFTESTACT_run();
 
 #endif /* SUPERVISION_SELFTESTACTIONNEUR_H_ */
