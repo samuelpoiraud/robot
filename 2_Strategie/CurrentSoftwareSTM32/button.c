@@ -154,7 +154,7 @@ void BUTTON_verbose(void)
 		if(QS_WHO_AM_I_get() == BIG_ROBOT){
 			if(up & ((Uint32)(1) << 5	))	debug_printf("SW saved enabled\n");
 		}else{
-			if(up & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 (our torch) enabled\n");
+			if(up & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 enabled\n");
 		}
 		if(up & ((Uint32)(1) << 8	))	debug_printf("BP Set pressed\n");
 		if(up & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
@@ -175,7 +175,7 @@ void BUTTON_verbose(void)
 		if(QS_WHO_AM_I_get() == BIG_ROBOT){
 			if(down & ((Uint32)(1) << 5	))	debug_printf("SW saved disabled\n");
 		}else{
-			if(down & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 (our torch) disabled\n");
+			if(down & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 disabled\n");
 		}
 		if(down & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
 		if(down & ((Uint32)(1) << 10	))	debug_printf("Biroute removed\n");

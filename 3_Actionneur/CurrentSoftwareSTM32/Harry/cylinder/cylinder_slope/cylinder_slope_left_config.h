@@ -18,11 +18,11 @@
 	#define CYLINDER_SLOPE_LEFT_AX12_ASSER_POS_LARGE_EPSILON	28		// Si le déplacement de l'ax12 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define CYLINDER_SLOPE_LEFT_AX12_MAX_TORQUE_PERCENT		    50		// Couple maximum en pourcentage de l'ax12. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager l'AX12.
 	#define CYLINDER_SLOPE_LEFT_AX12_MAX_TEMPERATURE			60		// Température maximale en degré
-	#define CYLINDER_SLOPE_LEFT_AX12_SPEED						100		// Vitesse par défaut de l'AX12
+	#define CYLINDER_SLOPE_LEFT_AX12_SPEED						30		// Vitesse par défaut de l'AX12
 
 //Position
-	#define CYLINDER_SLOPE_LEFT_AX12_IDLE_POS					366
-	#define CYLINDER_SLOPE_LEFT_AX12_DOWN_POS				    366		//en degré
+	#define CYLINDER_SLOPE_LEFT_AX12_IDLE_POS					333
+	#define CYLINDER_SLOPE_LEFT_AX12_DOWN_POS				    333		//en degré
 	#define CYLINDER_SLOPE_LEFT_AX12_UP_POS						540		//en degré
 	#define CYLINDER_SLOPE_LEFT_AX12_VERY_UP_POS				661
 

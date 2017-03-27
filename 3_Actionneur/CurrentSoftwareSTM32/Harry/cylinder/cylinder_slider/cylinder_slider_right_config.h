@@ -17,14 +17,14 @@
     #define CYLINDER_SLIDER_RIGHT_RX24_ASSER_POS_LARGE_EPSILON		28		// Si le déplacement de le RX24 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
     #define CYLINDER_SLIDER_RIGHT_RX24_MAX_TORQUE_PERCENT		    50		// Couple maximum en pourcentage de le RX24. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager le RX24.
     #define CYLINDER_SLIDER_RIGHT_RX24_MAX_TEMPERATURE				60		// Température maximale en degré
-	#define CYLINDER_SLIDER_RIGHT_RX24_SPEED						100		// Vitesse par défaut du RX24
+	#define CYLINDER_SLIDER_RIGHT_RX24_SPEED						30		// Vitesse par défaut du RX24
 
 //Position
     #define CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS								821
-    #define CYLINDER_SLIDER_RIGHT_RX24_IN_POS						     	821	//en degré
-    #define CYLINDER_SLIDER_RIGHT_RX24_OUT_POS								333	//en degré
-    #define CYLINDER_SLIDER_RIGHT_RX24_ALMOST_OUT_POS						785	//en degré
-    #define CYLINDER_SLIDER_RIGHT_RX24_ALMOST_OUT_WITH_CYLINDER_POS			383	//en degré
+    #define CYLINDER_SLIDER_RIGHT_RX24_IN_POS						     	800  //821	//en degré
+    #define CYLINDER_SLIDER_RIGHT_RX24_OUT_POS								214	//en degré
+    #define CYLINDER_SLIDER_RIGHT_RX24_ALMOST_OUT_POS						314	//en degré
+    #define CYLINDER_SLIDER_RIGHT_RX24_ALMOST_OUT_WITH_CYLINDER_POS			314	//en degré
 
 //Position initiale de l'RX24
     #define CYLINDER_SLIDER_RIGHT_RX24_INIT_POS					CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS

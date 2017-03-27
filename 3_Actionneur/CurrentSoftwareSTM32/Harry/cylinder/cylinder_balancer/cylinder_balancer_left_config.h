@@ -21,9 +21,9 @@
 	#define CYLINDER_BALANCER_LEFT_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-	#define CYLINDER_BALANCER_LEFT_AX12_IDLE_POS					512
-	#define CYLINDER_BALANCER_LEFT_AX12_IN_POS				   		512		//en degré
-	#define CYLINDER_BALANCER_LEFT_AX12_OUT_POS						512		//en degré
+	#define CYLINDER_BALANCER_LEFT_AX12_IDLE_POS					190
+	#define CYLINDER_BALANCER_LEFT_AX12_IN_POS				   		190		//en degré
+	#define CYLINDER_BALANCER_LEFT_AX12_OUT_POS						778		//en degré
 
 //Position initiale de l'AX12
 	#define CYLINDER_BALANCER_LEFT_AX12_INIT_POS					CYLINDER_BALANCER_LEFT_AX12_IDLE_POS
