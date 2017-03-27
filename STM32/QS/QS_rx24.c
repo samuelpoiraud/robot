@@ -1500,7 +1500,9 @@ bool_e RX24_config_set_minimal_angle(Uint8 id_servo, Uint16 degre) {
 
 bool_e RX24_config_set_maximal_angle(Uint8 id_servo, Uint16 degre) {
 	if(degre > RX24_MAX_ANGLE) degre = RX24_MAX_ANGLE;
-	if(degre == 0) degre = 1;	//Si l'utilisateur met un angle mini et maxi à 0, l'RX24/RX24 passera en mode rotation en continue, ce mode ne doit être activé que par RX24_set_wheel_mode_enabled (en passant TRUE)
+	if(!RX24_on_the_robot[id_servo].is_wheel_enabled && degre == 0){
+		degre = 1;	//Si l'utilisateur met un angle mini et maxi à 0, l'RX24/RX24 passera en mode rotation en continue, ce mode ne doit être activé que par RX24_set_wheel_mode_enabled (en passant TRUE)
+	}
 	return RX24_instruction_write16(id_servo, RX24_CCW_ANGLE_LIMIT_L, degre);
 }
 
