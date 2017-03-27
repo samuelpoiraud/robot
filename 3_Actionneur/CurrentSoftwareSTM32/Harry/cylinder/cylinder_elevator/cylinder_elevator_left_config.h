@@ -17,12 +17,12 @@
     #define CYLINDER_ELEVATOR_LEFT_RX24_ASSER_POS_LARGE_EPSILON		28		// Si le déplacement de le RX24 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
     #define CYLINDER_ELEVATOR_LEFT_RX24_MAX_TORQUE_PERCENT		    50		// Couple maximum en pourcentage de le RX24. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager le RX24.
     #define CYLINDER_ELEVATOR_LEFT_RX24_MAX_TEMPERATURE				60		// Température maximale en degré
-	#define CYLINDER_ELEVATOR_LEFT_RX24_SPEED						100		// Vitesse par défaut du RX24
+	#define CYLINDER_ELEVATOR_LEFT_RX24_SPEED						30		// Vitesse par défaut du RX24
 
 //Position
-    #define CYLINDER_ELEVATOR_LEFT_RX24_IDLE_POS					341
-    #define CYLINDER_ELEVATOR_LEFT_RX24_TOP_POS			     		684	//en degré
-    #define CYLINDER_ELEVATOR_LEFT_RX24_BOTTOM_POS					341	//en degré
+    #define CYLINDER_ELEVATOR_LEFT_RX24_IDLE_POS					349
+    #define CYLINDER_ELEVATOR_LEFT_RX24_TOP_POS			     		686	//en degré
+    #define CYLINDER_ELEVATOR_LEFT_RX24_BOTTOM_POS					349	//en degré
     #define CYLINDER_ELEVATOR_LEFT_RX24_LOCK_WITH_CYLINDER_POS		489	//en degré
 
 	#define CYLINDER_ELEVATOR_LEFT_RX24_WARNER_POS					700

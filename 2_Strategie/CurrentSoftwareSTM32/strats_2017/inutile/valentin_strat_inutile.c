@@ -23,51 +23,20 @@ void valentin_strat_inutile_big(){
 	switch(state){
 
 		case INIT:
-			/*if(entrance){
-
-				ACT_set_warner(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_WARNER);
-				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
-			}
-			if(entrance){
-				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
-			}
-			state = try_going(1100, COLOR_Y(2100), state , ACTION, DONE, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-
-			state = wait_time(2000, state, ACTION);
-			if(ACT_get_warner(ACT_CYLINDER_ELEVATOR_LEFT)){
-				debug_printf("\n\nWARNER RECEIVED\n\n");
-			}*/
-
-			ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED);
-			state = DONE;
-
+			state = ACTION;
 			break;
 
 		case ACTION:
-			if(ACT_get_warner(ACT_CYLINDER_ELEVATOR_LEFT)){
-				debug_printf("\n\nWARNER RECEIVED\n\n");
-			}
-			state = check_sub_action_result(ACT_check_position_config(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM), state, DONE, ERROR);
-			//state = check_sub_action_result(sub_harry_prise_module_unicolor_north(LEFT), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, RIGHT, LEFT, NO_SIDE, NO_SIDE), state, DONE, ERROR);
 			break;
 
 		case ERROR:
-			/*if(entrance){
-				//ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
-				STOCKS_print(MODULE_STOCK_LEFT);
-				STOCKS_print(MODULE_STOCK_RIGHT);
-			}*/
 			if(entrance){
 				debug_printf("ERROR\n");
 			}
 			break;
 
 		case DONE:
-			/*if(entrance){
-				//ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
-				STOCKS_print(MODULE_STOCK_LEFT);
-				STOCKS_print(MODULE_STOCK_RIGHT);
-			}*/
 			if(entrance){
 				debug_printf("DONE\n");
 			}

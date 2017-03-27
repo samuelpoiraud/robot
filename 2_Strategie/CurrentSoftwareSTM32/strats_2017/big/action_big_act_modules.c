@@ -478,10 +478,12 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 		case INIT:
 			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT)){
 				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
+				debug_printf("DESACTIVATION module right\n");
 			}
 
 			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
 				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
+				debug_printf("DESACTIVATION module left\n");
 			}
 			if(rocket == MODULE_ROCKET_MONO_OUR_SIDE){
 				if(global.color == BLUE){
@@ -561,21 +563,23 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			if(moduleToTake == RIGHT){
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 				state2 = check_act_status(ACT_QUEUE_Pompe_act_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
-				state3= check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
+				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}else{
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 				state2 = check_act_status(ACT_QUEUE_Pompe_act_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
 				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if(state1 == END_OK && state2 == END_OK && state3 == END_OK){
-				if((moduleToTake == RIGHT && ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_LEFT)) || (moduleToTake == LEFT && ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT))){
-					state = PROTECT_NEXT_FALL;
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS){
+				if(state1 == END_OK && state2 == END_OK && state3 == END_OK){
+					if((moduleToTake == RIGHT && !ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_LEFT)) || (moduleToTake == LEFT && !ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT))){
+						state = PROTECT_NEXT_FALL;
+					}else{
+						state = ACTION_BRING_BACK_CYLINDER;
+					}
 				}else{
-					state = ACTION_BRING_BACK_CYLINDER;
+					state = ERROR_ACTION_GO_TAKE_CYLINDER;
 				}
-			}else{
-				state = ERROR_ACTION_GO_TAKE_CYLINDER;
 			}
 			break;
 
@@ -645,14 +649,16 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if(state2 == END_OK){  // On a réussi
-				if((moduleToTake == RIGHT && ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_LEFT)) || (moduleToTake == LEFT && ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT))){
-					state = PROTECT_NEXT_FALL;
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS){
+				if(state2 == END_OK){  // On a réussi
+					if((moduleToTake == RIGHT && ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_LEFT)) || (moduleToTake == LEFT && ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT))){
+						state = PROTECT_NEXT_FALL;
+					}else{
+						state = ACTION_BRING_BACK_CYLINDER;
+					}
 				}else{
-					state = ACTION_BRING_BACK_CYLINDER;
+					state = NO_CYLINDER_DETECTED;	// On a encore échoué => il n'y a plus de cylindre ici
 				}
-			}else{
-				state = NO_CYLINDER_DETECTED;	// On a encore échoué => il n'y a plus de cylindre ici
 			}
 			break;
 
@@ -723,37 +729,39 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				state2 = check_act_status(ACT_QUEUE_Cylinder_elevator_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if(state1 == END_OK){
-				if((moduleToTake == RIGHT && state2 == END_OK && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))
-				|| (moduleToTake == LEFT && state2 == END_OK  && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
-					state = ACTION_PREPARE_ELEVATOR;
-				}else if((moduleToTake == RIGHT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))
-				|| (moduleToTake == LEFT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
-					state = COMPUTE_NEXT_CYLINDER;
+			if(state1 != IN_PROGRESS){
+				if(state1 == END_OK){
+					if((moduleToTake == RIGHT && state2 == END_OK && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))
+					|| (moduleToTake == LEFT && state2 == END_OK  && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
+						state = ACTION_PREPARE_ELEVATOR;
+					}else if((moduleToTake == RIGHT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))
+					|| (moduleToTake == LEFT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
+						state = COMPUTE_NEXT_CYLINDER;
+					}else{
+						state = ERROR_DISABLE_ACT;  // En cas d'échec de l'élévateur
+						if(moduleToTake == RIGHT){
+							ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
+						}else{
+							ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
+						}
+					}
+
+					// On met à jour les données
+					if(moduleToTake == RIGHT){
+						STOCKS_addModule(moduleType, MODULE_STOCK_RIGHT);
+					}else{
+						STOCKS_addModule(moduleType, MODULE_STOCK_LEFT);
+					}
+					ROCKETS_removeModule(rocket);
+					moduleToStore = moduleToTake;
+					moduleToTake = NO_SIDE;
 				}else{
-					state = ERROR_DISABLE_ACT;  // En cas d'échec de l'élévateur
+					state = ERROR_DISABLE_ACT;	// En cas d'échec du slider
 					if(moduleToTake == RIGHT){
 						ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
 					}else{
 						ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
 					}
-				}
-
-				// On met à jour les données
-				if(moduleToTake == RIGHT){
-					STOCKS_addModule(moduleType, MODULE_STOCK_RIGHT);
-				}else{
-					STOCKS_addModule(moduleType, MODULE_STOCK_LEFT);
-				}
-				ROCKETS_removeModule(rocket);
-				moduleToStore = moduleToTake;
-				moduleToTake = NO_SIDE;
-			}else{
-				state = ERROR_DISABLE_ACT;	// En cas d'échec du slider
-				if(moduleToTake == RIGHT){
-					ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
-				}else{
-					ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
 				}
 			}
 			break;
@@ -786,11 +794,13 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slope_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if((moduleToStore == RIGHT && state1 == END_OK && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT))
+
+			/*if((moduleToStore == RIGHT && state1 == END_OK && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT))
 			|| (moduleToStore == LEFT && state1 == END_OK && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT))
 			|| (moduleToStore == RIGHT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT))
-			|| (moduleToStore == LEFT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT))){
-				state = ACTION_BRING_UP_CYLINDER;
+			|| (moduleToStore == LEFT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT))){*/
+			if(1){
+				state = wait_time(400, state, ACTION_BRING_UP_CYLINDER);
 			}else{
 				state = ERROR_DISABLE_ACT;
 				if(moduleToStore == RIGHT){
@@ -799,6 +809,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 					ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
 				}
 			}
+
 
 			// Mise à jour des données
 			if(moduleToStore == RIGHT){
@@ -829,26 +840,28 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 			// Vérification des ordres effectués
 			if(moduleToStore == RIGHT){
-				state1 = check_act_status(ACT_QUEUE_Cylinder_slope_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+				state1 = check_act_status(ACT_QUEUE_Cylinder_elevator_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}else{
-				state1 = check_act_status(ACT_QUEUE_Cylinder_slope_left, IN_PROGRESS, END_OK, NOT_HANDLED);
+				state1 = check_act_status(ACT_QUEUE_Cylinder_elevator_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if(state1 == END_OK){
-				state = COMPUTE_NEXT_CYLINDER;
+			if(state1 != IN_PROGRESS){
+				if(state1 == END_OK){
+					state = COMPUTE_NEXT_CYLINDER;
 
-				// Mise à jour des données
-				if(moduleToStore == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT)){
-					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER_IN, MODULE_STOCK_RIGHT);
-				}else if(moduleToStore == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT)){
-					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER_IN, MODULE_STOCK_LEFT);
-				}
-			}else{
-				state = ERROR_DISABLE_ACT;
-				if(moduleToStore == RIGHT){
-					ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
+					// Mise à jour des données
+					if(moduleToStore == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_RIGHT)){
+						STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER_IN, MODULE_STOCK_RIGHT);
+					}else if(moduleToStore == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_4_TO_OUT , MODULE_STOCK_LEFT)){
+						STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER_IN, MODULE_STOCK_LEFT);
+					}
 				}else{
-					ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
+					state = ERROR_DISABLE_ACT;
+					if(moduleToStore == RIGHT){
+						ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
+					}else{
+						ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
+					}
 				}
 			}
 			break;
@@ -1622,7 +1635,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 
 	static enum state_e stateRight = INIT, stateLeft = INIT;
-	static error_e stateAct = IN_PROGRESS;
+	//static error_e stateAct = IN_PROGRESS;
 	static bool_e anotherDisposeWillFollow = FALSE;
 
 	if(storage == MODULE_STOCK_RIGHT){
