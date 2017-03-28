@@ -169,6 +169,8 @@ static void CYLINDER_SLOPE_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16
 		order = ACT_CYLINDER_SLOPE_RIGHT_DOWN;
 	}else if(position > CYLINDER_SLOPE_RIGHT_AX12_UP_POS - epsilon && position < CYLINDER_SLOPE_RIGHT_AX12_UP_POS + epsilon){
 		order = ACT_CYLINDER_SLOPE_RIGHT_UP;
+	}else if(position > CYLINDER_SLOPE_RIGHT_AX12_VERY_UP_POS - epsilon && position < CYLINDER_SLOPE_RIGHT_AX12_VERY_UP_POS + epsilon){
+			order = ACT_CYLINDER_SLOPE_RIGHT_VERY_UP;
 	}else if(position > CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS - epsilon && position < CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS + epsilon){
 		order = ACT_CYLINDER_SLOPE_RIGHT_IDLE;
 	}
@@ -208,6 +210,7 @@ bool_e CYLINDER_SLOPE_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_CYLINDER_SLOPE_RIGHT_IDLE :
 			case ACT_CYLINDER_SLOPE_RIGHT_DOWN :
 			case ACT_CYLINDER_SLOPE_RIGHT_UP :
+			case ACT_CYLINDER_SLOPE_RIGHT_VERY_UP :
 			case ACT_CYLINDER_SLOPE_RIGHT_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CYLINDER_SLOPE_RIGHT, &CYLINDER_SLOPE_RIGHT_run_command, 0,TRUE);
 				break;
@@ -263,6 +266,7 @@ static void CYLINDER_SLOPE_RIGHT_command_init(queue_id_t queueId) {
 		case ACT_CYLINDER_SLOPE_RIGHT_IDLE : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_IDLE_POS; break;
 		case ACT_CYLINDER_SLOPE_RIGHT_DOWN : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_DOWN_POS; break;
 		case ACT_CYLINDER_SLOPE_RIGHT_UP : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_UP_POS; break;
+		case ACT_CYLINDER_SLOPE_RIGHT_VERY_UP : *ax12_goalPosition = CYLINDER_SLOPE_RIGHT_AX12_VERY_UP_POS; break;
 
 		case ACT_CYLINDER_SLOPE_RIGHT_STOP :
 			AX12_set_torque_enabled(CYLINDER_SLOPE_RIGHT_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

@@ -27,7 +27,11 @@ void valentin_strat_inutile_big(){
 			break;
 
 		case ACTION:
-			state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, RIGHT, LEFT, NO_SIDE, NO_SIDE), state, DONE, ERROR);
+			if(entrance){
+				sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, TRUE);
+			}
+			//state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
 			break;
 
 		case ERROR:
