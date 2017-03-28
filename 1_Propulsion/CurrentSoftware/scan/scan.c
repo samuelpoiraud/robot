@@ -4,6 +4,7 @@
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_adc.h"
 #include "../QS/QS_ads1118.h"
+#include "../config/config_global_vars.h"
 
 #define CONVERSION_LASER_LEFT(x)	((Sint32)(36148*(x)-6611800)/10000)//((Sint32)(37217*(x)-7096800)/10000)
 #define OFFSET_WIDTH_LASER_LEFT		(144)
@@ -32,6 +33,8 @@ static volatile scan_data_t laser_right[2*NB_SCAN_DATA];
 static volatile Uint16 index = 0;
 static volatile bool_e flag_1, flag_2, flag_treatment_too_slow;
 //static scan_data_t tab_treatment[NB_SCAN_DATA];
+
+static GEOMETRY_point_t pos_mesure;
 
 #ifdef USE_ADS1118_ON_ADC
 	static ADS1118_sensorConfig_t sensorLeftConfig, sensorRightConfig;
@@ -117,7 +120,7 @@ static void SCAN_get_data(SCAN_side_e side){
 	static scan_zone_e zone_right = OTHER_ZONE;
 	static GEOMETRY_point_t previous_pos_right = {0,0};
 
-	GEOMETRY_point_t pos_mesure, pos_laser;
+	GEOMETRY_point_t pos_laser;
 	bool_e enable;
 	Sint16 value;
 	position_t robot;
@@ -181,10 +184,13 @@ static void SCAN_get_data(SCAN_side_e side){
 		if(side == SCAN_SIDE_LEFT){
 			pos_mesure.x = robot.x + ((OFFSET_LENGTH_LASER_LEFT*cosinus1 - OFFSET_WIDTH_LASER_LEFT*sinus1) - (value * sinus2))/4096;
 			pos_mesure.y = robot.y + ((OFFSET_LENGTH_LASER_LEFT*sinus1 + OFFSET_WIDTH_LASER_LEFT*cosinus1) + (value * cosinus2))/4096;
+			display(pos_mesure.x);
+			display(pos_mesure.y);
 		}else{
 			pos_mesure.x = robot.x + ((OFFSET_LENGTH_LASER_RIGHT*cosinus1 + OFFSET_WIDTH_LASER_RIGHT*sinus1) + (value * sinus2))/4096;
 			pos_mesure.y = robot.y + ((OFFSET_LENGTH_LASER_RIGHT*sinus1 - OFFSET_WIDTH_LASER_RIGHT*cosinus1) - (value * cosinus2))/4096;
 		}
+
 
 		if(absolute(previous_pos->x - pos_mesure.x) > 15 || absolute(previous_pos->y - pos_mesure.y) > 15)
 		{
@@ -320,6 +326,7 @@ void TELEMETER_process_it(){
 
 
 Uint16 TELEMETER_get_ADCvalue_left(){
+	display(laser_left[index].ADCvalue);
 	return laser_left[index].ADCvalue;
 }
 
@@ -327,11 +334,16 @@ Uint16 TELEMETER_get_ADCvalue_right(){
 	return laser_right[index].ADCvalue;
 }
 
+GEOMETRY_point_t SCAN_get_pos_mesure(){
+	return pos_mesure;
+}
 
 void SCAN_process_it(){
 	if((index < NB_SCAN_DATA && !flag_1) || (index >= NB_SCAN_DATA && !flag_2)){
-		SCAN_get_data(SCAN_SIDE_LEFT);
+		//SCAN_get_data(SCAN_SIDE_LEFT);
 		SCAN_get_data(SCAN_SIDE_RIGHT);
+		SCAN_get_data(SCAN_SIDE_LEFT);
+
 //		SCAN_get_data_left();
 //		SCAN_get_data_right();
 	}else{

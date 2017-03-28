@@ -41,7 +41,7 @@
 
 	void SECRETARY_send_cup_position(bool_e it_is_the_last_cup, bool_e error_scan, bool_e cup_detected, Sint16 x, Sint16 y);
 
-	void SECRETARY_send_bloc_position(bool_e error_scan, Sint16 x, Sint16 y);
+	void SECRETARY_send_robot_position(bool_e error_scan, Sint16 x, Sint16 y, Sint16 teta);
 
 	/*
 	Fonction permettant d'envoyer un message au monde extérieur.
@@ -60,5 +60,6 @@
 
 	void SECRETARY_send_canmsg(CAN_msg_t * msg);			//NE DOIT PAS ETRE APPELEE EN IT !
 	void SECRETARY_send_canmsg_from_it(CAN_msg_t * msg);	//NE DOIT PAS ETRE APPELEE EN TACHE DE FOND !
+
 
 #endif	//def _SECRETARY_H

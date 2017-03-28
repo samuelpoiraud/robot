@@ -484,13 +484,14 @@
 				Uint16 middle				:16;
 			}strat_back_scan;
 
-		#define STRAT_BLOC_POSITION			0x21A
-		#define SIZE_STRAT_BLOC_POSITION	5
+		#define STRAT_ROBOT_POSITION		0x21A
+		#define SIZE_STRAT_ROBOT_POSITION	7
 			struct{
 				Sint16 x					:16;
 				Sint16 y					:16;
+				Sint16 teta					:16;
 				bool_e error_scan			:1;
-			}strat_bloc_position;
+			}strat_robot_position;
 
 
 
@@ -663,6 +664,13 @@
 				bool_e active_small_avoidance :1;
 			}prop_custom_avoidance;
 
+		#define PROP_ASK_CORNER_SCAN			0x11C
+		#define SIZE_PROP_ASK_CORNER_SCAN		1
+			struct{
+				color_e color				:1;
+				bool_e isRightSensor		:1;
+				bool_e startScan			:1;
+			}strat_ask_corner_scan;
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
