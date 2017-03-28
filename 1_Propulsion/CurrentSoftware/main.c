@@ -42,6 +42,8 @@
 #include "detection_choc.h"
 #include "scan/scan.h"
 #include "scan/borders_scan.h"
+#include "scan/rotation_scan.h"
+
 
 #ifdef MODE_SAVE_STRUCTURE_GLOBAL_A_CHAQUE_IT
 	extern volatile global_data_storage_t SAVE;
@@ -122,6 +124,8 @@ void initialisation(void)
 	DEBUG_init();
 	ADC_init();
 	BUTTONS_init();
+	SCAN_CORNER_init();
+
 
 	IHM_init(&global.flags.match_started);
 	IHM_define_act_button(BP_CALIBRATION_IHM,&SEQUENCES_calibrate,NULL);
@@ -246,6 +250,7 @@ int main (void)
 		OUTPUTLOG_process_main();
 
 		BORDERS_SCAN_process_main();
+		SCAN_CORNER_process_main();
 
 		if(flag_calibration_asked)
 		{

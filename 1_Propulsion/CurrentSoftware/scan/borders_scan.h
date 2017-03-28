@@ -23,6 +23,8 @@ typedef struct{
 	Uint16 scan_time;//en nombre d'it
 }scan_point_time_t;
 
+void BORDERS_SCAN_process_main();
+
 
 scan_zone_e BORDERS_SCAN_treatment(GEOMETRY_point_t pos_mesure);
 

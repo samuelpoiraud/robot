@@ -45,6 +45,7 @@ typedef enum{
 	IT_STATE_MAIN,
 	IT_STATE_HOKUYO,
 	IT_STATE_SCAN,
+	IT_STATE_SCAN_CORNER,
 	IT_STATE_DETECTION,
 	IT_STATE_CHOC_DETECTION,
 	IT_STATE_DEBUG,
@@ -171,6 +172,9 @@ void _ISR _T2Interrupt()
 		SCAN_process_it();
 		IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
 	#endif
+
+		SCAN_CORNER_process_it();
+		IT_test_state(begin_it_time, IT_STATE_SCAN_CORNER, &first_overtime);
 
 	#ifdef DETECTION_CHOC
 		DETECTION_CHOC_process_it_tim2();

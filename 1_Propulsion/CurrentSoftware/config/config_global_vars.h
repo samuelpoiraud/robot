@@ -23,8 +23,8 @@
 
 		volatile bool_e pid_active;
 
-		volatile bool_e scan_dune;
-		volatile bool_e rush;
+
+		volatile bool_e rotation_scan;
 
 		volatile bool_e treatment_scan;
 

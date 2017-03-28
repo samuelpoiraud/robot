@@ -24,5 +24,7 @@ void SCAN_onPower();
 
 Uint16 TELEMETER_get_ADCvalue_left();
 Uint16 TELEMETER_get_ADCvalue_right();
+GEOMETRY_point_t SCAN_get_pos_mesure();
+
 
 #endif /* SCAN_H */

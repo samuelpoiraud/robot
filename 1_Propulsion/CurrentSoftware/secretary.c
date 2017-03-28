@@ -515,6 +515,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			DETECTON_set_zone_transparency(msg->data.prop_transparency.number, msg->data.prop_transparency.enable);
 			break;
 
+		case PROP_ASK_CORNER_SCAN:
+			SCAN_CORNER_canMsg(msg);
+			printf("le message est bien arrivé a destination de la propulsion\n");
+			break;
+
 		default :
 		break;
 	}
@@ -644,13 +649,14 @@ void SECRETARY_send_foe_detected(Uint16 x, Uint16 y, Uint16 dist, Sint16 angle, 
 }
 
 
-void SECRETARY_send_bloc_position(bool_e error_scan, Sint16 x, Sint16 y){
+void SECRETARY_send_robot_position(bool_e error_scan, Sint16 x, Sint16 y, Sint16 teta){
 	CAN_msg_t msg;
-	msg.sid = STRAT_BLOC_POSITION;
-	msg.size = SIZE_STRAT_BLOC_POSITION;
-	msg.data.strat_bloc_position.x = x;
-	msg.data.strat_bloc_position.y = y;
-	msg.data.strat_bloc_position.error_scan = error_scan;
+	msg.sid = STRAT_ROBOT_POSITION;
+	msg.size = SIZE_STRAT_ROBOT_POSITION;
+	msg.data.strat_robot_position.x = x;
+	msg.data.strat_robot_position.y = y;
+	msg.data.strat_robot_position.teta = teta;
+	msg.data.strat_robot_position.error_scan = error_scan;
 	SECRETARY_send_canmsg_from_it(&msg);
 }
 

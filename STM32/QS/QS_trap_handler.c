@@ -168,10 +168,22 @@ __attribute__((naked)) void Fault_Handler(void)
 		"B dump_trap_info\n"
 	);
 }
-void HardFault_Handler(void) __attribute__((alias("Fault_Handler"))) 	__attribute__((unused));
-void MemManage_Handler(void) __attribute__((alias("Fault_Handler"))) 	__attribute__((unused));
-void BusFault_Handler(void) __attribute__((alias("Fault_Handler"))) 	__attribute__((unused));
-void UsageFault_Handler(void) __attribute__((alias("Fault_Handler"))) 	__attribute__((unused));
+void HardFault_Handler(void)
+{
+	Fault_Handler();
+}
+void MemManage_Handler(void)
+{
+	Fault_Handler();
+}
+void BusFault_Handler(void)
+{
+	Fault_Handler();
+}
+void UsageFault_Handler(void)
+{
+	Fault_Handler();
+}
 
 void NMI_Handler(void)
 {
