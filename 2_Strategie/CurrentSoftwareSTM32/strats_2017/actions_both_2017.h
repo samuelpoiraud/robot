@@ -18,5 +18,8 @@
 	error_e sub_cross_rocker(void);
 	error_e sub_wait_1_sec(void);
 
+	// Subaction de test de l'évitement (A ne pas jouer en match)
+	error_e strat_test_avoidance(void);
+
 #endif
 

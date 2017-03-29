@@ -1516,11 +1516,12 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			break;
 
 		case INIT:
-			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_1_TO_OUT, storage)){ // TODO : A revoir
+			/*if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_1_TO_OUT, storage)){ // TODO : A revoir
 				state = MOVE_BALANCER_OUT; // Préparation de la dépose possible
 			}else{
 				state = ERROR;	// Il n'y a pas de cylindre disponible
-			}
+			}*/
+			state = MOVE_BALANCER_OUT; // Temporaire
 			break;
 
 		case MOVE_BALANCER_OUT:
@@ -1708,8 +1709,9 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 
 	static enum state_e stateRight = INIT, stateLeft = INIT;
-	//static error_e stateAct = IN_PROGRESS;
+	static error_e stateAct = IN_PROGRESS;
 	static bool_e anotherDisposeWillFollow = FALSE;
+	static time32_t time_timeout = 0;
 
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
@@ -1819,6 +1821,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 		case TAKE_CYLINDER:  // On ventouse le cylindre pour le prendre
 			if(entrance){
+				//time_timeout = global.absolute_time + 200;
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order(ACT_POMPE_DISPOSE_RIGHT, ACT_POMPE_NORMAL);
 					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_TAKE);
@@ -1827,10 +1830,19 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_TAKE);
 				}
 			}
-			if(storage == MODULE_STOCK_RIGHT){
+			/*if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, RAISE_CYLINDER, RAISE_CYLINDER);
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, RAISE_CYLINDER, RAISE_CYLINDER);
+			}*/
+			if(storage == MODULE_STOCK_RIGHT){
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}else{
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}
+
+			if(stateAct!= IN_PROGRESS /*&& global.absolute_time > time_timeout*/){
+				state = RAISE_CYLINDER;
 			}
 			break;
 
@@ -1890,6 +1902,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 		case GO_TO_DISPOSE_POS:
 			if(entrance){
+				time_timeout = global.absolute_time + 400;  // Temporisation avant de déventouser
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_DISPOSE);
 				}else{
@@ -1897,15 +1910,25 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 				}
 			}
 
-			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
+			/*if(storage == MODULE_STOCK_RIGHT){
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
+			}*/
+			if(storage == MODULE_STOCK_RIGHT){
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}else{
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}
+
+			if(stateAct != IN_PROGRESS && global.absolute_time > time_timeout){
+				state = DISPOSE_CYLINDER;
 			}
 			break;
 
 		case DISPOSE_CYLINDER:
 			if(entrance){
+				time_timeout = global.absolute_time + 400;		// Temporisation pour déventouser
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order(ACT_POMPE_DISPOSE_RIGHT, ACT_POMPE_STOP);
 				}else{
@@ -1914,7 +1937,9 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			}
 
 			// Pas de vérification ici car les pompes retournent toujours vrai
-			state = CHOOSE_ARM_STORAGE_POS;
+			if(global.absolute_time > time_timeout){
+				state = CHOOSE_ARM_STORAGE_POS;
+			}
 			break;
 
 		case CHOOSE_ARM_STORAGE_POS:
