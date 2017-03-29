@@ -292,7 +292,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 				CANmsgToU1tx(msg);
 			#endif
 			if(global.flags.disable_virtual_perfect_robot == FALSE)
-				SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
+				SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0, 0);
 		break;
 
 		// Impose une position (uniquement pour les tests !!!)
@@ -372,7 +372,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 
 		//Carte stratégie demande la position
 		case PROP_TELL_POSITION:
-			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0);
+			SECRETARY_process_send(BROADCAST_POSITION_ROBOT, WARNING_NO, 0, 0);
 		break;
 
 		case PROP_SET_CORRECTORS:
@@ -615,7 +615,7 @@ void SECRETARY_send_adversary_position(bool_e it_is_the_last_adversary, Uint8 ad
 }
 
 
-void SECRETARY_process_send(Uint11 sid, prop_warning_reason_e reason, SUPERVISOR_error_source_e error_source)	//La raison de l'envoi est définie dans avertisseur.h
+void SECRETARY_process_send(Uint11 sid, prop_warning_reason_e reason, SUPERVISOR_error_source_e error_source, Uint8 actualTrajID)	//La raison de l'envoi est définie dans avertisseur.h
 {
 	CAN_msg_t msg;
 
@@ -629,7 +629,7 @@ void SECRETARY_process_send(Uint11 sid, prop_warning_reason_e reason, SUPERVISOR
 	msg.data.broadcast_position_robot.way = COPILOT_get_way();
 	msg.data.broadcast_position_robot.in_rotation = global.vitesse_rotation != 0;
 	msg.data.broadcast_position_robot.in_translation = global.vitesse_translation != 0;
-	msg.data.broadcast_position_robot.idTraj = COPILOT_get_actualTrajID();
+	msg.data.broadcast_position_robot.idTraj = actualTrajID;
 	SECRETARY_send_canmsg(&msg);
 }
 
