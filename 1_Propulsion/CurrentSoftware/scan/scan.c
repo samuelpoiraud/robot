@@ -316,7 +316,7 @@ void TELEMETER_process_it(){
 	laser_left[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_LEFT);
 #ifdef USE_ADS1118_ON_ADC
 	bool_e res = ADS1118_getValue(&sensorRightConfig, &(laser_right[index].ADCvalue));
-	printf("ADCSPI: %d\n", laser_right[index].ADCvalue);
+	it_printf("ADCSPI: %d\n", laser_right[index].ADCvalue);
 #else
 	laser_right[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
 #endif
@@ -340,9 +340,9 @@ GEOMETRY_point_t SCAN_get_pos_mesure(){
 
 void SCAN_process_it(){
 	if((index < NB_SCAN_DATA && !flag_1) || (index >= NB_SCAN_DATA && !flag_2)){
-		//SCAN_get_data(SCAN_SIDE_LEFT);
-		SCAN_get_data(SCAN_SIDE_RIGHT);
 		SCAN_get_data(SCAN_SIDE_LEFT);
+		SCAN_get_data(SCAN_SIDE_RIGHT);
+		//SCAN_get_data(SCAN_SIDE_LEFT);
 
 //		SCAN_get_data_left();
 //		SCAN_get_data_right();
