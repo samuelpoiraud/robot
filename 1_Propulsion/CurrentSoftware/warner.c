@@ -93,6 +93,7 @@ void WARNER_init()
 	temps = 0;	//[5ms]
 }
 
+volatile static Uint8 actualTrajID = 0;
 volatile static bool_e flag_arrived = FALSE;
 volatile static bool_e flag_brake = FALSE;
 volatile static bool_e flag_error = FALSE;
@@ -110,25 +111,28 @@ void WARNER_process_main(void)
 	if(flag_arrived)
 	{
 		flag_arrived = FALSE;
-		SECRETARY_process_send(STRAT_TRAJ_FINIE,(Uint8)(warnings), error_source);
+		SECRETARY_process_send(STRAT_TRAJ_FINIE,(Uint8)(warnings), error_source, actualTrajID);
+		actualTrajID = 0;
 	}
 
 	if(flag_calibration)
 	{
 		flag_calibration = FALSE;
-		SECRETARY_process_send(PROP_ROBOT_CALIBRE,0, error_source);
+		SECRETARY_process_send(PROP_ROBOT_CALIBRE,0, error_source, 0);
 	}
 
 	if(flag_error)
 	{
 		flag_error = FALSE;
-		SECRETARY_process_send(STRAT_PROP_ERREUR,0, error_source);
+		SECRETARY_process_send(STRAT_PROP_ERREUR,0, error_source, actualTrajID);
+		actualTrajID = 0;
 	}
 
 	if(flag_brake)
 	{
 		flag_brake = FALSE;
-		SECRETARY_process_send(STRAT_ROBOT_FREINE,0,error_source);
+		SECRETARY_process_send(STRAT_ROBOT_FREINE,0,error_source, actualTrajID);
+		actualTrajID = 0;
 	}
 
 	if(flag_selftest_failed)
@@ -156,7 +160,7 @@ void WARNER_process_main(void)
 			warnings_local = warnings;
 			warnings = WARNING_NO;
 		TIMER2_enableInt();
-		SECRETARY_process_send(BROADCAST_POSITION_ROBOT,(Uint8)(warnings_local & 0xFF), error_source);
+		SECRETARY_process_send(BROADCAST_POSITION_ROBOT,(Uint8)(warnings_local & 0xFF), error_source, 0);
 	}
 	#ifdef MODE_REGLAGE_KV
 		CORRECTOR_mode_reglage_kv();
@@ -173,12 +177,15 @@ void WARNER_inform(WARNER_state_t new_warnings, SUPERVISOR_error_source_e new_er
 	{
 		case WARNING_ARRIVED:
 			flag_arrived = TRUE;
+			actualTrajID = COPILOT_get_actualTrajID();
 		break;
 		case WARNING_BRAKE:
 			flag_brake = TRUE;
+			actualTrajID = COPILOT_get_actualTrajID();
 		break;
 		case WARNING_ERROR:
 			flag_error = TRUE;
+			actualTrajID = COPILOT_get_actualTrajID();
 		break;
 		case WARNING_CALIBRATION_FINISHED:
 			flag_calibration = TRUE;
