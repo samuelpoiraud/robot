@@ -121,3 +121,36 @@ error_e sub_wait_1_sec(void){
 	return IN_PROGRESS;
 }
 
+// Subaction de test de l'évitement (A ne pas jouer en match)
+error_e strat_test_avoidance(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_TEST_AVOIDANCE,
+			INIT,
+			ACTION,
+			GO_POINT_1,
+			GO_POINT_2,
+			ERROR,
+			DONE
+		);
+
+	switch(state){
+
+		case INIT:
+			state = try_going(900, COLOR_Y(500), state, GO_POINT_2, GO_POINT_2, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_POINT_1:
+			state = try_going(900, COLOR_Y(500), state, GO_POINT_2, GO_POINT_2, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_POINT_2:
+			state = try_going(900, COLOR_Y(2500), state, GO_POINT_1, GO_POINT_1, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in strat_test_avoidance\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
