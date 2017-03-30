@@ -50,6 +50,7 @@
 	error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e storage, bool_e trigger);
 	error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dipose_mae_e arg_dispose);
 
+
 	// action_big_depose_modules
 	error_e sub_harry_cylinder_depose_manager();
 	error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
@@ -66,8 +67,9 @@
 	error_e sub_harry_get_4_depose_module_centre();
 	error_e sub_harry_get_5_depose_module_centre();
 	error_e sub_harry_get_6_depose_module_centre();
+	error_e sub_harry_depose_modules_side_manager(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
 	error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
-	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
+	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side,POINT_DE_ROTATION_config_e mon_point_de_rotation,endroit_depose_config_e endroit_depose,COTE_DE_DEPOSE_config_e cote_depose);
 	error_e sub_harry_depose_modules_side_fin(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
 	error_e sub_harry_return_modules(ELEMENTS_side_e side);
 	//error_e manager_return_modules(); //Fonction à ne pas utiliser car dangeureuse et très incomplète

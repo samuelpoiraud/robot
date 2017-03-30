@@ -30,7 +30,7 @@ void etienne_strat_inutile_big(){
 				break;
 
 			case INIT1:
-				state = check_sub_action_result(sub_harry_depose_modules_side(ADV_ELEMENT,RIGHT,OUR_SIDE),state,DONE,ERROR);
+				state = check_sub_action_result(sub_harry_depose_modules_side_intro(ADV_ELEMENT,RIGHT,OUR_SIDE),state,DONE,ERROR);
 				break;
 
 			case ERROR:
