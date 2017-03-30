@@ -176,7 +176,7 @@ static void ORE_ROLLER_ARM_get_position_config(ACT_order_e *pOrder, Uint16 *pPos
 	if(position > ORE_ROLLER_ARM_L_RX24_OUT_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_OUT_POS + epsilon){
 		order = ACT_ORE_ROLLER_ARM_OUT;
 	}else if(position > ORE_ROLLER_ARM_L_RX24_UNLOCK_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_UNLOCK_POS + epsilon){
-		order = ACT_ORE_ROLLER_ARM_UNLOCK;
+		order = ACT_ORE_ROLLER_ARM_IN;
 	}else if(position > ORE_ROLLER_ARM_L_RX24_MID_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_MID_POS + epsilon){
 		order = ACT_ORE_ROLLER_ARM_MID;
 	}else if(position > ORE_ROLLER_ARM_L_RX24_RESCUE_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_RESCUE_POS + epsilon){
@@ -229,7 +229,7 @@ bool_e ORE_ROLLER_ARM_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
             case ACT_ORE_ROLLER_ARM_IDLE :
             case ACT_ORE_ROLLER_ARM_OUT :
-            case ACT_ORE_ROLLER_ARM_UNLOCK :
+            case ACT_ORE_ROLLER_ARM_IN :
             case ACT_ORE_ROLLER_ARM_MID :
             case ACT_ORE_ROLLER_ARM_RESCUE :
             case ACT_ORE_ROLLER_ARM_STOP :
@@ -287,7 +287,7 @@ static void ORE_ROLLER_ARM_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_ORE_ROLLER_ARM_IDLE :
         case ACT_ORE_ROLLER_ARM_OUT :
-        case ACT_ORE_ROLLER_ARM_UNLOCK :
+        case ACT_ORE_ROLLER_ARM_IN :
         case ACT_ORE_ROLLER_ARM_RESCUE:
         case ACT_ORE_ROLLER_ARM_MID :
         case ACT_ORE_ROLLER_ARM_CHECK :
@@ -435,7 +435,7 @@ static void ORE_ROLLER_ARM_get_position(QUEUE_act_e act_id, Uint8 command, Uint1
                 *left_pos = ORE_ROLLER_ARM_L_RX24_OUT_POS;
 				break;
 
-            case ACT_ORE_ROLLER_ARM_UNLOCK :
+            case ACT_ORE_ROLLER_ARM_IN :
                 *right_pos = ORE_ROLLER_ARM_R_RX24_UNLOCK_POS;
                 *left_pos = ORE_ROLLER_ARM_L_RX24_UNLOCK_POS;
 				break;
