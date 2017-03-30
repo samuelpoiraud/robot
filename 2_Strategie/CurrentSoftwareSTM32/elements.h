@@ -109,6 +109,28 @@
 		ARG_STORE_ARM
 	}arg_dipose_mae_e;
 
+//DEPOSE COTE:===========================================================================================
+//MES VARIABLES:
+	typedef enum{
+	   OUEST = 0,
+	   EST = 1
+	}endroit_depose_config_e;
+	endroit_depose_config_e endroit_depose;
+	//
+
+	typedef enum{
+		NORD = 0,
+		SUD = 1
+	}POINT_DE_ROTATION_config_e;
+	POINT_DE_ROTATION_config_e mon_point_de_rotation;
+
+
+	typedef enum{
+		DROITE = 0,
+		GAUCHE = 1
+	}COTE_DE_DEPOSE_config_e;
+	COTE_DE_DEPOSE_config_e cote_depose;
+
 	extern const module_zone_characteristics_s module_zone[NB_MOONBASES];
 	// COMMENTAIRE POUR COCO : module_zone[first_zone].xmin
 
