@@ -96,6 +96,8 @@
 
 	#include "QS_ports.h"
 	#include "QS_i2c.h"
+	#include "QS_maths.h"
+	#include "math.h"
 
 	/* Members */
 	gesture_data_type gesture_data_;
@@ -150,6 +152,8 @@
 	void wireWriteDataBlock(uint8_t reg, uint8_t *val, unsigned int len);
 	void wireReadDataByte(uint8_t reg, uint8_t *val);
 	void wireReadDataBlock(uint8_t reg, uint8_t *val, unsigned int len);
+
+	static void APDS_9960_delay(time32_t time);
 
 
 	bool_e APDS9960_init() {
@@ -628,8 +632,8 @@
 
 		/* Determine Near/Far gesture */
 		if( (gesture_ud_count_ == 0) && (gesture_lr_count_ == 0) ) {
-			if( (abs(ud_delta) < GESTURE_SENSITIVITY_2) && \
-				(abs(lr_delta) < GESTURE_SENSITIVITY_2) ) {
+			if( (absolute(ud_delta) < GESTURE_SENSITIVITY_2) && \
+				(absolute(lr_delta) < GESTURE_SENSITIVITY_2) ) {
 
 				if( (ud_delta == 0) && (lr_delta == 0) ) {
 					gesture_near_count_++;
@@ -647,8 +651,8 @@
 				}
 			}
 		} else {
-			if( (abs(ud_delta) < GESTURE_SENSITIVITY_2) && \
-				(abs(lr_delta) < GESTURE_SENSITIVITY_2) ) {
+			if( (absolute(ud_delta) < GESTURE_SENSITIVITY_2) && \
+				(absolute(lr_delta) < GESTURE_SENSITIVITY_2) ) {
 
 				if( (ud_delta == 0) && (lr_delta == 0) ) {
 					gesture_near_count_++;
@@ -717,7 +721,7 @@
 		while(1){
 
 		/* Wait some time to collect next batch of FIFO data */
-		HAL_Delay(FIFO_PAUSE_TIME);
+		APDS_9960_delay(FIFO_PAUSE_TIME);
 
 		/* Get the contents of the STATUS register. Is data still valid? */
 		wireReadDataByte(APDS9960_GSTATUS, &gstatus);
@@ -783,7 +787,7 @@
 		} else {
 
 			/* Determine best guessed gesture and clean up */
-			HAL_Delay(FIFO_PAUSE_TIME);
+			APDS_9960_delay(FIFO_PAUSE_TIME);
 			APDS9960_decodeGesture();
 			motion = gesture_motion_;
 	#if DEBUG_APDS
@@ -821,25 +825,25 @@
 		} else if( (gesture_ud_count_ == 0) && (gesture_lr_count_ == -1) ) {
 			gesture_motion_ = DIR_LEFT;
 		} else if( (gesture_ud_count_ == -1) && (gesture_lr_count_ == 1) ) {
-			if( abs(gesture_ud_delta_) > abs(gesture_lr_delta_) ) {
+			if( absolute(gesture_ud_delta_) > absolute(gesture_lr_delta_) ) {
 				gesture_motion_ = DIR_UP;
 			} else {
 				gesture_motion_ = DIR_RIGHT;
 			}
 		} else if( (gesture_ud_count_ == 1) && (gesture_lr_count_ == -1) ) {
-			if( abs(gesture_ud_delta_) > abs(gesture_lr_delta_) ) {
+			if( absolute(gesture_ud_delta_) > absolute(gesture_lr_delta_) ) {
 				gesture_motion_ = DIR_DOWN;
 			} else {
 				gesture_motion_ = DIR_LEFT;
 			}
 		} else if( (gesture_ud_count_ == -1) && (gesture_lr_count_ == -1) ) {
-			if( abs(gesture_ud_delta_) > abs(gesture_lr_delta_) ) {
+			if( absolute(gesture_ud_delta_) > absolute(gesture_lr_delta_) ) {
 				gesture_motion_ = DIR_UP;
 			} else {
 				gesture_motion_ = DIR_LEFT;
 			}
 		} else if( (gesture_ud_count_ == 1) && (gesture_lr_count_ == 1) ) {
-			if( abs(gesture_ud_delta_) > abs(gesture_lr_delta_) ) {
+			if( absolute(gesture_ud_delta_) > absolute(gesture_lr_delta_) ) {
 				gesture_motion_ = DIR_DOWN;
 			} else {
 				gesture_motion_ = DIR_RIGHT;
@@ -1772,6 +1776,11 @@
 	 */
 	void wireReadDataBlock(uint8_t reg, uint8_t *val, unsigned int len) {
 		I2C_Read(APDS9960_I2C, APDS9960_I2C_ADDR << 1, &reg, 1, val, len);
+	}
+
+	static void APDS_9960_delay(time32_t time){
+		time32_t beginTime = global.absolute_time;
+		while(beginTime - global.absolute_time <= beginTime);
 	}
 
 
