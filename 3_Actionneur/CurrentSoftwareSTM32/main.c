@@ -289,6 +289,8 @@ int main (void)
 
 	}
 
+
+
 	static void MAIN_onButton1() {
 		static Uint8 state = 0;
 		CAN_msg_t msg1, msg2;
@@ -304,10 +306,10 @@ int main (void)
 			msg1.data.act_msg.order = ACT_CYLINDER_ARM_RIGHT_OUT;
 		}else if(state == 2){
 			msg1.sid = ACT_CYLINDER_COLOR_RIGHT;
-			msg1.data.act_msg.order = ACT_CYLINDER_COLOR_RIGHT_UNLOCK;
+			msg1.data.act_msg.order = ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED;
 		}else if(state == 3){
 			msg1.sid = ACT_CYLINDER_DISPOSE_RIGHT;
-			msg1.data.act_msg.order = ACT_CYLINDER_DISPOSE_RIGHT_UNLOCK;
+			msg1.data.act_msg.order = ACT_CYLINDER_DISPOSE_RIGHT_STOP;
 		}else if(state == 4){
 			msg1.sid = ACT_CYLINDER_PUSHER_RIGHT;
 			msg1.data.act_msg.order = ACT_CYLINDER_PUSHER_RIGHT_IN;
@@ -351,13 +353,13 @@ int main (void)
 
 		if(state == 0){
 			msg1.sid = ACT_ORE_ROLLER_ARM;
-			msg1.data.act_msg.order = ACT_ORE_ROLLER_ARM_UNLOCK;
+			msg1.data.act_msg.order = ACT_ORE_ROLLER_ARM_IN;
 		}else if(state == 1){
 			msg1.sid = ACT_ORE_ROLLER_ARM;
 			msg1.data.act_msg.order = ACT_ORE_ROLLER_ARM_OUT;
 		}else if(state == 2){
 			msg1.sid = ACT_ORE_WALL;
-			msg1.data.act_msg.order = ACT_ORE_WALL_UNLOCK;
+			msg1.data.act_msg.order = ACT_ORE_WALL_IN;
 		}else if(state == 3){
 			msg1.sid = ACT_ORE_WALL;
 			msg1.data.act_msg.order = ACT_ORE_WALL_OUT;
