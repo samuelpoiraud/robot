@@ -40,6 +40,7 @@ static GEOMETRY_point_t pos_mesure;
 	static ADS1118_sensorConfig_t sensorLeftConfig, sensorRightConfig;
 #endif
 
+static void SCAN_adcConfigInit();
 
 void SCAN_init(){
 	Uint16 i;
@@ -56,57 +57,39 @@ void SCAN_init(){
 	}
 
 	#ifdef USE_ADS1118_ON_ADC
-		sensorRightConfig.GPIO_cs.GPIOx = GPIOC;
-		sensorRightConfig.GPIO_cs.GPIO_Pin = GPIO_Pin_2;
-		sensorRightConfig.GPIO_din.GPIOx = GPIOB;
-		sensorRightConfig.GPIO_din.GPIO_Pin = GPIO_Pin_14;
-		sensorRightConfig.SPI_handle = SPI2;
-
-		ADS1118_init(&sensorRightConfig);
-
-		bool_e res;
-		res = ADS1118_setConfig(&sensorRightConfig,
-				ADS1118_CONFIG_SINGLE_SHOT_OFF,
-				ADS1118_CONFIG_INPUT_MULTIPLEXER__AINP_IS_AIN0__AINN_IS_GND,
-				ADS1118_CONFIG_GAIN_AMPLIFIER_FSR_4_096,
-				ADS1118_CONFIG_MODE_CONTINUOUS_CONVERSION,
-				ADS1118_CONFIG_DATA_RATE_860_SPS,
-				ADS1118_CONFIG_SENSOR_MODE_ADC,
-				ADS1118_CONFIG_PULLUP_ENABLE,
-				TRUE);
-		if(res)
-			debug_printf("Configuration de l'ADC ADS1118 réussie\n");
-		else
-			debug_printf("Configuration de l'ADC ADS1118 échoué !!!!!!!!!!!!!!\n");
-
+		SCAN_adcConfigInit();
 	#endif
+}
+
+static void SCAN_adcConfigInit(){
+	sensorRightConfig.GPIO_cs.GPIOx = GPIOC;
+	sensorRightConfig.GPIO_cs.GPIO_Pin = GPIO_Pin_2;
+	sensorRightConfig.GPIO_din.GPIOx = GPIOB;
+	sensorRightConfig.GPIO_din.GPIO_Pin = GPIO_Pin_14;
+	sensorRightConfig.SPI_handle = SPI2;
+
+	ADS1118_init(&sensorRightConfig);
+
+	bool_e res;
+	res = ADS1118_setConfig(&sensorRightConfig,
+			ADS1118_CONFIG_SINGLE_SHOT_OFF,
+			ADS1118_CONFIG_INPUT_MULTIPLEXER__AINP_IS_AIN0__AINN_IS_GND,
+			ADS1118_CONFIG_GAIN_AMPLIFIER_FSR_4_096,
+			ADS1118_CONFIG_MODE_CONTINUOUS_CONVERSION,
+			ADS1118_CONFIG_DATA_RATE_860_SPS,
+			ADS1118_CONFIG_SENSOR_MODE_ADC,
+			ADS1118_CONFIG_PULLUP_ENABLE,
+			TRUE);
+	if(res)
+		debug_printf("Configuration de l'ADC ADS1118 réussie\n");
+	else
+		debug_printf("Configuration de l'ADC ADS1118 échoué !!!!!!!!!!!!!!\n");
+
 }
 
 void SCAN_onPower(){
 	#ifdef USE_ADS1118_ON_ADC
-		sensorRightConfig.GPIO_cs.GPIOx = GPIOC;
-		sensorRightConfig.GPIO_cs.GPIO_Pin = GPIO_Pin_2;
-		sensorRightConfig.GPIO_din.GPIOx = GPIOB;
-		sensorRightConfig.GPIO_din.GPIO_Pin = GPIO_Pin_14;
-		sensorRightConfig.SPI_handle = SPI2;
-
-		ADS1118_init(&sensorRightConfig);
-
-		bool_e res;
-		res = ADS1118_setConfig(&sensorRightConfig,
-				ADS1118_CONFIG_SINGLE_SHOT_OFF,
-				ADS1118_CONFIG_INPUT_MULTIPLEXER__AINP_IS_AIN0__AINN_IS_GND,
-				ADS1118_CONFIG_GAIN_AMPLIFIER_FSR_4_096,
-				ADS1118_CONFIG_MODE_CONTINUOUS_CONVERSION,
-				ADS1118_CONFIG_DATA_RATE_860_SPS,
-				ADS1118_CONFIG_SENSOR_MODE_ADC,
-				ADS1118_CONFIG_PULLUP_ENABLE,
-				TRUE);
-		if(res)
-			debug_printf("Configuration de l'ADC ADS1118 réussie\n");
-		else
-			debug_printf("Configuration de l'ADC ADS1118 échoué !!!!!!!!!!!!!!\n");
-
+		SCAN_adcConfigInit();
 	#endif
 }
 
@@ -316,7 +299,7 @@ void TELEMETER_process_it(){
 	laser_left[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_LEFT);
 #ifdef USE_ADS1118_ON_ADC
 	bool_e res = ADS1118_getValue(&sensorRightConfig, &(laser_right[index].ADCvalue));
-	it_printf("ADCSPI: %d\n", laser_right[index].ADCvalue);
+	//it_printf("ADCSPI: %d\n", laser_right[index].ADCvalue);
 #else
 	laser_right[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
 #endif
@@ -360,60 +343,66 @@ void SCAN_process_it(){
 }
 
 void SCAN_process_main(){
-	Uint16 i;
-	scan_data_t tab_treatment_left[NB_SCAN_DATA], tab_treatment_right[NB_SCAN_DATA];
+//	Uint16 i;
+//	scan_data_t tab_treatment_left[NB_SCAN_DATA], tab_treatment_right[NB_SCAN_DATA];
+//
+//	if(flag_treatment_too_slow){
+//	//	debug_printf("problème d'accés conccurents\n");
+//	}
+//	Uint32 moy=0;
+//	// Copie de la première partie du tableau pendant que la première partie est en train de se remplir
+//	if(flag_1){
+//		//debug_printf("\n\n VIDAGE FLAG_1\n");
+//		for(i=0; i<NB_SCAN_DATA; i++){
+//			//printf("%d\n",laser_right[i].ADCvalue);
+//			tab_treatment_left[i].pos_mesure = laser_left[i].pos_mesure;
+//			tab_treatment_left[i].pos_laser = laser_left[i].pos_laser;
+//			tab_treatment_left[i].enable = laser_left[i].enable;
+//			tab_treatment_right[i].pos_mesure = laser_right[i].pos_mesure;
+//			tab_treatment_right[i].pos_laser = laser_right[i].pos_laser;
+//			tab_treatment_right[i].enable = laser_right[i].enable;
+//			moy+=laser_right[i].ADCvalue;
+//			//debug_printf("i1=%d\n", i);
+//			//debug_printf("i1=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
+//		}
+//		flag_1 = FALSE;
+//		//printf("%ld\n",moy);
+//		moy=moy/NB_SCAN_DATA;
+//		//printf("\n\n%ld\n\n\n",moy);
+//
+//		// Appel de fonctions de scan objets
+//		OBJECTS_SCAN_treatment(tab_treatment_left);
+//		OBJECTS_SCAN_treatment(tab_treatment_right);
+//		// BORDERS_SCAN_treatment(tab_treatment_left);
+//		// BORDERS_SCAN_treatment(tab_treatment_right);
+//	}
+//
+//	// Copie de la seconde partie du tableau pendant que la première partie est en train de se remplir
+//	if(flag_2){
+//		//debug_printf("\n\n VIDAGE FLAG_2\n");
+//		for(i=0; i<NB_SCAN_DATA; i++){
+//			tab_treatment_left[i].pos_mesure = laser_left[NB_SCAN_DATA + i].pos_mesure;
+//			tab_treatment_left[i].pos_laser = laser_left[NB_SCAN_DATA + i].pos_laser;
+//			tab_treatment_left[i].enable = laser_left[NB_SCAN_DATA + i].enable;
+//			tab_treatment_right[i].pos_mesure = laser_right[NB_SCAN_DATA + i].pos_mesure;
+//			tab_treatment_right[i].pos_laser = laser_right[NB_SCAN_DATA + i].pos_laser;
+//			tab_treatment_right[i].enable = laser_right[NB_SCAN_DATA + i].enable;
+//			moy+=laser_right[i].ADCvalue;
+//			//debug_printf("i2=%d\n", i);
+//			//debug_printf("i2=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
+//		}
+//		flag_2 = FALSE;
+//		moy=moy/NB_SCAN_DATA;
+//		//printf("%ld\n",moy);
+//		// Appel des fonctions de scans objets
+//		OBJECTS_SCAN_treatment(tab_treatment_left);
+//		OBJECTS_SCAN_treatment(tab_treatment_right);
+//	}
 
-	if(flag_treatment_too_slow){
-	//	debug_printf("problème d'accés conccurents\n");
-	}
-	Uint32 moy=0;
-	// Copie de la première partie du tableau pendant que la première partie est en train de se remplir
-	if(flag_1){
-		//debug_printf("\n\n VIDAGE FLAG_1\n");
-		for(i=0; i<NB_SCAN_DATA; i++){
-			//printf("%d\n",laser_right[i].ADCvalue);
-			tab_treatment_left[i].pos_mesure = laser_left[i].pos_mesure;
-			tab_treatment_left[i].pos_laser = laser_left[i].pos_laser;
-			tab_treatment_left[i].enable = laser_left[i].enable;
-			tab_treatment_right[i].pos_mesure = laser_right[i].pos_mesure;
-			tab_treatment_right[i].pos_laser = laser_right[i].pos_laser;
-			tab_treatment_right[i].enable = laser_right[i].enable;
-			moy+=laser_right[i].ADCvalue;
-			//debug_printf("i1=%d\n", i);
-			//debug_printf("i1=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
-		}
-		flag_1 = FALSE;
-		//printf("%ld\n",moy);
-		moy=moy/NB_SCAN_DATA;
-		//printf("\n\n%ld\n\n\n",moy);
-
-		// Appel de fonctions de scan objets
-		OBJECTS_SCAN_treatment(tab_treatment_left);
-		OBJECTS_SCAN_treatment(tab_treatment_right);
-		// BORDERS_SCAN_treatment(tab_treatment_left);
-		// BORDERS_SCAN_treatment(tab_treatment_right);
-	}
-
-	// Copie de la seconde partie du tableau pendant que la première partie est en train de se remplir
-	if(flag_2){
-		//debug_printf("\n\n VIDAGE FLAG_2\n");
-		for(i=0; i<NB_SCAN_DATA; i++){
-			tab_treatment_left[i].pos_mesure = laser_left[NB_SCAN_DATA + i].pos_mesure;
-			tab_treatment_left[i].pos_laser = laser_left[NB_SCAN_DATA + i].pos_laser;
-			tab_treatment_left[i].enable = laser_left[NB_SCAN_DATA + i].enable;
-			tab_treatment_right[i].pos_mesure = laser_right[NB_SCAN_DATA + i].pos_mesure;
-			tab_treatment_right[i].pos_laser = laser_right[NB_SCAN_DATA + i].pos_laser;
-			tab_treatment_right[i].enable = laser_right[NB_SCAN_DATA + i].enable;
-			moy+=laser_right[i].ADCvalue;
-			//debug_printf("i2=%d\n", i);
-			//debug_printf("i2=%d l(%4d ; %4d) e= %1d  r(%4d ; %4d) e= %1d\n", i, laser_left[i].pos_mesure.x, laser_left[i].pos_mesure.y,laser_left[i].enable, laser_right[i].pos_mesure.x, laser_right[i].pos_mesure.y, laser_right[i].enable);
-		}
-		flag_2 = FALSE;
-		moy=moy/NB_SCAN_DATA;
-		//printf("%ld\n",moy);
-		// Appel des fonctions de scans objets
-		OBJECTS_SCAN_treatment(tab_treatment_left);
-		OBJECTS_SCAN_treatment(tab_treatment_right);
-	}
-
+	/*static time32_t time = 0;
+	if(global.absolute_time - time > 500){
+		ADS1118_getValue(&sensorRightConfig, &(laser_right[index].ADCvalue));
+		it_printf("ADCSPI: %d\n", laser_right[index].ADCvalue);
+		time = global.absolute_time;
+	}*/
 }
