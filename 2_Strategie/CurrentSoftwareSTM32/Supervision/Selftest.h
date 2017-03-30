@@ -52,6 +52,9 @@
 	bool_e get_warning_bat();
 	void clean_warning_bat();
 
+	// Fonction déclarant une erreur sleftest
+	void SELFTEST_declare_errors(CAN_msg_t * msg, SELFTEST_error_code_e error);
+
 	void Selftest_print_sd_hokuyo_lost(void);
 
 	void SELFTEST_set_warning_bat_display_state(bool_e state);

@@ -1,4 +1,5 @@
 #include "SelftestActionneur.h"
+#include "Selftest.h"
 #include "../QS/QS_stateMachineHelper.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_types.h"
@@ -7,11 +8,10 @@
 #include "../utils/generic_functions.h"
 #include "../utils/actionChecker.h"
 
-#if 1
 
 
 error_e SELFTESTACT_run(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_SELFTEST_ACT, //a declarer
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SELFTEST_ACT,
 			INIT,
 			MOVE_ACTIONNEUR,
 			CHECK_STATUS,
@@ -46,9 +46,9 @@ error_e SELFTESTACT_run(){
 			{5, ACT_CYLINDER_ARM_RIGHT,			 ACT_CYLINDER_ARM_RIGHT_OUT,			 ACT_QUEUE_Cylinder_arm_right,			SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT       },
 			{6, ACT_CYLINDER_PUSHER_RIGHT,		 ACT_CYLINDER_PUSHER_RIGHT_IN,			 ACT_QUEUE_Cylinder_slope_right,		SELFTEST_ACT_AX12_CYLINDER_PUSHER_RIGHT    },
 			{6, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
-			//{6, ACT_CYLINDER_COLOR_RIGHT,		 ACT_CYLINDER_COLOR_RIGHT_UNLOCK,		 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_RIGHT     },
+			//{6, ACT_CYLINDER_COLOR_RIGHT,		 ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED,	 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_RIGHT     },
 			{7, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
-			//{8, ACT_CYLINDER_COLOR_RIGHT,		 ACT_CYLINDER_COLOR_RIGHT_LOCK,			 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_RIGHT     },
+			//{8, ACT_CYLINDER_COLOR_RIGHT,		 ACT_CYLINDER_COLOR_RIGHT_ZERO_SPEED,	 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_RIGHT     },
 			{8, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE,	 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
 			{9, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
 			{10, ACT_CYLINDER_DISPOSE_RIGHT,	 ACT_CYLINDER_DISPOSE_RIGHT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
@@ -63,9 +63,9 @@ error_e SELFTESTACT_run(){
 			{14, ACT_CYLINDER_ARM_LEFT,			 ACT_CYLINDER_ARM_LEFT_OUT,			 	 ACT_QUEUE_Cylinder_arm_left,			SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT       },
 			{15, ACT_CYLINDER_PUSHER_LEFT,		 ACT_CYLINDER_PUSHER_LEFT_IN,			 ACT_QUEUE_Cylinder_slope_left,			SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT    },
 			{16, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
-			//{16, ACT_CYLINDER_COLOR_LEFT,		 ACT_CYLINDER_COLOR_LEFT_UNLOCK,		 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_LEFT     },
+			//{16, ACT_CYLINDER_COLOR_LEFT,		 ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED,	 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_LEFT     },
 			{17, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
-			//{18, ACT_CYLINDER_COLOR_LEFT,		 ACT_CYLINDER_COLOR_LEFT_LOCK,			 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_LEFT     },
+			//{18, ACT_CYLINDER_COLOR_LEFT,		 ACT_CYLINDER_COLOR_LEFT_ZERO_SPEED,	 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_LEFT     },
 			{18, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
 			{19, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
 			{20, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
@@ -86,19 +86,21 @@ error_e SELFTESTACT_run(){
 			{28, ACT_ORE_WALL,	 				 ACT_ORE_WALL_IN,						 ACT_QUEUE_Ore_wall,					SELFTEST_ACT_RX24_ORE_WALL },
 
 
-			//ACT_ORE_GUN ?
-
+			//ACT_ORE_GUN ? Oui il faut le mettre
+			{28, ACT_ORE_GUN,	 				 ACT_ORE_GUN_DOWN,						 ACT_QUEUE_Ore_gun,						SELFTEST_ACT_RX24_ORE_GUN },
+			{28, ACT_ORE_GUN,	 				 ACT_ORE_GUN_UP,						 ACT_QUEUE_Ore_gun,						SELFTEST_ACT_RX24_ORE_GUN },
 
 	};
 
-	#define LAST_ETAPE_SELFTEST   (20)
+	#define NB_ETAPES    (28)
 	#define NB_ACTIONS	 (sizeof(tableau_selftest) / sizeof(struct_selftest_t))
 
 	static error_e liste_etat_actionneur[NB_ACTIONS];
-	static Uint8 indice = 0; //static?
-	static Uint8 indice_check = 0;
+	static Uint8 indice = 0;
+	static Uint8 ind_start_etape = 0, ind_end_etape = 0;
 	static Uint8 etape_en_cours = 1;
-	static Uint8 indice_err = 0;
+	static bool_e check_finish = FALSE;
+	Uint8 i;
 
 
 	switch(state){
@@ -106,47 +108,50 @@ error_e SELFTESTACT_run(){
 			for(int i=0; i<NB_ACTIONS; i++){
 				liste_etat_actionneur[i] = IN_PROGRESS;
 			}
+			etape_en_cours = 1;   // On intialise le numéro de l'étape en cours
 			state = MOVE_ACTIONNEUR;
 			break;
 
 		case MOVE_ACTIONNEUR:
-
+			ind_start_etape = indice;
 			while(tableau_selftest[indice].numero_etape == etape_en_cours && indice < NB_ACTIONS){
 				ACT_push_order(tableau_selftest[indice].actionneur, tableau_selftest[indice].position);
-				indice += 1;
+				indice++;
 			}
-			state = wait_time(1000, state, CHECK_STATUS); // Attention au wait_time ici, à remplacer par une attente global.absolute_time
+			ind_end_etape = indice - 1;
+
+			state = CHECK_STATUS;
 			break;
 
 		case CHECK_STATUS:
-
-			while(tableau_selftest[indice_check].numero_etape == etape_en_cours && indice < NB_ACTIONS){
-				liste_etat_actionneur[indice_check] = check_act_status(tableau_selftest[indice_check].queue_id, IN_PROGRESS, END_OK, NOT_HANDLED);
-				indice_check += 1;
+			check_finish = TRUE;
+			for(i = ind_start_etape; i <= ind_end_etape; i++){
+				if(liste_etat_actionneur[i] == IN_PROGRESS){
+					liste_etat_actionneur[i] = check_act_status(tableau_selftest[i].queue_id, IN_PROGRESS, END_OK, NOT_HANDLED);
+					if(liste_etat_actionneur[i] == IN_PROGRESS){
+						check_finish = FALSE;
+					}
+				}
 			}
 
-			state = wait_time(1000, state, COMPUTE_NEXT_ETAPE); // Attention au wait_time ici, à remplacer par une attente global.absolute_time
+			if(check_finish){
+				state = COMPUTE_NEXT_ETAPE;
+			}
 			break;
 
 		case COMPUTE_NEXT_ETAPE:
 			etape_en_cours += 1;
-			if (etape_en_cours < LAST_ETAPE_SELFTEST){
+			if (etape_en_cours < NB_ETAPES){
 				state = MOVE_ACTIONNEUR;
 			}else{
-				// Ici il faudra penser à envoyer les erreurs à l'algo de selftest
-				// Utiliser et compléter la fonction suivante : SELFTESTACT_check_errors()
-
 				state = DECLARE_ERROR;
 			}
 			break;
 
 		case DECLARE_ERROR :
-			for(int i=0; i < LAST_ETAPE_SELFTEST; i++){
-				while(tableau_selftest[indice_err].numero_etape == i){
-					if (liste_etat_actionneur[indice_check] == NOT_HANDLED){
-						SELFTEST_declare_errors(NULL, tableau_selftest[indice_err].error_code);
-					}
-					indice_check += 1;
+			for(i = 0; i < NB_ACTIONS; i++){
+				if (liste_etat_actionneur[i] == NOT_HANDLED){
+					SELFTEST_declare_errors(NULL, tableau_selftest[i].error_code);
 				}
 			}
 			state = DONE;
@@ -193,5 +198,4 @@ void SELFTESTACT_check_errors(tab){
 }
 */
 
-#endif
 
