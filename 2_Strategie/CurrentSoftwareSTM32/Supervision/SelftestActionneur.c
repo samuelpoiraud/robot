@@ -84,23 +84,24 @@ error_e SELFTESTACT_run(){
 			{27, ACT_ORE_ROLLER_ARM,	 		 ACT_ORE_ROLLER_ARM_IN,					 ACT_QUEUE_Ore_roller_arm,				SELFTEST_ACT_RX24_ORE_ROLLER_ARM },
 			{27, ACT_ORE_TRIHOLE,	 			 ACT_ORE_TRIHOLE_RUN,					 ACT_QUEUE_Ore_trihole,					SELFTEST_ACT_RX24_ORE_TRIHOLE },
 			{28, ACT_ORE_WALL,	 				 ACT_ORE_WALL_IN,						 ACT_QUEUE_Ore_wall,					SELFTEST_ACT_RX24_ORE_WALL },
-
-
-			//ACT_ORE_GUN ? Oui il faut le mettre
-			{28, ACT_ORE_GUN,	 				 ACT_ORE_GUN_DOWN,						 ACT_QUEUE_Ore_gun,						SELFTEST_ACT_RX24_ORE_GUN },
-			{28, ACT_ORE_GUN,	 				 ACT_ORE_GUN_UP,						 ACT_QUEUE_Ore_gun,						SELFTEST_ACT_RX24_ORE_GUN },
+			{29, ACT_ORE_GUN,	 				 ACT_ORE_GUN_DOWN,						 ACT_QUEUE_Ore_gun,						SELFTEST_ACT_RX24_ORE_GUN },
+			{30, ACT_ORE_GUN,	 				 ACT_ORE_GUN_UP,						 ACT_QUEUE_Ore_gun,						SELFTEST_ACT_RX24_ORE_GUN },
 
 	};
 
-	#define NB_ETAPES    (28)
+	#define NB_ETAPES    (30)
 	#define NB_ACTIONS	 (sizeof(tableau_selftest) / sizeof(struct_selftest_t))
 
 	static error_e liste_etat_actionneur[NB_ACTIONS];
+	static ACT_sid_e liste_error_actionneur[NB_ACTIONS];
 	static Uint8 indice = 0;
 	static Uint8 ind_start_etape = 0, ind_end_etape = 0;
 	static Uint8 etape_en_cours = 1;
 	static bool_e check_finish = FALSE;
+	static bool_e new_error = FALSE;
+	static Uint8 ind_nb_errors = 0;
 	Uint8 i;
+	Uint8 j;
 
 
 	switch(state){
@@ -108,7 +109,7 @@ error_e SELFTESTACT_run(){
 			for(int i=0; i<NB_ACTIONS; i++){
 				liste_etat_actionneur[i] = IN_PROGRESS;
 			}
-			etape_en_cours = 1;   // On intialise le numéro de l'étape en cours
+			etape_en_cours = 1;
 			state = MOVE_ACTIONNEUR;
 			break;
 
@@ -151,7 +152,19 @@ error_e SELFTESTACT_run(){
 		case DECLARE_ERROR :
 			for(i = 0; i < NB_ACTIONS; i++){
 				if (liste_etat_actionneur[i] == NOT_HANDLED){
-					SELFTEST_declare_errors(NULL, tableau_selftest[i].error_code);
+					new_error = TRUE;
+					if(!ind_nb_errors){
+						for(j=0; j<ind_nb_errors; j++){
+							if(liste_error_actionneur[j]==tableau_selftest[i].actionneur){
+								new_error = FALSE;
+							}
+						}
+					}
+					if (new_error == TRUE){
+						SELFTEST_declare_errors(NULL, tableau_selftest[i].error_code);
+						liste_error_actionneur[ind_nb_errors] = tableau_selftest[i].actionneur;
+						ind_nb_errors += 1;
+					}
 				}
 			}
 			state = DONE;
