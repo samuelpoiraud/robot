@@ -1773,7 +1773,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, INIT_DISPOSE_SERVO, INIT_DISPOSE_SERVO);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, INIT_DISPOSE_SERVO, INIT_DISPOSE_SERVO);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, INIT_DISPOSE_SERVO, INIT_DISPOSE_SERVO);
 			}
 			break;
 
@@ -1789,7 +1789,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, TRIGGER_CYLINDER_PREPARATION, TRIGGER_CYLINDER_PREPARATION);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, TRIGGER_CYLINDER_PREPARATION, TRIGGER_CYLINDER_PREPARATION);
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_left, state, TRIGGER_CYLINDER_PREPARATION, TRIGGER_CYLINDER_PREPARATION);
 			}
 			break;
 
@@ -1833,12 +1833,12 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			/*if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, RAISE_CYLINDER, RAISE_CYLINDER);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, RAISE_CYLINDER, RAISE_CYLINDER);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, RAISE_CYLINDER, RAISE_CYLINDER);
 			}*/
 			if(storage == MODULE_STOCK_RIGHT){
 				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}else{
-				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
 			if(stateAct!= IN_PROGRESS /*&& global.absolute_time > time_timeout*/){
@@ -1859,7 +1859,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, GET_OUT_CYLINDER_OF_ROBOT, GET_OUT_CYLINDER_OF_ROBOT);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, GET_OUT_CYLINDER_OF_ROBOT, GET_OUT_CYLINDER_OF_ROBOT);
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_left, state, GET_OUT_CYLINDER_OF_ROBOT, GET_OUT_CYLINDER_OF_ROBOT);
 			}
 			break;
 
@@ -1875,7 +1875,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
 			}
 			break;
 
@@ -1896,7 +1896,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, GO_TO_DISPOSE_POS, GO_TO_DISPOSE_POS);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, GO_TO_DISPOSE_POS, GO_TO_DISPOSE_POS);
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_left, state, GO_TO_DISPOSE_POS, GO_TO_DISPOSE_POS);
 			}
 			break;
 
@@ -1913,12 +1913,12 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			/*if(storage == MODULE_STOCK_RIGHT){
 				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
 			}else{
-				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, DISPOSE_CYLINDER, DISPOSE_CYLINDER);
 			}*/
 			if(storage == MODULE_STOCK_RIGHT){
 				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}else{
-				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
 			if(stateAct != IN_PROGRESS && global.absolute_time > time_timeout){
@@ -1962,7 +1962,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, S1_MOVE_ARM_SERVO, S1_MOVE_ARM_SERVO);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, S1_MOVE_ARM_SERVO, S1_MOVE_ARM_SERVO);
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_left, state, S1_MOVE_ARM_SERVO, S1_MOVE_ARM_SERVO);
 			}
 			break;
 
@@ -1977,7 +1977,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DONE, DONE);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DONE, DONE);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, DONE, DONE);
 			}
 			break;
 
@@ -1993,7 +1993,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, S2_MOVE_ARM_SERVO, S2_MOVE_ARM_SERVO);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_dispose_right, state, S2_MOVE_ARM_SERVO, S2_MOVE_ARM_SERVO);
+				state = check_act_status(ACT_QUEUE_Cylinder_dispose_left, state, S2_MOVE_ARM_SERVO, S2_MOVE_ARM_SERVO);
 			}
 			break;
 
@@ -2009,7 +2009,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if(storage == MODULE_STOCK_RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DONE, DONE);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, DONE, DONE);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, DONE, DONE);
 			}
 			break;
 
