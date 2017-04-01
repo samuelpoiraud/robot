@@ -67,21 +67,22 @@
 	}moduleStockLocation_e;
 
 	typedef enum{
-		STOCK_POS_0_TO_OUT = 0,
-		STOCK_POS_1_TO_OUT = 1,
-		STOCK_POS_2_TO_OUT = 2,
-		STOCK_POS_3_TO_OUT = 3,
-		STOCK_POS_4_TO_OUT = 4,
-		STOCK_POS_ELEVATOR = 5,
-		STOCK_POS_ENTRY = 6
+		STOCK_POS_ENTRY = 0,
+		STOCK_POS_ELEVATOR = 1,
+		STOCK_POS_SLOPE = 2,
+		STOCK_POS_CONTAINER = 3,
+		STOCK_POS_BALANCER = 4,
+		STOCK_POS_COLOR = 5,
+		STOCK_POS_ARM_DISPOSE = 6,
 	}moduleStockPosition_e;
 
 	typedef enum{
 		STOCK_PLACE_ENTRY_TO_ELEVATOR,
-		STOCK_PLACE_ELEVATOR_TO_CONTAINER_IN,
-		STOCK_PLACE_CONTAINER_IN_TO_DISPENSER,
-		STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT,
-		STOCK_CONTAINER_OUT_TO_OUTSIDE
+		STOCK_PLACE_ELEVATOR_TO_CONTAINER,
+		STOCK_PLACE_CONTAINER_TO_BALANCER,
+		STOCK_PLACE_BALANCER_TO_COLOR,
+		STOCK_PLACE_COLOR_TO_ARM_DISPOSE,
+		STOCK_PLACE_CLEAR_ARM_DISPOSE
 	}moduleStockPlace_e;
 
 	typedef enum{
@@ -160,7 +161,7 @@ Uint8 STOCKS_getNbModules(moduleStockLocation_e storage);
 bool_e STOCKS_isFull(moduleStockLocation_e storage);
 bool_e STOCKS_isEmpty(moduleStockLocation_e storage);
 bool_e STOCKS_moduleStockPlaceIsEmpty(moduleStockPosition_e place, moduleStockLocation_e storage);
-void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage);
+void STOCKS_addModule(moduleType_e type, moduleStockPosition_e position, moduleStockLocation_e storage);
 void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage);
 moduleType_e STOCKS_removeModule(moduleStockLocation_e storage);
 void STOCKS_print(moduleStockLocation_e storage);

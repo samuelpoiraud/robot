@@ -496,7 +496,7 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
@@ -543,7 +543,7 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)){
@@ -648,7 +648,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
@@ -693,7 +693,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
@@ -809,7 +809,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
@@ -854,7 +854,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
@@ -963,7 +963,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
@@ -1008,7 +1008,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
@@ -1115,7 +1115,7 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
@@ -1161,7 +1161,7 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
@@ -1279,7 +1279,7 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_take(), state, DONE, ERROR);
 
 
@@ -1324,7 +1324,7 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
 			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_act_status(ACT_QUEUE_Ore_foam, state2, DONE, ERROR);
+			state2= check_act_status(ACT_QUEUE_Ore_roller_foam, state2, DONE, ERROR);
 			state3= check_sub_action_result(sub_act_big_off(), state, DONE, ERROR);
 
 
