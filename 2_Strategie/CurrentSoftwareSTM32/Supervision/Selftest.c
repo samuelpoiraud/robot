@@ -606,15 +606,15 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_BEACON_UNREACHABLE:				debug_printf("SELFTEST_BEACON_UNREACHABLE");					break;
 				case SELFTEST_IHM_UNREACHABLE:					debug_printf("SELFTEST_IHM_UNREACHABLE");						break;
 
-				// Actionneurs
+				// Actionneurs BIG
                 case SELFTEST_ACT_AX12_BEARING_BALL_WHEEL:		debug_printf("SELFTEST_ACT_AX12_BEARING_BALL_WHEEL");           break;
                 case SELFTEST_ACT_AX12_BIG_BALL_BACK_LEFT:		debug_printf("SELFTEST_ACT_AX12_BIG_BALL_BACK_LEFT");           break;
                 case SELFTEST_ACT_AX12_BIG_BALL_BACK_RIGHT:		debug_printf("SELFTEST_ACT_AX12_BIG_BALL_BACK_RIGHT");          break;
                 case SELFTEST_ACT_AX12_BIG_BALL_FRONT_LEFT:		debug_printf("SELFTEST_ACT_AX12_BIG_BALL_FRONT_LEFT");          break;
                 case SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT:	debug_printf("SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT");         break;
-                case SELFTEST_ACT_RX24_ORE_GUN:                 debug_printf("SELFTEST_ACT_RX24_ORE_GUN");                      break;
-                case SELFTEST_ACT_AX12_CYLINDER_BALANCER_LEFT: debug_printf("SELFTEST_ACT_AX12_CYLINDER_BALANCER_LEFT");      	break;
-                case SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT:debug_printf("SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT");     	break;
+
+                case SELFTEST_ACT_AX12_CYLINDER_BALANCER_LEFT: 	debug_printf("SELFTEST_ACT_AX12_CYLINDER_BALANCER_LEFT");      	break;
+                case SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT:	debug_printf("SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT");     	break;
                 case SELFTEST_ACT_AX12_CYLINDER_SLOPE_LEFT:     debug_printf("SELFTEST_ACT_AX12_CYLINDER_SLOPE_LEFT");          break;
                 case SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT:    debug_printf("SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT");         break;
                 case SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT:    debug_printf("SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT");         break;
@@ -623,11 +623,26 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
                 case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT: debug_printf("SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT");      break;
                 case SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT:    debug_printf("SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT");         break;
                 case SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT:   debug_printf("SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT");        break;
-                case SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT:  debug_printf("SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT");       			break;
-                case SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT: debug_printf("SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT");      			break;
+                case SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT:  		debug_printf("SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT");       		break;
+                case SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT: 		debug_printf("SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT");      		break;
+                case SELFTEST_ACT_AX12_CYLINDER_DISPOSE_LEFT:  	debug_printf("SELFTEST_ACT_AX12_CYLINDER_DISPOSE_LEFT");       	break;
+                case SELFTEST_ACT_AX12_CYLINDER_DISPOSE_RIGHT: 	debug_printf("SELFTEST_ACT_AX12_CYLINDER_DISPOSE_RIGHT");      	break;
+                case SELFTEST_ACT_RX24_CYLINDER_COLOR_LEFT:  	debug_printf("SELFTEST_ACT_RX24_CYLINDER_COLOR_LEFT");       	break;
+                case SELFTEST_ACT_RX24_CYLINDER_COLOR_RIGHT:  	debug_printf("SELFTEST_ACT_RX24_CYLINDER_COLOR_RIGHT");       	break;
+
                 case SELFTEST_ACT_RX24_ORE_ROLLER_ARM:          debug_printf("SELFTEST_ACT_RX24_ORE_ROLLER_ARM");               break;
                 case SELFTEST_ACT_RX24_ORE_WALL:                debug_printf("SELFTEST_ACT_RX24_ORE_WALL");                     break;
+                case SELFTEST_ACT_RX24_ORE_GUN:                 debug_printf("SELFTEST_ACT_RX24_ORE_GUN");                      break;
+                case SELFTEST_ACT_RX24_ORE_FOAM:                debug_printf("SELFTEST_ACT_RX24_ORE_FOAM");                     break;
+                case SELFTEST_ACT_RX24_ORE_TRIHOLE:             debug_printf("SELFTEST_ACT_RX24_ORE_TRIHOLE");                  break;
+
                 case SELFTEST_ACT_AX12_ROCKET:                  debug_printf("SELFTEST_ACT_AX12_ROCKET");                       break;
+
+                // Actionneurs SMALL
+                case SELFTEST_ACT_AX12_SMALL_BALL_BACK_LEFT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_BACK_LEFT");         break;
+                case SELFTEST_ACT_AX12_SMALL_BALL_BACK_RIGHT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_BACK_RIGHT");        break;
+                case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_LEFT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_FRONT_LEFT");        break;
+                case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_RIGHT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_FRONT_RIGHT");       break;
 
 
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)

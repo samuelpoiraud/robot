@@ -65,7 +65,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_ORE_GUN,			  		    ACT_QUEUE_Ore_gun,			        	"Ore gun"},
 	{ACT_ORE_WALL,						ACT_QUEUE_Ore_wall,						"Ore wall"},
     {ACT_ORE_ROLLER_ARM,                ACT_QUEUE_Ore_roller_arm,               "Ore roller arm"},
-    //{ACT_ORE_ROLLER_FOAM,               ACT_QUEUE_Ore_roller_foam,              "Ore roller extension arm"},
+    {ACT_ORE_ROLLER_FOAM,               ACT_QUEUE_Ore_foam,              		"Ore foam"},
+	{ACT_ORE_TRIHOLE,               	ACT_QUEUE_Ore_trihole,              	"Ore trihole"},
 
 
     {ACT_ROCKET,                        ACT_QUEUE_Rocket,                       "Rocket"},

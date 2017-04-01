@@ -228,6 +228,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 	    case  ACT_ORE_GUN:								print(string, len, "%x  ACT_ORE_GUN            				  ",  ACT_ORE_GUN									);	break;
 	    case  ACT_ORE_WALL:								print(string, len, "%x  ACT_ORE_WALL            			  ",  ACT_ORE_WALL									);	break;
 	    case  ACT_ORE_ROLLER_ARM:						print(string, len, "%x  ACT_ORE_ROLLER_ARM            		  ",  ACT_ORE_ROLLER_ARM							);	break;
+	    case  ACT_ORE_ROLLER_FOAM:						print(string, len, "%x  ACT_ORE_ROLLER_FOAM            		  ",  ACT_ORE_ROLLER_FOAM 							);	break;
+	    case  ACT_ORE_TRIHOLE:							print(string, len, "%x  ACT_ORE_TRIHOLE            	  		  ",  ACT_ORE_TRIHOLE								);	break;
 
 	    case  ACT_ROCKET:								print(string, len, "%x  ACT_ROCKET           		  		  ",  ACT_ROCKET									);	break;
 
@@ -359,6 +361,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_ORE_GUN:	    				print(string,len, "ACT_ORE_GUN ");					break;
 				case (Uint8)ACT_ORE_WALL:	    				print(string,len, "ACT_ORE_WALL ");					break;
 				case (Uint8)ACT_ORE_ROLLER_ARM:	    			print(string,len, "ACT_ORE_ROLLER_ARM ");			break;
+				case (Uint8)ACT_ORE_ROLLER_FOAM:	    		print(string,len, "ACT_ORE_ROLLER_FOAM ");			break;
+				case (Uint8)ACT_ORE_TRIHOLE:	    			print(string,len, "ACT_ORE_TRIHOLE ");				break;
 
 				case (Uint8)ACT_ROCKET:	    					print(string,len, "ACT_ROCKET ");					break;
 
@@ -645,6 +649,15 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  }
 				  break;
 
+				 case (Uint8)ACT_ORE_ROLLER_FOAM:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_ORE_ROLLER_FOAM_IDLE:	print(string,len, "| IDLE |");		break;
+							  case (Uint8)ACT_ORE_ROLLER_FOAM_RUN:	print(string,len, "| RUN |");		break;
+							  case (Uint8)ACT_ORE_ROLLER_FOAM_STOP:	print(string,len, "| STOP |");		break;
+							  default:                      		print(string,len, "| UNKNOW cmd |");break;
+						  }
+				  break;
+
 				  case (Uint8)ACT_ORE_WALL:
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_ORE_WALL_IDLE:	print(string,len, "| IDLE |");		break;
@@ -652,6 +665,15 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  	  case (Uint8)ACT_ORE_WALL_IN:		print(string,len, "| IN |");		break;
 						  	  case (Uint8)ACT_ORE_WALL_STOP:	print(string,len, "| STOP |");		break;
 						  	  default:                      	print(string,len, "| UNKNOW cmd |");break;
+						  }
+				  break;
+
+				  case (Uint8)ACT_ORE_TRIHOLE:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_ORE_TRIHOLE_IDLE:	print(string,len, "| IDLE |");		break;
+							  case (Uint8)ACT_ORE_TRIHOLE_RUN:	print(string,len, "| RUN |");		break;
+							  case (Uint8)ACT_ORE_TRIHOLE_STOP:	print(string,len, "| STOP |");		break;
+							  default:                      		print(string,len, "| UNKNOW cmd |");break;
 						  }
 				  break;
 
