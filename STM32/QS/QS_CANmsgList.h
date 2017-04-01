@@ -796,6 +796,19 @@
 				Uint16 sid						:8;
 			}act_warner_answer;
 
+		#define ACT_GET_MOSFET_CURRENT_STATE		0x21D
+		#define SIZE_ACT_GET_MOSFET_CURRENT_STATE	1
+			struct{
+				Uint8 id									:4;			// De 0 à 7
+			}act_get_mosfet_state;
+
+		#define ACT_TELL_MOSFET_CURRENT_STATE		0x21E
+		#define SIZE_ACT_TELL_MOSFET_CURRENT_STATE	1
+			struct{
+				Uint8 id									:4;			// De 0 à 7
+				MOSFET_BOARD_CURRENT_MEASURE_state_e state	:4;
+			}act_tell_mosfet_state;
+
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************

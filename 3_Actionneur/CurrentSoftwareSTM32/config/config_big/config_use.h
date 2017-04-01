@@ -62,6 +62,16 @@
 	#define USE_MOSFET_8
 	//#define USE_MOSFET_MULTI
 
+/* Réglages mosfet */
+	#define USE_MOSTFET_BOARD
+		#define MOSFET_BOARD_UART	6
+		//#define USE_MOSFET_VIA_UART
+
+/* Réglages uart */
+	#define USE_UART6
+		#define USE_UART6RXINTERRUPT
+
+
 /* Réglages IT externe */
 	#define USE_EXTERNAL_IT
 	#define USE_RPM_SENSOR

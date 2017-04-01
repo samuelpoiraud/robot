@@ -14,6 +14,7 @@
 #include "QS/QS_outputlog.h"
 #include "act_queue_utils.h"
 #include "selftest.h"
+#include "mosfetBoard.h"
 
 #ifdef I_AM_ROBOT_BIG
 	#include "QS/QS_mosfet.h"
@@ -49,8 +50,6 @@
 
     #include "Harry/rocket/rocket.h"
 
-
-
 #else
 	#include "QS/QS_mosfet.h"
 	#include "Anne/small_bearing_ball/small_ball_back_left/small_ball_back_left.h"
@@ -71,7 +70,14 @@ static bool_e init_control_act=TRUE;
 #define ACT_DECLARE(prefix) {&prefix##_init, &prefix##_init_pos, &prefix##_stop, &prefix##_reset_config, &prefix##_CAN_process_msg}
 
 static ACTQ_functions_t actionneurs[] = {
-		ACT_DECLARE(MOSFET), //QS_mosfets
+	#ifdef USE_MOSFETS_MODULE
+		#ifndef USE_MOSFET_VIA_UART
+				ACT_DECLARE(MOSFET), //QS_mosfets
+		#else
+				ACT_DECLARE(MOSFET_BOARD_ACT),
+		#endif
+	#endif
+
 	#ifdef I_AM_ROBOT_BIG  //Big Robot
 
         ACT_DECLARE(BIG_BALL_BACK_LEFT),
