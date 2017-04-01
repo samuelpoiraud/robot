@@ -34,6 +34,7 @@
 #include "clock.h"
 #include "ActManager.h"
 #include "Can_msg_processing.h"
+#include "mosfetBoard.h"
 
 #ifdef I_AM_ROBOT_BIG
 #else
@@ -122,6 +123,10 @@ int main (void)
 	ACTMGR_init();
 	TERMINAL_init();
 
+	#ifdef USE_MOSTFET_BOARD
+		MOSFET_BOARD_init();
+	#endif
+
 	IHM_define_act_button(BP_0_IHM, &MAIN_onButton0, &MAIN_onButton0LongPush);
 	IHM_define_act_button(BP_1_IHM, &MAIN_onButton1, &MAIN_onButton1LongPush);
 	IHM_define_act_button(BP_2_IHM, &MAIN_onButton2, &MAIN_onButton2LongPush);
@@ -175,7 +180,11 @@ int main (void)
 
 
 		#if defined(USE_MOSFETS_MODULE) && defined(USE_MOSFET_MULTI)
-				MOSFET_do_order_multi(NULL);
+			MOSFET_do_order_multi(NULL);
+		#endif
+
+		#ifdef USE_MOSTFET_BOARD
+			MOSFET_BOARD_processMain();
 		#endif
 
 		OUTPUTLOG_process_main();

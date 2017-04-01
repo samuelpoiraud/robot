@@ -151,6 +151,17 @@ void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
 	}
 #endif /* def USE_UART2 */
 
+#ifdef USE_UART6
+	#include "QS_uart.h"
+	#include <stdio.h>
+	CreateCANmsgToUntx(6)
+	bool_e u6rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read)
+	{
+		static can_msg_on_char_array_fields_e next_byte_to_read=0;
+		return uartToCANmsg(dest, byte_read, &next_byte_to_read);
+	}
+#endif /* def USE_UART2 */
+
 
 #ifdef USE_UART1
 	#ifdef USE_UART2

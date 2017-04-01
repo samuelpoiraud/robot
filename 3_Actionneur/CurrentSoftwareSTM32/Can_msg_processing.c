@@ -17,6 +17,7 @@
 #include "QS/QS_watchdog.h"
 #include "QS/QS_IHM.h"
 #include "queue.h"
+#include "mosfetBoard.h"
 
 #include "ActManager.h"
 
@@ -135,6 +136,12 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				CAN_send(&answer);
 		}break;
 
+		case ACT_GET_MOSFET_CURRENT_STATE:
+			#ifdef USE_MOSTFET_BOARD
+				MOSFET_BOARD_getPumpStatus(msg->data.act_get_mosfet_state.id);
+			#endif
+			break;
+
 		case IHM_SWITCH_ALL:
 		case IHM_BUTTON:
 		case IHM_SWITCH:
@@ -145,6 +152,12 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
 			break;
 	}//End switch
+
+#ifdef USE_MOSTFET_BOARD
+	if((msg->sid & 0xF00) == BROADCAST_FILTER){
+		MOSFET_BOARD_putCanMsg(msg);
+	}
+#endif
 }
 
 static void CAN_send_callback(CAN_msg_t* msg){

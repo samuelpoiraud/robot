@@ -85,6 +85,26 @@
 		 *	en fin de message (cf : protocole de communication QS)
 		 */
 	#endif /* def USE_UART2 */
+
+	#ifdef USE_UART6
+		#ifdef USE_UART6RXINTERRUPT
+			bool_e u6rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read);
+			/*
+			 *	cette fonction lit un octet dans le buffer de reception de l'uart2
+			 *	et complète le message CAN passé en argument à partir du point où
+			 *	elle s'est arretée à son précédent appel. Elle renvoie ensuite si
+			 *	oui ou non elle a fini de complèter le message CAN. Elle vérifie
+			 *  aussi si le message est bien conforme au protocole de communication
+			 *  (cf QS)
+			 */
+		#endif /* def USE_UART1RXINTERRUPT */
+		void CANmsgToU6tx (CAN_msg_t* src);
+		/*
+		 *	Ecrit le contenu du message CAN passé en argument sur
+		 *	l'uart2 en ajoutant l'octet SOH en début de message et l'octet EOT
+		 *	en fin de message (cf : protocole de communication QS)
+		 */
+	#endif /* def USE_UART2 */
 #endif /* ifndef QS_CAN_OVER_UART_H */
 
 #ifdef USE_UART1
