@@ -48,7 +48,7 @@ typedef enum {
 
 	ACT_QUEUE_Ore_gun,
 	ACT_QUEUE_Ore_wall,
-	ACT_QUEUE_Ore_foam,
+	ACT_QUEUE_Ore_roller_foam,
     ACT_QUEUE_Ore_roller_arm,
 	ACT_QUEUE_Ore_trihole,
 

@@ -663,9 +663,9 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 			case STORAGE_LEFT:
 				if(entrance){
 					if(global.color == BLUE){
-						STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT);
+						STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 					}else{
-						STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT);
+						STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 					}
 				}
 
@@ -686,9 +686,9 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 			case STORAGE_RIGHT:
 				if(entrance){
 					if(global.color == BLUE){
-						STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT);
+						STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 					}else{
-						STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT);
+						STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 					}
 				}
 
@@ -980,9 +980,9 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 		case STORAGE_LEFT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT);
+					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT);
+					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}
 			}
 
@@ -1003,9 +1003,9 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 		case STORAGE_RIGHT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT);
+					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT);
+					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}
 			}
 			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
@@ -1228,9 +1228,9 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 		case STORAGE_LEFT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT);
+					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT);
+					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}
 			}
 
@@ -1252,9 +1252,9 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 		case STORAGE_RIGHT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT);
+					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT);
+					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}
 			}
 
@@ -1432,9 +1432,9 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 		case STORAGE_LEFT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT);
+					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT);
+					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -1454,9 +1454,9 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 		case STORAGE_RIGHT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT);
+					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT);
+					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -1603,9 +1603,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case STORAGE_LEFT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT);
+					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT);
+					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -1625,9 +1625,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case STORAGE_RIGHT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT);
+					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT);
+					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose

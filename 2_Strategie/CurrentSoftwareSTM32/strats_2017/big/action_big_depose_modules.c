@@ -741,6 +741,8 @@ error_e sub_harry_depose_modules_side_manager(ELEMENTS_property_e modules,ELEMEN
 
 
 	}
+
+	return IN_PROGRESS;
 }
 
 error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side){

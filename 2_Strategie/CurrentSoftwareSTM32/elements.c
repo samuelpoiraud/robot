@@ -351,8 +351,18 @@ Uint8 STOCKS_getNbModules(moduleStockLocation_e storage){
 }
 
 // Permet de savoir si un des stocks du robot est plein
+// On ne prend pas en compte les positions STOCK_POS_COLOR et STCOK_POS_ARM_DISPOSE
 bool_e STOCKS_isFull(moduleStockLocation_e storage){
-	return moduleStockInfo[storage].nbCurrentModules == MAX_MODULE_STOCK;
+	if(moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] != MODULE_EMPTY
+			&& moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] != MODULE_EMPTY
+			&& moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] != MODULE_EMPTY
+			&& moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] != MODULE_EMPTY
+			&& moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] != MODULE_EMPTY
+	){
+		return TRUE;
+	}else{
+		return FALSE;
+	}
 }
 
 // Permet de savoir si un des stocks du robot est vide
@@ -370,8 +380,9 @@ bool_e STOCKS_moduleStockPlaceIsEmpty(moduleStockPosition_e place, moduleStockLo
 }
 
 // Permet d'ajouter un module dans un des stocks du robot
-void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage){
-	if(moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] == MODULE_EMPTY){
+void STOCKS_addModule(moduleType_e type, moduleStockPosition_e position, moduleStockLocation_e storage){
+
+	if((position == STOCK_POS_ENTRY || position == STOCK_POS_ELEVATOR) && moduleStockInfo[storage].stockModules[position] == MODULE_EMPTY){
 		if(type == MODULE_BLUE || type == MODULE_YELLOW){
 			moduleStockInfo[storage].nbModulesMonocolor++;
 		}
@@ -379,13 +390,17 @@ void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage){
 			moduleStockInfo[storage].nbModulesMulticolor++;
 		}
 
-		//Stockage du module en position STOCK_POS_ENTRY
-		moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] = type;
+		//Stockage du module en position STOCK_POS_ENTRY ou STOCK_POS_ELEVATOR
+		moduleStockInfo[storage].stockModules[position] = type;
 		moduleStockInfo[storage].nbCurrentModules++;
 
 		// Recalcul du type de modules dominant après ajout de ce nouveau module
 		STOCKS_calculModuleDominant(storage);
 	}else{
+		// En cas d'erreur, on essaie de faire au mieux
+		moduleStockInfo[storage].stockModules[position] = type;
+		STOCKS_calculModuleDominant(storage);
+
 		error_printf("ERROR STOCKAGE MODULE in STOCK_addModule\n");
 	}
 }
@@ -393,7 +408,7 @@ void STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage){
 void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage){
 	switch(place){
 		case STOCK_PLACE_ENTRY_TO_ELEVATOR:
-			if(moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] != MODULE_EMPTY && moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] == MODULE_EMPTY){
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] == MODULE_EMPTY){
 				// On change le module de place
 				moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] = moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY];
 				moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] = MODULE_EMPTY;
@@ -402,17 +417,16 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 			}
 			break;
 
-		case STOCK_PLACE_ELEVATOR_TO_CONTAINER_IN:
-			if(moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] != MODULE_EMPTY && moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] == MODULE_EMPTY){
+		case STOCK_PLACE_ELEVATOR_TO_CONTAINER:
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] == MODULE_EMPTY){
 				// On change le module de place
-				if(moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] == MODULE_EMPTY &&
-				( (storage == MODULE_STOCK_LEFT && !ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_LEFT_OUT))
-				  || (storage == MODULE_STOCK_RIGHT && !ELEMENTS_get_flag(FLAG_HARRY_DISPENSER_RIGHT_OUT)))){
-					moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
-				}else if(moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT] == MODULE_EMPTY){
-					moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
-				}else{	// STOCK_POS_4_TO_OUT
-					moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
+				// Considération : On considère que le BALANCER est la plupart du temps en position rentrée dans le robot
+				if(moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] == MODULE_EMPTY){
+					moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
+				}else if(moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] == MODULE_EMPTY){
+					moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
+				}else{	// STOCK_POS_SLOPE == MODULE_EMPTY
+					moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
 				}
 				moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] = MODULE_EMPTY;
 			}else{
@@ -420,33 +434,38 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 			}
 			break;
 
-		case STOCK_PLACE_CONTAINER_IN_TO_DISPENSER:
-			if(moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] == MODULE_EMPTY){
-				moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT];
-				moduleStockInfo[storage].stockModules[STOCK_POS_3_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT];
-				moduleStockInfo[storage].stockModules[STOCK_POS_4_TO_OUT] = MODULE_EMPTY;
+		case STOCK_PLACE_CONTAINER_TO_BALANCER:
+			// Ce "if" est important pour la considération du "case" précédent
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] == MODULE_EMPTY){
+				moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] = moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER];
+				moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] = moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE];
+				moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] = MODULE_EMPTY;
 			}else{
 				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_CONTAINER_IN_TO_DISPENSER\n");
 			}
 			break;
 
-		case STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT:
-			if(moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] != MODULE_EMPTY){
-				moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT];
-				moduleStockInfo[storage].stockModules[STOCK_POS_2_TO_OUT] = MODULE_EMPTY;
+		case STOCK_PLACE_BALANCER_TO_COLOR:
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_COLOR] == MODULE_EMPTY){
+				moduleStockInfo[storage].stockModules[STOCK_POS_COLOR] = moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER];
+				moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] = MODULE_EMPTY;
 			}else{
 				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT\n");
 			}
 			break;
 
 
-		case STOCK_CONTAINER_OUT_TO_OUTSIDE:
-			if(moduleStockInfo[storage].stockModules[STOCK_POS_0_TO_OUT] != MODULE_EMPTY){
-				moduleStockInfo[storage].stockModules[STOCK_POS_0_TO_OUT] = moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT];
-				moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] = MODULE_EMPTY;
+		case STOCK_PLACE_COLOR_TO_ARM_DISPOSE:
+			if(moduleStockInfo[storage].stockModules[STOCK_POS_ARM_DISPOSE] == MODULE_EMPTY){
+				moduleStockInfo[storage].stockModules[STOCK_POS_ARM_DISPOSE] = moduleStockInfo[storage].stockModules[STOCK_POS_COLOR];
+				STOCKS_removeModule(storage);	// On supprime le cylindre du stock
 			}else{
 				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_CONTAINER_OUT_TO_OUTSIDE\n");
 			}
+			break;
+
+		case STOCK_PLACE_CLEAR_ARM_DISPOSE:
+			moduleStockInfo[storage].stockModules[STOCK_POS_ARM_DISPOSE] = MODULE_EMPTY;
 			break;
 
 		default:
@@ -459,8 +478,8 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 
 // Permet de supprimer un module dans un des stocks du robot
 moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
-	if(moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] != MODULE_EMPTY){
-		moduleType_e module = moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT];
+	if(moduleStockInfo[storage].stockModules[STOCK_POS_COLOR] != MODULE_EMPTY){
+		moduleType_e module = moduleStockInfo[storage].stockModules[STOCK_POS_COLOR];
 
 		if(module == MODULE_BLUE || module == MODULE_YELLOW){
 			moduleStockInfo[storage].nbModulesMonocolor--;
@@ -468,12 +487,13 @@ moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
 		else if(module == MODULE_POLY){
 			moduleStockInfo[storage].nbModulesMulticolor--;
 		}
-
-		moduleStockInfo[storage].stockModules[STOCK_POS_1_TO_OUT] = MODULE_EMPTY; // Le module le plus près de la trappe est tombé
+		// Le module sur le retourneur de couleur vient d'être déposé
+		moduleStockInfo[storage].stockModules[STOCK_POS_COLOR] = MODULE_EMPTY;
 		moduleStockInfo[storage].nbCurrentModules--;
 		return module;
 	}
 	else{
+		// On vient de déposer un cylindre qui n'est pas là, on ne fait rien
 		return MODULE_EMPTY;
 	}
 }
