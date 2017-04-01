@@ -44,9 +44,9 @@
 	 *
 	 * @param queueId l'identifiant de la file
 	 * @param ax12Id l'identifiant de l'ax12 à gérer
-	 * @param wantedPosition position voulue en degré
-	 * @param currentPosition position actuelle du servomoteur
-	 * @param pos_epsilon précision de la position voulue, tant qu'on à pas atteint wantedPosition_degre +/- pos_epsilon on considère qu'on est pas rendu à la bonne position
+	 * @param wantedGoal position voulue en degré ou vitesse voulue en %
+	 * @param currentGoal position actuelle du servomoteur ou vitesse actuelle du servomoteur
+	 * @param epsilon précision de la position ou de la vitesse voulue, tant qu'on à pas atteint wantedGoal +/- epsilon on considère qu'on est pas rendu à la bonne position
 	 * @param timeout_ms_ timeout en msec
 	 * @param large_epsilon comme pos_epsilon mais utilisé après un timeout. Après un timeout, on vérifie si on est proche de la position voulue (utile pour des pinces par ex), si oui il n'y a pas d'erreur
 	 *
@@ -55,15 +55,15 @@
 	 * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
 	 * @return TRUE si l'ax12 a fini sa commande, FALSE sinon
 	 */
-	bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 currentPosition, Uint16 pos_epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
+	bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedGoal, Uint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
 
 	/** Verifie l'état du rx24 et gère la file en conséquence.
 	 *
 	 * @param queueId l'identifiant de la file
 	 * @param rx24Id l'identifiant du rx24 à gérer
-	 * @param wantedPosition position voulue en degré
-	 * @param currentPosition position actuelle du servomoteur
-	 * @param pos_epsilon précision de la position voulue, tant qu'on à pas atteint wantedPosition_degre +/- pos_epsilon on considère qu'on est pas rendu à la bonne position
+	 * @param wantedGoal position voulue en degré ou vitesse voulue en %
+	 * @param currentGoal position actuelle du servomoteur ou vitesse actuelle du servomoteur
+	 * @param epsilon précision de la position ou de la vitesse voulue, tant qu'on à pas atteint wantedGoal +/- epsilon on considère qu'on est pas rendu à la bonne position ou vitesse
 	 * @param timeout_ms_ timeout en msec
 	 * @param large_epsilon comme pos_epsilon mais utilisé après un timeout. Après un timeout, on vérifie si on est proche de la position voulue (utile pour des pinces par ex), si oui il n'y a pas d'erreur
 	 *
@@ -72,7 +72,7 @@
 	 * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
 	 * @return TRUE si le rx24 a fini sa commande, FALSE sinon
 	 */
-	bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedPosition, Uint16 currentPosition, Uint16 pos_epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
+	bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedGoal, Uint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
 
 
 	/** Verifie l'état d'un moteur DC et gère la file en conséquence.
