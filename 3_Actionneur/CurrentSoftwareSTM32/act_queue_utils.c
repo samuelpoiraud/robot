@@ -109,7 +109,7 @@ void ACTQ_sendErrorAct(Uint8 id_act, Uint8 errorCode) {
 }
 
 
-bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPosition, Uint16 currentPosition, Uint16 pos_epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
+bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedGoal, Uint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
 	AX12_reset_last_error(ax12Id);
 
 	Uint8 error = AX12_get_last_error(ax12Id).error;
@@ -120,7 +120,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 	if(!error_code) error_code = (Uint8*)&dummy;
 	if(!line) line = &dummy;
 
-	if(absolute((Sint16)currentPosition - (Sint16)(wantedPosition)) <= pos_epsilon) {
+	if(absolute((Sint16)currentGoal - (Sint16)(wantedGoal)) <= epsilon) {
 		*result = ACT_RESULT_DONE;
 		*error_code = ACT_RESULT_ERROR_OK;
 		*line = 0x0100;
@@ -137,7 +137,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 		*line = 0x0300;
 	} else if(ACTQ_check_timeout(queueId, timeout_ms)) {
 		//Timeout, l'ax12 n'a pas bouger à la bonne position a temps
-		if(absolute((Sint16)currentPosition - (Sint16)(wantedPosition)) <= large_epsilon) {
+		if(absolute((Sint16)currentGoal - (Sint16)(wantedGoal)) <= large_epsilon) {
 			*result = ACT_RESULT_FAILED;
 			*error_code = ACT_RESULT_ERROR_TIMEOUT;
 			*line = 0x0400;
@@ -163,7 +163,7 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedPos
 	return TRUE;
 }
 
-bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedPosition, Uint16 currentPosition, Uint16 pos_epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
+bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedGoal, Uint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
 	RX24_reset_last_error(rx24Id);
 
 	Uint8 error = RX24_get_last_error(rx24Id).error;
@@ -174,7 +174,7 @@ bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedPos
 	if(!error_code) error_code = (Uint8*)&dummy;
 	if(!line) line = &dummy;
 
-	if(absolute((Sint16)currentPosition - (Sint16)(wantedPosition)) <= pos_epsilon) {
+	if(absolute((Sint16)currentGoal - (Sint16)(wantedGoal)) <= epsilon) {
 		*result = ACT_RESULT_DONE;
 		*error_code = ACT_RESULT_ERROR_OK;
 		*line = 0x0100;
@@ -191,7 +191,7 @@ bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedPos
 		*line = 0x0300;
 	} else if(ACTQ_check_timeout(queueId, timeout_ms)) {
 		//Timeout, le RX24 n'a pas bouger à la bonne position a temps
-		if(absolute((Sint16)currentPosition - (Sint16)(wantedPosition)) <= large_epsilon) {
+		if(absolute((Sint16)currentGoal - (Sint16)(wantedGoal)) <= large_epsilon) {
 			*result = ACT_RESULT_FAILED;
 			*error_code = ACT_RESULT_ERROR_TIMEOUT;
 			*line = 0x0400;

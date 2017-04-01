@@ -305,14 +305,16 @@ static void CYLINDER_COLOR_RIGHT_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	Uint16 pos = RX24_get_position(CYLINDER_COLOR_RIGHT_RX24_ID);
+	Uint16 speed = RX24_get_speed_percentage(CYLINDER_COLOR_RIGHT_RX24_ID);
 
-	if(ACTQ_check_status_rx24(queueId, CYLINDER_COLOR_RIGHT_RX24_ID, QUEUE_get_arg(queueId)->param, pos, CYLINDER_COLOR_RIGHT_RX24_ASSER_POS_EPSILON, CYLINDER_COLOR_RIGHT_RX24_ASSER_TIMEOUT, CYLINDER_COLOR_RIGHT_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+	if(ACTQ_check_status_rx24(queueId, CYLINDER_COLOR_RIGHT_RX24_ID, QUEUE_get_arg(queueId)->param, speed, CYLINDER_COLOR_RIGHT_RX24_ASSER_SPEED_EPSILON, CYLINDER_COLOR_RIGHT_RX24_ASSER_TIMEOUT, CYLINDER_COLOR_RIGHT_RX24_ASSER_SPEED_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_CYLINDER_COLOR_RIGHT, result, errorCode, line);
 
     // On ne surveille le warner que si il est activé
-	if(warner.activated)
+	if(warner.activated){
+		Uint16 pos = RX24_get_position(CYLINDER_COLOR_RIGHT_RX24_ID);
 		CYLINDER_COLOR_RIGHT_check_warner(pos);
+	}
 }
 
 // Fonction permettant d'activer un warner sur une position du rx24
