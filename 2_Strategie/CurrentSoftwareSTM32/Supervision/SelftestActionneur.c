@@ -21,7 +21,7 @@ error_e SELFTESTACT_run(){
 			DONE
 	);
 
-	static const struct_selftest_t tableau_selftest[]  = {
+	static const struct_selftest_t tableau_selftest_big[]  = {
 
 
 			//actionneurs prise de modules :
@@ -45,13 +45,13 @@ error_e SELFTESTACT_run(){
 			{5, ACT_CYLINDER_PUSHER_RIGHT,		 ACT_CYLINDER_PUSHER_RIGHT_OUT,			 ACT_QUEUE_Cylinder_slope_right,		SELFTEST_ACT_AX12_CYLINDER_PUSHER_RIGHT    },
 			{5, ACT_CYLINDER_ARM_RIGHT,			 ACT_CYLINDER_ARM_RIGHT_OUT,			 ACT_QUEUE_Cylinder_arm_right,			SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT       },
 			{6, ACT_CYLINDER_PUSHER_RIGHT,		 ACT_CYLINDER_PUSHER_RIGHT_IN,			 ACT_QUEUE_Cylinder_slope_right,		SELFTEST_ACT_AX12_CYLINDER_PUSHER_RIGHT    },
-			{6, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
+			{6, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_RIGHT   },
 			//{6, ACT_CYLINDER_COLOR_RIGHT,		 ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED,	 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_RIGHT     },
-			{7, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
+			{7, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_RIGHT   },
 			//{8, ACT_CYLINDER_COLOR_RIGHT,		 ACT_CYLINDER_COLOR_RIGHT_ZERO_SPEED,	 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_RIGHT     },
-			{8, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE,	 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
-			{9, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
-			{10, ACT_CYLINDER_DISPOSE_RIGHT,	 ACT_CYLINDER_DISPOSE_RIGHT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_RIGHT   },
+			{8, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE,	 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_RIGHT   },
+			{9, ACT_CYLINDER_DISPOSE_RIGHT,		 ACT_CYLINDER_DISPOSE_RIGHT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_RIGHT   },
+			{10, ACT_CYLINDER_DISPOSE_RIGHT,	 ACT_CYLINDER_DISPOSE_RIGHT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_RIGHT   },
 			{11, ACT_CYLINDER_ARM_RIGHT,		 ACT_CYLINDER_ARM_RIGHT_IN,				 ACT_QUEUE_Cylinder_arm_right,			SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT       },
 			{11, ACT_CYLINDER_BALANCER_RIGHT,	 ACT_CYLINDER_BALANCER_RIGHT_IN,	 	 ACT_QUEUE_Cylinder_balancer_right,		SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT  },
 			{12, ACT_CYLINDER_BALANCER_RIGHT,	 ACT_CYLINDER_BALANCER_RIGHT_OUT,		 ACT_QUEUE_Cylinder_balancer_right,		SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT  },
@@ -62,13 +62,13 @@ error_e SELFTESTACT_run(){
 			{13, ACT_CYLINDER_PUSHER_LEFT,		 ACT_CYLINDER_PUSHER_LEFT_OUT,			 ACT_QUEUE_Cylinder_slope_left,			SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT    },
 			{14, ACT_CYLINDER_ARM_LEFT,			 ACT_CYLINDER_ARM_LEFT_OUT,			 	 ACT_QUEUE_Cylinder_arm_left,			SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT       },
 			{15, ACT_CYLINDER_PUSHER_LEFT,		 ACT_CYLINDER_PUSHER_LEFT_IN,			 ACT_QUEUE_Cylinder_slope_left,			SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT    },
-			{16, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
+			{16, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_LEFT   },
 			//{16, ACT_CYLINDER_COLOR_LEFT,		 ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED,	 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_LEFT     },
-			{17, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
+			{17, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_LEFT   },
 			//{18, ACT_CYLINDER_COLOR_LEFT,		 ACT_CYLINDER_COLOR_LEFT_ZERO_SPEED,	 ACT_QUEUE_Cylinder_color_right,		SELFTEST_ACT_RX24_CYLINDER_COLOR_LEFT     },
-			{18, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
-			{19, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
-			{20, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_RX24_CYLINDER_DISPOSE_LEFT   },
+			{18, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_LEFT   },
+			{19, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_RAISE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_LEFT   },
+			{20, ACT_CYLINDER_DISPOSE_LEFT,		 ACT_CYLINDER_DISPOSE_LEFT_TAKE,		 ACT_QUEUE_Cylinder_dispose_right,		SELFTEST_ACT_AX12_CYLINDER_DISPOSE_LEFT   },
 			{21, ACT_CYLINDER_ARM_LEFT,			 ACT_CYLINDER_ARM_LEFT_IN,				 ACT_QUEUE_Cylinder_arm_left,			SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT       },
 			{21, ACT_CYLINDER_BALANCER_LEFT,	 ACT_CYLINDER_BALANCER_LEFT_IN,			 ACT_QUEUE_Cylinder_balancer_right,		SELFTEST_ACT_AX12_CYLINDER_BALANCER_LEFT },
 			{22, ACT_CYLINDER_BALANCER_LEFT,	 ACT_CYLINDER_BALANCER_LEFT_OUT,		 ACT_QUEUE_Cylinder_balancer_right,		SELFTEST_ACT_AX12_CYLINDER_BALANCER_LEFT },
@@ -89,11 +89,21 @@ error_e SELFTESTACT_run(){
 
 	};
 
-	#define NB_ETAPES    (30)
-	#define NB_ACTIONS	 (sizeof(tableau_selftest) / sizeof(struct_selftest_t))
 
-	static error_e liste_etat_actionneur[NB_ACTIONS];
-	static ACT_sid_e liste_error_actionneur[NB_ACTIONS];
+	static const struct_selftest_t tableau_selftest_small[]  = {
+
+			{1, ACT_SMALL_BALL_BACK_LEFT,	 	ACT_SMALL_BALL_BACK_LEFT_UP,		 	ACT_QUEUE_Small_bearing_back_left, 		SELFTEST_ACT_AX12_SMALL_BALL_BACK_LEFT },
+			{2, ACT_SMALL_BALL_BACK_LEFT,	 	ACT_SMALL_BALL_BACK_LEFT_DOWN,		 	ACT_QUEUE_Small_bearing_back_left, 		SELFTEST_ACT_AX12_SMALL_BALL_BACK_LEFT },
+
+	};
+
+	#define NB_MAX_ACTIONS	 (60)
+
+	static const struct_selftest_t *tableau_selftest;
+	static error_e liste_etat_actionneur[NB_MAX_ACTIONS];
+	static ACT_sid_e liste_error_actionneur[NB_MAX_ACTIONS];
+	static Uint8 nb_actions;
+	static Uint8 nb_etapes;
 	static Uint8 indice = 0;
 	static Uint8 ind_start_etape = 0, ind_end_etape = 0;
 	static Uint8 etape_en_cours = 1;
@@ -106,16 +116,30 @@ error_e SELFTESTACT_run(){
 
 	switch(state){
 		case INIT:
-			for(int i=0; i<NB_ACTIONS; i++){
+			// Choix des infos BIG ou SMALL robot
+			if(I_AM_BIG()){
+				tableau_selftest = tableau_selftest_big;
+				nb_actions = (sizeof(tableau_selftest_big) / sizeof(struct_selftest_t));
+				nb_etapes = tableau_selftest_big[nb_actions - 1].numero_etape;
+			}else{
+				tableau_selftest = tableau_selftest_small;
+				nb_actions = (sizeof(tableau_selftest_small) / sizeof(struct_selftest_t));
+				nb_etapes = tableau_selftest_small[nb_actions - 1].numero_etape;
+			}
+			debug_printf("SELFTEST ACT nb_actions = %d  nb_etapes = %d\n", nb_actions, nb_etapes);
+
+			// Initialisation de la liste des états actionneurs
+			for(int i=0; i<nb_actions; i++){
 				liste_etat_actionneur[i] = IN_PROGRESS;
 			}
+
 			etape_en_cours = 1;
 			state = MOVE_ACTIONNEUR;
 			break;
 
 		case MOVE_ACTIONNEUR:
 			ind_start_etape = indice;
-			while(tableau_selftest[indice].numero_etape == etape_en_cours && indice < NB_ACTIONS){
+			while(tableau_selftest[indice].numero_etape == etape_en_cours && indice < nb_actions){
 				ACT_push_order(tableau_selftest[indice].actionneur, tableau_selftest[indice].position);
 				indice++;
 			}
@@ -142,7 +166,7 @@ error_e SELFTESTACT_run(){
 
 		case COMPUTE_NEXT_ETAPE:
 			etape_en_cours += 1;
-			if (etape_en_cours < NB_ETAPES){
+			if (etape_en_cours <= nb_etapes){
 				state = MOVE_ACTIONNEUR;
 			}else{
 				state = DECLARE_ERROR;
@@ -150,18 +174,21 @@ error_e SELFTESTACT_run(){
 			break;
 
 		case DECLARE_ERROR :
-			for(i = 0; i < NB_ACTIONS; i++){
+			for(i = 0; i < nb_actions; i++){
 				if (liste_etat_actionneur[i] == NOT_HANDLED){
 					new_error = TRUE;
-					if(!ind_nb_errors){
-						for(j=0; j<ind_nb_errors; j++){
-							if(liste_error_actionneur[j]==tableau_selftest[i].actionneur){
-								new_error = FALSE;
-							}
+
+					// On recherche si l'erreur a déjà été déclarée
+					for(j=0; j<ind_nb_errors; j++){
+						if(liste_error_actionneur[j]==tableau_selftest[i].actionneur){
+							new_error = FALSE;
 						}
 					}
+
+					// Si l'erreur n'a pas été déclarée, on la déclare
 					if (new_error == TRUE){
 						SELFTEST_declare_errors(NULL, tableau_selftest[i].error_code);
+						debug_printf("ERROR %d\n", tableau_selftest[i].error_code);
 						liste_error_actionneur[ind_nb_errors] = tableau_selftest[i].actionneur;
 						ind_nb_errors += 1;
 					}
@@ -190,25 +217,5 @@ error_e SELFTESTACT_run(){
 
 	return IN_PROGRESS;
 }
-
-/*
-void SELFTESTACT_check_errors(tab){
-	SELFTEST_error_code_e error;
-
-	for(tous les ordres actionneur){
-		if(actionneur failed){
-			switch(liste_etat_actionneur[i].actionneur){
-			case ACT_CYLINDER_ELEVATOR_RIGHT :
-				//error = SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT;
-				SELFTEST_declare_errors(NULL, SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT);
-				break;
-			case etc....
-			case
-			}
-			SELFTEST_declare_errors(NULL, error);
-		}
-	}
-}
-*/
 
 
