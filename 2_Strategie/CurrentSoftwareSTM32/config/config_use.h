@@ -53,8 +53,6 @@
 
 #define USE_ASTAR				//Activation de l'algorithme ASTAR, avec pathfind par polygones
 
-#define USE_PROP_MULTI_POINT	//Utilise le buffer de l'asser pour les trajectoires multi-points et permet d'utiliser les courbes
-
 #define PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION	//Les PROP_TRAJECTOIRE_FINIE dépilent les asser goto meme si on est loin de la destination
 
 #define SD_ENABLE				//Activation de la carte SD
@@ -92,9 +90,9 @@
 
 /* Réglages WATCHDOG */
 	#define USE_WATCHDOG
-	#define WATCHDOG_TIMER 3
-	#define WATCHDOG_MAX_COUNT 5
-	#define WATCHDOG_QUANTUM 1
+		#define WATCHDOG_TIMER 3
+		#define WATCHDOG_MAX_COUNT 5
+		#define WATCHDOG_QUANTUM 1
 
 /* Réglages SPI */
 	#define USE_SPI2
@@ -105,27 +103,28 @@
 
 /* Réglages CAN */
 	#define USE_CAN
-	#define CAN_BUF_SIZE		32		//Nombre de messages CAN conservés pour traitement hors interuption
-	#define CAN_SEND_TIMEOUT_ENABLE
+		#define CAN_BUF_SIZE		32		//Nombre de messages CAN conservés pour traitement hors interuption
+		#define CAN_SEND_TIMEOUT_ENABLE
 
 /* Réglages UART */
-	#define UART1_BAUDRATE	230400
 	#define USE_UART1
-	#define USE_UART1RXINTERRUPT
-	#define BUFFER_U1TX_SIZE 1280
-	#define USE_UART1TXINTERRUPT
+		#define UART1_BAUDRATE	230400
+		#define USE_UART1RXINTERRUPT
+		#define BUFFER_U1TX_SIZE 1280
+		#define USE_UART1TXINTERRUPT
 
-	#define UART2_BAUDRATE	9600
+
 	#define USE_UART2
-	#define USE_UART2RXINTERRUPT
-	#define BUFFER_U2TX_SIZE 128
-	#define USE_UART2TXINTERRUPT
+		#define UART2_BAUDRATE	9600
+		#define USE_UART2RXINTERRUPT
+		#define BUFFER_U2TX_SIZE 128
+		#define USE_UART2TXINTERRUPT
 
-	//#define USE_UART3
-	//#define UART3_BAUDRATE	19200
-	//#define USE_UART3RXINTERRUPT
-	//#define BUFFER_U3TX_SIZE 128
-	//#define USE_UART3TXINTERRUPT
+	#define USE_UART3
+		#define UART3_BAUDRATE	19200
+		#define USE_UART3RXINTERRUPT
+		#define BUFFER_U3TX_SIZE 128
+		#define USE_UART3TXINTERRUPT
 
 	#define UART_RX_BUF_SIZE	32		//Taille de la chaine de caracteres memorisant les caracteres recus sur UART
 
@@ -143,6 +142,9 @@
 	//#define USE_MOSFETS_MODULE
 	//	#define USE_MOSFET_1
 
+/* Réglages LCD via UART */
+	//#define USE_LCD_OVER_UART
+	//	#define LCD_OVER_UART__UART_ID	3
 
 #ifdef MAIN_IR_RCVA
 	#define USE_PWM1

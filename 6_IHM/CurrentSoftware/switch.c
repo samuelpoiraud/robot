@@ -148,6 +148,11 @@ bool_e SWITCHS_get(switch_ihm_e switch_id){
 	return (switchs >> switch_id) & 1;
 }
 
+#warning debug
+Uint32 SWITCH_getDebug(){
+	return switchs;
+}
+
 void SWITCHS_answer(CAN_msg_t *send){
 	CAN_msg_t msg;
 	Uint8 i;

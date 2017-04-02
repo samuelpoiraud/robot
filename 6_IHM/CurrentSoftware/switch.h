@@ -25,4 +25,6 @@ void SWITCHS_answer(CAN_msg_t *send);
 void SWITCHS_send_all();
 void SWITCHS_biroute_update();
 
+Uint32 SWITCH_getDebug();
+
 #endif /* ndef SWITCH_H */

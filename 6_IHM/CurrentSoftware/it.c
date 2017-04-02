@@ -8,8 +8,6 @@
  *  Version 200904
  */
 
-#define _IT_C
-
 #include "it.h"
 
 #include "QS/QS_timer.h"

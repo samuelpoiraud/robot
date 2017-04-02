@@ -25,6 +25,7 @@
 #include "QS/QS_adc.h"
 #include "QS/QS_rcc.h"
 #include "QS/QS_mosfet.h"
+#include "QS/QS_lcd_over_uart.h"
 #include "actuator/queue.h"
 #include "environment.h"
 #include "brain.h"
@@ -153,6 +154,10 @@ int main (void)
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
+
+	#ifdef USE_LCD_OVER_UART
+		LCD_OVER_UART_init();
+	#endif
 
 	// ATTENTION à ce moment, la couleur n'a pas encore été initialisée
 
