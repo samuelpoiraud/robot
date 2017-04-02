@@ -24,6 +24,7 @@
 #include "switch.h"
 #include "led.h"
 #include "voltage_measure.h"
+#include "LCD/interface.h"
 #include "Can_msg_processing.h"
 
 volatile Uint8 t_ms = 0;
@@ -43,6 +44,7 @@ void initialisation(void){
 	LEDS_init();
 	VOLTAGE_MEASURE_init();
 	IT_init();
+	INTERFACE_init();
 }
 
 int main (void){
@@ -52,7 +54,7 @@ int main (void){
 	initialisation();
 
 	QS_WHO_AM_I_find();
-	debug_printf("------- Hello, I'm IHM (%s) -------\n", QS_WHO_AM_I_get_name());
+	debug_printf("\n------- Hello, I'm IHM (%s) -------\n", QS_WHO_AM_I_get_name());
 	GPIO_SetBits(I_AM_READY);
 	CAN_msg_t msg;
 
@@ -78,6 +80,9 @@ int main (void){
 			SWITCHS_update();			//Surveillance des switchs
 		}
 		VOLTAGE_MEASURE_process_main();	//Surveillance des tensions
+
+		INTERFACE_processMain();
+
 		OUTPUTLOG_process_main();
 	}
 

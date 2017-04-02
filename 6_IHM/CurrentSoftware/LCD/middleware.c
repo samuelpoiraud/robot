@@ -4,10 +4,6 @@
 #include "../QS/QS_outputlog.h"
 #include "image/flecheDroite.h"
 
-#define NB_OBJECT				30
-
-#define OBJECT_TEXT_MAX_SIZE	50
-
 typedef enum{
 	BUTTON_STATE_ON,
 	BUTTON_STATE_OFF
@@ -151,7 +147,7 @@ typedef struct{
 	Uint16 color;
 }background_s;
 
-static volatile object_s objectTab[NB_OBJECT] = {0};
+static volatile object_s objectTab[LCD_NB_MAX_OBJECT] = {0};
 static volatile background_s background;
 
 static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, Uint16 width, Uint16 height);
@@ -201,7 +197,7 @@ void MIDDLEWARE_processMain(){
 
 static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y){
 	Uint8 i;
-	for(i=0;i<NB_OBJECT;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT;i++){
 		if(objectTab[i].use){
 			switch(objectTab[i].type){
 
@@ -295,7 +291,7 @@ static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y){
 
 static void MIDDLEWARE_checkDestroyObject(){
 	Uint8 i;
-	for(i=0;i<NB_OBJECT;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT;i++){
 		if(objectTab[i].use && objectTab[i].toDestroy){
 			switch(objectTab[i].type){
 
@@ -390,7 +386,7 @@ static void MIDDLEWARE_checkDestroyObject(){
 
 static void MIDDLEWARE_checkRebuildObject(){
 	Uint8 i;
-	for(i=0;i<NB_OBJECT;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT;i++){
 		if(objectTab[i].use){
 			if(background.toDisplay){
 				switch(objectTab[i].type){
@@ -450,7 +446,7 @@ static void MIDDLEWARE_checkRebuildObject(){
 
 static void MIDDLEWARE_rebuildObject(){
 	Uint8 i;
-	for(i=0;i<NB_OBJECT;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT;i++){
 		if(objectTab[i].use && objectTab[i].toDisplay){
 			switch(objectTab[i].type){
 				case TEXT:{
@@ -610,18 +606,19 @@ static void MIDDLEWARE_rebuildObject(){
 					Uint8 actualFrame = objectTab[i].objectData.animatedImage.actualFrame;
 					Uint8 lastFrame = objectTab[i].objectData.animatedImage.lastFrame;
 
-					if(lastFrame != 255){
-						ILI9341_putColorInvertedImage(objectTab[i].objectData.animatedImage.x,
-														objectTab[i].objectData.animatedImage.y,
-														animatedImageInfo->frame[lastFrame].width,
-														animatedImageInfo->frame[lastFrame].height,
-														background.color,
-														animatedImageInfo->frame[lastFrame].image,
-														animatedImageInfo->frame[lastFrame].colorTransparence,
-														animatedImageInfo->frame[lastFrame].size);
-					}
-
 					if(animatedImageInfo->frame[actualFrame].transparence){
+
+						if(lastFrame != 255){
+							ILI9341_putColorInvertedImage(objectTab[i].objectData.animatedImage.x,
+															objectTab[i].objectData.animatedImage.y,
+															animatedImageInfo->frame[lastFrame].width,
+															animatedImageInfo->frame[lastFrame].height,
+															background.color,
+															animatedImageInfo->frame[lastFrame].image,
+															animatedImageInfo->frame[lastFrame].colorTransparence,
+															animatedImageInfo->frame[lastFrame].size);
+						}
+
 						ILI9341_putImageWithTransparence(objectTab[i].objectData.animatedImage.x,
 														objectTab[i].objectData.animatedImage.y,
 														animatedImageInfo->frame[actualFrame].width,
@@ -714,7 +711,7 @@ void MIDDLEWARE_setBackground(Uint16 color){
 }
 
 void MIDDLEWARE_setText(objectId_t id, char * text){
-	assert(id < NB_OBJECT);
+	assert(id < LCD_NB_MAX_OBJECT);
 	assert(objectTab[id].use);
 
 	switch(objectTab[id].type){
@@ -761,7 +758,7 @@ objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, Uint16 colorText, Uint32 color
 	assert(text != NULL);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -792,7 +789,7 @@ objectId_t MIDDLEWARE_addButtonImg(Sint16 x, Sint16 y, const imageInfo_s *imageN
 	assert(touch != NULL);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -825,7 +822,7 @@ objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 	assert(text != NULL);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -877,7 +874,7 @@ objectId_t MIDDLEWARE_addProgressBar(Sint16 x, Sint16 y, Uint16 width, Uint16 he
 	assert(value != NULL);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -907,7 +904,7 @@ objectId_t MIDDLEWARE_addSlider(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 	assert(minValue != maxValue);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -941,7 +938,7 @@ objectId_t MIDDLEWARE_addImage(Sint16 x, Sint16 y, const imageInfo_s *image){
 	assert(image != NULL);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -965,7 +962,7 @@ objectId_t MIDDLEWARE_addAnimatedImage(Sint16 x, Sint16 y, const animatedImageIn
 	assert(animatedImageInfo != NULL);
 
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -990,7 +987,7 @@ objectId_t MIDDLEWARE_addAnimatedImage(Sint16 x, Sint16 y, const animatedImageIn
 
 objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Uint32 colorBorder, Uint32 colorCenter){
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -1015,7 +1012,7 @@ objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 heig
 
 objectId_t MIDDLEWARE_addCircle(Sint16 x, Sint16 y, Uint16 r, Uint32 colorBorder, Uint32 colorCenter){
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -1039,7 +1036,7 @@ objectId_t MIDDLEWARE_addCircle(Sint16 x, Sint16 y, Uint16 r, Uint32 colorBorder
 
 objectId_t MIDDLEWARE_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, Uint16 color){
 	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<NB_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
 		if(objectTab[i].use == FALSE){
 			idFound = i;
 		}
@@ -1066,7 +1063,7 @@ objectId_t MIDDLEWARE_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, Uint16
 //////////////////////////////////////////////////////////////////
 
 void MIDDLEWARE_deleteObject(objectId_t id){
-	assert(id < NB_OBJECT);
+	assert(id < LCD_NB_MAX_OBJECT);
 	assert(objectTab[id].use);
 
 	objectTab[id].toDestroy = TRUE;
@@ -1074,7 +1071,7 @@ void MIDDLEWARE_deleteObject(objectId_t id){
 
 void MIDDLEWARE_resetScreen(){
 	Uint8 i;
-	for(i=0;i<NB_OBJECT;i++){
+	for(i=0;i<LCD_NB_MAX_OBJECT;i++){
 		objectTab[i].use = FALSE;
 	}
 	background.color = 0xFFFF;

@@ -101,7 +101,7 @@ void ILI9341_init(){
 	ILI9341_initLCD();
 
 	/* Set default settings */
-	ILI9341_rotate(ILI9341_Orientation_Landscape_1);
+	ILI9341_rotate(ILI9341_Orientation_Landscape_2);
 
 	ILI9341_setCursorPosition(0, 0, ILI9341_Opts.width - 1, ILI9341_Opts.height - 1);
 
@@ -231,7 +231,6 @@ void ILI9341_putc(Uint16 x, Uint16 y, char c, FontDef_t *font, Uint16 foreground
 	/* Set new pointer */
 	ILI9341_x += font->FontWidth;
 }
-
 
 void ILI9341_drawLine(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 color) {
 	/* Code by dewoller: https://github.com/dewoller */
@@ -391,7 +390,7 @@ void ILI9341_drawFilledCircle(Uint16 x0, Uint16 y0, Uint16 r, Uint16 color) {
 
 
 void ILI9341_putImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uint16 *img, Uint32 size){
-	ILI9341_setCursorPosition(x, y, x + width, y + height);
+	ILI9341_setCursorPosition(x, y, x + width - 1, y + height - 1);
 
 	/* Set command for GRAM data */
 	ILI9341_sendCommand(ILI9341_GRAM);
@@ -406,7 +405,7 @@ void ILI9341_putImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uin
 #ifndef LCD_DMA
 	Uint32 i;
 	for(i=0; i < size; i++)
-		SPI_write(img[i]);
+		SPI_write(SPI2, img[i]);
 #else
 	SPI2_DMA_send16BitArray((Uint16 *)img, size);
 #endif
@@ -416,10 +415,13 @@ void ILI9341_putImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uin
 }
 
 void ILI9341_putImageWithTransparence(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uint16 *img, Uint16 colorTransparence, Uint32 size){
-	Uint32 i;
-	for(i=0; i < size; i++){
-		if(img[i] != colorTransparence)
-			ILI9341_drawPixel(x + i % width, y + i / width, img[i]);
+	Uint32 x0, y0;
+	for(y0=0; y0 < height; y0++){
+		for(x0=0; x0 < width; x0++){
+			Uint32 pixel = img[y0 * height + x0];
+			if(pixel != colorTransparence)
+				ILI9341_drawPixel(x + x0, y + y0, pixel);
+		}
 	}
 }
 
@@ -641,13 +643,13 @@ static void ILI9341_initLCD(void) {
 static void ILI9341_sendCommand(Uint8 data) {
 	ILI9341_WRX_RESET();
 	ILI9341_CS_RESET();
-	SPI2_write(data);
+	SPI_write(SPI2, data);
 	ILI9341_CS_SET();
 }
 
 static void ILI9341_sendData(Uint8 data) {
 	ILI9341_WRX_SET();
 	ILI9341_CS_RESET();
-	SPI2_write(data);
+	SPI_write(SPI2, data);
 	ILI9341_CS_SET();
 }

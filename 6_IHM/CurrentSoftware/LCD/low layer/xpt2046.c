@@ -136,9 +136,9 @@ static Uint16 XPT2046_getReading(controlByte_t controlByte){
 
 	XPT2046_CS_RESET();
 
-	SPI2_write(controlByte);
-	ret = SPI2_read();
-	ret = (ret << 5) | (SPI2_read() >> 3);
+	SPI_write(SPI2, controlByte);
+	ret = SPI_read(SPI2);
+	ret = (ret << 5) | (SPI_read(SPI2) >> 3);
 
 	XPT2046_CS_SET();
 

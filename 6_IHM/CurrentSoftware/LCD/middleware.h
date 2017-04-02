@@ -20,6 +20,7 @@
 #ifndef MIDDLEWARE_H_
 	#define MIDDLEWARE_H_
 	#include "../QS/QS_all.h"
+	#include "../QS/QS_lcd_over_uart.h"
 
 	typedef Uint8 objectId_t;
 	#define OBJECT_ID_ERROR_FULL		255
@@ -37,15 +38,15 @@
 
 	typedef struct{
 		Uint8 nbFrame;
-		Uint16 speedFrame;			// 1 frame = xxx millisecondes
+		Uint16 speedFrame;			// 1 frame = x millisecondes
 		imageInfo_s frame[ANIMATED_IMAGE_MAX_FRAME];
 	}animatedImageInfo_s;
 
 	typedef enum{
-		OBJECT_HORIZONTAL_L_2_R,
-		OBJECT_HORIZONTAL_R_2_L,
-		OBJECT_VERTICAL_T_2_B,
-		OBJECT_VERTICAL_B_2_T
+		OBJECT_HORIZONTAL_L_2_R = LCD_OBJECT_HORIZONTAL_L_2_R,
+		OBJECT_HORIZONTAL_R_2_L = LCD_OBJECT_HORIZONTAL_R_2_L,
+		OBJECT_VERTICAL_T_2_B = LCD_OBJECT_VERTICAL_T_2_B,
+		OBJECT_VERTICAL_B_2_T = LCD_OBJECT_VERTICAL_B_2_T
 	}objectOrientation_e;
 
 	void MIDDLEWARE_init();

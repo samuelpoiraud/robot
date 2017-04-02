@@ -48,11 +48,11 @@
 
 	#define PORT_IO_A_5			PORT_IO_INPUT
 	#define PORT_OPT_A_5		PORT_OPT_NO_PULL
-		//
+		// Mesure 12V Hokuyo
 
 	#define PORT_IO_A_6			PORT_IO_INPUT
 	#define PORT_OPT_A_6		PORT_OPT_NO_PULL
-		//
+		// Mesure 24V Puissance
 
 	#define PORT_IO_A_7			PORT_IO_INPUT
 	#define PORT_OPT_A_7		PORT_OPT_NO_PULL
@@ -126,20 +126,22 @@
 	#define PORT_OPT_B_7		PORT_OPT_NO_PULL
 		// U1RX
 
-	#define PORT_IO_B_8			PORT_IO_OUTPUT
+#warning "Must be in output"
+	#define PORT_IO_B_8			PORT_IO_INPUT
 	#define PORT_OPT_B_8		PORT_OPT_NO_PULL
 		#define I_AM_READY				GPIOB,GPIO_Pin_8
 
-	#define PORT_IO_B_9			PORT_IO_INPUT
+	#define PORT_IO_B_9			PORT_IO_OUTPUT
 	#define PORT_OPT_B_9		PORT_OPT_NO_PULL
+		#define LCD_RESET_PORT			GPIOB,GPIO_Pin_9
 
-	#define PORT_IO_B_10		PORT_IO_OUTPUT
+	#define PORT_IO_B_10		PORT_IO_INPUT
 	#define PORT_OPT_B_10		PORT_OPT_NO_PULL
-		#define LCD_D_C_PORT			GPIOB,GPIO_Pin_10
+		//
 
-	#define PORT_IO_B_11		PORT_IO_OUTPUT
+	#define PORT_IO_B_11		PORT_IO_INPUT
 	#define PORT_OPT_B_11		PORT_OPT_NO_PULL
-		#define LCD_RESET_PORT			GPIOB,GPIO_Pin_11
+		//
 
 	#define PORT_IO_B_12		PORT_IO_OUTPUT
 	#define PORT_OPT_B_12		PORT_OPT_NO_PULL
@@ -186,30 +188,29 @@
 	#define PORT_OPT_C_5		PORT_OPT_NO_PULL
 		#define SWITCH2_PORT			GPIOC->IDR5
 
-	#define PORT_IO_C_6			PORT_IO_OUTPUT
+	#define PORT_IO_C_6			PORT_IO_INPUT
 	#define PORT_OPT_C_6		PORT_OPT_NO_PULL
-		#define LCD_CS_TOUCH			GPIOC,GPIO_Pin_6
-		#define LED_IHM_OK				GPIOC,GPIO_Pin_6
+		//
 
-	#define PORT_IO_C_7			PORT_IO_OUTPUT
+	#define PORT_IO_C_7			PORT_IO_INPUT
 	#define PORT_OPT_C_7		PORT_OPT_NO_PULL
-		#define LED_IHM_SET				GPIOC,GPIO_Pin_7
+		//
 
-	#define PORT_IO_C_8			PORT_IO_OUTPUT
+	#define PORT_IO_C_8			PORT_IO_INPUT
 	#define PORT_OPT_C_8		PORT_OPT_NO_PULL
-		#define LED_IHM_UP				GPIOC,GPIO_Pin_8
+		//
 
-	#define PORT_IO_C_9			PORT_IO_OUTPUT
+	#define PORT_IO_C_9			PORT_IO_INPUT
 	#define PORT_OPT_C_9		PORT_OPT_NO_PULL
-		#define LED_IHM_DOWN			GPIOC,GPIO_Pin_9
+		//
 
-	#define PORT_IO_C_10		PORT_IO_INPUT
+	#define PORT_IO_C_10		PORT_IO_OUTPUT
 	#define PORT_OPT_C_10		PORT_OPT_NO_PULL
-		//
+		#define LCD_CS_TOUCH			GPIOC,GPIO_Pin_10
 
-	#define PORT_IO_C_11		PORT_IO_INPUT
+	#define PORT_IO_C_11		PORT_IO_OUTPUT
 	#define PORT_OPT_C_11		PORT_OPT_NO_PULL
-		//
+		#define LCD_D_C_PORT			GPIOC,GPIO_Pin_11
 
 	#define PORT_IO_C_12		PORT_IO_INPUT
 	#define PORT_OPT_C_12		PORT_OPT_NO_PULL
@@ -257,7 +258,7 @@
 
 	#define PORT_IO_D_5			PORT_IO_INPUT
 	#define PORT_OPT_D_5		PORT_OPT_NO_PULL
-		//
+		#define IRQ_TOUCH			GPIOD->IDR5
 
 	#define PORT_IO_D_6			PORT_IO_INPUT
 	#define PORT_OPT_D_6		PORT_OPT_NO_PULL
@@ -273,30 +274,34 @@
 
 	#define PORT_IO_D_9			PORT_IO_INPUT
 	#define PORT_OPT_D_9		PORT_OPT_NO_PULL
-		#define IRQ_TOUCH			GPIOD->IDR9
 		// U3RX
 
 	#define PORT_IO_D_10		PORT_IO_OUTPUT
 	#define PORT_OPT_D_10		PORT_OPT_NO_PULL
 		#define LED0_PORT				GPIOD,GPIO_Pin_10
 
-	#define PORT_IO_D_11		PORT_IO_OUTPUT
+#warning "Must be in output"
+	#define PORT_IO_D_11		PORT_IO_INPUT
 	#define PORT_OPT_D_11		PORT_OPT_NO_PULL
 		#define LED1_PORT				GPIOD,GPIO_Pin_11
 
-	#define PORT_IO_D_12		PORT_IO_OUTPUT
+#warning "Must be in output"
+	#define PORT_IO_D_12		PORT_IO_INPUT
 	#define PORT_OPT_D_12		PORT_OPT_NO_PULL
 		#define LED2_PORT				GPIOD,GPIO_Pin_12
 
-	#define PORT_IO_D_13		PORT_IO_OUTPUT
+#warning "Must be in output"
+	#define PORT_IO_D_13		PORT_IO_INPUT
 	#define PORT_OPT_D_13		PORT_OPT_NO_PULL
 		#define LED3_PORT				GPIOD,GPIO_Pin_13
 
-	#define PORT_IO_D_14		PORT_IO_OUTPUT
+#warning "Must be in output"
+	#define PORT_IO_D_14		PORT_IO_INPUT
 	#define PORT_OPT_D_14		PORT_OPT_NO_PULL
 		#define LED4_PORT				GPIOD,GPIO_Pin_14
 
-	#define PORT_IO_D_15		PORT_IO_OUTPUT
+#warning "Must be in output"
+	#define PORT_IO_D_15		PORT_IO_INPUT
 	#define PORT_OPT_D_15		PORT_OPT_NO_PULL
 		#define LED5_PORT				GPIOD,GPIO_Pin_15
 
