@@ -20,5 +20,6 @@
 #include "song_superMarioBros.h"
 #include "song_flinstones.h"
 #include "song_missionImpossible.h"
+#include "song_bennyHill.h"
 
 #endif /* IHM_MUSICPLAYER_SONG_SONGS_H_ */
