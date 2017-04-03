@@ -167,8 +167,8 @@ static void SCAN_get_data(SCAN_side_e side){
 		if(side == SCAN_SIDE_LEFT){
 			pos_mesure.x = robot.x + ((OFFSET_LENGTH_LASER_LEFT*cosinus1 - OFFSET_WIDTH_LASER_LEFT*sinus1) - (value * sinus2))/4096;
 			pos_mesure.y = robot.y + ((OFFSET_LENGTH_LASER_LEFT*sinus1 + OFFSET_WIDTH_LASER_LEFT*cosinus1) + (value * cosinus2))/4096;
-			display(pos_mesure.x);
-			display(pos_mesure.y);
+			//display(pos_mesure.x);
+			//display(pos_mesure.y);
 		}else{
 			pos_mesure.x = robot.x + ((OFFSET_LENGTH_LASER_RIGHT*cosinus1 + OFFSET_WIDTH_LASER_RIGHT*sinus1) + (value * sinus2))/4096;
 			pos_mesure.y = robot.y + ((OFFSET_LENGTH_LASER_RIGHT*sinus1 - OFFSET_WIDTH_LASER_RIGHT*cosinus1) - (value * cosinus2))/4096;
