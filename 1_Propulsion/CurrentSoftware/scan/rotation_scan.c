@@ -125,6 +125,16 @@ void SCAN_CORNER_process_it(){
 		case SCAN_CALCUL:
 			run_calcul = TRUE;
 			it_printf("et là alors ?\n");
+			it_printf("robotx\t%d\troboty\t%d\n", global.position.x, global.position.y);
+			Uint8 k = 0;
+			for(k=0; k<NB_POINT_MAX; k++){
+				printf("oCSx\t%ld\toCSy\t%ld\n",ourCornerSouth[k].x,ourCornerSouth[k].y);
+				//printf("oCSy\t%ld\n",ourCornerSouth[k].y);
+			}
+			for(k=0; k<NB_POINT_MAX; k++){
+				printf("oCCx\t%ld\toCCy\t%ld\n",ourCornerColor[k].x,ourCornerColor[k].y);
+				//printf("oCCy\t%ld\n",ourCornerColor[k].y);
+			}
 			state = WAIT_CALCULATE;
 			break;
 
@@ -150,7 +160,7 @@ void SCAN_CORNER_process_it(){
 void SCAN_CORNER_calculate(){
 	Uint8 nb_points_in_zone=0;
 	Uint8 i, j;
-	Sint16 moyx, moyy;
+	Sint32 moyx, moyy;
 	Uint16 varx, vary;
 	Uint8  indexMinVarx=0;
 	Uint8  indexMinVary=0;
@@ -196,21 +206,29 @@ void SCAN_CORNER_calculate(){
 				nb_points_in_zone++;
 				moyx += (Sint32) (ourCornerSouth[i].x);
 				moyy += (Sint32) (ourCornerSouth[i].y);
+				printf("moyx\t%ld\tmoyy\t%ld\n", moyx, moyy);
 			}
 					//it_printf("x=%d\ty=%d\txmoy=%d\tymoy=%d\n",zone[i].scan_point.x,zone[i].scan_point.y,xmoy,ymoy);
 		}
+		printf("nbSouth\t%d\n",nb_points_in_zone);
+
 		if(nb_points_in_zone > NB_POINTS_MINI_CORNER){
 
 			moyxfinal = (moyx<<10) / nb_points_in_zone;
 			moyx = moyxfinal>>10;
+			display(moyx);
 			moyyfinal = (moyy<<10) / nb_points_in_zone;
 			moyy = moyyfinal>>10;
+			display(moyy);
 			for(i=0; i<NB_POINT_MAX; i++){
 				if((ourCornerSouth[i].x != 0) || (ourCornerSouth[i].y != 0)){		// Si c'est un point valide
 					num += (ourCornerSouth[i].x - moyx)*(ourCornerSouth[i].y - moyy);
 					den += (ourCornerSouth[i].y - moyy)*(ourCornerSouth[i].y - moyy);
 				}
 			}
+			printf("num\t%ld\n",num);
+			printf("den\t%ld\n",den);
+
 			if(den != 0){
 				a_south = (double)num / (double)den;
 				if(a_south!=0){
@@ -219,6 +237,8 @@ void SCAN_CORNER_calculate(){
 					vertical=TRUE;
 				}
 				b_south = moyy - a_south * moyx;
+				display_float(a_south);
+				printf("b_south\t%ld\n", b_south);
 				for(i=0;i<NB_POINT_MAX;i++){
 					if((ourCornerSouth[i].x != 0) || (ourCornerSouth[i].y != 0)){		// Si c'est un point valide
 		//				it_printf("x=%d\ty=%d\n",zone[i].scan_point.x,zone[i].scan_point.y);
@@ -236,6 +256,7 @@ void SCAN_CORNER_calculate(){
 							ourCornerSouth[i].y = 0;
 							//it_printf("cest la %d\n",distance);
 							flag_correction = FALSE;
+							printf("distantx\t%d\tdistanty\t%d\n", ourCornerSouth[i].x, ourCornerSouth[i].y);
 						}
 						pseudovariance += distance;
 					}
@@ -250,6 +271,8 @@ void SCAN_CORNER_calculate(){
 		}
 	}while(flag_correction == FALSE);
 	pseudovariance = pseudovariance / nb_points_in_zone;
+	display(pseudovariance);
+	printf("aaaaaaaaaaaaa\n");
 	if (pseudovariance < CORNER_SCAN_PSEUDO_VARIANCE_SEUIL){
 		xmoy_corner_south = moyxfinal;
 		//display(xmoy);
@@ -257,14 +280,18 @@ void SCAN_CORNER_calculate(){
 		ymoy_corner_south = moyyfinal;
 		//it_printf("xmoy=%d\tymoy=%d\n",xmoy,ymoy);
 //		return TRUE;
+		printf("bbbbbbbbbbbbbbbbbbbb\n");
 	}else{
+		printf("ccccccccccccccccccc\n");
 		for(i=0; i<NB_POINT_MAX; i++){
 			//it_printf("%d\t%d\n", zone[i].scan_point.x, zone[i].scan_point.y);
 		}
 		error_scan = TRUE;
 		return;
 	}
+	printf("dddddddddddddddddddd\n");
 	do{
+		printf("eeeeeeeeeeeeeeeeeeee\n");
 		moyx = 0;
 		moyy = 0;
 		moyxfinal = 0;
@@ -276,30 +303,41 @@ void SCAN_CORNER_calculate(){
 		flag_correction = TRUE;
 		vertical=FALSE;
 		nb_points_in_zone = 0;
+		printf("ffffffffffffffffffffffff\n");
 		for(i=0; i<NB_POINT_MAX; i++){
 			if((ourCornerColor[i].x != 0) || (ourCornerColor[i].y != 0)){		// Si c'est un point valide
 				nb_points_in_zone++;
 				moyx += (Sint32) ourCornerColor[i].x;
 				moyy += (Sint32) ourCornerColor[i].y;
 			}
+			printf("moyx\t%ld\tmoyy\t%ld\n", moyx, moyy);
+
 			//it_printf("x=%d\ty=%d\txmoy=%d\tymoy=%d\n",zone[i].scan_point.x,zone[i].scan_point.y,xmoy,ymoy);
 		}
+		printf("nbSouth\t%d\n",nb_points_in_zone);
+
 		if(nb_points_in_zone > NB_POINTS_MINI_CORNER)
 		{
 			moyxfinal = (moyx<<10) / nb_points_in_zone;
 			moyx = moyyfinal>>10;
+			display(moyx);
 			moyyfinal = (moyy<<10) / nb_points_in_zone;
 			moyy = moyyfinal>>10;
+			display(moyy);
 			for(i=0; i<NB_POINT_MAX; i++){
 				if((ourCornerColor[i].x != 0) || (ourCornerColor[i].y != 0)){		// Si c'est un point valide
 					num += (ourCornerColor[i].x - moyx)*(ourCornerColor[i].y - moyy);
 					den += (ourCornerColor[i].x - moyy)*(ourCornerColor[i].x - moyx);
 				}
 			}
+			display(num);
+			display(den);
 			if(den != 0){
 				a_color = (double)num / (double)den;
-				b_south = moyy - a_color * moyx;
-
+				b_color = moyy - a_color * moyx;
+				display_float(a_south);
+				display_float(a_color);
+				printf("b_color\t%ld\n", b_color);
 										//it_printf("a=%ld.%3ld\tb=%d\tnbpoints=%d\n", (Uint32)(a), (((Uint32)(a*1000))%1000), b, nb_points_in_zone);
 				for(i=0; i<NB_POINT_MAX; i++){
 
@@ -313,6 +351,8 @@ void SCAN_CORNER_calculate(){
 							ourCornerColor[i].y = 0;
 													//printf("cest ici\n");
 							flag_correction = FALSE;
+							printf("distantx\t%d\tdistanty\t%d\n", ourCornerSouth[i].x, ourCornerSouth[i].y);
+
 						}
 						pseudovariance += distance;
 					}
@@ -327,9 +367,14 @@ void SCAN_CORNER_calculate(){
 			return;
 		}
 	}while(flag_correction == FALSE);
+	display_float(a_color);
+	display(b_color);
+	printf("\n\ngjgn\nyalalalaihourjgnfjg\nfgnjdfg\n\n\n")
+	display(moyx);
+	display(moyy);
 	pseudovariance = pseudovariance / nb_points_in_zone;
 
-		//it_printf("pseudov%d\n", pseudovariance);
+		it_printf("pseudov%d\n", pseudovariance);
 		//it_printf("a=%ld.%3ld\tb=%d\tnbpoints=%d", (Uint32)(a), (((Uint32)(a*1000))%1000), b, nb_points_in_zone);
 
 	if (pseudovariance < CORNER_SCAN_PSEUDO_VARIANCE_SEUIL){
@@ -389,6 +434,7 @@ void SCAN_CORNER_calculate(){
 	display(offset_y);
 	display(offset_angle);
 
+
 	if((offset_angle != 0)||(offset_x != 0)||(offset_y != 0)){
 		Sint16 cosinus, sinus;
 		COS_SIN_4096_get(offset_angle, &cosinus, &sinus);
@@ -404,48 +450,69 @@ void SCAN_CORNER_calculate(){
 
 
 static void scanOnePoint(){
+	static GEOMETRY_point_t prev_pos;
 	GEOMETRY_point_t pos;
-	pos = SCAN_get_pos_mesure();
-	display(pos.x);
-	display(pos.y);
-	display(nbPointCornerSouth);
-	display(nbPointCornerColor);
-
-	if(nbPointCornerSouth < NB_POINT_MAX){
-		if((pos.x < (2000 + MARGIN)) && (pos.x > (2000 - MARGIN)) && (pos.y > MARGIN) && (pos.y < (1100 - MARGIN)) && (info_scan.color == BLUE)){
-			ourCornerSouth[nbPointCornerSouth] = pos;
-			display(ourCornerSouth[nbPointCornerSouth].x);
-			display(ourCornerSouth[nbPointCornerSouth].y);
-			display(nbPointCornerSouth);
-			nbPointCornerSouth++;
-		}else if((pos.x < (2000 + MARGIN)) && (pos.x > (2000 - MARGIN)) && (pos.y < (3000 - MARGIN)) && (pos.y < (1900 + MARGIN)) && (info_scan.color == YELLOW)){
-			it_printf("south!\n");
-			ourCornerSouth[nbPointCornerSouth] = pos;
-			display(ourCornerSouth[nbPointCornerSouth].x);
-			display(ourCornerSouth[nbPointCornerSouth].y);
-			display(nbPointCornerSouth);
-			nbPointCornerSouth++;
-		}
-	}else{
-		debug_printf("Dépassement de capacité du tableau de sauvegarde des points de scan_rotation\n");
+	static bool_e firstlap = TRUE;
+	if (firstlap){
+		prev_pos.x = 0;
+		prev_pos.y = 0;
 	}
-	if(nbPointCornerColor < NB_POINT_MAX){
-		if((pos.x < (2000 - MARGIN)) && (pos.x > (1500 + MARGIN)) && (pos.y < MARGIN) && (pos.y > (-MARGIN)) && (info_scan.color == BLUE)){
-			ourCornerColor[nbPointCornerColor] = pos;
-			display(ourCornerColor[nbPointCornerColor].x);
-			display(ourCornerColor[nbPointCornerColor].y);
-			display(nbPointCornerColor);
-			nbPointCornerColor++;
-		}else if((pos.x < (2000 - MARGIN)) && (pos.x > (1500 + MARGIN)) && (pos.y < (3000 + MARGIN)) && (pos.y > (3000 - MARGIN)) && (info_scan.color == YELLOW)){
-			it_printf("color!\n");
-			ourCornerColor[nbPointCornerColor] = pos;
-			display(ourCornerColor[nbPointCornerColor].x);
-			display(ourCornerColor[nbPointCornerColor].y);
-			display(nbPointCornerColor);
-			nbPointCornerColor++;
+	pos = SCAN_get_pos_mesure();
+#warning 'il faut le faire pour les deux points qu il y a à chaque it'
+
+	if((absolute(prev_pos.x - pos.x) > 15) || (absolute(prev_pos.y - pos.y) > 15)){
+		if(absolute(prev_pos.x - pos.x) > 15){
+			printf("ecartx\t%ld",prev_pos.x);
 		}
-	}else{
-		debug_printf("Dépassement de capacité du tableau de sauvegarde des points de scan_rotation\n");
+		if(absolute(prev_pos.y - pos.y) > 15){
+			printf("ecarty\t%ld",prev_pos.y);
+		}
+
+		prev_pos = pos;
+
+		//display(pos.x);
+		//display(pos.y);
+		//display(nbPointCornerSouth);
+		//display(nbPointCornerColor);
+
+		if(nbPointCornerSouth < NB_POINT_MAX){
+			if((pos.x < (2000 + MARGIN)) && (pos.x > (2000 - MARGIN)) && (pos.y > MARGIN) && (pos.y < (1100 - MARGIN)) && (info_scan.color == BLUE)){
+				ourCornerSouth[nbPointCornerSouth] = pos;
+				//display(ourCornerSouth[nbPointCornerSouth].x);
+				//display(ourCornerSouth[nbPointCornerSouth].y);
+				//display(nbPointCornerSouth);
+				nbPointCornerSouth++;
+			}else if((pos.x < (2000 + MARGIN)) && (pos.x > (2000 - MARGIN)) && (pos.y < (3000 - MARGIN)) && (pos.y < (1900 + MARGIN)) && (info_scan.color == YELLOW)){
+				//it_printf("south!\n");
+				ourCornerSouth[nbPointCornerSouth] = pos;
+				//display(ourCornerSouth[nbPointCornerSouth].x);
+				//display(ourCornerSouth[nbPointCornerSouth].y);
+				//display(nbPointCornerSouth);
+				nbPointCornerSouth++;
+			}
+		}else{
+			debug_printf("Dépassement de capacité du tableau de sauvegarde des points de scan_rotation\n");
+		}
+		if(nbPointCornerColor < NB_POINT_MAX){
+			if((pos.x < (2000 - MARGIN)) && (pos.x > (1500 + MARGIN)) && (pos.y < MARGIN) && (pos.y > (-MARGIN)) && (info_scan.color == BLUE)){
+				ourCornerColor[nbPointCornerColor] = pos;
+				//display(ourCornerColor[nbPointCornerColor].x);
+				//display(ourCornerColor[nbPointCornerColor].y);
+				//display(nbPointCornerColor);
+				//it_printf("nbS\t%d\n",nbPointCornerSouth);
+				nbPointCornerColor++;
+			}else if((pos.x < (2000 - MARGIN)) && (pos.x > (1500 + MARGIN)) && (pos.y < (3000 + MARGIN)) && (pos.y > (3000 - MARGIN)) && (info_scan.color == YELLOW)){
+				//it_printf("color!\n");
+				ourCornerColor[nbPointCornerColor] = pos;
+				//display(ourCornerColor[nbPointCornerColor].x);
+				//display(ourCornerColor[nbPointCornerColor].y);
+				//display(nbPointCornerColor);
+				//it_printf("nbC\t%d\n",nbPointCornerColor);
+				nbPointCornerColor++;
+			}
+		}else{
+			debug_printf("Dépassement de capacité du tableau de sauvegarde des points de scan_rotation\n");
+		}
 	}
 }
 
