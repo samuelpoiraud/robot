@@ -397,9 +397,6 @@ error_e sub_harry_get_in_pos_4_depose_module_centre(){
 	return IN_PROGRESS;
 }
 
-
-
-
 error_e sub_harry_get_in_pos_5_depose_module_centre(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_5_DEPOSE_MODULES_CENTRE,
 			INIT,
@@ -613,8 +610,6 @@ error_e sub_harry_pos_3_depose_module_centre(){
 	return IN_PROGRESS;
 }
 
-
-
 error_e sub_harry_pos_4_depose_module_centre(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_4_DEPOSE_MODULES_CENTRE,
 			INIT,
@@ -764,6 +759,12 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_SIDE_INTRO,
 			INIT,
 			ERROR,
+			ERROR_DETREMIN_NB_CYLINDRES_NORD,
+			ERROR_DETREMIN_NB_CYLINDRES_SUD,
+			ERROR_DETREMIN_NB_CYLINDRES_1,
+			ERROR_DETREMIN_NB_CYLINDRES_2,
+			ERROR_DETREMIN_NB_CYLINDRES_3,
+			ERROR_DETREMIN_NB_CYLINDRES,
 			DONE,
 
 		//sub deplacement et mesure du nombre de cylindres sur la base:
@@ -850,6 +851,43 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 			RESET_MAE();
 			on_turning_point();
 			return NOT_HANDLED;
+			break;
+
+		case ERROR_DETREMIN_NB_CYLINDRES:
+
+			//remonter les bras poussoires:
+			ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IN);
+			ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IN);
+			break;
+
+		case ERROR_DETREMIN_NB_CYLINDRES_SUD:
+			if(endroit_depose == OUEST){
+				state = try_going(1250,DISTANCE_BASE_SIDE_ET_ROBOT,state,ERROR_DETREMIN_NB_CYLINDRES_1,ERROR_DETREMIN_NB_CYLINDRES_NORD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			}
+			else {
+				state = try_going(1250,3000-DISTANCE_BASE_SIDE_ET_ROBOT,state,ERROR_DETREMIN_NB_CYLINDRES_1,ERROR_DETREMIN_NB_CYLINDRES_NORD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			}
+			break;
+
+		case ERROR_DETREMIN_NB_CYLINDRES_NORD:
+			if(endroit_depose == OUEST){
+				state = try_going(650,DISTANCE_BASE_SIDE_ET_ROBOT,state,ERROR_DETREMIN_NB_CYLINDRES_2,ERROR_DETREMIN_NB_CYLINDRES_SUD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			}
+			else {
+				state = try_going(650,3000-DISTANCE_BASE_SIDE_ET_ROBOT,state,ERROR_DETREMIN_NB_CYLINDRES_2,ERROR_DETREMIN_NB_CYLINDRES_SUD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			}
+			break;
+
+		case ERROR_DETREMIN_NB_CYLINDRES_1:
+			state = try_going(1200,COLOR_Y(380),state,ERROR,ERROR_DETREMIN_NB_CYLINDRES_3,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			break;
+
+		case ERROR_DETREMIN_NB_CYLINDRES_2:
+			state = try_going(1000,COLOR_Y(380),state,ERROR,ERROR_DETREMIN_NB_CYLINDRES_3,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			break;
+
+		case ERROR_DETREMIN_NB_CYLINDRES_3:
+			state = try_going(800,COLOR_Y(380),state,ERROR,ERROR_DETREMIN_NB_CYLINDRES_1,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case DONE:
@@ -970,18 +1008,22 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 			case DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS:
 				if(endroit_depose==OUEST){
 					if(mon_point_de_rotation==SUD){
-						//Descendre bras poussoir gauche;
+						////Descendre bras poussoir gauche;
+						ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_OUT);
 					}
 					else{
 						//Descendre bras poussoir droit;
+						ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
 					}
 				}
 				else{
 					if(mon_point_de_rotation==SUD){
 						//Descendre bras poussoir droit;
+						ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
 					}
 					else{
 						//Descendre bras poussoir gauche;
+						ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_OUT);
 					}
 				}
 				state = DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER;
@@ -1057,17 +1099,21 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 				if(endroit_depose==OUEST){
 					if(mon_point_de_rotation==SUD){
 						//MONTER bras poussoir gauche;
+						ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IN);
 					}
 					else{
 						//MONTER bras poussoir droit;
+						ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IN);
 					}
 				}
 				else{
 					if(mon_point_de_rotation==SUD){
 						//MONTER bras poussoir droit;
+						ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IN);
 					}
 					else{
 						//MONTER bras poussoir gauche;
+						ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IN);
 					}
 				}
 				state = DETERMINE_NB_CYLINDRE_SUR_BASE_REPLACEMENT;
@@ -1159,24 +1205,24 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 				if(endroit_depose == OUEST){
 					if(mon_point_de_rotation==SUD){
 						//rotation cylindre Gauche
-						sub_harry_return_modules(LEFT);
+						//sub_harry_return_modules(LEFT);
 						state = try_going(900,DISTANCE_BASE_SIDE_ET_ROBOT,SI_4_CYLINDRES,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 					else{
 						//rotation cylindre Droit
-						sub_harry_return_modules(RIGHT);
+						//sub_harry_return_modules(RIGHT);
 						state = try_going(850,DISTANCE_BASE_SIDE_ET_ROBOT,SI_4_CYLINDRES,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 				}
 				else{
 					if(mon_point_de_rotation==SUD){
 						//rotation cylindre Droit
-						sub_harry_return_modules(RIGHT);
+						//sub_harry_return_modules(RIGHT);
 						state = try_going(900,3000-DISTANCE_BASE_SIDE_ET_ROBOT,SI_4_CYLINDRES,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 					else{
 						//rotation cylindre Gauche
-						sub_harry_return_modules(LEFT);
+						//sub_harry_return_modules(LEFT);
 						state = try_going(850,3000-DISTANCE_BASE_SIDE_ET_ROBOT,SI_4_CYLINDRES,SI_3_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 				}
@@ -1186,24 +1232,24 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 				if(endroit_depose == OUEST){
 					if(mon_point_de_rotation==SUD){
 						//rotation cylindre Gauche
-						sub_harry_return_modules(LEFT);
+						//sub_harry_return_modules(LEFT);
 						state = try_going(800,DISTANCE_BASE_SIDE_ET_ROBOT,SI_3_CYLINDRES,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 					else{
 						//rotation cylindre Droit
-						sub_harry_return_modules(RIGHT);
+						//sub_harry_return_modules(RIGHT);
 						state = try_going(950,DISTANCE_BASE_SIDE_ET_ROBOT,SI_3_CYLINDRES,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 				}
 				else{
 					if(mon_point_de_rotation==SUD){
 						//rotation cylindre Droit
-						sub_harry_return_modules(RIGHT);
+						//sub_harry_return_modules(RIGHT);
 						state = try_going(800,3000-DISTANCE_BASE_SIDE_ET_ROBOT,SI_3_CYLINDRES,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 					else{
 						//rotation cylindre Gauche
-						sub_harry_return_modules(LEFT);
+						//sub_harry_return_modules(LEFT);
 						state = try_going(950,3000-DISTANCE_BASE_SIDE_ET_ROBOT,SI_3_CYLINDRES,SI_2_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 				}
@@ -1213,24 +1259,24 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 				if(endroit_depose == OUEST){
 					if(mon_point_de_rotation==SUD){
 						//rotation cylindre Gauche
-						sub_harry_return_modules(LEFT);
+						//sub_harry_return_modules(LEFT);
 						state = try_going(700,DISTANCE_BASE_SIDE_ET_ROBOT,SI_2_CYLINDRES,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 					else{
 						//rotation cylindre Droit
-						sub_harry_return_modules(RIGHT);
+						//sub_harry_return_modules(RIGHT);
 						state = try_going(1050,DISTANCE_BASE_SIDE_ET_ROBOT,SI_2_CYLINDRES,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 				}
 				else{
 					if(mon_point_de_rotation==SUD){
 						//rotation cylindre Droit
-						sub_harry_return_modules(RIGHT);
+						//sub_harry_return_modules(RIGHT);
 						state = try_going(700,3000-DISTANCE_BASE_SIDE_ET_ROBOT,SI_2_CYLINDRES,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 					else{
 						//rotation cylindre Gauche
-						sub_harry_return_modules(LEFT);
+						//sub_harry_return_modules(LEFT);
 						state = try_going(1050,3000-DISTANCE_BASE_SIDE_ET_ROBOT,SI_2_CYLINDRES,SI_1_CYLINDRES,ERROR,FAST,BACKWARD,DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 					}
 				}
@@ -1240,21 +1286,21 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 				if(endroit_depose == OUEST){
 					if(mon_point_de_rotation==SUD){
 						//rotation cylindre Gauche
-						sub_harry_return_modules(LEFT);
+						//sub_harry_return_modules(LEFT);
 					}
 					else{
 						//rotation cylindre Droit
-						sub_harry_return_modules(RIGHT);
+						//sub_harry_return_modules(RIGHT);
 					}
 				}
 				else{
 					if(mon_point_de_rotation==SUD){
 						//rotation cylindre Droit
-						sub_harry_return_modules(RIGHT);
+						//sub_harry_return_modules(RIGHT);
 					}
 					else{
 						//rotation cylindre Gauche
-						sub_harry_return_modules(LEFT);
+						//sub_harry_return_modules(LEFT);
 					}
 				}
 				state = SI_0_REPLACEMENT;
@@ -1283,6 +1329,9 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 
 //rotation pour drop du bon coté:
 			case CHOIX_DE_COTE_DEPOSE:
+				sub_harry_depose_modules_side(modules,robot_side,basis_side,mon_point_de_rotation,endroit_depose,cote_depose);
+
+				state=DONE;
 
 				//state=PREPARATION_NEXT;
 				/*
@@ -1348,8 +1397,6 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_
 		on_turning_point();
 		return END_OK;
 		break;
-
-
 
 		case PREPARATION_NEXT:
 			if(cote_depose == DROITE){
@@ -1440,9 +1487,11 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_
 		case PUSHER_DOWN_OUEST:
 			if(cote_depose==DROITE){
 				//bras poussoir droit down
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
 			}
 			else{
 				//bras poussoir gauche down
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_OUT);
 			}
 			break;
 		case PUSH_MODULES_OUEST:
@@ -1462,9 +1511,11 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_
 		case PUSHER_UP_OUEST:
 			if(cote_depose==DROITE){
 				//bras poussoir droit up
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IN);
 			}
 			else{
 				//bras poussoir gauche up
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IN);
 			}
 			break;
 
@@ -1502,9 +1553,11 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_
 		case PUSHER_DOWN_EST:
 			if(cote_depose==DROITE){
 				//bras poussoir droit down
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
 			}
 			else{
 				//bras poussoir gauche down
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_OUT);
 			}
 			break;
 
@@ -1525,9 +1578,11 @@ error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_
 		case PUSHER_UP_EST:
 			if(cote_depose==DROITE){
 				//bras poussoir droit up
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IN);
 			}
 			else{
 				//bras poussoir gauche up
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IN);
 			}
 			break;
 
@@ -1560,35 +1615,52 @@ error_e sub_harry_depose_modules_side_fin(ELEMENTS_property_e modules,ELEMENTS_s
 
 //PROCEDURE DE FIN:
 	switch(state){
-			case FIN_TENTATIVE_SUD:
-				if(endroit_depose == OUEST){
-					state = try_going(1250,DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION1,FIN_TENTATIVE_NORD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
-				}
-				else {
-					state = try_going(1250,3000-DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION1,FIN_TENTATIVE_NORD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
-				}
-				break;
 
-			case FIN_TENTATIVE_NORD:
-				if(endroit_depose == OUEST){
-					state = try_going(650,DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION2,FIN_TENTATIVE_SUD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
-				}
-				else {
-					state = try_going(650,3000-DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION2,FIN_TENTATIVE_SUD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
-				}
-				break;
+	case INIT:
+		break;
 
-			case POINT_DE_ROTATION1:
-				state = try_going(1200,COLOR_Y(380),state,DONE,POINT_DE_ROTATION3,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
-				break;
+	case ERROR:
+		RESET_MAE();
+		on_turning_point();
+		return NOT_HANDLED;
+		break;
 
-			case POINT_DE_ROTATION2:
-				state = try_going(1000,COLOR_Y(380),state,DONE,POINT_DE_ROTATION3,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
-				break;
+	case DONE:
+		RESET_MAE();
+		on_turning_point();
+		return END_OK;
+		break;
 
-			case POINT_DE_ROTATION3:
-				state = try_going(800,COLOR_Y(380),state,DONE,POINT_DE_ROTATION1,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
-				break;
+
+	case FIN_TENTATIVE_SUD:
+		if(endroit_depose == OUEST){
+			state = try_going(1250,DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION1,FIN_TENTATIVE_NORD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+		}
+		else {
+			state = try_going(1250,3000-DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION1,FIN_TENTATIVE_NORD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+		}
+		break;
+
+	case FIN_TENTATIVE_NORD:
+		if(endroit_depose == OUEST){
+			state = try_going(650,DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION2,FIN_TENTATIVE_SUD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+		}
+		else {
+			state = try_going(650,3000-DISTANCE_BASE_SIDE_ET_ROBOT,state,POINT_DE_ROTATION2,FIN_TENTATIVE_SUD,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+		}
+		break;
+
+	case POINT_DE_ROTATION1:
+		state = try_going(1200,COLOR_Y(380),state,DONE,POINT_DE_ROTATION3,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+		break;
+
+	case POINT_DE_ROTATION2:
+		state = try_going(1000,COLOR_Y(380),state,DONE,POINT_DE_ROTATION3,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+		break;
+
+	case POINT_DE_ROTATION3:
+		state = try_going(800,COLOR_Y(380),state,DONE,POINT_DE_ROTATION1,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+		break;
 	}
 	return IN_PROGRESS;
 }
