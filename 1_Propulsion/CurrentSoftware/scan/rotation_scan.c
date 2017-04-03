@@ -369,7 +369,7 @@ void SCAN_CORNER_calculate(){
 	}while(flag_correction == FALSE);
 	display_float(a_color);
 	display(b_color);
-	printf("\n\ngjgn\nyalalalaihourjgnfjg\nfgnjdfg\n\n\n")
+	printf("\n\ngjgn\nyalalalaihourjgnfjg\nfgnjdfg\n\n\n");
 	display(moyx);
 	display(moyy);
 	pseudovariance = pseudovariance / nb_points_in_zone;

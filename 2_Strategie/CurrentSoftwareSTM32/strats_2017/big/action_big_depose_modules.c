@@ -842,7 +842,7 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 					}
 				}
 			}
-
+#warning il y a eu des conditions qui modifie ce state au début de l INIT
 			//test pour avoir un point de départ:
 			state = try_going(900,COLOR_Y(1500),state,LES_SQUARE_COLOR,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT,END_AT_LAST_POINT);
 			break;
