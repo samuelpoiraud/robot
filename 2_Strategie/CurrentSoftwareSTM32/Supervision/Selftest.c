@@ -900,8 +900,6 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";	break;
 		case SELFTEST_IHM_UNREACHABLE:					return "IHM Unreachable";		break;
 
-		case SELFTEST_ACT_MISSING_TEST:					return "ACT Missing test";		break;
-		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT Unknown ACT";		break;
         case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_LEFT:  return "ACT ELEVATOR LEFT";     break;
         case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT: return "ACT ELEVATOR RIGHT";    break;
         case SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT:    return "ACT SLIDER LEFT";       break;
