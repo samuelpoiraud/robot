@@ -1522,25 +1522,6 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			}
 			break;
 
-		// Sortir le bras
-		// Tourner balancer pour positionner un cylindre sur le retourneur de couleur (voir stockage si necéssaire)
-		// Tourner le cylindre pour la couleur + tourner balancer pour recharger un cylindre
-		// Ventousage du cylindre
-		// Monter le bras
-		// Sortir le cylindre du robot
-		// Dépose du cylindre (1er mouvement) + balancer
-		// Dépose du cylindre (2eme mouvement) + couleur + balancer pour recharger un cylindre
-		// Replier le bras (en 2 mouvements)
-
-		// Parallélisation des actions : mouvements du bras // couleur // balancer
-		// Pour la couleur : ca serait bien d'avoir une fonction ou une MAE indépendante avec déclenchement par trigger (un flag indique quand l'action est finie)
-		// En gros il faudrait baser la subaction sur les mouvements du bras. les mouvements du balancer et la couleur
-		// peuvent être parallèlisés et être rajoutés par la suite.
-		// Ici il n'y a pas de boucle a priori dans cette MAE
-
-		// Remarque :  est il pertinent de n'avoir que cette subaction qui bouge le balancer ?
-
-
 		case INIT_ARM_SERVO:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
