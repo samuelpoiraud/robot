@@ -82,11 +82,19 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 
 	if(duty_left<0)
 	{
-		GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_BACKWARD);
+		if(QS_WHO_AM_I_get() == BIG_ROBOT)
+			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_FORWARD);
+		else
+			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_BACKWARD);
 		duty_left=-duty_left;
 	}
 	else
-		GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_FORWARD);
+	{
+		if(QS_WHO_AM_I_get() == BIG_ROBOT)
+			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_BACKWARD);
+		else
+			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_FORWARD);
+	}
 
 	/////////////////////////////////////////////////////////
 #ifdef LIMITATION_PWM_BORDER_MODE
