@@ -58,7 +58,7 @@ void QEI_init()
 			return 0;
 		}
 
-		return -(Sint16)TIM_GetCounter(TIM3);
+		return (Sint16)TIM_GetCounter(TIM3);
 	}
 
 	void QEI1_set_count(Sint16 count)

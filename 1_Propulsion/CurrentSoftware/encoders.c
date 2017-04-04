@@ -26,8 +26,13 @@ void ENCODERS_get(Sint32 * left, Sint32 * right)
 
 
 	//Lire les roues codeuses
-	count_right=QEI1_get_count();
-	count_left=-QEI2_get_count();
+	if(I_AM_BIG()){
+		count_right = QEI1_get_count();
+		count_left = QEI2_get_count();
+	}else{
+		count_right = QEI1_get_count();
+		count_left = QEI2_get_count();
+	}
 
 	//Mise a jour des deltas des roues...
 	delta_left=count_left-count_left_prec;
