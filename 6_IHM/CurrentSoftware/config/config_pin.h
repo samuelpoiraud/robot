@@ -100,11 +100,11 @@
 
 	#define PORT_IO_B_1			PORT_IO_INPUT
 	#define PORT_OPT_B_1		PORT_OPT_NO_PULL
-		#define BUTTON_OK_PORT			GPIOB->IDR1
+		//
 
 	#define PORT_IO_B_2			PORT_IO_INPUT
 	#define PORT_OPT_B_2		PORT_OPT_NO_PULL
-		#define BUTTON_UP_PORT			GPIOB->IDR2
+		//
 
 	#define PORT_IO_B_3			PORT_IO_INPUT
 	#define PORT_OPT_B_3		PORT_OPT_NO_PULL
@@ -112,11 +112,11 @@
 
 	#define PORT_IO_B_4			PORT_IO_INPUT
 	#define PORT_OPT_B_4		PORT_OPT_NO_PULL
-		#define BUTTON_DOWN_PORT		GPIOB->IDR4
+		//
 
 	#define PORT_IO_B_5			PORT_IO_INPUT
 	#define PORT_OPT_B_5		PORT_OPT_NO_PULL
-		#define BUTTON_SET_PORT			GPIOB->IDR5
+		//
 
 	#define PORT_IO_B_6			PORT_IO_INPUT
 	#define PORT_OPT_B_6		PORT_OPT_NO_PULL
@@ -126,8 +126,7 @@
 	#define PORT_OPT_B_7		PORT_OPT_NO_PULL
 		// U1RX
 
-#warning "Must be in output"
-	#define PORT_IO_B_8			PORT_IO_INPUT
+	#define PORT_IO_B_8			PORT_IO_OUTPUT
 	#define PORT_OPT_B_8		PORT_OPT_NO_PULL
 		#define I_AM_READY				GPIOB,GPIO_Pin_8
 
@@ -280,28 +279,23 @@
 	#define PORT_OPT_D_10		PORT_OPT_NO_PULL
 		#define LED0_PORT				GPIOD,GPIO_Pin_10
 
-#warning "Must be in output"
-	#define PORT_IO_D_11		PORT_IO_INPUT
+	#define PORT_IO_D_11		PORT_IO_OUTPUT
 	#define PORT_OPT_D_11		PORT_OPT_NO_PULL
 		#define LED1_PORT				GPIOD,GPIO_Pin_11
 
-#warning "Must be in output"
-	#define PORT_IO_D_12		PORT_IO_INPUT
+	#define PORT_IO_D_12		PORT_IO_OUTPUT
 	#define PORT_OPT_D_12		PORT_OPT_NO_PULL
 		#define LED2_PORT				GPIOD,GPIO_Pin_12
 
-#warning "Must be in output"
-	#define PORT_IO_D_13		PORT_IO_INPUT
+	#define PORT_IO_D_13		PORT_IO_OUTPUT
 	#define PORT_OPT_D_13		PORT_OPT_NO_PULL
 		#define LED3_PORT				GPIOD,GPIO_Pin_13
 
-#warning "Must be in output"
-	#define PORT_IO_D_14		PORT_IO_INPUT
+	#define PORT_IO_D_14		PORT_IO_OUTPUT
 	#define PORT_OPT_D_14		PORT_OPT_NO_PULL
 		#define LED4_PORT				GPIOD,GPIO_Pin_14
 
-#warning "Must be in output"
-	#define PORT_IO_D_15		PORT_IO_INPUT
+	#define PORT_IO_D_15		PORT_IO_OUTPUT
 	#define PORT_OPT_D_15		PORT_OPT_NO_PULL
 		#define LED5_PORT				GPIOD,GPIO_Pin_15
 

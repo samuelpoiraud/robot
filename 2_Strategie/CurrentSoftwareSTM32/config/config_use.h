@@ -120,11 +120,11 @@
 		#define BUFFER_U2TX_SIZE 128
 		#define USE_UART2TXINTERRUPT
 
-	#define USE_UART3
-		#define UART3_BAUDRATE	19200
-		#define USE_UART3RXINTERRUPT
-		#define BUFFER_U3TX_SIZE 128
-		#define USE_UART3TXINTERRUPT
+//#define USE_UART3
+//	#define UART3_BAUDRATE	19200
+//	#define USE_UART3RXINTERRUPT
+//	#define BUFFER_U3TX_SIZE 128
+//	#define USE_UART3TXINTERRUPT
 
 	#define UART_RX_BUF_SIZE	32		//Taille de la chaine de caracteres memorisant les caracteres recus sur UART
 

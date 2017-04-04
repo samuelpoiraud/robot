@@ -51,18 +51,6 @@ void BUTTONS_update(){
 
 	// Gère tous les buttons qui envoient un message vers le monde extérieure
 	buttons_pressed = 0;
-	#ifdef BUTTON_OK_PORT
-		buttons_pressed |= (BUTTON_OK_PORT)? 			(1<<BP_OK_IHM)					: 0;
-	#endif
-	#ifdef BUTTON_UP_PORT
-		buttons_pressed |= (BUTTON_UP_PORT)? 			(1<<BP_UP_IHM)					: 0;
-	#endif
-	#ifdef BUTTON_DOWN_PORT
-		buttons_pressed |= (BUTTON_DOWN_PORT)?			(1<<BP_DOWN_IHM)				: 0;
-	#endif
-	#ifdef BUTTON_SET_PORT
-		buttons_pressed |= (BUTTON_SET_PORT)? 			(1<<BP_SET_IHM)					: 0;
-	#endif
 	#ifdef  BUTTON_GO_TO_HOME_PORT
 		buttons_pressed |= (BUTTON_GO_TO_HOME_PORT)? 	(1<<BP_GO_TO_HOME_IHM)			: 0;
 	#endif
@@ -117,8 +105,9 @@ void BUTTONS_update(){
 
 				buttons[i] = TRUE;
 				BUTTONS_send_msg(i,TRUE);
-			}else if((buttons_rising_edge & (1<<i)) && initialized && !buttons[i]) // direct push
+			}else if((buttons_rising_edge & (1<<i)) && initialized && !buttons[i]){ // direct push
 				BUTTONS_send_msg(i,FALSE);
+			}
 		}
 	}
 
