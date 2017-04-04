@@ -43,11 +43,7 @@ void BUTTON_init()
 	IHM_define_act_button(BP_4_IHM,NULL, BUTTON_4_long_push);
 	IHM_define_act_button(BP_5_IHM,NULL, BUTTON_5_long_push);
 	IHM_define_act_button(BP_GO_TO_HOME,BOUTTON_go_to_home, NULL);
-	IHM_define_act_button(BP_OK,LCD_button_ok, NULL);
-	IHM_define_act_button(BP_UP,LCD_button_up, LCD_button_up);
-	IHM_define_act_button(BP_DOWN,LCD_button_down, LCD_button_down);
 	IHM_define_act_button(BP_PRINTMATCH,SD_print_previous_match, NULL);
-	IHM_define_act_button(BP_SET,LCD_button_set, NULL);
 	IHM_define_act_button(BP_SUSPEND_RESUME_MATCH, BUTTON_suspend_match, NULL);
 }
 

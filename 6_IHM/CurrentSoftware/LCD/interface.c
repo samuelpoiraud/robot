@@ -15,11 +15,15 @@ static void INTERFACE_IHM_position(void);
 void INTERFACE_init(void){
 	ILI9341_init();
 	MIDDLEWARE_init();
+#ifdef USE_UART_OVER_LCD
 	UART_OVER_LCD_init();
+#endif
 }
 
 void INTERFACE_processMain(void){
+#ifdef USE_UART_OVER_LCD
 	UART_OVER_LCD_processMain();
+#endif
 
 	switch(actualIhm){
 		case INTERFACE_IHM_WAIT:

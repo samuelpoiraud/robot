@@ -19,8 +19,8 @@
 
 #define CAN_VERBOSE_MODE		//Activation de la verbosité des messages CAN
 
-#define USE_UART_OVER_LCD
-	#define UART_OVER_LCD__UART_ID 3
+//#define USE_UART_OVER_LCD
+//	#define UART_OVER_LCD__UART_ID 3
 
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//
@@ -48,11 +48,11 @@
 		#define BUFFER_U1TX_SIZE	128
 
 
-	#define USE_UART3
-		#define UART3_BAUDRATE	19200
-		#define USE_UART3RXINTERRUPT
-		#define USE_UART3TXINTERRUPT
-		#define BUFFER_U3TX_SIZE	128
+//	#define USE_UART3
+//		#define UART3_BAUDRATE	19200
+//		#define USE_UART3RXINTERRUPT
+//		#define USE_UART3TXINTERRUPT
+//		#define BUFFER_U3TX_SIZE	128
 
 	#define UART_RX_BUF_SIZE	512 //Taille de la chaine de caracteres memorisant les caracteres recus sur UART
 
@@ -62,9 +62,9 @@
 
 /* Réglages watchdog */
 	#define USE_WATCHDOG
-	#define WATCHDOG_TIMER 3
-	#define WATCHDOG_MAX_COUNT 5
-	#define WATCHDOG_QUANTUM 1
+		#define WATCHDOG_TIMER 3
+		#define WATCHDOG_MAX_COUNT 5
+		#define WATCHDOG_QUANTUM 1
 
 /* Réglages entrées analogiques */
 	#define USE_AN5		// Mesure 12V hokuyo

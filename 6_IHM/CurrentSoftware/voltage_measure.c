@@ -26,6 +26,7 @@
 
 static Uint32 valuePerm;
 static alim_state_e aru_state, battery_state, hokuyo_state;
+static alim_state_e last_aru_state, last_battery_state, last_hokuyo_state;
 volatile bool_e flag_200ms = FALSE;
 
 static void send_msgCAN(Uint8 state);
@@ -35,8 +36,13 @@ void VOLTAGE_MEASURE_init(){
 	valuePerm = THRESHOLD_BATTERY_LOW + 1000;
 
 	battery_state = BATTERY_DISABLE;
+	last_battery_state = BATTERY_DISABLE;
+
 	aru_state = ARU_ENABLE;  //ARU enclenché => enable
+	last_aru_state = ARU_ENABLE;  //ARU enclenché => enable
+
 	hokuyo_state = HOKUYO_DISABLE;
+	last_hokuyo_state = HOKUYO_DISABLE;
 
 	valuePerm = valuePerm*(100-PERCENTAGE_FILTER)/100 + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER/100;
 	send_msgCAN(battery_state | aru_state | hokuyo_state);
@@ -52,31 +58,37 @@ void VOLTAGE_MEASURE_process_main(void){
 		valueHokuyo = VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO);
 		valuePerm = valuePerm*(100-PERCENTAGE_FILTER)/100 + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER/100;
 
-		if(valuePerm < THRESHOLD_BATTERY_OFF && battery_state != BATTERY_DISABLE){
-			send_msgCAN(BATTERY_DISABLE);
+		if(valuePerm < THRESHOLD_BATTERY_OFF)
 			battery_state = BATTERY_DISABLE;
-		}else if(valuePerm < THRESHOLD_BATTERY_LOW && battery_state != BATTERY_LOW){
-			send_msgCAN(BATTERY_LOW);
+		else if(valuePerm < THRESHOLD_BATTERY_LOW)
 			battery_state = BATTERY_LOW;
-		}else if(battery_state != BATTERY_ENABLE){
-			send_msgCAN(BATTERY_ENABLE);
+		else
 			battery_state = BATTERY_ENABLE;
+
+
+		if(battery_state != last_battery_state){
+			last_battery_state = battery_state;
+			send_msgCAN(battery_state);
 		}
 
-		if(valuePcse < valuePerm - GAP_BETWEEN_ARU && aru_state != ARU_ENABLE){ // L'ARU vient d'être enfoncé, plus de puissance
-			send_msgCAN(ARU_ENABLE);
+		if(valuePcse < valuePerm - GAP_BETWEEN_ARU) // L'ARU vient d'être enfoncé, plus de puissance
 			aru_state = ARU_ENABLE;
-		}else if(valuePcse > valuePerm - GAP_BETWEEN_ARU && aru_state != ARU_DISABLE){ // L'ARU vient d'être relâché, retour de la puissance
-			send_msgCAN(ARU_DISABLE);
+		else // L'ARU vient d'être relâché, retour de la puissance
 			aru_state = ARU_DISABLE;
+
+		if(aru_state != last_aru_state){
+			last_aru_state = aru_state;
+			send_msgCAN(aru_state);
 		}
 
-		if((valueHokuyo < THRESHOLD_12V_HOKUYO_MIN || valueHokuyo > THRESHOLD_12V_HOKUYO_MAX) && hokuyo_state != HOKUYO_DISABLE){
-			send_msgCAN(HOKUYO_DISABLE);
-			hokuyo_state = HOKUYO_DISABLE;
-		}else if((valueHokuyo > THRESHOLD_12V_HOKUYO_MIN && valueHokuyo < THRESHOLD_12V_HOKUYO_MAX) && hokuyo_state != HOKUYO_ENABLE){
-			send_msgCAN(HOKUYO_ENABLE);
+		if(valueHokuyo > THRESHOLD_12V_HOKUYO_MIN && valueHokuyo < THRESHOLD_12V_HOKUYO_MAX)
 			hokuyo_state = HOKUYO_ENABLE;
+		else
+			hokuyo_state = HOKUYO_DISABLE;
+
+		if(hokuyo_state != last_hokuyo_state){
+			last_hokuyo_state = hokuyo_state;
+			send_msgCAN(hokuyo_state);
 		}
 	}
 }
