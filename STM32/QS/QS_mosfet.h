@@ -80,12 +80,6 @@
 	// Gère les messages CAN liés au MOSFET
 	bool_e MOSFET_CAN_process_msg(CAN_msg_t* msg);
 
-	// Selftest des mosfets en actionneur  //TODO : A enlever lorsque le nouveau selftest sera opé
-	bool_e MOSFET_selftest_act(Uint8 nb_mosfets);
-
-	// Selftest des mosfets en stratégie  //TODO : A enlever lorsque le nouveau selftest sera opé
-	bool_e MOSFET_selftest_strat();
-
 
 #endif	/* MOSFET_H */
 

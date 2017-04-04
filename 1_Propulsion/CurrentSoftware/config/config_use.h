@@ -179,7 +179,6 @@
 		#define USE_AN12		// Télémètre laser droite (Black)
 	#endif
 	#define ADC_SENSOR_LASER_LEFT			ADC_11
-	#define ADC_SENSOR_FISHS				ADC_11
 	#define ADC_SENSOR_LASER_RIGHT			ADC_12
 
 

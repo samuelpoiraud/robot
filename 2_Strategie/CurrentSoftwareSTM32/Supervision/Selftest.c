@@ -427,8 +427,6 @@ error_e SELFTEST_strategy(bool_e reset)
 		TEST_XBEE,
 		TEST_RTC,
 		TEST_SWITCHS,
-		TEST_STRAT_MOSFETS,
-		TEST_ACT_MOSFETS,
 		TEST_SD_CARD,
 		FAIL,
 		DONE
@@ -494,32 +492,10 @@ error_e SELFTEST_strategy(bool_e reset)
 
 		case TEST_SWITCHS:
 			if(QS_WHO_AM_I_get()==BIG_ROBOT){
-				//if(IHM_switchs_get(SWITCH_DISABLE_DUNE))		SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_DUNE);
-				//if(IHM_switchs_get(SWITCH_DISABLE_FISHS))		SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_FISHS);
-				//if(IHM_switchs_get(SWITCH_DISABLE_SHOVEL))		SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_DUNIX);
+				if(IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT))		SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_MODULE_LEFT);
+				if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT))	SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_MODULE_RIGHT);
+				if(IHM_switchs_get(SWITCH_DISABLE_ORE))				SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_ORE);
 			}
-			//if(IHM_switchs_get(SWITCH_DISABLE_SAND_BLOC))	SELFTEST_declare_errors(NULL, SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC);
-			state = TEST_STRAT_MOSFETS;
-			break;
-
-		case TEST_STRAT_MOSFETS:
-			/*if(I_AM_BIG()){
-				if(MOSFET_selftest_strat())
-					state = TEST_ACT_MOSFETS;
-			}else{
-				state = TEST_ACT_MOSFETS;
-			}*/
-			state = TEST_ACT_MOSFETS;
-			break;
-
-		case TEST_ACT_MOSFETS:
-			/*if(I_AM_BIG()){
-				if(MOSFET_selftest_act(8))  //huit mosfets à tester
-					state = TEST_SD_CARD;
-			}else{
-				if(MOSFET_selftest_act(1))  //un mosfet à tester
-					state = TEST_SD_CARD;
-			}*/
 			state = TEST_SD_CARD;
 			break;
 
@@ -591,10 +567,9 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	debug_printf("SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME");		break;
 				case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			debug_printf("SELFTEST_STRAT_BIROUTE_FORGOTTEN");				break;
 				case SELFTEST_STRAT_SD_WRITE_FAIL:				debug_printf("SELFTEST_STRAT_SD_WRITE_FAIL");					break;
-				case SELFTEST_STRAT_SWITCH_DISABLE_DUNE:		debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_DUNE");			    break;
-				case SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC:	debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC");		break;
-				case SELFTEST_STRAT_SWITCH_DISABLE_FISHS:	    debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_FISHS");		    break;
-				case SELFTEST_STRAT_SWITCH_DISABLE_DUNIX:		debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_DUNIX");			break;
+				case SELFTEST_STRAT_SWITCH_DISABLE_MODULE_LEFT:		debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_DUNE");			    break;
+				case SELFTEST_STRAT_SWITCH_DISABLE_MODULE_RIGHT:	debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC");		break;
+				case SELFTEST_STRAT_SWITCH_DISABLE_ORE:	    	debug_printf("SELFTEST_STRAT_SWITCH_DISABLE_FISHS");		    break;
 
 				case SELFTEST_IHM_BATTERY_NO_24V:				debug_printf("SELFTEST_IHM_BATTERY_NO_24V");					break;
 				case SELFTEST_IHM_BATTERY_LOW:					debug_printf("SELFTEST_IHM_BATTERY_LOW");						break;
@@ -787,7 +762,8 @@ void SELFTEST_set_warning_bat_display_state(bool_e state){
 
 
 void SELFTEST_check_alim(){
-	static alim_state_e state = BATTERY_DISABLE;
+	static alim_state_e state = BATTERY_DISABLE, last_state = BATTERY_DISABLE;
+	static alim_state_e state_aru = ARU_DISABLE;
 	static time32_t last_display_time = 0;
 	static time32_t begin_time = 0;
 	static Uint16 battery_value = 0;
@@ -825,30 +801,26 @@ void SELFTEST_check_alim(){
 	}
 
 	if(responsability_of_alim){
-		if(global.alim_value > THRESHOLD_BATTERY_LOW && state != BATTERY_ENABLE){
-			msg.sid = BROADCAST_ALIM;
-			msg.size = SIZE_BROADCAST_ALIM;
-			msg.data.broadcast_alim.state = BATTERY_ENABLE | ARU_DISABLE; // On suppose que l'ARU n'est pas enclenché
-			msg.data.broadcast_alim.battery_value = global.alim_value;
-			CAN_send(&msg);
-			state = BATTERY_ENABLE;
-			global.flags.alim = TRUE;
-		}else if(global.alim_value > THRESHOLD_BATTERY_OFF && global.alim_value < THRESHOLD_BATTERY_LOW && state != BATTERY_LOW){
-			msg.sid = BROADCAST_ALIM;
-			msg.size = SIZE_BROADCAST_ALIM;
-			msg.data.broadcast_alim.state = BATTERY_LOW | ARU_DISABLE; // On suppose que l'ARU n'est pas enclenché
-			msg.data.broadcast_alim.battery_value = global.alim_value;
-			CAN_send(&msg);
-			state = BATTERY_LOW;
-			global.flags.alim = TRUE;
-		}else if(global.alim_value < THRESHOLD_BATTERY_OFF && state != BATTERY_DISABLE){
-			msg.sid = BROADCAST_ALIM;
-			msg.size = SIZE_BROADCAST_ALIM;
-			msg.data.broadcast_alim.state = BATTERY_DISABLE;  // On ne peut rien dire au sujet de l'ARU
-			msg.data.broadcast_alim.battery_value = global.alim_value;
-			CAN_send(&msg);
+		if(global.alim_value < THRESHOLD_BATTERY_OFF){
 			state = BATTERY_DISABLE;
+			state_aru = ARU_ENABLE;
 			global.flags.alim = FALSE;
+		}else if(global.alim_value < THRESHOLD_BATTERY_LOW){
+			state = BATTERY_LOW;
+			state_aru = ARU_DISABLE;
+			global.flags.alim = TRUE;
+		}else{
+			state = BATTERY_ENABLE;
+			state_aru = ARU_DISABLE;
+			global.flags.alim = TRUE;
+		}
+
+		if(state != last_state){
+			msg.sid = BROADCAST_ALIM;
+			msg.size = SIZE_BROADCAST_ALIM;
+			msg.data.broadcast_alim.state = state | state_aru;
+			msg.data.broadcast_alim.battery_value = global.alim_value;
+			CAN_send(&msg);
 		}
 	}
 }
@@ -914,10 +886,9 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_STRAT_WHO_AM_I_ARE_NOT_THE_SAME:	return "WhoAmI error";			break;
 		case SELFTEST_STRAT_BIROUTE_FORGOTTEN:			return "Biroute Forgotten"; 	break;
 		case SELFTEST_STRAT_SD_WRITE_FAIL:				return "SD Write FAIL";			break;
-		case SELFTEST_STRAT_SWITCH_DISABLE_DUNE:		return "Dune Disabled";			break;
-		case SELFTEST_STRAT_SWITCH_DISABLE_SAND_BLOC:	return "Sand bloc Disabled";	break;
-		case SELFTEST_STRAT_SWITCH_DISABLE_FISHS:	    return "Fishs Disabled";		break;
-		case SELFTEST_STRAT_SWITCH_DISABLE_DUNIX:		return "Dunix Disabled";		break;
+		case SELFTEST_STRAT_SWITCH_DISABLE_MODULE_LEFT:		return "Module left disable";	break;
+		case SELFTEST_STRAT_SWITCH_DISABLE_MODULE_RIGHT:	return "Module right disable";	break;
+		case SELFTEST_STRAT_SWITCH_DISABLE_ORE:	    	return "Ore disable";			break;
 
 		case SELFTEST_IHM_BATTERY_NO_24V:				return "NO 24V";				break;
 		case SELFTEST_IHM_BATTERY_LOW:					return "BATTERY LOW";			break;
@@ -954,10 +925,8 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
         case SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT:    return "ACT SLOPE RIGHT";       break;
         case SELFTEST_ACT_AX12_ROCKET:                  return "ACT ROCKET";            break;
 
-
-//		case SELFTEST_ACT_MISSING_TEST:					return "ACT MISSING TEST";		break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
-	//	case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT UNKNOWN ACT";		break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
-
+		case SELFTEST_ACT_MISSING_TEST:					return "ACT MISSING TEST";		break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
+		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT UNKNOWN ACT";		break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
 
 		case SELFTEST_ERROR_NB:							return NULL;					break;
 		case SELFTEST_NO_ERROR:							return NULL;					break;
