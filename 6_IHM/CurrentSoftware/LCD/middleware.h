@@ -85,7 +85,7 @@
 
 	void MIDDLEWARE_setBackground(Uint16 color);
 
-	void MIDDLEWARE_setText(objectId_t id, char * text);
+	void MIDDLEWARE_setText(objectId_t id, const char *text, ...)   __attribute__((format (printf, 2, 3)));
 
 
 

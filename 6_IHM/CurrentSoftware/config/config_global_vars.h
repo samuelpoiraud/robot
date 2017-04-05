@@ -22,6 +22,18 @@ typedef struct{
 typedef struct{
 	volatile flag_list_t flags;				// Les flags
 
+	struct{
+		volatile Sint16 x;
+		volatile Sint16 y;
+		volatile Sint16 teta;
+	}pos;
+
+	struct{
+		volatile Sint16 Vpermanent;
+		volatile Sint16 Vpuissance;
+		volatile Sint16 Vhokuyo;
+	}voltage;
+
 	volatile time32_t absolute_time;		// Temps depuis le lancement de la STM32
 }global_data_storage_t;
 

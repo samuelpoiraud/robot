@@ -34,6 +34,16 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 	// Traitement des autres messages reçus
 	switch (msg->sid){
+		case BROADCAST_POSITION_ROBOT:
+		case STRAT_TRAJ_FINIE:
+		case STRAT_PROP_ERREUR:
+		case STRAT_ROBOT_FREINE:
+		case PROP_ROBOT_CALIBRE:
+			global.pos.x = msg->data.broadcast_position_robot.x;
+			global.pos.y = msg->data.broadcast_position_robot.y;
+			global.pos.teta = msg->data.broadcast_position_robot.angle;
+			break;
+
 		case BROADCAST_RESET:
 			NVIC_SystemReset();
 			break;

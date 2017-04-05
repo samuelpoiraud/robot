@@ -36,9 +36,9 @@
 	#define CPU_EXTERNAL_CLOCK_HZ	8000000		//8Mhz,   Fréquence de l'horloge externe
 
 /* CAN */
-	#define USE_CAN
-	#define CAN_BUF_SIZE		32	//Nombre de messages CAN conservés pour traitement hors interuption
-	#define CAN_SEND_TIMEOUT_ENABLE
+//	#define USE_CAN
+//		#define CAN_BUF_SIZE		32	//Nombre de messages CAN conservés pour traitement hors interuption
+//		#define CAN_SEND_TIMEOUT_ENABLE
 
 /* UART */
 	#define USE_UART1
@@ -58,7 +58,7 @@
 
 /* SPI */
 	#define USE_SPI2
-	#define SPI2_ON_DMA
+		#define SPI2_ON_DMA
 
 /* Réglages watchdog */
 	#define USE_WATCHDOG
