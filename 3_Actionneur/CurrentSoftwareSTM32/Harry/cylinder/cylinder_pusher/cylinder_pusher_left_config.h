@@ -21,9 +21,9 @@
 	#define CYLINDER_PUSHER_LEFT_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-    #define CYLINDER_PUSHER_LEFT_AX12_IDLE_POS					370
-    #define CYLINDER_PUSHER_LEFT_AX12_IN_POS				    370		//en degré
-    #define CYLINDER_PUSHER_LEFT_AX12_OUT_POS					658		//en degré
+    #define CYLINDER_PUSHER_LEFT_AX12_IDLE_POS					672
+    #define CYLINDER_PUSHER_LEFT_AX12_IN_POS				    672		//en degré
+    #define CYLINDER_PUSHER_LEFT_AX12_OUT_POS					381		//en degré
 
 //Position initiale de l'AX12
     #define CYLINDER_PUSHER_LEFT_AX12_INIT_POS					CYLINDER_PUSHER_LEFT_AX12_IDLE_POS
