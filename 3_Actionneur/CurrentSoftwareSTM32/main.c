@@ -556,10 +556,10 @@ static void MAIN_onButton5LongPush() {
 
 	if(state == 0){
 		msg1.sid = ACT_ROCKET;
-		msg1.data.act_msg.order = ACT_ROCKET_LAUNCH;
+		msg1.data.act_msg.order = ACT_ROCKET_PREPARE_LAUNCH;
 	}else if(state == 1){
 		msg1.sid = ACT_ROCKET;
-		msg1.data.act_msg.order = ACT_ROCKET_STOP;
+		msg1.data.act_msg.order = ACT_ROCKET_LAUNCH;
 	}
 
 	CAN_process_msg(&msg1);
