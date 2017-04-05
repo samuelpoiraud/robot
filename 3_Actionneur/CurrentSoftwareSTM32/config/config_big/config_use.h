@@ -75,5 +75,6 @@
 /* Réglages IT externe */
 	#define USE_EXTERNAL_IT
 	#define USE_RPM_SENSOR
+	#define RPM_SENSOR_NB_SENSOR	2
 
 #endif /* BIG_CONFIG_USE_H */

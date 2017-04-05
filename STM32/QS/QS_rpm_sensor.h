@@ -19,8 +19,6 @@
 
 		#include "QS_external_it.h"
 
-		#define RPM_SENSOR_NB_SENSOR		1
-
 		typedef Uint8 RPM_SENSOR_id_t;
 		#define RPM_SENSOR_ID_FAULT			0xFF
 

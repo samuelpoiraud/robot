@@ -45,7 +45,6 @@
 
 	#define PORT_IO_A_7			PORT_IO_INPUT
 	#define PORT_OPT_A_7		PORT_OPT_NO_PULL
-		#define BOOST_ASSER_PORT	GPIOA,GPIO_Pin_7	// Not used
 		#define HARRY_ROLLER		!GPIOA->IDR7
 
 	#define PORT_IO_A_8			PORT_IO_OUTPUT
@@ -318,17 +317,17 @@
 		// Programmation
 
 	#define PORT_IO_E_7			PORT_IO_INPUT
-	#define PORT_OPT_E_7		PORT_OPT_NO_PULL
+	#define PORT_OPT_E_7		PORT_OPT_PULL_UP
 		#define PORT_I_AM_STRAT		GPIOE,GPIO_Pin_7
 		#define	READ_I_AM_STRAT		GPIOE->IDR7
 
 	#define PORT_IO_E_8			PORT_IO_INPUT
-	#define PORT_OPT_E_8		PORT_OPT_NO_PULL
+	#define PORT_OPT_E_8		PORT_OPT_PULL_UP
 		#define PORT_I_AM_ACT		GPIOE,GPIO_Pin_8
 		#define	READ_I_AM_ACT		GPIOE->IDR8
 
 	#define PORT_IO_E_9			PORT_IO_INPUT
-	#define PORT_OPT_E_9		PORT_OPT_NO_PULL
+	#define PORT_OPT_E_9		PORT_OPT_PULL_UP
 		#define PORT_I_AM_PROP		GPIOE,GPIO_Pin_9
 		#define	READ_I_AM_PROP		GPIOE->IDR9
 
