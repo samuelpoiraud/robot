@@ -13,6 +13,7 @@
  *	IRQ_TOUCH					: GPIO de lecture de l'interruption
  *	USE_IRQ_TOUCH_VALIDATION	: Utiliser la broche d'interruption de tactile pour valider les données
  *	LCD_CS_TOUCH				: GPIO d'écriture du chip select
+ *	LCD_TOUCH_SPI				: Le périphérique SPI utilisé pour le LCD
  *
  *	TODO : Gestion de IRQPen en interruption
  */

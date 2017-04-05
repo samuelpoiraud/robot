@@ -87,6 +87,8 @@
 	 */
 	bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* result, Uint8* error_code, Uint16* line);
 
+#ifdef USE_DC_MOTOR_SPEED
+
 	/** Verifie l'état d'un moteur DC asservie en vitesse et gère la file en conséquence.
 	 *
 	 * @param id identifiant du moteur (passé en parametre des fonctions de QS_DCMotorSpeed.h)
@@ -97,6 +99,8 @@
 	 * @return TRUE si le moteur a fini sa commande, FALSE sinon
 	 */
 	bool_e ACTQ_check_status_dcMotorSpeed(DC_MOTOR_SPEED_id id, Uint8* result, Uint8* error_code, Uint16* line);
+
+#endif
 
 	/** Vérifie si le temps timeout à été dépassé
 	 *

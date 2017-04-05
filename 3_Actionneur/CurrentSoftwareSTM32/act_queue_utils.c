@@ -247,44 +247,44 @@ bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* 
 #endif
 
 #ifdef USE_DC_MOTOR_SPEED
-bool_e ACTQ_check_status_dcMotorSpeed(DC_MOTOR_SPEED_id id, Uint8* result, Uint8* error_code, Uint16* line){
-	DC_MOTOR_SPEED_state_e motorState = DC_MOTOR_SPEED_get_state(id);
-	Uint16 dummy;
+	bool_e ACTQ_check_status_dcMotorSpeed(DC_MOTOR_SPEED_id id, Uint8* result, Uint8* error_code, Uint16* line){
+		DC_MOTOR_SPEED_state_e motorState = DC_MOTOR_SPEED_get_state(id);
+		Uint16 dummy;
 
-	if(!result) result = (Uint8*)&dummy;
-	if(!error_code) error_code = (Uint8*)&dummy;
-	if(!line) line = &dummy;
+		if(!result) result = (Uint8*)&dummy;
+		if(!error_code) error_code = (Uint8*)&dummy;
+		if(!line) line = &dummy;
 
-	switch(motorState){
-		case DC_MOTOR_SPEED_IDLE:
-			*result =    ACT_RESULT_NOT_HANDLED;
-			*error_code = ACT_RESULT_ERROR_CANCELED;
-			*line = __LINE__;
-			break;
+		switch(motorState){
+			case DC_MOTOR_SPEED_IDLE:
+				*result =    ACT_RESULT_NOT_HANDLED;
+				*error_code = ACT_RESULT_ERROR_CANCELED;
+				*line = __LINE__;
+				break;
 
-		case DC_MOTOR_SPEED_RUN:
-			*result =    ACT_RESULT_DONE;
-			*error_code = ACT_RESULT_ERROR_OK;
-			*line = __LINE__;
-			break;
+			case DC_MOTOR_SPEED_RUN:
+				*result =    ACT_RESULT_DONE;
+				*error_code = ACT_RESULT_ERROR_OK;
+				*line = __LINE__;
+				break;
 
-		case DC_MOTOR_SPEED_ERROR:
-			*result =    ACT_RESULT_FAILED;
-			*error_code = ACT_RESULT_ERROR_TIMEOUT;
-			*line = __LINE__;
-			break;
+			case DC_MOTOR_SPEED_ERROR:
+				*result =    ACT_RESULT_FAILED;
+				*error_code = ACT_RESULT_ERROR_TIMEOUT;
+				*line = __LINE__;
+				break;
 
-		default:
-		case DC_MOTOR_SPEED_INIT_RECOVERY:
-		case DC_MOTOR_SPEED_INIT_LAUNCH:
-		case DC_MOTOR_SPEED_LAUNCH_RECOVERY:
-		case DC_MOTOR_SPEED_LAUNCH:
-		case DC_MOTOR_SPEED_RUN_RECOVERY:
-			// Waiting
-			return FALSE;
+			default:
+			case DC_MOTOR_SPEED_INIT_RECOVERY:
+			case DC_MOTOR_SPEED_INIT_LAUNCH:
+			case DC_MOTOR_SPEED_LAUNCH_RECOVERY:
+			case DC_MOTOR_SPEED_LAUNCH:
+			case DC_MOTOR_SPEED_RUN_RECOVERY:
+				// Waiting
+				return FALSE;
+		}
+		return TRUE;
 	}
-	return TRUE;
-}
 #endif
 
 bool_e ACTQ_check_timeout(queue_id_t queueId, time32_t timeout_ms) {

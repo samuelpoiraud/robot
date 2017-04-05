@@ -11,10 +11,10 @@ extern const Uint16 waitingData8[900];
 
 const animatedImageInfo_s waiting = {
 	.nbFrame = 8,
-	.speedFrame = 60,
+	.speedFrame = 80,
 	.frame = {
 		(imageInfo_s){
-			.transparence = TRUE,
+			.transparence = FALSE,
 			.colorTransparence = 0xFFFF,
 			.width = 30,
 			.height = 30,
@@ -22,7 +22,7 @@ const animatedImageInfo_s waiting = {
 			.image = waitingData1
 		},
 		(imageInfo_s){
-			.transparence = TRUE,
+			.transparence = FALSE,
 			.colorTransparence = 0xFFFF,
 			.width = 30,
 			.height = 30,
@@ -30,7 +30,7 @@ const animatedImageInfo_s waiting = {
 			.image = waitingData2
 		},
 		(imageInfo_s){
-			.transparence = TRUE,
+			.transparence = FALSE,
 			.colorTransparence = 0xFFFF,
 			.width = 30,
 			.height = 30,
@@ -38,7 +38,7 @@ const animatedImageInfo_s waiting = {
 			.image = waitingData3
 		},
 		(imageInfo_s){
-			.transparence = TRUE,
+			.transparence = FALSE,
 			.colorTransparence = 0xFFFF,
 			.width = 30,
 			.height = 30,
@@ -46,7 +46,7 @@ const animatedImageInfo_s waiting = {
 			.image = waitingData4
 		},
 		(imageInfo_s){
-			.transparence = TRUE,
+			.transparence = FALSE,
 			.colorTransparence = 0xFFFF,
 			.width = 30,
 			.height = 30,
@@ -54,7 +54,7 @@ const animatedImageInfo_s waiting = {
 			.image = waitingData5
 		},
 		(imageInfo_s){
-			.transparence = TRUE,
+			.transparence = FALSE,
 			.colorTransparence = 0xFFFF,
 			.width = 30,
 			.height = 30,
@@ -62,7 +62,7 @@ const animatedImageInfo_s waiting = {
 			.image = waitingData6
 		},
 		(imageInfo_s){
-			.transparence = TRUE,
+			.transparence = FALSE,
 			.colorTransparence = 0xFFFF,
 			.width = 30,
 			.height = 30,
@@ -70,7 +70,7 @@ const animatedImageInfo_s waiting = {
 			.image = waitingData7
 		},
 		(imageInfo_s){
-			.transparence = TRUE,
+			.transparence = FALSE,
 			.colorTransparence = 0xFFFF,
 			.width = 30,
 			.height = 30,

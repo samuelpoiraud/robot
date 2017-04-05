@@ -13,7 +13,8 @@
  *	LCD_RESET_PORT				: GPIO d'écriture pour la broche de reset du chip
  *	LCD_CS						: GPIO d'écriture pour la broche de sélection du chip
  *	LCD_D_C_PORT				: GPIO d'écriture pour la broche du mode commande / donnée du chip
- *	LCD_DMA						: Activation du DMA pour le SPI
+ *	USE_LCD_DMA					: Activation du DMA pour le SPI
+ *	LCD_SPI						: Le périphérique SPI utilisé pour le LCD
  */
 
 #ifndef ILI9341_H
@@ -27,7 +28,7 @@
 	#define ILI9341_HEIGHT       320
 	#define ILI9341_PIXEL        76800
 
-	/* Colors */
+	/* Colors 565 */
 	#define ILI9341_COLOR_WHITE			0xFFFF
 	#define ILI9341_COLOR_BLACK			0x0000
 	#define ILI9341_COLOR_RED			0xF800

@@ -136,9 +136,9 @@ static Uint16 XPT2046_getReading(controlByte_t controlByte){
 
 	XPT2046_CS_RESET();
 
-	SPI_write(SPI2, controlByte);
-	ret = SPI_read(SPI2);
-	ret = (ret << 5) | (SPI_read(SPI2) >> 3);
+	SPI_write(LCD_TOUCH_SPI, controlByte);
+	ret = SPI_read(LCD_TOUCH_SPI);
+	ret = (ret << 5) | (SPI_read(LCD_TOUCH_SPI) >> 3);
 
 	XPT2046_CS_SET();
 

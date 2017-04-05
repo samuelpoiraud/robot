@@ -39,25 +39,26 @@
 
 	void SPI_setDataSize(SPI_TypeDef* SPIx, spi_data_size_e spi_data_size);
 
-	Uint16 SPI_exchange(SPI_TypeDef* SPIx, Uint16 c);
-	void SPI_write(SPI_TypeDef* SPIx, Uint16 msg);
+	Uint16 SPI_exchange(SPI_TypeDef* SPIx, Uint16 data);
+	void SPI_write(SPI_TypeDef* SPIx, Uint16 data);
 	Uint16 SPI_read(SPI_TypeDef* SPIx);
 
 	#ifdef USE_SPI1
-		Uint8 SPI1_exchange(Uint8 c);
-		void SPI1_write(Uint8 msg);
-		Uint8 SPI1_read();
+		Uint16 SPI1_exchange(Uint16 data);
+		void SPI1_write(Uint16 data);
+		Uint16 SPI1_read();
 		#define SPI1_put_byte SPI1_write
 	#endif /* def USE_SPI1 */
 
 	#ifdef USE_SPI2
-		Uint16 SPI2_exchange(Uint16 c);
-		void SPI2_write(Uint16 msg);
+		Uint16 SPI2_exchange(Uint16 data);
+		void SPI2_write(Uint16 data);
 		Uint16 SPI2_read();
 		#define SPI2_put_byte SPI2_write
 
-		void SPI2_DMA_send16BitLoop(Uint16 msg, Uint32 count);
+		void SPI2_DMA_send16BitLoop(Uint16 data, Uint32 count);
 		void SPI2_DMA_send16BitArray(Uint16 *data, Uint32 count);
+		void SPI2_DMA_send8BitArray(Uint8 *data, Uint32 count);
 	#endif /* def USE_SPI2 */
 
 #endif /* ndef QS_SPI_H */

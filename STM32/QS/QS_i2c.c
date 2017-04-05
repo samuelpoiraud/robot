@@ -14,9 +14,12 @@
 #include "QS_i2c.h"
 #include "QS_ports.h"
 #include "QS_watchdog.h"
-#include "QS_outputlog.h"
 #include "QS_timer.h"
 #include "../stm32f4xx/stm32f4xx_i2c.h"
+
+#define LOG_COMPONENT LOG_PRINT_On
+#define LOG_PREFIX "I2C : "
+#include "QS_outputlog.h"
 
 #if defined(USE_I2C1) || defined(USE_I2C2)
 
@@ -300,7 +303,7 @@
 
 	/* Private functions */
 	static bool_e I2C_initTimeout(){
-		watchdog_id = WATCHDOG_create_flag(100, &timeout);	//10ms max for the I2C frame !
+		watchdog_id = WATCHDOG_create_flag(10, &timeout);	//10ms max for the I2C frame !
 		if(watchdog_id == WATCHDOG_ERROR)
 		{
 			debug_printf("Watchdog_create fail - I2C read exited\n");

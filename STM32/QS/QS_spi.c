@@ -22,9 +22,18 @@
 #define SPI2_SPI_HANDLE SPI2
 #define SPI2_SPI_CLOCK  RCC_APB1Periph_SPI2
 
-#if defined(USE_SPI1) || defined(USE_SPI2)
+/**
+ * @brief  Check SPI busy status
+ */
+#define SPI_IS_BUSY(SPIx)                   (((SPIx)->SR & (SPI_SR_TXE | SPI_SR_RXNE)) == 0)
 
-	#define Timed(x) while (x) { if (timeout){goto errReturn;}}
+/**
+ * @brief  SPI wait till end
+ */
+#define SPI_WAIT_TX(SPIx)                   while ((SPIx->SR & SPI_FLAG_TXE) == 0 || (SPIx->SR & SPI_FLAG_BSY))
+#define SPI_WAIT_RX(SPIx)                   while ((SPIx->SR & SPI_FLAG_RXNE) == 0 || (SPIx->SR & SPI_FLAG_BSY))
+
+#if defined(USE_SPI1) || defined(USE_SPI2)
 
 	#define SPI2_DMA_STREAM	DMA1_Stream4
 	#define SPI2_DMA_CHAN	DMA_Channel_0
@@ -32,16 +41,12 @@
 	#ifdef USE_SPI2
 		static Uint8 SPI2_InitDMA_send16BitLoop(Uint16 value, Uint16 count);
 		static Uint8 SPI2_InitDMA_send16bitArray(Uint16 *data, Uint16 count);
+		static Uint8 SPI2_InitDMA_send8bitArray(Uint8 *data, Uint16 count);
 		static void SPI2_waitEndDMA(void);
 	#endif
 
 	static volatile SPI_InitTypeDef SPI_InitStructure[2];
 	static volatile bool_e initialized = FALSE;
-
-	static volatile watchdog_id_t watchdog_id = WATCHDOG_ERROR;
-	static volatile bool_e timeout = FALSE;
-
-	static bool_e SPI_initTimeout();
 
 	void SPI_init(void)
 	{
@@ -155,168 +160,65 @@
 		}
 	}
 
-	Uint16 SPI_exchange(SPI_TypeDef* SPIx, Uint16 c){
+	Uint16 SPI_exchange(SPI_TypeDef* SPIx, Uint16 data){
 		assert(IS_SPI_ALL_PERIPH(SPIx));
 		if(!initialized){
 			error_printf("SPI non initialisé ! Appeller SPI_init\n");
 			return 0;
 		}
 
-		if(SPI_initTimeout() == FALSE){
-			error_printf("Création watchdog impossible !\n");
-			return 0;
-		}
+		/* Wait busy */
+		SPI_WAIT_TX(SPIx);
 
-		Timed(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
+		/* Fill output buffer with data */
+		SPIx->DR = data;
 
-		if(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE) == SET)
-		{
-			debug_printf("SPI : buffer non vide \n");
-			SPI_I2S_ReceiveData(SPIx);
-		}
+		/* Wait for SPI to end everything */
+		SPI_WAIT_RX(SPIx);
 
-		SPI_I2S_SendData(SPIx, c);
-		Timed(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE) == RESET);
-
-
-		//Test si erreur
-		if(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_OVR) || SPI_I2S_GetFlagStatus(SPIx, SPI_FLAG_MODF))
-		{
-			debug_printf("SPI : collision\n");
-			SPI_I2S_ClearFlag(SPIx, SPI_I2S_FLAG_OVR);
-			SPI_I2S_ClearFlag(SPIx, SPI_FLAG_MODF);
-		}
-
-		WATCHDOG_stop(watchdog_id);
-
-		return SPI_I2S_ReceiveData(SPIx);
-
-		/* Return 0, error */
-		errReturn:
-		if(!timeout)
-			WATCHDOG_stop(watchdog_id);
-		return 0;
+		/* Read data register */
+		return SPIx->DR;
 	}
 
-	void SPI_write(SPI_TypeDef* SPIx, Uint16 msg){
-		assert(IS_SPI_ALL_PERIPH(SPIx));
-
-		SPI_exchange(SPIx, msg);
+	void SPI_write(SPI_TypeDef* SPIx, Uint16 data){
+		SPI_exchange(SPIx, data);
 	}
 
 	Uint16 SPI_read(SPI_TypeDef* SPIx){
-		assert(IS_SPI_ALL_PERIPH(SPIx));
-
 		return SPI_exchange(SPIx, 0x00);
 	}
 
 
-	#endif  /* defined(USE_SPI1) || defined(USE_SPI2) */
+#endif  /* defined(USE_SPI1) || defined(USE_SPI2) */
 
-	#ifdef USE_SPI1
+#ifdef USE_SPI1
 
-	Uint8 SPI1_exchange(Uint8 c)
-	{
-		if(!initialized){
-			error_printf("SPI non initialisé ! Appeller SPI_init\n");
-			return 0;
-		}
-
-		while(SPI_I2S_GetFlagStatus(SPI1_SPI_HANDLE, SPI_I2S_FLAG_TXE) == RESET);
-
-		if(SPI_I2S_GetFlagStatus(SPI1_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == SET)
-		{
-			debug_printf("SPI1: buffer non vide \n");
-			SPI_I2S_ReceiveData(SPI1_SPI_HANDLE);
-		}
-
-		SPI_I2S_SendData(SPI1_SPI_HANDLE, c);
-		while(SPI_I2S_GetFlagStatus(SPI1_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == RESET);
-
-
-		//Test si erreur
-		if(SPI_I2S_GetFlagStatus(SPI1_SPI_HANDLE, SPI_I2S_FLAG_OVR) || SPI_I2S_GetFlagStatus(SPI1_SPI_HANDLE, SPI_FLAG_MODF))
-		{
-			debug_printf("SPI1: collision\n");
-			SPI_I2S_ClearFlag(SPI1_SPI_HANDLE, SPI_I2S_FLAG_OVR);
-			SPI_I2S_ClearFlag(SPI1_SPI_HANDLE, SPI_FLAG_MODF);
-		}
-
-		return SPI_I2S_ReceiveData(SPI1_SPI_HANDLE);
+	Uint16 SPI1_exchange(Uint16 data){
+		return SPI_exchange(SPI1_SPI_HANDLE, data);
 	}
 
-	void SPI1_write(Uint8 msg)
-	{
-		if(!initialized){
-			error_printf("SPI non initialisé ! Appeller SPI_init\n");
-			return;
-		}
-
-		SPI1_exchange(msg);
+	void SPI1_write(Uint16 data){
+		SPI_exchange(SPI1_SPI_HANDLE, data);
 	}
 
-	Uint8 SPI1_read()
-	{
-		if(!initialized){
-			error_printf("SPI non initialisé ! Appeller SPI_init\n");
-			return 0;
-		}
-
-		return SPI1_exchange(0x00);
+	Uint16 SPI1_read(){
+		return SPI_exchange(SPI1_SPI_HANDLE, 0x00);
 	}
 
-	#endif
+#endif
 
-	#ifdef USE_SPI2
+#ifdef USE_SPI2
 
-	Uint16 SPI2_exchange(Uint16 c)
-	{
-		if(!initialized){
-			error_printf("SPI non initialisé ! Appeller SPI_init\n");
-			return 0;
-		}
-
-		while(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_TXE) == RESET);
-
-		if(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == SET)
-		{
-			//debug_printf("SPI2: buffer non vide \n");
-			SPI_I2S_ReceiveData(SPI2_SPI_HANDLE);
-		}
-
-		SPI_I2S_SendData(SPI2_SPI_HANDLE, c);
-		while(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_RXNE) == RESET);
-
-
-		//Test si erreur
-		if(SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_I2S_FLAG_OVR) || SPI_I2S_GetFlagStatus(SPI2_SPI_HANDLE, SPI_FLAG_MODF))
-		{
-			debug_printf("SPI2: collision\n");
-			SPI_I2S_ClearFlag(SPI2_SPI_HANDLE, SPI_I2S_FLAG_OVR);
-			SPI_I2S_ClearFlag(SPI2_SPI_HANDLE, SPI_FLAG_MODF);
-		}
-
-		return SPI_I2S_ReceiveData(SPI2_SPI_HANDLE);
+	Uint16 SPI2_exchange(Uint16 data){
+		return SPI_exchange(SPI2_SPI_HANDLE, data);
 	}
 
-	void SPI2_write(Uint16 msg)
-	{
-		if(!initialized){
-			error_printf("SPI non initialisé ! Appeller SPI_init\n");
-			return;
-		}
-
-		SPI2_exchange(msg);
+	void SPI2_write(Uint16 data){
+		SPI_exchange(SPI2_SPI_HANDLE, data);
 	}
 
-	Uint16 SPI2_read()
-	{
-		if(!initialized){
-			error_printf("SPI non initialisé ! Appeller SPI_init\n");
-			return 0;
-		}
-
-		return  SPI2_exchange(0x00);
+	Uint16 SPI2_read(){
+		return SPI_exchange(SPI2_SPI_HANDLE, 0x00);
 	}
 
 	void SPI2_DMA_send16BitLoop(Uint16 data, Uint32 count){
@@ -345,7 +247,23 @@
 		count++;	// Correction condition de fin DMA
 
 		do{
-			SPI2_InitDMA_send16bitArray(data + index, (count - index > 0xFFFF) ? 0xFFFF : count - index);
+			SPI2_InitDMA_send16bitArray((Uint16 *)(data + index), (count - index > 0xFFFF) ? 0xFFFF : count - index);
+			SPI2_waitEndDMA();
+			index += 0xFFFF;
+		}while(count > index);
+	}
+
+	void SPI2_DMA_send8BitArray(Uint8 *data, Uint32 count){
+		if(!initialized){
+			error_printf("SPI non initialisé ! Appeller SPI_init\n");
+			return;
+		}
+		Uint32 index = 0;
+
+		count++;	// Correction condition de fin DMA
+
+		do{
+			SPI2_InitDMA_send8bitArray((Uint8 *)(data + index), (count - index > 0xFFFF) ? 0xFFFF : count - index);
 			SPI2_waitEndDMA();
 			index += 0xFFFF;
 		}while(count > index);
@@ -452,16 +370,50 @@
 		return 1;
 	}
 
-	/* Private functions */
-	static bool_e SPI_initTimeout(){
-		watchdog_id = WATCHDOG_create_flag(20, &timeout);
-		if(watchdog_id == WATCHDOG_ERROR)
-		{
-			debug_printf("Watchdog_create fail - SPI exited\n");
-			return FALSE;
-		}
+	static Uint8 SPI2_InitDMA_send8bitArray(Uint8 *data, Uint16 count){
 
-		return TRUE;
+		DMA_InitTypeDef DMA_InitStructure;
+
+		DMA_StructInit(&DMA_InitStructure);
+
+		DMA_InitStructure.DMA_Channel = SPI2_DMA_CHAN;
+
+		DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(SPI2->DR);
+		DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+		DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+		DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+
+		DMA_InitStructure.DMA_Memory0BaseAddr = (Uint32)data;
+		DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+		DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+		DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+
+		DMA_InitStructure.DMA_BufferSize = count;
+
+		DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+
+		DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+
+		DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+
+		DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull;
+
+		DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+
+		/* Deinit first TX stream */
+		DMA_ClearFlag(SPI2_DMA_STREAM, DMA_FLAG_TCIF0 | DMA_FLAG_HTIF0 | DMA_FLAG_TEIF0 | DMA_FLAG_DMEIF0 | DMA_FLAG_FEIF0);
+
+		/* Init TX stream */
+		DMA_Init(SPI2_DMA_STREAM, &DMA_InitStructure);
+
+		/* Enable TX stream */
+		SPI2_DMA_STREAM->CR |= DMA_SxCR_EN;
+
+		/* Enable SPI TX DMA */
+		SPI2->CR2 |= SPI_CR2_TXDMAEN;
+
+		/* Return OK */
+		return 1;
 	}
 
 #endif /* defined(USE_SPI2) */
