@@ -20,9 +20,9 @@
 	#define ORE_WALL_RX24_SPEED					100		// Vitesse par défaut du RX24
 
 //Position
-	#define ORE_WALL_RX24_IDLE_POS					512
-	#define ORE_WALL_RX24_OUT_POS			     	512	//en degré
-	#define ORE_WALL_RX24_UNLOCK_POS					512	//en degré
+	#define ORE_WALL_RX24_IDLE_POS					858
+	#define ORE_WALL_RX24_OUT_POS			     	631	//en degré
+	#define ORE_WALL_RX24_IN_POS					858	//en degré
 
 //Position initiale de l'RX24
 	#define ORE_WALL_RX24_INIT_POS					ORE_WALL_RX24_IDLE_POS

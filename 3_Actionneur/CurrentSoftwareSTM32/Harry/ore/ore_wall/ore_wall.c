@@ -167,7 +167,7 @@ static void ORE_WALL_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
 
 	if(position > ORE_WALL_RX24_OUT_POS - epsilon && position < ORE_WALL_RX24_OUT_POS + epsilon){
 		order = ACT_ORE_WALL_OUT;
-	}else if(position > ORE_WALL_RX24_UNLOCK_POS - epsilon && position < ORE_WALL_RX24_UNLOCK_POS + epsilon){
+	}else if(position > ORE_WALL_RX24_IN_POS - epsilon && position < ORE_WALL_RX24_IN_POS + epsilon){
 		order = ACT_ORE_WALL_IN;
 	}else if(position > ORE_WALL_RX24_IDLE_POS - epsilon && position < ORE_WALL_RX24_IDLE_POS + epsilon){
 		order = ACT_ORE_WALL_IDLE;
@@ -262,7 +262,7 @@ static void ORE_WALL_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_ORE_WALL_IDLE : *rx24_goalPosition = ORE_WALL_RX24_IDLE_POS; break;
 		case ACT_ORE_WALL_OUT : *rx24_goalPosition = ORE_WALL_RX24_OUT_POS; break;
-		case ACT_ORE_WALL_IN : *rx24_goalPosition = ORE_WALL_RX24_UNLOCK_POS; break;
+		case ACT_ORE_WALL_IN : *rx24_goalPosition = ORE_WALL_RX24_IN_POS; break;
 
 		case ACT_ORE_WALL_STOP :
 			RX24_set_torque_enabled(ORE_WALL_RX24_ID, FALSE); //Stopper l'asservissement du RX24

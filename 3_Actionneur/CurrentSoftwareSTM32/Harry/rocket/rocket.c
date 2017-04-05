@@ -168,6 +168,8 @@ static void ROCKET_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
 
 	if(position > ROCKET_AX12_LAUNCH_POS - epsilon && position < ROCKET_AX12_LAUNCH_POS + epsilon){
 		order = ACT_ROCKET_LAUNCH;
+	}else if(position > ROCKET_AX12_PREPARE_LAUNCH_POS - epsilon && position < ROCKET_AX12_PREPARE_LAUNCH_POS + epsilon){
+		order = ACT_ROCKET_PREPARE_LAUNCH;
 	}else if(position > ROCKET_AX12_IDLE_POS - epsilon && position < ROCKET_AX12_IDLE_POS + epsilon){
 		order = ACT_ROCKET_IDLE;
 	}
@@ -206,6 +208,7 @@ bool_e ROCKET_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
             case ACT_ROCKET_IDLE :
             case ACT_ROCKET_LAUNCH :
+            case ACT_ROCKET_PREPARE_LAUNCH:
             case ACT_ROCKET_STOP :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_ROCKET, &ROCKET_run_command, 0,TRUE);
 				break;
@@ -260,6 +263,7 @@ static void ROCKET_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_ROCKET_IDLE : *ax12_goalPosition = ROCKET_AX12_IDLE_POS; break;
         case ACT_ROCKET_LAUNCH : *ax12_goalPosition = ROCKET_AX12_LAUNCH_POS; break;
+        case ACT_ROCKET_PREPARE_LAUNCH : *ax12_goalPosition = ROCKET_AX12_PREPARE_LAUNCH_POS; break;
 
         case ACT_ROCKET_STOP :
             AX12_set_torque_enabled(ROCKET_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

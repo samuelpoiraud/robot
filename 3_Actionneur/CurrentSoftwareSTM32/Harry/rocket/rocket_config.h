@@ -21,8 +21,9 @@
 	#define ROCKET_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-    #define ROCKET_AX12_IDLE_POS					512
-    #define ROCKET_AX12_LAUNCH_POS				    512		//en degré
+    #define ROCKET_AX12_IDLE_POS					405
+    #define ROCKET_AX12_LAUNCH_POS				    405		//en degré
+	#define ROCKET_AX12_PREPARE_LAUNCH_POS			489
 
 //Position initiale de l'AX12
     #define ROCKET_AX12_INIT_POS					ROCKET_AX12_IDLE_POS
