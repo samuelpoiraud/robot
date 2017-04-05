@@ -27,15 +27,28 @@
 	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
 #endif
 
+//#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
+#ifdef DISABLE_WHO_AM_I
+	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+#endif
+
+//#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN
+#ifdef XBEE_SIMULATION
+	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+#endif
+
+//#define DISABLE_SECURE_GPIO_INIT
+#ifdef DISABLE_SECURE_GPIO_INIT
+	#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
+#endif
+
 #define FAST_COS_SIN			//Calcul rapide des cos et sin à l'aide d'un GRAND tableau de valeur
 
-#define USE_LCD					//Activation de l'écran LCD
+//#define USE_LCD					//Activation de l'écran LCD
 
 #define USE_RTC					//Activation de la RTC
 
 #define VERBOSE_MODE			//Activation du verbose
-
-//#define PLAY_MUSIC_END_MATCH
 
 //#define USE_FOE_ANALYSER
 
@@ -44,23 +57,12 @@
 	#warning "PAS CE CODE DANS LE ROBOT SVP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 #endif
 
-//#define USE_SENSORS
-
-//#define DISABLE_SECURE_GPIO_INIT
-#ifdef DISABLE_SECURE_GPIO_INIT
-	#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
-#endif
-
 #define USE_ASTAR				//Activation de l'algorithme ASTAR, avec pathfind par polygones
-
-#define PROP_PULL_EVEN_WHEN_FAR_FROM_DESTINATION	//Les PROP_TRAJECTOIRE_FINIE dépilent les asser goto meme si on est loin de la destination
 
 #define SD_ENABLE				//Activation de la carte SD
 
 #define USE_SYNC_ELEMENTS
 #define USE_HARDFLAGS
-
-#define USE_CW_SENSOR
 
 //#define ADV_SIDE_ON_OUR_MOONBASE
 
@@ -68,12 +70,6 @@
 
 //#define ADV_SIDE_ON_ADV_MOONBASE
 
-//#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
-
-//#define XBEE_SIMULATION  // Répete les messages XBEE sur le CAN
-#ifdef XBEE_SIMULATION
-	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
-#endif
 
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//
@@ -96,7 +92,6 @@
 
 /* Réglages SPI */
 	#define USE_SPI2
-	#define SPI_R_BUF_SIZE 16
 
 /* Réglages I2C */
 	#define USE_I2C2
@@ -164,11 +159,8 @@
 /* Réglages FIFO */
 	#define USE_FIFO
 
-/* Réglages RF */
-	//#define USE_RF
-	//#define RF_UART UART3_ID
-	//#define RF_USE_WATCHDOG
-	//#define SYNCHROBALISE_TIMER 4
+/* Réglages Capteur couleur */
+	#define USE_CW_SENSOR
 
 /* Récapitulatif TIMERs :
  * TIMER 1 : Clock			(clock.c/h)

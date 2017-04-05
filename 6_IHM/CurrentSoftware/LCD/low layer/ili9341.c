@@ -81,6 +81,7 @@ static volatile bool_e initialised = FALSE;
 static void ILI9341_initLCD(void);
 static void ILI9341_sendData(Uint8 data);
 static void ILI9341_sendCommand(Uint8 data);
+static void ILI9341_sendMultipleData(Uint8 *data, Uint8 count);
 static void ILI9341_delay(volatile Uint32 delay);
 static void ILI9341_setCursorPosition(Uint16 x1, Uint16 y1, Uint16 x2, Uint16 y2);
 static void ILI9341_INT_fill(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 color);
@@ -110,7 +111,7 @@ void ILI9341_init(){
 }
 
 void ILI9341_setConfig(void){
-	SPI_setBaudRate(SPI2, SPI_BaudRatePrescaler_2);
+	SPI_setBaudRate(LCD_SPI, SPI_BaudRatePrescaler_2);
 }
 
 void ILI9341_displayOn(void) {
@@ -295,7 +296,7 @@ void ILI9341_drawLine(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 color) 
 }
 
 void ILI9341_drawRectangle(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 color) {
-	ILI9341_drawLine(x0, y0, x1, y0, color); //Top
+	ILI9341_drawLine(x0, y0, x1, y0, color); 	//Top
 	ILI9341_drawLine(x0, y0, x0, y1, color);	//Left
 	ILI9341_drawLine(x1, y0, x1, y1, color);	//Right
 	ILI9341_drawLine(x0, y1, x1, y1, color);	//Bottom
@@ -400,18 +401,19 @@ void ILI9341_putImage(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uin
 	ILI9341_WRX_SET();
 
 	/* Go to 16-bit SPI mode */
-	SPI_setDataSize(SPI2, SPI_DATA_SIZE_16_BIT);
+	SPI_setDataSize(LCD_SPI, SPI_DATA_SIZE_16_BIT);
 
-#ifndef LCD_DMA
+#ifndef USE_LCD_DMA
 	Uint32 i;
 	for(i=0; i < size; i++)
-		SPI_write(SPI2, img[i]);
+		SPI_write(LCD_SPI, img[i]);
 #else
 	SPI2_DMA_send16BitArray((Uint16 *)img, size);
 #endif
 
+	SPI_setDataSize(LCD_SPI, SPI_DATA_SIZE_8_BIT);
 
-	SPI_setDataSize(SPI2, SPI_DATA_SIZE_8_BIT);
+	ILI9341_CS_SET();
 }
 
 void ILI9341_putImageWithTransparence(Uint16 x, Uint16 y, Uint16 width, Uint16 height, const Uint16 *img, Uint16 colorTransparence, Uint32 size){
@@ -455,11 +457,15 @@ static void ILI9341_setCursorPosition(Uint16 x1, Uint16 y1, Uint16 x2, Uint16 y2
 	ILI9341_sendData(x2 >> 8);
 	ILI9341_sendData(x2 & 0xFF);
 
+	//ILI9341_sendMultipleData((Uint8 []){x1 >> 8, x1 & 0xFF, x2 >> 8, x2 & 0xFF}, 4);
+
 	ILI9341_sendCommand(ILI9341_PAGE_ADDR);
 	ILI9341_sendData(y1 >> 8);
 	ILI9341_sendData(y1 & 0xFF);
 	ILI9341_sendData(y2 >> 8);
 	ILI9341_sendData(y2 & 0xFF);
+
+	//ILI9341_sendMultipleData((Uint8 []){y1 >> 8, y1 & 0xFF, y2 >> 8, y2 & 0xFF}, 4);
 }
 
 static void ILI9341_INT_fill(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 color) {
@@ -479,12 +485,12 @@ static void ILI9341_INT_fill(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 
 	ILI9341_WRX_SET();
 
 	/* Go to 16-bit SPI mode */
-	SPI_setDataSize(SPI2, SPI_DATA_SIZE_16_BIT);
+	SPI_setDataSize(LCD_SPI, SPI_DATA_SIZE_16_BIT);
 
-#ifndef LCD_DMA
+#ifndef USE_LCD_DMA
 	Uint32 i;
 	for(i=0;i<pixels_count;i++)
-		SPI2_write(color);
+		SPI_write(LCD_SPI, color);
 #else
 	SPI2_DMA_send16BitLoop(color, pixels_count);
 #endif
@@ -492,7 +498,7 @@ static void ILI9341_INT_fill(Uint16 x0, Uint16 y0, Uint16 x1, Uint16 y1, Uint16 
 	ILI9341_CS_SET();
 
 	/* Go back to 8-bit SPI mode */
-	SPI_setDataSize(SPI2, SPI_DATA_SIZE_8_BIT);
+	SPI_setDataSize(LCD_SPI, SPI_DATA_SIZE_8_BIT);
 }
 
 
@@ -527,11 +533,15 @@ static void ILI9341_initLCD(void) {
 	ILI9341_sendData(0x34);
 	ILI9341_sendData(0x02);
 
+	//ILI9341_sendMultipleData((Uint8 []){0x39, 0x2C, 0x00, 0x34, 0x02}, 5);
+
 	// Power control B
 	ILI9341_sendCommand(ILI9341_POWERB);
 	ILI9341_sendData(0x00);
 	ILI9341_sendData(0xC1);
 	ILI9341_sendData(0x30);
+
+	//ILI9341_sendMultipleData((Uint8 []){0x00, 0xC1, 0x30}, 3);
 
 	// Driver timing control A
 	ILI9341_sendCommand(ILI9341_DTCA);
@@ -539,10 +549,15 @@ static void ILI9341_initLCD(void) {
 	ILI9341_sendData(0x00);
 	ILI9341_sendData(0x78);
 
+	//ILI9341_sendMultipleData((Uint8 []){0x85, 0x00, 0x78}, 3);
+
+
 	// Driver timing control B
 	ILI9341_sendCommand(ILI9341_DTCB);
 	ILI9341_sendData(0x00);
 	ILI9341_sendData(0x00);
+
+	//ILI9341_sendMultipleData((Uint8 []){0x00, 0x00}, 2);
 
 	// Power on sequence control
 	ILI9341_sendCommand(ILI9341_POWER_SEQ);
@@ -550,6 +565,8 @@ static void ILI9341_initLCD(void) {
 	ILI9341_sendData(0x03);
 	ILI9341_sendData(0x12);
 	ILI9341_sendData(0x81);
+
+	//ILI9341_sendMultipleData((Uint8 []){0x64, 0x03, 0x12, 0x81}, 4);
 
 	// Pump ratio control
 	ILI9341_sendCommand(ILI9341_PRC);
@@ -568,6 +585,8 @@ static void ILI9341_initLCD(void) {
 	ILI9341_sendData(0x3E);
 	ILI9341_sendData(0x28);
 
+	//ILI9341_sendMultipleData((Uint8 []){0x3E, 0x28}, 2);
+
 	// VCOM control 2
 	ILI9341_sendCommand(ILI9341_VCOM2);
 	ILI9341_sendData(0x86);
@@ -585,11 +604,15 @@ static void ILI9341_initLCD(void) {
 	ILI9341_sendData(LCD_FRC_DIVA_1);
 	ILI9341_sendData(LCD_FRC_RTNA_119HZ);
 
+	//ILI9341_sendMultipleData((Uint8 []){LCD_FRC_DIVA_1, LCD_FRC_RTNA_119HZ}, 2);
+
 	// Display function control
 	ILI9341_sendCommand(ILI9341_DFC);
 	ILI9341_sendData(0x08);
 	ILI9341_sendData(0x82);
 	ILI9341_sendData(0x27);
+
+	//ILI9341_sendMultipleData((Uint8 []){0x08, 0x82, 0x27}, 3);
 
 	// 3Gamma function disable
 	ILI9341_sendCommand(ILI9341_3GAMMA_EN);
@@ -617,6 +640,8 @@ static void ILI9341_initLCD(void) {
 	ILI9341_sendData(0x09);
 	ILI9341_sendData(0x00);
 
+	//ILI9341_sendMultipleData((Uint8 []){0x0F, 0x31, 0x2B, 0x0C, 0x0E, 0x08, 0x4E, 0xF1, 0x37, 0x07, 0x10, 0x03, 0x0E, 0x09, 0x00}, 15);
+
 	// Set negative gama
 	ILI9341_sendCommand(ILI9341_NGAMMA);
 	ILI9341_sendData(0x00);
@@ -635,6 +660,8 @@ static void ILI9341_initLCD(void) {
 	ILI9341_sendData(0x36);
 	ILI9341_sendData(0x0F);
 
+	//ILI9341_sendMultipleData((Uint8 []){0x00, 0x0E, 0x14, 0x03, 0x11, 0x07, 0x31, 0xC1, 0x48, 0x08, 0x0F, 0x0C, 0x31, 0x36, 0x0F}, 15);
+
 	ILI9341_delay(5);
 
 	ILI9341_sendCommand(ILI9341_DISPLAY_ON);
@@ -643,13 +670,28 @@ static void ILI9341_initLCD(void) {
 static void ILI9341_sendCommand(Uint8 data) {
 	ILI9341_WRX_RESET();
 	ILI9341_CS_RESET();
-	SPI_write(SPI2, data);
+	SPI_write(LCD_SPI, data);
 	ILI9341_CS_SET();
 }
 
 static void ILI9341_sendData(Uint8 data) {
 	ILI9341_WRX_SET();
 	ILI9341_CS_RESET();
-	SPI_write(SPI2, data);
+	SPI_write(LCD_SPI, data);
+	ILI9341_CS_SET();
+}
+
+static void ILI9341_sendMultipleData(Uint8 *data, Uint8 count){
+	ILI9341_WRX_SET();
+	ILI9341_CS_RESET();
+
+	#ifndef USE_LCD_DMA
+		Uint32 i;
+		for(i=0;i<count;i++)
+			SPI_write(LCD_SPI, data[i]);
+	#else
+		SPI2_DMA_send8BitArray(data, count);
+	#endif
+
 	ILI9341_CS_SET();
 }

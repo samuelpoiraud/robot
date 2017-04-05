@@ -139,10 +139,9 @@ int main (void)
 	debug_printf("\n");
 
 
-	display(sizeof(msg_can_formated_u));
-	display(sizeof(prop_traj_msg_t));
 	if(sizeof(msg_can_formated_u) > 8){
 		printf("Bloquage du main pour un dépassement de taille des données formatées !!!\n");
+		display(sizeof(msg_can_formated_u));
 		while(1);
 	}
 

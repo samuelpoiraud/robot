@@ -22,7 +22,7 @@
 	//#define XBEE_SIMULATION						//Envoi des messages XBEE venant de la simulation sur le CAN
 	//#define DISPLAY_AVOIDANCE_POLY				//Envoi des messages contenant les informations du polygone d'évitement pour la simulation graphique
 
-/* MODE d'EMPLOI MODE SIMULATION ET ECRAN TACTILE (en dehors d'un fond de panier !)
+/* MODE d'EMPLOI MODE SIMULATION (en dehors d'un fond de panier !)
  *  1 - activez les 4 defines ci-dessus
  *  2 - activez MODE_SIMULATION sur la carte STRATEGIE
  *  3 - avec 4 fils : reliez entre les cartes PROP et STRAT (éventuellement le 5V...) :
@@ -38,15 +38,26 @@
  *  Activer les define SIMULATION_VIRTUAL_PERFECT_ROBOT et CAN_SEND_OVER_UART (et c'est tout !)
  */
 
-/* ECRAN TACTILE - sans simulation (= à coté d'un fond de panier, avec un robot virtuel ou réel)
- *
- * Vous pouvez brancher une carte avec un LCD, avec les paramètres suivants :
- * - Activer les 4 defines ci-dessus. (oui, oui !)
- * - Relier l'UART Tx de la propulsion vers l'UART Rx de la carte supportant l'écran tactile.s
- */
-
 //MODES INDISPENSABLES EN MATCHS
 	#define PERIODE_IT_ASSER (5)		//[ms] ne pas y toucher sans savoir ce qu'on fait, (ou bien vous voulez vraiment tout casser !)
+
+	//#define DISABLE_SECURE_GPIO_INIT
+	#ifdef DISABLE_SECURE_GPIO_INIT
+		#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
+	#endif
+
+	//#define DISABLE_WHO_AM_I				// Désactive la détection du robot.
+	#ifdef DISABLE_WHO_AM_I
+		#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+	#endif
+
+	//#define DISABLED_BALISE_AVOIDANCE		// Désactivation de l'évitement balise
+	#ifdef DISABLED_BALISE_AVOIDANCE
+		#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
+	#endif
+
+	#define BUFFER_SIZE 64	//maximum : 255
+
 
     #define USE_HOKUYO					//Active le module HOKUYO et la détection des ennemis... !
 
@@ -64,24 +75,14 @@
 
 	//#define DETECTION_CHOC
 
-	#define USE_AN_VREFIN
-
-	//#define DISABLE_SECURE_GPIO_INIT
-	#ifdef DISABLE_SECURE_GPIO_INIT
-		#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
-	#endif
-
 	//#define SCAN_BORDURE
 
 	//#define SCAN
 
-	#define BUFFER_SIZE 64	//maximum : 255
+	//#define USE_ADS1118_ON_ADC
 
-	//#define DISABLED_BALISE_AVOIDANCE		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Désactivation de l'évitement balise
 
 //MODES NON INDISPENSABLES OU INPENSABLES EN MATCHS
-
-	//#define DISABLE_WHO_AM_I	//Désactive la détection du robot.
 
 	//#define MODE_REGLAGE_KV
 	#ifdef MODE_REGLAGE_KV
@@ -103,10 +104,6 @@
 
 
 	//#define CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION //Inutile... Voir wiki...
-
-	//#define USE_ADS1118_ON_ADC
-
-
 
 
 //////////////////////////////////////////////////////////////////
@@ -156,6 +153,9 @@
 		#define USE_PWM4    //moteur gauche
 
 /* Réglages SPI */
+	#ifdef DETECTION_CHOC
+		#define USE_SPI1
+	#endif
 	#if defined(USE_GYROSCOPE) || defined(USE_ADS1118_ON_ADC)
 		#define USE_SPI2 // GYROSCOPE
 	#endif
@@ -174,13 +174,13 @@
 
 /* Réglages ADC */
 	//#define ADC_12_BIT
+	#define USE_AN_VREFIN
 	#define USE_AN11		// Télémètre laser gauche (Black) et Télémètre poissons (Pearl)
 	#ifndef USE_ADS1118_ON_ADC
 		#define USE_AN12		// Télémètre laser droite (Black)
 	#endif
 	#define ADC_SENSOR_LASER_LEFT			ADC_11
 	#define ADC_SENSOR_LASER_RIGHT			ADC_12
-
 
 #include "../_Propulsion_config.h"
 

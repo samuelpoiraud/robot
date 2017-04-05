@@ -68,10 +68,13 @@
 		if(CAN_OVER_XBEE_InputMsgIsReady() == FALSE)
 			return FALSE;
 
-		*msg = bufferInputMsg[bufferReadIndex].msg;
-		*robotId = bufferInputMsg[bufferReadIndex].robotId;
+		if(msg != NULL)
+			*msg = bufferInputMsg[bufferReadIndex].msg;
 
-		CAN_OVER_XBEE_InputMsgIncIndex(&bufferReadIndex);
+		if(robotId!= NULL)
+			*robotId = bufferInputMsg[bufferReadIndex].robotId;
+
+		CAN_OVER_XBEE_InputMsgIncIndex((Uint8 *)&bufferReadIndex);
 
 		return TRUE;
 	}
@@ -84,7 +87,7 @@
 		bufferInputMsg[bufferReadIndex].msg = *msg;
 		bufferInputMsg[bufferReadIndex].robotId = robotId;
 
-		CAN_OVER_XBEE_InputMsgIncIndex(&bufferWriteIndex);
+		CAN_OVER_XBEE_InputMsgIncIndex((Uint8 *)&bufferWriteIndex);
 	}
 
 	void CAN_OVER_XBEE_sendBroadcastCANMsg(CAN_msg_t * msg){
@@ -104,6 +107,15 @@
 
 	void CAN_OVER_XBEE_setSendCallback(CAN_OVER_XBEE_callbackAction_t action){
 		CAN_OVER_XBEE_sendCallback = action;
+	}
+
+	bool_e CAN_OVER_XBEE_isValidAddress(Uint64 destinationAddress64bit){
+		Uint8 i;
+		for(i=0; i<NB_ROBOT_ID; i++){
+			if(destinationAddress64bit == address64bitByModule[i])
+				return TRUE;
+		}
+		return FALSE;
 	}
 
 

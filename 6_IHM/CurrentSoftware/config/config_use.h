@@ -72,7 +72,9 @@
 	#define USE_AN10	// Mesure 24V permanence
 
 /* Réglages LCD */
-	#define LCD_DMA
+	#define LCD_SPI SPI2
+	#define LCD_TOUCH_SPI SPI2
+	#define USE_LCD_DMA
 	#define USE_IRQ_TOUCH_VALIDATION
 
 /* Récapitulatif TIMERs :

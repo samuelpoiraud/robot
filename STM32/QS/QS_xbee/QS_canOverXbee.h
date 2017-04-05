@@ -30,6 +30,7 @@
 		//Enregistre un pointeur sur fonction qui sera appelé à chaque message CAN envoyé.
 		void CAN_OVER_XBEE_setSendCallback(CAN_OVER_XBEE_callbackAction_t action);
 
+		bool_e CAN_OVER_XBEE_isValidAddress(Uint64 destinationAddress64bit);
 
 		// Ne pas utilisé cette fonction
 		void CAN_OVER_XBEE_addInputMsg(robot_id_e robotId, CAN_msg_t * msg);

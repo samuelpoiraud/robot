@@ -35,7 +35,7 @@
 			return FALSE;
 		}
 
-		if(CAN_OVER_XBEE_getRobotByDestinationAddress64bit(msgNetwork->frame.receivePacket.destinationAddress64bit) == 0xFF){
+		if(CAN_OVER_XBEE_isValidAddress(msgNetwork->frame.receivePacket.destinationAddress64bit) == FALSE){
 			error_printf("parse : Provenance ( 0x%llx )incorrecte\n", msgNetwork->frame.receivePacket.destinationAddress64bit);
 			return FALSE;
 		}

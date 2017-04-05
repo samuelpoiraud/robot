@@ -8,6 +8,7 @@
 #include "../../utils/generic_functions.h"
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
+#include "../../actuator/act_functions.h"
 
 //permet de régler la distance entre la base côté et le robot(largeurBase+distance):
 #define DISTANCE_BASE_SIDE_ET_ROBOT	((Uint16) 120+200)
@@ -1740,7 +1741,7 @@ error_e sub_harry_cylinder_depose_manager(){
 			}else if(prefered_zone==MODULE_MOONBASE_ADV_SIDE){
 				state=GO_TO_ADV_SIDE;
 			}else{
-#warning 'CORENTIN : Que fait t on sinon ? On reste planté là ??'
+#warning 'CORENTIN : Que fait t on sinon ? On reste planté là ?'
 				state = ERROR;
 			}
 			break;
