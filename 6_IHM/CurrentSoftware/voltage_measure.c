@@ -54,9 +54,10 @@ void VOLTAGE_MEASURE_process_main(void){
 
 	if(flag_200ms){
 		flag_200ms = FALSE;
-		valuePcse = VOLTAGE_MEASURE_measure24_mV(ADC_24_PUISSANCE);
-		valueHokuyo = VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO);
-		valuePerm = valuePerm*(100-PERCENTAGE_FILTER)/100 + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER/100;
+
+		global.voltage.Vpuissance = valuePcse = VOLTAGE_MEASURE_measure24_mV(ADC_24_PUISSANCE);
+		global.voltage.Vhokuyo = valueHokuyo = VOLTAGE_MEASURE_measure24_mV(ADC_12_HOKUYO);
+		global.voltage.Vpermanent = valuePerm = valuePerm*(100-PERCENTAGE_FILTER)/100 + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER/100;
 
 		if(valuePerm < THRESHOLD_BATTERY_OFF)
 			battery_state = BATTERY_DISABLE;

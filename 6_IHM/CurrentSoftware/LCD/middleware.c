@@ -710,20 +710,30 @@ void MIDDLEWARE_setBackground(Uint16 color){
 	background.toDisplay = TRUE;
 }
 
-void MIDDLEWARE_setText(objectId_t id, char * text){
+void MIDDLEWARE_setText(objectId_t id, const char *text, ...){
 	assert(id < LCD_NB_MAX_OBJECT);
 	assert(objectTab[id].use);
 
 	switch(objectTab[id].type){
-		case TEXT :
-			strncpy((char *)objectTab[id].objectData.text.text, text, OBJECT_TEXT_MAX_SIZE);
-			break;
+		case TEXT :{
+
+			va_list args_list;
+			va_start(args_list, text);
+			vsnprintf((char *)objectTab[id].objectData.text.text, OBJECT_TEXT_MAX_SIZE, text, args_list);
+			va_end(args_list);
+
+			}break;
 
 		case BUTTON_IMG :
 			break;
 
 		case BUTTON_BASE :{
-				strncpy((char *)objectTab[id].objectData.buttonBase.text, text, OBJECT_TEXT_MAX_SIZE);
+
+				va_list args_list;
+				va_start(args_list, text);
+				vsnprintf((char *)objectTab[id].objectData.buttonBase.text, OBJECT_TEXT_MAX_SIZE, text, args_list);
+				va_end(args_list);
+
 				Uint16 widthText, heightText;
 				ILI9341_getStringSize((char *)objectTab[id].objectData.buttonBase.text, &Font_7x10, &widthText, &heightText);
 				objectTab[id].objectData.buttonBase.widthText = widthText;

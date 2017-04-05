@@ -11,6 +11,7 @@ static volatile INTERFACE_ihm_e actualIhm = INTERFACE_IHM_WAIT;
 static void INTERFACE_IHM_wait(void);
 static void INTERFACE_IHM_custom(void);
 static void INTERFACE_IHM_position(void);
+static void INTERFACE_IHM_debug(void);
 
 void INTERFACE_init(void){
 	ILI9341_init();
@@ -63,36 +64,8 @@ static void INTERFACE_IHM_wait(void){
 	}
 }
 
-static void INTERFACE_IHM_position(void){
+static void INTERFACE_IHM_debug(void){
 	static bool_e displayed = FALSE;
-
-	/*if(!displayed){
-		MIDDLEWARE_setBackground(ILI9341_COLOR_WHITE);
-		MIDDLEWARE_addCircle(320/2, 240/2, 25, ILI9341_COLOR_RED, ILI9341_COLOR_BLACK);
-		MIDDLEWARE_addText(320/2 + 30, 240/2 - 10/5, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, "Test");
-		displayed = TRUE;
-	}*/
-
-
-	/*static bool_e touch = FALSE, touchC = FALSE, display = FALSE, lastDisplay = FALSE;
-	static Uint8 pourcent = 50;
-
-	union{
-		Uint16 color;
-		struct{
-			Uint32 R		:5;
-			Uint32 G		:6;
-			Uint32 B		:5;
-		}formated;
-	}setValue, lastValue;
-
-	static Sint32 R = 0b00011111, G = 0b00111111, B = 0b00011111;
-	static char buffer[50];
-	static objectId_t id;
-
-	setValue.color = 0xFFFF;
-	lastValue.color = 0xFFFF;*/
-
 	static bool_e test;
 	Uint32 var = SWITCH_getDebug();
 	static Uint32 lastVar1, lastVar2, lastVar3, lastVar4, lastVar5, lastVar6, lastVar7, lastVar8, lastVar9, lastVar10, lastVar11;
@@ -100,7 +73,7 @@ static void INTERFACE_IHM_position(void){
 
 	if(!displayed){
 
-		id1 = MIDDLEWARE_addText(50, 50, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, "%l8d", var);
+		id1 = MIDDLEWARE_addText(50, 50, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, "%8d", var);
 		id2 = MIDDLEWARE_addText(50, 60, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, "%d", BUTTON_GO_TO_HOME_PORT);
 		id3 = MIDDLEWARE_addText(50, 70, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, "%d", BUTTON_CALIBRATION_PORT);
 		id4 = MIDDLEWARE_addText(50, 80, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, "%d", BUTTON_PRINTMATCH_PORT);
@@ -118,80 +91,81 @@ static void INTERFACE_IHM_position(void){
 	}
 
 	if(var != lastVar1){
-		char txt[50];
-		sprintf(txt, "%l8d", var);
-		MIDDLEWARE_setText(id1, txt);
+		MIDDLEWARE_setText(id1, "%8d", var);
 		lastVar1 = var;
 	}
 
 	if(BUTTON_GO_TO_HOME_PORT != lastVar2){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON_GO_TO_HOME_PORT);
-		MIDDLEWARE_setText(id2, txt);
-		lastVar2 = var;
+		MIDDLEWARE_setText(id2, "%d", BUTTON_GO_TO_HOME_PORT);
+		lastVar2 = BUTTON_GO_TO_HOME_PORT;
 	}
 
 	if(BUTTON_CALIBRATION_PORT != lastVar3){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON_CALIBRATION_PORT);
-		MIDDLEWARE_setText(id3, txt);
-		lastVar3 = var;
+		MIDDLEWARE_setText(id3, "%d", BUTTON_CALIBRATION_PORT);
+		lastVar3 = BUTTON_CALIBRATION_PORT;
 	}
 
 	if(BUTTON_PRINTMATCH_PORT != lastVar4){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON_PRINTMATCH_PORT);
-		MIDDLEWARE_setText(id4, txt);
-		lastVar4 = var;
+		MIDDLEWARE_setText(id4, "%d", BUTTON_PRINTMATCH_PORT);
+		lastVar4 = BUTTON_PRINTMATCH_PORT;
 	}
 
 	if(BUTTON_SUSPEND_RESUMSE_PORT != lastVar5){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON_SUSPEND_RESUMSE_PORT);
-		MIDDLEWARE_setText(id5, txt);
-		lastVar5 = var;
+		MIDDLEWARE_setText(id5, "%d", BUTTON_SUSPEND_RESUMSE_PORT);
+		lastVar5 = BUTTON_SUSPEND_RESUMSE_PORT;
 	}
 
 	if(BUTTON0_PORT != lastVar6){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON0_PORT);
-		MIDDLEWARE_setText(id6, txt);
-		lastVar6 = var;
+		MIDDLEWARE_setText(id6, "%d", BUTTON0_PORT);
+		lastVar6 = BUTTON0_PORT;
 	}
 
 	if(BUTTON1_PORT != lastVar7){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON1_PORT);
-		MIDDLEWARE_setText(id7, txt);
-		lastVar7 = var;
+		MIDDLEWARE_setText(id7, "%d", BUTTON1_PORT);
+		lastVar7 = BUTTON1_PORT;
 	}
 
 	if(BUTTON2_PORT != lastVar8){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON2_PORT);
-		MIDDLEWARE_setText(id8, txt);
-		lastVar8 = var;
+		MIDDLEWARE_setText(id8, "%d", BUTTON2_PORT);
+		lastVar8 = BUTTON2_PORT;
 	}
 
 	if(BUTTON3_PORT != lastVar9){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON3_PORT);
-		MIDDLEWARE_setText(id9, txt);
-		lastVar9 = var;
+		MIDDLEWARE_setText(id9, "%d", BUTTON3_PORT);
+		lastVar9 = BUTTON3_PORT;
 	}
 
 	if(BUTTON4_PORT != lastVar10){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON4_PORT);
-		MIDDLEWARE_setText(id10, txt);
-		lastVar10 = var;
+		MIDDLEWARE_setText(id10, "%d", BUTTON4_PORT);
+		lastVar10 = BUTTON4_PORT;
 	}
 
 	if(BUTTON5_PORT != lastVar11){
-		char txt[50];
-		sprintf(txt, "%d", BUTTON5_PORT);
-		MIDDLEWARE_setText(id11, txt);
-		lastVar11 = var;
+		MIDDLEWARE_setText(id11, "%d", BUTTON5_PORT);
+		lastVar11 = BUTTON5_PORT;
+	}
+}
+
+static void INTERFACE_IHM_position(void){
+	static bool_e init = FALSE;
+	static objectId_t x, y, teta, voltage;
+	static time32_t lastRefresh;
+
+	if(!init){
+		x = MIDDLEWARE_addText(50, 50, 0x0000, 0xFFFF, "x : %d", global.pos.x);
+		y = MIDDLEWARE_addText(50, 65, 0x0000, 0xFFFF, "y : %d", global.pos.y);
+		teta = MIDDLEWARE_addText(50, 80, 0x0000, 0xFFFF, "teta : %d  |  %d°", global.pos.teta, global.pos.teta*180/PI4096);
+
+		voltage = MIDDLEWARE_addText(50, 100, 0x0000, 0xFFFF, "%d mV", global.voltage.Vpermanent);
+
+		init = TRUE;
+	}
+
+	if(global.absolute_time - lastRefresh > 100){
+		MIDDLEWARE_setText(x, "x : %d", global.pos.x);
+		MIDDLEWARE_setText(y, "y : %d", global.pos.y);
+		MIDDLEWARE_setText(teta, "teta : %d  |  %d°", global.pos.teta, global.pos.teta*180/PI4096);
+		MIDDLEWARE_setText(voltage, "%d mV", global.voltage.Vpermanent);
 	}
 
 
