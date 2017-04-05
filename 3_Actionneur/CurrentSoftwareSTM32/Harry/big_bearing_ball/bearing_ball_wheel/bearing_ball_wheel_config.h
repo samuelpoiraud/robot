@@ -21,9 +21,9 @@
 	#define BEARING_BALL_WHEEL_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-    #define BEARING_BALL_WHEEL_AX12_IDLE_POS					512
-    #define BEARING_BALL_WHEEL_AX12_UP_POS				    512		//en degré
-    #define BEARING_BALL_WHEEL_AX12_DOWN_POS					512		//en degré
+    #define BEARING_BALL_WHEEL_AX12_IDLE_POS					336
+    #define BEARING_BALL_WHEEL_AX12_UP_POS				    	629		//en degré	//pour la bascule
+    #define BEARING_BALL_WHEEL_AX12_DOWN_POS					336		//en degré  //pour les cratères
 
 //Position initiale de l'AX12
     #define BEARING_BALL_WHEEL_AX12_INIT_POS					BEARING_BALL_WHEEL_AX12_IDLE_POS

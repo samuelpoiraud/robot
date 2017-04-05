@@ -21,9 +21,9 @@
 	#define BIG_BALL_FRONT_RIGHT_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-    #define BIG_BALL_FRONT_RIGHT_AX12_IDLE_POS					512
-    #define BIG_BALL_FRONT_RIGHT_AX12_UP_POS				    512		//en degré
-    #define BIG_BALL_FRONT_RIGHT_AX12_DOWN_POS					512		//en degré
+    #define BIG_BALL_FRONT_RIGHT_AX12_IDLE_POS					290
+    #define BIG_BALL_FRONT_RIGHT_AX12_UP_POS				    593		//en degré
+    #define BIG_BALL_FRONT_RIGHT_AX12_DOWN_POS					290		//en degré
 
 //Position initiale de l'AX12
     #define BIG_BALL_FRONT_RIGHT_AX12_INIT_POS					BIG_BALL_FRONT_RIGHT_AX12_IDLE_POS

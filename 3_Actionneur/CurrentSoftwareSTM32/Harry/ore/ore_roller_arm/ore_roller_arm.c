@@ -175,14 +175,8 @@ static void ORE_ROLLER_ARM_get_position_config(ACT_order_e *pOrder, Uint16 *pPos
 
 	if(position > ORE_ROLLER_ARM_L_RX24_OUT_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_OUT_POS + epsilon){
 		order = ACT_ORE_ROLLER_ARM_OUT;
-	}else if(position > ORE_ROLLER_ARM_L_RX24_UNLOCK_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_UNLOCK_POS + epsilon){
+	}else if(position > ORE_ROLLER_ARM_L_RX24_IN_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_IN_POS + epsilon){
 		order = ACT_ORE_ROLLER_ARM_IN;
-	}else if(position > ORE_ROLLER_ARM_L_RX24_MID_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_MID_POS + epsilon){
-		order = ACT_ORE_ROLLER_ARM_MID;
-	}else if(position > ORE_ROLLER_ARM_L_RX24_RESCUE_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_RESCUE_POS + epsilon){
-		order = ACT_ORE_ROLLER_ARM_RESCUE;
-	}else if(position > ORE_ROLLER_ARM_L_RX24_CHECK_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_CHECK_POS + epsilon){
-		order = ACT_ORE_ROLLER_ARM_CHECK;
 	}else if(position > ORE_ROLLER_ARM_L_RX24_IDLE_POS - epsilon && position < ORE_ROLLER_ARM_L_RX24_IDLE_POS + epsilon){
 		order = ACT_ORE_ROLLER_ARM_IDLE;
 	}
@@ -230,10 +224,7 @@ bool_e ORE_ROLLER_ARM_CAN_process_msg(CAN_msg_t* msg) {
             case ACT_ORE_ROLLER_ARM_IDLE :
             case ACT_ORE_ROLLER_ARM_OUT :
             case ACT_ORE_ROLLER_ARM_IN :
-            case ACT_ORE_ROLLER_ARM_MID :
-            case ACT_ORE_ROLLER_ARM_RESCUE :
             case ACT_ORE_ROLLER_ARM_STOP :
-            case ACT_ORE_ROLLER_ARM_CHECK :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_ORE_ROLLER_ARM, &ORE_ROLLER_ARM_run_command, 0,TRUE);
 				break;
 
@@ -288,9 +279,6 @@ static void ORE_ROLLER_ARM_command_init(queue_id_t queueId) {
         case ACT_ORE_ROLLER_ARM_IDLE :
         case ACT_ORE_ROLLER_ARM_OUT :
         case ACT_ORE_ROLLER_ARM_IN :
-        case ACT_ORE_ROLLER_ARM_RESCUE:
-        case ACT_ORE_ROLLER_ARM_MID :
-        case ACT_ORE_ROLLER_ARM_CHECK :
             ORE_ROLLER_ARM_get_position(QUEUE_get_act(queueId), QUEUE_get_arg(queueId)->canCommand, &rx24_goalPosition_right, &rx24_goalPosition_left);
 			break;
 
@@ -436,23 +424,8 @@ static void ORE_ROLLER_ARM_get_position(QUEUE_act_e act_id, Uint8 command, Uint1
 				break;
 
             case ACT_ORE_ROLLER_ARM_IN :
-                *right_pos = ORE_ROLLER_ARM_R_RX24_UNLOCK_POS;
-                *left_pos = ORE_ROLLER_ARM_L_RX24_UNLOCK_POS;
-				break;
-
-            case ACT_ORE_ROLLER_ARM_MID :
-                *right_pos = ORE_ROLLER_ARM_R_RX24_MID_POS;
-                *left_pos = ORE_ROLLER_ARM_L_RX24_MID_POS;
-				break;
-
-            case ACT_ORE_ROLLER_ARM_RESCUE :
-                *right_pos = ORE_ROLLER_ARM_R_RX24_RESCUE_POS;
-                *left_pos = ORE_ROLLER_ARM_L_RX24_RESCUE_POS;
-				break;
-
-            case ACT_ORE_ROLLER_ARM_CHECK :
-                *right_pos = ORE_ROLLER_ARM_R_RX24_CHECK_POS;
-                *left_pos = ORE_ROLLER_ARM_L_RX24_CHECK_POS;
+                *right_pos = ORE_ROLLER_ARM_R_RX24_IN_POS;
+                *left_pos = ORE_ROLLER_ARM_L_RX24_IN_POS;
 				break;
 
 			default:
