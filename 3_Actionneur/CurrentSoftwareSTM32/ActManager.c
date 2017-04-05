@@ -125,10 +125,12 @@ static const Uint8 NB_ACTIONNEURS = sizeof(actionneurs) / sizeof(ACTQ_functions_
 
 void ACTMGR_init() {
 	Uint8 i;
+	time32_t local_time = global.absolute_time;
 	debug_printf("Init de %d actionneurs\n", NB_ACTIONNEURS);
 	for(i = 0; i < NB_ACTIONNEURS; i++) {
 		if(actionneurs[i].onInit != NULL)
 			actionneurs[i].onInit();
+		while(global.absolute_time < local_time + i*50);  // Spécificité 2017 : ajout d'un delay entre l'init de chaque servo
 	}
 
 	ACTMGR_reset_act();

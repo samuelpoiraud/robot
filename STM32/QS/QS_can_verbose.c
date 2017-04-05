@@ -640,8 +640,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  case (Uint8)ACT_ORE_ROLLER_ARM:
 						  switch(msg->data.act_result.cmd){
 						  	  case (Uint8)ACT_ORE_ROLLER_ARM_IDLE:	print(string,len, "| IDLE |");		break;
-						  	  case (Uint8)ACT_ORE_ROLLER_ARM_CHECK:	print(string,len, "| CHECK |");		break;
-						  	  case (Uint8)ACT_ORE_ROLLER_ARM_MID:	print(string,len, "| MID |");		break;
 						  	  case (Uint8)ACT_ORE_ROLLER_ARM_OUT:	print(string,len, "| OUT |");		break;
 						  	  case (Uint8)ACT_ORE_ROLLER_ARM_IN:	print(string,len, "| IN |");		break;
 						  	  case (Uint8)ACT_ORE_ROLLER_ARM_STOP:	print(string,len, "| STOP |");		break;

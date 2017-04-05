@@ -74,9 +74,6 @@ static void ORE_ROLLER_ARM_initRX24() {
 
     //ORE_ROLLER_ARM_LEFT
     if(rx24_is_initialized_left == FALSE && RX24_is_ready(ORE_ROLLER_ARM_LEFT_RX24_ID) == TRUE) {
-		time32_t local_time = global.absolute_time;
-		while(global.absolute_time - local_time < 500);
-
 		rx24_is_initialized_left = TRUE;
 
         RX24_config_set_lowest_voltage(ORE_ROLLER_ARM_LEFT_RX24_ID, RX24_MIN_VOLTAGE);

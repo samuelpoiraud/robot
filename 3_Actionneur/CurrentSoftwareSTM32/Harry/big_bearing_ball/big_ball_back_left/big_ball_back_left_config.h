@@ -21,9 +21,9 @@
 	#define BIG_BALL_BACK_LEFT_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-    #define BIG_BALL_BACK_LEFT_AX12_IDLE_POS					286
-    #define BIG_BALL_BACK_LEFT_AX12_UP_POS				    	582		//en degré
-    #define BIG_BALL_BACK_LEFT_AX12_DOWN_POS					286		//en degré
+    #define BIG_BALL_BACK_LEFT_AX12_IDLE_POS					736
+    #define BIG_BALL_BACK_LEFT_AX12_UP_POS				    	415		//en degré
+    #define BIG_BALL_BACK_LEFT_AX12_DOWN_POS					736		//en degré
 
 //Position initiale de l'AX12
     #define BIG_BALL_BACK_LEFT_AX12_INIT_POS					BIG_BALL_BACK_LEFT_AX12_IDLE_POS
