@@ -48,10 +48,12 @@ void CAN_process_msg(CAN_msg_t* msg) {
 	{
 		case ACT_BOOST_ASSER:
 #ifdef I_AM_ROBOT_BIG
-			if(msg->data.act_boost_asser.enable)
-				GPIO_SetBits(BOOST_ASSER_PORT);
-			else
-				GPIO_ResetBits(BOOST_ASSER_PORT);
+	#ifdef BOOST_ASSER_PORT
+				if(msg->data.act_boost_asser.enable)
+					GPIO_SetBits(BOOST_ASSER_PORT);
+				else
+					GPIO_ResetBits(BOOST_ASSER_PORT);
+	#endif
 #endif
 			break;
 
