@@ -772,7 +772,7 @@ void SELFTEST_check_alim(){
 
 	//Initialisation du compteur
 	if(begin_time == 0)
-			begin_time = global.absolute_time;
+		begin_time = global.absolute_time;
 
 	battery_value = battery_value*(100-PERCENTAGE_BAT_FILTER)/100 + SELFTEST_measure24_mV()*PERCENTAGE_BAT_FILTER/100;
 
@@ -822,6 +822,8 @@ void SELFTEST_check_alim(){
 			msg.data.broadcast_alim.battery_value = global.alim_value;
 			CAN_send(&msg);
 		}
+
+		last_state = state;
 	}
 }
 
