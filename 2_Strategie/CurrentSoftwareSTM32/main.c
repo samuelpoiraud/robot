@@ -84,12 +84,6 @@ void tests(void)
 
 int main (void)
 {
-	// Commandes pour EVE
-	#ifdef USE_QSx86
-		// Initialisation des variables utiles
-		EVE_manager_card_init();
-	#endif // USE_QSx86
-
 	SYS_init();		// Init système
 
 #ifdef DISABLE_SECURE_GPIO_INIT
@@ -164,10 +158,6 @@ int main (void)
 	{
 		toggle_led(LED_RUN);
 		security_stack();
-		// Commandes pour EVE
-		#ifdef USE_QSx86
-			EVE_manager_card();
-		#endif // USE_QSx86
 
 		/* mise à jour de l'environnement */
 		ENV_update();

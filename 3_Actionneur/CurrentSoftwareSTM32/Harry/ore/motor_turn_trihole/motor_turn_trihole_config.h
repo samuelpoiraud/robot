@@ -32,10 +32,13 @@
 	#define MOTOR_TURN_TRIHOLE_SENSOR_TICK_PER_REV		((Uint32)(2*9.7))
 
 // Configuration de l'asservissement PIDs
-	#define MOTOR_TURN_TRIHOLE_KP						90
-	#define MOTOR_TURN_TRIHOLE_KI						15
-	#define MOTOR_TURN_TRIHOLE_KD						1
-	#define MOTOR_TURN_TRIHOLE_KV						1
+	#define MOTOR_TURN_TRIHOLE_KP						0
+	#define MOTOR_TURN_TRIHOLE_KI						0
+	#define MOTOR_TURN_TRIHOLE_KD						0
+	#define MOTOR_TURN_TRIHOLE_KV						167			// (Réduction / ConstanteVitesseMoteur * MaxPWM * 1024) / TensionAlimentation
+																	// Constante de vitesse moteur : 247	CXR
+																	// Constante de vitesse moteur : 274	CR
+																	// Réduction : 9.7:1
 
 // Configuration de l'actionneur
 	#define MOTOR_TURN_TRIHOLE_TIMEOUT					2000

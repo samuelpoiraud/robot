@@ -22,7 +22,7 @@
 	#define MOTOR_ROLLER_FOAM_PORT_WAY_BIT				GPIO_Pin_11
 	#define MOTOR_ROLLER_FOAM_MAX_PWM					100
 	#define MOTOR_ROLLER_FOAM_SIMUATE_WAY				TRUE
-	#define MOTOR_ROLLER_FOAM_RECOVERY_MODE				TRUE
+	#define MOTOR_ROLLER_FOAM_RECOVERY_MODE				FALSE
 	#define MOTOR_ROLLER_FOAM_RECOVERY_TIME				1500
 
 // Configuration capteur vitesse
@@ -32,10 +32,12 @@
 	#define MOTOR_ROLLER_FOAM_SENSOR_TICK_PER_REV		3
 
 // Configuration de l'asservissement PIDs
-	#define MOTOR_ROLLER_FOAM_KP						90
-	#define MOTOR_ROLLER_FOAM_KI						15
-	#define MOTOR_ROLLER_FOAM_KD						1
-	#define MOTOR_ROLLER_FOAM_KV						1
+	#define MOTOR_ROLLER_FOAM_KP						0
+	#define MOTOR_ROLLER_FOAM_KI						0
+	#define MOTOR_ROLLER_FOAM_KD						0
+	#define MOTOR_ROLLER_FOAM_KV						177			// (Réduction / ConstanteVitesseMoteur * MaxPWM * 1024) / TensionAlimentation
+																	// Constante de vitesse moteur : 460
+																	// Réduction : 19:1
 
 // Configuration de l'actionneur
 	#define MOTOR_ROLLER_FOAM_TIMEOUT					2000
