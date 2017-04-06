@@ -10,6 +10,19 @@
 #include "../../elements.h"
 #include "../../actuator/act_functions.h"
 
+
+#include "action_big.h"
+#include "../../propulsion/movement.h"
+#include "../../propulsion/astar.h"
+#include "../../QS/QS_stateMachineHelper.h"
+#include "../../QS/QS_outputlog.h"
+#include "../../QS/QS_types.h"
+#include "../../QS/QS_IHM.h"
+#include  "../../utils/generic_functions.h"
+#include "../../actuator/act_functions.h"
+#include "../../actuator/queue.h"
+#include "../../utils/actionChecker.h"
+
 //permet de régler la distance entre la base côté et le robot(largeurBase+distance):
 #define DISTANCE_BASE_SIDE_ET_ROBOT	((Uint16) 120+200)
 
@@ -28,6 +41,12 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			GET_IN,
 			GO_TO_DEPOSE_MODULE_POS,
 			GO_TO_DEPOSE_MODULE,
+
+			DOWN_PUSHER_RIGHT,
+			DOWN_PUSHER_LEFT,
+			UP_PUSHER_RIGHT,
+			UP_PUSHER_LEFT,
+
 			PUSH_MODULE,
 			PUSH_MODULE_RETURN,
 			NEXT_DEPOSE_MODULE,
@@ -46,7 +65,7 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 
 		case GO_TO_DEPOSE_MODULE_POS:
 			if(((modules == OUR_ELEMENT) && (basis_side == OUR_SIDE)) || ((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE))){
-				state=check_sub_action_result(sub_harry_get_1_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
+/* c'est quoi cette strat*/				state=check_sub_action_result(sub_harry_get_1_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
 
 			}else if(((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)) || ((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE))){
 				state=check_sub_action_result(sub_harry_get_2_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
@@ -57,20 +76,157 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			}else
 				state = ERROR;
 			break;
-			break;
 
-		case GO_TO_DEPOSE_MODULE: //2 sub cote ?
-			//state=check_sub_action_result(sub_harry_depose_modules_side(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side, state, PUSH_MODULE, ERROR));
+			// (basis_side == ADV_SIDE) = nous + bleu gauche
+			// (basis_side == ADV_SIDE) = adv + bleu droite
+			// (basis_side == ADV_SIDE) = nous + jaune droite
+			// (basis_side == ADV_SIDE) = adv + jaune droite
+//advance
+
+		case GO_TO_DEPOSE_MODULE: // decompte des modules regarde combien
+/*
+ 			if(((basis_side == OUR_SIDE)&&(global.color == YELLOW)||((basis_side == ADV_SIDE)&&(global.color == BLUE)) ){
+				state = check_sub_action_resut(sub_act_harry_mae_dispose_modules(RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_RIGHT, ERROR);
+			}
+			else{
+				state = check_sub_action_resut(sub_act_harry_mae_dispose_modules(LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_LEFT, ERROR);
+			}
+*/
+
 			// ajouter le module sur le table
 			//STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage)
 			break;
 
-		case PUSH_MODULE:
-			//state=check_sub_action_result(sortie le pusher);
+		case DOWN_PUSHER_RIGHT: // on sort le pusher
+			if (entrance){
+							ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_OUT);
+						}
+					state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE, ERROR);
 			break;
 
+		case DOWN_PUSHER_LEFT:
+			if (entrance){
+							ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_OUT);
+						}
+					state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE, ERROR);
+			break;
+
+
+		case PUSH_MODULE:
+			// si coleur blue, notre cote est gauche
+
+			if((modules == OUR_ELEMENT) && (basis_side == OUR_SIDE)){
+				// pos 1
+				if(global.color == BLUE){
+					state = try_going(1730, COLOR_Y(880), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1730, COLOR_Y(880), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)){
+
+				// pos 2
+				if(global.color == BLUE){
+					state = try_going(1390, COLOR_Y(1220), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1390, COLOR_Y(1220), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
+
+				 // pos 3
+				if(global.color == BLUE){
+					state = try_going(1320, COLOR_Y(1300), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1320, COLOR_Y(1300), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
+				// pos 4
+				if(global.color == BLUE){
+					state = try_going(1320, COLOR_Y(1700), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1320, COLOR_Y(1700), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
+				// pos 5
+				if(global.color == BLUE){
+					state = try_going(1390, COLOR_Y(1780), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1390, COLOR_Y(1780), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
+				// pos 6
+				if(global.color == BLUE){
+					state = try_going(1730, COLOR_Y(2120), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1730, COLOR_Y(2120), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else
+				state = ERROR;
+			break;
+
+		case UP_PUSHER_RIGHT: // on rentre le pusher
+			if (entrance){
+							ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_IN);
+						}
+					state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE_RETURN, ERROR);
+			break;
+
+		case UP_PUSHER_LEFT:
+			if (entrance){
+							ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
+						}
+					state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE_RETURN, ERROR);
+			break;
+
+
 		case PUSH_MODULE_RETURN:
-			//state=check_sub_action_result(entree le pusher);
+			// si coleur blue, notre cote est gauche
+
+			if((modules == OUR_ELEMENT) && (basis_side == OUR_SIDE)){
+				// pos 1
+				if(global.color == BLUE){
+					state = try_going(1610, COLOR_Y(760), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1610, COLOR_Y(760), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)){
+
+				// pos 2
+				if(global.color == BLUE){
+					state = try_going(1270, COLOR_Y(1100), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1270, COLOR_Y(1100), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
+
+				 // pos 3
+				if(global.color == BLUE){
+					state = try_going(1200, COLOR_Y(1300), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1200, COLOR_Y(1300), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
+				// pos 4
+				if(global.color == BLUE){
+					state = try_going(1200, COLOR_Y(1700), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1200, COLOR_Y(1700), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
+				// pos 5
+				if(global.color == BLUE){
+					state = try_going(1270, COLOR_Y(1900), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1270, COLOR_Y(1900), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
+				// pos 6
+				if(global.color == BLUE){
+					state = try_going(1610, COLOR_Y(2240), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}else{
+					state = try_going(1610, COLOR_Y(2240), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else
+				state = ERROR;
 			break;
 
 		case NEXT_DEPOSE_MODULE:
@@ -99,7 +255,6 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 				debug_printf("default case in sub_harry_depose_modules_centre\n");
 			break;
 	}
-
 	return IN_PROGRESS;
 }
 
