@@ -137,7 +137,7 @@
 			}else{
 				state = try_going(650, 2050, state, CHOICE_SECOND_MODULE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN, TRUE);	// Flag element
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
 			}
@@ -149,7 +149,7 @@
 			}else{
 				state = try_going(650, 1900, state, CHOICE_SECOND_MODULE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN, TRUE);	// Flag element
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -182,7 +182,7 @@
 			}else{
 				state = try_going(1150, 2420, state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -207,7 +207,7 @@
 			}else{
 				state = try_going(1345, 1190, state, GET_OUT_SECOND_MODULE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE); // Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -239,7 +239,7 @@
 			}else{
 				state = try_going(1165, 2420, state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -464,35 +464,35 @@ error_e sub_harry_prise_modules_manager(const get_this_module_s list_modules[], 
 		//à voir si on essaie pas d'attrapper les modules suivants même si on a eu une erreur au préalable.
 		case GET_MODULE_START_ZONE:
 			state = check_sub_action_result(sub_harry_prise_module_start_centre(module, side), state, CHOOSE_MODULE, CHOOSE_MODULE);
-			if(ON_LEAVING(GET_MODULE_START_ZONE)){
+			if(ON_LEAVE()){
 				actions_done++;
 			}
 			break;
 
 		case GET_MODULE_MID_ZONE:
 			state = check_sub_action_result(sub_harry_prise_module_base_centre(module, side), state, CHOOSE_MODULE, CHOOSE_MODULE);
-			if(ON_LEAVING(GET_MODULE_MID_ZONE)){
+			if(ON_LEAVE()){
 				actions_done++;
 			}
 			break;
 
 		case GET_MODULE_SIDE_ZONE:
 			state = check_sub_action_result(sub_harry_prise_module_side_centre(module, side), state, CHOOSE_MODULE, CHOOSE_MODULE);
-			if(ON_LEAVING(GET_MODULE_SIDE_ZONE)){
+			if(ON_LEAVE()){
 				actions_done++;
 			}
 			break;
 
 		case GET_MODULE_NORTH_ZONE:
 			state = check_sub_action_result(sub_harry_prise_module_unicolor_north(side), state, CHOOSE_MODULE, CHOOSE_MODULE);
-			if(ON_LEAVING(GET_MODULE_NORTH_ZONE)){
+			if(ON_LEAVE()){
 				actions_done++;
 			}
 			break;
 
 		case GET_MODULE_SOUTH_ZONE:
 			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(side), state, CHOOSE_MODULE, CHOOSE_MODULE);
-			if(ON_LEAVING(GET_MODULE_SOUTH_ZONE)){
+			if(ON_LEAVE()){
 				actions_done++;
 			}
 			break;
@@ -637,7 +637,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}else{
 					state = try_going(350, 2050, state, TAKE_FIRST_MODULE_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
-				if(ON_LEAVING(state)){
+				if(ON_LEAVE()){
 					if(side == LEFT)
 						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 					else
@@ -651,7 +651,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}else{
 					state = try_going(650, 1750, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
-				if(ON_LEAVING(state)){
+				if(ON_LEAVE()){
 					if(side == LEFT)
 						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 					else
@@ -666,7 +666,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}else{
 					state = try_going(1000, 2140, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
-				if(ON_LEAVING(state)){
+				if(ON_LEAVE()){
 					if(side == LEFT)
 						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 					else
@@ -743,7 +743,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 					else
 						ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_START_IS_TAKEN, TRUE);
 				}
-				if(ON_LEAVING(state)){
+				if(ON_LEAVE()){
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
 					set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 				}
@@ -766,7 +766,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 					else
 						ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_START_IS_TAKEN, TRUE);	// Flag element
 				}
-				if(ON_LEAVING(state)){
+				if(ON_LEAVE()){
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
 					set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 				}
@@ -946,7 +946,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			else{
 				state = try_going(880, 2250, state, TAKE_SIDE_MODULE_FROM_START_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				if(side == LEFT)
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 				else
@@ -981,7 +981,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			}else{
 				state = try_going(1300, 2300, state, TAKE_SIDE_MODULE_FROM_DEPOSE_SIDE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				if(side == LEFT)
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 				else
@@ -1018,7 +1018,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			}else{
 				state = try_going(950, 2650, state, TAKE_SIDE_MODULE_FROM_LEFT_SIDE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				if(side == LEFT)
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 				else
@@ -1060,7 +1060,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 				else
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
@@ -1082,7 +1082,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 				else
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
@@ -1266,7 +1266,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			else{
 				state = try_going(1275, 2325, state, TAKE_BASE_MODULE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				if(side == LEFT)
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 				else
@@ -1309,7 +1309,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 				}
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
@@ -1332,7 +1332,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 				else
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
@@ -1344,7 +1344,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			}else{
 				state = try_going(1260, 2300, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(state)){
+			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE); // Activation de la dépose
 			}
@@ -2023,7 +2023,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			}else{
 				state=try_going(global.pos.x, 2500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(GET_OUT)){
+			if(ON_LEAVE()){
 				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
 					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_DOWN);
 				}else{
@@ -2038,7 +2038,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			}else{
 				state=try_going(global.pos.x, 2500, state, ERROR, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(GET_OUT_ERROR)){
+			if(ON_LEAVE()){
 				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
 					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_DOWN);
 				}else{

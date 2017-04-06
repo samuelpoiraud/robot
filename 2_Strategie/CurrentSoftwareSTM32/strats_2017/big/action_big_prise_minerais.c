@@ -1384,7 +1384,7 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 			}else{
 				state=try_going(800, 2350, state, GET_OUT, GO_TO_CLEAT, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(MOVE_BACK)){
+			if(ON_LEAVE()){
 				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP);
 				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IDLE);
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IDLE);
@@ -1626,7 +1626,7 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 			}else{
 				state=try_going(1750, 2200, state, GET_OUT, GO_TO_CENTER, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVING(MOVE_BACK)){
+			if(ON_LEAVE()){
 				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP);
 				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IDLE);
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IDLE);

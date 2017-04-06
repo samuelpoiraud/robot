@@ -165,7 +165,7 @@ void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, c
 	initialized = TRUE
 
 // La même sans verbose afin de pouvoir crée rapidement une machine à état avec la gestion de l'entrance automatique
-// et de pouvoir utiliser ON_LEAVING et RESET_MAE pour améliorer la lisibilité du code
+// et de pouvoir utiliser ON_LEAVE et RESET_MAE pour améliorer la lisibilité du code
 #define CREATE_MAE(init_state, ...) \
 	enum state_e { init_state = 0, __VA_ARGS__ }; \
 	static enum state_e state = init_state; \
@@ -184,11 +184,10 @@ void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, c
 // Exemple d'utilisation :
 //case SUB_ACTION :
 //    ....
-//    if(sortance(SUB_ACTION)){
+//    if(ON_LEAVE(SUB_ACTION)){
 //		// Action à effectuer lors de la sortie de la sub_action
 //	  }
 //    break;
-#define ON_LEAVING(current_state) (state != current_state)
 #define ON_LEAVE()					(state != last_state_for_check_entrance)
 
 // Réinitialise une machine à état déclarée avec CREATE_MAE_WITH_VERBOSE ou CREATE_MAE
