@@ -44,7 +44,7 @@ static volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
 static volatile moduleMoonbaseInfo_s moduleMoonbaseInfo[NB_MOONBASES] = {0};
 static volatile moduleStockInfo_s moduleStockInfo[NB_STOCKS] = {0};
 static volatile moduleRoketInfo_s moduleRocketInfo[NB_ROCKETS] = {0};
-static volatile hardflag_s elements_hardflags[F_ELEMENTS_FLAGS_NB];
+static volatile hardflag_s elements_hardflags[HARDFLAGS_NB];
 static void ROCKETS_init();
 static void STOCKS_init();
 static void MOONBASES_init();
@@ -68,9 +68,11 @@ const module_zone_characteristics_s adv_diagonal = {.xmin=0, .xmax=2000, .ymin=0
 
 const module_zone_characteristics_s adv_side = {.xmin=0, .xmax=2000, .ymin=0, .ymax=3000, .enable_zone=FALSE, .nb_cylinder_max=4};
 
-static void ELEMENTS_receive_hardflags();
-static void ELEMENTS_send_hardflags();
-static void ELEMENTS_send_hardflags_to_xbee();
+#ifdef USE_HARDFLAGS
+	static void ELEMENTS_receive_hardflags();
+	static void ELEMENTS_send_hardflags();
+	static void ELEMENTS_send_hardflags_to_xbee();
+#endif
 
 void ELEMENTS_init(){
 	Uint8 i;
@@ -80,12 +82,14 @@ void ELEMENTS_init(){
 		elements_flags[i] = FALSE;
 	}
 
-	for(i=0;i<F_ELEMENTS_FLAGS_NB;i++)
-	{
-		elements_hardflags[i].sending = FALSE;
-		elements_hardflags[i].receiving = FALSE;
-		elements_hardflags[i].lastUpdate = global.absolute_time;
-	}
+	#ifdef USE_HARDFLAGS
+		for(i=0;i<HARDFLAGS_NB;i++)
+		{
+			elements_hardflags[i].sending = FALSE;
+			elements_hardflags[i].receiving = FALSE;
+			elements_hardflags[i].lastUpdate = global.absolute_time;
+		}
+	#endif
 
 	// Initialisation des fusées
 	ROCKETS_init();
@@ -226,88 +230,90 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg)
 }
 
 //################################## HARDFLAGS #################################
-static void ELEMENTS_send_hardflags_to_xbee(){
-	CAN_msg_t request;
-	request.sid = XBEE_ELEMENTS_HARDFLAGS;
-	Uint8 i, j;
+#ifdef USE_HARDFLAGS
+	static void ELEMENTS_send_hardflags_to_xbee(){
+		CAN_msg_t request;
+		request.sid = XBEE_ELEMENTS_HARDFLAGS;
+		Uint8 i, j;
 
-	// Send flags by XBee
-	i = 0;
-	while(i < HARDFLAGS_NB){
-		j = 0;
-		while(j < 8){
-			if(elements_hardflags[i].sending) {
-				request.data.xbee_elements_hardflags.flagId[j] = i;
-				j++;
+		// Send flags by XBee
+		i = 0;
+		while(i < HARDFLAGS_NB){
+			j = 0;
+			while(j < 8){
+				if(elements_hardflags[i].sending) {
+					request.data.xbee_elements_hardflags.flagId[j] = i;
+					j++;
+				}
+				i++;
 			}
-			i++;
-		}
-		if(j > 0){
-			request.size = j;
-			CANMsgToXbee(&request,FALSE);
+			if(j > 0){
+				request.size = j;
+				CANMsgToXbee(&request,FALSE);
+			}
 		}
 	}
-}
 
-static void ELEMENTS_send_hardflags()
-{
-	CREATE_MAE(SEND_REQUEST,
-				WAIT_FOR_NEXT_REQUEST
-				);
-	static time32_t timeLastSending = 0;
-
-	switch(state)
+	static void ELEMENTS_send_hardflags()
 	{
-		case SEND_REQUEST:
-			ELEMENTS_send_hardflags_to_xbee();
-			timeLastSending = global.absolute_time;
-			state = WAIT_FOR_NEXT_REQUEST;
-			break;
-		case WAIT_FOR_NEXT_REQUEST:
-			if(global.absolute_time > timeLastSending + HARDFLAGS_PERIOD){
-				state = SEND_REQUEST;
-			}
-			break;
-		default:
-			RESET_MAE();
-			break;
-	}
-}
+		CREATE_MAE(SEND_REQUEST,
+					WAIT_FOR_NEXT_REQUEST
+					);
+		static time32_t timeLastSending = 0;
 
-void ELEMENTS_receive_hardflags_from_xbee(CAN_msg_t * msg)
-{
-	Uint8 i;
-	Uint8 index = 0;
-	if(msg->sid == XBEE_ELEMENTS_HARDFLAGS) {
-		for(i = 0; i < msg->size; i++){
-			index = msg->data.xbee_elements_hardflags.flagId[i];
-			elements_hardflags[index].receiving = TRUE;
-			elements_hardflags[i].lastUpdate = global.absolute_time;
-			if(elements_hardflags[index].sending){
-				error_printf("ERROR Hardflag : This hardflag %d could not be used by both robots\n", index);
+		switch(state)
+		{
+			case SEND_REQUEST:
+				ELEMENTS_send_hardflags_to_xbee();
+				timeLastSending = global.absolute_time;
+				state = WAIT_FOR_NEXT_REQUEST;
+				break;
+			case WAIT_FOR_NEXT_REQUEST:
+				if(global.absolute_time > timeLastSending + HARDFLAGS_PERIOD){
+					state = SEND_REQUEST;
+				}
+				break;
+			default:
+				RESET_MAE();
+				break;
+		}
+	}
+
+	void ELEMENTS_receive_hardflags_from_xbee(CAN_msg_t * msg)
+	{
+		Uint8 i;
+		Uint8 index = 0;
+		if(msg->sid == XBEE_ELEMENTS_HARDFLAGS) {
+			for(i = 0; i < msg->size; i++){
+				index = msg->data.xbee_elements_hardflags.flagId[i];
+				elements_hardflags[index].receiving = TRUE;
+				elements_hardflags[i].lastUpdate = global.absolute_time;
+				if(elements_hardflags[index].sending){
+					error_printf("ERROR Hardflag : This hardflag %d could not be used by both robots\n", index);
+				}
 			}
 		}
 	}
-}
 
-static void ELEMENTS_receive_hardflags()
-{
-	Uint8 i;
-	for(i = 0; i < HARDFLAGS_NB; i++){
-		if(elements_hardflags[i].receiving){
-			if(!elements_hardflags[i].flag){
-				elements_hardflags[i].flag = TRUE;
-				ELEMENTS_set_flag(F_ELEMENTS_HARDFLAGS_START + 1 + i, TRUE);
-			}
-			elements_hardflags[i].receiving = FALSE;
-		}else if(elements_hardflags[i].lastUpdate > HARDFLAGS_TIMEOUT){
-			if(elements_hardflags[i].flag){
-				elements_hardflags[i].flag = FALSE;
-				ELEMENTS_set_flag(F_ELEMENTS_HARDFLAGS_START + 1 + i, FALSE);
+	static void ELEMENTS_receive_hardflags()
+	{
+		Uint8 i;
+		for(i = 0; i < HARDFLAGS_NB; i++){
+			if(elements_hardflags[i].receiving){
+				if(!elements_hardflags[i].flag){
+					elements_hardflags[i].flag = TRUE;
+					ELEMENTS_set_flag(F_ELEMENTS_HARDFLAGS_START + 1 + i, TRUE);
+				}
+				elements_hardflags[i].receiving = FALSE;
+			}else if(elements_hardflags[i].lastUpdate > HARDFLAGS_TIMEOUT){
+				if(elements_hardflags[i].flag){
+					elements_hardflags[i].flag = FALSE;
+					ELEMENTS_set_flag(F_ELEMENTS_HARDFLAGS_START + 1 + i, FALSE);
+				}
 			}
 		}
 	}
-}
+#endif
 
 
 //###################################  STOCKAGE DES MODULES DANS LE ROBOT ################################

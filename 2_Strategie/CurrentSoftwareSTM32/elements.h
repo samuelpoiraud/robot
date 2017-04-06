@@ -151,8 +151,10 @@ error_e ELEMENTS_check_communication(CAN_msg_t * msg);
 void ELEMENTS_receive_flags(CAN_msg_t* msg);
 #endif
 
-// Fonctions pour la gestion des hardflags
-void ELEMENTS_receive_hardflags_from_xbee(CAN_msg_t * msg);
+#ifdef USE_HARDFLAGS
+	// Fonctions pour la gestion des hardflags
+	void ELEMENTS_receive_hardflags_from_xbee(CAN_msg_t * msg);
+#endif
 
 
 //Fonctions pour la gestion du stockage des modules
