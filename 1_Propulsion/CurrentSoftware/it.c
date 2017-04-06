@@ -30,6 +30,7 @@
 #include "gyroscope.h"
 #include "detection_choc.h"
 #include "scan/scan.h"
+#include "scan/rotation_scan.h"
 
 typedef enum{
 	IT_STATE_NONE = 0,
@@ -168,13 +169,15 @@ void _ISR _T2Interrupt()
 
     DEBUG_process_it();
 
-    #ifdef SCAN_BORDURE
+    #ifdef SCAN
 		SCAN_process_it();
 		IT_test_state(begin_it_time, IT_STATE_SCAN, &first_overtime);
 	#endif
 
+	#ifdef SCAN_ROTATION
 		SCAN_CORNER_process_it();
 		IT_test_state(begin_it_time, IT_STATE_SCAN_CORNER, &first_overtime);
+	#endif
 
 	#ifdef DETECTION_CHOC
 		DETECTION_CHOC_process_it_tim2();

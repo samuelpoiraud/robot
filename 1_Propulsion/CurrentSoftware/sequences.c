@@ -42,6 +42,10 @@ void SEQUENCES_calibrate(void)
 {
 #ifndef SIMULATION_VIRTUAL_PERFECT_ROBOT	// Pour ne pas avoir de warning
 	Sint16 x, y, teta;
+
+	UNUSED_VAR(x);
+	UNUSED_VAR(y);
+	UNUSED_VAR(teta);
 #endif
 	color_e color;
 	color = ODOMETRY_get_color();

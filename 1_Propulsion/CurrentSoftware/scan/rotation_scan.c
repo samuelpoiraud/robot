@@ -1,17 +1,16 @@
 #include "rotation_scan.h"
 
+#ifdef SCAN_ROTATION
+
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_who_am_i.h"
 #include "../QS/QS_maths.h"
-#include "../QS/QS_measure.h"
+#include "../QS/QS_watchdog.h"
 #include "../supervisor.h"
 #include "../secretary.h"
 #include "../corrector.h"
 #include "../roadmap.h"
-#include "../_Propulsion_config.h"
 #include "../odometry.h"
-#include "../config/config_use.h"
-#include "../QS/QS_watchdog.h"
 
 #define NB_POINT_MAX 200
 #define NB_POINTS_MINI_CORNER  25
@@ -128,11 +127,11 @@ void SCAN_CORNER_process_it(){
 			it_printf("robotx\t%d\troboty\t%d\n", global.position.x, global.position.y);
 			Uint8 k = 0;
 			for(k=0; k<NB_POINT_MAX; k++){
-				printf("oCSx\t%ld\toCSy\t%ld\n",ourCornerSouth[k].x,ourCornerSouth[k].y);
+				printf("oCSx\t%d\toCSy\t%d\n",ourCornerSouth[k].x,ourCornerSouth[k].y);
 				//printf("oCSy\t%ld\n",ourCornerSouth[k].y);
 			}
 			for(k=0; k<NB_POINT_MAX; k++){
-				printf("oCCx\t%ld\toCCy\t%ld\n",ourCornerColor[k].x,ourCornerColor[k].y);
+				printf("oCCx\t%d\toCCy\t%d\n",ourCornerColor[k].x,ourCornerColor[k].y);
 				//printf("oCCy\t%ld\n",ourCornerColor[k].y);
 			}
 			state = WAIT_CALCULATE;
@@ -462,10 +461,10 @@ static void scanOnePoint(){
 
 	if((absolute(prev_pos.x - pos.x) > 15) || (absolute(prev_pos.y - pos.y) > 15)){
 		if(absolute(prev_pos.x - pos.x) > 15){
-			printf("ecartx\t%ld",prev_pos.x);
+			printf("ecartx\t%d",prev_pos.x);
 		}
 		if(absolute(prev_pos.y - pos.y) > 15){
-			printf("ecarty\t%ld",prev_pos.y);
+			printf("ecarty\t%d",prev_pos.y);
 		}
 
 		prev_pos = pos;
@@ -536,3 +535,5 @@ void SCAN_CORNER_canMsg(CAN_msg_t *msg){
 	}
 	info_scan.color = msg->data.strat_ask_corner_scan.color;
 }
+
+#endif

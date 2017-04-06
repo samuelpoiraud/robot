@@ -2,6 +2,7 @@
 
 #include "encoders.h"
 #include "QS/QS_qei.h"
+#include "QS/QS_who_am_i.h"
 
 
 void ENCODERS_init(void)

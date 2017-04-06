@@ -124,24 +124,30 @@ void initialisation(void)
 	DEBUG_init();
 	ADC_init();
 	BUTTONS_init();
-	SCAN_CORNER_init();
-
 
 	IHM_init(&global.flags.match_started);
 	IHM_define_act_button(BP_CALIBRATION_IHM,&SEQUENCES_calibrate,NULL);
 #ifdef MODE_PRINT_FIRST_TRAJ
 	IHM_define_act_button(BP_PRINTMATCH_IHM,&DEBUG_display,NULL);
 #endif
-	BUTTONS_define_actions(BUTTON0, &SCAN_onPower, NULL, 1);
+
+	//BUTTONS_define_actions(BUTTON0, &SCAN_onPower, NULL, 1);
 
 	DETECTION_init();
 	#ifdef USE_HOKUYO
 		HOKUYO_init();
 	#endif
 
-	#ifdef SCAN_BORDURE
+	#ifdef SCAN
 		SCAN_init();
+	#endif
+
+	#ifdef SCAN_OBJETS
 		OBJECTS_SCAN_init();
+	#endif
+
+	#ifdef SCAN_ROTATION
+		SCAN_CORNER_init();
 	#endif
 
 	#ifdef USE_GYROSCOPE
@@ -239,18 +245,23 @@ int main (void)
 
 		MAIN_sensor_test();
 
-		#ifdef SCAN_BORDURE
-			SCAN_process_main();
-		#endif
-
 		#ifdef DETECTION_CHOC
 			DETECTION_CHOC_process_main();
 		#endif
 
 		OUTPUTLOG_process_main();
 
-		BORDERS_SCAN_process_main();
-		SCAN_CORNER_process_main();
+		#ifdef SCAN
+			SCAN_process_main();
+		#endif
+
+		#ifdef SCAN_BORDURE
+			BORDERS_SCAN_process_main();
+		#endif
+
+		#ifdef SCAN_ROTATION
+			SCAN_CORNER_process_main();
+		#endif
 
 		if(flag_calibration_asked)
 		{

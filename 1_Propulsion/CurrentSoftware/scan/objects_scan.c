@@ -1,10 +1,10 @@
-
 #include "objects_scan.h"
-#include "scan.h"
+
+#ifdef SCAN_OBJETS
+
 #include "../QS/QS_objects.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_maths.h"
-#include "../QS/QS_types.h"
 
 
 #define MIN_POINTS_PER_OBJECT (3)
@@ -171,3 +171,5 @@ static bool_e OBJECTS_SCAN_check_presence_circle(GEOMETRY_circle_t circle, GEOME
 
 	return returnValue;
 }
+
+#endif
