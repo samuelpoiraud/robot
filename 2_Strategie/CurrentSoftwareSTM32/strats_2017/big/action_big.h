@@ -7,6 +7,8 @@
 	#define ACT_TRIHOLE_SPEED_RUN		10	// [rpm]	Maximum théorique 526 RPM
 	#define ACT_ROLLER_FOAM_SPEED_RUN	10	// [rpm]	Maximum théorique 510 RPM
 
+	#define TRIHOLE_DISPOSE_TIME		5000
+
 	// action_big_common
 	error_e sub_harry_initiale();
 	error_e sub_harry_end_of_match();

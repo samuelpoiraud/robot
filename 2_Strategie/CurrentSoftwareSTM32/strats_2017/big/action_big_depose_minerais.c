@@ -299,7 +299,7 @@ error_e sub_harry_shooting_depose_minerais(){
 			if(entrance){
 				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
 			}
-			state=STOP_ROTATION_TRIHOLE;
+			state = wait_time(TRIHOLE_DISPOSE_TIME, state, STOP_ROTATION_TRIHOLE);
 			break;
 
 		case STOP_ROTATION_TRIHOLE:
@@ -312,7 +312,7 @@ error_e sub_harry_shooting_depose_minerais(){
 		case GUN_UP:
 			if(entrance){
 				ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_UP);
-				ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
+				ACT_push_order(ACT_TURBINE, ACT_MOSFET_STOP);
 			}
 			state=check_act_status(ACT_QUEUE_Ore_gun, state, DONE, ERROR);
 			break;
