@@ -576,7 +576,9 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 
 		case XBEE_ELEMENTS_HARDFLAGS:
-			ELEMENTS_receive_hardflags_from_xbee(incoming_msg);
+			#ifdef USE_HARDFLAGS
+				ELEMENTS_receive_hardflags_from_xbee(incoming_msg);
+			#endif
 			break;
 
 /************************************* Récupération des messages liés au selftest ***************************/

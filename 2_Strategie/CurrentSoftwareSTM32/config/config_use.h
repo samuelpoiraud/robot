@@ -62,7 +62,7 @@
 #define SD_ENABLE				//Activation de la carte SD
 
 #define USE_SYNC_ELEMENTS
-#define USE_HARDFLAGS
+//#define USE_HARDFLAGS
 
 //#define ADV_SIDE_ON_OUR_MOONBASE
 
