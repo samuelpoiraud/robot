@@ -1,10 +1,13 @@
 #include "scan.h"
-#include "objects_scan.h"
-#include "borders_scan.h"
+
+#ifdef SCAN
+
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_adc.h"
 #include "../QS/QS_ads1118.h"
-#include "../config/config_global_vars.h"
+
+#include "objects_scan.h"
+#include "borders_scan.h"
 
 #define CONVERSION_LASER_LEFT(x)	((Sint32)(36148*(x)-6611800)/10000)//((Sint32)(37217*(x)-7096800)/10000)
 #define OFFSET_WIDTH_LASER_LEFT		(144)
@@ -37,10 +40,9 @@ static volatile bool_e flag_1, flag_2, flag_treatment_too_slow;
 static GEOMETRY_point_t pos_mesure;
 
 #ifdef USE_ADS1118_ON_ADC
+	static void SCAN_adcConfigInit();
 	static ADS1118_sensorConfig_t sensorLeftConfig, sensorRightConfig;
 #endif
-
-static void SCAN_adcConfigInit();
 
 void SCAN_init(){
 	Uint16 i;
@@ -300,7 +302,7 @@ void TELEMETER_process_it(){
 	
 	laser_left[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_LEFT);
 #ifdef USE_ADS1118_ON_ADC
-	bool_e res = ADS1118_getValue(&sensorRightConfig, &(laser_right[index].ADCvalue));
+	ADS1118_getValue(&sensorRightConfig, (Uint16 *) &(laser_right[index].ADCvalue));
 	//it_printf("ADCSPI: %d\n", laser_right[index].ADCvalue);
 #else
 	laser_right[index].ADCvalue = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
@@ -408,3 +410,5 @@ void SCAN_process_main(){
 		time = global.absolute_time;
 	}*/
 }
+
+#endif

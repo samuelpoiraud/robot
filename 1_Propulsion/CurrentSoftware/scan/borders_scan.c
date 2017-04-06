@@ -1,9 +1,10 @@
 #include "borders_scan.h"
-#include "scan.h"
+
+#ifdef SCAN_BORDURE
+
 #include "../QS/QS_objects.h"
-#include "../QS/QS_outputlog.h"
 #include "../QS/QS_maths.h"
-#include "../QS/QS_types.h"
+#include "../QS/QS_outputlog.h"
 #include "../it.h"
 
 #define NB_DATA_POINTS  50
@@ -116,7 +117,7 @@ typedef enum{
 
 
 static void BORDERS_SCAN_addPointZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e *zone_enable, GEOMETRY_point_t pos_mesure);
-bool_e BORDERS_SCAN_calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e zone_enable, Sint32 * xmoy_border, Sint32 * ymoy_border, Uint16 *date_point, border_scan_mode_den_e mode_den);
+bool_e BORDERS_SCAN_calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e zone_enable, volatile Sint32 * xmoy_border, volatile Sint32 * ymoy_border, volatile Uint16 *date_point, border_scan_mode_den_e mode_den);
 
 
 scan_zone_e BORDERS_SCAN_treatment(GEOMETRY_point_t pos_mesure){
@@ -260,7 +261,7 @@ bool_e BORDERS_SCAN_calculeZonePublic(scan_zone_e zone){
 }
 
 
-bool_e BORDERS_SCAN_calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e zone_enable, Sint32 *xmoy_border, Sint32 *ymoy_border, Uint16 *date_point, border_scan_mode_den_e mode_den){
+bool_e BORDERS_SCAN_calculeZone(volatile scan_point_time_t zone[], volatile Uint8 *zone_index, volatile bool_e zone_enable, volatile Sint32 *xmoy_border, volatile Sint32 *ymoy_border, volatile Uint16 *date_point, border_scan_mode_den_e mode_den){
 	Sint32 xmoy=0, ymoy=0, num=0, den=0, xmoyfinal=0, ymoyfinal=0;
 	Uint8 i;
 	double a=0;
@@ -796,3 +797,5 @@ void BORDERS_SCAN_process_main(){
 
 	}
 }//FINI !!!
+
+#endif

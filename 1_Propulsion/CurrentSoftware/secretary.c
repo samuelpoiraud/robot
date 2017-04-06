@@ -39,7 +39,7 @@
 #include "gyroscope.h"
 #include "avoidance.h"
 #include "scan/scan.h"
-
+#include "scan/rotation_scan.h"
 
 typedef struct{
 	CAN_msg_t can_msg;
@@ -516,8 +516,10 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			break;
 
 		case PROP_ASK_CORNER_SCAN:
-			SCAN_CORNER_canMsg(msg);
-			printf("le message est bien arrivé a destination de la propulsion\n");
+			#ifdef SCAN_ROTATION
+				SCAN_CORNER_canMsg(msg);
+				printf("le message est bien arrivé a destination de la propulsion\n");
+			#endif
 			break;
 
 		default :
@@ -809,5 +811,7 @@ static void SECRETARY_send_all_coefs(void)
 
 static void SECRETARY_onPower(){
 	debug_printf("Power recovery !\n");
-	SCAN_onPower();
+	#ifdef SCAN
+		SCAN_onPower();
+	#endif
 }
