@@ -2,6 +2,8 @@
 	#define BORDERS_SCAN_H
 
 	#include "../QS/QS_all.h"
+	#include "../QS/QS_maths.h"
+
 
 	#ifdef SCAN_BORDURE
 

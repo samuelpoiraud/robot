@@ -24,13 +24,17 @@ void corentin_strat_inutile_big(){
 			SECOND_ROT,
 			THIRD_STRAIGHT,
 			GIVE_DATA,
+			AVANCE,
+			GO_TO_POINT,
+			ROTATE,
+			SECOND_ROTATE,
 			ERROR,
 			DONE
 		);
 
 	switch(state){
 		case INIT:
-			state=GO_TO;
+			state=AVANCE;
 			break;
 
 		case GO_TO:
@@ -72,6 +76,40 @@ void corentin_strat_inutile_big(){
 			CAN_send(&msg);
 			state=DONE;
 		}
+			break;
+
+		case AVANCE:
+			state = try_advance(NULL, entrance, 600, state, GO_TO_POINT, ERROR, FAST, BACKWARD, NO_AVOIDANCE, END_AT_BRAKE);
+			break;
+
+		case GO_TO_POINT:
+			state = try_going(1400, COLOR_Y(600), state, ROTATE, ERROR, FAST, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
+
+		case ROTATE:
+			state = try_go_angle(-PI4096/2, state, SECOND_ROTATE, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			if(ON_LEAVING(ROTATE)){
+				CAN_msg_t msg;
+				msg.sid = PROP_ASK_CORNER_SCAN;
+				msg.size = SIZE_PROP_ASK_CORNER_SCAN;
+				msg.data.strat_ask_corner_scan.color = global.color;
+				msg.data.strat_ask_corner_scan.isRightSensor = FALSE;
+				msg.data.strat_ask_corner_scan.startScan = TRUE;
+				CAN_send(&msg);
+			}
+			break;
+
+		case SECOND_ROTATE:
+			state = try_go_angle(PI4096, state, DONE, ERROR, SLOW, ANY_WAY, END_AT_LAST_POINT);
+			if(ON_LEAVING(SECOND_ROTATE)){
+				CAN_msg_t msg;
+				msg.sid = PROP_ASK_CORNER_SCAN;
+				msg.size = SIZE_PROP_ASK_CORNER_SCAN;
+				msg.data.strat_ask_corner_scan.color = global.color;
+				msg.data.strat_ask_corner_scan.isRightSensor = FALSE;
+				msg.data.strat_ask_corner_scan.startScan = FALSE;
+				CAN_send(&msg);
+			}
 			break;
 
 		case ERROR:
