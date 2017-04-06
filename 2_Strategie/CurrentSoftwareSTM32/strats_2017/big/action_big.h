@@ -35,6 +35,7 @@
 
 
 	// action_big_prise_modules
+	error_e sub_push_modules_bretagne();
 	//error_e sub_harry_prise_modules_centre(ELEMENTS_property_e modules, bool_e threeModules);
 	error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);
 	error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);

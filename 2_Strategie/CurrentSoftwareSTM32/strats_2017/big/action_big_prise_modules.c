@@ -273,6 +273,72 @@
 	return IN_PROGRESS;
 }*/
 
+error_e sub_push_modules_bretagne(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PUSH_MODULES_BRETAGNE,
+			INIT,
+			GET_OUT_START_ZONE,
+			GO_TO_START_POINT,
+			PUSH_MODULES_START_ZONE,
+			MOVE_BACK,
+			ERROR,
+			DONE
+		);
+
+	const displacement_t curve_to_start_point[5] = {(displacement_t){(GEOMETRY_point_t){450, COLOR_Y(1250)}, FAST},
+													 (displacement_t){(GEOMETRY_point_t){950, COLOR_Y(1200)}, FAST},
+													 (displacement_t){(GEOMETRY_point_t){1300, COLOR_Y(700)}, FAST},
+													 (displacement_t){(GEOMETRY_point_t){1400, COLOR_Y(550)}, SLOW},
+													 (displacement_t){(GEOMETRY_point_t){1250, COLOR_Y(300)}, SLOW}
+													 };
+
+	const displacement_t curve_push[4] = {(displacement_t){(GEOMETRY_point_t){1100, COLOR_Y(500)}, FAST},
+										 (displacement_t){(GEOMETRY_point_t){1000, COLOR_Y(800)}, FAST},
+										 (displacement_t){(GEOMETRY_point_t){600, COLOR_Y(1040)}, FAST},
+										 (displacement_t){(GEOMETRY_point_t){400, COLOR_Y(980)}, FAST}
+										 };
+
+	switch(state){
+		case INIT:
+			state = GET_OUT_START_ZONE;
+			break;
+
+		case GET_OUT_START_ZONE:
+			state = try_going(global.pos.x + 100, global.pos.y, state, GO_TO_START_POINT, GO_TO_START_POINT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_START_POINT:
+			state = try_going_multipoint(curve_to_start_point, 5, state, PUSH_MODULES_START_ZONE, ERROR, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case PUSH_MODULES_START_ZONE:
+			state = try_going_multipoint(curve_push, 4, state, MOVE_BACK, ERROR, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case MOVE_BACK:
+			state = try_going(600, COLOR_Y(1000), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_push_modules_bretagne\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
 
 error_e sub_harry_prise_modules_manager(const get_this_module_s list_modules[], Uint8 modules_nb){ //Passer un tableau avec les modules choisis et leur nombre
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULES_MANAGER,
