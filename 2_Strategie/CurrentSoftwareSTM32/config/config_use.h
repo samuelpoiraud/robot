@@ -148,13 +148,15 @@
 
 	#define ADC_CHANNEL_MEASURE24		ADC_9	//UNUSED !!
 #else
+
 /* Réglages entrées analogiques */
 	#define USE_AN8				// Capteur mesure 24V
-	#define ADC_CHANNEL_MEASURE24		ADC_8
+		#define ADC_CHANNEL_MEASURE24		ADC_8
 #endif
+
 /* Réglages XBEE */
 	#define USE_XBEE
-	#define XBEE_PLUGGED_ON_UART2
+		#define XBEE_PLUGGED_ON_UART2
 
 /* Réglages FIFO */
 	#define USE_FIFO
