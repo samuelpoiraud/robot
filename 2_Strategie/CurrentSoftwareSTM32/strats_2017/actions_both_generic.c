@@ -269,7 +269,7 @@ void strat_reglage_odo_rotation(void){
 
 		case TOUR2:
 			state = try_go_angle(0, state, BEGIN_PROCESS, ERROR, ROT_DEFAULT_SPEED, ANY_WAY, END_AT_BRAKE);
-			if(ON_LEAVING(TOUR2)){
+			if(ON_LEAVE()){
 				nb_tour_compteur++;
 			}
 			break;

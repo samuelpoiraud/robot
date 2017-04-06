@@ -852,7 +852,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 			state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
 
-			if(ON_LEAVING(ACTION_PUT_CYLINDER_IN_CONTAINER)){
+			if(ON_LEAVE()){
 				// Mise à jour des données
 				if(moduleToStore == RIGHT){
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_RIGHT);
@@ -1314,7 +1314,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, TURN_FOR_COLOR, ERROR);
 			}
-			if(ON_LEAVING(MOVE_BALANCER_OUT) && state == TURN_FOR_COLOR){
+			if(ON_LEAVE() && state == TURN_FOR_COLOR){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, storage);
 			}
 			break;
@@ -1629,7 +1629,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
 			}
 
-			if(ON_LEAVING(GET_OUT_CYLINDER_OF_ROBOT)){
+			if(ON_LEAVE()){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_COLOR_TO_ARM_DISPOSE, storage);
 			}
 			break;

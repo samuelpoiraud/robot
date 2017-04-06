@@ -50,7 +50,7 @@ error_e sub_harry_manager_put_off_ore(){
 
 		case MODULE_IN_WAY_TO_FIRST_POS:
 			if(!ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN)){
-				state = check_sub_action_result(sub_harry_prise_module_unicolor_north(LEFT),state, FIRST_POS, ERROR_FIRST_POS);
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_north(LEFT), state, FIRST_POS, ERROR_FIRST_POS);
 			}
 			else{
 				state=FIRST_POS;
@@ -58,12 +58,12 @@ error_e sub_harry_manager_put_off_ore(){
 			break;
 
 		case FIRST_POS:
-				state=check_sub_action_result(sub_harry_depose_minerais(),state, DONE, ERROR_FIRST_POS);
+				state=check_sub_action_result(sub_harry_depose_minerais(), state, DONE, ERROR_FIRST_POS);
 			break;
 
 		case MODULE_IN_WAY_TO_SECOND_POS:
 			if(!ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
-				state = check_sub_action_result(sub_harry_prise_module_start_centre(OUR_ELEMENT, LEFT),state, SECOND_POS, ERROR_SECOND_POS);
+				state = check_sub_action_result(sub_harry_prise_module_start_centre(OUR_ELEMENT, LEFT), state, SECOND_POS, ERROR_SECOND_POS);
 			}
 			else{
 				state=SECOND_POS;
@@ -71,7 +71,7 @@ error_e sub_harry_manager_put_off_ore(){
 			break;
 
 		case SECOND_POS:
-			state=check_sub_action_result(sub_harry_depose_minerais_alternative(),state, DONE, ERROR_SECOND_POS);
+			state=check_sub_action_result(sub_harry_depose_minerais_alternative(), state, DONE, ERROR_SECOND_POS);
 			break;
 
 		case ERROR_FIRST_POS:	//si je n'ai pas reussi à tirer en normal
@@ -144,15 +144,15 @@ error_e sub_harry_depose_minerais(){
 			break;
 
 		case GET_IN:
-			state=check_sub_action_result(sub_harry_get_in_depose_minerais(),state,GO_TO_SHOOTING_POS,ERROR);
+			state=check_sub_action_result(sub_harry_get_in_depose_minerais(), state, GO_TO_SHOOTING_POS,ERROR);
 			break;
 
 		case GO_TO_SHOOTING_POS: // Ne surtout pas mettre GET_OUT_ERROR pour le cas d'erreur, sinon on fonce dans l'adversaire (Val)
-			state=try_going(700,COLOR_Y(300),state,TURN_TO_SHOOTING_POS,ERROR,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(700, COLOR_Y(300), state, TURN_TO_SHOOTING_POS, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TURN_TO_SHOOTING_POS:
-			state=try_go_angle(0,state,RUSH_TO_CLEAT,GET_OUT_ERROR,FAST,ANY_WAY,END_AT_LAST_POINT);
+			state=try_go_angle(0, state, RUSH_TO_CLEAT, GET_OUT_ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			break;
 
 		case RUSH_TO_CLEAT:
@@ -173,17 +173,17 @@ error_e sub_harry_depose_minerais(){
 			//tu tires !!!
 			//state = check_sub_action_result(sub_harry_shooting_depose_minerais(), GET_OUT, GET_OUT_ERROR);
 			state=GET_OUT;
-			if(ON_LEAVING(SHOOTING) && state == GET_OUT){ // En cas de succès
+			if(ON_LEAVE() && state == GET_OUT){ // En cas de succès
 				ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, FALSE); // on baisse le flag car on a plus de balles
 			}
 			break;
 
 		case GET_OUT:
-			state=try_going(850,COLOR_Y(400),state,DONE,RUSH_TO_CLEAT,FAST,FORWARD,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=try_going(850,COLOR_Y(400), state, DONE, RUSH_TO_CLEAT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_OUT_ERROR:
-			state=try_going(850,COLOR_Y(400),state,ERROR,RUSH_TO_CLEAT,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state=try_going(850,COLOR_Y(400), state, ERROR, RUSH_TO_CLEAT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -288,24 +288,32 @@ error_e sub_harry_shooting_depose_minerais(){
 			break;
 
 		case DOWN_GUN:
-			ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_DOWN);
-			ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
+			if(entrance){
+				ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_DOWN);
+				ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
+			}
 			state=check_act_status(ACT_QUEUE_Ore_gun, state, ROTATION_TRIHOLE, ERROR);
 			break;
 
 		case ROTATION_TRIHOLE:
-			ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
+			if(entrance){
+				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
+			}
 			state=STOP_ROTATION_TRIHOLE;
 			break;
 
 		case STOP_ROTATION_TRIHOLE:
-			ACT_push_order(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_STOP);
+			if(entrance){
+				ACT_push_order(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_STOP);
+			}
 			state=GUN_UP;
 			break;
 
 		case GUN_UP:
-			ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_UP);
-			ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
+			if(entrance){
+				ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_UP);
+				ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
+			}
 			state=check_act_status(ACT_QUEUE_Ore_gun, state, DONE, ERROR);
 			break;
 
@@ -373,7 +381,7 @@ error_e sub_harry_depose_minerais_alternative(){
 			//tu tires !!!
 			//state = check_sub_action_result(sub_harry_shooting_depose_minerais(), GET_OUT, GET_OUT_ERROR);
 			state=GET_OUT;
-			if(ON_LEAVING(SHOOTING) && state == GET_OUT){ // En cas de succès
+			if(ON_LEAVE() && state == GET_OUT){ // En cas de succès
 				ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, FALSE); // on baisse le flag car on a plus de balles
 			}
 			break;

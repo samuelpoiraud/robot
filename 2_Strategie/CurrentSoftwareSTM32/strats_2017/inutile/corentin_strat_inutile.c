@@ -88,7 +88,7 @@ void corentin_strat_inutile_big(){
 
 		case ROTATE:
 			state = try_go_angle(-PI4096/2, state, SECOND_ROTATE, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
-			if(ON_LEAVING(ROTATE)){
+			if(ON_LEAVE()){
 				CAN_msg_t msg;
 				msg.sid = PROP_ASK_CORNER_SCAN;
 				msg.size = SIZE_PROP_ASK_CORNER_SCAN;
@@ -101,7 +101,7 @@ void corentin_strat_inutile_big(){
 
 		case SECOND_ROTATE:
 			state = try_go_angle(PI4096, state, DONE, ERROR, SLOW, ANY_WAY, END_AT_LAST_POINT);
-			if(ON_LEAVING(SECOND_ROTATE)){
+			if(ON_LEAVE()){
 				CAN_msg_t msg;
 				msg.sid = PROP_ASK_CORNER_SCAN;
 				msg.size = SIZE_PROP_ASK_CORNER_SCAN;
