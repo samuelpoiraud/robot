@@ -13,6 +13,7 @@
 #include "QS/QS_uart.h"
 #include "QS/QS_can_over_uart.h"
 #include "QS/QS_can_verbose.h"
+#include "QS/QS_can.h"
 
 #ifdef USE_MOSTFET_BOARD
 
