@@ -11,20 +11,76 @@
 #include "../../strats_2017/small/action_small.h"
 #include "../../strats_2017/actions_both_2017.h"
 
+#include "../../QS/QS_outputlog.h"
+#include "../../Supervision/RTC.h"
+
+
 void guillaumeMa_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 
 			INIT,
 			ERROR,
+			ACTION,
 			TEST,
 			TEST_2,
 			TEST_3,
 			TEST_4,
 			DONE
 	);
+	sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
+	static time32_t local_time = 0;
+	//static bool_e trigger_is_ok = FALSE;
+
 	switch(state){
+// calage de debut
+		case INIT:{
+			date_t date;
+			date.hours = 14;
+			date.day = 6;
+			date.month = 4;
+			date.year = 17;
+			RTC_set_time  (&date);
+			state = DONE;
+			//state = ACTION;
+		}
+			break;
+
+		case ACTION:
+			state = try_going(1000, 1500, state, TEST, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TEST:
+			state = check_sub_action_result(sub_harry_take_north_little_crater(OUR_ELEMENT), state, TEST_2, ERROR);
+			break;
+
+		case TEST_2:
+			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, TEST_3, ERROR);
+			break;
+
+		case TEST_3:
+			state = check_sub_action_result(sub_harry_take_north_little_crater(ADV_ELEMENT), state, TEST_4, ERROR);
+			break;
+
+		case TEST_4:
+			state = check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT), state, DONE, ERROR);
+			break;
+
+		case ERROR:
+			if(entrance){
+				debug_printf("ERROR\n");
+			}
+			break;
+
+		case DONE:
+			if(entrance){
+				debug_printf("DONE\n");
+			}
+			break;
+	}
+}
 
 
+/*
 
 		case INIT: //+150x +0y
 			state = try_going(BIG_CALIBRATION_FORWARD_BORDER_DISTANCE+150, 1100-(BIG_ROBOT_WIDTH/2), state, TEST, ERROR, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
@@ -66,7 +122,7 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 	}
 }
-
+*/
 
 
 /*
@@ -146,16 +202,6 @@ void guillaumeMa_strat_inutile_small(){
 		case DONE:
 			break;
 
-		case ERROR1:
-			if(ERROR <=3){
-			state = POINT5;
-			NBERROR = NBERROR +1;
-			break;
-			}else{//pb
-			state = POINT2;
-			NBERROR = 0;
-			break;
-			}
 
 		case ERROR2:
 			state = POINT4;
