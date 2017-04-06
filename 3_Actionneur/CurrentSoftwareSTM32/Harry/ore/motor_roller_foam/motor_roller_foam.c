@@ -123,8 +123,11 @@ bool_e MOTOR_ROLLER_FOAM_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_ORE_ROLLER_FOAM_STOP :
 			case ACT_ORE_ROLLER_FOAM_IDLE :
-			case ACT_ORE_ROLLER_FOAM_RUN :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOTOR_ORE_ROLLER_FOAM, &MOTOR_ROLLER_FOAM_run_command, 0, TRUE);
+				break;
+
+			case ACT_ORE_ROLLER_FOAM_RUN :
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOTOR_ORE_ROLLER_FOAM, &MOTOR_ROLLER_FOAM_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
 				break;
 
 			default:
@@ -152,37 +155,17 @@ void MOTOR_ROLLER_FOAM_run_command(queue_id_t queueId, bool_e init) {
 
 //Initialise une commande
 static void MOTOR_ROLLER_FOAM_command_init(queue_id_t queueId) {
-	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
-	Sint16* dcm_goalSpeed = &QUEUE_get_arg(queueId)->param;
+	Sint16 dcm_goalSpeed = QUEUE_get_arg(queueId)->param;
 
-	*dcm_goalSpeed = 0x8000;
-
-	switch(command) {
-		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_ORE_ROLLER_FOAM_RUN :		*dcm_goalSpeed = MOTOR_ROLLER_FOAM_RUN_SPEED; break;
-
-		case ACT_ORE_ROLLER_FOAM_STOP :
-		case ACT_ORE_ROLLER_FOAM_IDLE :
-			DC_MOTOR_SPEED_stop(MOTOR_ROLLER_FOAM_ID);
-			QUEUE_next(queueId, ACT_ORE_ROLLER_FOAM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
-			return;
-
-		default: {
-			error_printf("Invalid exemple command: %u, code is broken !\n", command);
-			QUEUE_next(queueId, ACT_ORE_ROLLER_FOAM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
-			return;
-		}
+	if(dcm_goalSpeed != 0){
+		DC_MOTOR_SPEED_setSpeed(MOTOR_ROLLER_FOAM_ID, dcm_goalSpeed);
+		DC_MOTOR_SPEED_restart(MOTOR_ROLLER_FOAM_ID);
+		debug_printf("Mise à jours de la vitesse (%d rpm) du moteur DC\n", dcm_goalSpeed);
+	}else{
+		DC_MOTOR_SPEED_stop(MOTOR_TURN_TRIHOLE_ID);
+		QUEUE_next(queueId, ACT_ORE_ROLLER_FOAM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
+		debug_printf("Arrêt de la rotation du moteur DC MOTOR_ROLLER_FOAM\n");
 	}
-
-	if(*dcm_goalSpeed == 0x8000) {
-		error_printf("Invalid dcm speed for command: %u, code is broken !\n", command);
-		QUEUE_next(queueId, ACT_ORE_ROLLER_FOAM, ACT_RESULT_NOT_HANDLED, ACT_RESULT_ERROR_LOGIC, __LINE__);
-		return;
-	}
-
-	DC_MOTOR_SPEED_setSpeed(MOTOR_ROLLER_FOAM_ID, *dcm_goalSpeed);
-	DC_MOTOR_SPEED_restart(MOTOR_ROLLER_FOAM_ID);
-	debug_printf("Mise à jours de la vitesse (%d rpm) du moteur DC\n", *dcm_goalSpeed);
 }
 
 //Gère les états pendant le mouvement du moteur DC

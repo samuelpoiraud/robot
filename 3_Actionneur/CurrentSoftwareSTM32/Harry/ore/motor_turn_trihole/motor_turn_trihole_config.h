@@ -45,8 +45,6 @@
 	#define MOTOR_TURN_TRIHOLE_EPSILON_SPEED			2000
 
 //Configuration des vitesses
-	#define MOTOR_TURN_TRIHOLE_IDLE_SPEED				0		// [rpm]
-	#define MOTOR_TURN_TRIHOLE_RUN_SPEED				10		// [rpm]
 	#define MOTOR_TURN_TRIHOLE_RECOVERY_SPEED			-10		// [rpm]
 
 //Vitesse initiale

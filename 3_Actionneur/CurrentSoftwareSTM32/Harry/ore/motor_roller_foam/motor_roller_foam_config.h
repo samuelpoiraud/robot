@@ -29,7 +29,7 @@
 	#define MOTOR_ROLLER_FOAM_PORT_SENSOR				EXTIT_GpioA
 	#define MOTOR_ROLLER_FOAM_PORT_SENSOR_BIT			GPIO_PinSource7
 	#define MOTOR_ROLLER_FOAM_SENSOR_EDGE				EXTIT_Edge_Rising
-	#define MOTOR_ROLLER_FOAM_SENSOR_TICK_PER_REV		3
+	#define MOTOR_ROLLER_FOAM_SENSOR_TICK_PER_REV		8
 
 // Configuration de l'asservissement PIDs
 	#define MOTOR_ROLLER_FOAM_KP						0
@@ -44,8 +44,6 @@
 	#define MOTOR_ROLLER_FOAM_EPSILON_SPEED				2000
 
 //Configuration des vitesses
-	#define MOTOR_ROLLER_FOAM_IDLE_SPEED				0		// [rpm]
-	#define MOTOR_ROLLER_FOAM_RUN_SPEED				    10		// [rpm]
 	#define MOTOR_ROLLER_FOAM_RECOVERY_SPEED			-10		// [rpm]
 
 //Vitesse initiale

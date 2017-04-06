@@ -481,7 +481,7 @@ error_e sub_harry_take_big_crater_yellow_middle(){
 
 			if (entrance){
 				// descendre le mur du rouleau et allumer le rouleau
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
@@ -617,7 +617,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 			if (entrance){
 			// descendre le mur du rouleau et allumer le rouleau
-			ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+			ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 			ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 			ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
@@ -766,7 +766,7 @@ error_e sub_harry_take_big_crater_yellow_rocket(){
 
 			if (entrance){
 				// descendre le mur du rouleau et allumer le rouleau
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
@@ -901,7 +901,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 
 			if (entrance){
 				// descendre le mur du rouleau et allumer le rouleau
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
@@ -1038,7 +1038,7 @@ error_e sub_harry_take_big_crater_blue_rocket(){
 
 			if (entrance){
 				// descendre le mur du rouleau et allumer le rouleau
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
@@ -1187,7 +1187,7 @@ error_e sub_harry_take_big_crater_blue_corner(){
 
 			if (entrance){
 				// descendre le mur du rouleau et allumer le rouleau
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
@@ -1353,7 +1353,7 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 			Uint8 state1=state;
 			Uint8 state2=state;
 			if (entrance){
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
 			}
@@ -1594,7 +1594,7 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 			Uint8 state1=state;
 			Uint8 state2=state;
 			if (entrance){
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
 			}
@@ -1936,7 +1936,7 @@ error_e sub_harry_take_big_crater_blue(){ //arrivée en (1290, 710) environ
 
 			if (entrance){
 				// descendre le mur du rouleau et allumer le rouleau
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
@@ -2153,7 +2153,7 @@ error_e sub_harry_take_big_crater_yellow(){ //arrivée en (1290, 710) environ
 
 			if (entrance){
 				// descendre le mur du rouleau et allumer le rouleau
-				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
