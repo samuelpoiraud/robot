@@ -205,18 +205,20 @@ void SCAN_CORNER_calculate(){
 				nb_points_in_zone++;
 				moyx += (Sint32) (ourCornerSouth[i].x);
 				moyy += (Sint32) (ourCornerSouth[i].y);
-				printf("moyx\t%ld\tmoyy\t%ld\n", moyx, moyy);
+				//printf("moyx\t%ld\tmoyy\t%ld\n", moyx, moyy);
 			}
 					//it_printf("x=%d\ty=%d\txmoy=%d\tymoy=%d\n",zone[i].scan_point.x,zone[i].scan_point.y,xmoy,ymoy);
 		}
 		printf("nbSouth\t%d\n",nb_points_in_zone);
+		Uint32 fordegeu;
+		for(fordegeu = 0; fordegeu++; fordegeu < 10000000);
 
 		if(nb_points_in_zone > NB_POINTS_MINI_CORNER){
 
-			moyxfinal = (moyx<<10) / nb_points_in_zone;
+			moyxfinal = (moyx<<10) / (Sint32)(nb_points_in_zone);
 			moyx = moyxfinal>>10;
 			display(moyx);
-			moyyfinal = (moyy<<10) / nb_points_in_zone;
+			moyyfinal = (moyy<<10) / (Sint32)(nb_points_in_zone);
 			moyy = moyyfinal>>10;
 			display(moyy);
 			for(i=0; i<NB_POINT_MAX; i++){
@@ -271,7 +273,7 @@ void SCAN_CORNER_calculate(){
 	}while(flag_correction == FALSE);
 	pseudovariance = pseudovariance / nb_points_in_zone;
 	display(pseudovariance);
-	printf("aaaaaaaaaaaaa\n");
+	debug_printf("aaaaaaaaaaaaa\n");
 	if (pseudovariance < CORNER_SCAN_PSEUDO_VARIANCE_SEUIL){
 		xmoy_corner_south = moyxfinal;
 		//display(xmoy);
@@ -309,20 +311,23 @@ void SCAN_CORNER_calculate(){
 				moyx += (Sint32) ourCornerColor[i].x;
 				moyy += (Sint32) ourCornerColor[i].y;
 			}
-			printf("moyx\t%ld\tmoyy\t%ld\n", moyx, moyy);
+			//printf("moyx\t%ld\tmoyy\t%ld\n", moyx, moyy);
 
 			//it_printf("x=%d\ty=%d\txmoy=%d\tymoy=%d\n",zone[i].scan_point.x,zone[i].scan_point.y,xmoy,ymoy);
 		}
-		printf("nbSouth\t%d\n",nb_points_in_zone);
+		printf("nbColor\t%d\n",nb_points_in_zone);
 
 		if(nb_points_in_zone > NB_POINTS_MINI_CORNER)
 		{
-			moyxfinal = (moyx<<10) / nb_points_in_zone;
-			moyx = moyyfinal>>10;
-			display(moyx);
-			moyyfinal = (moyy<<10) / nb_points_in_zone;
-			moyy = moyyfinal>>10;
-			display(moyy);
+			moyx = moyx/((Sint32)(nb_points_in_zone));
+			moyy = moyy/((Sint32)(nb_points_in_zone));
+
+//			moyxfinal = (moyx<<10) /(Sint32) (nb_points_in_zone);
+//			moyx = moyyfinal>>10;
+//			display(moyx);
+//			moyyfinal = (moyy<<10) /(Sint32) (nb_points_in_zone);
+//			moyy = moyyfinal>>10;
+//			display(moyy);
 			for(i=0; i<NB_POINT_MAX; i++){
 				if((ourCornerColor[i].x != 0) || (ourCornerColor[i].y != 0)){		// Si c'est un point valide
 					num += (ourCornerColor[i].x - moyx)*(ourCornerColor[i].y - moyy);
@@ -334,7 +339,7 @@ void SCAN_CORNER_calculate(){
 			if(den != 0){
 				a_color = (double)num / (double)den;
 				b_color = moyy - a_color * moyx;
-				display_float(a_south);
+				display_float(a_color);
 				display_float(a_color);
 				printf("b_color\t%ld\n", b_color);
 										//it_printf("a=%ld.%3ld\tb=%d\tnbpoints=%d\n", (Uint32)(a), (((Uint32)(a*1000))%1000), b, nb_points_in_zone);
@@ -342,7 +347,7 @@ void SCAN_CORNER_calculate(){
 
 					if((ourCornerColor[i].x != 0) || (ourCornerColor[i].y != 0)){		// Si c'est un point valide
 									//			it_printf("x=%d\ty=%d\n",zone[i].scan_point.x,zone[i].scan_point.y);
-						distance = absolute(ourCornerColor[i].y - (a_color * ourCornerColor[i].x + b_south));
+						distance = absolute(ourCornerColor[i].y - (a_color * ourCornerColor[i].x + b_color));
 												//it_printf("yre:%d\tyth:%d\n",zone[i].scan_point.y,(Sint16)(a * zone[i].scan_point.x + b));
 						if(distance > DISTANCE_MAX){
 												//it_printf("dist:\t%d\n",distance);
@@ -350,7 +355,7 @@ void SCAN_CORNER_calculate(){
 							ourCornerColor[i].y = 0;
 													//printf("cest ici\n");
 							flag_correction = FALSE;
-							printf("distantx\t%d\tdistanty\t%d\n", ourCornerSouth[i].x, ourCornerSouth[i].y);
+							printf("distantx\t%d\tdistanty\t%d\n", ourCornerColor[i].x, ourCornerColor[i].y);
 
 						}
 						pseudovariance += distance;
@@ -390,24 +395,35 @@ void SCAN_CORNER_calculate(){
 		error_scan = TRUE;
 		return;
 	}
+	printf("\nBRAVO! Tu y es arrivé, connard !\n\n");
 	if(vertical){
+		printf("tu es vertical\n");
 		cos_produit_scalaire=(a_color * a_color)/(a_color * a_color + 1);
 	}else{
+		printf("tu nest pas vertical\n");
 		cos_produit_scalaire=((a_color * a_south + 1) * (a_color * a_south + 1))/((a_color * a_color + 1) * (a_south * a_south + 1));
+		display_float(1000*cos_produit_scalaire);
+		display_float(a_south);
+		display_float(a_color);
 	}
 	if((COS_CARRE_SCALAIRE<cos_produit_scalaire)||(-COS_CARRE_SCALAIRE>cos_produit_scalaire)){
+		printf("niqué!!!\n");
 		error_scan = TRUE;
 		return; // l'angle les droites n'est pas droit
 	}
 	if(info_scan.color == YELLOW){
+		printf("tes jaune!\n");
 		if(vertical){
+			printf("vertical\n");
 			offset_x = b_south - 2000;
 			offset_y = (Sint32)(a_color * offset_x + b_color);
 			offset_y -= 3000;
 		}else{
+			printf("pas vertical\n");
 			num = b_color - b_south;
 			den = a_south - a_color;
 			offset_x = ((double)(num))/((double)(den));
+			display(offset_x);
 			offset_angle = atan4096(a_color);
 			offset_y = (Sint32)(a_color * offset_x + b_color);
 			offset_x += 3000*sin4096(offset_angle)-2000*cos4096(offset_angle);
@@ -415,16 +431,20 @@ void SCAN_CORNER_calculate(){
 	#warning 'A TESTER'
 		}
 	}else{
+		printf("tes bleu!\n");
 		if(vertical){
+			printf("vertical\n");
 			offset_x = b_south - 2000;
 			offset_y = (Sint32)(a_south * offset_x + b_south);
 		}else{
+			printf("pas vertical\n");
 			num = b_color - b_south;
 			den = a_south - a_color;
 			offset_x = ((double)(num))/((double)(den));
 			offset_y = (Sint32)(a_south * offset_x + b_south);
 			offset_angle = atan4096(a_color);
 			offset_x -= 2000*cos4096(offset_angle);
+			display(cos4096(offset_angle));
 			offset_y -= 2000*sin4096(offset_angle);
 #warning 'A TESTER'
 		}
@@ -453,6 +473,7 @@ static void scanOnePoint(){
 	GEOMETRY_point_t pos;
 	static bool_e firstlap = TRUE;
 	if (firstlap){
+		firstlap = FALSE;
 		prev_pos.x = 0;
 		prev_pos.y = 0;
 	}
@@ -461,10 +482,10 @@ static void scanOnePoint(){
 
 	if((absolute(prev_pos.x - pos.x) > 15) || (absolute(prev_pos.y - pos.y) > 15)){
 		if(absolute(prev_pos.x - pos.x) > 15){
-			printf("ecartx\t%d",prev_pos.x);
+			printf("ecartx\t%d\n",prev_pos.x);
 		}
 		if(absolute(prev_pos.y - pos.y) > 15){
-			printf("ecarty\t%d",prev_pos.y);
+			printf("ecarty\t%d\n",prev_pos.y);
 		}
 
 		prev_pos = pos;
