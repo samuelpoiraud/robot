@@ -88,7 +88,7 @@ error_e SELFTESTACT_run(){
 
 	};
 
-	#elif defined(TABLEAU_SELFTEST_BIG_VOYAGE_D_UN_MODULE)
+	#else
 
 	static const struct_selftest_t tableau_selftest_big[]  = {
 
@@ -158,9 +158,6 @@ error_e SELFTESTACT_run(){
 				{30, ACT_ORE_GUN,	 				 ACT_ORE_GUN_UP,						 ACT_QUEUE_Ore_gun,						SELFTEST_ACT_RX24_ORE_GUN },
 
 		};
-
-	#else
-		#error "Choisir un tablea pour le selftest!"
 	#endif
 
 	static const struct_selftest_t tableau_selftest_small[]  = {
