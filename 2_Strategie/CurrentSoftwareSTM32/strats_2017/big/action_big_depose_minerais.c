@@ -288,30 +288,25 @@ error_e sub_harry_shooting_depose_minerais(){
 			break;
 
 		case DOWN_GUN:
-			ACT_push_order(ACT_ORE_GUN,ACT_ORE_GUN_DOWN);
+			ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_DOWN);
 			ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
-			state=check_act_status(ACT_QUEUE_Ore_gun,state,ROTATION_TRIHOLE,ERROR);
+			state=check_act_status(ACT_QUEUE_Ore_gun, state, ROTATION_TRIHOLE, ERROR);
 			break;
 
 		case ROTATION_TRIHOLE:
-			//ACT_push_order_with_param();
-			state=OTHERWISE;
-			break;
-
-		case OTHERWISE:
-			//ACT_push_order_with_param();
+			ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
 			state=STOP_ROTATION_TRIHOLE;
 			break;
 
 		case STOP_ROTATION_TRIHOLE:
-			//ACT_push_order_with_param();
+			ACT_push_order(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_STOP);
 			state=GUN_UP;
 			break;
 
 		case GUN_UP:
-			ACT_push_order(ACT_ORE_GUN,ACT_ORE_GUN_UP);
+			ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_UP);
 			ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
-			state=check_act_status(ACT_QUEUE_Ore_gun,state,DONE,ERROR);
+			state=check_act_status(ACT_QUEUE_Ore_gun, state, DONE, ERROR);
 			break;
 
 		case ERROR:

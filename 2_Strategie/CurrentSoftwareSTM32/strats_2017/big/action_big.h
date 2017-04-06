@@ -4,6 +4,9 @@
 #ifndef ACTION_BIG_H
 	#define ACTION_BIG_H
 
+	#define ACT_TRIHOLE_SPEED_RUN		10	// [rpm]	Maximum théorique 526 RPM
+	#define ACT_ROLLER_FOAM_SPEED_RUN	10	// [rpm]	Maximum théorique 510 RPM
+
 	// action_big_common
 	error_e sub_harry_initiale();
 	error_e sub_harry_end_of_match();
