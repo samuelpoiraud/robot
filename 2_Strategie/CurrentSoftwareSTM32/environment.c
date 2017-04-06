@@ -496,6 +496,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ACT_warner_answer(incoming_msg);
 			break;
 
+		case ACT_TELL_MOSFET_CURRENT_STATE:
+			ACT_receive_vacuostat_msg(incoming_msg);
+			break;
+
 /************************************ Récupération des données de la balise *******************************/
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.

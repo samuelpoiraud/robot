@@ -73,8 +73,9 @@
 		DC_MOTOR_SPEED_uninitialize_all();
 	}
 
-	DC_MOTOR_SPEED_state_e DC_MOTOR_SPEED_get_state(DC_MOTOR_SPEED_id id)
-	{
+	DC_MOTOR_SPEED_state_e DC_MOTOR_SPEED_get_state(DC_MOTOR_SPEED_id id){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		assert(thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
 		return thiss->state;
@@ -82,8 +83,10 @@
 
 
 	// configurer un moteur CC après initialisation du module QS
-	void DC_MOTOR_SPEED_config(DC_MOTOR_SPEED_id id, DC_MOTOR_SPEED_config_t* config)
-	{
+	void DC_MOTOR_SPEED_config(DC_MOTOR_SPEED_id id, DC_MOTOR_SPEED_config_t* config){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+		assert(config != NULL);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		thiss->config = *config;
 		thiss->state = DC_MOTOR_SPEED_IDLE;
@@ -111,8 +114,9 @@
 	/*-----------------------------------------
 		Setter pour le sens des moteurs
 	-----------------------------------------*/
-	static void DC_MOTOR_SPEED_setWay(DC_MOTOR_SPEED_id id, Uint8 value)
-	{
+	static void DC_MOTOR_SPEED_setWay(DC_MOTOR_SPEED_id id, Uint8 value){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
 		assert(dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
 		if(value)
@@ -121,8 +125,9 @@
 			GPIO_ResetBits(thiss->way_latch, 1 << thiss->way_bit_number);
 	}
 
-	static Uint8 DC_MOTOR_SPEED_getWay(DC_MOTOR_SPEED_id id)
-	{
+	static Uint8 DC_MOTOR_SPEED_getWay(DC_MOTOR_SPEED_id id){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
 		assert(dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
 		return GPIO_ReadOutputDataBit(thiss->way_latch, thiss->way_bit_number);
@@ -132,12 +137,16 @@
 			Ordre de déplacement
 	-----------------------------------------*/
 	DC_MOTOR_SPEED_speed DC_MOTOR_SPEED_getSpeed(DC_MOTOR_SPEED_id id){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
 		return thiss->wantedSpeed;
 	}
 
 	void DC_MOTOR_SPEED_setSpeed(DC_MOTOR_SPEED_id id, DC_MOTOR_SPEED_speed speed){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		assert(thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
 		thiss->wantedSpeed = speed;
@@ -148,7 +157,9 @@
 	/*-----------------------------------------
 			Change les coefs d'asservissement.
 	-----------------------------------------*/
-	void DC_MOTOR_SPEED_setCoefs(DC_MOTOR_SPEED_id id, Sint16 Kp, Sint16 Ki, Sint16 Kd, Sint16 Kv) {
+	void DC_MOTOR_SPEED_setCoefs(DC_MOTOR_SPEED_id id, Sint16 Kp, Sint16 Ki, Sint16 Kd, Sint16 Kv){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
 		DC_MOTOR_SPEED_config_state_e previousConfigState = thiss->configState;
@@ -167,6 +178,8 @@
 			Récupère les coefs d'asservissement.
 	-----------------------------------------*/
 	void DC_MOTOR_SPEED_getCoefs(DC_MOTOR_SPEED_id id, Sint16* Kp, Sint16* Ki, Sint16* Kd, Sint16* Kv) {
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
 
@@ -180,11 +193,16 @@
 	  Récupère les coefficients pwm
 	--------------------------------------------*/
 	void DC_MOTOR_SPEED_setMaxPwm(DC_MOTOR_SPEED_id id, Uint8 max_duty){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		thiss->config.max_duty = max_duty;
 	}
 
 	void DC_MOTOR_SPEED_getMaxPwm(DC_MOTOR_SPEED_id id, Uint8 *max_duty){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+		assert(max_duty != NULL);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		*max_duty = thiss->config.max_duty;
 	}
@@ -192,8 +210,9 @@
 	/*-----------------------------------------
 			Arret de l'asservissement d'un actionneur
 	-----------------------------------------*/
-	void DC_MOTOR_SPEED_stop(DC_MOTOR_SPEED_id id)
-	{
+	void DC_MOTOR_SPEED_stop(DC_MOTOR_SPEED_id id){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		if(thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED)
 		{
@@ -218,8 +237,9 @@
 	/*-----------------------------------------
 			Reactivation de l'asservissement d'un actionneur
 	-----------------------------------------*/
-	void DC_MOTOR_SPEED_restart(DC_MOTOR_SPEED_id id)
-	{
+	void DC_MOTOR_SPEED_restart(DC_MOTOR_SPEED_id id){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		if(thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED)
 		{

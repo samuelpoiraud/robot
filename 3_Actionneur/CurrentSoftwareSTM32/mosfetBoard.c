@@ -66,6 +66,7 @@
 				msg.size = SIZE_ACT_TELL_MOSFET_CURRENT_STATE;
 				msg.data.act_tell_mosfet_state.id = msg.data.mosfet_board_tell_mosfet_state.id;
 				msg.data.act_tell_mosfet_state.state = msg.data.mosfet_board_tell_mosfet_state.state;
+				CAN_send(&msg);
 			}break;
 
 			default:
