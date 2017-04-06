@@ -102,4 +102,18 @@ void ACT_warner_answer(CAN_msg_t* msg);
 bool_e ACT_get_warner(Uint16 sid);
 void ACT_reset_all_warner();
 
+/**
+ * @brief ACT_wait_state_vacuostat
+ * @arg idVacuostat : correspond à l'ID mosfet associé entre 0 et 7
+ * @arg stateToWait : L'état attendu du vacuostat
+ * @arg in_progress : Etat en cours
+ * @arg sucess : Etat à retourner si l'état du vacuostat est bon
+ * @arg fail : Etat à retourner si timeout
+*
+ * @return : le state rentré en argument
+ */
+Uint8 ACT_wait_state_vacuostat(Uint8 idVacuostat, MOSFET_BOARD_CURRENT_MEASURE_state_e stateToWait, Uint8 in_progress, Uint8 sucess, Uint8 fail);
+
+void ACT_receive_vacuostat_msg(CAN_msg_t *msg);
+
 #endif /* ndef ACT_FUNCTIONS_H */

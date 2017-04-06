@@ -29,6 +29,15 @@
 #define ACT_SENSOR_ANSWER_TIMEOUT		500
 #define ULU_TIME                        300
 
+#define ACT_VACUOSTAT_TIME_VALID		500
+#define ACT_VACUOSTAT_TIMEOUT			500
+#define ACT_NB_VACUOSTAT				8
+
+typedef struct{
+	MOSFET_BOARD_CURRENT_MEASURE_state_e state;
+	time32_t lastRefresh;
+}act_vacuostat_s;
+
 typedef enum{
 	ACT_SENSOR_WAIT = 0,
 	ACT_SENSOR_ABSENT,
@@ -111,7 +120,9 @@ static act_config_s act_config[sizeof(act_link_SID_Queue)/sizeof(act_link_SID_Qu
 static bool_e act_warner[sizeof(act_link_SID_Queue)/sizeof(act_link_SID_Queue_s)] = {0};
 
 // Capteurs
-volatile act_sensor_e sensor_answer[NB_ACT_SENSOR] = {0};
+static volatile act_sensor_e sensor_answer[NB_ACT_SENSOR] = {0};
+
+static volatile act_vacuostat_s vacuostat[ACT_NB_VACUOSTAT] = {0};
 
 
 /* Pile contenant les arguments d'une demande d'opération
@@ -401,3 +412,63 @@ void ACT_sensor_answer(CAN_msg_t* msg){
 		sensor_answer[msg->data.strat_inform_capteur.sensor_id] = ACT_SENSOR_ABSENT;
 }
 
+
+Uint8 ACT_wait_state_vacuostat(Uint8 idVacuostat, MOSFET_BOARD_CURRENT_MEASURE_state_e stateToWait, Uint8 in_progress, Uint8 sucess, Uint8 fail){
+	CREATE_MAE(INIT,
+				GET_STATE,
+				WAIT_STATE);
+
+	static time32_t timeBegin;
+
+	switch(state){
+		case INIT:
+			if(idVacuostat >= ACT_NB_VACUOSTAT){
+				error_printf("waitVacuostat id hors tableau\n");
+				RESET_MAE();
+				return fail;
+			}
+			timeBegin = global.absolute_time;
+			state = GET_STATE;
+			break;
+
+		case GET_STATE:{
+			CAN_msg_t msg;
+			msg.sid = ACT_GET_MOSFET_CURRENT_STATE;
+			msg.size = SIZE_ACT_GET_MOSFET_CURRENT_STATE;
+			msg.data.act_get_mosfet_state.id = idVacuostat;
+			CAN_send(&msg);
+
+			state = WAIT_STATE;
+			}break;
+
+		case WAIT_STATE:
+			if(global.absolute_time - vacuostat[idVacuostat].lastRefresh < ACT_VACUOSTAT_TIME_VALID && vacuostat[idVacuostat].state == stateToWait){
+				RESET_MAE();
+				return sucess;
+			}else if(global.absolute_time - timeBegin > ACT_VACUOSTAT_TIMEOUT){
+				info_printf("vacuostat %d timeout\n", idVacuostat);
+				RESET_MAE();
+				return fail;
+			}
+
+			break;
+
+		default:
+			error_printf("waitVacuostat case default\n");
+			RESET_MAE();
+			return fail;
+	}
+
+	return in_progress;
+}
+
+void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
+	if(msg->sid != ACT_TELL_MOSFET_CURRENT_STATE)
+		return;
+
+	if(msg->data.act_tell_mosfet_state.id >= ACT_NB_VACUOSTAT)
+		return;
+
+	vacuostat[msg->data.act_tell_mosfet_state.id].state = msg->data.act_tell_mosfet_state.state;
+	vacuostat[msg->data.act_tell_mosfet_state.id].lastRefresh = global.absolute_time;
+}
