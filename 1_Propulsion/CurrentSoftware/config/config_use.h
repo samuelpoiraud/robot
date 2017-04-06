@@ -75,10 +75,10 @@
 
 	//#define DETECTION_CHOC
 
-    #define SCAN
-		#define USE_ADS1118_ON_ADC
-		#define SCAN_BORDURE
-		#define SCAN_ROTATION
+	//#define SCAN
+		//#define USE_ADS1118_ON_ADC
+		//#define SCAN_BORDURE
+		//#define SCAN_ROTATION
 		//#define SCAN_OBJETS
 
 
