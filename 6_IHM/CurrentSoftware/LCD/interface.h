@@ -23,6 +23,7 @@
 	#include "../QS/QS_lcd_over_uart.h"
 
 	typedef enum{
+		INTERFACE_IHM_DEBUG = -2,
 		INTERFACE_IHM_WAIT = -1,
 		INTERFACE_IHM_CUSTOM = LCD_MENU_CUSTOM,
 		INTERFACE_IHM_HOKUYO = LCD_MENU_HOKUYO,

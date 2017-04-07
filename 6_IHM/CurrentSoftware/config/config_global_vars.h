@@ -34,6 +34,8 @@ typedef struct{
 		volatile Sint16 Vhokuyo;
 	}voltage;
 
+	volatile foe_t foe[4];
+
 	volatile time32_t absolute_time;		// Temps depuis le lancement de la STM32
 }global_data_storage_t;
 
