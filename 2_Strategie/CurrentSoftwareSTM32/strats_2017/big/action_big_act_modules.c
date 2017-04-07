@@ -446,12 +446,14 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			COMPUTE_ACTION,
 
 			ACTION_GO_TAKE_CYLINDER,
+			ACTION_GO_TAKE_CYLINDER_2,
 			ERROR_ACTION_GO_TAKE_CYLINDER,
 			ERROR_ACTION_GO_TAKE_CYLINDER_RETRY,
 			NO_CYLINDER_DETECTED,
 
 			PROTECT_NEXT_FALL,
 			ACTION_BRING_BACK_CYLINDER,
+			ACTION_BRING_BACK_CYLINDER_2,
 			STOP_POMPE_SLIDER,
 			ACTION_BRING_UP_CYLINDER,
 			ACTION_STOCK_UP_CYLINDER,
@@ -484,6 +486,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
 				debug_printf("DESACTIVATION module left\n");
 			}
+
 			if(rocket == MODULE_ROCKET_MONO_OUR_SIDE){
 				if(global.color == BLUE){
 					moduleType = MODULE_BLUE;
@@ -532,6 +535,17 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			break;
 
 		case ACTION_GO_TAKE_CYLINDER:
+			if (entrance){
+				if(moduleToTake == RIGHT){
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
+					state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, IN_PROGRESS, ACTION_GO_TAKE_CYLINDER_2, ERROR);
+				}else{
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER);
+					state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, IN_PROGRESS, ACTION_GO_TAKE_CYLINDER_2, ERROR);
+				}
+			}
+			break;
+		case ACTION_GO_TAKE_CYLINDER_2:
 			if(entrance){
 				if(moduleToTake == RIGHT){
 					//On active la pompe avant d'avancer
@@ -705,6 +719,27 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			break;
 
 		case ACTION_BRING_BACK_CYLINDER:
+			if (entrance){
+				if(moduleToTake == RIGHT){
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
+						state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, IN_PROGRESS, ACTION_BRING_BACK_CYLINDER_2, ERROR);
+					}else{
+						state = ACTION_BRING_BACK_CYLINDER_2;
+					}
+
+				}else{
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
+						state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, IN_PROGRESS, ACTION_BRING_BACK_CYLINDER_2, ERROR);
+					}else{
+						state = ACTION_BRING_BACK_CYLINDER_2;
+					}
+				}
+			}
+			break;
+
+		case ACTION_BRING_BACK_CYLINDER_2:
 			if(entrance){
 				if(moduleToTake == RIGHT){
 					// Activation de la pompe de l'élévateur si on stocke le cylindre après
