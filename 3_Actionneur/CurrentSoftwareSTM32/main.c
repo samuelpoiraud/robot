@@ -245,40 +245,46 @@ int main (void)
 		msg.size = 1;
 
 		if(state == 0){
+			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
+			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER;
+		}else if(state == 1){
 			msg.sid = ACT_POMPE_SLIDER_RIGHT;
 			msg.data.act_msg.order = ACT_POMPE_NORMAL;
-		}else if(state == 1){
-			msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_OUT;
 		}else if(state == 2){
 			msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
+			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_OUT;
 		}else if(state == 3){
-			msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_POMPE_NORMAL;
-		}else if(state == 4){
-			msg.sid = ACT_POMPE_SLIDER_RIGHT;
-			msg.data.act_msg.order = ACT_POMPE_STOP;
-		}else if(state == 5){
-			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_TOP;
-		}else if(state == 6){
-			msg.sid = ACT_CYLINDER_SLOPE_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_UP;
-		}else if(state == 7){
-			msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_POMPE_STOP;
-		}else if(state == 8){
 			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
 			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
+		}else if(state == 4){
+			msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
+			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
+		}else if(state == 5){
+			msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
+			msg.data.act_msg.order = ACT_POMPE_NORMAL;
+		}else if(state == 6){
+			msg.sid = ACT_POMPE_SLIDER_RIGHT;
+			msg.data.act_msg.order = ACT_POMPE_STOP;
+		}else if(state == 7){
+			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
+			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_TOP;
+		}else if(state == 8){
+			msg.sid = ACT_CYLINDER_SLOPE_RIGHT;
+			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_UP;
 		}else if(state == 9){
+			msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
+			msg.data.act_msg.order = ACT_POMPE_STOP;
+		}else if(state == 10){
+			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
+			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
+		}else if(state == 11){
 			msg.sid = ACT_CYLINDER_SLOPE_RIGHT;
 			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_DOWN;
 		}
 
 		if(msg.sid != 0)
 			CAN_process_msg(&msg);
-		state = (state == 9)? 0 : state + 1;
+		state = (state == 11)? 0 : state + 1;
 	}
 
 static void MAIN_onButton0LongPush() {}
@@ -290,40 +296,46 @@ static void MAIN_onButton0LongPush() {}
 		msg.size = 1;
 
 		if(state == 0){
+			msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER;
+		}else if(state == 1){
 			msg.sid = ACT_POMPE_SLIDER_LEFT;
 			msg.data.act_msg.order = ACT_POMPE_NORMAL;
-		}else if(state == 1){
-			msg.sid = ACT_CYLINDER_SLIDER_LEFT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_LEFT_OUT;
 		}else if(state == 2){
 			msg.sid = ACT_CYLINDER_SLIDER_LEFT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_LEFT_IN;
+			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_LEFT_OUT;
 		}else if(state == 3){
-			msg.sid = ACT_POMPE_ELEVATOR_LEFT;
-			msg.data.act_msg.order = ACT_POMPE_NORMAL;
-		}else if(state == 4){
-			msg.sid = ACT_POMPE_SLIDER_LEFT;
-			msg.data.act_msg.order = ACT_POMPE_STOP;
-		}else if(state == 5){
-			msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
-			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_TOP;
-		}else if(state == 6){
-			msg.sid = ACT_CYLINDER_SLOPE_LEFT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_LEFT_UP;
-		}else if(state == 7){
-			msg.sid = ACT_POMPE_ELEVATOR_LEFT;
-			msg.data.act_msg.order = ACT_POMPE_STOP;
-		}else if(state == 8){
 			msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
 			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM;
+		}else if(state == 4){
+			msg.sid = ACT_CYLINDER_SLIDER_LEFT;
+			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_LEFT_IN;
+		}else if(state == 5){
+			msg.sid = ACT_POMPE_ELEVATOR_LEFT;
+			msg.data.act_msg.order = ACT_POMPE_NORMAL;
+		}else if(state == 6){
+			msg.sid = ACT_POMPE_SLIDER_LEFT;
+			msg.data.act_msg.order = ACT_POMPE_STOP;
+		}else if(state == 7){
+			msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_TOP;
+		}else if(state == 8){
+			msg.sid = ACT_CYLINDER_SLOPE_LEFT;
+			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_LEFT_UP;
 		}else if(state == 9){
+			msg.sid = ACT_POMPE_ELEVATOR_LEFT;
+			msg.data.act_msg.order = ACT_POMPE_STOP;
+		}else if(state == 10){
+			msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM;
+		}else if(state == 11){
 			msg.sid = ACT_CYLINDER_SLOPE_LEFT;
 			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_LEFT_DOWN;
 		}
 
 		if(msg.sid != 0)
 			CAN_process_msg(&msg);
-		state = (state == 9)? 0 : state + 1;
+		state = (state == 11)? 0 : state + 1;
 	}
 
 	static void MAIN_onButton1LongPush() {}
