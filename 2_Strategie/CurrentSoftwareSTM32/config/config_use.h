@@ -155,7 +155,7 @@
 #endif
 
 /* Réglages XBEE */
-	#define USE_XBEE
+	#define USE_XBEE_OLD
 		#define XBEE_PLUGGED_ON_UART2
 
 /* Réglages FIFO */
