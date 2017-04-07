@@ -16,6 +16,10 @@
 
 	#include "QS_outputlog.h"
 
+	#ifndef USE_EXTERNAL_IT
+		#error "Activation USE_EXTERNAL_IT requise pour le fonctionnement de RPM_SENSOR"
+	#endif
+
 	typedef struct{
 		bool_e used;
 		Uint16 speed;
@@ -44,7 +48,7 @@
 		EXTERNALIT_init();
 	}
 
-	RPM_SENSOR_id_t RPM_SENSOR_addSensor(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, Uint8 nb_tick_per_rev){
+	RPM_SENSOR_id_t RPM_SENSOR_addSensor(RPM_SENSOR_port_e port, RPM_SENSOR_pin_e pin, RPM_SENSOR_edge_e edge, Uint8 nb_tick_per_rev){
 
 		bool_e found = FALSE;
 		RPM_SENSOR_id_t i, idFound;

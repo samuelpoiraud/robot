@@ -144,6 +144,18 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			#endif
 			break;
 
+		case ACT_SET_TURBINE_SPEED:
+			#ifdef USE_MOSTFET_BOARD
+				MOSFET_BOARD_setTurbineSpeed(msg->data.act_set_turbine_speed.speed);
+			#endif
+			break;
+
+		case ACT_GET_TURBINE_SPEED:
+			#ifdef USE_MOSTFET_BOARD
+				MOSFET_BOARD_getTurbineSpeed();
+			#endif
+			break;
+
 		case IHM_SWITCH_ALL:
 		case IHM_BUTTON:
 		case IHM_SWITCH:

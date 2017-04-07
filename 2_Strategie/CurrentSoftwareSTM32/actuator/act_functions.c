@@ -33,6 +33,13 @@
 #define ACT_VACUOSTAT_TIMEOUT			500
 #define ACT_NB_VACUOSTAT				8
 
+#define ACT_TURBINE_GET_SPEED_TIMEOUT	500
+
+typedef struct{
+	Uint16 speed;
+	time32_t lastRefresh;
+}act_turbine_s;
+
 typedef struct{
 	MOSFET_BOARD_CURRENT_MEASURE_state_e state;
 	time32_t lastRefresh;
@@ -123,6 +130,8 @@ static bool_e act_warner[sizeof(act_link_SID_Queue)/sizeof(act_link_SID_Queue_s)
 static volatile act_sensor_e sensor_answer[NB_ACT_SENSOR] = {0};
 
 static volatile act_vacuostat_s vacuostat[ACT_NB_VACUOSTAT] = {0};
+
+static volatile act_turbine_s turbine;
 
 
 /* Pile contenant les arguments d'une demande d'opération
@@ -471,4 +480,69 @@ void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
 
 	vacuostat[msg->data.act_tell_mosfet_state.id].state = msg->data.act_tell_mosfet_state.state;
 	vacuostat[msg->data.act_tell_mosfet_state.id].lastRefresh = global.absolute_time;
+}
+
+Uint8 ACT_get_turbine_speed(Uint16 * speed,  Uint8 in_progress, Uint8 sucess, Uint8 fail){
+	CREATE_MAE(INIT,
+				GET_SPEED,
+				WAIT_SPEED);
+
+	static time32_t timeBegin;
+
+	switch(state){
+		case INIT:
+			if(speed == NULL){
+				error_printf("ERROR ACT_get_turbine_speed speed == NULL\n");
+				RESET_MAE();
+				return fail;
+			}
+			timeBegin = global.absolute_time;
+			state = GET_SPEED;
+			break;
+
+		case GET_SPEED:{
+			CAN_msg_t msg;
+			msg.sid = ACT_GET_TURBINE_SPEED;
+			msg.size = SIZE_ACT_GET_TURBINE_SPEED;
+			CAN_send(&msg);
+
+			state = WAIT_SPEED;
+			}break;
+
+		case WAIT_SPEED:
+			if(global.absolute_time - turbine.lastRefresh < ACT_VACUOSTAT_TIME_VALID){
+				*speed = turbine.speed;
+				RESET_MAE();
+				return sucess;
+			}else if(global.absolute_time - timeBegin > ACT_TURBINE_GET_SPEED_TIMEOUT){
+				info_printf("ACT_get_turbine_speed timeout\n");
+				RESET_MAE();
+				return fail;
+			}
+
+			break;
+
+		default:
+			error_printf("ACT_get_turbine_speed case default\n");
+			RESET_MAE();
+			return fail;
+	}
+
+	return in_progress;
+}
+
+void ACT_receive_turbine_msg(CAN_msg_t * msg){
+	if(msg->sid != ACT_TELL_TURBINE_SPEED)
+		return;
+
+	turbine.speed = msg->data.act_tell_turbine_speed.speed;
+	turbine.lastRefresh = global.absolute_time;
+}
+
+void ACT_set_turbine_speed(Uint16 speed){
+	CAN_msg_t msg;
+	msg.sid = ACT_SET_TURBINE_SPEED;
+	msg.size = SIZE_ACT_SET_TURBINE_SPEED;
+	msg.data.act_set_turbine_speed.speed = speed;
+	CAN_send(&msg);
 }

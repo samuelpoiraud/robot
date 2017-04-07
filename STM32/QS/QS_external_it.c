@@ -42,7 +42,7 @@
 		initialized = TRUE;
 	}
 
-	static void EXTERNALIT_configureBase(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge) {
+	static void EXTERNALIT_configureBase(EXTERNAL_IT_port_e port, EXTERNAL_IT_pin_e pin, EXTERNAL_IT_edge_e edge) {
 		NVIC_InitTypeDef NVIC_InitStructure;
 
 		if(pin >= 16)
@@ -66,7 +66,7 @@
 		NVIC_Init(&NVIC_InitStructure);
 	}
 
-	void EXTERNALIT_configure(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_t callback){
+	void EXTERNALIT_configure(EXTERNAL_IT_port_e port, EXTERNAL_IT_pin_e pin, EXTERNAL_IT_edge_e edge, EXTERNALIT_callback_it_t callback){
 		if(pin >= 16)
 			return;
 
@@ -76,7 +76,7 @@
 		EXTERNALIT_configureBase(port, pin, edge);
 	}
 
-	void EXTERNALIT_configureWithId(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge, EXTERNALIT_callback_it_with_id_t callback, Uint8 id){
+	void EXTERNALIT_configureWithId(EXTERNAL_IT_port_e port, EXTERNAL_IT_pin_e pin, EXTERNAL_IT_edge_e edge, EXTERNALIT_callback_it_with_id_t callback, Uint8 id){
 		if(pin >= 16)
 			return;
 
@@ -87,7 +87,7 @@
 		EXTERNALIT_configureBase(port, pin, edge);
 	}
 
-	void EXTERNALIT_set_edge(EXTERNALIT_port_e port, Uint8 pin, EXTERNALIT_edge_e edge) {
+	void EXTERNALIT_set_edge(EXTERNAL_IT_port_e port, EXTERNAL_IT_pin_e pin, EXTERNAL_IT_edge_e edge) {
 		EXTI_InitTypeDef EXTI_InitStructure;
 
 		EXTI_InitStructure.EXTI_Line = 1 << pin;
@@ -111,7 +111,7 @@
 		EXTI_Init(&EXTI_InitStructure);
 	}
 
-	void EXTERNALIT_set_priority(EXTERNALIT_port_e port, Uint8 pin, Uint8 priority) {
+	void EXTERNALIT_set_priority(EXTERNAL_IT_port_e port, EXTERNAL_IT_pin_e pin, Uint8 priority) {
 		NVIC_InitTypeDef NVIC_InitStructure;
 
 		if(pin < 5)
@@ -128,7 +128,7 @@
 		NVIC_Init(&NVIC_InitStructure);
 	}
 
-	void EXTERNALIT_disable(EXTERNALIT_port_e port, Uint8 pin) {
+	void EXTERNALIT_disable(EXTERNAL_IT_port_e port, EXTERNAL_IT_pin_e pin) {
 		EXTI_InitTypeDef EXTI_InitStructure;
 
 		EXTI_InitStructure.EXTI_Line = 1 << pin;
@@ -137,7 +137,7 @@
 		EXTI_Init(&EXTI_InitStructure);
 	}
 
-	void EXTERNALIT_set_it_enabled(EXTERNALIT_port_e port, Uint8 pin, bool_e enabled) {
+	void EXTERNALIT_set_it_enabled(EXTERNAL_IT_port_e port, EXTERNAL_IT_pin_e pin, bool_e enabled) {
 		IRQn_Type irq;
 
 		if(pin < 5)
