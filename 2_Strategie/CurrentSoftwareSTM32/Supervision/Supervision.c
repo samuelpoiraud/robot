@@ -35,7 +35,7 @@ void Supervision_init(void)
 		init_LCD_interface();
 	#endif
 
-	#ifdef USE_XBEE
+	#ifdef USE_XBEE_OLD
 		if(QS_WHO_AM_I_get() == SMALL_ROBOT)
 			CAN_over_XBee_init(SMALL_ROBOT_MODULE, BIG_ROBOT_MODULE);
 		else
@@ -121,7 +121,7 @@ void Supervision_process_main(void)
 	if(flag_xbee_msg)
 	{
 		flag_xbee_msg = 0;
-		#ifdef USE_XBEE
+		#ifdef USE_XBEE_OLD
 			// "Code désactivé car trop lourd sur le XBee"
 			if(0)	//if(IHM_switchs_get(SWITCH_XBEE))
 				SUPERVISION_send_pos_over_xbee();	//Envoi périodique de notre position en XBee (cet envoi ne fonctionnera que lorsque le module est initialisé, et qu'auprès des modules PINGés)
@@ -130,7 +130,7 @@ void Supervision_process_main(void)
 	/* Gestion du selftest*/
 	SELFTEST_process_main();
 
-	#ifdef USE_XBEE
+	#ifdef USE_XBEE_OLD
 		if(IHM_switchs_get(SWITCH_XBEE))
 		{
 			disable_already_said = FALSE;

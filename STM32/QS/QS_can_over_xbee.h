@@ -12,7 +12,7 @@
  */
 
 /** ----------------  Defines possibles  --------------------
- *	USE_XBEE					: Active QS_can_over_xbee
+ *	USE_XBEE_OLD					: Active QS_can_over_xbee
  *	XBEE_PLUGGED_ON_UART1		: Configuration de l'XBEE via l'UART 1
  *	XBEE_PLUGGED_ON_UART2		: Configuration de l'XBEE via l'UART 2
  *	XBEE_SIMULATION				: Envoi des messages CAN du XBEE sur le CAN
@@ -29,7 +29,7 @@
 #ifndef QS_CAN_OVER_XBEE_H
 	#define	QS_CAN_OVER_XBEE_H
 
-	#ifdef USE_XBEE
+	#ifdef USE_XBEE_OLD
 
 		#if !(defined XBEE_PLUGGED_ON_UART1 || defined XBEE_PLUGGED_ON_UART2)
 			#error "Vous devez définir l'UART où est branché le XBEE"
@@ -119,6 +119,6 @@
 		void CAN_over_XBee_set_send_callback(CAN_over_XBee_callback_action_t action);
 
 
-	#endif // def USE_XBEE
+	#endif // def USE_XBEE_OLD
 
 #endif /* ifndef QS_CAN_OVER_XBEE_H */

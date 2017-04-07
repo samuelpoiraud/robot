@@ -204,7 +204,7 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 
 	if(bUART_filter)
 	{
-		#ifdef USE_XBEE
+		#ifdef USE_XBEE_OLD
 			if(bXBee && IHM_switchs_get(SWITCH_XBEE))
 			{
 				if((incoming_msg->sid & 0xF00) == XBEE_FILTER)
@@ -320,7 +320,7 @@ void ENV_update(void)
 
 #define INTERVAL_ASK_TIME 1000  //Temps entre deux demandes d'état de la communication
 
-#ifdef USE_XBEE
+#ifdef USE_XBEE_OLD
 	if(IHM_switchs_get(SWITCH_XBEE))
 	{
 		if(XBeeToCANmsg(&can_msg_from_uart2))
