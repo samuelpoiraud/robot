@@ -116,4 +116,20 @@ Uint8 ACT_wait_state_vacuostat(Uint8 idVacuostat, MOSFET_BOARD_CURRENT_MEASURE_s
 
 void ACT_receive_vacuostat_msg(CAN_msg_t *msg);
 
+/**
+ * @brief ACT_get_turbine_speed
+ * @arg speed : pointeur de la variable ou stocker la vitesse [RPM]
+ * @arg in_progress : Etat en cours
+ * @arg sucess : Etat à retourner si l'état du vacuostat est bon
+ * @arg fail : Etat à retourner si timeout
+*
+ * @return : le state rentré en argument
+ */
+Uint8 ACT_get_turbine_speed(Uint16 * speed,  Uint8 in_progress, Uint8 sucess, Uint8 fail);
+
+void ACT_set_turbine_speed(Uint16 speed);
+
+void ACT_receive_turbine_msg(CAN_msg_t * msg);
+
+
 #endif /* ndef ACT_FUNCTIONS_H */

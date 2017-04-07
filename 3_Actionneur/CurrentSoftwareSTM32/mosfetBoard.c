@@ -70,10 +70,37 @@
 				CAN_send(&msg);
 			}break;
 
+			case MOSFET_BOARD_TELL_TURBINE_SPEED:{
+				CAN_msg_t msg;
+				msg.sid = ACT_TELL_TURBINE_SPEED;
+				msg.size = SIZE_ACT_TELL_TURBINE_SPEED;
+				msg.data.act_tell_turbine_speed.speed = msg.data.mosfet_board_tell_turbine_speed.speed;
+				CAN_send(&msg);
+			}break;
+
 			default:
 				break;
 		}
 
+	}
+
+	void MOSFET_BOARD_getTurbineSpeed(){
+		CAN_msg_t msg;
+
+		msg.sid = MOSFET_BOARD_GET_TURBINE_SPEED;
+		msg.size = SIZE_MOSFET_BOARD_GET_TURBINE_SPEED;
+
+		MOSFET_BOARD_sendCan(&msg);
+	}
+
+	void MOSFET_BOARD_setTurbineSpeed(Uint16 speed){
+		CAN_msg_t msg;
+
+		msg.sid = MOSFET_BOARD_SET_TURBINE_SPEED;
+		msg.size = SIZE_MOSFET_BOARD_SET_TURBINE_SPEED;
+		msg.data.mosfet_board_set_turbine_speed.speed = speed;
+
+		MOSFET_BOARD_sendCan(&msg);
 	}
 
 	void MOSFET_BOARD_getPumpStatus(Uint8 id){

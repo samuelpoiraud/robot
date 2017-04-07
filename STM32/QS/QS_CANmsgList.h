@@ -757,57 +757,72 @@
 			struct{
 				Uint32 param						:32;
 				Uint8 sid							:8;
-				Uint8 error_code				:8;
-				Uint8 idAct						:8;
+				Uint8 error_code					:8;
+				Uint8 idAct							:8;
 			}act_error;
 
-		#define ACT_ASK_SENSOR				0x3FE
-		#define SIZE_ACT_ASK_SENSOR			1
+		#define ACT_ASK_SENSOR						0x3FE
+		#define SIZE_ACT_ASK_SENSOR					1
 			struct{
-				act_sensor_id_e act_sensor_id	:8;
+				act_sensor_id_e act_sensor_id		:8;
 			}act_ask_sensor;
 
-		#define ACT_BOOST_ASSER				0x3FD
-		#define SIZE_ACT_BOOST_ASSER		1
+		#define ACT_BOOST_ASSER						0x3FD
+		#define SIZE_ACT_BOOST_ASSER				1
 			struct{
-				bool_e enable					:1;
+				bool_e enable						:1;
 			}act_boost_asser;
 
-		#define ACT_GET_CONFIG_ANSWER		0x21B
-		#define SIZE_ACT_GET_CONFIG_ANSWER	5
+		#define ACT_GET_CONFIG_ANSWER				0x21B
+		#define SIZE_ACT_GET_CONFIG_ANSWER			5
 			struct{
-				Uint16 sid						:8;
-				act_config_e config				:8;
+				Uint16 sid							:8;
+				act_config_e config					:8;
 
 				union{
 					struct{
-						ACT_order_e order		:8;
-						Uint16 pos				:16;
+						ACT_order_e order			:8;
+						Uint16 pos					:16;
 					}act_get_config_pos_answer;
-					Sint8 torque				:8;
-					Uint8 temperature			:8;
-					Sint8 load					:8;
+					Sint8 torque					:8;
+					Uint8 temperature				:8;
+					Sint8 load						:8;
 				}act_get_config_data;
 			}act_get_config_answer;
 
-		#define ACT_WARNER_ANSWER			0x21C
-		#define SIZE_ACT_WARNER_ANSWER		4
+		#define ACT_WARNER_ANSWER					0x21C
+		#define SIZE_ACT_WARNER_ANSWER				4
 			struct{
-				Uint16 sid						:8;
+				Uint16 sid							:8;
 			}act_warner_answer;
 
-		#define ACT_GET_MOSFET_CURRENT_STATE		0x21D
-		#define SIZE_ACT_GET_MOSFET_CURRENT_STATE	1
+		#define ACT_GET_MOSFET_CURRENT_STATE				0x21D
+		#define SIZE_ACT_GET_MOSFET_CURRENT_STATE			1
 			struct{
 				Uint8 id									:4;			// De 0 à 7
 			}act_get_mosfet_state;
 
-		#define ACT_TELL_MOSFET_CURRENT_STATE		0x21E
-		#define SIZE_ACT_TELL_MOSFET_CURRENT_STATE	1
+		#define ACT_TELL_MOSFET_CURRENT_STATE				0x21E
+		#define SIZE_ACT_TELL_MOSFET_CURRENT_STATE			1
 			struct{
 				Uint8 id									:4;			// De 0 à 7
 				MOSFET_BOARD_CURRENT_MEASURE_state_e state	:4;
 			}act_tell_mosfet_state;
+
+		#define ACT_GET_TURBINE_SPEED						0x21F
+		#define SIZE_ACT_GET_TURBINE_SPEED					0
+
+		#define ACT_TELL_TURBINE_SPEED						0x220
+		#define SIZE_ACT_TELL_TURBINE_SPEED					1
+			struct{
+				Uint16 speed								:16;		// [rpm]
+			}act_tell_turbine_speed;
+
+		#define ACT_SET_TURBINE_SPEED						0x221
+		#define SIZE_ACT_SET_TURBINE_SPEED					1
+			struct{
+				Uint16 speed								:16;		// [rpm]
+			}act_set_turbine_speed;
 
 
 	/**********************************************************************************************************************
@@ -835,6 +850,21 @@
 				Uint8 id									:4;			// De 0 à 7
 				MOSFET_BOARD_CURRENT_MEASURE_state_e state	:4;
 			}mosfet_board_tell_mosfet_state;
+
+		#define MOSFET_BOARD_GET_TURBINE_SPEED				0x503
+		#define SIZE_MOSFET_BOARD_GET_TURBINE_SPEED			0
+
+		#define MOSFET_BOARD_TELL_TURBINE_SPEED				0x504
+		#define SIZE_MOSFET_BOARD_TELL_TURBINE_SPEED		1
+			struct{
+				Uint16 speed								:16;		// [rpm]
+			}mosfet_board_tell_turbine_speed;
+
+		#define MOSFET_BOARD_SET_TURBINE_SPEED				0x505
+		#define SIZE_MOSFET_BOARD_SET_TURBINE_SPEED			1
+			struct{
+				Uint16 speed								:16;		// [rpm]
+			}mosfet_board_set_turbine_speed;
 
 
 	/**********************************************************************************************************************
