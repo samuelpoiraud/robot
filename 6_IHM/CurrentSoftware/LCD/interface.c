@@ -31,6 +31,10 @@ void INTERFACE_processMain(void){
 			INTERFACE_IHM_wait();
 			break;
 
+		case INTERFACE_IHM_DEBUG:
+			INTERFACE_IHM_debug();
+			break;
+
 		case INTERFACE_IHM_POSITION:
 			INTERFACE_IHM_position();
 			break;
@@ -148,7 +152,7 @@ static void INTERFACE_IHM_debug(void){
 
 static void INTERFACE_IHM_position(void){
 	static bool_e init = FALSE;
-	static objectId_t x, y, teta, voltage;
+	static objectId_t x, y, teta, voltage, advIr1, advIr2, adv1, adv2;
 	static time32_t lastRefresh;
 
 	if(!init){
@@ -158,6 +162,11 @@ static void INTERFACE_IHM_position(void){
 
 		voltage = MIDDLEWARE_addText(50, 100, 0x0000, 0xFFFF, "%d mV", global.voltage.Vpermanent);
 
+		advIr1 = MIDDLEWARE_addText(10, 115, 0x0000, 0xFFFF, "advIr1 dist : %4d  |  angle : %4d..", global.foe[0].dist, global.foe[0].angle*180/PI4096);
+		advIr2 = MIDDLEWARE_addText(10, 130, 0x0000, 0xFFFF, "advIr2 dist : %4d  |  angle : %4d..", global.foe[1].dist, global.foe[1].angle*180/PI4096);
+		adv1 = MIDDLEWARE_addText(10, 145, 0x0000, 0xFFFF, "adv1 dist : %4d  |  angle : %4d..", global.foe[2].dist, global.foe[2].angle*180/PI4096);
+		adv2 = MIDDLEWARE_addText(10, 160, 0x0000, 0xFFFF, "adv2 dist : %4d  |  angle : %4d..", global.foe[3].dist, global.foe[3].angle*180/PI4096);
+
 		init = TRUE;
 	}
 
@@ -166,6 +175,12 @@ static void INTERFACE_IHM_position(void){
 		MIDDLEWARE_setText(y, "y : %d", global.pos.y);
 		MIDDLEWARE_setText(teta, "teta : %d  |  %d°", global.pos.teta, global.pos.teta*180/PI4096);
 		MIDDLEWARE_setText(voltage, "%d mV", global.voltage.Vpermanent);
+
+		MIDDLEWARE_setText(advIr1, "advIr1 dist : %4d  |  angle : %4d..", global.foe[0].dist, global.foe[0].angle*180/PI4096);
+		MIDDLEWARE_setText(advIr2, "advIr2 dist : %4d  |  angle : %4d..", global.foe[1].dist, global.foe[1].angle*180/PI4096);
+
+		MIDDLEWARE_setText(adv1, "adv1 dist : %4d  |  angle : %4d..", global.foe[2].dist, global.foe[2].angle*180/PI4096);
+		MIDDLEWARE_setText(adv2, "adv2 dist : %4d  |  angle : %4d..", global.foe[3].dist, global.foe[3].angle*180/PI4096);
 	}
 
 

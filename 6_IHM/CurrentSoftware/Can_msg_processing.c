@@ -19,6 +19,7 @@
 #include "switch.h"
 #include "led.h"
 #include "voltage_measure.h"
+#include "detection.h"
 
 static void CAN_send_callback(CAN_msg_t* msg);
 static void CAN_send_pong(void);
@@ -42,6 +43,11 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			global.pos.x = msg->data.broadcast_position_robot.x;
 			global.pos.y = msg->data.broadcast_position_robot.y;
 			global.pos.teta = msg->data.broadcast_position_robot.angle;
+			break;
+
+		case BROADCAST_ADVERSARIES_POSITION:
+		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
+			DETECTION_receiveCanMsg(msg);
 			break;
 
 		case BROADCAST_RESET:
