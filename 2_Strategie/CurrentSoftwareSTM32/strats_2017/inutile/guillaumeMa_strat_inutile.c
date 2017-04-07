@@ -21,50 +21,80 @@ void guillaumeMa_strat_inutile_big(){
 			INIT,
 			ERROR,
 			ACTION,
-			TEST,
+			ACTION_2,
+			MODULE_1,
+			MODULE_2,
+			MODULE_3,
+			MODULE_4,
+			TEST_1,
 			TEST_2,
 			TEST_3,
 			TEST_4,
+			TEST_5,
 			DONE
 	);
 	sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
-	static time32_t local_time = 0;
-	//static bool_e trigger_is_ok = FALSE;
 
 	switch(state){
 // calage de debut
 		case INIT:{
-			date_t date;
-			date.hours = 14;
-			date.day = 6;
-			date.month = 4;
-			date.year = 17;
-			RTC_set_time  (&date);
-			state = DONE;
-			//state = ACTION;
-		}
+			state = try_going(global.pos.x+200, global.pos.y, state, ACTION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case ACTION:
-			state = try_going(1000, 1500, state, TEST, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1000, 1350, state, ACTION_2, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case TEST:
-			state = check_sub_action_result(sub_harry_take_north_little_crater(OUR_ELEMENT), state, TEST_2, ERROR);
+		case ACTION_2:
+			//sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_match_e basis_side)
+			state = check_sub_action_result(sub_harry_get_in_depose_modules_centre(NEUTRAL_ELEMENT, OUR_SIDE), state, DONE, ERROR);
+			break;
+
+			/*
+		case ACTION:
+			state = try_going(400, 1350, state, MODULE_1, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case MODULE_1:
+			state = try_going(700, 1350, state, MODULE_2, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case MODULE_2:
+			state = try_going(700, 950, state, MODULE_3, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case MODULE_3:
+			state = try_going(250, 950, state, MODULE_4, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case MODULE_4:
+			state = try_going(500, 950, state, TEST_1, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TEST_1:
+			state = try_going(400, 1150, state, TEST_2, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TEST_2:
-			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, TEST_3, ERROR);
+			state = try_going(300, 1150, state, TEST_3, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TEST_3:
-			state = check_sub_action_result(sub_harry_take_north_little_crater(ADV_ELEMENT), state, TEST_4, ERROR);
+			state = check_sub_action_result(sub_harry_prise_module_unicolor_north(RIGHT), state, TEST_4, ERROR);
+			//state = TEST_4;
 			break;
+
 
 		case TEST_4:
-			state = check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT), state, DONE, ERROR);
+			state = try_going(700, COLOR_Y(400), state, TEST_5, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
+
+		case TEST_5:
+			state = try_going(1600, COLOR_Y(760), state, DONE, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+*/
 		case ERROR:
 			if(entrance){
 				debug_printf("ERROR\n");
