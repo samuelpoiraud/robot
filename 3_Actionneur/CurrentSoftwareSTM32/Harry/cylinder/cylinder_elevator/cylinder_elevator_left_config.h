@@ -20,7 +20,7 @@
 	#define CYLINDER_ELEVATOR_LEFT_RX24_SPEED						30		// Vitesse par défaut du RX24
 
 //Position
-    #define CYLINDER_ELEVATOR_LEFT_RX24_IDLE_POS					350
+    #define CYLINDER_ELEVATOR_LEFT_RX24_IDLE_POS					365
     #define CYLINDER_ELEVATOR_LEFT_RX24_TOP_POS			     		702	//en degré
     #define CYLINDER_ELEVATOR_LEFT_RX24_BOTTOM_POS					350	//en degré
     #define CYLINDER_ELEVATOR_LEFT_RX24_LOCK_WITH_CYLINDER_POS		489	//en degré
