@@ -22,7 +22,7 @@
 //Position
     #define CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS								821
     #define CYLINDER_SLIDER_RIGHT_RX24_IN_POS						     	800  //821	//en degré
-    #define CYLINDER_SLIDER_RIGHT_RX24_OUT_POS								214	//en degré
+    #define CYLINDER_SLIDER_RIGHT_RX24_OUT_POS								204	//en degré 214
     #define CYLINDER_SLIDER_RIGHT_RX24_ALMOST_OUT_POS						414	//en degré
     #define CYLINDER_SLIDER_RIGHT_RX24_ALMOST_OUT_WITH_CYLINDER_POS			650	//en degré
 

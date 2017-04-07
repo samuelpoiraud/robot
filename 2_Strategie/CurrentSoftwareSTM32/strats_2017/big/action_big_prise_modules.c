@@ -519,6 +519,53 @@ error_e sub_harry_prise_modules_manager(const get_this_module_s list_modules[], 
 
 }
 
+
+error_e sub_harry_launch_prise_module_start_centre(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_LAUNCH_PRISE_MODULE,
+				INIT,
+				GET_OUT_START_ZONE,
+				ERROR,
+				DONE
+			);
+
+	#define SIZE_OUR_MODULES_WITH_ROCKET  (2)   // Prise des modules suivi de la fusée multicouleur
+	const get_this_module_s our_modules_with_rocket[SIZE_OUR_MODULES_WITH_ROCKET] = {
+			{.numero = MODULE_OUR_START,		.side = COLOR_EXP(LEFT, RIGHT)},	// Utiliser COLOR_EXP pour changer le côté de stockage suivant la couleur
+			{.numero = MODULE_OUR_SIDE, 		.side = COLOR_EXP(LEFT, RIGHT)}
+	};
+
+	switch(state){
+		case INIT:
+			state = try_going(global.pos.x + 100, global.pos.y, state, GET_OUT_START_ZONE, ERROR, FAST,ANY_WAY, DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			//state = GET_OUT_START_ZONE;
+			break;
+
+		case GET_OUT_START_ZONE:
+			//state = check_sub_action_result(sub_harry_prise_modules_manager(our_modules_with_rocket, SIZE_OUR_MODULES_WITH_ROCKET), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_rocket_monocolor(), state, DONE, ERROR);
+			break;
+
+
+		case ERROR:
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_push_modules_bretagne\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
 error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULE_START_CENTER,
 			INIT,
@@ -603,7 +650,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 					state = try_going(350,COLOR_Y(1400), CHECK_FIRST_ELEMENT, GO_TO_START_POINT_UP, ERROR, FAST, ANY_WAY, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 				}
 				else{
-					state = GO_TO_START_POINT_UP;
+					state = try_going(global.pos.x+100, global.pos.y, state, GO_TO_START_POINT_UP, ERROR, FAST,ANY_WAY, DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 				}
 				break;
 
@@ -1783,19 +1830,19 @@ error_e sub_harry_rocket_monocolor(){
 			break;
 
 		case GO_TO_START_POINT:
-			state = try_going(275, COLOR_Y(1150), state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(265, COLOR_Y(1150), state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
 			//state=check_sub_action_result(sub_harry_take_rocket(),state,GET_OUT,GET_OUT_ERROR);
 
 			// Juste pour les tests
+			/*ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
 			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
 			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);*/
 
-			state = GET_OUT;
+			state = DONE;
 			break;
 
 		case GET_OUT:
