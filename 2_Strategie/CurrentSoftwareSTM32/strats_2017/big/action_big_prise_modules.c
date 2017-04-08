@@ -273,6 +273,31 @@
 	return IN_PROGRESS;
 }*/
 
+//1285 2265
+
+/*
+		case GO_PUNCH:
+			state = try_going(1285, COLOR_Y(2265), state, PUNCH, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case PUNCH:
+
+			if(entrance){
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, PUNCH_OUT, ERROR);
+			break;
+
+		case PUNCH_OUT:
+
+			if(entrance){
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, NEXT, ERROR);
+			break;
+*/
+
+
 error_e sub_push_modules_bretagne(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PUSH_MODULES_BRETAGNE,
 			INIT,
