@@ -375,19 +375,19 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case PUSH_MODULES_START_ZONE:
-			state = try_going_multipoint(curve_push, 4, state, MOVE_BACK, ERROR, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(curve_push, 4, state, MOVE_BACK, GO_TO_START_POINT, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MOVE_BACK:
-			state = try_going(600, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(600, COLOR_Y(1000), state, GET_IN_DIRECT, PUSH_MODULES_START_ZONE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_DIRECT:
-			state = try_going(400, COLOR_Y(1150), state, GO_TO_ROCKET, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(400, COLOR_Y(1150), state, GO_TO_ROCKET, MOVE_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GO_TO_ROCKET:
-			state = try_going(265, COLOR_Y(1150), state, TAKE_ROCKET_RIGHT_OUT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(265, COLOR_Y(1150), state, TAKE_ROCKET_RIGHT_OUT, GET_IN_DIRECT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TAKE_ROCKET_RIGHT_OUT:
@@ -431,7 +431,7 @@ error_e sub_push_modules_bretagne(){
 		case DEPOSE:
 			nbAppel -= 1;
 			if(nbAppel>0){
-				state = try_going(300, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(300, COLOR_Y(1000), state, GET_IN_DIRECT, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
 				state = try_going(300, COLOR_Y(1000), state, GET_OUT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
@@ -442,12 +442,84 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case TAKE_MODULE:
-			state = check_sub_action_result(sub_harry_push_module_north(), state, DEPOSE_MODULE, ERROR);
+			state = check_sub_action_result(sub_harry_push_module_north(), state, DEPOSE_MODULE, DEPOSE_MODULE);
 			break;
 
 		case DEPOSE_MODULE:
 			state = check_sub_action_result(sub_harry_cylinder_depose_manager(), state, DONE, ERROR);
 			break;
+
+			// l'autre fusée
+
+			/*
+
+			case TAKE_ROCKET_MULTI:
+				state = ASTAR_try_going(1250, COLOR_Y(500), state, TAKE_ROCKET_MULTI_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				break;
+
+			case TAKE_ROCKET_MULTI_POS:
+				state = try_going(1250, COLOR_Y(265), GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				break;
+
+
+			case TAKE_ROCKET_RIGHT_OUT:
+
+			if(entrance){
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_RIGHT_IN, ERROR);
+			break;
+
+		case TAKE_ROCKET_RIGHT_IN:
+
+			if(entrance){
+					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_OUT, ERROR);
+			break;
+
+		case TAKE_ROCKET_LEFT_OUT:
+
+			if(entrance){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_IN, ERROR);
+			break;
+
+		case TAKE_ROCKET_LEFT_IN:
+
+			if(entrance){
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, GET_BACK, ERROR);
+			break;
+
+		case GET_BACK:
+			state = try_going(400, COLOR_Y(1150), state, DEPOSE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case DEPOSE:
+			nbAppel -= 1;
+			if(nbAppel>0){
+				state = try_going(300, COLOR_Y(1000), state, GET_IN_DIRECT, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(300, COLOR_Y(1000), state, GET_OUT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case GET_OUT:
+			state = try_going(400, COLOR_Y(1150), state, TAKE_MODULE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+			 */
+
+
+
+
+
+
+
 
 
 		/*
