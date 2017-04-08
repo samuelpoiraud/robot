@@ -516,11 +516,11 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case ERROR_GET_OUT:
-			state = try_go_angle((PI4096*3/4), state, DEPOSE_MODULE, GET_OUT, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_go_angle((PI4096*3/4), state, DEPOSE_MODULE, GET_OUT, SLOW, ANY_WAY, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_GET_BACK:
-			state = try_go_angle((PI4096*3/4), state, DEPOSE_MODULE, GET_BACK, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_go_angle((PI4096*3/4), state, DEPOSE_MODULE, GET_BACK, SLOW, ANY_WAY, END_AT_LAST_POINT);
 			break;
 
 
