@@ -332,18 +332,17 @@ error_e sub_push_modules_bretagne(){
 		case RISE_ELEVATOR_RIGHT:
 
 			if(entrance){
-					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
+				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, RISE_ELEVATOR_LEFT, ERROR);
-
+			state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, RISE_ELEVATOR_LEFT, ERROR);
 			break;
 
 		case RISE_ELEVATOR_LEFT:
 
 			if(entrance){
-					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER);
+				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, GO_TO_START_POINT, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, GO_TO_START_POINT, ERROR);
 			break;
 
 		case GO_TO_START_POINT:
@@ -375,15 +374,6 @@ error_e sub_push_modules_bretagne(){
 			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_RIGHT_IN, ERROR);
 			break;
 
-		case TAKE_ROCKET_RIGHT_OUT:
-
-			if(entrance){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT);
-			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_RIGHT_IN, ERROR);
-			break;
-
 		case TAKE_ROCKET_RIGHT_IN:
 
 			if(entrance){
@@ -392,29 +382,13 @@ error_e sub_push_modules_bretagne(){
 			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_OUT, ERROR);
 			break;
 
-		case TAKE_ROCKET_LEFT_OUT:{
-
-			Uint8 state1=INIT;
-			Uint8 state2=INIT;
+		case TAKE_ROCKET_LEFT_OUT:
 
 			if(entrance){
-								ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-								ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
-						}
-
-			state1 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, DONE, ERROR);
-			state2 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, DONE, ERROR);
-
-		if((state1==ERROR)||(state2==ERROR)){
-			state=ERROR;
-		}
-		else if((state1==DONE)&&(state2==DONE)){
-			state=TAKE_ROCKET_LEFT_IN;
-		}
-
-
-
-
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_IN, ERROR);
 			break;
 
 		case TAKE_ROCKET_LEFT_IN:
