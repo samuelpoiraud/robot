@@ -304,46 +304,75 @@ error_e sub_push_modules_bretagne(){
 			GET_OUT_START_ZONE,
 			GO_TO_START_POINT,
 			PUSH_MODULES_START_ZONE,
+
+
+			GET_IN_DIRECT,
+			GO_TO_ROCKET,
 			GET_IN_DIRECT,
 			GO_TO_ROCKET,
 			MOVE_BACK,
 
 			RISE_ELEVATOR_RIGHT,
 			RISE_ELEVATOR_LEFT,
-			TAKE_ROCKET_RIGHT_OUT,
-			TAKE_ROCKET_RIGHT_IN,
+
+			GET_IN_DIRECT,
+			GO_TO_ROCKET,
 			TAKE_ROCKET_LEFT_OUT,
 			TAKE_ROCKET_LEFT_IN,
-			TAKE_MODULE,
 			GET_BACK,
 			DEPOSE,
-			STOP_POMPE_RIGHT,
 			STOP_POMPE_LEFT,
-			PUSH_ELEVATOR_RIGHT_DOWN,
-			PUSH_ELEVATOR_RIGHT_UP,
-			PUSH_ELEVATOR_LEFT_DOWN,
-			PUSH_ELEVATOR_LEFT_UP,
-			COMPUTE,
+
+			GET_IN_DIRECT_2,
+			GO_TO_ROCKET_2,
+			TAKE_ROCKET_LEFT_OUT_2,
+			TAKE_ROCKET_LEFT_IN_2,
+			GET_BACK_2,
+			DEPOSE_2,
+			STOP_POMPE_LEFT_2,
+
+			GET_IN_DIRECT_3,
+			GO_TO_ROCKET_3,
+			PROTECT_FALL_OUT_3,
+			PROTECT_FALL_IN_3,
+			TAKE_ROCKET_LEFT_OUT_3,
+			TAKE_ROCKET_LEFT_IN_3,
+			GET_BACK_3,
+			DEPOSE_3,
+			STOP_POMPE_LEFT_3,
+
+			GET_IN_DIRECT_4,
+			GO_TO_ROCKET_4,
+			PROTECT_FALL_OUT_4,
+			PROTECT_FALL_IN_4,
+			TAKE_ROCKET_LEFT_OUT_4,
+			TAKE_ROCKET_LEFT_IN_4,
+			GET_BACK_4,
+			DEPOSE_4,
+			STOP_POMPE_LEFT_4,
+
 			GET_OUT,
+			TAKE_MODULE,
 			DEPOSE_MODULE,
 			ERROR_GET_OUT,
 			ERROR_GET_BACK,
 
-			/*
-			GET_OUT,
-			GET_OUT_ERROR,
-			AVANCE,
-			AVANCE_ERROR,
-			*/
 			ERROR,
 			DONE
 		);
 
-	const displacement_t curve_to_start_point[5] = {(displacement_t){(GEOMETRY_point_t){450, COLOR_Y(1250)}, FAST},
+	const displacement_t curve_to_start_point_yellow[5] = {(displacement_t){(GEOMETRY_point_t){450, COLOR_Y(1250)}, FAST},
 													 (displacement_t){(GEOMETRY_point_t){950, COLOR_Y(1200)}, FAST},
 													 (displacement_t){(GEOMETRY_point_t){1300, COLOR_Y(700)}, FAST},
-													 (displacement_t){(GEOMETRY_point_t){1400, COLOR_Y(550)}, SLOW},
-													 (displacement_t){(GEOMETRY_point_t){1250, COLOR_Y(300)}, SLOW}
+													 (displacement_t){(GEOMETRY_point_t){1400, COLOR_Y(650)}, SLOW},
+													 (displacement_t){(GEOMETRY_point_t){1250, COLOR_Y(375)}, SLOW}
+													 };
+
+	const displacement_t curve_to_start_point_blue[5] = {(displacement_t){(GEOMETRY_point_t){450, COLOR_Y(1250)}, FAST},
+													 (displacement_t){(GEOMETRY_point_t){950, COLOR_Y(1200)}, FAST},
+													 (displacement_t){(GEOMETRY_point_t){1300, COLOR_Y(700)}, FAST},
+													 (displacement_t){(GEOMETRY_point_t){1400, COLOR_Y(600)}, SLOW},
+													 (displacement_t){(GEOMETRY_point_t){1250, COLOR_Y(350)}, SLOW}
 													 };
 
 	const displacement_t curve_push[4] = {(displacement_t){(GEOMETRY_point_t){1100, COLOR_Y(500)}, FAST},
@@ -351,8 +380,6 @@ error_e sub_push_modules_bretagne(){
 										 (displacement_t){(GEOMETRY_point_t){600, COLOR_Y(1040)}, FAST},
 										 (displacement_t){(GEOMETRY_point_t){400, COLOR_Y(980)}, FAST}
 										 };
-
-	static Uint8 nbAppel = 2;
 
 	switch(state){
 		case INIT:
@@ -374,8 +401,9 @@ error_e sub_push_modules_bretagne(){
 		case RISE_ELEVATOR_LEFT:
 
 			if(entrance){
-				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
+				ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER);
 			}
+			state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, GET_IN_DIRECT, ERROR);
 			state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, GO_TO_START_POINT, GO_TO_START_POINT);
 			break;
 
@@ -397,28 +425,13 @@ error_e sub_push_modules_bretagne(){
 
 		case GO_TO_ROCKET:
 			if(global.color == YELLOW){
+				state = try_going(260, COLOR_Y(1100), state, TAKE_ROCKET_LEFT_OUT, TAKE_ROCKET_LEFT_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				state = try_going(260, COLOR_Y(1150), state, TAKE_ROCKET_RIGHT_OUT, GET_IN_DIRECT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
+				state = try_going(260, COLOR_Y(1150), state, TAKE_ROCKET_LEFT_OUT, TAKE_ROCKET_LEFT_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				state = try_going(260, COLOR_Y(1145), state, TAKE_ROCKET_RIGHT_OUT, GET_IN_DIRECT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 
-			break;
-
-		case TAKE_ROCKET_RIGHT_OUT:
-
-			if(entrance){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT);
-			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_RIGHT_IN, TAKE_ROCKET_LEFT_OUT);
-			break;
-
-		case TAKE_ROCKET_RIGHT_IN:
-
-			if(entrance){
-					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN);
-			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_OUT, GET_BACK);
 			break;
 
 		case TAKE_ROCKET_LEFT_OUT:
@@ -427,7 +440,8 @@ error_e sub_push_modules_bretagne(){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
 					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_IN, GET_BACK);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, TAKE_ROCKET_LEFT_IN, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_RIGHT_IN, TAKE_ROCKET_LEFT_OUT);
 			break;
 
 		case TAKE_ROCKET_LEFT_IN:
@@ -435,23 +449,16 @@ error_e sub_push_modules_bretagne(){
 			if(entrance){
 					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, GET_BACK, GET_BACK);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, GET_BACK, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_OUT, GET_BACK);
 			break;
 
 		case GET_BACK:
-			state = try_going(400, COLOR_Y(1150), state, DEPOSE, ERROR_GET_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(400, COLOR_Y(1150), state, DEPOSE, DEPOSE, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case DEPOSE:
-			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_RIGHT, GET_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case STOP_POMPE_RIGHT:
-
-			if(entrance){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
-			}
-			state = check_act_status(ACT_QUEUE_Pompe_act_slider_right, state, STOP_POMPE_LEFT, GET_OUT);
+			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_LEFT, STOP_POMPE_LEFT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case STOP_POMPE_LEFT:
@@ -459,41 +466,114 @@ error_e sub_push_modules_bretagne(){
 			if(entrance){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 			}
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, GET_IN_DIRECT_2, GET_IN_DIRECT_2);
+			break;
+
+		case GET_IN_DIRECT_2:
+			state = try_going(400, COLOR_Y(1150), state, GO_TO_ROCKET_2, MOVE_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_ROCKET_2:
+			if(global.color == YELLOW){
+				state = try_going(260, COLOR_Y(1150), state, TAKE_ROCKET_LEFT_OUT_2, TAKE_ROCKET_LEFT_OUT_2, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(260, COLOR_Y(1150), state, TAKE_ROCKET_LEFT_OUT_2, TAKE_ROCKET_LEFT_OUT_2, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+
+			break;
+
+		case TAKE_ROCKET_LEFT_OUT_2:
+
+			if(entrance){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, TAKE_ROCKET_LEFT_IN_2, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_IN, GET_BACK);
+			break;
+
+		case TAKE_ROCKET_LEFT_IN_2:
+
+			if(entrance){
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, GET_BACK_2, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, GET_BACK, GET_BACK);
+			break;
+
+		case GET_BACK_2:
+			state = try_going(400, COLOR_Y(1150), state, DEPOSE_2, DEPOSE_2, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case GET_BACK:
+			state = try_going(400, COLOR_Y(1150), state, DEPOSE, ERROR_GET_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case DEPOSE_2:
+			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_LEFT_2, STOP_POMPE_LEFT_2, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case DEPOSE:
+			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_RIGHT, GET_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case STOP_POMPE_LEFT_2:
+
+			if(entrance){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+			}
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, GET_OUT, GET_OUT);
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_right, state, STOP_POMPE_LEFT, GET_OUT);
+			break;
+
+
+		case GET_IN_DIRECT_3:
+			state = try_going(400, COLOR_Y(1150), state, GO_TO_ROCKET_3, MOVE_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_ROCKET_3:
+			if(global.color == YELLOW){
+				state = try_going(260, COLOR_Y(1150), state, PROTECT_FALL_OUT_3, PROTECT_FALL_OUT_3, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(260, COLOR_Y(1150), state, PROTECT_FALL_OUT_3, PROTECT_FALL_OUT_3, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+
 			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, PUSH_ELEVATOR_RIGHT_DOWN, GET_OUT);
 			break;
 
-		case PUSH_ELEVATOR_RIGHT_DOWN:
-
+		case PROTECT_FALL_OUT_3:
 			if(entrance){
-				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
+					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT);
 			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, PROTECT_FALL_IN_3, ERROR);
 			state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, PUSH_ELEVATOR_RIGHT_UP, COMPUTE);
 			break;
 
-		case PUSH_ELEVATOR_RIGHT_UP:
-
+		case PROTECT_FALL_IN_3:
 			if(entrance){
-				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
+					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN);
 			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_OUT_3, ERROR);
 			state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, GO_TO_START_POINT, COMPUTE);
 			break;
 
-		case PUSH_ELEVATOR_LEFT_DOWN:
+		case TAKE_ROCKET_LEFT_OUT_3:
 
 			if(entrance){
-				ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
 			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, TAKE_ROCKET_LEFT_IN_3, ERROR);
 			state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, PUSH_ELEVATOR_LEFT_UP, COMPUTE);
 			break;
 
-		case PUSH_ELEVATOR_LEFT_UP:
+		case TAKE_ROCKET_LEFT_IN_3:
 
 			if(entrance){
-				ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER);
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN);
 			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, GET_BACK_3, ERROR);
 			state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, COMPUTE, COMPUTE);
 			break;
 
+		case GET_BACK_3:
+			state = try_going(400, COLOR_Y(1150), state, DEPOSE_3, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 		case COMPUTE:
 			nbAppel -= 1;
 			if(nbAppel>0){
@@ -503,14 +583,18 @@ error_e sub_push_modules_bretagne(){
 			}
 			break;
 
+		case DEPOSE_3:
+			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_LEFT_3, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 		case GET_OUT:
 			state = try_going(400, COLOR_Y(1150), state, TAKE_MODULE, ERROR_GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case TAKE_MODULE:
-			state = check_sub_action_result(sub_harry_push_module_north(), state, DEPOSE_MODULE, DEPOSE_MODULE);
-			break;
+		case STOP_POMPE_LEFT_3:
 
+			if(entrance){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+			}
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, GET_OUT, GET_OUT);
 		case DEPOSE_MODULE:
 			state = check_sub_action_result(sub_harry_cylinder_depose_manager(), state, DONE, ERROR); //
 			break;
@@ -526,98 +610,89 @@ error_e sub_push_modules_bretagne(){
 
 			// l'autre fusée
 
-			/*
-
-			case TAKE_ROCKET_MULTI:
-				state = ASTAR_try_going(1250, COLOR_Y(500), state, TAKE_ROCKET_MULTI_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-				break;
-
-			case TAKE_ROCKET_MULTI_POS:
-				state = try_going(1250, COLOR_Y(265), GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-				break;
-
-
-			case TAKE_ROCKET_RIGHT_OUT:
-
-			if(entrance){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT);
-			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_RIGHT_IN, ERROR);
+		case GET_IN_DIRECT_4:
+			state = try_going(400, COLOR_Y(1150), state, GO_TO_ROCKET_4, MOVE_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case TAKE_ROCKET_RIGHT_IN:
+		case GO_TO_ROCKET_4:
+			if(global.color == YELLOW){
+				state = try_going(260, COLOR_Y(1150), state, PROTECT_FALL_OUT_4, PROTECT_FALL_OUT_4, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(260, COLOR_Y(1150), state, PROTECT_FALL_OUT_4, PROTECT_FALL_OUT_4, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
 
+			break;
+
+		case PROTECT_FALL_OUT_4:
+			if(entrance){
+					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, PROTECT_FALL_IN_4, ERROR);
+			break;
+
+		case PROTECT_FALL_IN_4:
 			if(entrance){
 					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_OUT, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_OUT_4, ERROR);
 			break;
 
-		case TAKE_ROCKET_LEFT_OUT:
+		case TAKE_ROCKET_LEFT_OUT_4:
 
 			if(entrance){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
 					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_IN, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, TAKE_ROCKET_LEFT_IN_4, ERROR);
 			break;
 
-		case TAKE_ROCKET_LEFT_IN:
+		case TAKE_ROCKET_LEFT_IN_4:
 
 			if(entrance){
 					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, GET_BACK, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, GET_BACK_4, ERROR);
 			break;
 
-		case GET_BACK:
-			state = try_going(400, COLOR_Y(1150), state, DEPOSE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case GET_BACK_4:
+			state = try_going(400, COLOR_Y(1150), state, DEPOSE_4, DEPOSE_4, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case DEPOSE:
-			nbAppel -= 1;
-			if(nbAppel>0){
-				state = try_going(300, COLOR_Y(1000), state, GET_IN_DIRECT, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case DEPOSE_4:
+			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_LEFT_4, STOP_POMPE_LEFT_4, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case STOP_POMPE_LEFT_4:
+
+			if(entrance){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+			}
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, GET_OUT, GET_OUT);
+			break;
+
+		case GET_OUT:
+			state = try_going(400, COLOR_Y(1150), state, GO_TO_START_POINT, GO_TO_START_POINT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_START_POINT:
+			if(global.color == YELLOW){
+				state = try_going_multipoint(curve_to_start_point_yellow, 5, state, PUSH_MODULES_START_ZONE, PUSH_MODULES_START_ZONE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(300, COLOR_Y(1000), state, GET_OUT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going_multipoint(curve_to_start_point_blue, 5, state, PUSH_MODULES_START_ZONE, PUSH_MODULES_START_ZONE, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
-		case GET_OUT:
-			state = try_going(400, COLOR_Y(1150), state, TAKE_MODULE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-			 */
-
-
-
-
-
-
-
-
-
-		/*
-		case GET_OUT:
-			state=try_going(500, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+		case PUSH_MODULES_START_ZONE:
+			state = try_going_multipoint(curve_push, 4, state, MOVE_BACK, GO_TO_START_POINT, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case GET_OUT_ERROR:
-			state=try_going(500, global.pos.y, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+		case MOVE_BACK:
+			state = try_going(600, COLOR_Y(1000), state, GET_IN_DIRECT, GET_IN_DIRECT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
-
-		case AVANCE:
-			state=try_going(220, global.pos.y, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case AVANCE_ERROR:
-			state=try_going(220, global.pos.y, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		*/
 
 		case ERROR:
 			//RESET_MAE();
+
 			on_turning_point();
 			return NOT_HANDLED;
 			break;
@@ -2483,4 +2558,5 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		return IN_PROGRESS;
 }
+
 
