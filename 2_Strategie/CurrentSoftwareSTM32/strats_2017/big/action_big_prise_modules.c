@@ -443,7 +443,7 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case DEPOSE:
-			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_RIGHT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_RIGHT, GET_BACK, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case STOP_POMPE_RIGHT:
@@ -451,7 +451,7 @@ error_e sub_push_modules_bretagne(){
 			if(entrance){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
 			}
-			state = check_act_status(ACT_QUEUE_Pompe_act_slider_right, state, STOP_POMPE_LEFT, ERROR);
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_right, state, STOP_POMPE_LEFT, GET_OUT);
 			break;
 
 		case STOP_POMPE_LEFT:
@@ -459,7 +459,7 @@ error_e sub_push_modules_bretagne(){
 			if(entrance){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 			}
-			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, PUSH_ELEVATOR_RIGHT_DOWN, ERROR);
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, PUSH_ELEVATOR_RIGHT_DOWN, GET_OUT);
 			break;
 
 		case PUSH_ELEVATOR_RIGHT_DOWN:
@@ -512,7 +512,7 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case DEPOSE_MODULE:
-			state = check_sub_action_result(sub_harry_cylinder_depose_manager(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_cylinder_depose_manager(), state, DONE, ERROR); //
 			break;
 
 		case ERROR_GET_OUT:
