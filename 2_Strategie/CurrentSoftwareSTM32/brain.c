@@ -26,7 +26,6 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_sys.h"
 #include "Supervision/Supervision.h"
-#include "Supervision/SelftestActionneur.h"
 #include "Supervision/Buzzer.h"
 #include "utils/actionChecker.h"
 #include "zones.h"
@@ -35,7 +34,6 @@
 
 #include "strats_2017/actions_both_generic.h"
 #include "strats_2017/inutile/strat_inutile.h"
-#include "strats_2017/big/action_big.h"
 
 #include "high_level_strat.h"
 
@@ -44,9 +42,9 @@
 //							Valeur souhaitable pour le commit SVN : high_level_strat
 
 
-#define DEFAULT_STRAT_BIG		sub_push_modules_bretagne
+#define DEFAULT_STRAT_BIG		high_level_strat
 
-#define DEFAULT_STRAT_SMALL		thomas_strat_inutile_big
+#define DEFAULT_STRAT_SMALL		high_level_strat
 
 
 static ia_fun_t strategy;
@@ -86,7 +84,6 @@ static const strategy_list_s list_strategy[] = {
 	{"strat_odo_tra",		strat_reglage_odo_translation,					0,					TRUE,					BOTH},
 	{"strat_odo_sym",		strat_reglage_odo_symetrie,						0,					TRUE,					BOTH},
 	{"strat_prop",			strat_reglage_prop,								0,					TRUE,					BOTH},
-	//{"SELFTESTACT_run",		SELFTESTACT_run,								0,					TRUE,					BOTH},
 
 	// Pour Harry
 	{"strat_inu_arnaud",		arnaud_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
@@ -215,9 +212,8 @@ void any_match(void)
 			CAN_send(&msg);
 		}
 
-		if(strategy == high_level_strat){	//Liste ici les stratégie qui doivent être appelées même avant le début du match
+		if(strategy == high_level_strat)	//Liste ici les stratégie qui doivent être appelées même avant le début du match
 			high_level_strat();
-		}
 	} else {
 
 		if(global.flags.ask_suspend_match){
