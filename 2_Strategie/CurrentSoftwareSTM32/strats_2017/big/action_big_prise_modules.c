@@ -317,9 +317,6 @@ error_e sub_push_modules_bretagne(){
 			TAKE_MODULE,
 			GET_BACK,
 			DEPOSE,
-			STOP_POMPE_RIGHT,
-			STOP_POMPE_LEFT,
-			COMPUTE,
 			GET_OUT,
 			DEPOSE_MODULE,
 
@@ -346,7 +343,7 @@ error_e sub_push_modules_bretagne(){
 										 (displacement_t){(GEOMETRY_point_t){400, COLOR_Y(980)}, FAST}
 										 };
 
-	static Uint8 nbAppel = 4;
+	static Uint8 nbAppel = 2;
 
 	switch(state){
 		case INIT:
@@ -368,7 +365,7 @@ error_e sub_push_modules_bretagne(){
 		case RISE_ELEVATOR_LEFT:
 
 			if(entrance){
-				ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER);
+				ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
 			}
 			state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, GO_TO_START_POINT, ERROR);
 			break;
@@ -390,12 +387,7 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case GO_TO_ROCKET:
-			if(global.color == YELLOW){
-				state = try_going(270, COLOR_Y(1150), state, TAKE_ROCKET_RIGHT_OUT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
-				state = try_going(270, COLOR_Y(1145), state, TAKE_ROCKET_RIGHT_OUT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}
-
+			state = try_going(265, COLOR_Y(1150), state, TAKE_ROCKET_RIGHT_OUT, GET_IN_DIRECT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TAKE_ROCKET_RIGHT_OUT:
@@ -421,7 +413,7 @@ error_e sub_push_modules_bretagne(){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
 					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, TAKE_ROCKET_LEFT_IN, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, TAKE_ROCKET_LEFT_IN, ERROR);
 			break;
 
 		case TAKE_ROCKET_LEFT_IN:
@@ -429,7 +421,7 @@ error_e sub_push_modules_bretagne(){
 			if(entrance){
 					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, GET_BACK, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, GET_BACK, ERROR);
 			break;
 
 		case GET_BACK:
@@ -437,31 +429,11 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case DEPOSE:
-			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_RIGHT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case STOP_POMPE_RIGHT:
-
-			if(entrance){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
-			}
-			state = check_act_status(ACT_QUEUE_Pompe_act_slider_right, state, STOP_POMPE_LEFT, ERROR);
-			break;
-
-		case STOP_POMPE_LEFT:
-
-			if(entrance){
-					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
-			}
-			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, COMPUTE, ERROR);
-			break;
-
-		case COMPUTE:
 			nbAppel -= 1;
 			if(nbAppel>0){
-				state = GET_IN_DIRECT;
+				state = try_going(300, COLOR_Y(1000), state, GET_IN_DIRECT, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state=GET_OUT;
+				state = try_going(300, COLOR_Y(1000), state, GET_OUT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 

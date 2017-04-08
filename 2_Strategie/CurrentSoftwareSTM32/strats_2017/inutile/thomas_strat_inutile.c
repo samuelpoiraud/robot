@@ -16,65 +16,30 @@ void thomas_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 				INIT,
 				ACTION,
-				ACTION1,
-				ACTION2,
-				ACTION3,
-				ACTION4,
-				ACTION5,
-				ACTION6,
-				ACTION7,
 				ERROR,
 				DONE
 			);
 
 	switch(state){
 		case INIT:
-			state = check_sub_action_result(sub_push_modules_bretagne(), state, DONE, ERROR);
-			/*
-			state = try_going(global.pos.x+150, global.pos.y, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = ACTION;
 			break;
-
 		case ACTION:
-			state = try_going(500, 1450, state, ACTION1, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			//state = check_sub_action_result(SELFTESTACT_run(), state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_rocket_multicolor(OUR_ELEMENT),state, DONE, ERROR);
 			break;
-
-		case ACTION1:
-			state = try_going(900, 1100, state, ACTION2, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ACTION2:
-			state = try_going(400, 950, state, ACTION3, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ACTION3:
-			state = try_going(1100, 1000, state, ACTION4, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ACTION4:
-			state = try_going(1350, 800, state, ACTION5, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ACTION5:
-			state = try_going(1350, 290, state, ACTION6, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ACTION6:
-			state = try_going(600, 100, state, ACTION7, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ACTION7:
-			state = try_going(400, 950, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			*/
-			break;
-
 		case ERROR:
+			RESET_MAE();
+			//return NOT_HANDLED;
 			break;
 
 		case DONE:
+			RESET_MAE();
+			//return END_OK;
 			break;
 
 	}
+
+	//return IN_PROGRESS;
 }
 
 void thomas_strat_inutile_small(){
