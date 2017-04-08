@@ -56,6 +56,7 @@
 	error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e storage, bool_e trigger);
 	error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dipose_mae_e arg_dispose);
 	error_e sub_harry_launch_prise_module_start_centre();
+	error_e sub_harry_push_module_north();
 
 
 	// action_big_depose_modules

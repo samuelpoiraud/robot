@@ -287,9 +287,11 @@ error_e sub_push_modules_bretagne(){
 			TAKE_ROCKET_RIGHT_IN,
 			TAKE_ROCKET_LEFT_OUT,
 			TAKE_ROCKET_LEFT_IN,
+			TAKE_MODULE,
 			GET_BACK,
 			DEPOSE,
 			GET_OUT,
+			DEPOSE_MODULE,
 
 			/*
 			GET_OUT,
@@ -393,7 +395,15 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case GET_OUT:
-			state = try_going(400, COLOR_Y(1150), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(400, COLOR_Y(1150), state, TAKE_MODULE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TAKE_MODULE:
+			state = check_sub_action_result(sub_harry_push_module_north(), state, DEPOSE_MODULE, ERROR);
+			break;
+
+		case DEPOSE_MODULE:
+			state = check_sub_action_result(sub_harry_cylinder_depose_manager(), state, DONE, ERROR);
 			break;
 
 
@@ -417,13 +427,13 @@ error_e sub_push_modules_bretagne(){
 		*/
 
 		case ERROR:
-			RESET_MAE();
+			//RESET_MAE();
 			on_turning_point();
 			return NOT_HANDLED;
 			break;
 
 		case DONE:
-			RESET_MAE();
+			//RESET_MAE();
 			on_turning_point();
 			return END_OK;
 			break;
@@ -622,6 +632,7 @@ error_e sub_harry_launch_prise_module_start_centre(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_LAUNCH_PRISE_MODULE,
 				INIT,
 				GET_OUT_START_ZONE,
+				PUSH_MODULES,
 				ERROR,
 				DONE
 			);
@@ -641,6 +652,49 @@ error_e sub_harry_launch_prise_module_start_centre(){
 		case GET_OUT_START_ZONE:
 			//state = check_sub_action_result(sub_harry_prise_modules_manager(our_modules_with_rocket, SIZE_OUR_MODULES_WITH_ROCKET), state, DONE, ERROR);
 			state = check_sub_action_result(sub_harry_rocket_monocolor(), state, DONE, ERROR);
+			break;
+
+		/*case PUSH_MODULES:
+			state = check_sub_action_result(sub_harry_push_module_north(), state, DONE, ERROR);
+			break;*/
+
+		case ERROR:
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_push_modules_bretagne\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+error_e sub_harry_push_module_north(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PUSH_MODULE_NORTH,
+				INIT,
+				GO_TO_MODULE,
+				PUSH_MODULES,
+				ERROR,
+				DONE
+			);
+
+	switch(state){
+		case INIT:
+			//state = try_going(global.pos.x + 100, global.pos.y, state, GO_TO_MODULE, ERROR, FAST,ANY_WAY, DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = GO_TO_MODULE;
+			break;
+
+		case GO_TO_MODULE:
+			state = check_sub_action_result(sub_harry_prise_module_unicolor_north(LEFT), state, DONE, ERROR);
 			break;
 
 
@@ -1552,6 +1606,8 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 			GET_IN_ASTAR_LEFT,
 			GET_IN_ASTAR_RIGHT,
 
+			MOVE_BACK,
+
 			TAKE_MODULE_LEFT,
 			TAKE_MODULE_RIGHT,
 			STORAGE_LEFT,
@@ -1637,7 +1693,12 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 			if(entrance){
 				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_NORMAL);
 			}
-			state = try_going(650, COLOR_Y(300), state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			//state = try_going(650, COLOR_Y(300), state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_rush(450, COLOR_Y(300), state , MOVE_BACK, ERROR, FORWARD, NO_DODGE_AND_NO_WAIT, TRUE);
+			break;
+
+		case MOVE_BACK:
+			state = try_advance(NULL, entrance, 150, MOVE_BACK, STORAGE_LEFT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case STORAGE_LEFT:
