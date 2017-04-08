@@ -279,7 +279,24 @@ error_e sub_push_modules_bretagne(){
 			GET_OUT_START_ZONE,
 			GO_TO_START_POINT,
 			PUSH_MODULES_START_ZONE,
+			GET_IN_DIRECT,
+			GO_TO_ROCKET,
 			MOVE_BACK,
+
+			TAKE_ROCKET_RIGHT_OUT,
+			TAKE_ROCKET_RIGHT_IN,
+			TAKE_ROCKET_LEFT_OUT,
+			TAKE_ROCKET_LEFT_IN,
+			GET_BACK,
+			DEPOSE,
+			GET_OUT,
+
+			/*
+			GET_OUT,
+			GET_OUT_ERROR,
+			AVANCE,
+			AVANCE_ERROR,
+			*/
 			ERROR,
 			DONE
 		);
@@ -297,26 +314,107 @@ error_e sub_push_modules_bretagne(){
 										 (displacement_t){(GEOMETRY_point_t){400, COLOR_Y(980)}, FAST}
 										 };
 
+	static Uint8 nbAppel = 2;
+
 	switch(state){
 		case INIT:
 			state = GET_OUT_START_ZONE;
 			break;
 
 		case GET_OUT_START_ZONE:
-			state = try_going(global.pos.x + 100, global.pos.y, state, GO_TO_START_POINT, GO_TO_START_POINT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(global.pos.x + 100, global.pos.y, state, GO_TO_START_POINT, GO_TO_START_POINT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GO_TO_START_POINT:
-			state = try_going_multipoint(curve_to_start_point, 5, state, PUSH_MODULES_START_ZONE, ERROR, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(curve_to_start_point, 5, state, PUSH_MODULES_START_ZONE, ERROR, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PUSH_MODULES_START_ZONE:
-			state = try_going_multipoint(curve_push, 4, state, MOVE_BACK, ERROR, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(curve_push, 4, state, MOVE_BACK, ERROR, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MOVE_BACK:
-			state = try_going(600, COLOR_Y(1000), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(600, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
+
+		case GET_IN_DIRECT:
+			state = try_going(400, COLOR_Y(1150), state, GO_TO_ROCKET, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_ROCKET:
+			state = try_going(265, COLOR_Y(1150), state, TAKE_ROCKET_RIGHT_OUT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TAKE_ROCKET_RIGHT_OUT:
+
+			if(entrance){
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_RIGHT_IN, NOT_HANDLED);
+			break;
+
+		case TAKE_ROCKET_RIGHT_IN:
+
+			if(entrance){
+					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_LEFT_OUT, NOT_HANDLED);
+			break;
+
+		case TAKE_ROCKET_LEFT_OUT:
+
+			if(entrance){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_LEFT_IN, NOT_HANDLED);
+			break;
+
+		case TAKE_ROCKET_LEFT_IN:
+
+			if(entrance){
+					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, GET_BACK, NOT_HANDLED);
+			break;
+
+		case GET_BACK:
+			state = try_going(400, COLOR_Y(1150), state, DEPOSE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case DEPOSE:
+			nbAppel -= 1;
+			if(nbAppel>0){
+				state = try_going(300, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(300, COLOR_Y(1000), state, GET_OUT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case GET_OUT:
+			state = try_going(400, COLOR_Y(1150), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+
+		/*
+		case GET_OUT:
+			state=try_going(500, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_OUT_ERROR:
+			state=try_going(500, global.pos.y, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case AVANCE:
+			state=try_going(220, global.pos.y, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case AVANCE_ERROR:
+			state=try_going(220, global.pos.y, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		*/
 
 		case ERROR:
 			RESET_MAE();
@@ -792,7 +890,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}
 				if(ON_LEAVE()){
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
-					set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+					//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 				}
 				break;
 
@@ -815,7 +913,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}
 				if(ON_LEAVE()){
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
-					set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+					//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 				}
 				break;
 
@@ -1109,7 +1207,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			break;
 
@@ -1131,7 +1229,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			break;
 
@@ -1358,7 +1456,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 		break;
 
@@ -1381,7 +1479,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			break;
 
@@ -1393,7 +1491,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE); // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE); // Activation de la dépose
 			}
 			break;
 
@@ -1550,7 +1648,7 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
 			break;
@@ -1572,7 +1670,7 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT_RIGHT, ERROR);
 			break;
@@ -1721,7 +1819,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
 			break;
@@ -1743,7 +1841,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, DONE, ERROR);
 			break;
@@ -1847,7 +1945,7 @@ error_e sub_harry_rocket_monocolor(){
 
 		case GET_OUT:
 			if(entrance){
-				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);
+				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);
 			}
 			state=try_going(500, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
