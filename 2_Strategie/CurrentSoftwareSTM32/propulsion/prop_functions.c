@@ -21,7 +21,7 @@
 #include "../QS/QS_outputlog.h"
 
 // Timeout en ms
-#define GOTO_TIMEOUT_TIME							5000	// On n'attend que 3 secondes sur les PROP_push_goto cette année car on ne fait pas de gros déplacements sur le terrain
+#define GOTO_TIMEOUT_TIME							7000	// On n'attend que 3 secondes sur les PROP_push_goto cette année car on ne fait pas de gros déplacements sur le terrain
 #define STOP_TIMEOUT_TIME							2000
 #define GOTO_MULTI_POINT_TIMEOUT_TIME				4000	//Nombre de secondes de timeout PAR POINT en mode multipoint.
 #define RELATIVE_GOANGLE_MULTI_POINT_TIMEOUT_TIME	3000
