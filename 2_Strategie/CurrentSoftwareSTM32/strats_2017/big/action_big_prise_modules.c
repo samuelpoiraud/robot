@@ -336,7 +336,7 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case MOVE_BACK:
-			state = try_going(600, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(600, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_DIRECT:
@@ -353,7 +353,7 @@ error_e sub_push_modules_bretagne(){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
 					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_OUT);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_RIGHT_IN, NOT_HANDLED);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_RIGHT_IN, ERROR);
 			break;
 
 		case TAKE_ROCKET_RIGHT_IN:
@@ -361,7 +361,7 @@ error_e sub_push_modules_bretagne(){
 			if(entrance){
 					ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_LEFT_OUT, NOT_HANDLED);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_LEFT_OUT, ERROR);
 			break;
 
 		case TAKE_ROCKET_LEFT_OUT:
@@ -370,7 +370,7 @@ error_e sub_push_modules_bretagne(){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
 					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_LEFT_IN, NOT_HANDLED);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_LEFT_IN, ERROR);
 			break;
 
 		case TAKE_ROCKET_LEFT_IN:
@@ -378,7 +378,7 @@ error_e sub_push_modules_bretagne(){
 			if(entrance){
 					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, GET_BACK, NOT_HANDLED);
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, GET_BACK, ERROR);
 			break;
 
 		case GET_BACK:
