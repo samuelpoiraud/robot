@@ -364,13 +364,29 @@ error_e sub_push_modules_bretagne(){
 			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_LEFT_OUT, ERROR);
 			break;
 
-		case TAKE_ROCKET_LEFT_OUT:
+		case TAKE_ROCKET_LEFT_OUT:{
+
+			Uint8 state1=INIT;
+			Uint8 state2=INIT;
 
 			if(entrance){
-					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-					ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
-			}
-			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, TAKE_ROCKET_LEFT_IN, ERROR);
+								ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+								ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_OUT);
+						}
+
+			state1 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, DONE, ERROR);
+			state2 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, DONE, ERROR);
+
+		if((state1==ERROR)||(state2==ERROR)){
+			state=ERROR;
+		}
+		else if((state1==DONE)&&(state2==DONE)){
+			state=TAKE_ROCKET_LEFT_IN;
+		}
+
+
+
+
 			break;
 
 		case TAKE_ROCKET_LEFT_IN:
