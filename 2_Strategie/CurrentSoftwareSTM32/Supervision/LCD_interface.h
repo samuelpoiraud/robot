@@ -19,6 +19,8 @@
 		void LCD_init(void);
 		void LCD_processMain(void);
 
+	#endif
+
 		/*
 		 * Ecrit une ligne définie par l'utilisateur à la position demandée (et bascule le LCD en menu utilisateur !)
 		 * Line doit être entre 0 et 3 inclus.
@@ -26,8 +28,6 @@
 		 * Les 3 autres lignes correspondent aux lignes du menu utilisateur.
 		 */
 		void LCD_printf(Uint8 line, bool_e switch_on_menu, bool_e log_on_sd, char * chaine, ...) __attribute__((format (printf, 4, 5)));
-
-	#endif
 
 #endif	/* LCD_INTERFACE_H */
 
