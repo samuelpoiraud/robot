@@ -19,9 +19,6 @@
 
 #define CAN_VERBOSE_MODE		//Activation de la verbosité des messages CAN
 
-//#define USE_UART_OVER_LCD
-//	#define UART_OVER_LCD__UART_ID 3
-
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//
 //////////////////////////////////////////////////////////////////
@@ -40,6 +37,12 @@
 		#define CAN_BUF_SIZE		32	//Nombre de messages CAN conservés pour traitement hors interuption
 		#define CAN_SEND_TIMEOUT_ENABLE
 
+/* Réglages LCD_OVER_UART */
+	#define USE_LCD_OVER_UART
+		#define LCD_OVER_UART__UART_ID 3
+		#define LCD_OVER_UART__IHM_MODE
+
+
 /* UART */
 	#define USE_UART1
 		#define UART1_BAUDRATE	230400
@@ -48,15 +51,17 @@
 		#define BUFFER_U1TX_SIZE	128
 
 
-//	#define USE_UART3
-//		#define UART3_BAUDRATE	19200
-//		#define USE_UART3RXINTERRUPT
-//		#define USE_UART3TXINTERRUPT
-//		#define BUFFER_U3TX_SIZE	128
+	#ifdef USE_LCD_OVER_UART
+		#define USE_UART3
+			#define UART3_BAUDRATE	19200
+			#define USE_UART3RXINTERRUPT
+			#define USE_UART3TXINTERRUPT
+			#define BUFFER_U3TX_SIZE	128
+	#endif
 
 	#define UART_RX_BUF_SIZE	512 //Taille de la chaine de caracteres memorisant les caracteres recus sur UART
 
-/* SPI */
+/* Réglages SPI */
 	#define USE_SPI2
 		#define SPI2_ON_DMA
 

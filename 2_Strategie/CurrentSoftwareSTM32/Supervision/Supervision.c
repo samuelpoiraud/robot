@@ -32,7 +32,7 @@ void Supervision_init(void)
 	BUFFER_init();
 
 	#ifdef USE_LCD
-		init_LCD_interface();
+		LCD_init();
 	#endif
 
 	#ifdef USE_XBEE_OLD
@@ -171,7 +171,7 @@ void Supervision_process_main(void)
 
 	/* Mise à jour des informations affichées à l'écran*/
 	#ifdef USE_LCD
-		LCD_Update();
+		LCD_processMain();
 	#endif
 
 	SD_process_main();

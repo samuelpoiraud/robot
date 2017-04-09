@@ -40,8 +40,9 @@ typedef struct{
 			Sint16 x;
 			Sint16 y;
 			char text[OBJECT_TEXT_MAX_SIZE];
-			Uint16 colorText;
-			Uint32 colorBackground;
+			textFonts_e fonts;
+			objectColor_e colorText;
+			objectColor_e colorBackground;
 		}text;
 
 		struct{
@@ -55,10 +56,11 @@ typedef struct{
 			Uint16 widthText;
 			Uint16 heightText;
 			char text[OBJECT_TEXT_MAX_SIZE];
+			textFonts_e fonts;
 			Uint16 colorText;
-			Uint16 colorButton;
-			Uint16 colorTouch;
-			Uint32 colorBorder;
+			objectColor_e colorButton;
+			objectColor_e colorTouch;
+			objectColor_e colorBorder;
 			bool_e lockTouch;
 			bool_e *touch;
 		}buttonBase;
@@ -119,16 +121,16 @@ typedef struct{
 			Sint16 y;
 			Uint16 width;
 			Uint16 height;
-			Uint32 colorBorder;
-			Uint32 colorCenter;
+			objectColor_e colorBorder;
+			objectColor_e colorCenter;
 		}rectangle;
 
 		struct{
 			Sint16 x;
 			Sint16 y;
 			Uint16 r;
-			Uint32 colorBorder;
-			Uint32 colorCenter;
+			objectColor_e colorBorder;
+			objectColor_e colorCenter;
 		}circle;
 
 		struct{
@@ -136,7 +138,7 @@ typedef struct{
 			Sint16 y0;
 			Sint16 x1;
 			Sint16 y1;
-			Uint16 color;
+			objectColor_e color;
 		}line;
 
 	}objectData;
@@ -155,6 +157,8 @@ static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y);
 static void MIDDLEWARE_checkRebuildObject();
 static void MIDDLEWARE_rebuildObject();
 static void MIDDLEWARE_checkDestroyObject();
+static objectId_t MIDDLEWARE_newObject();
+static FontDef_t* MIDDLEWARE_getFont(textFonts_e fonts);
 
 void MIDDLEWARE_init(){
 	XPT2046_init();
@@ -452,7 +456,7 @@ static void MIDDLEWARE_rebuildObject(){
 				case TEXT:{
 					ILI9341_printf(objectTab[i].objectData.text.x,
 									objectTab[i].objectData.text.y,
-									&Font_7x10,
+									MIDDLEWARE_getFont(objectTab[i].objectData.text.fonts),
 									objectTab[i].objectData.text.colorText,
 									((objectTab[i].objectData.text.colorBackground == ILI9341_TRANSPARENT)? background.color : objectTab[i].objectData.text.colorBackground),
 									"%s", objectTab[i].objectData.text.text);
@@ -469,7 +473,7 @@ static void MIDDLEWARE_rebuildObject(){
 
 					ILI9341_printf(objectTab[i].objectData.buttonBase.x + objectTab[i].objectData.buttonBase.widthButton/2 - objectTab[i].objectData.buttonBase.widthText/2,
 									objectTab[i].objectData.buttonBase.y + objectTab[i].objectData.buttonBase.heightButton/2 - objectTab[i].objectData.buttonBase.heightText/2,
-									&Font_7x10,
+									MIDDLEWARE_getFont(objectTab[i].objectData.text.fonts),
 									objectTab[i].objectData.buttonBase.colorText,
 									ILI9341_TRANSPARENT,
 									"%s", objectTab[i].objectData.buttonBase.text);
@@ -705,7 +709,9 @@ static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, U
 //---------------------Fonction Mutation------------------------//
 //////////////////////////////////////////////////////////////////
 
-void MIDDLEWARE_setBackground(Uint16 color){
+void MIDDLEWARE_setBackground(objectColor_e color){
+	assert(IS_OBJECT_COLOR_REAL(color));
+
 	background.color = color;
 	background.toDisplay = TRUE;
 }
@@ -764,24 +770,20 @@ void MIDDLEWARE_setText(objectId_t id, const char *text, ...){
 //---------------------Fonction Création------------------------//
 //////////////////////////////////////////////////////////////////
 
-objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, Uint16 colorText, Uint32 colorBackground, const char *text, ...){
+objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, objectColor_e colorText, objectColor_e colorBackground,  textFonts_e fonts, const char *text, ...){
+	assert(IS_OBJECT_COLOR_REAL(colorText));
+	assert(IS_TEXT_FONTS(fonts));
 	assert(text != NULL);
 
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
 	objectTab[idFound].type = TEXT;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.text.x = x;
 	objectTab[idFound].objectData.text.y = y;
+	objectTab[idFound].objectData.text.fonts = fonts;
 	objectTab[idFound].objectData.text.colorText = colorText;
 	objectTab[idFound].objectData.text.colorBackground = colorBackground;
 
@@ -790,20 +792,15 @@ objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, Uint16 colorText, Uint32 color
 	vsnprintf((char *)objectTab[idFound].objectData.text.text, OBJECT_TEXT_MAX_SIZE, text, args_list);
 	va_end(args_list);
 
-	objectTab[idFound].use = TRUE;
-
 	return idFound;
 }
 
 objectId_t MIDDLEWARE_addButtonImg(Sint16 x, Sint16 y, const imageInfo_s *imageNormal, const imageInfo_s *imageLock, bool_e lockTouch, bool_e * touch){
+	assert(imageNormal != NULL);
+	assert(imageLock != NULL);
 	assert(touch != NULL);
 
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
@@ -811,8 +808,6 @@ objectId_t MIDDLEWARE_addButtonImg(Sint16 x, Sint16 y, const imageInfo_s *imageN
 	*touch = FALSE;
 
 	objectTab[idFound].type = BUTTON_IMG;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.buttonImg.state = BUTTON_STATE_OFF;
 	objectTab[idFound].objectData.buttonImg.lastState = BUTTON_STATE_OFF;
 	objectTab[idFound].objectData.buttonImg.lastStateTouch = BUTTON_STATE_NO_TOUCH;
@@ -822,21 +817,19 @@ objectId_t MIDDLEWARE_addButtonImg(Sint16 x, Sint16 y, const imageInfo_s *imageN
 	objectTab[idFound].objectData.buttonImg.imageLock = imageLock;
 	objectTab[idFound].objectData.buttonImg.lockTouch = lockTouch;
 	objectTab[idFound].objectData.buttonImg.touch = touch;
-	objectTab[idFound].use = TRUE;
 
 	return idFound;
 }
 
-objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height, char * text, bool_e lockTouch, bool_e *touch, Uint16 colorText, Uint16 colorButton, Uint16 colorButtonTouch, Uint32 colorBorder){
+objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height, bool_e lockTouch, bool_e *touch, objectColor_e colorText, objectColor_e colorButton, objectColor_e colorButtonTouch, objectColor_e colorBorder, textFonts_e fonts, const char *text, ...){
 	assert(touch != NULL);
+	assert(IS_OBJECT_COLOR_REAL(colorText));
+	assert(IS_OBJECT_COLOR_REAL(colorButton));
+	assert(IS_OBJECT_COLOR_REAL(colorButtonTouch));
+	assert(IS_TEXT_FONTS(fonts));
 	assert(text != NULL);
 
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
@@ -844,14 +837,12 @@ objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 	*touch = FALSE;
 
 	objectTab[idFound].type = BUTTON_BASE;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.buttonBase.state = BUTTON_STATE_OFF;
 	objectTab[idFound].objectData.buttonBase.lastState = BUTTON_STATE_OFF;
 	objectTab[idFound].objectData.buttonBase.lastStateTouch = BUTTON_STATE_NO_TOUCH;
 	objectTab[idFound].objectData.buttonBase.x = x;
 	objectTab[idFound].objectData.buttonBase.y = y;
-	strncpy((char *)objectTab[idFound].objectData.buttonBase.text, text, OBJECT_TEXT_MAX_SIZE);
+	objectTab[idFound].objectData.buttonBase.fonts = fonts;
 	objectTab[idFound].objectData.buttonBase.lockTouch = lockTouch;
 	objectTab[idFound].objectData.buttonBase.colorText = colorText;
 	objectTab[idFound].objectData.buttonBase.colorButton = colorButton;
@@ -859,8 +850,13 @@ objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 	objectTab[idFound].objectData.buttonBase.colorBorder = colorBorder;
 	objectTab[idFound].objectData.buttonBase.touch = touch;
 
+	va_list args_list;
+	va_start(args_list, text);
+	vsnprintf((char *)objectTab[idFound].objectData.buttonBase.text, OBJECT_TEXT_MAX_SIZE, text, args_list);
+	va_end(args_list);
+
 	Uint16 widthText, heightText;
-	ILI9341_getStringSize((char *)objectTab[idFound].objectData.buttonBase.text, &Font_7x10, &widthText, &heightText);
+	ILI9341_getStringSize((char *)objectTab[idFound].objectData.buttonBase.text, MIDDLEWARE_getFont(fonts), &widthText, &heightText);
 	objectTab[idFound].objectData.buttonBase.widthText = widthText;
 	objectTab[idFound].objectData.buttonBase.heightText = heightText;
 
@@ -874,28 +870,19 @@ objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 	else
 		objectTab[idFound].objectData.buttonBase.heightButton = heightText + 6;
 
-
-	objectTab[idFound].use = TRUE;
-
 	return idFound;
 }
 
 objectId_t MIDDLEWARE_addProgressBar(Sint16 x, Sint16 y, Uint16 width, Uint16 height, objectOrientation_e orientation, Uint8 *value){
+	assert(IS_OBJECT_ORIENTATION(orientation));
 	assert(value != NULL);
 
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
 	objectTab[idFound].type = PROGRESS_BAR;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.progressBar.x = x;
 	objectTab[idFound].objectData.progressBar.y = y;
 	objectTab[idFound].objectData.progressBar.width = width;
@@ -904,28 +891,21 @@ objectId_t MIDDLEWARE_addProgressBar(Sint16 x, Sint16 y, Uint16 width, Uint16 he
 	objectTab[idFound].objectData.progressBar.refreshBack = TRUE;
 	objectTab[idFound].objectData.progressBar.value = value;
 	objectTab[idFound].objectData.progressBar.lastValue = *value;
-	objectTab[idFound].use = TRUE;
 
 	return idFound;
 }
 
 objectId_t MIDDLEWARE_addSlider(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Sint32 minValue, Sint32 maxValue, objectOrientation_e orientation, Sint32 *value){
+	assert(IS_OBJECT_ORIENTATION(orientation));
 	assert(value != NULL);
 	assert(minValue != maxValue);
 
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
 	objectTab[idFound].type = SLIDER;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.slider.x = x;
 	objectTab[idFound].objectData.slider.y = y;
 	objectTab[idFound].objectData.slider.width = width;
@@ -939,7 +919,6 @@ objectId_t MIDDLEWARE_addSlider(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 	else
 		objectTab[idFound].objectData.slider.realValue = *value;
 	objectTab[idFound].objectData.slider.lastRealValue = objectTab[idFound].objectData.slider.realValue;
-	objectTab[idFound].use = TRUE;
 
 	return idFound;
 }
@@ -947,23 +926,15 @@ objectId_t MIDDLEWARE_addSlider(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 objectId_t MIDDLEWARE_addImage(Sint16 x, Sint16 y, const imageInfo_s *image){
 	assert(image != NULL);
 
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
 	objectTab[idFound].type = IMAGE;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.image.x = x;
 	objectTab[idFound].objectData.image.y = y;
 	objectTab[idFound].objectData.image.image = image;
-	objectTab[idFound].use = TRUE;
 
 	return idFound;
 }
@@ -971,101 +942,106 @@ objectId_t MIDDLEWARE_addImage(Sint16 x, Sint16 y, const imageInfo_s *image){
 objectId_t MIDDLEWARE_addAnimatedImage(Sint16 x, Sint16 y, const animatedImageInfo_s *animatedImageInfo){
 	assert(animatedImageInfo != NULL);
 
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
 	objectTab[idFound].type = ANIMATED_IMAGE;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.animatedImage.x = x;
 	objectTab[idFound].objectData.animatedImage.y = y;
 	objectTab[idFound].objectData.animatedImage.animatedImageInfo = animatedImageInfo;
 	objectTab[idFound].objectData.animatedImage.actualFrame = 0;
 	objectTab[idFound].objectData.animatedImage.lastFrame = 255;
 	objectTab[idFound].objectData.animatedImage.timeToRefresh = 0;
-	objectTab[idFound].use = TRUE;
 
 	return idFound;
 }
 
-objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Uint32 colorBorder, Uint32 colorCenter){
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, objectColor_e colorBorder, objectColor_e colorCenter){
+	assert(IS_OBJECT_COLOR_REAL(colorBorder) || IS_OBJECT_COLOR_REAL(colorCenter));
+
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
 	objectTab[idFound].type = RECTANGLE;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.rectangle.x = x;
 	objectTab[idFound].objectData.rectangle.y = y;
 	objectTab[idFound].objectData.rectangle.width = width;
 	objectTab[idFound].objectData.rectangle.height = height;
 	objectTab[idFound].objectData.rectangle.colorBorder = colorBorder;
 	objectTab[idFound].objectData.rectangle.colorCenter = colorCenter;
-	objectTab[idFound].use = TRUE;
 
 	return idFound;
 }
 
-objectId_t MIDDLEWARE_addCircle(Sint16 x, Sint16 y, Uint16 r, Uint32 colorBorder, Uint32 colorCenter){
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+objectId_t MIDDLEWARE_addCircle(Sint16 x, Sint16 y, Uint16 r, objectColor_e colorBorder, objectColor_e colorCenter){
+	assert(IS_OBJECT_COLOR_REAL(colorBorder) || IS_OBJECT_COLOR_REAL(colorCenter));
+
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
 	objectTab[idFound].type = CIRCLE;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.circle.x = x;
 	objectTab[idFound].objectData.circle.y = y;
 	objectTab[idFound].objectData.circle.r = r;
 	objectTab[idFound].objectData.circle.colorBorder = colorBorder;
 	objectTab[idFound].objectData.circle.colorCenter = colorCenter;
-	objectTab[idFound].use = TRUE;
 
 	return idFound;
 }
 
-objectId_t MIDDLEWARE_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, Uint16 color){
-	Uint8 i, idFound = OBJECT_ID_ERROR_FULL;
-	for(i=0;i<LCD_NB_MAX_OBJECT && idFound == OBJECT_ID_ERROR_FULL;i++){
-		if(objectTab[i].use == FALSE){
-			idFound = i;
-		}
-	}
+objectId_t MIDDLEWARE_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, objectColor_e color){
+	assert(IS_OBJECT_COLOR_REAL(color));
+
+	objectId_t idFound = MIDDLEWARE_newObject();
 
 	if(idFound == OBJECT_ID_ERROR_FULL)
 		return OBJECT_ID_ERROR_FULL;
 
 	objectTab[idFound].type = LINE;
-	objectTab[idFound].toDisplay = TRUE;
-	objectTab[idFound].toDestroy = FALSE;
 	objectTab[idFound].objectData.line.x0 = x0;
 	objectTab[idFound].objectData.line.y0 = y0;
 	objectTab[idFound].objectData.line.x1 = x1;
 	objectTab[idFound].objectData.line.y1 = y1;
 	objectTab[idFound].objectData.line.color = color;
-	objectTab[idFound].use = TRUE;
 
 	return idFound;
+}
+
+static objectId_t MIDDLEWARE_newObject(){
+	Uint8 i;
+	for(i=0; i<LCD_NB_MAX_OBJECT; i++){
+		if(objectTab[i].use == FALSE){
+			objectTab[i].toDisplay = TRUE;
+			objectTab[i].toDestroy = FALSE;
+			objectTab[i].use = TRUE;
+			return i;
+		}
+	}
+	return OBJECT_ID_ERROR_FULL;
+}
+
+static FontDef_t* MIDDLEWARE_getFont(textFonts_e fonts){
+	assert(IS_TEXT_FONTS(fonts));
+
+	switch(fonts){
+		case TEXT_FONTS_7x10 :
+			return &Font_7x10;
+
+		case TEXT_FONTS_11x18 :
+			return &Font_11x18;
+
+		case TEXT_FONTS_16x26 :
+			return &Font_16x26;
+
+		default:
+			return &Font_7x10;
+	}
 }
 
 //////////////////////////////////////////////////////////////////

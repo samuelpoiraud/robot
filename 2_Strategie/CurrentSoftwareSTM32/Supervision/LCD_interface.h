@@ -10,66 +10,24 @@
  */
 
 #ifndef LCD_INTERFACE_H
-#define	LCD_INTERFACE_H
+	#define	LCD_INTERFACE_H
 
+	#include "../QS/QS_all.h"
 
-#include "../QS/QS_all.h"
-#include "Selftest.h"
+	#ifdef USE_LCD
 
+		void LCD_init(void);
+		void LCD_processMain(void);
 
-/*
- * Initialise l'ecran et son affichage
- * @return si ca s'est bien passé... ou pas...
- */
-bool_e init_LCD_interface(void);
+		/*
+		 * Ecrit une ligne définie par l'utilisateur à la position demandée (et bascule le LCD en menu utilisateur !)
+		 * Line doit être entre 0 et 3 inclus.
+		 * La ligne 0 correspond à la dernière ligne du menu principal (INFOS)
+		 * Les 3 autres lignes correspondent aux lignes du menu utilisateur.
+		 */
+		void LCD_printf(Uint8 line, bool_e switch_on_menu, bool_e log_on_sd, char * chaine, ...) __attribute__((format (printf, 4, 5)));
 
-/*
- * Met à jour l'affichage selon les evenements
- */
-void LCD_Update(void);
-
-/*
- * Permet de changer de mode d'affichage mode info<->can
- * Le mode info donne la positiondu robot, les infos balises, les strategies et des messages de lutilisateur
- */
-void LCD_switch_mode(void);
-
-/*
- * Permet de mettre à jour la position du robot : fonction à appeler à chaque broadcast position
- * Déclanche le rafraichissement de l'affichage
- */
-void LCD_change_pos(void);
-
-/*
- * Ajoute un message can à la liste de can à afficher en écrasant le plus ancien
- */
-void LCD_add_can(CAN_msg_t * msg);
-
-
-
-/*
- * Ecrit une ligne définie par l'utilisateur à la position demandée (et bascule le LCD en menu utilisateur !)
- * Line doit être entre 0 et 3 inclus.
- * La ligne 0 correspond à la dernière ligne du menu principal (INFOS)
- * Les 3 autres lignes correspondent aux lignes du menu utilisateur.
- */
-//__attribute__((format (printf, 4, 5)))  permet au compilateur de verifier l'argument chaine avec les suivants comme avec printf, et afficher des warning si les types ne correspondent pas (genre un %s avec un int)
-void LCD_printf(Uint8 line, bool_e switch_on_menu, bool_e log_on_sd, char * chaine, ...) __attribute__((format (printf, 4, 5)));
-
-/*
- * Redonne le control à l'écran
- */
-void LCD_free_control(void);
-
-void sprintf_line(Uint8 line, const char * format, ...);
-
-/*
- * Fonctions d'action des boutons
- */
-void LCD_button_down(void);
-void LCD_button_up(void);
-void LCD_button_ok(void);
-void LCD_button_set(void);
+	#endif
 
 #endif	/* LCD_INTERFACE_H */
 
