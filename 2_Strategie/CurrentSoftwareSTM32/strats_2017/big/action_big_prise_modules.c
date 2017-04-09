@@ -1155,7 +1155,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 					}
 				}
 
-				state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE),state,DONE,ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
 
 				if(state == DONE){
 					if(modules == OUR_ELEMENT)
@@ -1720,7 +1720,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 				}
 			}
 
-			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE),state,GET_OUT,ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, GET_OUT, ERROR);
 
 			if(state==GET_OUT){
 				if(modules == OUR_ELEMENT)
@@ -1744,7 +1744,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 				}
 			}
 
-			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,GET_OUT,ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT, ERROR);
 
 			if(state==GET_OUT){
 				if(modules == OUR_ELEMENT)
