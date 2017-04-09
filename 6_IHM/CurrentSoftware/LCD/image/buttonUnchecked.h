@@ -5,12 +5,12 @@
  *      Author: Arnaud
  */
 
-#ifndef FLECHE_DROITE_H_
-	#define FLECHE_DROITE_H_
+#ifndef BUTTON_UNCHECKED_H_
+	#define BUTTON_UNCHECKED_H_
 
 	#include "../../QS/QS_all.h"
 	#include "../middleware.h"
 
 	extern const imageInfo_s buttonUnchecked;
 
-#endif /* FLECHE_DROITE_H_ */
+#endif /* BUTTON_UNCHECKED_H_ */

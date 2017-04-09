@@ -338,7 +338,7 @@ void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
 void UART_setListenner(Uint8 uart_id, UART_dataReceivedFunctionPtr function){
 	assert(uart_id > 0 && uart_id <= 6);
 
-	listennerDataReceived[uart_id] = function;
+	listennerDataReceived[uart_id-1] = function;
 }
 //Appelée par un printf
 int _write(int file, char *ptr, int len)
@@ -735,8 +735,8 @@ int _write(int file, char *ptr, int len)
 						toggle_led(LED_UART);
 					#endif
 					
-					if(listennerDataReceived[3] != NULL){
-						listennerDataReceived[3](USART_ReceiveData(USART3));
+					if(listennerDataReceived[2] != NULL){
+						listennerDataReceived[2](USART_ReceiveData(USART3));
 					}else{
 						*(receiveddata++) = USART_ReceiveData(USART3);
 						m_u3rxnum++;
