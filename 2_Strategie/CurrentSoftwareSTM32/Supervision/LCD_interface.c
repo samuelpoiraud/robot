@@ -99,6 +99,8 @@
 		return FALSE;
 	}
 
+#endif
+
 	void LCD_printf(Uint8 line, bool_e switch_on_menu, bool_e log_on_sd, char * chaine, ...){
 
 	}
@@ -788,6 +790,5 @@
 	//		sprintf_line(line, "Color good :)");
 	//}
 
-#endif
 
 
