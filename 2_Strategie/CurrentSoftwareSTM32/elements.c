@@ -44,7 +44,9 @@ static volatile bool_e elements_flags[F_ELEMENTS_FLAGS_NB];
 static volatile moduleMoonbaseInfo_s moduleMoonbaseInfo[NB_MOONBASES] = {0};
 static volatile moduleStockInfo_s moduleStockInfo[NB_STOCKS] = {0};
 static volatile moduleRoketInfo_s moduleRocketInfo[NB_ROCKETS] = {0};
-static volatile hardflag_s elements_hardflags[HARDFLAGS_NB];
+#ifdef USE_HARDFLAGS
+	static volatile hardflag_s elements_hardflags[HARDFLAGS_NB];
+#endif
 static void ROCKETS_init();
 static void STOCKS_init();
 static void MOONBASES_init();

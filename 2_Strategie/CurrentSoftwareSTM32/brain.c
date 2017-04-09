@@ -78,12 +78,12 @@ typedef struct{
 static const strategy_list_s list_strategy[] = {
 
 	// Pour les deux robots
-	//display name			name function									// match duration	// afficher sur le LCD	// stratégie pour quel robot BIG/SMALL/BOTH(les deux)
-	{"high_level_strat",	high_level_strat,								MATCH_DURATION,		TRUE,					BOTH},
-	{"strat_odo_rot",		strat_reglage_odo_rotation,						0,					TRUE,					BOTH},
-	{"strat_odo_tra",		strat_reglage_odo_translation,					0,					TRUE,					BOTH},
-	{"strat_odo_sym",		strat_reglage_odo_symetrie,						0,					TRUE,					BOTH},
-	{"strat_prop",			strat_reglage_prop,								0,					TRUE,					BOTH},
+	//display name				name function								// match duration	// afficher sur le LCD	// stratégie pour quel robot BIG/SMALL/BOTH(les deux)
+	{"high_level_strat",		high_level_strat,							MATCH_DURATION,		TRUE,					BOTH},
+	{"strat_odo_rot",			strat_reglage_odo_rotation,					0,					TRUE,					BOTH},
+	{"strat_odo_tra",			strat_reglage_odo_translation,				0,					TRUE,					BOTH},
+	{"strat_odo_sym",			strat_reglage_odo_symetrie,					0,					TRUE,					BOTH},
+	{"strat_prop",				strat_reglage_prop,							0,					TRUE,					BOTH},
 
 	// Pour Harry
 	{"strat_inu_arnaud",		arnaud_strat_inutile_big,					MATCH_DURATION,		TRUE,					BIG},
