@@ -2312,7 +2312,7 @@ error_e sub_push_modules_bretagne(){
 			if(entrance){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 			}
-			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, GET_OUT, GET_OUT);7
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, GET_OUT, GET_OUT);
 			break;
 
 		case DEPOSE_MODULE:
@@ -2443,10 +2443,10 @@ error_e sub_harry_launch_prise_module_start_centre(){
 			);
 
 	#define SIZE_OUR_MODULES_WITH_ROCKET  (2)   // Prise des modules suivi de la fusée multicouleur
-	const get_this_module_s our_modules_with_rocket[SIZE_OUR_MODULES_WITH_ROCKET] = {
+	/*const get_this_module_s our_modules_with_rocket[SIZE_OUR_MODULES_WITH_ROCKET] = {
 			{.numero = MODULE_OUR_START,		.side = COLOR_EXP(LEFT, RIGHT)},	// Utiliser COLOR_EXP pour changer le côté de stockage suivant la couleur
 			{.numero = MODULE_OUR_SIDE, 		.side = COLOR_EXP(LEFT, RIGHT)}
-	};
+	};*/
 
 	switch(state){
 		case INIT:
