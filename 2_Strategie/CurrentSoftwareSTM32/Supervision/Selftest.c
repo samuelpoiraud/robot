@@ -619,6 +619,14 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
                 case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_LEFT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_FRONT_LEFT");        break;
                 case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_RIGHT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_FRONT_RIGHT");       break;
 
+                case SELFTEST_ACT_AX12_SMALL_CYLINDER_SLIDER:	debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_SLIDER");       	break;
+                case SELFTEST_ACT_AX12_SMALL_CYLINDER_ELEVATOR:	debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_ELEVATOR");      break;
+                case SELFTEST_ACT_AX12_SMALL_CYLINDER_SLOPE:	debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_SLOPE");      	break;
+                case SELFTEST_ACT_AX12_SMALL_CYLINDER_BALANCER:	debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_BALANCER");      break;
+                case SELFTEST_ACT_AX12_SMALL_CYLINDER_COLOR:	debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_COLOR");       	break;
+                case SELFTEST_ACT_AX12_SMALL_CYLINDER_ARM:		debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_ARM");       	break;
+                case SELFTEST_ACT_AX12_SMALL_CYLINDER_DISPOSE:	debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_DISPOSE");       break;
+
 
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 				case SELFTEST_ACT_UNKNOWN_ACT:					debug_printf("SELFTEST_ACT_UNKNOWN_ACT");						break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur
@@ -902,6 +910,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_BEACON_UNREACHABLE:				return "BEACON Unreachable";	break;
 		case SELFTEST_IHM_UNREACHABLE:					return "IHM Unreachable";		break;
 
+		// Actionneurs BIG
         case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_LEFT:  return "ACT ELEVATOR LEFT";     break;
         case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT: return "ACT ELEVATOR RIGHT";    break;
         case SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT:    return "ACT SLIDER LEFT";       break;
@@ -924,6 +933,21 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
         case SELFTEST_ACT_AX12_CYLINDER_SLOPE_LEFT:     return "ACT SLOPE LEFT";        break;
         case SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT:    return "ACT SLOPE RIGHT";       break;
         case SELFTEST_ACT_AX12_ROCKET:                  return "ACT ROCKET";            break;
+
+        // Actionneurs SMALL
+	   case SELFTEST_ACT_AX12_SMALL_BALL_BACK_LEFT:		return "ACT BACK LEFT";         break;
+	   case SELFTEST_ACT_AX12_SMALL_BALL_BACK_RIGHT:	return "ACT BACK RIGHT";        break;
+	   case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_LEFT:	return "ACT FRONT LEFT";        break;
+	   case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_RIGHT:	return "ACT FRONT RIGHT";       break;
+
+	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_SLIDER:	return "ACT SLIDER";       		break;
+	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_ELEVATOR:	return "ACT ELEVATOR";      	break;
+	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_SLOPE:		return "ACT SLOPE";      		break;
+	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_BALANCER:	return "ACT BALANCER";      	break;
+	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_COLOR:		return "ACT COLOR";       		break;
+	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_ARM:		return "ACT ARM";       		break;
+	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_DISPOSE:	return "ACT DISPOSE";       	break;
+
 
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT MISSING TEST";		break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
 		case SELFTEST_ACT_UNKNOWN_ACT:					return "ACT UNKNOWN ACT";		break;	//Un actionneur inconnu a fail son selftest. Pour avoir le nom, ajoutez un SELFTEST_ACT_xxx ici et gérez l'actionneur dans selftest.c de la carte actionneur

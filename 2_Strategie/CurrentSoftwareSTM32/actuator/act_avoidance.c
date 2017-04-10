@@ -48,10 +48,6 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Ore_gun,					ACT_AVOID_ORE_GUN_Down,						ACT_ORE_GUN_DOWN,			      		  	0,	    0,      0,	   0);
 		init_new_offset(ACT_QUEUE_Ore_roller_arm,			ACT_AVOID_ORE_ROLLER_ARM_Out,	    		ACT_ORE_ROLLER_ARM_OUT,			      	  	0,	    0,      0,	   0);
 
-		// Est ce vraiment utile ? les balancer ne sont dépassent pas en dehors du robot
-		init_new_offset(ACT_QUEUE_Cylinder_balancer_left,	ACT_AVOID_CYLINDER_BALANCER_LEFT_Out,		ACT_CYLINDER_BALANCER_LEFT_OUT,				0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Cylinder_balancer_right,	ACT_AVOID_CYLINDER_BALANCER_RIGHT_Out,		ACT_CYLINDER_BALANCER_RIGHT_OUT,			0,		0,		0,		0);
-
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Take,		ACT_CYLINDER_DISPOSE_LEFT_TAKE,				0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Raise,		ACT_CYLINDER_DISPOSE_LEFT_RAISE,			0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Dispose,	ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,			0,		0,		0,		0);
@@ -59,6 +55,15 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Take,		ACT_CYLINDER_DISPOSE_RIGHT_TAKE,			0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Raise,		ACT_CYLINDER_DISPOSE_RIGHT_RAISE,			0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Dispose,	ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE,			0,		0,		0,		0);
+
+		// Dans le cas où on ventouse un module sur le slider
+		init_new_offset(ACT_QUEUE_Pompe_act_slider_left,	ACT_AVOID_POMPE_ACT_SLIDER_LEFT_Normal,		ACT_POMPE_NORMAL,							0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Pompe_act_slider_right,	ACT_AVOID_POMPE_ACT_SLIDER_RIGHT_Normal,	ACT_POMPE_NORMAL,							0,		0,		0,		0);
+
+		// Dans le cas où on ventouse un module sur l'élévateur
+		init_new_offset(ACT_QUEUE_Pompe_act_elevator_left,	ACT_AVOID_POMPE_ACT_ELEVATOR_LEFT_Normal,	ACT_POMPE_NORMAL,							0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Pompe_act_elevator_right,	ACT_AVOID_POMPE_ACT_ELEVATOR_RIGHT_Normal,	ACT_POMPE_NORMAL,							0,		0,		0,		0);
+
 
 		init_new_offset(ACT_QUEUE_Ore_wall,					ACT_AVOID_ORE_WALL_Out,						ACT_ORE_WALL_OUT,							0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Ore_roller_arm,			ACT_AVOID_ORE_ROLLER_ARM_Out, 				ACT_ORE_ROLLER_ARM_OUT,						0,		0,		0,		0);
@@ -75,6 +80,8 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Small_cylinder_dispose,	ACT_AVOID_SMALL_CYLINDER_DISPOSE_Take,		ACT_SMALL_CYLINDER_DISPOSE_TAKE,			0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Small_cylinder_dispose,	ACT_AVOID_SMALL_CYLINDER_DISPOSE_Raise,		ACT_SMALL_CYLINDER_DISPOSE_RAISE,			0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Small_cylinder_dispose,	ACT_AVOID_SMALL_CYLINDER_DISPOSE_Dispose,	ACT_SMALL_CYLINDER_DISPOSE_DISPOSE,			0,		0,		0,		0);
+
+		// Ajouter le pusher et la pompe slider/élévateur
 
 	}
 }
