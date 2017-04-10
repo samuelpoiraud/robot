@@ -97,6 +97,9 @@
 	#define RX24_STATUS_RETURN_CHECK_CHECKSUM
 	#define RX24_UART_ID 2
 
+/*External IT */
+#define USE_EXTERNAL_IT
+
 
 //Test et inclusion des configs spécifiques au robot
 #if (defined(I_AM_ROBOT_BIG) && defined(I_AM_ROBOT_SMALL)) || (!defined(I_AM_ROBOT_BIG) && !defined(I_AM_ROBOT_SMALL))
