@@ -33,7 +33,6 @@
 
 #define STARTING_STEP						0		// Position du premier point mesuré par l'hokuyo (entre 0 et 1080)
 #define CLUSTER_COUNT						0		// Nombre de point que l'hokuyo peut fusionner
-#define TO_CLOSE_DISTANCE					100		// [mm] Distance minimum pour prendre en compte un point
 #define TO_FAR_DISTANCE						3500	// [mm] Distance à partir de laquelle un point est considéré comme trop éloigné
 #define FIELD_SIZE_Y 						3000	// [mm] Longueur du terrain
 #define FIELD_SIZE_X 						2000	// [mm]	Largeur du terrain
