@@ -14,6 +14,7 @@
 #include "../../stm32f4xx/stm32f4xx_pwr.h"
 #include "../../stm32f4xx/stm32f4xx_rcc.h"
 #include "term_io.h"
+#include "../brain.h"
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -43,6 +44,7 @@ volatile Uint16	match_id = 0xFFFF;
 volatile Uint16	read_match_id = 0xFFFF;
 static bool_e initialized = FALSE;
 
+bool_e SD_close_file(void);
 static int SD_vprintf(bool_e verbose, const char * s, va_list args);
 static int SD_logprintf(log_level_e level, const char* format, va_list vargs);
 
@@ -200,16 +202,6 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 	if(data_waiting_for_sync == FALSE)	//La synchro était faite, aucune donnée n'était en attente d'écriture... on relance le compteur.
 		time_before_sync = MAX_TIME_BEFORE_SYNC;
 	data_waiting_for_sync = TRUE;
-
-	if(can_msg && can_msg->sid == BROADCAST_STOP_ALL)
-	{
-		f_close(&file_match);
-		debug_printf("Closing file. Match saved\n");
-		time_before_sync = 0;
-		data_waiting_for_sync = FALSE;
-		file_opened = FALSE;
-		read_match_id = match_id;	//pour pouvoir dépiler le match qui vient de se terminer.
-	}
 }
 
 //renvoie TRUE si la carte SD est montée et accessible.
@@ -320,6 +312,21 @@ bool_e SD_open_file_for_next_match(void)
 	return TRUE;
 }
 
+bool_e SD_close_file(void){
+
+	FRESULT res;
+	res = f_close(&file_match);
+	debug_printf("Closing file. Match saved\n");
+	time_before_sync = 0;
+	data_waiting_for_sync = FALSE;
+	file_opened = FALSE;
+	read_match_id = match_id;	//pour pouvoir dépiler le match qui vient de se terminer.
+
+	if(res != FR_OK)
+		return FALSE;
+	else
+		return TRUE;
+}
 
 void SD_process_main(void)
 {
@@ -327,7 +334,8 @@ void SD_process_main(void)
 	{
 		INIT = 0,
 		SD_FAILED,
-		IDLE
+		FILE_OPEN,
+		FILE_CLOSE
 	}state_e;
 	static state_e state = INIT;
 	if(!initialized)
@@ -338,12 +346,22 @@ void SD_process_main(void)
 			state = SD_FAILED;		//Par défaut...
 			if(SD_analyse())
 				if(SD_open_file_for_next_match())
-					state = IDLE;
+					state = FILE_OPEN;
 		break;
+
 		case SD_FAILED:
 			break;
-		case IDLE:
+
+		case FILE_OPEN:
+			if(global.match_time >= BRAIN_getMatchDuration() + 5000){
+				state = FILE_CLOSE;
+				SD_close_file();
+			}
 			break;
+
+		case FILE_CLOSE:
+			break;
+
 		default:
 			state = INIT;
 			break;
