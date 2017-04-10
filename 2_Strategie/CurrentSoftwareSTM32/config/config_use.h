@@ -103,26 +103,32 @@
 
 /* Réglages UART */
 	#define USE_UART1
-		#define UART1_BAUDRATE	230400
-		#define USE_UART1RXINTERRUPT
-		#define BUFFER_U1TX_SIZE 1280
-		#define USE_UART1TXINTERRUPT
+		#define UART1_BAUDRATE				230400
+
+		#define USE_UART1_TX_BUFFER
+			#define UART1_TX_BUFFER_SIZE 	1280
+
+		#define USE_UART1_RX_BUFFER
+			#define UART1_RX_BUFFER_SIZE 	32
 
 	#define USE_UART2
-		#define UART2_BAUDRATE	9600
-		#define USE_UART2RXINTERRUPT
-		#define BUFFER_U2TX_SIZE 128
-		#define USE_UART2TXINTERRUPT
+		#define UART2_BAUDRATE				9600
+
+		#define USE_UART2_TX_BUFFER
+			#define UART2_TX_BUFFER_SIZE 	128
+
+		#define USE_UART2_RX_BUFFER
+			#define UART2_RX_BUFFER_SIZE 	32
 
 	#ifdef USE_LCD
 		#define USE_UART3
-			#define UART3_BAUDRATE	19200
-			#define USE_UART3RXINTERRUPT
-			#define BUFFER_U3TX_SIZE 128
-			#define USE_UART3TXINTERRUPT
-	#endif
+			#define UART3_BAUDRATE				19200
 
-	#define UART_RX_BUF_SIZE	32		//Taille de la chaine de caracteres memorisant les caracteres recus sur UART
+			#define USE_UART3_TX_BUFFER
+				#define UART3_TX_BUFFER_SIZE 	128
+
+			#define USE_UART3_RX_INTERRUPT
+	#endif
 
 /* Réglages Boutons */
 	#define USE_BUTTONS

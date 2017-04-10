@@ -57,37 +57,61 @@
 #endif
 
 /* Variables Globales pour l'UART */
-#ifdef USE_UART1RXINTERRUPT
-	static Uint8 m_u1rxbuf[UART_RX_BUF_SIZE];
+#ifdef USE_UART1_RX_BUFFER
+	#ifndef UART1_RX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART1 RX."
+	#endif
+	static Uint8 m_u1rxbuf[UART1_RX_BUFFER_SIZE];
 	static volatile Uint32 m_u1rxnum;
 	static volatile bool_e m_u1rx;	// message reçu sur uart1
-#endif /* def USE_UART1RXINTERRUPT */
-#ifdef USE_UART2RXINTERRUPT
-	static Uint8 m_u2rxbuf[UART_RX_BUF_SIZE];
+#endif /* def USE_UART1_RX_BUFFER */
+
+#ifdef USE_UART2_RX_BUFFER
+	#ifndef UART2_RX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART2 RX."
+	#endif
+	static Uint8 m_u2rxbuf[UART2_RX_BUFFER_SIZE];
 	static volatile Uint32 m_u2rxnum;
 	static volatile bool_e m_u2rx;	// message reçu sur uart2
-#endif /* def USE_UART2RXINTERRUPT */
-#ifdef USE_UART3RXINTERRUPT
-	static Uint8 m_u3rxbuf[UART_RX_BUF_SIZE];
+#endif /* def USE_UART2_RX_BUFFER */
+
+#ifdef USE_UART3_RX_BUFFER
+	#ifndef UART3_RX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART3 RX."
+	#endif
+	static Uint8 m_u3rxbuf[UART3_RX_BUFFER_SIZE];
 	static volatile Uint32 m_u3rxnum;
 	static volatile bool_e m_u3rx;	// message reçu sur uart3
-#endif /* def USE_UART3RXINTERRUPT */
-#ifdef USE_UART4RXINTERRUPT
-	static Uint8 m_u4rxbuf[UART_RX_BUF_SIZE];
+#endif /* def USE_UART3_RX_BUFFER */
+
+#ifdef USE_UART4_RX_BUFFER
+	#ifndef UART4_RX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART4 RX."
+	#endif
+	static Uint8 m_u4rxbuf[UART4_RX_BUFFER_SIZE];
 	static volatile Uint32 m_u4rxnum;
 	static volatile bool_e m_u4rx;	// message reçu sur uart4
-#endif /* def USE_UART3RXINTERRUPT */
-#ifdef USE_UART5RXINTERRUPT
-	static Uint8 m_u5rxbuf[UART_RX_BUF_SIZE];
+#endif /* def USE_UART4_RX_BUFFER */
+
+#ifdef USE_UART5_RX_BUFFER
+	#ifndef UART5_RX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART5 RX."
+	#endif
+	static Uint8 m_u5rxbuf[UART5_RX_BUFFER_SIZE];
 	static volatile Uint32 m_u5rxnum;
 	static volatile bool_e m_u5rx;	// message reçu sur uart5
-#endif /* def USE_UART3RXINTERRUPT */
-#ifdef USE_UART6RXINTERRUPT
-	static Uint8 m_u6rxbuf[UART_RX_BUF_SIZE];
+#endif /* def USE_UART5_RX_BUFFER */
+
+#ifdef USE_UART6_RX_BUFFER
+	#ifndef UART6_RX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART6 RX."
+	#endif
+	static Uint8 m_u6rxbuf[UART6_RX_BUFFER_SIZE];
 	static volatile Uint32 m_u6rxnum;
 	static volatile bool_e m_u6rx;	// message reçu sur uart6
-#endif /* def USE_UART3RXINTERRUPT */
-#if (defined USE_UART1TXINTERRUPT || defined USE_UART2TXINTERRUPT || defined USE_UART3TXINTERRUPT || defined USE_UART4TXINTERRUPT || defined USE_UART6TXINTERRUPT || defined USE_UART6TXINTERRUPT)
+#endif /* def USE_UART6_RX_BUFFER */
+
+#if (defined USE_UART1_TX_BUFFER || defined USE_UART2_TX_BUFFER || defined USE_UART3_TX_BUFFER || defined USE_UART4_TX_BUFFER || defined USE_UART5_TX_BUFFER || defined USE_UART6_TX_BUFFER)
 	typedef struct
 	{
 		volatile Uint8 * datas;
@@ -115,42 +139,84 @@
 	}
 #endif
 
+#ifdef USE_UART1_TX_BUFFER
+	#ifndef UART1_TX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART1 TX."
+	#endif
+	static volatile Uint8 b1tx[UART1_TX_BUFFER_SIZE];
+	static volatile buffer_t buffer1tx = {b1tx, UART1_TX_BUFFER_SIZE, 0, 0, 0};
+#endif
+
+#ifdef USE_UART2_TX_BUFFER
+	#ifndef UART2_TX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART2 TX."
+	#endif
+	static volatile Uint8 b2tx[UART2_TX_BUFFER_SIZE];
+	static volatile buffer_t buffer2tx = {b2tx, UART2_TX_BUFFER_SIZE, 0, 0, 0};
+#endif
+
+#ifdef USE_UART3_TX_BUFFER
+	#ifndef UART3_TX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART3 TX."
+	#endif
+	static volatile Uint8 b3tx[UART3_TX_BUFFER_SIZE];
+	static volatile buffer_t buffer3tx = {b3tx, UART3_TX_BUFFER_SIZE, 0, 0, 0};
+#endif
+
+#ifdef USE_UART4_TX_BUFFER
+	#ifndef UART4_TX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART1 TX."
+	#endif
+	static volatile Uint8 b4tx[UART4_TX_BUFFER_SIZE];
+	static volatile buffer_t buffer4tx = {b4tx, UART4_TX_BUFFER_SIZE, 0, 0, 0};
+#endif
+
+#ifdef USE_UART5_TX_BUFFER
+	#ifndef UART5_TX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART5 TX."
+	#endif
+	static volatile Uint8 b5tx[UART5_TX_BUFFER_SIZE];
+	static volatile buffer_t buffer5tx = {b5tx, UART5_TX_BUFFER_SIZE, 0, 0, 0};
+#endif
+
+#ifdef USE_UART6_TX_BUFFER
+	#ifndef UART6_TX_BUFFER_SIZE
+		#error "Vous devez définir la taille du buffer UART6 TX."
+	#endif
+	static volatile Uint8 b6tx[UART6_TX_BUFFER_SIZE];
+	static volatile buffer_t buffer6tx = {b6tx, UART6_TX_BUFFER_SIZE, 0, 0, 0};
+#endif
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 static volatile UART_dataReceivedFunctionPtr listennerDataReceived[6] = {NULL};
 static volatile bool_e initialized = FALSE;
 
 void UART_deInit(void){
-#ifdef USE_UART1
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
-#endif
-
-#ifdef USE_UART2
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, DISABLE);
-#endif
-
-#ifdef USE_UART3
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, DISABLE);
-#endif
-#ifdef USE_UART4
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, DISABLE);
-#endif
-#ifdef USE_UART5
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, DISABLE);
-#endif
-#ifdef USE_UART6
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, DISABLE);
-#endif
+	#ifdef USE_UART1
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
+	#endif
+	#ifdef USE_UART2
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, DISABLE);
+	#endif
+	#ifdef USE_UART3
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, DISABLE);
+	#endif
+	#ifdef USE_UART4
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, DISABLE);
+	#endif
+	#ifdef USE_UART5
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, DISABLE);
+	#endif
+	#ifdef USE_UART6
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, DISABLE);
+	#endif
 	initialized = FALSE;
 }
 
-/*	fonction initialisant les uart choisis
-	vitesse : 115200 bauds (par défaut)
-	bits de donnees : 8
-	parite : aucune
-	bit de stop : 1
-	pas de controle de flux
-*/
-void UART_init(void)
-{
+void UART_init(void){
 	if(initialized)
 		return;
 	initialized = TRUE;
@@ -162,117 +228,138 @@ void UART_init(void)
 
 	PORTS_uarts_init();
 
-#ifdef USE_UART1
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-	USART_OverSampling8Cmd(USART1, ENABLE);
-	UART_set_baudrate(1, UART1_BAUDRATE);
+	#ifdef USE_UART1
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+		USART_OverSampling8Cmd(USART1, ENABLE);
+		UART_set_baudrate(1, UART1_BAUDRATE);
 
-	#ifdef USE_UART1RXINTERRUPT
-		m_u1rxnum = 0;
-		m_u1rx = 0;
-		/* Enable the USART1 Interrupt */
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
-		NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
-		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+		#ifdef USE_UART1_RX_BUFFER
+			m_u1rxnum = 0;
+			m_u1rx = 0;
+		#endif
+
+		#if defined(USE_UART1_RX_BUFFER) || defined(USE_UART1_RX_INTERRUPT)
+			/* Enable the USART1 Interrupt */
+			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+			NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+			NVIC_Init(&NVIC_InitStructure);
+			USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+		#endif
+
+		/* Enable USART */
+		USART_Cmd(USART1, ENABLE);
 	#endif
 
-	/* Enable USART */
-	USART_Cmd(USART1, ENABLE);
-#endif
 
+	#ifdef USE_UART2
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+		USART_OverSampling8Cmd(USART2, ENABLE);
+		UART_set_baudrate(2, UART2_BAUDRATE);
 
-#ifdef USE_UART2
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-	USART_OverSampling8Cmd(USART2, ENABLE);
-	UART_set_baudrate(2, UART2_BAUDRATE);
+		#ifdef USE_UART2_RX_BUFFER
+			m_u2rxnum = 0;
+			m_u2rx = 0;
+		#endif
 
-	#ifdef USE_UART2RXINTERRUPT
-		m_u2rxnum = 0;
-		m_u2rx = 0;
-		/* Enable the USART1 Interrupt */
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
-		NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
-		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+		#if defined(USE_UART2_RX_BUFFER) || defined(USE_UART2_RX_INTERRUPT)
+			/* Enable the USART1 Interrupt */
+			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
+			NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+			NVIC_Init(&NVIC_InitStructure);
+			USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+		#endif
+
+		/* Enable USART */
+		USART_Cmd(USART2, ENABLE);
 	#endif
 
-	/* Enable USART */
-	USART_Cmd(USART2, ENABLE);
-#endif
+	#ifdef USE_UART3
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+		USART_OverSampling8Cmd(USART3, ENABLE);
+		UART_set_baudrate(3, UART3_BAUDRATE);
 
-#ifdef USE_UART3
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-	USART_OverSampling8Cmd(USART3, ENABLE);
-	UART_set_baudrate(3, UART3_BAUDRATE);
+		#ifdef USE_UART3_RX_BUFFER
+			m_u3rxnum = 0;
+			m_u3rx = 0;
+		#endif
 
-	#ifdef USE_UART3RXINTERRUPT
-		m_u3rxnum = 0;
-		m_u3rx = 0;
-		/* Enable the USART1 Interrupt */
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
-		NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
-		USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+		#if defined(USE_UART3_RX_BUFFER) || defined(USE_UART3_RX_INTERRUPT)
+			/* Enable the USART1 Interrupt */
+			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
+			NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+			NVIC_Init(&NVIC_InitStructure);
+			USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+		#endif
+
+		/* Enable USART */
+		USART_Cmd(USART3, ENABLE);
 	#endif
 
-	/* Enable USART */
-	USART_Cmd(USART3, ENABLE);
-#endif
-#ifdef USE_UART4
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
-	USART_OverSampling8Cmd(UART4, ENABLE);
-	UART_set_baudrate(4, UART4_BAUDRATE);
+	#ifdef USE_UART4
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
+		USART_OverSampling8Cmd(UART4, ENABLE);
+		UART_set_baudrate(4, UART4_BAUDRATE);
 
-	#ifdef USE_UART4RXINTERRUPT
-		m_u4rxnum = 0;
-		m_u4rx = 0;
-		/* Enable the USART1 Interrupt */
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
-		NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
-		USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);
+		#ifdef USE_UART4_RX_BUFFER
+			m_u4rxnum = 0;
+			m_u4rx = 0;
+		#endif
+
+		#if defined(USE_UART4_RX_BUFFER) || defined(USE_UART4_RX_INTERRUPT)
+			/* Enable the USART1 Interrupt */
+			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
+			NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;
+			NVIC_Init(&NVIC_InitStructure);
+			USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);
+		#endif
+
+		/* Enable USART */
+		USART_Cmd(UART4, ENABLE);
 	#endif
 
-	/* Enable USART */
-	USART_Cmd(UART4, ENABLE);
-#endif
-#ifdef USE_UART5
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
-	USART_OverSampling8Cmd(UART5, ENABLE);
-	UART_set_baudrate(5, UART5_BAUDRATE);
+	#ifdef USE_UART5
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
+		USART_OverSampling8Cmd(UART5, ENABLE);
+		UART_set_baudrate(5, UART5_BAUDRATE);
 
-	#ifdef USE_UART5RXINTERRUPT
-		m_u5rxnum = 0;
-		m_u5rx = 0;
-		/* Enable the USART1 Interrupt */
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
-		NVIC_InitStructure.NVIC_IRQChannel = UART5_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
-		USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);
+		#ifdef USE_UART5_RX_BUFFER
+			m_u5rxnum = 0;
+			m_u5rx = 0;
+		#endif
+
+		#if defined(USE_UART5_RX_BUFFER) || defined(USE_UART5_RX_INTERRUPT)
+			/* Enable the USART1 Interrupt */
+			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
+			NVIC_InitStructure.NVIC_IRQChannel = UART5_IRQn;
+			NVIC_Init(&NVIC_InitStructure);
+			USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);
+		#endif
+
+		/* Enable USART */
+		USART_Cmd(UART5, ENABLE);
 	#endif
 
-	/* Enable USART */
-	USART_Cmd(UART5, ENABLE);
-#endif
-#ifdef USE_UART6
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
-	USART_OverSampling8Cmd(USART6, ENABLE);
-	UART_set_baudrate(6, UART6_BAUDRATE);
+	#ifdef USE_UART6
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
+		USART_OverSampling8Cmd(USART6, ENABLE);
+		UART_set_baudrate(6, UART6_BAUDRATE);
 
-	#ifdef USE_UART6RXINTERRUPT
-		m_u6rxnum = 0;
-		m_u6rx = 0;
-		/* Enable the USART1 Interrupt */
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
-		NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn;
-		NVIC_Init(&NVIC_InitStructure);
-		USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
+		#ifdef USE_UART6_RX_BUFFER
+			m_u6rxnum = 0;
+			m_u6rx = 0;
+		#endif
+
+		#if defined(USE_UART6_RX_BUFFER) || defined(USE_UART6_RX_INTERRUPT)
+			/* Enable the USART1 Interrupt */
+			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
+			NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn;
+			NVIC_Init(&NVIC_InitStructure);
+			USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
+		#endif
+
+		/* Enable USART */
+		USART_Cmd(USART6, ENABLE);
 	#endif
-
-	/* Enable USART */
-	USART_Cmd(USART6, ENABLE);
-#endif
 }
 
 void UART_set_baudrate(Uint8 uart_id, Uint32 baudrate) {
@@ -340,6 +427,7 @@ void UART_setListenner(Uint8 uart_id, UART_dataReceivedFunctionPtr function){
 
 	listennerDataReceived[uart_id-1] = function;
 }
+
 //Appelée par un printf
 int _write(int file, char *ptr, int len)
 {
@@ -385,14 +473,13 @@ int _write(int file, char *ptr, int len)
 }
 
 #ifdef USE_UART1
-	#ifdef USE_UART1RXINTERRUPT
-		bool_e UART1_data_ready()
-		{
+
+	#ifdef USE_UART1_RX_BUFFER
+		bool_e UART1_data_ready(void){
 			return m_u1rx;
 		}
 
-		Uint8 UART1_get_next_msg()
-		{
+		Uint8 UART1_get_next_msg(void){
 			static Uint32 next_to_read =0;
 			if (m_u1rxnum > next_to_read)
 			{
@@ -400,36 +487,15 @@ int _write(int file, char *ptr, int len)
 				if (m_u1rxnum - next_to_read == 1)
 					m_u1rx = 0;
 				NVIC_EnableIRQ(USART1_IRQn);
-				return m_u1rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
+				return m_u1rxbuf[((next_to_read++) % UART1_RX_BUFFER_SIZE)];
 			}
 			else
 				return 0;
 		}
-	#endif /* def USE_UART1RXINTERRUPT */
+	#endif
 
-
-	#ifdef USE_UART1TXINTERRUPT
-		#ifndef BUFFER_U1TX_SIZE
-			#warning "Vous devez définir la taille du buffer U1TX."
-		#endif
-		volatile Uint8 b1tx[BUFFER_U1TX_SIZE];
-		volatile buffer_t buffer1tx = {b1tx,BUFFER_U1TX_SIZE,0,0,0};
-
-		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
-		bool_e IsNotEmpty_buffer_u1tx(void)
-		{
-			return IsNotEmpty_buffer(&buffer1tx);
-		}
-
-		//Permet de savoir, venant de l'extérieur, si le buffer est plein
-		bool_e IsFull_buffer_u1tx(void)
-		{
-			return IsFull_buffer(&buffer1tx);
-		}
-
-
-
-		void UART1_putc(Uint8 c)
+	#ifdef USE_UART1_TX_BUFFER
+		void UART1_putc(Uint8 data)
 		{
 			static bool_e reentrance_detection = FALSE;
 
@@ -438,7 +504,7 @@ int _write(int file, char *ptr, int len)
 
 			reentrance_detection = TRUE;
 			if(USART_GetITStatus(USART1, USART_IT_TXE))
-				USART_SendData(USART1, c);
+				USART_SendData(USART1, data);
 			else
 			{
 				//mise en buffer + activation IT U1TX.
@@ -453,7 +519,7 @@ int _write(int file, char *ptr, int len)
 
 				if(buffer1tx.nb_datas < buffer1tx.size)
 				{
-					buffer1tx.datas[buffer1tx.index_write] = c;
+					buffer1tx.datas[buffer1tx.index_write] = data;
 					buffer1tx.index_write = (buffer1tx.index_write>=buffer1tx.size-1)?0:(buffer1tx.index_write + 1);
 					buffer1tx.nb_datas++;
 				}
@@ -463,65 +529,46 @@ int _write(int file, char *ptr, int len)
 			}
 			reentrance_detection = FALSE;
 		}
-	#else	/* def USE_UART1TXINTERRUPT */
-
-		//Fonction blocante
-		void UART1_putc(Uint8 mes)
+	#else
+		void UART1_putc(Uint8 data)
 		{
 			while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-			USART_SendData(USART1, mes);
+			USART_SendData(USART1, data);
 		}
-	#endif /* def USE_UART1TXINTERRUPT */
-
+	#endif
 
 	void _ISR USART1_IRQHandler(void){
-		#ifdef USE_UART1RXINTERRUPT
-			if(USART_GetITStatus(USART1, USART_IT_RXNE)) {
-				Uint8 * receiveddata = &(m_u1rxbuf[(m_u1rxnum%UART_RX_BUF_SIZE)]);
+
+		if(USART_GetITStatus(USART1, USART_IT_RXNE)){
+			#ifdef USE_UART1_RX_BUFFER
+				Uint8 * receiveddata = &(m_u1rxbuf[(m_u1rxnum % UART1_RX_BUFFER_SIZE)]);
 
 				while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE)){
 					#ifdef LED_UART
 						toggle_led(LED_UART);
 					#endif
-					#ifdef MODE_SIMULATION
-					static Uint8 we_are_receiving_can_msg = FALSE;
-					Uint8 c;
-					c = USART_ReceiveData(USART1);
-					if(we_are_receiving_can_msg == 0)
-					{
-						if(c==0x01)
-							we_are_receiving_can_msg = 1;
-					}
-					else
-						we_are_receiving_can_msg++;
-
-					if(we_are_receiving_can_msg)
-					{
-						*(receiveddata++) = c;
-						m_u1rxnum++;
-						m_u1rx =1;
-						/* pour eviter les comportements indésirables */
-						if (receiveddata - m_u1rxbuf >= UART_RX_BUF_SIZE)
-							receiveddata = m_u1rxbuf;
-					}
-					if(we_are_receiving_can_msg == 13)	//Dernier octet du message can (0x04...)
-						we_are_receiving_can_msg = 0;
-					#else
-						*(receiveddata++) = USART_ReceiveData(USART1);;
-						m_u1rxnum++;
-						m_u1rx =1;
-						/* pour eviter les comportements indésirables */
-						if (receiveddata - m_u1rxbuf >= UART_RX_BUF_SIZE)
-							receiveddata = m_u1rxbuf;
-					#endif
+					*(receiveddata++) = USART_ReceiveData(USART1);
+					m_u1rxnum++;
+					m_u1rx =1;
+					/* pour eviter les comportements indésirables */
+					if (receiveddata - m_u1rxbuf >= UART1_RX_BUFFER_SIZE)
+						receiveddata = m_u1rxbuf;
 				}
-				USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-			}
-		#endif
-		#ifdef USE_UART1TXINTERRUPT
-			if(USART_GetITStatus(USART1, USART_IT_TXE)) {
-				Uint8 c;
 
+			#elif defined(USE_UART1_RX_INTERRUPT)
+
+				if(listennerDataReceived[0] != NULL)
+					listennerDataReceived[0](USART_ReceiveData(USART1));
+				else
+					USART_ReceiveData(USART1);
+
+			#endif
+
+			USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+		}
+
+		if(USART_GetITStatus(USART1, USART_IT_TXE)){
+			#ifdef USE_UART1_TX_BUFFER
 				//debufferiser.
 				if(IsNotEmpty_buffer(&buffer1tx))
 				{
@@ -529,7 +576,7 @@ int _write(int file, char *ptr, int len)
 					//Critical section
 					if(buffer1tx.nb_datas > (Uint8)0)
 					{
-						c = buffer1tx.datas[buffer1tx.index_read];
+						Uint8 c = buffer1tx.datas[buffer1tx.index_read];
 						buffer1tx.index_read = (buffer1tx.index_read>=buffer1tx.size-1)?0:(buffer1tx.index_read + 1);
 						buffer1tx.nb_datas--;
 						USART_SendData(USART1, c);
@@ -539,37 +586,41 @@ int _write(int file, char *ptr, int len)
 				}
 				else if(!IsNotEmpty_buffer(&buffer1tx))
 					USART_ITConfig(USART1, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
-			}
-		#endif
+			#endif
+		}
+
+		NVIC_ClearPendingIRQ(USART1_IRQn);
 	}
 
 #endif /* def USE_UART1 */
 
 #ifdef USE_UART2
-	#ifdef USE_UART2TXINTERRUPT
-		#ifndef BUFFER_U2TX_SIZE
-			#warning "Vous devez définir la taille du buffer U2TX."
-		#endif
-		volatile Uint8 b2tx[BUFFER_U2TX_SIZE];
-		volatile buffer_t buffer2tx = {b2tx,BUFFER_U2TX_SIZE,0,0,0};
 
-		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
-		bool_e IsNotEmpty_buffer_u2tx(void)
-		{
-			return IsNotEmpty_buffer(&buffer2tx);
+	#ifdef USE_UART2_RX_BUFFER
+		bool_e UART2_data_ready(void){
+			return m_u2rx;
 		}
 
-		//Permet de savoir, venant de l'extérieur, si le buffer est plein
-		bool_e IsFull_buffer_u2tx(void)
-		{
-			return IsFull_buffer(&buffer2tx);
+		Uint8 UART2_get_next_msg(void){
+			static Uint32 next_to_read =0;
+			if (m_u2rxnum > next_to_read)
+			{
+				NVIC_DisableIRQ(USART2_IRQn);
+				if (m_u2rxnum - next_to_read == 1)
+					m_u2rx = 0;
+				NVIC_EnableIRQ(USART2_IRQn);
+				return m_u2rxbuf[((next_to_read++) % UART2_RX_BUFFER_SIZE)];
+			}
+			else
+				return 0;
 		}
+	#endif
 
-
-		void UART2_putc(Uint8 c)
+	#ifdef USE_UART2_TX_BUFFER
+		void UART2_putc(Uint8 data)
 		{
 			if(USART_GetITStatus(USART2, USART_IT_TXE))
-				USART_SendData(USART2, c);
+				USART_SendData(USART2, data);
 			else
 			{
 				//mise en buffer + activation IT U2TX.
@@ -583,7 +634,7 @@ int _write(int file, char *ptr, int len)
 
 				if(buffer2tx.nb_datas < buffer2tx.size)
 				{
-					buffer2tx.datas[buffer2tx.index_write] = c;
+					buffer2tx.datas[buffer2tx.index_write] = data;
 					buffer2tx.index_write = (buffer2tx.index_write>=buffer2tx.size-1)?0:(buffer2tx.index_write + 1);
 					buffer2tx.nb_datas++;
 				}
@@ -592,18 +643,19 @@ int _write(int file, char *ptr, int len)
 				USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
 			}
 		}
-	#else	/* def USE_UART2TXINTERRUPT */
-		void UART2_putc(Uint8 mes)
+	#else
+		void UART2_putc(Uint8 data)
 		{
 			while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
-			USART_SendData(USART2, mes);
+			USART_SendData(USART2, data);
 		}
 	#endif
-	void _ISR USART2_IRQHandler(void)
-	{
-		#ifdef USE_UART2RXINTERRUPT
-			if(USART_GetITStatus(USART2, USART_IT_RXNE)) {
-				Uint8 * receiveddata = &(m_u2rxbuf[(m_u2rxnum%UART_RX_BUF_SIZE)]);
+
+	void _ISR USART2_IRQHandler(void){
+
+		if(USART_GetITStatus(USART2, USART_IT_RXNE)){
+			#ifdef USE_UART2_RX_BUFFER
+				Uint8 * receiveddata = &(m_u2rxbuf[(m_u2rxnum % UART2_RX_BUFFER_SIZE)]);
 
 				while(USART_GetFlagStatus(USART2, USART_FLAG_RXNE))
 				{
@@ -614,17 +666,24 @@ int _write(int file, char *ptr, int len)
 					m_u2rxnum++;
 					m_u2rx = 1;
 					/* pour eviter les comportements indésirables */
-					if (receiveddata - m_u2rxbuf >= UART_RX_BUF_SIZE)
+					if (receiveddata - m_u2rxbuf >= UART2_RX_BUFFER_SIZE)
 						receiveddata = m_u2rxbuf;
 				}
-				USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-				NVIC_ClearPendingIRQ(USART2_IRQn);
-			}
-		#endif	//def USE_UART2RXINTERRUPT
-		#ifdef USE_UART2TXINTERRUPT
-			if(USART_GetITStatus(USART2, USART_IT_TXE)) {
-				Uint8 c;
 
+			#elif defined(USE_UART2_RX_INTERRUPT)
+
+				if(listennerDataReceived[1] != NULL)
+					listennerDataReceived[1](USART_ReceiveData(USART2));
+				else
+					USART_ReceiveData(USART2);
+
+			#endif
+
+			USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+		}
+
+		if(USART_GetITStatus(USART2, USART_IT_TXE)){
+			#ifdef USE_UART2_TX_BUFFER
 				//debufferiser.
 				if(IsNotEmpty_buffer(&buffer2tx))
 				{
@@ -632,7 +691,7 @@ int _write(int file, char *ptr, int len)
 					//Critical section
 					if(buffer2tx.nb_datas > (Uint8)0)
 					{
-						c = buffer2tx.datas[buffer2tx.index_read];
+						Uint8 c = buffer2tx.datas[buffer2tx.index_read];
 						buffer2tx.index_read = (buffer2tx.index_read>=buffer2tx.size-1)?0:(buffer2tx.index_read + 1);
 						buffer2tx.nb_datas--;
 						USART_SendData(USART2, c);
@@ -642,58 +701,41 @@ int _write(int file, char *ptr, int len)
 				}
 				else if(!IsNotEmpty_buffer(&buffer2tx))
 					USART_ITConfig(USART2, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
-			}
-		#endif
-	}
-
-	#ifdef USE_UART2RXINTERRUPT
-		bool_e UART2_data_ready()
-		{
-			return m_u2rx;
+			#endif
 		}
 
-		Uint8 UART2_get_next_msg()
-		{
+		NVIC_ClearPendingIRQ(USART2_IRQn);
+	}
+
+#endif /* def USE_UART2 */
+
+#ifdef USE_UART3
+
+	#ifdef USE_UART3_RX_BUFFER
+		bool_e UART3_data_ready(void){
+			return m_u3rx;
+		}
+
+		Uint8 UART3_get_next_msg(void){
 			static Uint32 next_to_read =0;
-			if (m_u2rxnum > next_to_read)
+			if (m_u3rxnum > next_to_read)
 			{
-				NVIC_DisableIRQ(USART2_IRQn);
-				if (m_u2rxnum - next_to_read == 1)
-					m_u2rx = 0;
-				NVIC_EnableIRQ(USART2_IRQn);
-				return m_u2rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
+				NVIC_DisableIRQ(USART3_IRQn);
+				if (m_u3rxnum - next_to_read == 1)
+					m_u3rx = 0;
+				NVIC_EnableIRQ(USART3_IRQn);
+				return m_u3rxbuf[((next_to_read++) % UART3_RX_BUFFER_SIZE)];
 			}
 			else
 				return 0;
 		}
-	#endif /* def USE_UART2RXINTERRUPT */
-#endif /* def USE_UART2 */
+	#endif
 
-#ifdef USE_UART3
-	#ifdef USE_UART3TXINTERRUPT
-		#ifndef BUFFER_U3TX_SIZE
-			#warning "Vous devez définir la taille du buffer U3TX."
-		#endif
-		volatile Uint8 b3tx[BUFFER_U3TX_SIZE];
-		volatile buffer_t buffer3tx = {b3tx,BUFFER_U3TX_SIZE,0,0,0};
-
-		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
-		bool_e IsNotEmpty_buffer_u3tx(void)
-		{
-			return IsNotEmpty_buffer(&buffer3tx);
-		}
-
-		//Permet de savoir, venant de l'extérieur, si le buffer est plein
-		bool_e IsFull_buffer_u3tx(void)
-		{
-			return IsFull_buffer(&buffer3tx);
-		}
-
-
-		void UART3_putc(Uint8 c)
+	#ifdef USE_UART3_TX_BUFFER
+		void UART3_putc(Uint8 data)
 		{
 			if(USART_GetITStatus(USART3, USART_IT_TXE))
-				USART_SendData(USART3, c);
+				USART_SendData(USART3, data);
 			else
 			{
 				//mise en buffer + activation IT U3TX.
@@ -707,7 +749,7 @@ int _write(int file, char *ptr, int len)
 
 				if(buffer3tx.nb_datas < buffer3tx.size)
 				{
-					buffer3tx.datas[buffer3tx.index_write] = c;
+					buffer3tx.datas[buffer3tx.index_write] = data;
 					buffer3tx.index_write = (buffer3tx.index_write>=buffer3tx.size-1)?0:(buffer3tx.index_write + 1);
 					buffer3tx.nb_datas++;
 				}
@@ -716,44 +758,48 @@ int _write(int file, char *ptr, int len)
 				USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
 			}
 		}
-	#else	/* def USE_UART3TXINTERRUPT */
-		void UART3_putc(Uint8 mes)
+	#else
+		void UART3_putc(Uint8 data)
 		{
 			while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
-			USART_SendData(USART3, mes);
+			USART_SendData(USART3, data);
 		}
 	#endif
-	void _ISR USART3_IRQHandler(void)
-	{
-		#ifdef USE_UART3RXINTERRUPT
-			if(USART_GetITStatus(USART3, USART_IT_RXNE)) {
-				Uint8 * receiveddata = &(m_u3rxbuf[(m_u3rxnum%UART_RX_BUF_SIZE)]);
+
+	void _ISR USART3_IRQHandler(void){
+
+		if(USART_GetITStatus(USART3, USART_IT_RXNE)){
+			#ifdef USE_UART3_RX_BUFFER
+				Uint8 * receiveddata = &(m_u3rxbuf[(m_u3rxnum % UART3_RX_BUFFER_SIZE)]);
 
 				while(USART_GetFlagStatus(USART3, USART_FLAG_RXNE))
 				{
 					#ifdef LED_UART
 						toggle_led(LED_UART);
 					#endif
-					
-					if(listennerDataReceived[2] != NULL){
-						listennerDataReceived[2](USART_ReceiveData(USART3));
-					}else{
-						*(receiveddata++) = USART_ReceiveData(USART3);
-						m_u3rxnum++;
-						m_u3rx = 1;
-						/* pour eviter les comportements indésirables */
-						if (receiveddata - m_u3rxbuf >= UART_RX_BUF_SIZE)
-							receiveddata = m_u3rxbuf;
-					}
-				}
-				USART_ClearITPendingBit(USART3, USART_IT_RXNE);
-				NVIC_ClearPendingIRQ(USART3_IRQn);
-			}
-		#endif	//def USE_UART3RXINTERRUPT
-		#ifdef USE_UART3TXINTERRUPT
-			if(USART_GetITStatus(USART3, USART_IT_TXE)) {
-				Uint8 c;
 
+					*(receiveddata++) = USART_ReceiveData(USART3);
+					m_u3rxnum++;
+					m_u3rx = 1;
+					/* pour eviter les comportements indésirables */
+					if (receiveddata - m_u3rxbuf >= UART3_RX_BUFFER_SIZE)
+						receiveddata = m_u3rxbuf;
+				}
+
+			#elif defined(USE_UART3_RX_INTERRUPT)
+
+				if(listennerDataReceived[2] != NULL)
+					listennerDataReceived[2](USART_ReceiveData(USART3));
+				else
+					USART_ReceiveData(USART3);
+
+			#endif
+
+			USART_ClearITPendingBit(USART3, USART_IT_RXNE);
+		}
+
+		if(USART_GetITStatus(USART3, USART_IT_TXE)){
+			#ifdef USE_UART3_TX_BUFFER
 				//debufferiser.
 				if(IsNotEmpty_buffer(&buffer3tx))
 				{
@@ -761,7 +807,7 @@ int _write(int file, char *ptr, int len)
 					//Critical section
 					if(buffer3tx.nb_datas > (Uint8)0)
 					{
-						c = buffer3tx.datas[buffer3tx.index_read];
+						Uint8 c = buffer3tx.datas[buffer3tx.index_read];
 						buffer3tx.index_read = (buffer3tx.index_read>=buffer3tx.size-1)?0:(buffer3tx.index_read + 1);
 						buffer3tx.nb_datas--;
 						USART_SendData(USART3, c);
@@ -771,59 +817,42 @@ int _write(int file, char *ptr, int len)
 				}
 				else if(!IsNotEmpty_buffer(&buffer3tx))
 					USART_ITConfig(USART3, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
-			}
-		#endif
+			#endif
+		}
+
+		NVIC_ClearPendingIRQ(USART3_IRQn);
 	}
 
-	#ifdef USE_UART3RXINTERRUPT
-		bool_e UART3_data_ready()
-		{
-			return m_u3rx;
-		}
 
-		Uint8 UART3_get_next_msg()
-		{
-			static Uint32 next_to_read =0;
-			if (m_u3rxnum > next_to_read)
-			{
-				NVIC_DisableIRQ(USART3_IRQn);
-				if (m_u3rxnum - next_to_read == 1)
-					m_u3rx = 0;
-				NVIC_EnableIRQ(USART3_IRQn);
-				return m_u3rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
-			}
-			else
-				return 0;
-		}
-	#endif /* def USE_UART3RXINTERRUPT */
 #endif /* def USE_UART3 */
 
 
 #ifdef USE_UART4
-	#ifdef USE_UART4TXINTERRUPT
-		#ifndef BUFFER_U4TX_SIZE
-			#warning "Vous devez définir la taille du buffer U4TX."
-		#endif
-		volatile Uint8 b4tx[BUFFER_U4TX_SIZE];
-		volatile buffer_t buffer4tx = {b4tx,BUFFER_U4TX_SIZE,0,0,0};
 
-		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
-		bool_e IsNotEmpty_buffer_u4tx(void)
-		{
-			return IsNotEmpty_buffer(&buffer4tx);
+	#ifdef USE_UART4_RX_BUFFER
+		bool_e UART4_data_ready(void){
+			return m_u4rx;
 		}
 
-		//Permet de savoir, venant de l'extérieur, si le buffer est plein
-		bool_e IsFull_buffer_u4tx(void)
-		{
-			return IsFull_buffer(&buffer4tx);
+		Uint8 UART4_get_next_msg(void){
+			static Uint32 next_to_read =0;
+			if (m_u4rxnum > next_to_read)
+			{
+				NVIC_DisableIRQ(UART4_IRQn);
+				if (m_u4rxnum - next_to_read == 1)
+					m_u4rx = 0;
+				NVIC_EnableIRQ(UART4_IRQn);
+				return m_u4rxbuf[((next_to_read++) % UART4_RX_BUFFER_SIZE)];
+			}
+			else
+				return 0;
 		}
+	#endif
 
-
-		void UART4_putc(Uint8 c)
-		{
+	#ifdef USE_UART4_TX_BUFFER
+		void UART4_putc(Uint8 data){
 			if(USART_GetFlagStatus(UART4, USART_FLAG_TXE))
-				USART_SendData(UART4, c);
+				USART_SendData(UART4, data);
 			else
 			{
 				//mise en buffer + activation IT U4TX.
@@ -837,7 +866,7 @@ int _write(int file, char *ptr, int len)
 
 				if(buffer4tx.nb_datas < buffer4tx.size)
 				{
-					buffer4tx.datas[buffer4tx.index_write] = c;
+					buffer4tx.datas[buffer4tx.index_write] = data;
 					buffer4tx.index_write = (buffer4tx.index_write>=buffer4tx.size-1)?0:(buffer4tx.index_write + 1);
 					buffer4tx.nb_datas++;
 				}
@@ -846,18 +875,18 @@ int _write(int file, char *ptr, int len)
 				USART_ITConfig(UART4, USART_IT_TXE, ENABLE);
 			}
 		}
-	#else	/* def USE_UART4TXINTERRUPT */
-		void UART4_putc(Uint8 mes)
-		{
+	#else
+		void UART4_putc(Uint8 data){
 			while(USART_GetFlagStatus(UART4, USART_FLAG_TXE) == RESET);
-			USART_SendData(UART4, mes);
+			USART_SendData(UART4, data);
 		}
 	#endif
-	void _ISR UART4_IRQHandler(void)
-	{
-		#ifdef USE_UART4RXINTERRUPT
-			if(USART_GetITStatus(UART4, USART_IT_RXNE)) {
-				Uint8 * receiveddata = &(m_u4rxbuf[(m_u4rxnum%UART_RX_BUF_SIZE)]);
+
+	void _ISR USART4_IRQHandler(void){
+
+		if(USART_GetITStatus(USART4, USART_IT_RXNE)){
+			#ifdef USE_UART4_RX_BUFFER
+				Uint8 * receiveddata = &(m_u4rxbuf[(m_u4rxnum % UART4_RX_BUFFER_SIZE)]);
 
 				while(USART_GetFlagStatus(UART4, USART_FLAG_RXNE))
 				{
@@ -868,17 +897,24 @@ int _write(int file, char *ptr, int len)
 					m_u4rxnum++;
 					m_u4rx = 1;
 					/* pour eviter les comportements indésirables */
-					if (receiveddata - m_u4rxbuf >= UART_RX_BUF_SIZE)
+					if (receiveddata - m_u4rxbuf >= UART4_RX_BUFFER_SIZE)
 						receiveddata = m_u4rxbuf;
 				}
-				USART_ClearITPendingBit(UART4, USART_IT_RXNE);
-				NVIC_ClearPendingIRQ(UART4_IRQn);
-			}
-		#endif	//def USE_UART4RXINTERRUPT
-		#ifdef USE_UART4TXINTERRUPT
-			if(USART_GetITStatus(UART4, USART_IT_TXE)) {
-				Uint8 c;
 
+			#elif defined(USE_UART4_RX_INTERRUPT)
+
+				if(listennerDataReceived[3] != NULL)
+					listennerDataReceived[3](USART_ReceiveData(USART4));
+				else
+					USART_ReceiveData(USART4);
+
+			#endif
+
+			USART_ClearITPendingBit(USART4, USART_IT_RXNE);
+		}
+
+		if(USART_GetITStatus(USART4, USART_IT_TXE)){
+			#ifdef USE_UART4_TX_BUFFER
 				//debufferiser.
 				if(IsNotEmpty_buffer(&buffer4tx))
 				{
@@ -886,7 +922,7 @@ int _write(int file, char *ptr, int len)
 					//Critical section
 					if(buffer4tx.nb_datas > (Uint8)0)
 					{
-						c = buffer4tx.datas[buffer4tx.index_read];
+						Uint8 c = buffer4tx.datas[buffer4tx.index_read];
 						buffer4tx.index_read = (buffer4tx.index_read>=buffer4tx.size-1)?0:(buffer4tx.index_read + 1);
 						buffer4tx.nb_datas--;
 						USART_SendData(UART4, c);
@@ -896,58 +932,41 @@ int _write(int file, char *ptr, int len)
 				}
 				else if(!IsNotEmpty_buffer(&buffer4tx))
 					USART_ITConfig(UART4, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
-			}
-		#endif
-	}
-
-	#ifdef USE_UART4RXINTERRUPT
-		bool_e UART4_data_ready()
-		{
-			return m_u4rx;
+			#endif
 		}
 
-		Uint8 UART4_get_next_msg()
-		{
+		NVIC_ClearPendingIRQ(USART4_IRQn);
+	}
+
+
+#endif /* def USE_UART4 */
+
+#ifdef USE_UART5
+
+	#ifdef USE_UART5_RX_BUFFER
+		bool_e UART5_data_ready(void){
+			return m_u5rx;
+		}
+
+		Uint8 UART5_get_next_msg(void){
 			static Uint32 next_to_read =0;
-			if (m_u4rxnum > next_to_read)
+			if (m_u5rxnum > next_to_read)
 			{
-				NVIC_DisableIRQ(UART4_IRQn);
-				if (m_u4rxnum - next_to_read == 1)
-					m_u4rx = 0;
-				NVIC_EnableIRQ(UART4_IRQn);
-				return m_u4rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
+				NVIC_DisableIRQ(UART5_IRQn);
+				if (m_u5rxnum - next_to_read == 1)
+					m_u5rx = 0;
+				NVIC_EnableIRQ(UART5_IRQn);
+				return m_u5rxbuf[((next_to_read++) % UART5_RX_BUFFER_SIZE)];
 			}
 			else
 				return 0;
 		}
-	#endif /* def USE_UART4RXINTERRUPT */
-#endif /* def USE_UART4 */
+	#endif
 
-#ifdef USE_UART5
-	#ifdef USE_UART5TXINTERRUPT
-		#ifndef BUFFER_U5TX_SIZE
-			#warning "Vous devez définir la taille du buffer U5TX."
-		#endif
-		volatile Uint8 b5tx[BUFFER_U5TX_SIZE];
-		volatile buffer_t buffer5tx = {b5tx,BUFFER_U5TX_SIZE,0,0,0};
-
-		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
-		bool_e IsNotEmpty_buffer_u5tx(void)
-		{
-			return IsNotEmpty_buffer(&buffer5tx);
-		}
-
-		//Permet de savoir, venant de l'extérieur, si le buffer est plein
-		bool_e IsFull_buffer_u5tx(void)
-		{
-			return IsFull_buffer(&buffer5tx);
-		}
-
-
-		void UART5_putc(Uint8 c)
-		{
+	#ifdef USE_UART5_TX_BUFFER
+		void UART5_putc(Uint8 data){
 			if(USART_GetFlagStatus(USART5, USART_FLAG_TXE))
-				USART_SendData(USART5, c);
+				USART_SendData(USART5, data);
 			else
 			{
 				//mise en buffer + activation IT U5TX.
@@ -961,7 +980,7 @@ int _write(int file, char *ptr, int len)
 
 				if(buffer5tx.nb_datas < buffer5tx.size)
 				{
-					buffer5tx.datas[buffer5tx.index_write] = c;
+					buffer5tx.datas[buffer5tx.index_write] = data;
 					buffer5tx.index_write = (buffer5tx.index_write>=buffer5tx.size-1)?0:(buffer5tx.index_write + 1);
 					buffer5tx.nb_datas++;
 				}
@@ -970,18 +989,18 @@ int _write(int file, char *ptr, int len)
 				USART_ITConfig(USART5, USART_IT_TXE, ENABLE);
 			}
 		}
-	#else	/* def USE_UART5TXINTERRUPT */
-		void UART5_putc(Uint8 mes)
-		{
+	#else
+		void UART5_putc(Uint8 data){
 			while(USART_GetFlagStatus(UART5, USART_FLAG_TXE) == RESET);
-			USART_SendData(UART5, mes);
+			USART_SendData(UART5, data);
 		}
 	#endif
-	void _ISR UART5_IRQHandler(void)
-	{
-		#ifdef USE_UART5RXINTERRUPT
-			if(USART_GetITStatus(UART5, USART_IT_RXNE)) {
-				Uint8 * receiveddata = &(m_u5rxbuf[(m_u5rxnum%UART_RX_BUF_SIZE)]);
+
+	void _ISR USART5_IRQHandler(void){
+
+		if(USART_GetITStatus(USART5, USART_IT_RXNE)){
+			#ifdef USE_UART5_RX_BUFFER
+				Uint8 * receiveddata = &(m_u5rxbuf[(m_u5rxnum % UART5_RX_BUFFER_SIZE)]);
 
 				while(USART_GetFlagStatus(UART5, USART_FLAG_RXNE))
 				{
@@ -992,17 +1011,24 @@ int _write(int file, char *ptr, int len)
 					m_u5rxnum++;
 					m_u5rx = 1;
 					/* pour eviter les comportements indésirables */
-					if (receiveddata - m_u5rxbuf >= UART_RX_BUF_SIZE)
+					if (receiveddata - m_u5rxbuf >= UART5_RX_BUFFER_SIZE)
 						receiveddata = m_u5rxbuf;
 				}
-				USART_ClearITPendingBit(UART5, USART_IT_RXNE);
-				NVIC_ClearPendingIRQ(UART5_IRQn);
-			}
-		#endif	//def USE_UART5RXINTERRUPT
-		#ifdef USE_UART5TXINTERRUPT
-			if(USART_GetITStatus(UART5, USART_IT_TXE)) {
-				Uint8 c;
 
+			#elif defined(USE_UART5_RX_INTERRUPT)
+
+				if(listennerDataReceived[4] != NULL)
+					listennerDataReceived[4](USART_ReceiveData(USART5));
+				else
+					USART_ReceiveData(USART5);
+
+			#endif
+
+			USART_ClearITPendingBit(USART5, USART_IT_RXNE);
+		}
+
+		if(USART_GetITStatus(USART5, USART_IT_TXE)){
+			#ifdef USE_UART5_TX_BUFFER
 				//debufferiser.
 				if(IsNotEmpty_buffer(&buffer5tx))
 				{
@@ -1020,58 +1046,39 @@ int _write(int file, char *ptr, int len)
 				}
 				else if(!IsNotEmpty_buffer(&buffer5tx))
 					USART_ITConfig(UART5, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
-			}
-		#endif
-	}
-
-	#ifdef USE_UART5RXINTERRUPT
-		bool_e UART5_data_ready()
-		{
-			return m_u5rx;
+			#endif
 		}
 
-		Uint8 UART5_get_next_msg()
-		{
+		NVIC_ClearPendingIRQ(USART5_IRQn);
+	}
+#endif /* def USE_UART5 */
+
+#ifdef USE_UART6
+
+	#ifdef USE_UART6_RX_BUFFER
+		bool_e UART6_data_ready(void){
+			return m_u6rx;
+		}
+
+		Uint8 UART6_get_next_msg(void){
 			static Uint32 next_to_read =0;
-			if (m_u5rxnum > next_to_read)
+			if (m_u6rxnum > next_to_read)
 			{
-				NVIC_DisableIRQ(UART5_IRQn);
-				if (m_u5rxnum - next_to_read == 1)
-					m_u5rx = 0;
-				NVIC_EnableIRQ(UART5_IRQn);
-				return m_u5rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
+				NVIC_DisableIRQ(USART6_IRQn);
+				if (m_u6rxnum - next_to_read == 1)
+					m_u6rx = 0;
+				NVIC_EnableIRQ(USART6_IRQn);
+				return m_u6rxbuf[((next_to_read++) % UART6_RX_BUFFER_SIZE)];
 			}
 			else
 				return 0;
 		}
-	#endif /* def USE_UART5RXINTERRUPT */
-#endif /* def USE_UART5 */
+	#endif
 
-#ifdef USE_UART6
-	#ifdef USE_UART6TXINTERRUPT
-		#ifndef BUFFER_U6TX_SIZE
-			#warning "Vous devez définir la taille du buffer U6TX."
-		#endif
-		volatile Uint8 b6tx[BUFFER_U6TX_SIZE];
-		volatile buffer_t buffer6tx = {b6tx,BUFFER_U6TX_SIZE,0,0,0};
-
-		//Permet de savoir, venant de l'extérieur, si des données sont en cours d'envoi.
-		bool_e IsNotEmpty_buffer_u6tx(void)
-		{
-			return IsNotEmpty_buffer(&buffer6tx);
-		}
-
-		//Permet de savoir, venant de l'extérieur, si le buffer est plein
-		bool_e IsFull_buffer_u6tx(void)
-		{
-			return IsFull_buffer(&buffer6tx);
-		}
-
-
-		void UART6_putc(Uint8 c)
-		{
+	#ifdef USE_UART6_TX_BUFFER
+		void UART6_putc(Uint8 data){
 			if(USART_GetFlagStatus(USART6, USART_FLAG_TXE))
-				USART_SendData(USART6, c);
+				USART_SendData(USART6, data);
 			else
 			{
 				//mise en buffer + activation IT U6TX.
@@ -1085,7 +1092,7 @@ int _write(int file, char *ptr, int len)
 
 				if(buffer6tx.nb_datas < buffer6tx.size)
 				{
-					buffer6tx.datas[buffer6tx.index_write] = c;
+					buffer6tx.datas[buffer6tx.index_write] = data;
 					buffer6tx.index_write = (buffer6tx.index_write>=buffer6tx.size-1)?0:(buffer6tx.index_write + 1);
 					buffer6tx.nb_datas++;
 				}
@@ -1094,18 +1101,18 @@ int _write(int file, char *ptr, int len)
 				USART_ITConfig(USART6, USART_IT_TXE, ENABLE);
 			}
 		}
-	#else	/* def USE_UART6TXINTERRUPT */
-		void UART6_putc(Uint8 mes)
-		{
+	#else
+		void UART6_putc(Uint8 data){
 			while(USART_GetFlagStatus(USART6, USART_FLAG_TXE) == RESET);
-			USART_SendData(USART6, mes);
+			USART_SendData(USART6, data);
 		}
 	#endif
-	void _ISR USART6_IRQHandler(void)
-	{
-		#ifdef USE_UART6RXINTERRUPT
-			if(USART_GetITStatus(USART6, USART_IT_RXNE)) {
-				Uint8 * receiveddata = &(m_u6rxbuf[(m_u6rxnum%UART_RX_BUF_SIZE)]);
+
+	void _ISR USART6_IRQHandler(void){
+
+		if(USART_GetITStatus(USART6, USART_IT_RXNE)){
+			#ifdef USE_UART6_RX_BUFFER
+				Uint8 * receiveddata = &(m_u6rxbuf[(m_u6rxnum % UART6_RX_BUFFER_SIZE)]);
 
 				while(USART_GetFlagStatus(USART6, USART_FLAG_RXNE))
 				{
@@ -1116,17 +1123,24 @@ int _write(int file, char *ptr, int len)
 					m_u6rxnum++;
 					m_u6rx = 1;
 					/* pour eviter les comportements indésirables */
-					if (receiveddata - m_u6rxbuf >= UART_RX_BUF_SIZE)
+					if (receiveddata - m_u6rxbuf >= UART6_RX_BUFFER_SIZE)
 						receiveddata = m_u6rxbuf;
 				}
-				USART_ClearITPendingBit(USART6, USART_IT_RXNE);
-				NVIC_ClearPendingIRQ(USART6_IRQn);
-			}
-		#endif	//def USE_UART6RXINTERRUPT
-		#ifdef USE_UART6TXINTERRUPT
-			if(USART_GetITStatus(USART6, USART_IT_TXE)) {
-				Uint8 c;
 
+			#elif defined(USE_UART6_RX_INTERRUPT)
+
+				if(listennerDataReceived[5] != NULL)
+					listennerDataReceived[5](USART_ReceiveData(USART6));
+				else
+					USART_ReceiveData(USART6);
+
+			#endif
+
+			USART_ClearITPendingBit(USART6, USART_IT_RXNE);
+		}
+
+		if(USART_GetITStatus(USART6, USART_IT_TXE)){
+			#ifdef USE_UART6_TX_BUFFER
 				//debufferiser.
 				if(IsNotEmpty_buffer(&buffer6tx))
 				{
@@ -1134,7 +1148,7 @@ int _write(int file, char *ptr, int len)
 					//Critical section
 					if(buffer6tx.nb_datas > (Uint8)0)
 					{
-						c = buffer6tx.datas[buffer6tx.index_read];
+						Uint8 c = buffer6tx.datas[buffer6tx.index_read];
 						buffer6tx.index_read = (buffer6tx.index_read>=buffer6tx.size-1)?0:(buffer6tx.index_read + 1);
 						buffer6tx.nb_datas--;
 						USART_SendData(USART6, c);
@@ -1144,29 +1158,10 @@ int _write(int file, char *ptr, int len)
 				}
 				else if(!IsNotEmpty_buffer(&buffer6tx))
 					USART_ITConfig(USART6, USART_IT_TXE, DISABLE);	//Si buffer vide -> Plus rien à envoyer -> désactiver IT TX.
-			}
-		#endif
+			#endif
+		}
+
+		NVIC_ClearPendingIRQ(USART6_IRQn);
 	}
 
-	#ifdef USE_UART6RXINTERRUPT
-		bool_e UART6_data_ready()
-		{
-			return m_u6rx;
-		}
-
-		Uint8 UART6_get_next_msg()
-		{
-			static Uint32 next_to_read =0;
-			if (m_u6rxnum > next_to_read)
-			{
-				NVIC_DisableIRQ(USART6_IRQn);
-				if (m_u6rxnum - next_to_read == 1)
-					m_u6rx = 0;
-				NVIC_EnableIRQ(USART6_IRQn);
-				return m_u6rxbuf[((next_to_read++) % UART_RX_BUF_SIZE)];
-			}
-			else
-				return 0;
-		}
-	#endif /* def USE_UART6RXINTERRUPT */
 #endif /* def USE_UART6 */

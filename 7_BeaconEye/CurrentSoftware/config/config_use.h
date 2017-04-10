@@ -51,21 +51,27 @@
 
 /* Réglages UART */
 	#define USE_UART1
-	#define USE_UART1RXINTERRUPT
-	#define UART1_BAUDRATE			230400
-	#define USE_UART1TXINTERRUPT
-	#define BUFFER_U1TX_SIZE		128
+		#define UART1_BAUDRATE				230400
+
+		#define USE_UART1_TX_BUFFER
+			#define UART1_TX_BUFFER_SIZE 	1280
+
+		#define USE_UART1_RX_BUFFER
+			#define UART1_RX_BUFFER_SIZE 	32
 
 	#define USE_UART2
-	#define USE_UART2RXINTERRUPT
-	#define UART2_BAUDRATE			9600
+		#define UART2_BAUDRATE				9600
 
-	#define UART_RX_BUF_SIZE		512		//Taille de la chaine de caracteres memorisant les caracteres recus sur UART
+		#define USE_UART2_TX_BUFFER
+			#define UART2_TX_BUFFER_SIZE 	128
+
+		#define USE_UART2_RX_BUFFER
+			#define UART2_RX_BUFFER_SIZE 	32
 
 /* Réglages XBEE */
-	#define USE_XBEE
-	#define XBEE_ENABLE_PING_ALWAYS
-	#define XBEE_PLUGGED_ON_UART2
+	#define USE_XBEE_OLD
+		#define XBEE_ENABLE_PING_ALWAYS
+		#define XBEE_PLUGGED_ON_UART2
 
 /* Réglages HOKUYO */
 #ifdef USE_BEACON_EYE

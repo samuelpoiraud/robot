@@ -45,21 +45,25 @@
 
 /* UART */
 	#define USE_UART1
-		#define UART1_BAUDRATE	230400
-		#define USE_UART1RXINTERRUPT
-		#define USE_UART1TXINTERRUPT
-		#define BUFFER_U1TX_SIZE	128
+		#define UART1_BAUDRATE				230400
+
+		#define USE_UART1_TX_BUFFER
+			#define UART1_TX_BUFFER_SIZE 	128
+
+		#define USE_UART1_RX_BUFFER
+			#define UART1_RX_BUFFER_SIZE 	32
 
 
 	#ifdef USE_LCD_OVER_UART
 		#define USE_UART3
-			#define UART3_BAUDRATE	19200
-			#define USE_UART3RXINTERRUPT
-			#define USE_UART3TXINTERRUPT
-			#define BUFFER_U3TX_SIZE	128
+			#define UART3_BAUDRATE				19200
+
+			#define USE_UART3_TX_BUFFER
+				#define UART3_TX_BUFFER_SIZE 	128
+
+			#define USE_UART3_RX_INTERRUPT
 	#endif
 
-	#define UART_RX_BUF_SIZE	512 //Taille de la chaine de caracteres memorisant les caracteres recus sur UART
 
 /* Réglages SPI */
 	#define USE_SPI2

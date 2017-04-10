@@ -25,5 +25,6 @@
 	void BUZZER_init(void);
 	void BUZZER_processMain(void);
 	void BUZZER_switchMode(BUZZER_mode_e mode);
+	void BUZZER_play(time32_t durationOn, time32_t durationOff, Uint8 count);
 
 #endif	//def _IT_H

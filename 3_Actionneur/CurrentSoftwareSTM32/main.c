@@ -172,7 +172,7 @@ int main (void)
 
 		}
 
-		#ifdef USE_UART
+		#ifdef USE_UART1
 			while(UART1_data_ready()){
 				TERMINAL_uart_checker(UART1_get_next_msg());
 			}
