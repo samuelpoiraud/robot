@@ -29,37 +29,40 @@ void ACT_AVOIDANCE_init(){
 	// Listing de tout les offsets d'évitement de tout les actionneurs
 
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
-		//-------------------------------------------------------------------------------------------------------------------------------left-----right----front---back
+		//----------------------------------------------------------------------------------------------------------------------------------------left-----right----front---back
 
-		init_new_offset(ACT_QUEUE_Cylinder_pusher_left,		ACT_AVOID_PUSHER_LEFT_Out,			ACT_CYLINDER_PUSHER_LEFT_OUT,			  0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_pusher_right,	ACT_AVOID_PUSHER_RIGHT_Out,			ACT_CYLINDER_PUSHER_RIGHT_OUT,			  0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_pusher_left,		ACT_AVOID_PUSHER_LEFT_Out,					ACT_CYLINDER_PUSHER_LEFT_OUT,			  	0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_pusher_right,	ACT_AVOID_PUSHER_RIGHT_Out,					ACT_CYLINDER_PUSHER_RIGHT_OUT,			  	0,	    0,      0,	   0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_SLIDER_LEFT_Out,			ACT_CYLINDER_SLIDER_LEFT_OUT,			  0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_SLIDER_LEFT_Almost_out,	ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT,      0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_SLIDER_LEFT_Out,					ACT_CYLINDER_SLIDER_LEFT_OUT,			 	0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_SLIDER_LEFT_Almost_out,			ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT,      	0,	    0,      0,	   0);
 		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_SLIDER_LEFT_Almost_out_with_cylinder,	ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER,			  0,	 0,      0,	   0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_SLIDER_RIGHT_Out,			ACT_CYLINDER_SLIDER_RIGHT_OUT,			  0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_SLIDER_RIGHT_Almost_out,	ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT,     0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_SLIDER_RIGHT_Out,					ACT_CYLINDER_SLIDER_RIGHT_OUT,			  	0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_SLIDER_RIGHT_Almost_out,			ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT,     	0,	    0,      0,	   0);
 		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_SLIDER_RIGHT_Almost_out_with_cylinder, ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER,		  0,	 0,      0,	   0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_arm_left,		ACT_AVOID_ARM_LEFT_Out,				ACT_CYLINDER_ARM_LEFT_OUT,			      0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_arm_right,		ACT_AVOID_ARM_RIGHT_Out,			ACT_CYLINDER_ARM_RIGHT_OUT,			      0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_arm_left,		ACT_AVOID_ARM_LEFT_Out,						ACT_CYLINDER_ARM_LEFT_OUT,			      	0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_arm_right,		ACT_AVOID_ARM_RIGHT_Out,					ACT_CYLINDER_ARM_RIGHT_OUT,			      	0,	    0,      0,	   0);
 
-		init_new_offset(ACT_QUEUE_Ore_gun,					ACT_AVOID_ORE_GUN_Down,				ACT_ORE_GUN_DOWN,			      		  0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Ore_roller_arm,			ACT_AVOID_ORE_ROLLER_ARM_Out,	    ACT_ORE_ROLLER_ARM_OUT,			      	  0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Ore_gun,					ACT_AVOID_ORE_GUN_Down,						ACT_ORE_GUN_DOWN,			      		  	0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Ore_roller_arm,			ACT_AVOID_ORE_ROLLER_ARM_Out,	    		ACT_ORE_ROLLER_ARM_OUT,			      	  	0,	    0,      0,	   0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_balancer_left,	ACT_AVOID_CYLINDER_BALANCER_LEFT_Out,	ACT_CYLINDER_BALANCER_LEFT_OUT,			0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Cylinder_balancer_right,	ACT_AVOID_CYLINDER_BALANCER_RIGHT_Out,	ACT_CYLINDER_BALANCER_RIGHT_OUT,		0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_balancer_left,	ACT_AVOID_CYLINDER_BALANCER_LEFT_Out,		ACT_CYLINDER_BALANCER_LEFT_OUT,				0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_balancer_right,	ACT_AVOID_CYLINDER_BALANCER_RIGHT_Out,		ACT_CYLINDER_BALANCER_RIGHT_OUT,			0,		0,		0,		0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Take,	ACT_CYLINDER_DISPOSE_LEFT_TAKE,			0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Raise,	ACT_CYLINDER_DISPOSE_LEFT_RAISE,		0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Dispose,	ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,	0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Take,		ACT_CYLINDER_DISPOSE_LEFT_TAKE,				0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Raise,		ACT_CYLINDER_DISPOSE_LEFT_RAISE,			0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Dispose,	ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,			0,		0,		0,		0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Take,	ACT_CYLINDER_DISPOSE_RIGHT_TAKE,		0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Raise,	ACT_CYLINDER_DISPOSE_RIGHT_RAISE,		0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Dispose,	ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE,	0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Take,		ACT_CYLINDER_DISPOSE_RIGHT_TAKE,			0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Raise,		ACT_CYLINDER_DISPOSE_RIGHT_RAISE,			0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Dispose,	ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE,			0,		0,		0,		0);
 
-		//init_new_offset(ACT_QUEUE_Ore_wall,					ACT_AVOID_ORE_WALL_Out, 				ACT_ORE_WALL_OUT,						0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Ore_wall,					ACT_AVOID_ORE_WALL_Out,						ACT_ORE_WALL_OUT,							0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Ore_roller_arm,			ACT_AVOID_ORE_ROLLER_ARM_Out, 				ACT_ORE_ROLLER_ARM_OUT,						0,		0,		0,		0);
+
+
 	}else{ //Seulement sur le petit robot
 
 		//TODO 2017 Compléter évitement actionneurs

@@ -56,13 +56,14 @@
 	#include "Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
 	#include "Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left.h"
 	#include "Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right.h"
-	#include "Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm_config.h"
-	#include "Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer_config.h"
-	#include "Anne/small_cylinder/small_cylinder_color/small_cylinder_color_config.h"
-	#include "Anne/small_cylinder/small_cylinder_dispose/small_cylinder_dispose_config.h"
-	#include "Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator_config.h"
-	#include "Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider_config.h"
-	#include "Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope_config.h"
+
+	#include "Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm.h"
+	#include "Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer.h"
+	#include "Anne/small_cylinder/small_cylinder_color/small_cylinder_color.h"
+	#include "Anne/small_cylinder/small_cylinder_dispose/small_cylinder_dispose.h"
+	#include "Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator.h"
+	#include "Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider.h"
+	#include "Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope.h"
 
 #endif
 
@@ -121,11 +122,20 @@ static ACTQ_functions_t actionneurs[] = {
 
 
 	#else  //Small Robot
-		//ACT_DECLARE(LEFT_ARM),
-		/*ACT_DECLARE(SMALL_BALL_BACK_LEFT),
-		ACT_DECLARE(SMALL_BALL_BACK_RIGTH),
+
+		ACT_DECLARE(SMALL_BALL_BACK_LEFT),
+		ACT_DECLARE(SMALL_BALL_BACK_RIGHT),
 		ACT_DECLARE(SMALL_BALL_FRONT_LEFT),
-		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),*/
+		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),
+		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),
+
+		ACT_DECLARE(SMALL_CYLINDER_ARM),
+		ACT_DECLARE(SMALL_CYLINDER_BALANCER),
+		ACT_DECLARE(SMALL_CYLINDER_COLOR),
+		ACT_DECLARE(SMALL_CYLINDER_DISPOSE),
+		ACT_DECLARE(SMALL_CYLINDER_ELEVATOR),
+		ACT_DECLARE(SMALL_CYLINDER_SLIDER),
+		ACT_DECLARE(SMALL_CYLINDER_SLOPE)
 	#endif
 };
 

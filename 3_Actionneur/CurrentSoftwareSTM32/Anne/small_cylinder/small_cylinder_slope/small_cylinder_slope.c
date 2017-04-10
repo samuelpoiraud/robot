@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
  *
- *	Fichier : SMALL_CYLINDER_SLOPE_ax12.c
+ *	Fichier : small_cylinder_slope.c
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur AX12 SMALL_CYLINDER_SLOPE
  *  Auteur :
@@ -49,10 +49,10 @@
 #include "../selftest.h"
 #include "../ActManager.h"
 
-#include "SMALL_CYLINDER_SLOPE_config.h"
+#include "small_cylinder_slope_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "SMALL_CYLINDER_SLOPE.c : "
+#define LOG_PREFIX "small_cylinder_slope.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SMALL_CYLINDER_SLOPE
 #include "../QS/QS_outputlog.h"
 

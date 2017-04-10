@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
  *
- *	Fichier : SMALL_CYLINDER_SLOPE_ax12_config.h
+ *	Fichier : small_cylinder_slope_config.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur AX12 SMALL_CYLINDER_SLOPE
  *  Auteur :
@@ -23,7 +23,7 @@
 //Position
 	#define SMALL_CYLINDER_SLOPE_AX12_IDLE_POS					333
 	#define SMALL_CYLINDER_SLOPE_AX12_DOWN_POS				    333		//en degré
-	#define SMALL_CYLINDER_SLOPE_AX12_UP_POS						540		//en degré
+	#define SMALL_CYLINDER_SLOPE_AX12_UP_POS					540		//en degré
 	#define SMALL_CYLINDER_SLOPE_AX12_VERY_UP_POS				661
 
 //Position initiale de l'AX12
