@@ -65,8 +65,8 @@
 	}
 
 	static bool_e LCD_MENU_waitOtherBoard(bool_e entrance){
-		LCD_objectId_t actReady, propReady;
-		bool_e actDisplay = FALSE, propDisplay = FALSE;
+		static LCD_objectId_t actReady, propReady;
+		static bool_e actDisplay = FALSE, propDisplay = FALSE;
 
 		if(entrance){
 			actReady = LCD_OVER_UART_addText(50, 50, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente actionneur");
