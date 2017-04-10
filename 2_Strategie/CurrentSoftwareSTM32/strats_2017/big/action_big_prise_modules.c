@@ -2239,9 +2239,11 @@ error_e sub_push_modules_bretagne(){
 
 		case GET_BACK_2:
 			state = try_going(400, COLOR_Y(1150), state, DEPOSE_2, DEPOSE_2, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
 
 		case DEPOSE_2:
 			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_LEFT_2, STOP_POMPE_LEFT_2, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
 
 		case STOP_POMPE_LEFT_2:
 
@@ -2299,16 +2301,20 @@ error_e sub_push_modules_bretagne(){
 
 		case GET_BACK_3:
 			state = try_going(400, COLOR_Y(1150), state, DEPOSE_3, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
 
 		case DEPOSE_3:
 			state = try_going(300, COLOR_Y(1000), state, STOP_POMPE_LEFT_3, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
 
 		case STOP_POMPE_LEFT_3:
 
 			if(entrance){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 			}
-			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, GET_OUT, GET_OUT);
+			state = check_act_status(ACT_QUEUE_Pompe_act_slider_left, state, GET_OUT, GET_OUT);7
+			break;
+
 		case DEPOSE_MODULE:
 			state = check_sub_action_result(sub_harry_cylinder_depose_manager(), state, DONE, ERROR); //
 			break;
