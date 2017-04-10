@@ -94,6 +94,15 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_SMALL_BALL_BACK_LEFT,			ACT_QUEUE_Small_bearing_back_left,			"Bearing ball back left"},
 	{ACT_SMALL_BALL_BACK_RIGHT,			ACT_QUEUE_Small_bearing_back_right,			"Bearing ball back right"},
 
+	{ACT_SMALL_CYLINDER_ARM,			ACT_QUEUE_Small_cylinder_arm,				"Cylinder arm"},
+	{ACT_SMALL_CYLINDER_BALANCER,		ACT_QUEUE_Small_cylinder_balancer,			"Cylinder balancer"},
+	{ACT_SMALL_CYLINDER_COLOR,			ACT_QUEUE_Small_cylinder_color,				"Cylinder color"},
+	{ACT_SMALL_CYLINDER_DISPOSE,		ACT_QUEUE_Small_cylinder_dispose,			"Cylinder dispose"},
+	{ACT_SMALL_CYLINDER_ELEVATOR,		ACT_QUEUE_Small_cylinder_elevator,			"Cylinder elevator"},
+	{ACT_SMALL_CYLINDER_SLIDER,			ACT_QUEUE_Small_cylinder_slider,			"Cylinder slider"},
+	{ACT_SMALL_CYLINDER_SLOPE,			ACT_QUEUE_Small_cylinder_slope,				"Cylinder slope"},
+
+
 	// Mosfets actionneurs
 	{ACT_POMPE_SLIDER_LEFT,			ACT_QUEUE_Pompe_act_slider_left,		"Mosfet_act_slider_left"},
 	{ACT_POMPE_SLIDER_RIGHT,		ACT_QUEUE_Pompe_act_slider_right,		"Mosfet_act_slider_right"},
