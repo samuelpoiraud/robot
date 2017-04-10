@@ -16,8 +16,6 @@
 
 	#define NOMBRE_BALISES_EMETTRICES 	(2)
 
-	#define USE_HOKUYO					//Active le module HOKUYO et la détection des ennemis... !
-
 	#define VERBOSE_MODE				//Activation du verbose
 
 	#define CAN_VERBOSE_MODE			//Activation de la verbosité des message CAN
@@ -39,18 +37,15 @@
 	#define PCLK2_FREQUENCY_HZ		84000000	//84Mhz,  Max: 84Mhz
 	#define CPU_EXTERNAL_CLOCK_HZ	8000000		//8Mhz,   Fréquence de l'horloge externe
 
-/* CAN */
-	#define USE_CAN
-	#define CAN_BUF_SIZE		32	//Nombre de messages CAN conservés pour traitement hors interuption
-
 /* Réglages UART */
 	#define USE_UART1
-	#define USE_UART1RXINTERRUPT
-	#define UART1_BAUDRATE		230400
-	#define USE_UART1TXINTERRUPT
-	#define BUFFER_U1TX_SIZE	128
+		#define UART1_BAUDRATE				230400
 
-	#define UART_RX_BUF_SIZE	512	//Taille de la chaine de caracteres memorisant les caracteres recus sur UART
+		#define USE_UART1_TX_BUFFER
+			#define UART1_TX_BUFFER_SIZE 	128
+
+		#define USE_UART1_RX_BUFFER
+			#define UART1_RX_BUFFER_SIZE 	32
 
 /* Réglages watchdog */
 	#define USE_WATCHDOG

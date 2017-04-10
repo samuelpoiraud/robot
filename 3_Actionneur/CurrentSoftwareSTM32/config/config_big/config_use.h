@@ -69,7 +69,13 @@
 
 /* Réglages uart */
 	#define USE_UART6
-		#define USE_UART6RXINTERRUPT
+		#define UART6_BAUDRATE				19200
+
+		#define USE_UART6_TX_BUFFER
+			#define UART6_TX_BUFFER_SIZE 	128
+
+		#define USE_UART6_RX_BUFFER
+			#define UART6_RX_BUFFER_SIZE 	128
 
 
 /* Réglages IT externe */

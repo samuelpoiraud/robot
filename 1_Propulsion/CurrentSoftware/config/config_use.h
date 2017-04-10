@@ -126,15 +126,14 @@
 
 /* Réglages UART */
 	#define USE_UART1
-	#define USE_UART1RXINTERRUPT
-    #define UART1_BAUDRATE			230400	//9600
-	#define USE_UART1TXINTERRUPT
-	#define BUFFER_U1TX_SIZE	128
+		#define UART1_BAUDRATE				230400
 
-	//#define USE_UART2
-	//#define USE_UART2RXINTERRUPT
+		#define USE_UART1_TX_BUFFER
+			#define UART1_TX_BUFFER_SIZE 	128
 
-	#define UART_RX_BUF_SIZE	512	//Taille de la chaine de caracteres memorisant les caracteres recus sur UART
+		#define USE_UART1_RX_BUFFER
+			#define UART1_RX_BUFFER_SIZE 	32
+
 
 /* Bouton */
 	#define USE_BUTTONS

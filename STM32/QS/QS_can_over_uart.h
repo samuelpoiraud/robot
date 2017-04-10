@@ -47,7 +47,7 @@
 
 
 	#ifdef USE_UART1
-		#ifdef USE_UART1RXINTERRUPT
+		#ifdef USE_UART1_RX_BUFFER
 		bool_e u1rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read);
 			/*
 			 *	cette fonction lit un octet dans le buffer de reception de l'uart1
@@ -67,7 +67,7 @@
 	#endif /* def USE_UART1 */
 
 	#ifdef USE_UART2
-		#ifdef USE_UART2RXINTERRUPT
+		#ifdef USE_UART2_RX_BUFFER
 			bool_e u2rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read);
 			/*
 			 *	cette fonction lit un octet dans le buffer de reception de l'uart2
@@ -87,7 +87,7 @@
 	#endif /* def USE_UART2 */
 
 	#ifdef USE_UART6
-		#ifdef USE_UART6RXINTERRUPT
+		#ifdef USE_UART6_RX_BUFFER
 			bool_e u6rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read);
 			/*
 			 *	cette fonction lit un octet dans le buffer de reception de l'uart2

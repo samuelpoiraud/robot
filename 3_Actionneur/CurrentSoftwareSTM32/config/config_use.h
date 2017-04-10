@@ -53,14 +53,15 @@
 	#define CLOCK_TIMER_ID 4
 	#define CLOCK_UPDATE_BUTTONS_PRESS_TIME
 
-/* UART */
-	#define USE_UART
-
 /* Réglages UART */
 	#define USE_UART1
-	#define UART1_BAUDRATE		230400
-	#define USE_UART1RXINTERRUPT
-	#define UART_RX_BUF_SIZE	12
+		#define UART1_BAUDRATE				230400
+
+		#define USE_UART1_TX_BUFFER
+			#define UART1_TX_BUFFER_SIZE 	128
+
+		#define USE_UART1_RX_BUFFER
+			#define UART1_RX_BUFFER_SIZE 	32
 
 /* CAN */
 	#define USE_CAN
