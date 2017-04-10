@@ -34,15 +34,15 @@ void corentin_strat_inutile_big(){
 
 	switch(state){
 		case INIT:
-			state=AVANCE;
+			state=START;
 			break;
 
 		case GO_TO:
-			state=try_going(999, COLOR_Y(2099), state, MAKE_SUB, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state=try_advance(NULL, entrance, 700, state, MAKE_SUB, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MAKE_SUB:
-			state=check_sub_action_result(sub_harry_depose_minerais(),state,DONE,state);
+			state=check_sub_action_result(sub_harry_take_big_crater_blue(),state,DONE,state);
 			break;
 
 		case START:
@@ -87,7 +87,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case ROTATE:
-			state = try_go_angle(-PI4096/2, state, SECOND_ROTATE, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			state = try_go_angle(-PI4096, state, SECOND_ROTATE, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			if(ON_LEAVE()){
 				CAN_msg_t msg;
 				msg.sid = PROP_ASK_CORNER_SCAN;
@@ -100,7 +100,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case SECOND_ROTATE:
-			state = try_go_angle(PI4096, state, DONE, ERROR, SLOW, ANY_WAY, END_AT_LAST_POINT);
+			state = try_go_angle(PI4096/2, state, DONE, ERROR, SLOW, ANY_WAY, END_AT_LAST_POINT);
 			if(ON_LEAVE()){
 				CAN_msg_t msg;
 				msg.sid = PROP_ASK_CORNER_SCAN;

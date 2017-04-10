@@ -56,6 +56,14 @@
 	#include "Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
 	#include "Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left.h"
 	#include "Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right.h"
+	#include "Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm_config.h"
+	#include "Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer_config.h"
+	#include "Anne/small_cylinder/small_cylinder_color/small_cylinder_color_config.h"
+	#include "Anne/small_cylinder/small_cylinder_dispose/small_cylinder_dispose_config.h"
+	#include "Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator_config.h"
+	#include "Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider_config.h"
+	#include "Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope_config.h"
+
 #endif
 
 
