@@ -57,7 +57,7 @@
 	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_left.h"
 	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_left_config.h"
 	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_right.h"
-	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_right_config.h"
+	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_rightj"
 
 
 #else
@@ -70,19 +70,19 @@
 	#include "../Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
     #include "../Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm.h"
-	#include "../Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm.c"
+	#include "../Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer.h"
-	#include "../Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer.c"
+	#include "../Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_color/small_cylinder_color.h"
-	#include "../Anne/small_cylinder/small_cylinder_color/small_cylinder_color.c"
+	#include "../Anne/small_cylinder/small_cylinder_color/small_cylinder_color_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_dispose/small_cylinder_dispose.h"
-	#include "../Anne/small_cylinder/small_cylinder_dispose/small_cylinder_dispose.c"
+	#include "../Anne/small_cylinder/small_cylinder_dispose/small_cylinder_dispose_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator.h"
-	#include "../Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator.c"
+	#include "../Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider.h"
-	#include "../Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider.c"
+	#include "../Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope.h"
-	#include "../Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope.c"
+	#include "../Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope_config.h"
 
 #endif
 
@@ -127,32 +127,40 @@ terminal_motor_s terminal_motor[] = {
         DECLARE_AX12(2, 'C', BIG_BALL_FRONT_RIGHT_AX12),
         DECLARE_AX12(2, 'D', BIG_BALL_BACK_LEFT_AX12),
         DECLARE_AX12(2, 'E', BIG_BALL_BACK_RIGHT_AX12),
-        DECLARE_AX12(2, 'H', CYLINDER_SLOPE_LEFT_AX12),
-        DECLARE_AX12(2, 'I', CYLINDER_SLOPE_RIGHT_AX12),
-        DECLARE_AX12(2, 'J', CYLINDER_BALANCER_LEFT_AX12),
-        DECLARE_AX12(2, 'K', CYLINDER_BALANCER_RIGHT_AX12),
-        DECLARE_AX12(2, 'L', BEARING_BALL_WHEEL_AX12),
-        DECLARE_AX12(2, 'M', CYLINDER_PUSHER_LEFT_AX12),
+        DECLARE_AX12(2, 'F', CYLINDER_SLOPE_LEFT_AX12),
+        DECLARE_AX12(2, 'G', CYLINDER_SLOPE_RIGHT_AX12),
+        DECLARE_AX12(2, 'I', CYLINDER_BALANCER_LEFT_AX12),
+        DECLARE_AX12(2, 'J', CYLINDER_BALANCER_RIGHT_AX12),
+        DECLARE_AX12(2, 'K', BEARING_BALL_WHEEL_AX12),
+        DECLARE_AX12(2, 'L', CYLINDER_PUSHER_LEFT_AX12),
         DECLARE_AX12(2, 'N', CYLINDER_PUSHER_RIGHT_AX12),
         DECLARE_RX24(2, 'O', CYLINDER_ELEVATOR_LEFT_RX24),
-        DECLARE_RX24(2, 'P', CYLINDER_ELEVATOR_RIGHT_RX24),
-        DECLARE_RX24(2, 'Q', CYLINDER_SLIDER_LEFT_RX24),
-        DECLARE_RX24(2, 'R', CYLINDER_SLIDER_RIGHT_RX24),
-        DECLARE_RX24(2, 'S', CYLINDER_ARM_LEFT_RX24),
-        DECLARE_RX24(2, 'T', CYLINDER_ARM_RIGHT_RX24),
-        DECLARE_RX24(2, 'U', ORE_WALL_RX24),
-        DECLARE_AX12(2, 'V', ROCKET_AX12),
-        DECLARE_RX24(2, 'W', CYLINDER_COLOR_LEFT_RX24),
+        DECLARE_RX24(2, 'Q', CYLINDER_ELEVATOR_RIGHT_RX24),
+        DECLARE_RX24(2, 'R', CYLINDER_SLIDER_LEFT_RX24),
+        DECLARE_RX24(2, 'S', CYLINDER_SLIDER_RIGHT_RX24),
+        DECLARE_RX24(2, 'T', CYLINDER_ARM_LEFT_RX24),
+        DECLARE_RX24(2, 'U', CYLINDER_ARM_RIGHT_RX24),
+        DECLARE_RX24(2, 'V', ORE_WALL_RX24),
+        DECLARE_AX12(2, 'W', ROCKET_AX12),
+        DECLARE_RX24(2, 'X', CYLINDER_COLOR_LEFT_RX24),
         DECLARE_RX24(2, 'Y', CYLINDER_COLOR_RIGHT_RX24),
 		DECLARE_AX12(2, 'Z', CYLINDER_DISPOSE_LEFT_AX12),
-		DECLARE_AX12(2, '1', CYLINDER_DISPOSE_RIGHT_AX12),
+		DECLARE_AX12(2, 'a', CYLINDER_DISPOSE_RIGHT_AX12)
 
 
 	#else
-		DECLARE_AX12(2, 'O', SMALL_BALL_BACK_LEFT_AX12),
-		DECLARE_AX12(2, 'O', SMALL_BALL_BACK_RIGHT_AX12),
-		DECLARE_AX12(2, 'O', SMALL_BALL_FRONT_LEFT_AX12),
-		DECLARE_AX12(2, 'O', SMALL_BALL_FRONT_RIGHT_AX12),
+		DECLARE_AX12(2, 'b', SMALL_BALL_BACK_LEFT_AX12),
+		DECLARE_AX12(2, 'c', SMALL_BALL_BACK_RIGHT_AX12),
+		DECLARE_AX12(2, 'd', SMALL_BALL_FRONT_LEFT_AX12),
+		DECLARE_AX12(2, 'e', SMALL_BALL_FRONT_RIGHT_AX12),
+
+		DECLARE_RX24(2, 'e', SMALL_CYLINDER_ARM_RX24),
+		DECLARE_RX24(2, 'f', SMALL_CYLINDER_ELEVATOR_RX24),
+		DECLARE_RX24(2, 'g', SMALL_CYLINDER_SLIDER_RX24),
+		DECLARE_RX24(2, 'i', SMALL_CYLINDER_COLOR_RX24),
+		DECLARE_AX12(2, 'j', SMALL_CYLINDER_DISPOSE_AX12),
+		DECLARE_AX12(2, 'k', SMALL_CYLINDER_SLOPE_AX12),
+		DECLARE_AX12(2, 'l', SMALL_CYLINDER_BALANCER_AX12)
 
 	#endif
 };

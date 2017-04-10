@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_CYLINDER_ARM_config.c
+*	Fichier : small_cylinder_arm_config.c
 *	Package : Carte actionneur
 *	Description : Gestion de l'actionneur RX24 SMALL_CYLINDER_ARM
 *	Auteur :
@@ -20,15 +20,15 @@
 	#define SMALL_CYLINDER_ARM_RX24_SPEED						15		// Vitesse par défaut du RX24
 
 //Position
-    #define SMALL_CYLINDER_ARM_RX24_IDLE_POS						524
+    #define SMALL_CYLINDER_ARM_RX24_IDLE_POS					524
     #define SMALL_CYLINDER_ARM_RX24_IN_POS			     		524	//en degré
     #define SMALL_CYLINDER_ARM_RX24_PREPARE_TO_TAKE_POS			410	//en degré
-    #define SMALL_CYLINDER_ARM_RX24_TAKE_POS			     		453	//en degré
+    #define SMALL_CYLINDER_ARM_RX24_TAKE_POS			     	453	//en degré
     #define SMALL_CYLINDER_ARM_RX24_DISPOSE_POS			     	436	//en degré
     #define SMALL_CYLINDER_ARM_RX24_OUT_POS						361	//en degré
 
 //Position initiale de l'RX24
-    #define SMALL_CYLINDER_ARM_RX24_INIT_POS						SMALL_CYLINDER_ARM_RX24_IDLE_POS
+    #define SMALL_CYLINDER_ARM_RX24_INIT_POS					SMALL_CYLINDER_ARM_RX24_IDLE_POS
 
 //Extremum valeur
     #define SMALL_CYLINDER_ARM_RX24_MIN_VALUE					0

@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_CYLINDER_COLOR.c
+*	Fichier : small_cylinder_color.c
 *	Package : Carte actionneur
 *	Description : Gestion de l'actionneur RX24 SMALL_CYLINDER_COLOR
 *	Auteur :
@@ -8,7 +8,7 @@
 *	Robot : BIG
 */
 
-#include "SMALL_CYLINDER_COLOR.h"
+#include "small_cylinder_color.h"
 
 
 // SMALL_CYLINDER_COLOR d'un actionneur standart avec RX24
@@ -50,10 +50,10 @@
 #include "../selftest.h"
 #include "../ActManager.h"
 
-#include "SMALL_CYLINDER_COLOR_config.h"
+#include "small_cylinder_color_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "SMALL_CYLINDER_COLOR.c : "
+#define LOG_PREFIX "small_cylinder_color.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SMALL_CYLINDER_COLOR
 #include "../QS/QS_outputlog.h"
 

@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_CYLINDER_SLIDER_rx24.c
+*	Fichier : small_cylinder_slider.c
 *	Package : Carte actionneur
 *	Description : Gestion de l'actionneur RX24 SMALL_CYLINDER_SLIDER
 *	Auteur :
@@ -8,7 +8,7 @@
 *	Robot : BIG
 */
 
-#include "SMALL_CYLINDER_SLIDER.h"
+#include "small_cylinder_slider.h"
 
 
 // SMALL_CYLINDER_SLIDER d'un actionneur standart avec RX24
@@ -50,10 +50,10 @@
 #include "../selftest.h"
 #include "../ActManager.h"
 
-#include "SMALL_CYLINDER_SLIDER_config.h"
+#include "small_cylinder_slider_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "SMALL_CYLINDER_SLIDER.c : "
+#define LOG_PREFIX "small_cylinder_slider.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SMALL_CYLINDER_SLIDER
 #include "../QS/QS_outputlog.h"
 

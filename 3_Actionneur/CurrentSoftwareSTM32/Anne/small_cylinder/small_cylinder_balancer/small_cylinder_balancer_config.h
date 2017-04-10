@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
  *
- *	Fichier : SMALL_CYLINDER_BALANCER_config.h
+ *	Fichier : small_cylinder_balancer_config.h
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur AX12 SMALL_CYLINDER_BALANCER
  *  Auteur :

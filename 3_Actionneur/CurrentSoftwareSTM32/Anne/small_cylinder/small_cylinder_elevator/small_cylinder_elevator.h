@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_CYLINDER_ELEVATOR_rx24.h
+*	Fichier : small_cylinder_elevator.h
 *	Package : Carte actionneur
 *	Description : Gestion de l'actionneur RX24 SMALL_CYLINDER_ELEVATOR
 *	Auteur :

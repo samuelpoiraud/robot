@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_CYLINDER_SLIDER_rx24.h
+*	Fichier : small_cylinder_slider.h
 *	Package : Carte actionneur
 *	Description : Gestion de l'actionneur RX24 SMALL_CYLINDER_SLIDER
 *	Auteur :

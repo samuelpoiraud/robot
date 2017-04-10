@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_CYLINDER_ARM.c
+*	Fichier : small_cylinder_arm.c
 *	Package : Carte actionneur
 *	Description : Gestion de l'actionneur RX24 SMALL_CYLINDER_ARM
 *	Auteur :
@@ -8,7 +8,7 @@
 *	Robot : BIG
 */
 
-#include "SMALL_CYLINDER_ARM.h"
+#include "small_cylinder_arm.h"
 
 
 // SMALL_CYLINDER_ARM d'un actionneur standart avec RX24
@@ -49,10 +49,10 @@
 #include "../selftest.h"
 #include "../ActManager.h"
 
-#include "SMALL_CYLINDER_ARM_config.h"
+#include "small_cylinder_arm_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "SMALL_CYLINDER_ARM.c : "
+#define LOG_PREFIX "small_cylinder_arm.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SMALL_CYLINDER_ARM
 #include "../QS/QS_outputlog.h"
 
