@@ -217,21 +217,21 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case  ACT_CYLINDER_ELEVATOR_LEFT:				print(string, len, "%x  ACT_CYLINDER_ELEVATOR_LEFT            ",  ACT_CYLINDER_ELEVATOR_LEFT					);	break;
 		case  ACT_CYLINDER_ELEVATOR_RIGHT:				print(string, len, "%x  ACT_CYLINDER_ELEVATOR_RIGHT           ",  ACT_CYLINDER_ELEVATOR_RIGHT					);	break;
 		case  ACT_CYLINDER_SLIDER_LEFT:					print(string, len, "%x  ACT_CYLINDER_SLIDER_LEFT              ",  ACT_CYLINDER_SLIDER_LEFT						);	break;
-	    case  ACT_CYLINDER_SLIDER_RIGHT:				print(string, len, "%x  ACT_CYLINDER_SLIDER_RIGHT             ",  ACT_CYLINDER_SLIDER_RIGHT						);	break;
-	    case  ACT_CYLINDER_ARM_LEFT:					print(string, len, "%x  ACT_CYLINDER_ARM_LEFT     			  ",  ACT_CYLINDER_ARM_LEFT 						);	break;
-	    case  ACT_CYLINDER_ARM_RIGHT:					print(string, len, "%x  ACT_CYLINDER_ARM_RIGHT          	  ",  ACT_CYLINDER_ARM_RIGHT						);	break;
-	    case  ACT_CYLINDER_COLOR_LEFT:					print(string, len, "%x  ACT_CYLINDER_COLOR_LEFT            	  ",  ACT_CYLINDER_COLOR_LEFT						);	break;
-	    case  ACT_CYLINDER_COLOR_RIGHT:					print(string, len, "%x  ACT_CYLINDER_COLOR_RIGHT           	  ",  ACT_CYLINDER_COLOR_RIGHT						);	break;
-	    case  ACT_CYLINDER_DISPOSE_LEFT:				print(string, len, "%x  ACT_CYLINDER_DISPOSE_LEFT             ",  ACT_CYLINDER_DISPOSE_LEFT						);	break;
-	    case  ACT_CYLINDER_DISPOSE_RIGHT:				print(string, len, "%x  ACT_CYLINDER_DISPOSE_RIGHT            ",  ACT_CYLINDER_DISPOSE_RIGHT					);	break;
+		case  ACT_CYLINDER_SLIDER_RIGHT:				print(string, len, "%x  ACT_CYLINDER_SLIDER_RIGHT             ",  ACT_CYLINDER_SLIDER_RIGHT						);	break;
+		case  ACT_CYLINDER_ARM_LEFT:					print(string, len, "%x  ACT_CYLINDER_ARM_LEFT     			  ",  ACT_CYLINDER_ARM_LEFT 						);	break;
+		case  ACT_CYLINDER_ARM_RIGHT:					print(string, len, "%x  ACT_CYLINDER_ARM_RIGHT          	  ",  ACT_CYLINDER_ARM_RIGHT						);	break;
+		case  ACT_CYLINDER_COLOR_LEFT:					print(string, len, "%x  ACT_CYLINDER_COLOR_LEFT            	  ",  ACT_CYLINDER_COLOR_LEFT						);	break;
+		case  ACT_CYLINDER_COLOR_RIGHT:					print(string, len, "%x  ACT_CYLINDER_COLOR_RIGHT           	  ",  ACT_CYLINDER_COLOR_RIGHT						);	break;
+		case  ACT_CYLINDER_DISPOSE_LEFT:				print(string, len, "%x  ACT_CYLINDER_DISPOSE_LEFT             ",  ACT_CYLINDER_DISPOSE_LEFT						);	break;
+		case  ACT_CYLINDER_DISPOSE_RIGHT:				print(string, len, "%x  ACT_CYLINDER_DISPOSE_RIGHT            ",  ACT_CYLINDER_DISPOSE_RIGHT					);	break;
 
-	    case  ACT_ORE_GUN:								print(string, len, "%x  ACT_ORE_GUN            				  ",  ACT_ORE_GUN									);	break;
-	    case  ACT_ORE_WALL:								print(string, len, "%x  ACT_ORE_WALL            			  ",  ACT_ORE_WALL									);	break;
-	    case  ACT_ORE_ROLLER_ARM:						print(string, len, "%x  ACT_ORE_ROLLER_ARM            		  ",  ACT_ORE_ROLLER_ARM							);	break;
-	    case  ACT_ORE_ROLLER_FOAM:						print(string, len, "%x  ACT_ORE_ROLLER_FOAM            		  ",  ACT_ORE_ROLLER_FOAM 							);	break;
-	    case  ACT_ORE_TRIHOLE:							print(string, len, "%x  ACT_ORE_TRIHOLE            	  		  ",  ACT_ORE_TRIHOLE								);	break;
+		case  ACT_ORE_GUN:								print(string, len, "%x  ACT_ORE_GUN            				  ",  ACT_ORE_GUN									);	break;
+		case  ACT_ORE_WALL:								print(string, len, "%x  ACT_ORE_WALL            			  ",  ACT_ORE_WALL									);	break;
+		case  ACT_ORE_ROLLER_ARM:						print(string, len, "%x  ACT_ORE_ROLLER_ARM            		  ",  ACT_ORE_ROLLER_ARM							);	break;
+		case  ACT_ORE_ROLLER_FOAM:						print(string, len, "%x  ACT_ORE_ROLLER_FOAM            		  ",  ACT_ORE_ROLLER_FOAM 							);	break;
+		case  ACT_ORE_TRIHOLE:							print(string, len, "%x  ACT_ORE_TRIHOLE            	  		  ",  ACT_ORE_TRIHOLE								);	break;
 
-	    case  ACT_ROCKET:								print(string, len, "%x  ACT_ROCKET           		  		  ",  ACT_ROCKET									);	break;
+		case  ACT_ROCKET:								print(string, len, "%x  ACT_ROCKET           		  		  ",  ACT_ROCKET									);	break;
 
 
 // Anne
@@ -401,25 +401,25 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 			  switch(msg->data.act_result.sid){
 
-			  	  case (Uint8)ACT_BEARING_BALL_WHEEL:
-			  			switch(msg->data.act_result.cmd){
-			  				case (Uint8)ACT_BEARING_BALL_WHEEL_IDLE:	print(string,len, "| IDLE |");			break;
-			  				case (Uint8)ACT_BEARING_BALL_WHEEL_UP:		print(string,len, "| UP |");			break;
-			  				case (Uint8)ACT_BEARING_BALL_WHEEL_DOWN:	print(string,len, "| DOWN |");			break;
-			  				case (Uint8)ACT_BEARING_BALL_WHEEL_STOP:	print(string,len, "| STOP |");			break;
-			  				default:                                    print(string,len, "| UNKNOW cmd |");	break;
-			  			}
-			  	  break;
+				  case (Uint8)ACT_BEARING_BALL_WHEEL:
+						switch(msg->data.act_result.cmd){
+							case (Uint8)ACT_BEARING_BALL_WHEEL_IDLE:	print(string,len, "| IDLE |");			break;
+							case (Uint8)ACT_BEARING_BALL_WHEEL_UP:		print(string,len, "| UP |");			break;
+							case (Uint8)ACT_BEARING_BALL_WHEEL_DOWN:	print(string,len, "| DOWN |");			break;
+							case (Uint8)ACT_BEARING_BALL_WHEEL_STOP:	print(string,len, "| STOP |");			break;
+							default:                                    print(string,len, "| UNKNOW cmd |");	break;
+						}
+				  break;
 
-			  	  case (Uint8)ACT_BIG_BALL_BACK_LEFT:
-					  	switch(msg->data.act_result.cmd){
-					  		case (Uint8)ACT_BIG_BALL_BACK_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-					  		case (Uint8)ACT_BIG_BALL_BACK_LEFT_UP:		print(string,len, "| UP |");			break;
-					  		case (Uint8)ACT_BIG_BALL_BACK_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-					  		case (Uint8)ACT_BIG_BALL_BACK_LEFT_STOP:	print(string,len, "| STOP |");			break;
-					  		default:                                    print(string,len, "| UNKNOW cmd |");	break;
-					  	}
-			  	  break;
+				  case (Uint8)ACT_BIG_BALL_BACK_LEFT:
+						switch(msg->data.act_result.cmd){
+							case (Uint8)ACT_BIG_BALL_BACK_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+							case (Uint8)ACT_BIG_BALL_BACK_LEFT_UP:		print(string,len, "| UP |");			break;
+							case (Uint8)ACT_BIG_BALL_BACK_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
+							case (Uint8)ACT_BIG_BALL_BACK_LEFT_STOP:	print(string,len, "| STOP |");			break;
+							default:                                    print(string,len, "| UNKNOW cmd |");	break;
+						}
+				  break;
 
 				  case (Uint8)ACT_BIG_BALL_BACK_RIGHT:
 						switch(msg->data.act_result.cmd){
@@ -433,21 +433,21 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				  case (Uint8)ACT_BIG_BALL_FRONT_LEFT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_UP:	print(string,len, "| UP |");			break;
-						  	  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-						  	  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_UP:	print(string,len, "| UP |");			break;
+							  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
+							  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
 				  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_UP:		print(string,len, "| UP |");			break;
-						  	  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
-						  	  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_UP:		print(string,len, "| UP |");			break;
+							  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
+							  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
@@ -473,25 +473,25 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				  case (Uint8)ACT_CYLINDER_BALANCER_LEFT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IN:	print(string,len, "| IN |");			break;
-						  	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_OUT:	print(string,len, "| OUT |");			break;
-						  	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-			  	  break;
-
-				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT:
-						  switch(msg->data.act_result.cmd){
-					  	  	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-					  	  	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IN:	print(string,len, "| IN |");			break;
-					  	  	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_OUT:	print(string,len, "| OUT |");			break;
-					  	  	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-					  	  	  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IN:	print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_OUT:	print(string,len, "| OUT |");			break;
+							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
-			     case (Uint8)ACT_CYLINDER_PUSHER_LEFT:
+				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IN:	print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_OUT:	print(string,len, "| OUT |");			break;
+							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
+						  }
+				  break;
+
+				 case (Uint8)ACT_CYLINDER_PUSHER_LEFT:
 						  switch(msg->data.act_result.cmd){
 							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IN:		print(string,len, "| IN |");			break;
@@ -513,47 +513,47 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER:	print(string,len, "| LOCK |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM:	print(string,len, "| BOTTOM |");	break;
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_TOP:	print(string,len, "| TOP |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER:	print(string,len, "| LOCK |");			break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM:	print(string,len, "| BOTTOM |");	break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_TOP:	print(string,len, "| TOP |");			break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
 				  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER:	print(string,len, "| LOCK |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM:	print(string,len, "| BOTTOM |");	break;
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_TOP:	print(string,len, "| TOP |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER:	print(string,len, "| LOCK |");			break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM:	print(string,len, "| BOTTOM |");	break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_TOP:	print(string,len, "| TOP |");			break;
+							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
 				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IDLE:print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT:	print(string,len, "| A OUT |");	break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER:	print(string,len, "| AC OUT |");	break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IN:	print(string,len, "| IN |");			break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_OUT:	print(string,len, "| OUT |");			break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_STOP:print(string,len, "| STOP |");			break;
-						  	  default:                                  print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IDLE:print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT:	print(string,len, "| A OUT |");	break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER:	print(string,len, "| AC OUT |");	break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IN:	print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_OUT:	print(string,len, "| OUT |");			break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_STOP:print(string,len, "| STOP |");			break;
+							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
 				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT:	print(string,len, "| A OUT |");		break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER:	print(string,len, "| AC OUT |");	break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_IN:		print(string,len, "| IN |");			break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_OUT:	print(string,len, "| OUT |");			break;
-						  	  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT:	print(string,len, "| A OUT |");		break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER:	print(string,len, "| AC OUT |");	break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_IN:		print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_OUT:	print(string,len, "| OUT |");			break;
+							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
@@ -561,27 +561,27 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				  case (Uint8)ACT_CYLINDER_ARM_LEFT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_IN:		print(string,len, "| IN |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				print(string,len, "| TAKE |");				break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			print(string,len, "| DISPOSE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_OUT:	print(string,len, "| OUT |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_LEFT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_CYLINDER_ARM_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_ARM_LEFT_IN:		print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				print(string,len, "| TAKE |");				break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			print(string,len, "| DISPOSE |");			break;
+							  case (Uint8)ACT_CYLINDER_ARM_LEFT_OUT:	print(string,len, "| OUT |");			break;
+							  case (Uint8)ACT_CYLINDER_ARM_LEFT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
 				  case (Uint8)ACT_CYLINDER_ARM_RIGHT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IN:	print(string,len, "| IN |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				print(string,len, "| TAKE |");				break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			print(string,len, "| DISPOSE |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_OUT:	print(string,len, "| OUT |");			break;
-						  	  case (Uint8)ACT_CYLINDER_ARM_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IN:	print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				print(string,len, "| TAKE |");				break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			print(string,len, "| DISPOSE |");			break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_OUT:	print(string,len, "| OUT |");			break;
+							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
@@ -629,21 +629,21 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				  case (Uint8)ACT_ORE_GUN:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_ORE_GUN_IDLE:	print(string,len, "| IDLE |");		break;
-						  	  case (Uint8)ACT_ORE_GUN_DOWN:	print(string,len, "| DOWN |");		break;
-						  	  case (Uint8)ACT_ORE_GUN_UP:	print(string,len, "| UP |");		break;
-						  	  case (Uint8)ACT_ORE_GUN_STOP:	print(string,len, "| STOP |");		break;
-						  	  default:                      print(string,len, "| UNKNOW cmd |");break;
+							  case (Uint8)ACT_ORE_GUN_IDLE:	print(string,len, "| IDLE |");		break;
+							  case (Uint8)ACT_ORE_GUN_DOWN:	print(string,len, "| DOWN |");		break;
+							  case (Uint8)ACT_ORE_GUN_UP:	print(string,len, "| UP |");		break;
+							  case (Uint8)ACT_ORE_GUN_STOP:	print(string,len, "| STOP |");		break;
+							  default:                      print(string,len, "| UNKNOW cmd |");break;
 						  }
 				  break;
 
 				  case (Uint8)ACT_ORE_ROLLER_ARM:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_ORE_ROLLER_ARM_IDLE:	print(string,len, "| IDLE |");		break;
-						  	  case (Uint8)ACT_ORE_ROLLER_ARM_OUT:	print(string,len, "| OUT |");		break;
-						  	  case (Uint8)ACT_ORE_ROLLER_ARM_IN:	print(string,len, "| IN |");		break;
-						  	  case (Uint8)ACT_ORE_ROLLER_ARM_STOP:	print(string,len, "| STOP |");		break;
-						  	  default:                      		print(string,len, "| UNKNOW cmd |");break;
+							  case (Uint8)ACT_ORE_ROLLER_ARM_IDLE:	print(string,len, "| IDLE |");		break;
+							  case (Uint8)ACT_ORE_ROLLER_ARM_OUT:	print(string,len, "| OUT |");		break;
+							  case (Uint8)ACT_ORE_ROLLER_ARM_IN:	print(string,len, "| IN |");		break;
+							  case (Uint8)ACT_ORE_ROLLER_ARM_STOP:	print(string,len, "| STOP |");		break;
+							  default:                      		print(string,len, "| UNKNOW cmd |");break;
 						  }
 				  break;
 
@@ -658,11 +658,11 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				  case (Uint8)ACT_ORE_WALL:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_ORE_WALL_IDLE:	print(string,len, "| IDLE |");		break;
-						  	  case (Uint8)ACT_ORE_WALL_OUT:		print(string,len, "| OUT |");		break;
-						  	  case (Uint8)ACT_ORE_WALL_IN:		print(string,len, "| IN |");		break;
-						  	  case (Uint8)ACT_ORE_WALL_STOP:	print(string,len, "| STOP |");		break;
-						  	  default:                      	print(string,len, "| UNKNOW cmd |");break;
+							  case (Uint8)ACT_ORE_WALL_IDLE:	print(string,len, "| IDLE |");		break;
+							  case (Uint8)ACT_ORE_WALL_OUT:		print(string,len, "| OUT |");		break;
+							  case (Uint8)ACT_ORE_WALL_IN:		print(string,len, "| IN |");		break;
+							  case (Uint8)ACT_ORE_WALL_STOP:	print(string,len, "| STOP |");		break;
+							  default:                      	print(string,len, "| UNKNOW cmd |");break;
 						  }
 				  break;
 
@@ -677,23 +677,23 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				  case (Uint8)ACT_ROCKET:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_ROCKET_IDLE:		print(string,len, "| IDLE |");		break;
-						  	  case (Uint8)ACT_ROCKET_LAUNCH:	print(string,len, "| LAUNCH |");	break;
-						  	  case (Uint8)ACT_ROCKET_STOP:		print(string,len, "| STOP |");		break;
-						  	  default:                      	print(string,len, "| UNKNOW cmd |");break;
+							  case (Uint8)ACT_ROCKET_IDLE:		print(string,len, "| IDLE |");		break;
+							  case (Uint8)ACT_ROCKET_LAUNCH:	print(string,len, "| LAUNCH |");	break;
+							  case (Uint8)ACT_ROCKET_STOP:		print(string,len, "| STOP |");		break;
+							  default:                      	print(string,len, "| UNKNOW cmd |");break;
 						  }
 				  break;
 
 // Anne
 				  case (Uint8)ACT_SMALL_BALL_BACK_LEFT:
-					  	switch(msg->data.act_result.cmd){
-					  		case (Uint8)ACT_SMALL_BALL_BACK_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-					  		case (Uint8)ACT_SMALL_BALL_BACK_LEFT_UP:		print(string,len, "| UP |");			break;
-					  		case (Uint8)ACT_SMALL_BALL_BACK_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-					  		case (Uint8)ACT_SMALL_BALL_BACK_LEFT_STOP:	print(string,len, "| STOP |");			break;
-					  		default:                                    print(string,len, "| UNKNOW cmd |");	break;
-					  	}
-			  	  break;
+						switch(msg->data.act_result.cmd){
+							case (Uint8)ACT_SMALL_BALL_BACK_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+							case (Uint8)ACT_SMALL_BALL_BACK_LEFT_UP:		print(string,len, "| UP |");			break;
+							case (Uint8)ACT_SMALL_BALL_BACK_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
+							case (Uint8)ACT_SMALL_BALL_BACK_LEFT_STOP:	print(string,len, "| STOP |");			break;
+							default:                                    print(string,len, "| UNKNOW cmd |");	break;
+						}
+				  break;
 
 				  case (Uint8)ACT_SMALL_BALL_BACK_RIGHT:
 						switch(msg->data.act_result.cmd){
@@ -707,21 +707,21 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 				  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_UP:	print(string,len, "| UP |");			break;
-						  	  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-						  	  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_UP:	print(string,len, "| UP |");			break;
+							  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
+							  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
 				  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT:
 						  switch(msg->data.act_result.cmd){
-						  	  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-						  	  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_UP:		print(string,len, "| UP |");			break;
-						  	  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
-						  	  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-						  	  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
+							  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_UP:		print(string,len, "| UP |");			break;
+							  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
+							  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
 				  break;
 
@@ -792,7 +792,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case STRAT_TRAJ_FINIE:					print(string, len, "| J'arrive  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x id=%d\n", msg->data.strat_traj_finie.x, msg->data.strat_traj_finie.y, msg->data.strat_traj_finie.angle, RAD_TO_DEG(msg->data.strat_traj_finie.angle), msg->data.strat_traj_finie.reason ,msg->data.strat_traj_finie.error, msg->data.strat_traj_finie.idTraj);								break;
 		case STRAT_PROP_ERREUR:					print(string, len, "| J'erreur  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x id=%d\n", msg->data.strat_prop_erreur.x, msg->data.strat_prop_erreur.y, msg->data.strat_prop_erreur.angle, RAD_TO_DEG(msg->data.strat_prop_erreur.angle), msg->data.strat_prop_erreur.reason ,msg->data.strat_prop_erreur.error, msg->data.strat_prop_erreur.idTraj);								break;
 		case STRAT_ROBOT_FREINE:				print(string, len, "| J'freine  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x id=%d\n", msg->data.strat_robot_freine.x, msg->data.strat_robot_freine.y, msg->data.strat_robot_freine.angle, RAD_TO_DEG(msg->data.strat_robot_freine.angle), msg->data.strat_robot_freine.reason ,msg->data.strat_robot_freine.error, msg->data.strat_robot_freine.idTraj);								break;
-		case STRAT_PROP_FOE_DETECTED:			print(string, len, "| x : %d   y : %d   dist : %d   angle : %d   %s   %s\n", msg->data.strat_prop_foe_detected.x, msg->data.strat_prop_foe_detected.y, msg->data.strat_prop_foe_detected.dist, msg->data.strat_prop_foe_detected.angle,(msg->data.strat_prop_foe_detected.hokuyo_detection)?"hokuyo":"balise", (msg->data.strat_prop_foe_detected.timeout)?"avec timeout":"");	break;
+		case STRAT_PROP_FOE_DETECTED:			print(string, len, "| x : %d   y : %d   dist : %d   angle : %d   %s   %s\n", msg->data.strat_prop_foe_detected.x, msg->data.strat_prop_foe_detected.y, msg->data.strat_prop_foe_detected.dist * 20, msg->data.strat_prop_foe_detected.angle,(msg->data.strat_prop_foe_detected.hokuyo_detection)?"hokuyo":"balise", (msg->data.strat_prop_foe_detected.timeout)?"avec timeout":"");	break;
 		case STRAT_SEND_REPORT:					print(string, len, "| Distance : %d | Rotation : %u° | Rotation max : %d°\n", msg->data.strat_send_report.actual_trans, RAD_TO_DEG(msg->data.strat_send_report.actual_rot), RAD_TO_DEG(msg->data.strat_send_report.max_rot));	break;
 
 		case PROP_ROBOT_CALIBRE:				print(string, len, "| J'calibre  x=%4d y=%4d t=0x%8x=%3d° reas=0x%2x st=0x%2x\n", msg->data.prop_robot_calibre.x, msg->data.prop_robot_calibre.y, msg->data.prop_robot_calibre.angle, RAD_TO_DEG(msg->data.prop_robot_calibre.angle), msg->data.prop_robot_calibre.reason ,msg->data.prop_robot_calibre.error);								break;
