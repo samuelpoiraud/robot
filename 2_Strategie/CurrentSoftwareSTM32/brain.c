@@ -323,6 +323,10 @@ static void BRAIN_update_match_duration(void)
 		match_duration = MATCH_DURATION;
 }
 
+time32_t BRAIN_getMatchDuration(void){
+	return match_duration;
+}
+
 //Executé pendant tout le match
 static void BRAIN_action_in_match(void){
 

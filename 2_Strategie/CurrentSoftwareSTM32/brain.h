@@ -37,5 +37,7 @@
 
 	void BRAIN_set_strategy_index(Uint8 i);
 
+	time32_t BRAIN_getMatchDuration(void);
+
 
 #endif /* ndef BRAIN_H */
