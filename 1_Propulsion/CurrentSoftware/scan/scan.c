@@ -14,7 +14,7 @@
 #define OFFSET_LENGTH_LASER_LEFT	(80)
 #define OFFSET_ANGLE_LEFT           -102
 
-#define CONVERSION_LASER_RIGHT(x)	((Sint32)(70732*(x)-42581000)/10000)//((Sint32)(36130*(x)-6247900)/10000)
+#define CONVERSION_LASER_RIGHT(x)	((Sint32)(1413*(x)-6020000)/10000)//((Sint32)(36130*(x)-6247900)/10000)
 #define OFFSET_WIDTH_LASER_RIGHT	(144)
 #define OFFSET_LENGTH_LASER_RIGHT	(80)
 #define OFFSET_ANGLE_RIGHT          39
@@ -150,10 +150,10 @@ static void SCAN_get_data(SCAN_side_e side){
 
 	// On regarde si il y a des saturations
 	enable = TRUE;
-	//display(laser_data[index].ADCvalue);
-	if(laser_data[index].ADCvalue < SATURATION_LOW || laser_data[index].ADCvalue > SATURATION_HIGH){
-		enable = FALSE;
-	}
+	display(laser_data[index].ADCvalue);
+//	if(laser_data[index].ADCvalue < SATURATION_LOW || laser_data[index].ADCvalue > SATURATION_HIGH){
+	//	enable = FALSE;
+	//}
 	laser_data[index].enable = enable;
 
 	// On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
@@ -178,8 +178,8 @@ static void SCAN_get_data(SCAN_side_e side){
 		}else{
 			pos_mesure.x = robot.x + ((OFFSET_LENGTH_LASER_RIGHT*cosinus1 + OFFSET_WIDTH_LASER_RIGHT*sinus1) + (value * sinus2))/4096;
 			pos_mesure.y = robot.y + ((OFFSET_LENGTH_LASER_RIGHT*sinus1 - OFFSET_WIDTH_LASER_RIGHT*cosinus1) - (value * cosinus2))/4096;
-			//display(pos_mesure.x);
-			//display(pos_mesure.y);
+			display(pos_mesure.x);
+			display(pos_mesure.y);
 		}
 
 

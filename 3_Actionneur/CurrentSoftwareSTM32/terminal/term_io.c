@@ -69,6 +69,21 @@
     #include "../Anne/small_bearing_ball/small_ball_back_left/small_ball_back_left_config.h"
 	#include "../Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
     #include "../Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right_config.h"
+	#include "../Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm.h"
+	#include "../Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm.c"
+	#include "../Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer.h"
+	#include "../Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer.c"
+	#include "../Anne/small_cylinder/small_cylinder_color/small_cylinder_color.h"
+	#include "../Anne/small_cylinder/small_cylinder_color/small_cylinder_color.c"
+	#include "../Anne/small_cylinder/small_cylinder_dispose/small_cylinder_dispose.h"
+	#include "../Anne/small_cylinder/small_cylinder_dispose/small_cylinder_dispose.c"
+	#include "../Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator.h"
+	#include "../Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator.c"
+	#include "../Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider.h"
+	#include "../Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider.c"
+	#include "../Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope.h"
+	#include "../Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope.c"
+
 #endif
 
 typedef Sint16(*sensor_position_fun_t)(void);

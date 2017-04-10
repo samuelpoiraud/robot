@@ -176,7 +176,7 @@ error_e sub_act_big_take(){
 				ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
 				ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
 				ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
-				ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
+				ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
 			}
 
 			state1= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state1, DONE, ERROR);
@@ -1960,7 +1960,7 @@ error_e sub_harry_take_big_crater_blue(){ //arrivée en (1290, 710) environ
 
 		case COLLECT_BLUE_IN:
 			// entree dans le cratere
-			state = try_going(1700, 300, state, COLLECT_BLUE_ANGLE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1700, 300, state, COLLECT_BLUE_ANGLE,  ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_BLUE_PUSHER_LEFT:
@@ -2177,7 +2177,7 @@ error_e sub_harry_take_big_crater_yellow(){ //arrivée en (1290, 710) environ
 
 		case COLLECT_YELLOW_IN:
 			// entree dans le cratere
-			state = try_going(1700, 2700, state, COLLECT_YELLOW_ANGLE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1700, 2700, state, COLLECT_YELLOW_ANGLE,  ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case COLLECT_YELLOW_PUSHER_LEFT:
@@ -2308,5 +2308,5 @@ error_e sub_harry_take_big_crater_yellow(){ //arrivée en (1290, 710) environ
 	return IN_PROGRESS;
 }
 
-*/
+
 
