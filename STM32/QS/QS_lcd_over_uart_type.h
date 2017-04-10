@@ -27,37 +27,6 @@
 		#define LCD_OVER_UART_COM_TIMEOUT		200		// [ms]
 
 		//////////////////////////////////////////////////////////////////
-		//-----------------Type relatif au objet------------------------//
-		//////////////////////////////////////////////////////////////////
-
-		typedef enum{
-			LCD_OBJECT_TYPE_TEXT,
-			LCD_OBJECT_TYPE_BUTTON_IMG,
-			LCD_OBJECT_TYPE_BUTTON,
-			LCD_OBJECT_TYPE_PROGRESS_BAR,
-			LCD_OBJECT_TYPE_SLIDER,
-			LCD_OBJECT_TYPE_IMAGE,
-			LCD_OBJECT_TYPE_ANIMATED_IMAGE,
-			LCD_OBJECT_TYPE_RECTANGLE,
-			LCD_OBJECT_TYPE_CIRCLE,
-			LCD_OBJECT_TYPE_LINE
-		}LCD_objectType_e;
-
-		typedef union{
-			bool_e * touch;
-		}LCD_objectLink_u;
-
-		typedef struct{
-			LCD_objectType_e type;
-			LCD_objectLink_u link;
-		}LCD_object_s;
-
-		typedef struct{
-			bool_e used;
-			LCD_object_s object;
-		}LCD_objectStorage_s;
-
-		//////////////////////////////////////////////////////////////////
 		//-----------------Type relatif au message----------------------//
 		//////////////////////////////////////////////////////////////////
 
@@ -76,7 +45,11 @@
 			LCD_MSG_TYPE_ADD_ANIMATION,
 			LCD_MSG_TYPE_ADD_RECTANGLE,
 			LCD_MSG_TYPE_ADD_CIRCLE,
-			LCD_MSG_TYPE_ADD_LINE
+			LCD_MSG_TYPE_ADD_LINE,
+			LCD_MSG_TYPE_UPDATE_PROGRESS_BAR,
+			LCD_MSG_TYPE_UPDATE_BUTTON,
+			LCD_MSG_TYPE_UPDATE_BUTTON_IMG,
+			LCD_MSG_TYPE_UPDATE_SLIDER
 		}LCD_msgType_e;
 
 		typedef union{
@@ -221,6 +194,30 @@
 				Sint16 y1						:16;
 				LCD_objectId_t id				:8;
 			}addLine;
+
+			#define SIZE_LCD_UPDATE_PROGRESS_BAR 2
+			struct{
+				LCD_objectId_t id				:8;
+				Uint8 value						:8;
+			}updateProgressBar;
+
+			#define SIZE_LCD_UPDATE_BUTTON 		2
+			struct{
+				LCD_objectId_t id				:8;
+				bool_e touchState				:8;
+			}updateButton;
+
+			#define SIZE_LCD_UPDATE_BUTTON_IMG 	2
+			struct{
+				LCD_objectId_t id				:8;
+				bool_e touchState				:8;
+			}updateButtonImg;
+
+			#define SIZE_LCD_UPDATE_SLIDER 		5
+			struct{
+				LCD_objectId_t id				:8;
+				Uint32 value					:32;
+			}updateSlider;
 
 			Uint8 rawData[LCD_OVER_UART_MAX_SIZE];
 		}LCD_msgBody_u;
