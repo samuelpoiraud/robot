@@ -16,6 +16,8 @@
 #include "../propulsion/prop_functions.h"
 #include "../propulsion/movement.h"
 #include "../utils/generic_functions.h"
+#include "../actuator/queue.h"
+#include "../actuator/act_functions.h"
 
 error_e sub_cross_rocker(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_CROSS_ROCKER,
@@ -42,8 +44,18 @@ error_e sub_cross_rocker(void){
 			break;
 
 		case CORRECT_ODOMETRY_MATH:{
+			if(I_AM_SMALL()){
+				ACT_push_order(ACT_QUEUE_Small_bearing_back, ACT_SMALL_BALL_BACK_DOWN);
+				ACT_push_order(ACT_QUEUE_Small_bearing_front_left, ACT_SMALL_BALL_FRONT_LEFT_DOWN);
+				ACT_push_order(ACT_QUEUE_Small_bearing_front_right, ACT_SMALL_BALL_FRONT_RIGHT_DOWN);
+			}else{
+				ACT_push_order(ACT_QUEUE_Big_bearing_back_left, ACT_BIG_BALL_BACK_LEFT_DOWN);
+				ACT_push_order(ACT_QUEUE_Big_bearing_back_right, ACT_BIG_BALL_BACK_RIGHT_DOWN);
+				ACT_push_order(ACT_QUEUE_Big_bearing_front_left, ACT_BIG_BALL_FRONT_LEFT_DOWN);
+				ACT_push_order(ACT_QUEUE_Big_bearing_front_right, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
+			}
 			Sint16 diffY = COLOR_EXP(-10, 10);
-
+#warning 'c\'est plus que bancal cette histoire'
 			PROP_set_position(global.pos.x, global.pos.y + diffY, global.pos.angle);
 
 			state = CORRECT_ODOMETRY_MEASURE;
