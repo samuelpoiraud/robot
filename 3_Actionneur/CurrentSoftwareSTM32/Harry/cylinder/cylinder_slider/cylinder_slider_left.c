@@ -327,9 +327,10 @@ static void CYLINDER_SLIDER_LEFT_set_warner(CAN_msg_t *msg){
 	warner.last_pos = RX24_get_position(CYLINDER_SLIDER_LEFT_RX24_ID);
 
 	switch(msg->data.act_msg.act_data.warner_pos){
-		/*case ACT_CYLINDER_SLIDER_LEFT_WARNER:
+		case ACT_CYLINDER_SLIDER_LEFT_WARNER:
 			warner.warner_pos = CYLINDER_SLIDER_LEFT_RX24_WARNER_POS;
-			break;*/
+			break;
+
 		default:{
 			warner.activated = FALSE;
 			warn_printf("This position is not available for setting a warner\n");

@@ -21,8 +21,8 @@
 	#define CYLINDER_SLOPE_LEFT_AX12_SPEED						30		// Vitesse par défaut de l'AX12
 
 //Position
-	#define CYLINDER_SLOPE_LEFT_AX12_IDLE_POS					333
-	#define CYLINDER_SLOPE_LEFT_AX12_DOWN_POS				    333		//en degré
+	#define CYLINDER_SLOPE_LEFT_AX12_IDLE_POS					325		//333
+	#define CYLINDER_SLOPE_LEFT_AX12_DOWN_POS				    325		//en degré
 	#define CYLINDER_SLOPE_LEFT_AX12_UP_POS						540		//en degré
 	#define CYLINDER_SLOPE_LEFT_AX12_VERY_UP_POS				661
 
