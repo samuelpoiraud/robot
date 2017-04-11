@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_MAGIC_COLOR_rx24.c
+*	Fichier : small_magic_color.c
 *	Package : Carte actionneur
 *	Description : Gestion de l'actionneur RX24 SMALL_MAGIC_COLOR
 *	Auteur :
@@ -53,7 +53,7 @@
 #include "small_magic_color_config.h"
 
 // Les différents define pour le verbose sur uart
-#define LOG_PREFIX "SMALL_MAGIC_COLOR.c : "
+#define LOG_PREFIX "small_magic_color.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SMALL_MAGIC_COLOR
 #include "../QS/QS_outputlog.h"
 
@@ -63,7 +63,7 @@ static void SMALL_MAGIC_COLOR_initRX24();
 static void SMALL_MAGIC_COLOR_command_init(queue_id_t queueId);
 static void SMALL_MAGIC_COLOR_set_config(CAN_msg_t* msg);
 static void SMALL_MAGIC_COLOR_get_config(CAN_msg_t *incoming_msg);
-static void SMALL_MAGIC_COLOR_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
+//static void SMALL_MAGIC_COLOR_get_position_config(ACT_order_e *pOrder, Uint16 *pPos);
 static void SMALL_MAGIC_COLOR_set_warner(CAN_msg_t *msg);
 static void SMALL_MAGIC_COLOR_check_warner(Uint16 pos);
 
@@ -96,14 +96,14 @@ void SMALL_MAGIC_COLOR_reset_config(){
 static void SMALL_MAGIC_COLOR_initRX24() {
 	if(rx24_is_initialized == FALSE && RX24_is_ready(SMALL_MAGIC_COLOR_RX24_ID) == TRUE) {
 		rx24_is_initialized = TRUE;
+
+		// Set the servo in wheel mode
+		RX24_set_wheel_mode_enabled(SMALL_MAGIC_COLOR_RX24_ID, TRUE);
+
 		RX24_config_set_lowest_voltage(SMALL_MAGIC_COLOR_RX24_ID, RX24_MIN_VOLTAGE);
 		RX24_config_set_highest_voltage(SMALL_MAGIC_COLOR_RX24_ID, RX24_MAX_VOLTAGE);
 		RX24_set_torque_limit(SMALL_MAGIC_COLOR_RX24_ID, SMALL_MAGIC_COLOR_RX24_MAX_TORQUE_PERCENT);
 		RX24_config_set_temperature_limit(SMALL_MAGIC_COLOR_RX24_ID, SMALL_MAGIC_COLOR_RX24_MAX_TEMPERATURE);
-
-		RX24_config_set_maximal_angle(SMALL_MAGIC_COLOR_RX24_ID, SMALL_MAGIC_COLOR_RX24_MAX_VALUE);
-		RX24_config_set_minimal_angle(SMALL_MAGIC_COLOR_RX24_ID, SMALL_MAGIC_COLOR_RX24_MIN_VALUE);
-		RX24_set_move_to_position_speed(SMALL_MAGIC_COLOR_RX24_ID, SMALL_MAGIC_COLOR_RX24_SPEED);
 
 		RX24_config_set_error_before_led(SMALL_MAGIC_COLOR_RX24_ID, RX24_BEFORE_LED);
 		RX24_config_set_error_before_shutdown(SMALL_MAGIC_COLOR_RX24_ID, RX24_BEFORE_SHUTDOWN);
@@ -129,8 +129,8 @@ void SMALL_MAGIC_COLOR_set_config(CAN_msg_t* msg){
 // Fonction permettant d'obtenir des infos de configuration du rx24 telle que la position ou la vitesse
 static void SMALL_MAGIC_COLOR_get_config(CAN_msg_t *incoming_msg){
 	bool_e error = FALSE;
-	Uint16 pos = 0;;
-	ACT_order_e order = 0;
+	//Uint16 pos = 0;;
+	//ACT_order_e order = 0;
 	CAN_msg_t msg;
 	msg.sid = ACT_GET_CONFIG_ANSWER;
 	msg.size = SIZE_ACT_GET_CONFIG_ANSWER;
@@ -139,9 +139,9 @@ static void SMALL_MAGIC_COLOR_get_config(CAN_msg_t *incoming_msg){
 
 	switch(incoming_msg->data.act_msg.act_data.config){
 		case POSITION_CONFIG:
-			SMALL_MAGIC_COLOR_get_position_config(&order, &pos);
-			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = order;
-			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = pos;
+			//SMALL_MAGIC_COLOR_get_position_config(&order, &pos);
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.order = 0;
+			msg.data.act_get_config_answer.act_get_config_data.act_get_config_pos_answer.pos = 0;
 			break;
 		case TORQUE_CONFIG:
 			msg.data.act_get_config_answer.act_get_config_data.torque = RX24_get_speed_percentage(SMALL_MAGIC_COLOR_RX24_ID);
@@ -162,9 +162,7 @@ static void SMALL_MAGIC_COLOR_get_config(CAN_msg_t *incoming_msg){
 	}
 }
 
-// Fonction permettant d'obtenir la position du rx24 en tant que "ordre actionneur"
-// Cette fonction convertit la position du rx24 entre 0 et 1023 en une position en tant que "ordre actionneur"
-static void SMALL_MAGIC_COLOR_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
+/*static void SMALL_MAGIC_COLOR_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
 	ACT_order_e order = ACT_SMALL_MAGIC_COLOR_STOP;
 	Uint16 position = RX24_get_position(SMALL_MAGIC_COLOR_RX24_ID);
 	Uint16 epsilon = SMALL_MAGIC_COLOR_RX24_ASSER_POS_EPSILON;
@@ -182,7 +180,7 @@ static void SMALL_MAGIC_COLOR_get_position_config(ACT_order_e *pOrder, Uint16 *p
 
 	if(pPos != NULL)
 		*pPos = position;
-}
+}*/
 
 // Fonction appellée pour l'initialisation en position du rx24 dés l'arrivé de l'alimentation (via ActManager)
 void SMALL_MAGIC_COLOR_init_pos(){
@@ -192,7 +190,7 @@ void SMALL_MAGIC_COLOR_init_pos(){
 		return;
 
 	debug_printf("Init pos : \n");
-	if(!RX24_set_position(SMALL_MAGIC_COLOR_RX24_ID, SMALL_MAGIC_COLOR_RX24_INIT_POS))
+	if(!RX24_set_speed_percentage(SMALL_MAGIC_COLOR_RX24_ID, SMALL_MAGIC_COLOR_RX24_IDLE_SPEED))
 		debug_printf("   Le RX24 n°%d n'est pas là\n", SMALL_MAGIC_COLOR_RX24_ID);
 	else
 		debug_printf("   Le RX24 n°%d a été initialisé en position\n", SMALL_MAGIC_COLOR_RX24_ID);
@@ -210,8 +208,8 @@ bool_e SMALL_MAGIC_COLOR_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SMALL_MAGIC_COLOR_IDLE :
-			case ACT_SMALL_MAGIC_COLOR_LOCK :
-			case ACT_SMALL_MAGIC_COLOR_UNLOCK :
+			case ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED:
+			case ACT_SMALL_MAGIC_COLOR_ZERO_SPEED:
 			case ACT_SMALL_MAGIC_COLOR_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SMALL_MAGIC_COLOR, &SMALL_MAGIC_COLOR_run_command, 0,TRUE);
 				break;
@@ -264,9 +262,9 @@ static void SMALL_MAGIC_COLOR_command_init(queue_id_t queueId) {
 
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
-		case ACT_SMALL_MAGIC_COLOR_IDLE : *rx24_goalPosition = SMALL_MAGIC_COLOR_RX24_IDLE_POS; break;
-		case ACT_SMALL_MAGIC_COLOR_LOCK : *rx24_goalPosition = SMALL_MAGIC_COLOR_RX24_LOCK_POS; break;
-		case ACT_SMALL_MAGIC_COLOR_UNLOCK : *rx24_goalPosition = SMALL_MAGIC_COLOR_RX24_UNLOCK_POS; break;
+		case ACT_SMALL_MAGIC_COLOR_IDLE : *rx24_goalPosition = SMALL_MAGIC_COLOR_RX24_IDLE_SPEED; break;
+		case ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED : *rx24_goalPosition = SMALL_MAGIC_COLOR_RX24_NORMAL_SPEED; break;
+		case ACT_SMALL_MAGIC_COLOR_ZERO_SPEED : *rx24_goalPosition = SMALL_MAGIC_COLOR_RX24_ZERO_SPEED; break;
 
 		case ACT_SMALL_MAGIC_COLOR_STOP :
 			RX24_set_torque_enabled(SMALL_MAGIC_COLOR_RX24_ID, FALSE); //Stopper l'asservissement du RX24
@@ -293,11 +291,12 @@ static void SMALL_MAGIC_COLOR_command_init(queue_id_t queueId) {
 	}
 
 	RX24_reset_last_error(SMALL_MAGIC_COLOR_RX24_ID); //Sécurité anti terroriste. Nous les parano on aime pas voir des erreurs là ou il n'y en a pas.
-	if(!RX24_set_position(SMALL_MAGIC_COLOR_RX24_ID, *rx24_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que le RX24 ne répond pas a cet envoi, on l'indique à la carte stratégie
+	if(!RX24_set_speed_percentage(SMALL_MAGIC_COLOR_RX24_ID, *rx24_goalPosition)) {	//Si la commande n'a pas été envoyée correctement et/ou que le RX24 ne répond pas a cet envoi, on l'indique à la carte stratégie
 		error_printf("RX24_set_position error: 0x%x\n", RX24_get_last_error(SMALL_MAGIC_COLOR_RX24_ID).error);
 		QUEUE_next(queueId, ACT_SMALL_MAGIC_COLOR, ACT_RESULT_FAILED, ACT_RESULT_ERROR_NOT_HERE, __LINE__);
 		return;
 	}
+
 	//La commande a été envoyée et le RX24 l'a bien reçu
 	debug_printf("Move SMALL_MAGIC_COLOR rx24 to %d\n", *rx24_goalPosition);
 }
@@ -307,14 +306,16 @@ static void SMALL_MAGIC_COLOR_command_run(queue_id_t queueId) {
 	Uint8 result, errorCode;
 	Uint16 line;
 
-	Uint16 pos = RX24_get_position(SMALL_MAGIC_COLOR_RX24_ID);
+	Uint16 speed = RX24_get_speed_percentage(SMALL_MAGIC_COLOR_RX24_ID);
 
-	if(ACTQ_check_status_rx24(queueId, SMALL_MAGIC_COLOR_RX24_ID, QUEUE_get_arg(queueId)->param, pos, SMALL_MAGIC_COLOR_RX24_ASSER_POS_EPSILON, SMALL_MAGIC_COLOR_RX24_ASSER_TIMEOUT, SMALL_MAGIC_COLOR_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+	if(ACTQ_check_status_rx24(queueId, SMALL_MAGIC_COLOR_RX24_ID, QUEUE_get_arg(queueId)->param, speed, SMALL_MAGIC_COLOR_RX24_ASSER_SPEED_EPSILON, SMALL_MAGIC_COLOR_RX24_ASSER_TIMEOUT, SMALL_MAGIC_COLOR_RX24_ASSER_SPEED_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_SMALL_MAGIC_COLOR, result, errorCode, line);
 
     // On ne surveille le warner que si il est activé
-	if(warner.activated)
+	if(warner.activated){
+		Uint16 pos = RX24_get_position(SMALL_MAGIC_COLOR_RX24_ID);
 		SMALL_MAGIC_COLOR_check_warner(pos);
+	}
 }
 
 // Fonction permettant d'activer un warner sur une position du rx24

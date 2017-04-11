@@ -247,6 +247,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_SMALL_CYLINDER_SLIDER:					print(string, len, "%x ACT_SMALL_CYLINDER_SLIDER              ", ACT_SMALL_CYLINDER_ARM							);	break;
 		case ACT_SMALL_CYLINDER_SLOPE:					print(string, len, "%x ACT_SMALL_CYLINDER_SLOPE				  ", ACT_SMALL_CYLINDER_ARM							);	break;
 
+		case ACT_SMALL_MAGIC_ARM:						print(string, len, "%x ACT_SMALL_MAGIC_ARM				  	  ", ACT_SMALL_MAGIC_ARM							);	break;
+		case ACT_SMALL_MAGIC_COLOR:						print(string, len, "%x ACT_SMALL_MAGIC_COLOR				  ", ACT_SMALL_MAGIC_COLOR							);	break;
+
+		case ACT_SMALL_ORE:								print(string, len, "%x ACT_SMALL_ORE				  		  ", ACT_SMALL_ORE									);	break;
 
 // Mosfets
 		case ACT_TURBINE:								print(string, len, "%x ACT_TURBINE				  			  ", ACT_TURBINE							        );	break;
@@ -386,6 +390,11 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR:		print(string,len, "ACT_SMALL_CYLINDER_ELEVATOR ");	break;
 				case (Uint8)ACT_SMALL_CYLINDER_SLIDER:		   	print(string,len, "ACT_SMALL_CYLINDER_SLIDER ");	break;
 				case (Uint8)ACT_SMALL_CYLINDER_SLOPE:		    print(string,len, "ACT_SMALL_CYLINDER_SLOPE ");		break;
+
+				case (Uint8)ACT_SMALL_MAGIC_ARM:		    	print(string,len, "ACT_SMALL_MAGIC_ARM ");			break;
+				case (Uint8)ACT_SMALL_MAGIC_COLOR:		    	print(string,len, "ACT_SMALL_MAGIC_COLOR ");		break;
+
+				case (Uint8)ACT_SMALL_ORE:		    			print(string,len, "ACT_SMALL_ORE ");				break;
 
 				//Mosfet
 				case (Uint8)ACT_TURBINE:						print(string, len, "ACT_TURBINE ");					break;
@@ -806,6 +815,35 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 						  }
 				  break;
 
+				  case (Uint8)ACT_SMALL_MAGIC_ARM:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_SMALL_MAGIC_ARM_IDLE:			print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_SMALL_MAGIC_ARM_IN:			print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_SMALL_MAGIC_ARM_OUT:			print(string,len, "| OUT |");			break;
+							  case (Uint8)ACT_SMALL_MAGIC_ARM_STOP:			print(string,len, "| STOP |");			break;
+							  default:                           			print(string,len, "| UNKNOW cmd |");	break;
+						  }
+				  break;
+
+				  case (Uint8)ACT_SMALL_MAGIC_COLOR:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_SMALL_MAGIC_COLOR_IDLE:			print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED:	print(string,len, "| NORMAL_SPEED |");	break;
+							  case (Uint8)ACT_SMALL_MAGIC_COLOR_ZERO_SPEED:		print(string,len, "| ZERO_SPEED |");	break;
+							  case (Uint8)ACT_SMALL_MAGIC_COLOR_STOP:			print(string,len, "| STOP |");			break;
+							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
+						  }
+				  break;
+
+				  case (Uint8)ACT_SMALL_ORE:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_SMALL_ORE_IDLE:					print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_SMALL_ORE_UP:						print(string,len, "| UP |");			break;
+							  case (Uint8)ACT_SMALL_ORE_DOWN:					print(string,len, "| DOWN |");			break;
+							  case (Uint8)ACT_SMALL_ORE_STOP:					print(string,len, "| STOP |");			break;
+							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
+						  }
+				  break;
 
 				  case (Uint8)ACT_TURBINE:
 				  case (Uint8)ACT_POMPE_SLIDER_LEFT:

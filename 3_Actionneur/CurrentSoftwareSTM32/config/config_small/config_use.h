@@ -18,11 +18,13 @@
 /* Réglages PWM */
 	#define USE_PWM_MODULE
 		#define PWM_FREQ	50000
-		#define USE_PWM1
-		//#define USE_PWM2
+		#define SMALL_POMPE_DISPOSE_PWM_NUM		(2)
+		#define USE_PWM2
+		#define SMALL_POMPE_PRISE_PWM_NUM		(3)
+		#define USE_PWM3
+
 
 /* Réglages de la carte Mosfets*/
-	#define USE_MOSFETS_MODULE
-		 #define USE_MOSFET_1
+	//#define USE_MOSFETS_MODULE
 
 #endif /* SMALL_CONFIG_USE_H */

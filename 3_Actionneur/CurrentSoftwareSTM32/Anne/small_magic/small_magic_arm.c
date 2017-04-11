@@ -170,10 +170,10 @@ static void SMALL_MAGIC_ARM_get_position_config(ACT_order_e *pOrder, Uint16 *pPo
 	Uint16 position = RX24_get_position(SMALL_MAGIC_ARM_RX24_ID);
 	Uint16 epsilon = SMALL_MAGIC_ARM_RX24_ASSER_POS_EPSILON;
 
-	if(position > SMALL_MAGIC_ARM_RX24_LOCK_POS - epsilon && position < SMALL_MAGIC_ARM_RX24_LOCK_POS + epsilon){
-		order = ACT_SMALL_MAGIC_ARM_LOCK;
-	}else if(position > SMALL_MAGIC_ARM_RX24_UNLOCK_POS - epsilon && position < SMALL_MAGIC_ARM_RX24_UNLOCK_POS + epsilon){
-		order = ACT_SMALL_MAGIC_ARM_UNLOCK;
+	if(position > SMALL_MAGIC_ARM_RX24_IN_POS - epsilon && position < SMALL_MAGIC_ARM_RX24_IN_POS + epsilon){
+		order = ACT_SMALL_MAGIC_ARM_IN;
+	}else if(position > SMALL_MAGIC_ARM_RX24_OUT_POS - epsilon && position < SMALL_MAGIC_ARM_RX24_OUT_POS + epsilon){
+		order = ACT_SMALL_MAGIC_ARM_OUT;
 	}else if(position > SMALL_MAGIC_ARM_RX24_IDLE_POS - epsilon && position < SMALL_MAGIC_ARM_RX24_IDLE_POS + epsilon){
 		order = ACT_SMALL_MAGIC_ARM_IDLE;
 	}
@@ -211,8 +211,8 @@ bool_e SMALL_MAGIC_ARM_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SMALL_MAGIC_ARM_IDLE :
-			case ACT_SMALL_MAGIC_ARM_LOCK :
-			case ACT_SMALL_MAGIC_ARM_UNLOCK :
+			case ACT_SMALL_MAGIC_ARM_IN :
+			case ACT_SMALL_MAGIC_ARM_OUT :
 			case ACT_SMALL_MAGIC_ARM_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SMALL_MAGIC_ARM, &SMALL_MAGIC_ARM_run_command, 0,TRUE);
 				break;
@@ -266,8 +266,8 @@ static void SMALL_MAGIC_ARM_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_SMALL_MAGIC_ARM_IDLE : *rx24_goalPosition = SMALL_MAGIC_ARM_RX24_IDLE_POS; break;
-		case ACT_SMALL_MAGIC_ARM_LOCK : *rx24_goalPosition = SMALL_MAGIC_ARM_RX24_LOCK_POS; break;
-		case ACT_SMALL_MAGIC_ARM_UNLOCK : *rx24_goalPosition = SMALL_MAGIC_ARM_RX24_UNLOCK_POS; break;
+		case ACT_SMALL_MAGIC_ARM_IN : *rx24_goalPosition = SMALL_MAGIC_ARM_RX24_IN_POS; break;
+		case ACT_SMALL_MAGIC_ARM_OUT : *rx24_goalPosition = SMALL_MAGIC_ARM_RX24_OUT_POS; break;
 
 		case ACT_SMALL_MAGIC_ARM_STOP :
 			RX24_set_torque_enabled(SMALL_MAGIC_ARM_RX24_ID, FALSE); //Stopper l'asservissement du RX24

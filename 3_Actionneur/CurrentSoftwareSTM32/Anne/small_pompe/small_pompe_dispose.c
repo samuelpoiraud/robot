@@ -1,41 +1,14 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_POMPE_DISPOSE.c
+*	Fichier : small_pompe_dispose.c
 *	Package : Carte actionneur
-*	Description : Gestion de la pompe EXEMPLE
+*	Description : Gestion de la pompe small_pompe_dispose
 *	Auteur :
 *	Version 2017
 *	Robot : BIG
 */
 
-#include "SMALL_POMPE_DISPOSE.h"
-
-// Exemple d'une pompe
-
-// Ajout l'actionneur dans QS_CANmsgList.h
-// Ajout d'une valeur dans l'énumération de la queue dans config_(big/small)/config_global_vars_types.h
-// Formatage : QUEUE_ACT_SMALL_POMPE_DISPOSE
-// Ajout de la déclaration de l'actionneur dans ActManager dans le tableau actionneurs
-// Ajout de la verbosité dans le fichier act_queue_utils.c dans la fonction ACTQ_internal_printResult
-// Un define EXEMPLE_PIN doit avoir été ajouté au fichier config_big/config_pin.h // config_small/config_pin.h
-// Ajout des postions dans QS_types.h dans l'énum ACT_order_e (avec "ACT_" et sans "_POS" à la fin)
-// Mise à jour de config/config_debug.h
-
-// Optionnel:
-// Ajout du selftest dans le fichier selftest.c dans la fonction SELFTEST_done_test
-// Ajout du selftest dans le fichier QS_CANmsgList (dans l'énumération SELFTEST)
-
-// En stratégie
-// ajout d'une d'une valeur dans le tableau act_link_SID_Queue du fichier act_functions.c/h
-// ajout des fonctions actionneurs dans act_avoidance.c/h si l'actionneur modifie l'évitement du robot
-
-// En stratégie Optionnel
-// ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
-// ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
-
-
-
-#define SMALL_POMPE_DISPOSE_PIN 0,0
+#include "small_pompe_dispose.h"
 
 #ifdef I_AM_ROBOT_SMALL
 
@@ -47,13 +20,14 @@
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 
-#define LOG_PREFIX "SMALL_POMPE_DISPOSE : "
+#define LOG_PREFIX "small_pompe_dispose.c: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SMALL_POMPE_DISPOSE
 #include "../QS/QS_outputlog.h"
 
+static void SMALL_POMPE_DISPOSE_init_pwm();
 static void SMALL_POMPE_DISPOSE_command_init(queue_id_t queueId);
 static void SMALL_POMPE_DISPOSE_command_run(queue_id_t queueId);
-static void SMALL_POMPE_DISPOSE_do_order(Uint8 command);
+static void SMALL_POMPE_DISPOSE_do_order(Uint8 command, Uint8 param);
 
 void SMALL_POMPE_DISPOSE_init() {
 	static bool_e initialized = FALSE;
@@ -61,16 +35,33 @@ void SMALL_POMPE_DISPOSE_init() {
 	if(initialized)
 		return;
 	initialized = TRUE;
+
+	SMALL_POMPE_DISPOSE_init_pwm();
 }
 
 void SMALL_POMPE_DISPOSE_reset_config(){}
 
+// Initialisation du moteur, si init ne fait rien
+static void SMALL_POMPE_DISPOSE_init_pwm() {
+	static bool_e initialized = FALSE;
+
+	if(initialized)
+		return;
+	initialized = TRUE;
+
+	PORTS_pwm_init();
+	PWM_init();
+	PWM_stop(SMALL_POMPE_DISPOSE_PWM_NUM);
+
+	info_printf("Pompe SMALL_POMPE_DISPOSE initialisée\n");
+}
+
 void SMALL_POMPE_DISPOSE_stop() {
-	GPIO_ResetBits(SMALL_POMPE_DISPOSE_PIN);
+	PWM_stop(SMALL_POMPE_DISPOSE_PWM_NUM);
 }
 
 void SMALL_POMPE_DISPOSE_init_pos(){
-	GPIO_ResetBits(SMALL_POMPE_DISPOSE_PIN);
+	PWM_stop(SMALL_POMPE_DISPOSE_PWM_NUM);
 }
 
 bool_e SMALL_POMPE_DISPOSE_CAN_process_msg(CAN_msg_t* msg) {
@@ -78,8 +69,9 @@ bool_e SMALL_POMPE_DISPOSE_CAN_process_msg(CAN_msg_t* msg) {
 		SMALL_POMPE_DISPOSE_initDCM();
 		switch(msg->data.act_msg.order) {
 			case ACT_POMPE_NORMAL:
+			case ACT_POMPE_REVERSE:
 			case ACT_POMPE_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_SMALL_POMPE_DISPOSE, &SMALL_POMPE_DISPOSE_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_SMALL_POMPE_DISPOSE, &SMALL_POMPE_DISPOSE_run_command, msg->data.act_msg.act_data.act_optionnal_data[0],TRUE);
 				break;
 
 			default:
@@ -108,16 +100,18 @@ void SMALL_POMPE_DISPOSE_run_command(queue_id_t queueId, bool_e init) {
 }
 
 //Initialise une commande
-void SMALL_POMPE_DISPOSE_command_init(queue_id_t queueId) {
+static void SMALL_POMPE_DISPOSE_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
+	Uint8 param = QUEUE_get_arg(queueId)->param;
 
 	switch(command) {
 		case ACT_POMPE_NORMAL:
-			SMALL_POMPE_DISPOSE_do_order(command);
+		case ACT_POMPE_REVERSE:
+			SMALL_POMPE_DISPOSE_do_order(command, param);
 			break;
 
 		case ACT_POMPE_STOP:
-			GPIO_ResetBits(SMALL_POMPE_DISPOSE_PIN);
+			PWM_stop(SMALL_POMPE_DISPOSE_PWM_NUM);
 			return;
 
 		default: {
@@ -132,14 +126,19 @@ static void SMALL_POMPE_DISPOSE_command_run(queue_id_t queueId){
 	QUEUE_next(queueId, ACT_SMALL_POMPE_DISPOSE, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
 }
 
-static void SMALL_POMPE_DISPOSE_do_order(Uint8 command){
+static void SMALL_POMPE_DISPOSE_do_order(Uint8 command, Uint8 param){
 	if(command == ACT_POMPE_NORMAL)
-		GPIO_SetBits(SMALL_POMPE_DISPOSE_PIN);
+		GPIO_SetBits(SMALL_POMPE_DISPOSE_SENS);
+	else if(command == ACT_POMPE_REVERSE)
+		GPIO_ResetBits(SMALL_POMPE_DISPOSE_SENS);
 	else{
-		debug_printf("commande envoyée à SMALL_POMPE_DISPOSE_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(SMALL_POMPE_DISPOSE_PIN);
+		debug_printf("commande envoyée à SMALL_POMPE_DISPOSE_do_order inconnue -> %d	%x\n", command, command);
+		PWM_stop(SMALL_POMPE_DISPOSE_PWM_NUM);
 		return;
 	}
+
+	param = (param > 100) ? 100 : param;
+	PWM_run(param, SMALL_POMPE_DISPOSE_PWM_NUM);
 }
 
 #endif

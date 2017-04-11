@@ -1,8 +1,8 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_POMPE_PRISE.c
+*	Fichier : small_pompe_prise.c
 *	Package : Carte actionneur
-*	Description : Gestion de la pompe EXEMPLE
+*	Description : Gestion de la pompe SMALL_POMPE_PRISE
 *	Auteur :
 *	Version 2017
 *	Robot : BIG
@@ -33,9 +33,6 @@
 // ajout du verbose du selftest dans Supervision/Selftest.c (tableau SELFTEST_getError_string, fonction SELFTEST_print_errors)
 // ajout de la verbosité dans Supervision/Verbose_can_msg.c/h (fonction VERBOSE_CAN_MSG_sprint)
 
-
-#define SMALL_POMPE_PRISE_PIN 0,0
-
 #ifdef I_AM_ROBOT_SMALL
 
 #include "../QS/QS_CANmsgList.h"
@@ -46,13 +43,14 @@
 #include "../act_queue_utils.h"
 #include "../selftest.h"
 
-#define LOG_PREFIX "SMALL_POMPE_PRISE : "
+#define LOG_PREFIX "small_pompe_prise.c : "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_SMALL_POMPE_PRISE
 #include "../QS/QS_outputlog.h"
 
+static void SMALL_POMPE_PRISE_init_pwm();
 static void SMALL_POMPE_PRISE_command_init(queue_id_t queueId);
 static void SMALL_POMPE_PRISE_command_run(queue_id_t queueId);
-static void SMALL_POMPE_PRISE_do_order(Uint8 command);
+static void SMALL_POMPE_PRISE_do_order(Uint8 command, Uint8 param);
 
 void SMALL_POMPE_PRISE_init() {
 	static bool_e initialized = FALSE;
@@ -60,16 +58,33 @@ void SMALL_POMPE_PRISE_init() {
 	if(initialized)
 		return;
 	initialized = TRUE;
+
+	SMALL_POMPE_PRISE_init_pwm();
 }
 
 void SMALL_POMPE_PRISE_reset_config(){}
 
+// Initialisation du moteur, si init ne fait rien
+static void SMALL_POMPE_PRISE_init_pwm() {
+	static bool_e initialized = FALSE;
+
+	if(initialized)
+		return;
+	initialized = TRUE;
+
+	PORTS_pwm_init();
+	PWM_init();
+	PWM_stop(SMALL_POMPE_PRISE_PWM_NUM);
+
+	info_printf("Pompe SMALL_POMPE_PRISE initialisée\n");
+}
+
 void SMALL_POMPE_PRISE_stop() {
-	GPIO_ResetBits(SMALL_POMPE_PRISE_PIN);
+	PWM_stop(SMALL_POMPE_PRISE_PWM_NUM);
 }
 
 void SMALL_POMPE_PRISE_init_pos(){
-	GPIO_ResetBits(SMALL_POMPE_PRISE_PIN);
+	PWM_stop(SMALL_POMPE_PRISE_PWM_NUM);
 }
 
 bool_e SMALL_POMPE_PRISE_CAN_process_msg(CAN_msg_t* msg) {
@@ -77,8 +92,9 @@ bool_e SMALL_POMPE_PRISE_CAN_process_msg(CAN_msg_t* msg) {
 		SMALL_POMPE_PRISE_initDCM();
 		switch(msg->data.act_msg.order) {
 			case ACT_POMPE_NORMAL:
+			case ACT_POMPE_REVERSE:
 			case ACT_POMPE_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_SMALL_POMPE_PRISE, &SMALL_POMPE_PRISE_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_SMALL_POMPE_PRISE, &SMALL_POMPE_PRISE_run_command, msg->data.act_msg.act_data.act_optionnal_data[0],TRUE);
 				break;
 
 			default:
@@ -107,16 +123,18 @@ void SMALL_POMPE_PRISE_run_command(queue_id_t queueId, bool_e init) {
 }
 
 //Initialise une commande
-void SMALL_POMPE_PRISE_command_init(queue_id_t queueId) {
+static void SMALL_POMPE_PRISE_command_init(queue_id_t queueId) {
 	Uint8 command = QUEUE_get_arg(queueId)->canCommand;
+	Uint8 param = QUEUE_get_arg(queueId)->param;
 
 	switch(command) {
 		case ACT_POMPE_NORMAL:
-			SMALL_POMPE_PRISE_do_order(command);
+		case ACT_POMPE_REVERSE:
+			SMALL_POMPE_PRISE_do_order(command, param);
 			break;
 
 		case ACT_POMPE_STOP:
-			GPIO_ResetBits(SMALL_POMPE_PRISE_PIN);
+			PWM_stop(SMALL_POMPE_PRISE_PWM_NUM);
 			return;
 
 		default: {
@@ -131,14 +149,19 @@ static void SMALL_POMPE_PRISE_command_run(queue_id_t queueId){
 	QUEUE_next(queueId, ACT_SMALL_POMPE_PRISE, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0);
 }
 
-static void SMALL_POMPE_PRISE_do_order(Uint8 command){
+static void SMALL_POMPE_PRISE_do_order(Uint8 command, Uint8 param){
 	if(command == ACT_POMPE_NORMAL)
-		GPIO_SetBits(SMALL_POMPE_PRISE_PIN);
+		GPIO_SetBits(SMALL_POMPE_PRISE_SENS);
+	else if(command == ACT_POMPE_REVERSE)
+		GPIO_ResetBits(SMALL_POMPE_PRISE_SENS);
 	else{
-		debug_printf("commande envoyée à SMALL_POMPE_PRISE_do_order inconnue -> %d	0x%x\n", command, command);
-		GPIO_ResetBits(SMALL_POMPE_PRISE_PIN);
+		debug_printf("commande envoyée à SMALL_POMPE_PRISE_do_order inconnue -> %d	%x\n", command, command);
+		PWM_stop(SMALL_POMPE_PRISE_PWM_NUM);
 		return;
 	}
+
+	param = (param > 100) ? 100 : param;
+	PWM_run(param, SMALL_POMPE_PRISE_PWM_NUM);
 }
 
 #endif

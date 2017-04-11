@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
 *
-*	Fichier : SMALL_MAGIC_COLOR_rx24.h
+*	Fichier : small_magic_color.h
 *	Package : Carte actionneur
 *	Description : Gestion de l'actionneur RX24 SMALL_MAGIC_COLOR
 *	Auteur :
