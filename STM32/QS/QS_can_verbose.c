@@ -240,12 +240,15 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_SMALL_BALL_FRONT_RIGHT:				print(string, len, "%x ACT_SMALL_BALL_FRONT_RIGHT             ", ACT_SMALL_BALL_FRONT_RIGHT						);	break;
 
 		case ACT_SMALL_CYLINDER_ARM:					print(string, len, "%x ACT_SMALL_CYLINDER_ARM             	  ", ACT_SMALL_CYLINDER_ARM							);	break;
-		case ACT_SMALL_CYLINDER_BALANCER:				print(string, len, "%x ACT_SMALL_CYLINDER_BALANCER            ", ACT_SMALL_CYLINDER_ARM							);	break;
-		case ACT_SMALL_CYLINDER_COLOR:					print(string, len, "%x ACT_SMALL_CYLINDER_COLOR            	  ", ACT_SMALL_CYLINDER_ARM							);	break;
-		case ACT_SMALL_CYLINDER_DISPOSE:				print(string, len, "%x ACT_SMALL_CYLINDER_DISPOSE             ", ACT_SMALL_CYLINDER_ARM							);	break;
-		case ACT_SMALL_CYLINDER_ELEVATOR:				print(string, len, "%x ACT_SMALL_CYLINDER_ELEVATOR            ", ACT_SMALL_CYLINDER_ARM							);	break;
-		case ACT_SMALL_CYLINDER_SLIDER:					print(string, len, "%x ACT_SMALL_CYLINDER_SLIDER              ", ACT_SMALL_CYLINDER_ARM							);	break;
-		case ACT_SMALL_CYLINDER_SLOPE:					print(string, len, "%x ACT_SMALL_CYLINDER_SLOPE				  ", ACT_SMALL_CYLINDER_ARM							);	break;
+		case ACT_SMALL_CYLINDER_BALANCER:				print(string, len, "%x ACT_SMALL_CYLINDER_BALANCER            ", ACT_SMALL_CYLINDER_BALANCER							);	break;
+		case ACT_SMALL_CYLINDER_COLOR:					print(string, len, "%x ACT_SMALL_CYLINDER_COLOR            	  ", ACT_SMALL_CYLINDER_COLOR						);	break;
+		case ACT_SMALL_CYLINDER_DISPOSE:				print(string, len, "%x ACT_SMALL_CYLINDER_DISPOSE             ", ACT_SMALL_CYLINDER_DISPOSE						);	break;
+		case ACT_SMALL_CYLINDER_ELEVATOR:				print(string, len, "%x ACT_SMALL_CYLINDER_ELEVATOR            ", ACT_SMALL_CYLINDER_ELEVATOR					);	break;
+		case ACT_SMALL_CYLINDER_SLIDER:					print(string, len, "%x ACT_SMALL_CYLINDER_SLIDER              ", ACT_SMALL_CYLINDER_SLIDER						);	break;
+		case ACT_SMALL_CYLINDER_SLOPE:					print(string, len, "%x ACT_SMALL_CYLINDER_SLOPE				  ", ACT_SMALL_CYLINDER_SLOPE						);	break;
+		case ACT_SMALL_CYLINDER_MULTIFONCTION:			print(string, len, "%x ACT_SMALL_CYLINDER_MULTIFONCTION		  ", ACT_SMALL_CYLINDER_MULTIFONCTION				);	break;
+		case ACT_SMALL_POMPE_PRISE:						print(string, len, "%x ACT_SMALL_POMPE_PRISE		  		  ", ACT_SMALL_POMPE_PRISE							);	break;
+		case ACT_SMALL_POMPE_DISPOSE:					print(string, len, "%x ACT_SMALL_POMPE_DISPOSE		  		  ", ACT_SMALL_POMPE_DISPOSE						);	break;
 
 		case ACT_SMALL_MAGIC_ARM:						print(string, len, "%x ACT_SMALL_MAGIC_ARM				  	  ", ACT_SMALL_MAGIC_ARM							);	break;
 		case ACT_SMALL_MAGIC_COLOR:						print(string, len, "%x ACT_SMALL_MAGIC_COLOR				  ", ACT_SMALL_MAGIC_COLOR							);	break;
@@ -390,6 +393,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR:		print(string,len, "ACT_SMALL_CYLINDER_ELEVATOR ");	break;
 				case (Uint8)ACT_SMALL_CYLINDER_SLIDER:		   	print(string,len, "ACT_SMALL_CYLINDER_SLIDER ");	break;
 				case (Uint8)ACT_SMALL_CYLINDER_SLOPE:		    print(string,len, "ACT_SMALL_CYLINDER_SLOPE ");		break;
+				case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION:	print(string,len, "ACT_SMALL_CYLINDER_MULTIFONCTION ");		break;
+				case (Uint8)ACT_SMALL_POMPE_PRISE:				print(string,len, "ACT_SMALL_POMPE_PRISE ");		break;
+				case (Uint8)ACT_SMALL_POMPE_DISPOSE:			print(string,len, "ACT_SMALL_POMPE_DISPOSE ");		break;
 
 				case (Uint8)ACT_SMALL_MAGIC_ARM:		    	print(string,len, "ACT_SMALL_MAGIC_ARM ");			break;
 				case (Uint8)ACT_SMALL_MAGIC_COLOR:		    	print(string,len, "ACT_SMALL_MAGIC_COLOR ");		break;
@@ -812,6 +818,35 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 							  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_UP:		print(string,len, "| UP |");			break;
 							  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_STOP:	print(string,len, "| STOP |");			break;
 							  default:                           			print(string,len, "| UNKNOW cmd |");	break;
+						  }
+				  break;
+
+				  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_IDLE:	print(string,len, "| IDLE |");			break;
+							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK:	print(string,len, "| LOCK |");			break;
+							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH:	print(string,len, "| PUSH |");			break;
+							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_IN:		print(string,len, "| IN |");			break;
+							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_STOP:	print(string,len, "| STOP |");			break;
+							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
+						  }
+				  break;
+
+				  case (Uint8)ACT_SMALL_POMPE_PRISE:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_POMPE_NORMAL:		print(string,len, "| NORMAL |");			break;
+							  case (Uint8)ACT_POMPE_REVERSE:	print(string,len, "| REVERSE |");			break;
+							  case (Uint8)ACT_POMPE_STOP:		print(string,len, "| STOP |");				break;
+							  default:                          print(string,len, "| UNKNOW cmd |");		break;
+						  }
+				  break;
+
+				  case (Uint8)ACT_SMALL_POMPE_DISPOSE:
+						  switch(msg->data.act_result.cmd){
+							  case (Uint8)ACT_POMPE_NORMAL:		print(string,len, "| NORMAL |");			break;
+							  case (Uint8)ACT_POMPE_REVERSE:	print(string,len, "| REVERSE |");			break;
+							  case (Uint8)ACT_POMPE_STOP:		print(string,len, "| STOP |");				break;
+							  default:                          print(string,len, "| UNKNOW cmd |");		break;
 						  }
 				  break;
 
