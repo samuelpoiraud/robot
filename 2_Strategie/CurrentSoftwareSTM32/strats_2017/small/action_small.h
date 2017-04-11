@@ -16,6 +16,11 @@
 
 	// action_big_prise_modules
 	error_e sub_anne_prise_modules_centre(ELEMENTS_property_e modules);
+	error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);
+	error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);
+	error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_side_e side);
+	error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side);
+	error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side);
 	error_e sub_anne_fusee_color();
 	error_e sub_anne_fusee_multicolor(ELEMENTS_property_e fusee);
 
