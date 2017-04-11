@@ -49,7 +49,7 @@ void guillaumeMa_strat_inutile_small(){
 			state = try_going(global.pos.x + 100, global.pos.y, state, ACTION, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case ACTION:
-			state = try_going(1000, COLOR_Y(1350), state, ACTION_1, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(900, COLOR_Y(1000), state, ACTION_1, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_1:
@@ -58,7 +58,7 @@ void guillaumeMa_strat_inutile_small(){
 			break;
 
 		case ACTION_2:
-			state = try_going(1000, COLOR_Y(1350), state, ACTION_3, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(900, COLOR_Y(1000), state, ACTION_3, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_3:
@@ -67,7 +67,7 @@ void guillaumeMa_strat_inutile_small(){
 			break;
 
 		case ACTION_4:
-			state = try_going(1000, COLOR_Y(1350), state, DONE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(900, COLOR_Y(1000), state, DONE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			//sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_match_e basis_side)
 			//state = check_sub_action_result(sub_harry_get_in_depose_modules_centre(NEUTRAL_ELEMENT, OUR_SIDE), state, DONE, ERROR);
 			break;
