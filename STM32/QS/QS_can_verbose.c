@@ -235,8 +235,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 
 // Anne
-		case ACT_SMALL_BALL_BACK_LEFT:					print(string, len, "%x ACT_SMALL_BALL_BACK_LEFT	              ", ACT_SMALL_BALL_BACK_LEFT						);	break;
-		case ACT_SMALL_BALL_BACK_RIGHT:					print(string, len, "%x ACT_SMALL_BALL_BACK_RIGHT	          ", ACT_SMALL_BALL_BACK_RIGHT						);	break;
+		case ACT_SMALL_BALL_BACK:						print(string, len, "%x ACT_SMALL_BALL_BACK_LEFT	              ", ACT_SMALL_BALL_BACK							);	break;
 		case ACT_SMALL_BALL_FRONT_LEFT:					print(string, len, "%x ACT_SMALL_BALL_FRONT_LEFT	          ", ACT_SMALL_BALL_FRONT_LEFT						);	break;
 		case ACT_SMALL_BALL_FRONT_RIGHT:				print(string, len, "%x ACT_SMALL_BALL_FRONT_RIGHT             ", ACT_SMALL_BALL_FRONT_RIGHT						);	break;
 
@@ -376,8 +375,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 
 				// Anne
-				case (Uint8)ACT_SMALL_BALL_BACK_LEFT:		    print(string,len, "ACT_SMALL_BALL_BACK_LEFT ");		break;
-				case (Uint8)ACT_SMALL_BALL_BACK_RIGHT:		    print(string,len, "ACT_SMALL_BALL_BACK_RIGHT ");	break;
+				case (Uint8)ACT_SMALL_BALL_BACK:		    	print(string,len, "ACT_SMALL_BALL_BACK ");		break;
 				case (Uint8)ACT_SMALL_BALL_FRONT_LEFT:		    print(string,len, "ACT_SMALL_BALL_FRONT_LEFT ");	break;
 				case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT:		    print(string,len, "ACT_SMALL_BALL_FRONT_RIGHT ");	break;
 
@@ -701,22 +699,12 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				  break;
 
 // Anne
-				  case (Uint8)ACT_SMALL_BALL_BACK_LEFT:
+				  case (Uint8)ACT_SMALL_BALL_BACK:
 						switch(msg->data.act_result.cmd){
-							case (Uint8)ACT_SMALL_BALL_BACK_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_LEFT_UP:		print(string,len, "| UP |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							default:                                    print(string,len, "| UNKNOW cmd |");	break;
-						}
-				  break;
-
-				  case (Uint8)ACT_SMALL_BALL_BACK_RIGHT:
-						switch(msg->data.act_result.cmd){
-							case (Uint8)ACT_SMALL_BALL_BACK_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_RIGHT_UP:		print(string,len, "| UP |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_RIGHT_STOP:	print(string,len, "| STOP |");			break;
+							case (Uint8)ACT_SMALL_BALL_BACK_IDLE:	print(string,len, "| IDLE |");			break;
+							case (Uint8)ACT_SMALL_BALL_BACK_UP:		print(string,len, "| UP |");			break;
+							case (Uint8)ACT_SMALL_BALL_BACK_DOWN:	print(string,len, "| DOWN |");			break;
+							case (Uint8)ACT_SMALL_BALL_BACK_STOP:	print(string,len, "| STOP |");			break;
 							default:                                    print(string,len, "| UNKNOW cmd |");	break;
 						}
 				  break;

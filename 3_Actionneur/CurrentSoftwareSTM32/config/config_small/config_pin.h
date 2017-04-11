@@ -357,8 +357,7 @@
 //--------------------Configuration des ID des actionneurs-----------------------
 // L'id doit être inférieur à 50
 /* ID des différents AX12 */
-#define SMALL_BALL_BACK_LEFT_AX12_ID			6
-#define SMALL_BALL_BACK_RIGHT_AX12_ID			7
+#define SMALL_BALL_BACK_AX12_ID					6
 #define SMALL_BALL_FRONT_LEFT_AX12_ID			8
 #define SMALL_BALL_FRONT_RIGHT_AX12_ID			9
 #define SMALL_CYLINDER_ARM_RX24_ID				10

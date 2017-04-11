@@ -57,8 +57,7 @@ typedef enum {
 
 
 	// Anne
-	ACT_QUEUE_Small_bearing_back_left,
-	ACT_QUEUE_Small_bearing_back_right,
+	ACT_QUEUE_Small_bearing_back,
 	ACT_QUEUE_Small_bearing_front_left,
 	ACT_QUEUE_Small_bearing_front_right,
 
