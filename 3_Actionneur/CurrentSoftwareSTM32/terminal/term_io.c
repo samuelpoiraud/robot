@@ -65,10 +65,8 @@
     #include "../Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right_config.h"
 	#include "../Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left.h"
     #include "../Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left_config.h"
-	#include "../Anne/small_bearing_ball/small_ball_back_left/small_ball_back_left.h"
-    #include "../Anne/small_bearing_ball/small_ball_back_left/small_ball_back_left_config.h"
-	#include "../Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
-    #include "../Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right_config.h"
+	#include "../Anne/small_bearing_ball/small_ball_back/small_ball_back.h"
+    #include "../Anne/small_bearing_ball/small_ball_back/small_ball_back_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm.h"
 	#include "../Anne/small_cylinder/small_cylinder_arm/small_cylinder_arm_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_balancer/small_cylinder_balancer.h"
@@ -158,8 +156,7 @@ terminal_motor_s terminal_motor[] = {
 
 	#else
 
-		DECLARE_AX12(2, 'b', SMALL_BALL_BACK_LEFT_AX12),
-		DECLARE_AX12(2, 'c', SMALL_BALL_BACK_RIGHT_AX12),
+		DECLARE_AX12(2, 'b', SMALL_BALL_BACK_AX12),
 		DECLARE_AX12(2, 'd', SMALL_BALL_FRONT_LEFT_AX12),
 		DECLARE_AX12(2, 'e', SMALL_BALL_FRONT_RIGHT_AX12),
 

@@ -1085,8 +1085,7 @@
 		//-----------------------------ANNE-----------------------------//
 		//////////////////////////////////////////////////////////////////
 
-		ACT_SMALL_BALL_BACK_LEFT		= (ACT_FILTER | 0x31),
-		ACT_SMALL_BALL_BACK_RIGHT		= (ACT_FILTER | 0x32),
+		ACT_SMALL_BALL_BACK				= (ACT_FILTER | 0x31),
 		ACT_SMALL_BALL_FRONT_LEFT		= (ACT_FILTER | 0x33),
 		ACT_SMALL_BALL_FRONT_RIGHT		= (ACT_FILTER | 0x34),
 		ACT_SMALL_CYLINDER_ARM			= (ACT_FILTER | 0x35),

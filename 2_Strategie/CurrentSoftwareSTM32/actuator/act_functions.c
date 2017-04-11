@@ -91,8 +91,7 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	// Anne
 	{ACT_SMALL_BALL_FRONT_LEFT,			ACT_QUEUE_Small_bearing_front_left,		"Bearing ball front left"},
 	{ACT_SMALL_BALL_FRONT_RIGHT,		ACT_QUEUE_Small_bearing_front_right,	"Bearing ball front right"},
-	{ACT_SMALL_BALL_BACK_LEFT,			ACT_QUEUE_Small_bearing_back_left,		"Bearing ball back left"},
-	{ACT_SMALL_BALL_BACK_RIGHT,			ACT_QUEUE_Small_bearing_back_right,		"Bearing ball back right"},
+	{ACT_SMALL_BALL_BACK,				ACT_QUEUE_Small_bearing_back,			"Bearing ball back"},
 
 	{ACT_SMALL_CYLINDER_ARM,			ACT_QUEUE_Small_cylinder_arm,			"Cylinder arm"},
 	{ACT_SMALL_CYLINDER_BALANCER,		ACT_QUEUE_Small_cylinder_balancer,		"Cylinder balancer"},

@@ -614,8 +614,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
                 case SELFTEST_ACT_AX12_ROCKET:                  debug_printf("SELFTEST_ACT_AX12_ROCKET");                       break;
 
                 // Actionneurs SMALL
-                case SELFTEST_ACT_AX12_SMALL_BALL_BACK_LEFT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_BACK_LEFT");         break;
-                case SELFTEST_ACT_AX12_SMALL_BALL_BACK_RIGHT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_BACK_RIGHT");        break;
+                case SELFTEST_ACT_AX12_SMALL_BALL_BACK:			debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_BACK");         		break;
                 case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_LEFT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_FRONT_LEFT");        break;
                 case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_RIGHT:	debug_printf("SELFTEST_ACT_AX12_SMALL_BALL_FRONT_RIGHT");       break;
 
@@ -941,8 +940,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
         case SELFTEST_ACT_AX12_ROCKET:                  return "ACT ROCKET";            break;
 
         // Actionneurs SMALL
-	   case SELFTEST_ACT_AX12_SMALL_BALL_BACK_LEFT:		return "ACT BACK LEFT";         break;
-	   case SELFTEST_ACT_AX12_SMALL_BALL_BACK_RIGHT:	return "ACT BACK RIGHT";        break;
+	   case SELFTEST_ACT_AX12_SMALL_BALL_BACK:			return "ACT BACK"; 		        break;
 	   case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_LEFT:	return "ACT FRONT LEFT";        break;
 	   case SELFTEST_ACT_AX12_SMALL_BALL_FRONT_RIGHT:	return "ACT FRONT RIGHT";       break;
 

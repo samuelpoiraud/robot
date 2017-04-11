@@ -52,8 +52,7 @@
 
 #else
 	#include "QS/QS_mosfet.h"
-	#include "Anne/small_bearing_ball/small_ball_back_left/small_ball_back_left.h"
-	#include "Anne/small_bearing_ball/small_ball_back_right/small_ball_back_right.h"
+	#include "Anne/small_bearing_ball/small_ball_back/small_ball_back.h"
 	#include "Anne/small_bearing_ball/small_ball_front_left/small_ball_front_left.h"
 	#include "Anne/small_bearing_ball/small_ball_front_right/small_ball_front_right.h"
 
@@ -67,6 +66,7 @@
 	#include "Anne/small_cylinder/small_cylinder_multifonction/small_cylinder_multifonction.h"
 	#include "Anne/small_magic/small_magic_arm.h"
 	#include "Anne/small_magic/small_magic_color.h"
+	#include "Anne/small_ore/small_ore.h"
 	#include "Anne/small_pompe/small_pompe_dispose.h"
 	#include "Anne/small_pompe/small_pompe_prise.h"
 
@@ -129,10 +129,8 @@ static ACTQ_functions_t actionneurs[] = {
 
 	#else  //Small Robot
 
-		ACT_DECLARE(SMALL_BALL_BACK_LEFT),
-		ACT_DECLARE(SMALL_BALL_BACK_RIGHT),
+		ACT_DECLARE(SMALL_BALL_BACK),
 		ACT_DECLARE(SMALL_BALL_FRONT_LEFT),
-		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),
 		ACT_DECLARE(SMALL_BALL_FRONT_RIGHT),
 
 		ACT_DECLARE(SMALL_CYLINDER_ARM),
@@ -144,7 +142,8 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(SMALL_CYLINDER_SLOPE),
 		ACT_DECLARE(SMALL_CYLINDER_MULTIFONCTION),
 		ACT_DECLARE(SMALL_MAGIC_ARM),
-		ACT_DECLARE(SMALL_MAGIC_COLOR)
+		ACT_DECLARE(SMALL_MAGIC_COLOR),
+		ACT_DECLARE(SMALL_ORE)
 
 	#endif
 };

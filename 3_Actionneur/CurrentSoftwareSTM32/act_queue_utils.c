@@ -377,8 +377,7 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 
 
            // Anne
-          case ACT_SMALL_BALL_BACK_LEFT & 0xFF:			originalSidStr = "SmallBallBackLeft";		break;
-          case ACT_SMALL_BALL_BACK_RIGHT & 0xFF:		originalSidStr = "SmallBallBackRight";		break;
+          case ACT_SMALL_BALL_BACK & 0xFF:				originalSidStr = "SmallBallBack";		break;
           case ACT_SMALL_BALL_FRONT_LEFT & 0xFF:		originalSidStr = "SmallBallFrontLeft";		break;
           case ACT_SMALL_BALL_FRONT_RIGHT & 0xFF:		originalSidStr = "SmallBallFrontRight";		break;
           case ACT_SMALL_CYLINDER_ARM & 0xFF:			originalSidStr = "SmallCylinderArm";		break;
