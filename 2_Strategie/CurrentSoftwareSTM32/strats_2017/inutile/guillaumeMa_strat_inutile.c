@@ -38,7 +38,7 @@ void guillaumeMa_strat_inutile_small(){
 			*/
 			DONE
 	);
-	sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
+	//sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
 
 	switch(state){
 // calage de debut
@@ -53,8 +53,8 @@ void guillaumeMa_strat_inutile_small(){
 			break;
 
 		case ACTION_1:
-			//state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, ACTION_2, ERROR);
-			state = ACTION_2;
+			state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, ACTION_2, ERROR);
+			//state = ACTION_2;
 			break;
 
 		case ACTION_2:
@@ -62,8 +62,8 @@ void guillaumeMa_strat_inutile_small(){
 			break;
 
 		case ACTION_3:
-			//state = check_sub_action_result(sub_harry_rocket_monocolor(), state, ACTION_4, ERROR);
-			state = check_sub_action_result(sub_anne_fusee_color(), state, ACTION_4, ERROR);
+			state = check_sub_action_result(sub_harry_rocket_monocolor(), state, ACTION_4, ERROR);
+			//state = check_sub_action_result(sub_anne_fusee_color(), state, ACTION_4, ERROR);
 			break;
 
 		case ACTION_4:
