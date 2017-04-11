@@ -69,6 +69,13 @@ typedef enum {
 	ACT_QUEUE_Small_cylinder_elevator,
 	ACT_QUEUE_Small_cylinder_slider,
 	ACT_QUEUE_Small_cylinder_slope,
+	ACT_QUEUE_Small_cylinder_multifonction,
+
+	ACT_QUEUE_Small_magic_arm,
+	ACT_QUEUE_Small_magic_color,
+
+	ACT_QUEUE_Small_ore,
+
 
 	//Mosfets actionneurs
 	ACT_QUEUE_Mosfet_act_1,

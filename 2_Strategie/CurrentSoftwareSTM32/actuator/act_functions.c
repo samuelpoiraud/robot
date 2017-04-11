@@ -71,8 +71,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
     {ACT_CYLINDER_SLIDER_RIGHT,			ACT_QUEUE_Cylinder_slider_right,		"Cylinder slider right"},
     {ACT_CYLINDER_SLOPE_LEFT,			ACT_QUEUE_Cylinder_slope_left,			"Cylinder slope left"},
     {ACT_CYLINDER_SLOPE_RIGHT,			ACT_QUEUE_Cylinder_slope_right,			"Cylinder slope right"},
-    {ACT_CYLINDER_ARM_LEFT,				ACT_QUEUE_Cylinder_arm_left,		"Cylinder turn left arm"},
-    {ACT_CYLINDER_ARM_RIGHT,			ACT_QUEUE_Cylinder_arm_right,		"Cylinder turn right arm"},
+    {ACT_CYLINDER_ARM_LEFT,				ACT_QUEUE_Cylinder_arm_left,			"Cylinder turn left arm"},
+    {ACT_CYLINDER_ARM_RIGHT,			ACT_QUEUE_Cylinder_arm_right,			"Cylinder turn right arm"},
 	{ACT_CYLINDER_COLOR_LEFT,			ACT_QUEUE_Cylinder_color_left,			"Cylinder color left"},
 	{ACT_CYLINDER_COLOR_RIGHT,			ACT_QUEUE_Cylinder_color_right,			"Cylinder color right"},
 	{ACT_CYLINDER_DISPOSE_LEFT,			ACT_QUEUE_Cylinder_dispose_left,		"Cylinder dispose left"},
@@ -89,18 +89,24 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 
 
 	// Anne
-	{ACT_SMALL_BALL_FRONT_LEFT,			ACT_QUEUE_Small_bearing_front_left,			"Bearing ball front left"},
-	{ACT_SMALL_BALL_FRONT_RIGHT,		ACT_QUEUE_Small_bearing_front_right,		"Bearing ball front right"},
-	{ACT_SMALL_BALL_BACK_LEFT,			ACT_QUEUE_Small_bearing_back_left,			"Bearing ball back left"},
-	{ACT_SMALL_BALL_BACK_RIGHT,			ACT_QUEUE_Small_bearing_back_right,			"Bearing ball back right"},
+	{ACT_SMALL_BALL_FRONT_LEFT,			ACT_QUEUE_Small_bearing_front_left,		"Bearing ball front left"},
+	{ACT_SMALL_BALL_FRONT_RIGHT,		ACT_QUEUE_Small_bearing_front_right,	"Bearing ball front right"},
+	{ACT_SMALL_BALL_BACK_LEFT,			ACT_QUEUE_Small_bearing_back_left,		"Bearing ball back left"},
+	{ACT_SMALL_BALL_BACK_RIGHT,			ACT_QUEUE_Small_bearing_back_right,		"Bearing ball back right"},
 
-	{ACT_SMALL_CYLINDER_ARM,			ACT_QUEUE_Small_cylinder_arm,				"Cylinder arm"},
-	{ACT_SMALL_CYLINDER_BALANCER,		ACT_QUEUE_Small_cylinder_balancer,			"Cylinder balancer"},
-	{ACT_SMALL_CYLINDER_COLOR,			ACT_QUEUE_Small_cylinder_color,				"Cylinder color"},
-	{ACT_SMALL_CYLINDER_DISPOSE,		ACT_QUEUE_Small_cylinder_dispose,			"Cylinder dispose"},
-	{ACT_SMALL_CYLINDER_ELEVATOR,		ACT_QUEUE_Small_cylinder_elevator,			"Cylinder elevator"},
-	{ACT_SMALL_CYLINDER_SLIDER,			ACT_QUEUE_Small_cylinder_slider,			"Cylinder slider"},
-	{ACT_SMALL_CYLINDER_SLOPE,			ACT_QUEUE_Small_cylinder_slope,				"Cylinder slope"},
+	{ACT_SMALL_CYLINDER_ARM,			ACT_QUEUE_Small_cylinder_arm,			"Cylinder arm"},
+	{ACT_SMALL_CYLINDER_BALANCER,		ACT_QUEUE_Small_cylinder_balancer,		"Cylinder balancer"},
+	{ACT_SMALL_CYLINDER_COLOR,			ACT_QUEUE_Small_cylinder_color,			"Cylinder color"},
+	{ACT_SMALL_CYLINDER_DISPOSE,		ACT_QUEUE_Small_cylinder_dispose,		"Cylinder dispose"},
+	{ACT_SMALL_CYLINDER_ELEVATOR,		ACT_QUEUE_Small_cylinder_elevator,		"Cylinder elevator"},
+	{ACT_SMALL_CYLINDER_SLIDER,			ACT_QUEUE_Small_cylinder_slider,		"Cylinder slider"},
+	{ACT_SMALL_CYLINDER_SLOPE,			ACT_QUEUE_Small_cylinder_slope,			"Cylinder slope"},
+	{ACT_SMALL_CYLINDER_MULTIFONCTION,	ACT_QUEUE_Small_cylinder_multifonction,	"Cylinder multifonction"},
+
+	{ACT_SMALL_MAGIC_ARM,				ACT_QUEUE_Small_magic_arm,				"Magic arm"},
+	{ACT_SMALL_MAGIC_COLOR,				ACT_QUEUE_Small_magic_color,			"Magic color"},
+
+	{ACT_SMALL_ORE,						ACT_QUEUE_Small_ore,					"Ore"},
 
 
 	// Mosfets actionneurs

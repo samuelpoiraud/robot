@@ -1081,7 +1081,6 @@
         ACT_ROCKET                      = (ACT_FILTER | 0x21),
 
 
-
 		//////////////////////////////////////////////////////////////////
 		//-----------------------------ANNE-----------------------------//
 		//////////////////////////////////////////////////////////////////
@@ -1097,6 +1096,13 @@
 		ACT_SMALL_CYLINDER_ELEVATOR		= (ACT_FILTER | 0x39),
 		ACT_SMALL_CYLINDER_SLIDER		= (ACT_FILTER | 0x3A),
 		ACT_SMALL_CYLINDER_SLOPE		= (ACT_FILTER | 0x3B),
+		ACT_SMALL_CYLINDER_MULTIFONCTION= (ACT_FILTER | 0x3C),
+		ACT_SMALL_MAGIC_ARM				= (ACT_FILTER | 0x3D),
+		ACT_SMALL_MAGIC_COLOR			= (ACT_FILTER | 0x3E),
+		ACT_SMALL_ORE					= (ACT_FILTER | 0x3F),
+		ACT_SMALL_POMPE_DISPOSE			= (ACT_FILTER | 0x40),
+		ACT_SMALL_POMPE_PRISE			= (ACT_FILTER | 0x41),
+
 
 
 
