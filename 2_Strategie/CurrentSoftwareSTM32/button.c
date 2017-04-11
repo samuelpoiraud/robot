@@ -32,6 +32,8 @@ static void BUTTON_TEST_button6();
 void BUTTON_verbose(void);
 static void BUTTON_suspend_match();
 
+static bool_e state_big_ball = FALSE; // DOWN
+
 void BUTTON_init()
 {
 	ADC_init();
@@ -81,6 +83,30 @@ void SWITCH_change_color()
 		debug_printf("COLOR\r\n");
 	}
 
+}
+
+void SWITCH_bascule(){
+	if(QS_WHO_AM_I_get() == BIG_ROBOT){
+		if((IHM_switchs_get(SWITCH_WITH_BASCULE) == TRUE) && state_big_ball != TRUE){
+			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,ACT_BIG_BALL_BACK_LEFT_DOWN);
+			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT, ACT_BIG_BALL_BACK_RIGHT_DOWN);
+			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_DOWN);
+			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
+			ACT_push_order(ACT_BEARING_BALL_WHEEL, ACT_BEARING_BALL_WHEEL_DOWN);
+			state_big_ball = TRUE;
+		}
+		else if((IHM_switchs_get(SWITCH_WITH_BASCULE) == FALSE) && state_big_ball != FALSE){
+			ACT_push_order(ACT_BIG_BALL_BACK_LEFT,ACT_BIG_BALL_BACK_LEFT_UP);
+			ACT_push_order(ACT_BIG_BALL_BACK_RIGHT, ACT_BIG_BALL_BACK_RIGHT_UP);
+			ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_UP);
+			ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_UP);
+			ACT_push_order(ACT_BEARING_BALL_WHEEL, ACT_BEARING_BALL_WHEEL_UP);
+			state_big_ball = FALSE;
+		}
+	}
+	else {
+
+	}
 }
 
 static void BUTTON_suspend_match(){

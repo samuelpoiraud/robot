@@ -36,6 +36,7 @@
 	void BUTTON_4_long_push(void);
 	void BUTTON_5_long_push(void);
 	void SWITCH_change_color(void);
+	void SWITCH_bascule(void);
 	void BOUTTON_go_to_home();
 
 #endif /* ndef BUTTON_H */
