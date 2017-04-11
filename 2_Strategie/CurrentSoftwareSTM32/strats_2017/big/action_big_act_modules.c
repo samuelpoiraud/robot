@@ -472,7 +472,9 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS;
 	static error_e state3 = IN_PROGRESS;
 	static moduleType_e moduleType = MODULE_EMPTY;
-	static time32_t time_timeout;
+	static time32_t time_timeout_before_pompe_stop;
+	static time32_t time_timeout_after_pompe_stop;
+	static bool_e pompe_stop = FALSE;
 
 
 	switch(state){
@@ -538,12 +540,16 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			if (entrance){
 				if(moduleToTake == RIGHT){
 					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
-					state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, IN_PROGRESS, ACTION_GO_TAKE_CYLINDER_2, ERROR);
 				}else{
 					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER);
-					state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, IN_PROGRESS, ACTION_GO_TAKE_CYLINDER_2, ERROR);
 				}
 			}
+			if(moduleToTake == RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_GO_TAKE_CYLINDER_2, ERROR);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_GO_TAKE_CYLINDER_2, ERROR);
+			}
+
 			break;
 		case ACTION_GO_TAKE_CYLINDER_2:
 			if(entrance){
@@ -714,7 +720,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			if(moduleToTake == RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, ACTION_BRING_BACK_CYLINDER, ACTION_BRING_BACK_CYLINDER);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, ACTION_BRING_BACK_CYLINDER, ACTION_BRING_BACK_CYLINDER);
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, ACTION_BRING_BACK_CYLINDER, ACTION_BRING_BACK_CYLINDER);
 			}
 			break;
 
@@ -723,19 +729,22 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				if(moduleToTake == RIGHT){
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
 						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
-						state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, IN_PROGRESS, ACTION_BRING_BACK_CYLINDER_2, ERROR);
-					}else{
-						state = ACTION_BRING_BACK_CYLINDER_2;
 					}
 
 				}else{
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
 						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
-						state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, IN_PROGRESS, ACTION_BRING_BACK_CYLINDER_2, ERROR);
-					}else{
-						state = ACTION_BRING_BACK_CYLINDER_2;
 					}
 				}
+			}
+			if(moduleToTake == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_BRING_BACK_CYLINDER_2, ERROR);
+			}
+			else if(moduleToTake == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_BRING_BACK_CYLINDER_2, ERROR);
+			}
+			else {
+				state = ACTION_BRING_BACK_CYLINDER_2;
 			}
 			break;
 
@@ -796,17 +805,23 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				time_timeout = global.absolute_time + 1000;
+				time_timeout_before_pompe_stop = global.absolute_time + 500;
+				time_timeout_after_pompe_stop = global.absolute_time + 1000;
 			}
 
-			// On attend une seconde le temps que le ventousage se fasse bien
-			if(global.absolute_time > time_timeout){
-				state = ACTION_BRING_UP_CYLINDER;
+			if(global.absolute_time > time_timeout_before_pompe_stop && pompe_stop == FALSE){
 				if(moduleToStore == RIGHT){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP );
 				}else{
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP );
 				}
+				pompe_stop=TRUE;
+			}
+
+			// On attend une seconde le temps que le ventousage se fasse bien
+			if(global.absolute_time > time_timeout_after_pompe_stop){
+				pompe_stop=FALSE;
+				state = ACTION_BRING_UP_CYLINDER;
 
 				// Mise à jour des données
 				if(moduleToStore == RIGHT){
@@ -924,7 +939,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);
 				// On range les sliders
 				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
-				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);
 			}
 			RESET_MAE();
 			on_turning_point();
@@ -935,7 +950,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			if(entrance){
 				// On range les sliders
 				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
-				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);
 			}
 			RESET_MAE();
 			on_turning_point();

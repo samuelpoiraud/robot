@@ -23,7 +23,7 @@
 //Position
     #define CYLINDER_PUSHER_LEFT_AX12_IDLE_POS					672
     #define CYLINDER_PUSHER_LEFT_AX12_IN_POS				    672		//en degré
-    #define CYLINDER_PUSHER_LEFT_AX12_OUT_POS					381		//en degré
+    #define CYLINDER_PUSHER_LEFT_AX12_OUT_POS					377		//en degré 381
 
 //Position initiale de l'AX12
     #define CYLINDER_PUSHER_LEFT_AX12_INIT_POS					CYLINDER_PUSHER_LEFT_AX12_IDLE_POS

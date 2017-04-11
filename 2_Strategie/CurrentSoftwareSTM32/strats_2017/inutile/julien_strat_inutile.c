@@ -63,17 +63,18 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 	switch(state){
 		case INIT:
 			if(entrance){
-				destination = global.pos.x + 200;
+				destination = global.pos.x + 100;
 			}
 			//state = check_sub_action_result(sub_harry_prise_module_start_centre(OUR_ELEMENT,NO_SIDE),state,STATE2,ERROR);
 			//state = check_sub_action_result(sub_harry_prise_modules_centre(OUR_ELEMENT,FALSE),state,STATE1,ERROR);
 
 			//state = try_going(1000, 2000,state, STATE2, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			state = try_going(destination, global.pos.y, INIT,STATE0,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state = try_going(destination, global.pos.y, state,STATE0,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case STATE0:
-			state = check_sub_action_result(sub_harry_prise_modules_manager(our_modules_with_rocket,SIZE_OUR_MODULES_WITH_ROCKET),state,DONE,ERROR);
+			//state = check_sub_action_result(sub_harry_prise_modules_manager(our_modules_with_rocket,SIZE_OUR_MODULES_WITH_ROCKET),state,DONE,ERROR);
+			state = check_sub_action_result(sub_harry_rocket_monocolor(),state, DONE, ERROR);
 			break;
 
 		case STATE1:

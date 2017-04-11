@@ -257,11 +257,11 @@ int main (void)
 			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
 			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
 		}else if(state == 4){
-			msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
-		}else if(state == 5){
 			msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
 			msg.data.act_msg.order = ACT_POMPE_NORMAL;
+		}else if(state == 5){
+			msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
+			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
 		}else if(state == 6){
 			msg.sid = ACT_POMPE_SLIDER_RIGHT;
 			msg.data.act_msg.order = ACT_POMPE_STOP;
@@ -308,11 +308,11 @@ static void MAIN_onButton0LongPush() {}
 			msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
 			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM;
 		}else if(state == 4){
-			msg.sid = ACT_CYLINDER_SLIDER_LEFT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_LEFT_IN;
-		}else if(state == 5){
 			msg.sid = ACT_POMPE_ELEVATOR_LEFT;
 			msg.data.act_msg.order = ACT_POMPE_NORMAL;
+		}else if(state == 5){
+			msg.sid = ACT_CYLINDER_SLIDER_LEFT;
+			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_LEFT_IN;
 		}else if(state == 6){
 			msg.sid = ACT_POMPE_SLIDER_LEFT;
 			msg.data.act_msg.order = ACT_POMPE_STOP;
