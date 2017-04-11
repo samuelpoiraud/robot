@@ -168,10 +168,10 @@ static void SMALL_ORE_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
 	Uint16 position = AX12_get_position(SMALL_ORE_AX12_ID);
 	Uint16 epsilon = SMALL_ORE_AX12_ASSER_POS_EPSILON;
 
-	if(position > SMALL_ORE_AX12_LOCK_POS - epsilon && position < SMALL_ORE_AX12_LOCK_POS + epsilon){
-		order = ACT_SMALL_ORE_LOCK;
-	}else if(position > SMALL_ORE_AX12_UNLOCK_POS - epsilon && position < SMALL_ORE_AX12_UNLOCK_POS + epsilon){
-		order = ACT_SMALL_ORE_UNLOCK;
+	if(position > SMALL_ORE_AX12_UP_POS - epsilon && position < SMALL_ORE_AX12_UP_POS + epsilon){
+		order = ACT_SMALL_ORE_UP;
+	}else if(position > SMALL_ORE_AX12_DOWN_POS - epsilon && position < SMALL_ORE_AX12_DOWN_POS + epsilon){
+		order = ACT_SMALL_ORE_DOWN;
 	}else if(position > SMALL_ORE_AX12_IDLE_POS - epsilon && position < SMALL_ORE_AX12_IDLE_POS + epsilon){
 		order = ACT_SMALL_ORE_IDLE;
 	}
@@ -209,8 +209,8 @@ bool_e SMALL_ORE_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SMALL_ORE_IDLE :
-			case ACT_SMALL_ORE_LOCK :
-			case ACT_SMALL_ORE_UNLOCK :
+			case ACT_SMALL_ORE_UP :
+			case ACT_SMALL_ORE_DOWN :
 			case ACT_SMALL_ORE_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_SMALL_ORE, &SMALL_ORE_run_command, 0,TRUE);
 				break;
@@ -264,8 +264,8 @@ static void SMALL_ORE_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_SMALL_ORE_IDLE : *ax12_goalPosition = SMALL_ORE_AX12_IDLE_POS; break;
-		case ACT_SMALL_ORE_LOCK : *ax12_goalPosition = SMALL_ORE_AX12_LOCK_POS; break;
-		case ACT_SMALL_ORE_UNLOCK : *ax12_goalPosition = SMALL_ORE_AX12_UNLOCK_POS; break;
+		case ACT_SMALL_ORE_UP : *ax12_goalPosition = SMALL_ORE_AX12_UP_POS; break;
+		case ACT_SMALL_ORE_DOWN : *ax12_goalPosition = SMALL_ORE_AX12_DOWN_POS; break;
 
 		case ACT_SMALL_ORE_STOP :
 			AX12_set_torque_enabled(SMALL_ORE_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

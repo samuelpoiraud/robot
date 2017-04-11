@@ -21,8 +21,8 @@
 
 //Position
 	#define SMALL_MAGIC_ARM_RX24_IDLE_POS					512
-	#define SMALL_MAGIC_ARM_RX24_LOCK_POS			     	512	//en degré
-	#define SMALL_MAGIC_ARM_RX24_UNLOCK_POS					512	//en degré
+	#define SMALL_MAGIC_ARM_RX24_IN_POS			     		512	//en degré
+	#define SMALL_MAGIC_ARM_RX24_OUT_POS					512	//en degré
 
 	#define SMALL_MAGIC_ARM_RX24_WARNER_POS					512
 
