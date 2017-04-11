@@ -626,6 +626,8 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
                 case SELFTEST_ACT_AX12_SMALL_CYLINDER_ARM:		debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_ARM");       	break;
                 case SELFTEST_ACT_AX12_SMALL_CYLINDER_DISPOSE:	debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_DISPOSE");       break;
                 case SELFTEST_ACT_AX12_SMALL_CYLINDER_MULTIFONCTION:	debug_printf("SELFTEST_ACT_AX12_SMALL_CYLINDER_MULTIFONCTION");	break;
+                case SELFTEST_ACT_AX12_SMALL_POMPE_PRISE:		debug_printf("SELFTEST_ACT_AX12_SMALL_POMPE_PRISE");			break;
+                case SELFTEST_ACT_AX12_SMALL_POMPE_DISPOSE:		debug_printf("SELFTEST_ACT_AX12_SMALL_POMPE_DISPOSE");			break;
 
                 case SELFTEST_ACT_AX12_SMALL_MAGIC_ARM:			debug_printf("SELFTEST_ACT_AX12_SMALL_MAGIC_ARM");				break;
                 case SELFTEST_ACT_AX12_SMALL_MAGIC_COLOR:		debug_printf("SELFTEST_ACT_AX12_SMALL_MAGIC_COLOR");			break;
@@ -952,11 +954,13 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_ARM:		return "ACT ARM";       		break;
 	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_DISPOSE:	return "ACT DISPOSE";       	break;
 	   case SELFTEST_ACT_AX12_SMALL_CYLINDER_MULTIFONCTION:	return "ACT MULTIFONCTION";	break;
+	   case SELFTEST_ACT_AX12_SMALL_POMPE_PRISE:		return "ACT POMPE PRISE";		break;
+	   case SELFTEST_ACT_AX12_SMALL_POMPE_DISPOSE:		return "ACT POMPE DISPOSE";		break;
 
 	   case SELFTEST_ACT_AX12_SMALL_MAGIC_ARM:			return "ACT MAGIG ARM";			break;
 	   case SELFTEST_ACT_AX12_SMALL_MAGIC_COLOR:		return "ACT MAGIG COLOR";		break;
 
-	   case SELFTEST_ACT_AX12_SMALL_ORE:				return "ACT ORE";			break;
+	   case SELFTEST_ACT_AX12_SMALL_ORE:				return "ACT ORE";				break;
 
 
 
