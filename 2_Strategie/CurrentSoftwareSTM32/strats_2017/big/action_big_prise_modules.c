@@ -5,13 +5,14 @@
 #include "../../QS/QS_types.h"
 #include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_IHM.h"
-#include  "../../propulsion/astar.h"
 #include  "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
 #include "../../high_level_strat.h"
+
+
 
 
 error_e sub_harry_prise_modules_manager(const get_this_module_s list_modules[], Uint8 modules_nb){ //Passer un tableau avec les modules choisis et leur nombre
@@ -868,7 +869,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 						state = GO_TO_CLOSE_POINT;
 					}else if(i_am_in_square(0, 1000, 1200, 2100)){
 						state = GO_TO_MID_POINT;
-					}else if(i_am_in_square(700, 1400, 2100, 2600)){
+					}else if(i_am_in_square(700, 1400, 2100, 2600)){ // 2100 -> 1900 sysmétrie bleu ou jaune
 						state = GET_IN_CLOSE_ADV_ZONE;
 					}else if(i_am_in_square(700, 1400, 2600, 2800)){
 						state = GET_IN_FAR_ADV_ZONE;
@@ -886,7 +887,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 						state = GO_TO_CLOSE_POINT;
 					}else if(i_am_in_square(0, 1000, 900, 1800)){
 						state = GO_TO_MID_POINT;
-					}else if(i_am_in_square(700, 1400, 400, 1100)){
+					}else if(i_am_in_square(700, 1400, 400, 1100)){  // 1100 -> 900 sysmétrie bleu ou jaune
 						state = GET_IN_CLOSE_ADV_ZONE;
 					}else if(i_am_in_square(700, 1400, 200, 400)){
 						state = GET_IN_FAR_ADV_ZONE;
@@ -1693,7 +1694,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			break;
 
 		case ACTION:{
-			error_e resultAction = sub_act_harry_take_rocket_down_to_top( rocket, LEFT, RIGHT, LEFT, RIGHT);
+			error_e resultAction = sub_act_harry_take_rocket_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT);
 			//error_e resultInit = init_all_actionneur(); // On init ou pas ? Si on le fail on part en failed_init // A ne pas faire ici
 			resultAction = END_OK;
 			if(resultAction == END_OK){
@@ -1779,6 +1780,11 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI, FALSE);
 			}
 			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_fusee_multicolor\n");
 			break;
 		}
 
