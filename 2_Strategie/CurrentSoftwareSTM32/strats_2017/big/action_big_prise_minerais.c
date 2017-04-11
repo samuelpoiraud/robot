@@ -2084,7 +2084,7 @@ error_e sub_harry_take_big_crater_blue(){ //arrivée en (1290, 710) environ
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_take_big_crater_blue_corner\n");
+				debug_printf("default case in sub_harry_take_big_crater_blue\n");
 			break;
 	}
 
@@ -2301,12 +2301,12 @@ error_e sub_harry_take_big_crater_yellow(){ //arrivée en (1290, 710) environ
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_take_big_crater_blue_corner\n");
+				debug_printf("default case in sub_harry_take_big_crater_yellow\n");
 			break;
 	}
 
 	return IN_PROGRESS;
 }
-
+*/
 
 

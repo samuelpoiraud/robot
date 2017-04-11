@@ -15,13 +15,17 @@
 #include "../../Supervision/RTC.h"
 
 
-void guillaumeMa_strat_inutile_big(){
+void guillaumeMa_strat_inutile_small(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 
 			INIT,
 			ERROR,
 			ACTION,
+			ACTION_1,
 			ACTION_2,
+			ACTION_3,
+			ACTION_4,
+			/*
 			MODULE_1,
 			MODULE_2,
 			MODULE_3,
@@ -31,24 +35,41 @@ void guillaumeMa_strat_inutile_big(){
 			TEST_3,
 			TEST_4,
 			TEST_5,
+			*/
 			DONE
 	);
 	sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
 
 	switch(state){
 // calage de debut
-		case INIT:{
-			state = try_going(global.pos.x+200, global.pos.y, state, ACTION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}
+		case INIT:
+			//STOCKS_addModule(MODULE_POLY, STOCK_POS_CONTAINER, MODULE_STOCK_LEFT);
+			//STOCKS_addModule(MODULE_POLY, STOCK_POS_CONTAINER, MODULE_STOCK_RIGHT);
+
+			state = try_going(global.pos.x + 100, global.pos.y, state, ACTION, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case ACTION:
+			state = try_going(1000, COLOR_Y(1350), state, ACTION_1, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case ACTION:
-			state = try_going(1000, 1350, state, ACTION_2, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case ACTION_1:
+			//state = check_sub_action_result(sub_harry_take_big_crater(OUR_ELEMENT), state, ACTION_2, ERROR);
+			state = ACTION_2;
 			break;
 
 		case ACTION_2:
+			state = try_going(1000, COLOR_Y(1350), state, ACTION_3, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ACTION_3:
+			//state = check_sub_action_result(sub_harry_rocket_monocolor(), state, ACTION_4, ERROR);
+			state = check_sub_action_result(sub_anne_fusee_color(), state, ACTION_4, ERROR);
+			break;
+
+		case ACTION_4:
+			state = try_going(1000, COLOR_Y(1350), state, DONE, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			//sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_match_e basis_side)
-			state = check_sub_action_result(sub_harry_get_in_depose_modules_centre(NEUTRAL_ELEMENT, OUR_SIDE), state, DONE, ERROR);
+			//state = check_sub_action_result(sub_harry_get_in_depose_modules_centre(NEUTRAL_ELEMENT, OUR_SIDE), state, DONE, ERROR);
 			break;
 
 			/*
@@ -166,7 +187,7 @@ void guillaumeMa_strat_inutile_big(){
 int NBERROR = 0;
 
 
-void guillaumeMa_strat_inutile_small(){
+void guillaumeMa_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_INUTILE,
 			INIT,
 			ERROR,

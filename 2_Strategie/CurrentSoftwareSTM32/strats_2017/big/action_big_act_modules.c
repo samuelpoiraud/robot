@@ -6,7 +6,6 @@
 #include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_IHM.h"
 #include "../../QS/QS_CapteurCouleurCW.h"
-#include  "../../propulsion/astar.h"
 #include  "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
