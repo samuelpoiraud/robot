@@ -57,7 +57,7 @@
 	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_left.h"
 	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_left_config.h"
 	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_right.h"
-	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_rightj"
+	#include "../Harry/cylinder/cylinder_dispose/cylinder_dispose_right_config.h"
 
 
 #else
@@ -83,6 +83,15 @@
 	#include "../Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider_config.h"
 	#include "../Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope.h"
 	#include "../Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope_config.h"
+	#include "../Anne/small_cylinder/small_cylinder_multifonction/small_cylinder_multifonction.h"
+	#include "../Anne/small_cylinder/small_cylinder_multifonction/small_cylinder_multifonction_config.h"
+	#include "../Anne/small_magic/small_magic_arm.h"
+	#include "../Anne/small_magic/small_magic_arm_config.h"
+	#include "../Anne/small_magic/small_magic_color.h"
+	#include "../Anne/small_magic/small_magic_color_config.h"
+	#include "../Anne/small_ore/small_ore.h"
+	#include "../Anne/small_ore/small_ore_config.h"
+
 
 #endif
 
@@ -147,8 +156,8 @@ terminal_motor_s terminal_motor[] = {
 		DECLARE_AX12(2, 'Z', CYLINDER_DISPOSE_LEFT_AX12),
 		DECLARE_AX12(2, 'a', CYLINDER_DISPOSE_RIGHT_AX12)
 
-
 	#else
+
 		DECLARE_AX12(2, 'b', SMALL_BALL_BACK_LEFT_AX12),
 		DECLARE_AX12(2, 'c', SMALL_BALL_BACK_RIGHT_AX12),
 		DECLARE_AX12(2, 'd', SMALL_BALL_FRONT_LEFT_AX12),
@@ -156,11 +165,16 @@ terminal_motor_s terminal_motor[] = {
 
 		DECLARE_RX24(2, 'e', SMALL_CYLINDER_ARM_RX24),
 		DECLARE_RX24(2, 'f', SMALL_CYLINDER_ELEVATOR_RX24),
-		DECLARE_RX24(2, 'g', SMALL_CYLINDER_SLIDER_RX24),
+		DECLARE_AX12(2, 'g', SMALL_CYLINDER_SLIDER_AX12),
 		DECLARE_RX24(2, 'i', SMALL_CYLINDER_COLOR_RX24),
 		DECLARE_AX12(2, 'j', SMALL_CYLINDER_DISPOSE_AX12),
 		DECLARE_AX12(2, 'k', SMALL_CYLINDER_SLOPE_AX12),
-		DECLARE_AX12(2, 'l', SMALL_CYLINDER_BALANCER_AX12)
+		DECLARE_AX12(2, 'l', SMALL_CYLINDER_BALANCER_AX12),
+		DECLARE_AX12(2, 'm', SMALL_CYLINDER_MULTIFONCTION_AX12),
+		DECLARE_RX24(2, 'n', SMALL_MAGIC_ARM_RX24),
+		DECLARE_RX24(2, 'o', SMALL_MAGIC_COLOR_RX24),
+		DECLARE_AX12(2, 'p', SMALL_ORE_AX12)
+
 
 	#endif
 };

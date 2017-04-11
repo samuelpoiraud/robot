@@ -64,6 +64,12 @@
 	#include "Anne/small_cylinder/small_cylinder_elevator/small_cylinder_elevator.h"
 	#include "Anne/small_cylinder/small_cylinder_slider/small_cylinder_slider.h"
 	#include "Anne/small_cylinder/small_cylinder_slope/small_cylinder_slope.h"
+	#include "Anne/small_cylinder/small_cylinder_multifonction/small_cylinder_multifonction.h"
+	#include "Anne/small_magic/small_magic_arm.h"
+	#include "Anne/small_magic/small_magic_color.h"
+	#include "Anne/small_pompe/small_pompe_dispose.h"
+	#include "Anne/small_pompe/small_pompe_prise.h"
+
 
 #endif
 
@@ -135,7 +141,11 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(SMALL_CYLINDER_DISPOSE),
 		ACT_DECLARE(SMALL_CYLINDER_ELEVATOR),
 		ACT_DECLARE(SMALL_CYLINDER_SLIDER),
-		ACT_DECLARE(SMALL_CYLINDER_SLOPE)
+		ACT_DECLARE(SMALL_CYLINDER_SLOPE),
+		ACT_DECLARE(SMALL_CYLINDER_MULTIFONCTION),
+		ACT_DECLARE(SMALL_MAGIC_ARM),
+		ACT_DECLARE(SMALL_MAGIC_COLOR)
+
 	#endif
 };
 

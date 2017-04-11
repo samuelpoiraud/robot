@@ -388,6 +388,13 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
           case ACT_SMALL_CYLINDER_ELEVATOR & 0xFF:		originalSidStr = "SmallCylinderElevator";	break;
           case ACT_SMALL_CYLINDER_SLIDER & 0xFF:		originalSidStr = "SmallCylinderSlider";		break;
           case ACT_SMALL_CYLINDER_SLOPE & 0xFF:			originalSidStr = "SmallCylinderSlope";		break;
+          case ACT_SMALL_CYLINDER_MULTIFONCTION & 0xFF:	originalSidStr = "SmallCylinderMultifonction";	break;
+          case ACT_SMALL_MAGIC_ARM & 0xFF:				originalSidStr = "SmallMagicArm";			break;
+          case ACT_SMALL_MAGIC_COLOR & 0xFF:			originalSidStr = "SmallMagicColor";			break;
+          case ACT_SMALL_ORE & 0xFF:					originalSidStr = "SmallOre";				break;
+          case ACT_SMALL_POMPE_DISPOSE & 0xFF:			originalSidStr = "SmallPompeDispose";		break;
+          case ACT_SMALL_POMPE_PRISE & 0xFF:			originalSidStr = "SmallPompePrise";			break;
+
 
 
 		default:								    originalSidStr = "Unknown";				break;
