@@ -38,6 +38,7 @@
 #include "propulsion/astar.h"
 #include "elements.h"
 #include "avoidance.h"
+#include "strats_2017/big/action_big.h"
 
 void test_bp_switchs(void);
 void test_leds(void);
@@ -179,6 +180,14 @@ int main (void)
 		FOE_ANALYSER_process_main();
 
 		any_match();
+
+		// Subactions actionneurs parallèles 2017
+		if(I_AM_BIG()){
+			sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, FALSE);
+			sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, FALSE);
+			sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
+			sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE);
+		}
 
 		OUTPUTLOG_process_main();
 

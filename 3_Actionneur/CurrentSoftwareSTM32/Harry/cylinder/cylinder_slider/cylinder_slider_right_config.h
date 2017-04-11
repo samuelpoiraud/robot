@@ -20,7 +20,7 @@
 	#define CYLINDER_SLIDER_RIGHT_RX24_SPEED						30		// Vitesse par défaut du RX24
 
 //Position
-    #define CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS								821
+    #define CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS								814
     #define CYLINDER_SLIDER_RIGHT_RX24_IN_POS						     	800  //821	//en degré
     #define CYLINDER_SLIDER_RIGHT_RX24_OUT_POS								195	//en degré 204
     #define CYLINDER_SLIDER_RIGHT_RX24_ALMOST_OUT_POS						438	//en degré 414

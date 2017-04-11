@@ -544,9 +544,9 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				}
 			}
 			if(moduleToTake == RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_GO_TAKE_CYLINDER_2, ERROR);
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_GO_TAKE_CYLINDER_2, ACTION_GO_TAKE_CYLINDER_2);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_GO_TAKE_CYLINDER_2, ERROR);
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_GO_TAKE_CYLINDER_2, ACTION_GO_TAKE_CYLINDER_2);
 			}
 
 			break;
@@ -593,14 +593,15 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			}
 
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS){
-				if(state1 == END_OK && state2 == END_OK){
+				/*if(state1 == END_OK && state2 == END_OK){
 					// PROTECT_NEXT_FALL introduit une protection supplémentaire en retirant le cylindre en 2 mouvements
 					//state = PROTECT_NEXT_FALL;
 					// ACTION_BRING_BACK_CYLINDER retire le cylindre en un seul mouvement
 					state = ACTION_BRING_BACK_CYLINDER;
 				}else{
 					state = ERROR_ACTION_GO_TAKE_CYLINDER;
-				}
+				}*/
+				state = ACTION_BRING_BACK_CYLINDER;
 			}
 			break;
 
@@ -804,8 +805,9 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				time_timeout_before_pompe_stop = global.absolute_time + 500;
-				time_timeout_after_pompe_stop = global.absolute_time + 1000;
+				time_timeout_before_pompe_stop = global.absolute_time + 2000;
+				time_timeout_after_pompe_stop = global.absolute_time + 3000;
+				pompe_stop =  FALSE;
 			}
 
 			if(global.absolute_time > time_timeout_before_pompe_stop && pompe_stop == FALSE){
@@ -1004,18 +1006,24 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 
 	static enum state_e stateRight = WAIT_TRIGGER, stateLeft = WAIT_TRIGGER;
+	static enum state_e lastStateRight = WAIT_TRIGGER, lastStateLeft = WAIT_TRIGGER;
+	error_e ret = IN_PROGRESS;
 	//static error_e stateAct = IN_PROGRESS;
 	static time32_t time_timeout;
 
+	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
+		entrance = (stateRight != lastStateRight);
+		lastStateRight = stateRight;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
+		entrance = (stateLeft != lastStateLeft);
+		lastStateLeft = stateLeft;
 	}else{
 		error_printf("sub_act_harry_mae_store_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
 	}
-
 
 	switch(state){
 
@@ -1260,13 +1268,13 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			}
 			RESET_MAE();
 			on_turning_point();
-			return END_OK;
+			ret = END_OK;
 			break;
 
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			return NOT_HANDLED;
+			ret = NOT_HANDLED;
 			break;
 
 		default:
@@ -1281,7 +1289,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 		stateLeft = state;
 	} // else L'erreur a déjà été affichée
 
-	return IN_PROGRESS;
+	return ret;
 }
 
 
@@ -1311,13 +1319,20 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 
 	static enum state_e stateRight = WAIT_TRIGGER, stateLeft = WAIT_TRIGGER;
+	static enum state_e lastStateRight = DONE, lastStateLeft = DONE;
+	error_e ret = IN_PROGRESS;
 	static error_e stateAct = IN_PROGRESS;
 	static time32_t time_timeout = 0;
 
+	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
+		entrance = (stateRight != lastStateRight);
+		lastStateRight = stateRight;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
+		entrance = (stateLeft != lastStateLeft);
+		lastStateLeft = stateLeft;
 	}else{
 		error_printf("sub_act_harry_mae_prepare_modules_for_dispose could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
@@ -1341,7 +1356,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			break;
 
 		case INIT:
-			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
+			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
 				state = MOVE_BALANCER_OUT; // Préparation de la dépose possible
 			}else{
 				state = ERROR;	// Il n'y a pas de cylindre disponible //TODO déclencher le stockage
@@ -1446,10 +1461,12 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				stateAct = ACT_check_position_config(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 			}
 
-			if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
-				state = END_MOVE_BALANCER_IN;
-			}else{
-				state = DONE;  // C'est bon l'actionneur est en position
+			if(stateAct != IN_PROGRESS){
+				if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
+					state = END_MOVE_BALANCER_IN;
+				}else{
+					state = DONE;  // C'est bon l'actionneur est en position
+				}
 			}
 			break;
 
@@ -1475,7 +1492,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}
 			RESET_MAE();
 			on_turning_point();
-			return END_OK;
+			ret = END_OK;
 			break;
 
 		case ERROR:
@@ -1486,7 +1503,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}
 			RESET_MAE();
 			on_turning_point();
-			return NOT_HANDLED;
+			ret = NOT_HANDLED;
 			break;
 
 		default:
@@ -1501,7 +1518,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 		stateLeft = state;
 	} // else L'erreur a déjà été affichée
 
-	return IN_PROGRESS;
+	return ret;
 }
 
 
@@ -1538,26 +1555,32 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 
 	static enum state_e stateRight = INIT, stateLeft = INIT;
+	static enum state_e lastStateRight = DONE, lastStateLeft = DONE;
+	error_e ret = IN_PROGRESS;
 	static error_e stateAct = IN_PROGRESS;
 	static bool_e anotherDisposeWillFollow = FALSE;
 	static time32_t time_timeout = 0;
 
+	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
+		entrance = (stateRight != lastStateRight);
+		lastStateRight = stateRight;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
+		entrance = (stateLeft != lastStateLeft);
+		lastStateLeft = stateLeft;
 	}else{
 		error_printf("sub_act_harry_mae_dispose_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
 	}
 
-
 	switch(state){
 
 		case INIT:
-			if(STOCKS_isEmpty(storage)){
+			/*if(STOCKS_isEmpty(storage)){
 				state = DONE;	// Il n'y a rien à faire
-			}else{
+			}else{*/
 				if(arg_dispose == ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER){
 					state = INIT_ARM_SERVO; // Dépose possible
 					anotherDisposeWillFollow = TRUE; // Cette dépose n'est pas la dernière, une autre va suivre
@@ -1568,7 +1591,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 					state = CHOOSE_ARM_STORAGE_POS;
 					anotherDisposeWillFollow = FALSE; // Important : il n'y a pas de dépose à suivre, on tente de ranger le bras dans le robot
 				}
-			}
+			//}
 			break;
 
 		case INIT_ARM_SERVO:
@@ -1819,13 +1842,13 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
-			return END_OK;
+			ret = END_OK;
 			break;
 
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			return NOT_HANDLED;
+			ret = NOT_HANDLED;
 			break;
 
 		default:
@@ -1840,6 +1863,6 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 		stateLeft = state;
 	} // else L'erreur a déjà été affichée
 
-	return IN_PROGRESS;
+	return ret;
 }
 
