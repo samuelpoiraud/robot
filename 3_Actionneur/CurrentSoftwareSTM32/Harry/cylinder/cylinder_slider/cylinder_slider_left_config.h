@@ -20,12 +20,12 @@
 	#define CYLINDER_SLIDER_LEFT_RX24_SPEED						30		// Vitesse par défaut du RX24
 
 //Position
-    #define CYLINDER_SLIDER_LEFT_RX24_IDLE_POS								179
-    #define CYLINDER_SLIDER_LEFT_RX24_IN_POS						     	200//179	//en degré
-    #define CYLINDER_SLIDER_LEFT_RX24_OUT_POS								788	//en degré 778
-    #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_POS						538	//en degré 578
-    #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_WITH_CYLINDER_POS		 	350	//en degré
-	#define CYLINDER_SLIDER_LEFT_RX24_WARNER_POS							450
+    #define CYLINDER_SLIDER_LEFT_RX24_IDLE_POS								218 //179
+    #define CYLINDER_SLIDER_LEFT_RX24_IN_POS						     	239	//200	//en degré
+    #define CYLINDER_SLIDER_LEFT_RX24_OUT_POS								827	//788	//en degré 778
+    #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_POS						577 //538	//en degré 578
+    #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_WITH_CYLINDER_POS		 	389 //350	//en degré
+	#define CYLINDER_SLIDER_LEFT_RX24_WARNER_POS							489 //450
 
 
 //Position initiale de l'RX24
