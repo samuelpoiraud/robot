@@ -16,20 +16,24 @@
 #include "QS/QS_types.h"
 #include "QS/QS_outputlog.h"
 
-#define PERCENTAGE_FILTER			10
-#define THRESHOLD_BATTERY_OFF		18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
-#define THRESHOLD_BATTERY_LOW		21300	//[mV] Réglage du seuil de batterie faible
-#define THRESHOLD_12V_HOKUYO_MIN	10000	//[mV] Réglage du seuil de la tension minimum hokuyo
-#define THRESHOLD_12V_HOKUYO_MAX	14000	//[mV] Réglage du seuil de la tension maximum hokuyo
-#define GAP_BETWEEN_ARU				1500	//[mV] Ecart entre le 24V permanent et la puissance(dérrière l'ARU)
-#define ACQUISITION					200		//[ms] Faire une acquisition de la batterie tous les..
+#define PERCENTAGE_FILTER				10
+#define THRESHOLD_STARTUP_RESISTOR_OFF	16000	//[mV]
+#define THRESHOLD_STARTUP_RESISTOR_ON	18000	//[mV]
+#define THRESHOLD_BATTERY_OFF			18000	//[mV] En dessous cette valeur, on considère que la puissance est absente
+#define THRESHOLD_BATTERY_LOW			21300	//[mV] Réglage du seuil de batterie faible
+#define THRESHOLD_12V_HOKUYO_MIN		10000	//[mV] Réglage du seuil de la tension minimum hokuyo
+#define THRESHOLD_12V_HOKUYO_MAX		14000	//[mV] Réglage du seuil de la tension maximum hokuyo
+#define GAP_BETWEEN_ARU					1500	//[mV] Ecart entre le 24V permanent et la puissance(dérrière l'ARU)
+#define ACQUISITION						200		//[ms] Faire une acquisition de la batterie tous les..
 
 static Uint32 valuePerm;
 static alim_state_e aru_state, battery_state, hokuyo_state;
 static alim_state_e last_aru_state, last_battery_state, last_hokuyo_state;
 volatile bool_e flag_200ms = FALSE;
+static volatile bool_e lastStartupResistorState = FALSE;
 
 static void send_msgCAN(Uint8 state);
+static void VOLTAGE_MEASURE_setStartupResistorState(bool_e state);
 
 void VOLTAGE_MEASURE_init(){
 	ADC_init();
@@ -46,6 +50,8 @@ void VOLTAGE_MEASURE_init(){
 
 	valuePerm = valuePerm*(100-PERCENTAGE_FILTER)/100 + VOLTAGE_MEASURE_measure24_mV(ADC_24_PERMANENCE)*PERCENTAGE_FILTER/100;
 	send_msgCAN(battery_state | aru_state | hokuyo_state);
+
+	VOLTAGE_MEASURE_setStartupResistorState(TRUE);
 }
 
 void VOLTAGE_MEASURE_process_main(void){
@@ -77,6 +83,11 @@ void VOLTAGE_MEASURE_process_main(void){
 		else // L'ARU vient d'être relâché, retour de la puissance
 			aru_state = ARU_DISABLE;
 
+		if(valuePcse > THRESHOLD_STARTUP_RESISTOR_ON)
+			VOLTAGE_MEASURE_setStartupResistorState(TRUE);
+		else if(valuePcse < THRESHOLD_STARTUP_RESISTOR_OFF)
+			VOLTAGE_MEASURE_setStartupResistorState(FALSE);
+
 		if(aru_state != last_aru_state){
 			last_aru_state = aru_state;
 			send_msgCAN(aru_state);
@@ -94,6 +105,15 @@ void VOLTAGE_MEASURE_process_main(void){
 	}
 }
 
+static void VOLTAGE_MEASURE_setStartupResistorState(bool_e state){
+	if(lastStartupResistorState != state){
+		lastStartupResistorState = state;
+//		if(state)
+//			GPIO_SetBits();
+//		else
+//			GPIO_ResetBits();
+	}
+}
 
 void VOLTAGE_MEASURE_process_it(Uint8 ms){
 	static Uint16 time = ACQUISITION;
