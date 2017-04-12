@@ -511,6 +511,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			rocketSide[1] = module_down;
 			rocketSide[2] = module_top;
 			rocketSide[3] = module_very_top;
+			indexSide = 0;
 			state = COMPUTE_NEXT_CYLINDER;
 			break;
 
@@ -1005,12 +1006,10 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			DONE
 		);
 
-
+	//-------------------- Début gestion de la réentrance ---------------------------
 	static enum state_e stateRight = WAIT_TRIGGER, stateLeft = WAIT_TRIGGER;
 	static enum state_e lastStateRight = WAIT_TRIGGER, lastStateLeft = WAIT_TRIGGER;
 	error_e ret = IN_PROGRESS;
-	//static error_e stateAct = IN_PROGRESS;
-	static time32_t time_timeout;
 
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
@@ -1036,6 +1035,17 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	if(!initialized){
 		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
 		UTILS_LOG_init_state(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_STORE_MODULES), SM_ID_ACT_HARRY_MAE_STORE_MODULES, state_str[state], state);
+	}
+	//---------------------- Fin gestion de la réentrance ---------------------------
+
+	//static error_e stateAct = IN_PROGRESS;
+	static time32_t time_timeout;
+
+	if(entrance){
+		debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
+		STOCKS_print(MODULE_STOCK_LEFT);
+		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
+		STOCKS_print(MODULE_STOCK_RIGHT);
 	}
 
 	switch(state){
@@ -1318,6 +1328,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			WAIT_TRIGGER,
 			INIT,
 			MOVE_BALANCER_OUT,
+			CHECK_IF_TURN_FOR_COLOR_NEEDED,
 			TURN_FOR_COLOR,
 			WAIT_ADV_COLOR,
 			WAIT_WHITE,
@@ -1328,14 +1339,10 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			DONE
 		);
 
-	#define TIMEOUT_COLOR	(4000)
-
-
+	//-------------------- Début gestion de la réentrance ---------------------------
 	static enum state_e stateRight = WAIT_TRIGGER, stateLeft = WAIT_TRIGGER;
 	static enum state_e lastStateRight = DONE, lastStateLeft = DONE;
 	error_e ret = IN_PROGRESS;
-	static error_e stateAct = IN_PROGRESS;
-	static time32_t time_timeout = 0;
 
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
@@ -1362,6 +1369,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
 		UTILS_LOG_init_state(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE), SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE, state_str[state], state);
 	}
+	//---------------------- Fin gestion de la réentrance ---------------------------
+
+	#define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
+	static error_e stateAct = IN_PROGRESS;
+	static time32_t time_timeout = 0;
 
 	switch(state){
 
@@ -1399,14 +1411,23 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, TURN_FOR_COLOR, ERROR);
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, CHECK_IF_TURN_FOR_COLOR_NEEDED, ERROR);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, TURN_FOR_COLOR, ERROR);
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, CHECK_IF_TURN_FOR_COLOR_NEEDED, ERROR);
 			}
 
 			// On exit
-			if(state != MOVE_BALANCER_OUT && state == TURN_FOR_COLOR){
+			if(state != MOVE_BALANCER_OUT && state != ERROR){
+				// Mise à jour des données : on fait progresser le module en POS_BALANCER vers la position POS_COLOR
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, storage);
+			}
+			break;
+
+		case CHECK_IF_TURN_FOR_COLOR_NEEDED:
+			if(STOCKS_getModuleType(STOCK_POS_COLOR, storage) == MODULE_POLY){
+				state = TURN_FOR_COLOR;  // Module polychrome : retournement nécéssaire
+			}else{
+				state = END_MOVE_BALANCER_IN; // Module unicouleur : pas de retournement
 			}
 			break;
 
@@ -1490,7 +1511,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 			if(stateAct != IN_PROGRESS){
 				if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
-					state = END_MOVE_BALANCER_IN;
+					state = END_MOVE_BALANCER_IN;	// L'actionneur n'est pas en position, on doit le mettre
 				}else{
 					state = DONE;  // C'est bon l'actionneur est en position
 				}
@@ -1504,11 +1525,17 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				}else{
 					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 				}
-				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
+
 			}
 
 			// Aucune vérification
 			state = DONE;
+
+			// On exit
+			if(state != END_MOVE_BALANCER_IN){
+				// Mise à jour des données : on décale les modules du stock
+				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
+			}
 			break;
 
 		case DONE:
@@ -1580,13 +1607,10 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			DONE
 		);
 
-
+	//-------------------- Début gestion de la réentrance ---------------------------
 	static enum state_e stateRight = INIT, stateLeft = INIT;
 	static enum state_e lastStateRight = DONE, lastStateLeft = DONE;
 	error_e ret = IN_PROGRESS;
-	static error_e stateAct = IN_PROGRESS;
-	static bool_e anotherDisposeWillFollow = FALSE;
-	static time32_t time_timeout = 0;
 
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
@@ -1612,6 +1636,18 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 	if(!initialized){
 		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
 		UTILS_LOG_init_state(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES), SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES, state_str[state], state);
+	}
+	//---------------------- Fin gestion de la réentrance ---------------------------
+
+	static error_e stateAct = IN_PROGRESS;
+	static bool_e anotherDisposeWillFollow = FALSE;
+	static time32_t time_timeout = 0;
+
+	if(entrance){
+		debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
+		STOCKS_print(MODULE_STOCK_LEFT);
+		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
+		STOCKS_print(MODULE_STOCK_RIGHT);
 	}
 
 	switch(state){
