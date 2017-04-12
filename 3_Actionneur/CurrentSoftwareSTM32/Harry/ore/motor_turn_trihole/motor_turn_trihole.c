@@ -43,7 +43,6 @@
 
 // Les différents includes nécessaires...
 #include "../QS/QS_CANmsgList.h"
-#include "../QS/QS_rpm_sensor.h"
 #include "../QS/QS_DCMotorSpeed.h"
 #include "../act_queue_utils.h"
 #include "../selftest.h"
@@ -124,7 +123,7 @@ bool_e MOTOR_TURN_TRIHOLE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_ORE_TRIHOLE_STOP :
 			case ACT_ORE_TRIHOLE_IDLE :
 			case ACT_ORE_TRIHOLE_RUN :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOTOR_ORE_TURN_TRIHOLE, &MOTOR_TURN_TRIHOLE_run_command, 0, TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOTOR_ORE_TURN_TRIHOLE, &MOTOR_TURN_TRIHOLE_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
 				break;
 
 			default:

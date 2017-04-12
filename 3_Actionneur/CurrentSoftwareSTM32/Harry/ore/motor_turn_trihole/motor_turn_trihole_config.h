@@ -13,13 +13,13 @@
 	#define	MOTOR_TURN_TRIHOLE_CONFIG_H
 
 	#include "../../../stm32f4xx/stm32f4xx_gpio.h"
-	#include "../QS/QS_external_it.h"
+	#include "../QS/QS_rpm_sensor.h"
 	#include "../QS/QS_types.h"
 
 // Configuration moteurs
 	#define MOTOR_TURN_TRIHOLE_PWM_NUM					4
 	#define MOTOR_TURN_TRIHOLE_PORT_WAY					GPIOC
-	#define MOTOR_TURN_TRIHOLE_PORT_WAY_BIT				GPIO_Pin_14
+	#define MOTOR_TURN_TRIHOLE_PORT_WAY_BIT				GPIO_Pin_12
 	#define MOTOR_TURN_TRIHOLE_MAX_PWM					100
 	#define MOTOR_TURN_TRIHOLE_SIMUATE_WAY				TRUE
 	#define MOTOR_TURN_TRIHOLE_RECOVERY_MODE			TRUE
