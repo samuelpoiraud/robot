@@ -1016,14 +1016,26 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
 		entrance = (stateRight != lastStateRight);
+		last_state = lastStateRight;
 		lastStateRight = stateRight;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 		entrance = (stateLeft != lastStateLeft);
+		last_state = lastStateLeft;
 		lastStateLeft = stateLeft;
 	}else{
 		error_printf("sub_act_harry_mae_store_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
+	}
+
+	// Verbose
+	if(entrance && initialized){
+		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
+		UTILS_LOG_state_changed(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_STORE_MODULES), SM_ID_ACT_HARRY_MAE_STORE_MODULES, state_str[last_state], last_state, state_str[state], state);
+	}
+	if(!initialized){
+		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
+		UTILS_LOG_init_state(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_STORE_MODULES), SM_ID_ACT_HARRY_MAE_STORE_MODULES, state_str[state], state);
 	}
 
 	switch(state){
@@ -1302,7 +1314,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 // Subaction actionneur de préparation de la dépose des modules
 error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e storage, bool_e trigger){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE,
+	CREATE_MAE_ACT(SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE,
 			WAIT_TRIGGER,
 			INIT,
 			MOVE_BALANCER_OUT,
@@ -1329,14 +1341,26 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
 		entrance = (stateRight != lastStateRight);
+		last_state = lastStateRight;
 		lastStateRight = stateRight;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 		entrance = (stateLeft != lastStateLeft);
+		last_state = lastStateLeft;
 		lastStateLeft = stateLeft;
 	}else{
 		error_printf("sub_act_harry_mae_prepare_modules_for_dispose could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
+	}
+
+	// Verbose
+	if(entrance && initialized){
+		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
+		UTILS_LOG_state_changed(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE), SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE, state_str[last_state], last_state, state_str[state], state);
+	}
+	if(!initialized){
+		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
+		UTILS_LOG_init_state(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE), SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE, state_str[state], state);
 	}
 
 	switch(state){
@@ -1379,7 +1403,9 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, TURN_FOR_COLOR, ERROR);
 			}
-			if(ON_LEAVE() && state == TURN_FOR_COLOR){
+
+			// On exit
+			if(state != MOVE_BALANCER_OUT && state == TURN_FOR_COLOR){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, storage);
 			}
 			break;
@@ -1566,14 +1592,26 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
 		entrance = (stateRight != lastStateRight);
+		last_state = lastStateRight;
 		lastStateRight = stateRight;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 		entrance = (stateLeft != lastStateLeft);
+		last_state = lastStateLeft;
 		lastStateLeft = stateLeft;
 	}else{
 		error_printf("sub_act_harry_mae_dispose_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
+	}
+
+	// Verbose
+	if(entrance && initialized){
+		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
+		UTILS_LOG_state_changed(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES), SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES, state_str[last_state], last_state, state_str[state], state);
+	}
+	if(!initialized){
+		info_printf("[%s]", (storage == MODULE_STOCK_RIGHT)? "RIGHT" : "LEFT");
+		UTILS_LOG_init_state(WORD_CONVERT_TO_STRING(SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES), SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES, state_str[state], state);
 	}
 
 	switch(state){
@@ -1702,7 +1740,8 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
 			}
 
-			if(ON_LEAVE()){
+			// On exit
+			if(state != GET_OUT_CYLINDER_OF_ROBOT){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_COLOR_TO_ARM_DISPOSE, storage);
 			}
 			break;
