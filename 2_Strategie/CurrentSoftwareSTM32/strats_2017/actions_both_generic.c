@@ -56,9 +56,9 @@
 #define SYM_DEFAULT_SPEED					SLOW
 #define SYM_ODOMETRIE_PLAGE_SYMETRIE		1
 #define SYM_CALAGE_WAY						SYM_WAY_BACKWARD
-#define SYM_AREA_LENGTG						2000
-#define SYM_AREA_WIDTH						1200
-#define SYM_OFFSET_WALL						250
+#define SYM_AREA_LENGTH						500
+#define SYM_AREA_WIDTH						600
+#define SYM_OFFSET_WALL						350
 
 /* ----------------------------------------------------------------------------- */
 /* 							Fonctions de réglage odométrique		             */
@@ -578,6 +578,7 @@ void strat_reglage_odo_symetrie(void){
 		AVANCER2,
 		AVANCER3,
 		AVANCER4,
+		AVANCER5,
 		CALAGE1,
 		CALAGE2,
 		COMPARE_N_CORRECT,
@@ -606,11 +607,7 @@ void strat_reglage_odo_symetrie(void){
 			break;
 
 		case INIT_CALAGE:
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			state = try_rushInTheWall(PI4096, state, INIT_VAR, INIT_VAR, FORWARD, TRUE, 0, 0);
-#else
 			state = try_rushInTheWall(PI4096, state, INIT_VAR, INIT_VAR, BACKWARD, TRUE, 0, 0);
-#endif
 			if(ON_LEAVE()){
 				PROP_set_position(0, 0, 0);
 			}
@@ -621,60 +618,35 @@ void strat_reglage_odo_symetrie(void){
 			break;
 
 		case AVANCER_APRES_CALAGE:
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			state = try_going(-SYM_OFFSET_WALL, 0, state, AVANCER1, AVANCER1, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#else
 			state = try_going(SYM_OFFSET_WALL, 0, state, AVANCER1, AVANCER1, SYM_DEFAULT_SPEED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#endif
 			break;
 
 		case AVANCER1:
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			state = try_going(-SYM_OFFSET_WALL, SYM_AREA_LENGTG, state, AVANCER2, AVANCER2, SYM_DEFAULT_SPEED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#else
-			state = try_going(SYM_OFFSET_WALL, -SYM_AREA_LENGTG, state, AVANCER2, AVANCER2, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#endif
+			state = try_going(SYM_OFFSET_WALL, -SYM_AREA_LENGTH, state, AVANCER2, AVANCER2, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case AVANCER2:
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			state = try_going(-SYM_OFFSET_WALL - SYM_AREA_WIDTH, SYM_AREA_LENGTG, state, AVANCER3, AVANCER3, SYM_DEFAULT_SPEED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#else
-			state = try_going(SYM_OFFSET_WALL + SYM_AREA_WIDTH, -SYM_AREA_LENGTG, state, AVANCER3, AVANCER3, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#endif
+			state = try_going(SYM_OFFSET_WALL + SYM_AREA_WIDTH, -SYM_AREA_LENGTH, state, AVANCER3, AVANCER3, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case AVANCER3:
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			state = try_going(-SYM_OFFSET_WALL - SYM_AREA_LENGTG, 0, state, AVANCER4, AVANCER4, SYM_DEFAULT_SPEED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#else
-			state = try_going(SYM_OFFSET_WALL + SYM_AREA_WIDTH, 0, state, AVANCER4, AVANCER4, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#endif
+			state = try_going(SYM_OFFSET_WALL + SYM_AREA_WIDTH, SYM_AREA_LENGTH, state, AVANCER4, AVANCER4, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case AVANCER4:
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			state = try_going(-SYM_OFFSET_WALL, 0, state, CALAGE1, CALAGE1, SYM_DEFAULT_SPEED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#else
-			state = try_going(SYM_OFFSET_WALL, 0, state, CALAGE1, CALAGE1, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-#endif
+			state = try_going(SYM_OFFSET_WALL, SYM_AREA_LENGTH, state, AVANCER5, AVANCER5, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
+		case AVANCER5:
+			state = try_going(SYM_OFFSET_WALL, 0, state, CALAGE1, CALAGE1, SYM_DEFAULT_SPEED, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
 
 		case CALAGE1:
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			state = try_rushInTheWall(PI4096, state, CALAGE2, CALAGE2, FORWARD, TRUE, 0, 0);
-#else
 			state = try_rushInTheWall(PI4096, state, CALAGE2, CALAGE2, BACKWARD, TRUE, 0, 0);
-#endif
 			break;
 
 		case CALAGE2:
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-			state = try_rushInTheWall(PI4096, state, COMPARE_N_CORRECT, COMPARE_N_CORRECT, FORWARD, FALSE, 0, 0);
-#else
 			state = try_rushInTheWall(PI4096, state, COMPARE_N_CORRECT, COMPARE_N_CORRECT, BACKWARD, FALSE, 0, 0);
-#endif
 			if(ON_LEAVE()){
 				positionCalage = global.pos;
 				PROP_set_position(0, 0, 0);
@@ -682,12 +654,7 @@ void strat_reglage_odo_symetrie(void){
 			break;
 
 		case COMPARE_N_CORRECT:
-
-#if SYM_CALAGE_WAY == SYM_WAY_FORWARD
-				comparation_value = -positionCalage.angle;
-#else
-				comparation_value = positionCalage.angle;
-#endif
+			comparation_value = positionCalage.angle;
 			if(absolute(comparation_value) <=  SYM_ODOMETRIE_PLAGE_SYMETRIE){
 				debug_printf("Odométrie en symétrie bien calibrée\n");
 				state = REPORT;
