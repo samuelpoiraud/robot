@@ -171,6 +171,21 @@ void UTILS_LOG_init_state(const char* sm_name, UTILS_state_machine_id_e sm_id, c
 	if(!initialized) UTILS_LOG_init_state(#state_machine_id, state_machine_id, state_str[state], state); \
 	initialized = TRUE
 
+// Spécificité 2017 pour la gestion des machines à états réentrantes (RIGHT et LEFT)
+#define CREATE_MAE_ACT(state_machine_id, init_state, ...) \
+	enum state_e { init_state = 0, __VA_ARGS__ }; \
+	static const char * const state_str[] = { FOREACH(WORD_CONVERT_TO_STRING, init_state, __VA_ARGS__) }; \
+	static Uint8 size_MAE = sizeof(state_str) / sizeof(const char *); \
+	static enum state_e state = init_state; \
+	static enum state_e last_state = init_state; \
+	static enum state_e last_state_for_check_entrance = init_state; \
+	static bool_e initialized = FALSE; \
+	bool_e entrance = last_state_for_check_entrance != state || !initialized; \
+	assert(state >= 0 && state < size_MAE); \
+	if(entrance) last_state = last_state_for_check_entrance; \
+	last_state_for_check_entrance = state; \
+	initialized = TRUE
+
 // La même sans verbose afin de pouvoir crée rapidement une machine à état avec la gestion de l'entrance automatique
 // et de pouvoir utiliser ON_LEAVE et RESET_MAE pour améliorer la lisibilité du code
 #define CREATE_MAE(init_state, ...) \
