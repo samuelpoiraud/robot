@@ -76,10 +76,12 @@
 
 	typedef union{
 		struct{
+			bool_e lastTouchState;
 			bool_e * touchState;
 		}buttonImg;
 
 		struct{
+			bool_e lastTouchState;
 			bool_e * touchState;
 		}button;
 
@@ -89,7 +91,8 @@
 		}progressBar;
 
 		struct{
-			Uint32 * value;
+			Sint32 lastValue;
+			Sint32 * value;
 		}slider;
 	}LCD_objectLink_u;
 
@@ -106,8 +109,13 @@
 		}LCD_objectStorage_s;
 	#else
 		typedef struct{
-			LCD_objectType_e objectType;
-			LCD_objectId_t remoteId;
+			struct{
+				LCD_objectType_e objectType;
+				LCD_objectLink_u link;
+				LCD_objectId_t remoteId;
+				LCD_objectId_t localId;
+			}data;
+			bool_e used;
 		}objectIdMatch_s;
 	#endif
 
@@ -115,23 +123,25 @@
 		static volatile LCD_menuId_e LCD_menuId = LCD_MENU_CUSTOM;
 		static volatile LCD_objectStorage_s LCD_objects[LCD_NB_MAX_OBJECT];
 	#else
-		objectIdMatch_s objectId[LCD_NB_MAX_OBJECT];
+		static volatile objectIdMatch_s objectId[LCD_NB_MAX_OBJECT];
 	#endif
 	static volatile LCD_FIFO_msg_t LCD_FIFO_msg;
 
 	#ifndef LCD_OVER_UART__IHM_MODE
 		static LCD_objectId_t LCD_OVER_UART_newObject(void);
-		static void LCD_OVER_UART_refreshObject(void);
 	#else
-		static void UART_OVER_LCD_syncObject(objectId_t id, objectId_t remoteId, LCD_objectType_e objectType);
+		static objectId_t UART_OVER_LCD_newObject(void);
+		static objectId_t UART_OVER_LCD_getSyncObjectByLocalId(objectId_t localId);
+		static objectId_t UART_OVER_LCD_getSyncObjectByRemoteId(objectId_t remoteId);
+		static void UART_OVER_LCD_setSyncObject(objectId_t idStorage, objectId_t localId, objectId_t remoteId, LCD_objectType_e type);
 		static const imageInfo_s* UART_OVER_LCD_imageIdConvertor(LCD_imageId_e imageId);
 		static const animatedImageInfo_s* UART_OVER_LCD_animationIdConvertor(LCD_animationId_e animationId);
-		static objectId_t UART_OVER_LCD_getSyncObjectByRemote(objectId_t remoteId);
 	#endif
 
 	static void LCD_OVER_UART_receiveMsg(LCD_msg_s * msg);
 	static void LCD_OVER_UART_receiveByte(Uint8 byte);
 	static void LCD_OVER_UART_sendMsg(LCD_msg_s * msg);
+	static void LCD_OVER_UART_refreshObject(void);
 	static void LCD_FIFO_init();
 	static bool_e LCD_FIFO_isFull();
 	static bool_e LCD_FIFO_isEmpty();
@@ -622,61 +632,49 @@
 			return LCD_OBJECT_ID_ERROR_FULL;
 		}
 
-		static void LCD_OVER_UART_refreshObject(void){
-			#ifndef LCD_OVER_UART__IHM_MODE
-				LCD_objectId_t id;
-				for(id = 0; id < LCD_NB_MAX_OBJECT; id++){
-					if(LCD_objects[id].used == TRUE){
-						switch(LCD_objects[id].object.type){
-
-							case LCD_OBJECT_TYPE_PROGRESS_BAR :
-								if(LCD_objects[id].object.link.progressBar.lastValue != *(LCD_objects[id].object.link.progressBar.value)){
-									LCD_objects[id].object.link.progressBar.lastValue = *(LCD_objects[id].object.link.progressBar.value);
-									LCD_msg_s msg;
-									msg.header.type = LCD_MSG_TYPE_UPDATE_PROGRESS_BAR;
-									msg.header.size = SIZE_LCD_UPDATE_PROGRESS_BAR;
-									msg.body.updateProgressBar.value = *(LCD_objects[id].object.link.progressBar.value);
-									msg.body.updateProgressBar.id = id;
-									LCD_OVER_UART_sendMsg(&msg);
-								}
-								break;
-
-							case LCD_OBJECT_TYPE_BUTTON_IMG :
-							case LCD_OBJECT_TYPE_SLIDER :
-							case LCD_OBJECT_TYPE_BUTTON :
-							case LCD_OBJECT_TYPE_TEXT :
-							case LCD_OBJECT_TYPE_IMAGE :
-							case LCD_OBJECT_TYPE_ANIMATED_IMAGE :
-							case LCD_OBJECT_TYPE_RECTANGLE :
-							case LCD_OBJECT_TYPE_CIRCLE :
-							case LCD_OBJECT_TYPE_LINE :
-							default:
-								break;
-						}
-					}
-				}
-			#else
-
-			#endif
-		}
-
 	#else
-		static void UART_OVER_LCD_syncObject(objectId_t id, objectId_t remoteId, LCD_objectType_e objectType){
-			if(id != LCD_OBJECT_ID_ERROR_FULL && id < LCD_NB_MAX_OBJECT){
-				objectId[id].remoteId = remoteId;
-				objectId[id].objectType = objectType;
+		static objectId_t UART_OVER_LCD_newObject(void){
+			objectId_t i;
+			for(i=0; i<LCD_NB_MAX_OBJECT; i++){
+				if(objectId[i].used == FALSE){
+					return i;
+				}
 			}
+			return LCD_OBJECT_ID_ERROR_FULL;
 		}
 
-		static objectId_t UART_OVER_LCD_getSyncObjectByRemote(objectId_t remoteId){
+		static void UART_OVER_LCD_deleteObject(objectId_t id){
+			assert(id < LCD_NB_MAX_OBJECT);
+
+			objectId[id].used = FALSE;
+		}
+
+		static objectId_t UART_OVER_LCD_getSyncObjectByLocalId(objectId_t localId){
 			objectId_t i;
 
 			for(i=0; i<LCD_NB_MAX_OBJECT; i++){
-				if(objectId[i].remoteId == remoteId)
+				if(objectId[i].used && objectId[i].data.localId == localId)
 					return i;
 			}
 
 			return LCD_OBJECT_ID_ERROR_FULL;
+		}
+
+		static objectId_t UART_OVER_LCD_getSyncObjectByRemoteId(objectId_t remoteId){
+			objectId_t i;
+
+			for(i=0; i<LCD_NB_MAX_OBJECT; i++){
+				if(objectId[i].used && objectId[i].data.remoteId == remoteId)
+					return i;
+			}
+
+			return LCD_OBJECT_ID_ERROR_FULL;
+		}
+
+		static void UART_OVER_LCD_setSyncObject(objectId_t idStorage, objectId_t localId, objectId_t remoteId, LCD_objectType_e type){
+			objectId[idStorage].data.localId = localId;
+			objectId[idStorage].data.remoteId = remoteId;
+			objectId[idStorage].data.objectType = type;
 		}
 
 		static const imageInfo_s* UART_OVER_LCD_imageIdConvertor(LCD_imageId_e imageId){
@@ -735,8 +733,8 @@
 		#ifndef LCD_OVER_UART__IHM_MODE
 
 		#else
-			objectId_t id;
-			static Uint32 var;
+			objectId_t idStorage;
+			objectId_t idObject;
 		#endif
 		switch(msg->header.type){
 
@@ -749,66 +747,89 @@
 					}
 					}break;
 
-				case LCD_MSG_TYPE_UPDATE_BUTTON_IMG:
+				case LCD_MSG_TYPE_UPDATE_BUTTON_IMG:{
+					LCD_objectId_t id = msg->body.updateButtonImg.id;
+					assert(id < LCD_NB_MAX_OBJECT);
+					if(LCD_objects[id].used && LCD_objects[id].object.type == LCD_OBJECT_TYPE_BUTTON_IMG){
+						*(LCD_objects[id].object.link.buttonImg.touchState) = msg->body.updateButtonImg.touchState;
+					}
+					}break;
+
+				case LCD_MSG_TYPE_UPDATE_SLIDER:{
+					LCD_objectId_t id = msg->body.updateSlider.id;
+					assert(id < LCD_NB_MAX_OBJECT);
+					if(LCD_objects[id].used && LCD_objects[id].object.type == LCD_OBJECT_TYPE_BUTTON_IMG){
+						*(LCD_objects[id].object.link.slider.value) = msg->body.updateSlider.value;
+					}
+					}break;
+			#else
+				case LCD_MSG_TYPE_UPDATE_PROGRESS_BAR:
+					idStorage = UART_OVER_LCD_getSyncObjectByRemoteId(msg->body.updateProgressBar.id);
+					*(objectId[idStorage].data.link.progressBar.value) = msg->body.updateProgressBar.value;
 					break;
 
-				case LCD_MSG_TYPE_UPDATE_SLIDER:
-					break;
-			#else
 				case LCD_MSG_TYPE_ADD_ANIMATION :
-					id = MIDDLEWARE_addAnimatedImage(msg->body.addAnimation.x, msg->body.addAnimation.y, UART_OVER_LCD_animationIdConvertor(msg->body.addAnimation.animationId));
-					UART_OVER_LCD_syncObject(id, msg->body.addAnimation.id, LCD_OBJECT_TYPE_ANIMATED_IMAGE);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addAnimatedImage(msg->body.addAnimation.x, msg->body.addAnimation.y, UART_OVER_LCD_animationIdConvertor(msg->body.addAnimation.animationId));
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addAnimation.id, LCD_OBJECT_TYPE_ANIMATED_IMAGE);
 					break;
 
 				case LCD_MSG_TYPE_ADD_BUTTON :
-					id = MIDDLEWARE_addButton(msg->body.addButton.x, msg->body.addButton.y, msg->body.addButton.width, msg->body.addButton.height, msg->body.addButton.lockTouch, &var, msg->body.addButton.colorText, msg->body.addButton.colorButton, msg->body.addButton.colorButtonTouch, msg->body.addButton.colorBorder, msg->body.addButton.fonts, msg->body.addButton.text);
-					UART_OVER_LCD_syncObject(id, msg->body.addButton.id, LCD_OBJECT_TYPE_BUTTON);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addButton(msg->body.addButton.x, msg->body.addButton.y, msg->body.addButton.width, msg->body.addButton.height, msg->body.addButton.lockTouch, (bool_e *)&(objectId[idStorage].data.link.button.touchState), msg->body.addButton.colorText, msg->body.addButton.colorButton, msg->body.addButton.colorButtonTouch, msg->body.addButton.colorBorder, msg->body.addButton.fonts, msg->body.addButton.text);
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addButton.id, LCD_OBJECT_TYPE_BUTTON);
 					break;
 
 				case LCD_MSG_TYPE_ADD_BUTTON_IMG :
-					id = MIDDLEWARE_addButtonImg(msg->body.addButtonImg.x, msg->body.addButtonImg.y, UART_OVER_LCD_imageIdConvertor(msg->body.addButtonImg.imageId), UART_OVER_LCD_imageIdConvertor(msg->body.addButtonImg.imageLockId), msg->body.addButtonImg.lockTouch, &var);
-					UART_OVER_LCD_syncObject(id, msg->body.addButtonImg.id, LCD_OBJECT_TYPE_BUTTON_IMG);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addButtonImg(msg->body.addButtonImg.x, msg->body.addButtonImg.y, UART_OVER_LCD_imageIdConvertor(msg->body.addButtonImg.imageId), UART_OVER_LCD_imageIdConvertor(msg->body.addButtonImg.imageLockId), msg->body.addButtonImg.lockTouch, (bool_e *)&(objectId[idStorage].data.link.buttonImg.touchState));
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addButtonImg.id, LCD_OBJECT_TYPE_BUTTON_IMG);
 					break;
 
 				case LCD_MSG_TYPE_ADD_CIRCLE :
-					id = MIDDLEWARE_addCircle(msg->body.addCircle.x, msg->body.addCircle.y, msg->body.addCircle.r, msg->body.addCircle.colorBorder, msg->body.addCircle.colorCenter);
-					UART_OVER_LCD_syncObject(id, msg->body.addCircle.id, LCD_OBJECT_TYPE_CIRCLE);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addCircle(msg->body.addCircle.x, msg->body.addCircle.y, msg->body.addCircle.r, msg->body.addCircle.colorBorder, msg->body.addCircle.colorCenter);
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addCircle.id, LCD_OBJECT_TYPE_CIRCLE);
 					break;
 
 				case LCD_MSG_TYPE_ADD_IMAGE :
-					id = MIDDLEWARE_addImage(msg->body.addImage.x, msg->body.addImage.y, UART_OVER_LCD_imageIdConvertor(msg->body.addImage.imageId));
-					UART_OVER_LCD_syncObject(id, msg->body.addImage.id, LCD_OBJECT_TYPE_IMAGE);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addImage(msg->body.addImage.x, msg->body.addImage.y, UART_OVER_LCD_imageIdConvertor(msg->body.addImage.imageId));
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addImage.id, LCD_OBJECT_TYPE_IMAGE);
 					break;
 
 				case LCD_MSG_TYPE_ADD_LINE :
-					id = MIDDLEWARE_addLine(msg->body.addLine.x0, msg->body.addLine.y0, msg->body.addLine.x1, msg->body.addLine.y1, msg->body.addLine.color);
-					UART_OVER_LCD_syncObject(id, msg->body.addLine.id, LCD_OBJECT_TYPE_LINE);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addLine(msg->body.addLine.x0, msg->body.addLine.y0, msg->body.addLine.x1, msg->body.addLine.y1, msg->body.addLine.color);
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addLine.id, LCD_OBJECT_TYPE_LINE);
 					break;
 
 				case LCD_MSG_TYPE_ADD_PROGRESS_BAR :
-					id = MIDDLEWARE_addProgressBar(msg->body.addProgressBar.x, msg->body.addProgressBar.y, msg->body.addProgressBar.width, msg->body.addProgressBar.height, msg->body.addProgressBar.orientation, &var);
-					UART_OVER_LCD_syncObject(id, msg->body.addProgressBar.id, LCD_OBJECT_TYPE_PROGRESS_BAR);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addProgressBar(msg->body.addProgressBar.x, msg->body.addProgressBar.y, msg->body.addProgressBar.width, msg->body.addProgressBar.height, msg->body.addProgressBar.orientation, (bool_e *)&(objectId[idStorage].data.link.progressBar.value));
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addProgressBar.id, LCD_OBJECT_TYPE_PROGRESS_BAR);
 					break;
 
 				case LCD_MSG_TYPE_ADD_RECTANGLE :
-					id = MIDDLEWARE_addRectangle(msg->body.addRectangle.x, msg->body.addRectangle.y, msg->body.addRectangle.width, msg->body.addRectangle.height, msg->body.addRectangle.colorBorder, msg->body.addRectangle.colorCenter);
-					UART_OVER_LCD_syncObject(id, msg->body.addRectangle.id, LCD_OBJECT_TYPE_RECTANGLE);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addRectangle(msg->body.addRectangle.x, msg->body.addRectangle.y, msg->body.addRectangle.width, msg->body.addRectangle.height, msg->body.addRectangle.colorBorder, msg->body.addRectangle.colorCenter);
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addRectangle.id, LCD_OBJECT_TYPE_RECTANGLE);
 					break;
 
 				case LCD_MSG_TYPE_ADD_SLIDER :
-					id = MIDDLEWARE_addSlider(msg->body.addSlider.x, msg->body.addSlider.y, msg->body.addSlider.width, msg->body.addSlider.height, msg->body.addSlider.minValue, msg->body.addSlider.maxValue, msg->body.addSlider.orientation, &var);
-					UART_OVER_LCD_syncObject(id, msg->body.addSlider.id, LCD_OBJECT_TYPE_SLIDER);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addSlider(msg->body.addSlider.x, msg->body.addSlider.y, msg->body.addSlider.width, msg->body.addSlider.height, msg->body.addSlider.minValue, msg->body.addSlider.maxValue, msg->body.addSlider.orientation, (Uint32 *)&(objectId[idStorage].data.link.slider.value));
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addSlider.id, LCD_OBJECT_TYPE_SLIDER);
 					break;
 
 				case LCD_MSG_TYPE_ADD_TEXT :
-					id = MIDDLEWARE_addText(msg->body.addText.x, msg->body.addText.y, msg->body.addText.colorText, msg->body.addText.colorBackground, msg->body.addText.fonts, msg->body.addText.text);
-					UART_OVER_LCD_syncObject(id, msg->body.addText.id, LCD_OBJECT_TYPE_TEXT);
+					idStorage = UART_OVER_LCD_newObject();
+					idObject = MIDDLEWARE_addText(msg->body.addText.x, msg->body.addText.y, msg->body.addText.colorText, msg->body.addText.colorBackground, msg->body.addText.fonts, msg->body.addText.text);
+					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addText.id, LCD_OBJECT_TYPE_TEXT);
 					break;
 
 				case LCD_MSG_TYPE_DELETE_OBJECT :
-					id = UART_OVER_LCD_getSyncObjectByRemote(msg->body.deleteObject.id);
-					if(id != LCD_OBJECT_ID_ERROR_FULL)
-						MIDDLEWARE_deleteObject(id);
+					UART_OVER_LCD_deleteObject(msg->body.deleteObject.id);
 					break;
 
 				case LCD_MSG_TYPE_RESET_SCREEN :
@@ -820,9 +841,9 @@
 					break;
 
 				case LCD_MSG_TYPE_SET_TEXT :
-					id = UART_OVER_LCD_getSyncObjectByRemote(msg->body.setText.id);
-					if(id != LCD_OBJECT_ID_ERROR_FULL)
-						MIDDLEWARE_setText(id, msg->body.setText.text);
+					idObject = UART_OVER_LCD_getSyncObjectByRemoteId(msg->body.setText.id);
+					if(idObject != LCD_OBJECT_ID_ERROR_FULL)
+						MIDDLEWARE_setText(idObject, msg->body.setText.text);
 					break;
 
 				case LCD_MSG_TYPE_SET_MENU :
@@ -835,6 +856,94 @@
 		}
 	}
 
+	static void LCD_OVER_UART_refreshObject(void){
+			#ifndef LCD_OVER_UART__IHM_MODE
+				LCD_objectId_t id;
+				for(id = 0; id < LCD_NB_MAX_OBJECT; id++){
+					if(LCD_objects[id].used == TRUE){
+						switch(LCD_objects[id].object.type){
+
+							case LCD_OBJECT_TYPE_PROGRESS_BAR :
+								if(LCD_objects[id].object.link.progressBar.lastValue != *(LCD_objects[id].object.link.progressBar.value)){
+									LCD_objects[id].object.link.progressBar.lastValue = *(LCD_objects[id].object.link.progressBar.value);
+									LCD_msg_s msg;
+									msg.header.type = LCD_MSG_TYPE_UPDATE_PROGRESS_BAR;
+									msg.header.size = SIZE_LCD_UPDATE_PROGRESS_BAR;
+									msg.body.updateProgressBar.value = *(LCD_objects[id].object.link.progressBar.value);
+									msg.body.updateProgressBar.id = id;
+									LCD_OVER_UART_sendMsg(&msg);
+								}
+								break;
+
+							case LCD_OBJECT_TYPE_BUTTON_IMG :
+							case LCD_OBJECT_TYPE_SLIDER :
+							case LCD_OBJECT_TYPE_BUTTON :
+							case LCD_OBJECT_TYPE_TEXT :
+							case LCD_OBJECT_TYPE_IMAGE :
+							case LCD_OBJECT_TYPE_ANIMATED_IMAGE :
+							case LCD_OBJECT_TYPE_RECTANGLE :
+							case LCD_OBJECT_TYPE_CIRCLE :
+							case LCD_OBJECT_TYPE_LINE :
+							default:
+								break;
+						}
+					}
+				}
+			#else
+				LCD_objectId_t id;
+				for(id = 0; id < LCD_NB_MAX_OBJECT; id++){
+					if(objectId[id].used == TRUE){
+						switch(objectId[id].data.objectType){
+
+							case LCD_OBJECT_TYPE_BUTTON :
+								if(objectId[id].data.link.button.lastTouchState != *(objectId[id].data.link.button.touchState)){
+									objectId[id].data.link.button.lastTouchState = *(objectId[id].data.link.button.touchState);
+									LCD_msg_s msg;
+									msg.header.type = LCD_MSG_TYPE_UPDATE_PROGRESS_BAR;
+									msg.header.size = SIZE_LCD_UPDATE_BUTTON;
+									msg.body.updateButton.touchState =  *(objectId[id].data.link.button.touchState);
+									msg.body.updateButton.id = id;
+									LCD_OVER_UART_sendMsg(&msg);
+								}
+								break;
+
+							case LCD_OBJECT_TYPE_BUTTON_IMG :
+								if(objectId[id].data.link.buttonImg.lastTouchState != *(objectId[id].data.link.buttonImg.touchState)){
+									objectId[id].data.link.buttonImg.lastTouchState = *(objectId[id].data.link.buttonImg.touchState);
+									LCD_msg_s msg;
+									msg.header.type = LCD_MSG_TYPE_UPDATE_BUTTON_IMG;
+									msg.header.size = SIZE_LCD_UPDATE_BUTTON_IMG;
+									msg.body.updateButtonImg.touchState =  *(objectId[id].data.link.buttonImg.touchState);
+									msg.body.updateButtonImg.id = id;
+									LCD_OVER_UART_sendMsg(&msg);
+								}
+								break;
+
+							case LCD_OBJECT_TYPE_SLIDER :
+								if(objectId[id].data.link.slider.lastValue != *(objectId[id].data.link.slider.value)){
+									objectId[id].data.link.slider.lastValue = *(objectId[id].data.link.slider.value);
+									LCD_msg_s msg;
+									msg.header.type = LCD_MSG_TYPE_UPDATE_SLIDER;
+									msg.header.size = SIZE_LCD_UPDATE_SLIDER;
+									msg.body.updateSlider.value =  *(objectId[id].data.link.slider.value);
+									msg.body.updateSlider.id = id;
+									LCD_OVER_UART_sendMsg(&msg);
+								}
+								break;
+
+							case LCD_OBJECT_TYPE_TEXT :
+							case LCD_OBJECT_TYPE_IMAGE :
+							case LCD_OBJECT_TYPE_ANIMATED_IMAGE :
+							case LCD_OBJECT_TYPE_RECTANGLE :
+							case LCD_OBJECT_TYPE_CIRCLE :
+							case LCD_OBJECT_TYPE_LINE :
+							default:
+								break;
+						}
+					}
+				}
+			#endif
+		}
 	//////////////////////////////////////////////////////////////////
 	//------------------------Fonction FIFO-------------------------//
 	//////////////////////////////////////////////////////////////////
