@@ -865,7 +865,7 @@ static void MAIN_sensor_test(){
 	UNUSED_VAR(led_on);
 
 #ifdef I_AM_ROBOT_BIG
-	 if(HARRY_ROLLER || HARRY_SLIDER_RIGHT || HARRY_SLIDER_LEFT || HARRY_TOURNIQUET){
+	 if(HARRY_SLIDER_RIGHT || HARRY_SLIDER_LEFT){
 		if(led_on == FALSE){
 			IHM_leds_send_msg(1, (led_ihm_t){LED_SENSOR_TEST, ON});
 			led_on = TRUE;

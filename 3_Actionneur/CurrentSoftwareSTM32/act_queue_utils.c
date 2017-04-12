@@ -260,19 +260,19 @@ bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* 
 				*result =    ACT_RESULT_NOT_HANDLED;
 				*error_code = ACT_RESULT_ERROR_CANCELED;
 				*line = __LINE__;
-				break;
+				return FALSE;
 
 			case DC_MOTOR_SPEED_RUN:
 				*result =    ACT_RESULT_DONE;
 				*error_code = ACT_RESULT_ERROR_OK;
 				*line = __LINE__;
-				break;
+				return TRUE;
 
 			case DC_MOTOR_SPEED_ERROR:
 				*result =    ACT_RESULT_FAILED;
 				*error_code = ACT_RESULT_ERROR_TIMEOUT;
 				*line = __LINE__;
-				break;
+				return FALSE;
 
 			default:
 			case DC_MOTOR_SPEED_INIT_RECOVERY:
@@ -283,7 +283,6 @@ bool_e ACTQ_check_status_dcmotor(Uint8 dcmotor_id, bool_e timeout_is_ok, Uint8* 
 				// Waiting
 				return FALSE;
 		}
-		return TRUE;
 	}
 #endif
 

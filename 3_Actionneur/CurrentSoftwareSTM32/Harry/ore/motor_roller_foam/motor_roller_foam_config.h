@@ -13,7 +13,7 @@
 	#define	MOTOR_ROLLER_FOAM_CONFIG_H
 
 	#include "../../../stm32f4xx/stm32f4xx_gpio.h"
-	#include "../QS/QS_external_it.h"
+	#include "../QS/QS_rpm_sensor.h"
 	#include "../QS/QS_types.h"
 
 // Configuration moteurs
