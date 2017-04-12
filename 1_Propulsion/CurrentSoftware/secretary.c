@@ -368,6 +368,12 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 				SECRETARY_onPower();
 			}else if(msg->data.broadcast_alim.state & BATTERY_DISABLE)
 				global.flags.alim = FALSE;
+
+			if(msg->data.broadcast_alim.state & POWER_AVAILABLE){
+				global.flags.powerAvailable = TRUE;
+			}else if(msg->data.broadcast_alim.state & POWER_NO_AVAILABLE){
+				global.flags.powerAvailable = FALSE;
+			}
 		break;
 
 		//Carte stratégie demande la position

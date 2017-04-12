@@ -95,16 +95,39 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			if(msg->data.broadcast_alim.state & (BATTERY_DISABLE | ARU_ENABLE)){
 				global.flags.power = FALSE;
 			}else if(msg->data.broadcast_alim.state & ARU_DISABLE){
-#ifdef USE_DCMOTOR2
-				DCM_reset_integrator();
-#endif
-				static bool_e first_on = TRUE;
 				global.flags.power = TRUE;
+			}
+
+			if(msg->data.broadcast_alim.state & POWER_AVAILABLE){
+				global.flags.powerAvailable = TRUE;
+			}else if(msg->data.broadcast_alim.state & POWER_NO_AVAILABLE){
+				global.flags.powerAvailable = FALSE;
+			}
+
+#ifdef USE_NEW_POWER_DETECTION
+			if(global.flags.powerAvailable){
+
+				#ifdef USE_DCMOTOR2
+					DCM_reset_integrator();
+				#endif
+				static bool_e first_on = TRUE;
 				if(first_on)
 					first_on = FALSE;
 				else
 					ACTMGR_reset_config();
 			}
+#else
+			if(global.flags.power){
+				#ifdef USE_DCMOTOR2
+					DCM_reset_integrator();
+				#endif
+				static bool_e first_on = TRUE;
+				if(first_on)
+					first_on = FALSE;
+				else
+					ACTMGR_reset_config();
+			}
+#endif
 			global.alim_value = msg->data.broadcast_alim.battery_value;
 			break;
 

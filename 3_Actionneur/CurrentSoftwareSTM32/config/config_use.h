@@ -32,6 +32,10 @@
 	#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
 #endif
 
+//#define USE_NEW_POWER_DETECTION
+#ifndef USE_NEW_POWER_DETECTION
+	#warning "Nouvelle détection de puissance non active"
+#endif
 //////////////////////////////////////////////////////////////////
 //----------------------------QS--------------------------------//
 //////////////////////////////////////////////////////////////////

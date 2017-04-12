@@ -278,7 +278,11 @@ static void ACTMGR_run_reset_act(queue_id_t queueId, bool_e init) {
 				//responseReceived = AX12_async_is_ready(LEFT_ARM_AX12_ID, &isReady);		//TODO 2017 Remplacer par les appels adéquats
 		#endif
 
+#ifdef USE_NEW_POWER_DETECTION
+		if((responseReceived && isReady) || global.flags.powerAvailable) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
+#else
 		if((responseReceived && isReady) || global.flags.power) { // Si il y a le +12/24V (on laisse le AX12_is_ready si on utilise le FDP hors robot sous 12V mais l'initialisation peut ne pas marcher si l'ax12 testé n'est pas présent)
+#endif
 			debug_printf("Init pos\n");
 			for(i = 0; i < NB_ACTIONNEURS; i++) {
 				if(actionneurs[i].onInitPos != NULL)

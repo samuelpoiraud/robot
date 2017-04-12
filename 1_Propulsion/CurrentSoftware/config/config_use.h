@@ -56,6 +56,11 @@
 		#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
 	#endif
 
+	//#define USE_NEW_POWER_DETECTION
+	#ifndef USE_NEW_POWER_DETECTION
+		#warning "Nouvelle détection de puissance non active"
+	#endif
+
 	#define BUFFER_SIZE 64	//maximum : 255
 
 

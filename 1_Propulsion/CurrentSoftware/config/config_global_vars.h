@@ -29,6 +29,8 @@
 		volatile bool_e treatment_scan;
 
 		volatile bool_e alim;
+
+		volatile bool_e powerAvailable;
 	}flag_list_t;
 
 	typedef struct{

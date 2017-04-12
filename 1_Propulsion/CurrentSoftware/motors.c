@@ -126,8 +126,18 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 	last_duty_left = duty_left;
 	last_duty_right = duty_right;
 
+#ifdef USE_NEW_POWER_DETECTION
+	if(global.flags.powerAvailable){
+		PWM_run( (Sint8)duty_right, PWM_MOTEUR_1);
+		PWM_run( (Sint8)duty_left, PWM_MOTEUR_2);
+	}else{
+		PWM_stop();
+		PWM_stop();
+	}
+#else
 	PWM_run( (Sint8)duty_right, PWM_MOTEUR_1);
 	PWM_run( (Sint8)duty_left, PWM_MOTEUR_2);
+#endif
 	/////////////////////////////////////////////////////////
 }
 

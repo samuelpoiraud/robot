@@ -27,10 +27,9 @@
 #define ACQUISITION						200		//[ms] Faire une acquisition de la batterie tous les..
 
 static Uint32 valuePerm;
-static alim_state_e aru_state, battery_state, hokuyo_state;
-static alim_state_e last_aru_state, last_battery_state, last_hokuyo_state;
+static alim_state_e aru_state, battery_state, hokuyo_state, power_state;
+static alim_state_e last_aru_state, last_battery_state, last_hokuyo_state, last_power_state;
 volatile bool_e flag_200ms = FALSE;
-static volatile bool_e lastStartupResistorState = FALSE;
 
 static void send_msgCAN(Uint8 state);
 static void VOLTAGE_MEASURE_setStartupResistorState(bool_e state);
@@ -83,14 +82,22 @@ void VOLTAGE_MEASURE_process_main(void){
 		else // L'ARU vient d'être relâché, retour de la puissance
 			aru_state = ARU_DISABLE;
 
-		if(valuePcse > THRESHOLD_STARTUP_RESISTOR_ON)
-			VOLTAGE_MEASURE_setStartupResistorState(TRUE);
-		else if(valuePcse < THRESHOLD_STARTUP_RESISTOR_OFF)
-			VOLTAGE_MEASURE_setStartupResistorState(FALSE);
-
 		if(aru_state != last_aru_state){
 			last_aru_state = aru_state;
 			send_msgCAN(aru_state);
+		}
+
+		if(valuePcse > THRESHOLD_STARTUP_RESISTOR_ON){
+			power_state = POWER_AVAILABLE;
+			VOLTAGE_MEASURE_setStartupResistorState(FALSE);
+		}else if(valuePcse < THRESHOLD_STARTUP_RESISTOR_OFF){
+			power_state = POWER_NO_AVAILABLE;
+			VOLTAGE_MEASURE_setStartupResistorState(TRUE);
+		}
+
+		if(power_state != last_power_state){
+			last_power_state = power_state;
+			send_msgCAN(power_state);
 		}
 
 		if(valueHokuyo > THRESHOLD_12V_HOKUYO_MIN && valueHokuyo < THRESHOLD_12V_HOKUYO_MAX)
@@ -104,8 +111,9 @@ void VOLTAGE_MEASURE_process_main(void){
 		}
 	}
 }
-
 static void VOLTAGE_MEASURE_setStartupResistorState(bool_e state){
+	static bool_e lastStartupResistorState = FALSE;
+
 	if(lastStartupResistorState != state){
 		lastStartupResistorState = state;
 //		if(state)
