@@ -475,6 +475,13 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 	static time32_t time_timeout_after_pompe_stop;
 	static bool_e pompe_stop = FALSE;
 
+	if(entrance){
+		debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
+		STOCKS_print(MODULE_STOCK_LEFT);
+		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
+		STOCKS_print(MODULE_STOCK_RIGHT);
+	}
+
 
 	switch(state){
 		case INIT:
@@ -601,6 +608,13 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				}else{
 					state = ERROR_ACTION_GO_TAKE_CYLINDER;
 				}*/
+
+				// On met à jour les données : Passage du module dans la position POS_ENTRY
+				if(moduleToTake == RIGHT){
+					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
+				}else{
+					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
+				}
 				state = ACTION_BRING_BACK_CYLINDER;
 			}
 			break;
@@ -790,16 +804,6 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				|| (moduleToTake == LEFT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
 					state = COMPUTE_NEXT_CYLINDER;		// Si l'élévateur est occupé, on va prendre le cylindre suivant
 				}
-
-				// On met à jour les données
-				if(moduleToTake == RIGHT){
-					STOCKS_addModule(moduleType, MODULE_STOCK_RIGHT, STOCK_POS_ENTRY);
-				}else{
-					STOCKS_addModule(moduleType, MODULE_STOCK_LEFT, STOCK_POS_ENTRY);
-				}
-				ROCKETS_removeModule(rocket);
-				moduleToStore = moduleToTake;
-				moduleToTake = NO_SIDE;
 			}
 			break;
 
@@ -824,12 +828,15 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				pompe_stop=FALSE;
 				state = ACTION_BRING_UP_CYLINDER;
 
-				// Mise à jour des données
-				if(moduleToStore == RIGHT){
+				// On met à jour les données : Passage du module de POS_ENTRY à POS_ELEVATOR
+				if(moduleToTake == RIGHT){
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_LEFT);
 				}
+				ROCKETS_removeModule(rocket); // Suppression du module de la fusée
+				moduleToStore = moduleToTake;
+				moduleToTake = NO_SIDE;
 			}
 			break;
 
@@ -860,14 +867,8 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			}
 
 			if(state1 != IN_PROGRESS){
-				state = ACTION_STOCK_UP_CYLINDER;
-
-				// Mise à jour des données
-				if(moduleToStore == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_RIGHT)){
-					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_RIGHT);
-					state = ACTION_STOCK_UP_CYLINDER; // On continue le stockage
-				}else if(moduleToStore == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_LEFT)){
-					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_LEFT);
+				if((moduleToStore == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_RIGHT))
+					|| (moduleToStore == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_LEFT)) ){
 					state = ACTION_STOCK_UP_CYLINDER; // On continue le stockage
 				}else{
 					state = COMPUTE_NEXT_CYLINDER; // On passe au cylindre suivant
@@ -904,10 +905,10 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
 
 			if(ON_LEAVE()){
-				// Mise à jour des données
+				// On met à jour les données : Passage du module de POS_ELEVATOR vers le container (POS_SLOPE, POS_CONTAINER ou POS_BALANCER)
 				if(moduleToStore == RIGHT){
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_RIGHT);
-				}else if(moduleToStore == LEFT ){
+				}else{
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_LEFT);
 				}
 			}
