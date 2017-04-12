@@ -31,38 +31,38 @@ void ACT_AVOIDANCE_init(){
 	if(QS_WHO_AM_I_get() == BIG_ROBOT){ // Seulement sur le gros robot
 		//----------------------------------------------------------------------------------------------------------------------------------------left-----right----front---back
 
-		init_new_offset(ACT_QUEUE_Cylinder_pusher_left,		ACT_AVOID_CYLINDER_PUSHER_LEFT_Out,			ACT_CYLINDER_PUSHER_LEFT_OUT,			  	0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_pusher_right,	ACT_AVOID_CYLINDER_PUSHER_RIGHT_Out,		ACT_CYLINDER_PUSHER_RIGHT_OUT,			  	0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_pusher_left,		ACT_AVOID_CYLINDER_PUSHER_LEFT_Out,			ACT_CYLINDER_PUSHER_LEFT_OUT,			  	160,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_pusher_right,	ACT_AVOID_CYLINDER_PUSHER_RIGHT_Out,		ACT_CYLINDER_PUSHER_RIGHT_OUT,			  	0,	    160,      0,	   0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_CYLINDER_SLIDER_LEFT_Out,			ACT_CYLINDER_SLIDER_LEFT_OUT,			 	0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_CYLINDER_SLIDER_LEFT_Almost_out,	ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT,      	0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_CYLINDER_SLIDER_LEFT_Almost_out_with_cylinder,	ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER,			  0,	 0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_CYLINDER_SLIDER_LEFT_Out,			ACT_CYLINDER_SLIDER_LEFT_OUT,			 	0,	    0,      85,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_CYLINDER_SLIDER_LEFT_Almost_out,	ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT,      	0,	    0,      55,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_left,		ACT_AVOID_CYLINDER_SLIDER_LEFT_Almost_out_with_cylinder,	ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER,			  0,	 0,      25,	   0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_CYLINDER_SLIDER_RIGHT_Out,		ACT_CYLINDER_SLIDER_RIGHT_OUT,			  	0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_CYLINDER_SLIDER_RIGHT_Almost_out,	ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT,     	0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_CYLINDER_SLIDER_RIGHT_Almost_out_with_cylinder, ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER,			  0,	 0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_CYLINDER_SLIDER_RIGHT_Out,		ACT_CYLINDER_SLIDER_RIGHT_OUT,			  	0,	    0,      85,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_CYLINDER_SLIDER_RIGHT_Almost_out,	ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT,     	0,	    0,      55,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_slider_right,	ACT_AVOID_CYLINDER_SLIDER_RIGHT_Almost_out_with_cylinder, ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER,			  0,	 0,      25,	   0);
 
-		init_new_offset(ACT_QUEUE_Cylinder_arm_left,		ACT_AVOID_CYLINDER_ARM_LEFT_Out,			ACT_CYLINDER_ARM_LEFT_OUT,			      	0,	    0,      0,	   0);
-		init_new_offset(ACT_QUEUE_Cylinder_arm_right,		ACT_AVOID_CYLINDER_ARM_RIGHT_Out,			ACT_CYLINDER_ARM_RIGHT_OUT,			      	0,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_arm_left,		ACT_AVOID_CYLINDER_ARM_LEFT_Out,			ACT_CYLINDER_ARM_LEFT_OUT,			      	100,	    0,      0,	   0);
+		init_new_offset(ACT_QUEUE_Cylinder_arm_right,		ACT_AVOID_CYLINDER_ARM_RIGHT_Out,			ACT_CYLINDER_ARM_RIGHT_OUT,			      	0,	    100,      0,	   0);
 
 		init_new_offset(ACT_QUEUE_Ore_gun,					ACT_AVOID_ORE_GUN_Down,						ACT_ORE_GUN_DOWN,			      		  	0,	    0,      0,	   0);
 		init_new_offset(ACT_QUEUE_Ore_roller_arm,			ACT_AVOID_ORE_ROLLER_ARM_Out,	    		ACT_ORE_ROLLER_ARM_OUT,			      	  	0,	    0,      0,	   0);
 
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Take,		ACT_CYLINDER_DISPOSE_LEFT_TAKE,				0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Raise,		ACT_CYLINDER_DISPOSE_LEFT_RAISE,			0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Dispose,	ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,			0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_dispose_left,	ACT_AVOID_CYLINDER_DISPOSE_LEFT_Dispose,	ACT_CYLINDER_DISPOSE_LEFT_DISPOSE,			150,		0,		0,		0);
 
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Take,		ACT_CYLINDER_DISPOSE_RIGHT_TAKE,			0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Raise,		ACT_CYLINDER_DISPOSE_RIGHT_RAISE,			0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Dispose,	ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE,			0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Cylinder_dispose_right,	ACT_AVOID_CYLINDER_DISPOSE_RIGHT_Dispose,	ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE,			0,		150,		0,		0);
 
 		// Dans le cas où on ventouse un module sur le slider
-		init_new_offset(ACT_QUEUE_Pompe_act_slider_left,	ACT_AVOID_POMPE_ACT_SLIDER_LEFT_Normal,		ACT_POMPE_NORMAL,							0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Pompe_act_slider_right,	ACT_AVOID_POMPE_ACT_SLIDER_RIGHT_Normal,	ACT_POMPE_NORMAL,							0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Pompe_act_slider_left,	ACT_AVOID_POMPE_ACT_SLIDER_LEFT_Normal,		ACT_POMPE_NORMAL,							120,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Pompe_act_slider_right,	ACT_AVOID_POMPE_ACT_SLIDER_RIGHT_Normal,	ACT_POMPE_NORMAL,							120,		0,		0,		0);
 
 		// Dans le cas où on ventouse un module sur l'élévateur
-		init_new_offset(ACT_QUEUE_Pompe_act_elevator_left,	ACT_AVOID_POMPE_ACT_ELEVATOR_LEFT_Normal,	ACT_POMPE_NORMAL,							0,		0,		0,		0);
-		init_new_offset(ACT_QUEUE_Pompe_act_elevator_right,	ACT_AVOID_POMPE_ACT_ELEVATOR_RIGHT_Normal,	ACT_POMPE_NORMAL,							0,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Pompe_act_elevator_left,	ACT_AVOID_POMPE_ACT_ELEVATOR_LEFT_Normal,	ACT_POMPE_NORMAL,							40,		0,		0,		0);
+		init_new_offset(ACT_QUEUE_Pompe_act_elevator_right,	ACT_AVOID_POMPE_ACT_ELEVATOR_RIGHT_Normal,	ACT_POMPE_NORMAL,							40,		0,		0,		0);
 
 
 		init_new_offset(ACT_QUEUE_Ore_wall,					ACT_AVOID_ORE_WALL_Out,						ACT_ORE_WALL_OUT,							0,		0,		0,		0);
