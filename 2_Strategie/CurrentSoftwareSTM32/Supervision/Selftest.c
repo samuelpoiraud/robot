@@ -918,27 +918,33 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_IHM_UNREACHABLE:					return "IHM Unreachable";		break;
 
 		// Actionneurs BIG
+		case SELFTEST_ACT_AX12_BEARING_BALL_WHEEL:      return "ACT WHEEL";             break;
+		case SELFTEST_ACT_AX12_BIG_BALL_BACK_LEFT:      return "ACT BACK LEFT";         break;
+		case SELFTEST_ACT_AX12_BIG_BALL_BACK_RIGHT:     return "ACT BACK RIGHT";        break;
+		case SELFTEST_ACT_AX12_BIG_BALL_FRONT_LEFT:     return "ACT FRONT LEFT";        break;
+		case SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT:    return "ACT FRONT RIGHT";       break;
+
         case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_LEFT:  return "ACT ELEVATOR LEFT";     break;
         case SELFTEST_ACT_RX24_CYLINDER_ELEVATOR_RIGHT: return "ACT ELEVATOR RIGHT";    break;
         case SELFTEST_ACT_RX24_CYLINDER_SLIDER_LEFT:    return "ACT SLIDER LEFT";       break;
         case SELFTEST_ACT_RX24_CYLINDER_SLIDER_RIGHT:   return "ACT SLIDER RIGHT";      break;
-        case SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT:  		return "ACT ARM LEFT";     		break;
-        case SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT: 		return "ACT ARM RIGHT";    		break;
-        case SELFTEST_ACT_RX24_ORE_GUN:                 return "ACT ORE GUN";           break;
-        case SELFTEST_ACT_RX24_ORE_ROLLER_ARM:          return "ACT ROLLER ARM";        break;
-        case SELFTEST_ACT_RX24_ORE_WALL:                return "ACT ORE WALL";          break;
-        case SELFTEST_ACT_AX12_BEARING_BALL_WHEEL:      return "ACT WHEEL";             break;
-        case SELFTEST_ACT_AX12_BIG_BALL_BACK_LEFT:      return "ACT BACK LEFT";         break;
-        case SELFTEST_ACT_AX12_BIG_BALL_BACK_RIGHT:     return "ACT BACK RIGHT";        break;
-        case SELFTEST_ACT_AX12_BIG_BALL_FRONT_LEFT:     return "ACT FRONT LEFT";        break;
-        case SELFTEST_ACT_AX12_BIG_BALL_FRONT_RIGHT:    return "ACT FRONT RIGHT";       break;
         case SELFTEST_ACT_AX12_CYLINDER_BALANCER_LEFT: 	return "ACT BALANCER LEFT";    	break;
         case SELFTEST_ACT_AX12_CYLINDER_BALANCER_RIGHT:	return "ACT BALANCER RIGHT";   	break;
-
         case SELFTEST_ACT_AX12_CYLINDER_PUSHER_LEFT:    return "ACT PUSHER LEFT";       break;
         case SELFTEST_ACT_AX12_CYLINDER_PUSHER_RIGHT:   return "ACT PUSHER RIGHT";      break;
         case SELFTEST_ACT_AX12_CYLINDER_SLOPE_LEFT:     return "ACT SLOPE LEFT";        break;
         case SELFTEST_ACT_AX12_CYLINDER_SLOPE_RIGHT:    return "ACT SLOPE RIGHT";       break;
+        case SELFTEST_ACT_RX24_CYLINDER_ARM_LEFT:  		return "ACT ARM LEFT";     		break;
+        case SELFTEST_ACT_RX24_CYLINDER_ARM_RIGHT: 		return "ACT ARM RIGHT";    		break;
+        case SELFTEST_ACT_AX12_CYLINDER_DISPOSE_LEFT:  	return "ACT DISPOSE LEFT";     	break;
+        case SELFTEST_ACT_AX12_CYLINDER_DISPOSE_RIGHT: 	return "ACT DISPOSE RIGHT";    	break;
+
+        case SELFTEST_ACT_RX24_ORE_GUN:                 return "ACT ORE GUN";           break;
+        case SELFTEST_ACT_RX24_ORE_ROLLER_ARM:          return "ACT ROLLER ARM";        break;
+        case SELFTEST_ACT_RX24_ORE_FOAM:          		return "ACT ROLLER FOAM";       break;
+        case SELFTEST_ACT_RX24_ORE_WALL:                return "ACT ORE WALL";          break;
+        case SELFTEST_ACT_RX24_ORE_TRIHOLE:             return "ACT TRIHOLE";           break;
+
         case SELFTEST_ACT_AX12_ROCKET:                  return "ACT ROCKET";            break;
 
         // Actionneurs SMALL

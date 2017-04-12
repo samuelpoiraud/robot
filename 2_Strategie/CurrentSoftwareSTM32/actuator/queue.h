@@ -105,12 +105,13 @@ typedef enum {
 
 	NB_QUEUE,
 
-	ACT_QUEUE_Pompe_act_slider_left = ACT_QUEUE_Mosfet_act_1,
-	ACT_QUEUE_Pompe_act_slider_right = ACT_QUEUE_Mosfet_act_2,
+	ACT_QUEUE_Turbine = ACT_QUEUE_Mosfet_act_1,
+	ACT_QUEUE_Pompe_act_elevator_right = ACT_QUEUE_Mosfet_act_2,
 	ACT_QUEUE_Pompe_act_elevator_left = ACT_QUEUE_Mosfet_act_3,
-	ACT_QUEUE_Pompe_act_elevator_right = ACT_QUEUE_Mosfet_act_4,
+	ACT_QUEUE_Pompe_act_dispose_right = ACT_QUEUE_Mosfet_act_4,
 	ACT_QUEUE_Pompe_act_dispose_left = ACT_QUEUE_Mosfet_act_5,
-	ACT_QUEUE_Pompe_act_dispose_right = ACT_QUEUE_Mosfet_act_6
+	ACT_QUEUE_Pompe_act_slider_right = ACT_QUEUE_Mosfet_act_6,
+	ACT_QUEUE_Pompe_act_slider_left = ACT_QUEUE_Mosfet_act_7,
 
 } queue_id_e;
 
