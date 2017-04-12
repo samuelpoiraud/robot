@@ -291,9 +291,11 @@ void MAIN_process_it(Uint8 ms)
 static void MAIN_global_var_init(){
 	// Initialisation de la variable global
 	global.debug.mode_best_effort_enable = FALSE;
+	global.absolute_time = 0;
 	global.flags.match_started = FALSE;
 	global.flags.match_over = FALSE;
-	global.absolute_time = 0;
+	global.flags.alim = FALSE;
+	global.flags.powerAvailable = FALSE;
 }
 
 static void MAIN_sensor_test(){

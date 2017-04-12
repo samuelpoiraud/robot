@@ -21,7 +21,7 @@
 		volatile bool_e match_started;
 
 		volatile bool_e power;
-
+		volatile bool_e powerAvailable;
 	}flag_list_t;
 
 	typedef struct{

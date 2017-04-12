@@ -494,13 +494,15 @@
 	 *********************************************************************************************************************/
 
 	typedef enum{
-		BATTERY_DISABLE = 0b00000001,
-		BATTERY_ENABLE	= 0b00000010,
-		BATTERY_LOW		= 0b00000100,
-		ARU_DISABLE		= 0b00001000,
-		ARU_ENABLE		= 0b00010000,
-		HOKUYO_DISABLE	= 0b00100000,
-		HOKUYO_ENABLE	= 0b01000000
+		BATTERY_DISABLE 	= 0b000000001,
+		BATTERY_ENABLE		= 0b000000010,
+		BATTERY_LOW			= 0b000000100,
+		ARU_DISABLE			= 0b000001000,
+		ARU_ENABLE			= 0b000010000,
+		HOKUYO_DISABLE		= 0b000100000,
+		HOKUYO_ENABLE		= 0b001000000,
+		POWER_AVAILABLE		= 0b010000000,
+		POWER_NO_AVAILABLE	= 0b100000000
 	}alim_state_e;
 
 	// Switch de la carte IHM, pour rajouter des switchs (voir IHM switch.c/h)

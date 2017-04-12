@@ -97,10 +97,10 @@
 		 * state peut prendre des valeurs de type "alim_state_e" (possibilité de passer plusieurs infos en même temps avec un OU logique)
 		 */
 		#define BROADCAST_ALIM				0x005
-		#define SIZE_BROADCAST_ALIM			3
+		#define SIZE_BROADCAST_ALIM			4
 			struct{
 				Uint16 battery_value		:16;		// [mV]
-				Uint8 state		            :8;         // Peut prendre des valeurs de type "alim_state_e"
+				Uint16 state				:16;        // Peut prendre des valeurs de type "alim_state_e"
 			}broadcast_alim;
 
 
