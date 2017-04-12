@@ -582,29 +582,271 @@ static void MAIN_onButton5LongPush() {
 
 #else // ROBOT_SMALL
 
-static void MAIN_onButton0(){}
+static void MAIN_onButton0(){
+	static Uint8 state = 0;
+		CAN_msg_t msg;
+		msg.size = 1;
+		if(state == 0){
+			msg.sid = ACT_SMALL_CYLINDER_SLIDER;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLIDER_OUT;
+		}else if(state == 1){
+			msg.sid = ACT_SMALL_CYLINDER_SLIDER;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLIDER_ALMOST_OUT;
+		}else if(state == 2){
+			msg.sid = ACT_SMALL_CYLINDER_SLIDER;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLIDER_ALMOST_OUT_WITH_CYLINDER;
+		}else if(state == 3){
+			msg.sid = ACT_SMALL_CYLINDER_SLIDER;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLIDER_IN;
+		}else if(state == 4){
+			msg.sid = ACT_SMALL_CYLINDER_ELEVATOR;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_TOP;
+		}else if(state == 5){
+			msg.sid = ACT_SMALL_CYLINDER_ELEVATOR;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER;
+		}else if(state == 6){
+			msg.sid = ACT_SMALL_CYLINDER_ELEVATOR;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM;
+		}else if(state == 7){
+			msg.sid = ACT_SMALL_CYLINDER_SLIDER;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLIDER_IN;
+		}
 
-static void MAIN_onButton0LongPush(){}
+		if(msg.sid != 0)
+			CAN_process_msg(&msg);
+		state = (state == 7)? 0 : state + 1;
+	}
 
-static void MAIN_onButton1(){}
+static void MAIN_onButton0LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_POMPE_PRISE;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_POMPE_PRISE;
+		msg.data.act_msg.order = ACT_POMPE_REVERSE;
+	}else if(state == 2){
+		msg.sid = ACT_SMALL_POMPE_PRISE;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}
 
-static void MAIN_onButton1LongPush(){}
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+}
 
-static void MAIN_onButton2(){}
+static void MAIN_onButton1(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_UP;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_VERY_UP;
+	}else if(state == 2){
+		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_DOWN;
+	}
 
-static void MAIN_onButton2LongPush(){}
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
 
-static void MAIN_onButton3(){}
+}
 
-static void MAIN_onButton3LongPush(){}
+static void MAIN_onButton1LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_CYLINDER_BALANCER;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_BALANCER_OUT;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_CYLINDER_BALANCER;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_BALANCER_IN;
+	}
 
-static void MAIN_onButton4(){}
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
 
-static void MAIN_onButton4LongPush(){}
+}
 
-static void MAIN_onButton5(){}
+static void MAIN_onButton2(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_CYLINDER_ARM;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_ARM_PREPARE_TO_TAKE;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_CYLINDER_DISPOSE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_DISPOSE_TAKE;
+	}else if(state == 2){
+		msg.sid = ACT_SMALL_CYLINDER_ARM;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_ARM_TAKE;
+	}else if(state == 3){
+		msg.sid = ACT_SMALL_CYLINDER_DISPOSE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_DISPOSE_RAISE;
+	}else if(state == 4){
+		msg.sid = ACT_SMALL_CYLINDER_ARM;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_ARM_DISPOSE;
+	}else if(state == 5){
+		msg.sid = ACT_SMALL_CYLINDER_DISPOSE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_DISPOSE_DISPOSE;
+	}else if(state == 6){
+		msg.sid = ACT_SMALL_CYLINDER_DISPOSE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_DISPOSE_IDLE;
+	}else if(state == 7){
+		msg.sid = ACT_SMALL_CYLINDER_ARM;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_ARM_IN;
+	}
 
-static void MAIN_onButton5LongPush(){}
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 7)? 0 : state + 1;
+}
+
+static void MAIN_onButton2LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.data.act_msg.order = ACT_POMPE_REVERSE;
+	}else if(state == 2){
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}
+
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 2)? 0 : state + 1;
+}
+
+static void MAIN_onButton3(){
+	static Uint8 state = 0;
+	CAN_msg_t msg1, msg2, msg3;
+	msg1.size = 1;
+	msg2.size = 1;
+	msg3.size = 1;
+	if(state == 0){
+		msg1.sid = ACT_SMALL_BALL_FRONT_LEFT;
+		msg1.data.act_msg.order = ACT_SMALL_BALL_FRONT_LEFT_UP;
+		msg2.sid = ACT_SMALL_BALL_FRONT_RIGHT;
+		msg2.data.act_msg.order = ACT_SMALL_BALL_FRONT_RIGHT_UP;
+		msg3.sid = ACT_SMALL_BALL_BACK;
+		msg3.data.act_msg.order = ACT_SMALL_BALL_BACK_UP;
+	}else if(state == 1){
+		msg1.sid = ACT_SMALL_BALL_FRONT_LEFT;
+		msg1.data.act_msg.order = ACT_SMALL_BALL_FRONT_LEFT_DOWN;
+		msg2.sid = ACT_SMALL_BALL_FRONT_RIGHT;
+		msg2.data.act_msg.order = ACT_SMALL_BALL_FRONT_RIGHT_DOWN;
+		msg3.sid = ACT_SMALL_BALL_BACK;
+		msg3.data.act_msg.order = ACT_SMALL_BALL_BACK_DOWN;
+	}
+
+	if(msg1.sid != 0)
+		CAN_process_msg(&msg1);
+	if(msg2.sid != 0)
+		CAN_process_msg(&msg2);
+	if(msg3.sid != 0)
+		CAN_process_msg(&msg3);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton3LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_CYLINDER_COLOR;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_COLOR_NORMAL_SPEED;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_CYLINDER_COLOR;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_COLOR_ZERO_SPEED;
+	}
+
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton4(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_CYLINDER_MULTIFONCTION;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_CYLINDER_MULTIFONCTION;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_UNLOCK;
+	}
+
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton4LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_ORE;
+		msg.data.act_msg.order = ACT_SMALL_ORE_LOCK;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_ORE;
+		msg.data.act_msg.order = ACT_SMALL_ORE_UNLOCK;
+	}
+
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton5(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_MAGIC_ARM;
+		msg.data.act_msg.order = ACT_SMALL_MAGIC_ARM_LOCK;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_MAGIC_ARM;
+		msg.data.act_msg.order = ACT_SMALL_MAGIC_ARM_UNLOCK;
+	}
+
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+}
+
+static void MAIN_onButton5LongPush(){
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 1;
+	if(state == 0){
+		msg.sid = ACT_SMALL_MAGIC_COLOR;
+		msg.data.act_msg.order = ACT_SMALL_MAGIC_COLOR_LOCK;
+	}else if(state == 1){
+		msg.sid = ACT_SMALL_MAGIC_COLOR;
+		msg.data.act_msg.order = ACT_SMALL_MAGIC_COLOR_UNLOCK;
+	}
+
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 1)? 0 : state + 1;
+
+}
 
 #endif // ROBOT_BIG et ROBOT_SMALL
 
