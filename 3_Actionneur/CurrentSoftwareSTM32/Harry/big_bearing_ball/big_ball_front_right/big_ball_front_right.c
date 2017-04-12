@@ -262,6 +262,7 @@ static void BIG_BALL_FRONT_RIGHT_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_BIG_BALL_FRONT_RIGHT_IDLE : *ax12_goalPosition = BIG_BALL_FRONT_RIGHT_AX12_IDLE_POS; break;
         case ACT_BIG_BALL_FRONT_RIGHT_UP : *ax12_goalPosition = BIG_BALL_FRONT_RIGHT_AX12_UP_POS; break;
+        case ACT_BIG_BALL_FRONT_RIGHT_DOWN : *ax12_goalPosition = BIG_BALL_FRONT_RIGHT_AX12_DOWN_POS; break;
 
         case ACT_BIG_BALL_FRONT_RIGHT_STOP :
             AX12_set_torque_enabled(BIG_BALL_FRONT_RIGHT_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
