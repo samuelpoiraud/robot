@@ -135,16 +135,16 @@
 				LCD_objectId_t id				:8;
 			}addProgressBar;
 
-			#define SIZE_LCD_ADD_SLIDER			11
+			#define SIZE_LCD_ADD_SLIDER			22
 			struct{
 				Sint32 minValue					:32;
 				Sint32 maxValue					:32;
+				Sint32 baseValue				:32;
 				Sint16 x						:16;
 				Sint16 y						:16;
 				Uint16 width					:16;
 				Uint16 height					:16;
 				LCD_objectOrientation_e orientation	:8;
-				Uint8 baseValue					:8;
 				LCD_objectId_t id				:8;
 			}addSlider;
 
@@ -216,7 +216,7 @@
 			#define SIZE_LCD_UPDATE_SLIDER 		5
 			struct{
 				LCD_objectId_t id				:8;
-				Uint32 value					:32;
+				Sint32 value					:32;
 			}updateSlider;
 
 			Uint8 rawData[LCD_OVER_UART_MAX_SIZE];
