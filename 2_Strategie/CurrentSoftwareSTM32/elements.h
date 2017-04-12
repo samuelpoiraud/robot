@@ -160,6 +160,7 @@ void ELEMENTS_receive_flags(CAN_msg_t* msg);
 //Fonctions pour la gestion du stockage des modules
 moduleTypeDominating_e STOCKS_getDominatingModulesType(moduleStockLocation_e storage);
 Uint8 STOCKS_getNbModules(moduleStockLocation_e storage);
+moduleType_e STOCKS_getModuleType(moduleStockPosition_e position, moduleStockLocation_e storage);
 bool_e STOCKS_isFull(moduleStockLocation_e storage);
 bool_e STOCKS_isEmpty(moduleStockLocation_e storage);
 bool_e STOCKS_moduleStockPlaceIsEmpty(moduleStockPosition_e place, moduleStockLocation_e storage);

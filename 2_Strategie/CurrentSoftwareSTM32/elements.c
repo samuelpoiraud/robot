@@ -358,6 +358,11 @@ Uint8 STOCKS_getNbModules(moduleStockLocation_e storage){
 	return moduleStockInfo[storage].nbCurrentModules;
 }
 
+// Getter du type d'un module à une position donnée
+moduleType_e STOCKS_getModuleType(moduleStockPosition_e position, moduleStockLocation_e storage){
+	return moduleStockInfo[storage].stockModules[position];
+}
+
 // Permet de savoir si un des stocks du robot est plein
 // On ne prend pas en compte les positions STOCK_POS_COLOR et STCOK_POS_ARM_DISPOSE
 bool_e STOCKS_isFull(moduleStockLocation_e storage){
