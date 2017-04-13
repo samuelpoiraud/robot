@@ -1437,7 +1437,7 @@ error_e sub_harry_get_in_north_little_crater(ELEMENTS_property_e minerais){
 			}else{ // Prise cratère coté bleu
 				if(i_am_in_square(800, 1400, 2100, 2700)){
 					state = DONE;//GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(100, 1100, 900, 2100)){
+				}else if (i_am_in_square(300, 1100, 900, 2100)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(800, 1400, 300, 900)){
 					state = GET_IN_ADV_SQUARE;
@@ -1679,7 +1679,7 @@ error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais){
 			}else{	// Prise cratère coté bleu
 				if(i_am_in_square(800, 1400, 2100, 2700)){
 					state = DONE;//GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(100, 1100, 900, 2100)){
+				}else if (i_am_in_square(300, 1050, 900, 2100)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(800, 1400, 300, 900)){
 					state = GET_IN_ADV_SQUARE;
