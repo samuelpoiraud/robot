@@ -1451,9 +1451,9 @@ error_e sub_harry_rocket_monocolor(){
 			}else{
 				if (i_am_in_square_color(200, 1100, 900, 2100)){
 					state = GET_IN_DIRECT;
-				}else if(i_am_in_square_color(800, 1400, 300, 900)){
+				}else if(i_am_in_square_color(850, 1400, 300, 900)){
 					state = GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square_color(800, 1400, 2100, 2700)){
+				}else if (i_am_in_square_color(850, 1400, 2100, 2700)){
 					state = GET_IN_ADV_SQUARE;
 				}else{
 					state = PATHFIND;
@@ -1465,11 +1465,11 @@ error_e sub_harry_rocket_monocolor(){
 			break;
 
 		case GET_IN_OUR_SQUARE:
-			state = try_going(800, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(850, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_ADV_SQUARE:
-			state = try_going(800, COLOR_Y(2000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(850, COLOR_Y(2000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_DIRECT:
@@ -1607,7 +1607,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
 				if(i_am_in_square(700, 1450, 250, 1000)){
 					state = GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(350, 1150, 1000, 2000)){
+				}else if (i_am_in_square(350, 1050, 1000, 2000)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(700, 1450, 2000, 2750)){
 					state = GET_IN_ADV_SQUARE;
@@ -1617,7 +1617,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			}else{ // Prise fusee cote bleu
 				if(i_am_in_square(700, 1450, 2000, 2750)){
 					state = GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(350, 1150, 1000, 2000)){
+				}else if (i_am_in_square(350, 1050, 1000, 2000)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(700, 1450, 250, 1000)){
 					state = GET_IN_ADV_SQUARE;
