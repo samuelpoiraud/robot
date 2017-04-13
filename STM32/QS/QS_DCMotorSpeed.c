@@ -120,9 +120,9 @@
 		DC_MOTOR_SPEED_config_t* thiss = &(dcMotorSpeed[id].config);
 		assert(dcMotorSpeed[id].configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED);
 		if(value)
-			GPIO_SetBits(thiss->way_latch, 1 << thiss->way_bit_number);
+			GPIO_SetBits(thiss->way_latch, thiss->way_bit_number);
 		else
-			GPIO_ResetBits(thiss->way_latch, 1 << thiss->way_bit_number);
+			GPIO_ResetBits(thiss->way_latch, thiss->way_bit_number);
 	}
 
 	static Uint8 DC_MOTOR_SPEED_getWay(DC_MOTOR_SPEED_id id){

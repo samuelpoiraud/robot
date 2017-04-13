@@ -32,7 +32,7 @@
 	#define MOTOR_ROLLER_FOAM_SENSOR_TICK_PER_REV		8
 
 // Configuration de l'asservissement PIDs
-	#define MOTOR_ROLLER_FOAM_KP						0
+	#define MOTOR_ROLLER_FOAM_KP						1024
 	#define MOTOR_ROLLER_FOAM_KI						0
 	#define MOTOR_ROLLER_FOAM_KD						0
 	#define MOTOR_ROLLER_FOAM_KV						177			// (Réduction / ConstanteVitesseMoteur * MaxPWM * 1024) / TensionAlimentation
