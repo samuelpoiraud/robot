@@ -298,6 +298,7 @@
 	#define PORT_IO_D_15		PORT_IO_OUTPUT
 	#define PORT_OPT_D_15		PORT_OPT_NO_PULL
 		#define LED5_PORT				GPIOD,GPIO_Pin_15
+		#define RELAY_RESISTOR			GPIOD,GPIO_Pin_15
 
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -77,7 +77,6 @@
 		#define USE_UART6_RX_BUFFER
 			#define UART6_RX_BUFFER_SIZE 	128
 
-
 /* Réglages IT externe */
 	#define USE_EXTERNAL_IT
 	#define USE_RPM_SENSOR

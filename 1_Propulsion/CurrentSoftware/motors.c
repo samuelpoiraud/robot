@@ -131,8 +131,8 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 		PWM_run( (Sint8)duty_right, PWM_MOTEUR_1);
 		PWM_run( (Sint8)duty_left, PWM_MOTEUR_2);
 	}else{
-		PWM_stop();
-		PWM_stop();
+		PWM_stop(PWM_MOTEUR_1);
+		PWM_stop(PWM_MOTEUR_2);
 	}
 #else
 	PWM_run( (Sint8)duty_right, PWM_MOTEUR_1);

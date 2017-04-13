@@ -116,10 +116,10 @@ static void VOLTAGE_MEASURE_setStartupResistorState(bool_e state){
 
 	if(lastStartupResistorState != state){
 		lastStartupResistorState = state;
-//		if(state)
-//			GPIO_SetBits();
-//		else
-//			GPIO_ResetBits();
+		if(state)
+			GPIO_ResetBits(RELAY_RESISTOR);
+		else
+			GPIO_SetBits(RELAY_RESISTOR);
 	}
 }
 
