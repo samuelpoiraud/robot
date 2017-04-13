@@ -10,6 +10,7 @@
 #include "../../strats_2017/big/action_big.h"
 #include "../../strats_2017/small/action_small.h"
 #include "../../strats_2017/actions_both_2017.h"
+#include "../../propulsion/prop_functions.h"
 
 
 void corentin_strat_inutile_big(){
@@ -34,15 +35,16 @@ void corentin_strat_inutile_big(){
 
 	switch(state){
 		case INIT:
-			state=START;
+			state=GO_TO;
+		//	PROP_set_acceleration(200);
 			break;
 
 		case GO_TO:
-			state=try_advance(NULL, entrance, 700, state, MAKE_SUB, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state=try_going(1398, COLOR_Y(2102), state, MAKE_SUB, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MAKE_SUB:
-			state=check_sub_action_result(sub_harry_take_big_crater_blue(),state,DONE,state);
+			state=check_sub_action_result(sub_harry_take_south_little_crater(OUR_ELEMENT),state,DONE,state);
 			break;
 
 		case START:
@@ -50,7 +52,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case FIRST_STRAIGHT:
-			state=try_going(1270,COLOR_Y(300),state,FIRST_ROT,FIRST_ROT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(1270,COLOR_Y(350),state,FIRST_ROT,FIRST_ROT,FAST,ANY_WAY,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case FIRST_ROT:
@@ -58,7 +60,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case SECOND_STRAIGHT:
-			state=try_going(600,COLOR_Y(300),state,SECOND_ROT,SECOND_ROT,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(600,COLOR_Y(350),state,SECOND_ROT,SECOND_ROT,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case SECOND_ROT:

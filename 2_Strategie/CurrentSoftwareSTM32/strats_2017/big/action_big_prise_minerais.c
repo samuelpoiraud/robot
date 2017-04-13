@@ -309,13 +309,13 @@ error_e sub_harry_take_big_crater_move_pos_yellow(){
 			break;
 
 		case GET_IN:
-			if(i_am_in_square(400, 1500, 200, 800)){
+			if(i_am_in_square(700, 1500, 300, 800)){
 				state = GO_YELLOW_CRATER_FROM_BLUE_SQUARE;
 			}
-			else if(i_am_in_square(400, 1500, 2700, 2200)){
+			else if(i_am_in_square(700, 1500, 2700, 2200)){
 				state = GO_YELLOW_CRATER_FROM_YELLOW_SQUARE;
 			}
-			else if(i_am_in_square(300, 1200, 800, 2200)){
+			else if(i_am_in_square(300, 1050, 800, 2200)){
 				state = GO_YELLOW_CRATER_FROM_MIDDLE_SQUARE;
 			}else{
 				state = ASTAR_GO_YELLOW_CRATER;
@@ -377,7 +377,7 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 										  {(GEOMETRY_point_t){1390, 400}, FAST},
 										  };
 
-	const displacement_t leave_yellow_square[3] = { {(GEOMETRY_point_t){900, 2200}, FAST},
+	const displacement_t leave_yellow_square[3] = { {(GEOMETRY_point_t){950, 2200}, FAST},
 										  {(GEOMETRY_point_t){900, 800}, FAST},
 										  {(GEOMETRY_point_t){1390, 400}, FAST}
 										  };
@@ -389,13 +389,13 @@ error_e sub_harry_take_big_crater_move_pos_blue(){
 			break;
 
 		case GET_IN:
-			if(i_am_in_square(400, 1500, 200, 800)){
+			if(i_am_in_square(700, 1500, 300, 800)){
 				state = GO_BLUE_CRATER_FROM_BLUE_SQUARE;
 			}
-			else if(i_am_in_square(400, 1500, 2700, 2200)){
+			else if(i_am_in_square(700, 1500, 2700, 2200)){
 				state = GO_BLUE_CRATER_FROM_YELLOW_SQUARE;
 			}
-			else if(i_am_in_square(300, 1200, 800, 2200)){
+			else if(i_am_in_square(300, 1050, 800, 2200)){
 				state = GO_BLUE_CRATER_FROM_MIDDLE_SQUARE;
 			}else{
 				state = ASTAR_GO_BLUE_CRATER;
@@ -1427,7 +1427,7 @@ error_e sub_harry_get_in_north_little_crater(ELEMENTS_property_e minerais){
 			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
 				if(i_am_in_square(800, 1400, 300, 900)){
 					state = DONE;//GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(100, 1100, 900, 2100)){
+				}else if (i_am_in_square(300, 1100, 900, 2100)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(800, 1400, 2100, 2700)){
 					state = GET_IN_ADV_SQUARE;
@@ -1668,8 +1668,8 @@ error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais){
 			// Prise cratère coté jaune
 			if((minerais == OUR_ELEMENT && global.color == BLUE) || (minerais == ADV_ELEMENT && global.color == YELLOW)){
 				if(i_am_in_square(800, 1400, 300, 900)){
-					state = DONE; //GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(100, 1100, 900, 2100)){
+					state = GET_IN_OUR_SQUARE; // DONE;
+				}else if (i_am_in_square(300, 1050, 900, 2100)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(800, 1400, 2100, 2700)){
 					state = GET_IN_ADV_SQUARE;
@@ -1843,7 +1843,7 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 	return IN_PROGRESS;
 }
-
+*/
 
 
 error_e sub_harry_take_big_crater_blue(){ //arrivée en (1290, 710) environ
@@ -2277,6 +2277,3 @@ error_e sub_harry_take_big_crater_yellow(){ //arrivée en (1290, 710) environ
 
 	return IN_PROGRESS;
 }
-*/
-
-

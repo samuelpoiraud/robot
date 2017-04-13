@@ -224,8 +224,8 @@ error_e sub_harry_get_in_depose_minerais(){
 		case INIT:
 			//si j'ai rien à déposer je vais en erreur
 			if(i_am_in_square_color(800,1400,300,900))
-				state=GET_IN_FROM_OUR_SQUARE;
-			else if(i_am_in_square_color(250,1100,900,2100))
+				state= /*DONE;*/GET_IN_FROM_OUR_SQUARE;
+			else if(i_am_in_square_color(250,1050,900,2100))
 				state=GET_IN_MIDDLE_SQUARE;
 			else if(i_am_in_square_color(800,1400,2100,2700))
 				state=GET_IN_FROM_ADV_SQUARE;
