@@ -304,6 +304,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 													   print(string, len, "| état aru : ARU_DISABLE ");
 												if(msg->data.broadcast_alim.state & ARU_ENABLE)
 													   print(string, len, "| état aru : ARU_ENABLE ");
+												if(msg->data.broadcast_alim.state & POWER_AVAILABLE)
+													   print(string, len, "| état aru : POWER_AVAILABLE ");
+												if(msg->data.broadcast_alim.state & POWER_NO_AVAILABLE)
+													   print(string, len, "| état aru : POWER_NO_AVAILABLE ");
 												if(msg->data.broadcast_alim.state & HOKUYO_DISABLE)
 													   print(string, len, "| état hokuyo : HOKUYO_POWER_DISABLE ");
 												if(msg->data.broadcast_alim.state & HOKUYO_ENABLE)

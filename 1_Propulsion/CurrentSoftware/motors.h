@@ -15,6 +15,7 @@
 		#define CLIPPING_DUTY 99
 		#define MOTOR_BACKWARD Bit_SET
 		#define MOTOR_FORWARD Bit_RESET
+
 	void MOTORS_init(void);
 
 	void MOTORS_enable(bool_e enable);

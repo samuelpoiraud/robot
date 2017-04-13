@@ -33,6 +33,9 @@
 #include "Buzzer.h"
 #include "LCD_interface.h"
 
+#define THRESHOLD_STARTUP_RESISTOR_OFF	16000	//[mV]
+#define THRESHOLD_STARTUP_RESISTOR_ON	18000	//[mV]
+
 #define TIMEOUT_SELFTEST_ACT			20000	// en ms
 #define TIMEOUT_SELFTEST_PROP			10000	// en ms
 #define TIMEOUT_SELFTEST_STRAT			10000	// en ms
@@ -777,8 +780,9 @@ void SELFTEST_set_warning_bat_display_state(bool_e state){
 
 
 void SELFTEST_check_alim(){
-	static alim_state_e state = BATTERY_DISABLE, last_state = BATTERY_DISABLE;
-	static alim_state_e state_aru = ARU_DISABLE;
+	static alim_state_e state, last_state;
+	static alim_state_e power_state, last_power_state;
+	static alim_state_e state_aru, last_state_aru;
 	static time32_t last_display_time = 0;
 	static time32_t begin_time = 0;
 	static Uint16 battery_value = 0;
@@ -830,15 +834,35 @@ void SELFTEST_check_alim(){
 			global.flags.alim = TRUE;
 		}
 
+		if(global.alim_value > THRESHOLD_STARTUP_RESISTOR_ON){
+			power_state = POWER_AVAILABLE;
+		}else if(global.alim_value < THRESHOLD_STARTUP_RESISTOR_OFF){
+			power_state = POWER_NO_AVAILABLE;
+		}
+
+		msg.data.broadcast_alim.state = 0;
+
+		if(power_state != last_power_state){
+			last_power_state = power_state;
+			msg.data.broadcast_alim.state |= power_state;
+		}
+
 		if(state != last_state){
+			last_state = state;
+			msg.data.broadcast_alim.state |= state;
+		}
+
+		if(state_aru != last_state_aru){
+			last_state_aru = state_aru;
+			msg.data.broadcast_alim.state |= state_aru;
+		}
+
+		if(msg.data.broadcast_alim.state != 0){
 			msg.sid = BROADCAST_ALIM;
 			msg.size = SIZE_BROADCAST_ALIM;
-			msg.data.broadcast_alim.state = state | state_aru;
 			msg.data.broadcast_alim.battery_value = global.alim_value;
 			CAN_send(&msg);
 		}
-
-		last_state = state;
 	}
 }
 
