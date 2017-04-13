@@ -162,7 +162,7 @@ static void INTERFACE_IHM_position(bool_e entrance){
 	static time32_t lastRefresh;
 
 	if(entrance){
-		x = MIDDLEWARE_addText(50, 40, 0x0000, 0xFFFF, TEXT_FONTS_16x26, "x : %d", global.pos.x);
+		x = MIDDLEWARE_addText(50, 50, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "x : %d", global.pos.x);
 		y = MIDDLEWARE_addText(50, 65, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "y : %d", global.pos.y);
 		teta = MIDDLEWARE_addText(50, 80, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "teta : %d  |  %d°", global.pos.teta, global.pos.teta*180/PI4096);
 
