@@ -135,9 +135,9 @@
 
 	//BIG
 		// BOT_COLOR
-		#define BIG_BOT_COLOR_START_X			((BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
+		#define BIG_BOT_COLOR_START_X			((185)*65536)//avec les 2 barres de 8 mm
 		#define BIG_BOT_COLOR_START_Y			((1070 - BIG_ROBOT_WIDTH/2)*65536)
-		#define BIG_BOT_COLOR_START_TETA		(PI_28)			// PI_28  (il part en marche arriere...)
+		#define BIG_BOT_COLOR_START_TETA		(0)			// PI_28  (il part en marche arriere...)
 
 		#define BIG_BOT_COLOR_START_BASCULE_X			((180)*65536)
 		#define BIG_BOT_COLOR_START_BASCULE_Y			((BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
@@ -145,9 +145,9 @@
 
 
 		// TOP_COLOR
-		#define BIG_TOP_COLOR_START_X			((BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
+		#define BIG_TOP_COLOR_START_X			((185)*65536)//avec les 2 barres de 8 mm
 		#define BIG_TOP_COLOR_START_Y			((1930 + BIG_ROBOT_WIDTH/2)*65536)
-		#define BIG_TOP_COLOR_START_TETA		(PI_28)			// PI_28  (il part en marche arriere...)
+		#define BIG_TOP_COLOR_START_TETA		(0)			// PI_28  (il part en marche arriere...)
 
 		#define BIG_TOP_COLOR_START_BASCULE_X			((180)*65536)
 		#define BIG_TOP_COLOR_START_BASCULE_Y			((3000 - BIG_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
@@ -158,18 +158,18 @@
 
 ////////REGLAGES DU CORRECTEUR PD////////////////////////
 	#define SMALL_KD_TRANSLATION 	(0x20) //0x80
-	#define BIG_KD_TRANSLATION		(0x20) //0x80
+	#define BIG_KD_TRANSLATION		(0x20)//(0x1C) //0x80
 
 	#define SMALL_KP_TRANSLATION 	(0x20)
-	#define BIG_KP_TRANSLATION		(0x30)
+	#define BIG_KP_TRANSLATION		(0x30)//(0x28)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
 	#define SMALL_KD_ROTATION		(0x150) //0x800
-	#define BIG_KD_ROTATION			(0x180) //0x800
+	#define BIG_KD_ROTATION			(0x180)//(0x08) //0x800
 
 	#define SMALL_KP_ROTATION		(0x60)//40 //0x80
-	#define BIG_KP_ROTATION			(0x80) //0x80
+	#define BIG_KP_ROTATION			(0x80)//(0x70) //0x80
 
 	#define SMALL_KI_ROTATION		(0x0)
 	#define BIG_KI_ROTATION			(0x05)
@@ -223,7 +223,7 @@
 
 
 
-	#define BIG_ACCELERATION_NORMAL						150		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
+	#define BIG_ACCELERATION_NORMAL						55		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
 	#define BIG_ACCELERATION_MAX						500		//[mm.4096/5ms/5ms]
 	#define BIG_ACCELERATION_AVOIDANCE					160		//[mm.4096/5ms/5ms]
 	#define BIG_ACCELERATION_AVOIDANCE_RUSH				256		//[mm.4096/5ms/5ms]
