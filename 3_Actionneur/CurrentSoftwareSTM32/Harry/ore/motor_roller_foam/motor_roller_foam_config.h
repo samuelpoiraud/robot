@@ -32,9 +32,9 @@
 	#define MOTOR_ROLLER_FOAM_SENSOR_TICK_PER_REV		8
 
 // Configuration de l'asservissement PIDs
-	#define MOTOR_ROLLER_FOAM_KP						75
-	#define MOTOR_ROLLER_FOAM_KI						0
-	#define MOTOR_ROLLER_FOAM_KD						0
+	#define MOTOR_ROLLER_FOAM_KP						100
+	#define MOTOR_ROLLER_FOAM_KI						3000
+	#define MOTOR_ROLLER_FOAM_KD						800
 	#define MOTOR_ROLLER_FOAM_KV						177			// (Réduction / ConstanteVitesseMoteur * MaxPWM * 1024) / TensionAlimentation
 																	// Constante de vitesse moteur : 460
 																	// Réduction : 19:1
@@ -51,7 +51,7 @@
 
 //Extremum valeur
 	#define MOTOR_ROLLER_FOAM_MIN_VALUE					0
-	#define MOTOR_ROLLER_FOAM_MAX_VALUE					10
+	#define MOTOR_ROLLER_FOAM_MAX_VALUE					100
 
 #endif	/* MOTOR_ROLLER_FOAM_CONFIG_H */
 

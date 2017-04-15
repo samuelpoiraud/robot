@@ -136,13 +136,32 @@
 	/*-----------------------------------------
 			Ordre de déplacement
 	-----------------------------------------*/
-	DC_MOTOR_SPEED_speed DC_MOTOR_SPEED_getSpeed(DC_MOTOR_SPEED_id id){
+	DC_MOTOR_SPEED_speed DC_MOTOR_SPEED_getWantedSpeed(DC_MOTOR_SPEED_id id){
 		assert(id < DC_MOTOR_SPEED_NUMBER);
 
 		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
 		assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
 		return thiss->wantedSpeed;
 	}
+
+	DC_MOTOR_SPEED_speed DC_MOTOR_SPEED_getSpeed(DC_MOTOR_SPEED_id id){
+			assert(id < DC_MOTOR_SPEED_NUMBER);
+
+			DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
+			DC_MOTOR_SPEED_config_t* config = &(thiss->config);
+			Sint16 speed = 0;
+			assert((thiss->configState == DC_MOTOR_SPEED_CONFIG_INITIALIZED));
+			if(config->simulateWay){
+				if(DC_MOTOR_SPEED_getWay(id)){
+					speed = -(config->sensorRead)();
+				}else{
+					speed = (config->sensorRead)();
+				}
+			}else{
+				speed = (config->sensorRead)();
+			}
+			return speed;
+		}
 
 	void DC_MOTOR_SPEED_setSpeed(DC_MOTOR_SPEED_id id, DC_MOTOR_SPEED_speed speed){
 		assert(id < DC_MOTOR_SPEED_NUMBER);
@@ -400,10 +419,10 @@
 						// Asservissement PID
 						// Chaque coefficient multiplié par  1024 d'où les divisions
 
-						computed_cmd = 	(config->Kp * error / 1024)
+						computed_cmd = 	((config->Kp * error) / 1024)
 									+ ((config->Ki * thiss->integrator * DC_MOTOR_SPEED_TIME_PERIOD) >> 20)
 									+ (((config->Kd * differential) / DC_MOTOR_SPEED_TIME_PERIOD) >> 10)
-									+ ((config->Kv * wantedSpeed)/1024);
+									+ ((config->Kv * wantedSpeed) / 1024);
 
 						// Sens et saturation
 						if (computed_cmd > 0)

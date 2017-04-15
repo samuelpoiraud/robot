@@ -76,6 +76,9 @@
 		void DC_MOTOR_SPEED_setSpeed(DC_MOTOR_SPEED_id id, DC_MOTOR_SPEED_speed speed);
 
 		// Fonction pour obtenir la consigne de vitesse du moteur
+		DC_MOTOR_SPEED_speed DC_MOTOR_SPEED_getWantedSpeed(DC_MOTOR_SPEED_id id);
+
+		// Fonction pour obtenir la vitesse réelle instantanée du moteur
 		DC_MOTOR_SPEED_speed DC_MOTOR_SPEED_getSpeed(DC_MOTOR_SPEED_id id);
 
 		// Fonction pour obtenir l'état du moteur

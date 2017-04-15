@@ -22,7 +22,7 @@
 	#define MOTOR_TURN_TRIHOLE_PORT_WAY_BIT				GPIO_Pin_12
 	#define MOTOR_TURN_TRIHOLE_MAX_PWM					100
 	#define MOTOR_TURN_TRIHOLE_SIMUATE_WAY				TRUE
-	#define MOTOR_TURN_TRIHOLE_RECOVERY_MODE			TRUE
+	#define MOTOR_TURN_TRIHOLE_RECOVERY_MODE			FALSE
 	#define MOTOR_TURN_TRIHOLE_RECOVERY_TIME			1500
 
 // Configuration capteur vitesse
@@ -32,8 +32,8 @@
 	#define MOTOR_TURN_TRIHOLE_SENSOR_TICK_PER_REV		((Uint32)(2*9.7))
 
 // Configuration de l'asservissement PIDs
-	#define MOTOR_TURN_TRIHOLE_KP						0
-	#define MOTOR_TURN_TRIHOLE_KI						0
+	#define MOTOR_TURN_TRIHOLE_KP						100
+	#define MOTOR_TURN_TRIHOLE_KI						3000
 	#define MOTOR_TURN_TRIHOLE_KD						0
 	#define MOTOR_TURN_TRIHOLE_KV						167			// (Réduction / ConstanteVitesseMoteur * MaxPWM * 1024) / TensionAlimentation
 																	// Constante de vitesse moteur : 247	CXR
