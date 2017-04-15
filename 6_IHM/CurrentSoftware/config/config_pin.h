@@ -28,7 +28,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 	#define PORT_IO_A_0			PORT_IO_INPUT
 	#define PORT_OPT_A_0		PORT_OPT_NO_PULL
-		#define BUTTON_GO_TO_HOME_PORT	GPIOA->IDR0
+		#define BUTTON_SELFTEST_PORT	GPIOA->IDR0
 
 	#define PORT_IO_A_1			PORT_IO_INPUT
 	#define PORT_OPT_A_1		PORT_OPT_NO_PULL

@@ -27,6 +27,9 @@
 		#define DC_MOTOR_SPEED_NUMBER 		2
 		#define DC_MOTOR_SPEED_TIME_PERIOD	10
 
+	#define ACT_ORE_TRIHOLE_SPEED_RUN		50	// [rpm]	Maximum théorique 526 RPM
+	#define ACT_ORE_ROLLER_FOAM_SPEED_RUN	50	// [rpm]	Maximum théorique 510 RPM
+
 /* Servo-Moteurs standart */
 	//#define SERVO_TIMER 5
 	//#define USE_SERVO

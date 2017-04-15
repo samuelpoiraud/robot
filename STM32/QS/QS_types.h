@@ -534,7 +534,7 @@
 
 	// Button de la carte ihm
 	typedef enum{
-		BP_GO_TO_HOME_IHM=0,
+		BP_SELFTEST_IHM=0,
 		BP_CALIBRATION_IHM,
 		BP_PRINTMATCH_IHM,
 		BP_SUSPEND_RESUME_MATCH_IHM,
