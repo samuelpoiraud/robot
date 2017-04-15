@@ -85,7 +85,7 @@ int main (void)
 	GPIO_ResetBits(LED_USER);
 	GPIO_SetBits(LED_CAN);
 
-	// Initialisation des périphériques
+	// Initialisation des peripheriques
 	CAN_process_init();
 	UART_init();
 	TIMER_init();
@@ -189,55 +189,12 @@ int main (void)
 
 		OUTPUTLOG_process_main();
 
-        //MOTOR_TEST_test();
-
 	}//Endloop
 	return 0;
 }
 
 
 #ifdef I_AM_ROBOT_BIG
-//static void MAIN_onButton0() {
-	/*static Uint8 state = 0;
-	CAN_msg_t msg1, msg2;
-	msg1.size = 1;
-	msg2.size = 1;
-
-	if(state == 0){
-		msg1.sid = ACT_POMPE_LEFT;
-		msg1.data.act_msg.order = ACT_POMPE_NORMAL;
-		msg2.sid = 0;
-	}else if(state == 1){
-		msg1.sid = ACT_POMPE_MIDDLE_LEFT;
-		msg1.data.act_msg.order = ACT_POMPE_NORMAL;
-		msg2.sid = ACT_POMPE_LEFT;
-		msg2.data.act_msg.order = ACT_POMPE_STOP;
-	}else if(state == 2){
-		msg1.sid = ACT_POMPE_MIDDLE;
-		msg1.data.act_msg.order = ACT_POMPE_NORMAL;
-		msg2.sid = ACT_POMPE_MIDDLE_LEFT;
-		msg2.data.act_msg.order = ACT_POMPE_STOP;
-	}else if(state == 3){
-		msg1.sid = ACT_POMPE_MIDDLE_RIGHT;
-		msg1.data.act_msg.order = ACT_POMPE_NORMAL;
-		msg2.sid = ACT_POMPE_MIDDLE;
-		msg2.data.act_msg.order = ACT_POMPE_STOP;
-	}else if(state == 4){
-		msg1.sid = ACT_POMPE_RIGHT;
-		msg1.data.act_msg.order = ACT_POMPE_NORMAL;
-		msg2.sid = ACT_POMPE_MIDDLE_RIGHT;
-		msg2.data.act_msg.order = ACT_POMPE_STOP;
-	}else if(state == 5){
-		msg1.sid = 0;
-		msg2.sid = ACT_POMPE_RIGHT;
-		msg2.data.act_msg.order = ACT_POMPE_STOP;
-	}
-	if(msg1.sid != 0)
-		CAN_process_msg(&msg1);
-	if(msg2.sid != 0)
-		CAN_process_msg(&msg2);
-	state = (state == 5)? 0 : state + 1;*/
-
 // prise de cylindre droite
 	static void MAIN_onButton0() {
 		static Uint8 state = 0;
@@ -461,6 +418,7 @@ static void MAIN_onButton3LongPush() {}
 		}else if(state == 2){
 			msg1.sid = ACT_ORE_ROLLER_FOAM;
 			msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_RUN;
+			msg1.data.act_msg.act_data.act_optionnal_data[0] = ACT_ORE_ROLLER_FOAM_SPEED_RUN;
 		}else if(state == 3){
 			msg1.sid = ACT_ORE_ROLLER_FOAM;
 			msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_STOP;
@@ -492,6 +450,7 @@ static void MAIN_onButton4LongPush(){
 		}else if(state == 2){
 			msg1.sid = ACT_ORE_TRIHOLE;
 			msg1.data.act_msg.order = ACT_ORE_TRIHOLE_RUN;
+			msg1.data.act_msg.act_data.act_optionnal_data[0] = ACT_ORE_TRIHOLE_SPEED_RUN;
 		}else if(state == 3){
 			msg1.sid = ACT_ORE_TRIHOLE;
 			msg1.data.act_msg.order = ACT_ORE_TRIHOLE_STOP;
@@ -785,10 +744,13 @@ static void MAIN_onButton4(){
 	msg.size = 1;
 	if(state == 0){
 		msg.sid = ACT_SMALL_CYLINDER_MULTIFONCTION;
-		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_CYLINDER_MULTIFONCTION;
-		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_UNLOCK;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK;
+	}else if(state == 2){
+		msg.sid = ACT_SMALL_CYLINDER_MULTIFONCTION;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_IN;
 	}
 
 	if(msg.sid != 0)
@@ -802,10 +764,10 @@ static void MAIN_onButton4LongPush(){
 	msg.size = 1;
 	if(state == 0){
 		msg.sid = ACT_SMALL_ORE;
-		msg.data.act_msg.order = ACT_SMALL_ORE_LOCK;
+		msg.data.act_msg.order = ACT_SMALL_ORE_DOWN;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_ORE;
-		msg.data.act_msg.order = ACT_SMALL_ORE_UNLOCK;
+		msg.data.act_msg.order = ACT_SMALL_ORE_UP;
 	}
 
 	if(msg.sid != 0)
@@ -819,10 +781,10 @@ static void MAIN_onButton5(){
 	msg.size = 1;
 	if(state == 0){
 		msg.sid = ACT_SMALL_MAGIC_ARM;
-		msg.data.act_msg.order = ACT_SMALL_MAGIC_ARM_LOCK;
+		msg.data.act_msg.order = ACT_SMALL_MAGIC_ARM_OUT;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_MAGIC_ARM;
-		msg.data.act_msg.order = ACT_SMALL_MAGIC_ARM_UNLOCK;
+		msg.data.act_msg.order = ACT_SMALL_MAGIC_ARM_IN;
 	}
 
 	if(msg.sid != 0)
@@ -836,10 +798,10 @@ static void MAIN_onButton5LongPush(){
 	msg.size = 1;
 	if(state == 0){
 		msg.sid = ACT_SMALL_MAGIC_COLOR;
-		msg.data.act_msg.order = ACT_SMALL_MAGIC_COLOR_LOCK;
+		msg.data.act_msg.order = ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_MAGIC_COLOR;
-		msg.data.act_msg.order = ACT_SMALL_MAGIC_COLOR_UNLOCK;
+		msg.data.act_msg.order = ACT_SMALL_MAGIC_COLOR_ZERO_SPEED;
 	}
 
 	if(msg.sid != 0)

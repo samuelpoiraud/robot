@@ -109,13 +109,13 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 
 
 	// Mosfets actionneurs
-	{ACT_POMPE_SLIDER_LEFT,			ACT_QUEUE_Pompe_act_slider_left,		"Mosfet_act_slider_left"},
-	{ACT_POMPE_SLIDER_RIGHT,		ACT_QUEUE_Pompe_act_slider_right,		"Mosfet_act_slider_right"},
-	{ACT_POMPE_ELEVATOR_LEFT,		ACT_QUEUE_Pompe_act_elevator_left,		"Mosfet_act_elevator_left"},
+	{ACT_TURBINE,					ACT_QUEUE_Turbine,						"Mosfet_act_turbine"},
 	{ACT_POMPE_ELEVATOR_RIGHT,		ACT_QUEUE_Pompe_act_elevator_right,		"Mosfet_act_elevator_right"},
-	{ACT_POMPE_DISPOSE_LEFT,		ACT_QUEUE_Pompe_act_dispose_left,		"Mosfet_act_dispose_left"},
+	{ACT_POMPE_ELEVATOR_LEFT,		ACT_QUEUE_Pompe_act_elevator_left,		"Mosfet_act_elevator_left"},
 	{ACT_POMPE_DISPOSE_RIGHT,		ACT_QUEUE_Pompe_act_dispose_right,		"Mosfet_act_dispose_right"},
-	{ACT_MOSFET_7,					ACT_QUEUE_Mosfet_act_7,			        "Mosfet_act_7"},
+	{ACT_POMPE_DISPOSE_LEFT,		ACT_QUEUE_Pompe_act_dispose_left,		"Mosfet_act_dispose_left"},
+	{ACT_POMPE_SLIDER_RIGHT,		ACT_QUEUE_Pompe_act_slider_right,		"Mosfet_act_slider_right"},
+	{ACT_POMPE_SLIDER_LEFT,			ACT_QUEUE_Pompe_act_slider_left,		"Mosfet_act_slider_left"},
 	{ACT_MOSFET_8,					ACT_QUEUE_Mosfet_act_8,				    "Mosfet_act_8"},
 	{ACT_MOSFET_MULTI,      		ACT_QUEUE_Mosfet_act_multi,		        "Mosfet_act_multi"},
 

@@ -17,12 +17,12 @@
 	#define ORE_WALL_RX24_ASSER_POS_LARGE_EPSILON	28		// Si le déplacement de le RX24 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define ORE_WALL_RX24_MAX_TORQUE_PERCENT		50		// Couple maximum en pourcentage de le RX24. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager le RX24.
 	#define ORE_WALL_RX24_MAX_TEMPERATURE			60		// Température maximale en degré
-	#define ORE_WALL_RX24_SPEED					100		// Vitesse par défaut du RX24
+	#define ORE_WALL_RX24_SPEED						100		// Vitesse par défaut du RX24
 
 //Position
-	#define ORE_WALL_RX24_IDLE_POS					858
-	#define ORE_WALL_RX24_OUT_POS			     	631	//en degré
-	#define ORE_WALL_RX24_IN_POS					858	//en degré
+	#define ORE_WALL_RX24_IDLE_POS					846
+	#define ORE_WALL_RX24_OUT_POS			     	633	//en degré
+	#define ORE_WALL_RX24_IN_POS					846	//en degré
 
 //Position initiale de l'RX24
 	#define ORE_WALL_RX24_INIT_POS					ORE_WALL_RX24_IDLE_POS

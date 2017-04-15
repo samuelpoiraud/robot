@@ -24,8 +24,8 @@
     #define CYLINDER_ARM_LEFT_RX24_IN_POS			     		524	//en degré
     #define CYLINDER_ARM_LEFT_RX24_PREPARE_TO_TAKE_POS			410	//en degré
     #define CYLINDER_ARM_LEFT_RX24_TAKE_POS			     		453	//en degré
-    #define CYLINDER_ARM_LEFT_RX24_DISPOSE_POS			     	370	//en degré 436
-    #define CYLINDER_ARM_LEFT_RX24_OUT_POS						374	//en degré 361
+    #define CYLINDER_ARM_LEFT_RX24_DISPOSE_POS			     	414	//en degré (+20 par rapport à OUT_POS)
+    #define CYLINDER_ARM_LEFT_RX24_OUT_POS						394	//en degré (-130 par rapport à IN_POS)
 
 //Position initiale de l'RX24
     #define CYLINDER_ARM_LEFT_RX24_INIT_POS						CYLINDER_ARM_LEFT_RX24_IDLE_POS
