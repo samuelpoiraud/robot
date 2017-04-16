@@ -162,7 +162,7 @@ static void MOTOR_ROLLER_FOAM_command_init(queue_id_t queueId) {
 		DC_MOTOR_SPEED_restart(MOTOR_ROLLER_FOAM_ID);
 		debug_printf("Mise à jours de la vitesse (%d rpm) du moteur DC\n", dcm_goalSpeed);
 	}else{
-		DC_MOTOR_SPEED_stop(MOTOR_TURN_TRIHOLE_ID);
+		DC_MOTOR_SPEED_stop(MOTOR_ROLLER_FOAM_ID);
 		QUEUE_next(queueId, ACT_ORE_ROLLER_FOAM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
 		debug_printf("Arrêt de la rotation du moteur DC MOTOR_ROLLER_FOAM\n");
 	}

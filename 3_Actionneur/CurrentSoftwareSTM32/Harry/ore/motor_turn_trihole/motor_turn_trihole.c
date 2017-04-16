@@ -1,6 +1,6 @@
 /*  Club Robot ESEO 2016 - 2017
  *
- *	Fichier : motor_roller_foam.c
+ *	Fichier : motor_roller_trihole.c
  *	Package : Carte actionneur
  *	Description : Gestion de l'actionneur MOTOR_TURN_TRIHOLE
  *  Auteur : Arnaud
