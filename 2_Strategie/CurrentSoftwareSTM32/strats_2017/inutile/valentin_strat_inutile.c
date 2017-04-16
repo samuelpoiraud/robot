@@ -22,6 +22,9 @@ void valentin_strat_inutile_big(){
 			ROLLER_ARM_GO_DOWN,
 			ROLLER_FOAM_TURN,
 			TRY_SELFTEST,
+			ARM_GO_UP,
+			TURN_BALANCER,
+			TURN_COLOR,
 			ERROR,
 			DONE
 		);
@@ -34,7 +37,8 @@ void valentin_strat_inutile_big(){
 		case INIT:
 			//state = ACTION;
 			//state = ROLLER_ARM_GO_DOWN;
-			state = TRY_SELFTEST;
+			//state = TRY_SELFTEST;
+			state = TURN_COLOR;
 			//state = try_going(602, 2698, state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
@@ -69,6 +73,27 @@ void valentin_strat_inutile_big(){
 
 		case TRY_SELFTEST:
 			state = check_sub_action_result(SELFTESTACT_run(), state, DONE , ERROR);
+			break;
+
+		case ARM_GO_UP:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_TAKE);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, TURN_BALANCER, ERROR);
+			break;
+
+		case TURN_BALANCER:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, DONE, ERROR);
+			break;
+
+		case TURN_COLOR:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_color_right, state, DONE, ERROR);
 			break;
 
 		case ERROR:
