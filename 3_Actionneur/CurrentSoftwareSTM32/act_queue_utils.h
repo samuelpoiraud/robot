@@ -55,7 +55,7 @@
 	 * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
 	 * @return TRUE si l'ax12 a fini sa commande, FALSE sinon
 	 */
-	bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedGoal, Uint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
+	bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Sint16 wantedGoal, Sint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
 
 	/** Verifie l'état du rx24 et gère la file en conséquence.
 	 *
@@ -72,7 +72,7 @@
 	 * @param line pointeur vers une variable qui contiendra la ligne qui affecte l'erreur dans les variables pointeurs
 	 * @return TRUE si le rx24 a fini sa commande, FALSE sinon
 	 */
-	bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedGoal, Uint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
+	bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Sint16 wantedGoal, Sint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line);
 
 
 	/** Verifie l'état d'un moteur DC et gère la file en conséquence.

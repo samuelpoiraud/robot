@@ -109,7 +109,7 @@ void ACTQ_sendErrorAct(Uint8 id_act, Uint8 errorCode) {
 }
 
 
-bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedGoal, Uint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
+bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Sint16 wantedGoal, Sint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
 	AX12_reset_last_error(ax12Id);
 
 	Uint8 error = AX12_get_last_error(ax12Id).error;
@@ -163,11 +163,13 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Uint16 wantedGoa
 	return TRUE;
 }
 
-bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Uint16 wantedGoal, Uint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
+bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Sint16 wantedGoal, Sint16 currentGoal, Uint16 epsilon, Uint16 timeout_ms, Uint16 large_epsilon, Uint8* result, Uint8* error_code, Uint16* line) {
 	RX24_reset_last_error(rx24Id);
 
 	Uint8 error = RX24_get_last_error(rx24Id).error;
 	Uint16 dummy;
+
+	debug_printf("Check status : error = %d, wantedGoal = %d currentGoal = %d\n", error, wantedGoal, currentGoal);
 
 	//Avec ça, on ne se soucie pas du contenu de result et error_code par la suite, on sait qu'ils ne sont pas NULL
 	if(!result) result = (Uint8*)&dummy;

@@ -307,6 +307,10 @@ static void CYLINDER_COLOR_LEFT_command_run(queue_id_t queueId) {
 	Uint16 line;
 
 	Uint16 speed = RX24_get_speed_percentage(CYLINDER_COLOR_LEFT_RX24_ID);
+	if(QUEUE_get_arg(queueId)->param != 0 && speed != 0)
+		speed = QUEUE_get_arg(queueId)->param;
+	else
+		speed = 0;
 
 	if(ACTQ_check_status_rx24(queueId, CYLINDER_COLOR_LEFT_RX24_ID, QUEUE_get_arg(queueId)->param, speed, CYLINDER_COLOR_LEFT_RX24_ASSER_SPEED_EPSILON, CYLINDER_COLOR_LEFT_RX24_ASSER_TIMEOUT, CYLINDER_COLOR_LEFT_RX24_ASSER_SPEED_LARGE_EPSILON, &result, &errorCode, &line))
 		QUEUE_next(queueId, ACT_CYLINDER_COLOR_LEFT, result, errorCode, line);
