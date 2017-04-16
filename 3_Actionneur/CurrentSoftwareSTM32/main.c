@@ -64,7 +64,7 @@ int main (void)
 		Démarrage
 	-------------------------------------*/
 
-	//Initialisation du système
+	//Initialisation du systeme
 	SYS_init();				// Init système
 	MAIN_global_var_init();	// Init variable globale
 	SYSTICK_init((time32_t*)&(global.absolute_time));
