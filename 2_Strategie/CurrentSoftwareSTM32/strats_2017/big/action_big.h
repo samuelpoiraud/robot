@@ -4,8 +4,8 @@
 #ifndef ACTION_BIG_H
 	#define ACTION_BIG_H
 
-	#define ACT_TRIHOLE_SPEED_RUN		10	// [rpm]	Maximum théorique 526 RPM
-	#define ACT_ROLLER_FOAM_SPEED_RUN	10	// [rpm]	Maximum théorique 510 RPM
+	#define ACT_TRIHOLE_SPEED_RUN		20	// [rpm]	Maximum théorique 526 RPM
+	#define ACT_ROLLER_FOAM_SPEED_RUN	280	// [rpm]	Maximum théorique 510 RPM, Maximum expérimental 310
 
 	#define TRIHOLE_DISPOSE_TIME		5000
 

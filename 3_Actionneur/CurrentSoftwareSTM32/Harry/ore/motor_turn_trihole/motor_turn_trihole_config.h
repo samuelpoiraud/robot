@@ -23,7 +23,7 @@
 	#define MOTOR_TURN_TRIHOLE_MAX_PWM					100
 	#define MOTOR_TURN_TRIHOLE_SIMUATE_WAY				TRUE
 	#define MOTOR_TURN_TRIHOLE_RECOVERY_MODE			TRUE
-	#define MOTOR_TURN_TRIHOLE_RECOVERY_TIME			1500
+	#define MOTOR_TURN_TRIHOLE_RECOVERY_TIME			500
 
 // Configuration capteur vitesse
 	#define MOTOR_TURN_TRIHOLE_PORT_SENSOR				RPM_SENSOR_GPIO_C
@@ -41,11 +41,11 @@
 																	// Réduction : 9.7:1
 
 // Configuration de l'actionneur
-	#define MOTOR_TURN_TRIHOLE_TIMEOUT					2000
-	#define MOTOR_TURN_TRIHOLE_EPSILON_SPEED			2000
+	#define MOTOR_TURN_TRIHOLE_TIMEOUT					500
+	#define MOTOR_TURN_TRIHOLE_EPSILON_SPEED			5
 
 //Configuration des vitesses
-	#define MOTOR_TURN_TRIHOLE_RECOVERY_SPEED			-10		// [rpm]
+	#define MOTOR_TURN_TRIHOLE_RECOVERY_SPEED			-20		// [rpm]
 
 //Vitesse initiale
 	#define MOTOR_TURN_TRIHOLE_INIT_SPEED				MOTOR_TURN_TRIHOLE_IDLE_SPEED
