@@ -20,7 +20,7 @@
 //POUR REGLER L'ODOMETRIE:
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
-	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BE6
+	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BE0
 	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT	0x0BCC
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
@@ -33,7 +33,7 @@
 
 
 
-	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT	0x00011442
+	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT	0x0001F2FD
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT		0x0000A570
 
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
@@ -52,7 +52,7 @@
 
 
 
-	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0x323
+	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0xFFFFFF900
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT	0x35
 	// Faire des carrés pour régler ce coefficient
 

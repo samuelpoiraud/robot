@@ -51,7 +51,7 @@ const get_this_module_s our_modules[SIZE_OUR_MODULES] = {
 #define SIZE_OUR_MODULES_WITH_ROCKET  (2)   // Prise des modules suivi de la fusée multicouleur
 const get_this_module_s our_modules_with_rocket[SIZE_OUR_MODULES_WITH_ROCKET] = {
 		{.numero = MODULE_OUR_START,		.side = COLOR_EXP(LEFT, RIGHT)},	// Utiliser COLOR_EXP pour changer le côté de stockage suivant la couleur
-		{.numero = MODULE_OUR_SIDE, 		.side = COLOR_EXP(LEFT, RIGHT)}
+		{.numero = MODULE_OUR_SIDE, 		.side = COLOR_EXP(RIGHT, LEFT)}
 };
 
 #define SIZE_ADV_MODULES  (3)
@@ -75,6 +75,9 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 			if(entrance){
 				ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 				ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT,ACT_CYLINDER_BALANCER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_ARM_LEFT,ACT_CYLINDER_ARM_LEFT_TAKE);
+				ACT_push_order(ACT_CYLINDER_ARM_RIGHT,ACT_CYLINDER_ARM_RIGHT_TAKE);
+
 			}
 			if(i_am_in_square_color(0, 360, 0, 360) && IHM_switchs_get(SWITCH_WITH_BASCULE)){   //le robot est dans la zone avant la bascule
 				state = ROCKER; //!boucle infini passage bascule!

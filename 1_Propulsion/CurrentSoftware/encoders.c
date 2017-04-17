@@ -31,8 +31,8 @@ void ENCODERS_get(Sint32 * left, Sint32 * right)
 		count_right = QEI1_get_count();
 		count_left = QEI2_get_count();
 	}else{
-		count_right = QEI1_get_count();
-		count_left = QEI2_get_count();
+		count_right = -QEI1_get_count();
+		count_left = -QEI2_get_count();
 	}
 
 	//Mise a jour des deltas des roues...
