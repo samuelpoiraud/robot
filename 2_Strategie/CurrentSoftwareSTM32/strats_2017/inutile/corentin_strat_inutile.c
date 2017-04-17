@@ -40,11 +40,11 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case GO_TO:
-			state=try_going(1398, COLOR_Y(2102), state, MAKE_SUB, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state=try_going(1000, COLOR_Y(600), state, MAKE_SUB, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MAKE_SUB:
-			state=check_sub_action_result(sub_harry_take_south_little_crater(OUR_ELEMENT),state,DONE,state);
+			state=check_sub_action_result(sub_harry_take_big_crater(ADV_ELEMENT),state,DONE,state);
 			break;
 
 		case START:

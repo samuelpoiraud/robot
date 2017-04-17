@@ -1928,7 +1928,7 @@ error_e sub_harry_cylinder_depose_manager(){
 		case INIT:
 			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
 				state = ERROR; // Actionneur désactivé, on a rien pu prendre
-			}else if(STOCKS_isEmpty(MODULE_STOCK_LEFT) && STOCKS_isEmpty(MODULE_STOCK_LEFT)){
+			}else if(STOCKS_isEmpty(MODULE_STOCK_LEFT) && STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
 				state = ERROR; // Il n'y a rien à déposer
 			}else{
 #ifdef SCAN_ELEMENTS

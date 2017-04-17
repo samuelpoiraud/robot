@@ -85,7 +85,7 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 		if(QS_WHO_AM_I_get() == BIG_ROBOT)
 			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_FORWARD);
 		else
-			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_BACKWARD);
+			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_FORWARD);
 		duty_left=-duty_left;
 	}
 	else
@@ -93,7 +93,7 @@ void MOTORS_update(Sint16 duty_left, Sint16 duty_right)
 		if(QS_WHO_AM_I_get() == BIG_ROBOT)
 			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_BACKWARD);
 		else
-			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_FORWARD);
+			GPIO_WriteBit(SENS_MOTEUR_2, MOTOR_BACKWARD);
 	}
 
 	/////////////////////////////////////////////////////////
