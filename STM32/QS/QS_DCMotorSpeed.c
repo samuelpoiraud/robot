@@ -374,6 +374,7 @@
 						thiss->timeBeginRecovery = global.absolute_time;
 						thiss->state = DC_MOTOR_SPEED_LAUNCH_RECOVERY;
 						thiss->timeWaitingLimitPwm = TIME_OF_MOTOR_STEPPING;
+						thiss->integrator = 0; // On remet à 0 la somme de l'intégrateur pour changer plus vite de sens
 						break;
 
 					case DC_MOTOR_SPEED_LAUNCH_RECOVERY:
@@ -384,8 +385,10 @@
 						break;
 
 					case DC_MOTOR_SPEED_RUN_RECOVERY:
-						if(global.absolute_time - thiss->timeBeginRecovery > config->timeRecovery)
+						if(global.absolute_time - thiss->timeBeginRecovery > config->timeRecovery){
 							thiss->state = DC_MOTOR_SPEED_INIT_LAUNCH;
+							thiss->integrator = 0; // On remet à 0 la somme de l'intégrateur pour repartir plus vite dans le bon sens
+						}
 						break;
 
 					case DC_MOTOR_SPEED_ERROR:
