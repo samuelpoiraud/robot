@@ -21,10 +21,12 @@ void valentin_strat_inutile_big(){
 			ACTION_2,
 			ROLLER_ARM_GO_DOWN,
 			ROLLER_FOAM_TURN,
+			ROLLER_FOAM_STOP,
 			TRY_SELFTEST,
 			ARM_GO_UP,
 			TURN_BALANCER,
 			TURN_COLOR,
+			GUN_GO_DOWN,
 			ERROR,
 			DONE
 		);
@@ -38,7 +40,8 @@ void valentin_strat_inutile_big(){
 			//state = ACTION;
 			//state = ROLLER_ARM_GO_DOWN;
 			//state = TRY_SELFTEST;
-			state = TURN_COLOR;
+			//state = TURN_COLOR;
+			state = GUN_GO_DOWN;
 			//state = try_going(602, 2698, state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
@@ -66,9 +69,21 @@ void valentin_strat_inutile_big(){
 			break;
 
 		case ROLLER_FOAM_TURN:
-			ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, 50);
+			if(entrance){
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, 50);
+			}
+			state = check_act_status(ACT_QUEUE_Ore_roller_foam, state, ROLLER_FOAM_STOP, ROLLER_FOAM_STOP);
+
 			//ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 100);
-			state = DONE;
+			break;
+
+		case ROLLER_FOAM_STOP:
+			if(entrance){
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP, 0);
+			}
+			state = check_act_status(ACT_QUEUE_Ore_roller_foam, state, DONE, ERROR);
+
+			//ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 100);
 			break;
 
 		case TRY_SELFTEST:
@@ -94,6 +109,17 @@ void valentin_strat_inutile_big(){
 				ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED);
 			}
 			state = check_act_status(ACT_QUEUE_Cylinder_color_right, state, DONE, ERROR);
+			break;
+
+
+		// Test Gun
+		case GUN_GO_DOWN:
+			if(entrance){
+				ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_DOWN);
+				ACT_push_order(ACT_TURBINE, ACT_TURBINE_NORMAL);
+				ACT_push_order(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 20);
+			}
+			state = check_act_status(ACT_QUEUE_Ore_gun, state, DONE, ERROR);
 			break;
 
 		case ERROR:
