@@ -21,7 +21,7 @@
 	#define CYLINDER_DISPOSE_RIGHT_AX12_SPEED						30		// Vitesse par défaut de l'AX12
 
 //Position
-	#define CYLINDER_DISPOSE_RIGHT_AX12_IDLE_POS					32
+	#define CYLINDER_DISPOSE_RIGHT_AX12_IDLE_POS					42
 	#define CYLINDER_DISPOSE_RIGHT_AX12_TAKE_POS				    153		//en degré
 	#define CYLINDER_DISPOSE_RIGHT_AX12_RAISE_POS					133		//en degré
 	#define CYLINDER_DISPOSE_RIGHT_AX12_DISPOSE_POS					453		//en degré
