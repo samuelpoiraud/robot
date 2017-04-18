@@ -977,7 +977,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 // Subaction actionneur de stockage
 error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e trigger){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_STORE_MODULES,
+	CREATE_MAE_ACT(SM_ID_ACT_HARRY_MAE_STORE_MODULES,
 			WAIT_TRIGGER,
 			INIT,
 			COMPUTE_ACTION,
@@ -991,6 +991,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			PREPARE_SLOPE_FOR_ELEVATOR,
 			ELEVATOR_GO_TOP_POS,
 			STOCK_UP_CYLINDER,
+			WAIT_STABILZATION,
 			PUT_CYLINDER_IN_CONTAINER,
 			SLOPE_GO_VERY_UP,
 
@@ -1214,20 +1215,30 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UP);
 				}else{
-					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UP);
+					ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UP);
 				}
 			}
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, state, PUT_CYLINDER_IN_CONTAINER, PUT_CYLINDER_IN_CONTAINER);
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, state, WAIT_STABILZATION, WAIT_STABILZATION);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_slope_left, state, PUT_CYLINDER_IN_CONTAINER, PUT_CYLINDER_IN_CONTAINER);
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_left, state, WAIT_STABILZATION, WAIT_STABILZATION);
+			}
+			break;
+
+		case WAIT_STABILZATION:
+			if(entrance){
+				time_timeout = global.absolute_time + 400;
+			}
+			if(global.absolute_time > time_timeout){
+				state = PUT_CYLINDER_IN_CONTAINER;
 			}
 			break;
 
 		case PUT_CYLINDER_IN_CONTAINER:
 			if(entrance){
+				time_timeout = global.absolute_time + 400;
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
 				}else{
@@ -1235,13 +1246,16 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 				}
 			}
 
-			state = SLOPE_GO_VERY_UP;
+			if(global.absolute_time > time_timeout){
+				//state = SLOPE_GO_VERY_UP;
+				state = COMPUTE_ACTION;
 
-			// Mise à jour des données
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, storage);
+				// Mise à jour des données
+				STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, storage);
+			}
 			break;
 
-		case SLOPE_GO_VERY_UP:
+		case SLOPE_GO_VERY_UP: // état non utilisé
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_VERY_UP);
@@ -1327,6 +1341,8 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 	CREATE_MAE_ACT(SM_ID_ACT_HARRY_MAE_PREPARE_MODULES_FOR_DISPOSE,
 			WAIT_TRIGGER,
 			INIT,
+			WAIT_STORAGE,
+			WAIT_MODULE_FALL,
 			MOVE_BALANCER_OUT,
 			CHECK_IF_TURN_FOR_COLOR_NEEDED,
 			TURN_FOR_COLOR,
@@ -1396,7 +1412,28 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
 				state = MOVE_BALANCER_OUT; // Préparation de la dépose possible
 			}else{
-				state = ERROR;	// Il n'y a pas de cylindre disponible //TODO déclencher le stockage
+				state = WAIT_STORAGE;	// Il n'y a pas de cylindre disponible //TODO déclencher le stockage
+			}
+			break;
+
+		case WAIT_STORAGE:
+			if(entrance){
+				time_timeout = global.absolute_time + 10000;
+				sub_act_harry_mae_store_modules(storage, TRUE);
+			}
+			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
+				state = WAIT_MODULE_FALL;
+			}else if(global.absolute_time > time_timeout){
+				state = ERROR; // Le stockage a semble t il échoué, on ne peut rien faire de plus ici
+			}
+			break;
+
+		case WAIT_MODULE_FALL:	// On attend que le module tombe bien dans le balancer, c'est à dire que le stockage se termine bien mécaniquement
+			if(entrance){
+				time_timeout = global.absolute_time + 1500;
+			}
+			if(global.absolute_time > time_timeout){
+				state = MOVE_BALANCER_OUT;
 			}
 			break;
 
@@ -1467,9 +1504,9 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			// Pas de vérification du résultat ici, la couleur est prioritaire.
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
+					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 				}else{
-					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
+					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 				}
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
 			}
@@ -1584,7 +1621,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 // Subaction actionneur de dépose des modules
 error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dipose_mae_e arg_dispose){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES,
+	CREATE_MAE_ACT(SM_ID_ACT_HARRY_MAE_DISPOSE_MODULES,
 			INIT,
 			INIT_ARM_SERVO,
 			INIT_DISPOSE_SERVO,
@@ -1653,9 +1690,9 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 	switch(state){
 
 		case INIT:
-			/*if(STOCKS_isEmpty(storage)){
+			if(STOCKS_isEmpty(storage)){
 				state = DONE;	// Il n'y a rien à faire
-			}else{*/
+			}else{
 				if(arg_dispose == ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER){
 					state = INIT_ARM_SERVO; // Dépose possible
 					anotherDisposeWillFollow = TRUE; // Cette dépose n'est pas la dernière, une autre va suivre
@@ -1666,7 +1703,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 					state = CHOOSE_ARM_STORAGE_POS;
 					anotherDisposeWillFollow = FALSE; // Important : il n'y a pas de dépose à suivre, on tente de ranger le bras dans le robot
 				}
-			//}
+			}
 			break;
 
 		case INIT_ARM_SERVO:
@@ -1724,7 +1761,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			if((storage == MODULE_STOCK_RIGHT && ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH))
 			|| (storage == MODULE_STOCK_LEFT && ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH))){
 				state = TAKE_CYLINDER;
-			}
+			}// TODO Gérer erreur ici
 			break;
 
 		case TAKE_CYLINDER:  // On ventouse le cylindre pour le prendre

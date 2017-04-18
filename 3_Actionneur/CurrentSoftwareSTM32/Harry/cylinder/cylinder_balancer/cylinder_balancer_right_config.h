@@ -23,7 +23,7 @@
 //Position
 	#define CYLINDER_BALANCER_RIGHT_AX12_IDLE_POS					100		//190
 	#define CYLINDER_BALANCER_RIGHT_AX12_IN_POS				   		190		//en degré
-	#define CYLINDER_BALANCER_RIGHT_AX12_OUT_POS					929		//en degré 778
+	#define CYLINDER_BALANCER_RIGHT_AX12_OUT_POS					782		//en degré 929  (782 pour sortir moins)
 
 //Position initiale de l'AX12
 	#define CYLINDER_BALANCER_RIGHT_AX12_INIT_POS					CYLINDER_BALANCER_RIGHT_AX12_IDLE_POS
