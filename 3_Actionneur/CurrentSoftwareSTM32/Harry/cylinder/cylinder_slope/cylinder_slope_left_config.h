@@ -23,7 +23,7 @@
 //Position
 	#define CYLINDER_SLOPE_LEFT_AX12_IDLE_POS					325		//333
 	#define CYLINDER_SLOPE_LEFT_AX12_DOWN_POS				    325		//en degré
-	#define CYLINDER_SLOPE_LEFT_AX12_UP_POS						540		//en degré
+	#define CYLINDER_SLOPE_LEFT_AX12_UP_POS						530		//en degré
 	#define CYLINDER_SLOPE_LEFT_AX12_VERY_UP_POS				661
 
 //Position initiale de l'AX12

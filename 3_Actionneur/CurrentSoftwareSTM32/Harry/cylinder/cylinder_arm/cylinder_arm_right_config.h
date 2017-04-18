@@ -21,7 +21,7 @@
 
 //Position
     #define CYLINDER_ARM_RIGHT_RX24_IDLE_POS					386
-    #define CYLINDER_ARM_RIGHT_RX24_IN_POS			     		386	//en degré
+    #define CYLINDER_ARM_RIGHT_RX24_IN_POS			     		401	//en degré (+15 par rapport à IDLE_POS)
 	#define CYLINDER_ARM_RIGHT_RX24_PREPARE_TO_TAKE_POS			482	//en degré
 	#define CYLINDER_ARM_RIGHT_RX24_TAKE_POS			     	457	//en degré
 	#define CYLINDER_ARM_RIGHT_RX24_DISPOSE_POS			     	495	//en degré (-20 par rapport à OUT_POS)

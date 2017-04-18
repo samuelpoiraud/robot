@@ -169,8 +169,6 @@ bool_e ACTQ_check_status_rx24(queue_id_t queueId, Uint8 rx24Id, Sint16 wantedGoa
 	Uint8 error = RX24_get_last_error(rx24Id).error;
 	Uint16 dummy;
 
-	debug_printf("Check status : error = %d, wantedGoal = %d currentGoal = %d\n", error, wantedGoal, currentGoal);
-
 	//Avec ça, on ne se soucie pas du contenu de result et error_code par la suite, on sait qu'ils ne sont pas NULL
 	if(!result) result = (Uint8*)&dummy;
 	if(!error_code) error_code = (Uint8*)&dummy;
