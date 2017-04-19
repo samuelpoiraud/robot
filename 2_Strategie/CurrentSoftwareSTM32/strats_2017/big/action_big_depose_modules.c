@@ -2069,15 +2069,15 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 
 		case WAIT_ADV_COLOR:
 			if(side==LEFT){
-				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow))){ //jaune à gauche
+				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow, FALSE))){ //jaune à gauche
 					state=WAIT_WHITE;
-				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Blue))){ //bleu à gauche
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Blue, FALSE))){ //bleu à gauche
 					state=WAIT_WHITE;
 				}
 			}else{
-				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow))){ //jaune à droite
+				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow, FALSE))){ //jaune à droite
 					state=WAIT_WHITE;
-				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Blue))){ //bleu à droite
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Blue, FALSE))){ //bleu à droite
 					state=WAIT_WHITE;
 				}
 			}
@@ -2085,11 +2085,11 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 
 		case WAIT_WHITE:
 			if(side==LEFT){
-				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White)){ //blanc à gauche
+				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE)){ //blanc à gauche
 					state=STOP;
 				}
 			}else{
-				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White)){ //blanc à droite
+				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE)){ //blanc à droite
 					state=STOP;
 				}
 			}

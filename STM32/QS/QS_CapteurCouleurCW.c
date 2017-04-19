@@ -51,33 +51,38 @@ void CW_init() {
 }
 
 void CW_config_sensor(Uint8 id_sensor, CW_config_t* config) {
-	assert(id_sensor < CW_PP_MAXPORTNUM);
+	assert(id_sensor < CW_SENSOR_NUMBER);
 	CW_sensors[id_sensor].config = *config;
 }
 
-bool_e CW_is_color_detected(Uint8 id_sensor, Uint8 canal) {
+bool_e CW_is_color_detected(Uint8 id_sensor, Uint8 canal, bool_e with_gate) {
 	bool_e value;
 	int i;
 
-	assert(id_sensor < CW_PP_MAXPORTNUM);
-	assert(canal < 4);
+	assert(id_sensor < CW_SENSOR_NUMBER);
+	assert(canal < CW_PP_MAXPORTNUM - 2);
 
 	if(CW_sensors[id_sensor].config.digital_ports[canal].port == CW_UNUSED_PORT)
 		return FALSE;
 
-	//CW_PORTBIT_SET(CW_sensors[id_sensor].config.digital_ports[CW_PP_Gate]);
-	CW_PORT_set(CW_sensors[id_sensor].config.digital_ports[CW_PP_Gate], TRUE);
-	for(i=10000;i>0;i--);	//attente temps de réponse de 1ms~ du capteur
-	//value = CW_PORTBIT_TST(CW_sensors[id_sensor].config.digital_ports[canal]);
+	if(with_gate){	// l'acquisition doit être déclanché à l'aide d'un moseft
+		// Lancement de l'acquisition de la couleur
+		CW_PORT_set(CW_sensors[id_sensor].config.digital_ports[CW_PP_Gate], TRUE);
+		for(i=10000;i>0;i--);	//attente temps de réponse de 1ms~ du capteur
+	}
+
+	// Acquisition de la couleur
 	value = CW_PORT_get(CW_sensors[id_sensor].config.digital_ports[canal]);
-	//CW_PORTBIT_CLR(CW_sensors[id_sensor].config.digital_ports[CW_PP_Gate]);
-	CW_PORT_set(CW_sensors[id_sensor].config.digital_ports[CW_PP_Gate], FALSE);
+
+	if(with_gate){
+		CW_PORT_set(CW_sensors[id_sensor].config.digital_ports[CW_PP_Gate], FALSE);
+	}
 
 	return value;
 }
 
 Uint16 CW_get_color_intensity(Uint8 id_sensor, CW_analog_color_e composante) {
-	assert(id_sensor < CW_PP_MAXPORTNUM);
+	assert(id_sensor < CW_SENSOR_NUMBER);
 
 	switch(composante) {
 		case CW_AC_XYZ_X:

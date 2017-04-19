@@ -272,12 +272,6 @@ error_e SELFTESTACT_run(){
 			break;
 
 		case MOVE_ACTIONNEUR:
-			if(entrance){
-				debug_printf("Etape en cours (Move actionneur): %d\n", etape_en_cours);
-			}
-			if(etape_en_cours == 43){
-				Uint8 baba = 2;
-			}
 			ind_start_etape = indice;
 			while(indice < nb_actions && tableau_selftest[indice].numero_etape == etape_en_cours ){
 				ACT_push_order_with_param(tableau_selftest[indice].actionneur, tableau_selftest[indice].position, tableau_selftest[indice].param);
@@ -289,13 +283,6 @@ error_e SELFTESTACT_run(){
 			break;
 
 		case CHECK_STATUS:
-			if(entrance){
-				debug_printf("Etape en cours (Check status): %d\n", etape_en_cours);
-			}
-			if(etape_en_cours == 43){
-				Uint8 baba = 2;
-			}
-
 			check_finish = TRUE;
 			for(i = ind_start_etape; i <= ind_end_etape; i++){
 				if(liste_etat_actionneur[i] == IN_PROGRESS){
@@ -321,9 +308,6 @@ error_e SELFTESTACT_run(){
 			break;
 
 		case DECLARE_ERROR :
-			if(entrance){
-				debug_printf("Declare error\n");
-			}
 			for(i = 0; i < nb_actions; i++){
 				if (liste_etat_actionneur[i] == NOT_HANDLED){
 					new_error = TRUE;

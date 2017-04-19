@@ -1485,15 +1485,15 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			if(global.absolute_time > time_timeout){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 			}else if(storage == MODULE_STOCK_RIGHT){
-				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow))){ //jaune à droite
+				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow, FALSE))){ //jaune à droite
 					state=WAIT_WHITE;
-				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Blue))){ //bleu à droite
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Blue, FALSE))){ //bleu à droite
 					state=WAIT_WHITE;
 				}
 			}else{
-				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow))){ //jaune à gauche
+				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow, FALSE))){ //jaune à gauche
 					state=WAIT_WHITE;
-				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Blue))){ //bleu à gauche
+				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Blue, FALSE))){ //bleu à gauche
 					state=WAIT_WHITE;
 				}
 			}
@@ -1515,12 +1515,12 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			if(global.absolute_time > time_timeout){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 			}else if(storage == MODULE_STOCK_RIGHT){
-				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White)){ //blanc à gauche
+				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE)){ //blanc à gauche
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
 			}else{
-				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White)){ //blanc à droite
+				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE)){ //blanc à droite
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
