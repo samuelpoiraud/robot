@@ -1346,8 +1346,8 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			MOVE_BALANCER_OUT,
 			CHECK_IF_TURN_FOR_COLOR_NEEDED,
 			TURN_FOR_COLOR,
-			WAIT_ADV_COLOR,
 			WAIT_WHITE,
+			WAIT_OUR_COLOR,
 			STOP_TURN,
 			END_CHECK_POSITION_BALANCER,
 			END_MOVE_BALANCER_IN,
@@ -1478,28 +1478,24 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				}
 			}
 			// Aucune vérification ici
-			state = WAIT_ADV_COLOR;
+			state = WAIT_WHITE;
 			break;
 
-		case WAIT_ADV_COLOR:
+		case WAIT_WHITE:
 			if(global.absolute_time > time_timeout){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 			}else if(storage == MODULE_STOCK_RIGHT){
-				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow, FALSE))){ //jaune à droite
-					state=WAIT_WHITE;
-				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Blue, FALSE))){ //bleu à droite
-					state=WAIT_WHITE;
+				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE)){
+					state = WAIT_OUR_COLOR;
 				}
 			}else{
-				if((global.color==BLUE)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow, FALSE))){ //jaune à gauche
-					state=WAIT_WHITE;
-				}else if((global.color==YELLOW)&&(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Blue, FALSE))){ //bleu à gauche
-					state=WAIT_WHITE;
+				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE)){
+					state = WAIT_OUR_COLOR;
 				}
 			}
 			break;
 
-		case WAIT_WHITE:
+		case WAIT_OUR_COLOR:
 			// On en profite pour retourner le balancer vers l'intérieur du robot pour gagner du temps
 			// Pas de vérification du résultat ici, la couleur est prioritaire.
 			if(entrance){
@@ -1511,16 +1507,16 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
 			}
 
-			// On attend la couleur blanche
+			// On attend notre couleur
 			if(global.absolute_time > time_timeout){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 			}else if(storage == MODULE_STOCK_RIGHT){
-				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE)){ //blanc à gauche
+				if((global.color == BLUE) && !CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE) && !CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow, FALSE)){ // bleu vers la sortie
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
 			}else{
-				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE)){ //blanc à droite
+				if((global.color == YELLOW) && CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow, FALSE)){ // jaune vers la sortie
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
