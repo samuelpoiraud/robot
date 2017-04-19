@@ -15,6 +15,9 @@
 #ifndef ACTIONS_BOTH_2017_H
 	#define ACTIONS_BOTH_2017_H
 
+	// Initialize color sensors
+	void ColorSensor_init();
+
 	error_e sub_cross_rocker(void);
 	error_e sub_wait_1_sec(void);
 

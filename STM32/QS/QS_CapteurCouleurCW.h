@@ -116,10 +116,11 @@
 		 * Chaque canal doit être configuré sur le capteur a l'aide des bouton Select et Next.
 		 * Cette fonction renvoie TRUE si la couleur à été detectée.
 		 * @param id_sensor Numero du capteur. Ce nombre doit être entre 0 (inclu) et #CW_SENSOR_NUMBER (exclu).
-		 * @param canal Numero du canal à checker entre 0 et 3 inclu
+		 * @param canal Numero du canal à checker entre 0 et 3 inclus
+		 * @with_gate TRUE si l'acquisition doit être déclanchée avec un mosfet.
 		 * @return TRUE si la couleur a été detectée sinon FALSE
 		 */
-		bool_e CW_is_color_detected(Uint8 id_sensor, Uint8 canal);
+		bool_e CW_is_color_detected(Uint8 id_sensor, Uint8 canal, bool_e with_gate);
 
 		/**
 		 * Recupération des composantes de la couleur de l'objet visé.

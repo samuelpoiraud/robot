@@ -145,6 +145,7 @@ int main (void)
 	ACT_AVOIDANCE_init();
 	ELEMENTS_init();
 	FOE_ANALYSER_init();
+	ColorSensor_init();
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);

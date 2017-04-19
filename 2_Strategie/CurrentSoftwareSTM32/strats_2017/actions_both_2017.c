@@ -13,11 +13,75 @@
 #include "actions_both_2017.h"
 #include "../QS/QS_stateMachineHelper.h"
 #include "../QS/QS_outputlog.h"
+#include "../QS/QS_CapteurCouleurCW.h"
 #include "../propulsion/prop_functions.h"
 #include "../propulsion/movement.h"
 #include "../utils/generic_functions.h"
 #include "../actuator/queue.h"
 #include "../actuator/act_functions.h"
+
+#define BIG_COLOR_LEFT_CH0_PORT 	GPIOC
+#define BIG_COLOR_LEFT_CH0_PIN	 	GPIO_Pin_6
+#define BIG_COLOR_RIGHT_CH0_PORT 	GPIOC
+#define BIG_COLOR_RIGHT_CH0_PIN	 	GPIO_Pin_7
+
+#define BIG_COLOR_LEFT_CH1_PORT 	GPIOC
+#define BIG_COLOR_LEFT_CH1_PIN	 	GPIO_Pin_10
+#define BIG_COLOR_RIGHT_CH1_PORT 	GPIOC
+#define BIG_COLOR_RIGHT_CH1_PIN	 	GPIO_Pin_11
+
+#define BIG_COLOR_LEFT_CH2_PORT 	GPIOD
+#define BIG_COLOR_LEFT_CH2_PIN	 	GPIO_Pin_2
+#define BIG_COLOR_RIGHT_CH2_PORT 	GPIOD
+#define BIG_COLOR_RIGHT_CH2_PIN	 	GPIO_Pin_3
+
+void ColorSensor_init(){
+	CW_config_t config_left, config_right;
+	Uint8 i;
+
+	// Init the driver (set all ports and pins as unused)
+	CW_init();
+
+	// Init all configuration to default values (very important to avoid hardfault)
+	for(i = 0; i < CW_PP_MAXPORTNUM; i++){
+		config_left.digital_ports[i].port = CW_UNUSED_PORT;
+		config_left.digital_ports[i].pin = 0;
+		config_left.digital_ports[i].is_inverted_logic = 0;
+
+		config_right.digital_ports[i].port = CW_UNUSED_PORT;
+		config_right.digital_ports[i].pin = 0;
+		config_right.digital_ports[i].is_inverted_logic = 0;
+	}
+
+	config_left.analog_X = 0;
+	config_left.analog_Y = 0;
+	config_left.analog_Z = 0;
+	config_right.analog_X = 0;
+	config_right.analog_Y = 0;
+	config_right.analog_Z = 0;
+
+	// Init channels
+	if(I_AM_BIG()){
+		// Left side
+		config_left.digital_ports[CW_PP_Channel0].port = BIG_COLOR_LEFT_CH0_PORT;
+		config_left.digital_ports[CW_PP_Channel0].pin = BIG_COLOR_LEFT_CH0_PIN;
+		config_left.digital_ports[CW_PP_Channel1].port = BIG_COLOR_LEFT_CH1_PORT;
+		config_left.digital_ports[CW_PP_Channel1].pin = BIG_COLOR_LEFT_CH1_PIN;
+		config_left.digital_ports[CW_PP_Channel2].port = BIG_COLOR_LEFT_CH2_PORT;
+		config_left.digital_ports[CW_PP_Channel2].pin = BIG_COLOR_LEFT_CH2_PIN;
+
+		// Right side
+		config_right.digital_ports[CW_PP_Channel0].port = BIG_COLOR_RIGHT_CH0_PORT;
+		config_right.digital_ports[CW_PP_Channel0].pin = BIG_COLOR_RIGHT_CH0_PIN;
+		config_right.digital_ports[CW_PP_Channel1].port = BIG_COLOR_RIGHT_CH1_PORT;
+		config_right.digital_ports[CW_PP_Channel1].pin = BIG_COLOR_RIGHT_CH1_PIN;
+		config_right.digital_ports[CW_PP_Channel2].port = BIG_COLOR_RIGHT_CH2_PORT;
+		config_right.digital_ports[CW_PP_Channel2].pin = BIG_COLOR_RIGHT_CH2_PIN;
+
+		CW_config_sensor(CW_SENSOR_LEFT, &config_left);
+		CW_config_sensor(CW_SENSOR_RIGHT, &config_right);
+	}
+}
 
 error_e sub_cross_rocker(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_CROSS_ROCKER,
