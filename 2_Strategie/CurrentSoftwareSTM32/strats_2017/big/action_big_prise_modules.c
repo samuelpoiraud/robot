@@ -212,6 +212,8 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 
 			STORAGE_LEFT,
 			STORAGE_RIGHT,
+			STOCK_LEFT,
+			STOCK_RIGHT,
 
 			ERROR,
 			DONE
@@ -417,9 +419,9 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 			case STORAGE_LEFT:
 				if(entrance){
 					if(global.color == BLUE){
-						STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+						STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR,MODULE_STOCK_LEFT);
 					}else{
-						STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+						STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 					}
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 
@@ -442,9 +444,9 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 			case STORAGE_RIGHT:
 				if(entrance){
 					if(global.color == BLUE){
-						STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+						STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 					}else{
-						STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+						STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 					}
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
 				}
@@ -737,9 +739,9 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 		case STORAGE_LEFT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}
 			}
 
@@ -760,9 +762,9 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 		case STORAGE_RIGHT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}
 			}
 			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
@@ -985,9 +987,9 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 		case STORAGE_LEFT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}
 			}
 
@@ -1009,9 +1011,9 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 		case STORAGE_RIGHT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}
 			}
 
@@ -1196,9 +1198,9 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 		case STORAGE_LEFT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -1218,9 +1220,9 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 		case STORAGE_RIGHT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -1367,9 +1369,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case STORAGE_LEFT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_LEFT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -1389,9 +1391,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case STORAGE_RIGHT:
 			if(entrance){
 				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
+					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
@@ -1431,6 +1433,7 @@ error_e sub_harry_rocket_monocolor(){
 			GET_IN_OUR_SQUARE,
 			PATHFIND,
 			GO_TO_START_POINT,
+			ROTATE,
 			TAKE_ROCKET,
 			GET_OUT,
 			GET_OUT_ERROR,
@@ -1481,11 +1484,15 @@ error_e sub_harry_rocket_monocolor(){
 			break;
 
 		case GO_TO_START_POINT:
-			state = try_going(265, COLOR_Y(1150), state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(265, COLOR_Y(1150), state, ROTATE, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
+		case ROTATE:
+			state = try_go_angle(PI4096,state,TAKE_ROCKET, ERROR, FAST, FORWARD,END_AT_LAST_POINT);
+		break;
+
 		case TAKE_ROCKET: // Execution des ordres actionneurs
-			state=check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE,RIGHT,RIGHT,RIGHT,RIGHT),state,GET_OUT,GET_OUT_ERROR);
+			state=check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE,LEFT,RIGHT,LEFT,RIGHT),state,GET_OUT,GET_OUT_ERROR);
 
 			// Juste pour les tests
 			/*ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
@@ -1687,33 +1694,15 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350,160, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(1345, 265, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2840, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(1345, 2735, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
-		case ACTION:{
-			error_e resultAction = sub_act_harry_take_rocket_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT);
-			//error_e resultInit = init_all_actionneur(); // On init ou pas ? Si on le fail on part en failed_init // A ne pas faire ici
-			resultAction = END_OK;
-			if(resultAction == END_OK){
-				state=GET_OUT;
-				if(rocket == OUR_ELEMENT){
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
-				}else{
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
-				}
-			}else{
-				state=GET_OUT_ERROR;
-			}
-			}break;
+		case ACTION:
+			state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT),state, GET_OUT, GET_OUT_ERROR);
+			break;
 
 		case GET_OUT:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
@@ -1732,9 +1721,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case GET_OUT_ERROR:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 500, state, ERROR, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}else{
-				state=try_going(global.pos.x, 2500, state, ERROR, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 2500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}
 			if(ON_LEAVE()){
 				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
@@ -1747,7 +1736,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case AVANCE:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 2500, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 200, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}else{
 				state=try_going(global.pos.x, 2780, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}
@@ -1755,9 +1744,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case AVANCE_ERROR:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 220, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 220, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}else{
-				state=try_going(global.pos.x, 2780, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 2780, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			}
 			break;
 
