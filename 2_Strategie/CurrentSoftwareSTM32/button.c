@@ -33,6 +33,7 @@ void BUTTON_verbose(void);
 static void BUTTON_suspend_match();
 
 static bool_e state_big_ball = FALSE; // DOWN
+static bool_e state_small_ball = FALSE; // DOWN
 
 void BUTTON_init()
 {
@@ -105,7 +106,18 @@ void SWITCH_bascule(){
 		}
 	}
 	else {
-
+		if((IHM_switchs_get(SWITCH_WITH_BASCULE) == TRUE) && state_small_ball != TRUE){
+			ACT_push_order(ACT_SMALL_BALL_BACK,ACT_SMALL_BALL_BACK_DOWN);
+			ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT, ACT_SMALL_BALL_FRONT_LEFT_DOWN);
+			ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
+			state_small_ball = TRUE;
+		}
+		else if((IHM_switchs_get(SWITCH_WITH_BASCULE) == FALSE) && state_small_ball != FALSE){
+			ACT_push_order(ACT_SMALL_BALL_BACK,ACT_SMALL_BALL_BACK_UP);
+			ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT, ACT_SMALL_BALL_FRONT_LEFT_UP);
+			ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_UP);
+			state_small_ball = FALSE;
+		}
 	}
 }
 
