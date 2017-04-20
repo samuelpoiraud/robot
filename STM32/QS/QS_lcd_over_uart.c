@@ -82,7 +82,8 @@
 
 		struct{
 			bool_e lastTouchState;
-			bool_e * touchState;
+			bool_e * touchStatePtr;
+			bool_e touchState;
 		}button;
 
 		struct{
@@ -272,7 +273,7 @@
 				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objects[id].object.type = LCD_OBJECT_TYPE_BUTTON;
-			LCD_objects[id].object.link.button.touchState = touch;
+			LCD_objects[id].object.link.button.touchStatePtr = touch;
 
 			msg.header.type = LCD_MSG_TYPE_ADD_BUTTON;
 			msg.body.addButton.id = id;
@@ -637,6 +638,7 @@
 			objectId_t i;
 			for(i=0; i<LCD_NB_MAX_OBJECT; i++){
 				if(objectId[i].used == FALSE){
+					objectId[i].used = TRUE;
 					return i;
 				}
 			}
@@ -743,7 +745,7 @@
 					LCD_objectId_t id = msg->body.updateButton.id;
 					assert(id < LCD_NB_MAX_OBJECT);
 					if(LCD_objects[id].used && LCD_objects[id].object.type == LCD_OBJECT_TYPE_BUTTON){
-						*(LCD_objects[id].object.link.button.touchState) = msg->body.updateButton.touchState;
+						*(LCD_objects[id].object.link.button.touchStatePtr) = msg->body.updateButton.touchState;
 					}
 					}break;
 
@@ -896,12 +898,12 @@
 						switch(objectId[id].data.objectType){
 
 							case LCD_OBJECT_TYPE_BUTTON :
-								if(objectId[id].data.link.button.lastTouchState != *(objectId[id].data.link.button.touchState)){
-									objectId[id].data.link.button.lastTouchState = *(objectId[id].data.link.button.touchState);
+								if(objectId[id].data.link.button.lastTouchState != objectId[id].data.link.button.touchState){
+									objectId[id].data.link.button.lastTouchState = objectId[id].data.link.button.touchState;
 									LCD_msg_s msg;
-									msg.header.type = LCD_MSG_TYPE_UPDATE_PROGRESS_BAR;
+									msg.header.type = LCD_MSG_TYPE_UPDATE_BUTTON;
 									msg.header.size = SIZE_LCD_UPDATE_BUTTON;
-									msg.body.updateButton.touchState =  *(objectId[id].data.link.button.touchState);
+									msg.body.updateButton.touchState =  objectId[id].data.link.button.touchState;
 									msg.body.updateButton.id = id;
 									LCD_OVER_UART_sendMsg(&msg);
 								}

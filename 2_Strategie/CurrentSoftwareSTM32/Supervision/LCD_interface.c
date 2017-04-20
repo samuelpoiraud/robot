@@ -14,20 +14,27 @@
 #ifdef USE_LCD
 
 	#include "../QS/QS_outputlog.h"
+	#include "../QS/QS_stateMachineHelper.h"
 	#include "../QS/QS_lcd_over_uart.h"
+	#include "Selftest.h"
 
-	static void LCD_processState(void);
-	static bool_e LCD_MENU_waitOtherBoard(bool_e entrance);
-	static bool_e LCD_MENU_mainMenu(bool_e entrance);
+	#define SELFTEST_NB_DISPLAYED_LINE	8
 
 	typedef enum{
-		WAIT_IHM = 0,
-		WAIT_OHTER_BOARD,
-		MAIN_MENU
+		MENU_WAIT_IHM = 0,
+		MENU_WAIT_OHTER_BOARD,
+		MENU_MAIN,
+		MENU_SELFTEST
 	}LCD_state_e;
 
-	static LCD_state_e state = WAIT_IHM;
-	static LCD_state_e previous_state = WAIT_IHM;
+	static LCD_state_e LCD_state = MENU_WAIT_IHM;
+	static LCD_state_e LCD_previous_state = MENU_WAIT_IHM;
+
+	static void LCD_processState(void);
+	static LCD_state_e LCD_MENU_waitIHM(bool_e init);
+	static LCD_state_e LCD_MENU_waitOtherBoard(bool_e init);
+	static LCD_state_e LCD_MENU_mainMenu(bool_e init);
+	static LCD_state_e LCD_MENU_selftest(bool_e init);
 
 	void LCD_init(void){
 		LCD_OVER_UART_init();
@@ -39,36 +46,52 @@
 	}
 
 	static void LCD_processState(void){
-		bool_e entrance = state != previous_state;
-		previous_state = state;
+		bool_e entrance = LCD_state != LCD_previous_state;
+		LCD_previous_state = LCD_state;
 
 		if(entrance)
 			LCD_OVER_UART_resetScreen();
 
-		switch(state){
-			case WAIT_IHM:
-				if(IHM_IS_READY){
-					LCD_OVER_UART_setMenu(LCD_MENU_CUSTOM);
-					state = WAIT_OHTER_BOARD;
-				}
+		switch(LCD_state){
+			case MENU_WAIT_IHM:
+				LCD_state = LCD_MENU_waitIHM(entrance);
 				break;
 
-			case WAIT_OHTER_BOARD:
-				if(LCD_MENU_waitOtherBoard(entrance))
-					state = MAIN_MENU;
+			case MENU_WAIT_OHTER_BOARD:
+				LCD_state = LCD_MENU_waitOtherBoard(entrance);
 				break;
 
-			case MAIN_MENU:
-				LCD_MENU_mainMenu(entrance);
+			case MENU_MAIN:
+				LCD_state = LCD_MENU_mainMenu(entrance);
+				break;
+
+			case MENU_SELFTEST:
+				LCD_state = LCD_MENU_selftest(entrance);
 				break;
 		}
 	}
 
-	static bool_e LCD_MENU_waitOtherBoard(bool_e entrance){
+	static LCD_state_e LCD_MENU_waitIHM(bool_e init){
+		static time32_t time;
+		if(init)
+			time = global.absolute_time;
+
+		if(global.absolute_time - time > 1000){
+			LCD_OVER_UART_setMenu(LCD_MENU_CUSTOM);
+			return MENU_SELFTEST;
+		}
+
+		return MENU_WAIT_IHM;
+	}
+
+	static LCD_state_e LCD_MENU_waitOtherBoard(bool_e init){
 		static LCD_objectId_t actReady, propReady;
 		static bool_e actDisplay = FALSE, propDisplay = FALSE;
 
-		if(entrance){
+		if(init){
+			LCD_OVER_UART_addImage(0, 0, LCD_IMAGE_LOGO);
+			LCD_OVER_UART_addAnimatedImage(140, 30, LCD_ANIMATION_WAIT_CIRCLE);
+			LCD_OVER_UART_addText(20, 225, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "En attente de l'initialisation des cartes");
 			actReady = LCD_OVER_UART_addText(50, 50, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente actionneur");
 			propReady = LCD_OVER_UART_addText(50, 75, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente propulsion");
 		}
@@ -84,19 +107,98 @@
 		}
 
 		if(ACT_IS_READY && PROP_IS_READY)
-			return TRUE;
+			return MENU_MAIN;
 
-		return FALSE;
+		return MENU_WAIT_OHTER_BOARD;
 	}
 
 
-	static bool_e LCD_MENU_mainMenu(bool_e entrance){
+	static LCD_state_e LCD_MENU_mainMenu(bool_e init){
 
-		if(entrance){
+		if(init){
 			LCD_OVER_UART_addText(50, 50, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Main !! ");
 		}
 
-		return FALSE;
+		return MENU_MAIN;
+	}
+
+	static LCD_state_e LCD_MENU_selftest(bool_e init){
+
+		CREATE_MAE(
+				INIT,
+				WAIT_LAUNCH_SELFTEST,
+				WAIT_RESULT,
+				DISPLAY_RESULT);
+
+		static bool_e launchSelftest = FALSE;
+		static bool_e up = FALSE;
+		static bool_e down = FALSE;
+
+		static LCD_objectId_t idText[SELFTEST_NB_DISPLAYED_LINE];
+
+		bool_e refreshDisplay = FALSE;
+		Uint8 i, ptrError = 0;
+
+		if(init)
+			RESET_MAE();
+
+		if(entrance)
+			LCD_OVER_UART_resetScreen();
+
+		switch(state){
+			case INIT:
+				for(i=0; i<SELFTEST_NB_DISPLAYED_LINE; i++){
+					idText[i] = LCD_OBJECT_ID_ERROR_FULL;
+				}
+				state = WAIT_LAUNCH_SELFTEST;
+				break;
+
+			case WAIT_LAUNCH_SELFTEST:
+				if(entrance){
+					LCD_OVER_UART_addText(50, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest");
+					LCD_OVER_UART_addButton(100, 100, 0, 0, FALSE, &launchSelftest, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Lancer");
+				}
+
+				if(launchSelftest){
+					SELFTEST_ask_launch();
+					state = WAIT_RESULT;
+				}
+				break;
+
+			case WAIT_RESULT:
+				if(entrance){
+					LCD_OVER_UART_addText(50, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest");
+					LCD_OVER_UART_addAnimatedImage(100, 50, LCD_ANIMATION_WAIT_CIRCLE);
+				}
+
+				if(SELFTEST_is_over()){
+					state = DISPLAY_RESULT;
+				}
+				break;
+
+			case DISPLAY_RESULT:
+				if(entrance){
+					LCD_OVER_UART_addText(50, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest %d erreurs", SELFTEST_get_errors_number());
+					LCD_OVER_UART_addButton(250, 150, 0, 0, FALSE, &up, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "up");
+					LCD_OVER_UART_addButton(250, 200, 0, 0, FALSE, &down, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "down");
+				}
+
+				if(entrance){
+					for(i = ptrError; i < ptrError + SELFTEST_NB_DISPLAYED_LINE; i++){
+						if(i < SELFTEST_get_errors_number())
+							idText[i] = LCD_OVER_UART_addText(40, 40 + 15*i, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "%s", SELFTEST_getError_string(SELFTEST_getError(i)));
+						else
+							break;
+					}
+				}
+				break;
+
+			default:
+				RESET_MAE();
+				break;
+		}
+
+		return MENU_SELFTEST;
 	}
 
 #endif

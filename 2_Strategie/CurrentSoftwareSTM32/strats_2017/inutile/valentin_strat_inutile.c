@@ -117,7 +117,7 @@ void valentin_strat_inutile_big(){
 			if(entrance){
 				ACT_push_order(ACT_ORE_GUN, ACT_ORE_GUN_DOWN);
 				ACT_push_order(ACT_TURBINE, ACT_TURBINE_NORMAL);
-				ACT_push_order(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 20);
+				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 20);
 			}
 			state = check_act_status(ACT_QUEUE_Ore_gun, state, DONE, ERROR);
 			break;
