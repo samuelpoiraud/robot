@@ -169,10 +169,10 @@ static void SMALL_CYLINDER_SLIDER_get_position_config(ACT_order_e *pOrder, Uint1
 	Uint16 position = AX12_get_position(SMALL_CYLINDER_SLIDER_AX12_ID);
 	Uint16 epsilon = SMALL_CYLINDER_SLIDER_AX12_ASSER_POS_EPSILON;
 
-	if(position > SMALL_CYLINDER_SLIDER_AX12_LOCK_POS - epsilon && position < SMALL_CYLINDER_SLIDER_AX12_LOCK_POS + epsilon){
-		order = ACT_SMALL_CYLINDER_SLIDER_LOCK;
-	}else if(position > SMALL_CYLINDER_SLIDER_AX12_UNLOCK_POS - epsilon && position < SMALL_CYLINDER_SLIDER_AX12_UNLOCK_POS + epsilon){
-		order = ACT_SMALL_CYLINDER_SLIDER_UNLOCK;
+	if(position > SMALL_CYLINDER_SLIDER_AX12_IN_POS - epsilon && position < SMALL_CYLINDER_SLIDER_AX12_IN_POS + epsilon){
+		order = ACT_SMALL_CYLINDER_SLIDER_IN;
+	}else if(position > SMALL_CYLINDER_SLIDER_AX12_OUT_POS - epsilon && position < SMALL_CYLINDER_SLIDER_AX12_OUT_POS + epsilon){
+		order = ACT_SMALL_CYLINDER_SLIDER_OUT;
 	}else if(position > SMALL_CYLINDER_SLIDER_AX12_IDLE_POS - epsilon && position < SMALL_CYLINDER_SLIDER_AX12_IDLE_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_SLIDER_IDLE;
 	}
@@ -210,8 +210,8 @@ bool_e SMALL_CYLINDER_SLIDER_CAN_process_msg(CAN_msg_t* msg) {
 		switch(msg->data.act_msg.order) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SMALL_CYLINDER_SLIDER_IDLE :
-			case ACT_SMALL_CYLINDER_SLIDER_LOCK :
-			case ACT_SMALL_CYLINDER_SLIDER_UNLOCK :
+			case ACT_SMALL_CYLINDER_SLIDER_IN :
+			case ACT_SMALL_CYLINDER_SLIDER_OUT :
 			case ACT_SMALL_CYLINDER_SLIDER_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_SMALL_CYLINDER_SLIDER, &SMALL_CYLINDER_SLIDER_run_command, 0,TRUE);
 				break;
@@ -265,8 +265,8 @@ static void SMALL_CYLINDER_SLIDER_command_init(queue_id_t queueId) {
 	switch(command) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_SMALL_CYLINDER_SLIDER_IDLE : *ax12_goalPosition = SMALL_CYLINDER_SLIDER_AX12_IDLE_POS; break;
-		case ACT_SMALL_CYLINDER_SLIDER_LOCK : *ax12_goalPosition = SMALL_CYLINDER_SLIDER_AX12_LOCK_POS; break;
-		case ACT_SMALL_CYLINDER_SLIDER_UNLOCK : *ax12_goalPosition = SMALL_CYLINDER_SLIDER_AX12_UNLOCK_POS; break;
+		case ACT_SMALL_CYLINDER_SLIDER_IN : *ax12_goalPosition = SMALL_CYLINDER_SLIDER_AX12_IN_POS; break;
+		case ACT_SMALL_CYLINDER_SLIDER_OUT : *ax12_goalPosition = SMALL_CYLINDER_SLIDER_AX12_OUT_POS; break;
 
 		case ACT_SMALL_CYLINDER_SLIDER_STOP :
 			AX12_set_torque_enabled(SMALL_CYLINDER_SLIDER_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
