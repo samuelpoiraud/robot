@@ -22,8 +22,8 @@
 
 //Position
 	#define SMALL_CYLINDER_SLIDER_AX12_IDLE_POS					512
-	#define SMALL_CYLINDER_SLIDER_AX12_LOCK_POS				    512		//en degré
-	#define SMALL_CYLINDER_SLIDER_AX12_UNLOCK_POS					512		//en degré
+	#define SMALL_CYLINDER_SLIDER_AX12_IN_POS				    512		//en degré
+	#define SMALL_CYLINDER_SLIDER_AX12_OUT_POS					512		//en degré
 
 	#define SMALL_CYLINDER_SLIDER_AX12_WARNER_POS					512
 
