@@ -248,7 +248,7 @@
 			(astar_node_t){ A3, {1250, 300}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)},
 
 			//Rangée [B]
-			(astar_node_t){ B1, {870,  700}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)},
+			(astar_node_t){ B1, {950,  600}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)},
 			(astar_node_t){ B2, {1370, 630}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C2)},
 			(astar_node_t){ B3, {1700, 730}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)},
 
@@ -263,7 +263,7 @@
 
 			//Rangée [E]
 			(astar_node_t){ E1, {500,  1500}, (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D2)|(1ULL<<E2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<G1)},
-			(astar_node_t){ E2, {1000, 1500}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
+			(astar_node_t){ E2, {900, 1500}, (1ULL<<C2)|(1ULL<<D2)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)},
 
 			//Rangée [F]
 			(astar_node_t){ F1, {300,  1700}, (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)},
@@ -275,7 +275,7 @@
 			(astar_node_t){ G2, {1130, 2155}, (1ULL<<E2)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<H1)|(1ULL<<H2)},
 
 			//Rangée [H]
-			(astar_node_t){ H1, {870,  2300}, (1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
+			(astar_node_t){ H1, {950,  2400}, (1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
 			(astar_node_t){ H2, {1370, 2370}, (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)},
 			(astar_node_t){ H3, {1700, 2270}, (1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
 
@@ -301,7 +301,7 @@
 
 		//Rangée [B]
 		/*B1*/ (1ULL<<A1)|(1ULL<<A2)|(1ULL<<A3)|(1ULL<<B2)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<FROM_NODE),
-		/*B2*/ (1ULL<<A1)|(1ULL<<A2)|(0ULL<<A3)|(1ULL<<B1)|(1ULL<<B3)|(1ULL<<C2)|(1ULL<<FROM_NODE),
+		/*B2*/ (1ULL<<A1)|(1ULL<<A2)|(0ULL<<A3)|(1ULL<<B1)|(1ULL<<B3)|(0ULL<<C2)|(1ULL<<FROM_NODE),
 		/*B3*/ (0ULL<<A2)|(0ULL<<A3)|(0ULL<<B2)|(1ULL<<FROM_NODE),
 
 		//Rangée [C]
@@ -328,7 +328,7 @@
 
 		//Rangée [H]
 		/*H1*/ (1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)|(1ULL<<FROM_NODE),
-		/*H2*/ (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)|(1ULL<<FROM_NODE),
+		/*H2*/ (0ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)|(1ULL<<I3)|(1ULL<<FROM_NODE),
 		/*H3*/ (0ULL<<H2)|(0ULL<<I2)|(0ULL<<I3)|(1ULL<<FROM_NODE),
 
 		//Rangée [I]
@@ -369,7 +369,9 @@
 	void ASTAR_init(){
 
 		ASTAR_user_define_obstacles();
+
 		ASTAR_print_obstacles();
+		ASTAR_print_nodes(FALSE);
 
 		/// Affichage COLOR_NODES
 		//for(i=0; i<NB_NODES; i++){
@@ -400,12 +402,12 @@
 		ASTAR_define_polygon("our_start_zone", poly_our_start_zone, 4, TRUE, nodesIO_our_start_zone, 3);
 
 		// La zone central de depose module
-		GEOMETRY_point_t poly_depose_centre_zone[8] = {(GEOMETRY_point_t){1485 - (cos(PI4096/4)*OBSTACLE_MARGIN), COLOR_Y(885 - (cos(PI4096/4)*OBSTACLE_MARGIN))},
-												   (GEOMETRY_point_t){1385 - (cos(PI4096/4)*OBSTACLE_MARGIN), COLOR_Y(985 - (cos(PI4096/4)*OBSTACLE_MARGIN))},
+		GEOMETRY_point_t poly_depose_centre_zone[8] = {(GEOMETRY_point_t){1485 - (cos4096(PI4096/4)*OBSTACLE_MARGIN), COLOR_Y(885 - (cos4096(PI4096/4)*OBSTACLE_MARGIN))},
+												   (GEOMETRY_point_t){1385 - (cos4096(PI4096/4)*OBSTACLE_MARGIN), COLOR_Y(985 - (cos4096(PI4096/4)*OBSTACLE_MARGIN))},
 												   (GEOMETRY_point_t){1200 - OBSTACLE_MARGIN, COLOR_Y(1430)},
 												   (GEOMETRY_point_t){1200 - OBSTACLE_MARGIN, COLOR_Y(1575)},
-												   (GEOMETRY_point_t){1385 - cos(PI4096/4)*OBSTACLE_MARGIN, COLOR_Y(2015 + cos(PI4096/4)*OBSTACLE_MARGIN)},
-												   (GEOMETRY_point_t){1485 - cos(PI4096/4)*OBSTACLE_MARGIN, COLOR_Y(2115 + cos(PI4096/4)*OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1385 - cos4096(PI4096/4)*OBSTACLE_MARGIN, COLOR_Y(2015 + cos4096(PI4096/4)*OBSTACLE_MARGIN)},
+												   (GEOMETRY_point_t){1485 - cos4096(PI4096/4)*OBSTACLE_MARGIN, COLOR_Y(2115 + cos4096(PI4096/4)*OBSTACLE_MARGIN)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(1600)},
 												   (GEOMETRY_point_t){2000, COLOR_Y(1400)}};
 
@@ -476,9 +478,9 @@
 		// zone de depose module centre 6cm
 		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1200 - HARDLINE_PROTECTION_LENGTH, 1500}, TRUE);
 		// zone de depose module cote bleu 45°
-		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1430 - HARDLINE_PROTECTION_LENGTH, 2065 + HARDLINE_PROTECTION_LENGTH}, TRUE);
+		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1430 + OBSTACLE_MARGIN * cos4096(3*PI4096/4), 2065 + OBSTACLE_MARGIN * sin4096(3*PI4096/4)}, TRUE);
 		// zone de depose module cote jaune 45°
-		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1430 - HARDLINE_PROTECTION_LENGTH, 935 - HARDLINE_PROTECTION_LENGTH}, TRUE);
+		ASTAR_define_hardline(FALSE,(GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1430 + OBSTACLE_MARGIN * cos4096(-3*PI4096/4), 935 + OBSTACLE_MARGIN * sin4096(-3*PI4096/4)}, TRUE);
 		// zone depose module cote bleu
 		ASTAR_define_hardline(TRUE,(GEOMETRY_point_t){700, 80}, (GEOMETRY_point_t){1150, 80}, TRUE);
 		// zone depose module cote jaune
@@ -501,6 +503,10 @@
 	 *  @param nb_nodesIO : Le nombre de nodes d'entrées/sorties du polygone
 	 */
 	static void ASTAR_define_polygon(char *name, GEOMETRY_point_t polygon[], Uint8 nb_summits, bool_e enable_polygon, astar_node_id nodesIO[], Uint8 nb_nodesIO){
+		assert(astar_nb_polygons < NB_MAX_POLYGONS);
+		assert(nb_summits <= NB_MAX_SUMMITS);
+		assert(nb_nodesIO <= NB_MAX_NODES_IO);
+
 		int i;
 
 		astar_polygons[astar_nb_polygons].id = astar_nb_polygons;
@@ -521,7 +527,6 @@
 
 		astar_nb_polygons++;
 		astar_nb_obstacles++;
-		assert(astar_nb_polygons < NB_MAX_POLYGONS);
 	}
 
 

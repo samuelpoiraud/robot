@@ -27,6 +27,8 @@ void valentin_strat_inutile_big(){
 			TURN_BALANCER,
 			TURN_COLOR,
 			GUN_GO_DOWN,
+			WAIT_FOR_MAX_POWER,
+			TURN_TRIHOLE,
 			ERROR,
 			DONE
 		);
@@ -41,24 +43,29 @@ void valentin_strat_inutile_big(){
 			//state = ROLLER_ARM_GO_DOWN;
 			//state = TRY_SELFTEST;
 			//state = TURN_COLOR;
-			state = GUN_GO_DOWN;
-			//state = try_going(602, 2698, state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			//state = GUN_GO_DOWN;
+			state = try_going(602, 302, state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(1390, 400, state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1700, 2200, state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_IN);
+				ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_IN);
+				//sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
+			}
 			//state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, ACTION_2, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
-			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ACTION_2, ERROR);
+			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ACTION_2, ERROR);
 			break;
 
 		case ACTION_2:
 			//state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MULTI_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
-			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, DONE, ERROR);
 			break;
 
 		case ROLLER_ARM_GO_DOWN:
@@ -70,9 +77,10 @@ void valentin_strat_inutile_big(){
 
 		case ROLLER_FOAM_TURN:
 			if(entrance){
-				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, 50);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, 300);
 			}
-			state = check_act_status(ACT_QUEUE_Ore_roller_foam, state, ROLLER_FOAM_STOP, ROLLER_FOAM_STOP);
+			state = check_act_status(ACT_QUEUE_Ore_wall, state, DONE, DONE);
 
 			//ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 100);
 			break;
@@ -119,8 +127,19 @@ void valentin_strat_inutile_big(){
 				ACT_push_order(ACT_TURBINE, ACT_TURBINE_NORMAL);
 				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 20);
 			}
-			state = check_act_status(ACT_QUEUE_Ore_gun, state, DONE, ERROR);
+			state = check_act_status(ACT_QUEUE_Ore_gun, state, WAIT_FOR_MAX_POWER, ERROR);
 			break;
+
+		case WAIT_FOR_MAX_POWER:
+			state = wait_time(3000, state, TURN_TRIHOLE);
+			break;
+
+		case TURN_TRIHOLE:
+				if(entrance){
+					ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 20);
+				}
+				state = DONE;
+				break;
 
 		case ERROR:
 			if(entrance){
