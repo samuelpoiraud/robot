@@ -13,6 +13,7 @@
 error_e sub_harry_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INITIALE,
 			INIT,
+			COMPUTE,
 			ROCKER,
 
 			//ADV
@@ -72,6 +73,14 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 //depose element
 	switch(state){
 		case INIT:
+			if(i_am_in_square_color(0, 360, 0, 360) && IHM_switchs_get(SWITCH_WITH_BASCULE)){   //le robot est dans la zone avant la bascule
+				state = ROCKER; //!boucle infini passage bascule!
+			}else{
+				state=try_advance(NULL, entrance, 300, state, COMPUTE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case COMPUTE:
 			if(entrance){
 				ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 				ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT,ACT_CYLINDER_BALANCER_RIGHT_IN);

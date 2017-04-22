@@ -1198,7 +1198,7 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_NORMAL);
 			}
 			//state = try_going(650, COLOR_Y(300), state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			state = try_rush(450, COLOR_Y(300), state , MOVE_BACK, ERROR, FORWARD, NO_DODGE_AND_NO_WAIT, TRUE);
+			state = try_rush(450, COLOR_Y(300), state , MOVE_BACK, ERROR, FORWARD, NO_DODGE_AND_WAIT, TRUE);
 			break;
 
 		case MOVE_BACK:
@@ -1462,7 +1462,7 @@ error_e sub_harry_rocket_monocolor(){
 			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_UNI)){
 				state = ERROR;
 			}else{
-				if (i_am_in_square_color(200, 1100, 900, 2100)){
+				if (i_am_in_square_color(0, 1100, 900, 2100)){
 					state = GET_IN_DIRECT;
 				}else if(i_am_in_square_color(850, 1400, 300, 900)){
 					state = GET_IN_OUR_SQUARE;
@@ -1502,7 +1502,7 @@ error_e sub_harry_rocket_monocolor(){
 		break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
-			state=check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE,LEFT,RIGHT,LEFT,RIGHT),state,GET_OUT,GET_OUT_ERROR);
+			state=check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE,LEFT,LEFT,LEFT,LEFT),state,GET_OUT,GET_OUT_ERROR);
 
 			// Juste pour les tests
 			/*ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
@@ -1517,19 +1517,19 @@ error_e sub_harry_rocket_monocolor(){
 			if(entrance){
 				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);
 			}
-			state=try_going(500, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(500, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_OUT_ERROR:
-			state=try_going(500, global.pos.y, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(500, global.pos.y, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case AVANCE:
-			state=try_going(220, global.pos.y, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(220, global.pos.y, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case AVANCE_ERROR:
-			state=try_going(220, global.pos.y, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(220, global.pos.y, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -1647,25 +1647,25 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case GET_IN_OUR_SQUARE:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1250, 500, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state = try_going(1250, 500, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(1250, 2500, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state = try_going(1250, 2500, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 		case GET_IN_MIDDLE_SQUARE:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(900, 950, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state = try_going(900, 950, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(900, 2050, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state = try_going(900, 2050, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 		case GET_IN_ADV_SQUARE:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(850, 2000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state = try_going(850, 2000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(850, 1000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state = try_going(850, 1000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
@@ -1681,17 +1681,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case GET_IN_FRONT_OF_ONE_ON_TWO:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 360, state, TURN_TO_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 360, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2640, state, TURN_TO_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			}
-			break;
-
-		case TURN_TO_POS:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_go_angle(-PI4096/2, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
-			}else{
-				state = try_go_angle(PI4096/2, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1704,11 +1696,20 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 265, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 265, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2735, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 2735, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
+
+		case TURN_TO_POS:
+			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+				state = try_go_angle(-PI4096/2, state, ACTION, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			}else{
+				state = try_go_angle(PI4096/2, state, ACTION, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			}
+			break;
+
 
 		case ACTION:
 			state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT),state, GET_OUT, GET_OUT_ERROR);
@@ -1716,9 +1717,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case GET_OUT:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state=try_going(global.pos.x, 2500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 2500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			if(ON_LEAVE()){
 				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
@@ -1731,9 +1732,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case GET_OUT_ERROR:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state=try_going(global.pos.x, 2500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 2500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			if(ON_LEAVE()){
 				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
@@ -1746,17 +1747,17 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case AVANCE:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 200, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 200, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state=try_going(global.pos.x, 2780, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 2780, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 		case AVANCE_ERROR:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 220, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 220, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state=try_going(global.pos.x, 2780, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 2780, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
@@ -2158,7 +2159,7 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case GET_OUT_START_ZONE:
-			state = try_going(global.pos.x + 100, global.pos.y, state, RISE_ELEVATOR_RIGHT, GO_TO_START_POINT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(global.pos.x + 100, global.pos.y, state, GO_TO_START_POINT, GO_TO_START_POINT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case RISE_ELEVATOR_RIGHT:
