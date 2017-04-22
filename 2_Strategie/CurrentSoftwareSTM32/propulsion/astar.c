@@ -243,7 +243,7 @@
 
 
 			//Rangée [A]
-			(astar_node_t){ A1, {600,  300}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)},
+			(astar_node_t){ A1, {700,  300}, (1ULL<<A2)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)},
 			(astar_node_t){ A2, {1000, 400}, (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)|(1ULL<<D3)},
 			(astar_node_t){ A3, {1250, 300}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<B3)},
 
@@ -280,7 +280,7 @@
 			(astar_node_t){ H3, {1700, 2270}, (1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
 
 			//Rangée [I]
-			(astar_node_t){ I1, {600,  2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
+			(astar_node_t){ I1, {700,  2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
 			(astar_node_t){ I2, {1000, 2600}, (1ULL<<F3)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I3)},
 			(astar_node_t){ I3, {1250, 2700}, (1ULL<<H1)|(1ULL<<H2)|(1ULL<<H3)|(1ULL<<I1)|(1ULL<<I2)},
 

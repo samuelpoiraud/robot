@@ -20,8 +20,8 @@
 	#define SMALL_CYLINDER_ARM_RX24_SPEED						15		// Vitesse par défaut du RX24
 
 //Position
-    #define SMALL_CYLINDER_ARM_RX24_IDLE_POS					524
-    #define SMALL_CYLINDER_ARM_RX24_IN_POS			     		524	//en degré
+    #define SMALL_CYLINDER_ARM_RX24_IDLE_POS					538
+    #define SMALL_CYLINDER_ARM_RX24_IN_POS			     		538	//en degré
     #define SMALL_CYLINDER_ARM_RX24_PREPARE_TO_TAKE_POS			410	//en degré
     #define SMALL_CYLINDER_ARM_RX24_TAKE_POS			     	453	//en degré
     #define SMALL_CYLINDER_ARM_RX24_DISPOSE_POS			     	436	//en degré

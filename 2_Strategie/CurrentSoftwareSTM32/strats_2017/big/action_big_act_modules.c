@@ -816,7 +816,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			}
 
 			if(global.absolute_time > time_timeout_before_pompe_stop && pompe_stop == FALSE){
-				if(moduleToStore == RIGHT){
+				if(moduleToTake == RIGHT){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP );
 				}else{
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP );
@@ -969,9 +969,196 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 	return IN_PROGRESS;
 }
 
+// Subaction actionneur de prise fusée v2
+error_e sub_act_harry_get_module(moduleStockPosition_e pos, ELEMENTS_side_e side){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_START_HARRY_GET_ONE_MODULE,
+			INIT,
+
+			STOP_POMPE_SLIDER,
+			ACTION_BRING_UP_CYLINDER,
+			ACTION_STOCK_UP_CYLINDER,
+			ACTION_PUT_CYLINDER_IN_CONTAINER,
+			ACTION_PUT_SLOPE_DOWN,
+
+			ERROR_DISABLE_ACT,
+			ERROR,
+			DONE
+		);
 
 
+	static ELEMENTS_side_e moduleToTake = NO_SIDE;		// Module en cours de prise
+	static ELEMENTS_side_e moduleToStore = NO_SIDE;		// Module en cours de stockage
+	static time32_t time_timeout_before_pompe_stop;
+	static time32_t time_timeout_after_pompe_stop;
+	static bool_e pompe_stop;
 
+	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS;
+	static error_e state3 = IN_PROGRESS;
+
+	switch(state){
+	case INIT:
+		moduleToTake = side;
+		state = STOP_POMPE_SLIDER;
+		break;
+
+	case STOP_POMPE_SLIDER:
+			if(entrance){
+				time_timeout_before_pompe_stop = global.absolute_time + 2000;
+				time_timeout_after_pompe_stop = global.absolute_time + 3000;
+				pompe_stop =  FALSE;
+			}
+
+			if(global.absolute_time > time_timeout_before_pompe_stop && pompe_stop == FALSE){
+				if(side == RIGHT){
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP );
+				}else{
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP );
+				}
+				pompe_stop=TRUE;
+			}
+
+			// On attend une seconde le temps que le ventousage se fasse bien
+			if(global.absolute_time > time_timeout_after_pompe_stop){
+				pompe_stop=FALSE;
+				state = ACTION_BRING_UP_CYLINDER;
+
+				// On met à jour les données : Passage du module de POS_ENTRY à POS_ELEVATOR
+				if(side == RIGHT){
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_RIGHT);
+				}else{
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_LEFT);
+				}
+				moduleToStore = moduleToTake;
+				moduleToTake = NO_SIDE;
+			}
+			break;
+
+		case ACTION_BRING_UP_CYLINDER:
+			if(entrance){
+				if(moduleToStore == RIGHT){
+					// Si le stockage est possible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_RIGHT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_TOP);
+					}else{ // sinon stocke en position milieu
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
+					}
+				}else{
+					// Si le stockage est possible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_LEFT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_TOP);
+					}else{ // sinon stocke en position milieu
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER);
+					}
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(moduleToStore == RIGHT){
+				state1 = check_act_status(ACT_QUEUE_Cylinder_elevator_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}else{
+				state1 = check_act_status(ACT_QUEUE_Cylinder_elevator_left, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}
+
+			if(state1 != IN_PROGRESS){
+				if((moduleToStore == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_RIGHT))
+					|| (moduleToStore == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_LEFT)) ){
+					state = ACTION_STOCK_UP_CYLINDER; // On continue le stockage
+				}else{
+					state = DONE; // On passe au cylindre suivant
+				}
+			}
+			break;
+
+		case ACTION_STOCK_UP_CYLINDER:
+			if(entrance){
+				if(moduleToStore == RIGHT){
+					ACT_push_order( ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UP);
+				}else{
+					ACT_push_order( ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UP);
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(moduleToStore == RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, state, ACTION_PUT_CYLINDER_IN_CONTAINER, ACTION_PUT_CYLINDER_IN_CONTAINER);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_left, state, ACTION_PUT_CYLINDER_IN_CONTAINER, ACTION_PUT_CYLINDER_IN_CONTAINER);
+			}
+			break;
+
+		case ACTION_PUT_CYLINDER_IN_CONTAINER:
+			if(entrance){
+				if(moduleToStore == RIGHT){
+					ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
+				}else{
+					ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
+				}
+			}
+
+			state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
+
+			if(ON_LEAVE()){
+				// On met à jour les données : Passage du module de POS_ELEVATOR vers le container (POS_SLOPE, POS_CONTAINER ou POS_BALANCER)
+				if(moduleToStore == RIGHT){
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_RIGHT);
+				}else{
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_LEFT);
+				}
+			}
+			break;
+
+		case ACTION_PUT_SLOPE_DOWN:
+			if(entrance){
+				if(moduleToStore == RIGHT){
+					ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_VERY_UP);
+				}else{
+					ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_VERY_UP);
+				}
+			}
+
+			// Vérification des ordres effectués
+			if(moduleToStore == RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_right, state, DONE, DONE);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_slope_left, state, DONE, DONE);
+			}
+			break;
+
+		case ERROR_DISABLE_ACT:
+			state = DONE;
+			break;
+
+		case DONE:
+			if(entrance){
+				// On active la dépose
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);
+				// On range les sliders
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);
+			}
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		case ERROR:
+			if(entrance){
+				// On range les sliders
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);
+			}
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_act_harry_take_rocket\n");
+			break;
+	}
+return IN_PROGRESS;
+}
 
 
 

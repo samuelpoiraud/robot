@@ -83,6 +83,7 @@
 		typedef enum{
 			CW_SENSOR_LEFT,
 			CW_SENSOR_RIGHT,
+			CW_SENSOR_SMALL,
 			CW_SENSOR_NUMBER
 		}CW_sensor_e;
 

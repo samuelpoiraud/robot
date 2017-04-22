@@ -27,6 +27,16 @@
 	// action_big_depose_modules
 	error_e sub_anne_depose_modules_centre();
 	error_e sub_anne_depose_modules_side(ELEMENTS_property_e modules);
+	error_e sub_anne_depose_modules_side_fin(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
+
+	error_e sub_anne_get_in_pos_1_depose_module_centre();
+	error_e sub_anne_get_in_pos_2_depose_module_centre();
+	error_e sub_anne_get_in_pos_3_depose_module_centre();
+	error_e sub_anne_get_in_pos_4_depose_module_centre();
+	error_e sub_anne_get_in_pos_5_depose_module_centre();
+	error_e sub_anne_get_in_pos_6_depose_module_centre();
+
+	error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
 
 #endif
 

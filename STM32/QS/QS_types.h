@@ -241,7 +241,10 @@
 			FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH,	// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
 			FLAG_HARRY_MODULE_COLOR_LEFT_FINISH,  	// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
 
+
+			FLAG_ANNE_MODULE_COLOR_RIGHT_SUCCESS,	// Flag levé lorsqu'un module a été retourné de la bonne couleur
 			F_ELEMENTS_FLAGS_NB
+
 		}elements_flags_e;
 
 	/**********************************************************************************************************************
