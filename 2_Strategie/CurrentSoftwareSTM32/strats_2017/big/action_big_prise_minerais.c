@@ -1865,7 +1865,7 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 	}
 	return IN_PROGRESS;
 }
-*/
+
 
 // 1
 // COLLECT_YELLOW
@@ -2647,11 +2647,5 @@ COLLECT_BLUE_GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 
 	return IN_PROGRESS;
 }
-<<<<<<< .mine
-
 */
 
-
-
-=======
->>>>>>> .r5420
