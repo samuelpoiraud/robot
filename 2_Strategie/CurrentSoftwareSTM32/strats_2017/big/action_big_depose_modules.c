@@ -39,6 +39,8 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN,
+			CHANGE_DEPOSE_1,
+			CHANGE_DEPOSE_2,
 			GO_TO_DEPOSE_MODULE_POS,
 			GO_TO_DEPOSE_MODULE,
 
@@ -61,7 +63,7 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			break;
 
 		case GET_IN:
-			state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(modules, basis_side), state, GO_TO_DEPOSE_MODULE_POS, ERROR);
+			state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(modules, basis_side), state, GO_TO_DEPOSE_MODULE, ERROR);
 			break;
 
 		case GO_TO_DEPOSE_MODULE_POS:
@@ -85,14 +87,28 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			// (basis_side == ADV_SIDE) = adv + jaune droite
 //advance
 
-		case GO_TO_DEPOSE_MODULE: // decompte des modules regarde combien
+		case CHANGE_DEPOSE_1:
+			state = try_going(1200, COLOR_Y(1250), state, CHANGE_DEPOSE_1, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
 
- 			if(((basis_side == OUR_SIDE)&&(global.color == YELLOW))||((basis_side == ADV_SIDE)&&(global.color == BLUE)) ){
+		case CHANGE_DEPOSE_2:
+			state = try_go_angle(global.pos.angle + PI4096, state, GO_TO_DEPOSE_MODULE, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_DEPOSE_MODULE: // decompte des modules regarde combien
+			if(!STOCKS_isEmpty(MODULE_STOCK_LEFT)){
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_LEFT, ERROR);
+			}else if(!STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
 				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_RIGHT, ERROR);
 			}
-			else{
+
+			/*
+ 			if(((basis_side == OUR_SIDE)&&(global.color == YELLOW))||((basis_side == ADV_SIDE)&&(global.color == BLUE)) ){
 				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_LEFT, ERROR);
 			}
+			else{
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_RIGHT, ERROR);
+			}*/
 
 			// ajouter le module sur le tableau
 			//STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage)
@@ -135,9 +151,9 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 
 				 // pos 3
 				if(global.color == BLUE){
-					state = try_going(1320, COLOR_Y(1250), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1380, COLOR_Y(1250), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
-					state = try_going(1320, COLOR_Y(1250), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1380, COLOR_Y(1250), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
 			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 4
@@ -149,6 +165,7 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
 				// pos 5
 				if(global.color == BLUE){
+
 					state = try_going(1390, COLOR_Y(1780), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
 					state = try_going(1390, COLOR_Y(1780), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -229,11 +246,15 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			}else
 				state = ERROR;
 			break;
-
+//&&STOCKS_isEmpty(MODULE_STOCK_RIGHT)
 		case NEXT_DEPOSE_MODULE_LEFT:
 			if(STOCKS_isEmpty(MODULE_STOCK_LEFT)){
 				state = DONE;
 			}
+			/*else if(STOCKS_isEmpty(MODULE_STOCK_LEFT)){
+				var = MODULE_STOCK_RIGHT;
+				state = CHANGE_DEPOSE_1;
+			}*/
 			else{
 				state = GO_TO_DEPOSE_MODULE;
 			}
@@ -247,15 +268,24 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			break;
 
 		case NEXT_DEPOSE_MODULE_RIGHT:
+
 			if(STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
 				state = DONE;
 			}
+			/*else if(STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
+				var = MODULE_STOCK_LEFT;
+				state = CHANGE_DEPOSE_1;
+			}*/
 			else{
 				state = GO_TO_DEPOSE_MODULE;
 			}
 			break;
 
 		case ERROR:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IDLE);
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IDLE);
+			}
 			RESET_MAE();
 			on_turning_point();
 			return NOT_HANDLED;
@@ -469,6 +499,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			//GET_IN_FROM_MIDDLE_SQUARE,
 			GET_IN_FROM_ADV_SQUARE,
 			AVANCE,
+			ROTATE,
 			PATHFIND,
 			ERROR,
 			DONE
@@ -492,7 +523,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(975, COLOR_Y(1200), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state = try_going(800, COLOR_Y(1200), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		//case GET_IN_FROM_MIDDLE_SQUARE:
@@ -503,8 +534,22 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			state = try_going(900, COLOR_Y(2000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
-		case AVANCE:
-			state = try_going(1125, COLOR_Y(1200), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case AVANCE://1125
+			state = try_going(1200, COLOR_Y(1250), state, ROTATE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ROTATE:
+			if(global.color == YELLOW){
+				state = try_go_angle(PI4096, state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			}else{
+				state = try_go_angle(PI4096, state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
+			}
+			if(ON_LEAVE()){
+				if(global.color == YELLOW)
+					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_OUT);
+				else
+					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_OUT);
+			}
 			break;
 
 		case PATHFIND:
@@ -512,6 +557,10 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case ERROR:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_IDLE);
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IDLE);
+			}
 			RESET_MAE();
 			return NOT_HANDLED;
 			break;
