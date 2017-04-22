@@ -24,6 +24,10 @@
 	error_e sub_anne_fusee_color();
 	error_e sub_anne_fusee_multicolor(ELEMENTS_property_e fusee);
 
+	//Belgique
+	error_e sub_anne_homologation_belgique();
+
+
 	// action_big_depose_modules
 	error_e sub_anne_depose_modules_centre();
 	error_e sub_anne_depose_modules_side(ELEMENTS_property_e modules);
