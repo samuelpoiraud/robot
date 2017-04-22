@@ -11,17 +11,17 @@
 #include "../../actuator/act_functions.h"
 
 
-#include "action_big.h"
-#include "../../propulsion/movement.h"
-#include "../../propulsion/astar.h"
-#include "../../QS/QS_stateMachineHelper.h"
-#include "../../QS/QS_outputlog.h"
+//#include "action_big.h"
+//#include "../../propulsion/movement.h"
+//#include "../../propulsion/astar.h"
+//#include "../../QS/QS_stateMachineHelper.h"
+//#include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_types.h"
-#include "../../QS/QS_IHM.h"
-#include  "../../utils/generic_functions.h"
-#include "../../actuator/act_functions.h"
+//#include "../../QS/QS_IHM.h"
+//#include  "../../utils/generic_functions.h"
+//#include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
-#include "../../utils/actionChecker.h"
+//#include "../../utils/actionChecker.h"
 
 //permet de régler la distance entre la base côté et le robot(largeurBase+distance):
 #define DISTANCE_BASE_SIDE_ET_ROBOT	((Uint16) 120+200)
@@ -67,14 +67,13 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 		case GO_TO_DEPOSE_MODULE_POS:
 			if(((modules == OUR_ELEMENT) && (basis_side == OUR_SIDE)) || ((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE))){
 
-/* c'est quoi cette strat*/
-			state=check_sub_action_result(sub_harry_get_1_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
+			state=check_sub_action_result(sub_harry_get_in_pos_1_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
 
 			}else if(((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)) || ((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE))){
-				state = check_sub_action_result(sub_harry_get_2_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
+				state = check_sub_action_result(sub_harry_get_in_pos_2_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
 
 			}else if(((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)) || ((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE))){
-				state = check_sub_action_result(sub_harry_get_3_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
+				state = check_sub_action_result(sub_harry_get_in_pos_3_depose_module_centre(), state, GO_TO_DEPOSE_MODULE, ERROR);
 
 			}else
 				state = ERROR;
@@ -89,10 +88,10 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 		case GO_TO_DEPOSE_MODULE: // decompte des modules regarde combien
 
  			if(((basis_side == OUR_SIDE)&&(global.color == YELLOW))||((basis_side == ADV_SIDE)&&(global.color == BLUE)) ){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_RIGHT, ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_RIGHT, ERROR);
 			}
 			else{
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_LEFT, ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_LEFT, ERROR);
 			}
 
 			// ajouter le module sur le tableau
@@ -136,9 +135,9 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 
 				 // pos 3
 				if(global.color == BLUE){
-					state = try_going(1320, COLOR_Y(1300), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1320, COLOR_Y(1250), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
-					state = try_going(1320, COLOR_Y(1300), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1320, COLOR_Y(1250), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
 			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 4
@@ -202,9 +201,9 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 
 				 // pos 3
 				if(global.color == BLUE){
-					state = try_going(1200, COLOR_Y(1300), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1200, COLOR_Y(1250), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
-					state = try_going(1200, COLOR_Y(1300), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1200, COLOR_Y(1250), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
 			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 4
@@ -469,6 +468,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			GET_IN_FROM_OUR_SQUARE,
 			//GET_IN_FROM_MIDDLE_SQUARE,
 			GET_IN_FROM_ADV_SQUARE,
+			AVANCE,
 			PATHFIND,
 			ERROR,
 			DONE
@@ -476,19 +476,23 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 
 	switch(state){
 		case INIT:
-			if((i_am_in_square(800, 1400, 300, 900))||(i_am_in_square(200, 1100, 900, 2100))){
+			if(i_am_in_square_color(800,1400, 1000,1400)){
+				state = AVANCE;
+			}
+			else if((i_am_in_square_color(800, 1400, 300, 900))||(i_am_in_square_color(200, 1100, 900, 2100))){
 				state = GET_IN_FROM_OUR_SQUARE;
 			//}else if(i_am_in_square(200, 1100, 900, 2100)){
 			//	state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
+			}else if(i_am_in_square_color(800, 1400, 2100, 2700)){
 				state = GET_IN_FROM_ADV_SQUARE;
-			}else{
+			}
+			else{
 				state = PATHFIND;
 			}
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(975, COLOR_Y(1300), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(975, COLOR_Y(1250), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		//case GET_IN_FROM_MIDDLE_SQUARE:
@@ -496,11 +500,15 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 		//	break;
 
 		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(900, COLOR_Y(2000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(900, COLOR_Y(2000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			break;
+
+		case AVANCE:
+			state = try_going(1125, COLOR_Y(1250), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(975, COLOR_Y(1300), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(975, COLOR_Y(1250), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -768,7 +776,7 @@ error_e sub_harry_pos_3_depose_module_centre(){
 			break;
 
 		case ADVANCE:
-			state = try_going(1200, COLOR_Y(1300), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1200, COLOR_Y(1250), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -900,15 +908,26 @@ error_e sub_harry_depose_modules_side_manager(ELEMENTS_property_e modules,ELEMEN
 	switch(state){
 
 	case INIT:
-		/*
-		sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
-		if(nbCylindresSurBase<5){
+		//state = check_sub_action_result(sub_harry_depose_modules_side_intro(modules, robot_side, bassis_side), state, DONE, ERROR);
+		//sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
+		/*if(nbCylindresSurBase<5){
 
 		}
 		*/
 		break;
 
+	case DONE:
+		ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IDLE);
+		on_turning_point();
+		RESET_MAE();
+		return END_OK;
+		break;
 
+	case ERROR:
+		ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IDLE);
+		RESET_MAE();
+		return NOT_HANDLED;
+		break;
 	}
 
 	return IN_PROGRESS;
@@ -943,14 +962,14 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 
 		//sub deplacement et mesure du nombre de cylindres sur la base:
 			LES_SQUARE_COLOR,
-			//NORD_1,
-			//NORD_EST_1,
-			//NORD_EST_2,
-			//SUD_EST_1,
-			//SUD_EST_2,
-			//SUD_EST_3,
-			//SUD_OUEST_1,
-			//NORD_OUEST_1,
+			NORD_1,
+			NORD_EST_1,
+			NORD_EST_2,
+			SUD_EST_1,
+			SUD_EST_2,
+			SUD_EST_3,
+			SUD_OUEST_1,
+			NORD_OUEST_1,
 			PATHFIND,
 			FIN_DEPLACEMENTS,
 
@@ -978,18 +997,10 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 			FIN_DEPOSE
 		);
 
-
-/*
-	mon_point_de_rotation = SUD;
-	endroit_depose = OUEST;
-	cote_depose = DROITE;
-	*/
+	static bool_e side;
 
 	switch(state){
-		// Vérifier la présance de cylindre dans le robot... je sais pas faire... nul!
-
 		case INIT:
-			// Vérifier la présance de cylindre dans le robot:
 			if((robot_side==LEFT &&STOCKS_isEmpty(MODULE_STOCK_LEFT)) ||\
 			   (robot_side==RIGHT && STOCKS_isEmpty(MODULE_STOCK_RIGHT))){
 				state = DONE;
@@ -1013,9 +1024,6 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 				}
 				state=LES_SQUARE_COLOR;
 			}
-			//test pour avoir un point de départ:
-			//state = try_going(900,COLOR_Y(1500),state,LES_SQUARE_COLOR,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT,END_AT_LAST_POINT);
-			//state = LES_SQUARE_COLOR;
 			break;
 
 		case ERROR:
@@ -1076,7 +1084,6 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 
 
 		case LES_SQUARE_COLOR:
-			/*
 			if (i_am_in_square_color(0,1150,750,2250)){
 				state = NORD_1;
 			}
@@ -1099,14 +1106,13 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 
 			else{
 				state=PATHFIND;
-			}*/
-			state=PATHFIND;
+			}
 			break;
 
 
 
 //DEPLACEMENTS:
-			/*
+
 			case NORD_1:
 				state = try_going(1000,COLOR_Y(750),NORD_1,FIN_DEPLACEMENTS,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				break;
@@ -1135,7 +1141,7 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 			case NORD_OUEST_1:
 				state = try_going(1150,COLOR_Y(450),NORD_OUEST_1,FIN_DEPLACEMENTS,ERROR,FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				break;
-			*/
+
 
 			case PATHFIND:
 				if(endroit_depose==OUEST){
@@ -1196,27 +1202,34 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 */
 
 			case DETERMINE_NB_CYLINDRE_SUR_BASE_DESCENDRE_BRAS:
-				if(endroit_depose==OUEST){
-					if(mon_point_de_rotation==SUD){
-						////Descendre bras poussoir gauche;
-						ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_OUT);
+				if(entrance){
+					if(endroit_depose==OUEST && mon_point_de_rotation==SUD){
+							////Descendre bras poussoir gauche;
+							ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_OUT);
+							side = TRUE;
 					}
-					else{
-						//Descendre bras poussoir droit;
-						ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
+					else if(endroit_depose==OUEST && mon_point_de_rotation==NORD){
+							//Descendre bras poussoir droit;
+							ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
+							side = FALSE;
 					}
-				}
-				else{
-					if(mon_point_de_rotation==SUD){
-						//Descendre bras poussoir droit;
-						ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
+					else if(endroit_depose==EST && mon_point_de_rotation==SUD){
+							//Descendre bras poussoir droit;
+							ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
+							side = FALSE;
 					}
 					else{
 						//Descendre bras poussoir gauche;
 						ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_OUT);
+						side = TRUE;
 					}
 				}
-				state = DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER;
+				if(side){
+					state = check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER, ERROR);
+				}
+				else{
+					state = check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER, ERROR);
+				}
 				break;
 
 			case DETERMINE_NB_CYLINDRE_SUR_BASE_AVANCER:
