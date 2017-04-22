@@ -39,6 +39,7 @@
 #include "elements.h"
 #include "avoidance.h"
 #include "strats_2017/big/action_big.h"
+#include "strats_2017/actions_both_2017.h"
 
 void test_bp_switchs(void);
 void test_leds(void);

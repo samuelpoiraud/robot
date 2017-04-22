@@ -176,7 +176,6 @@ static void CYLINDER_SLIDER_RIGHT_get_position_config(ACT_order_e *pOrder, Uint1
 	}else if(position > CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS - epsilon && position < CYLINDER_SLIDER_RIGHT_RX24_IDLE_POS + epsilon){
 		order = ACT_CYLINDER_SLIDER_RIGHT_IDLE;
 	}
-
 	if(pOrder != NULL)
 		*pOrder = order;
 

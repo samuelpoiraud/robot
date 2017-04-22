@@ -244,7 +244,22 @@ int main (void)
 		state = (state == 11)? 0 : state + 1;
 	}
 
-static void MAIN_onButton0LongPush() {}
+static void MAIN_onButton0LongPush() {
+	static Uint8 state = 0;
+		CAN_msg_t msg1;
+		msg1.size = 1;
+
+		if(state == 0){
+			msg1.sid = ACT_ROCKET;
+			msg1.data.act_msg.order = ACT_ROCKET_PREPARE_LAUNCH;
+		}else if(state == 1){
+			msg1.sid = ACT_ROCKET;
+			msg1.data.act_msg.order = ACT_ROCKET_LAUNCH;
+		}
+
+		CAN_process_msg(&msg1);
+		state = (state == 1)? 0 : state + 1;
+}
 
 // prise de cylindre gauche
 	static void MAIN_onButton1() {

@@ -273,6 +273,7 @@ static void CYLINDER_SLIDER_LEFT_command_init(queue_id_t queueId) {
         case ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER : *rx24_goalPosition = CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_WITH_CYLINDER_POS; break;
         case ACT_CYLINDER_SLIDER_LEFT_IN : *rx24_goalPosition = CYLINDER_SLIDER_LEFT_RX24_IN_POS; break;
 
+
         case ACT_CYLINDER_SLIDER_LEFT_STOP :
             RX24_set_torque_enabled(CYLINDER_SLIDER_LEFT_RX24_ID, FALSE); //Stopper l'asservissement du RX24
             QUEUE_next(queueId, ACT_CYLINDER_SLIDER_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);
