@@ -492,7 +492,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(975, COLOR_Y(1250), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state = try_going(975, COLOR_Y(1200), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		//case GET_IN_FROM_MIDDLE_SQUARE:
@@ -504,7 +504,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case AVANCE:
-			state = try_going(1125, COLOR_Y(1250), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1125, COLOR_Y(1200), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PATHFIND:

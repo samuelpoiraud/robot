@@ -15,7 +15,7 @@
 #include "../../actuator/queue.h"
 
 
-error_e sub_anne_homologation_belgique(ELEMENTS_property_e modules){
+error_e sub_anne_homologation_belgique(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_HOMOLOGATION_BELGIQUE,
 			INIT,
 			GO_TO_CENTER,
