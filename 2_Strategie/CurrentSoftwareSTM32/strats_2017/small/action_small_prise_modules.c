@@ -15,6 +15,78 @@
 #include "../../actuator/queue.h"
 
 
+error_e sub_anne_homologation_belgique(ELEMENTS_property_e modules){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_HOMOLOGATION_BELGIQUE,
+			INIT,
+			GO_TO_CENTER,
+			OPEN_ACT,
+			TAKE_CYLINDER,
+			CLOSE_ACT,
+			MOVE_BACK,
+			GO_TO_HOME,
+			DELIVER_CYLINDER,
+			ERROR,
+			DONE
+		);
+	switch(state){
+		case INIT:
+			state = GO_TO_CENTER;
+			break;
+
+		case GO_TO_CENTER:
+			state = try_going(600, 1500, state, OPEN_ACT, GO_TO_HOME, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case OPEN_ACT:
+			if(entrance){
+				ACT_push_order(ACT_QUEUE_Small_cylinder_multifonction, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
+			}
+			state = TAKE_CYLINDER;
+			break;
+
+		case TAKE_CYLINDER:
+			state = try_going(600, COLOR_Y(2000), state, CLOSE_ACT, GO_TO_HOME, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case CLOSE_ACT:
+			ACT_push_order(ACT_QUEUE_Small_cylinder_multifonction, ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK);
+			state = MOVE_BACK;
+			break;
+
+		case MOVE_BACK:
+			state = try_going(600, 1500, state, GO_TO_HOME, GO_TO_HOME, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GO_TO_HOME:
+			state = try_going(150, COLOR_Y(860), state, DELIVER_CYLINDER, DELIVER_CYLINDER, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case DELIVER_CYLINDER:
+			if(entrance)
+				ACT_push_order(ACT_QUEUE_Small_cylinder_multifonction, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
+			//et je reste planté là comme un con parce que je veux pas faire de connerie
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_anne_homologation_belgique\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
 
 
 error_e sub_anne_prise_modules_centre(ELEMENTS_property_e modules){

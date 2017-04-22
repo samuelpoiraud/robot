@@ -86,6 +86,7 @@ void ColorSensor_init(){
 error_e sub_cross_rocker(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_CROSS_ROCKER,
 			INIT,
+			PREPARE_TO_PASS,
 			CROSS,
 			CORRECT_ODOMETRY_MATH,
 			CORRECT_ODOMETRY_MEASURE,
@@ -97,14 +98,27 @@ error_e sub_cross_rocker(void){
 
 	switch (state) {
 		case INIT:
-			if(i_am_in_square_color(0, 350, 0, 400))
-				state = CROSS;
-			else
+			if(i_am_in_square_color(0, 350, 0, 400)){
+				if(I_AM_SMALL())
+					state = PREPARE_TO_PASS;
+				else
+					state = CROSS;
+			}else{
 				state = ERROR;
+			}
+			break;
+
+		case PREPARE_TO_PASS:
+			state = try_advance(NULL, entrance, 90, state, CROSS, ERROR, FAST, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			if(ON_LEAVE()){
+				ACT_push_order(ACT_QUEUE_Small_bearing_back, ACT_SMALL_BALL_BACK_UP);
+				ACT_push_order(ACT_QUEUE_Small_bearing_front_left, ACT_SMALL_BALL_FRONT_LEFT_UP);
+				ACT_push_order(ACT_QUEUE_Small_bearing_front_right, ACT_SMALL_BALL_FRONT_RIGHT_UP);
+			}
 			break;
 
 		case CROSS:
-			state = try_going(175, COLOR_Y(900), state, CORRECT_ODOMETRY_MATH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(180, COLOR_Y(900), state, CORRECT_ODOMETRY_MATH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case CORRECT_ODOMETRY_MATH:{
