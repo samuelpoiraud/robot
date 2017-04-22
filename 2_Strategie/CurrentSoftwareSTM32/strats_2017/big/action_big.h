@@ -18,9 +18,11 @@
 	error_e sub_harry_take_big_crater_move_pos_yellow();
 	error_e sub_harry_take_big_crater_move_pos_blue();
 
+	error_e sub_harry_take_big_crater_yellow();
 	error_e sub_harry_take_big_crater_yellow_middle();
 	error_e sub_harry_take_big_crater_yellow_rocket();
 	error_e sub_harry_take_big_crater_yellow_corner();
+	error_e sub_harry_take_big_crater_blue();
 	error_e sub_harry_take_big_crater_blue_middle();
 	error_e sub_harry_take_big_crater_blue_rocket();
 	error_e sub_harry_take_big_crater_blue_corner();

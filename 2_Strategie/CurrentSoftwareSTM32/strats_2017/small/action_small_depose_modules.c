@@ -56,7 +56,7 @@ error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules, ELEMENTS_sid
 
 	switch(state){
 		case INIT:
-			state= check_sub_action(sub_anne_return_modules_centre_get_in(modules, robot_side, basis_side), state, POS, ERROR);
+			state= check_sub_action_result(sub_anne_return_modules_centre_get_in(modules, robot_side, basis_side), state, POS, ERROR);
 			break;
 
 		case POS:
