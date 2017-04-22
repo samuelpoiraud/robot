@@ -100,7 +100,7 @@ error_e sub_anne_prise_petit_cratere(ELEMENTS_property_e minerais){
 
 			case TAKE_BALL:
 				if(entrance){
-					ACT_push_order(ACT_SMALL_ORE, ACT_SMALL_ORE_LOCK);
+					ACT_push_order(ACT_SMALL_ORE, ACT_SMALL_ORE_DOWN);
 				}
 				state= check_act_status(ACT_QUEUE_Small_ore, state, GO_TO_START_ZONE, ERROR);
 				break;
@@ -111,7 +111,7 @@ error_e sub_anne_prise_petit_cratere(ELEMENTS_property_e minerais){
 
 			case PUT_BALL:
 				if(entrance){
-					ACT_push_order(ACT_SMALL_ORE, ACT_SMALL_ORE_UNLOCK);
+					ACT_push_order(ACT_SMALL_ORE, ACT_SMALL_ORE_UP);
 				}
 				state= check_act_status(ACT_QUEUE_Small_ore, state, GET_OUT, ERROR);
 				break;
