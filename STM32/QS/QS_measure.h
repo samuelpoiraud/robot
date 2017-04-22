@@ -19,8 +19,8 @@
 
 // SMALL
 #define SMALL_ROBOT_WIDTH								190		//Largeur du petit robot [mm]
-#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE		90		//Distance entre le 'centre' du robot et l'arrière en calage [mm]
-#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE		92		//Distance entre le 'centre' du robot et l'avant en calage [mm]
+#define SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE		86		//Distance entre le 'centre' du robot et l'arrière en calage [mm]
+#define SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE		90		//Distance entre le 'centre' du robot et l'avant en calage [mm]
 
 
 // Variable commune à la stratégie et la propulsion pour la gestion de l'évitement
