@@ -918,6 +918,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 		case ACTION_PUT_SLOPE_DOWN:
 			if(entrance){
 				if(moduleToStore == RIGHT){
+#warning 'euh c\'est down ou very up ici ?'
 					ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_VERY_UP);
 				}else{
 					ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_VERY_UP);
@@ -2046,7 +2047,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 		case DISPOSE_CYLINDER:
 			if(entrance){
-				time_timeout = global.absolute_time + 400;		// Temporisation pour déventouser
+				time_timeout = global.absolute_time + 700;		// Temporisation pour déventouser
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order(ACT_POMPE_DISPOSE_RIGHT, ACT_POMPE_STOP);
 				}else{
