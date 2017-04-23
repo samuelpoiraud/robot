@@ -475,13 +475,13 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 	static time32_t time_timeout_after_pompe_stop;
 	static bool_e pompe_stop = FALSE;
 
-	if(entrance){
+	/*if(entrance){
 		debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
 		STOCKS_print(MODULE_STOCK_LEFT);
 		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
 		STOCKS_print(MODULE_STOCK_RIGHT);
 	}
-
+*/
 
 	switch(state){
 		case INIT:
@@ -1997,7 +1997,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			}
 
 			// On exit
-			if(state != GET_OUT_CYLINDER_OF_ROBOT){
+			if(ON_LEAVE()){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_COLOR_TO_ARM_DISPOSE, storage);
 			}
 			break;
