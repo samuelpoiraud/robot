@@ -532,9 +532,9 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 
 		case ROTATE:
 			if(global.color == YELLOW){
-				state = try_go_angle(PI4096, state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+				state = try_go_angle(0, state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			}else{
-				state = try_go_angle(PI4096, state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
+				state = try_go_angle(0, state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
 			}
 			if(ON_LEAVE()){
 			//	if(global.color == YELLOW)
