@@ -143,7 +143,7 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 
 				 // pos 3
 				//if(global.color == BLUE){
-					state = try_going(1380, 1180, state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1380, 1250, state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				//}else{
 				//	state = try_going(1380, COLOR_Y(1180), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				//}
@@ -210,7 +210,7 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 
 				 // pos 3
 				//if(global.color == BLUE){
-					state = try_going(1200, 1180, state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1200, 1250, state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				//}else{
 				//	state = try_going(1200, COLOR_Y(1180), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				//}
@@ -515,7 +515,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(800, 1180, state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state = try_going(800, 1250, state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		//case GET_IN_FROM_MIDDLE_SQUARE:
@@ -527,7 +527,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case AVANCE://1125
-			state = try_going(1200, 1180, state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1200, 1250, state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ROTATE:
@@ -545,7 +545,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(975, 1180, state, DONE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(975, 1250, state, DONE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -817,7 +817,7 @@ error_e sub_harry_pos_3_depose_module_centre(){
 			break;
 
 		case ADVANCE:
-			state = try_going(1200, 1180, state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1200, 1250, state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case ERROR:

@@ -1696,9 +1696,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 265, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 258, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2735, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 2742, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
