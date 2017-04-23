@@ -527,7 +527,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case AVANCE://1125
-			state = try_going(1200, 1180, state, ROTATE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1200, 1180, state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ROTATE:
@@ -545,7 +545,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(975, 1180, state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(975, 1180, state, DONE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
