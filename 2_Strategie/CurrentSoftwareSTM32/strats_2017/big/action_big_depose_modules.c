@@ -319,12 +319,12 @@ error_e sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEM
 			}else if((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)){
 				state = GET_IN_POS_2; //notre depose du cote adv SIM 5
 
-			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
+			}else if((modules == NEUTRAL_ELEMENT)/* && (basis_side == OUR_SIDE)*/){
 				state = GET_IN_POS_3; //centre depose de notre code SIM 4
 
-			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
+			/*}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				state = GET_IN_POS_4;  //adv depose du cote adv SIM 3
-
+*/
 			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
 				state = GET_IN_POS_5; //adv depose de notre cote SIM 2
 
