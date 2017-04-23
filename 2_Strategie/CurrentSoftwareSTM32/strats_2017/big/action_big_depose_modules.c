@@ -142,11 +142,11 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
 
 				 // pos 3
-				if(global.color == BLUE){
+				//if(global.color == BLUE){
 					state = try_going(1380, COLOR_Y(1180), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1380, COLOR_Y(1180), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}
+				//}else{
+				//	state = try_going(1380, COLOR_Y(1180), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				//}
 			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 4
 				if(global.color == BLUE){
@@ -209,11 +209,11 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
 
 				 // pos 3
-				if(global.color == BLUE){
+				//if(global.color == BLUE){
 					state = try_going(1200, COLOR_Y(1180), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1200, COLOR_Y(1180), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}
+				//}else{
+				//	state = try_going(1200, COLOR_Y(1180), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				//}
 			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 4
 				if(global.color == BLUE){
@@ -537,9 +537,9 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 				state = try_go_angle(PI4096, state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
 			}
 			if(ON_LEAVE()){
-				if(global.color == YELLOW)
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_OUT);
-				else
+			//	if(global.color == YELLOW)
+				//	ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_OUT);
+			//	else
 					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_OUT);
 			}
 			break;
