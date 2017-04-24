@@ -453,6 +453,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			PROTECT_NEXT_FALL,
 			ACTION_BRING_BACK_CYLINDER,
 			ACTION_BRING_BACK_CYLINDER_2,
+			ACTION_BRING_BACK_CYLINDER_2_STATES,
 			STOP_POMPE_SLIDER,
 			ACTION_BRING_UP_CYLINDER,
 			ACTION_STOCK_UP_CYLINDER,
@@ -581,13 +582,21 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				}
 
 				// On redescent les elevateurs pour le stockage suivant
-				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+				if(moduleToTake == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+					ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
+				}else if(moduleToTake == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
 					ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
 				}
-				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
-					ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
-				}
 			}
+			if(moduleToTake == RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_BRING_BACK_CYLINDER_2_STATES, ERROR);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_BRING_BACK_CYLINDER_2_STATES, ERROR);
+			}
+
+			break;
+
+		case ACTION_BRING_BACK_CYLINDER_2_STATES :
 
 			// Vérification des ordres effectués
 			if(moduleToTake == RIGHT){
