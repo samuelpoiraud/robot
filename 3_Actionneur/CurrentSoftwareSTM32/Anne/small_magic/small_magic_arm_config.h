@@ -20,9 +20,9 @@
 	#define SMALL_MAGIC_ARM_RX24_SPEED						100		// Vitesse par défaut du RX24
 
 //Position
-	#define SMALL_MAGIC_ARM_RX24_IDLE_POS					681
-	#define SMALL_MAGIC_ARM_RX24_IN_POS			     		681	//en degré
-	#define SMALL_MAGIC_ARM_RX24_OUT_POS					632	//en degré
+	#define SMALL_MAGIC_ARM_RX24_IDLE_POS					528
+	#define SMALL_MAGIC_ARM_RX24_IN_POS			     		528	//en degré
+	#define SMALL_MAGIC_ARM_RX24_OUT_POS					460	//en degré
 
 	#define SMALL_MAGIC_ARM_RX24_WARNER_POS					512
 

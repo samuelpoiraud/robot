@@ -85,7 +85,7 @@
 
 /* Servo-Moteurs AX12 */
 	#define USE_AX12_SERVO
-	#define AX12_NUMBER 50
+	#define AX12_NUMBER 80
 	#define AX12_INSTRUCTION_BUFFER_SIZE 200
 	#define AX12_TIMER_ID 2
 	#define AX12_STATUS_RETURN_MODE AX12_STATUS_RETURN_ALWAYS	//Permet de savoir quand l'AX12 n'est pas bien connecté ou ne répond pas.
@@ -94,7 +94,7 @@
 
 /* Servo-Moteurs RX24 */
 	#define USE_RX24_SERVO
-	#define RX24_NUMBER 50
+	#define RX24_NUMBER 80
 	#define RX24_INSTRUCTION_BUFFER_SIZE 200
 	#define RX24_TIMER_ID 1
 	#define RX24_STATUS_RETURN_MODE RX24_STATUS_RETURN_ALWAYS	//Permet de savoir quand le RX24 n'est pas bien connecté ou ne répond pas.
