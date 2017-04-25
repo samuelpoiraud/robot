@@ -132,14 +132,15 @@
 	#define AX12_MIN_VALUE_34	0x02
 	#define AX12_MIN_VALUE_50	0x03
 
-	#define AX12_MAX_VALUE_1	0x70
-	#define AX12_MAX_VALUE_2	0x60
-	#define AX12_MAX_VALUE_127	0x50
-	#define AX12_MAX_VALUE_150	0x40
-	#define AX12_MAX_VALUE_250	0x30
-	#define AX12_MAX_VALUE_253	0x20
-	#define AX12_MAX_VALUE_254	0x10
-	#define AX12_MAX_VALUE_1023	0x00
+	#define AX12_MAX_VALUE_1	0x80
+	#define AX12_MAX_VALUE_2	0x70
+	#define AX12_MAX_VALUE_127	0x60
+	#define AX12_MAX_VALUE_150	0x50
+	#define AX12_MAX_VALUE_250	0x40
+	#define AX12_MAX_VALUE_253	0x30
+	#define AX12_MAX_VALUE_254	0x20
+	#define AX12_MAX_VALUE_1023	0x10
+	#define AX12_MAX_VALUE_2047	0x00
 
 	//Les defines sont globaux, il sont défini en même temps que le tableau des valeurs accepté par l'AX12/RX24 pour pouvoir voir à quelle valeur les limites correspondent
 	static const Uint8 AX12_values_ranges[0x32] = {
@@ -211,7 +212,7 @@
 		#define AX12_GOAL_POSITION_H			0x1F
 			AX12_MIN_VALUE_0 | AX12_MAX_VALUE_254,	//ne devrait pas être utilisé
 		#define AX12_GOAL_SPEED_L				0x20
-			AX12_MIN_VALUE_0 | AX12_MAX_VALUE_1023,
+			AX12_MIN_VALUE_0 | AX12_MAX_VALUE_2047,
 		#define AX12_GOAL_SPEED_H				0x21
 			AX12_MIN_VALUE_0 | AX12_MAX_VALUE_254,	//ne devrait pas être utilisé
 		#define AX12_TORQUE_LIMIT_L				0x22
@@ -699,6 +700,7 @@ static inline Uint16 AX12_decode_value_range(Uint8 mem_addr, bool_e get_max) {
 		}
 	} else {
 		switch(AX12_values_ranges[mem_addr] & 0xF0) {
+			case AX12_MAX_VALUE_2047: return 2047;
 			case AX12_MAX_VALUE_1023: return 1023;
 			case AX12_MAX_VALUE_254:  return 254;
 			case AX12_MAX_VALUE_253:  return 253;
@@ -1791,18 +1793,20 @@ bool_e AX12_set_move_to_position_speed(Uint8 id_servo, Uint8 percentage) {
 bool_e AX12_set_speed_percentage(Uint8 id_servo, Sint8 percentage) {
 	assert(id_servo < AX12_NUMBER);
 
-	bool_e isBackward;
+	bool_e isBackward = FALSE;
 
 	if(!AX12_on_the_robot[id_servo].is_wheel_enabled) {
 		debug_printf("AX12: AX12_set_speed_percentage while not in wheel mode, use AX12_set_move_to_position_speed instead.\n");
 		return FALSE;
 	}
 
-	isBackward = percentage < 0;
-	//percentage & 0x7F: on enlève le bit de signe, isBackward << 10: ajoute 1024 si on tourne a l'envers
-	percentage = percentage & 0x7F;
-	if(percentage > AX12_MAX_PERCENTAGE) percentage = AX12_MAX_PERCENTAGE;
-	Uint16 realValue = AX12_PERCENTAGE_TO_1024(percentage) | (((Uint16)isBackward) << 10);
+	if(percentage < 0){
+		isBackward = TRUE;
+		percentage = -percentage;
+	}
+
+	if(percentage > AX12_MAX_PERCENTAGE)	percentage = AX12_MAX_PERCENTAGE;
+	Uint16 realValue = ((percentage * 1023) / 100) | (((Uint16)isBackward) << 10);
 
 	return AX12_instruction_write16(id_servo, AX12_GOAL_SPEED_L, realValue);
 }
