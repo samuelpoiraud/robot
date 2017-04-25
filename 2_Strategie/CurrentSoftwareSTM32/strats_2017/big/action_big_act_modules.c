@@ -453,7 +453,6 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			PROTECT_NEXT_FALL,
 			ACTION_BRING_BACK_CYLINDER,
 			ACTION_BRING_BACK_CYLINDER_2,
-			ACTION_BRING_BACK_CYLINDER_2_STATES,
 			STOP_POMPE_SLIDER,
 			ACTION_BRING_UP_CYLINDER,
 			ACTION_STOCK_UP_CYLINDER,
@@ -481,8 +480,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 		STOCKS_print(MODULE_STOCK_LEFT);
 		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
 		STOCKS_print(MODULE_STOCK_RIGHT);
-	}
-*/
+	}*/
 
 	switch(state){
 		case INIT:
@@ -588,15 +586,18 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 					ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
 				}
 			}
+			/*
+
+			// On decide volontairement de pas checker pour gain de temps
+
 			if(moduleToTake == RIGHT){
 				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_BRING_BACK_CYLINDER_2_STATES, ERROR);
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_BRING_BACK_CYLINDER_2_STATES, ERROR);
 			}
-
 			break;
 
-		case ACTION_BRING_BACK_CYLINDER_2_STATES :
+			*/
 
 			// Vérification des ordres effectués
 			if(moduleToTake == RIGHT){
