@@ -21,9 +21,9 @@
 	#define SMALL_ORE_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-	#define SMALL_ORE_AX12_IDLE_POS						512
-	#define SMALL_ORE_AX12_UP_POS				    	512		//en degré
-	#define SMALL_ORE_AX12_DOWN_POS						512		//en degré
+	#define SMALL_ORE_AX12_IDLE_POS						481
+	#define SMALL_ORE_AX12_UP_POS				    	481		//en degré
+	#define SMALL_ORE_AX12_DOWN_POS						804		//en degré
 
 	#define SMALL_ORE_AX12_WARNER_POS					512
 
