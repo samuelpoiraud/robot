@@ -1424,13 +1424,13 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			}
 			break;
 
-		case WAIT_STABILZATION:
+		case WAIT_STABILZATION:/*
 			if(entrance){
 				time_timeout = global.absolute_time + 400;
-			}
-			if(global.absolute_time > time_timeout){
+			}*/
+			//if(global.absolute_time > time_timeout){
 				state = PUT_CYLINDER_IN_CONTAINER;
-			}
+			//}
 			break;
 
 		case PUT_CYLINDER_IN_CONTAINER:
@@ -1606,6 +1606,13 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			break;
 
 		case INIT:
+			//Partie de code ajoutée à la coupe de Belgique qui permettait de mieux déposer les cylindres
+			if(storage == MODULE_STOCK_RIGHT){
+				ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UP);
+			}
+			else{
+				ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UP);
+			}
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
 				state = MOVE_BALANCER_OUT; // Préparation de la dépose possible
 			}else{
@@ -1627,6 +1634,8 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 		case WAIT_MODULE_FALL:	// On attend que le module tombe bien dans le balancer, c'est à dire que le stockage se termine bien mécaniquement
 			if(entrance){
+#warning changer ça
+				//ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UP);
 				time_timeout = global.absolute_time + 1500;
 			}
 			if(global.absolute_time > time_timeout){
@@ -1841,7 +1850,6 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 	static enum state_e stateRight = INIT, stateLeft = INIT;
 	static enum state_e lastStateRight = DONE, lastStateLeft = DONE;
 	error_e ret = IN_PROGRESS;
-
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
