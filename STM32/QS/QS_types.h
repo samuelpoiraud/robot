@@ -234,15 +234,17 @@
 			FLAG_HARRY_STOMACH_IS_FULL, 		//le reservoir de baballe
 			FLAG_HARRY_DISABLE_MODULE_RIGHT,	// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
 			FLAG_HARRY_DISABLE_MODULE_LEFT,		// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
-			FLAG_HARRY_DISPENSER_LEFT_OUT,		// Flag dispenser temporaire à supprimer dès que MAE_current_state ok
-			FLAG_HARRY_DISPENSER_RIGHT_OUT,		// Flag dispenser temporaire à supprimer dès que MAE_current_state ok
 			FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS,	// Flag levé lorsqu'un module a été retourné de la bonne couleur
 			FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS,  	// Flag levé lorsqu'un module a été retourné de la bonne couleur
 			FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH,	// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
 			FLAG_HARRY_MODULE_COLOR_LEFT_FINISH,  	// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
 
 
-			FLAG_ANNE_MODULE_COLOR_RIGHT_SUCCESS,	// Flag levé lorsqu'un module a été retourné de la bonne couleur
+			FLAG_ANNE_STOMACH_IS_FULL, 				//le reservoir de baballe
+			FLAG_ANNE_DISABLE_MODULE,				// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
+			FLAG_ANNE_MODULE_COLOR_SUCCESS,			// Flag levé lorsqu'un module a été retourné de la bonne couleur
+			FLAG_ANNE_MODULE_COLOR_FINISH,			// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
+
 			F_ELEMENTS_FLAGS_NB
 
 		}elements_flags_e;
@@ -964,6 +966,7 @@
         ACT_SMALL_CYLINDER_MULTIFONCTION_IDLE,
         ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK,
         ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH,
+		ACT_SMALL_CYLINDER_MULTIFONCTION_OUT,
 		ACT_SMALL_CYLINDER_MULTIFONCTION_IN,
 
         ACT_SMALL_MAGIC_ARM_STOP = 0,

@@ -191,7 +191,7 @@ error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules, ELEMENTS_sid
 			if(global.absolute_time > time_timeout){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 				if((global.color == BLUE) && !CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_White, FALSE) && !CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_Yellow, FALSE)){ // bleu vers la sortie
-					ELEMENTS_set_flag(FLAG_ANNE_MODULE_COLOR_RIGHT_SUCCESS, TRUE);
+					ELEMENTS_set_flag(FLAG_ANNE_MODULE_COLOR_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
 			}

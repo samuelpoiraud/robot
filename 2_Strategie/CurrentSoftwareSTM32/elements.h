@@ -63,6 +63,7 @@
 	typedef enum{
 		MODULE_STOCK_LEFT,
 		MODULE_STOCK_RIGHT,
+		MODULE_STOCK_SMALL,
 		NB_STOCKS
 	}moduleStockLocation_e;
 
