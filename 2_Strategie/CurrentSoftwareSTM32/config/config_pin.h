@@ -254,7 +254,8 @@
 		//#define MOSFET_7_PIN			GPIOD,GPIO_Pin_4
 
 	#define PORT_IO_D_5			PORT_IO_INPUT			//Pour activer le mosfet, mettre en OUTPUT
-	#define PORT_OPT_D_5		PORT_OPT_NO_PULL
+	#define PORT_OPT_D_5		PORT_OPT_PULL_DOWN
+		// CH4 small capteur couleur 2017
 		// Usb LED red
 		//#define MOSFET_8_PIN			GPIOD,GPIO_Pin_5
 

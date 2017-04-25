@@ -35,8 +35,21 @@
 #define BIG_COLOR_RIGHT_CH2_PORT 	GPIOD
 #define BIG_COLOR_RIGHT_CH2_PIN	 	GPIO_Pin_3
 
+
+#define SMALL_COLOR_MAGIC_ARM_CH0_PORT 	GPIOC
+#define SMALL_COLOR_MAGIC_ARM_CH0_PIN	GPIO_Pin_6
+
+#define SMALL_COLOR_MAGIC_ARM_CH1_PORT 	GPIOC
+#define SMALL_COLOR_MAGIC_ARM_CH1_PIN	GPIO_Pin_10
+
+#define SMALL_COLOR_MAGIC_ARM_CH2_PORT 	GPIOD
+#define SMALL_COLOR_MAGIC_ARM_CH2_PIN	GPIO_Pin_2
+
+#define SMALL_COLOR_MAGIC_ARM_CH3_PORT 	GPIOD
+#define SMALL_COLOR_MAGIC_ARM_CH3_PIN	GPIO_Pin_5
+
 void ColorSensor_init(){
-	CW_config_t config_left, config_right;
+	CW_config_t config_left, config_right, config_magic_arm;
 	Uint8 i;
 
 	// Init the driver (set all ports and pins as unused)
@@ -51,14 +64,23 @@ void ColorSensor_init(){
 		config_right.digital_ports[i].port = CW_UNUSED_PORT;
 		config_right.digital_ports[i].pin = 0;
 		config_right.digital_ports[i].is_inverted_logic = 0;
+
+		config_magic_arm.digital_ports[i].port = CW_UNUSED_PORT;
+		config_magic_arm.digital_ports[i].pin = 0;
+		config_magic_arm.digital_ports[i].is_inverted_logic = 0;
 	}
 
 	config_left.analog_X = 0;
 	config_left.analog_Y = 0;
 	config_left.analog_Z = 0;
+
 	config_right.analog_X = 0;
 	config_right.analog_Y = 0;
 	config_right.analog_Z = 0;
+
+	config_magic_arm.analog_X = 0;
+	config_magic_arm.analog_Y = 0;
+	config_magic_arm.analog_Z = 0;
 
 	// Init channels
 	if(I_AM_BIG()){
@@ -80,6 +102,16 @@ void ColorSensor_init(){
 
 		CW_config_sensor(CW_SENSOR_LEFT, &config_left);
 		CW_config_sensor(CW_SENSOR_RIGHT, &config_right);
+	}else{
+		// Magic arm
+		config_magic_arm.digital_ports[CW_PP_Channel0].port = SMALL_COLOR_MAGIC_ARM_CH0_PORT;
+		config_magic_arm.digital_ports[CW_PP_Channel0].pin = SMALL_COLOR_MAGIC_ARM_CH0_PIN;
+		config_magic_arm.digital_ports[CW_PP_Channel1].port = SMALL_COLOR_MAGIC_ARM_CH1_PORT;
+		config_magic_arm.digital_ports[CW_PP_Channel1].pin = SMALL_COLOR_MAGIC_ARM_CH1_PIN;
+		config_magic_arm.digital_ports[CW_PP_Channel2].port = SMALL_COLOR_MAGIC_ARM_CH2_PORT;
+		config_magic_arm.digital_ports[CW_PP_Channel2].pin = SMALL_COLOR_MAGIC_ARM_CH2_PIN;
+
+		CW_config_sensor(CW_SENSOR_SMALL, &config_magic_arm);
 	}
 }
 

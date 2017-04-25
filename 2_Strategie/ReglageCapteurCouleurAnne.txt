@@ -1,0 +1,18 @@
+Réglage capteur couleur Anne
+
+CH1: couleur blanche
+	tolérance = 20
+	couleur = C
+	Output mode = LO
+	Timer mode = TOff
+CH2: couleur bleu
+	tolérance = 20
+	couleur = C
+	Output mode = LO
+	Timer mode = TOff
+CH3: couleur jaune
+	tolérance = 40
+	couleur = C
+	Output mode = LO
+	Timer mode = TOff
+CH4: désactivé
