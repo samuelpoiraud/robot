@@ -830,6 +830,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_IDLE:	print(string,len, "| IDLE |");			break;
 							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK:	print(string,len, "| LOCK |");			break;
 							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH:	print(string,len, "| PUSH |");			break;
+							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_OUT:		print(string,len, "| OUT |");			break;
 							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_IN:		print(string,len, "| IN |");			break;
 							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_STOP:	print(string,len, "| STOP |");			break;
 							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
