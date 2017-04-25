@@ -14,7 +14,95 @@
 #include "../../high_level_strat.h"
 
 
+error_e sub_act_anne_return_module(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_ANNE_RETURN_MODULE,
+			INIT,
+			MAGIC_ARM_GO_OUT,
+			WAIT_ADV_COLOR,
+			WAIT_WHITE_COLOR,
+			WAIT_TIMER,
+			MAGIC_ARM_GO_IN,
 
+			ERROR_DISABLE_ACT,
+			ERROR,
+			DONE
+		);
+
+	static time32_t time_timeout = 0;
+	bool_e white_color, blue_color, yellow_color;
+	#define TIMEOUT_TURN		(3000)
+	#define TIMEOUT_TIMER		(350)
+
+	switch(state){
+		case INIT:
+			state = MAGIC_ARM_GO_OUT;
+			break;
+
+		case MAGIC_ARM_GO_OUT:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_MAGIC_ARM, ACT_SMALL_MAGIC_ARM_OUT);
+				ACT_push_order(ACT_SMALL_MAGIC_COLOR, ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED);
+			}
+			state = check_act_status(ACT_QUEUE_Small_magic_arm, state, WAIT_ADV_COLOR, WAIT_ADV_COLOR);
+			break;
+
+		case WAIT_ADV_COLOR:
+			if(entrance){
+				time_timeout = global.absolute_time + TIMEOUT_TURN;
+			}
+			if(global.absolute_time > time_timeout){
+				state = MAGIC_ARM_GO_IN;
+			}else if((global.color == BLUE && !CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_Yellow, TRUE))
+				|| (global.color == YELLOW && !CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_Blue, TRUE))){
+				state = WAIT_WHITE_COLOR;
+			}
+			break;
+
+		case WAIT_WHITE_COLOR:
+			if(global.absolute_time > time_timeout){
+				state = MAGIC_ARM_GO_IN;
+			}else if(!CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_White, TRUE)){
+				state = WAIT_TIMER;
+			}
+			break;
+
+		case WAIT_TIMER:
+			if(entrance){
+				time_timeout = global.absolute_time + TIMEOUT_TIMER;
+			}
+			if(global.absolute_time > time_timeout){
+				state = MAGIC_ARM_GO_IN;
+			}
+			break;
+
+		case MAGIC_ARM_GO_IN:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_MAGIC_COLOR, ACT_SMALL_MAGIC_COLOR_ZERO_SPEED);
+				ACT_push_order(ACT_SMALL_MAGIC_ARM, ACT_SMALL_MAGIC_ARM_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Small_magic_arm, state, DONE, DONE);
+			break;
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_act_anne_return_module\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
 
 
 /// HARRY
