@@ -21,7 +21,7 @@
 
 //Position
 	#define ORE_GUN_RX24_IDLE_POS					362
-    #define ORE_GUN_RX24_DOWN_POS			     	559	//en degré
+    #define ORE_GUN_RX24_DOWN_POS			     	540	//en degré
     #define ORE_GUN_RX24_UP_POS						362	//en degré
 
 //Position initiale de l'RX24

@@ -132,15 +132,14 @@ error_e sub_harry_depose_minerais(){
 
 	switch(state){
 		case INIT:
-#warning 'désactivation pour test'
-			/*if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
+			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
 			}else if((ELEMENTS_get_flag(FLAG_SUB_ANNE_DEPOSE_CYLINDER_OUR_SIDE)||(!ELEMENTS_get_flag(FLAG_HARRY_STOMACH_IS_FULL)))){
 				state=ERROR;
-			}else{*/
+			}else{
 				state=GET_IN;
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_ORE_SHOOTING,TRUE);
-			//}
+			}
 			break;
 
 		case GET_IN:

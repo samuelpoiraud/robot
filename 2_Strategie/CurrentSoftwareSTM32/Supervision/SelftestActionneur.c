@@ -20,8 +20,6 @@ error_e SELFTESTACT_run(){
 			DONE
 	);
 
-	Uint16 index_initializer = 0;
-
 
 	//#define TABLEAU_SELFTEST_BIG_VOYAGE_D_UN_MODULE
 

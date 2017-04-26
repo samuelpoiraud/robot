@@ -457,7 +457,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			ACTION_BRING_UP_CYLINDER,
 			ACTION_STOCK_UP_CYLINDER,
 			ACTION_PUT_CYLINDER_IN_CONTAINER,
-			ACTION_PUT_SLOPE_DOWN,
+			ACTION_PUT_SLOPE_VERY_UP,
 
 			ERROR_DISABLE_ACT,
 			ERROR,
@@ -910,7 +910,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				}
 			}
 
-			state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
+			state = wait_time(1000, state, ACTION_PUT_SLOPE_VERY_UP);	// On attends un peu le temps que le cylindre roule
 
 			if(ON_LEAVE()){
 				// On met à jour les données : Passage du module de POS_ELEVATOR vers le container (POS_SLOPE, POS_CONTAINER ou POS_BALANCER)
@@ -922,10 +922,9 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			}
 			break;
 
-		case ACTION_PUT_SLOPE_DOWN:
+		case ACTION_PUT_SLOPE_VERY_UP:
 			if(entrance){
 				if(moduleToStore == RIGHT){
-#warning 'euh c\'est down ou very up ici ?'
 					ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_VERY_UP);
 				}else{
 					ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_VERY_UP);
@@ -1000,8 +999,7 @@ error_e sub_act_harry_get_module(moduleStockPosition_e pos, ELEMENTS_side_e side
 	static time32_t time_timeout_after_pompe_stop;
 	static bool_e pompe_stop;
 
-	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS;
-	static error_e state3 = IN_PROGRESS;
+	static error_e state1 = IN_PROGRESS;
 
 	switch(state){
 	case INIT:
