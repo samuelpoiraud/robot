@@ -12,7 +12,7 @@
 #define	SMALL_MAGIC_ARM_CONFIG_H
 
 //Config
-	#define SMALL_MAGIC_ARM_RX24_ASSER_TIMEOUT				2000	// Si le RX24 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en ms.
+	#define SMALL_MAGIC_ARM_RX24_ASSER_TIMEOUT				500	// Si le RX24 n'atteint pas la position demandée avant ce temps, on considère qu'il y a un problème. Temps en ms.
 	#define SMALL_MAGIC_ARM_RX24_ASSER_POS_EPSILON			6		// Lorsque le RX24 atteint sa position avec +/- POS_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define SMALL_MAGIC_ARM_RX24_ASSER_POS_LARGE_EPSILON	28		// Si le déplacement de le RX24 timeout mais que sa position est à +/- POS_LARGE_EPSILON degré d'écart max, on considère qu'il a atteint sa position. Angle en degré.
 	#define SMALL_MAGIC_ARM_RX24_MAX_TORQUE_PERCENT		    50		// Couple maximum en pourcentage de le RX24. Utilisé pour limiter le courant dans le moteur. A mettre a une valeur correcte pour pincer assez fort sans risquer d'endommager le RX24.
@@ -23,6 +23,7 @@
 	#define SMALL_MAGIC_ARM_RX24_IDLE_POS					528
 	#define SMALL_MAGIC_ARM_RX24_IN_POS			     		528	//en degré
 	#define SMALL_MAGIC_ARM_RX24_OUT_POS					460	//en degré
+	#define SMALL_MAGIC_ARM_RX24_CURRENT_POS_DELTA			5	// delta en degré pour forcer un peu sur le cylindre
 
 	#define SMALL_MAGIC_ARM_RX24_WARNER_POS					512
 

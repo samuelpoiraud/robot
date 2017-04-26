@@ -18,6 +18,7 @@ error_e sub_act_anne_return_module(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_ANNE_RETURN_MODULE,
 			INIT,
 			MAGIC_ARM_GO_OUT,
+			MAGIC_ARM_TAKE_CURRENT_POS,
 			WAIT_ADV_COLOR,
 			WAIT_WHITE_COLOR,
 			WAIT_TIMER,
@@ -41,6 +42,13 @@ error_e sub_act_anne_return_module(){
 		case MAGIC_ARM_GO_OUT:
 			if(entrance){
 				ACT_push_order(ACT_SMALL_MAGIC_ARM, ACT_SMALL_MAGIC_ARM_OUT);
+			}
+			state = check_act_status(ACT_QUEUE_Small_magic_arm, state, MAGIC_ARM_TAKE_CURRENT_POS, MAGIC_ARM_TAKE_CURRENT_POS);
+			break;
+
+		case MAGIC_ARM_TAKE_CURRENT_POS:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_MAGIC_ARM, ACT_SMALL_MAGIC_ARM_CURRENT_POS);
 				ACT_push_order(ACT_SMALL_MAGIC_COLOR, ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED);
 			}
 			state = check_act_status(ACT_QUEUE_Small_magic_arm, state, WAIT_ADV_COLOR, WAIT_ADV_COLOR);

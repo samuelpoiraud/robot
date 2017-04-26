@@ -586,8 +586,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 					ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
 				}
 			}
-			/*
-
+			/*--------------------------------------------------------------------
 			// On decide volontairement de pas checker pour gain de temps
 
 			if(moduleToTake == RIGHT){
@@ -595,9 +594,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_BRING_BACK_CYLINDER_2_STATES, ERROR);
 			}
-			break;
-
-			*/
+			----------------------------------------------------------------------*/
 
 			// Vérification des ordres effectués
 			if(moduleToTake == RIGHT){
