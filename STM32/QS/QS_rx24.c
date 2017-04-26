@@ -1378,8 +1378,8 @@ void RX24_init() {
 
 //Poucentage max: 100% (tout le monde le savait ça, mais c'est bien de le repréciser :) )
 #define RX24_MAX_PERCENTAGE 100
-#define RX24_1024_TO_PERCENTAGE(percentage) ((((Uint16)(percentage))*25) >> 8) // >> 8 <=> / 256, 25/256 = 100/1024
-#define RX24_PERCENTAGE_TO_1024(percentage) ((((Uint16)(percentage)) << 8) / 25)
+#define RX24_1024_TO_PERCENTAGE(percentage) ((((Uint16)(percentage)) * RX24_MAX_PERCENTAGE) / 1023) // Transforme l'intervalle [0; 1023] en [0; 100]
+#define RX24_PERCENTAGE_TO_1024(percentage) ((((Uint16)(percentage)) * 1023) / RX24_MAX_PERCENTAGE) // Transforme l'intervalle [0; 100] en [0; 1023]
 
 //Implementation
 
@@ -1795,7 +1795,7 @@ bool_e RX24_set_speed_percentage(Uint8 id_servo, Sint8 percentage) {
 	}
 
 	if(percentage > RX24_MAX_PERCENTAGE)	percentage = RX24_MAX_PERCENTAGE;
-	Uint16 realValue = ((percentage * 1023) / 100) | (((Uint16)isBackward) << 10);
+	Uint16 realValue = RX24_PERCENTAGE_TO_1024(percentage) | (((Uint16)isBackward) << 10);
 
 	return RX24_instruction_write16(id_servo, RX24_GOAL_SPEED_L, realValue);
 }

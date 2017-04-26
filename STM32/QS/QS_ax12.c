@@ -1389,8 +1389,8 @@ void AX12_init() {
 
 //Poucentage max: 100% (tout le monde le savait ça, mais c'est bien de le repréciser :) )
 #define AX12_MAX_PERCENTAGE 100
-#define AX12_1024_TO_PERCENTAGE(percentage) ((((Uint16)(percentage))*25) >> 8) // >> 8 <=> / 256, 25/256 = 100/1024
-#define AX12_PERCENTAGE_TO_1024(percentage) ((((Uint16)(percentage)) << 8) / 25)
+#define AX12_1024_TO_PERCENTAGE(percentage) ((((Uint16)(percentage)) * AX12_MAX_PERCENTAGE) / 1023) // Transforme l'intervalle [0; 1023] en [0; 100]
+#define AX12_PERCENTAGE_TO_1024(percentage) ((((Uint16)(percentage)) * 1023) / AX12_MAX_PERCENTAGE) // Transforme l'intervalle [0; 100] en [0; 1023]
 
 //Implementation
 
@@ -1806,7 +1806,7 @@ bool_e AX12_set_speed_percentage(Uint8 id_servo, Sint8 percentage) {
 	}
 
 	if(percentage > AX12_MAX_PERCENTAGE)	percentage = AX12_MAX_PERCENTAGE;
-	Uint16 realValue = ((percentage * 1023) / 100) | (((Uint16)isBackward) << 10);
+	Uint16 realValue = AX12_PERCENTAGE_TO_1024(percentage) | (((Uint16)isBackward) << 10);
 
 	return AX12_instruction_write16(id_servo, AX12_GOAL_SPEED_L, realValue);
 }
