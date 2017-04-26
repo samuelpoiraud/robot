@@ -131,6 +131,7 @@ void corentin_strat_inutile_small(){
 
 	switch(state){
 		case INIT:
+			state = check_sub_action_result(sub_cross_rocker(), state, DONE, ERROR);
 			break;
 
 		case ERROR:

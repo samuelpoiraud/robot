@@ -25,10 +25,14 @@
     #define ORE_ROLLER_ARM_L_RX24_IDLE_POS					    984
     #define ORE_ROLLER_ARM_L_RX24_OUT_POS			     	    650
     #define ORE_ROLLER_ARM_L_RX24_IN_POS				    	984
+    #define ORE_ROLLER_ARM_L_RX24_DEPOSE_POS				    785
+
 
     #define ORE_ROLLER_ARM_R_RX24_IDLE_POS					    654
     #define ORE_ROLLER_ARM_R_RX24_OUT_POS			     	    983
     #define ORE_ROLLER_ARM_R_RX24_IN_POS				    	654
+    #define ORE_ROLLER_ARM_R_RX24_DEPOSE_POS				    857
+
 
 //Position initiale de l'RX24
     #define ORE_ROLLER_ARM_L_RX24_INIT_POS					ORE_ROLLER_ARM_L_RX24_IDLE_POS
