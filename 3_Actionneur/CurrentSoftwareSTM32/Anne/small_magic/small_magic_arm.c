@@ -213,6 +213,7 @@ bool_e SMALL_MAGIC_ARM_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_SMALL_MAGIC_ARM_IDLE :
 			case ACT_SMALL_MAGIC_ARM_IN :
 			case ACT_SMALL_MAGIC_ARM_OUT :
+			case ACT_SMALL_MAGIC_ARM_CURRENT_POS :
 			case ACT_SMALL_MAGIC_ARM_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SMALL_MAGIC_ARM, &SMALL_MAGIC_ARM_run_command, 0,TRUE);
 				break;
@@ -268,6 +269,7 @@ static void SMALL_MAGIC_ARM_command_init(queue_id_t queueId) {
 		case ACT_SMALL_MAGIC_ARM_IDLE : *rx24_goalPosition = SMALL_MAGIC_ARM_RX24_IDLE_POS; break;
 		case ACT_SMALL_MAGIC_ARM_IN : *rx24_goalPosition = SMALL_MAGIC_ARM_RX24_IN_POS; break;
 		case ACT_SMALL_MAGIC_ARM_OUT : *rx24_goalPosition = SMALL_MAGIC_ARM_RX24_OUT_POS; break;
+		case ACT_SMALL_MAGIC_ARM_CURRENT_POS : *rx24_goalPosition = RX24_get_position(SMALL_MAGIC_ARM_RX24_ID) - SMALL_MAGIC_ARM_RX24_CURRENT_POS_DELTA; break;
 
 		case ACT_SMALL_MAGIC_ARM_STOP :
 			RX24_set_torque_enabled(SMALL_MAGIC_ARM_RX24_ID, FALSE); //Stopper l'asservissement du RX24
