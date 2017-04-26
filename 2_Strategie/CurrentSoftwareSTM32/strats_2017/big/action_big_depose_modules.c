@@ -2017,7 +2017,6 @@ error_e sub_harry_cylinder_depose_manager(){
 		case MANAGE:
 			if(prefered_zone==MODULE_MOONBASE_MIDDLE){
 				state=GO_TO_MIDDLE;
-
 			}else if(prefered_zone==MODULE_MOONBASE_OUR_CENTER){
 				state=GO_TO_OUR_CENTER;
 			}else if(prefered_zone==MODULE_MOONBASE_OUR_SIDE){
@@ -2027,7 +2026,6 @@ error_e sub_harry_cylinder_depose_manager(){
 			}else if(prefered_zone==MODULE_MOONBASE_ADV_SIDE){
 				state=GO_TO_ADV_SIDE;
 			}else{
-#warning 'CORENTIN : Que fait t on sinon ? On reste planté là ?'
 				state = ERROR;
 			}
 			break;

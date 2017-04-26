@@ -34,7 +34,7 @@
 // Configuration de l'asservissement PIDs
 	#define MOTOR_TURN_TRIHOLE_KP						100
 	#define MOTOR_TURN_TRIHOLE_KI						3000
-	#define MOTOR_TURN_TRIHOLE_KD						0
+	#define MOTOR_TURN_TRIHOLE_KD						2000
 	#define MOTOR_TURN_TRIHOLE_KV						167			// (Réduction / ConstanteVitesseMoteur * MaxPWM * 1024) / TensionAlimentation
 																	// Constante de vitesse moteur : 247	CXR
 																	// Constante de vitesse moteur : 274	CR
@@ -45,7 +45,7 @@
 	#define MOTOR_TURN_TRIHOLE_EPSILON_SPEED			5
 
 //Configuration des vitesses
-	#define MOTOR_TURN_TRIHOLE_RECOVERY_SPEED			-20		// [rpm]
+	#define MOTOR_TURN_TRIHOLE_RECOVERY_SPEED			-10		// [rpm]
 
 //Vitesse initiale
 	#define MOTOR_TURN_TRIHOLE_INIT_SPEED				MOTOR_TURN_TRIHOLE_IDLE_SPEED
