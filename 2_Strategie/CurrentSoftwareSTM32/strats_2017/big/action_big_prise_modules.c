@@ -1494,7 +1494,7 @@ error_e sub_harry_rocket_monocolor(){
 			break;
 
 		case GO_TO_START_POINT:
-			state = try_going(265, COLOR_Y(1150), state, ROTATE, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(310, COLOR_Y(1150), state, ROTATE, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ROTATE:
@@ -1502,7 +1502,7 @@ error_e sub_harry_rocket_monocolor(){
 		break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
-			state=check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE,LEFT,LEFT,LEFT,LEFT),state,GET_OUT,GET_OUT_ERROR);
+			state=check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, LEFT, RIGHT, LEFT, RIGHT),state,GET_OUT,GET_OUT_ERROR);
 
 			// Juste pour les tests
 			/*ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
@@ -1696,9 +1696,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 258, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 310, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2742, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 2690, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
