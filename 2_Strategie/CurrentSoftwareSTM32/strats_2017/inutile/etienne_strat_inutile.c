@@ -15,6 +15,7 @@ void etienne_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 				INIT,
 				INIT1,
+				INIT2,
 				ERROR,
 				DONE
 			);
@@ -26,11 +27,15 @@ void etienne_strat_inutile_big(){
 					//global.color==BLUE;
 				}
 				//state = try_advance(NULL,entrance,400,state,INIT1,ERROR,FAST,BACKWARD,DODGE_AND_WAIT, END_AT_LAST_POINT);
-				state = INIT1;
+				state=check_sub_action_result(sub_harry_rocket_monocolor(OUR_ELEMENT), state, INIT2, INIT2);
+				break;
+
+			case INIT2:
+				state=ASTAR_try_going(750,1500,state,INIT1,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 				break;
 
 			case INIT1:
-				state = check_sub_action_result(sub_harry_depose_modules_side_intro(ADV_ELEMENT,RIGHT,OUR_SIDE),state,DONE,ERROR);
+				state = check_sub_action_result(sub_harry_depose_modules_side_intro(OUR_ELEMENT,LEFT,OUR_SIDE,NORD),state,DONE,ERROR);
 				break;
 
 			case ERROR:
