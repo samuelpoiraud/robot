@@ -82,9 +82,9 @@
 	error_e sub_harry_take_big_crater_blue();
 	error_e sub_harry_take_big_crater_yellow();
 	error_e sub_harry_depose_modules_side_manager(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
-	error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
+	error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side, POINT_DE_ROTATION_config_e mon_point_de_rotation);
 	error_e sub_harry_depose_modules_side(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side,POINT_DE_ROTATION_config_e mon_point_de_rotation,endroit_depose_config_e endroit_depose,COTE_DE_DEPOSE_config_e cote_depose);
-	error_e sub_harry_depose_modules_side_fin(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
+	error_e sub_harry_depose_modules_side_fin(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side,POINT_DE_ROTATION_config_e mon_point_de_rotation);
 	error_e sub_harry_return_modules(ELEMENTS_side_e side);
 	//error_e manager_return_modules(); //Fonction à ne pas utiliser car dangeureuse et très incomplète
 
