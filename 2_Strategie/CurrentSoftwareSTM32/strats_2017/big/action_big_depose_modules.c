@@ -139,21 +139,21 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 				}else{
 					state = try_going(1390, COLOR_Y(1220), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
-			}else if((modules == NEUTRAL_ELEMENT)/* && (basis_side == OUR_SIDE)*/){
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
 
 				 // pos 3
-				//if(global.color == BLUE){
+				if(global.color == BLUE){
 					state = try_going(1380, 1250, state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				//}else{
-				//	state = try_going(1380, COLOR_Y(1180), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				//}
-			/*}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
+				}else{
+					state = try_going(1380, COLOR_Y(1180), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 4
 				if(global.color == BLUE){
 					state = try_going(1320, COLOR_Y(1700), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
 					state = try_going(1320, COLOR_Y(1700), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}*/
+				}
 			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
 				// pos 5
 				if(global.color == BLUE){
@@ -206,21 +206,21 @@ error_e sub_harry_depose_modules_centre(ELEMENTS_property_e modules, ELEMENTS_si
 				}else{
 					state = try_going(1270, COLOR_Y(1100), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
-			}else if((modules == NEUTRAL_ELEMENT)/* && (basis_side == OUR_SIDE)*/){
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
 
 				 // pos 3
-				//if(global.color == BLUE){
+				if(global.color == BLUE){
 					state = try_going(1200, 1250, state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				//}else{
-				//	state = try_going(1200, COLOR_Y(1180), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				//}
-/*			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
+				}else{
+					state = try_going(1200, COLOR_Y(1180), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				}
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 4
 				if(global.color == BLUE){
 					state = try_going(1200, COLOR_Y(1700), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
 					state = try_going(1200, COLOR_Y(1700), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}*/
+				}
 			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
 				// pos 5
 				if(global.color == BLUE){
@@ -319,12 +319,12 @@ error_e sub_harry_get_in_depose_modules_centre(ELEMENTS_property_e modules, ELEM
 			}else if((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)){
 				state = GET_IN_POS_2; //notre depose du cote adv SIM 5
 
-			}else if((modules == NEUTRAL_ELEMENT)/* && (basis_side == OUR_SIDE)*/){
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
 				state = GET_IN_POS_3; //centre depose de notre code SIM 4
 
-			/*}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
+			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
 				state = GET_IN_POS_4;  //adv depose du cote adv SIM 3
-*/
+
 			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
 				state = GET_IN_POS_5; //adv depose de notre cote SIM 2
 
@@ -515,7 +515,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(800, 1250, state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state = try_going(800, COLOR_Y(1250), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		//case GET_IN_FROM_MIDDLE_SQUARE:
@@ -527,7 +527,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case AVANCE://1125
-			state = try_going(1200, 1250, state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1200, COLOR_Y(1250), state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ROTATE:
@@ -545,7 +545,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(975, 1250, state, DONE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(975, COLOR_Y(1250), state, DONE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -817,7 +817,7 @@ error_e sub_harry_pos_3_depose_module_centre(){
 			break;
 
 		case ADVANCE:
-			state = try_going(1200, 1250, state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1200, COLOR_Y(1250), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case ERROR:
