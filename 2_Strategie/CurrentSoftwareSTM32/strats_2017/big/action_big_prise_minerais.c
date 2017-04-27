@@ -1873,12 +1873,14 @@ error_e sub_harry_take_big_crater_yellow(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_YELLOW,
 			INIT,
 			COLLECT_YELLOW_LINE,
+			COLLECT_YELLOW_BIG_BALL,
 			COLLECT_YELLOW_WALL_DOWN,
 			COLLECT_YELLOW_ACTIVATE,
 			COLLECT_YELLOW_MOVE_FOWARD,
 			COLLECT_YELLOW_ROLLER_UP,
 			COLLECT_YELLOW_POSITION_LEFT,
 			COLLECT_YELLOW_END_ACTIVATE,
+			COLLECT_YELLOW_BIG_BALL_OUT,
 			COLLECT_YELLOW_WALL_UP,
 			ERROR_COLLECT_YELLOW_MOVE_FOWARD,
 			ERROR_COLLECT_YELLOW_POSITION_LEFT,
@@ -1907,8 +1909,36 @@ error_e sub_harry_take_big_crater_yellow(){
 
 		case COLLECT_YELLOW_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(-PI4096/4, state, COLLECT_YELLOW_WALL_DOWN, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = try_go_angle(-PI4096/4, state, COLLECT_YELLOW_BIG_BALL, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			break;
+
+		case COLLECT_YELLOW_BIG_BALL:{
+			Uint8 state0=COLLECT_YELLOW_BIG_BALL;
+			Uint8 state1=COLLECT_YELLOW_BIG_BALL;
+			Uint8 state2=COLLECT_YELLOW_BIG_BALL;
+			Uint8 state3=COLLECT_YELLOW_BIG_BALL;
+			Uint8 state4=COLLECT_YELLOW_BIG_BALL;
+
+				if(entrance){
+					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
+					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
+					ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_BACK_LEFT_UP);
+					ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
+					ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
+				}
+				state0= check_act_status(ACT_QUEUE_Big_bearing_front_left, state0, DONE, ERROR);
+				state1= check_act_status(ACT_QUEUE_Big_bearing_front_right, state1, DONE, ERROR);
+				state2= check_act_status(ACT_QUEUE_Big_bearing_back_left, state2, DONE, ERROR);
+				state3= check_act_status(ACT_QUEUE_Big_bearing_back_right, state3, DONE, ERROR);
+				state4= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state4, DONE, ERROR);
+
+				if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)){
+					state=ERROR;
+				}
+				else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)&&(state3==DONE)&&(state4==DONE)){
+					state=COLLECT_YELLOW_WALL_DOWN;
+				}
+			}break;
 
 	case COLLECT_YELLOW_WALL_DOWN:{
 		Uint8 state0=COLLECT_YELLOW_WALL_DOWN;
@@ -2002,8 +2032,36 @@ error_e sub_harry_take_big_crater_yellow(){
 				// descendre le mur du rouleau et allumer le rouleau
 				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP, ACT_ROLLER_FOAM_SPEED_RUN);
 			}
-			state= check_act_status(ACT_QUEUE_Ore_roller_foam, state, COLLECT_YELLOW_WALL_UP, ERROR);
+			state= check_act_status(ACT_QUEUE_Ore_roller_foam, state, COLLECT_YELLOW_BIG_BALL_OUT, ERROR);
 			break;
+
+		case COLLECT_YELLOW_BIG_BALL_OUT:{
+			Uint8 state0=COLLECT_YELLOW_BIG_BALL_OUT;
+			Uint8 state1=COLLECT_YELLOW_BIG_BALL_OUT;
+			Uint8 state2=COLLECT_YELLOW_BIG_BALL_OUT;
+			Uint8 state3=COLLECT_YELLOW_BIG_BALL_OUT;
+			Uint8 state4=COLLECT_YELLOW_BIG_BALL_OUT;
+
+				if(entrance){
+					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
+					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
+					ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_BACK_LEFT_DOWN);
+					ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
+					ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
+				}
+				state0= check_act_status(ACT_QUEUE_Big_bearing_front_left, state0, DONE, ERROR);
+				state1= check_act_status(ACT_QUEUE_Big_bearing_front_right, state1, DONE, ERROR);
+				state2= check_act_status(ACT_QUEUE_Big_bearing_back_left, state2, DONE, ERROR);
+				state3= check_act_status(ACT_QUEUE_Big_bearing_back_right, state3, DONE, ERROR);
+				state4= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state4, DONE, ERROR);
+
+				if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)){
+					state=ERROR;
+				}
+				else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)&&(state3==DONE)&&(state4==DONE)){
+					state=COLLECT_YELLOW_WALL_UP;
+				}
+			}break;
 
 		case COLLECT_YELLOW_WALL_UP:{
 			Uint8 state0=COLLECT_YELLOW_WALL_UP;
@@ -2030,6 +2088,8 @@ error_e sub_harry_take_big_crater_yellow(){
 					state=DONE;
 				}
 			}break;
+
+
 
 		case ERROR_COLLECT_YELLOW_MOVE_FOWARD:
 			// il y a quelqu'un dans le cratere
@@ -2059,18 +2119,21 @@ error_e sub_harry_take_big_crater_yellow(){
 	return IN_PROGRESS;
 }
 
+
 // 2
 //COLLECT_BLUE
 error_e sub_harry_take_big_crater_blue(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_BIG_CRATER_BLUE,
 			INIT,
 			COLLECT_BLUE_LINE,
+			COLLECT_BLUE_BIG_BALL,
 			COLLECT_BLUE_WALL_DOWN,
 			COLLECT_BLUE_ACTIVATE,
 			COLLECT_BLUE_MOVE_FOWARD,
 			COLLECT_BLUE_ROLLER_UP,
 			COLLECT_BLUE_POSITION_LEFT,
 			COLLECT_BLUE_END_ACTIVATE,
+			COLLECT_BLUE_BIG_BALL_OUT,
 			COLLECT_BLUE_WALL_UP,
 			ERROR_COLLECT_BLUE_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_POSITION_LEFT,
@@ -2100,8 +2163,37 @@ error_e sub_harry_take_big_crater_blue(){
 
 		case COLLECT_BLUE_LINE:
 			// rotation nord avant de reculer dans le cratère
-			state = try_go_angle(-PI4096/4, state, COLLECT_BLUE_WALL_DOWN, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			//state = try_go_angle(-PI4096/4, state, COLLECT_BLUE_BIG_BALL, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+			state = COLLECT_BLUE_BIG_BALL;
 			break;
+
+		case COLLECT_BLUE_BIG_BALL:{
+			Uint8 state0=COLLECT_BLUE_BIG_BALL;
+			Uint8 state1=COLLECT_BLUE_BIG_BALL;
+			Uint8 state2=COLLECT_BLUE_BIG_BALL;
+			Uint8 state3=COLLECT_BLUE_BIG_BALL;
+			Uint8 state4=COLLECT_BLUE_BIG_BALL;
+
+				if(entrance){
+					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_UP);
+					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_UP);
+					ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_BACK_LEFT_UP);
+					ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_UP);
+					ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_UP);
+				}
+				state0= check_act_status(ACT_QUEUE_Big_bearing_front_left, state0, DONE, ERROR);
+				state1= check_act_status(ACT_QUEUE_Big_bearing_front_right, state1, DONE, ERROR);
+				state2= check_act_status(ACT_QUEUE_Big_bearing_back_left, state2, DONE, ERROR);
+				state3= check_act_status(ACT_QUEUE_Big_bearing_back_right, state3, DONE, ERROR);
+				state4= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state4, DONE, ERROR);
+
+				if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)){
+					state=ERROR;
+				}
+				else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)&&(state3==DONE)&&(state4==DONE)){
+					state=COLLECT_BLUE_WALL_DOWN;
+				}
+			}break;
 
 	case COLLECT_BLUE_WALL_DOWN:{
 		Uint8 state0=COLLECT_BLUE_WALL_DOWN;
@@ -2133,12 +2225,14 @@ error_e sub_harry_take_big_crater_blue(){
 
 		case COLLECT_BLUE_IN:
 			// entree dans le cratere
-			state = try_going(1680, 350, state, DONE,  ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1680, 350, state, DONE,  ERROR, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;// stop secu
 
 		case COLLECT_BLUE_PUSHER_LEFT:
 			//remonter le rouleau si perimetre trop large
-			state = COLLECT_BLUE_ROTATE_LEFT;
+			state = COLLECT_BLUE_OUT;
+
+			//state = COLLECT_BLUE_ROTATE_LEFT;
 			/*
 			if (entrance){
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_OUT);
@@ -2197,7 +2291,7 @@ error_e sub_harry_take_big_crater_blue(){
 			break;
 
 		case COLLECT_BLUE_OUT: // name
-			state = try_going(1390, 610, state, COLLECT_BLUE_END_ACTIVATE, COLLECT_BLUE_END_ACTIVATE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1390, 610, state, COLLECT_BLUE_END_ACTIVATE, COLLECT_BLUE_END_ACTIVATE, SLOW, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			//lien avec action suivante 1850
 			break;
 
@@ -2207,8 +2301,36 @@ error_e sub_harry_take_big_crater_blue(){
 				// descendre le mur du rouleau et allumer le rouleau
 				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP, ACT_ROLLER_FOAM_SPEED_RUN);
 			}
-			state= check_act_status(ACT_QUEUE_Ore_roller_foam, state, COLLECT_BLUE_WALL_UP, ERROR);
+			state= check_act_status(ACT_QUEUE_Ore_roller_foam, state, COLLECT_BLUE_BIG_BALL_OUT, ERROR);
 			break;
+
+		case COLLECT_BLUE_BIG_BALL_OUT:{
+			Uint8 state0=COLLECT_BLUE_BIG_BALL_OUT;
+			Uint8 state1=COLLECT_BLUE_BIG_BALL_OUT;
+			Uint8 state2=COLLECT_BLUE_BIG_BALL_OUT;
+			Uint8 state3=COLLECT_BLUE_BIG_BALL_OUT;
+			Uint8 state4=COLLECT_BLUE_BIG_BALL_OUT;
+
+				if(entrance){
+					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT,  ACT_BIG_BALL_FRONT_LEFT_DOWN);
+					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT,  ACT_BIG_BALL_FRONT_RIGHT_DOWN);
+					ACT_push_order(ACT_BIG_BALL_BACK_LEFT,  ACT_BIG_BALL_BACK_LEFT_DOWN);
+					ACT_push_order(ACT_BIG_BALL_BACK_RIGHT,  ACT_BIG_BALL_BACK_RIGHT_DOWN);
+					ACT_push_order(ACT_BEARING_BALL_WHEEL,  ACT_BEARING_BALL_WHEEL_DOWN);
+				}
+				state0= check_act_status(ACT_QUEUE_Big_bearing_front_left, state0, DONE, ERROR);
+				state1= check_act_status(ACT_QUEUE_Big_bearing_front_right, state1, DONE, ERROR);
+				state2= check_act_status(ACT_QUEUE_Big_bearing_back_left, state2, DONE, ERROR);
+				state3= check_act_status(ACT_QUEUE_Big_bearing_back_right, state3, DONE, ERROR);
+				state4= check_act_status(ACT_QUEUE_Bearing_ball_wheel, state4, DONE, ERROR);
+
+				if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)||(state3==ERROR)||(state4==ERROR)){
+					state=ERROR;
+				}
+				else if((state0==DONE)&&(state1==DONE)&&(state2==DONE)&&(state3==DONE)&&(state4==DONE)){
+					state=COLLECT_BLUE_WALL_UP;
+				}
+			}break;
 
 		case COLLECT_BLUE_WALL_UP:{
 			Uint8 state0=COLLECT_BLUE_WALL_UP;
@@ -2455,17 +2577,11 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 
 	switch(state){
 		case INIT:
-			debug_printf("flag_our:%d\tflag_adv:%d", ELEMENTS_get_flag
-
-(FLAG_OUR_CORNER_CRATER_IS_TAKEN), ELEMENTS_get_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN));
+			debug_printf("flag_our:%d\tflag_adv:%d", ELEMENTS_get_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN), ELEMENTS_get_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN));
 			if(IHM_switchs_get(SWITCH_DISABLE_ORE)){
 				state = ERROR; // L'actionneur minerais a été désactivé
-			}else if((ELEMENTS_get_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN) &&
-
-minerais == OUR_ELEMENT)
-					|| (ELEMENTS_get_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN)
-
-&& minerais == ADV_ELEMENT)){
+			}else if((ELEMENTS_get_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN) && minerais == OUR_ELEMENT)
+					|| (ELEMENTS_get_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN) && minerais == ADV_ELEMENT)){
 				state = DONE;	// L'action a déjà été faite
 			}
 
@@ -2477,21 +2593,15 @@ minerais == OUR_ELEMENT)
 //! anne peut prendre les minerais
 				state=ERROR; // L'autre robot fait la sub
 			}*/
-
-
 /*
+
+
 	switch(state){
 		case INIT:
-			if((global.color == BLUE)&&(!ELEMENTS_get_flag
-
-(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN))){
-				state = check_sub_action_result
-
-(sub_harry_prise_module_unicolor_south(NO_SIDE),state, COLLECT_BLUE_POS, ERROR);
+			if((global.color == BLUE)&&(!ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN))){
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_south(NO_SIDE),state, COLLECT_BLUE_POS, ERROR);
 			}
-			else if((global.color == YELLOW)&&(!ELEMENTS_get_flag
-
-(FLAG_ADV_UNICOLOR_SOUTH_IS_TAKEN))){
+			else if((global.color == YELLOW)&&(!ELEMENTS_get_flag(FLAG_ADV_UNICOLOR_SOUTH_IS_TAKEN))){
 				state = ERROR;//pas possible
 			}
 			else{
@@ -2500,8 +2610,6 @@ minerais == OUR_ELEMENT)
 			break;
 
 			///////////////////////
-
-
 
 		case COLLECT_BLUE_IN:
 			// entree dans le cratere
@@ -2531,8 +2639,6 @@ minerais == OUR_ELEMENT)
 			state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, COLLECT_BLUE_ROTATE_LEFT, ERROR);
 			break;
 
-
-
 		case COLLECT_BLUE_PUSHER_RIGHT:
 			//remonter le rouleau si perimetre trop large
 			if (entrance){
@@ -2556,7 +2662,6 @@ minerais == OUR_ELEMENT)
 			state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, COLLECT_BLUE_ROTATE_RIGHT, ERROR);
 			break;
 
-
 		case COLLECT_BLUE_GET_OUT:
 			state = try_going(1390, 610, state, COLLECT_BLUE_VALIDATE, ERROR_COLLECT_BLUE_GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			//lien avec action suivante 1850
@@ -2570,13 +2675,10 @@ minerais == OUR_ELEMENT)
 			Uint8 state3=COLLECT_BLUE_VALIDATE;
 
 			if(entrance){
-				// remonter le rouleau et le mur  ! eteindre le rouleau avant
-
-!
+				// remonter le rouleau et le mur  ! eteindre le rouleau avant!
 				ACT_push_order(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP);
 				ACT_push_order(ACT_ORE_ROLLER_ARM,  ACT_ORE_ROLLER_ARM_IDLE);
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_IDLE);
-
 			}
 
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE,ERROR);
@@ -2599,14 +2701,10 @@ minerais == OUR_ELEMENT)
 			}
 			else{	// Add a else just to be secure
 				if(global.color == BLUE){
-					ELEMENTS_set_flag
-
-(FLAG_OUR_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+					ELEMENTS_set_flag(FLAG_OUR_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
 				}
 				else{
-					ELEMENTS_set_flag
-
-(FLAG_ADV_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
+					ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN,TRUE); // crater vide
 				}
 				state=DONE;
 			}
@@ -2615,16 +2713,12 @@ minerais == OUR_ELEMENT)
 
 		case ERROR_COLLECT_BLUE_IN:
 			// il y a quelqu'un dans le cratere
-			state = try_going(1390, 610, state, COLLECT_BLUE_IN,  ERROR, FAST,
-
-FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1390, 610, state, COLLECT_BLUE_IN,  ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR_COLLECT_BLUE_GET_OUT:
 			// il y a quelqu'un qui bloque la sortie du cratere
-			state = try_going(1680, 350, state, COLLECT_BLUE_GET_OUT,
-
-COLLECT_BLUE_GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1680, 350, state, COLLECT_BLUE_GET_OUT, COLLECT_BLUE_GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -2639,9 +2733,7 @@ COLLECT_BLUE_GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_take_big_crater_blue
-
-\n");
+				debug_printf("default case in sub_harry_take_big_crater_blue\n");
 			break;
 	}
 
