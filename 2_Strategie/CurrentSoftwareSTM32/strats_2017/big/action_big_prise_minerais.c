@@ -2204,8 +2204,11 @@ error_e sub_harry_take_big_crater_blue(){
 				ACT_push_order(ACT_ORE_WALL,  ACT_ORE_WALL_OUT);
 			}
 			state0= check_act_status(ACT_QUEUE_Ore_roller_arm, state0, DONE, ERROR);
-			state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
-			state2= check_sub_action_result(sub_act_big_take(), state2, DONE, ERROR);
+			if(state0 == DONE){
+				state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			}
+			//state1= check_act_status(ACT_QUEUE_Ore_wall, state1, DONE, ERROR);
+			state2= DONE; // check_sub_action_result(sub_act_big_take(), state2, DONE, ERROR);
 
 			if((state0==ERROR)||(state1==ERROR)||(state2==ERROR)){
 				state=COLLECT_BLUE_ACTIVATE;
