@@ -20,7 +20,7 @@
 	#define ORE_GUN_RX24_SPEED						100		// Vitesse par défaut du RX24
 
 //Position
-	#define ORE_GUN_RX24_IDLE_POS					362
+	#define ORE_GUN_RX24_IDLE_POS					388 //362
     #define ORE_GUN_RX24_DOWN_POS			     	540	//en degré
     #define ORE_GUN_RX24_UP_POS						362	//en degré
 
