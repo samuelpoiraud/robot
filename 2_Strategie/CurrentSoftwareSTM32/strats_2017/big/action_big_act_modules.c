@@ -458,6 +458,10 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			ACTION_STOCK_UP_CYLINDER,
 			ACTION_PUT_CYLINDER_IN_CONTAINER,
 			ACTION_PUT_SLOPE_VERY_UP,
+			AVANCE,
+			AVANCE_ERROR,
+			RECULE,
+			RECULE_ERROR,
 
 			ERROR_DISABLE_ACT,
 			ERROR,
@@ -538,8 +542,16 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			if(moduleToTake == NO_SIDE){
 				state = DONE; // On a fini ou rien n'est possible de faire
 			}else{
-				state = ACTION_GO_TAKE_CYLINDER;
+				state = AVANCE;
 			}
+			break;
+
+		case AVANCE:
+			state = try_advance(NULL, entrance, 50, state, ACTION_GO_TAKE_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case AVANCE_ERROR:
+			state= try_advance(NULL, entrance, 50, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_GO_TAKE_CYLINDER:
@@ -817,8 +829,8 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				time_timeout_before_pompe_stop = global.absolute_time + 2000;
-				time_timeout_after_pompe_stop = global.absolute_time + 3000;
+				time_timeout_before_pompe_stop = global.absolute_time + 1000;
+				time_timeout_after_pompe_stop = global.absolute_time + 2000;
 				pompe_stop =  FALSE;
 			}
 
@@ -834,7 +846,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 			// On attend une seconde le temps que le ventousage se fasse bien
 			if(global.absolute_time > time_timeout_after_pompe_stop){
 				pompe_stop=FALSE;
-				state = ACTION_BRING_UP_CYLINDER;
+				state = RECULE;
 
 				// On met à jour les données : Passage du module de POS_ENTRY à POS_ELEVATOR
 				if(moduleToTake == RIGHT){
@@ -846,6 +858,14 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 				moduleToStore = moduleToTake;
 				moduleToTake = NO_SIDE;
 			}
+			break;
+
+		case RECULE:
+			state = try_advance(NULL, entrance, 50, state, ACTION_BRING_UP_CYLINDER, RECULE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case RECULE_ERROR:
+			state= try_advance(NULL, entrance, 50, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_BRING_UP_CYLINDER:
@@ -976,7 +996,7 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 	return IN_PROGRESS;
 }
 
-// Subaction actionneur de prise fusée v2
+// Subaction actionneur de prise module sur le terrain
 error_e sub_act_harry_get_module(moduleStockPosition_e pos, ELEMENTS_side_e side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_START_HARRY_GET_ONE_MODULE,
 			INIT,
