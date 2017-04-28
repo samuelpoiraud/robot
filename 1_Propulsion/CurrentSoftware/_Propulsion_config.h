@@ -119,18 +119,18 @@
 		#define SMALL_BOT_COLOR_START_Y			((1070 - SMALL_ROBOT_WIDTH/2)*65536)
 		#define SMALL_BOT_COLOR_START_TETA 		(PI_28)			// PI_28  (il part en marche arriere...)
 
-		#define SMALL_BOT_COLOR_START_BASCULE_X  		((180)*65536)//((SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
-		#define SMALL_BOT_COLOR_START_BASCULE_Y			((SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)//((180)*65536)
-		#define SMALL_BOT_COLOR_START_BASCULE_TETA 		(-PI_28/2)//(PI_28)			// PI_28  (il part en marche arriere...)
+		#define SMALL_BOT_COLOR_START_BASCULE_X  		/*((180)*65536)*/((SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
+		#define SMALL_BOT_COLOR_START_BASCULE_Y			/*((SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)*/((180)*65536)
+		#define SMALL_BOT_COLOR_START_BASCULE_TETA 		/*(-PI_28/2)*/(PI_28)			// PI_28  (il part en marche arriere...)
 
 		// TOP_COLOR
 		#define SMALL_TOP_COLOR_START_X 		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define SMALL_TOP_COLOR_START_Y 		((1930 + SMALL_ROBOT_WIDTH/2)*65536)
 		#define SMALL_TOP_COLOR_START_TETA 		(PI_28)			// PI_28  (il part en marche arriere...)
 
-		#define SMALL_TOP_COLOR_START_BASCULE_X 		((180)*65536)//((SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
-		#define SMALL_TOP_COLOR_START_BASCULE_Y 		((3000 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)//((3000 - 180)*65536)
-		#define SMALL_TOP_COLOR_START_BASCULE_TETA 		(PI_28/2)//(PI_28)			// PI_28  (il part en marche arriere...)
+		#define SMALL_TOP_COLOR_START_BASCULE_X 		/*((180)*65536)*/((SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)
+		#define SMALL_TOP_COLOR_START_BASCULE_Y 		/*((3000 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)*65536)*/((3000 - 180)*65536)
+		#define SMALL_TOP_COLOR_START_BASCULE_TETA 		/*(PI_28/2)*/(PI_28)			// PI_28  (il part en marche arriere...)
 
 
 	//BIG
@@ -160,7 +160,7 @@
 	#define SMALL_KD_TRANSLATION 	(0x20) //0x80
 	#define BIG_KD_TRANSLATION		(0x20)//(0x1C) //0x80
 
-	#define SMALL_KP_TRANSLATION 	(0x20)
+	#define SMALL_KP_TRANSLATION 	(0x10)
 	#define BIG_KP_TRANSLATION		(0x30)//(0x28)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
@@ -168,7 +168,7 @@
 	#define SMALL_KD_ROTATION		(0x150) //0x800
 	#define BIG_KD_ROTATION			(0x180)//(0x08) //0x800
 
-	#define SMALL_KP_ROTATION		(0x60)//40 //0x80
+	#define SMALL_KP_ROTATION		(0x100)//40 //0x80
 	#define BIG_KP_ROTATION			(0x80)//(0x70) //0x80
 
 	#define SMALL_KI_ROTATION		(0x0)
@@ -300,7 +300,7 @@
 ///////////SEUIL_ERREUR/////////////////////////////////
 	#define THRESHOLD_ERROR_ROTATION				2097152		//[rad.4096.1024] 0,5 rad
 
-	#define TRESHOLD_ERROR_TRANSLATION				614400		//[mm.4096] 15 cm
+	#define TRESHOLD_ERROR_TRANSLATION				914400		//[mm.4096] 15 cm
 		//ATTENTION, le seuil d'erreur est lié au coefficient Kp.......
 		// L'erreur intervient lorsque le point fictif est trop éloigné du robot.
 		//Dans une situation normale, le robot suit le point fictif de sorte que l'écart entre les deux soit proportionnel
