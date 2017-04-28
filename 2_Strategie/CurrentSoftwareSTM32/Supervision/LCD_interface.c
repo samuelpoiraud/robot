@@ -17,14 +17,18 @@
 	#include "../QS/QS_stateMachineHelper.h"
 	#include "../QS/QS_lcd_over_uart.h"
 	#include "Selftest.h"
+	#include "RTC.h"
+	#include "../brain.h"
+	#include "SD/SD.h"
 
-	#define SELFTEST_NB_DISPLAYED_LINE	8
+	#define SELFTEST_NB_DISPLAYED_LINE	14
 
 	typedef enum{
 		MENU_WAIT_IHM = 0,
 		MENU_WAIT_OHTER_BOARD,
 		MENU_MAIN,
-		MENU_SELFTEST
+		MENU_SELFTEST,
+		MENU_IHM_TEST
 	}LCD_state_e;
 
 	static LCD_state_e LCD_state = MENU_WAIT_IHM;
@@ -35,6 +39,7 @@
 	static LCD_state_e LCD_MENU_waitOtherBoard(bool_e init);
 	static LCD_state_e LCD_MENU_mainMenu(bool_e init);
 	static LCD_state_e LCD_MENU_selftest(bool_e init);
+	static LCD_state_e LCD_MENU_ihmTest(bool_e init);
 
 	void LCD_init(void){
 		LCD_OVER_UART_init();
@@ -68,6 +73,10 @@
 			case MENU_SELFTEST:
 				LCD_state = LCD_MENU_selftest(entrance);
 				break;
+
+			case MENU_IHM_TEST:
+				LCD_state = LCD_MENU_ihmTest(entrance);
+				break;
 		}
 	}
 
@@ -78,22 +87,36 @@
 
 		if(global.absolute_time - time > 1000){
 			LCD_OVER_UART_setMenu(LCD_MENU_CUSTOM);
-			return MENU_SELFTEST;
+			return MENU_WAIT_OHTER_BOARD;
 		}
 
 		return MENU_WAIT_IHM;
 	}
 
+
+	static LCD_state_e LCD_MENU_ihmTest(bool_e init){
+		if(init)
+			LCD_OVER_UART_setMenu(LCD_MENU_DEBUG);
+
+		return MENU_IHM_TEST;
+	}
+
 	static LCD_state_e LCD_MENU_waitOtherBoard(bool_e init){
 		static LCD_objectId_t actReady, propReady;
 		static bool_e actDisplay = FALSE, propDisplay = FALSE;
+		static bool_e skip = FALSE;
 
 		if(init){
+			actDisplay = FALSE;
+			propDisplay = FALSE;
+			skip = FALSE;
+
 			LCD_OVER_UART_addImage(0, 0, LCD_IMAGE_LOGO);
-			LCD_OVER_UART_addAnimatedImage(140, 30, LCD_ANIMATION_WAIT_CIRCLE);
+			LCD_OVER_UART_addAnimatedImage(270, 55, LCD_ANIMATION_WAIT_CIRCLE);
+			LCD_OVER_UART_addButton(250, 10, 0, 0, FALSE, &skip, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Skip");
 			LCD_OVER_UART_addText(20, 225, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "En attente de l'initialisation des cartes");
-			actReady = LCD_OVER_UART_addText(50, 50, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente actionneur");
-			propReady = LCD_OVER_UART_addText(50, 75, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente propulsion");
+			actReady = LCD_OVER_UART_addText(10, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente actionneur");
+			propReady = LCD_OVER_UART_addText(10, 35, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente propulsion");
 		}
 
 		if(ACT_IS_READY && actDisplay == FALSE){
@@ -106,7 +129,7 @@
 			propDisplay = TRUE;
 		}
 
-		if(ACT_IS_READY && PROP_IS_READY)
+		if((ACT_IS_READY && PROP_IS_READY) || skip)
 			return MENU_MAIN;
 
 		return MENU_WAIT_OHTER_BOARD;
@@ -114,10 +137,46 @@
 
 
 	static LCD_state_e LCD_MENU_mainMenu(bool_e init){
+		static bool_e changeMenuSelftest = FALSE;
+		static bool_e changeMenuIhmTest = FALSE;
+		static LCD_objectId_t idX, idY, idAngle, idVoltage, idTime, idStrat, idMatch;
+		static LCD_objectId_t idAdv1, idAdv2, idAdvIr1, idAdvIr2;
 
 		if(init){
-			LCD_OVER_UART_addText(50, 50, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Main !! ");
+			changeMenuSelftest = FALSE;
+			changeMenuIhmTest = FALSE;
+
+			LCD_OVER_UART_addButton(10, 210, 0, 0, FALSE, &changeMenuSelftest, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Selftest");
+			LCD_OVER_UART_addButton(130, 210, 0, 0, FALSE, &changeMenuIhmTest, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "IHM test");
+
+			idX = LCD_OVER_UART_addText(5, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.x);
+			idY = LCD_OVER_UART_addText(45, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.y);
+			idAngle = LCD_OVER_UART_addText(85, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.angle);
+
+			idVoltage = LCD_OVER_UART_addText(130, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.alim_value);
+
+			date_t date;
+			RTC_get_time(&date);
+
+			idTime = LCD_OVER_UART_addText(200, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%02d:%02d:%02d", date.hours, date.minutes, date.seconds);
+
+			idStrat = LCD_OVER_UART_addText(15, 30, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%s", BRAIN_get_current_strat_name());
+
+			if(SD_isOK())
+				idMatch = LCD_OVER_UART_addText(200, 180, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "SD : %d", SD_get_match_id());
+			else
+				idMatch = LCD_OVER_UART_addText(200, 180, LCD_COLOR_RED, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "SD : error");
+
+			LCD_OVER_UART_addLine(0, 25, 319, 25, LCD_COLOR_BLACK);
+			LCD_OVER_UART_addLine(125, 0, 125, 25, LCD_COLOR_BLACK);
+			LCD_OVER_UART_addLine(195, 0, 195, 25, LCD_COLOR_BLACK);
 		}
+
+		if(changeMenuSelftest)
+			return MENU_SELFTEST;
+
+		if(changeMenuIhmTest)
+			return MENU_IHM_TEST;
 
 		return MENU_MAIN;
 	}
@@ -130,17 +189,28 @@
 				WAIT_RESULT,
 				DISPLAY_RESULT);
 
+		static bool_e exit = FALSE;
 		static bool_e launchSelftest = FALSE;
-		static bool_e up = FALSE;
-		static bool_e down = FALSE;
+		static bool_e up = FALSE, lastUp = FALSE;
+		static bool_e down = FALSE, lastDown = FALSE;
 
 		static LCD_objectId_t idText[SELFTEST_NB_DISPLAYED_LINE];
 
-		bool_e refreshDisplay = FALSE;
-		Uint8 i, ptrError = 0;
+		static Uint8 ptrError = 0;
 
-		if(init)
+		bool_e refreshDisplay = FALSE;
+		Uint8 i;
+
+		if(init){
+			exit = FALSE;
+			launchSelftest = FALSE;
+			up = FALSE;
+			lastUp = FALSE;
+			down = FALSE;
+			lastDown = FALSE;
+
 			RESET_MAE();
+		}
 
 		if(entrance)
 			LCD_OVER_UART_resetScreen();
@@ -155,8 +225,9 @@
 
 			case WAIT_LAUNCH_SELFTEST:
 				if(entrance){
-					LCD_OVER_UART_addText(50, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest");
+					LCD_OVER_UART_addText(10, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest");
 					LCD_OVER_UART_addButton(100, 100, 0, 0, FALSE, &launchSelftest, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Lancer");
+					LCD_OVER_UART_addButton(250, 10, 0, 0, FALSE, &exit, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Exit");
 				}
 
 				if(launchSelftest){
@@ -167,8 +238,9 @@
 
 			case WAIT_RESULT:
 				if(entrance){
-					LCD_OVER_UART_addText(50, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest");
+					LCD_OVER_UART_addText(10, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest");
 					LCD_OVER_UART_addAnimatedImage(100, 50, LCD_ANIMATION_WAIT_CIRCLE);
+					LCD_OVER_UART_addButton(250, 10, 0, 0, FALSE, &exit, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Exit");
 				}
 
 				if(SELFTEST_is_over()){
@@ -178,24 +250,53 @@
 
 			case DISPLAY_RESULT:
 				if(entrance){
-					LCD_OVER_UART_addText(50, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest %d erreurs", SELFTEST_get_errors_number());
-					LCD_OVER_UART_addButton(250, 150, 0, 0, FALSE, &up, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "up");
-					LCD_OVER_UART_addButton(250, 200, 0, 0, FALSE, &down, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "down");
-				}
+					LCD_OVER_UART_addText(10, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest %d erreurs", SELFTEST_get_errors_number());
+					LCD_OVER_UART_addButton(250, 10, 0, 0, FALSE, &exit, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Exit");
 
-				if(entrance){
-					for(i = ptrError; i < ptrError + SELFTEST_NB_DISPLAYED_LINE; i++){
+					if(SELFTEST_get_errors_number() > SELFTEST_NB_DISPLAYED_LINE){
+						LCD_OVER_UART_addButton(250, 60, 60, 60, FALSE, &up, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "up");
+						LCD_OVER_UART_addButton(250, 140, 60, 60, FALSE, &down, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "down");
+					}
+
+					for(i = 0; i < SELFTEST_NB_DISPLAYED_LINE; i++){
 						if(i < SELFTEST_get_errors_number())
-							idText[i] = LCD_OVER_UART_addText(40, 40 + 15*i, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "%s", SELFTEST_getError_string(SELFTEST_getError(i)));
-						else
-							break;
+							idText[i] = LCD_OVER_UART_addText(20, 40 + 15*i, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "%s", SELFTEST_getError_string(SELFTEST_getError(i)));
 					}
 				}
+
+				if(down && !lastDown){
+					if(ptrError < SELFTEST_get_errors_number() - SELFTEST_NB_DISPLAYED_LINE)
+						ptrError++;
+					refreshDisplay = TRUE;
+				}
+
+				if(up && !lastUp){
+					if(ptrError != 0)
+						ptrError--;
+
+					refreshDisplay = TRUE;
+				}
+
+
+				if(refreshDisplay){
+					for(i = ptrError; i < ptrError + SELFTEST_NB_DISPLAYED_LINE; i++){
+						LCD_OVER_UART_setText(idText[i - ptrError], "%s", SELFTEST_getError_string(SELFTEST_getError(i)));
+					}
+					refreshDisplay = FALSE;
+				}
+
+				lastDown = down;
+				lastUp = up;
 				break;
 
 			default:
 				RESET_MAE();
 				break;
+		}
+
+		if(exit){
+			RESET_MAE();
+			return MENU_MAIN;
 		}
 
 		return MENU_SELFTEST;

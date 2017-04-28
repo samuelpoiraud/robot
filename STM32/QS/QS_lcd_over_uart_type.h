@@ -24,7 +24,7 @@
 		#define LCD_OVER_UART_DELIMITER			0x08
 		#define LCD_OVER_UART_HEADER_SIZE		2		// [byte]
 		#define LCD_OVER_UART_MAX_SIZE			100		// [byte]
-		#define LCD_OVER_UART_COM_TIMEOUT		200		// [ms]
+		#define LCD_OVER_UART_COM_TIMEOUT		10000		// [ms]
 
 		//////////////////////////////////////////////////////////////////
 		//-----------------Type relatif au message----------------------//
@@ -54,8 +54,8 @@
 
 		typedef union{
 			struct{
-				LCD_msgType_e type;
-				Uint8 size;
+				LCD_msgType_e type				:8;
+				Uint8 size						:8;
 			};
 
 			Uint8 rawData[LCD_OVER_UART_HEADER_SIZE];
@@ -164,7 +164,7 @@
 				LCD_objectId_t id				:8;
 			}addAnimation;
 
-			#define SIZE_LCD_ADD_RECTANGLE		19
+			#define SIZE_LCD_ADD_RECTANGLE		17
 			struct{
 				LCD_color_e colorBorder			:32;
 				LCD_color_e colorCenter			:32;
@@ -215,8 +215,8 @@
 
 			#define SIZE_LCD_UPDATE_SLIDER 		5
 			struct{
-				LCD_objectId_t id				:8;
 				Sint32 value					:32;
+				LCD_objectId_t id				:8;
 			}updateSlider;
 
 			Uint8 rawData[LCD_OVER_UART_MAX_SIZE];

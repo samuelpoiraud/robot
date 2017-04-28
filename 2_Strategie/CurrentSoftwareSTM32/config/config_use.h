@@ -122,12 +122,13 @@
 
 	#ifdef USE_LCD
 		#define USE_UART3
-			#define UART3_BAUDRATE				19200
+			#define UART3_BAUDRATE				9600
 
 			#define USE_UART3_TX_BUFFER
 				#define UART3_TX_BUFFER_SIZE 	128
 
-			#define USE_UART3_RX_INTERRUPT
+			#define USE_UART3_RX_BUFFER
+				#define UART3_RX_BUFFER_SIZE	256
 	#endif
 
 /* Réglages Boutons */

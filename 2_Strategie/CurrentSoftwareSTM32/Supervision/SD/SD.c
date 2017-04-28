@@ -43,6 +43,7 @@ volatile bool_e sd_ready = FALSE;
 volatile Uint16	match_id = 0xFFFF;
 volatile Uint16	read_match_id = 0xFFFF;
 static bool_e initialized = FALSE;
+static volatile bool_e SDIsOk = FALSE;
 
 bool_e SD_close_file(void);
 static int SD_vprintf(bool_e verbose, const char * s, va_list args);
@@ -344,9 +345,12 @@ void SD_process_main(void)
 	{
 		case INIT:
 			state = SD_FAILED;		//Par défaut...
-			if(SD_analyse())
-				if(SD_open_file_for_next_match())
+			if(SD_analyse()){
+				if(SD_open_file_for_next_match()){
 					state = FILE_OPEN;
+					SDIsOk = TRUE;
+				}
+			}
 		break;
 
 		case SD_FAILED:
@@ -552,4 +556,6 @@ Uint16 SD_get_match_id(){
 	return match_id;
 }
 
-
+bool_e SD_isOK(){
+	return SDIsOk;
+}
