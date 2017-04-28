@@ -167,14 +167,14 @@ void SEQUENCES_calibrate(void)
 
 		if(color == BOT_COLOR){
 			angle = -PI4096/2;
-			distance = -4096;
+			distance = -2000;	//On vise un point à 2m
 		}else{
 			angle = PI4096/2;
-			distance = 4096;
+			distance = 2000;	//On vise un point à 2m
 		}
 		//Calage en Y
 		//SEQUENCES_rush_in_the_wall(angle, FORWARD, 16, NO_ACKNOWLEDGE, 0, distance,  BORDER_MODE_WITH_UPDATE_POSITION, CORRECTOR_ENABLE);
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, distance, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, FORWARD, BORDER_MODE_WITH_UPDATE_POSITION, PROP_END_AT_POINT, FAST, ACKNOWLEDGE_ASKED, CORRECTOR_ENABLE, AVOID_DISABLED, 2);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, 0, distance, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, FORWARD, BORDER_MODE_WITH_UPDATE_POSITION, PROP_END_AT_POINT, 16, ACKNOWLEDGE_ASKED, CORRECTOR_ENABLE, AVOID_DISABLED, 2);
 
 		//Eloignement de la bordure pour rotation
 		if(color==BOT_COLOR)
