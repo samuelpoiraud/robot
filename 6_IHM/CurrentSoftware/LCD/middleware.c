@@ -473,7 +473,7 @@ static void MIDDLEWARE_rebuildObject(){
 
 					ILI9341_printf(objectTab[i].objectData.buttonBase.x + objectTab[i].objectData.buttonBase.widthButton/2 - objectTab[i].objectData.buttonBase.widthText/2,
 									objectTab[i].objectData.buttonBase.y + objectTab[i].objectData.buttonBase.heightButton/2 - objectTab[i].objectData.buttonBase.heightText/2,
-									MIDDLEWARE_getFont(objectTab[i].objectData.text.fonts),
+									MIDDLEWARE_getFont(objectTab[i].objectData.buttonBase.fonts),
 									objectTab[i].objectData.buttonBase.colorText,
 									ILI9341_TRANSPARENT,
 									"%s", objectTab[i].objectData.buttonBase.text);

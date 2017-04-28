@@ -14,11 +14,13 @@
 #include "QS_lcd_over_uart.h"
 #include "QS_lcd_over_uart_type.h"
 #include "QS_uart.h"
-#include "QS_outputlog.h"
 #include "stdarg.h"
 #include "string.h"
 
 #ifdef USE_LCD_OVER_UART
+
+#define LOG_PREFIX "LCD : "
+#include "QS_outputlog.h"
 
 	#ifdef LCD_OVER_UART__IHM_MODE
 		#include "../LCD/interface.h"
@@ -47,7 +49,7 @@
 		#endif
 	#endif
 
-	#define LCD_BUFFER_SIZE		5
+	#define LCD_BUFFER_SIZE		10
 
 	typedef struct{
 		LCD_msg_s buffer[LCD_BUFFER_SIZE];
@@ -132,8 +134,9 @@
 		static LCD_objectId_t LCD_OVER_UART_newObject(void);
 	#else
 		static objectId_t UART_OVER_LCD_newObject(void);
-		static objectId_t UART_OVER_LCD_getSyncObjectByLocalId(objectId_t localId);
-		static objectId_t UART_OVER_LCD_getSyncObjectByRemoteId(objectId_t remoteId);
+		static objectId_t UART_OVER_LCD_getIdLocalByRemoteId(objectId_t remoteId);
+		static objectId_t UART_OVER_LCD_getIdStorageByRemoteId(objectId_t remoteId);
+
 		static void UART_OVER_LCD_setSyncObject(objectId_t idStorage, objectId_t localId, objectId_t remoteId, LCD_objectType_e type);
 		static const imageInfo_s* UART_OVER_LCD_imageIdConvertor(LCD_imageId_e imageId);
 		static const animatedImageInfo_s* UART_OVER_LCD_animationIdConvertor(LCD_animationId_e animationId);
@@ -154,11 +157,15 @@
 	void LCD_OVER_UART_init(void){
 		UART_init();
 		LCD_FIFO_init();
-		UART_setListenner(LCD_OVER_UART__UART_ID, &LCD_OVER_UART_receiveByte);
+		//UART_setListenner(LCD_OVER_UART__UART_ID, &LCD_OVER_UART_receiveByte);
 	}
 
 	void LCD_OVER_UART_processMain(void){
 		LCD_msg_s msg;
+
+		while(UART3_data_ready()){
+			LCD_OVER_UART_receiveByte(UART3_get_next_msg());
+		}
 
 		while(LCD_FIFO_getMsg(&msg)){
 			LCD_OVER_UART_receiveMsg(&msg);
@@ -651,18 +658,18 @@
 			objectId[id].used = FALSE;
 		}
 
-		static objectId_t UART_OVER_LCD_getSyncObjectByLocalId(objectId_t localId){
+		static objectId_t UART_OVER_LCD_getIdLocalByRemoteId(objectId_t remoteId){
 			objectId_t i;
 
 			for(i=0; i<LCD_NB_MAX_OBJECT; i++){
-				if(objectId[i].used && objectId[i].data.localId == localId)
-					return i;
+				if(objectId[i].used && objectId[i].data.remoteId == remoteId)
+					return objectId[i].data.localId;
 			}
 
 			return LCD_OBJECT_ID_ERROR_FULL;
 		}
 
-		static objectId_t UART_OVER_LCD_getSyncObjectByRemoteId(objectId_t remoteId){
+		static objectId_t UART_OVER_LCD_getIdStorageByRemoteId(objectId_t remoteId){
 			objectId_t i;
 
 			for(i=0; i<LCD_NB_MAX_OBJECT; i++){
@@ -766,7 +773,7 @@
 					}break;
 			#else
 				case LCD_MSG_TYPE_UPDATE_PROGRESS_BAR:
-					idStorage = UART_OVER_LCD_getSyncObjectByRemoteId(msg->body.updateProgressBar.id);
+					idStorage = UART_OVER_LCD_getIdStorageByRemoteId(msg->body.updateProgressBar.id);
 					*(objectId[idStorage].data.link.progressBar.value) = msg->body.updateProgressBar.value;
 					break;
 
@@ -843,7 +850,7 @@
 					break;
 
 				case LCD_MSG_TYPE_SET_TEXT :
-					idObject = UART_OVER_LCD_getSyncObjectByRemoteId(msg->body.setText.id);
+					idObject = UART_OVER_LCD_getIdLocalByRemoteId(msg->body.setText.id);
 					if(idObject != LCD_OBJECT_ID_ERROR_FULL)
 						MIDDLEWARE_setText(idObject, msg->body.setText.text);
 					break;

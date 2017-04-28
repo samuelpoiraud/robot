@@ -28,6 +28,7 @@ void SD_new_event(source_e source, CAN_msg_t * can_msg, char * user_string, bool
 int printf_SD_verbose(bool_e verbose, const char *format, ...);
 Uint16 SD_get_match_id();
 
+bool_e SD_isOK();
 
 #define SD_printf(...) printf_SD_verbose(FALSE, __VA_ARGS__);
 
