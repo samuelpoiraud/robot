@@ -106,7 +106,7 @@ typedef struct{
 	terminal_type type;
 	Uint8 inc_quantum;
 	char char_selection;
-	char name[30];
+	char name[35];
 	Uint8 id;
 	Sint16 min_value;
 	Sint16 max_value;

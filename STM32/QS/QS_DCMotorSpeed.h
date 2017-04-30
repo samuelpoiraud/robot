@@ -99,6 +99,9 @@
 		// Change les coefficients pwm
 		void DC_MOTOR_SPEED_setMaxPwm(DC_MOTOR_SPEED_id id, Uint8 max_duty);
 
+		// Récupère le pourcentage de pwm appliqué sur le moteur (ie la commande courante)
+		Sint8 DC_MOTOR_SPEED_getCurrentPwm(DC_MOTOR_SPEED_id id);
+
 		// Change l'inversion de pilotage du bit de sens
 		void DC_MOTOR_SPEED_setInverseWay(DC_MOTOR_SPEED_id id, bool_e inverse_way);
 
