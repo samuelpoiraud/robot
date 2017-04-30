@@ -9,25 +9,8 @@
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
 #include "../../actuator/act_functions.h"
-
 #include "../../QS/QS_types.h"
 #include "../../actuator/queue.h"
-
-
-
-//#include "../../propulsion/movement.h"
-//#include "../../propulsion/astar.h"
-//#include "../../QS/QS_stateMachineHelper.h"
-//#include "../../QS/QS_CapteurCouleurCW.h"
-//#include "../../QS/QS_outputlog.h"
-//#include "../../QS/QS_IHM.h"
-//#include "../../utils/generic_functions.h"
-#include "../../utils/actionChecker.h"
-#include "../../elements.h"
-#include "../../actuator/act_functions.h"
-#include "../../QS/QS_types.h"
-#include "../../actuator/queue.h"
-
 
 
 error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side){

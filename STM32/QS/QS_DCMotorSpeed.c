@@ -226,6 +226,25 @@
 		*max_duty = thiss->config.max_duty;
 	}
 
+	Sint8 DC_MOTOR_SPEED_getCurrentPwm(DC_MOTOR_SPEED_id id){
+		assert(id < DC_MOTOR_SPEED_NUMBER);
+
+		DC_MOTOR_SPEED_t* thiss = &(dcMotorSpeed[id]);
+		DC_MOTOR_SPEED_config_t* config = &(thiss->config);
+		Sint8 pwm = 0;
+		if(config->simulateWay){
+			if(DC_MOTOR_SPEED_getWay(id)){
+				pwm = -thiss->currentPwm;
+			}else{
+				pwm = thiss->currentPwm;
+			}
+		}else{
+			pwm = thiss->currentPwm;
+		}
+		return pwm;
+	}
+
+
 	/*-----------------------------------------
 			Arret de l'asservissement d'un actionneur
 	-----------------------------------------*/

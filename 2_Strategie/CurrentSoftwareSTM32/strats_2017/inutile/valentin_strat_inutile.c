@@ -39,19 +39,19 @@ void valentin_strat_inutile_big(){
 	switch(state){
 
 		case INIT:
-			if(entrance){
+			/*if(entrance){
 				ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED);
-			}
+			}*/
 			//state = ACTION;
 			//state = ROLLER_ARM_GO_DOWN;
 			//state = TRY_SELFTEST;
 			//state = TURN_COLOR;
 			//state = GUN_GO_DOWN;
-			//state = try_going(300, COLOR_Y(1100), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			//state = try_going(1200, COLOR_Y(2500), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(600, COLOR_Y(300), state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1700, COLOR_Y(800), state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION:
@@ -138,11 +138,13 @@ void valentin_strat_inutile_big(){
 			break;
 
 		case TURN_TRIHOLE:
-				if(entrance){
-					ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 20);
-				}
-				state = DONE;
-				break;
+			if(entrance){
+				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, 20);
+			}
+			state = DONE;
+			break;
+
+
 
 		case ERROR:
 			if(entrance){
@@ -162,17 +164,23 @@ void valentin_strat_inutile_small(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_INUTILE,
 			INIT,
 			ACTION,
+			TAKE_CRATER,
 			ERROR,
 			DONE
 		);
 
 	switch(state){
 		case INIT:
-			state = ACTION;
+			//state = ACTION;
+			state = try_going(global.pos.x + 800, global.pos.y, state, TAKE_CRATER, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION:
 			state = check_sub_action_result(sub_act_anne_return_module(), state, DONE, DONE);
+			break;
+
+		case TAKE_CRATER:
+			state = check_sub_action_result(sub_anne_prise_petit_cratere(), state, DONE, ERROR);
 			break;
 
 		case ERROR:
