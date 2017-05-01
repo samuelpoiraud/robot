@@ -9,6 +9,7 @@
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
 #include "../../utils/actionChecker.h"
+#include "../../high_level_strat.h"
 
 // flag de  sub l'autre robot, crater south
 /*
@@ -1855,6 +1856,7 @@ error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT 
 				ELEMENTS_set_flag(FLAG_ADV_CORNER_CRATER_IS_TAKEN, TRUE);
 			}
 			ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, TRUE);
+			set_sub_act_enable(SUB_HARRY_DEPOSE_MINERAIS, TRUE);   // Activation de la dépose
 			return END_OK;
 			break;
 
