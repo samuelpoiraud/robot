@@ -15,6 +15,9 @@ error_e sub_harry_initiale(){
 			INIT,
 			COMPUTE,
 			ROCKER,
+			ADVANCE_ON_TURNING_POINT,
+			ADVANCE_TO_GET_OUT_START_ZONE,
+			GET_OUT_OF_START_ZONE,
 
 			//ADV
 			MODULES_AND_ROCKET_MULTICOLOR_ADV,
@@ -74,10 +77,24 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 	switch(state){
 		case INIT:
 			if(i_am_in_square_color(0, 360, 0, 360) && IHM_switchs_get(SWITCH_WITH_BASCULE)){   //le robot est dans la zone avant la bascule
-				state = ROCKER; //!boucle infini passage bascule!
+				state = ROCKER;
+			}else if(!IHM_switchs_get(SWITCH_OUR_ROCKET_UNICOLOR) && !IHM_switchs_get(SWITCH_OUR_MODULES)){
+				state = ADVANCE_TO_GET_OUT_START_ZONE;
 			}else{
-				state=try_advance(NULL, entrance, 300, state, COMPUTE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = ADVANCE_ON_TURNING_POINT;
 			}
+			break;
+
+		case ADVANCE_ON_TURNING_POINT:
+			state = try_advance(NULL, entrance, 100, state, COMPUTE, COMPUTE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case ADVANCE_TO_GET_OUT_START_ZONE:
+			state = try_advance(NULL, entrance, 150, state, GET_OUT_OF_START_ZONE, GET_OUT_OF_START_ZONE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_OUT_OF_START_ZONE:
+			state = try_going(700, COLOR_Y(1050), state, COMPUTE, COMPUTE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case COMPUTE:
@@ -89,7 +106,7 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 
 			}
 			if(i_am_in_square_color(0, 360, 0, 360) && IHM_switchs_get(SWITCH_WITH_BASCULE)){   //le robot est dans la zone avant la bascule
-				state = ROCKER; //!boucle infini passage bascule!
+				state = ROCKER;
 			}
 
 			//ADV

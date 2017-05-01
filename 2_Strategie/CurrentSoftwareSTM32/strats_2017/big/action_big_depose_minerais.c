@@ -10,6 +10,7 @@
 #include "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../avoidance.h"
+#include "../../high_level_strat.h"
 
 
 error_e sub_harry_manager_put_off_ore(){
@@ -170,10 +171,11 @@ error_e sub_harry_depose_minerais(){
 
 		case SHOOTING:
 			//tu tires !!!
-			//state = check_sub_action_result(sub_harry_shooting_depose_minerais(), GET_OUT, GET_OUT_ERROR);
-			state=GET_OUT;
+			state = check_sub_action_result(sub_harry_shooting_depose_minerais(), state, GET_OUT, GET_OUT_ERROR);
+
 			if(ON_LEAVE() && state == GET_OUT){ // En cas de succès
 				ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, FALSE); // on baisse le flag car on a plus de balles
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MINERAIS, FALSE);   // Désactivation de la dépose
 			}
 			break;
 
@@ -378,10 +380,11 @@ error_e sub_harry_depose_minerais_alternative(){
 
 		case SHOOTING:
 			//tu tires !!!
-			//state = check_sub_action_result(sub_harry_shooting_depose_minerais(), GET_OUT, GET_OUT_ERROR);
-			state=GET_OUT;
+			state = check_sub_action_result(sub_harry_shooting_depose_minerais(), state, GET_OUT, GET_OUT_ERROR);
+
 			if(ON_LEAVE() && state == GET_OUT){ // En cas de succès
 				ELEMENTS_set_flag(FLAG_HARRY_STOMACH_IS_FULL, FALSE); // on baisse le flag car on a plus de balles
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MINERAIS, FALSE);   // Désactivation de la dépose
 			}
 			break;
 

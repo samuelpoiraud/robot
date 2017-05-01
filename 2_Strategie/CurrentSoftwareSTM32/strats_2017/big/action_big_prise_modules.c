@@ -212,8 +212,9 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 
 			STORAGE_LEFT,
 			STORAGE_RIGHT,
-			STOCK_LEFT,
-			STOCK_RIGHT,
+
+			GET_OUT_UP,
+			GET_OUT_ERROR_UP,
 
 			ERROR,
 			DONE
@@ -227,12 +228,14 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 													   (displacement_t){(GEOMETRY_point_t){950, 1000}, FAST},
 													  };
 
+		static bool_e prise_point_up = FALSE;
+
 		switch(state){
 			case INIT:
 				if (ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN)){
 					state = DONE; // Il n'y a plus rien à faire
 				}
-				else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_UNI)) // Si Anne est déjà en train de faire cette action
+				else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_CENTER)) // Si Anne est déjà en train de faire cette action
 				{
 					state = ERROR;
 				}
@@ -272,9 +275,9 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 					}
 
 					// On lève le flag de subaction
-					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, TRUE);
+					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, TRUE);
 				}
-			break;
+				break;
 
 
 			case CHECK_FIRST_ELEMENT:
@@ -311,20 +314,13 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				break;
 
 			case GO_TO_START_POINT_UP:
-				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-					state = try_going(350, 950, state, TAKE_FIRST_MODULE_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-				}else{
-					state = try_going(350, 2050, state, TAKE_FIRST_MODULE_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				if(entrance){
+					prise_point_up = TRUE;
 				}
-				if(ON_LEAVE()){
-					if(side == LEFT){
-						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
-						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-					}
-					else{
-						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL );
-						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-					}
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(412, 922, state, TAKE_FIRST_MODULE_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				}else{
+					state = try_going(412, 2078, state, TAKE_FIRST_MODULE_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
 				break;
 
@@ -334,16 +330,6 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}else{
 					state = try_going(650, 1750, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
-				if(ON_LEAVE()){
-					if(side == LEFT){
-						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
-						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-					}
-					else{
-						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL );
-						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-					}
-				}
 				break;
 
 			case GO_TO_START_POINT_DOWN:
@@ -352,24 +338,33 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}else{
 					state = try_going(1000, 2140, state, TAKE_FIRST_MODULE_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
-				if(ON_LEAVE()){
-					if(side == LEFT){
-						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
-						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-					}
-					else{
-						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL );
-						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-					}
-				}
 				break;
 
 			case TAKE_FIRST_MODULE_UP:
+				if(entrance){
+					if(side == LEFT){
+						// On ne peut utiliser l'élévateur que s'il est disponible
+						if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+							ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+							ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+						}
+						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					}
+					else{
+						// On ne peut utiliser l'élévateur que s'il est disponible
+						if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+							ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+							ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+						}
+						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+					}
+				}
+
 				if(side == LEFT || side == NO_SIDE){
 					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-						state = try_going(500, 950, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+						state = try_going(552, 950, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 					}else{
-						state = try_going(500, 2050, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+						state = try_going(552, 2050, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 					}
 				}
 				else{
@@ -382,6 +377,25 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				break;
 
 			case TAKE_FIRST_MODULE_SIDE:
+				if(entrance){
+					if(side == LEFT){
+						// On ne peut utiliser l'élévateur que s'il est disponible
+						if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+							ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+							ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+						}
+						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					}
+					else{
+						// On ne peut utiliser l'élévateur que s'il est disponible
+						if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+							ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+							ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+						}
+						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+					}
+				}
+
 				if(side == LEFT || side == NO_SIDE){
 					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
 						state = try_going(660, 1030, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
@@ -399,6 +413,25 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				break;
 
 			case TAKE_FIRST_MODULE_DOWN:
+				if(entrance){
+					if(side == LEFT){
+						// On ne peut utiliser l'élévateur que s'il est disponible
+						if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+							ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+							ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+						}
+						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					}
+					else{
+						// On ne peut utiliser l'élévateur que s'il est disponible
+						if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+							ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+							ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+						}
+						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+					}
+				}
+
 				if(side == LEFT || side == NO_SIDE){
 					if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
 						state = try_going(650, 1100, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
@@ -418,58 +451,87 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 
 			case STORAGE_LEFT:
 				if(entrance){
-					if(global.color == BLUE){
-						STOCKS_addModule(MODULE_BLUE, STOCK_POS_ENTRY,MODULE_STOCK_LEFT);
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+						// L'élévateur est disponible, on peut stocker les modules ici
+						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+						STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 					}else{
-						STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
+						// L'élévateur n'est pas disponible, on stocke le module dans le slider
+						STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 					}
-					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 
-				}
-				state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
-				//state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
-
-				if(state == DONE){
+					// Le module est considérer comme pris quoi qu'il arrive car on n'arrivera pas à le reprendre
 					if(modules == OUR_ELEMENT)
 						ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN, TRUE);
 					else
 						ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_START_IS_TAKEN, TRUE);
 				}
+
+				//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
+
 				if(ON_LEAVE()){
-					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
-					//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+					if(prise_point_up){ // Il y a besoin d'un GET_OUT
+						if(state == ERROR){
+							state = GET_OUT_ERROR_UP;
+						}else{
+							state = GET_OUT_UP;
+						}
+					}
 				}
 				break;
 
 			case STORAGE_RIGHT:
 				if(entrance){
-					if(global.color == BLUE){
-						STOCKS_addModule(MODULE_BLUE, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+						// L'élévateur est disponible, on peut stocker les modules ici
+						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+						STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 					}else{
-						STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
+						// L'élévateur n'est pas disponible, on stocke le module dans le slider
+						STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 					}
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
-				}
 
-				state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
-				//state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
-
-				if(state==DONE){
+					// Le module est considérer comme pris quoi qu'il arrive car on n'arrivera pas à le reprendre
 					if(modules == OUR_ELEMENT)
 						ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_START_IS_TAKEN, TRUE);
 					else
 						ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_START_IS_TAKEN, TRUE);	// Flag element
+
 				}
+
+				//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
+				state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
+
 				if(ON_LEAVE()){
-					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);	// Flag subaction
-					//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+					if(prise_point_up){ // Il y a besoin d'un GET_OUT
+						if(state == ERROR){
+							state = GET_OUT_ERROR_UP;
+						}else{
+							state = GET_OUT_UP;
+						}
+					}
+				}
+				break;
+
+			case GET_OUT_UP:
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(700, 922, state, DONE, DONE, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				}else{
+					state = try_going(700, 2078, state, DONE, DONE, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				}
+				break;
+
+			case GET_OUT_ERROR_UP:
+				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
+					state = try_going(700, 922, state, ERROR, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				}else{
+					state = try_going(700, 2078, state, ERROR, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
 				break;
 
 			case ERROR:
 				RESET_MAE();
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
 				on_turning_point();
 				return NOT_HANDLED;
@@ -477,16 +539,15 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 
 			case DONE:
 				RESET_MAE();
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+				set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 				on_turning_point();
 				return END_OK;
 				break;
 
 			default:
 				if(entrance)
-					debug_printf("default case in sub_harry_prise_modules_centre\n");
+					debug_printf("default case in sub_harry_prise_module_start_centre\n");
 				break;
 		}
 	return IN_PROGRESS;
@@ -535,10 +596,15 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 
 	switch(state){
 		case INIT:
-			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
-				state = ERROR; // Actionneurs désactivés
-			}else if (ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN)){
+			if (ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN)){
 					state = DONE; // Il n'y a plus rien à faire
+			}
+			else if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
+			}
+			else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_CENTER)) // Si Anne est déjà en train de faire cette action
+			{
+				state = ERROR;
 			}
 			else
 			{
@@ -635,20 +701,33 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, TRUE);
 			}
 			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-				state = try_going(880, 750, state, TAKE_SIDE_MODULE_FROM_START_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(993, 674, state, TAKE_SIDE_MODULE_FROM_START_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_going(880, 2250, state, TAKE_SIDE_MODULE_FROM_START_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			}
-			if(ON_LEAVE()){
-				if(side == LEFT)
-					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
-				else
-					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL );
+				state = try_going(993, 2326, state, TAKE_SIDE_MODULE_FROM_START_ZONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
 		case TAKE_SIDE_MODULE_FROM_START_ZONE:
+			if(entrance){
+				if(side == LEFT){
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+				}
+				else{
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+				}
+			}
+
 			if(side == LEFT){
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
 					state = try_going(980, 550, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -658,9 +737,9 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 			else{
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-					state = try_going(1060, 590, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1107, 508, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
-					state = try_going(1060, 2410, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_going(1107, 2492, state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
 			}
 			break;
@@ -675,17 +754,28 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			}else{
 				state = try_going(1300, 2300, state, TAKE_SIDE_MODULE_FROM_DEPOSE_SIDE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVE()){
-				if(side == LEFT)
-					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
-				else
-					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL );
-			}
 			break;
 
-
-
 		case TAKE_SIDE_MODULE_FROM_DEPOSE_SIDE:
+			if(entrance){
+				if(side == LEFT){
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+				}
+				else{
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+				}
+			}
+
 			if(side == LEFT){
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
 					state = try_going(1100, 620, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -721,6 +811,25 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			break;
 
 		case TAKE_SIDE_MODULE_FROM_LEFT_SIDE:
+			if(entrance){
+				if(side == LEFT){
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+				}
+				else{
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+				}
+			}
+
 			if(side == LEFT){
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
 					state = try_going(1050, 380, state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -739,58 +848,50 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 
 		case STORAGE_LEFT:
 			if(entrance){
-				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+					// L'élévateur est disponible, on peut stocker les modules ici
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+					STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
+					// L'élévateur n'est pas disponible, on stocke le module dans le slider
+					STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 				}
-			}
 
-
-			state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
-			//state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE),state,DONE,ERROR);
-
-			if(state==DONE){
+				// Le module est considérer comme pris quoi qu'il arrive car on n'arrivera pas à le reprendre
 				if(modules == OUR_ELEMENT)
 					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
 				else
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
 			}
-			if(ON_LEAVE()){
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
-			}
+
+			//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE),state,DONE,ERROR);
 			break;
 
 		case STORAGE_RIGHT:
 			if(entrance){
-				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+					// L'élévateur est disponible, on peut stocker les modules ici
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+					STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
+					// L'élévateur n'est pas disponible, on stocke le module dans le slider
+					STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 				}
-			}
 
-
-			state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
-			//state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
-
-			if(state==DONE){
+				// Le module est considérer comme pris quoi qu'il arrive car on n'arrivera pas à le reprendre
 				if(modules == OUR_ELEMENT)
 					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
 				else
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_SIDE_IS_TAKEN, TRUE);	// Flag element
 			}
-			if(ON_LEAVE()){
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
-			}
+
+			//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
 			break;
 
 		case ERROR:
 			RESET_MAE();
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
 			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
 			on_turning_point();
 			return NOT_HANDLED;
@@ -798,16 +899,15 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 
 		case DONE:
 			RESET_MAE();
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
 			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+			set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			on_turning_point();
 			return END_OK;
 			break;
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_prise_modules_centre\n");
+				debug_printf("default case in sub_harry_prise_module_side_centre\n");
 			break;
 	}
 
@@ -860,10 +960,13 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 
 	switch(state){
 		case INIT:
-			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+			if (ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
+				state = DONE; // Il n'y a plus rien à faire
+			}else if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
 				state = ERROR; // Actionneurs désactivés
-			}else if (ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
-					state = DONE; // Il n'y a plus rien à faire
+			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_CENTER)) // Si Anne est déjà en train de faire cette action
+			{
+				state = ERROR;
 			}
 			else
 			{
@@ -965,15 +1068,28 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			else{
 				state = try_going(1275, 2325, state, TAKE_BASE_MODULE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
-			if(ON_LEAVE()){
-				if(side == LEFT)
-					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
-				else
-					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL );
-			}
 			break;
 
 		case TAKE_BASE_MODULE:
+			if(entrance){
+				if(side == LEFT){
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+				}
+				else{
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+				}
+			}
+
 			if(side == LEFT || side == NO_SIDE){
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
 					state = try_going(1380, 785, state, STORAGE_LEFT, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -992,53 +1108,47 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 
 		case STORAGE_LEFT:
 			if(entrance){
-				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+					// L'élévateur est disponible, on peut stocker les modules ici
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+					STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
+					// L'élévateur n'est pas disponible, on stocke le module dans le slider
+					STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 				}
-			}
 
-
-			state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
-			//state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, GET_OUT, ERROR);
-
-			if(state==GET_OUT){
+				// Le module est considérer comme pris quoi qu'il arrive car on n'arrivera pas à le reprendre
 				if(modules == OUR_ELEMENT)
 					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 				else{
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 				}
 			}
-			if(ON_LEAVE()){
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
-			}
-		break;
+
+			//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, GET_OUT, ERROR);
+			break;
 
 		case STORAGE_RIGHT:
 			if(entrance){
-				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+					// L'élévateur est disponible, on peut stocker les modules ici
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+					STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
+					// L'élévateur n'est pas disponible, on stocke le module dans le slider
+					STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 				}
-			}
 
-
-			state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
-			//state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT, ERROR);
-
-			if(state==GET_OUT){
+				// Le module est considérer comme pris quoi qu'il arrive car on n'arrivera pas à le reprendre
 				if(modules == OUR_ELEMENT)
 					ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 				else
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 			}
-			if(ON_LEAVE()){
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
-			}
+
+			state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
+			//state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT, ERROR);
 			break;
 
 		case GET_OUT:
@@ -1046,10 +1156,6 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 				state = try_going(1260, 700, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
 				state = try_going(1260, 2300, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			}
-			if(ON_LEAVE()){
-				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);	// Flag subaction
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE); // Activation de la dépose
 			}
 			break;
 
@@ -1072,8 +1178,6 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 
 		case ERROR:
 			RESET_MAE();
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
 			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
 			on_turning_point();
 			return NOT_HANDLED;
@@ -1081,16 +1185,15 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 
 		case DONE:
 			RESET_MAE();
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
-			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
 			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_CENTER, FALSE);
+			set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			on_turning_point();
 			return END_OK;
 			break;
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_prise_modules_centre\n");
+				debug_printf("default case in sub_harry_prise_module_base_centre\n");
 			break;
 	}
 
@@ -1124,12 +1227,21 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 			DONE
 		);
 
+	static moduleType_e moduleType;
+
 	switch(state){
 		case INIT:
-			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
-				state = ERROR; // Actionneurs désactivés
-			}else if (ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN)){
+			// Détermination de la couleur du module à prendre
+			if(global.color == BLUE){
+				moduleType = MODULE_BLUE;
+			}else{
+				moduleType = MODULE_YELLOW;
+			}
+
+			if (ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN)){
 				state = DONE; // Il n'y a plus rien à faire
+			}else if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
 			}else if (ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_NORTH_UNI)){
 				state = ERROR; // Anne est en train de le prendre
 			}
@@ -1195,8 +1307,14 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 
 		case TAKE_MODULE_LEFT:
 			if(entrance){
-				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_NORMAL);
+				// On ne peut utiliser l'élévateur que s'il est disponible
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+				}
+				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
 			}
+
 			//state = try_going(650, COLOR_Y(300), state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			state = try_rush(450, COLOR_Y(300), state , MOVE_BACK, ERROR, FORWARD, NO_DODGE_AND_WAIT, TRUE);
 			break;
@@ -1207,13 +1325,16 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 
 		case STORAGE_LEFT:
 			if(entrance){
-				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+					// L'élévateur est disponible, on peut stocker les modules ici
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+					STOCKS_addModule(moduleType, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
+					// L'élévateur n'est pas disponible, on stocke le module dans le slider
+					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 				}
+
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
 			break;
@@ -1221,21 +1342,29 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 
 		case TAKE_MODULE_RIGHT:
 			if(entrance){
-				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_NORMAL);
+				// On ne peut utiliser l'élévateur que s'il est disponible
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+				}
+				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
 			}
+
 			state = try_going(730, COLOR_Y(280), state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 
 		case STORAGE_RIGHT:
 			if(entrance){
-				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+					// L'élévateur est disponible, on peut stocker les modules ici
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+					STOCKS_addModule(moduleType, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
+					// L'élévateur n'est pas disponible, on stocke le module dans le slider
+					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
 			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT_RIGHT, ERROR);
 			break;
@@ -1258,6 +1387,7 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 		case DONE: // Pas de GET_OUT dans le cas LEFT, ca doit pouvoir passer
 			RESET_MAE();
 			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_NORTH_UNI, FALSE); // Flag subaction
+			set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			on_turning_point();
 			return END_OK;
 			break;
@@ -1297,12 +1427,21 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			DONE
 		);
 
+	static moduleType_e moduleType;
+
 	switch(state){
 		case INIT:
-			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
-				state = ERROR; // Actionneurs désactivés
-			}else if (ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN)){
+			// Détermination de la couleur du module à prendre
+			if(global.color == BLUE){
+				moduleType = MODULE_BLUE;
+			}else{
+				moduleType = MODULE_YELLOW;
+			}
+
+			if (ELEMENTS_get_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN)){
 				state = DONE; // Il n'y a plus rien à faire
+			}else if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
+				state = ERROR; // Actionneurs désactivés
 			}else if (ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)){
 				state = ERROR; // Anne est en train de le prendre
 			}
@@ -1371,43 +1510,62 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		case TAKE_MODULE_LEFT:
 			if(entrance){
-				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_NORMAL);
+				// On ne peut utiliser l'élévateur que s'il est disponible
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
+					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+				}
+				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
 			}
+
 			state = try_going(1800, COLOR_Y(730), state, STORAGE_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case STORAGE_LEFT:
 			if(entrance){
-				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+					// L'élévateur est disponible, on peut stocker les modules ici
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+					STOCKS_addModule(moduleType, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
+					// L'élévateur n'est pas disponible, on stocke le module dans le slider
+					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 				}
+
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
+
 			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
 			break;
 
 
 		case TAKE_MODULE_RIGHT:
 			if(entrance){
-				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_NORMAL);
+				// On ne peut utiliser l'élévateur que s'il est disponible
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
+					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+				}
+				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
 			}
+
 			state = try_going(1775, COLOR_Y(800), state, STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 
 		case STORAGE_RIGHT:
 			if(entrance){
-				if(global.color == BLUE){
-					STOCKS_addModule(MODULE_BLUE, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+					// L'élévateur est disponible, on peut stocker les modules ici
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+					STOCKS_addModule(moduleType, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
-					STOCKS_addModule(MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
+					// L'élévateur n'est pas disponible, on stocke le module dans le slider
+					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 				}
-				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
-				//set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
+				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 			}
+
 			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, DONE, ERROR);
 			break;
 
@@ -1499,18 +1657,10 @@ error_e sub_harry_rocket_monocolor(){
 
 		case ROTATE:
 			state = try_go_angle(PI4096,state,TAKE_ROCKET, ERROR, FAST, FORWARD,END_AT_LAST_POINT);
-		break;
+			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
 			state=check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, LEFT, RIGHT, LEFT, RIGHT),state,GET_OUT,GET_OUT_ERROR);
-
-			// Juste pour les tests
-			/*ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);*/
-
-			//state = DONE;
 			break;
 
 		case GET_OUT:
@@ -1543,6 +1693,7 @@ error_e sub_harry_rocket_monocolor(){
 			RESET_MAE();
 			on_turning_point();
 			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI, FALSE);
+			set_sub_act_enable(SUB_HARRY_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			return END_OK;
 			break;
 
@@ -1557,8 +1708,8 @@ error_e sub_harry_rocket_monocolor(){
 
 
 
-//#if 0
-error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
+
+error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PRISE_ROCKET_MULTICOLOR,
 				INIT,
 				//INIT_ALL_ACTIONNEUR,
@@ -1582,22 +1733,32 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				DONE
 			);
 
+	static moduleRocketLocation_e rocket = 0;
+
 	switch(state){
 
 		case INIT:{
+			// Affect the rocket to its value
+			if(element == OUR_ELEMENT){
+				rocket = MODULE_ROCKET_MULTI_OUR_SIDE;
+			}else{
+				rocket = MODULE_ROCKET_MULTI_ADV_SIDE;
+			}
+			ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
+
 			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
 				state = ERROR; // Actionneurs désactivés
-			}else if((rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))
-			|| (rocket == ADV_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_ADV_SIDE))){
+			}else if((element == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))
+			|| (element == ADV_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_ADV_SIDE))){
 				state = DONE;	 // On a déjà vidé cette fusée
-			}else if((rocket == OUR_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_MULTI))
-			|| (rocket == ADV_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_ADV_ROCKET_MULTI)) ){
+			}else if((element == OUR_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_OUR_ROCKET_MULTI))
+			|| (element == ADV_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_ADV_ROCKET_MULTI)) ){
 				state = ERROR; // Anne est déjà en train de vider cette fusée
 			}else{
 				state = ALL_THE_GET_IN;
 				//state = INIT_ALL_ACTIONNEUR;
 				// On lève le flag de subaction
-				if(rocket == OUR_ELEMENT){
+				if(element == OUR_ELEMENT){
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, TRUE);
 				}else{
 					ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI, TRUE);
@@ -1621,10 +1782,10 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case ALL_THE_GET_IN:
 
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				if(i_am_in_square(700, 1450, 250, 1000)){
-					state = GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(350, 1050, 1000, 2000)){
+					state = GET_IN_FRONT_OF_ONE_ON_TWO; //GET_IN_OUR_SQUARE;
+				}else if (i_am_in_square(350, 1050, 900, 2100)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(700, 1450, 2000, 2750)){
 					state = GET_IN_ADV_SQUARE;
@@ -1633,8 +1794,8 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 				}
 			}else{ // Prise fusee cote bleu
 				if(i_am_in_square(700, 1450, 2000, 2750)){
-					state = GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(350, 1050, 1000, 2000)){
+					state = GET_IN_FRONT_OF_ONE_ON_TWO; //GET_IN_OUR_SQUARE;
+				}else if (i_am_in_square(350, 1050, 900, 2100)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(700, 1450, 250, 1000)){
 					state = GET_IN_ADV_SQUARE;
@@ -1646,15 +1807,15 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 
 		case GET_IN_OUR_SQUARE:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1250, 500, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
+				state = try_going(1350, 360, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(1250, 2500, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 		case GET_IN_MIDDLE_SQUARE:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state = try_going(900, 950, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
 				state = try_going(900, 2050, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
@@ -1662,7 +1823,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			break;
 
 		case GET_IN_ADV_SQUARE:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state = try_going(850, 2000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
 				state = try_going(850, 1000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
@@ -1671,16 +1832,16 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 
 		case GET_IN_PATHFIND:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = ASTAR_try_going(1250, 500, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
+				state = ASTAR_try_going(1350, 360, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = ASTAR_try_going(1250, 2500, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = ASTAR_try_going(1350, 2640, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 
 		case GET_IN_FRONT_OF_ONE_ON_TWO:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state = try_going(1350, 360, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
 				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1689,13 +1850,13 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case GET_IN_FRONT_OF_TWO_ON_TWO:
 			if(entrance){
-				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+				if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_UP);
 				}else{
 					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_UP);
 				}
 			}
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state = try_going(1350, 310, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
 				state = try_going(1350, 2690, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1703,7 +1864,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			break;
 
 		case TURN_TO_POS:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state = try_go_angle(-PI4096/2, state, ACTION, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			}else{
 				state = try_go_angle(PI4096/2, state, ACTION, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
@@ -1716,13 +1877,13 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			break;
 
 		case GET_OUT:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state=try_going(global.pos.x, 500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
 				state=try_going(global.pos.x, 2500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			if(ON_LEAVE()){
-				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+				if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_DOWN);
 				}else{
 					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
@@ -1731,13 +1892,13 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			break;
 
 		case GET_OUT_ERROR:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state=try_going(global.pos.x, 500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
 				state=try_going(global.pos.x, 2500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			if(ON_LEAVE()){
-				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+				if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_DOWN);
 				}else{
 					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
@@ -1746,7 +1907,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			break;
 
 		case AVANCE:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state=try_going(global.pos.x, 200, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
 				state=try_going(global.pos.x, 2780, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
@@ -1754,7 +1915,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 			break;
 
 		case AVANCE_ERROR:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state=try_going(global.pos.x, 220, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
 				state=try_going(global.pos.x, 2780, state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
@@ -1764,7 +1925,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case DONE:
 			RESET_MAE();
-			if(rocket == OUR_ELEMENT){
+			if(element == OUR_ELEMENT){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
 			}else{
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI, FALSE);
@@ -1774,7 +1935,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket){
 
 		case ERROR:
 			RESET_MAE();
-			if(rocket == OUR_ELEMENT){
+			if(element == OUR_ELEMENT){
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI, FALSE);
 			}else{
 				ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI, FALSE);
