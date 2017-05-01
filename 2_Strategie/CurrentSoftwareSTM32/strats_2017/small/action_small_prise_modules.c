@@ -353,7 +353,7 @@ error_e sub_anne_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS
 
 				}
 
-				state = check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
+				state = check_sub_action_result(sub_act_anne_mae_store_modules(TRUE), state, DONE, ERROR);
 
 				if(state == DONE){
 					if(modules == OUR_ELEMENT)
@@ -377,7 +377,7 @@ error_e sub_anne_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
 				}
 
-				state=check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
+				state=check_sub_action_result(sub_act_anne_mae_store_modules(TRUE),state,DONE,ERROR);
 
 				if(state==DONE){
 					if(modules == OUR_ELEMENT)
@@ -671,7 +671,7 @@ error_e sub_anne_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_
 				}
 			}
 
-			state=check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_LEFT, TRUE),state,DONE,ERROR);
+			state=check_sub_action_result(sub_act_anne_mae_store_modules(TRUE),state,DONE,ERROR);
 
 			if(state==DONE){
 				if(modules == OUR_ELEMENT)
@@ -693,7 +693,7 @@ error_e sub_anne_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_
 					STOCKS_addModule(MODULE_YELLOW, MODULE_STOCK_RIGHT, STOCK_POS_ELEVATOR);
 				}
 			}
-			state=check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
+			state=check_sub_action_result(sub_act_anne_mae_store_modules(TRUE),state,DONE,ERROR);
 
 			if(state==DONE){
 				if(modules == OUR_ELEMENT)
@@ -919,7 +919,7 @@ error_e sub_anne_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_
 				}
 			}
 
-			state=check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, GET_OUT, ERROR);
+			state=check_sub_action_result(sub_act_anne_mae_store_modules(TRUE), state, GET_OUT, ERROR);
 
 			if(state==GET_OUT){
 				if(modules == OUR_ELEMENT)
@@ -1131,7 +1131,7 @@ error_e sub_anne_prise_module_unicolor_north(ELEMENTS_side_e side){
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 				//set_sub_act_enable(SUB_ANNE_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
-			state = check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_anne_mae_store_modules(TRUE), state, DONE, ERROR);
 			break;
 
 
@@ -1153,7 +1153,7 @@ error_e sub_anne_prise_module_unicolor_north(ELEMENTS_side_e side){
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 				//set_sub_act_enable(SUB_ANNE_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
-			state = check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT_RIGHT, ERROR);
+			state = check_sub_action_result(sub_act_anne_mae_store_modules(TRUE), state, GET_OUT_RIGHT, ERROR);
 			break;
 
 		case GET_OUT_RIGHT:
@@ -1302,7 +1302,7 @@ error_e sub_anne_prise_module_unicolor_south(ELEMENTS_side_e side){
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 				//set_sub_act_enable(SUB_ANNE_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
-			state = check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_anne_mae_store_modules(TRUE), state, DONE, ERROR);
 			break;
 
 
@@ -1324,7 +1324,7 @@ error_e sub_anne_prise_module_unicolor_south(ELEMENTS_side_e side){
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 				//set_sub_act_enable(SUB_ANNE_DEPOSE_MODULES, TRUE);   // Activation de la dépose
 			}
-			state = check_sub_action_result(sub_act_anne_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_anne_mae_store_modules(TRUE), state, DONE, ERROR);
 			break;
 
 		case ERROR:

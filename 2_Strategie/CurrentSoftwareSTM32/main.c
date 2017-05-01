@@ -39,6 +39,7 @@
 #include "elements.h"
 #include "avoidance.h"
 #include "strats_2017/big/action_big.h"
+#include "strats_2017/small/action_small.h"
 #include "strats_2017/actions_both_2017.h"
 
 void test_bp_switchs(void);
@@ -189,6 +190,9 @@ int main (void)
 			sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, FALSE);
 			sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
 			sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE);
+		}else{
+			sub_act_anne_mae_store_modules(FALSE);
+			sub_act_anne_mae_prepare_modules_for_dispose(FALSE);
 		}
 
 		OUTPUTLOG_process_main();
