@@ -1015,7 +1015,7 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){
 			for(i = 0; i < msg->size; i++){
 				switch(msg->data.ihm_switch.switchs[i].id){
 					case BIROUTE_IHM:			print(*string, *len, "| sw_biroute");					break;
-					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color = %s\n",(msg->data.ihm_switch.switchs[i].state)? "VERT":"JAUNE");				break;
+					case SWITCH_COLOR_IHM:		print(*string, *len, "| sw_color = %s\n",(msg->data.ihm_switch.switchs[i].state)? "YELLOW":"BLUE");				break;
 					case SWITCH_LCD_IHM:		print(*string, *len, "| sw_lcd");						break;
 					case SWITCH0_IHM:			print(*string, *len, "| %s",SWITCH0_IHM_NAME);		break;
 					case SWITCH1_IHM:			print(*string, *len, "| %s",SWITCH1_IHM_NAME);		break;

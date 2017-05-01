@@ -49,13 +49,13 @@
 	#define ASTAR_CLR_NODE_IN(nodeId, nodeList)	((nodeList) &= ~((1ULL) << (nodeId)))
 
 	// Rayon du polygone défini pour les robots adverses
-	#define FOE_RADIUS (250)
+	#define FOE_RADIUS (400)
 
 	// Macro renvoyant le noeud symétrique suivant la couleur (tout comme COLOR_Y le fait pour les coordonnées
 	#define COLOR_NODE(id) ASTAR_get_symetric_node(id)
 
 	// Nombre de tentatives du pathfind avec dodge en cas d'échec
-	#define NB_TRY_WITH_DODGE (3)
+	#define NB_TRY_WITH_DODGE (2)
 
 	// Distance maximale à laquelle on s'autorise la supression du noeud de départ (non utilisé)
 	#define DISTANCE_PROXIMITY_NODE (150)
@@ -240,7 +240,7 @@
 
 		//Rangée [A]
 		(astar_node_t){ A1, {600,  300}, (1ULL<<A2)|(1ULL<<A3)},
-		(astar_node_t){ A2, {950, 400}, (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<C2)},
+		(astar_node_t){ A2, {900, 400}, (1ULL<<A1)|(1ULL<<A3)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<C2)},
 		(astar_node_t){ A3, {1225, 300}, (1ULL<<A1)|(1ULL<<A2)|(1ULL<<B1)|(1ULL<<B2)|(1ULL<<C2)},
 
 		//Rangée [B]
@@ -270,13 +270,13 @@
 		(astar_node_t){ G2, {1100, 2200}, (1ULL<<F3)|(1ULL<<G1)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
 
 		//Rangée [H]
-		(astar_node_t){ H1, {1000, 2400}, (1ULL<<F2)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
+		(astar_node_t){ H1, {950, 2350}, (1ULL<<F2)|(1ULL<<F3)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H2)|(1ULL<<I2)|(1ULL<<I3)},
 		(astar_node_t){ H2, {1350, 2450}, (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H3)|(1ULL<<I2)|(1ULL<<I3)},
 		(astar_node_t){ H3, {1650, 2280}, (1ULL<<H2)},
 
 		//Rangée [I]
 		(astar_node_t){ I1, {600,  2700}, (1ULL<<I2)|(1ULL<<I3)},
-		(astar_node_t){ I2, {950, 2600}, (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<I1)|(1ULL<<I3)},
+		(astar_node_t){ I2, {900, 2600}, (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<I1)|(1ULL<<I3)},
 		(astar_node_t){ I3, {1225, 2700}, (1ULL<<G2)|(1ULL<<H1)|(1ULL<<H2)|(1ULL<<I1)|(1ULL<<I2)},
 
 		//Node de départ
@@ -306,16 +306,16 @@
 
 		//Rangée [D]
 		/*D1*/ (1ULL<<C1)|(1ULL<<D2)|(1ULL<<E1)|(1ULL<<F1)|(1ULL<<FROM_NODE),
-		/*D2*/ (1ULL<<C1)|(1ULL<<D1)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<FROM_NODE),
-		/*D3*/ (1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<FROM_NODE),
+		/*D2*/ (1ULL<<B1)|	(1ULL<<C1)|(1ULL<<D1)|(1ULL<<D3)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<FROM_NODE),
+		/*D3*/ (1ULL<<B1)|(1ULL<<C1)|(1ULL<<C2)|(1ULL<<D2)|(1ULL<<FROM_NODE),
 
 		//Rangée [E]
 		/*E1*/ (1ULL<<D1)|(1ULL<<D2)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<FROM_NODE),
 
 		//Rangée [F]
 		/*F1*/ (1ULL<<D1)|(1ULL<<E1)|(1ULL<<F2)|(1ULL<<G1)|(1ULL<<FROM_NODE),
-		/*F2*/ (1ULL<<D2)|(1ULL<<G1)|(1ULL<<E1)|(1ULL<<F1)|(1ULL<<F3)|(1ULL<<FROM_NODE),
-		/*F3*/ (1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<I2)|(1ULL<<FROM_NODE),
+		/*F2*/ (1ULL<<H1)| (1ULL<<D2)|(1ULL<<G1)|(1ULL<<E1)|(1ULL<<F1)|(1ULL<<F3)|(1ULL<<FROM_NODE),
+		/*F3*/ (1ULL<<F2)|(1ULL<<G1)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<FROM_NODE),
 
 		//Rangée [G]
 		/*G1*/ (1ULL<<E1)|(1ULL<<F1)|(1ULL<<F2)|(1ULL<<F3)|(1ULL<<G2)|(1ULL<<H1)|(1ULL<<FROM_NODE),
@@ -884,7 +884,6 @@
 				// Mise à jour des coûts des noeuds qui ont pour parent current_node
 				//ASTAR_update_cost(current_node);
 			}
-
 		}
 
 		// On connait maintenant la trajectoire du robot, on peut en déduire les déplacements à effectuer
@@ -910,8 +909,9 @@
 		Uint8 j;
 		error_e result;
 		Uint8 last_index = 0;
-		Uint32 distToStartNode = 0;
+		Uint32 distToStartNode = 0, lastDistToStartNode = 0;
 		Uint32 wantedDistToStartNode = 0;
+		bool_e endOfTraj = FALSE;
 		UNUSED_VAR(last_index);
 
 		// On recherche le nombre de noeuds constituant la trajectoire
@@ -956,11 +956,7 @@
 		}
 		path_enable[0] = FALSE; //Le point de départ n'est pas dans la trajectoire
 
-
 		// Affichage de la trajectoire non optimisée(index 0:point de départ, dernier point: point d'arrivé)
-		time32_t local_time = global.absolute_time;
-		while(global.absolute_time < local_time + 3000);
-
 		debug_printf("\n PATH \n");
 		for(i=0; i<nb_nodes; i++){
 			debug_printf("[%d] pos(%d;%d)\n", path_id[i], astar_nodes[path_id[i]].pos.x, astar_nodes[path_id[i]].pos.y);
@@ -973,12 +969,29 @@
 		if(result == FOE_IN_PATH){
 			i=1;
 			wantedDistToStartNode = DISTANCE_TO_MOVE_IF_FAIL*DISTANCE_TO_MOVE_IF_FAIL;
-			do{
+			/*do{
 				distToStartNode = GEOMETRY_distance_square(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[i]].pos);
 				i++;
 			}while(i < nb_nodes && distToStartNode < wantedDistToStartNode);
+			nb_nodes = i; // On supprime les derniers points*/
 
+			// Nouvelle gestion d'erreur lorsque l'on sait que le point d'arrivé n'est pas atteignable.
+			lastDistToStartNode = 0;
+			distToStartNode = 0;
+			while(i < nb_nodes && !endOfTraj){
+				lastDistToStartNode = distToStartNode;
+				distToStartNode = GEOMETRY_distance_square(astar_nodes[FROM_NODE].pos, astar_nodes[path_id[i]].pos);
+				if(distToStartNode > wantedDistToStartNode){
+					endOfTraj = TRUE;
+				}else if(distToStartNode > wantedDistToStartNode){
+					i++; // Take into account that node as last node of trajectory
+					endOfTraj = TRUE;
+				}else{
+					i++;
+				}
+			}
 			nb_nodes = i; // On supprime les derniers points
+
 		}
 
 #ifdef	ASTAR_OPTIMISATION
@@ -1551,7 +1564,7 @@
 					seg_polygon.b = astar_polygons[i].summits[j+1];
 					result = GEOMETRY_segments_intersects(seg_tested, seg_polygon);
 					if(result)
-							debug_printf("Segement is cut by polygon[%d] summit[%d] and [%d]\n", i, j, j+1);
+							debug_printf("Segment is cut by polygon[%d] summit[%d] and [%d]\n", i, j, j+1);
 					j++;
 				}
 
@@ -1561,7 +1574,7 @@
 					seg_polygon.b = astar_polygons[i].summits[astar_polygons[i].nb_summits - 1];
 					result = GEOMETRY_segments_intersects(seg_tested, seg_polygon);
 					if(result)
-						debug_printf("Segement is cut by polygon[%d] summit[%d] and [%d]\n", i, j, j+1);
+						debug_printf("Segment is cut by polygon[%d] summit[%d] and [%d]\n", i, j, j+1);
 				}
 				i++;
 			}
