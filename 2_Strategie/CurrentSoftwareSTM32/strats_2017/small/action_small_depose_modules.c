@@ -13,21 +13,132 @@
 #include "../../actuator/queue.h"
 
 
-error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side){
+error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_MANAGER_RETURN_MODULES,
+			INIT,
+			COMPUTE,
+			MANAGE,
+			GO_TO_MIDDLE,
+			GO_TO_ADV_CENTER,
+			GO_TO_ADV_SIDE,
+			GO_TO_OUR_CENTER,
+			GO_TO_OUR_SIDE,
+
+			ERROR,
+			DONE
+			);
+
+
+
+	switch(state){
+		case INIT:
+			if(IHM_switchs_get(SWITCH_DISABLE_SMALL_MAGIC_ARM)){
+				state = ERROR; // Actionneur désactivé, on a rien pu prendre
+			}else{
+		#ifdef SCAN_ELEMENTS
+					//scan les bases de constructions pour compter et évaluer le remplissage
+		#else
+				state=COMPUTE;
+		#endif
+			}
+			break;
+
+		case COMPUTE:
+#warning 'pour définir les priorités des bases c\'est ici'
+			if(ELEMENTS_get_flag(FLAG_RETURN_CENTRAL_MOONBASIS)){
+				state = GO_TO_MIDDLE;
+			}else if(ELEMENTS_get_flag(FLAG_RETURN_ADV_CENTRAL_MOONBASIS)){
+				state = GO_TO_ADV_CENTER;
+			}else if(ELEMENTS_get_flag(FLAG_RETURN_ADV_SIDE_MOONBASIS)){
+				state = GO_TO_ADV_SIDE;
+			}else if(ELEMENTS_get_flag(FLAG_RETURN_OUR_CENTRAL_MOONBASIS)){
+				state = GO_TO_OUR_CENTER;
+			}else if(ELEMENTS_get_flag(FLAG_RETURN_OUR_SIDE_MOONBASIS)){
+				state = GO_TO_OUR_SIDE;
+			}else{
+				state=ERROR;
+			}
+			break;
+
+
+		case GO_TO_MIDDLE:
+			state=check_sub_action_result(sub_anne_return_modules_centre(NEUTRAL_ELEMENT),state,DONE,ERROR);
+			break;
+
+		case GO_TO_OUR_CENTER:
+			state=check_sub_action_result(sub_anne_return_modules_centre(OUR_ELEMENT),state,DONE,ERROR);
+			break;
+
+		case GO_TO_OUR_SIDE:
+			//state=check_sub_action_result(sub_anne_return_modules_centre(OUR_ELEMENT),state,DONE,ERROR);
+			state = DONE;
+#warning 'faire la sub de retournement sur les bases latérales'
+			break;
+
+		case GO_TO_ADV_CENTER:
+			state=check_sub_action_result(sub_anne_return_modules_centre(ADV_ELEMENT),state,DONE,ERROR);
+			break;
+
+		case GO_TO_ADV_SIDE:
+			//state=check_sub_action_result(sub_anne_return_modules_centre(OUR_ELEMENT),state,DONE,ERROR);
+			state = DONE;
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_anne_manager_return_module\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_RETURN_MODULES_CENTRE,
 			INIT,
-			POS,
-			MOVE_TO_2,
-			MOVE_TO_3,
-			ANGLE,
-			OUT_BAGUETTE_MAGIQUE,
-			CHECK_IF_TURN_FOR_COLOR_NEEDED,
-			TURN_FOR_COLOR,
-			WAIT_WHITE,
-			WAIT_OUR_COLOR,
-			STOP_TURN,
-			IN_BAGUETTE_MAGIQUE,
-			NEXT_MODULE,
+			GET_IN,
+			COMPUTE,
+
+			RUSH_BLUE,
+			CLOSE_PUSHER_BLUE,
+			AVANCE_BLUE,
+			ENABLE_MAGIC_BLUE,
+			COMPUTE_LITTLE_MOVE_BACK_BLUE,
+			LITTLE_MOVE_BACK_BLUE,
+			LITTLE_MOVE_BACK_ERROR_BLUE,
+			MOVE_BACK_BLUE,
+
+			RUSH_CENTRAL,
+			CLOSE_PUSHER_CENTRAL,
+			AVANCE_CENTRAL,
+			ENABLE_MAGIC_CENTRAL,
+			COMPUTE_LITTLE_MOVE_BACK_CENTRAL,
+			LITTLE_MOVE_BACK_CENTRAL,
+			LITTLE_MOVE_BACK_ERROR_CENTRAL,
+			MOVE_BACK_CENTRAL,
+
+			UP_BEARING_BALL,
+			RUSH_YELLOW,
+			CLOSE_PUSHER_YELLOW,
+			AVANCE_YELLOW,
+			ENABLE_MAGIC_YELLOW,
+			COMPUTE_LITTLE_MOVE_BACK_YELLOW,
+			LITTLE_MOVE_BACK_YELLOW,
+			LITTLE_MOVE_BACK_ERROR_YELLOW,
+			MOVE_BACK_YELLOW,
+
 			ERROR,
 			DONE
 		);
@@ -37,175 +148,209 @@ error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules, ELEMENTS_sid
 	Uint8 pos_get_in;
 	Uint8 passage;
 
+	static Uint8 nb_cylinder_in_basis = 0;
+	static Sint16 tryx, tryy;
+
 	switch(state){
 		case INIT:
-			state= check_sub_action_result(sub_anne_return_modules_centre_get_in(modules, robot_side, basis_side), state, POS, ERROR);
+			state = GET_IN;
 			break;
 
-		case POS:
-			passage = 1;
-			if(i_am_in_square(1430, 1470, 580, 620)){
-				pos_get_in = 1;
-				state = try_going(1750, 900, state, ANGLE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(1080, 1120, 905, 945)){
-				pos_get_in = 2;
-				state = try_going(1400, 1225, state, ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(955, 995, 1280, 1320)){
-				pos_get_in = 3;
-				state = try_going(1225, 1300, state, ANGLE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(955, 995, 1680, 1720)){
-				pos_get_in = 4;
-				state = try_going(1225, 1700, state, ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(1080, 1120, 2055, 2095)){
-				pos_get_in = 5;
-				state = try_going(1400, 1775, state, ANGLE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(1430, 1470, 2380, 2420)){
-				pos_get_in = 6;
-				state = try_going(1750, 2100, state, ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
+		case GET_IN:
+			state = check_sub_action_result(sub_anne_return_modules_centre_get_in(modules), state, COMPUTE, ERROR);
+			break;
+
+		case COMPUTE:
+			if(((modules == OUR_ELEMENT)&&(global.color == BLUE)) || ((modules == ADV_ELEMENT)&&(global.color == YELLOW))){
+				state = RUSH_BLUE;
+			}else if(modules == NEUTRAL_ELEMENT){
+				state = RUSH_CENTRAL;
+			}else if(((modules == ADV_ELEMENT)&&(global.color == BLUE)) || ((modules == OUR_ELEMENT)&&(global.color == YELLOW))){
+				state = UP_BEARING_BALL;
+			}else
 				state = ERROR;
+			break;
+
+		case RUSH_BLUE:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
 			}
+			state = try_rush(1450, 1250, state, CLOSE_PUSHER_BLUE, MOVE_BACK_BLUE, FORWARD, NO_DODGE_AND_WAIT, TRUE);
+			if(ON_LEAVE()){
+				nb_cylinder_in_basis = (1800 - global.pos.x)/70;
+			}
+			break;
+
+		case CLOSE_PUSHER_BLUE:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE_BLUE, MOVE_BACK_BLUE);
+			break;
+
+		case AVANCE_BLUE:
+			state = try_going(1450, 1250, state, ENABLE_MAGIC_BLUE, MOVE_BACK_BLUE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+#warning 'il faut mettre autre chose que move back pour retourner ce qui est déjà accessible'
+			break;
+
+		case ENABLE_MAGIC_BLUE:
+			state = check_sub_action_result(sub_act_anne_return_module(), state, COMPUTE_LITTLE_MOVE_BACK_BLUE, MOVE_BACK_BLUE);
+#warning 'quelles sont les raisons possibles d\'une erreur ?'
+			break;
+
+		case COMPUTE_LITTLE_MOVE_BACK_BLUE:
+			if(global.pos.y>(1800+nb_cylinder_in_basis*70))
+				state = LITTLE_MOVE_BACK_BLUE;
+			else
+				state = MOVE_BACK_BLUE;
+			break;
+
+		case LITTLE_MOVE_BACK_BLUE:
+			state = try_advance(NULL, entrance, 100, state, ENABLE_MAGIC_BLUE, LITTLE_MOVE_BACK_ERROR_BLUE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case LITTLE_MOVE_BACK_ERROR_BLUE:{
+			if(entrance){
+				Uint8 nb_module_returned = 0;
+				nb_module_returned = (1800 - global.pos.x)/70;
+				tryx = 1800 - 70*nb_module_returned;
+				tryy = 1400 - 70*nb_module_returned;
+			}
+			state = try_going(tryx, tryy, state, LITTLE_MOVE_BACK_BLUE, LITTLE_MOVE_BACK_BLUE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		}
 		break;
 
-		case MOVE_TO_2:
-			passage = 2;
-			if(i_am_in_square(1430, 1470, 580, 620)){
-				pos_get_in = 1;
-				state = try_going(1750, 900, state, ANGLE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(1080, 1120, 905, 945)){
-				pos_get_in = 2;
-				state = try_going(1400, 1225, state, ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(955, 995, 1280, 1320)){
-				pos_get_in = 3;
-				state = try_going(1225, 1300, state, ANGLE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(955, 995, 1680, 1720)){
-				pos_get_in = 4;
-				state = try_going(1225, 1700, state, ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(1080, 1120, 2055, 2095)){
-				pos_get_in = 5;
-				state = try_going(1400, 1775, state, ANGLE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(1430, 1470, 2380, 2420)){
-				pos_get_in = 6;
-				state = try_going(1750, 2100, state, ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
-				state = ERROR;
+		case MOVE_BACK_BLUE:
+			state = try_going(1000, 1300, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case RUSH_CENTRAL:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
 			}
+			state = try_rush(1650, 1700, state, CLOSE_PUSHER_CENTRAL, MOVE_BACK_CENTRAL, FORWARD, NO_DODGE_AND_WAIT, TRUE);
+			if(ON_LEAVE()){
+				nb_cylinder_in_basis = (1800 - global.pos.x)/100;
+			}
+			break;
+
+		case CLOSE_PUSHER_CENTRAL:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE_CENTRAL, MOVE_BACK_CENTRAL);
+			break;
+
+		case AVANCE_CENTRAL:
+			state = try_going(1650, 1700, state, ENABLE_MAGIC_CENTRAL, MOVE_BACK_CENTRAL, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+#warning 'il faut mettre autre chose que move back pour retourner ce qui est déjà accessible'
+			break;
+
+		case ENABLE_MAGIC_CENTRAL:
+			state = check_sub_action_result(sub_act_anne_return_module(), state, COMPUTE_LITTLE_MOVE_BACK_CENTRAL, MOVE_BACK_CENTRAL);
+#warning 'quelles sont les raisons possibles d\'une erreur ?'
+			break;
+
+		case COMPUTE_LITTLE_MOVE_BACK_CENTRAL:
+			if(global.pos.y>(1800+nb_cylinder_in_basis*100))
+				state = LITTLE_MOVE_BACK_CENTRAL;
+			else
+				state = MOVE_BACK_CENTRAL;
+			break;
+
+		case LITTLE_MOVE_BACK_CENTRAL:
+			state = try_advance(NULL, entrance, 100, state, ENABLE_MAGIC_CENTRAL, LITTLE_MOVE_BACK_ERROR_CENTRAL, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case LITTLE_MOVE_BACK_ERROR_CENTRAL:{
+			if(entrance){
+				Uint8 nb_module_returned = 0;
+				nb_module_returned = (1800 - global.pos.x)/100;
+				tryx = 1800 - 100*nb_module_returned;
+			}
+			state = try_going(tryx, 1700, state, LITTLE_MOVE_BACK_CENTRAL, LITTLE_MOVE_BACK_CENTRAL, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		}
 		break;
 
-		case MOVE_TO_3: // 2 module max a cause des petit cratere (1 et 6)
-			passage = 3;
-			if(i_am_in_square(1080, 1120, 905, 945)){
-				pos_get_in = 2;
-				state = try_going(1500, 1325, state, ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(955, 995, 1280, 1320)){
-				pos_get_in = 3;
-				state = try_going(1125, 1300, state, ANGLE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(955, 995, 1680, 1720)){
-				pos_get_in = 4;
-				state = try_going(1125, 1700, state, ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(i_am_in_square(1080, 1120, 2055, 2095)){
-				pos_get_in = 5;
-				state = try_going(1500, 1675, state, ANGLE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
-				state = ERROR;
-			}
-		break;
+		case MOVE_BACK_CENTRAL:
+			state = try_going(1000, 1700, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
 
-		case ANGLE:
-			if(pos_get_in == 1){
-				state = try_go_angle(PI4096/4, state, OUT_BAGUETTE_MAGIQUE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
-			}else if(pos_get_in == 2){
-				state = try_go_angle(PI4096*5/4, state, OUT_BAGUETTE_MAGIQUE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
-			}else if(pos_get_in == 3){
-				state = try_go_angle(0, state, OUT_BAGUETTE_MAGIQUE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
-			}else if(pos_get_in == 4){
-				state = try_go_angle(PI4096, state, OUT_BAGUETTE_MAGIQUE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
-			}else if(pos_get_in == 5){
-				state = try_go_angle(-PI4096/4, state, OUT_BAGUETTE_MAGIQUE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
-			}else if(pos_get_in == 6){
-				state = try_go_angle(-PI4096*5/4, state, OUT_BAGUETTE_MAGIQUE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
-			}else{
 			state = ERROR;
-			}
 			break;
 
-		case OUT_BAGUETTE_MAGIQUE:
+		case UP_BEARING_BALL:{
+			Uint8 state1, state2, state3;
 			if(entrance){
-				ACT_push_order(ACT_SMALL_MAGIC_ARM,  ACT_SMALL_MAGIC_ARM_OUT);
+				ACT_push_order(ACT_SMALL_BALL_BACK, ACT_SMALL_BALL_BACK_UP);
+				ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT, ACT_SMALL_BALL_FRONT_LEFT_UP);
+				ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT, ACT_SMALL_BALL_FRONT_RIGHT_UP);
 			}
+			state1 = check_act_status(ACT_QUEUE_Small_bearing_back, state, RUSH_YELLOW, ERROR);
+			state2 = check_act_status(ACT_QUEUE_Small_bearing_front_right, state, RUSH_YELLOW, ERROR);
+			state3 = check_act_status(ACT_QUEUE_Small_bearing_front_left, state, RUSH_YELLOW, ERROR);
 
-			state= check_act_status(ACT_QUEUE_Small_magic_arm, state, CHECK_IF_TURN_FOR_COLOR_NEEDED, ERROR);
-			break;
-
-		/*case CHECK_IF_TURN_FOR_COLOR_NEEDED:
-			if(STOCKS_getModuleType(STOCK_POS_COLOR) == MODULE_POLY){
-				state = TURN_FOR_COLOR;  // Module polychrome : retournement nécéssaire
+			if((state1 == RUSH_YELLOW) && (state2 == RUSH_YELLOW) && (state3 == RUSH_YELLOW)){
+				state = RUSH_YELLOW;
+			}else if((state1 == ERROR) && (state1 == ERROR) && (state1 == ERROR)){
+				state = ERROR;
 			}else{
-				state = IN_BAGUETTE_MAGIQUE; // Module unicouleur : pas de retournement
+				state = UP_BEARING_BALL;
 			}
-			break;*/
+		}
+			break;
 
-		case TURN_FOR_COLOR:
+		case RUSH_YELLOW:
 			if(entrance){
-				time_timeout = global.absolute_time + TIMEOUT_COLOR;
-					ACT_push_order(ACT_SMALL_MAGIC_COLOR, ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED);
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
 			}
-			// Aucune vérification ici
-			state = WAIT_WHITE;
-			break;
-
-		case WAIT_WHITE:
-			if(global.absolute_time > time_timeout){
-				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
-				if(CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_White, FALSE)){
-					state = WAIT_OUR_COLOR;
-				}
+			state = try_rush(1450, 2150, state, CLOSE_PUSHER_YELLOW, MOVE_BACK_YELLOW, FORWARD, NO_DODGE_AND_WAIT, TRUE);
+			if(ON_LEAVE()){
+				nb_cylinder_in_basis = (1800 - global.pos.x)/70;
 			}
 			break;
 
-		case WAIT_OUR_COLOR:
-			// On en profite pour retourner le balancer vers l'intérieur du robot pour gagner du temps
-			// Pas de vérification du résultat ici, la couleur est prioritaire.
+		case CLOSE_PUSHER_YELLOW:
 			if(entrance){
-					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
 			}
-
-			// On attend notre couleur
-			if(global.absolute_time > time_timeout){
-				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
-				if((global.color == BLUE) && !CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_White, FALSE) && !CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_Yellow, FALSE)){ // bleu vers la sortie
-					ELEMENTS_set_flag(FLAG_ANNE_MODULE_COLOR_SUCCESS, TRUE);
-					state=STOP_TURN;
-				}
-			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE_YELLOW, MOVE_BACK_YELLOW);
 			break;
 
-		case STOP_TURN:
+		case AVANCE_YELLOW:
+			state = try_going(1450, 2150, state, ENABLE_MAGIC_YELLOW, MOVE_BACK_YELLOW, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+#warning 'il faut mettre autre chose que move back pour retourner ce qui est déjà accessible'
+			break;
+
+		case ENABLE_MAGIC_YELLOW:
+			state = check_sub_action_result(sub_act_anne_return_module(), state, COMPUTE_LITTLE_MOVE_BACK_YELLOW, MOVE_BACK_YELLOW);
+#warning 'quelles sont les raisons possibles d\'une erreur ?'
+			break;
+
+		case COMPUTE_LITTLE_MOVE_BACK_YELLOW:
+			if(global.pos.y>(1800+nb_cylinder_in_basis*70))
+				state = LITTLE_MOVE_BACK_YELLOW;
+			else
+				state = MOVE_BACK_YELLOW;
+			break;
+
+		case LITTLE_MOVE_BACK_YELLOW:
+			state = try_advance(NULL, entrance, 100, state, ENABLE_MAGIC_YELLOW, LITTLE_MOVE_BACK_ERROR_YELLOW, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case LITTLE_MOVE_BACK_ERROR_YELLOW:{
 			if(entrance){
-					ACT_push_order(ACT_SMALL_MAGIC_COLOR, ACT_SMALL_MAGIC_COLOR_ZERO_SPEED);
+				Uint8 nb_module_returned = 0;
+				nb_module_returned = (1800 - global.pos.x)/70;
+				tryx = 1800 - 70*nb_module_returned;
+				tryy = 2000 - 70*nb_module_returned;
 			}
-			// Aucune vérification ici
-			state = IN_BAGUETTE_MAGIQUE;
-			break;
+			state = try_going(tryx, tryy, state, LITTLE_MOVE_BACK_YELLOW, LITTLE_MOVE_BACK_YELLOW, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		}
+		break;
 
-		case IN_BAGUETTE_MAGIQUE:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_MAGIC_ARM,  ACT_SMALL_MAGIC_ARM_IN);
-			}
-
-			state= check_act_status(ACT_QUEUE_Small_magic_arm, state, NEXT_MODULE, ERROR);
-			break;
-
-		case NEXT_MODULE:
-			if(passage == 1){
-				state = POS;
-			}else if(passage == 2){
-				state = MOVE_TO_2;
-			}else if(passage == 3){
-				state = MOVE_TO_3;
-			}else{
-				state = DONE;
-			}
+		case MOVE_BACK_YELLOW:
+			state = try_going(1000, 2200, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:
@@ -229,66 +374,126 @@ error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules, ELEMENTS_sid
 	return IN_PROGRESS;
 }
 
-error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side){
+error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_RETURN_MODULES_CENTRE_GET_IN,
 			INIT,
-			GET_IN_POS_1,
-			GET_IN_POS_2,
-			GET_IN_POS_3,
-			GET_IN_POS_4,
-			GET_IN_POS_5,
-			GET_IN_POS_6,
+			GET_IN_BLUE,
+			GET_IN_CENTRAL,
+			GET_IN_YELLOW,
+
+			GET_IN_POS_BLUE,
+			GET_IN_POS_BLUE_FROM_YELLOW,
+			GET_IN_POS_BLUE_FROM_CENTRAL,
+			ASTAR_BLUE,
+
+			GET_IN_POS_CENTRAL,
+			GET_IN_POS_CENTRAL_FROM_BLUE,
+			GET_IN_POS_CENTRAL_FROM_YELLOW,
+			ASTAR_CENTRAL,
+
+			GET_IN_POS_YELLOW,
+			GET_IN_POS_YELLOW_FROM_BLUE,
+			GET_IN_POS_YELLOW_FROM_CENTRAL,
+			ASTAR_YELLOW,
+
 			ERROR,
 			DONE
 		);
 //color Y
 	switch(state){
 		case INIT:
-			if((modules == OUR_ELEMENT) && (basis_side == OUR_SIDE)){
-				state = GET_IN_POS_1;  //notre depose de notre cote  SIM 6
-
-			}else if((modules == OUR_ELEMENT) && (basis_side == ADV_SIDE)){
-				state = GET_IN_POS_2; //notre depose du cote adv SIM 5
-
-			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == OUR_SIDE)){
-				state = GET_IN_POS_3; //centre depose de notre code SIM 4
-
-			}else if((modules == NEUTRAL_ELEMENT) && (basis_side == ADV_SIDE)){
-				state = GET_IN_POS_4;  //adv depose du cote adv SIM 3
-
-			}else if((modules == ADV_ELEMENT) && (basis_side == OUR_SIDE)){
-				state = GET_IN_POS_5; //adv depose de notre cote SIM 2
-
-			}else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
-				state = GET_IN_POS_6; //centre depose du cote adv SIM 1
-
-
+			if(((modules == OUR_ELEMENT)&&(global.color == BLUE)) || ((modules == ADV_ELEMENT)&&(global.color == YELLOW))){
+				state = GET_IN_BLUE;
+			}else if(modules == NEUTRAL_ELEMENT){
+				state = GET_IN_CENTRAL;
+			}else if(((modules == ADV_ELEMENT)&&(global.color == BLUE)) || ((modules == OUR_ELEMENT)&&(global.color == YELLOW))){
+				state = GET_IN_YELLOW;
 			}else
 				state = ERROR;
 			break;
 
-		case GET_IN_POS_1:
-			state = check_sub_action_result(sub_anne_get_in_pos_1_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_BLUE:
+			if(i_am_in_square(800, 1400, 300, 900)){
+				state = GET_IN_POS_BLUE;
+			}else if(i_am_in_square_color(800, 1400, 2700, 2100)){
+				state = GET_IN_POS_BLUE_FROM_YELLOW;
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
+				state = GET_IN_POS_BLUE_FROM_CENTRAL;
+			}else{
+				state = ASTAR_BLUE;
+			}
 			break;
 
-		case GET_IN_POS_2:
-			state = check_sub_action_result(sub_anne_get_in_pos_2_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_POS_BLUE:
+			state = try_going(1100, 925, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case GET_IN_POS_3:
-			state = check_sub_action_result(sub_anne_get_in_pos_3_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_POS_BLUE_FROM_CENTRAL:
+			state = try_going(1000, 1000, state, GET_IN_POS_BLUE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
-		case GET_IN_POS_4:
-			state = check_sub_action_result(sub_anne_get_in_pos_4_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_POS_BLUE_FROM_YELLOW:
+			state = try_going(900, 2000, state, GET_IN_POS_BLUE_FROM_YELLOW, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
-		case GET_IN_POS_5:
-			state = check_sub_action_result(sub_anne_get_in_pos_5_depose_module_centre(), state, DONE, ERROR);
+		case ASTAR_BLUE:
+			state = ASTAR_try_going(1100, 925, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case GET_IN_POS_6:
-			state = check_sub_action_result(sub_anne_get_in_pos_6_depose_module_centre(), state, DONE, ERROR);
+		case GET_IN_CENTRAL:
+			if(i_am_in_square(800, 1400, 300, 900)){
+				state = GET_IN_POS_CENTRAL_FROM_BLUE;
+			}else if(i_am_in_square_color(800, 1400, 2700, 2100)){
+				state = GET_IN_POS_CENTRAL_FROM_YELLOW;
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
+				state = GET_IN_POS_CENTRAL;
+			}else{
+				state = ASTAR_CENTRAL;
+			}
+			break;
+
+		case GET_IN_POS_CENTRAL:
+			state = try_going(1000, 1750, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_POS_CENTRAL_FROM_BLUE:
+			state = try_going(975, 1000, state, GET_IN_POS_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_POS_CENTRAL_FROM_YELLOW:
+			state = try_going(900, 1750, state, GET_IN_POS_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case ASTAR_CENTRAL:
+			state = ASTAR_try_going(1000, 1750, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_YELLOW:
+			if(i_am_in_square(800, 1400, 300, 900)){
+				state = GET_IN_POS_YELLOW_FROM_BLUE;
+			}else if(i_am_in_square_color(800, 1400, 2700, 2100)){
+				state = GET_IN_POS_YELLOW;
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
+				state = GET_IN_POS_YELLOW_FROM_CENTRAL;
+			}else{
+				state = ASTAR_YELLOW;
+			}
+			break;
+
+		case GET_IN_POS_YELLOW:
+			state = try_going(1450, 2400, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_POS_YELLOW_FROM_CENTRAL:
+			state = try_going(1000, 2000, state, GET_IN_POS_YELLOW, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_POS_YELLOW_FROM_BLUE:
+			state = try_going(900, 1000, state, GET_IN_POS_YELLOW_FROM_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case ASTAR_YELLOW:
+			state = ASTAR_try_going(1450, 2400, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:

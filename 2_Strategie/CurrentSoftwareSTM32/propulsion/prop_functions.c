@@ -234,7 +234,7 @@ void PROP_debug_move_position(Sint16 x, Sint16 y, Sint16 teta){
 	CAN_send(&msg);
 }
 
-void PROP_set_threshold_error_translation(Uint8 value, bool_e reset){
+void PROP_set_threshold_error_translation(Uint32 value, bool_e reset){
 	CAN_msg_t msg;
 	msg.sid = DEBUG_SET_ERROR_TRESHOLD_TRANSLATION;
 	msg.size = SIZE_DEBUG_SET_ERROR_TRESHOLD_TRANSLATION;

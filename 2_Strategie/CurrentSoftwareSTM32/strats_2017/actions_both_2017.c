@@ -122,6 +122,8 @@ error_e sub_cross_rocker(void){
 			CROSS,
 			CORRECT_ODOMETRY_MATH,
 			CORRECT_ODOMETRY_MEASURE,
+			AVANCE_TO_NEXT_POSITION,
+			RECALAGE_X,
 			GET_OUT,
 			GO_BACK,
 			ERROR,
@@ -131,15 +133,12 @@ error_e sub_cross_rocker(void){
 	switch (state) {
 		case INIT:
 			if(i_am_in_square_color(0, 350, 0, 400)){
-				if(I_AM_SMALL())
-					state = PREPARE_TO_PASS;
-				else
-					state = CROSS;
+				state = CROSS;
 			}else{
 				state = ERROR;
 			}
 			break;
-
+/*
 		case PREPARE_TO_PASS:
 			state = try_advance(NULL, entrance, 90, state, CROSS, ERROR, FAST, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			if(ON_LEAVE()){
@@ -148,21 +147,56 @@ error_e sub_cross_rocker(void){
 				ACT_push_order(ACT_QUEUE_Small_bearing_front_right, ACT_SMALL_BALL_FRONT_RIGHT_UP);
 			}
 			break;
-
+*/
 		case CROSS:
+			if(entrance){
+				PROP_WARNER_arm_y(COLOR_Y(530));
+				CAN_msg_t msg1;
+				msg1.sid = DEBUG_PROPULSION_SET_COEF;
+				msg1.size = SIZE_DEBUG_PROPULSION_SET_COEF;
+				msg1.data.debug_propulsion_set_coef.id = CORRECTOR_COEF_KP_TRANSLATION;
+				msg1.data.debug_propulsion_set_coef.value = 0xC0;
+				CAN_send(&msg1);
+				CAN_msg_t msg2;
+				msg2.sid = DEBUG_PROPULSION_SET_COEF;
+				msg2.size = SIZE_DEBUG_PROPULSION_SET_COEF;
+				msg2.data.debug_propulsion_set_coef.id = CORRECTOR_COEF_KP_ROTATION;
+				msg2.data.debug_propulsion_set_coef.value = 0x100;
+				CAN_send(&msg2);
+				PROP_set_threshold_error_translation(1214400, FALSE);
+				ACT_push_order(ACT_SMALL_BALL_BACK, ACT_SMALL_BALL_BACK_UP);
+			}
 			state = try_going(180, COLOR_Y(900), state, CORRECT_ODOMETRY_MATH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(global.prop.reach_x){
+					ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT,ACT_SMALL_BALL_FRONT_LEFT_DOWN);
+					ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT,ACT_SMALL_BALL_FRONT_RIGHT_DOWN);
+			}
 			break;
 
 		case CORRECT_ODOMETRY_MATH:{
 			if(I_AM_SMALL()){
-				ACT_push_order(ACT_QUEUE_Small_bearing_back, ACT_SMALL_BALL_BACK_DOWN);
-				ACT_push_order(ACT_QUEUE_Small_bearing_front_left, ACT_SMALL_BALL_FRONT_LEFT_DOWN);
-				ACT_push_order(ACT_QUEUE_Small_bearing_front_right, ACT_SMALL_BALL_FRONT_RIGHT_DOWN);
+				PROP_WARNER_arm_y(COLOR_Y(530));
+				CAN_msg_t msg1;
+				msg1.sid = DEBUG_PROPULSION_SET_COEF;
+				msg1.size = SIZE_DEBUG_PROPULSION_SET_COEF;
+				msg1.data.debug_propulsion_set_coef.id = CORRECTOR_COEF_KP_TRANSLATION;
+				msg1.data.debug_propulsion_set_coef.value = 0x20;
+				CAN_send(&msg1);
+				CAN_msg_t msg2;
+				msg2.sid = DEBUG_PROPULSION_SET_COEF;
+				msg2.size = SIZE_DEBUG_PROPULSION_SET_COEF;
+				msg2.data.debug_propulsion_set_coef.id = CORRECTOR_COEF_KP_ROTATION;
+				msg2.data.debug_propulsion_set_coef.value = 0x60;
+				CAN_send(&msg2);
+				PROP_set_threshold_error_translation(914400,TRUE);
+				ACT_push_order(ACT_SMALL_BALL_BACK, ACT_SMALL_BALL_BACK_DOWN);
+				//ACT_push_order(ACT_QUEUE_Small_bearing_front_left, ACT_SMALL_BALL_FRONT_LEFT_DOWN);
+				//ACT_push_order(ACT_QUEUE_Small_bearing_front_right, ACT_SMALL_BALL_FRONT_RIGHT_DOWN);
 			}else{
-				ACT_push_order(ACT_QUEUE_Big_bearing_back_left, ACT_BIG_BALL_BACK_LEFT_DOWN);
-				ACT_push_order(ACT_QUEUE_Big_bearing_back_right, ACT_BIG_BALL_BACK_RIGHT_DOWN);
-				ACT_push_order(ACT_QUEUE_Big_bearing_front_left, ACT_BIG_BALL_FRONT_LEFT_DOWN);
-				ACT_push_order(ACT_QUEUE_Big_bearing_front_right, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
+				ACT_push_order(ACT_BIG_BALL_BACK_LEFT, ACT_BIG_BALL_BACK_LEFT_DOWN);
+				ACT_push_order(ACT_BIG_BALL_BACK_RIGHT, ACT_BIG_BALL_BACK_RIGHT_DOWN);
+				ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_DOWN);
+				ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
 			}
 			Sint16 diffY = COLOR_EXP(-10, 10);
 #warning 'c\'est plus que bancal cette histoire'
@@ -171,15 +205,28 @@ error_e sub_cross_rocker(void){
 			state = CORRECT_ODOMETRY_MEASURE;
 			}break;
 
-		case CORRECT_ODOMETRY_MEASURE:
+		case CORRECT_ODOMETRY_MEASURE:{
+			Sint16 diffy = 0;
 
 			// COCO ON T'ATTEND !
+			//J'arrive avec mes gros sabots et mes méthodes dégueulasses !
+			state = check_sub_action_result(action_recalage_y(FORWARD, COLOR_ANGLE(-PI4096/2), 710+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffy, TRUE), state, AVANCE_TO_NEXT_POSITION, AVANCE_TO_NEXT_POSITION);
+		}break;
 
-			state = GET_OUT;
+		case AVANCE_TO_NEXT_POSITION:
+			state = try_advance(NULL, entrance, 60, state, RECALAGE_X, CORRECT_ODOMETRY_MEASURE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case GET_OUT:
-			state = try_going(250, COLOR_Y(1000), state, DONE, GO_BACK, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+		case RECALAGE_X:{
+			Sint16 diffx = 0;
+
+			state = check_sub_action_result(action_recalage_x(FORWARD, -PI4096, SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffx, TRUE), state, GET_OUT, CORRECT_ODOMETRY_MEASURE);
+		}break;
+
+		case GET_OUT://fonce petit ! fonce ! et déglingue les tous !
+			state = try_advance(NULL, entrance, 60, state, DONE, RECALAGE_X, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+
+			//state = try_going(250, COLOR_Y(1000), state, DONE, GO_BACK, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GO_BACK:

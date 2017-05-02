@@ -244,6 +244,11 @@
 			FLAG_ANNE_DISABLE_MODULE,				// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)
 			FLAG_ANNE_MODULE_COLOR_SUCCESS,			// Flag levé lorsqu'un module a été retourné de la bonne couleur
 			FLAG_ANNE_MODULE_COLOR_FINISH,			// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
+			FLAG_RETURN_CENTRAL_MOONBASIS,
+			FLAG_RETURN_OUR_CENTRAL_MOONBASIS,
+			FLAG_RETURN_ADV_CENTRAL_MOONBASIS,
+			FLAG_RETURN_OUR_SIDE_MOONBASIS,
+			FLAG_RETURN_ADV_SIDE_MOONBASIS,
 
 			F_ELEMENTS_FLAGS_NB
 
