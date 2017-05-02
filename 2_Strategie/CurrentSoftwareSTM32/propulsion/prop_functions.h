@@ -76,7 +76,7 @@
 	void PROP_debug_move_position(Sint16 x, Sint16 y, Sint16 teta);
 	// Altération des coordonnées du robot x/y/teta
 
-	void PROP_set_threshold_error_translation(Uint8 value, bool_e reset);
+	void PROP_set_threshold_error_translation(Uint32 value, bool_e reset);
 
 	void PROP_set_position(Sint16 x, Sint16 y, Sint16 teta);
 

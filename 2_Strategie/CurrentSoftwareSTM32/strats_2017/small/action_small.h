@@ -45,7 +45,12 @@
 	error_e sub_anne_get_in_pos_5_depose_module_centre();
 	error_e sub_anne_get_in_pos_6_depose_module_centre();
 
-	error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules, ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
+	error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules);
+	error_e sub_act_anne_return_module();
+	error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules);
+	error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules);
+
+
 
 #endif
 
