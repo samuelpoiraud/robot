@@ -20,5 +20,6 @@
 	#endif
 
 		void GYRO_set_coef(PROPULSION_coef_e coef, Sint32 value);
+		void GYRO_reset_coef(PROPULSION_coef_e coef);
 
 #endif /* GYROSCOPE_H_ */

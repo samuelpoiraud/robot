@@ -938,6 +938,12 @@
 				PROPULSION_coef_e id		:8;
 			}debug_propulsion_set_coef;
 
+		#define DEBUG_PROPULSION_RESET_COEF	0x723
+		#define SIZE_DEBUG_PROPULSION_RESET_COEF	1
+			struct{
+				PROPULSION_coef_e id		:8;
+			}debug_propulsion_reset_coef;
+
 		#define DEBUG_RTC_GET				0x780
 
 		#define DEBUG_RTC_SET				0x781

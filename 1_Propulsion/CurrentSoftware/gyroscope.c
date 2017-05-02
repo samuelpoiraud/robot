@@ -10,7 +10,9 @@
 #include "QS/QS_outputlog.h"
 #include "QS/QS_ports.h"
 
-static volatile Sint32 coef_gain = 4721;//En cas de soucis, remttre à 4720
+#define GYRO_DEFAULT_COEF	4721		//En cas de soucis, remttre à 4720
+
+static volatile Sint32 coef_gain = GYRO_DEFAULT_COEF;
 
 #ifdef USE_GYROSCOPE
 
@@ -357,4 +359,9 @@ Sint16 ADXRS453_GetTemperature(void)
 void GYRO_set_coef(PROPULSION_coef_e coef, Sint32 value){
 	if(coef == GYRO_COEF_GAIN)
 		coef_gain = value;
+}
+
+void GYRO_reset_coef(PROPULSION_coef_e coef){
+	if(coef == GYRO_COEF_GAIN)
+		coef_gain =  GYRO_DEFAULT_COEF;
 }

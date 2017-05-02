@@ -1063,7 +1063,7 @@ void COPILOT_set_in_rush(bool_e in_rush_msg, Sint16 first_traj_acc_msg, Sint16 s
 		avoid_in_rush = FALSE;
 		PILOT_set_coef(PILOT_ACCELERATION_NORMAL, 0);
 		PILOT_set_coef(PILOT_ACCELERATION_ROTATION_TRANSLATION, 0);
-		CORRECTOR_reset_coef();
+		CORRECTOR_reset_all_coef();
 	}
 
 }

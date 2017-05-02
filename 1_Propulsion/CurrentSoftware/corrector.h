@@ -29,6 +29,8 @@
 
 	Sint32 CORRECTOR_get_coef(PROPULSION_coef_e coef);
 
+	void CORRECTOR_reset_coef(PROPULSION_coef_e coef);
+
 		//fonction d'activation/désactivation du correcteur PD.
 	//Rotation = FALSE -> désactive la correction en rotation
 	//Translation = FALSE -> désactive la correction en translation
@@ -45,6 +47,6 @@
 
 	void CORRECTOR_mode_reglage_kv(void);
 
-	void CORRECTOR_reset_coef();
+	void CORRECTOR_reset_all_coef();
 
 #endif //def _CORRECTOR_H

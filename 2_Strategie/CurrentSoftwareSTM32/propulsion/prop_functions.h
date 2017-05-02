@@ -95,4 +95,8 @@
 
 	void PROP_set_detected_foe(CAN_msg_t *msg);
 
+	void PROP_set_coef(PROPULSION_coef_e coef, Sint32 value);
+
+	void PROP_reset_coef(PROPULSION_coef_e coef);
+
 #endif /* ndef PROP_FUNCTIONS_H */

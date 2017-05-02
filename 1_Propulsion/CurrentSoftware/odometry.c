@@ -80,6 +80,41 @@ void ODOMETRY_init()
 	}
 }
 
+void ODOMETRY_reset_coef(PROPULSION_coef_e coef){
+	switch(coef){
+		case ODOMETRY_COEF_TRANSLATION:
+			if(QS_WHO_AM_I_get()==SMALL_ROBOT)
+				coefs[ODOMETRY_COEF_TRANSLATION] =  SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT;
+			else
+				coefs[ODOMETRY_COEF_TRANSLATION] =  BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT;
+			break;
+
+		case ODOMETRY_COEF_SYM:
+			if(QS_WHO_AM_I_get()==SMALL_ROBOT)
+				coefs[ODOMETRY_COEF_SYM] =  SMALL_ODOMETRY_COEF_SYM_DEFAULT;
+			else
+				coefs[ODOMETRY_COEF_SYM] =  BIG_ODOMETRY_COEF_SYM_DEFAULT;
+			break;
+
+		case ODOMETRY_COEF_ROTATION:
+			if(QS_WHO_AM_I_get()==SMALL_ROBOT)
+				coefs[ODOMETRY_COEF_ROTATION] =  SMALL_ODOMETRY_COEF_ROTATION_DEFAULT;
+			else
+				coefs[ODOMETRY_COEF_ROTATION] =  BIG_ODOMETRY_COEF_ROTATION_DEFAULT;
+			break;
+
+		case ODOMETRY_COEF_CENTRIFUGAL:
+			if(QS_WHO_AM_I_get()==SMALL_ROBOT)
+				coefs[ODOMETRY_COEF_CENTRIFUGAL] =  SMALL_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+			else
+				coefs[ODOMETRY_COEF_CENTRIFUGAL] =  BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT;
+			break;
+
+		default:
+			break;
+	}
+}
+
 Sint16 get_calibration_backward_distance(void)
 {
 	return calibration_backward_border_distance;
