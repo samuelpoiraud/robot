@@ -23,12 +23,15 @@
 
 	#define SELFTEST_NB_DISPLAYED_LINE	14
 
+	#define LCD_MIN_TIME_REFRESH		200
+
 	typedef enum{
 		MENU_WAIT_IHM = 0,
 		MENU_WAIT_OHTER_BOARD,
 		MENU_MAIN,
 		MENU_SELFTEST,
-		MENU_IHM_TEST
+		MENU_IHM_TEST,
+		MENU_CHECK_LIST
 	}LCD_state_e;
 
 	static LCD_state_e LCD_state = MENU_WAIT_IHM;
@@ -40,6 +43,7 @@
 	static LCD_state_e LCD_MENU_mainMenu(bool_e init);
 	static LCD_state_e LCD_MENU_selftest(bool_e init);
 	static LCD_state_e LCD_MENU_ihmTest(bool_e init);
+	static LCD_state_e LCD_MENU_checkList(bool_e init);
 
 	void LCD_init(void){
 		LCD_OVER_UART_init();
@@ -77,6 +81,10 @@
 			case MENU_IHM_TEST:
 				LCD_state = LCD_MENU_ihmTest(entrance);
 				break;
+
+			case MENU_CHECK_LIST:
+				LCD_state = LCD_MENU_checkList(entrance);
+				break;
 		}
 	}
 
@@ -92,7 +100,6 @@
 
 		return MENU_WAIT_IHM;
 	}
-
 
 	static LCD_state_e LCD_MENU_ihmTest(bool_e init){
 		if(init)
@@ -135,41 +142,102 @@
 		return MENU_WAIT_OHTER_BOARD;
 	}
 
-
 	static LCD_state_e LCD_MENU_mainMenu(bool_e init){
 		static bool_e changeMenuSelftest = FALSE;
 		static bool_e changeMenuIhmTest = FALSE;
+		static bool_e changeMenuCheckList = FALSE;
 		static LCD_objectId_t idX, idY, idAngle, idVoltage, idTime, idStrat, idMatch;
 		static LCD_objectId_t idAdv1, idAdv2, idAdvIr1, idAdvIr2;
+		static time32_t lastRefresh;
+
+		static Sint16 lastX, lastY, lastTeta, lastVoltate;
+		static date_t lastDate;
+		static char lastStratName[20];
+		static Uint16 lastIdSD;
+		static bool_e lastStateSD;
 
 		if(init){
 			changeMenuSelftest = FALSE;
 			changeMenuIhmTest = FALSE;
+			changeMenuCheckList = FALSE;
 
 			LCD_OVER_UART_addButton(10, 210, 0, 0, FALSE, &changeMenuSelftest, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Selftest");
 			LCD_OVER_UART_addButton(130, 210, 0, 0, FALSE, &changeMenuIhmTest, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "IHM test");
+			LCD_OVER_UART_addButton(260, 210, 0, 0, FALSE, &changeMenuCheckList, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Check");
 
 			idX = LCD_OVER_UART_addText(5, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.x);
 			idY = LCD_OVER_UART_addText(45, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.y);
 			idAngle = LCD_OVER_UART_addText(85, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.angle);
+			lastX = global.pos.x;
+			lastY = global.pos.y;
+			lastTeta = global.pos.angle;
 
 			idVoltage = LCD_OVER_UART_addText(130, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.alim_value);
+			lastVoltate = global.alim_value;
 
 			date_t date;
 			RTC_get_time(&date);
 
+			lastDate = date;
+
 			idTime = LCD_OVER_UART_addText(200, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%02d:%02d:%02d", date.hours, date.minutes, date.seconds);
 
 			idStrat = LCD_OVER_UART_addText(15, 30, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%s", BRAIN_get_current_strat_name());
+
+			strncpy(lastStratName, BRAIN_get_current_strat_name(), 20);
 
 			if(SD_isOK())
 				idMatch = LCD_OVER_UART_addText(200, 180, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "SD : %d", SD_get_match_id());
 			else
 				idMatch = LCD_OVER_UART_addText(200, 180, LCD_COLOR_RED, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "SD : error");
 
+			lastStateSD = SD_isOK();
+			lastIdSD = SD_get_match_id();
+
 			LCD_OVER_UART_addLine(0, 25, 319, 25, LCD_COLOR_BLACK);
 			LCD_OVER_UART_addLine(125, 0, 125, 25, LCD_COLOR_BLACK);
 			LCD_OVER_UART_addLine(195, 0, 195, 25, LCD_COLOR_BLACK);
+		}
+
+		if(global.absolute_time - lastRefresh > LCD_MIN_TIME_REFRESH){
+			lastRefresh = global.absolute_time;
+
+			date_t date;
+			RTC_get_time(&date);
+
+			if(lastX != global.pos.x || lastY != global.pos.y || lastTeta != global.pos.angle){
+				LCD_OVER_UART_setText(idX, "%d", global.pos.x);
+				LCD_OVER_UART_setText(idY, "%d", global.pos.y);
+				LCD_OVER_UART_setText(idAngle, "%d", global.pos.angle);
+				lastX = global.pos.x;
+				lastY = global.pos.y;
+				lastTeta = global.pos.angle;
+			}
+
+			if(lastVoltate != global.alim_value){
+				LCD_OVER_UART_setText(idVoltage, "%d", global.pos.y);
+				lastVoltate = global.alim_value;
+			}
+
+			if(lastDate.seconds != date.seconds){
+				LCD_OVER_UART_setText(idTime, "%02d:%02d:%02d", date.hours, date.minutes, date.seconds);
+				lastDate = date;
+			}
+
+			if(strcmp(lastStratName, BRAIN_get_current_strat_name()) != 0){
+				LCD_OVER_UART_setText(lastStratName, "%s", BRAIN_get_current_strat_name());
+				strncpy(lastStratName, BRAIN_get_current_strat_name(), 20);
+			}
+
+			if(lastIdSD != SD_isOK() || lastIdSD != SD_get_match_id()){
+				if(SD_isOK())
+					LCD_OVER_UART_setText(idMatch, "SD : %d", SD_get_match_id());
+				else
+					LCD_OVER_UART_setText(idMatch, "SD : error");
+
+				lastStateSD = SD_isOK();
+				lastIdSD = SD_get_match_id();
+			}
 		}
 
 		if(changeMenuSelftest)
@@ -177,6 +245,9 @@
 
 		if(changeMenuIhmTest)
 			return MENU_IHM_TEST;
+
+		if(changeMenuCheckList)
+			return MENU_CHECK_LIST;
 
 		return MENU_MAIN;
 	}
@@ -300,6 +371,48 @@
 		}
 
 		return MENU_SELFTEST;
+	}
+
+
+	static LCD_state_e LCD_MENU_checkList(bool_e init){
+		CREATE_MAE(
+			INIT,
+			WAIT_LAUNCH_SELFTEST,
+			WAIT_RESULT,
+			DISPLAY_RESULT);
+
+		static bool_e exit = FALSE;
+
+		if(init){
+			exit = FALSE;
+
+			RESET_MAE();
+		}
+
+		switch(state){
+			case INIT:
+				state = WAIT_LAUNCH_SELFTEST;
+				break;
+
+			case WAIT_LAUNCH_SELFTEST:
+				if(entrance){
+					LCD_OVER_UART_addText(10, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Check list");
+					LCD_OVER_UART_addButton(250, 10, 0, 0, FALSE, &exit, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Exit");
+				}
+
+				break;
+
+			default:
+				RESET_MAE();
+				break;
+		}
+
+		if(exit){
+			RESET_MAE();
+			return MENU_MAIN;
+		}
+
+		return MENU_CHECK_LIST;
 	}
 
 #endif
