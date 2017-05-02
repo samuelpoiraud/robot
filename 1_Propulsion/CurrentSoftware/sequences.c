@@ -30,11 +30,11 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed
 		sin_a = -sin_a;
 	}
 
-	//le point obtenu cos / sin est situé à 4096 mm de notre position, et droit devant nous !
+	//le point obtenu cos / sin est situé à 2048 mm de notre position, et droit devant nous !
 	if(far_point_x || far_point_y)
 		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_END_AT_POINT, rush_speed, acquittement, corrector, AVOID_DISABLED, 0);
 	else
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a/4, sin_a/4, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_END_AT_POINT, rush_speed, acquittement, corrector, AVOID_DISABLED, 0);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a/8, sin_a/8, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_END_AT_POINT, rush_speed, acquittement, corrector, AVOID_DISABLED, 0);
 }
 
 
