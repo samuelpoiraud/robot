@@ -19,6 +19,8 @@ void valentin_strat_inutile_big(){
 			PATHFIND,
 			ACTION,
 			ACTION_2,
+			ACTION_3,
+			ACTION_4,
 			ROLLER_ARM_GO_DOWN,
 			ROLLER_FOAM_TURN,
 			ROLLER_FOAM_STOP,
@@ -47,11 +49,13 @@ void valentin_strat_inutile_big(){
 			//state = TRY_SELFTEST;
 			//state = TURN_COLOR;
 			//state = GUN_GO_DOWN;
-			//state = try_going(1200, COLOR_Y(2500), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			//state = try_going(1250, COLOR_Y(300), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			//state = try_going(1250, COLOR_Y(350), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ACTION_3;
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(1700, COLOR_Y(800), state, DONE,  ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1400, COLOR_Y(2500), state, DONE,  ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION:
@@ -69,6 +73,14 @@ void valentin_strat_inutile_big(){
 			//state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MULTI_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
 			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, DONE, ERROR);
+			break;
+
+		case ACTION_3:
+			state = check_sub_action_result(sub_harry_prise_modules_initiale(), state, ACTION_4, ERROR);
+			break;
+
+		case ACTION_4:
+			state = check_sub_action_result(sub_harry_prise_module_base_centre(OUR_ELEMENT, RIGHT), state, DONE, ERROR);
 			break;
 
 		case ROLLER_ARM_GO_DOWN:

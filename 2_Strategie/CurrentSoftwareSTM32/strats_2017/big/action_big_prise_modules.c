@@ -13,7 +13,90 @@
 #include "../../high_level_strat.h"
 
 
+error_e sub_harry_prise_modules_initiale(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULES_INITIALE,
+			INIT,
+			MOVE_TO_TAKE_MODULES,
+			STORE_MODULES,
+			ERROR,
+			DONE
+		);
 
+	const displacement_t curve[5] = {(displacement_t){(GEOMETRY_point_t){412, COLOR_Y(922)}, FAST},
+									(displacement_t){(GEOMETRY_point_t){592, COLOR_Y(962)}, FAST},
+									(displacement_t){(GEOMETRY_point_t){993, COLOR_Y(674)}, FAST},
+									(displacement_t){(GEOMETRY_point_t){1107, COLOR_Y(508)}, FAST},
+									(displacement_t){(GEOMETRY_point_t){1167, COLOR_Y(424)}, FAST}
+									};
+
+	switch(state){
+		case INIT:
+			// Pas de GET_IN, on est forcément dans la zone de départ.
+			// Pas de flag de subaction, c'est le début du match.
+			if(i_am_in_square_color(0, 360, 710, 1070)){
+				state = MOVE_TO_TAKE_MODULES;
+			}else{
+				state = ERROR;
+			}
+			break;
+
+		case MOVE_TO_TAKE_MODULES:
+			if(entrance){
+				// Pas de vérification des stocks, il n'y a rien de stocker dans le robot.
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);
+				ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_NORMAL);
+				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_NORMAL);
+
+				ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL);
+				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_NORMAL);
+			}
+
+			state = try_going_multipoint(curve, 5, state, STORE_MODULES, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case STORE_MODULES:
+			if(entrance){
+				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
+				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
+
+				STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
+
+				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
+			}
+
+			state = DONE;
+			break;
+
+		case ERROR:
+			ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
+			ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
+			ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
+			ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_prise_modules_initiale\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+
+}
 
 error_e sub_harry_prise_modules_manager(const get_this_module_s list_modules[], Uint8 modules_nb){ //Passer un tableau avec les modules choisis et leur nombre
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULES_MANAGER,
@@ -1147,8 +1230,8 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 					ELEMENTS_set_flag(FLAG_ADV_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);	// Flag element
 			}
 
-			state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
-			//state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT, ERROR);
+			//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT, ERROR);
 			break;
 
 		case GET_OUT:
@@ -1857,9 +1940,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 				}
 			}
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 310, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 300, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2690, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 2700, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
