@@ -31,6 +31,8 @@
 
 	Sint32 ODOMETRY_get_coef(PROPULSION_coef_e coef);
 
+	void ODOMETRY_reset_coef(PROPULSION_coef_e coef);
+
 	color_e ODOMETRY_get_color();
 
 

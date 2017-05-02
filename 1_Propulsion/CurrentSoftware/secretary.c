@@ -324,7 +324,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 								msg->data.prop_rush.brake_acc,
 								msg->data.prop_rush.acc_rot_trans);
 			if(msg->data.prop_rush.rush == FALSE){
-				CORRECTOR_reset_coef();
+				CORRECTOR_reset_all_coef();
 			}
 		break;
 
@@ -443,6 +443,20 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 			}
 			else
 				debug_printf("WARNING : bad datas in DEBUG_PROPULSION_SET_COEF message received\n");
+			SECRETARY_send_coef(msg->data.debug_propulsion_set_coef.id);	//feedback
+		break;
+		case DEBUG_PROPULSION_RESET_COEF:
+			if(msg->data.debug_propulsion_set_coef.id < PROPULSION_NUMBER_COEFS && msg->size >= SIZE_DEBUG_PROPULSION_SET_COEF)
+			{
+				if(msg->data.debug_propulsion_set_coef.id <= ODOMETRY_COEF_CENTRIFUGAL)
+					ODOMETRY_reset_coef(msg->data.debug_propulsion_set_coef.id);
+				else if(msg->data.debug_propulsion_set_coef.id == GYRO_COEF_GAIN)
+					GYRO_reset_coef(msg->data.debug_propulsion_set_coef.id);
+				else
+					CORRECTOR_reset_coef(msg->data.debug_propulsion_set_coef.id);
+			}
+			else
+				debug_printf("WARNING : bad datas in DEBUG_PROPULSION_RESET_COEF message received\n");
 			SECRETARY_send_coef(msg->data.debug_propulsion_set_coef.id);	//feedback
 		break;
 		case DEBUG_ENABLE_MODE_BEST_EFFORT:

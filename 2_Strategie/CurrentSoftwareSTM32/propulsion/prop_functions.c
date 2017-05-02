@@ -301,3 +301,22 @@ void PROP_set_detected_foe(CAN_msg_t *msg){
 		}
 	}
 }
+
+
+
+void PROP_set_coef(PROPULSION_coef_e coef, Sint32 value){
+	CAN_msg_t msg;
+	msg.sid = DEBUG_PROPULSION_SET_COEF;
+	msg.size = SIZE_DEBUG_PROPULSION_SET_COEF;
+	msg.data.debug_propulsion_set_coef.id = coef;
+	msg.data.debug_propulsion_set_coef.value = value;
+	CAN_send(&msg);
+}
+
+void PROP_reset_coef(PROPULSION_coef_e coef){
+	CAN_msg_t msg;
+	msg.sid = DEBUG_PROPULSION_RESET_COEF;
+	msg.size = SIZE_DEBUG_PROPULSION_RESET_COEF;
+	msg.data.debug_propulsion_reset_coef.id = coef;
+	CAN_send(&msg);
+}
