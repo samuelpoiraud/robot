@@ -155,27 +155,26 @@ error_e sub_cross_rocker(void){
 				msg1.sid = DEBUG_PROPULSION_SET_COEF;
 				msg1.size = SIZE_DEBUG_PROPULSION_SET_COEF;
 				msg1.data.debug_propulsion_set_coef.id = CORRECTOR_COEF_KP_TRANSLATION;
-				msg1.data.debug_propulsion_set_coef.value = 0xC0;
+				msg1.data.debug_propulsion_set_coef.value = 0x20;
 				CAN_send(&msg1);
 				CAN_msg_t msg2;
 				msg2.sid = DEBUG_PROPULSION_SET_COEF;
 				msg2.size = SIZE_DEBUG_PROPULSION_SET_COEF;
 				msg2.data.debug_propulsion_set_coef.id = CORRECTOR_COEF_KP_ROTATION;
-				msg2.data.debug_propulsion_set_coef.value = 0x100;
+				msg2.data.debug_propulsion_set_coef.value = 0x60;
 				CAN_send(&msg2);
 				PROP_set_threshold_error_translation(1214400, FALSE);
 				ACT_push_order(ACT_SMALL_BALL_BACK, ACT_SMALL_BALL_BACK_UP);
 			}
-			state = try_going(180, COLOR_Y(900), state, CORRECT_ODOMETRY_MATH, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			if(global.prop.reach_x){
-					ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT,ACT_SMALL_BALL_FRONT_LEFT_DOWN);
-					ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT,ACT_SMALL_BALL_FRONT_RIGHT_DOWN);
+			state = try_going(180, COLOR_Y(900), state, CORRECT_ODOMETRY_MATH, ERROR, 16, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(global.prop.reach_y){
+//					ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT,ACT_SMALL_BALL_FRONT_LEFT_DOWN);
+	//				ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT,ACT_SMALL_BALL_FRONT_RIGHT_DOWN);
 			}
 			break;
 
 		case CORRECT_ODOMETRY_MATH:{
 			if(I_AM_SMALL()){
-				PROP_WARNER_arm_y(COLOR_Y(530));
 				CAN_msg_t msg1;
 				msg1.sid = DEBUG_PROPULSION_SET_COEF;
 				msg1.size = SIZE_DEBUG_PROPULSION_SET_COEF;
