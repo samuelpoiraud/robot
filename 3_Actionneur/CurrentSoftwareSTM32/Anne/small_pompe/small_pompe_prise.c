@@ -55,23 +55,17 @@ static void SMALL_POMPE_PRISE_do_order(Uint8 command, Uint8 param);
 void SMALL_POMPE_PRISE_init() {
 	static bool_e initialized = FALSE;
 
-	if(initialized)
-		return;
-	initialized = TRUE;
-
 	SMALL_POMPE_PRISE_init_pwm();
+
+	if(initialized)
+			return;
+	initialized = TRUE;
 }
 
 void SMALL_POMPE_PRISE_reset_config(){}
 
 // Initialisation du moteur, si init ne fait rien
 static void SMALL_POMPE_PRISE_init_pwm() {
-	static bool_e initialized = FALSE;
-
-	if(initialized)
-		return;
-	initialized = TRUE;
-
 	PORTS_pwm_init();
 	PWM_init();
 	PWM_stop(SMALL_POMPE_PRISE_PWM_NUM);

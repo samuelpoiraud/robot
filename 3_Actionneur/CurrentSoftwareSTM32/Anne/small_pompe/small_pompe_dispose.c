@@ -32,23 +32,17 @@ static void SMALL_POMPE_DISPOSE_do_order(Uint8 command, Uint8 param);
 void SMALL_POMPE_DISPOSE_init() {
 	static bool_e initialized = FALSE;
 
+	SMALL_POMPE_DISPOSE_init_pwm();
+
 	if(initialized)
 		return;
 	initialized = TRUE;
-
-	SMALL_POMPE_DISPOSE_init_pwm();
 }
 
 void SMALL_POMPE_DISPOSE_reset_config(){}
 
 // Initialisation du moteur, si init ne fait rien
 static void SMALL_POMPE_DISPOSE_init_pwm() {
-	static bool_e initialized = FALSE;
-
-	if(initialized)
-		return;
-	initialized = TRUE;
-
 	PORTS_pwm_init();
 	PWM_init();
 	PWM_stop(SMALL_POMPE_DISPOSE_PWM_NUM);
