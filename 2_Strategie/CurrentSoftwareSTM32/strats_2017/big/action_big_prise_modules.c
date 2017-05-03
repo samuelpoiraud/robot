@@ -16,13 +16,14 @@
 error_e sub_harry_prise_modules_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULES_INITIALE,
 			INIT,
+			ADVANCE_ON_TURNING_POINT,
 			MOVE_TO_TAKE_MODULES,
 			STORE_MODULES,
 			ERROR,
 			DONE
 		);
 
-	const displacement_t curve[5] = {(displacement_t){(GEOMETRY_point_t){412, COLOR_Y(922)}, FAST},
+	const displacement_t curve[4] = {/*(displacement_t){(GEOMETRY_point_t){412, COLOR_Y(922)}, FAST},*/
 									(displacement_t){(GEOMETRY_point_t){592, COLOR_Y(962)}, FAST},
 									(displacement_t){(GEOMETRY_point_t){993, COLOR_Y(674)}, FAST},
 									(displacement_t){(GEOMETRY_point_t){1107, COLOR_Y(508)}, FAST},
@@ -34,10 +35,14 @@ error_e sub_harry_prise_modules_initiale(){
 			// Pas de GET_IN, on est forcément dans la zone de départ.
 			// Pas de flag de subaction, c'est le début du match.
 			if(i_am_in_square_color(0, 360, 710, 1070)){
-				state = MOVE_TO_TAKE_MODULES;
+				state = ADVANCE_ON_TURNING_POINT;
 			}else{
 				state = ERROR;
 			}
+			break;
+
+		case ADVANCE_ON_TURNING_POINT:
+			state = try_advance(NULL, entrance, 300, state, MOVE_TO_TAKE_MODULES, MOVE_TO_TAKE_MODULES, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case MOVE_TO_TAKE_MODULES:
@@ -54,7 +59,7 @@ error_e sub_harry_prise_modules_initiale(){
 				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_NORMAL);
 			}
 
-			state = try_going_multipoint(curve, 5, state, STORE_MODULES, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going_multipoint(curve, 4, state, STORE_MODULES, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case STORE_MODULES:
@@ -1743,7 +1748,7 @@ error_e sub_harry_rocket_monocolor(){
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
-			state=check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, LEFT, RIGHT, LEFT, RIGHT),state,GET_OUT,GET_OUT_ERROR);
+			state=check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, LEFT, RIGHT, LEFT, RIGHT),state,GET_OUT,GET_OUT_ERROR);
 			break;
 
 		case GET_OUT:
@@ -1956,7 +1961,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 
 
 		case ACTION:
-			state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT),state, GET_OUT, GET_OUT_ERROR);
+			state = check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT),state, GET_OUT, GET_OUT_ERROR);
 			break;
 
 		case GET_OUT:
