@@ -97,7 +97,7 @@ void ZONE_disable(ZONE_zoneId_e id, robot_id_e robot_id) {
 }
 
 void ZONE_disableAll(void) {
-	Uint8 i;
+	ZONE_zoneId_e i;
 	for(i = 0; i < ZONE_NUMBER; i++) {
 		zones[i].eventsBig = EVENT_NO_EVENT;
 		zones[i].eventsSmall = EVENT_NO_EVENT;
@@ -117,6 +117,21 @@ void ZONE_requestUpdate() {
 void ZONE_colorChange() {
 	ZONE_eraseZone();
 	ZONE_drawZone();
+}
+
+void ZONE_cleanAllEvents() {
+	ZONE_zoneId_e i;
+
+	for(i = 0; i < ZONE_NUMBER; i++) {
+		zones[i].events = EVENT_NO_EVENT;
+		zones[i].eventsBig = EVENT_NO_EVENT;
+		zones[i].eventsSmall = EVENT_NO_EVENT;
+		zones[i].busyState = BUSY_STATE_NOBODY;
+		zones[i].isSomeone = FALSE;
+		zones[i].inputTime = 0;
+		zones[i].presenceTime = 0;
+		zones[i].alertSent = FALSE;
+	}
 }
 
 static void ZONE_initFields(ZONE_zoneId_e id, ZONE_rectangle_t rectangle, bool_e isDependingOnColor, time32_t thresholdDetectionTime) {

@@ -6,15 +6,14 @@
  * \date 18 mars 2014
  *
  */
+
 #ifndef SECRETARY_H_
 #define SECRETARY_H_
 #include "QS/QS_all.h"
 #include "QS/QS_CANmsgList.h"
-void SECRETARY_init(void);
-void SECRETARY_process_main(void);
-void SECRETARY_set_zones_updated(void);
-void SECRETARY_process_ms(void);
 
-void SECRETARY_set_event(ZONE_zoneId_e i, ZONE_event_t event);
+void SECRETARY_init(void);
+void SECRETARY_processMain(void);
+void SECRETARY_setEvent(ZONE_zoneId_e id, ZONE_event_t event);
 
 #endif //SECRETARY_H_
