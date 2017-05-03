@@ -83,7 +83,6 @@ void SMALL_POMPE_PRISE_init_pos(){
 
 bool_e SMALL_POMPE_PRISE_CAN_process_msg(CAN_msg_t* msg) {
 	if(msg->sid == ACT_SMALL_POMPE_PRISE) {
-		SMALL_POMPE_PRISE_initDCM();
 		switch(msg->data.act_msg.order) {
 			case ACT_POMPE_NORMAL:
 			case ACT_POMPE_REVERSE:
