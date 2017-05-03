@@ -8,7 +8,7 @@
  *  Auteurs : Aurélien
  *  Version 20110225
  */
-
+ 
 #include "QS/QS_all.h"
 #include "QS/QS_sys.h"
 #include "QS/QS_buttons.h"
@@ -598,9 +598,11 @@ static void MAIN_onButton0LongPush(){
 	if(state == 0){
 		msg.sid = ACT_SMALL_POMPE_PRISE;
 		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+		msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_POMPE_PRISE;
 		msg.data.act_msg.order = ACT_POMPE_REVERSE;
+		msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 	}else if(state == 2){
 		msg.sid = ACT_SMALL_POMPE_PRISE;
 		msg.data.act_msg.order = ACT_POMPE_STOP;
@@ -692,9 +694,11 @@ static void MAIN_onButton2LongPush(){
 	if(state == 0){
 		msg.sid = ACT_SMALL_POMPE_DISPOSE;
 		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+		msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_POMPE_DISPOSE;
 		msg.data.act_msg.order = ACT_POMPE_REVERSE;
+		msg.data.act_msg.act_data.act_optionnal_data[0] = 100;
 	}else if(state == 2){
 		msg.sid = ACT_SMALL_POMPE_DISPOSE;
 		msg.data.act_msg.order = ACT_POMPE_STOP;
