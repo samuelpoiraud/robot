@@ -238,6 +238,8 @@
 			FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS,  	// Flag levé lorsqu'un module a été retourné de la bonne couleur
 			FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH,	// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
 			FLAG_HARRY_MODULE_COLOR_LEFT_FINISH,  	// Flag levé lorsque la mae de préparation des modules pour la dépose est terminé
+			FLAG_HARRY_STORAGE_LEFT_FINISH,			// Flag levé lorsque que la subaction de stockage à gauche est terminé
+			FLAG_HARRY_STORAGE_RIGHT_FINISH,		// Flag levé lorsque que la subaction de stockage à droite est terminé
 
 
 			FLAG_ANNE_STOMACH_IS_FULL, 				//le reservoir de baballe

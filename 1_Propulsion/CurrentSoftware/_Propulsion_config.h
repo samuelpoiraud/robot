@@ -135,7 +135,7 @@
 
 	//BIG
 		// BOT_COLOR
-		#define BIG_BOT_COLOR_START_X			((185)*65536)//avec les 2 barres de 8 mm
+		#define BIG_BOT_COLOR_START_X			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE + 16)*65536)//avec les 2 barres de 8 mm
 		#define BIG_BOT_COLOR_START_Y			((1070 - BIG_ROBOT_WIDTH/2)*65536)
 		#define BIG_BOT_COLOR_START_TETA		(0)			// PI_28  (il part en marche arriere...)
 
@@ -145,7 +145,7 @@
 
 
 		// TOP_COLOR
-		#define BIG_TOP_COLOR_START_X			((185)*65536)//avec les 2 barres de 8 mm
+		#define BIG_TOP_COLOR_START_X			((BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE + 16)*65536)//avec les 2 barres de 8 mm
 		#define BIG_TOP_COLOR_START_Y			((1930 + BIG_ROBOT_WIDTH/2)*65536)
 		#define BIG_TOP_COLOR_START_TETA		(0)			// PI_28  (il part en marche arriere...)
 
