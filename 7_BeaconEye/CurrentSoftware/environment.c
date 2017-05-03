@@ -60,10 +60,8 @@ void ENVIRONMENT_setColor(color_e color) {
 	VIEW_drawBeaconPosition(color);
 
 	// Mise à jour des zones
+	ZONE_cleanAllEvents();
 	ZONE_colorChange();
-
-	// TODO: Mettre à jour les zones
-
 }
 
 color_e ENVIRONMENT_getColor() {

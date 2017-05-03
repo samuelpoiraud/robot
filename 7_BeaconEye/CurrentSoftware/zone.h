@@ -62,6 +62,7 @@ void ZONE_processMain(void);
 void ZONE_enable(ZONE_zoneId_e id, robot_id_e robot_id, ZONE_event_t events);
 void ZONE_disable(ZONE_zoneId_e id, robot_id_e robot_id);
 void ZONE_disableAll(void);
+void ZONE_cleanAllEvents(void);
 ZONE_zone_t* ZONE_getZone(ZONE_zoneId_e id);
 void ZONE_requestUpdate();
 void ZONE_colorChange();

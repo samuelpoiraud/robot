@@ -29,6 +29,7 @@
 #include "IHM/MusicPlayer/musicPlayer.h"
 #include "IHM/MusicPlayer/song/songs.h"
 #include "zone.h"
+#include "Secretary.h"
 
 static void initialisation(void);
 static void processMain(void);
@@ -62,11 +63,12 @@ static void initialisation(void) {
 	IT_init();
 	MIDDLEWARE_init();
 	MUSIC_PLAYER_init();
-	#ifdef USE_HOKUYO
-		HOKUYO_init();
-	#endif
+#ifdef USE_HOKUYO
+	HOKUYO_init();
+#endif
 	ZONE_init();
 	TERMINAL_init();
+	SECRETARY_init();
 
 	MUSIC_PLAYER_addSongToPlaylist(smurfs);
 	MUSIC_PLAYER_addSongToPlaylist(missionImpossible);
@@ -84,5 +86,6 @@ static void processMain(void) {
 #endif
 	MUSIC_PLAYER_processMain();
 	ZONE_processMain();
+	SECRETARY_processMain();
 	TERMINAL_processMain();
 }
