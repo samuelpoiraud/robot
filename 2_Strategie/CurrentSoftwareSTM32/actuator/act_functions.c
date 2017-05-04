@@ -102,6 +102,9 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_SMALL_CYLINDER_SLOPE,			ACT_QUEUE_Small_cylinder_slope,			"Cylinder slope"},
 	{ACT_SMALL_CYLINDER_MULTIFONCTION,	ACT_QUEUE_Small_cylinder_multifonction,	"Cylinder multifonction"},
 
+	{ACT_SMALL_POMPE_DISPOSE,			ACT_QUEUE_Small_pompe_dispose,			"Pompe dispose"},
+	{ACT_SMALL_POMPE_PRISE,				ACT_QUEUE_Small_pompe_prise,			"Pompe prise"},
+
 	{ACT_SMALL_MAGIC_ARM,				ACT_QUEUE_Small_magic_arm,				"Magic arm"},
 	{ACT_SMALL_MAGIC_COLOR,				ACT_QUEUE_Small_magic_color,			"Magic color"},
 

@@ -18,6 +18,7 @@ error_e sub_harry_prise_modules_initiale(){
 			INIT,
 			ADVANCE_ON_TURNING_POINT,
 			MOVE_TO_TAKE_MODULES,
+			SLIDERS_GO_IN,
 			STORE_MODULES,
 			ERROR,
 			DONE
@@ -26,9 +27,11 @@ error_e sub_harry_prise_modules_initiale(){
 	const displacement_t curve[4] = {/*(displacement_t){(GEOMETRY_point_t){412, COLOR_Y(922)}, FAST},*/
 									(displacement_t){(GEOMETRY_point_t){592, COLOR_Y(962)}, FAST},
 									(displacement_t){(GEOMETRY_point_t){993, COLOR_Y(674)}, FAST},
-									(displacement_t){(GEOMETRY_point_t){1107, COLOR_Y(508)}, FAST},
-									(displacement_t){(GEOMETRY_point_t){1167, COLOR_Y(424)}, FAST}
+									(displacement_t){(GEOMETRY_point_t){1107, COLOR_Y(515)}, FAST},
+									(displacement_t){(GEOMETRY_point_t){1167, COLOR_Y(431)}, FAST}
 									};
+
+	error_e stateAct1, stateAct2;
 
 	switch(state){
 		case INIT:
@@ -49,24 +52,36 @@ error_e sub_harry_prise_modules_initiale(){
 			if(entrance){
 				// Pas de vérification des stocks, il n'y a rien de stocker dans le robot.
 				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
-				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_HARVEST);
 				ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_NORMAL);
 				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_NORMAL);
 
 				ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
-				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_HARVEST);
 				ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL);
 				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_NORMAL);
 			}
 
-			state = try_going_multipoint(curve, 4, state, STORE_MODULES, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going_multipoint(curve, 4, state, SLIDERS_GO_IN, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case SLIDERS_GO_IN:
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
+				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
+			}
+			stateAct1 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
+			stateAct2 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+
+			if(stateAct1 != IN_PROGRESS && stateAct2 != IN_PROGRESS){
+				state = STORE_MODULES;
+			}
 			break;
 
 		case STORE_MODULES:
 			if(entrance){
-				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
-				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
-
 				STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 

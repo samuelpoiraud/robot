@@ -1897,7 +1897,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			PROTECT_NEXT_FALL,
 			ACTION_BRING_BACK_CYLINDER,
 			ACTION_BRING_BACK_CYLINDER_2,
-			STOP_POMPE_SLIDER,
+			//STOP_POMPE_SLIDER,
 
 			RECULE,
 			RECULE_ERROR,
@@ -2165,7 +2165,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 
 				if((moduleToTake == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))
 				|| (moduleToTake == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
-					state = STOP_POMPE_SLIDER;	// Si l'élévateur n'est pas occupé, on continue le stockage
+					state = COMPUTE_ACTION;	// Si l'élévateur n'est pas occupé, on continue le stockage
 				}else if((moduleToTake == RIGHT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))
 				|| (moduleToTake == LEFT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
 					state = COMPUTE_ACTION;		// Si l'élévateur est occupé, on va prendre le cylindre suivant
@@ -2188,7 +2188,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			}
 			break;
 
-		case STOP_POMPE_SLIDER:
+		/*case STOP_POMPE_SLIDER:
 			if(entrance){
 				time_timeout_before_pompe_stop = global.absolute_time + 1000;
 				time_timeout_after_pompe_stop = global.absolute_time + 2000;
@@ -2217,9 +2217,17 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				}
 				moduleToTake = NO_SIDE;
 			}
-			break;
+			break;*/
 
 		case RECULE:
+			if(entrance){
+				if(needToStoreLeft){
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP );
+				}
+				if(needToStoreRight){
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP );
+				}
+			}
 			state = try_going(store_pos.x, store_pos.y, state, STORE_CYLINDER, RECULE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
@@ -2230,14 +2238,20 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 		case STORE_CYLINDER:
 			if(entrance){
 				if(needToStoreLeft){
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_LEFT);
 					sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
 				}
 				if(needToStoreRight){
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_RIGHT);
 					sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
 				}
 			}
 
-			if((needToStoreLeft && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_FINISH)
+			if(indexSide >= 4){
+				state = DONE; // pas besoin d'attendre
+				needToStoreLeft = FALSE;
+				needToStoreRight = FALSE;
+			}else if((needToStoreLeft && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_FINISH)
 			&& needToStoreRight && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH))
 			|| (needToStoreLeft && !needToStoreRight && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_FINISH))
 			|| (!needToStoreLeft && needToStoreRight && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH))
