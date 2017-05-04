@@ -10,7 +10,7 @@
 #include "copilot.h"
 
 //border_mode peut être BORDER_MODE_WITH_UPDATE_POSITION ou BORDER_MODE
-void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed, acknowledge_e acquittement, Sint32 far_point_x, Sint32 far_point_y, border_mode_e border_mode, corrector_e corrector)
+void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed, acknowledge_e acquittement, Sint32 far_point_x, Sint32 far_point_y, border_mode_e border_mode, corrector_e corrector, Uint8 idTraj)
 {
 	Sint16 cos_a, sin_a;
 	//on va vers l'angle demandé.
@@ -32,9 +32,9 @@ void SEQUENCES_rush_in_the_wall(Sint16 angle, way_e way, PROP_speed_e rush_speed
 
 	//le point obtenu cos / sin est situé à 2048 mm de notre position, et droit devant nous !
 	if(far_point_x || far_point_y)
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_END_AT_POINT, rush_speed, acquittement, corrector, AVOID_DISABLED, 0);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, far_point_x, far_point_y, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_END_AT_POINT, rush_speed, acquittement, corrector, AVOID_DISABLED, idTraj);
 	else
-		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a/8, sin_a/8, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_END_AT_POINT, rush_speed, acquittement, corrector, AVOID_DISABLED, 0);
+		ROADMAP_add_order(TRAJECTORY_TRANSLATION, cos_a/4, sin_a/4, 0, PROP_RELATIVE, PROP_END_OF_BUFFER, way, border_mode, PROP_END_AT_POINT, rush_speed, acquittement, corrector, AVOID_DISABLED, idTraj);
 }
 
 

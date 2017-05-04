@@ -88,13 +88,15 @@ void PROP_goAngle(Sint16 angle, prop_referential_e referential, PROP_speed_e spe
 	CAN_send(&order);
 }
 
-void PROP_rushInTheWall(way_e way, bool_e prop_rotate,Sint16 angle){
+void PROP_rushInTheWall(way_e way, bool_e asser_rot, Sint16 angle, PROP_speed_e speed, Uint8 idTraj){
 	CAN_msg_t order;
 	order.sid = PROP_RUSH_IN_THE_WALL;
 	order.size = SIZE_PROP_RUSH_IN_THE_WALL;
 	order.data.prop_rush_in_the_wall.teta = angle;
 	order.data.prop_rush_in_the_wall.way = way;
-	order.data.prop_rush_in_the_wall.asser_rot = prop_rotate;
+	order.data.prop_rush_in_the_wall.asser_rot = asser_rot;
+	order.data.prop_rush_in_the_wall.speed = speed;
+	order.data.prop_rush_in_the_wall.idTraj = idTraj;
 	CAN_send (&order);
 }
 
@@ -153,6 +155,8 @@ error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_traj
 				ret = END_OK;
 			else if(global.absolute_time - begin_time >= STOP_TIMEOUT_TIME)
 				ret = END_WITH_TIMEOUT;
+			else if(global.prop.error)
+				ret = NOT_HANDLED;
 			break;
 
 		case TRAJECTORY_NONE:

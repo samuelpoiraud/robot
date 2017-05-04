@@ -114,7 +114,7 @@ void COPILOT_process_it(void)
 		PILOT_set_speed(current_order.speed);
 
 	// Mise à jours du mode bordure afin que les moteurs se limite en PWM pour ne pas faire partir en sécurité la batterie
-	if(current_order.border_mode == BORDER_MODE)
+	if(current_order.border_mode == BORDER_MODE || current_order.border_mode == BORDER_MODE_WITH_UPDATE_POSITION)
 		MOTORS_set_border_mode(TRUE);
 	else
 		MOTORS_set_border_mode(FALSE);
