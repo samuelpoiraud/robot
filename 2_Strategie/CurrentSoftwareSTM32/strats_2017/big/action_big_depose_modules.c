@@ -622,7 +622,7 @@ error_e sub_harry_get_in_pos_2_depose_module_centre(){
 			break;
 
 		case AVANCE:
-			state = try_going(1250,COLOR_Y(1075), state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
+			state = try_going(1310,COLOR_Y(1135), state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case ROTATE:
