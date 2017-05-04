@@ -523,11 +523,11 @@ error_e sub_harry_get_in_pos_1_depose_module_centre(){
 
 	switch(state){
 		case INIT:
-			if(i_am_in_square(800, 1400, 300, 900)){
+			if(i_am_in_square_color(800, 1400, 300, 900)){
 				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
 				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
+			}else if(i_am_in_square_color(800, 1400, 2100, 2700)){
 				state = GET_IN_FROM_ADV_SQUARE;
 			}else{
 				state = PATHFIND;
@@ -598,11 +598,11 @@ error_e sub_harry_get_in_pos_2_depose_module_centre(){
 
 	switch(state){
 		case INIT:
-			if(i_am_in_square(800, 1400, 300, 900)){
+			if(i_am_in_square_color(800, 1400, 300, 900)){
 				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
 				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
+			}else if(i_am_in_square_color(800, 1400, 2100, 2700)){
 				state = GET_IN_FROM_ADV_SQUARE;
 			}else{
 				state = PATHFIND;
@@ -718,7 +718,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(975, COLOR_Y(1245), state, DONE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(800, COLOR_Y(1245), state, DONE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -754,11 +754,11 @@ error_e sub_harry_get_in_pos_4_depose_module_centre(){
 
 	switch(state){
 		case INIT:
-			if((i_am_in_square(800, 1400, 300, 900))||(i_am_in_square(200, 1100, 900, 2100))){
+			if((i_am_in_square_color(800, 1400, 300, 900))||(i_am_in_square(200, 1100, 900, 2100))){
 				state = GET_IN_FROM_OUR_SQUARE;
 			//}else if(i_am_in_square(200, 1100, 900, 2100)){
 			//	state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
+			}else if(i_am_in_square_color(800, 1400, 2100, 2700)){
 				state = GET_IN_FROM_ADV_SQUARE;
 			}else{
 				state = PATHFIND;
@@ -828,11 +828,11 @@ error_e sub_harry_get_in_pos_5_depose_module_centre(){
 
 	switch(state){
 		case INIT:
-			if(i_am_in_square(800, 1400, 300, 900)){
+			if(i_am_in_square_color(800, 1400, 300, 900)){
 				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
 				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
+			}else if(i_am_in_square_color(800, 1400, 2100, 2700)){
 				state = GET_IN_FROM_ADV_SQUARE;
 			}else{
 				state = PATHFIND;
@@ -900,11 +900,11 @@ error_e sub_harry_get_in_pos_6_depose_module_centre(){
 
 	switch(state){
 		case INIT:
-			if(i_am_in_square(800, 1400, 300, 900)){
+			if(i_am_in_square_color(800, 1400, 300, 900)){
 				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
 				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
+			}else if(i_am_in_square_color(800, 1400, 2100, 2700)){
 				state = GET_IN_FROM_ADV_SQUARE;
 			}else{
 				state = PATHFIND;
