@@ -162,13 +162,10 @@ void BUTTON_verbose(void)
 	bool_e change;
 
 	current_state = 	(BUTTON0_PORT						<< 0) 	|	//Run match
-						(IHM_switchs_get(SWITCH_RAW_DATA)	<< 1) 	|
-						(IHM_switchs_get(SWITCH_VERBOSE)	<< 2) 	|
 						(IHM_switchs_get(SWITCH_XBEE)		<< 4) 	|
 						(IHM_switchs_get(SWITCH_COLOR)		<< 9) 	|
 						(IHM_switchs_get(BIROUTE)			<< 10) 	|
-						(IHM_switchs_get(SWITCH_LCD)		<< 11) 	|
-						(IHM_switchs_get(SWITCH_EVIT)		<< 12);
+						(IHM_switchs_get(SWITCH_LCD)		<< 11);
 
 	up = ~previous_state & current_state;
 	down = previous_state & ~current_state;
@@ -176,22 +173,11 @@ void BUTTON_verbose(void)
 	previous_state = current_state;
 
 	if(change){
-		LCD_printf(1, FALSE, FALSE, "EVIT%d DBG%d XBEE%d", (Sint16)((current_state >> 12) & 1), (Sint16)((current_state >> 1) & 1), (Sint16)((current_state >> 4) & 1));
-		if(QS_WHO_AM_I_get() == BIG_ROBOT)
-			LCD_printf(2, FALSE, FALSE, "VERBOSE%d SAVE%d", (Sint16)((current_state >> 2) & 1), (Sint16)((current_state >> 5) & 1));
-		else
-			LCD_printf(2, FALSE, FALSE, "VERBOSE%d", (Sint16)((current_state >> 2) & 1));
 
 		if(up & ((Uint32)(1) << 0	))	debug_printf("BP run match pressed\n");
-		if(up & ((Uint32)(1) << 1	))	debug_printf("SW debug enabled\n");
-		if(up & ((Uint32)(1) << 2	))	debug_printf("SW verbose enabled\n");
 		if(up & ((Uint32)(1) << 3	))	debug_printf("BP print match pressed\n");
 		if(up & ((Uint32)(1) << 4	))	debug_printf("SW XBEE enabled\n");
-		if(QS_WHO_AM_I_get() == BIG_ROBOT){
-			if(up & ((Uint32)(1) << 5	))	debug_printf("SW saved enabled\n");
-		}else{
-			if(up & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 enabled\n");
-		}
+
 		if(up & ((Uint32)(1) << 8	))	debug_printf("BP Set pressed\n");
 		if(up & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
 		if(up & ((Uint32)(1) << 10	))	debug_printf("Biroute inserted\n");
@@ -205,14 +191,8 @@ void BUTTON_verbose(void)
 		if(up & ((Uint32)(1) << 18	))	debug_printf("BP MenuUp pressed\n");
 		if(up & ((Uint32)(1) << 19	))	debug_printf("BP MenuDown pressed\n");
 
-		if(down & ((Uint32)(1) << 1	))	debug_printf("SW debug disabled\n");
-		if(down & ((Uint32)(1) << 2	))	debug_printf("SW verbose disabled\n");
 		if(down & ((Uint32)(1) << 4	))	debug_printf("SW XBEE disabled\n");
-		if(QS_WHO_AM_I_get() == BIG_ROBOT){
-			if(down & ((Uint32)(1) << 5	))	debug_printf("SW saved disabled\n");
-		}else{
-			if(down & ((Uint32)(1) << 5	))	debug_printf("SW SAVE/Strat 4 disabled\n");
-		}
+
 		if(down & ((Uint32)(1) << 9	))	debug_printf("SW color changed\n");
 		if(down & ((Uint32)(1) << 10	))	debug_printf("Biroute removed\n");
 		if(down & ((Uint32)(1) << 11	))	debug_printf("SW LCD : CAN msgs\n");

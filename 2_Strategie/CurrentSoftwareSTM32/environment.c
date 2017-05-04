@@ -211,19 +211,11 @@ void ENV_process_can_msg(CAN_msg_t * incoming_msg, bool_e bCAN, bool_e bU1, bool
 					CANMsgToXbee(incoming_msg,TRUE);	//Envoi en BROADCAST... aux modules joignables
 			}
 		#endif
-		if(IHM_switchs_get(SWITCH_RAW_DATA) && bU1)
-		{
-			if(IHM_switchs_get(SWITCH_VERBOSE))
-				QS_CAN_VERBOSE_can_msg_print(incoming_msg, VERB_INPUT_MSG);
-			else
-			{
-				#ifndef MODE_SIMULATION	//Pour ne pas spammer l'UART en mode simulation... On ne doit y voir que les messages CAN réellement envoyés.
-					CANmsgToU1tx(incoming_msg);
-				#endif
-			}
-		}
 
-		if(IHM_switchs_get(SWITCH_RAW_DATA)  && !IHM_switchs_get(SWITCH_XBEE) && bU2)
+		QS_CAN_VERBOSE_can_msg_print(incoming_msg, VERB_INPUT_MSG);
+
+
+		if(!IHM_switchs_get(SWITCH_XBEE) && bU2)
 		{
 			//Désactivé parce qu'on en a pas besoin...
 			//CANmsgToU2tx(incoming_msg);
@@ -242,13 +234,7 @@ void ENV_process_can_msg_sent(CAN_msg_t * sent_msg)
 	#endif
 
 	//UART1
-	if(IHM_switchs_get(SWITCH_RAW_DATA))
-	{
-		if(IHM_switchs_get(SWITCH_VERBOSE)){
-			QS_CAN_VERBOSE_can_msg_print(sent_msg, VERB_OUTPUT_MSG);
-		}else
-			CANmsgToU1tx(sent_msg);
-	}
+	QS_CAN_VERBOSE_can_msg_print(sent_msg, VERB_OUTPUT_MSG);
 
 	//UART2 - désactivé volontairement -> parce qu'on en a pas besoin...
 	//if(IHM_switchs_get(SWITCH_RAW_DATA)  && !IHM_switchs_get(SWITCH_XBEE))
