@@ -565,7 +565,7 @@ error_e sub_harry_get_in_pos_1_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(1450, COLOR_Y(600), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(1450, COLOR_Y(600), state, AVANCE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -640,7 +640,7 @@ error_e sub_harry_get_in_pos_2_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(1100, COLOR_Y(925), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(1100, COLOR_Y(925), state, AVANCE, ERROR, FAST, ANY_WAY, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -718,7 +718,7 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(800, COLOR_Y(1245), state, DONE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(800, COLOR_Y(1245), state, AVANCE, ERROR, FAST, FORWARD, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -796,7 +796,7 @@ error_e sub_harry_get_in_pos_4_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(975, COLOR_Y(1755), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(800, COLOR_Y(1755), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -870,7 +870,7 @@ error_e sub_harry_get_in_pos_5_depose_module_centre(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(1100, COLOR_Y(2075), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(1100, COLOR_Y(2075), state, AVANCE, ERROR, FAST, ANY_WAY, DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
