@@ -426,7 +426,6 @@ error_e SELFTEST_strategy(bool_e reset)
 	{
 		INIT = 0,
 		TEST_LEDS_AND_BUZZER,
-		TEST_AVOIDANCE_SW,
 		TEST_XBEE,
 		TEST_RTC,
 		TEST_SWITCHS,
@@ -468,14 +467,9 @@ error_e SELFTEST_strategy(bool_e reset)
 			GPIO_WriteBit(LED_USER, (t500ms&1));
 
 			if(!t500ms)	//Lorsque T vaut 0 (et que les leds sont éteintes...)
-				state = TEST_AVOIDANCE_SW;
+				state = TEST_XBEE;
 			break;
 
-		case TEST_AVOIDANCE_SW:
-			if(IHM_switchs_get(SWITCH_EVIT) == FALSE)
-				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE);
-			state = TEST_XBEE;
-			break;
 		case TEST_XBEE:
 			if(IHM_switchs_get(SWITCH_XBEE) == FALSE)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_XBEE_SWITCH_DISABLE);
@@ -486,6 +480,7 @@ error_e SELFTEST_strategy(bool_e reset)
 			}
 			state = TEST_RTC;
 			break;
+
 		case TEST_RTC:
 			status = RTC_get_local_time (&date);
 			if(!status)
@@ -513,9 +508,11 @@ error_e SELFTEST_strategy(bool_e reset)
 				SELFTEST_declare_errors(NULL,SELFTEST_STRAT_SD_WRITE_FAIL);
 			state = DONE;
 			break;
+
 		case FAIL:
 			ret = NOT_HANDLED;
 			break;
+
 		case DONE:
 			ret = END_OK;
 			break;
@@ -561,7 +558,6 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
 				case SELFTEST_PROP_LASER_SENSOR_LEFT:		    debug_printf("SELFTEST_PROP_LASER_SENSOR_LEFT");				break;
 				case SELFTEST_PROP_LASER_SENSOR_RIGHT:		    debug_printf("SELFTEST_PROP_LASER_SENSOR_RIGHT");			    break;
 
-				case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	debug_printf("SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE");		break;
 				case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		debug_printf("SELFTEST_STRAT_XBEE_SWITCH_DISABLE");				break;
 				case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE:debug_printf("SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE");	break;
 				case SELFTEST_STRAT_RTC:						debug_printf("SELFTEST_STRAT_RTC");								break;
@@ -918,7 +914,6 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 		case SELFTEST_PROP_LASER_SENSOR_LEFT:			return "Laser sensor left";		break;
 		case SELFTEST_PROP_LASER_SENSOR_RIGHT:			return "Laser sensor right";	break;
 
-		case SELFTEST_STRAT_AVOIDANCE_SWITCH_DISABLE:	return "Evit Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_SWITCH_DISABLE:		return "XBee Switch disable";	break;
 		case SELFTEST_STRAT_XBEE_DESTINATION_UNREACHABLE: return "XBee dest unreach";	break;
 		case SELFTEST_STRAT_RTC:						return "RTC failed";			break;
