@@ -21,9 +21,9 @@
 	#define SMALL_BALL_FRONT_LEFT_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-	#define SMALL_BALL_FRONT_LEFT_AX12_IDLE_POS					590
-	#define SMALL_BALL_FRONT_LEFT_AX12_DOWN_POS				    590		//en degré
-	#define SMALL_BALL_FRONT_LEFT_AX12_UP_POS					885		//en degré
+	#define SMALL_BALL_FRONT_LEFT_AX12_IDLE_POS					291
+	#define SMALL_BALL_FRONT_LEFT_AX12_DOWN_POS				    291		//en degré
+	#define SMALL_BALL_FRONT_LEFT_AX12_UP_POS					776		//en degré
 
 //Position initiale de l'AX12
 	#define SMALL_BALL_FRONT_LEFT_AX12_INIT_POS					SMALL_BALL_FRONT_LEFT_AX12_IDLE_POS
