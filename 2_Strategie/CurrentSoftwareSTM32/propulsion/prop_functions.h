@@ -25,7 +25,7 @@
 
 	void PROP_goAngle(Sint16 angle, prop_referential_e referential, PROP_speed_e speed, way_e way, bool_e multipoint, propEndCondition_e propEndCondition, Uint8 idTraj);
 
-	void PROP_rushInTheWall(way_e way, bool_e asserRot, Sint16 angle);
+	void PROP_rushInTheWall(way_e way, bool_e asser_rot, Sint16 angle, PROP_speed_e speed, Uint8 idTraj);
 
 	error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_trajectory, Uint8 idLastTraj, STRAT_endCondition_e end_condition, time32_t begin_time);
 

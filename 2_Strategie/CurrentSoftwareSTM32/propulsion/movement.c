@@ -318,6 +318,7 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 
 	static bool_e timeout;
 	static time32_t begin_time;
+	static Uint8 idTraj;
 
 	Uint8 ret = in_progress;
 
@@ -329,6 +330,8 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 
 			if(acceleration)
 				PROP_set_acceleration(acceleration);
+
+			idTraj = PROP_getNextIdTraj();
 			begin_time = global.absolute_time;
 			timeout = FALSE;
 			state = PUSH_ORDER;
@@ -336,14 +339,15 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 
 
 		case PUSH_ORDER:
-			PROP_rushInTheWall(way, asser_rotate, angle);
+			PROP_rushInTheWall(way, asser_rotate, angle, 25, idTraj);
 			state = WAIT;
 			break;
 
 		case WAIT:{
-			error_e subaction = wait_move_and_wait_detection(TRAJECTORY_STOP, 1, 0, END_AT_LAST_POINT, begin_time);
+			error_e subaction = wait_move_and_wait_detection(TRAJECTORY_TRANSLATION, 1, idTraj, END_AT_LAST_POINT, begin_time);
 			switch (subaction) {
 				case END_OK:
+				case NOT_HANDLED:
 					debug_printf("try_rush_in_the_wall effectué\n");
 					state = DONE;
 					break;
@@ -352,18 +356,13 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 					break;
 
 				case END_WITH_TIMEOUT:
-					debug_printf("try_rush_in_the_wall effectué avec TIMEOUT\n");
+					error_printf("try_rush_in_the_wall effectué avec TIMEOUT\n");
 					timeout = TRUE;
 					state = DONE;
 					break;
 
 				case FOE_IN_PATH:
-					debug_printf("try_rush_in_the_wall erreur adversaire dans le path\n");
-					state = FAIL;
-					break;
-
-				case NOT_HANDLED:
-					debug_printf("try_rush_in_the_wall erreur\n");
+					error_printf("try_rush_in_the_wall erreur adversaire dans le path (impossible)\n");
 					state = FAIL;
 					break;
 
@@ -380,6 +379,7 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 
 			if(acceleration)
 				PROP_set_acceleration(0);
+
 			RESET_MAE();
 			ret = (timeout)? fail_state : success_state;
 			break;
@@ -390,6 +390,7 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 
 			if(acceleration)
 				PROP_set_acceleration(0);
+
 			RESET_MAE();
 			ret = fail_state;
 			break;
