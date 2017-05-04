@@ -14,7 +14,7 @@
 
 // BIG
 #define BIG_ROBOT_WIDTH									303		//Largeur du gros robot [mm]
-#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE		169		//Distance entre le 'centre' du robot et l'arrière en calage [mm]
+#define BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE		170		//Distance entre le 'centre' du robot et l'arrière en calage [mm]
 #define BIG_CALIBRATION_FORWARD_BORDER_DISTANCE			140		//Distance entre le 'centre' du robot et l'avant en calage [mm]
 
 // SMALL
