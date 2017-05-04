@@ -78,7 +78,7 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 		case INIT:
 			if(i_am_in_square_color(0, 360, 0, 360) && IHM_switchs_get(SWITCH_WITH_BASCULE)){   //le robot est dans la zone avant la bascule
 				state = ROCKER;
-			}else if(IHM_switchs_get(SWITCH_OUR_MODULES) && IHM_switchs_get(SWITCH_OUR_ROCKET_MULTICOLOR)){
+			}else if(IHM_switchs_get(SWITCH_OUR_MODULES)){
 				state = COMPUTE; // On n'avance pas car la strat des modules le fait pour nous
 			}else if(IHM_switchs_get(SWITCH_OUR_ROCKET_UNICOLOR)){
 				state = ADVANCE_ON_TURNING_POINT;
@@ -186,7 +186,7 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 
 		//OUR 1 action
 		case MODULES_OUR:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(our_modules, SIZE_OUR_MODULES),state, DONE, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_initiale(),state, DONE, ERROR);
 			break;
 
 		case ROCKET_MULTICOLOR_OUR:
@@ -211,11 +211,11 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 			break;
 
 		case MODULES_AND_ORE_OUR:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(our_modules, SIZE_OUR_MODULES),state, ORE_OUR, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_initiale(),state, ORE_OUR, ERROR);
 			break;
 
 		case MODULES_AND_ROCKET_UNICOLOR:
-			state=check_sub_action_result(sub_harry_prise_modules_manager(our_modules, SIZE_OUR_MODULES),state, ROCKET_UNICOLOR, ERROR);
+			state=check_sub_action_result(sub_harry_prise_modules_initiale(),state, ROCKET_UNICOLOR, ERROR);
 			break;
 
 		case  MODULES_AND_PUT_OFF:
