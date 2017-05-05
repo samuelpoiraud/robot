@@ -230,7 +230,7 @@ void test_leds(void){
 void test_bp_switchs(void)
 {
 	debug_printf("Test des Entrées BP et Switch\n");
-	Uint8 sw_debug=2, sw_verbose=2, sw_xbee=2, sw_color=2, sw_lcd=2, sw_evit=2, port_robot_id=2, biroute=2, bp_run_match=2;
+	Uint8 sw_xbee=2, sw_color=2, sw_lcd=2, port_robot_id=2, biroute=2, bp_run_match=2;
 
 	while(1)
 	{
