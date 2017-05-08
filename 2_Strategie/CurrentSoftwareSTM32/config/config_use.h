@@ -44,7 +44,7 @@
 
 #define FAST_COS_SIN			//Calcul rapide des cos et sin à l'aide d'un GRAND tableau de valeur
 
-//#define USE_LCD					//Activation de l'écran LCD
+#define USE_LCD					//Activation de l'écran LCD
 
 #define USE_RTC					//Activation de la RTC
 

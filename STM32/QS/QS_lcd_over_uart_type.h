@@ -49,7 +49,8 @@
 			LCD_MSG_TYPE_UPDATE_PROGRESS_BAR,
 			LCD_MSG_TYPE_UPDATE_BUTTON,
 			LCD_MSG_TYPE_UPDATE_BUTTON_IMG,
-			LCD_MSG_TYPE_UPDATE_SLIDER
+			LCD_MSG_TYPE_UPDATE_SLIDER,
+			LCD_MSG_TYPE_IHM_CONTROL
 		}LCD_msgType_e;
 
 		typedef union{
@@ -218,6 +219,11 @@
 				Sint32 value					:32;
 				LCD_objectId_t id				:8;
 			}updateSlider;
+
+			#define SIZE_LCD_IHM_CONTROL 		1
+			struct{
+				bool_e ihmUnderControl			:1;
+			}ihmControl;
 
 			Uint8 rawData[LCD_OVER_UART_MAX_SIZE];
 		}LCD_msgBody_u;

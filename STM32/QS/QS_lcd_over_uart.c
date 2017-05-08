@@ -619,7 +619,16 @@
 			LCD_OVER_UART_sendMsg(&msg);
 		}
 	#else
+		void LCD_OVER_UART_ihmControl(bool_e ihmUnderControl){
+			LCD_msg_s msg;
 
+			msg.header.type = LCD_MSG_TYPE_IHM_CONTROL;
+			msg.header.size = 0;
+
+			msg.body.ihmControl.ihmUnderControl = ihmUnderControl;
+
+			LCD_OVER_UART_sendMsg(&msg);
+		}
 
 	#endif
 
@@ -744,6 +753,10 @@
 		#else
 			objectId_t idStorage;
 			objectId_t idObject;
+
+			if(INTERFACE_getInterface() != INTERFACE_IHM_CUSTOM && INTERFACE_getInterface() != INTERFACE_IHM_WAIT)
+				return;
+
 		#endif
 		switch(msg->header.type){
 
@@ -771,6 +784,10 @@
 						*(LCD_objects[id].object.link.slider.value) = msg->body.updateSlider.value;
 					}
 					}break;
+
+				case LCD_MSG_TYPE_IHM_CONTROL :
+					LCD_IHM_control(msg->body.ihmControl.ihmUnderControl);
+					break;
 			#else
 				case LCD_MSG_TYPE_UPDATE_PROGRESS_BAR:
 					idStorage = UART_OVER_LCD_getIdStorageByRemoteId(msg->body.updateProgressBar.id);
