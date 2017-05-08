@@ -24,10 +24,22 @@ void INTERFACE_init(void){
 void INTERFACE_processMain(void){
 	static INTERFACE_ihm_e lastIhm = -10;
 	bool_e entrance = FALSE;
+	static bool_e lastStateSwitchLCD = FALSE;
 
 	#ifdef USE_LCD_OVER_UART
 		LCD_OVER_UART_processMain();
 	#endif
+
+	if(SWITCH_LCD_PORT != lastStateSwitchLCD && actualIhm != INTERFACE_IHM_WAIT){
+		if(SWITCH_LCD_PORT)
+			INTERFACE_setInterface(INTERFACE_IHM_POSITION);
+		else
+			INTERFACE_setInterface(INTERFACE_IHM_CUSTOM);
+
+		LCD_OVER_UART_ihmControl(SWITCH_LCD_PORT);
+
+		lastStateSwitchLCD = SWITCH_LCD_PORT;
+	}
 
 	if(lastIhm != actualIhm)
 		entrance = TRUE;
@@ -63,6 +75,10 @@ void INTERFACE_setInterface(INTERFACE_ihm_e ihm){
 	debug_printf("setInterface %d\n", ihm);
 	actualIhm = ihm;
 	MIDDLEWARE_resetScreen();
+}
+
+INTERFACE_ihm_e INTERFACE_getInterface(){
+	return actualIhm;
 }
 
 static void INTERFACE_IHM_wait(bool_e entrance){
@@ -162,29 +178,37 @@ static void INTERFACE_IHM_position(bool_e entrance){
 	static time32_t lastRefresh;
 
 	if(entrance){
-		x = MIDDLEWARE_addText(50, 50, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "x : %d", global.pos.x);
-		y = MIDDLEWARE_addText(50, 65, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "y : %d", global.pos.y);
-		teta = MIDDLEWARE_addText(50, 80, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "teta : %d  |  %d°", global.pos.teta, global.pos.teta*180/PI4096);
+		x = MIDDLEWARE_addText(50, 50, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "x : %4d", global.pos.x);
+		y = MIDDLEWARE_addText(50, 65, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "y : %4d", global.pos.y);
+		teta = MIDDLEWARE_addText(50, 80, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "teta : %4d  |  %4d°", global.pos.teta, global.pos.teta*180/PI4096);
 
-		voltage = MIDDLEWARE_addText(50, 100, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "%d mV", global.voltage.Vpermanent);
+		voltage = MIDDLEWARE_addText(50, 100, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "%4d mV", global.voltage.Vpermanent);
 
-		advIr1 = MIDDLEWARE_addText(10, 115, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "advIr1 dist : %4d  |  angle : %4d..", global.foe[0].dist, global.foe[0].angle*180/PI4096);
-		advIr2 = MIDDLEWARE_addText(10, 130, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "advIr2 dist : %4d  |  angle : %4d..", global.foe[1].dist, global.foe[1].angle*180/PI4096);
-		adv1 = MIDDLEWARE_addText(10, 145, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv1 dist : %4d  |  angle : %4d..", global.foe[2].dist, global.foe[2].angle*180/PI4096);
-		adv2 = MIDDLEWARE_addText(10, 160, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv2 dist : %4d  |  angle : %4d..", global.foe[3].dist, global.foe[3].angle*180/PI4096);
+		advIr1 = MIDDLEWARE_addText(10, 115, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "advIr1 dist : %4d  |  angle : %4d..", global.foe[0].dist, ((Sint32)global.foe[0].angle)*180/PI4096);
+		advIr2 = MIDDLEWARE_addText(10, 130, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "advIr2 dist : %4d  |  angle : %4d..", global.foe[1].dist, ((Sint32)global.foe[1].angle)*180/PI4096);
+		adv1 = MIDDLEWARE_addText(10, 145, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv1 dist : %4d  |  angle : %4d..", global.foe[2].dist, ((Sint32)global.foe[2].angle)*180/PI4096);
+		adv2 = MIDDLEWARE_addText(10, 160, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv2 dist : %4d  |  angle : %4d..", global.foe[3].dist, ((Sint32)global.foe[3].angle)*180/PI4096);
 	}
 
 	if(global.absolute_time - lastRefresh > 100){
-		MIDDLEWARE_setText(x, "x : %d", global.pos.x);
-		MIDDLEWARE_setText(y, "y : %d", global.pos.y);
-		MIDDLEWARE_setText(teta, "teta : %d  |  %d°", global.pos.teta, global.pos.teta*180/PI4096);
-		MIDDLEWARE_setText(voltage, "%d mV", global.voltage.Vpermanent);
+		MIDDLEWARE_setText(x, "x : %4d", global.pos.x);
+		MIDDLEWARE_setText(y, "y : %4d", global.pos.y);
+		MIDDLEWARE_setText(teta, "teta : %4d  |  %4d°", global.pos.teta, global.pos.teta*180/PI4096);
+		MIDDLEWARE_setText(voltage, "%4d mV", global.voltage.Vpermanent);
 
-		MIDDLEWARE_setText(advIr1, "advIr1 dist : %4d  |  angle : %4d..", global.foe[0].dist, global.foe[0].angle*180/PI4096);
-		MIDDLEWARE_setText(advIr2, "advIr2 dist : %4d  |  angle : %4d..", global.foe[1].dist, global.foe[1].angle*180/PI4096);
+		if(global.foe[0].fiability_error == AUCUNE_ERREUR)
+			MIDDLEWARE_setText(advIr1, "advIr1 dist : %4d  |  angle : %4ld", global.foe[0].dist, ((Sint32)global.foe[0].angle)*180/PI4096);
+		else
+			MIDDLEWARE_setText(advIr1, "advIr1 --------------------------------");
 
-		MIDDLEWARE_setText(adv1, "adv1 dist : %4d  |  angle : %4d..", global.foe[2].dist, global.foe[2].angle*180/PI4096);
-		MIDDLEWARE_setText(adv2, "adv2 dist : %4d  |  angle : %4d..", global.foe[3].dist, global.foe[3].angle*180/PI4096);
+		if(global.foe[1].fiability_error == AUCUNE_ERREUR)
+			MIDDLEWARE_setText(advIr2, "advIr2 dist : %4d  |  angle : %4ld", global.foe[1].dist, ((Sint32)global.foe[1].angle)*180/PI4096);
+		else
+			MIDDLEWARE_setText(advIr2, "advIr2 --------------------------------");
+
+
+		MIDDLEWARE_setText(adv1, "adv1 dist : %4d  |  angle : %4ld", global.foe[2].dist, ((Sint32)global.foe[2].angle)*180/PI4096);
+		MIDDLEWARE_setText(adv2, "adv2 dist : %4d  |  angle : %4ld", global.foe[3].dist, ((Sint32)global.foe[3].angle)*180/PI4096);
 	}
 
 

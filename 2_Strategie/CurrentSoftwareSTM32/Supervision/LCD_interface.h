@@ -18,6 +18,7 @@
 
 		void LCD_init(void);
 		void LCD_processMain(void);
+		void LCD_IHM_control(bool_e control);
 
 	#endif
 

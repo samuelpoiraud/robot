@@ -26,7 +26,7 @@ void DETECTION_receiveCanMsg(CAN_msg_t *msg){
 		case BROADCAST_ADVERSARIES_POSITION:
 			if(msg->data.broadcast_adversaries_position.adversary_number < 2){
 				Uint8 id = msg->data.broadcast_adversaries_position.adversary_number;
-				global.foe[2+id].dist = msg->data.broadcast_adversaries_position.dist;
+				global.foe[2+id].dist = msg->data.broadcast_adversaries_position.dist * 20;
 				global.foe[2+id].angle = msg->data.broadcast_adversaries_position.teta;
 				global.foe[2+id].fiability_error = 0;
 			}

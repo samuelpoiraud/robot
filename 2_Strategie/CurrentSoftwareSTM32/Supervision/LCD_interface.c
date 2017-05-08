@@ -26,6 +26,7 @@
 	#define LCD_MIN_TIME_REFRESH		200
 
 	typedef enum{
+		MENU_WAIT_SWITCH = -1,
 		MENU_WAIT_IHM = 0,
 		MENU_WAIT_OHTER_BOARD,
 		MENU_MAIN,
@@ -36,6 +37,7 @@
 
 	static LCD_state_e LCD_state = MENU_WAIT_IHM;
 	static LCD_state_e LCD_previous_state = MENU_WAIT_IHM;
+	static bool_e LCD_is_under_IHM_control = FALSE;
 
 	static void LCD_processState(void);
 	static LCD_state_e LCD_MENU_waitIHM(bool_e init);
@@ -54,6 +56,10 @@
 		LCD_OVER_UART_processMain();
 	}
 
+	void LCD_IHM_control(bool_e control){
+		LCD_is_under_IHM_control = control;
+	}
+
 	static void LCD_processState(void){
 		bool_e entrance = LCD_state != LCD_previous_state;
 		LCD_previous_state = LCD_state;
@@ -61,7 +67,17 @@
 		if(entrance)
 			LCD_OVER_UART_resetScreen();
 
+		if(LCD_is_under_IHM_control == TRUE){
+			LCD_state = MENU_WAIT_SWITCH;
+		}
+
 		switch(LCD_state){
+			case MENU_WAIT_SWITCH:
+				if(LCD_is_under_IHM_control == FALSE){
+					LCD_state = MENU_MAIN;
+				}
+				break;
+
 			case MENU_WAIT_IHM:
 				LCD_state = LCD_MENU_waitIHM(entrance);
 				break;
@@ -229,7 +245,7 @@
 				strncpy(lastStratName, BRAIN_get_current_strat_name(), 20);
 			}
 
-			if(lastIdSD != SD_isOK() || lastIdSD != SD_get_match_id()){
+			if(lastStateSD != SD_isOK() || lastIdSD != SD_get_match_id()){
 				if(SD_isOK())
 					LCD_OVER_UART_setText(idMatch, "SD : %d", SD_get_match_id());
 				else

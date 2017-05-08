@@ -35,4 +35,6 @@
 
 	void INTERFACE_setInterface(INTERFACE_ihm_e ihm);
 
+	INTERFACE_ihm_e INTERFACE_getInterface();
+
 #endif //_H_INTERFACE

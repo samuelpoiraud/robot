@@ -127,7 +127,7 @@
 
 			LCD_objectId_t LCD_OVER_UART_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, LCD_color_e color);
 		#else
-
+			void LCD_OVER_UART_ihmControl(bool_e ihmUnderControl);
 		#endif
 
 
@@ -142,7 +142,7 @@
 
 			void LCD_OVER_UART_setMenu(LCD_menuId_e menuId);
 		#else
-
+			void LCD_OVER_UART_ihmControl(bool_e ihmUnderControl);
 		#endif
 
 
