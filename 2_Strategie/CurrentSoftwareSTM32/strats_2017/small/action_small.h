@@ -49,6 +49,8 @@
 	error_e sub_act_anne_return_module();
 	error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules);
 	error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules);
+	error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules);
+
 
 
 

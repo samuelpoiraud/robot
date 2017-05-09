@@ -515,6 +515,325 @@ error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules){
 	return IN_PROGRESS;
 }
 
+error_e sub_anne_return_modules_side(ELEMENTS_property_e modules){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_RETURN_MODULES_SIDE,
+			INIT,
+			GET_IN,
+			COMPUTE,
+
+			GO_TO_BLUE,
+			OPEN_MULTIFONCTION_BLUE,
+			RUSH_BLUE,
+			CLOSE_PUSHER_BLUE,
+			AVANCE_BLUE,
+			ENABLE_MAGIC_BLUE,
+			COMPUTE_LITTLE_MOVE_BACK_BLUE,
+			LITTLE_MOVE_BACK_BLUE,
+			LITTLE_MOVE_BACK_ERROR_BLUE,
+			MOVE_BACK_BLUE,
+			GET_OUT_BLUE,
+
+			GO_TO_YELLOW,
+			OPEN_MULTIFONCTION_YELLOW,
+			RUSH_YELLOW,
+			CLOSE_PUSHER_YELLOW,
+			AVANCE_YELLOW,
+			ENABLE_MAGIC_YELLOW,
+			COMPUTE_LITTLE_MOVE_BACK_YELLOW,
+			LITTLE_MOVE_BACK_YELLOW,
+			LITTLE_MOVE_BACK_ERROR_YELLOW,
+			MOVE_BACK_YELLOW,
+			GET_OUT_YELLOW,
+
+			ERROR,
+			DONE
+		);
+
+#define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
+	static time32_t time_timeout = 0;
+	Uint8 pos_get_in;
+	Uint8 passage;
+
+	static Uint8 nb_cylinder_in_basis = 0;
+	static Sint16 tryx, tryy;
+
+	switch(state){
+		case INIT:
+			state = GET_IN;
+			break;
+
+		case GET_IN:
+			state = check_sub_action_result(sub_anne_return_modules_side_get_in(modules), state, COMPUTE, ERROR);
+			break;
+
+		case COMPUTE:
+			if(((modules == OUR_ELEMENT)&&(global.color == BLUE)) || ((modules == ADV_ELEMENT)&&(global.color == YELLOW))){
+				state = GO_TO_BLUE;
+			}else if(((modules == ADV_ELEMENT)&&(global.color == BLUE)) || ((modules == OUR_ELEMENT)&&(global.color == YELLOW))){
+				state = GO_TO_YELLOW;
+			}else
+				state = ERROR;
+			break;
+
+		case GO_TO_BLUE:
+			state = try_going(750, 300, state, OPEN_MULTIFONCTION_BLUE, GET_OUT_BLUE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case OPEN_MULTIFONCTION_BLUE:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, RUSH_BLUE, RUSH_BLUE);
+#warning 'je vois pas quoi mettre en cas d\'erreur'
+			break;
+
+		case RUSH_BLUE:
+			/*if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
+			}*/
+			state = try_rush(1450, 300, state, CLOSE_PUSHER_BLUE, MOVE_BACK_BLUE, BACKWARD, NO_DODGE_AND_WAIT, TRUE);
+			if(ON_LEAVE()){
+				nb_cylinder_in_basis = (1200 - global.pos.x)/100;
+			}
+			break;
+
+		case CLOSE_PUSHER_BLUE:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE_BLUE, MOVE_BACK_BLUE);
+			break;
+
+		case AVANCE_BLUE:
+			state = try_going(1450, 300, state, ENABLE_MAGIC_BLUE, MOVE_BACK_BLUE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+#warning 'il faut mettre autre chose que move back pour retourner ce qui est déjà accessible'
+			break;
+
+		case ENABLE_MAGIC_BLUE:
+			state = check_sub_action_result(sub_act_anne_return_module(), state, COMPUTE_LITTLE_MOVE_BACK_BLUE, MOVE_BACK_BLUE);
+#warning 'quelles sont les raisons possibles d\'une erreur ?'
+			break;
+
+		case COMPUTE_LITTLE_MOVE_BACK_BLUE:
+			if(global.pos.y>(1800 - nb_cylinder_in_basis*100))
+				state = LITTLE_MOVE_BACK_BLUE;
+			else
+				state = MOVE_BACK_BLUE;
+			break;
+
+		case LITTLE_MOVE_BACK_BLUE:
+			state = try_advance(NULL, entrance, 100, state, ENABLE_MAGIC_BLUE, LITTLE_MOVE_BACK_ERROR_BLUE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case LITTLE_MOVE_BACK_ERROR_BLUE:{
+			if(entrance){
+				Uint8 nb_module_returned = 0;
+				nb_module_returned = (1800 - global.pos.x)/70;
+				tryy = 1200 - 100*nb_module_returned;
+			}
+			state = try_going(tryx, 300, state, LITTLE_MOVE_BACK_BLUE, LITTLE_MOVE_BACK_BLUE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		}
+		break;
+
+		case MOVE_BACK_BLUE:
+			state = try_going(700, 300, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+#warning 'OUPS! j\'ai très mal négocié les get out, faut revoir la fin'
+
+		case GO_TO_YELLOW:
+			state = try_going(750, 2700, state, OPEN_MULTIFONCTION_YELLOW, GET_OUT_YELLOW, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case OPEN_MULTIFONCTION_YELLOW:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, RUSH_BLUE, RUSH_BLUE);
+#warning 'je vois pas quoi mettre en cas d\'erreur'
+			break;
+
+		case RUSH_YELLOW:
+/*			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
+			}*/
+			state = try_rush(1100, 2700, state, CLOSE_PUSHER_YELLOW, MOVE_BACK_YELLOW, FORWARD, NO_DODGE_AND_WAIT, TRUE);
+			if(ON_LEAVE()){
+				nb_cylinder_in_basis = (1200 - global.pos.x)/100;
+			}
+			break;
+
+		case CLOSE_PUSHER_YELLOW:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE_YELLOW, MOVE_BACK_YELLOW);
+			break;
+
+		case AVANCE_YELLOW:
+			state = try_going(1200, 2700, state, ENABLE_MAGIC_YELLOW, MOVE_BACK_YELLOW, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+#warning 'il faut mettre autre chose que move back pour retourner ce qui est déjà accessible'
+			break;
+
+		case ENABLE_MAGIC_YELLOW:
+			state = check_sub_action_result(sub_act_anne_return_module(), state, COMPUTE_LITTLE_MOVE_BACK_YELLOW, MOVE_BACK_YELLOW);
+#warning 'quelles sont les raisons possibles d\'une erreur ?'
+			break;
+
+		case COMPUTE_LITTLE_MOVE_BACK_YELLOW:
+			if(global.pos.y>(1200+nb_cylinder_in_basis*100))
+				state = LITTLE_MOVE_BACK_YELLOW;
+			else
+				state = MOVE_BACK_YELLOW;
+			break;
+
+		case LITTLE_MOVE_BACK_YELLOW:
+			state = try_advance(NULL, entrance, 100, state, ENABLE_MAGIC_YELLOW, LITTLE_MOVE_BACK_ERROR_YELLOW, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case LITTLE_MOVE_BACK_ERROR_YELLOW:{
+			if(entrance){
+				Uint8 nb_module_returned = 0;
+				nb_module_returned = (1800 - global.pos.x)/70;
+				tryx = 1800 - 70*nb_module_returned;
+				tryy = 2000 - 70*nb_module_returned;
+			}
+			state = try_going(tryx, tryy, state, LITTLE_MOVE_BACK_YELLOW, LITTLE_MOVE_BACK_YELLOW, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		}
+		break;
+
+		case MOVE_BACK_YELLOW:
+			state = try_going(1000, 2200, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_anne_return_modules_centre\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+
+error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_RETURN_MODULES_SIDE_GET_IN,
+			INIT,
+			GET_IN_OUR_SIDE,
+			GET_IN_ADV_SIDE,
+
+			GET_IN_POS_OUR_SIDE,
+			GET_IN_POS_OUR_SIDE_FROM_ADV_SIDE,
+			GET_IN_POS_OUR_SIDE_FROM_CENTRAL,
+			ASTAR_OUR_SIDE,
+
+			GET_IN_POS_ADV_SIDE,
+			GET_IN_POS_ADV_SIDE_FROM_OUR_SIDE,
+			GET_IN_POS_ADV_SIDE_FROM_CENTRAL,
+			ASTAR_ADV_SIDE,
+
+			ERROR,
+			DONE
+		);
+//color Y
+	switch(state){
+		case INIT:
+			if(modules == OUR_ELEMENT){
+				state = GET_IN_OUR_SIDE;
+			}else if(modules == ADV_ELEMENT){
+				state = GET_IN_ADV_SIDE;
+			}else
+				state = ERROR;
+			break;
+
+		case GET_IN_OUR_SIDE:
+			if(i_am_in_square_color(800, 1400, 300, 900)){
+				state = GET_IN_POS_OUR_SIDE;
+			}else if(i_am_in_square_color(800, 1400, 2700, 2100)){
+				state = GET_IN_POS_OUR_SIDE_FROM_ADV_SIDE;
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
+				state = GET_IN_POS_OUR_SIDE_FROM_CENTRAL;
+			}else{
+				state = ASTAR_OUR_SIDE;
+			}
+			break;
+
+		case GET_IN_POS_OUR_SIDE:
+			state = try_going(820, COLOR_Y(400), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_POS_OUR_SIDE_FROM_CENTRAL:
+			state = try_going(1000, COLOR_Y(1000), state, GET_IN_POS_OUR_SIDE_FROM_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_POS_OUR_SIDE_FROM_ADV_SIDE:
+			state = try_going(900, COLOR_Y(2000), state, GET_IN_POS_OUR_SIDE_FROM_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case ASTAR_OUR_SIDE:
+			state = ASTAR_try_going(820, COLOR_Y(400), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_ADV_SIDE:
+			if(i_am_in_square_color(800, 1400, 300, 900)){
+				state = GET_IN_POS_ADV_SIDE_FROM_OUR_SIDE;
+			}else if(i_am_in_square_color(800, 1400, 2700, 2100)){
+				state = GET_IN_POS_ADV_SIDE;
+			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
+				state = GET_IN_POS_ADV_SIDE_FROM_CENTRAL;
+			}else{
+				state = ASTAR_ADV_SIDE;
+			}
+			break;
+
+		case GET_IN_POS_ADV_SIDE:
+			state = try_going(820, COLOR_Y(2600), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_POS_ADV_SIDE_FROM_CENTRAL:
+			state = try_going(1000, COLOR_Y(2000), state, GET_IN_POS_ADV_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_POS_ADV_SIDE_FROM_OUR_SIDE:
+			state = try_going(900, COLOR_Y(1000), state, GET_IN_POS_ADV_SIDE_FROM_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
+
+		case ASTAR_ADV_SIDE:
+			state = ASTAR_try_going(820, COLOR_Y(2600), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_anne_return_modules_side_get_in\n");
+			break;
+	}
+	return IN_PROGRESS;
+}
+
 
 error_e sub_anne_get_in_pos_1_depose_module_centre(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_1_DEPOSE_MODULES_CENTRE,
