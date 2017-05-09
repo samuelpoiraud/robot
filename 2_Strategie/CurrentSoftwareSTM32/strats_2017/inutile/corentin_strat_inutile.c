@@ -35,7 +35,7 @@ void corentin_strat_inutile_big(){
 
 	switch(state){
 		case INIT:
-			state=GO_TO;
+			state=START;
 		//	PROP_set_acceleration(200);
 			break;
 
@@ -48,7 +48,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case START:
-			state=try_advance(NULL, entrance,600,state, FIRST_STRAIGHT, FIRST_STRAIGHT,FAST, BACKWARD, NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_advance(NULL, entrance,600,state, FIRST_STRAIGHT, FIRST_STRAIGHT,FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case FIRST_STRAIGHT:
@@ -60,7 +60,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case SECOND_STRAIGHT:
-			state=try_going(600,COLOR_Y(350),state,SECOND_ROT,SECOND_ROT,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_going(900,COLOR_Y(400),state,SECOND_ROT,SECOND_ROT,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case SECOND_ROT:
@@ -68,7 +68,7 @@ void corentin_strat_inutile_big(){
 			break;
 
 		case THIRD_STRAIGHT:
-			state=try_advance(NULL, entrance,730,state, GIVE_DATA, GIVE_DATA,FAST, BACKWARD, NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			state=try_advance(NULL, entrance,300,state, GIVE_DATA, GIVE_DATA,FAST, BACKWARD, NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case GIVE_DATA:{
