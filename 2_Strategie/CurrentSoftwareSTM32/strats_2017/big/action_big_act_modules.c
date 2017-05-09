@@ -1253,8 +1253,6 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 		case WAIT_MODULE_FALL:	// On attend que le module tombe bien dans le balancer, c'est à dire que le stockage se termine bien mécaniquement
 			if(entrance){
-#warning changer ça
-				//ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UP);
 				time_timeout = global.absolute_time + 1500;
 			}
 			if(global.absolute_time > time_timeout){

@@ -172,6 +172,8 @@ static void CYLINDER_PUSHER_RIGHT_get_position_config(ACT_order_e *pOrder, Uint1
 		order = ACT_CYLINDER_PUSHER_RIGHT_OUT;
 	}else if(position > CYLINDER_PUSHER_RIGHT_AX12_IDLE_POS - epsilon && position < CYLINDER_PUSHER_RIGHT_AX12_IDLE_POS + epsilon){
 		order = ACT_CYLINDER_PUSHER_RIGHT_IDLE;
+	}else if(position > CYLINDER_PUSHER_RIGHT_AX12_DEPOSE_POS - epsilon && position < CYLINDER_PUSHER_RIGHT_AX12_DEPOSE_POS + epsilon){
+		order = ACT_CYLINDER_PUSHER_RIGHT_DEPOSE;
 	}
 
 	if(pOrder != NULL)
@@ -209,6 +211,7 @@ bool_e CYLINDER_PUSHER_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
             case ACT_CYLINDER_PUSHER_RIGHT_IDLE :
             case ACT_CYLINDER_PUSHER_RIGHT_IN :
             case ACT_CYLINDER_PUSHER_RIGHT_OUT :
+            case ACT_CYLINDER_PUSHER_RIGHT_DEPOSE :
             case ACT_CYLINDER_PUSHER_RIGHT_STOP :
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CYLINDER_PUSHER_RIGHT, &CYLINDER_PUSHER_RIGHT_run_command, 0,TRUE);
 				break;
@@ -264,7 +267,7 @@ static void CYLINDER_PUSHER_RIGHT_command_init(queue_id_t queueId) {
         case ACT_CYLINDER_PUSHER_RIGHT_IDLE : *ax12_goalPosition = CYLINDER_PUSHER_RIGHT_AX12_IDLE_POS; break;
         case ACT_CYLINDER_PUSHER_RIGHT_IN : *ax12_goalPosition = CYLINDER_PUSHER_RIGHT_AX12_IN_POS; break;
         case ACT_CYLINDER_PUSHER_RIGHT_OUT : *ax12_goalPosition = CYLINDER_PUSHER_RIGHT_AX12_OUT_POS; break;
-
+        case ACT_CYLINDER_PUSHER_RIGHT_DEPOSE : *ax12_goalPosition = CYLINDER_PUSHER_RIGHT_AX12_DEPOSE_POS; break;
         case ACT_CYLINDER_PUSHER_RIGHT_STOP :
             AX12_set_torque_enabled(CYLINDER_PUSHER_RIGHT_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
             QUEUE_next(queueId, ACT_CYLINDER_PUSHER_RIGHT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);

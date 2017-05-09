@@ -161,7 +161,10 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 			break;
 
 		case GET_IN:
-			state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(modules_type, robot_side, basis_side), state, DEPOSE_MODULE, ERROR);
+			if(robot_side==MODULE_STOCK_LEFT)
+				state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(modules_type, robot_side, basis_side), state, DOWN_PUSHER_LEFT, ERROR);
+			else
+				state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(modules_type, robot_side, basis_side), state, DOWN_PUSHER_RIGHT, ERROR);
 			break;
 
 		case GO_TO_DEPOSE_MODULE: // decompte des modules regarde combien
@@ -172,6 +175,9 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 			}*/
 			if((robot_side == MODULE_STOCK_LEFT && !STOCKS_isEmpty(MODULE_STOCK_LEFT))||(robot_side == MODULE_STOCK_RIGHT && !STOCKS_isEmpty(MODULE_STOCK_RIGHT))){
 				state = DEPOSE_MODULE;
+			}
+			else{
+				state = DONE;
 			}
 
 			// ajouter le module sur le tableau
@@ -202,16 +208,16 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 
 		case DOWN_PUSHER_RIGHT: // on sort le pusher
 			if (entrance){
-							ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_OUT);
-						}
-					state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE, ERROR);
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_OUT);
+			}
+			state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE, ERROR);
 			break;
 
 		case DOWN_PUSHER_LEFT:
 			if (entrance){
-							ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_OUT);
-						}
-					state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE, ERROR);
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_OUT);
+			}
+			state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE, ERROR);
 			break;
 
 
@@ -622,7 +628,7 @@ error_e sub_harry_get_in_pos_2_depose_module_centre(){
 			break;
 
 		case AVANCE:
-			state = try_going(1310,COLOR_Y(1135), state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
+			state = try_going(1300,COLOR_Y(1135), state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case ROTATE:
