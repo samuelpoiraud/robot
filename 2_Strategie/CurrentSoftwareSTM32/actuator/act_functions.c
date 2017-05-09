@@ -201,8 +201,6 @@ bool_e ACT_push_order(ACT_sid_e sid,  ACT_order_e order){
 		return FALSE;
 	}
 
-	QUEUE_reset(act_link_SID_Queue[i].queue_id);
-
 	ACT_arg_init(&args, sid, order);
 	ACT_arg_set_fallbackmsg(&args, sid,  ACT_DEFAULT_STOP);
 
