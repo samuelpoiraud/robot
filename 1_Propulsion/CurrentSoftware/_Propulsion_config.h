@@ -52,7 +52,7 @@
 
 
 
-	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0xFFFFF880
+	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0xFFFFF6CF
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT	0xFFFFFFF0
 	// Faire des carrés pour régler ce coefficient
 
