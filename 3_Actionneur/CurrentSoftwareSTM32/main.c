@@ -196,69 +196,75 @@ int main (void)
 
 #ifdef I_AM_ROBOT_BIG
 // prise de cylindre droite
-	static void MAIN_onButton0() {
-		static Uint8 state = 0;
-		CAN_msg_t msg;
-		msg.size = 1;
+static void MAIN_onButton0() {
 
-		if(state == 0){
-			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER;
-		}else if(state == 1){
-			msg.sid = ACT_POMPE_SLIDER_RIGHT;
-			msg.data.act_msg.order = ACT_POMPE_NORMAL;
-		}else if(state == 2){
-			msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_OUT;
-		}else if(state == 3){
-			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
-		}else if(state == 4){
-			msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_POMPE_NORMAL;
-		}else if(state == 5){
-			msg.sid = ACT_CYLINDER_SLIDER_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLIDER_RIGHT_IN;
-		}else if(state == 6){
-			msg.sid = ACT_POMPE_SLIDER_RIGHT;
-			msg.data.act_msg.order = ACT_POMPE_STOP;
-		}else if(state == 7){
-			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_TOP;
-		}else if(state == 8){
-			msg.sid = ACT_CYLINDER_SLOPE_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_UP;
-		}else if(state == 9){
-			msg.sid = ACT_POMPE_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_POMPE_STOP;
-		}else if(state == 10){
-			msg.sid = ACT_CYLINDER_ELEVATOR_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM;
-		}else if(state == 11){
-			msg.sid = ACT_CYLINDER_SLOPE_RIGHT;
-			msg.data.act_msg.order = ACT_CYLINDER_SLOPE_RIGHT_DOWN;
-		}
+static Uint8 state = 0;
+CAN_msg_t msg1;
+msg1.size = 1;
 
-		if(msg.sid != 0)
-			CAN_process_msg(&msg);
-		state = (state == 11)? 0 : state + 1;
-	}
+if(state == 0){
+	msg1.sid = ACT_ORE_ROLLER_ARM;
+	msg1.data.act_msg.order = ACT_ORE_ROLLER_ARM_OUT;
+}else if(state == 1){
+	msg1.sid = ACT_ORE_WALL;
+	msg1.data.act_msg.order = ACT_ORE_WALL_OUT;
+}else if(state == 2){
+	msg1.sid = ACT_ORE_ROLLER_FOAM;
+	msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_RUN;
+	msg1.data.act_msg.act_data.act_optionnal_data[0] = ACT_ORE_ROLLER_FOAM_SPEED_RUN;
+}else if(state == 3){
+	msg1.sid = ACT_ORE_ROLLER_FOAM;
+	msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_STOP;
+}else if(state == 4){
+	msg1.sid = ACT_ORE_WALL;
+	msg1.data.act_msg.order = ACT_ORE_WALL_IN;
+}else if(state == 5){
+	msg1.sid = ACT_ORE_ROLLER_ARM;
+	msg1.data.act_msg.order = ACT_ORE_ROLLER_ARM_IN;
+}
 
-static void MAIN_onButton0LongPush() {
-	static Uint8 state = 0;
-		CAN_msg_t msg1;
-		msg1.size = 1;
+if(msg1.sid != 0)
+	CAN_process_msg(&msg1);
+state = (state == 5)? 0 : state + 1;
+}
 
-		if(state == 0){
-			msg1.sid = ACT_ROCKET;
-			msg1.data.act_msg.order = ACT_ROCKET_PREPARE_LAUNCH;
-		}else if(state == 1){
-			msg1.sid = ACT_ROCKET;
-			msg1.data.act_msg.order = ACT_ROCKET_LAUNCH;
-		}
+// depose balle tire
+static void MAIN_onButton0LongPush(){
+static Uint8 state = 0;
+CAN_msg_t msg1;
+msg1.size = 1;
 
-		CAN_process_msg(&msg1);
-		state = (state == 1)? 0 : state + 1;
+if(state == 0){
+	msg1.sid = ACT_ORE_GUN;
+	msg1.data.act_msg.order = ACT_ORE_GUN_DOWN;
+}else if(state == 1){
+	msg1.sid = ACT_TURBINE;
+	msg1.data.act_msg.order = ACT_TURBINE_NORMAL;
+}else if(state == 2){
+	msg1.sid = ACT_ORE_TRIHOLE;
+	msg1.data.act_msg.order = ACT_ORE_TRIHOLE_RUN;
+	msg1.data.act_msg.act_data.act_optionnal_data[0] = 10;
+}else if(state == 3){
+	msg1.sid = ACT_ORE_ROLLER_ARM;
+	msg1.data.act_msg.order = ACT_ORE_ROLLER_ARM_DEPOSE;
+}else if(state == 4){
+	msg1.sid = ACT_ORE_ROLLER_FOAM;
+	msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_RUN;
+	msg1.data.act_msg.act_data.act_optionnal_data[0] = (Uint16)(-510);
+}else if(state == 5){
+	msg1.sid = ACT_ORE_TRIHOLE;
+	msg1.data.act_msg.order = ACT_ORE_TRIHOLE_STOP;
+}else if(state == 6){
+	msg1.sid = ACT_TURBINE;
+	msg1.data.act_msg.order = ACT_TURBINE_STOP;
+}else if(state == 7){
+	msg1.sid = ACT_ORE_GUN;
+	msg1.data.act_msg.order = ACT_ORE_GUN_UP;
+}
+
+if(msg1.sid != 0)
+	CAN_process_msg(&msg1);
+state = (state == 5)? 0 : state + 1;
 }
 
 // prise de cylindre gauche
