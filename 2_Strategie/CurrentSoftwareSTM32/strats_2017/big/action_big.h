@@ -9,6 +9,8 @@
 
 	#define TRIHOLE_DISPOSE_TIME		5000
 
+	#define HARRY_TAKE_MODULE_UNICOLOR_SOUTH_AFTER_ROCKET_MULTICOLOR
+
 	// action_big_common
 	error_e sub_harry_initiale();
 	error_e sub_harry_end_of_match();
