@@ -1,6 +1,7 @@
 #include "action_big.h"
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
+#include "../../propulsion/prop_functions.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_types.h"
 #include "../../QS/QS_outputlog.h"
@@ -17,6 +18,7 @@ error_e sub_harry_prise_modules_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_MODULES_INITIALE,
 			INIT,
 			ADVANCE_ON_TURNING_POINT,
+			ADVANCE_SLOWLY,
 			MOVE_TO_TAKE_MODULES,
 			SLIDERS_GO_IN,
 			STORE_MODULES,
@@ -24,12 +26,16 @@ error_e sub_harry_prise_modules_initiale(){
 			DONE
 		);
 
-	const displacement_t curve[4] = {/*(displacement_t){(GEOMETRY_point_t){412, COLOR_Y(922)}, FAST},*/
-									(displacement_t){(GEOMETRY_point_t){592, COLOR_Y(962)}, FAST},
+	/*const displacement_t curve[4] = {(displacement_t){(GEOMETRY_point_t){592, COLOR_Y(962)}, FAST},
 									(displacement_t){(GEOMETRY_point_t){993, COLOR_Y(674)}, FAST},
-									(displacement_t){(GEOMETRY_point_t){1107, COLOR_Y(515)}, SLOW},
-									(displacement_t){(GEOMETRY_point_t){1167, COLOR_Y(431)}, SLOW}
-									};
+									(displacement_t){(GEOMETRY_point_t){1115, COLOR_Y(515)}, SLOW},
+									(displacement_t){(GEOMETRY_point_t){1260, COLOR_Y(390)}, SLOW}
+									};*/
+	const displacement_t curve[4] = {(displacement_t){(GEOMETRY_point_t){592, COLOR_Y(962)}, FAST},
+										(displacement_t){(GEOMETRY_point_t){1000, COLOR_Y(674)}, FAST},
+										(displacement_t){(GEOMETRY_point_t){1240, COLOR_Y(400)}, SLOW},
+										(displacement_t){(GEOMETRY_point_t){1350, COLOR_Y(400)}, SLOW}	// si on veut aller jusqu'à la fusée, attention risque de collision
+										};
 
 	error_e stateAct1, stateAct2;
 
@@ -45,24 +51,29 @@ error_e sub_harry_prise_modules_initiale(){
 			break;
 
 		case ADVANCE_ON_TURNING_POINT:
-			state = try_advance(NULL, entrance, 300, state, MOVE_TO_TAKE_MODULES, MOVE_TO_TAKE_MODULES, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case MOVE_TO_TAKE_MODULES:
 			if(entrance){
 				// Pas de vérification des stocks, il n'y a rien de stocker dans le robot.
-				ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_NORMAL);
+				//ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_NORMAL);
 				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_NORMAL);
-				ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
+				//ACT_push_order(ACT_CYLINDER_ELEVATOR_LEFT, ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM);
 				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_HARVEST);
 
-				ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL);
+				//ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_NORMAL);
 				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_NORMAL);
-				ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
+				//ACT_push_order(ACT_CYLINDER_ELEVATOR_RIGHT, ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM);
 				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_HARVEST);
 			}
 
-			state = try_going_multipoint(curve, 4, state, SLIDERS_GO_IN, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_advance(NULL, entrance, 250, state, ADVANCE_SLOWLY, ADVANCE_SLOWLY, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+
+		case ADVANCE_SLOWLY:
+			state = try_advance(NULL, entrance, 100, state, MOVE_TO_TAKE_MODULES, MOVE_TO_TAKE_MODULES, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case MOVE_TO_TAKE_MODULES:
+			state = try_going_multipoint(curve, 4, state, STORE_MODULES, ERROR, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case SLIDERS_GO_IN:
@@ -82,14 +93,16 @@ error_e sub_harry_prise_modules_initiale(){
 
 		case STORE_MODULES:
 			if(entrance){
-				STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
-				STOCKS_addModule(MODULE_POLY, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
+				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 
 				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
 				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
 			}
 
-			state = DONE;
+			if(ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_FINISH) && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH)){
+				state = DONE;
+			}
 			break;
 
 		case ERROR:
@@ -1606,6 +1619,10 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		case GO_TO_START_POINT_LEFT:{
 			if(entrance && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
+				PROP_WARNER_arm_y(520);
+			}
+
+			if(global.prop.reach_y && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
 				if(global.color == BLUE){
 					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_DEPOSE);
 				}else{
@@ -1632,8 +1649,8 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			if(entrance){
 				// On ne peut utiliser l'élévateur que s'il est disponible
 				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
-					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM );
-					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER );
+					//ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 				}
 				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
 
@@ -1707,8 +1724,8 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			if(entrance){
 				// On ne peut utiliser l'élévateur que s'il est disponible
 				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
-					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM );
-					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
+					//ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
 				}
 				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
 
@@ -1997,9 +2014,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 
 		case GET_IN_OUR_SQUARE:
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 360, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(1350, 400, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(1350, 2600, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
@@ -2022,18 +2039,18 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 
 		case GET_IN_PATHFIND:
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = ASTAR_try_going(1350, 360, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = ASTAR_try_going(1350, 400, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = ASTAR_try_going(1350, 2640, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = ASTAR_try_going(1350, 2600, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 
 		case GET_IN_FRONT_OF_ONE_ON_TWO:
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 360, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 360, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 

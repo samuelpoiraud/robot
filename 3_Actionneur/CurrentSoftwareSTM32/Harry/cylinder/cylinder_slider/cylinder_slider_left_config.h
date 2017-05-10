@@ -22,7 +22,7 @@
 //Position
     #define CYLINDER_SLIDER_LEFT_RX24_IDLE_POS								276 //179
     #define CYLINDER_SLIDER_LEFT_RX24_IN_POS						     	292	//200	//en degré
-	#define CYLINDER_SLIDER_LEFT_RX24_HARVEST_POS						    354 // (78 par rapport à IDLE_POS)
+	#define CYLINDER_SLIDER_LEFT_RX24_HARVEST_POS						    316 // (40 par rapport à IDLE_POS)
     #define CYLINDER_SLIDER_LEFT_RX24_OUT_POS								882	//905	//en degré (+590 par rapport à IN_POS)
     #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_POS						654 //538	//en degré (+362 par rapport à IN_POS)
     #define CYLINDER_SLIDER_LEFT_RX24_ALMOST_OUT_WITH_CYLINDER_POS		 	442 //350	//en degré (+150 par rapport à IN_POS)
