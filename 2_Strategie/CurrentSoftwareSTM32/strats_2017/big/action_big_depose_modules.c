@@ -1272,9 +1272,11 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 
 		case INIT:
 			// Vérifier la présance de cylindre dans le robot:
-			if((robot_side==LEFT &&STOCKS_isEmpty(MODULE_STOCK_LEFT)) ||\
+			if((robot_side==LEFT && STOCKS_isEmpty(MODULE_STOCK_LEFT)) ||\
 			   (robot_side==RIGHT && STOCKS_isEmpty(MODULE_STOCK_RIGHT))){
 				state = DONE;
+				printf("EST VIDE : "+ STOCKS_isEmpty(MODULE_STOCK_LEFT));
+				//state=LES_SQUARE_COLOR;
 			}
 			else{
 				if(global.color==BLUE){
@@ -1875,6 +1877,8 @@ error_e sub_harry_depose_modules_side_intro(ELEMENTS_property_e modules,ELEMENTS
 				//je determine le futur cote de depose:
 				if(STOCKS_isEmpty(MODULE_STOCK_LEFT) && STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
 					state = DONE;
+					printf("FU");
+					//state=DEPOSE_MANAGER;
 				}
 				else if(robot_side==LEFT){
 					if(STOCKS_isEmpty(MODULE_STOCK_LEFT)){

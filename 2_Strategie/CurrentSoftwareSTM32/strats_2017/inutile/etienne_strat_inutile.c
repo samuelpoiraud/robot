@@ -27,7 +27,23 @@ void etienne_strat_inutile_big(){
 					//global.color==BLUE;
 				}
 				//state = try_advance(NULL,entrance,400,state,INIT1,ERROR,FAST,BACKWARD,DODGE_AND_WAIT, END_AT_LAST_POINT);
-				state=check_sub_action_result(sub_harry_rocket_monocolor(OUR_ELEMENT), state, INIT2, INIT2);
+				//state=check_subaction_result(sub_harry_rocket_monocolor(OUR_ELEMENT), state, INIT2, INIT2);
+				STOCKS_addModule(MODULE_BLUE,0,MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_BLUE,1,MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_BLUE,2,MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_BLUE,3,MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_BLUE,4,MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_BLUE,5,MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_BLUE,6,MODULE_STOCK_LEFT);
+
+				STOCKS_addModule(MODULE_BLUE,0,MODULE_STOCK_RIGHT);
+				STOCKS_addModule(MODULE_BLUE,1,MODULE_STOCK_RIGHT);
+				STOCKS_addModule(MODULE_BLUE,2,MODULE_STOCK_RIGHT);
+				STOCKS_addModule(MODULE_BLUE,3,MODULE_STOCK_RIGHT);
+				STOCKS_addModule(MODULE_BLUE,4,MODULE_STOCK_RIGHT);
+				STOCKS_addModule(MODULE_BLUE,5,MODULE_STOCK_RIGHT);
+				STOCKS_addModule(MODULE_BLUE,6,MODULE_STOCK_RIGHT);
+				state = INIT2;
 				break;
 
 			case INIT2:
