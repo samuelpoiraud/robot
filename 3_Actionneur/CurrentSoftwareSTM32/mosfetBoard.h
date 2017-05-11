@@ -13,10 +13,11 @@
 	#define MOSFET_BOARD_H
 
 	#include "QS/QS_all.h"
-	#include "QS/QS_CANmsgList.h"
 
 	#ifdef USE_MOSTFET_BOARD
-	
+
+		#include "QS/QS_CANmsgList.h"
+
 		void MOSFET_BOARD_init();
 		void MOSFET_BOARD_processMain();
 		void MOSFET_BOARD_getPumpStatus(Uint8 id);
