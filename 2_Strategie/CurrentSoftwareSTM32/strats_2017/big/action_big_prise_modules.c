@@ -1640,6 +1640,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			state = try_going_multipoint(curve_left, 2, state, TAKE_MODULE_LEFT, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);
+				MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_OUR_CENTER);
 			}
 			}break;
 

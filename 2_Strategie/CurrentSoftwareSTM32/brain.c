@@ -42,9 +42,9 @@
 //							Valeur souhaitable pour le commit SVN : high_level_strat
 
 
-#define DEFAULT_STRAT_BIG		strat_reglage_odo_symetrie
+#define DEFAULT_STRAT_BIG		high_level_strat
 
-#define DEFAULT_STRAT_SMALL		strat_reglage_odo_symetrie
+#define DEFAULT_STRAT_SMALL		high_level_strat
 
 
 static ia_fun_t strategy;
