@@ -116,6 +116,9 @@ error_e sub_act_anne_return_module(){
 
 // Subaction actionneur de prise fusée v2
 error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool_e module_very_down, bool_e module_down, bool_e module_top, bool_e module_very_top){
+
+	//ATTENTION ! Bien verifié de quel cote de la pompe est branche le cable venant du slider !!!
+
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_ANNE_TAKE_ROCKET,
 			INIT,
 			COMPUTE_NEXT_CYLINDER,
@@ -123,7 +126,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 			ACTION_MOVE_AWAY_MULTIFONCTION,
 			ACTION_GO_TAKE_CYLINDER,
-			ACTION_GO_TAKE_CYLINDER_2,
 			ERROR_ACTION_GO_TAKE_CYLINDER,
 			ERROR_ACTION_GO_TAKE_CYLINDER_RETRY,
 			NO_CYLINDER_DETECTED,
@@ -165,7 +167,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 		case INIT:
 
-			//SWITH SMALL
+			//SWITCH SMALL
 			if(rocket == MODULE_ROCKET_MONO_OUR_SIDE){
 				if(global.color == BLUE){
 					moduleType = MODULE_BLUE;
@@ -211,17 +213,10 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			if (entrance){
 				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_OUT);
 			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, ACTION_GO_TAKE_CYLINDER_2, ACTION_GO_TAKE_CYLINDER_2);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, ACTION_GO_TAKE_CYLINDER, ACTION_GO_TAKE_CYLINDER);
 			break;
 
-		case ACTION_GO_TAKE_CYLINDER: // Inutile pour moi (Valentin)
-			if (entrance){
-				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR , ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_GO_TAKE_CYLINDER_2, ACTION_GO_TAKE_CYLINDER_2);
-			break;
-
-		case ACTION_GO_TAKE_CYLINDER_2:
+		case ACTION_GO_TAKE_CYLINDER:
 			if(entrance){
 				//On active la pompe avant d'avancer
 				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100);
@@ -425,6 +420,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 				//ACT_push_order(ACT_SMALL_CYLINDER_SLIDER,        ACT_SMALL_CYLINDER_SLIDER_IN);
 				//ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK);
 				//ACT_push_order(ACT_SMALL_CYLINDER_ELEVATOR,      ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
+			}
 			}
 			RESET_MAE();
 			on_turning_point();
