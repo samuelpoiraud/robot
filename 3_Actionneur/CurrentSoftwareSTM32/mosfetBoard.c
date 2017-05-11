@@ -59,7 +59,6 @@
 	}
 
 	static void MOSFET_BOARD_secretary(CAN_msg_t * msg){
-
 		switch(msg->sid){
 			case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:{
 				CAN_msg_t msg;
