@@ -51,7 +51,7 @@ void valentin_strat_inutile_big(){
 			//state = GUN_GO_DOWN;
 			//state = try_going(1250, COLOR_Y(300), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			//state = try_going(1250, COLOR_Y(350), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			state = ACTION_3;
+			state = ACTION;
 			break;
 
 		case PATHFIND:
@@ -59,20 +59,21 @@ void valentin_strat_inutile_big(){
 			break;
 
 		case ACTION:
-			if(entrance){
-				ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_IN);
-				ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_IN);
+			//if(entrance){
+				//ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_IN);
+				//ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_IN);
 				//sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
-			}
+			//}
 			//state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, ACTION_2, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
-			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ACTION_2, ERROR);
+			//state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ACTION_2, ERROR);
+			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(LEFT), state, PATHFIND, ERROR);
 			break;
 
 		case ACTION_2:
-			//state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MULTI_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(MODULE_ROCKET_MULTI_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
-			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, DONE, ERROR);
+			//state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, DONE, ERROR);
 			break;
 
 		case ACTION_3:
@@ -183,8 +184,9 @@ void valentin_strat_inutile_small(){
 
 	switch(state){
 		case INIT:
+			state = TAKE_CRATER;
 			//state = ACTION;
-			state = try_going(global.pos.x + 800, global.pos.y, state, TAKE_CRATER, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			//state = try_going(global.pos.x + 800, global.pos.y, state, TAKE_CRATER, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION:
@@ -192,7 +194,7 @@ void valentin_strat_inutile_small(){
 			break;
 
 		case TAKE_CRATER:
-			state = check_sub_action_result(sub_anne_prise_petit_cratere(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_anne_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, TRUE, TRUE, TRUE, TRUE), state, DONE, ERROR);
 			break;
 
 		case ERROR:
