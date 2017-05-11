@@ -344,7 +344,7 @@ void DEBUG_process_it(void)
 			debug_printf("%ld;", tab[i].angle_frein);
 			debug_printf("%ld;", tab[i].pos.x);
 			debug_printf("%ld;", tab[i].pos.y);
-			debug_printf("%d;", tab[i].pos.teta);
+			debug_printf("%d;\n", tab[i].pos.teta);
 
 			Uint32 y;
 			for(y=0;y<10000;y++);
