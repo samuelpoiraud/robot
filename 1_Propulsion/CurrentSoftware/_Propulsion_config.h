@@ -20,7 +20,7 @@
 //POUR REGLER L'ODOMETRIE:
 //Consultez le Fichier: svn\propulsion\Documentation\TUTO_reglage_odometrie.txt
 
-	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0BD2
+	#define SMALL_ODOMETRY_COEF_TRANSLATION_DEFAULT 0x0C0F
 	#define BIG_ODOMETRY_COEF_TRANSLATION_DEFAULT	0x0BC8
 	// COEF_ODOMETRIE_TRANSLATION : nombre de mm par impulsion de roue codeuse, par 5ms
 	// d : diametre des roues codeuse en mm = 60
@@ -33,7 +33,7 @@
 
 
 
-	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT	0x0001F1E0
+	#define SMALL_ODOMETRY_COEF_ROTATION_DEFAULT	0x0001F9E0
 	#define BIG_ODOMETRY_COEF_ROTATION_DEFAULT		0x0000A590
 
 	// COEF_ODOMETRIE_ROTATION : nombre de radians par impulsion de roue codeuse, par 5ms
@@ -52,7 +52,7 @@
 
 
 
-	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0xFFFFF6CF
+	#define SMALL_ODOMETRY_COEF_SYM_DEFAULT 0xFFFFFF48//0xFFFFF6CF
 	#define BIG_ODOMETRY_COEF_SYM_DEFAULT	0xFFFFFFF0
 	// Faire des carrés pour régler ce coefficient
 
@@ -60,7 +60,7 @@
 
 	//COEF_ODOMETRIE_CENTRIFUGE permet de régler la variation d'odométrie en courbe
 	#define SMALL_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
-	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0) //128/(rad*4096*64) si on considère que les "speed" sont en fait des distances sinon c'est 128*ms*ms/(rad*4096*64)
+	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)//0xFFFFFFFE //128/(rad*4096*64) si on considère que les "speed" sont en fait des distances sinon c'est 128*ms*ms/(rad*4096*64)
 
 
 
