@@ -38,6 +38,7 @@
 #include "propulsion/astar.h"
 #include "elements.h"
 #include "avoidance.h"
+#include "colorSensor.h"
 #include "strats_2017/big/action_big.h"
 #include "strats_2017/small/action_small.h"
 #include "strats_2017/actions_both_2017.h"
@@ -156,6 +157,10 @@ int main (void)
 		LCD_OVER_UART_init();
 	#endif
 
+	#ifdef USE_I2C_COLOR_SENSOR
+		COLOR_SENSOR_init();
+	#endif
+
 	// ATTENTION à ce moment, la couleur n'a pas encore été initialisée
 
 	while(1)
@@ -177,6 +182,12 @@ int main (void)
 		#if defined(USE_MOSFETS_MODULE) && defined(USE_MOSFET_MULTI)
 			MOSFET_do_order_multi(NULL);
 		#endif
+
+		#ifdef USE_I2C_COLOR_SENSOR
+			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
+				COLOR_SENSOR_processMain();
+		#endif
+
 
 		MAIN_sensor_test();
 

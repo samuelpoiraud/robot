@@ -815,13 +815,13 @@
 		#define SIZE_ACT_GET_TURBINE_SPEED					0
 
 		#define ACT_TELL_TURBINE_SPEED						0x220
-		#define SIZE_ACT_TELL_TURBINE_SPEED					1
+		#define SIZE_ACT_TELL_TURBINE_SPEED					2
 			struct{
 				Uint16 speed								:16;		// [rpm]
 			}act_tell_turbine_speed;
 
 		#define ACT_SET_TURBINE_SPEED						0x221
-		#define SIZE_ACT_SET_TURBINE_SPEED					1
+		#define SIZE_ACT_SET_TURBINE_SPEED					2
 			struct{
 				Uint16 speed								:16;		// [rpm]
 			}act_set_turbine_speed;
