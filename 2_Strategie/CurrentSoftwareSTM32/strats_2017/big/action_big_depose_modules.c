@@ -32,8 +32,24 @@
 //error_e sub_harry_get_in_adv_side_depose_module_centre();
 //error_e sub_harry_get_in_middle_our_side_depose_module_centre();
 
+typedef enum{
+	POS_1=0,  //position de notre côté
+	POS_2,
+	POS_3,
+	POS_4,
+	POS_5,
+	POS_6,
+	NO_POS
+}dropPlace_e;
+
+dropPlace_e drop_zone=NO_POS;
+
 Uint8 nbCylindresSurBase = 0;
 bool_e depose_side;
+
+static Uint8 nb_try_left = 0;
+static Uint8 nb_try_right = 0;
+
 
 error_e sub_harry_depose_centre_manager(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
@@ -42,6 +58,8 @@ error_e sub_harry_depose_centre_manager(){
 				DEPOSE_LEFT,
 				DEPOSE_RIGHT,
 				COMPUTE,
+				SUCCESS_DEPOSE,
+				ERROR_DEPOSE,
 				ERROR,
 				DONE
 			);
@@ -75,7 +93,6 @@ error_e sub_harry_depose_centre_manager(){
 				else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
 					module_type = NO_DOMINATING;
 				}
-				depose_left = TRUE;
 				state = DEPOSE_LEFT;
 			}
 			else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 && depose_right == FALSE){
@@ -88,7 +105,6 @@ error_e sub_harry_depose_centre_manager(){
 				else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
 					module_type = NO_DOMINATING;
 				}
-				depose_right = TRUE;
 				state = DEPOSE_RIGHT;
 			}
 			else{
@@ -97,20 +113,36 @@ error_e sub_harry_depose_centre_manager(){
 			break;
 
 		case DEPOSE_LEFT:
-			state = check_sub_action_result(sub_harry_depose_modules_centre(module_type,MODULE_STOCK_LEFT, side), state, COMPUTE, COMPUTE);
+			state = check_sub_action_result(sub_harry_depose_modules_centre(module_type,MODULE_STOCK_LEFT, side), state, SUCCESS_DEPOSE, ERROR_DEPOSE);
+
 			break;
 
 		case DEPOSE_RIGHT:
-			state = check_sub_action_result(sub_harry_depose_modules_centre(module_type,MODULE_STOCK_RIGHT, side), state, COMPUTE, COMPUTE);
+			state = check_sub_action_result(sub_harry_depose_modules_centre(module_type,MODULE_STOCK_RIGHT, side), state, SUCCESS_DEPOSE, ERROR_DEPOSE);
 			break;
 
 		case COMPUTE:
+			if( (depose_left == FALSE && nb_try_left >= 3 && depose_right == FALSE && nb_try_right >= 3) ||\
+				(depose_left == TRUE && (depose_right == FALSE && nb_try_right >= 3)) ||\
+				((depose_left == FALSE && nb_try_left >= 3)&& depose_right == TRUE)){
+				state = DONE;
+			}
 			if(depose_left == FALSE || depose_right == FALSE){
 				state = CHOOSE_SIDE;
 			}
 			else{
 				state = DONE;
 			}
+			break;
+
+		case SUCCESS_DEPOSE:
+			if (last_state == DEPOSE_LEFT) {depose_left = TRUE;}
+			else if(last_state == DEPOSE_RIGHT) {depose_right = TRUE;}
+			state = COMPUTE;
+			break;
+
+		case ERROR_DEPOSE:
+			state = COMPUTE;
 			break;
 
 		case ERROR:
@@ -158,30 +190,28 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 	switch(state){
 		case INIT:
 			state=GET_IN;
+			if(robot_side == MODULE_STOCK_LEFT){
+				nb_try_left++;
+			}else{
+				nb_try_right++;
+			}
+			drop_zone = NO_POS;
 			break;
 
 		case GET_IN:
-			if(robot_side==MODULE_STOCK_LEFT)
+			if(robot_side==MODULE_STOCK_LEFT){
 				state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(modules_type, robot_side, basis_side), state, DOWN_PUSHER_LEFT, ERROR);
-			else
+			}else
 				state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(modules_type, robot_side, basis_side), state, DOWN_PUSHER_RIGHT, ERROR);
 			break;
 
-		case GO_TO_DEPOSE_MODULE: // decompte des modules regarde combien
-			/*if(!STOCKS_isEmpty(MODULE_STOCK_LEFT)){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_LEFT, ERROR);
-			}else if(!STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_RIGHT, ERROR);
-			}*/
+		case GO_TO_DEPOSE_MODULE:
 			if((robot_side == MODULE_STOCK_LEFT && !STOCKS_isEmpty(MODULE_STOCK_LEFT))||(robot_side == MODULE_STOCK_RIGHT && !STOCKS_isEmpty(MODULE_STOCK_RIGHT))){
 				state = DEPOSE_MODULE;
 			}
 			else{
 				state = DONE;
 			}
-
-			// ajouter le module sur le tableau
-			//STOCKS_addModule(moduleType_e type, moduleStockLocation_e storage)
 			break;
 
 		case DEPOSE_MODULE:
@@ -194,16 +224,14 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 			else{
 				state = DONE;
 			}
-			/*if(!((basis_side == OUR_SIDE)&&(global.color == YELLOW))||((basis_side == ADV_SIDE)&&(global.color == BLUE)) ){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_LEFT, ERROR);
-			*//*
-
-			if(!((basis_side == OUR_SIDE)&&(global.color == YELLOW))||((basis_side == ADV_SIDE)&&(global.color == BLUE)) ){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER_RIGHT, ERROR);
+			if(ON_LEAVE()){
+				if(state == DOWN_PUSHER_LEFT || state == DOWN_PUSHER_RIGHT){
+					//J'ai mis polychrome parce que je vois pas trop comment le gérer sinon.
+					if(drop_zone == POS_1 || drop_zone == POS_2){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_OUR_CENTER);}
+					else if(drop_zone == POS_3 || drop_zone == POS_4){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_MIDDLE);}
+					else if(drop_zone == POS_5 || drop_zone == POS_6){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_ADV_CENTER);}
+				}
 			}
-			if(state == DOWN_PUSHER_RIGHT &&  !STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
-				state = DEPOSE_MODULE;
-			}*/
 			break;
 
 		case DOWN_PUSHER_RIGHT: // on sort le pusher
@@ -224,46 +252,43 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 		case PUSH_MODULE:
 			// si coleur blue, notre cote est gauche
 
-			if((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
+			if(drop_zone == POS_1){
 				// pos 1
 				if(global.color == BLUE){
-					state = try_going(1730, COLOR_Y(880), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1730, COLOR_Y(880), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_going(1730, COLOR_Y(880), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1730, COLOR_Y(880), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
-			}else if(((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))\
-					|| ((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))){
+			}else if(drop_zone == POS_2){
 
 				// pos 2
 				if(global.color == BLUE){
-					state = try_going(1390, COLOR_Y(1220), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1390, COLOR_Y(1220), state, UP_PUSHER_RIGHT,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_going(1390, COLOR_Y(1220), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1390, COLOR_Y(1220), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
-			}else if((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
+			}else if(drop_zone == POS_3){
 
 				 // pos 3
 				if(global.color == BLUE){
-					state = try_going(1380, COLOR_Y(1250), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1380, COLOR_Y(1250), state, UP_PUSHER_LEFT,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_going(1380, COLOR_Y(1250), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1380, COLOR_Y(1250), state, UP_PUSHER_RIGHT,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
-			}else if(((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))\
-					|| ((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))){
+			}else if(drop_zone == POS_4){
 				// pos 4
 				if(global.color == BLUE){
-					state = try_going(1320, COLOR_Y(1700), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1320, COLOR_Y(1700), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_going(1320, COLOR_Y(1700), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1320, COLOR_Y(1700), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
-			}else if(((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))\
-					||((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))){
+			}else if(drop_zone == POS_5){
 				// pos 5
 				if(global.color == BLUE){
 
-					state = try_going(1390, COLOR_Y(1780), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1390, COLOR_Y(1780), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_going(1390, COLOR_Y(1780), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					state = try_rush(1390, COLOR_Y(1780), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
 			}/*else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 6
@@ -278,31 +303,30 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 
 		case UP_PUSHER_RIGHT: // on rentre le pusher
 			if (entrance){
-							ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_IN);
-						}
-					state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE_RETURN, ERROR);
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE_RETURN, ERROR);
 			break;
 
 		case UP_PUSHER_LEFT:
 			if (entrance){
-							ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
-						}
-					state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE_RETURN, ERROR);
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE_RETURN, ERROR);
 			break;
 
 
 		case PUSH_MODULE_RETURN:
 			// si coleur blue, notre cote est gauche
 
-			if((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
+			if(drop_zone == POS_1){
 				// pos 1
 				if(global.color == BLUE){
 					state = try_going(1610, COLOR_Y(760), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
 					state = try_going(1610, COLOR_Y(760), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
-			}else if(((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))\
-					|| ((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))){
+			}else if(drop_zone == POS_2){
 
 				// pos 2
 				if(global.color == BLUE){
@@ -310,7 +334,7 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 				}else{
 					state = try_going(1270, COLOR_Y(1100), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
-			}else if((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
+			}else if(drop_zone == POS_3){
 
 				 // pos 3
 				if(global.color == BLUE){
@@ -318,16 +342,14 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 				}else{
 					state = try_going(1200, COLOR_Y(1250), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 				}
-			}else if(((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))\
-					|| ((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))){
+			}else if(drop_zone == POS_4){
 				// pos 4
 				if(global.color == BLUE){
 					state = try_going(1200, COLOR_Y(1700), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
 					state = try_going(1200, COLOR_Y(1700), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
-			}else if(((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))\
-					||((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))){
+			}else if(drop_zone == POS_5){
 				// pos 5
 				if(global.color == BLUE){
 					state = try_going(1270, COLOR_Y(1900), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -384,26 +406,21 @@ error_e sub_harry_depose_modules_centre(moduleTypeDominating_e modules_type, mod
 			break;
 
 		case GET_OUT_ERROR:
-			if((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
-				state = try_going(1610, COLOR_Y(760), state, GET_OUT, GET_OUT, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else if(((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))\
-					|| ((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))){
+			if(drop_zone == POS_1){
+				state = try_rush(1610, COLOR_Y(760), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
+			}else if(drop_zone == POS_2){
 
-				state = try_going(1270, COLOR_Y(1100), state, GET_OUT, GET_OUT, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_rush(1270, COLOR_Y(1100), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
 
-			}else if((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
+			}else if(drop_zone == POS_3){
 
-				state = try_going(1200, COLOR_Y(1250), state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_rush(1200, COLOR_Y(1250), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
 
-			}else if(((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))\
-					|| ((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))){
+			}else if(drop_zone == POS_4){
+				state = try_rush(1200, COLOR_Y(1700), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
 
-				state = try_going(1200, COLOR_Y(1700), state, GET_OUT, GET_OUT, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-
-			}else if(((modules_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))\
-					||((modules_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))){
-
-				state = try_going(1270, COLOR_Y(1900), state, GET_OUT, GET_OUT, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else if(drop_zone == POS_5){
+				state = try_rush(1270, COLOR_Y(1900), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
 			}else{
 				state = ERROR;
 			}
@@ -450,22 +467,54 @@ error_e sub_harry_get_in_depose_modules_centre(moduleTypeDominating_e module_typ
 	switch(state){
 		case INIT:
 			if((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
-				state = GET_IN_POS_1;  //notre depose de notre cote  SIM 6
-
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
+					state = GET_IN_POS_1;  //notre depose de notre cote  SIM 6
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
+					state = GET_IN_POS_3;
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_SIDE)<6){
+					state = GET_IN_POS_5;
+				}else{
+					state = ERROR;
+				}
 			}else if(((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))\
 					|| ((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))){
-				state = GET_IN_POS_2; //notre depose du cote adv SIM 5
-
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
+					state = GET_IN_POS_2;  //notre depose de notre cote  SIM 6
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
+					state = GET_IN_POS_4;
+				}else{
+					state = ERROR;
+				}
 			}else if((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
-				state = GET_IN_POS_3; //centre depose de notre code SIM 4
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
+					state = GET_IN_POS_3;  //notre depose de notre cote  SIM 6
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
+					state = GET_IN_POS_1;
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER)<6){
+					state = GET_IN_POS_5;
+				}else{
+					state = ERROR;
+				}
 
 			}else if(((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))\
 					|| ((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))){
-				state = GET_IN_POS_4;  //adv depose du cote adv SIM 3
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
+					state = GET_IN_POS_4;  //notre depose de notre cote  SIM 6
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
+					state = GET_IN_POS_2;
+				}else{
+					state = ERROR;
+				}
 
 			}else if(((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))\
 					||((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))){
-				state = GET_IN_POS_5; //adv depose de notre cote SIM 2
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_SIDE)<6){
+					state = GET_IN_POS_5;  //notre depose de notre cote  SIM 6
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
+					state = GET_IN_POS_3;
+				}else{
+					state = ERROR;
+				}
 
 			/*}else if((module_type == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
 				state = GET_IN_POS_6; //centre depose du cote adv SIM 1
@@ -476,26 +525,44 @@ error_e sub_harry_get_in_depose_modules_centre(moduleTypeDominating_e module_typ
 			break;
 
 		case GET_IN_POS_1:
+			if(entrance){
+				drop_zone = POS_1;
+			}
 			state = check_sub_action_result(sub_harry_get_in_pos_1_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_POS_2:
+			if(entrance){
+				drop_zone = POS_2;
+			}
 			state = check_sub_action_result(sub_harry_get_in_pos_2_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_POS_3:
+			if(entrance){
+				drop_zone = POS_3;
+			}
 			state = check_sub_action_result(sub_harry_get_in_pos_3_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_POS_4:
+			if(entrance){
+				drop_zone = POS_4;
+			}
 			state = check_sub_action_result(sub_harry_get_in_pos_4_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_POS_5:
+			if(entrance){
+				drop_zone = POS_5;
+			}
 			state = check_sub_action_result(sub_harry_get_in_pos_5_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_POS_6:
+			if(entrance){
+				drop_zone = POS_6;
+			}
 			state = check_sub_action_result(sub_harry_get_in_pos_6_depose_module_centre(), state, DONE, ERROR);
 			break;
 
@@ -561,12 +628,6 @@ error_e sub_harry_get_in_pos_1_depose_module_centre(){
 				state = try_go_angle(COLOR_ANGLE(-PI4096/4), state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			}else{
 				state = try_go_angle(COLOR_ANGLE(PI4096/4), state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
-			}
-			if(ON_LEAVE()){
-				if(global.color == YELLOW)
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_OUT);
-				else
-					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_OUT);
 			}
 			break;
 
@@ -636,12 +697,6 @@ error_e sub_harry_get_in_pos_2_depose_module_centre(){
 				state = try_go_angle(COLOR_ANGLE(-PI4096/4), state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			}else{
 				state = try_go_angle(COLOR_ANGLE(PI4096/4), state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
-			}
-			if(ON_LEAVE()){
-				if(global.color == YELLOW)
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_OUT);
-				else
-					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_OUT);
 			}
 			break;
 
@@ -715,12 +770,6 @@ error_e sub_harry_get_in_pos_3_depose_module_centre(){
 			}else{
 				state = try_go_angle(0, state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
 			}
-			if(ON_LEAVE()){
-				if(global.color == YELLOW)
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_OUT);
-				else
-					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_OUT);
-			}
 			break;
 
 		case PATHFIND:
@@ -793,12 +842,6 @@ error_e sub_harry_get_in_pos_4_depose_module_centre(){
 			}else{
 				state = try_go_angle(0, state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
 			}
-			if(ON_LEAVE()){
-				if(global.color == YELLOW)
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_OUT);
-				else
-					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_OUT);
-			}
 			break;
 
 		case PATHFIND:
@@ -866,12 +909,6 @@ error_e sub_harry_get_in_pos_5_depose_module_centre(){
 				state = try_go_angle(COLOR_ANGLE(PI4096/4), state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
 			}else{
 				state = try_go_angle(COLOR_ANGLE(-PI4096/4), state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
-			}
-			if(ON_LEAVE()){
-				if(global.color == YELLOW)
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_OUT);
-				else
-					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_OUT);
 			}
 			break;
 
