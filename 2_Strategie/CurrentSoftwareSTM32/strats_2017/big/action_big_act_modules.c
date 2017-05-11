@@ -773,6 +773,7 @@ return IN_PROGRESS;
 error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e trigger){
 	CREATE_MAE_ACT(SM_ID_ACT_HARRY_MAE_STORE_MODULES,
 			WAIT_TRIGGER,
+			LAUNCH_CYLINDER_PREPARATION, // Parallélisation de la préparation de la couleur
 			INIT,
 			COMPUTE_ACTION,
 
@@ -847,10 +848,17 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 		case WAIT_TRIGGER:
 			if(trigger){
-				state = INIT;
+				state = LAUNCH_CYLINDER_PREPARATION;
 				ELEMENTS_set_flag(FLAG_HARRY_STORAGE_LEFT_FINISH, FALSE);
 				ELEMENTS_set_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH, FALSE);
 			}
+			break;
+
+		case LAUNCH_CYLINDER_PREPARATION:  // Parallélisation de la préparation de la couleur
+			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER, storage)){
+				sub_act_harry_mae_prepare_modules_for_dispose(storage, TRUE);
+			}
+			state = INIT;
 			break;
 
 		case INIT:

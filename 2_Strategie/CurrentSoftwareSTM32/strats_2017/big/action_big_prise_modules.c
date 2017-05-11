@@ -1630,12 +1630,8 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				}
 			}
 
-			/*const displacement_t curve_left[3] = {(displacement_t){(GEOMETRY_point_t){1450, COLOR_Y(560)}, FAST},
-												(displacement_t){(GEOMETRY_point_t){1622, COLOR_Y(700)}, FAST},
-												(displacement_t){(GEOMETRY_point_t){1722, COLOR_Y(695)}, FAST}
-												};*/
-			const displacement_t curve_left[2] = {(displacement_t){(GEOMETRY_point_t){1550, COLOR_Y(665)}, FAST},
-												(displacement_t){(GEOMETRY_point_t){1670, COLOR_Y(690)}, FAST}
+			const displacement_t curve_left[2] = {(displacement_t){(GEOMETRY_point_t){1507, COLOR_Y(637)}, FAST},
+												(displacement_t){(GEOMETRY_point_t){1630, COLOR_Y(730)}, SLOW}
 												};
 			state = try_going_multipoint(curve_left, 2, state, TAKE_MODULE_LEFT, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			if(ON_LEAVE()){
@@ -1663,20 +1659,21 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				}
 			}
 
-			state = try_going(1825, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1810, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PREPARE_STORAGE_LEFT:
 			if(entrance){
-				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+				/*if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
 					// L'élévateur est disponible, on peut stocker les modules ici
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 					STOCKS_addModule(moduleType, STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT);
 				}else{
 					// L'élévateur n'est pas disponible, on stocke le module dans le slider
 					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
-				}
+				}*/
 
+				STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 			}
 
@@ -1744,14 +1741,16 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		case PREPARE_STORAGE_RIGHT:
 			if(entrance){
-				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+				/*if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
 					// L'élévateur est disponible, on peut stocker les modules ici
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
 					STOCKS_addModule(moduleType, STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT);
 				}else{
 					// L'élévateur n'est pas disponible, on stocke le module dans le slider
 					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
-				}
+				}*/
+
+				STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 			}
 
