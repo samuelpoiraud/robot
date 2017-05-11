@@ -42,7 +42,7 @@
 
 	typedef struct{
 
-		/*
+
 		volatile Sint32 acceleration_translation;	//[mm.4096/5ms/5ms]
 		volatile Sint32 vitesse_translation;		//[mm.4096/5ms]
 		volatile Sint32 position_translation; 		//[mm.4096]
@@ -70,17 +70,17 @@
 		volatile Sint32 angle_frein;				//[rad.40963.1024]
 
 		volatile position_t pos;					//[mm] et [rad.4096]
-		 */
 
-		volatile Sint16 pos_x;
-		volatile Sint16 pos_y;
-		volatile Sint16 laser_left_x;
-		volatile Sint16 laser_left_y;
-        volatile Sint16 laser_right_x;
-        volatile Sint16 laser_right_y;
-        volatile Sint16 value_right;
-        volatile Sint16 mesure_right_x;
-        volatile Sint16 mesure_right_y;
+
+//		volatile Sint16 pos_x;
+//		volatile Sint16 pos_y;
+//		volatile Sint16 laser_left_x;
+//		volatile Sint16 laser_left_y;
+//        volatile Sint16 laser_right_x;
+//        volatile Sint16 laser_right_y;
+//        volatile Sint16 value_right;
+//        volatile Sint16 mesure_right_x;
+//        volatile Sint16 mesure_right_y;
 
 }debug_saved_t;
 
@@ -170,7 +170,7 @@ void DEBUG_process_it(void)
 
 #ifdef MODE_PRINT_FIRST_TRAJ
 	if(global.flags.match_started && index < DEBUG_TAB_TRAJ_TAILLE){
-		/*tab[index].acceleration_rotation = global.acceleration_rotation;
+		tab[index].acceleration_rotation = global.acceleration_rotation;
 		tab[index].acceleration_translation = global.acceleration_translation;
 		tab[index].ecart_rotation = global.ecart_rotation;
 		tab[index].ecart_translation = global.ecart_translation;
@@ -190,97 +190,97 @@ void DEBUG_process_it(void)
 		tab[index].translation_restante = global.translation_restante;
 		tab[index].rotation_restante = global.rotation_restante;
 		tab[index].angle_frein = global.angle_frein;
-		tab[index].distance_frein = global.distance_frein;*/
+		tab[index].distance_frein = global.distance_frein;
 
-        /*GEOMETRY_point_t pos_mesure;
-		bool_e enable;
-		Sint16 valueADC, value;
-		position_t robot;
-		Sint16 cosinus = 0, sinus = 0;
-
-		valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
-		value = CONVERSION_LASER_LEFT(valueADC);
-		robot = global.position; // On récupère la position du robot tout de suite
-		robot.teta = GEOMETRY_modulo_angle(robot.teta);
-		COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
-
-		// On calcule et on stocke la valeur même si le capteur entre en saturation
-		if((value>90)&&(value<290)){
-		tab[index].laser_left_x = (Sint16) (robot.x - (-OFFSET_LENGTH_LASER_LEFT*cosinus + (OFFSET_WIDTH_LASER_LEFT + value)*sinus)/4096.0);
-		tab[index].laser_left_y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + (OFFSET_WIDTH_LASER_LEFT + value)*cosinus)/4096.0);
-		tab[index].value_left=(Sint16) value;
-
-		cosinus = 0;
-		sinus = 0;
-
-		valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
-		value = CONVERSION_LASER_RIGHT(valueADC);
-		robot = global.position; // On récupère la position du robot tout de suite
-		robot.teta = GEOMETRY_modulo_angle(robot.teta);
-		COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
-
-		// On calcule et on stocke la valeur même si le capteur entre en saturation
-		tab[index].laser_right_x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + (OFFSET_WIDTH_LASER_RIGHT + value)*sinus))/4096.0;
-		tab[index].laser_right_y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - (OFFSET_WIDTH_LASER_RIGHT + value)*cosinus))/4096.0;
-        */
-
-
-
-
-        GEOMETRY_point_t pos_mesure, pos_laser;
-        bool_e enable;
-        Sint16 valueADC, value;
-        position_t robot;
-        Sint16 cosinus = 0, sinus = 0;
-
-//        valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
-        value = CONVERSION_LASER_LEFT(TELEMETER_get_ADCvalue_left());
-
-        robot = global.position; // On récupère la position du robot tout de suite
-        robot.teta = GEOMETRY_modulo_angle(robot.teta);
-        COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
-
-
-        pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus - OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
-        pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
-
-
-        COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_LEFT, &cosinus, &sinus);
-
-        pos_mesure.x=pos_laser.x-(value * sinus)/4096;
-        pos_mesure.y=pos_laser.y+(value * cosinus)/4096;
-
-        tab[index].value_right=value;
-
-        tab[index].laser_left_x=pos_mesure.x;
-        tab[index].laser_left_y=pos_mesure.y;
-
-        //tab[index].laser_left_x=pos_mesure.x;
-        //tab[index].laser_left_y=pos_mesure.y;
-
-       // valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
-        value = CONVERSION_LASER_RIGHT(TELEMETER_get_ADCvalue_right());
-
- //       value = CONVERSION_LASER_RIGHT(valueADC);
-    //    printf("%d\n",valueADC);
-
-        robot = global.position; // On récupère la position du robot tout de suite
-        robot.teta = GEOMETRY_modulo_angle(robot.teta);
-        COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
-
-        // On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
-        pos_laser.x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus)/4096.0);
-        pos_laser.y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus)/4096.0);
-
-        COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_RIGHT, &cosinus, &sinus);
-        pos_mesure.x=pos_laser.x+(value) * sinus/4096;
-        pos_mesure.y=pos_laser.y-(value * cosinus)/4096;
-
-        tab[index].laser_right_x=pos_laser.x;
-        tab[index].laser_right_y=pos_laser.y;
-        tab[index].value_right = value;
-        tab[index].mesure_right_x=pos_mesure.x;
-        tab[index].mesure_right_y=pos_mesure.y;
+//        /*GEOMETRY_point_t pos_mesure;
+//		bool_e enable;
+//		Sint16 valueADC, value;
+//		position_t robot;
+//		Sint16 cosinus = 0, sinus = 0;
+//
+//		valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
+//		value = CONVERSION_LASER_LEFT(valueADC);
+//		robot = global.position; // On récupère la position du robot tout de suite
+//		robot.teta = GEOMETRY_modulo_angle(robot.teta);
+//		COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+//
+//		// On calcule et on stocke la valeur même si le capteur entre en saturation
+//		if((value>90)&&(value<290)){
+//		tab[index].laser_left_x = (Sint16) (robot.x - (-OFFSET_LENGTH_LASER_LEFT*cosinus + (OFFSET_WIDTH_LASER_LEFT + value)*sinus)/4096.0);
+//		tab[index].laser_left_y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + (OFFSET_WIDTH_LASER_LEFT + value)*cosinus)/4096.0);
+//		tab[index].value_left=(Sint16) value;
+//
+//		cosinus = 0;
+//		sinus = 0;
+//
+//		valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
+//		value = CONVERSION_LASER_RIGHT(valueADC);
+//		robot = global.position; // On récupère la position du robot tout de suite
+//		robot.teta = GEOMETRY_modulo_angle(robot.teta);
+//		COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+//
+//		// On calcule et on stocke la valeur même si le capteur entre en saturation
+//		tab[index].laser_right_x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + (OFFSET_WIDTH_LASER_RIGHT + value)*sinus))/4096.0;
+//		tab[index].laser_right_y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - (OFFSET_WIDTH_LASER_RIGHT + value)*cosinus))/4096.0;
+//        */
+//
+//
+//
+//
+//        GEOMETRY_point_t pos_mesure, pos_laser;
+//        bool_e enable;
+//        Sint16 valueADC, value;
+//        position_t robot;
+//        Sint16 cosinus = 0, sinus = 0;
+//
+////        valueADC = ADC_getValue(ADC_SENSOR_LASER_LEFT);
+//        value = CONVERSION_LASER_LEFT(TELEMETER_get_ADCvalue_left());
+//
+//        robot = global.position; // On récupère la position du robot tout de suite
+//        robot.teta = GEOMETRY_modulo_angle(robot.teta);
+//        COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+//
+//
+//        pos_laser.x = robot.x + (OFFSET_LENGTH_LASER_LEFT*cosinus - OFFSET_WIDTH_LASER_LEFT*sinus)/4096.0;
+//        pos_laser.y = robot.y + (OFFSET_LENGTH_LASER_LEFT*sinus + OFFSET_WIDTH_LASER_LEFT*cosinus)/4096.0;
+//
+//
+//        COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_LEFT, &cosinus, &sinus);
+//
+//        pos_mesure.x=pos_laser.x-(value * sinus)/4096;
+//        pos_mesure.y=pos_laser.y+(value * cosinus)/4096;
+//
+//        tab[index].value_right=value;
+//
+//        tab[index].laser_left_x=pos_mesure.x;
+//        tab[index].laser_left_y=pos_mesure.y;
+//
+//        //tab[index].laser_left_x=pos_mesure.x;
+//        //tab[index].laser_left_y=pos_mesure.y;
+//
+//       // valueADC = ADC_getValue(ADC_SENSOR_LASER_RIGHT);
+//        value = CONVERSION_LASER_RIGHT(TELEMETER_get_ADCvalue_right());
+//
+// //       value = CONVERSION_LASER_RIGHT(valueADC);
+//    //    printf("%d\n",valueADC);
+//
+//        robot = global.position; // On récupère la position du robot tout de suite
+//        robot.teta = GEOMETRY_modulo_angle(robot.teta);
+//        COS_SIN_4096_get(robot.teta, &cosinus, &sinus);
+//
+//        // On calcule et on stocke la position du laser (c'est à dire de début d'émission du rayon laser)
+//        pos_laser.x = (Sint16) (robot.x + (OFFSET_LENGTH_LASER_RIGHT*cosinus + OFFSET_WIDTH_LASER_RIGHT*sinus)/4096.0);
+//        pos_laser.y = (Sint16) (robot.y + (OFFSET_LENGTH_LASER_RIGHT*sinus - OFFSET_WIDTH_LASER_RIGHT*cosinus)/4096.0);
+//
+//        COS_SIN_4096_get(robot.teta+OFFSET_ANGLE_RIGHT, &cosinus, &sinus);
+//        pos_mesure.x=pos_laser.x+(value) * sinus/4096;
+//        pos_mesure.y=pos_laser.y-(value * cosinus)/4096;
+//
+//        tab[index].laser_right_x=pos_laser.x;
+//        tab[index].laser_right_y=pos_laser.y;
+//        tab[index].value_right = value;
+//        tab[index].mesure_right_x=pos_mesure.x;
+//        tab[index].mesure_right_y=pos_mesure.y;
 
         index++;
 
@@ -297,7 +297,7 @@ void DEBUG_process_it(void)
 	static void affichage_first_traj(void){
 		Uint16 i;
 
-		/*
+
 		debug_printf("t(ms);");
 		debug_printf("acceleration_rotation;");
 		debug_printf("acceleration_translation;");
@@ -320,13 +320,34 @@ void DEBUG_process_it(void)
 		debug_printf("pos.x;");
 		debug_printf("pos.y;");
 		debug_printf("pos.teta\n");
-		*/
+
 
 		for(i = 0; i < DEBUG_TAB_TRAJ_TAILLE && i < index; i++){
 			debug_printf("%d;", i*5);
-            debug_printf("%d;", tab[i].laser_left_x);
-            debug_printf("%d\n", tab[i].laser_left_y);
+			debug_printf("%ld;", tab[i].acceleration_rotation);
+			debug_printf("%ld;", tab[i].acceleration_translation);
+			debug_printf("%ld;", tab[i].ecart_rotation);
+			debug_printf("%ld;", tab[i].ecart_translation);
+			debug_printf("%ld;", tab[i].position_rotation);
+			debug_printf("%ld;", tab[i].position_translation);
+			debug_printf("%ld;", tab[i].real_position_rotation);
+			debug_printf("%ld;", tab[i].real_position_translation);
+			debug_printf("%ld;", tab[i].real_speed_rotation);
+			debug_printf("%ld;", tab[i].real_speed_translation);
+			debug_printf("%ld;", tab[i].vitesse_rotation);
+			debug_printf("%ld;", tab[i].vitesse_translation);
+			debug_printf("%d;", tab[i].pwmD);
+			debug_printf("%d;", tab[i].pwmG);
+			debug_printf("%ld;", tab[i].translation_restante);
+			debug_printf("%ld;", tab[i].rotation_restante);
+			debug_printf("%ld;", tab[i].distance_frein);
+			debug_printf("%ld;", tab[i].angle_frein);
+			debug_printf("%ld;", tab[i].pos.x);
+			debug_printf("%ld;", tab[i].pos.y);
+			debug_printf("%d;", tab[i].pos.teta);
 
+			Uint32 y;
+			for(y=0;y<10000;y++);
 		}
 	}
 #endif
