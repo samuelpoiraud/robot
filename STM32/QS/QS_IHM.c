@@ -134,6 +134,11 @@ void button_update(CAN_msg_t * msg){
 		error_printf("Module IHM non initialisé ! \n");
 		return;
 	}
+	if(msg->data.ihm_button.id >= BP_NUMBER_IHM)
+	{
+		error_printf("Bouton pressé non défini ! \n");
+		return;	//Id non conforme !
+	}
 
 	ihm_button_t* button = &(buttons_ihm[msg->data.ihm_button.id]);
 	ihm_button_action_t action;
