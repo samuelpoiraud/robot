@@ -60,7 +60,7 @@
 
 	//COEF_ODOMETRIE_CENTRIFUGE permet de régler la variation d'odométrie en courbe
 	#define SMALL_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)
-	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT (0)//0xFFFFFFFE //128/(rad*4096*64) si on considère que les "speed" sont en fait des distances sinon c'est 128*ms*ms/(rad*4096*64)
+	#define BIG_ODOMETRY_COEF_CENTRIFUGAL_DEFAULT 0xFFFFFC00 //128/(rad*4096*64) si on considère que les "speed" sont en fait des distances sinon c'est 128*ms*ms/(rad*4096*64)
 
 
 
@@ -161,12 +161,12 @@
 	#define BIG_KD_TRANSLATION		(0x20)//(0x1C) //0x80
 
 	#define SMALL_KP_TRANSLATION 	(0x20)
-	#define BIG_KP_TRANSLATION		(0x30)//(0x28)
+	#define BIG_KP_TRANSLATION		(0x2A)//(0x30)//(0x28)
 	// Sur archi'tech (2009) il s'est avéré meilleur de scinder les deux coeffs selon le sens de rotation...(POSITIF, NEGATIF)
 	//Etaient alors définis deux coeffs pour le D et de pour le P : KD_ROTATION_POSITIF, KD_ROTATION_NEGATIF.....
 	//en pratique, si le robot est équilibré, les coeffs sont les mêmes !
 	#define SMALL_KD_ROTATION		(0x150) //0x800
-	#define BIG_KD_ROTATION			(0x180)//(0x08) //0x800
+	#define BIG_KD_ROTATION			(0x100)//(0x08) //0x800
 
 	#define SMALL_KP_ROTATION		(0x60)//40 //0x80
 	#define BIG_KP_ROTATION			(0x80)//(0x70) //0x80
@@ -184,7 +184,7 @@
 	#define BIG_KV_ROTATION			1	//CHOMP 1
 
 	#define SMALL_KV_TRANSLATION 	19
-	#define BIG_KV_TRANSLATION		12
+	#define BIG_KV_TRANSLATION		13//12
 
 	#ifdef CORRECTOR_ENABLE_ACCELERATION_ANTICIPATION
 		#warning "mode non utilisé jusqu'à maintenant : coefs non reglés"
