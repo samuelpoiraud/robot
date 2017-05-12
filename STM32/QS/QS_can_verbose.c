@@ -36,6 +36,7 @@ char *it_state_name[] = {
 static void print_ir_result(CAN_msg_t * msg, char ** string, int * len);
 static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len);
 static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int len, QS_VERBOSE_msg_type_e verbose_msg_type);
+static const char * print_mosfetState(MOSFET_BOARD_CURRENT_MEASURE_state_e state);
 
 #define print(buffer, len, ...) \
 	do { \
@@ -276,6 +277,18 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case STRAT_MOSFET_8:                            print(string, len, "%x STRAT_MOSFET_8                         ", STRAT_MOSFET_8								    );	break;
 		case STRAT_MOSFET_MULTI:                        print(string, len, "%x STRAT_MOSFET_MULTI                     ", STRAT_MOSFET_MULTI							    );	break;
 
+		case ACT_GET_MOSFET_CURRENT_STATE:				print(string, len, "%x ACT_GET_MOSFET_CURRENT_STATE           ", ACT_GET_MOSFET_CURRENT_STATE			 		);	break;
+		case ACT_TELL_MOSFET_CURRENT_STATE:				print(string, len, "%x ACT_TELL_MOSFET_CURRENT_STATE          ", ACT_TELL_MOSFET_CURRENT_STATE			 		);	break;
+		case ACT_GET_TURBINE_SPEED:						print(string, len, "%x ACT_GET_TURBINE_SPEED                  ", ACT_GET_TURBINE_SPEED			 				);	break;
+		case ACT_TELL_TURBINE_SPEED:					print(string, len, "%x ACT_TELL_TURBINE_SPEED                 ", ACT_TELL_TURBINE_SPEED			 				);	break;
+		case ACT_SET_TURBINE_SPEED:						print(string, len, "%x ACT_SET_TURBINE_SPEED                  ", ACT_SET_TURBINE_SPEED			 				);	break;
+
+		case MOSFET_BOARD_SET_MOSFET:					print(string, len, "%x MOSFET_BOARD_SET_MOSFET                ", MOSFET_BOARD_SET_MOSFET			 			);	break;
+		case MOSFET_BOARD_GET_MOSFET_CURRENT_STATE:		print(string, len, "%x MOSFET_BOARD_GET_MOSFET_CURRENT_STATE  ", MOSFET_BOARD_GET_MOSFET_CURRENT_STATE			);	break;
+		case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:	print(string, len, "%x MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE ", MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE			);	break;
+		case MOSFET_BOARD_GET_TURBINE_SPEED:			print(string, len, "%x MOSFET_BOARD_GET_TURBINE_SPEED         ", MOSFET_BOARD_GET_TURBINE_SPEED					);	break;
+		case MOSFET_BOARD_TELL_TURBINE_SPEED:			print(string, len, "%x MOSFET_BOARD_TELL_TURBINE_SPEED        ", MOSFET_BOARD_TELL_TURBINE_SPEED			 	);	break;
+		case MOSFET_BOARD_SET_TURBINE_SPEED:			print(string, len, "%x MOSFET_BOARD_SET_TURBINE_SPEED         ", MOSFET_BOARD_SET_TURBINE_SPEED			 		);	break;
 
 		case IHM_LCD_BIT_RESET:							print(string, len, "%x IHM_LCD_BIT_RESET                      ", IHM_LCD_BIT_RESET								);	break;
 		case IHM_GET_SWITCH:							print(string, len, "%x IHM_GET_SWITCH                         ", IHM_GET_SWITCH									);	break;
@@ -972,6 +985,11 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_RUSH:							print(string, len, "| %s  1_acc : %d   2_acc : %d   brake_acc : %d  rot_trans_coef : %d\n",(msg->data.prop_rush.rush)?"Enable":"Disable", msg->data.prop_rush.first_traj_acc, msg->data.prop_rush.second_traj_acc, msg->data.prop_rush.brake_acc, msg->data.prop_rush.acc_rot_trans);	break;
 		case PROP_DATALASER:					print(string, len, "utilisation des télémetres\n");	break;
 
+		case MOSFET_BOARD_GET_MOSFET_CURRENT_STATE:		print(string, len, "| id : %d\n", msg->data.mosfet_board_get_mosfet_state.id);	break;
+		case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:	print(string, len, "| id : %d   state : %s\n", msg->data.mosfet_board_tell_mosfet_state.id, print_mosfetState(msg->data.mosfet_board_tell_mosfet_state.state)); break;
+
+		case ACT_GET_MOSFET_CURRENT_STATE:				print(string, len, "| id : %d\n", msg->data.act_get_mosfet_state.id);	break;
+		case ACT_TELL_MOSFET_CURRENT_STATE:				print(string, len, "| id : %d   state : %s\n", msg->data.act_tell_mosfet_state.id, print_mosfetState(msg->data.act_tell_mosfet_state.state));	break;
 
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
 		case IHM_SWITCH:						print_ihm_result(msg, &string, &len);			break;
@@ -994,6 +1012,19 @@ static void print_ir_result(CAN_msg_t * msg, char ** string, int * len){
 	print(*string, *len, "%d erreurs de type 4 : ERREUR_TROP_PROCHE\n", msg->data.ir_error_result.error_counter[4]);
 	print(*string, *len, "%d erreurs de type 5 : ERREUR_TROP_LOIN\n", msg->data.ir_error_result.error_counter[5]);
 	print(*string, *len, "%d erreurs de type 6 : ERROR_OBSOLESCENCE\n", msg->data.ir_error_result.error_counter[6]);
+}
+
+static const char * print_mosfetState(MOSFET_BOARD_CURRENT_MEASURE_state_e state){
+	switch(state){
+		case MOSFET_BOARD_CURRENT_MEASURE_STATE_OFF:
+			return "OFF";
+		case MOSFET_BOARD_CURRENT_MEASURE_STATE_ON:
+			return "ON";
+		case MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING:
+			return "PUMPING";
+		default:
+			return "UNKNOW";
+	}
 }
 
 static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len){

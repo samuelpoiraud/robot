@@ -798,7 +798,7 @@
 				Uint16 sid							:8;
 			}act_warner_answer;
 
-		#define ACT_GET_MOSFET_CURRENT_STATE				0x21D
+		#define ACT_GET_MOSFET_CURRENT_STATE				0x3FC
 		#define SIZE_ACT_GET_MOSFET_CURRENT_STATE			1
 			struct{
 				Uint8 id									:4;			// De 0 à 7
@@ -811,7 +811,7 @@
 				MOSFET_BOARD_CURRENT_MEASURE_state_e state	:4;
 			}act_tell_mosfet_state;
 
-		#define ACT_GET_TURBINE_SPEED						0x21F
+		#define ACT_GET_TURBINE_SPEED						0x3FB
 		#define SIZE_ACT_GET_TURBINE_SPEED					0
 
 		#define ACT_TELL_TURBINE_SPEED						0x220
@@ -820,7 +820,7 @@
 				Uint16 speed								:16;		// [rpm]
 			}act_tell_turbine_speed;
 
-		#define ACT_SET_TURBINE_SPEED						0x221
+		#define ACT_SET_TURBINE_SPEED						0x3FA
 		#define SIZE_ACT_SET_TURBINE_SPEED					2
 			struct{
 				Uint16 speed								:16;		// [rpm]

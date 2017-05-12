@@ -630,6 +630,18 @@ void PORTS_uarts_init() {
 			GPIO_Init(GPIOD, &GPIO_InitStructure);
 		#endif
 	#endif
+
+	#ifdef USE_UART6
+		GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_USART6);	//U2TX
+		GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_USART6);	//U2RX
+
+		//USART6 TX
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+		GPIO_Init(GPIOC, &GPIO_InitStructure);
+		//USART6 RX
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+		GPIO_Init(GPIOC, &GPIO_InitStructure);
+	#endif
 }
 
 void PORTS_qei_init() {
