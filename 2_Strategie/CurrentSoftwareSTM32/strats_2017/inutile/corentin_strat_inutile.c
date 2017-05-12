@@ -29,6 +29,11 @@ void corentin_strat_inutile_big(){
 			GO_TO_POINT,
 			ROTATE,
 			SECOND_ROTATE,
+			COEF_CENTRIFUGAL,
+			FIRST_ROTATION,
+			MIDDLE_ROTATION,
+			LAST_ROTATION,
+			FINAL_BRAKE,
 			ERROR,
 			DONE
 		);
@@ -114,6 +119,25 @@ void corentin_strat_inutile_big(){
 			}
 			break;
 
+		case COEF_CENTRIFUGAL:
+			state = try_advance(NULL, entrance, 700, state, FIRST_ROTATION, ERROR, 100, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
+			break;
+
+		case FIRST_ROTATION:
+			state = try_going(1146, 1069, state, MIDDLE_ROTATION, ERROR, 100, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
+			break;
+
+		case MIDDLE_ROTATION:
+			state = try_going(1146, 1369, state, LAST_ROTATION, ERROR, 100, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
+			break;
+
+		case LAST_ROTATION:
+			state = try_going(886, 1519, state, FINAL_BRAKE, ERROR, 100, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
+			break;
+
+		case FINAL_BRAKE:
+			state = try_going(386, 1519, state, DONE, ERROR, 100, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
 		case ERROR:
 			break;
 
@@ -125,13 +149,18 @@ void corentin_strat_inutile_big(){
 void corentin_strat_inutile_small(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_INUTILE,
 			INIT,
+			DEPOSE,
 			ERROR,
 			DONE
 		);
 
 	switch(state){
 		case INIT:
-			state = check_sub_action_result(sub_cross_rocker(), state, DONE, ERROR);
+			state = check_sub_action_result(sub_cross_rocker(), state, DEPOSE, ERROR);
+			break;
+
+		case DEPOSE:
+			state = check_sub_action_result(sub_anne_depose_modules_centre(MODULE_MONO_DOMINATING, MODULE_STOCK_SMALL, OUR_SIDE), state, DONE, ERROR);
 			break;
 
 		case ERROR:

@@ -34,7 +34,9 @@
 
 
 	// action_big_depose_modules
-	error_e sub_anne_depose_modules_centre();
+	error_e sub_anne_depose_modules_centre(moduleTypeDominating_e modules_type, moduleStockLocation_e robot_side, ELEMENTS_side_match_e basis_side);
+	error_e sub_anne_get_in_depose_modules_centre(moduleTypeDominating_e module_type, moduleStockLocation_e robot_side, ELEMENTS_side_match_e basis_side);
+
 	error_e sub_anne_depose_modules_side(ELEMENTS_property_e modules);
 	error_e sub_anne_depose_modules_side_fin(ELEMENTS_property_e modules,ELEMENTS_side_e robot_side, ELEMENTS_side_match_e basis_side);
 
@@ -51,6 +53,8 @@
 	error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules);
 	error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules);
 
+
+	error_e sub_anne_dispose_modules_side(ELEMENTS_property_e modules);
 
 
 

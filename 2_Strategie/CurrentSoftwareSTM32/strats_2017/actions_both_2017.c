@@ -166,7 +166,7 @@ error_e sub_cross_rocker(void){
 			break;
 
 		case CROSS_END:
-			state = try_going(180, COLOR_Y(800), state, CORRECT_ODOMETRY_MATH, ERROR, 16, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(180, COLOR_Y(850), state, CORRECT_ODOMETRY_MATH, ERROR, 16, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case MOVE_BACK:
@@ -201,7 +201,7 @@ error_e sub_cross_rocker(void){
 		}break;
 
 		case AVANCE_TO_NEXT_POSITION:
-			state = try_advance(NULL, entrance, 60, state, RECALAGE_X, CORRECT_ODOMETRY_MEASURE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_advance(NULL, entrance, 100, state, RECALAGE_X, CORRECT_ODOMETRY_MEASURE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case RECALAGE_X:{
@@ -210,8 +210,8 @@ error_e sub_cross_rocker(void){
 			state = check_sub_action_result(action_recalage_x(FORWARD, -PI4096, SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffx, TRUE), state, GET_OUT, CORRECT_ODOMETRY_MEASURE);
 		}break;
 
-		case GET_OUT://fonce petit ! fonce ! et déglingue les tous !
-			state = try_advance(NULL, entrance, 60, state, DONE, RECALAGE_X, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+		case GET_OUT:
+			state = try_advance(NULL, entrance, 300, state, DONE, RECALAGE_X, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 
 			//state = try_going(250, COLOR_Y(1000), state, DONE, GO_BACK, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
