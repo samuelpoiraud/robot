@@ -48,7 +48,7 @@
 
 	void MOSFET_BOARD_processMain(){
 		while(MOSFET_BOARD_dataReady()){
-			CAN_msg_t receivedMsg;
+			static CAN_msg_t receivedMsg;
 			if(MOSFET_BOARD_receiveCan(&receivedMsg, MOSFET_BOARD_getByte())){
 				MOSFET_BOARD_secretary(&receivedMsg);
 				#ifdef CAN_VERBOSE_MODE
@@ -58,14 +58,14 @@
 		}
 	}
 
-	static void MOSFET_BOARD_secretary(CAN_msg_t * msg){
-		switch(msg->sid){
+	static void MOSFET_BOARD_secretary(CAN_msg_t * incomingMsg){
+		switch(incomingMsg->sid){
 			case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:{
 				CAN_msg_t msg;
 				msg.sid = ACT_TELL_MOSFET_CURRENT_STATE;
 				msg.size = SIZE_ACT_TELL_MOSFET_CURRENT_STATE;
-				msg.data.act_tell_mosfet_state.id = msg.data.mosfet_board_tell_mosfet_state.id;
-				msg.data.act_tell_mosfet_state.state = msg.data.mosfet_board_tell_mosfet_state.state;
+				msg.data.act_tell_mosfet_state.id = incomingMsg->data.mosfet_board_tell_mosfet_state.id;
+				msg.data.act_tell_mosfet_state.state = incomingMsg->data.mosfet_board_tell_mosfet_state.state;
 				CAN_send(&msg);
 			}break;
 
@@ -73,7 +73,7 @@
 				CAN_msg_t msg;
 				msg.sid = ACT_TELL_TURBINE_SPEED;
 				msg.size = SIZE_ACT_TELL_TURBINE_SPEED;
-				msg.data.act_tell_turbine_speed.speed = msg.data.mosfet_board_tell_turbine_speed.speed;
+				msg.data.act_tell_turbine_speed.speed = incomingMsg->data.mosfet_board_tell_turbine_speed.speed;
 				CAN_send(&msg);
 			}break;
 
