@@ -1016,12 +1016,12 @@ static void print_ir_result(CAN_msg_t * msg, char ** string, int * len){
 
 static const char * print_mosfetState(MOSFET_BOARD_CURRENT_MEASURE_state_e state){
 	switch(state){
-		case MOSFET_BOARD_CURRENT_MEASURE_STATE_OFF:
-			return "OFF";
-		case MOSFET_BOARD_CURRENT_MEASURE_STATE_ON:
-			return "ON";
-		case MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING:
-			return "PUMPING";
+		case MOSFET_BOARD_CURRENT_MEASURE_STATE_NO_PUMPING:
+			return "NO_PUMPING";
+		case MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING:
+			return "PUMPING_NOTHING";
+		case MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT:
+			return "PUMPING_OBJECT";
 		default:
 			return "UNKNOW";
 	}
