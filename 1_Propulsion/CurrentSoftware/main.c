@@ -113,7 +113,7 @@ void initialisation(void)
 	//Sur quel robot est-on ?
 	QS_WHO_AM_I_find();	//Détermine le robot sur lequel est branchée la carte.
 	debug_printf("--- Hello, I'm PROP (%s) ---\n", QS_WHO_AM_I_get_name());
-
+	TIMER_init();
 	ODOMETRY_init();
 	WATCHDOG_init();
 	SUPERVISOR_init();
