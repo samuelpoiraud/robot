@@ -219,7 +219,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 		case ACTION_GO_TAKE_CYLINDER:
 			if(entrance){
 				//On active la pompe avant d'avancer
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_NORMAL, 100);
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
 			}
 
@@ -241,7 +241,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			//On retente les memes actions
 			if(entrance){
 				//On active la pompe avant d'avancer
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100 );
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_NORMAL, 100 );
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
 			}
 
@@ -345,7 +345,8 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP, 0);
 				time_timeout = global.absolute_time + 1000;
 			}
 
@@ -373,7 +374,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 			// Vérification des ordres effectués
 			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_STOCK_UP_CYLINDER, ERROR);
-
 			break;
 
 		case ACTION_STOCK_UP_CYLINDER:
@@ -393,7 +393,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 		case ACTION_PUT_CYLINDER_IN_CONTAINER:
 			if(entrance){
 				//on souffle un peu pour faciliter la depose
-				ACT_push_order_with_param(ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
+				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
 			}
 
 			state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
