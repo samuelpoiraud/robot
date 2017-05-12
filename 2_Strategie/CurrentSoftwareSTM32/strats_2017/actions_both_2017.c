@@ -197,7 +197,7 @@ error_e sub_cross_rocker(void){
 
 			// COCO ON T'ATTEND !
 			//J'arrive avec mes gros sabots et mes méthodes dégueulasses !
-			state = check_sub_action_result(action_recalage_y(FORWARD, COLOR_ANGLE(-PI4096/2), 710+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffy, TRUE), state, AVANCE_TO_NEXT_POSITION, AVANCE_TO_NEXT_POSITION);
+			state = check_sub_action_result(action_recalage_y(FORWARD, COLOR_ANGLE(-PI4096/2), COLOR_Y(710+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE), FALSE, diffy, TRUE), state, AVANCE_TO_NEXT_POSITION, AVANCE_TO_NEXT_POSITION);
 		}break;
 
 		case AVANCE_TO_NEXT_POSITION:
