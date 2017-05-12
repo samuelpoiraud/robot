@@ -1083,8 +1083,8 @@ error_e sub_wait(Sint16 x, Sint16 y)
 	return IN_PROGRESS;
 }
 
-#define MAX_CORRECT_POS_AT_RUSH					29			//Correction max en mm.
-#define MAX_ANGLE_WHEN_CORRECT_POS_AT_RUSH		PI4096/32	//Il faut être à moins de 5° pour accepter une correction de position !
+#define MAX_CORRECT_POS_AT_RUSH					100			//Correction max en mm.
+#define MAX_ANGLE_WHEN_CORRECT_POS_AT_RUSH		PI4096/12	//Il faut être à moins de 5° pour accepter une correction de position !
 // Vérification de l'angle non actif !!!
 error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, bool_e get_out, Sint16* delta_correction_x, bool_e set_pos_at_rush){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_X,

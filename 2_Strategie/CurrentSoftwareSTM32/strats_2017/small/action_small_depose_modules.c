@@ -1004,11 +1004,11 @@ error_e sub_anne_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case GO_TO_RECALAGE:
-			state = try_going(1270, 1320, state, RECALAGE_RELATIF, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1270, 1290, state, RECALAGE_RELATIF, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case RECALAGE_RELATIF:
-			state = check_sub_action_result(action_recalage_y(FORWARD, PI4096/2, 1432 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffy, FALSE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
+			state = check_sub_action_result(action_recalage_y(FORWARD, PI4096/2, 1432 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffy, TRUE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
 			break;
 
 		case GET_OUT_RECALAGE:
@@ -1016,7 +1016,7 @@ error_e sub_anne_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case GO_TO_RUSH:
-			state = try_going(950, 1340 + diffy, state, OPEN_MULTIFONCTION, OPEN_MULTIFONCTION, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(950, 1320, state, OPEN_MULTIFONCTION, OPEN_MULTIFONCTION, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case OPEN_MULTIFONCTION:
@@ -1027,7 +1027,7 @@ error_e sub_anne_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case RUSH:
-			state = try_rush(1520, 1340 + diffy, state, MOVE_BACK, MOVE_BACK, FORWARD, NO_DODGE_AND_WAIT, TRUE);
+			state = try_rush(1520, 1310, state, MOVE_BACK, MOVE_BACK, FORWARD, NO_DODGE_AND_WAIT, TRUE);
 			if(ON_LEAVE()){
 				nb_cylinder_in_basis = (1580 - global.pos.x)/100;
 			}
@@ -1046,7 +1046,7 @@ error_e sub_anne_get_in_pos_3_depose_module_centre(){
 			if(entrance){
 				PROP_WARNER_arm_x(global.pos.x-50);
 			}
-			state = try_going(1000, 1340 + diffy, state, HALF_TURN, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1000, 1310, state, HALF_TURN, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if((global.prop.reach_x)||ON_LEAVE()){
 				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
 			}
@@ -1057,7 +1057,7 @@ error_e sub_anne_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case AVANCE:
-			state = try_going(1520-100*nb_cylinder_in_basis, 1340 + diffy, state, DISPOSE, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1520-100*nb_cylinder_in_basis, 1310, state, DISPOSE, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case DISPOSE:
@@ -1076,7 +1076,7 @@ error_e sub_anne_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case MOVE_BACK_TO_PUSH:
-			state = try_going(1000, 1340 + diffy, state, RUSH, LITTLE_MOVE_BACK_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1000, 1310, state, RUSH, LITTLE_MOVE_BACK_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case LITTLE_MOVE_BACK:
@@ -1089,12 +1089,12 @@ error_e sub_anne_get_in_pos_3_depose_module_centre(){
 				nb_module_returned = (1520 - global.pos.x)/110;
 				tryx = 1520 - 110*nb_module_returned;
 			}
-			state = try_going(tryx, 1340 + diffy, state, LITTLE_MOVE_BACK, LITTLE_MOVE_BACK, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(tryx, 1310, state, LITTLE_MOVE_BACK, LITTLE_MOVE_BACK, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 		}
 		break;
 
 		case GET_OUT:
-			state = try_going(800, 1340 + diffy, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(800, 1310, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -1115,19 +1115,40 @@ error_e sub_anne_get_in_pos_4_depose_module_centre(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_4_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
-			//GET_IN_FROM_MIDDLE_SQUARE,
+			GET_IN_FROM_MIDDLE_SQUARE,
 			GET_IN_FROM_ADV_SQUARE,
 			PATHFIND,
+			GO_TO_RECALAGE,
+			RECALAGE_RELATIF,
+			GET_OUT_RECALAGE,
+			GO_TO_RUSH,
+			OPEN_MULTIFONCTION,
+			RUSH,
+			CLOSE_PUSHER,
+			HALF_TURN,
+			MOVE_BACK_TO_PUSH,
+			AVANCE,
+			DISPOSE,
+			COMPUTE_LITTLE_MOVE_BACK,
+			LITTLE_MOVE_BACK,
+			LITTLE_MOVE_BACK_ERROR,
+			MOVE_BACK,
+			GET_OUT,
+
 			ERROR,
 			DONE
 		);
+
+	static Sint16 diffy = 0;
+	static Uint8 nb_cylinder_in_basis = 0;
+	static Sint16 tryx = 0;
 
 	switch(state){
 		case INIT:
 			if((i_am_in_square(800, 1400, 300, 900))||(i_am_in_square(200, 1100, 900, 2100))){
 				state = GET_IN_FROM_OUR_SQUARE;
-			//}else if(i_am_in_square(200, 1100, 900, 2100)){
-			//	state = GET_IN_FROM_MIDDLE_SQUARE;
+			}else if(i_am_in_square(200, 1100, 900, 2100)){
+				state = GET_IN_FROM_MIDDLE_SQUARE;
 			}else if(i_am_in_square(800, 1400, 2100, 2700)){
 				state = GET_IN_FROM_ADV_SQUARE;
 			}else{
@@ -1136,19 +1157,113 @@ error_e sub_anne_get_in_pos_4_depose_module_centre(){
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(975, COLOR_Y(1700), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(975, 1700, state, GO_TO_RECALAGE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
-		//case GET_IN_FROM_MIDDLE_SQUARE:
-		//	state = try_going(1000, COLOR_Y(1750), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-		//	break;
+		case GET_IN_FROM_MIDDLE_SQUARE:
+			state = try_going(1000, 1750, state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
 
 		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(900, COLOR_Y(1000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(900, 1000, state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(975, COLOR_Y(1700), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(975, 1700, state, GO_TO_RECALAGE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			break;
+
+		case GO_TO_RECALAGE:
+			state = try_going(1270, 1680, state, RECALAGE_RELATIF, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case RECALAGE_RELATIF:
+			state = check_sub_action_result(action_recalage_y(FORWARD, -PI4096/2, 1568 + SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffy, TRUE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
+			break;
+
+		case GET_OUT_RECALAGE:
+			state = try_advance(NULL, entrance, 60, state, GO_TO_RUSH, RECALAGE_RELATIF, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_RUSH:
+			state = try_going(950, 1660, state, OPEN_MULTIFONCTION, OPEN_MULTIFONCTION, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case OPEN_MULTIFONCTION:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, RUSH, ERROR);
+			break;
+
+		case RUSH:
+			state = try_rush(1520, 1660, state, MOVE_BACK, MOVE_BACK, BACKWARD, NO_DODGE_AND_WAIT, TRUE);
+			if(ON_LEAVE()){
+				nb_cylinder_in_basis = (1580 - global.pos.x)/100;
+			}
+			break;
+
+	/*	case CLOSE_PUSHER:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
+			}
+//			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, MOVE_BACK, MOVE_BACK);
+			state = MOVE_BACK;
+			//
+			break;*/
+
+		case MOVE_BACK:
+			if(entrance){
+				PROP_WARNER_arm_x(global.pos.x-50);
+			}
+			state = try_going(1000, 1660, state, HALF_TURN, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if((global.prop.reach_x)||ON_LEAVE()){
+				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
+			}
+			break;
+
+		case HALF_TURN:
+			state = try_go_angle(0, state, AVANCE, GET_OUT, FAST, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case AVANCE:
+			state = try_going(1520-100*nb_cylinder_in_basis, 1660, state, DISPOSE, GET_OUT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case DISPOSE:
+			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, COMPUTE_LITTLE_MOVE_BACK, GET_OUT);
+#warning 'quelles sont les raisons possibles d\'une erreur ?'
+			break;
+
+		case COMPUTE_LITTLE_MOVE_BACK:
+			if(STOCKS_isEmpty(MODULE_STOCK_SMALL)){
+				state = GET_OUT;
+			}else if(global.pos.x>1370){
+				state = LITTLE_MOVE_BACK;
+			}else{// si il te reste des modules tu sors pour pousser encore puis poser
+				state = MOVE_BACK_TO_PUSH;
+			}
+			break;
+
+		case MOVE_BACK_TO_PUSH:
+			state = try_going(1000, 1660, state, RUSH, LITTLE_MOVE_BACK_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case LITTLE_MOVE_BACK:
+			state = try_advance(NULL, entrance, 110, state, DISPOSE, LITTLE_MOVE_BACK_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case LITTLE_MOVE_BACK_ERROR:{
+			if(entrance){
+				Uint8 nb_module_returned = 0;
+				nb_module_returned = (1520 - global.pos.x)/110;
+				tryx = 1520 - 110*nb_module_returned;
+			}
+			state = try_going(tryx, 1660, state, LITTLE_MOVE_BACK, LITTLE_MOVE_BACK, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		}
+		break;
+
+		case GET_OUT:
+			state = try_going(800, 1660, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:

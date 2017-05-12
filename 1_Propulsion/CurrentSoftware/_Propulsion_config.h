@@ -214,7 +214,7 @@
 	//le peu de gain qu'apporterait une modification de dernière minute serait infime devant le risque de faire foirer pas mal d'autres choses bien testées avant... comme les traj. courbes... !
 
 	// de combien on accelere à chaque boucle d'asser
-	#define SMALL_ACCELERATION_NORMAL					55		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
+	#define SMALL_ACCELERATION_NORMAL					80		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
 	#define SMALL_ACCELERATION_MAX						192		//[mm.4096/5ms/5ms]
 	#define SMALL_ACCELERATION_AVOIDANCE				160		//[mm.4096/5ms/5ms]
 
@@ -247,7 +247,7 @@
 	// ATTENTION !!!!!!!!!!!!!!!!!!!!!!!! les valeurs ci-dessous doivent être multiples des accélérations...
 	// Unité : [mm.4096/5ms]
 	#define SMALL_TRANSLATION_SPEED_LIGHT		(Sint32)(24576) 		//environ = 6[mm/5ms] = 1,2m/s
-	#define SMALL_TRANSLATION_SPEED_MAX 		(Sint32)(10240)			//environ = 2,5[mm/5ms] = 0,5m/s
+	#define SMALL_TRANSLATION_SPEED_MAX 		(Sint32)(20240)			//environ = 2,5[mm/5ms] = 0,5m/s
 	#define SMALL_TRANSLATION_SPEED_LOW 		(Sint32)(10240)			//environ = 2,5[mm/5ms] = 0,5m/s
 	#define SMALL_TRANSLATION_SPEED_VERY_LOW 	(Sint32)(5120)			//environ = 1,25[mm/5ms] = 0,25m/s
 	#define SMALL_TRANSLATION_SPEED_SNAIL		(Sint32)(516)

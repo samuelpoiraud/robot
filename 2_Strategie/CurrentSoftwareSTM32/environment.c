@@ -405,6 +405,8 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			break;
 		case PROP_ROBOT_CALIBRE:
 			global.prop.calibrated = TRUE;
+			ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT, ACT_SMALL_BALL_FRONT_LEFT_UP);
+			ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT, ACT_SMALL_BALL_FRONT_RIGHT_UP);
 			//position de départ 2014, Guy ne doit pas empêcher le passage de Pierre si jamais son début de match n'a pas été détecté... Pierre poussera ainsi Guy... autrement dit : Pierre qui roule n'amasse pas de Guy...
 				//PROP_set_correctors(FALSE, FALSE);
 			break;

@@ -167,6 +167,8 @@ static void SMALL_CYLINDER_SLOPE_get_position_config(ACT_order_e *pOrder, Uint16
 
 	if(position > SMALL_CYLINDER_SLOPE_AX12_DOWN_POS - epsilon && position < SMALL_CYLINDER_SLOPE_AX12_DOWN_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_SLOPE_DOWN;
+	}else if(position > SMALL_CYLINDER_SLOPE_AX12_MID_POS - epsilon && position < SMALL_CYLINDER_SLOPE_AX12_MID_POS + epsilon){
+			order = ACT_SMALL_CYLINDER_SLOPE_MID;
 	}else if(position > SMALL_CYLINDER_SLOPE_AX12_UP_POS - epsilon && position < SMALL_CYLINDER_SLOPE_AX12_UP_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_SLOPE_UP;
 	}else if(position > SMALL_CYLINDER_SLOPE_AX12_VERY_UP_POS - epsilon && position < SMALL_CYLINDER_SLOPE_AX12_VERY_UP_POS + epsilon){
@@ -209,6 +211,7 @@ bool_e SMALL_CYLINDER_SLOPE_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SMALL_CYLINDER_SLOPE_IDLE :
 			case ACT_SMALL_CYLINDER_SLOPE_DOWN :
+			case ACT_SMALL_CYLINDER_SLOPE_MID :
 			case ACT_SMALL_CYLINDER_SLOPE_UP :
 			case ACT_SMALL_CYLINDER_SLOPE_VERY_UP :
 			case ACT_SMALL_CYLINDER_SLOPE_STOP :
@@ -265,6 +268,7 @@ static void SMALL_CYLINDER_SLOPE_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_SMALL_CYLINDER_SLOPE_IDLE : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_IDLE_POS; break;
 		case ACT_SMALL_CYLINDER_SLOPE_DOWN : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_DOWN_POS; break;
+		case ACT_SMALL_CYLINDER_SLOPE_MID : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_MID_POS; break;
 		case ACT_SMALL_CYLINDER_SLOPE_UP : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_UP_POS; break;
 		case ACT_SMALL_CYLINDER_SLOPE_VERY_UP : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_VERY_UP_POS; break;
 
