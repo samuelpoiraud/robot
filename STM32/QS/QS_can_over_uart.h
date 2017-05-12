@@ -43,7 +43,7 @@
 
 	#define CAN_MSG_LENGTH	11
 
-	bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fields_e * next_byte_to_read);
+	bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fields_e * next_byte_to_read, time32_t * beginTime);
 
 
 	#ifdef USE_UART1

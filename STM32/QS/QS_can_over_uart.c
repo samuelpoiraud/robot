@@ -13,11 +13,11 @@
 
 #include "QS_can_over_uart.h"
 
-
+#define CAN_OVER_UART_TIMEOUT		100
 
 
 //next_byte_to_read doit être une variable static..initialisée à 0 elle stocke l'état de progression de la récupération du message, d'un appel à l'autre de la fonction.
-bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fields_e * next_byte_to_read)
+bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fields_e * next_byte_to_read, time32_t * beginTime)
 {
 	/*
 	 *	cette fonction lit un octet dans le buffer de reception de l'uart
@@ -31,13 +31,20 @@ bool_e uartToCANmsg (CAN_msg_t* dest, Uint8 byte_read, can_msg_on_char_array_fie
 	Uint8 tmp_can_msg[CAN_MSG_LENGTH+1];
 	Uint8 i, start;
 
+	if(global.absolute_time - (*beginTime) > 100){
+		(*next_byte_to_read) = HEADER;
+	}
+
 	switch (*next_byte_to_read)
 	{
 		case HEADER:
 			/*ignore les octets jusqu'à avoir un debut de msg CAN*/
 			if(byte_read != SOH)
 				return FALSE;
-				break;
+			else{
+				(*beginTime) = global.absolute_time;
+			}
+			break;
 		case SID_MSB:		/*lecture du MSB du sid */
 			dest->sid = (Uint16)byte_read <<8;
 			break;
@@ -136,7 +143,8 @@ void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
 	bool_e u1rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read)
 	{
 		static can_msg_on_char_array_fields_e next_byte_to_read=0;
-		return uartToCANmsg(dest, byte_read, &next_byte_to_read);
+		static time32_t timeBegin=0;
+		return uartToCANmsg(dest, byte_read, &next_byte_to_read, &timeBegin);
 	}
 #endif /* def USE_UART1 */
 
@@ -147,7 +155,8 @@ void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
 	bool_e u2rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read)
 	{
 		static can_msg_on_char_array_fields_e next_byte_to_read=0;
-		return uartToCANmsg(dest, byte_read, &next_byte_to_read);
+		static time32_t timeBegin=0;
+		return uartToCANmsg(dest, byte_read, &next_byte_to_read, &timeBegin);
 	}
 #endif /* def USE_UART2 */
 
@@ -158,7 +167,8 @@ void CANmsgToU##uartId##tx (CAN_msg_t* src)									\
 	bool_e u6rxToCANmsg (CAN_msg_t* dest, Uint8 byte_read)
 	{
 		static can_msg_on_char_array_fields_e next_byte_to_read=0;
-		return uartToCANmsg(dest, byte_read, &next_byte_to_read);
+		static time32_t timeBegin=0;
+		return uartToCANmsg(dest, byte_read, &next_byte_to_read, &timeBegin);
 	}
 #endif /* def USE_UART2 */
 
