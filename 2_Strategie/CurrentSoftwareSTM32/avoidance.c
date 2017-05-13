@@ -76,6 +76,12 @@ bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2,
 	return FALSE;
 }
 
+
+bool_e foe_in_square_color(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, foe_type_e foe_type)
+{
+	return foe_in_square(verbose, x1, x2, COLOR_Y(y1), COLOR_Y(y2), foe_type);
+}
+
 void AVOIDANCE_forced_foe_dected(){
 	CAN_msg_t msg;
 	msg.sid = PROP_DEBUG_FORCED_FOE;

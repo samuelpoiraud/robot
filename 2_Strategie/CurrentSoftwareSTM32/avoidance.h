@@ -22,6 +22,7 @@
 	void FOE_ANALYSER_process_main();
 
 	bool_e foe_in_square(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, foe_type_e foe_type);
+	bool_e foe_in_square_color(bool_e verbose, Sint16 x1, Sint16 x2, Sint16 y1, Sint16 y2, foe_type_e foe_type);
 
 	void debug_foe_reason(foe_origin_e origin, Sint16 angle, Sint16 distance);
 
