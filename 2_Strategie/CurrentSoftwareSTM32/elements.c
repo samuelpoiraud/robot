@@ -631,6 +631,13 @@ Uint8 MOONBASES_getNbModules(moduleMoonbaseLocation_e location){
 	return moduleMoonbaseInfo[location].nbCurrentModules;
 }
 
+// Getter du nombre de places libres dans une base de construction lunaire
+Uint8 MOONBASES_getNbPlace(moduleMoonbaseLocation_e location){
+	Uint8 size;
+	size = (location==MODULE_MOONBASE_ADV_SIDE || location==MODULE_MOONBASE_OUR_SIDE)?4:6;
+	return size-MOONBASES_getNbModules(location);	//La place restante vaut la place totale moins le nombre de modules posés.
+}
+
 // Getter du type d'un module à un emplacement d'une base de construction lunaire
 moduleType_e MOONBASES_getModuleType(Uint8 place, moduleMoonbaseLocation_e location){
 	assert(place < MAX_MODULE_MOONBASE);
@@ -638,6 +645,19 @@ moduleType_e MOONBASES_getModuleType(Uint8 place, moduleMoonbaseLocation_e locat
 	return moduleMoonbaseInfo[location].moonbaseModules[place];
 }
 
+const char * MOONBASES_toString(moduleMoonbaseLocation_e location)
+{
+	switch(location)
+	{
+		case MODULE_MOONBASE_MIDDLE:		return "MOONBASE_MIDDLE";		break;
+		case MODULE_MOONBASE_OUR_CENTER:	return "MOONBASE_OUR_CENTER";	break;
+		case MODULE_MOONBASE_ADV_CENTER:	return "MOONBASE_ADV_CENTER";	break;
+		case MODULE_MOONBASE_OUR_SIDE:		return "MOONBASE_OUR_SIDE";		break;
+		case MODULE_MOONBASE_ADV_SIDE:		return "MOONBASE_ADV_SIDE";		break;
+		default:				break;
+	}
+	return "unknow moonbase\n";
+}
 // Permet d'ajouter un module dans une base de construction lunaire
 void MOONBASES_addModule(moduleType_e type, moduleMoonbaseLocation_e location){
 	Uint8 i;
