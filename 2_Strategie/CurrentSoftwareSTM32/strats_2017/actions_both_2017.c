@@ -233,6 +233,7 @@ error_e sub_cross_rocker(void){
 		default:
 			if(entrance)
 				debug_printf("default case in sub_cross_rocker\n");
+			state = ERROR;
 			break;
 	}
 

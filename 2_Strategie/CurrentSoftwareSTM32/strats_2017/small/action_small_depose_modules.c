@@ -32,7 +32,7 @@ error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules){
 
 	switch(state){
 		case INIT:
-			if(IHM_switchs_get(SWITCH_DISABLE_SMALL_MAGIC_ARM)){
+			if(IHM_switchs_get(SWITCH_ANNE_DISABLE_SMALL_MAGIC_ARM)){
 				state = ERROR; // Actionneur désactivé, on a rien pu prendre
 			}else{
 		#ifdef SCAN_ELEMENTS
