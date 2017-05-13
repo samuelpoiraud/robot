@@ -3,23 +3,164 @@
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_outputlog.h"
+#include "../../QS/QS_IHM.h"
 #include "../../utils/actionChecker.h"
 #include "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../avoidance.h"
 
+bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase);
+
+
 error_e sub_anne_initiale(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_INITIALE,
 			INIT,
+			CROSS_ROCKER,
+			COMPUTE_WHAT_DOING,
+			TAKE_OUR_ROCKET,
+			TAKE_ADV_ROCKET,
+			TURN_ADV_MODULES,
+			COMPUTE_DISPOSE_ZONE,
+			DISPOSE_MOONBASE_MIDDLE,
+			DISPOSE_MOONBASE_OUR_CENTER,
+			DISPOSE_MOONBASE_OUR_SIDE,
+			DISPOSE_MOONBASE_ADV_SIDE,
+			DISPOSE_MOONBASE_ADV_CENTER,
 			ERROR,
 			DONE
 		);
+	static Uint8 nb_try_our_rocket = 0;
+	static Uint8 nb_try_adv_rocket = 0;
+	static Uint8 agressivity = 0;
+
+
+	static Uint8 nb_try_return_adv_middle = 0;
+	static Uint8 nb_try_return_middle = 0;
+	static Uint8 nb_try_return_adv_side = 0;
+	static bool_e must_protect_after_dispose = FALSE;
+	static moduleMoonbaseLocation_e moonbase;
 
 	switch(state){
 		case INIT:
-			state = DONE;
+			state = CROSS_ROCKER;
+			//Les nombres ci dessous permettent de régler un "nombre d'essais"... au delà, on rendra la main à la highlevel
+
+			//Prises
+			nb_try_our_rocket = IHM_switchs_get(SWITCH_ANNE_TAKE_OUR_ROCKET)?2:0;
+			nb_try_adv_rocket = IHM_switchs_get(SWITCH_ANNE_TAKE_ADV_ROCKET)?2:0;
+			agressivity = IHM_switchs_get(SWITCH_ANNE_AGRESSIVITY)?1:0;
+
+
+			//Retournements
+			nb_try_return_adv_middle = IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_MIDDLE)?1:0;
+			nb_try_return_middle = IHM_switchs_get(SWITCH_ANNE_RETURN_MIDDLE)?1:0;
+			nb_try_return_adv_side = IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_SIDE)?1:0;
+
+			//si aucun retournement d'activé et une seule fusée d'activée... il ne nous restera plus qu'à protéger...
+			must_protect_after_dispose = IHM_switchs_get(SWITCH_ANNE_PROTECT)?TRUE:FALSE;
+
+			break;
+		case CROSS_ROCKER:
+			if(sub_cross_rocker() != IN_PROGRESS)
+				state = COMPUTE_WHAT_DOING;
+			break;
+		case COMPUTE_WHAT_DOING:	//Cet état est susceptible d'être appelé lors de l'échec d'une sub... pour reréfléchir à quoi faire !
+			if(nb_try_our_rocket && !(agressivity && nb_try_adv_rocket))
+			{
+				nb_try_our_rocket--;
+				state = TAKE_OUR_ROCKET;	//Notre fusée si elle est activée et si on ne cherche pas à être agressif vers la fusée adverse
+			}
+			else if(nb_try_adv_rocket)
+			{
+				nb_try_adv_rocket--;
+				if(agressivity && nb_try_our_rocket) //on a fait le choix du module adverse par agressivité, et non par unique choix
+					agressivity--;
+				state = TAKE_ADV_ROCKET;
+			}
+			else if(IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_MIDDLE) || IHM_switchs_get(SWITCH_ANNE_RETURN_MIDDLE) || IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_SIDE) )
+				state = TURN_ADV_MODULES;
+			else
+				state = DONE;	//Plus rien à faire !
+
 			break;
 
+		case TAKE_OUR_ROCKET:
+			switch(sub_anne_fusee_color())
+			{
+				case IN_PROGRESS:
+					break;
+				default:	//Pour toutes les erreurs (timeout, not_handled...)
+					if(STOCKS_getNbModules(MODULE_STOCK_SMALL) > 0)
+					{
+						nb_try_our_rocket = 0;	//On ne retournera pas prendre cette fusée incomplète !
+						state = COMPUTE_DISPOSE_ZONE;
+					}
+					else
+						state = COMPUTE_WHAT_DOING;	//Aucun module pris, on se repose la question de quoi faire !
+					break;
+			}
+			break;
+
+		case TAKE_ADV_ROCKET:
+			switch(sub_anne_fusee_multicolor(ADV_ELEMENT))
+			{
+				case IN_PROGRESS:
+					break;
+				case END_OK:
+					nb_try_adv_rocket = 0;
+					state = COMPUTE_DISPOSE_ZONE;
+					break;
+				default:	//Pour toutes les erreurs (timeout, not_handled...)
+					if(STOCKS_getNbModules(MODULE_STOCK_SMALL) > 0)
+					{
+						nb_try_adv_rocket = 0;		//On ne retournera pas prendre cette fusée incomplète !
+						state = COMPUTE_DISPOSE_ZONE;
+					}
+					else
+						state = COMPUTE_WHAT_DOING;	//Aucun module pris, on se repose la question de quoi faire !
+					//TODO : dans certains cas, il est peut-être préférable de renvoyer la main vers la highlevel...
+					//Notamment lorsqu'on a échoué à cause d'un mauvais positionnement devant la fusée adverse.
+					//Si l'odométrie est flinguée, il est sans doute plus pertinent d'attaquer que de revenir vers nos modules !
+					break;
+			}
+			break;
+		case COMPUTE_DISPOSE_ZONE:
+			if(dispose_manager_chose_moonbase(&moonbase) == TRUE)	//Une zone est choisie
+			{
+				switch(moonbase)
+				{
+					case MODULE_MOONBASE_MIDDLE:		state = DISPOSE_MOONBASE_MIDDLE;		break;
+					case MODULE_MOONBASE_OUR_CENTER:	state = DISPOSE_MOONBASE_OUR_CENTER;	break;
+					case MODULE_MOONBASE_OUR_SIDE:		state = DISPOSE_MOONBASE_OUR_SIDE;		break;
+					case MODULE_MOONBASE_ADV_SIDE:		state = DISPOSE_MOONBASE_ADV_SIDE;		break;
+					case MODULE_MOONBASE_ADV_CENTER:	state = DISPOSE_MOONBASE_ADV_CENTER;	break;
+					default:							state = ERROR;							break;
+				}
+			}
+			else
+				state = DONE;	//Aucune zone choisie par le dispose manager.
+
+			break;
+		case DISPOSE_MOONBASE_MIDDLE:
+			if(sub_anne_depose_centre_manager() != IN_PROGRESS)
+				state = COMPUTE_WHAT_DOING;
+			break;
+		case DISPOSE_MOONBASE_OUR_CENTER:	//TODO
+			state = COMPUTE_WHAT_DOING;
+			break;
+		case DISPOSE_MOONBASE_OUR_SIDE:	//TODO
+			state = COMPUTE_WHAT_DOING;
+			break;
+		case DISPOSE_MOONBASE_ADV_SIDE: //TODO
+			state = COMPUTE_WHAT_DOING;
+			break;
+		case DISPOSE_MOONBASE_ADV_CENTER:	//TODO
+			state = COMPUTE_WHAT_DOING;
+			break;
+		case TURN_ADV_MODULES:
+			if(sub_act_anne_return_module() != IN_PROGRESS)
+				state = DONE;
+			break;
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
@@ -39,6 +180,110 @@ error_e sub_anne_initiale(){
 	}
 
 	return IN_PROGRESS;
+}
+
+
+//Cette fonction est utilisée par la sub initiale d'Anne.
+//Elle a pout but de choisir une zone de dépose selon :
+//		- les zones déjà tentées
+//		- notre position
+//		- positions adverses
+//		- tout autre idée géniale...
+//Param nb_try_dispose : tableau de nombre d'essai restant pour chaque zone
+//Param moonbase : si on return TRUE, vous trouverez ici le choix de zone !
+bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase)
+{
+	static bool_e moonbases_enable[NB_MOONBASES];	//nombres de places restantes si zones activée (IHM). 0 si zone désactivée.
+	static bool_e nb_tentatives_moonbases[NB_MOONBASES];		//nombre de tentatives où on a essayé d'aller à...
+	static bool_e initialized = FALSE;
+	Sint8 modules_in_stock;
+	Sint8 moonbases_score[NB_MOONBASES];	//Celui qui obtient le meilleur score va gagner ! A vos marques... prêt.... partez !
+	const Uint8 natural_priority[NB_MOONBASES] = {
+			5, //MODULE_MOONBASE_MIDDLE,			//La meilleure zone par défaut
+			3, //MODULE_MOONBASE_OUR_CENTER,		//Si elle est activé (ce qui n'est pas nominal, cette zone dispose d'une forte priorité)
+			1, //MODULE_MOONBASE_ADV_CENTER,		//Zone non prioritaire...
+			4, //MODULE_MOONBASE_OUR_SIDE,			//Si elle est activé (ce qui n'est pas nominal, cette zone dispose d'une forte priorité)
+			2 //MODULE_MOONBASE_ADV_SIDE,
+	};
+	bool_e ret = FALSE;
+
+	if(!initialized)
+	{
+		initialized = TRUE;
+		//Lecture des switchs
+		moonbases_enable[MODULE_MOONBASE_MIDDLE] = IHM_switchs_get(SWITCH_ANNE_DISPOSE_MIDDLE);
+		moonbases_enable[MODULE_MOONBASE_ADV_CENTER] = IHM_switchs_get(SWITCH_ANNE_DISPOSE_ADV_MIDDLE);
+		moonbases_enable[MODULE_MOONBASE_ADV_SIDE] = IHM_switchs_get(SWITCH_ANNE_DISPOSE_ADV_SIDE);
+		moonbases_enable[MODULE_MOONBASE_OUR_CENTER] = IHM_switchs_get(SWITCH_ANNE_DISPOSE_OUR_MIDDLE);
+		moonbases_enable[MODULE_MOONBASE_OUR_SIDE] = IHM_switchs_get(SWITCH_ANNE_DISPOSE_OUR_SIDE);
+	}
+
+	modules_in_stock = STOCKS_getNbModules(MODULE_STOCK_SMALL);
+	if(modules_in_stock == 0)
+		return FALSE;	//Rien à déposer !!!???
+	moduleMoonbaseLocation_e mb;
+	for(mb = 0; mb<NB_MOONBASES; mb++)
+	{
+		if(moonbases_enable[mb])
+		{
+			Sint8 missing_places = modules_in_stock -  MOONBASES_getNbPlace(mb);
+
+			if(missing_places <= 0)	//Assez de place pour poser !
+				moonbases_score[mb] = 4;	//4 points !
+			else	//Pas assez de place pour déposer ici !
+				moonbases_score[mb] = (missing_places<=4)?(4-missing_places):0;	//C'est moins cool, mais on peut au moins mettre un module !
+
+		}
+		else
+			moonbases_score[mb] = 0;	//Zone non activée, score nul ! On ira pas poser ici !
+
+		//Arrivé ici, on a :
+				//4 points pour une zone qui peut acceuillir nos modules
+				//3 points pour une zone qui peut tous les acceuillir sauf 1
+				//2 points pour une zone qui peut tous les acceuillir sauf 2
+				//1 point  pour une zone qui peut tous les acceuillir sauf 3
+				//0 point  pour une zone qui peut plus acceuillir grand chose !
+				//0 point  pour une zone qui n'est pas autorisée par les switchs de l'IHM !!! (--> l'humain d'abord... ça fait un bon slogan politique ça, n'est ce pas ?)
+
+		//Calcul de la distance à la zone
+		if(moonbases_score[mb] > 0)
+		{
+			//Pour toute zone qui a un score non nul, on donne un bonus à la proximité.
+			//TODO
+
+			//Pour toute zone qui a un score non nul, on donne un malus si elle a subit des échecs préalablement
+			moonbases_score[mb] -= nb_tentatives_moonbases[mb];
+		}
+
+		if(moonbases_score[mb] < 0)	//Tout score négatif est ramené à 0... faut pas déconner non plus !
+			moonbases_score[mb] = 0;
+	}
+
+	//Recherche du score maximum
+	Sint8 best_score = 0;
+	for(mb = 0; mb<NB_MOONBASES; mb++)
+	{
+		if(moonbases_score[mb] > best_score)
+		{
+			best_score = moonbases_score[mb];
+			*moonbase = mb;
+		}
+		else if(moonbases_score[mb] == best_score)	//Deux scores sont identiques
+		{
+			if(natural_priority[mb] > natural_priority[*moonbase])	//On s'en réfère aux priorités naturelles du tableau constant.
+				*moonbase = mb;
+		}
+		debug_printf("Zone %d - %s : score=%d (%sable;%d places;%d tentatives)\n",mb, MOONBASES_toString(mb), moonbases_score[mb], moonbases_enable[mb]?"en":"dis", MOONBASES_getNbPlace(mb), nb_tentatives_moonbases[mb]);
+	}
+
+	if(best_score > 0)	//On a un best_score non nul !
+	{
+		debug_printf("Zone retenue : %d - %s\n",*moonbase, MOONBASES_toString(*moonbase));
+		ret = TRUE;	//On a trouvé une zone !!! champomy !
+		nb_tentatives_moonbases[*moonbase]++;	//On incrémente le nb de tentative de la moonbase choisie
+	}
+
+	return ret;
 }
 
 error_e sub_anne_end_of_match(){
