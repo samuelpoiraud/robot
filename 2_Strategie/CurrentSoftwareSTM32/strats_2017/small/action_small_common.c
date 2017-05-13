@@ -246,13 +246,78 @@ bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase)
 				//0 point  pour une zone qui n'est pas autorisée par les switchs de l'IHM !!! (--> l'humain d'abord... ça fait un bon slogan politique ça, n'est ce pas ?)
 
 		//Calcul de la distance à la zone
+
+		Sint8 bonus = 0;
 		if(moonbases_score[mb] > 0)
 		{
 			//Pour toute zone qui a un score non nul, on donne un bonus à la proximité.
-			//TODO
+			switch(mb)
+			{
+				case MODULE_MOONBASE_MIDDLE:
+					//no break
+				case MODULE_MOONBASE_OUR_CENTER:
+					//no break
+				case MODULE_MOONBASE_OUR_SIDE:
+					if(i_am_in_square_color(0, 1000, 700, 1930))
+						bonus += 1;
+					break;
+				case MODULE_MOONBASE_ADV_CENTER:
+					if(i_am_in_square_color(0, 2000, 1500, 3000))	//On est dans le demi-terrain adverse
+						bonus += 1;
+					break;
+				case MODULE_MOONBASE_ADV_SIDE:
+					if(i_am_in_square_color(0, 2000, 2500, 3000))	//On est dans le quart-terrain adverse
+						bonus += 2;		//2 points !
+					else if(i_am_in_square_color(0, 2000, 1500, 3000))	//On est dans le demi-terrain adverse (mais du coup pas dans le quart...)
+						bonus += 1;
+					break;
+				default:				break;
+			}
+			if(bonus)
+			{
+				moonbases_score[mb] += bonus;
+				debug_printf("Bonus for zone %d : %d\n", mb, bonus);
+			}
 
 			//Pour toute zone qui a un score non nul, on donne un malus si elle a subit des échecs préalablement
 			moonbases_score[mb] -= nb_tentatives_moonbases[mb];
+
+			Sint8 malus = 0;
+
+			//Pour toute zone qui a un score non nul, on donne un malus si on y voit des aversaires à l'hokuyo !
+			switch(mb)
+			{
+				case MODULE_MOONBASE_MIDDLE:
+					if(foe_in_square_color(FALSE, 1000, 2000, 1150, 1850 ,FOE_TYPE_HOKUYO))
+						malus = 2;
+					break;
+				case MODULE_MOONBASE_OUR_CENTER:
+					if(foe_in_square_color(FALSE, 1000, 2000, 500, 1500 ,FOE_TYPE_HOKUYO))
+						malus = 2;
+					break;
+				case MODULE_MOONBASE_OUR_SIDE:
+					if(foe_in_square_color(FALSE, 400, 1500, 0, 700 ,FOE_TYPE_HOKUYO))
+						malus = 2;
+					break;
+				case MODULE_MOONBASE_ADV_CENTER:
+					if(foe_in_square_color(FALSE, 1000, 2000, 1500, 2500 ,FOE_TYPE_HOKUYO))
+						malus = 2;
+					break;
+				case MODULE_MOONBASE_ADV_SIDE:
+					if(foe_in_square_color(FALSE, 400, 1500, 2500, 3000 ,FOE_TYPE_HOKUYO))
+						malus = 2;
+					break;
+				default:
+					break;
+			}
+			if(malus)
+			{
+				moonbases_score[mb] -= malus;
+				//Tout score malussé ci dessus qui est tombé à 0 est gracieusement remonté à 1... Ma générosité me perdra...
+				if(moonbases_score[mb] <= 0)
+					moonbases_score[mb] = 1;
+				debug_printf("Malus for zone %d : -%d\n",mb, malus);
+			}
 		}
 
 		if(moonbases_score[mb] < 0)	//Tout score négatif est ramené à 0... faut pas déconner non plus !
