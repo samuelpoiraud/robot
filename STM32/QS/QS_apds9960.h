@@ -5,6 +5,11 @@
  *      Author: Cécile Lebrun, portage depuis Arduino (auteur : Shawn Hymel (SparkFun Electronics))
  */
 
+/** ----------------  Defines possibles  --------------------
+ *	USE_APDS9960				: Activation de l'APDS 9960
+ *	APDS9960_I2C				: I2C utilisé pour le capteur de couleur
+ */
+
 #ifndef APDS9960_H_
 	#define APDS9960_H_
 
@@ -13,24 +18,26 @@
 	#if defined(USE_APDS9960)
 
 		/* Debug */
-		#define DEBUG_APDS                   0
+		#define DEBUG_APDS				0
 
 		/* APDS-9960 I2C address */
-		#define APDS9960_I2C_ADDR       0x39
+		#define APDS9960_I2C_ADDR		0x39
 
 		/* Bus I2C utilisé */
-		#define APDS9960_I2C			I2C1
+		#ifndef APDS9960_I2C
+			#error I2C APDS9960 non défini
+		#endif
 
 		/* Gesture parameters */
-		#define GESTURE_THRESHOLD_OUT   10
-		#define GESTURE_SENSITIVITY_1   50
-		#define GESTURE_SENSITIVITY_2   20
+		#define GESTURE_THRESHOLD_OUT	10
+		#define GESTURE_SENSITIVITY_1	50
+		#define GESTURE_SENSITIVITY_2	20
 
 		/* Error code for returned values */
-		#define ERROR                   0xFF
+		#define ERROR					0xFF
 
 		/* Acceptable device IDs */
-		#define APDS9960_ID_1           0xAB
+		#define APDS9960_ID_1			0xAB
 		#define APDS9960_ID_2           0x9C
 
 		/* Misc parameters */

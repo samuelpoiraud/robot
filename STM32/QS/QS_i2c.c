@@ -21,7 +21,7 @@
 #define LOG_PREFIX "I2C : "
 #include "QS_outputlog.h"
 
-#if defined(USE_I2C1) || defined(USE_I2C2)
+#if defined(USE_I2C1) || defined(USE_I2C2) || defined(USE_I2C3)
 
 	#ifndef I2C1_CLOCK_SPEED
 		#define I2C1_CLOCK_SPEED 100000
@@ -31,12 +31,20 @@
 		#define I2C2_CLOCK_SPEED 100000
 	#endif
 
+	#ifndef I2C3_CLOCK_SPEED
+		#define I2C3_CLOCK_SPEED 100000
+	#endif
+
 	#if I2C1_CLOCK_SPEED > 400000
 		#error I2C1 clock speed too hight
 	#endif
 
 	#if I2C2_CLOCK_SPEED > 400000
 		#error I2C2 clock speed too hight
+	#endif
+
+	#if I2C3_CLOCK_SPEED > 400000
+		#error I2C3 clock speed too hight
 	#endif
 
 	typedef enum{
@@ -99,6 +107,20 @@
 			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
 		#endif
 
+		#ifdef USE_I2C3
+			/* Enable IOE_I2C and IOE_I2C_GPIO_PORT & Alternate Function clocks */
+			RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C3, ENABLE);
+			RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+			RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+			RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+			/* Reset I2C2 */
+			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, ENABLE);
+
+			/* Release reset signal of I2C2 */
+			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, DISABLE);
+		#endif
+
 		PORTS_i2c_init();
 		WATCHDOG_init();
 
@@ -119,10 +141,10 @@
 				I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
 			#endif
 
-			I2C_DeInit(I2C1_I2C_HANDLE);
-			I2C_Init(I2C1_I2C_HANDLE, &I2C_InitStructure);
-			I2C_Cmd(I2C1_I2C_HANDLE, ENABLE);
-			I2C_ITConfig(I2C1_I2C_HANDLE,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
+			I2C_DeInit(I2C1);
+			I2C_Init(I2C1, &I2C_InitStructure);
+			I2C_Cmd(I2C1, ENABLE);
+			I2C_ITConfig(I2C1,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
 
 			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
@@ -146,10 +168,10 @@
 				I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
 			#endif
 
-			I2C_DeInit(I2C2_I2C_HANDLE);
-			I2C_Init(I2C2_I2C_HANDLE, &I2C_InitStructure);
-			I2C_Cmd(I2C2_I2C_HANDLE, ENABLE);
-			I2C_ITConfig(I2C2_I2C_HANDLE,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
+			I2C_DeInit(I2C2);
+			I2C_Init(I2C2, &I2C_InitStructure);
+			I2C_Cmd(I2C2, ENABLE);
+			I2C_ITConfig(I2C2,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
 
 			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
@@ -163,20 +185,47 @@
 			//NVIC_InitStructure.NVIC_IRQChannel = I2C2_EV_IRQn;
 			//NVIC_Init(&NVIC_InitStructure);
 		#endif /* def USE_I2C2 */
+
+		#ifdef USE_I2C3
+			I2C_InitStructure.I2C_ClockSpeed = I2C3_CLOCK_SPEED;  				/*!< Specifies the clock frequency. This parameter must be set to a value lower than 400kHz */
+
+			#if I2C2_CLOCK_SPEED > 100000	// Fast mode
+				I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_16_9;
+			#else
+				I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
+			#endif
+
+			I2C_DeInit(I2C3);
+			I2C_Init(I2C3, &I2C_InitStructure);
+			I2C_Cmd(I2C3, ENABLE);
+			I2C_ITConfig(I2C3,I2C_IT_ERR,ENABLE);	//Active Interruption sur détection d'erreur de communication.
+
+			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
+			NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+
+			//I2C ERROR : activation des IRQ
+			NVIC_InitStructure.NVIC_IRQChannel = I2C3_ER_IRQn;
+			NVIC_Init(&NVIC_InitStructure);
+
+			//I2C Event : pas d'activation des IRQ.
+			//NVIC_InitStructure.NVIC_IRQChannel = I2C2_EV_IRQn;
+			//NVIC_Init(&NVIC_InitStructure);
+		#endif /* def USE_I2C2 */
 	}
 
 	void I2C_reset(void){
 
 	#ifdef USE_I2C1
-		I2C_SoftwareResetCmd(I2C1_I2C_HANDLE,ENABLE);
-		I2C_SoftwareResetCmd(I2C1_I2C_HANDLE,DISABLE);
-		I2C_DeInit(I2C1_I2C_HANDLE);
+		I2C_SoftwareResetCmd(I2C1,ENABLE);
+		I2C_SoftwareResetCmd(I2C1,DISABLE);
+		I2C_DeInit(I2C1);
 	#endif
 
 	#ifdef USE_I2C2
-		I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,ENABLE);
-		I2C_SoftwareResetCmd(I2C2_I2C_HANDLE,DISABLE);
-		I2C_DeInit(I2C2_I2C_HANDLE);
+		I2C_SoftwareResetCmd(I2C2,ENABLE);
+		I2C_SoftwareResetCmd(I2C2,DISABLE);
+		I2C_DeInit(I2C2);
 	#endif
 
 		I2C_init();
@@ -491,7 +540,7 @@
 		{
 			failed_sr1 = I2C1->SR1;
 			failed_sr2 = I2C1->SR2;
-			I2C_ClearITPendingBit(I2C1_I2C_HANDLE, I2C_IT_SMBALERT | I2C_IT_TIMEOUT | I2C_IT_PECERR | I2C_IT_OVR | I2C_IT_AF | I2C_IT_ARLO | I2C_IT_BERR);
+			I2C_ClearITPendingBit(I2C1, I2C_IT_SMBALERT | I2C_IT_TIMEOUT | I2C_IT_PECERR | I2C_IT_OVR | I2C_IT_AF | I2C_IT_ARLO | I2C_IT_BERR);
 			i2c_bus_error = TRUE;
 		}
 	#endif
@@ -502,7 +551,18 @@
 		{
 			failed_sr1 = I2C2->SR1;
 			failed_sr2 = I2C2->SR2;
-			I2C_ClearITPendingBit(I2C2_I2C_HANDLE, I2C_IT_SMBALERT | I2C_IT_TIMEOUT | I2C_IT_PECERR | I2C_IT_OVR | I2C_IT_AF | I2C_IT_ARLO | I2C_IT_BERR);
+			I2C_ClearITPendingBit(I2C2, I2C_IT_SMBALERT | I2C_IT_TIMEOUT | I2C_IT_PECERR | I2C_IT_OVR | I2C_IT_AF | I2C_IT_ARLO | I2C_IT_BERR);
+			i2c_bus_error = TRUE;
+		}
+	#endif
+
+	#ifdef USE_I2C3
+		//Interruption appelée en cas d'erreur de communication sur le Bus.
+		void I2C3_ER_IRQHandler(void)
+		{
+			failed_sr1 = I2C2->SR1;
+			failed_sr2 = I2C2->SR2;
+			I2C_ClearITPendingBit(I2C3, I2C_IT_SMBALERT | I2C_IT_TIMEOUT | I2C_IT_PECERR | I2C_IT_OVR | I2C_IT_AF | I2C_IT_ARLO | I2C_IT_BERR);
 			i2c_bus_error = TRUE;
 		}
 	#endif

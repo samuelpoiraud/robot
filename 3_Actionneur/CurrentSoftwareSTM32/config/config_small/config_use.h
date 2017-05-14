@@ -27,4 +27,12 @@
 /* Réglages de la carte Mosfets*/
 	//#define USE_MOSFETS_MODULE
 
+/* Réglages capteur couleur I2C */
+	#define USE_I2C_COLOR_SENSOR
+		#ifdef USE_I2C_COLOR_SENSOR
+			#define USE_APDS9960
+				#define APDS9960_I2C		I2C3
+			#define USE_I2C3
+				#define I2C2_CLOCK_SPEED	100000
+		#endif
 #endif /* SMALL_CONFIG_USE_H */

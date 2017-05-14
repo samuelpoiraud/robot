@@ -38,7 +38,6 @@
 #include "propulsion/astar.h"
 #include "elements.h"
 #include "avoidance.h"
-#include "colorSensor.h"
 #include "strats_2017/big/action_big.h"
 #include "strats_2017/small/action_small.h"
 #include "strats_2017/actions_both_2017.h"
@@ -148,7 +147,6 @@ int main (void)
 	ACT_AVOIDANCE_init();
 	ELEMENTS_init();
 	FOE_ANALYSER_init();
-	ColorSensor_init();
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
@@ -181,11 +179,6 @@ int main (void)
 		//Machine à état QS_mosfet
 		#if defined(USE_MOSFETS_MODULE) && defined(USE_MOSFET_MULTI)
 			MOSFET_do_order_multi(NULL);
-		#endif
-
-		#ifdef USE_I2C_COLOR_SENSOR
-			if(QS_WHO_AM_I_get() == SMALL_ROBOT)
-				COLOR_SENSOR_processMain();
 		#endif
 
 

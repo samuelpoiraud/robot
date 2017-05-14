@@ -174,14 +174,6 @@
 /* Réglages Capteur couleur */
 	#define USE_CW_SENSOR
 
-/* Réglages Capteur couleur I2C */
-	//#define USE_I2C_COLOR_SENSOR
-		#ifdef USE_I2C_COLOR_SENSOR
-			#define USE_APDS9960
-			#define USE_I2C1
-				#define I2C1_CLOCK_SPEED 100000
-		#endif
-
 /* Récapitulatif TIMERs :
  * TIMER 1 : Clock			(clock.c/h)
  * TIMER 2 : ...
