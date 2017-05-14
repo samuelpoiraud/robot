@@ -35,6 +35,7 @@
 #include "ActManager.h"
 #include "Can_msg_processing.h"
 #include "mosfetBoard.h"
+#include "colorSensor.h"
 
 #ifdef I_AM_ROBOT_BIG
 #else
@@ -127,6 +128,10 @@ int main (void)
 		MOSFET_BOARD_init();
 	#endif
 
+	#ifdef USE_I2C_COLOR_SENSOR
+		COLOR_SENSOR_init();
+	#endif
+
 	IHM_define_act_button(BP_0_IHM, &MAIN_onButton0, &MAIN_onButton0LongPush);
 	IHM_define_act_button(BP_1_IHM, &MAIN_onButton1, &MAIN_onButton1LongPush);
 	IHM_define_act_button(BP_2_IHM, &MAIN_onButton2, &MAIN_onButton2LongPush);
@@ -185,6 +190,10 @@ int main (void)
 
 		#ifdef USE_MOSTFET_BOARD
 			MOSFET_BOARD_processMain();
+		#endif
+
+		#ifdef USE_I2C_COLOR_SENSOR
+			COLOR_SENSOR_processMain();
 		#endif
 
 		OUTPUTLOG_process_main();

@@ -17,6 +17,9 @@
  *	USE_I2C2					: Activation de l'I2C 2
  *	I2C2_CLOCK_SPEED			: Définit par défaut à 100000(100kHz)
  *
+ *	USE_I2C3					: Activation de l'I2C 3
+ *	I2C3_CLOCK_SPEED			: Définit par défaut à 100000(100kHz)
+ *
  *	I2C_DISPLAY_ERROR			: Activation du verbose des erreurs I2C
  *
  *	I2C_ON_DMA					: Activation du DMA pour améliorer la vitesse de l'I2C
@@ -26,17 +29,7 @@
 	#define QS_I2C_H
 	#include "QS_all.h"
 
-	#ifdef USE_I2C1
-		#define I2C1_I2C_HANDLE I2C1
-		#define I2C1_I2C_CLOCK  RCC_APB1Periph_I2C1
-	#endif /* def USE_I2C1 */
-
-	#ifdef USE_I2C2
-		#define I2C2_I2C_HANDLE I2C2
-		#define I2C2_I2C_CLOCK  RCC_APB1Periph_I2C2
-	#endif /* def USE_I2C2 */
-
-	#if defined(USE_I2C1) || defined(USE_I2C2)
+	#if defined(USE_I2C1) || defined(USE_I2C2) || defined(USE_I2C3)
 		void I2C_init(void);
 		void I2C_reset(void);
 

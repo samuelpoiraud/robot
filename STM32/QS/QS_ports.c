@@ -760,7 +760,15 @@ void PORTS_i2c_init(void) {
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_I2C2);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_I2C2);
 	#endif
+	#ifdef USE_I2C3
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+		GPIO_Init(GPIOC, &GPIO_InitStructure);
 
+		GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_I2C3);
+		GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_I2C3);
+	#endif
 }
 
 void PORTS_can_init() {
