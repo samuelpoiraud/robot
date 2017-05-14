@@ -20,12 +20,7 @@ error_e sub_anne_initiale(){
 			TAKE_OUR_ROCKET,
 			TAKE_ADV_ROCKET,
 			TURN_ADV_MODULES,
-			COMPUTE_DISPOSE_ZONE,
-			DISPOSE_MOONBASE_MIDDLE,
-			DISPOSE_MOONBASE_OUR_CENTER,
-			DISPOSE_MOONBASE_OUR_SIDE,
-			DISPOSE_MOONBASE_ADV_SIDE,
-			DISPOSE_MOONBASE_ADV_CENTER,
+			DISPOSE,
 			ERROR,
 			DONE
 		);
@@ -39,6 +34,7 @@ error_e sub_anne_initiale(){
 	static Uint8 nb_try_return_adv_side = 0;
 	static bool_e must_protect_after_dispose = FALSE;
 	static moduleMoonbaseLocation_e moonbase;
+	error_e ret = IN_PROGRESS;
 
 	switch(state){
 		case INIT:
@@ -93,7 +89,7 @@ error_e sub_anne_initiale(){
 					if(STOCKS_getNbModules(MODULE_STOCK_SMALL) > 0)
 					{
 						nb_try_our_rocket = 0;	//On ne retournera pas prendre cette fusée incomplète !
-						state = COMPUTE_DISPOSE_ZONE;
+						state = DISPOSE;
 					}
 					else
 						state = COMPUTE_WHAT_DOING;	//Aucun module pris, on se repose la question de quoi faire !
@@ -108,13 +104,13 @@ error_e sub_anne_initiale(){
 					break;
 				case END_OK:
 					nb_try_adv_rocket = 0;
-					state = COMPUTE_DISPOSE_ZONE;
+					state = DISPOSE;
 					break;
 				default:	//Pour toutes les erreurs (timeout, not_handled...)
 					if(STOCKS_getNbModules(MODULE_STOCK_SMALL) > 0)
 					{
 						nb_try_adv_rocket = 0;		//On ne retournera pas prendre cette fusée incomplète !
-						state = COMPUTE_DISPOSE_ZONE;
+						state = DISPOSE;
 					}
 					else
 						state = COMPUTE_WHAT_DOING;	//Aucun module pris, on se repose la question de quoi faire !
@@ -124,39 +120,24 @@ error_e sub_anne_initiale(){
 					break;
 			}
 			break;
-		case COMPUTE_DISPOSE_ZONE:
-			if(dispose_manager_chose_moonbase(&moonbase) == TRUE)	//Une zone est choisie
+		case DISPOSE:
+			//Cette subaction choisi une zone et tente d'aller y déposer les modules.
+			switch(sub_anne_chose_moonbase_and_dispose_modules())
 			{
-				switch(moonbase)
-				{
-					case MODULE_MOONBASE_MIDDLE:		state = DISPOSE_MOONBASE_MIDDLE;		break;
-					case MODULE_MOONBASE_OUR_CENTER:	state = DISPOSE_MOONBASE_OUR_CENTER;	break;
-					case MODULE_MOONBASE_OUR_SIDE:		state = DISPOSE_MOONBASE_OUR_SIDE;		break;
-					case MODULE_MOONBASE_ADV_SIDE:		state = DISPOSE_MOONBASE_ADV_SIDE;		break;
-					case MODULE_MOONBASE_ADV_CENTER:	state = DISPOSE_MOONBASE_ADV_CENTER;	break;
-					default:							state = ERROR;							break;
-				}
+				case END_OK:
+					state = COMPUTE_WHAT_DOING;
+					break;
+				case IN_PROGRESS:
+					break;
+				default:
+					if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0)		//On a aucun module en stock, on se repose la question de quoi faire
+						state = COMPUTE_WHAT_DOING;
+					else	//Il nous reste des modules en stock, on est coincé pour une autre prise, on se barre de l'initiale en priant pour que la highlevel fasse son job !
+						state = ERROR;	//Echec de la dépose. On rend la main à la highlevel...
+					break;
 			}
-			else
-				state = DONE;	//Aucune zone choisie par le dispose manager.
+			break;
 
-			break;
-		case DISPOSE_MOONBASE_MIDDLE:
-			if(sub_anne_depose_centre_manager() != IN_PROGRESS)
-				state = COMPUTE_WHAT_DOING;
-			break;
-		case DISPOSE_MOONBASE_OUR_CENTER:	//TODO
-			state = COMPUTE_WHAT_DOING;
-			break;
-		case DISPOSE_MOONBASE_OUR_SIDE:	//TODO
-			state = COMPUTE_WHAT_DOING;
-			break;
-		case DISPOSE_MOONBASE_ADV_SIDE: //TODO
-			state = COMPUTE_WHAT_DOING;
-			break;
-		case DISPOSE_MOONBASE_ADV_CENTER:	//TODO
-			state = COMPUTE_WHAT_DOING;
-			break;
 		case TURN_ADV_MODULES:
 			if(sub_act_anne_return_module() != IN_PROGRESS)
 				state = DONE;
@@ -164,13 +145,13 @@ error_e sub_anne_initiale(){
 		case ERROR:
 			RESET_MAE();
 			on_turning_point();
-			return NOT_HANDLED;
+			ret = NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
-			return END_OK;
+			ret = END_OK;
 			break;
 
 		default:
@@ -179,7 +160,23 @@ error_e sub_anne_initiale(){
 			break;
 	}
 
-	return IN_PROGRESS;
+	if(ret != IN_PROGRESS)
+	{
+		//il faut une fin à tout...
+		//on va sortir de l'initiale, et peut être le regretter amèrement...
+		//C'est donc l'heure de configurer les subactions pour la highlevel.
+
+		//L'initiale à le monopole des prises de modules dans les fusées... la highlevel n'a pas accès à ces prises
+
+		//Sub de retournement
+
+		//Sub de dépose
+		if(STOCKS_getNbModules(MODULE_STOCK_SMALL) > 0)	//Il reste des modules à poser.
+			set_sub_act_enable(SUB_ANNE_DEPOSE_MODULES, TRUE);	//C'est le manager de dépose qui choisiera la zone... on se contente d'activer la sub générique de dépose.
+	}
+
+
+	return ret;
 }
 
 
@@ -350,6 +347,97 @@ bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase)
 
 	return ret;
 }
+
+error_e sub_anne_chose_moonbase_and_dispose_modules()
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_CHOSE_MOONBASE_AND_DISPOSE,
+				INIT,
+				COMPUTE_DISPOSE_ZONE,
+				DISPOSE_MOONBASE_MIDDLE,
+				DISPOSE_MOONBASE_OUR_CENTER,
+				DISPOSE_MOONBASE_OUR_SIDE,
+				DISPOSE_MOONBASE_ADV_SIDE,
+				DISPOSE_MOONBASE_ADV_CENTER,
+				COMPUTE_WHAT_DOING,
+				ERROR,
+				DONE
+			);
+	static moduleMoonbaseLocation_e moonbase;
+	static Uint8 nb_fail = 0;
+	error_e ret = IN_PROGRESS;
+	switch(state)
+	{
+		case INIT:
+			nb_fail = 0;
+			state = COMPUTE_DISPOSE_ZONE;
+			break;
+
+		case COMPUTE_DISPOSE_ZONE:
+			if(dispose_manager_chose_moonbase(&moonbase) == TRUE)	//Une zone est choisie
+			{
+				switch(moonbase)
+				{
+					case MODULE_MOONBASE_MIDDLE:		state = DISPOSE_MOONBASE_MIDDLE;		break;
+					case MODULE_MOONBASE_OUR_CENTER:	state = DISPOSE_MOONBASE_OUR_CENTER;	break;
+					case MODULE_MOONBASE_OUR_SIDE:		state = DISPOSE_MOONBASE_OUR_SIDE;		break;
+					case MODULE_MOONBASE_ADV_SIDE:		state = DISPOSE_MOONBASE_ADV_SIDE;		break;
+					case MODULE_MOONBASE_ADV_CENTER:	state = DISPOSE_MOONBASE_ADV_CENTER;	break;
+					default:							state = ERROR;							break;
+				}
+			}
+			else
+				state = ERROR;	//Aucune zone choisie par le dispose manager.
+
+			break;
+		case DISPOSE_MOONBASE_MIDDLE:
+			if(sub_anne_depose_centre_manager() != IN_PROGRESS)
+				state = COMPUTE_WHAT_DOING;
+			break;
+		case DISPOSE_MOONBASE_OUR_CENTER:	//TODO
+			debug_printf("Fonction non implémentée à ce jour : dépose au centre de notre côté\n");
+			state = COMPUTE_WHAT_DOING;
+			break;
+		case DISPOSE_MOONBASE_OUR_SIDE:	//TODO
+			debug_printf("Fonction non implémentée à ce jour : dépose de notre côté\n");
+			state = COMPUTE_WHAT_DOING;
+			break;
+		case DISPOSE_MOONBASE_ADV_SIDE: //TODO
+			debug_printf("Fonction non implémentée à ce jour : dépose au côté adverse\n");
+			state = COMPUTE_WHAT_DOING;
+			break;
+		case DISPOSE_MOONBASE_ADV_CENTER:	//TODO
+			debug_printf("Fonction non implémentée à ce jour : dépose au centre adverse\n");
+			state = COMPUTE_WHAT_DOING;
+			break;
+		case COMPUTE_WHAT_DOING:
+			//Si on a réussi la dépose, alors c'est la fin.
+			//Si on a échoué, on se doit de retenter une autre dépose.
+			if(STOCKS_getNbModules() == 0)
+				state = DONE; //génial !
+			else
+			{
+				nb_fail++;
+				if(nb_fail < 2)	//On autorise une seconde tentative (au premier passage ici : nb_fail == 1)
+					state = COMPUTE_DISPOSE_ZONE;
+				else
+					state = ERROR;	//Bon bah, on a tenté 2 fois, et on a perdu... demerden sie sich
+			}
+			break;
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			ret = NOT_HANDLED;
+			break;
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			ret = END_OK;
+			break;
+
+	}
+	return ret;
+}
+
 
 error_e sub_anne_end_of_match(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_END_OF_MATCH,

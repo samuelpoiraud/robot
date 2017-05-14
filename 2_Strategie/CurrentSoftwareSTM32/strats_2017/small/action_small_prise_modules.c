@@ -1377,7 +1377,7 @@ error_e sub_anne_fusee_color(){
 			}else if(ELEMENTS_get_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI)){
 				state = ERROR;
 			}else{
-				if (i_am_in_square_color(200, 1100, 900, 2100)){
+				if (i_am_in_square_color(170, 1100, 850, 2100)){
 					state = GET_IN_DIRECT;
 				}else if(i_am_in_square_color(800, 1400, 300, 900)){
 					state = GET_IN_OUR_SQUARE;
