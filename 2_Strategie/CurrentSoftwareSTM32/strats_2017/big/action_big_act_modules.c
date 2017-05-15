@@ -1166,6 +1166,8 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			WAIT_STORAGE,
 			WAIT_MODULE_FALL,
 			MOVE_BALANCER_OUT,
+			BEGIN_CHECK_POSITION_BALANCER,
+			ERROR_MOVE_BALANCER_OUT,
 			CHECK_IF_TURN_FOR_COLOR_NEEDED,
 			TURN_FOR_COLOR,
 			WAIT_WHITE,
@@ -1210,9 +1212,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 	//---------------------- Fin gestion de la réentrance ---------------------------
 
 	#define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
+	#define NB_TRY_BALANCER_TOLERATED (3)
 	static error_e stateAct = IN_PROGRESS;
 	static time32_t time_timeout = 0;
 	bool_e color_white = 0, color_blue = 0, color_yellow = 0;
+	static Uint8 nb_errors_balancer_left = 0, nb_errors_balancer_right = 0;
 
 	switch(state){
 
@@ -1224,9 +1228,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				if(storage == MODULE_STOCK_RIGHT){
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS, FALSE);
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH, FALSE);
+					nb_errors_balancer_right = 0;
 				}else{
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS, FALSE);
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH, FALSE);
+					nb_errors_balancer_left = 0;
 				}
 			}
 			break;
@@ -1281,17 +1287,61 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, CHECK_IF_TURN_FOR_COLOR_NEEDED, ERROR);
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, BEGIN_CHECK_POSITION_BALANCER, BEGIN_CHECK_POSITION_BALANCER);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, CHECK_IF_TURN_FOR_COLOR_NEEDED, ERROR);
-			}
-
-			// On exit
-			if(state != MOVE_BALANCER_OUT && state != ERROR){
-				// Mise à jour des données : on fait progresser le module en POS_BALANCER vers la position POS_COLOR
-				STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, storage);
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, BEGIN_CHECK_POSITION_BALANCER, BEGIN_CHECK_POSITION_BALANCER);
 			}
 			break;
+
+		case BEGIN_CHECK_POSITION_BALANCER:
+			if(storage == MODULE_STOCK_RIGHT){
+				stateAct = ACT_check_position_config(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
+			}else{
+				stateAct = ACT_check_position_config(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
+			}
+
+			if(stateAct != IN_PROGRESS){
+				if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
+
+					// On incrémente l'erreur
+					if(storage == MODULE_STOCK_RIGHT){
+						nb_errors_balancer_right++;
+					}else{
+						nb_errors_balancer_left++;
+					}
+
+					// On regarde si on retente ou si on part en ERROR
+					if((storage == MODULE_STOCK_RIGHT && nb_errors_balancer_right == NB_TRY_BALANCER_TOLERATED)
+					|| (storage == MODULE_STOCK_LEFT && nb_errors_balancer_left == NB_TRY_BALANCER_TOLERATED)){
+						state = ERROR_MOVE_BALANCER_OUT;	// L'actionneur n'est pas en position, on doit le mettre
+					}else{
+						state = ERROR;
+					}
+				}else{
+					state = CHECK_IF_TURN_FOR_COLOR_NEEDED;  // C'est bon l'actionneur est en position
+
+					// Mise à jour des données : on fait progresser le module en POS_BALANCER vers la position POS_COLOR
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, storage);
+				}
+			}
+			break;
+
+		case ERROR_MOVE_BALANCER_OUT:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_OUT);
+				}else{
+					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_OUT);
+				}
+			}
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, MOVE_BALANCER_OUT, MOVE_BALANCER_OUT);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, MOVE_BALANCER_OUT, MOVE_BALANCER_OUT);
+			}
+			break;
+
 
 		case CHECK_IF_TURN_FOR_COLOR_NEEDED:
 			if(STOCKS_getModuleType(STOCK_POS_COLOR, storage) == MODULE_POLY){
