@@ -8,7 +8,7 @@
 #include "../../actuator/act_functions.h"
 #include "../../avoidance.h"
 
-error_e sub_anne_depose_minerais(){
+error_e sub_anne_depose_minerais(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DEPOSE_MINERAIS,
 			INIT,
 			ERROR,
