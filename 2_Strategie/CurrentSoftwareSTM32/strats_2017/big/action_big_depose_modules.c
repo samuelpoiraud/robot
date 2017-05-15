@@ -9,19 +9,9 @@
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
 #include "../../actuator/act_functions.h"
-
-
-//#include "action_big.h"
-//#include "../../propulsion/movement.h"
-//#include "../../propulsion/astar.h"
-//#include "../../QS/QS_stateMachineHelper.h"
-//#include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_types.h"
-//#include "../../QS/QS_IHM.h"
-//#include  "../../utils/generic_functions.h"
-//#include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
-//#include "../../utils/actionChecker.h"
+
 
 //permet de régler la distance entre la base côté et le robot(largeurBase+distance):
 #define DISTANCE_BASE_SIDE_ET_ROBOT	((Uint16) 120+200)
@@ -246,6 +236,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			NEXT_DEPOSE_MODULE_LEFT,
 			NEXT_DEPOSE_MODULE_RIGHT,
 			GET_OUT,
+			FINISH_GET_OUT_POS_1,
 			GET_OUT_ERROR,
 			ERROR,
 			DONE
@@ -443,7 +434,15 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			break;
 
 		case GET_OUT:
-			state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			if(drop_place == POS_1){
+				state = try_going(1460, COLOR_Y(610), state, FINISH_GET_OUT_POS_1, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case FINISH_GET_OUT_POS_1:
+			state = try_going(1130, COLOR_Y(680), state, DONE, DONE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_OUT_ERROR:
@@ -656,8 +655,8 @@ error_e sub_harry_get_in_pos_2_depose_module_centre(){
 			}
 			break;
 
-		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(1100, COLOR_Y(925), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+		case GET_IN_FROM_OUR_SQUARE: // Le delta = 30 sert à ne pas être trop proche de la bordure au début
+			state = try_going(1100 - 30, COLOR_Y(935 + 30), state, AVANCE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_FROM_MIDDLE_SQUARE:

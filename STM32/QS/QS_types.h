@@ -1015,6 +1015,16 @@
 
 	} ACT_order_e;
 
+	typedef enum {
+		VACUOSTAT_TURBINE = 0,
+		VACUOSTAT_ELEVATOR_RIGHT,
+		VACUOSTAT_ELEVATOR_LEFT,
+		VACUOSTAT_DISPOSE_RIGHT,
+		VACUOSTAT_DISPOSE_LEFT,
+		VACUOSTAT_SLIDER_RIGHT,
+		VACUOSTAT_SLIDER_LEFT
+	}act_vacuostat_id;
+
 	typedef enum{
 		ACT_RESULT_DONE = 0,			//Tout s'est bien passé
 		ACT_RESULT_FAILED,				//La commande s'est mal passé et on ne sait pas dans quel état est l'actionneur (par: les capteurs ne fonctionnent plus)
