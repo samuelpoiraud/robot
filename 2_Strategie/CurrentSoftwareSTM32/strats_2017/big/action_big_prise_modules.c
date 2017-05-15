@@ -1533,6 +1533,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			GO_TO_START_POINT_RIGHT,
 
 			TAKE_MODULE_LEFT,
+			RUSH_TO_LOCK_MODULE,
 			PREPARE_STORAGE_LEFT,
 			STORAGE_LEFT,
 			GET_OUT_LEFT,
@@ -1659,7 +1660,11 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				}
 			}
 
-			state = try_going(1750, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE, GET_OUT_LEFT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case RUSH_TO_LOCK_MODULE:
+			state = try_rush(2000, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, PREPARE_STORAGE_LEFT, FORWARD, NO_DODGE_AND_NO_WAIT, TRUE);
 			break;
 
 		case PREPARE_STORAGE_LEFT:
