@@ -837,12 +837,14 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	//static error_e stateAct = IN_PROGRESS;
 	static time32_t time_timeout;
 
+#ifdef DISPLAY_STOCKS
 	if(entrance){
 		debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
 		STOCKS_print(MODULE_STOCK_LEFT);
 		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
 		STOCKS_print(MODULE_STOCK_RIGHT);
 	}
+#endif
 
 	switch(state){
 
@@ -1516,12 +1518,14 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 	static time32_t time_timeout = 0;
 	static bool_e subaction_sucess = TRUE;
 
+#ifdef DISPLAY_STOCKS
 	if(entrance){
 		debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
 		STOCKS_print(MODULE_STOCK_LEFT);
 		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
 		STOCKS_print(MODULE_STOCK_RIGHT);
 	}
+#endif
 
 	switch(state){
 
@@ -1929,12 +1933,14 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	static time32_t time_timeout_after_pompe_stop;
 	static bool_e pompe_stop = FALSE;
 
+#ifdef DISPLAY_STOCKS
 	if(entrance){
 		debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
 		STOCKS_print(MODULE_STOCK_LEFT);
 		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
 		STOCKS_print(MODULE_STOCK_RIGHT);
 	}
+#endif
 
 	switch(state){
 		case INIT:

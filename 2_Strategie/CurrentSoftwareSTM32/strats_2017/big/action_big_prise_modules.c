@@ -1659,7 +1659,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				}
 			}
 
-			state = try_going(1810, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1750, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PREPARE_STORAGE_LEFT:
@@ -1681,7 +1681,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			break;
 
 		case GET_OUT_LEFT:
-			state = try_going(1670, COLOR_Y(700), state, STORAGE_LEFT, GET_OUT_LEFT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1670, COLOR_Y(700), state, STORAGE_LEFT, GET_OUT_LEFT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_OUT_LEFT_ERROR:
