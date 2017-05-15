@@ -179,6 +179,12 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			#endif
 			break;
 
+		case ACT_GET_COLOR_SENSOR_I2C:
+			#ifdef USE_I2C_COLOR_SENSOR
+				COLOR_SENSOR_sendColor();
+			#endif
+			break;
+
 		case IHM_SWITCH_ALL:
 		case IHM_BUTTON:
 		case IHM_SWITCH:

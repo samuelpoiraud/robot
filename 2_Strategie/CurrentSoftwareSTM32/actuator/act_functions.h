@@ -131,5 +131,8 @@ void ACT_set_turbine_speed(Uint16 speed);
 
 void ACT_receive_turbine_msg(CAN_msg_t * msg);
 
+Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, Uint8 in_progress, Uint8 sucess, Uint8 fail);
+
+void ACT_receive_color_sensor_msg(CAN_msg_t *msg);
 
 #endif /* ndef ACT_FUNCTIONS_H */

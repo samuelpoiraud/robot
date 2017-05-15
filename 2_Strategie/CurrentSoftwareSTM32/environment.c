@@ -492,6 +492,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ACT_receive_turbine_msg(incoming_msg);
 			break;
 
+		case ACT_TELL_COLOR_SENSOR_I2C:
+			ACT_receive_color_sensor_msg(incoming_msg);
+			break;
+
 /************************************ Récupération des données de la balise *******************************/
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.
