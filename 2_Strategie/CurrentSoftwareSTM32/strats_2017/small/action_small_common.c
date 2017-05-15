@@ -8,11 +8,13 @@
 #include "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../avoidance.h"
+#include "../high_level_strat.h"
+
 
 bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase);
 
 
-error_e sub_anne_initiale(){
+error_e sub_anne_initiale(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_INITIALE,
 			INIT,
 			CROSS_ROCKER,
@@ -348,7 +350,7 @@ bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase)
 	return ret;
 }
 
-error_e sub_anne_chose_moonbase_and_dispose_modules()
+error_e sub_anne_chose_moonbase_and_dispose_modules(void)
 {
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_CHOSE_MOONBASE_AND_DISPOSE,
 				INIT,
@@ -412,7 +414,7 @@ error_e sub_anne_chose_moonbase_and_dispose_modules()
 		case COMPUTE_WHAT_DOING:
 			//Si on a réussi la dépose, alors c'est la fin.
 			//Si on a échoué, on se doit de retenter une autre dépose.
-			if(STOCKS_getNbModules() == 0)
+			if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0)
 				state = DONE; //génial !
 			else
 			{
@@ -438,8 +440,8 @@ error_e sub_anne_chose_moonbase_and_dispose_modules()
 	return ret;
 }
 
-
-error_e sub_anne_end_of_match(){
+//TODO !
+error_e sub_anne_end_of_match(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_END_OF_MATCH,
 			INIT,
 			ERROR,

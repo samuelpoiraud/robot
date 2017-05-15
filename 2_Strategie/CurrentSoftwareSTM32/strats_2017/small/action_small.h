@@ -5,14 +5,15 @@
 	#define ACTION_SMALL_H
 
 	// action_big_common
-	error_e sub_anne_initiale();
-	error_e sub_anne_end_of_match();
+	error_e sub_anne_initiale(void);
+	error_e sub_anne_chose_moonbase_and_dispose_modules(void);
+	error_e sub_anne_end_of_match(void);
 
 	// actions_prise_minerais
 	error_e sub_anne_prise_gros_cratere(ELEMENTS_property_e mimerais);
 
 	// action_big_depose_minerais
-	error_e sub_anne_depose_minerais();
+	error_e sub_anne_depose_minerais(void);
 
 	// action_big_prise_modules
 	error_e sub_anne_prise_modules_centre(ELEMENTS_property_e modules);
