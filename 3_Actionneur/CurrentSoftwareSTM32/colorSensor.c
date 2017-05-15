@@ -13,10 +13,12 @@
 #include "QS/QS_apds9960.h"
 #include "QS/QS_ports.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_can.h"
+#include "QS/QS_CANmsgList.h"
 
 #ifdef USE_I2C_COLOR_SENSOR
 
-	#define SENSOR_DEBUG_MODE
+	//#define SENSOR_DEBUG_MODE
 
 	#define COLOR_SENSOR_REFRESH	200		// [ms]
 
@@ -118,6 +120,13 @@
 	}
 
 	void COLOR_SENSOR_sendColor(){
+		CAN_msg_t msg;
+
+		msg.sid = ACT_TELL_COLOR_SENSOR_I2C;
+		msg.size = SIZE_ACT_TELL_COLOR_SENSOR_I2C;
+		msg.data.act_tell_color_sensor_i2c.color = actualColor;
+		CAN_send(&msg);
+
 		#ifdef SENSOR_DEBUG_MODE
 			switch(actualColor){
 				case COLOR_SENSOR_NONE :

@@ -1084,6 +1084,13 @@
 		bool_e activated;
 	}act_warner_s;
 
+	typedef enum{
+		COLOR_SENSOR_I2C_NONE = 0,
+		COLOR_SENSOR_I2C_BLUE,
+		COLOR_SENSOR_I2C_WHITE,
+		COLOR_SENSOR_I2C_YELLOW
+	}COLOR_SENSOR_I2C_color_e;
+
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
 	 **												Types associés à la carte mosfet									 **

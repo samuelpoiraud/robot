@@ -33,6 +33,9 @@
 #define ACT_VACUOSTAT_TIMEOUT			500
 #define ACT_NB_VACUOSTAT				8
 
+#define ACT_COLOR_SENSOR_TIME_VALID		500
+#define ACT_COLOR_SENSOR_TIMEOUT		500
+
 #define ACT_TURBINE_GET_SPEED_TIMEOUT	500
 
 typedef struct{
@@ -44,6 +47,11 @@ typedef struct{
 	MOSFET_BOARD_CURRENT_MEASURE_state_e state;
 	time32_t lastRefresh;
 }act_vacuostat_s;
+
+typedef struct{
+	COLOR_SENSOR_I2C_color_e color;
+	time32_t lastRefresh;
+}act_color_sensor_s;
 
 typedef enum{
 	ACT_SENSOR_WAIT = 0,
@@ -147,6 +155,8 @@ static bool_e act_warner[sizeof(act_link_SID_Queue)/sizeof(act_link_SID_Queue_s)
 static volatile act_sensor_e sensor_answer[NB_ACT_SENSOR] = {0};
 
 static volatile act_vacuostat_s vacuostat[ACT_NB_VACUOSTAT] = {0};
+
+static volatile act_color_sensor_s color_sensor = {0};
 
 static volatile act_turbine_s turbine;
 
@@ -497,6 +507,56 @@ void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
 
 	vacuostat[msg->data.act_tell_mosfet_state.id].state = msg->data.act_tell_mosfet_state.state;
 	vacuostat[msg->data.act_tell_mosfet_state.id].lastRefresh = global.absolute_time;
+}
+
+Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, Uint8 in_progress, Uint8 sucess, Uint8 fail){
+	CREATE_MAE(INIT,
+				GET_STATE,
+				WAIT_STATE);
+
+	static time32_t timeBegin;
+
+	switch(state){
+		case INIT:
+			timeBegin = global.absolute_time;
+			state = GET_STATE;
+			break;
+
+		case GET_STATE:{
+			CAN_msg_t msg;
+			msg.sid = ACT_GET_COLOR_SENSOR_I2C;
+			msg.size = SIZE_ACT_GET_COLOR_SENSOR_I2C;
+			CAN_send(&msg);
+
+			state = WAIT_STATE;
+			}break;
+
+		case WAIT_STATE:
+			if(global.absolute_time - color_sensor.lastRefresh < ACT_COLOR_SENSOR_TIME_VALID && color_sensor.color == color){
+				RESET_MAE();
+				return sucess;
+			}else if(global.absolute_time - timeBegin > ACT_COLOR_SENSOR_TIMEOUT){
+				RESET_MAE();
+				return fail;
+			}
+
+			break;
+
+		default:
+			error_printf("waitColorSensor case default\n");
+			RESET_MAE();
+			return fail;
+	}
+
+	return in_progress;
+}
+
+void ACT_receive_color_sensor_msg(CAN_msg_t *msg){
+	if(msg->sid != ACT_TELL_COLOR_SENSOR_I2C)
+		return;
+
+	color_sensor.color = msg->data.act_tell_color_sensor_i2c.color;
+	color_sensor.lastRefresh = global.absolute_time;
 }
 
 Uint8 ACT_get_turbine_speed(Uint16 * speed,  Uint8 in_progress, Uint8 sucess, Uint8 fail){

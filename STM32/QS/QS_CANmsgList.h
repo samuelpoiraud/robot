@@ -826,6 +826,14 @@
 				Uint16 speed								:16;		// [rpm]
 			}act_set_turbine_speed;
 
+		#define ACT_GET_COLOR_SENSOR_I2C					0x3EF
+		#define SIZE_ACT_GET_COLOR_SENSOR_I2C					0
+
+		#define ACT_TELL_COLOR_SENSOR_I2C					0x221
+		#define SIZE_ACT_TELL_COLOR_SENSOR_I2C				1
+			struct{
+				COLOR_SENSOR_I2C_color_e color				:8;
+			}act_tell_color_sensor_i2c;
 
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
