@@ -166,10 +166,12 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 	static moduleType_e moduleType = MODULE_EMPTY;
 	static time32_t time_timeout;
 
+#ifdef DISPLAY_STOCKS
 	if(entrance){
 		debug_printf("---------- MODULE_STOCK_SMALL ---------\n");
 		STOCKS_print(MODULE_STOCK_SMALL);
 	}
+#endif
 
 	switch(state){
 
@@ -541,11 +543,12 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 	error_e ret = IN_PROGRESS;
 	static time32_t time_timeout;
 
-
+#ifdef DISPLAY_STOCKS
 	if(entrance){
 		debug_printf("---------- MODULE_STOCK_SMALL ---------\n");
 		STOCKS_print(MODULE_STOCK_SMALL);
 	}
+#endif
 
 	switch(state){
 
@@ -964,10 +967,12 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 	static bool_e anotherDisposeWillFollow = FALSE;
 	static time32_t time_timeout = 0;
 
+#ifdef DISPLAY_STOCKS
 	if(entrance){
 		debug_printf("---------- MODULE_STOCK_SMALL ---------\n");
 		STOCKS_print(MODULE_STOCK_SMALL);
 	}
+#endif
 
 	switch(state){
 

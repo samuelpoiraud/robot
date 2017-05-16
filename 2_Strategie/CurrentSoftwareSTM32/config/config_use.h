@@ -50,6 +50,8 @@
 
 #define VERBOSE_MODE			//Activation du verbose
 
+//#define DISPLAY_STOCKS		// Activation de l'affichage des STCOKS pour debug
+
 //#define USE_FOE_ANALYSER
 
 //#define MAIN_IR_RCVA

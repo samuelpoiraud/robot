@@ -61,12 +61,14 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 	static time32_t time_timeout_after_pompe_stop;
 	static bool_e pompe_stop = FALSE;
 
-	/*if(entrance){
+#ifdef DISPLAY_STOCKS
+	if(entrance){
 		debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
 		STOCKS_print(MODULE_STOCK_LEFT);
 		debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
 		STOCKS_print(MODULE_STOCK_RIGHT);
-	}*/
+	}
+#endif
 
 	switch(state){
 		case INIT:
