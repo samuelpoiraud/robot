@@ -11,7 +11,7 @@
 #include "../high_level_strat.h"
 
 
-bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase);
+bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEMENTS_side_match_e * moonbase_side);
 
 
 error_e sub_anne_initiale(void){
@@ -191,7 +191,7 @@ error_e sub_anne_initiale(void){
 //Param nb_try_dispose : tableau de nombre d'essai restant pour chaque zone
 //Param moonbase : si on return TRUE, vous trouverez ici le choix de zone !
 //TODO : ajouter un argument pointeur qui renverra le meilleur accès (côté blue ou yellow)
-bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase)
+bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEMENTS_side_match_e * moonbase_side)
 {
 	static bool_e moonbases_enable[NB_MOONBASES];	//nombres de places restantes si zones activée (IHM). 0 si zone désactivée.
 	static bool_e nb_tentatives_moonbases[NB_MOONBASES];		//nombre de tentatives où on a essayé d'aller à...
@@ -345,6 +345,48 @@ bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase)
 	{
 		debug_printf("Zone retenue : %d - %s\n",*moonbase, MOONBASES_toString(*moonbase));
 		ret = TRUE;	//On a trouvé une zone !!! champomy !
+
+
+		//TODO choix du côté...
+		/*A- Si la zone est notre zone du milieu :
+		 *  côté privilégié = au milieu (mais si déjà un échec à cet endroit, on acceptera de faire le tour...)
+		 *  		Ce switch nous indiquant qu'Harry n'est pas là pour nous emmerder
+		 *B- Si la zone est la zone du milieu :
+		 *    côté privilégié = côté ADV
+		 * 	  On s'autorisera en cas d'échec préalable à viser notre côté (seulement si on a reçu l'autorisation de Harry d'occuper ce GetIn)
+		 *C- Si zone adverse du milieu
+		 *    on préfère l'accès intérieur... mais en cas d'échec, on peut se rabattre sur l'accès extérieur.
+		 */
+		switch(*moonbase)
+		{
+			case MODULE_MOONBASE_OUR_CENTER:
+				if(nb_tentatives_moonbases[*moonbase] % 2)	//Si on a aucune tentative ou un nombre pair de tentatives
+					*moonbase_side = ADV_SIDE;	//Intérieur
+				else
+					*moonbase_side = OUR_SIDE;	//On assume qu'Harry n'a pas utilisé la zone... donc on s'y rend en mode "rien à foutre"
+				break;
+			case MODULE_MOONBASE_MIDDLE:
+				if(nb_tentatives_moonbases[*moonbase] % 2)
+					*moonbase_side = ADV_SIDE;
+				else
+				{
+					if(0)//Harry_does_not_use_middle_access())		//TODO
+						*moonbase_side = OUR_SIDE;
+					else
+						*moonbase_side = ADV_SIDE;
+				}
+				break;
+			case MODULE_MOONBASE_ADV_CENTER:
+				if(nb_tentatives_moonbases[*moonbase] % 2)
+					*moonbase_side = OUR_SIDE;	//On préfère rester sur l'intérieur... moins gênés par le cratère
+				else	//en cas de nombre d'échecs impairs, on se rabat sur l'extérieur...
+					*moonbase_side = ADV_SIDE;
+				break;
+			default:
+				//L'argument moonbase_side n'a pas de sens pour les bases latérales...
+				break;
+		}
+
 		nb_tentatives_moonbases[*moonbase]++;	//On incrémente le nb de tentative de la moonbase choisie
 	}
 
@@ -356,16 +398,14 @@ error_e sub_anne_chose_moonbase_and_dispose_modules(void)
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_CHOSE_MOONBASE_AND_DISPOSE,
 				INIT,
 				COMPUTE_DISPOSE_ZONE,
-				DISPOSE_MOONBASE_MIDDLE,
-				DISPOSE_MOONBASE_OUR_CENTER,
-				DISPOSE_MOONBASE_OUR_SIDE,
-				DISPOSE_MOONBASE_ADV_SIDE,
-				DISPOSE_MOONBASE_ADV_CENTER,
+				DISPOSE_ON_CENTRAL_MOONBASE,
+				DISPOSE_ON_LATERAL_MOONBASE,
 				COMPUTE_WHAT_DOING,
 				ERROR,
 				DONE
 			);
 	static moduleMoonbaseLocation_e moonbase;
+	static ELEMENTS_side_match_e moonbase_side;
 	static Uint8 nb_fail = 0;
 	error_e ret = IN_PROGRESS;
 	switch(state)
@@ -376,42 +416,27 @@ error_e sub_anne_chose_moonbase_and_dispose_modules(void)
 			break;
 
 		case COMPUTE_DISPOSE_ZONE:
-			if(dispose_manager_chose_moonbase(&moonbase) == TRUE)	//Une zone est choisie
+			if(dispose_manager_chose_moonbase(&moonbase, &moonbase_side) == TRUE)	//Une zone est choisie (avec un côté d'accès s'il s'agit d'une zone centrale)
 			{
-				switch(moonbase)
-				{
-					case MODULE_MOONBASE_MIDDLE:		state = DISPOSE_MOONBASE_MIDDLE;		break;
-					case MODULE_MOONBASE_OUR_CENTER:	state = DISPOSE_MOONBASE_OUR_CENTER;	break;
-					case MODULE_MOONBASE_OUR_SIDE:		state = DISPOSE_MOONBASE_OUR_SIDE;		break;
-					case MODULE_MOONBASE_ADV_SIDE:		state = DISPOSE_MOONBASE_ADV_SIDE;		break;
-					case MODULE_MOONBASE_ADV_CENTER:	state = DISPOSE_MOONBASE_ADV_CENTER;	break;
-					default:							state = ERROR;							break;
-				}
+				if(moonbase == MODULE_MOONBASE_OUR_SIDE || moonbase == MODULE_MOONBASE_ADV_SIDE)
+					state = DISPOSE_ON_LATERAL_MOONBASE;
+				else
+					state = DISPOSE_ON_CENTRAL_MOONBASE;
 			}
 			else
 				state = ERROR;	//Aucune zone choisie par le dispose manager.
 
 			break;
-		case DISPOSE_MOONBASE_MIDDLE:
-			if(sub_anne_depose_modules_centre(MODULE_MOONBASE_MIDDLE, ADV_SIDE) != IN_PROGRESS)
+		case DISPOSE_ON_CENTRAL_MOONBASE:
+			if(sub_anne_depose_modules_centre(moonbase, moonbase_side) != IN_PROGRESS)
 				state = COMPUTE_WHAT_DOING;
 			break;
-		case DISPOSE_MOONBASE_OUR_CENTER:	//TODO mieux choisir le basis side
-			if(sub_anne_depose_modules_centre(MODULE_MOONBASE_OUR_CENTER, ADV_SIDE) != IN_PROGRESS)
-				state = COMPUTE_WHAT_DOING;
-			break;
-		case DISPOSE_MOONBASE_OUR_SIDE:	//TODO
+
+		case DISPOSE_ON_LATERAL_MOONBASE:	//TODO
 			debug_printf("Fonction non implémentée à ce jour : dépose de notre côté\n");
 			state = COMPUTE_WHAT_DOING;
 			break;
-		case DISPOSE_MOONBASE_ADV_SIDE: //TODO
-			debug_printf("Fonction non implémentée à ce jour : dépose au côté adverse\n");
-			state = COMPUTE_WHAT_DOING;
-			break;
-		case DISPOSE_MOONBASE_ADV_CENTER:	//TODO
-			if(sub_anne_depose_modules_centre(MODULE_MOONBASE_ADV_CENTER, OUR_SIDE) != IN_PROGRESS)
-				state = COMPUTE_WHAT_DOING;
-			break;
+
 		case COMPUTE_WHAT_DOING:
 			//Si on a réussi la dépose, alors c'est la fin.
 			//Si on a échoué, on se doit de retenter une autre dépose.
