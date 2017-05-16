@@ -641,7 +641,9 @@ void ENV_pos_update (CAN_msg_t* msg)
 	global.prop.current_status = msg->data.broadcast_position_robot.error;
 	global.prop.is_in_translation = msg->data.broadcast_position_robot.in_translation;
 	global.prop.is_in_rotation = msg->data.broadcast_position_robot.in_rotation;
-	global.prop.idTrajActual = msg->data.broadcast_position_robot.idTraj;
+
+	if(msg->sid == STRAT_ROBOT_FREINE || msg->sid == STRAT_PROP_ERREUR || msg->sid == STRAT_TRAJ_FINIE)
+		global.prop.idTrajActual = msg->data.broadcast_position_robot.idTraj;
 
 	global.flags.initial_position_received = TRUE;
 	global.pos.updated = TRUE;
