@@ -15,10 +15,8 @@
 #include "../actions_both_2017.h"
 
 
-// Private functions
-//static GEOMETRY_point_t compute_take_point_rocket(GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist);
 
-
+#if 0
 // Subaction actionneur de prise fusée v2
 error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_TAKE_ROCKET,
@@ -579,7 +577,9 @@ error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELE
 
 	return IN_PROGRESS;
 }
+#endif
 
+#if 0
 // Subaction actionneur de prise module sur le terrain
 error_e sub_act_harry_get_module(moduleStockPosition_e pos, ELEMENTS_side_e side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_START_HARRY_GET_ONE_MODULE,
@@ -769,7 +769,7 @@ error_e sub_act_harry_get_module(moduleStockPosition_e pos, ELEMENTS_side_e side
 	}
 return IN_PROGRESS;
 }
-
+#endif
 
 
 // Subaction actionneur de stockage
@@ -838,7 +838,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	//---------------------- Fin gestion de la réentrance ---------------------------
 
 	//static error_e stateAct = IN_PROGRESS;
-	static time32_t time_timeout;
+	static time32_t time_timeout_left, time_timeout_right;
 
 #ifdef DISPLAY_STOCKS
 	if(entrance){
@@ -943,10 +943,15 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				time_timeout = global.absolute_time + 1000;
+				if(storage == MODULE_STOCK_RIGHT){
+					time_timeout_left = global.absolute_time + 1000;
+				}else{
+					time_timeout_right = global.absolute_time + 1000;
+				}
 			}
 
-			if(global.absolute_time > time_timeout){
+			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
+			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
 				state = CHECK_CONTAINER_IS_AVAILABLE;
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
@@ -1047,15 +1052,17 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 		case PUT_CYLINDER_IN_CONTAINER:
 			if(entrance){
-				time_timeout = global.absolute_time + 400;
 				if(storage == MODULE_STOCK_RIGHT){
+					time_timeout_right = global.absolute_time + 400;
 					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
 				}else{
+					time_timeout_left = global.absolute_time + 400;
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
 				}
 			}
 
-			if(global.absolute_time > time_timeout){
+			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
+			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
 				//state = SLOPE_GO_VERY_UP;
 				state = COMPUTE_ACTION;
 
@@ -1217,7 +1224,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 	#define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
 	#define NB_TRY_BALANCER_TOLERATED (3)
 	static error_e stateAct = IN_PROGRESS;
-	static time32_t time_timeout = 0;
+	static time32_t time_timeout_left = 0, time_timeout_right = 0;
 	bool_e color_white = 0, color_blue = 0, color_yellow = 0;
 	static Uint8 nb_errors_balancer_left = 0, nb_errors_balancer_right = 0;
 
@@ -1260,21 +1267,31 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 		case WAIT_STORAGE:
 			if(entrance){
-				time_timeout = global.absolute_time + 10000;
+				if(storage == MODULE_STOCK_RIGHT){
+					time_timeout_right = global.absolute_time + 10000;
+				}else{
+					time_timeout_left = global.absolute_time + 10000;
+				}
 				sub_act_harry_mae_store_modules(storage, TRUE);
 			}
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
 				state = WAIT_MODULE_FALL;
-			}else if(global.absolute_time > time_timeout){
+			}else if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
+			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
 				state = ERROR; // Le stockage a semble t il échoué, on ne peut rien faire de plus ici
 			}
 			break;
 
 		case WAIT_MODULE_FALL:	// On attend que le module tombe bien dans le balancer, c'est à dire que le stockage se termine bien mécaniquement
 			if(entrance){
-				time_timeout = global.absolute_time + 1500;
+				if(storage == MODULE_STOCK_RIGHT){
+					time_timeout_right = global.absolute_time + 1500;
+				}else{
+					time_timeout_left = global.absolute_time + 1500;
+				}
 			}
-			if(global.absolute_time > time_timeout){
+			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
+			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
 				state = MOVE_BALANCER_OUT;
 			}
 			break;
@@ -1356,10 +1373,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 		case TURN_FOR_COLOR:
 			if(entrance){
-				time_timeout = global.absolute_time + TIMEOUT_COLOR;
 				if(storage == MODULE_STOCK_RIGHT){
+					time_timeout_right = global.absolute_time + TIMEOUT_COLOR;
 					ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED);
 				}else{
+					time_timeout_left = global.absolute_time + TIMEOUT_COLOR;
 					ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED);
 				}
 			}
@@ -1368,7 +1386,8 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			break;
 
 		case WAIT_WHITE:
-			if(global.absolute_time > time_timeout){
+			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
+			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 			}else if(storage == MODULE_STOCK_RIGHT){
 				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE)){
@@ -1394,7 +1413,8 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}
 
 			// On attend notre couleur
-			if(global.absolute_time > time_timeout){
+			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
+			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 			}else if(storage == MODULE_STOCK_RIGHT){
 
@@ -1568,7 +1588,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 	static error_e stateAct = IN_PROGRESS;
 	static bool_e anotherDisposeWillFollow = FALSE;
-	static time32_t time_timeout = 0;
+	static time32_t time_timeout_left = 0, time_timeout_right = 0;
 	static bool_e subaction_sucess = TRUE;
 
 #ifdef DISPLAY_STOCKS
@@ -1734,10 +1754,11 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 		case GO_TO_DISPOSE_POS:
 			if(entrance){
-				time_timeout = global.absolute_time + 400;  // Temporisation avant de déventouser
 				if(storage == MODULE_STOCK_RIGHT){
+					time_timeout_right = global.absolute_time + 400;  // Temporisation avant de déventouser
 					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_DISPOSE);
 				}else{
+					time_timeout_left = global.absolute_time + 400;  // Temporisation avant de déventouser
 					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_DISPOSE);
 				}
 			}
@@ -1748,23 +1769,27 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if(stateAct != IN_PROGRESS && global.absolute_time > time_timeout){
+			if(stateAct != IN_PROGRESS
+			&& ((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
+			  || (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)) ){
 				state = DISPOSE_CYLINDER;
 			}
 			break;
 
 		case DISPOSE_CYLINDER:
 			if(entrance){
-				time_timeout = global.absolute_time + 700;		// Temporisation pour déventouser
 				if(storage == MODULE_STOCK_RIGHT){
+					time_timeout_right = global.absolute_time + 700;		// Temporisation pour déventouser
 					ACT_push_order(ACT_POMPE_DISPOSE_RIGHT, ACT_POMPE_STOP);
 				}else{
+					time_timeout_left = global.absolute_time + 700;			// Temporisation pour déventouser
 					ACT_push_order(ACT_POMPE_DISPOSE_LEFT, ACT_POMPE_STOP);
 				}
 			}
 
 			// Pas de vérification ici car les pompes retournent toujours vrai
-			if(global.absolute_time > time_timeout){
+			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
+			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
 				state = CHOOSE_ARM_STORAGE_POS;
 
 				// Mettre à jour les données
