@@ -12,6 +12,7 @@
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
 #include "../../high_level_strat.h"
+#include "../actions_both_2017.h"
 
 
 error_e sub_act_anne_return_module(){
@@ -119,12 +120,16 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 	//ATTENTION ! Bien verifié de quel cote de la pompe est branche le cable venant du slider !!!
 
+	//Ranger bras
+
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_ANNE_TAKE_ROCKET,
 			INIT,
 			COMPUTE_NEXT_CYLINDER,
 			COMPUTE_ACTION,
 
 			ACTION_MOVE_AWAY_MULTIFONCTION,
+			AVANCE,
+			AVANCE_ERROR,
 			ACTION_GO_TAKE_CYLINDER,
 			ERROR_ACTION_GO_TAKE_CYLINDER,
 			ERROR_ACTION_GO_TAKE_CYLINDER_RETRY,
@@ -133,10 +138,14 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			PROTECT_NEXT_FALL,
 			ACTION_BRING_BACK_CYLINDER,
 			ACTION_BRING_BACK_CYLINDER_2,
+			RECULE,
+			RECULE_ERROR,
 			ACTION_LOCK_MULTIFUNCTION,
 			STOP_POMPE_SLIDER,
 			ACTION_UNLOCK_MULTIFUNCTION,
-			ACTION_BRING_UP_CYLINDER,
+			ACTION_BRING_UP_CYLINDER_WAIT_FOR_SLOPE,
+			ACTION_RISE_SLOPE,
+			ACTION_BRING_CYLINDER_TO_TOP,
 			ACTION_STOCK_UP_CYLINDER,
 			ACTION_PUT_CYLINDER_IN_CONTAINER,
 			ACTION_PUT_SLOPE_DOWN,
@@ -145,6 +154,10 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			ERROR,
 			DONE
 		);
+
+	// Positions du robot
+	static GEOMETRY_point_t take_pos; // position du robot lors de la prise
+	static GEOMETRY_point_t store_pos; // position du robot lors du stockage
 
 	static bool_e rocketSide[MAX_MODULE_ROCKET];
 	static Uint8 indexSide = 0;
@@ -179,6 +192,13 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			}
 			moduleToTake = NO_SIDE;
 
+			// Calcul des positions
+			store_pos.x = global.pos.x;
+			store_pos.y = global.pos.y;
+			//Valeur a modifié pour changer la distance d'avancement et de recule lors de la prise :
+			take_pos = compute_take_point_rocket(store_pos, global.pos.angle, 70);
+			debug_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
+
 			rocketSide[0] = module_very_down;
 			rocketSide[1] = module_down;
 			rocketSide[2] = module_top;
@@ -210,10 +230,13 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			break;
 
 		case ACTION_MOVE_AWAY_MULTIFONCTION:
-			if (entrance){
-				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_OUT);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, ACTION_GO_TAKE_CYLINDER, ACTION_GO_TAKE_CYLINDER);
+			state = ACTION_GO_TAKE_CYLINDER;
+
+//			if (entrance){
+//				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_OUT); //position a definir, entre lock et puch
+////				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
+//			}
+//			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE, AVANCE);
 			break;
 
 		case ACTION_GO_TAKE_CYLINDER:
@@ -224,15 +247,20 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			}
 
 			state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
-			state2 = check_act_status(ACT_QUEUE_Small_pompe_prise, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
+			state2 =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS ){
 				if(state1 == END_OK && state2 == END_OK){
-					// On l'a bien ventouse donc on continue
+					// On continue
 					state = ACTION_BRING_BACK_CYLINDER;
+				}else if(state1 == END_OK && state2 == NOT_HANDLED){
+					//on a avancé le slider mais pas le robot
+					state = AVANCE;
 				}else{
-					//error
-					state = ERROR_ACTION_GO_TAKE_CYLINDER;
+					//Au cas ou le slider ne part pas :
+					//state = ERROR_ACTION_GO_TAKE_CYLINDER;
+					//Sinon
+					state = ACTION_BRING_BACK_CYLINDER;
 				}
 			}
 			break;
@@ -246,7 +274,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			}
 
 			state1bis = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
-			state2bis = check_act_status(ACT_QUEUE_Small_pompe_prise, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
+			state2bis =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			if(state1bis != IN_PROGRESS && state2bis != IN_PROGRESS ){
 				if(state1bis == END_OK && state2bis == END_OK){
@@ -256,51 +284,25 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 					//Le bras n'est pas sortit les deux fois, on part en error
 					//On ne leve pas le flag car si le bras se debloque en bougeant, ca marchera la fois d'apres
 					state = ERROR;
-				}else if(state2 == NOT_HANDLED && state2bis == NOT_HANDLED){
-					//On n'a pas ventouse les deux fois, il n'y a pas de cylindre
-					state = NO_CYLINDER_DETECTED;
-				}else{
-					//On a eu des problemes differents les deux fois donc on ressaye
-					state = ERROR_ACTION_GO_TAKE_CYLINDER_RETRY;
+				}else if(state1bis == END_OK && state2bis == NOT_HANDLED){
+					//On a sortit le slider mais pas bouger le robot
+					state = AVANCE;
 				}
 			}
 			break;
 
-		case ERROR_ACTION_GO_TAKE_CYLINDER_RETRY:
-			//On retente les memes actions
-			if(entrance){
-				//On active la pompe avant d'avancer
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_NORMAL, 100 );
-				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
-			}
-
-			state1ter = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
-			state2ter = check_act_status(ACT_QUEUE_Small_pompe_prise, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
-
-			if(state1ter != IN_PROGRESS && state2ter != IN_PROGRESS ){
-				if(state1ter == END_OK && state2ter == END_OK){
-					// On l'a bien ventouse donc on continue
-					state = ACTION_BRING_BACK_CYLINDER;
-				}else{
-					//troisieme essai echoue, on vide la fusee et on part
-					state = NO_CYLINDER_DETECTED;
-				}
-			}
+		case AVANCE:
+			state = try_going(take_pos.x, take_pos.y, state, ACTION_GO_TAKE_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case NO_CYLINDER_DETECTED:
-			if(entrance){
-					ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP, 0);
-					ACT_push_order( ACT_SMALL_CYLINDER_SLIDER, ACT_SMALL_CYLINDER_SLIDER_IN );
-			}
-			// On vide entièrement la fusée et on a fini
-			ROCKETS_removeAllModules(rocket);
-			state = DONE;
+		case AVANCE_ERROR:
+			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_BRING_BACK_CYLINDER:
 			if (entrance){
 				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR , ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 			}
 			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_BRING_BACK_CYLINDER_2, ACTION_BRING_BACK_CYLINDER_2);
 			break;
@@ -314,38 +316,57 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE, MODULE_STOCK_SMALL)){
 					ACT_push_order(ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_DOWN);
 				}
+
+				time_timeout = global.absolute_time + 2000;
+
 			}
 
 			// Vérification des ordres effectués
-			state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, state, END_OK, NOT_HANDLED);
+			state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
+			state2 = try_going(store_pos.x, store_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
-			if(state1 != IN_PROGRESS){
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && global.absolute_time > time_timeout){
 
-				state = ACTION_LOCK_MULTIFUNCTION;	// Si l'élévateur n'est pas occupé, on continue le stockage
+				if (state2 == NOT_HANDLED){
+					state = RECULE;
+				}else{
+					state = ACTION_LOCK_MULTIFUNCTION;
+				}
 
 				// On met à jour les données
 				STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
 
 				ROCKETS_removeModule(rocket);
 				moduleToTake = FALSE;
+
 			}
 			break;
 
+		case RECULE:
+			state = try_going(store_pos.x, store_pos.y, state, ACTION_LOCK_MULTIFUNCTION, RECULE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case RECULE_ERROR:
+			state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
 		case ACTION_LOCK_MULTIFUNCTION:
-			if (entrance){
-				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK);
-			}
+//
+//			if (entrance){
+//				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK);
+//			}
 
 			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_SMALL)){
-				state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, STOP_POMPE_SLIDER, STOP_POMPE_SLIDER);
+				//state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, STOP_POMPE_SLIDER, STOP_POMPE_SLIDER);
+				state = STOP_POMPE_SLIDER;
 			}else{
-				state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, COMPUTE_NEXT_CYLINDER, COMPUTE_NEXT_CYLINDER);
+				//state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, COMPUTE_NEXT_CYLINDER, COMPUTE_NEXT_CYLINDER);
+				state = COMPUTE_NEXT_CYLINDER;
 			}
 			break;
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP, 0);
 				time_timeout = global.absolute_time + 1000;
 			}
@@ -360,13 +381,34 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			break;
 
 		case ACTION_UNLOCK_MULTIFUNCTION:
-			if (entrance){
-				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_OUT);
+			state = ACTION_BRING_UP_CYLINDER_WAIT_FOR_SLOPE;
+
+//			if (entrance){
+//				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_OUT);
+//			}
+//			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, ACTION_BRING_UP_CYLINDER, ERROR);
+			break;
+		case ACTION_BRING_UP_CYLINDER_WAIT_FOR_SLOPE:
+			if(entrance){
+				// Si le stockage est possible
+				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR, ACT_SMALL_CYLINDER_ELEVATOR_WAIT_FOR_SLOPE);
 			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, ACTION_BRING_UP_CYLINDER, ERROR);
+
+			// Vérification des ordres effectués
+			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_STOCK_UP_CYLINDER, ERROR);
 			break;
 
-		case ACTION_BRING_UP_CYLINDER:
+		case ACTION_RISE_SLOPE:
+				if(entrance){
+					ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_ALMOST_UP);
+				}
+
+				// Vérification des ordres effectués
+				state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, ACTION_BRING_CYLINDER_TO_TOP, ACTION_BRING_CYLINDER_TO_TOP);
+
+				break;
+
+		case ACTION_BRING_CYLINDER_TO_TOP:
 			if(entrance){
 				// Si le stockage est possible
 				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR, ACT_SMALL_CYLINDER_ELEVATOR_TOP);
@@ -382,7 +424,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, ACTION_PUT_CYLINDER_IN_CONTAINER, ACTION_PUT_CYLINDER_IN_CONTAINER);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, ACTION_PUT_CYLINDER_IN_CONTAINER, ACTION_BRING_CYLINDER_TO_TOP);
 
 			if(ON_LEAVE()){
 				// Mise à jour des données
@@ -390,12 +432,12 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			}
 			break;
 
+
 		case ACTION_PUT_CYLINDER_IN_CONTAINER:
 			if(entrance){
 				//on souffle un peu pour faciliter la depose
 				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
 			}
-
 			state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
 			break;
 

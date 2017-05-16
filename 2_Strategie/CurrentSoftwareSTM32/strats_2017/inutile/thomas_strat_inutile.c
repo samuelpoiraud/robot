@@ -15,6 +15,7 @@
 void thomas_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 				INIT,
+				GO_POSITION,
 				ACTION,
 				ERROR,
 				DONE
@@ -22,10 +23,14 @@ void thomas_strat_inutile_big(){
 
 	switch(state){
 		case INIT:
-			state = ACTION;
+			state = try_going(global.pos.x+200, global.pos.y, state, GO_POSITION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case GO_POSITION:
+			state = try_going(800, COLOR_Y(1000), state, ACTION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 		case ACTION:
-			state=check_sub_action_result(sub_harry_rocket_multicolor(OUR_ELEMENT),state, DONE, ERROR);
+			state=check_sub_action_result(sub_anne_fusee_color(OUR_ELEMENT),state, DONE, ERROR);
 			break;
 		case ERROR:
 			RESET_MAE();
@@ -43,30 +48,36 @@ void thomas_strat_inutile_big(){
 }
 
 void thomas_strat_inutile_small(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_INUTILE,
-			INIT,
-			ACTION,
-			ACTION2,
-			ACTION3,
-			ERROR,
-			DONE
-		);
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
+				INIT,
+				GO_POSITION,
+				GET_IN_DIRECT,
+				GO_TO_START_POINT,
+				ACTION,
+				ERROR,
+				DONE
+			);
 
 	switch(state){
 		case INIT:
-			state = ASTAR_try_going(1500, COLOR_Y(2400), state , ACTION, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
+			state = try_going(global.pos.x+200, global.pos.y, state, GO_POSITION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case GO_POSITION:
+			state = try_going(800, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case GET_IN_DIRECT:
+			state = try_going(400, COLOR_Y(1150), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GO_TO_START_POINT: //ajuster la distance fusée
+			state = try_going(265, COLOR_Y(1150), state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION:
-			state = ASTAR_try_going(500, COLOR_Y(1500), state , ACTION2, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
-			break;
-
-		case ACTION2:
-			state = ASTAR_try_going(1500, COLOR_Y(600), state , ACTION3, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
-			break;
-
-		case ACTION3:
-			state = ASTAR_try_going(500, COLOR_Y(2400), state , DONE, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
+			state = check_sub_action_result(sub_act_anne_take_rocket_down_to_top( MODULE_ROCKET_MULTI_OUR_SIDE, TRUE, TRUE, TRUE, TRUE)
+, state, DONE, ERROR);
 			break;
 
 		case ERROR:
@@ -76,3 +87,4 @@ void thomas_strat_inutile_small(){
 			break;
 	}
 }
+
