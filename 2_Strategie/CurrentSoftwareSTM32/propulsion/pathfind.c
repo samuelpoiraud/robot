@@ -8,6 +8,8 @@
  *	Auteur : Louis-Marie, Vincent, Antoine, Nirgal
  *	Version 201312
  */
+#if 0
+#error "ce pathfind est remplacé depuis 2016 par le module ASTAR"
 
 #include "pathfind.h"
 #include "../utils/actionChecker.h"
@@ -33,44 +35,54 @@ static Uint16 Pathfind_cost(pathfind_node_id_t from, pathfind_node_id_t to, bool
 // Ensemble des nodes présent sur le terrain avec leurs coordonnées et leurs voisins
 static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
 {
-	//Colonne 1 coté Rouge [A]
-	(pathfind_node_t){ 400, 500,	/* neighbors : */(1<<1)|(1<<4)},															//[A0] 0
-	(pathfind_node_t){ 800, 600,	/* neighbors : */(1<<0)|(1<<4)|(1<<5)|(1<<2)},												//[A1] 1
-	(pathfind_node_t){ 1200, 600,	/* neighbors : */(1<<1)|(1<<4)|(1<<5)|(1<<6)|(1<<3)},										//[A2] 2
-	(pathfind_node_t){ 1600, 500,	/* neighbors : */(1<<2)|(1<<5)|(1<<6)},														//[A3] 3
 
-	//Colonne 2 coté rouge [B]
-	(pathfind_node_t){ 700, 800,	/* neighbors : */(1<<0)|(1<<1)|(1<<2)|(1<<5)|(1<<8)|(1<<7)},								//[B1] 4
-	(pathfind_node_t){ 1150, 800,	/* neighbors : */(1<<1)|(1<<2)|(1<<3)|(1<<6)|(1<<9)|(1<<8)|(1<<7)|(1<<4)},					//[B2] 5
-	(pathfind_node_t){ 1550, 800,	/* neighbors : */(1<<3)|(1<<2)|(1<<5)|(1<<8)|(1<<9)},										//[B3] 6
+	//Colonne 1 face zone départ 1 Bleu [A]
+	(pathfind_node_t){ 600, 300,	/* neighbors : */(1<<1)|(1<<3)},															//[A1] 0
+	(pathfind_node_t){ 1000, 400,	/* neighbors : */(1<<0)|(1<<2)|(1<<3)|(1<<4)},												//[A2] 1
+	(pathfind_node_t){ 1250, 300,	/* neighbors : */(1<<1)|(1<<4)|(1<<5)},														//[A3] 2
 
-	//Colonne 3 coté rouge [C]
-	(pathfind_node_t){ 850, 1150,	/* neighbors : */(1<<4)|(1<<5)|(1<<8)|(1<<11)|(1<<10)},										//[C1] 7
-	(pathfind_node_t){ 1200, 1150,	/* neighbors : */(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<9)|(1<<10)|(1<<11)|(1<<12)},		//[C2] 8
-	(pathfind_node_t){ 1550, 1150,	/* neighbors : */(1<<6)|(1<<5)|(1<<8)|(1<<11)|(1<<12)},										//[C3] 9
+	//Colonne 2 face bascule Bleu [B]
+	(pathfind_node_t){ 900, 700,	/* neighbors : */(1<<0)|(1<<1)|(1<<4)|(1<<6)|(1<<7)},										//[B1] 3
+	(pathfind_node_t){ 1300, 700,	/* neighbors : */(1<<1)|(1<<2)|(1<<3)|(1<<5)|(1<<7)},										//[B2] 4
+	(pathfind_node_t){ 1700, 750,	/* neighbors : */(1<<2)|(1<<4)},															//[B3] 5
 
-	//Colonne 4 milieu [M]
-	(pathfind_node_t){ 850, 1500,	/* neighbors : */(1<<7)|(1<<8)|(1<<11)|(1<<14)|(1<<13)},									//[M1] 10
-	(pathfind_node_t){ 1200, 1500,	/* neighbors : */(1<<7)|(1<<8)|(1<<9)|(1<<12)|(1<<15)|(1<<14)|(1<<13)|(1<<10)},				//[M2] 11
-	(pathfind_node_t){ 1550, 1500,	/* neighbors : */(1<<9)|(1<<8)|(1<<11)|(1<<14)|(1<<15)},									//[M3] 12
 
-	//Colonne 5 coté jaune [W]
-	(pathfind_node_t){ 850, 1850,	/* neighbors : */(1<<10)|(1<<11)|(1<<14)|(1<<17)|(1<<16)},									//[W1] 13
-	(pathfind_node_t){ 1200, 1850,	/* neighbors : */(1<<10)|(1<<11)|(1<<12)|(1<<15)|(1<<18)|(1<<17)|(1<<16)|(1<<13)|(1<<22)},	//[W2] 14
-	(pathfind_node_t){ 1550, 1850,	/* neighbors : */(1<<12)|(1<<11)|(1<<14)|(1<<17)|(1<<18)},									//[W3] 15
+	//Colonne 3 face zone départ Bleu [C]
+	(pathfind_node_t){ 700, 1000,	/* neighbors : */(1<<3)|(1<<7)|(1<<8)|(1<<9)|(1<<10)},										//[C1] 6
+	(pathfind_node_t){ 1050, 950,	/* neighbors : */(1<<3)|(1<<4)|(1<<6)|(1<<9)|(1<<10)},										//[C2] 7
 
-	//Colonne 6 coté jaune [Y]
-	(pathfind_node_t){ 700, 2200,	/* neighbors : */(1<<13)|(1<<14)|(1<<17)|(1<<21)|(1<<20)|(1<<19)},							//[Y1] 16
-	(pathfind_node_t){ 1150, 2200,	/* neighbors : */(1<<13)|(1<<14)|(1<<15)|(1<<18)|(1<<22)|(1<<21)|(1<<20)|(1<<16)},			//[Y2] 17
-	(pathfind_node_t){ 1550, 2200,	/* neighbors : */(1<<15)|(1<<14)|(1<<17)|(1<<21)|(1<<22)},									//[Y3] 18
+
+	//Colonne 4 face distrib bleu [D]
+	(pathfind_node_t){ 300, 1300,	/* neighbors : */(1<<6)|(1<<9)|(1<<11)|(1<<13)},											//[D1] 8
+	(pathfind_node_t){ 800, 1300,	/* neighbors : */(1<<6)|(1<<7)|(1<<8)|(1<<10)|(1<<11)|(1<<12)},								//[D2] 9
+	(pathfind_node_t){ 1200, 1200,	/* neighbors : */(1<<6)|(1<<7)|(1<<9)|(1<<12)},												//[D3] 10
+
+	//Colonne 5 milieu [E]
+	(pathfind_node_t){ 525, 1500,	/* neighbors : */(1<<8)|(1<<9)|(1<<12)|(1<<13)|(1<<14)},									//[E1] 11
+	(pathfind_node_t){ 900, 1500,	/* neighbors : */(1<<9)|(1<<10)|(1<<11)|(1<<14)|(1<<15)},									//[E2] 12
+
+	//Colonne 6 face ditrib jaune [F]
+	(pathfind_node_t){ 300, 1700,	/* neighbors : */(1<<8)|(1<<11)|(1<<14)|(1<<16)},											//[F1] 13
+	(pathfind_node_t){ 800, 1700,	/* neighbors : */(1<<11)|(1<<12)|(1<<13)|(1<<15)|(1<<16)|(1<<17)},							//[F2] 14
+	(pathfind_node_t){ 1200, 1800,	/* neighbors : */(1<<12)|(1<<14)|(1<<16)|(1<<17)},											//[F3] 15
+
+	//Colonne 7 face zone départ jaune [G]
+	(pathfind_node_t){ 700, 2000,	/* neighbors : */(1<<13)|(1<<14)|(1<<15)|(1<<17)|(1<<18)},									//[G1] 16
+	(pathfind_node_t){ 1050, 2050,	/* neighbors : */(1<<14)|(1<<15)|(1<<16)|(1<<18)|(1<<19)},									//[G2] 17
+
+
+	//Colonne 8 coté jaune [H]
+	(pathfind_node_t){ 900, 2300,	/* neighbors : */(1<<16)|(1<<17)|(1<<19)|(1<<21)|(1<<22)},									//[H1] 18
+	(pathfind_node_t){ 1300, 2300,	/* neighbors : */(1<<17)|(1<<18)|(1<<19)|(1<<22)|(1<<23)},									//[H2] 19
+	(pathfind_node_t){ 1700, 2250,	/* neighbors : */(1<<19)|(1<<23)},															//[H3] 20
 
 	//Colonne 7 coté Jaune [Z]
-	(pathfind_node_t){ 400, 2500,	/* neighbors : */(1<<16)|(1<<20)},															//[Z0] 19
-	(pathfind_node_t){ 800, 2400,	/* neighbors : */(1<<19)|(1<<16)|(1<<17)|(1<<21)},											//[Z1] 20
-	(pathfind_node_t){ 1200, 2400,	/* neighbors : */(1<<20)|(1<<16)|(1<<17)|(1<<18)|(1<<22)},									//[Z2] 21
-	(pathfind_node_t){ 1600, 2500,	/* neighbors : */(1<<21)|(1<<17)|(1<<18)},													//[Z3] 22
 
-	(pathfind_node_t){ 0, 0,		/* neighbors : */0} //[NOT_IN_NODE] 23 (invalid)
+	(pathfind_node_t){ 600, 2700,	/* neighbors : */(1<<18)|(1<<22)},															//[I1] 21
+	(pathfind_node_t){ 1000, 2600,	/* neighbors : */(1<<18)|(1<<19)|(1<<21)|(1<<23)},											//[I2] 22
+	(pathfind_node_t){ 1250, 2700,	/* neighbors : */(1<<22)|(1<<19)},															//[I3] 23
+
+	(pathfind_node_t){ 0, 0,		/* neighbors : */0} //[NOT_IN_NODE] 24 (invalid)
 };
 
 /*
@@ -95,6 +107,7 @@ static pathfind_node_t nodes[PATHFIND_NODE_NB+1] =
  *
  *!!!!!!!!!!!!!Un oublie de complétion de ce tableau engendra une interdiction de faire courbe sur les nodes non remplis!!!!!!!!!!!
  */
+
 static Uint32 node_curve[PATHFIND_NODE_NB+1] =
 {
 	//Colonne 1 coté Rouge [A]
@@ -151,21 +164,11 @@ static pathfind_node_list_t closedList;
  */
 void PATHFIND_MAJ_COLOR(){
 	if(global.color == BOT_COLOR){
-		nodes[Z0].neighbors &= ~(1<<1);
-		nodes[Z1].neighbors = 0;
-		nodes[Z2].neighbors = 0;
-		nodes[Z3].neighbors &= ~(1<<21);
-		nodes[Y1].neighbors &= ~((1<<21)|(1<<20));
-		nodes[Y2].neighbors &= ~((1<<21)|(1<<20));
-		nodes[Y3].neighbors &= ~(1<<21);
+		nodes[F1].neighbors &= ~(1<<16);
+		nodes[G1].neighbors &= ~(1<<14);
 	}else{
-		nodes[A0].neighbors &= ~(1<<20);
-		nodes[A1].neighbors = 0;
-		nodes[A2].neighbors = 0;
-		nodes[A3].neighbors &= ~(1<<2);
-		nodes[B1].neighbors &= ~((1<<1)|(1<<2));
-		nodes[B2].neighbors &= ~((1<<1)|(1<<2));
-		nodes[B3].neighbors &= ~(1<<2);
+		nodes[D1].neighbors &= ~(1<<6);
+		nodes[C1].neighbors &= ~(1<<8);
 	}
 }
 
@@ -1065,3 +1068,5 @@ Uint16 PATHFIND_compute(Sint16 xFrom, Sint16 yFrom, pathfind_node_id_t to, PROP_
 	return nodes[to].cost;
 }
 #endif
+
+#endif //0
