@@ -308,6 +308,25 @@ error_e strat_test_avoidance(){
 				debug_printf("default case in strat_test_avoidance\n");
 			break;
 	}
-
 	return IN_PROGRESS;
 }
+
+//Code permettant de calculer le deplacement du robot pendant la prise
+GEOMETRY_point_t compute_take_point_rocket(GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist){
+	Sint16 angle = GEOMETRY_modulo_angle(angle_robot);
+	GEOMETRY_point_t p = store_point;
+	if(angle > -PI4096/4 && angle <= PI4096/4){	// approximativement angle == 0
+		p.x = store_point.x + dist;
+	}else if(angle > PI4096/4 && angle <= 3*PI4096/4){ // approximativement angle == PI4096/2
+		p.y = store_point.y + dist;
+	}else if(angle > 3*PI4096/4 || angle <= -3*PI4096/4){ // approximativement angle == PI4096
+		p.x = store_point.x - dist;
+	}else if(angle > -3*PI4096/4 && angle <= -PI4096/4){ // approximativement angle == -PI4096/2
+		p.y = store_point.y - dist;
+	}else{
+		debug_printf("ERROR : couldn't compute point for rocket\n");
+	}
+
+	return p;
+}
+
