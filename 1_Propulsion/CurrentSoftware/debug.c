@@ -546,6 +546,7 @@ void DEBUG_process_it(void)
 					we_touch_border = TRUE;
 				}
 
+				//TODO : visiblement, ça ne fonctionne pas (tentative du 16/05/17)...
 				//Tasseau incliné de dépose modules bleu (côté bleu)
 				GEOMETRY_point_t quadri_bb[4] = {(GEOMETRY_point_t){1434, 934},
 												 (GEOMETRY_point_t){1859, 1359},
