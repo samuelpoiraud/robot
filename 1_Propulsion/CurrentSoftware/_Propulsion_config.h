@@ -117,7 +117,7 @@
 		// BOT_COLOR
 		#define SMALL_BOT_COLOR_START_X  		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define SMALL_BOT_COLOR_START_Y			((1070 - SMALL_ROBOT_WIDTH/2)*65536)
-		#define SMALL_BOT_COLOR_START_TETA 		(PI_28)			// PI_28  (il part en marche arriere...)
+		#define SMALL_BOT_COLOR_START_TETA 		(0)			// 0  (il part en marche avant...)
 
 		#define SMALL_BOT_COLOR_START_BASCULE_X  		((180)*65536)
 		#define SMALL_BOT_COLOR_START_BASCULE_Y			((267)*65536)
@@ -126,7 +126,7 @@
 		// TOP_COLOR
 		#define SMALL_TOP_COLOR_START_X 		((SMALL_CALIBRATION_BACKWARD_BORDER_DISTANCE)*65536)
 		#define SMALL_TOP_COLOR_START_Y 		((1930 + SMALL_ROBOT_WIDTH/2)*65536)
-		#define SMALL_TOP_COLOR_START_TETA 		(PI_28)			// PI_28  (il part en marche arriere...)
+		#define SMALL_TOP_COLOR_START_TETA 		(0)			// 0  (il part en marche avant...)
 
 		#define SMALL_TOP_COLOR_START_BASCULE_X 		((180)*65536)
 		#define SMALL_TOP_COLOR_START_BASCULE_Y 		((3000 - 267)*65536)
