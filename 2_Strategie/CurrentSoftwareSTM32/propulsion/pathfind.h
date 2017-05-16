@@ -6,6 +6,8 @@
  */
 
 #include "../QS/QS_all.h"
+#if 0
+#error "ce pathfind est remplacé depuis 2016 par le module ASTAR"
 
 #ifndef PATHFIND_H
 #define PATHFIND_H
@@ -23,30 +25,31 @@
 /*
  * Defines des noms des nodes
  */
-#define A0 0
-#define A1 1
-#define A2 2
-#define A3 3
-#define B1 4
-#define B2 5
-#define B3 6
-#define C1 7
-#define C2 8
-#define C3 9
-#define M1 10
-#define M2 11
-#define M3 12
-#define W1 13
-#define W2 14
-#define W3 15
-#define Y1 16
-#define Y2 17
-#define Y3 18
-#define Z0 19
-#define Z1 20
-#define Z2 21
-#define Z3 22
-#define NOT_IN_NODE	23
+#define A1 0
+#define A2 1
+#define A3 2
+#define B1 3
+#define B2 4
+#define B3 5
+#define C1 6
+#define C2 7
+#define D1 8
+#define D2 9
+#define D3 10
+#define E1 11
+#define E2 12
+#define F1 13
+#define F2 14
+#define F3 15
+#define G1 16
+#define G2 17
+#define H1 18
+#define H2 19
+#define H3 20
+#define I1 21
+#define I2 22
+#define I3 23
+#define NOT_IN_NODE	24
 
 #define PATHFIND_NODE_NB NOT_IN_NODE
 
@@ -156,3 +159,5 @@ Sint16 PATHFIND_dist_node_to_node(pathfind_node_id_t n1, pathfind_node_id_t n2);
 Uint16 PATHFING_get_symetric(pathfind_node_id_t n);
 
 #endif /* PATHFIND_H */
+
+#endif //0
