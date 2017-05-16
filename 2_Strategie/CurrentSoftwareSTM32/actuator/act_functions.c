@@ -507,6 +507,27 @@ void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
 
 	vacuostat[msg->data.act_tell_mosfet_state.id].state = msg->data.act_tell_mosfet_state.state;
 	vacuostat[msg->data.act_tell_mosfet_state.id].lastRefresh = global.absolute_time;
+
+	Uint8 i;
+	bool_e on = FALSE;
+	bool_e pumped = FALSE;
+	for(i=0; i<8; i++){
+		if(vacuostat[i].state == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)
+			on = TRUE;
+
+		if(vacuostat[i].state == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)
+			pumped = TRUE;
+	}
+
+	if(on)
+		IHM_leds_send_msg(1, (led_ihm_t){LED_4_IHM, ON});
+	else
+		IHM_leds_send_msg(1, (led_ihm_t){LED_4_IHM, OFF});
+
+	if(pumped)
+		IHM_leds_send_msg(1, (led_ihm_t){LED_5_IHM, ON});
+	else
+		IHM_leds_send_msg(1, (led_ihm_t){LED_5_IHM, OFF});
 }
 
 Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, time32_t timeout, Uint8 in_progress, Uint8 sucess, Uint8 fail){
