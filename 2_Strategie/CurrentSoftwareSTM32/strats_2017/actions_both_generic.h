@@ -29,9 +29,8 @@ void test_strat_robot_virtuel(void);
 
 void strat_reglage_prop(void);
 
-error_e sub_wait(Sint16 x, Sint16 y);
 
-void strat_stop_robot();
+error_e sub_wait(Sint16 x, Sint16 y, time32_t duration);
 
 error_e func_go_to_home();
 

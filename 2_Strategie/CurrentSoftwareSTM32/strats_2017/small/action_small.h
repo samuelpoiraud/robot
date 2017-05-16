@@ -35,7 +35,7 @@
 
 
 	// action_big_depose_modules
-	error_e sub_anne_depose_modules_centre(moduleTypeDominating_e modules_type, moduleStockLocation_e robot_side, ELEMENTS_side_match_e basis_side);
+	error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMENTS_side_match_e basis_side);
 	error_e sub_anne_get_in_depose_modules_centre(moduleTypeDominating_e module_type, moduleStockLocation_e robot_side, ELEMENTS_side_match_e basis_side);
 
 	error_e sub_anne_depose_modules_side(ELEMENTS_property_e modules);
