@@ -14,8 +14,6 @@
 
 	#include "QS/QS_all.h"
 
-#define USE_I2C_COLOR_SENSOR
-
 	#ifdef USE_I2C_COLOR_SENSOR
 
 		typedef enum{
