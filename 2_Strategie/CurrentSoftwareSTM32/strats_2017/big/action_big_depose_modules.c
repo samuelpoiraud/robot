@@ -266,6 +266,13 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			break;
 
 		case DEPOSE_MODULE:
+			if(entrance){
+				if(robot_side == MODULE_STOCK_LEFT){
+					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT_DEPOSE);
+				}else{
+					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT_DEPOSE);
+				}
+			}
 			if(robot_side == MODULE_STOCK_LEFT){
 				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER, ERROR);
 			}
