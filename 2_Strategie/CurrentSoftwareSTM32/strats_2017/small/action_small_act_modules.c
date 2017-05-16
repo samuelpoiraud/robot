@@ -837,7 +837,6 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 
 		case TURN_FOR_COLOR:
 			if(entrance){
-				time_timeout = global.absolute_time + TIMEOUT_COLOR;
 				ACT_push_order(ACT_SMALL_CYLINDER_COLOR, ACT_SMALL_CYLINDER_COLOR_NORMAL_SPEED);
 			}
 			// Aucune vérification ici
@@ -845,13 +844,7 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			break;
 
 		case WAIT_WHITE:
-			if(global.absolute_time > time_timeout){
-				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
-			}else{
-				if(CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_White, FALSE)){	// TODO : changer l'appel à la lib du capteur couleur
-					state = WAIT_OUR_COLOR;
-				}
-			}
+			state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_WHITE, TIMEOUT_COLOR, state, WAIT_OUR_COLOR, STOP_TURN);
 			break;
 
 		case WAIT_OUR_COLOR:
@@ -861,19 +854,17 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, MODULE_STOCK_SMALL);
 			}
-			// TODO : Faire les appels de fonctions des capteurs couleurs vers la bonne lib
-			color_white = CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_White, FALSE);
-			color_yellow = CW_is_color_detected(CW_SENSOR_SMALL, CW_Channel_Yellow, FALSE);
-			color_blue = (!color_white && !color_yellow);
 
-			// On attend notre couleur
-			if(global.absolute_time > time_timeout){
-				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
-			}else {
-				if( ((global.color == BLUE) && color_blue) ||  ((global.color == YELLOW) && color_yellow)){
+			if(global.color == BLUE)
+				state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_BLUE, TIMEOUT_COLOR, state, STOP_TURN, ERROR);
+			else
+				state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_YELLOW, TIMEOUT_COLOR, state, STOP_TURN, ERROR);
+
+			if(ON_LEAVE()){
+				if(state == STOP_TURN){	// On a trouvé la couleur
 					ELEMENTS_set_flag(FLAG_ANNE_MODULE_COLOR_SUCCESS, TRUE);
-					state=STOP_TURN;
 				}
+				state = STOP_TURN;
 			}
 			break;
 
