@@ -589,21 +589,24 @@ static void MAIN_onButton0(){
 			msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLIDER_IN;
 		}else if(state == 4){
 			msg.sid = ACT_SMALL_CYLINDER_ELEVATOR;
-			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_TOP;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER;
 		}else if(state == 5){
 			msg.sid = ACT_SMALL_CYLINDER_ELEVATOR;
-			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_WAIT_FOR_SLOPE;
 		}else if(state == 6){
 			msg.sid = ACT_SMALL_CYLINDER_ELEVATOR;
-			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_TOP;
 		}else if(state == 7){
+			msg.sid = ACT_SMALL_CYLINDER_ELEVATOR;
+			msg.data.act_msg.order = ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM;
+		}else if(state == 8){
 			msg.sid = ACT_SMALL_CYLINDER_SLIDER;
 			msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLIDER_IN;
 		}
 
 		if(msg.sid != 0)
 			CAN_process_msg(&msg);
-		state = (state == 7)? 0 : state + 1;
+		state = (state == 8)? 0 : state + 1;
 	}
 
 static void MAIN_onButton0LongPush(){
@@ -634,18 +637,24 @@ static void MAIN_onButton1(){
 	msg.size = 1;
 	if(state == 0){
 		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
-		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_UP;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_MID;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
-		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_VERY_UP;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_ALMOST_UP;
 	}else if(state == 2){
+		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_UP;
+	}else if(state == 3){
+		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_VERY_UP;
+	}else if(state == 4){
 		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_DOWN;
 	}
 
 	if(msg.sid != 0)
 		CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
+	state = (state == 4)? 0 : state + 1;
 
 }
 
@@ -781,15 +790,18 @@ static void MAIN_onButton4(){
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_CYLINDER_MULTIFONCTION;
-		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_OUT;
 	}else if(state == 2){
+		msg.sid = ACT_SMALL_CYLINDER_MULTIFONCTION;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK;
+	}else if(state == 3){
 		msg.sid = ACT_SMALL_CYLINDER_MULTIFONCTION;
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_MULTIFONCTION_IN;
 	}
 
 	if(msg.sid != 0)
 		CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
+	state = (state == 3)? 0 : state + 1;
 }
 
 static void MAIN_onButton4LongPush(){

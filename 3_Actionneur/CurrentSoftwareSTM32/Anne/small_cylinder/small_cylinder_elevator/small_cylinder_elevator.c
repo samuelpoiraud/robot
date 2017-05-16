@@ -167,6 +167,8 @@ static void SMALL_CYLINDER_ELEVATOR_get_position_config(ACT_order_e *pOrder, Uin
 
 	if(position > SMALL_CYLINDER_ELEVATOR_RX24_TOP_POS - epsilon && position < SMALL_CYLINDER_ELEVATOR_RX24_TOP_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_ELEVATOR_TOP;
+	}else if(position > SMALL_CYLINDER_ELEVATOR_RX24_WAIT_FOR_SLOPE - epsilon && position < SMALL_CYLINDER_ELEVATOR_RX24_WAIT_FOR_SLOPE + epsilon){
+		order = ACT_SMALL_CYLINDER_ELEVATOR_WAIT_FOR_SLOPE;
 	}else if(position > SMALL_CYLINDER_ELEVATOR_RX24_BOTTOM_POS - epsilon && position < SMALL_CYLINDER_ELEVATOR_RX24_BOTTOM_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM;
 	}else if(position > SMALL_CYLINDER_ELEVATOR_RX24_LOCK_WITH_CYLINDER_POS - epsilon && position < SMALL_CYLINDER_ELEVATOR_RX24_LOCK_WITH_CYLINDER_POS + epsilon){
@@ -209,6 +211,7 @@ bool_e SMALL_CYLINDER_ELEVATOR_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
             case ACT_SMALL_CYLINDER_ELEVATOR_IDLE :
             case ACT_SMALL_CYLINDER_ELEVATOR_TOP :
+            case ACT_SMALL_CYLINDER_ELEVATOR_WAIT_FOR_SLOPE:
             case ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM :
             case ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER :
             case ACT_SMALL_CYLINDER_ELEVATOR_STOP :
@@ -265,7 +268,8 @@ static void SMALL_CYLINDER_ELEVATOR_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
         case ACT_SMALL_CYLINDER_ELEVATOR_IDLE : *rx24_goalPosition = SMALL_CYLINDER_ELEVATOR_RX24_IDLE_POS; break;
         case ACT_SMALL_CYLINDER_ELEVATOR_TOP : *rx24_goalPosition = SMALL_CYLINDER_ELEVATOR_RX24_TOP_POS; break;
-        case ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM : *rx24_goalPosition = SMALL_CYLINDER_ELEVATOR_RX24_BOTTOM_POS; break;
+		case ACT_SMALL_CYLINDER_ELEVATOR_WAIT_FOR_SLOPE : *rx24_goalPosition = SMALL_CYLINDER_ELEVATOR_RX24_WAIT_FOR_SLOPE; break;
+		case ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM : *rx24_goalPosition = SMALL_CYLINDER_ELEVATOR_RX24_BOTTOM_POS; break;
         case ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER : *rx24_goalPosition = SMALL_CYLINDER_ELEVATOR_RX24_LOCK_WITH_CYLINDER_POS; break;
 
         case ACT_SMALL_CYLINDER_ELEVATOR_STOP :
