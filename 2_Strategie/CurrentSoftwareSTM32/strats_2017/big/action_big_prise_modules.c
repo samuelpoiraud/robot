@@ -1534,6 +1534,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 			TAKE_MODULE_LEFT,
 			RUSH_TO_LOCK_MODULE,
+			GET_OUT_RUSH,
 			PREPARE_STORAGE_LEFT,
 			STORAGE_LEFT,
 			GET_OUT_LEFT,
@@ -1651,7 +1652,13 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 					//ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 				}
 				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+			}
 
+			state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE, GET_OUT_LEFT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case RUSH_TO_LOCK_MODULE:
+			if(entrance){
 				// Rentrer le pusher
 				if(global.color == BLUE){
 					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IN);
@@ -1659,12 +1666,11 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_IN);
 				}
 			}
-
-			state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE, GET_OUT_LEFT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_rush(2000, COLOR_Y(750), state, GET_OUT_RUSH, GET_OUT_RUSH, FORWARD, NO_DODGE_AND_NO_WAIT, TRUE);
 			break;
 
-		case RUSH_TO_LOCK_MODULE:
-			state = try_rush(2000, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, PREPARE_STORAGE_LEFT, FORWARD, NO_DODGE_AND_NO_WAIT, TRUE);
+		case GET_OUT_RUSH:
+			state = try_going(1750, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, RUSH_TO_LOCK_MODULE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case PREPARE_STORAGE_LEFT:
@@ -1686,7 +1692,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			break;
 
 		case GET_OUT_LEFT:
-			state = try_going(1670, COLOR_Y(700), state, STORAGE_LEFT, GET_OUT_LEFT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(1630, COLOR_Y(700), state, STORAGE_LEFT, GET_OUT_LEFT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_OUT_LEFT_ERROR:
@@ -2053,9 +2059,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 
 		case GET_IN_FRONT_OF_ONE_ON_TWO:
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 360, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 360, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 

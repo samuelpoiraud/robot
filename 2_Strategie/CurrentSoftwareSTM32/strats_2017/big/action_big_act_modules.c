@@ -1221,7 +1221,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 	}
 	//---------------------- Fin gestion de la réentrance ---------------------------
 
-	#define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
+	#define TIMEOUT_COLOR	(3000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
 	#define NB_TRY_BALANCER_TOLERATED (3)
 	static error_e stateAct = IN_PROGRESS;
 	static time32_t time_timeout_left = 0, time_timeout_right = 0;
@@ -1331,8 +1331,8 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 					}
 
 					// On regarde si on retente ou si on part en ERROR
-					if((storage == MODULE_STOCK_RIGHT && nb_errors_balancer_right == NB_TRY_BALANCER_TOLERATED)
-					|| (storage == MODULE_STOCK_LEFT && nb_errors_balancer_left == NB_TRY_BALANCER_TOLERATED)){
+					if((storage == MODULE_STOCK_RIGHT && nb_errors_balancer_right < NB_TRY_BALANCER_TOLERATED)
+					|| (storage == MODULE_STOCK_LEFT && nb_errors_balancer_left < NB_TRY_BALANCER_TOLERATED)){
 						state = ERROR_MOVE_BALANCER_OUT;	// L'actionneur n'est pas en position, on doit le mettre
 					}else{
 						state = ERROR;
@@ -1978,6 +1978,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 
 			AVANCE,
 			AVANCE_ERROR,
+			TURN_TO_POS,
 
 			ACTION_GO_TAKE_CYLINDER,
 			ACTION_GO_TAKE_CYLINDER_2,
@@ -1997,8 +1998,9 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 		);
 
 	// Positions du robot
-	static GEOMETRY_point_t take_pos; // position du robot lors de la prise
-	static GEOMETRY_point_t store_pos; // position du robot lors du stockage
+	static GEOMETRY_point_t take_pos = {0, 0}; // position du robot lors de la prise
+	static GEOMETRY_point_t store_pos = {0, 0}; // position du robot lors du stockage
+	static Sint16 take_angle = 0;
 
 	static ELEMENTS_side_e rocketSide[MAX_MODULE_ROCKET];
 	static Uint8 indexSide = 0;
@@ -2048,7 +2050,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			// Calcul des positions
 			store_pos.x = global.pos.x;
 			store_pos.y = global.pos.y;
-			take_pos = compute_take_point_rocket(store_pos, global.pos.angle, 50);
+			compute_take_point_rocket(&take_pos, &take_angle, store_pos, global.pos.angle, 50);
 			debug_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
 
 			rocketSide[0] = module_very_down;
@@ -2098,11 +2100,15 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			break;
 
 		case AVANCE:
-			state = try_going(take_pos.x, take_pos.y, state, ACTION_GO_TAKE_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(take_pos.x, take_pos.y, state, TURN_TO_POS, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case AVANCE_ERROR:
 			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case TURN_TO_POS:
+			state = try_go_angle(take_angle, state, ACTION_GO_TAKE_CYLINDER, ACTION_GO_TAKE_CYLINDER, FAST, ANY_WAY, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_GO_TAKE_CYLINDER:
