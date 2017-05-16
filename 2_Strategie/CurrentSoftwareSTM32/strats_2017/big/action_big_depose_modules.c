@@ -196,6 +196,11 @@ error_e sub_harry_depose_centre_manager(){
 			break;
 
 		case ERROR_DEPOSE:
+			if(robot_side == MODULE_STOCK_LEFT){
+				nb_try_left++;
+			}else{
+				nb_try_right++;
+			}
 			state = COMPUTE;
 			break;
 
@@ -245,12 +250,6 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 	switch(state){
 		case INIT:
 			state=GET_IN;
-			/*if(robot_side == MODULE_STOCK_LEFT){
-				nb_try_left++;
-			}else{
-				nb_try_right++;
-			}
-			dropPlace = NO_POS;*/
 			break;
 
 		case GET_IN:
@@ -302,6 +301,13 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			break;
 
 		case ERROR_DOWN_PUSHER:
+			if (entrance){
+				if(robot_side == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_IN);
+				}else{
+					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
+				}
+			}
 			state = try_advance(NULL, entrance, 150, state, DOWN_PUSHER, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
