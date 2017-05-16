@@ -23,7 +23,7 @@
 //Position
 	#define SMALL_CYLINDER_SLIDER_AX12_IDLE_POS					5
 	#define SMALL_CYLINDER_SLIDER_AX12_IN_POS				    5		//en degré
-	#define SMALL_CYLINDER_SLIDER_AX12_OUT_POS					800		//en degré
+	#define SMALL_CYLINDER_SLIDER_AX12_OUT_POS					600		//en degré
 	#define SMALL_CYLINDER_SLIDER_AX12_ALMOST_OUT_POS			375		//en degré (+362 par rapport à IN_POS)
 	#define SMALL_CYLINDER_SLIDER_AX12_ALMOST_OUT_WITH_CYLINDER_POS		163		//en degré (+150 par rapport à IN_POS)
 
