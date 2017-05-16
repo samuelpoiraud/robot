@@ -268,9 +268,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 		case DEPOSE_MODULE:
 			if(entrance){
 				if(robot_side == MODULE_STOCK_LEFT){
-					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT_DEPOSE);
+					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_DEPOSE);
 				}else{
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT_DEPOSE);
+					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_LEFT_DEPOSE);
 				}
 			}
 			if(robot_side == MODULE_STOCK_LEFT){
