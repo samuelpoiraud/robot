@@ -12,10 +12,11 @@
 #include "../../utils/actionChecker.h"
 #include "../../elements.h"
 #include "../../high_level_strat.h"
+#include "../actions_both_2017.h"
 
 
 // Private functions
-static GEOMETRY_point_t compute_take_point_rocket(GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist);
+//static GEOMETRY_point_t compute_take_point_rocket(GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist);
 
 
 // Subaction actionneur de prise fusée v2
@@ -2359,23 +2360,4 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	}
 
 	return IN_PROGRESS;
-}
-
-
-static GEOMETRY_point_t compute_take_point_rocket(GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist){
-	Sint16 angle = GEOMETRY_modulo_angle(angle_robot);
-	GEOMETRY_point_t p = store_point;
-	if(angle > -PI4096/4 && angle <= PI4096/4){	// approximativement angle == 0
-		p.x = store_point.x + dist;
-	}else if(angle > PI4096/4 && angle <= 3*PI4096/4){ // approximativement angle == PI4096/2
-		p.y = store_point.y + dist;
-	}else if(angle > 3*PI4096/4 || angle <= -3*PI4096/4){ // approximativement angle == PI4096
-		p.x = store_point.x - dist;
-	}else if(angle > -3*PI4096/4 && angle <= -PI4096/4){ // approximativement angle == -PI4096/2
-		p.y = store_point.y - dist;
-	}else{
-		debug_printf("ERROR : couldn't compute point for rocket\n");
-	}
-
-	return p;
 }
