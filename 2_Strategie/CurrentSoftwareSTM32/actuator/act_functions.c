@@ -509,7 +509,7 @@ void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
 	vacuostat[msg->data.act_tell_mosfet_state.id].lastRefresh = global.absolute_time;
 }
 
-Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, Uint8 in_progress, Uint8 sucess, Uint8 fail){
+Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, time32_t timeout, Uint8 in_progress, Uint8 sucess, Uint8 fail){
 	CREATE_MAE(INIT,
 				GET_STATE,
 				WAIT_STATE);
@@ -535,7 +535,7 @@ Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, Uint8 in_progr
 			if(global.absolute_time - color_sensor.lastRefresh < ACT_COLOR_SENSOR_TIME_VALID && color_sensor.color == color){
 				RESET_MAE();
 				return sucess;
-			}else if(global.absolute_time - timeBegin > ACT_COLOR_SENSOR_TIMEOUT){
+			}else if(global.absolute_time - timeBegin > timeout){
 				RESET_MAE();
 				return fail;
 			}
