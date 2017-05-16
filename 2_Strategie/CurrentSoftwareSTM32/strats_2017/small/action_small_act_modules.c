@@ -193,7 +193,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			// Calcul des positions
 			store_pos.x = global.pos.x;
 			store_pos.y = global.pos.y;
-			take_pos = compute_take_point_rocket(store_pos, global.pos.angle, 70);//derniere valeur a modifier pour changer la distance d'avancement et de recule lors de la prise
+			compute_take_point_rocket(&take_pos, NULL, store_pos, global.pos.angle, 70);//derniere valeur a modifier pour changer la distance d'avancement et de recule lors de la prise
 			debug_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
 
 			rocketSide[0] = module_very_down;

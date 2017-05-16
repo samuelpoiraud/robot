@@ -23,7 +23,9 @@
 
 	// Subaction de test de l'évitement (A ne pas jouer en match)
 	error_e strat_test_avoidance(void);
-	GEOMETRY_point_t compute_take_point_rocket(GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist);
+
+	// Fonction de calcul du point de prise de la fusée et de l'angle théorique de prise
+	void compute_take_point_rocket(GEOMETRY_point_t *take_point, Sint16 *take_angle, GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist);
 
 
 #endif
