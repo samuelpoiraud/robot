@@ -160,7 +160,7 @@ void corentin_strat_inutile_small(){
 			break;
 
 		case DEPOSE:
-			state = check_sub_action_result(sub_anne_depose_modules_centre(MODULE_MONO_DOMINATING, MODULE_STOCK_SMALL, OUR_SIDE), state, DONE, ERROR);
+			state = check_sub_action_result(sub_anne_depose_modules_centre(MODULE_MOONBASE_MIDDLE, ADV_SIDE), state, DONE, ERROR);
 			break;
 
 		case ERROR:

@@ -190,6 +190,7 @@ error_e sub_anne_initiale(void){
 //		- tout autre idée géniale...
 //Param nb_try_dispose : tableau de nombre d'essai restant pour chaque zone
 //Param moonbase : si on return TRUE, vous trouverez ici le choix de zone !
+//TODO : ajouter un argument pointeur qui renverra le meilleur accès (côté blue ou yellow)
 bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase)
 {
 	static bool_e moonbases_enable[NB_MOONBASES];	//nombres de places restantes si zones activée (IHM). 0 si zone désactivée.
@@ -392,12 +393,12 @@ error_e sub_anne_chose_moonbase_and_dispose_modules(void)
 
 			break;
 		case DISPOSE_MOONBASE_MIDDLE:
-			if(sub_anne_depose_centre_manager() != IN_PROGRESS)
+			if(sub_anne_depose_modules_centre(MODULE_MOONBASE_MIDDLE, ADV_SIDE) != IN_PROGRESS)
 				state = COMPUTE_WHAT_DOING;
 			break;
-		case DISPOSE_MOONBASE_OUR_CENTER:	//TODO
-			debug_printf("Fonction non implémentée à ce jour : dépose au centre de notre côté\n");
-			state = COMPUTE_WHAT_DOING;
+		case DISPOSE_MOONBASE_OUR_CENTER:	//TODO mieux choisir le basis side
+			if(sub_anne_depose_modules_centre(MODULE_MOONBASE_OUR_CENTER, ADV_SIDE) != IN_PROGRESS)
+				state = COMPUTE_WHAT_DOING;
 			break;
 		case DISPOSE_MOONBASE_OUR_SIDE:	//TODO
 			debug_printf("Fonction non implémentée à ce jour : dépose de notre côté\n");
@@ -408,8 +409,8 @@ error_e sub_anne_chose_moonbase_and_dispose_modules(void)
 			state = COMPUTE_WHAT_DOING;
 			break;
 		case DISPOSE_MOONBASE_ADV_CENTER:	//TODO
-			debug_printf("Fonction non implémentée à ce jour : dépose au centre adverse\n");
-			state = COMPUTE_WHAT_DOING;
+			if(sub_anne_depose_modules_centre(MODULE_MOONBASE_ADV_CENTER, OUR_SIDE) != IN_PROGRESS)
+				state = COMPUTE_WHAT_DOING;
 			break;
 		case COMPUTE_WHAT_DOING:
 			//Si on a réussi la dépose, alors c'est la fin.

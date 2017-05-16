@@ -11,7 +11,8 @@
 #include "../../actuator/act_functions.h"
 #include "../../QS/QS_types.h"
 #include "../../actuator/queue.h"
-
+#include "../../propulsion/pathfind.h"
+#include "../../propulsion/prop_functions.h"
 
 error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_MANAGER_RETURN_MODULES,
@@ -1408,7 +1409,7 @@ static Uint8 nb_try = 0;
 
 
 error_e sub_anne_depose_centre_manager(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DEPOSE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DEPOSE_CENTRE_MANAGER,
 				INIT,
 				DEPOSE,
 				COMPUTE,
@@ -1442,7 +1443,8 @@ error_e sub_anne_depose_centre_manager(){
 			break;
 
 		case DEPOSE:
-			state = check_sub_action_result(sub_anne_depose_modules_centre(module_type,MODULE_STOCK_SMALL, side), state, SUCCESS_DEPOSE, ERROR_DEPOSE);
+			//TODO choix de la zone..
+			state = check_sub_action_result(sub_anne_depose_modules_centre(MODULE_MOONBASE_MIDDLE, side), state, SUCCESS_DEPOSE, ERROR_DEPOSE);
 			break;
 
 		case COMPUTE:
@@ -1484,228 +1486,439 @@ error_e sub_anne_depose_centre_manager(){
 	return IN_PROGRESS;
 }
 
-error_e sub_anne_depose_modules_centre(moduleTypeDominating_e modules_type, moduleStockLocation_e robot_side, ELEMENTS_side_match_e basis_side){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DEPOSE_CENTRE_MANAGER,
+
+#define PUSH_BEFORE_DISPOSE_DISABLE			0		//Si 1 : on désactive le poussage avant dépose.
+#define ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE	(PI4096/18) 	//10 degrés //angle d'erreur en dessous duquel on accèpte la correction !
+#define R2				1.41				//Racine carré de 2, à 3 queues de vaches près
+#define R_TO_CENTER		650					//Rush goal to center (2000;1500)
+#define dHB				250					//Point H vers point B
+#define	MOONBASE_TO_R	68					//Distance entre le centre de la moonbase et le bord (80/2+28)
+#define dRA				(MOONBASE_TO_R+150)	//Distance entre le centre de la moonbase et l'axe de turning
+#define dRH				(MOONBASE_TO_R+105)	//Distance entre le centre de la moonbase et l'axe de dépose / poussage
+#define FN_FN1			120					//Distance entre deux déposes de modules
+
+#define dHC_OUTDOOR		80			//distance entre le Rush Goal et le premier module posable, côté cratère
+#define dHC_INDOOR		200			//distance entre le Rush Goal et le premier module posable, côté intérieur
+
+#define	F0D_LONG		100			//L'extraction du dispose axis se fait en deux temps (D puis E)
+#define F0D_LARGE		5
+#define F0E_LONG		200
+#define F0E_LARGE		(dRA - dRH)
+
+//Cette fonction a pour but d'effectuer la dépose de module sur l'une des 3 zones centrales.
+//On doit lui préciser sur quelle zone on veut déposer, et via quel côté...
+error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMENTS_side_match_e basis_side)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DEPOSE_MODULES_CENTRE,
 			INIT,
+			COMPUTE_POINTS,
 			GET_IN,
-			GO_TO_DEPOSE_MODULE_POS,
-			GO_TO_DEPOSE_MODULE,
-			DEPOSE_MODULE,
-
-			DOWN_PUSHER,
-			UP_PUSHER,
-
-			PUSH_MODULE,
-			PUSH_MODULE_RETURN,
-			NEXT_DEPOSE_MODULE,
-			GET_OUT,
+			PATHFIND,
+			RUSH_AND_COMPUTE_O_H_A_B_C,
+			EXTRACT_FROM_RUSH_TO_A,
+			GOTO_B,
+			PUSH_TO_C,
+			COMPUTE_F_E_D,
+			GOTO_D_AND_E,
+			BACK_TO_FX,
+			GOTO_FX,
+			COMPUTE_DISPOSE_MODULE,
+			DISPOSE_MODULE,
+			DISPOSE_LAST_MODULE,
+			GOTO_NEXT_F,
+			BACK_TO_PREVIOUS_F,
+			PUSH_DISPOSED_MODULES,
+			GET_OUT_TO_B,
 			GET_OUT_ERROR,
 			ERROR,
 			DONE
 		);
 
+	typedef enum
+	{
+		DZONE0_BLUE_OUTDOOR,
+		DZONE1_BLUE_INDOOR,
+		DZONE2_MIDDLE_BLUE,
+		DZONE3_MIDDLE_YELLOW,
+		DZONE4_YELLOW_INDOOR,
+		DZONE5_YELLOW_OUTDOOR
+	}dispose_zone_t;
+
+	static bool_e pusher_is_up = FALSE;
+	static dispose_zone_t dzone;
+	static color_e color_side;		//Défini si par rapport à une zone on va poser plutôt du côté bleu ou jaune
+	static bool_e outdoor;			//Défini si la dépose est au sud (c'est à dire en étant placé près d'un cratère) sinon au nord (entre 2 zones !)
+
+
+	static GEOMETRY_point_t GetIn;	//Point d'entrée pour continuer 				-> Défini en dur
+	static GEOMETRY_point_t G;		//Goal (but du rush... point non atteignable) 	-> Défini en dur
+	static GEOMETRY_point_t O;		//Origine du robot à la fin du rush				-> Mesuré lorsqu'on s'y trouve
+	static GEOMETRY_vector_t OR;	//vecteur OR (R=centre de la zone de dépose)	->
+	static GEOMETRY_vector_t RA;	//vecteur RA (A=projeté de R sur l'axe de dispose ou de push)
+	static GEOMETRY_vector_t RH;	//vecteur RH (H=projeté de R sur l'axe de turning)
+	static GEOMETRY_point_t A;
+	static GEOMETRY_point_t H;
+
+	static GEOMETRY_vector_t HB;	//vecteur HB (B=extraction de bout de ligne pour tourner sur l'axe de dépose)
+	static GEOMETRY_vector_t HC;	//vecteur HC (C=point le plus profond du push) -> dépend de la zone choisie (cratère !)
+	static GEOMETRY_point_t B;
+	static GEOMETRY_point_t C;
+
+	//Le point C pourra être adapté si on push des modules ou si on tombe en erreur en avancant !
+	//Le point F0 est calculé selon la réussite à atteindre le point C... et le côté choisi (notamment s'il y a déjà des modules)
+	//On en déduit alors les points D et E...
+	static GEOMETRY_point_t FX;		//Résultat d'une position atteinte (mesure si échec, théorie si réussite)
+	static GEOMETRY_point_t D;
+	static GEOMETRY_point_t E;
+
+	static GEOMETRY_vector_t F0D;	//vecteur F0D (D=point pour s'extraire doucement de l'axe de push)
+	static GEOMETRY_vector_t F0E;	//vecteur F0E (E=point pour s'extraire carrément de l'axe de push)
+
+	static GEOMETRY_vector_t Fn_to_next;	//Déplacement entre Fn et Fn+1 !
+
+
+
+	//Le Getout est le point B !
+
+	//Trajet nominal :
+
+	// GetIn -> G(non atteint) -> A -> B -> C (calcul F0) -> D -> E -> F0 -> F1 -> ... -> F3 -> B
+
+
+
 	switch(state){
 		case INIT:
-			state=GET_IN;
-			if(robot_side == MODULE_STOCK_SMALL){
-				nb_try++;
+			//Color_side
+			if(basis_side == OUR_SIDE)
+				color_side = global.color;
+			else
+				color_side = (global.color==BLUE)?YELLOW:BLUE;
+
+			//South (ou north !)
+			if((moonbase == MODULE_MOONBASE_OUR_CENTER && basis_side == OUR_SIDE)
+					||  (moonbase == MODULE_MOONBASE_ADV_CENTER && basis_side == ADV_SIDE))
+				outdoor = TRUE;
+			else
+				outdoor = FALSE;
+
+			//Dispose Zone !
+			switch(moonbase)
+			{
+				case MODULE_MOONBASE_OUR_CENTER:
+					if(global.color == BLUE)
+						dzone = (basis_side == OUR_SIDE)?DZONE0_BLUE_OUTDOOR:DZONE1_BLUE_INDOOR;
+					else
+						dzone = (basis_side == OUR_SIDE)?DZONE5_YELLOW_OUTDOOR:DZONE4_YELLOW_INDOOR;
+					break;
+				case MODULE_MOONBASE_MIDDLE:
+					if(basis_side == OUR_SIDE)
+						dzone = (global.color == BLUE)?DZONE2_MIDDLE_BLUE:DZONE3_MIDDLE_YELLOW;
+					else
+						dzone = (global.color == BLUE)?DZONE3_MIDDLE_YELLOW:DZONE2_MIDDLE_BLUE;
+
+					break;
+				case MODULE_MOONBASE_ADV_CENTER:
+					if(global.color == BLUE)
+						dzone = (basis_side == OUR_SIDE)?DZONE4_YELLOW_INDOOR:DZONE5_YELLOW_OUTDOOR;
+					else
+						dzone = (basis_side == OUR_SIDE)?DZONE1_BLUE_INDOOR:DZONE0_BLUE_OUTDOOR;
+					break;
+				default:
+					break;
 			}
-			drop_zone_bis = NO_POS;
+
+			if(moonbase == MODULE_MOONBASE_OUR_SIDE || moonbase == MODULE_MOONBASE_ADV_SIDE)
+				state = ERROR;	//C'est pas cette fonction qui gère la dépose latérale !
+			else
+				state = COMPUTE_POINTS;
+
+			nb_try++;
+
+
+
+			break;
+		case COMPUTE_POINTS:
+			//On calcule les points qui seront utilisés dans les trajectoires.
+			if(dzone == DZONE0_BLUE_OUTDOOR)
+			{
+				GetIn = (GEOMETRY_point_t){1725,860};
+				if(i_am_in_square(1000, 1800, 200, 650))
+					state = GET_IN;
+				else
+					state = PATHFIND;
+			}
+			else if(dzone == DZONE5_YELLOW_OUTDOOR)
+			{
+				GetIn = (GEOMETRY_point_t){1725,2140};
+				if(i_am_in_square(1000, 1800, 2350, 2800))
+					state = GET_IN;
+				else
+					state = PATHFIND;
+			}
+			else if(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE2_MIDDLE_BLUE)
+			{
+				GetIn = (GEOMETRY_point_t){1350,1240};
+				if(i_am_in_square(0, 1300, 1000, 1300))
+					state = GET_IN;
+				else
+					state = PATHFIND;
+			}
+			else	//dzone 3 ou 4
+			{
+				GetIn = (GEOMETRY_point_t){1350,1760};
+				if(i_am_in_square(0, 1300, 1700, 2000))
+					state = GET_IN;
+				else
+					state = PATHFIND;
+			}
+
+			//Goal (but du rush... point non atteignable) 	-> Défini en dur
+			if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE1_BLUE_INDOOR)
+				G = (GEOMETRY_point_t){2000-R_TO_CENTER/R2,1500-R_TO_CENTER/R2};
+			else if(dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW)
+				G = (GEOMETRY_point_t){2000-R_TO_CENTER,1500};
+			else
+				G = (GEOMETRY_point_t){2000-R_TO_CENTER/R2,1500+R_TO_CENTER/R2};
+
+			switch(dzone)
+			{
+				case DZONE0_BLUE_OUTDOOR:
+					OR = (GEOMETRY_vector_t){-(MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)/R2,(MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)/R2};
+					RA = (GEOMETRY_vector_t){dRA/R2, -dRA/R2};
+					RH = (GEOMETRY_vector_t){dRH/R2, -dRH/R2};
+					HB = (GEOMETRY_vector_t){-dHB/R2, -dHB/R2};
+					HC = (GEOMETRY_vector_t){dHC_OUTDOOR/R2, dHC_OUTDOOR/R2};
+					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1/R2, -FN_FN1/R2};
+					F0D = (GEOMETRY_vector_t){(-F0D_LONG+F0D_LARGE)/R2, (-F0D_LONG-F0D_LARGE)/R2};
+					F0E = (GEOMETRY_vector_t){(-F0E_LONG+F0E_LARGE)/R2, (-F0E_LONG-F0E_LARGE)/R2};
+					break;
+				case DZONE1_BLUE_INDOOR:
+					OR = (GEOMETRY_vector_t){(MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)/R2,-(MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)/R2};
+					RA = (GEOMETRY_vector_t){-dRA/R2, dRA/R2};
+					RH = (GEOMETRY_vector_t){-dRH/R2, dRH/R2};
+					HB = (GEOMETRY_vector_t){-dHB/R2, -dHB/R2};
+					HC = (GEOMETRY_vector_t){dHC_INDOOR/R2, dHC_INDOOR/R2};
+					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1/R2, -FN_FN1/R2};
+					F0D = (GEOMETRY_vector_t){(-F0D_LONG-F0D_LARGE)/R2, (-F0D_LONG+F0D_LARGE)/R2};
+					F0E = (GEOMETRY_vector_t){(-F0E_LONG-F0E_LARGE)/R2, (-F0E_LONG+F0E_LARGE)/R2};
+					break;
+				case DZONE2_MIDDLE_BLUE:
+					OR = (GEOMETRY_vector_t){0,MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE};
+					RA = (GEOMETRY_vector_t){0,-dRA};
+					RH = (GEOMETRY_vector_t){0,-dRH};
+					HB = (GEOMETRY_vector_t){-dHB, 0};
+					HC = (GEOMETRY_vector_t){dHC_INDOOR, 0};
+					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1, 0};
+					F0D = (GEOMETRY_vector_t){(-F0D_LONG), -F0D_LARGE};
+					F0E = (GEOMETRY_vector_t){(-F0E_LONG), -F0E_LARGE};
+					break;
+				case DZONE3_MIDDLE_YELLOW:
+					OR = (GEOMETRY_vector_t){0,-MOONBASE_TO_R-SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE};
+					RA = (GEOMETRY_vector_t){0,dRA};
+					RH = (GEOMETRY_vector_t){0,dRH};
+					HB = (GEOMETRY_vector_t){-dHB, 0};
+					HC = (GEOMETRY_vector_t){dHC_INDOOR, 0};
+					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1, 0};
+					F0D = (GEOMETRY_vector_t){(-F0D_LONG), F0D_LARGE};
+					F0E = (GEOMETRY_vector_t){(-F0E_LONG), F0E_LARGE};
+					break;
+				case DZONE4_YELLOW_INDOOR:
+					OR = (GEOMETRY_vector_t){(MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)/R2,(MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)/R2};
+					RA = (GEOMETRY_vector_t){-dRA/R2, -dRA/R2};
+					RH = (GEOMETRY_vector_t){-dRH/R2, -dRH/R2};
+					HB = (GEOMETRY_vector_t){-dHB/R2, dHB/R2};
+					HC = (GEOMETRY_vector_t){dHC_INDOOR/R2, -dHC_INDOOR/R2};
+					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1/R2, FN_FN1/R2};
+					F0D = (GEOMETRY_vector_t){(-F0D_LONG-F0D_LARGE)/R2, (F0D_LONG-F0D_LARGE)/R2};
+					F0E = (GEOMETRY_vector_t){(-F0E_LONG-F0E_LARGE)/R2, (F0E_LONG-F0E_LARGE)/R2};
+					break;
+				case DZONE5_YELLOW_OUTDOOR:
+					OR = (GEOMETRY_vector_t){-(MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)/R2,-(MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE)/R2};
+					RA = (GEOMETRY_vector_t){dRA/R2, dRA/R2};
+					RH = (GEOMETRY_vector_t){dRH/R2, dRH/R2};
+					HB = (GEOMETRY_vector_t){-dHB/R2, dHB/R2};
+					HC = (GEOMETRY_vector_t){dHC_OUTDOOR/R2, -dHC_OUTDOOR/R2};
+					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1/R2, FN_FN1/R2};
+					F0D = (GEOMETRY_vector_t){(-F0D_LONG+F0D_LARGE)/R2, (F0D_LONG+F0D_LARGE)/R2};
+					F0E = (GEOMETRY_vector_t){(-F0E_LONG+F0E_LARGE)/R2, (F0E_LONG+F0E_LARGE)/R2};
+					break;
+			}
+
+
+			//Seront calculables à partir du rush :
+			//O : Origine du robot à la fin du rush				-> Mesuré lorsqu'on s'y trouve
+			//OR;	//vecteur OR (R=centre de la zone de dépose)
+			//	A = O + OR + RA;
+			//	H = O + OR + RH;
+			//	B = H + HB;
+			//	C = H + HC;
+
+			//Seront calculables à partir du push :
+			//Le point F0 est calculé selon la réussite à atteindre le point C... et le côté choisi (notamment s'il y a déjà des modules)
+			//On en déduit alors les points D et E...
+			//F0;		//Résultat d'une position atteinte (mesure si échec, théorie si réussite)
+			//  D = F0 + F0D;
+			//  E = F0 + F0E;
+			//  F1 = F0 + Fn_to_next;	//Si existe
+			//  F2 = F1 + Fn_to_next;	//Si existe
+			//  F3 = F2 + Fn_to_next;	//Si existe
+
 			break;
 
-		case GET_IN:
-			state=check_sub_action_result(sub_anne_get_in_depose_modules_centre(modules_type, robot_side, basis_side), state, DOWN_PUSHER, ERROR);
+		case GET_IN:	//On file direct vers le point de get_in
+			state = try_going(GetIn.x, GetIn.y, state, RUSH_AND_COMPUTE_O_H_A_B_C, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
-#warning 'a partir d\'ici c\'est mal foutu, à continuer'
-
-
-
-
-
-
-
-		case GO_TO_DEPOSE_MODULE:
-			if(robot_side == MODULE_STOCK_SMALL && !STOCKS_isEmpty(MODULE_STOCK_SMALL)){
-				state = DEPOSE_MODULE;
-			}else{
-				state = DONE;
-			}
+		case PATHFIND:
+			state = ASTAR_try_going(GetIn.x, GetIn.y, state, RUSH_AND_COMPUTE_O_H_A_B_C, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
+		case RUSH_AND_COMPUTE_O_H_A_B_C:
+			state = try_rush(G.x, G.y, state, EXTRACT_FROM_RUSH_TO_A, EXTRACT_FROM_RUSH_TO_A, FORWARD, NO_DODGE_AND_WAIT, TRUE);
+			if(ON_LEAVE())
+			{
+				if(moonbase == MODULE_MOONBASE_MIDDLE)
+				{
 
-		case DEPOSE_MODULE:
-			if(robot_side == MODULE_STOCK_SMALL){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_SMALL, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER, ERROR);
-			}else{
-				state = DONE;
-			}
-			if(ON_LEAVE()){
-				if(state == DOWN_PUSHER){
-					//J'ai mis polychrome parce que je vois pas trop comment le gérer sinon.
-					if(drop_zone_bis == POS_1 || drop_zone_bis == POS_2){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_OUR_CENTER);}
-					else if(drop_zone_bis == POS_3 || drop_zone_bis == POS_4){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_MIDDLE);}
-					else if(drop_zone_bis == POS_5 || drop_zone_bis == POS_6){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_ADV_CENTER);}
+					if(color_side==BLUE)
+					{
+						O = (GEOMETRY_point_t){global.pos.x,1500-MOONBASE_TO_R-SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE};
+						PROP_set_position(global.pos.x, O.y,PI4096/2);
+					}
+					else
+					{
+						O = (GEOMETRY_point_t){global.pos.x,1500+MOONBASE_TO_R+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE};
+						PROP_set_position(global.pos.x, O.y,-PI4096/2);
+					}
 				}
+				else
+				{
+					O = (GEOMETRY_point_t){global.pos.x, global.pos.y};
+					if(absolute(global.pos.angle - PI4096/4) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
+						PROP_set_position(global.pos.x, global.pos.y,PI4096/4);
+					else if(absolute(global.pos.angle + PI4096/4) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
+						PROP_set_position(global.pos.x, global.pos.y,-PI4096/4);
+					else if(absolute(global.pos.angle - 3*PI4096/4) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
+						PROP_set_position(global.pos.x, global.pos.y,3*PI4096/4);
+					else if(absolute(global.pos.angle + 3*PI4096/4) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
+						PROP_set_position(global.pos.x, global.pos.y,-3*PI4096/4);
+				}
+
+				H = (GEOMETRY_point_t){O.x + OR.x + RH.x, O.y + OR.y + RH.y};
+				A = (GEOMETRY_point_t){O.x + OR.x + RA.x, O.y + OR.y + RA.y};
+				B = (GEOMETRY_point_t){H.x + HB.x, H.y + HB.y};
+				C = (GEOMETRY_point_t){H.x + HC.x, H.y + HC.y};
+				FX = (GEOMETRY_point_t){C.x, C.y};	//on fait l'hypothèse que C est atteignable, c'est donc notre F0
+					//ce point sera susceptible de bouger si on montre que C n'est pas atteignable !
+				debug_printf("Points mesurés et calculés :\n");
+				debug_printf("O :%4d ; %4d\n", O.x, O.y);
+				debug_printf("H :%4d ; %4d\n", H.x, H.y);
+				debug_printf("A :%4d ; %4d\n", A.x, A.y);
+				debug_printf("B :%4d ; %4d\n", B.x, B.y);
+				debug_printf("C :%4d ; %4d\n", C.x, C.y);
+
 			}
 			break;
 
-		case DOWN_PUSHER:
-			if (entrance){
+		case EXTRACT_FROM_RUSH_TO_A:
+			state = try_going(A.x, A.y, state, GOTO_B, RUSH_AND_COMPUTE_O_H_A_B_C, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(ON_LEAVE())
+			{
+				if(PUSH_BEFORE_DISPOSE_DISABLE)
+					state = COMPUTE_F_E_D;	//On saute les points B et C qui permettent le poussage.
+			}
+			break;
+		case GOTO_B:
+			//inverser le sens si un servo de poussage est ajouté côté dépose.
+			state = try_going(B.x, B.y, state, PUSH_TO_C, COMPUTE_F_E_D, FAST, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case PUSH_TO_C:
+			if (entrance)
+			{
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_OUT);
+				pusher_is_up = TRUE;
 			}
-			state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE, ERROR);
-			break;
+			//La flemme d'attendre que le pusher soit descendu pour avancer...
+			//Si ca pose problème, on pourra toujours ajouter un état intermédiaire avant ce PUSH_TO_C
 
-
-		case PUSH_MODULE:
-			// si coleur blue, notre cote est gauche
-
-			/*if(drop_zone == POS_1){
-				// pos 1
-				if(global.color == BLUE){
-					state = try_rush(1730, COLOR_Y(880), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}else{
-					state = try_rush(1730, COLOR_Y(880), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}
-			}else if(drop_zone == POS_2){
-
-				// pos 2
-				if(global.color == BLUE){
-					state = try_rush(1390, COLOR_Y(1220), state, UP_PUSHER_RIGHT,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}else{
-					state = try_rush(1390, COLOR_Y(1220), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}
-			}else */if(drop_zone_bis == POS_3){
-
-				 // pos 3
-				if(global.color == BLUE){
-					state = try_rush(1380, COLOR_Y(1250), state, UP_PUSHER,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}
-			}/*else if(drop_zone == POS_4){
-				// pos 4
-				if(global.color == BLUE){
-					state = try_rush(1320, COLOR_Y(1700), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}else{
-					state = try_rush(1320, COLOR_Y(1700), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}
-			}else if(drop_zone == POS_5){
-				// pos 5
-				if(global.color == BLUE){
-
-					state = try_rush(1390, COLOR_Y(1780), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}else{
-					state = try_rush(1390, COLOR_Y(1780), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
-				}
-			}*//*else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
-				// pos 6
-				if(global.color == BLUE){
-					state = try_going(1730, COLOR_Y(2120), state, UP_PUSHER_RIGHT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1730, COLOR_Y(2120), state, UP_PUSHER_LEFT, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}
-			}*/else
-				state = ERROR;
-			break;
-
-		case UP_PUSHER: // on rentre le pusher
-			if (entrance){
-				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_IN);
+			//inverser le sens si un servo de poussage est ajouté côté dépose.
+			//il peut être nominal d'échouer lors de cette trajectoire (si on bloque contre des modules...)
+			state = try_going(C.x, C.y, state, COMPUTE_F_E_D, ERROR, FAST, (color_side==BLUE)?FORWARD:BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(state == ERROR)
+			{
+				state = COMPUTE_F_E_D;
+				FX = (GEOMETRY_point_t){global.pos.x , global.pos.y};	//le point C n'est pas atteignable, notre point actuel servira donc de F0.
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE_RETURN, ERROR);
 			break;
+		case COMPUTE_F_E_D:
+			//TODO dégager cet état lorsqu'on aura un servo côté dépose !
+			D = (GEOMETRY_point_t){FX.x + F0D.x, FX.y + F0D.y};
+			E = (GEOMETRY_point_t){FX.x + F0E.x, FX.y + F0E.y};
 
-
-		case PUSH_MODULE_RETURN:
-			// si coleur blue, notre cote est gauche
-
-		/*	if(drop_zone == POS_1){
-				// pos 1
-				if(global.color == BLUE){
-					state = try_going(1610, COLOR_Y(760), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1610, COLOR_Y(760), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}
-			}else if(drop_zone == POS_2){
-
-				// pos 2
-				if(global.color == BLUE){
-					state = try_going(1270, COLOR_Y(1100), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1270, COLOR_Y(1100), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}
-			}else */if(drop_zone_bis == POS_3){
-
-				 // pos 3
-				if(global.color == BLUE){
-					state = try_going(1200, COLOR_Y(1250), state, NEXT_DEPOSE_MODULE, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-				}/*
-			}else if(drop_zone == POS_4){
-				// pos 4
-				if(global.color == BLUE){
-					state = try_going(1200, COLOR_Y(1700), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1200, COLOR_Y(1700), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}
-			}else if(drop_zone == POS_5){
-				// pos 5
-				if(global.color == BLUE){
-					state = try_going(1270, COLOR_Y(1900), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1270, COLOR_Y(1900), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}*/
-			}/*else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
-				// pos 6
-				if(global.color == BLUE){
-					state = try_going(1610, COLOR_Y(2240), state, NEXT_DEPOSE_MODULE_RIGHT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1610, COLOR_Y(2240), state, NEXT_DEPOSE_MODULE_LEFT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}
-			}*/else
-				state = ERROR;
+			debug_printf("FX (au début) :%4d ; %4d\n", FX.x, FX.y);
+			debug_printf("D :%4d ; %4d\n", D.x, D.y);
+			debug_printf("E :%4d ; %4d\n", E.x, E.y);
+			state = GOTO_D_AND_E;
 			break;
-//&&STOCKS_isEmpty(MODULE_STOCK_RIGHT)
-		case NEXT_DEPOSE_MODULE:
-			if(STOCKS_isEmpty(MODULE_STOCK_SMALL)){
-				state = GET_OUT;
+		case GOTO_D_AND_E:
+			if(entrance && pusher_is_up)
+			{
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
+				pusher_is_up = FALSE;
 			}
-			/*else if(STOCKS_isEmpty(MODULE_STOCK_LEFT)){
-				var = MODULE_STOCK_RIGHT;
-				state = CHANGE_DEPOSE_1;
-			}*/
-			else{
-				state = GO_TO_DEPOSE_MODULE;
-			}
-
-			//module suivant
-			//regarde combien de module on été posé si + de 6 partir (flag depose pleine)
-			//else regarde si le stock à entre des modules; si oui GO_TO_DEPOSE_MODULE et complé +1
-			//else if 6 module déposé partir (autre zone/quitter sub)
-			//else if plus de module à déposé (flag nb deposé), partir
-			//else partir
+			state = try_going_multipoint(	(displacement_t []){	(GEOMETRY_point_t){D.x, D.y}, FAST,(GEOMETRY_point_t){E.x, E.y}, FAST}, 2, state, GOTO_FX, BACK_TO_FX, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
+		case BACK_TO_FX:	//On retourne a C si échec d'extraction
+			state = try_going(FX.x, FX.y, state, GOTO_D_AND_E, GOTO_D_AND_E, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
-		case GET_OUT:
-			state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
+		case GOTO_FX:
+			//Le sens est important... il faut maintenant qu'on se place pour la pose !
+			//state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, SLOW, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(	(displacement_t []){	(GEOMETRY_point_t){D.x, D.y}, FAST,(GEOMETRY_point_t){FX.x, FX.y}, FAST}, 2, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
-		case GET_OUT_ERROR:
-			if(drop_zone_bis == POS_1){
-				state = try_rush(1610, COLOR_Y(760), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
-			}else if(drop_zone_bis == POS_2){
 
-				state = try_rush(1270, COLOR_Y(1100), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
+			break;
+		case COMPUTE_DISPOSE_MODULE:
 
-			}else if(drop_zone_bis == POS_3){
+			//TODO détection de fin de stock ou de fin de zone ou savoir si c'est le dernier module à poser
+			//TODO gestion du besoin de poussage après dépose..
+			if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0)
+				state = GET_OUT_TO_B;			//fini !
+			else if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 1)
+				state = DISPOSE_LAST_MODULE;	//Presque fini !
+			else
+				state = DISPOSE_MODULE;	//Encore du taff !
+			break;
+		case DISPOSE_MODULE:
+			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER),state,GOTO_NEXT_F,GOTO_NEXT_F);
 
-				state = try_rush(1200, COLOR_Y(1250), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
+			//On considère qu'on a posé des modules unicolores de notre couleur... il n'est pas question de venir les retourner plus tard...
+			//c'est sans doute perfectible en prenant en compte ce qu'on a réellement déposé.
+			if(ON_LEAVE())
+				MOONBASES_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, moonbase);
+			break;
+		case DISPOSE_LAST_MODULE:
+			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, PUSH_DISPOSED_MODULES, PUSH_DISPOSED_MODULES);
 
-			}else if(drop_zone_bis == POS_4){
-				state = try_rush(1200, COLOR_Y(1700), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
-
-			}else if(drop_zone_bis == POS_5){
-				state = try_rush(1270, COLOR_Y(1900), state, GET_OUT, GET_OUT, FORWARD, DODGE_AND_WAIT, FALSE);
-			}else{
-				state = ERROR;
-			}
+			if(ON_LEAVE())
+				MOONBASES_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, moonbase);
+			break;
+		case GOTO_NEXT_F:
+			if(entrance)
+				FX = (GEOMETRY_point_t){FX.x + Fn_to_next.x, FX.y + Fn_to_next.y};	//Next point...
+			state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, BACK_TO_PREVIOUS_F, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			//Le end at break permettra sans doute de démarrer l'actionneur avant la fin du mouvement, c'est l'éclate !
+			break;
+		case BACK_TO_PREVIOUS_F:
+			if(entrance)
+				FX = (GEOMETRY_point_t){FX.x - Fn_to_next.x, FX.y - Fn_to_next.y};	//Previous point...
+			state = try_going(FX.x, FX.y, state, GOTO_NEXT_F, GOTO_NEXT_F, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case PUSH_DISPOSED_MODULES:
+			//TODO
+			state = GET_OUT_TO_B;
+			break;
+		case GET_OUT_TO_B:
+			state = try_going(B.x, B.y, state, DONE, BACK_TO_PREVIOUS_F, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ERROR:

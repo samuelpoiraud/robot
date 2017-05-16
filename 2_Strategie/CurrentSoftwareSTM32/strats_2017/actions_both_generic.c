@@ -15,7 +15,6 @@
 #include "../QS/QS_outputlog.h"
 #include "../utils/actionChecker.h"
 #include "../QS/QS_stateMachineHelper.h"
-#include "../propulsion/pathfind.h"
 #include "../propulsion/movement.h"
 #include "../propulsion/astar.h"
 #include "../QS/QS_who_am_i.h"
@@ -78,8 +77,8 @@ error_e func_go_to_home(){
 			break;
 
 		case PATH:
-			//state = ASTAR_try_going(1000,COLOR_Y(550),PATH,DONE,ERROR,SLOW,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
-			state = PATHFIND_try_going(COLOR_NODE(A1),PATH,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT );
+			state = ASTAR_try_going(1000,COLOR_Y(550),PATH,DONE,ERROR,SLOW,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
+			//state = PATHFIND_try_going(COLOR_NODE(A1),PATH,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_LAST_POINT );
 			break;
 
 		case DONE:
@@ -1016,59 +1015,46 @@ void strat_reglage_prop(void)
 /* ----------------------------------------------------------------------------- */
 
 
-#define WAIT_TIME	1000		//[ms] temps d'attente sur le point visé.
 /*
  * Cette sub_action se rend au point (x,y) OU au noeud le plus proche si le point(x,y) est à moins de 5cm manhattan d'un noeud.
  * Ensuite, l'action marque une attente d'une seconde avant de rendre la main.
  * Si elle est appelée ou rappelée, alors qu'on est sur ce point, elle marque simplement une attente d'une seconde.
  *
- * Cas d'exemple : sub_wait(1000,COLOR_Y(2000));								//Va passer une seconde en 1000, COLOR_Y(2000)
- * Autre exemple intéressant : sub_wait(global.pos.x, global.pos.y);	//Marque une attente où que tu sois
+ * Cas d'exemple : sub_wait(1000,COLOR_Y(2000), 1500);								//Va passer 1,5s en {1000, COLOR_Y(2000)}
+ * Autre exemple intéressant : sub_wait(global.pos.x, global.pos.y, 1000);	//Marque une attente où que tu sois
+ *
+ * Duration en [ms]
  */
-error_e sub_wait(Sint16 x, Sint16 y)
+error_e sub_wait(Sint16 x, Sint16 y, time32_t duration)
 {
 	CREATE_MAE_WITH_VERBOSE(SM_ID_BOTH_WAIT,
 			INIT,
-			GET_IN,
+			GET_IN_WITH_ASTAR,
 			GOTO_POINT,
 			WAIT,
 			ERROR,
 			DONE
 		);
 	static enum state_e success_state;
-	static pathfind_node_id_t node;
 	static time32_t local_time;
 
 	switch(state)
 	{
 		case INIT:
-			node = PATHFIND_closestNode(x,y,(Uint32)(NULL));
 			if(is_in_square(x-50, x+50, y-50, y+50,(GEOMETRY_point_t){global.pos.x, global.pos.y}))	//Je suis sur le point (5cm près)
 				state = WAIT;
-			else if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(node),PATHFIND_get_node_y(node),global.pos.x,global.pos.y) < 50)
-				state = GOTO_POINT;
 			else
-				state = GET_IN;
+				state = GET_IN_WITH_ASTAR;
 			break;
-		case GET_IN:
-			if(entrance)
-			{
-				if(PATHFIND_manhattan_dist(PATHFIND_get_node_x(node),PATHFIND_get_node_y(node),x,y) < 50)
-					success_state = WAIT;	//Le point demandé est très près d'un noeud... on se contente d'aller au noeud.
-				else
-					success_state = GOTO_POINT; 	//Le point demandé n'est pas sur un noeud...
-			}
-			state = PATHFIND_try_going(node,GET_IN,success_state,ERROR,FAST,ANY_WAY,DODGE_AND_WAIT,END_AT_LAST_POINT);
-			break;
-		case GOTO_POINT:
-			state = try_going(x,y,GOTO_POINT,WAIT,ERROR,FAST,DODGE_AND_WAIT,END_AT_LAST_POINT, END_AT_LAST_POINT);
+		case GET_IN_WITH_ASTAR:
+			state = ASTAR_try_going(x, y, state, WAIT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case WAIT:
 			if(entrance)
 			{
 				local_time = global.match_time;
 			}
-			if(global.match_time > local_time + WAIT_TIME)
+			if(global.match_time > local_time + duration)
 				state = DONE;
 			break;
 		case ERROR:
