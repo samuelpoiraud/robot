@@ -189,7 +189,7 @@ void any_match(void)
 			CAN_send(&msg);
 			Supervision_send_periodically_pos(20,PI4096/45);	//Demande d'envoi de la position : tout les 20 mm et tout les 4°
 			XBEE_ping_pong_enable(FALSE);						//Désactive le ping/pong... c'est trop tard pour ça...
-			PATHFIND_MAJ_COLOR();								// Configuration du pathfind spécifique à la couleur
+			//PATHFIND_MAJ_COLOR();								// Configuration du pathfind spécifique à la couleur
 			ASTAR_init();										// Configuration du pathfind A*
 			initZones();										// Configuration des zones suivant la couleur
 			return;
