@@ -2008,6 +2008,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	static bool_e needToStoreRight, needToStoreLeft;
 	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS;
 	static error_e state3 = IN_PROGRESS;
+	static MOSFET_BOARD_CURRENT_MEASURE_state_e pump_state;
 	static moduleType_e moduleType = MODULE_EMPTY;
 	static time32_t time_timeout_before_pompe_stop;
 	static time32_t time_timeout_after_pompe_stop;
@@ -2168,15 +2169,15 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			// Vérification des ordres effectués
 			if(moduleToTake == RIGHT){
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
-				state2 = check_act_status(ACT_QUEUE_Pompe_act_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
+				pump_state = ACT_get_state_vacuostat(VACUOSTAT_SLIDER_RIGHT); // Retour d'info par vacuostat
 				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}else{
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
-				state2 = check_act_status(ACT_QUEUE_Pompe_act_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED); // Retour d'info par vacuose
+				pump_state = ACT_get_state_vacuostat(VACUOSTAT_SLIDER_LEFT); // Retour d'info par vacuostat
 				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS){
+			if(state1 != IN_PROGRESS || pump_state == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT){
 				state = ACTION_BRING_BACK_CYLINDER;
 			}
 			break;
