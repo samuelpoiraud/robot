@@ -844,7 +844,7 @@
 
 				case LCD_MSG_TYPE_ADD_SLIDER :
 					idStorage = UART_OVER_LCD_newObject();
-					idObject = MIDDLEWARE_addSlider(msg->body.addSlider.x, msg->body.addSlider.y, msg->body.addSlider.width, msg->body.addSlider.height, msg->body.addSlider.minValue, msg->body.addSlider.maxValue, msg->body.addSlider.orientation, (Uint32 *)&(objectId[idStorage].data.link.slider.value));
+					idObject = MIDDLEWARE_addSlider(msg->body.addSlider.x, msg->body.addSlider.y, msg->body.addSlider.width, msg->body.addSlider.height, msg->body.addSlider.minValue, msg->body.addSlider.maxValue, msg->body.addSlider.orientation, (Sint32 *)&(objectId[idStorage].data.link.slider.value));
 					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addSlider.id, LCD_OBJECT_TYPE_SLIDER);
 					break;
 

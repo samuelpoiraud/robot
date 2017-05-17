@@ -32,13 +32,23 @@ typedef struct{
 	bool_e use;
 	objectType_e type;
 	bool_e toDisplay;
+	bool_e toErase;
 	bool_e toDestroy;
+
+	struct{
+		Sint16 x;
+		Sint16 y;
+		Uint16 width;
+		Uint16 height;
+	}surfaceToErase;
 
 	union{
 
 		struct{
 			Sint16 x;
 			Sint16 y;
+			Uint16 width;
+			Uint16 height;
 			char text[OBJECT_TEXT_MAX_SIZE];
 			textFonts_e fonts;
 			objectColor_e colorText;
@@ -156,6 +166,7 @@ static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, U
 static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y);
 static void MIDDLEWARE_checkRebuildObject();
 static void MIDDLEWARE_rebuildObject();
+static void MIDDLEWARE_checkEraseObject();
 static void MIDDLEWARE_checkDestroyObject();
 static objectId_t MIDDLEWARE_newObject();
 static FontDef_t* MIDDLEWARE_getFont(textFonts_e fonts);
@@ -178,6 +189,9 @@ void MIDDLEWARE_processMain(){
 	MIDDLEWARE_checkObjectTouch(touch, x, y);
 
 	ILI9341_setConfig();
+
+	// Check effacement d'objets
+	MIDDLEWARE_checkEraseObject();
 
 	// Check destruction d'objets
 	MIDDLEWARE_checkDestroyObject();
@@ -289,6 +303,29 @@ static void MIDDLEWARE_checkObjectTouch(bool_e touch, Sint16 x, Sint16 y){
 				default:
 					break;
 			}
+		}
+	}
+}
+
+static void MIDDLEWARE_checkEraseObject(){
+	Uint8 i;
+	for(i=0;i<LCD_NB_MAX_OBJECT;i++){
+		if(objectTab[i].use && objectTab[i].toErase){
+			switch(objectTab[i].type){
+
+				case TEXT:
+				case BUTTON_BASE:
+					ILI9341_drawFilledRectangle(objectTab[i].surfaceToErase.x,
+												objectTab[i].surfaceToErase.y,
+												objectTab[i].surfaceToErase.x + objectTab[i].surfaceToErase.width,
+												objectTab[i].surfaceToErase.y + objectTab[i].surfaceToErase.height,
+												background.color);
+					break;
+
+				default:
+					break;
+			}
+			objectTab[i].toErase = FALSE;
 		}
 	}
 }
@@ -723,10 +760,21 @@ void MIDDLEWARE_setText(objectId_t id, const char *text, ...){
 	switch(objectTab[id].type){
 		case TEXT :{
 
+			objectTab[id].surfaceToErase.x = objectTab[id].objectData.text.x;
+			objectTab[id].surfaceToErase.y = objectTab[id].objectData.text.x;
+			objectTab[id].surfaceToErase.width = objectTab[id].objectData.text.width;
+			objectTab[id].surfaceToErase.height = objectTab[id].objectData.text.height;
+			objectTab[id].toErase = TRUE;
+
 			va_list args_list;
 			va_start(args_list, text);
 			vsnprintf((char *)objectTab[id].objectData.text.text, OBJECT_TEXT_MAX_SIZE, text, args_list);
 			va_end(args_list);
+
+			Uint16 widthText, heightText;
+			ILI9341_getStringSize((char *)objectTab[id].objectData.text.text, MIDDLEWARE_getFont(objectTab[id].objectData.text.fonts), &widthText, &heightText);
+			objectTab[id].objectData.text.width = widthText;
+			objectTab[id].objectData.text.height = heightText;
 
 			}break;
 
@@ -735,13 +783,19 @@ void MIDDLEWARE_setText(objectId_t id, const char *text, ...){
 
 		case BUTTON_BASE :{
 
+				objectTab[id].surfaceToErase.x = objectTab[id].objectData.buttonBase.x;
+				objectTab[id].surfaceToErase.y = objectTab[id].objectData.buttonBase.x;
+				objectTab[id].surfaceToErase.width = objectTab[id].objectData.buttonBase.widthButton;
+				objectTab[id].surfaceToErase.height = objectTab[id].objectData.buttonBase.heightButton;
+				objectTab[id].toErase = TRUE;
+
 				va_list args_list;
 				va_start(args_list, text);
 				vsnprintf((char *)objectTab[id].objectData.buttonBase.text, OBJECT_TEXT_MAX_SIZE, text, args_list);
 				va_end(args_list);
 
 				Uint16 widthText, heightText;
-				ILI9341_getStringSize((char *)objectTab[id].objectData.buttonBase.text, &Font_7x10, &widthText, &heightText);
+				ILI9341_getStringSize((char *)objectTab[id].objectData.buttonBase.text, MIDDLEWARE_getFont(objectTab[id].objectData.buttonBase.fonts), &widthText, &heightText);
 				objectTab[id].objectData.buttonBase.widthText = widthText;
 				objectTab[id].objectData.buttonBase.heightText = heightText;
 				objectTab[id].objectData.buttonBase.widthButton = widthText + 6;
@@ -1018,6 +1072,7 @@ static objectId_t MIDDLEWARE_newObject(){
 	for(i=0; i<LCD_NB_MAX_OBJECT; i++){
 		if(objectTab[i].use == FALSE){
 			objectTab[i].toDisplay = TRUE;
+			objectTab[i].toErase = FALSE;
 			objectTab[i].toDestroy = FALSE;
 			objectTab[i].use = TRUE;
 			return i;
