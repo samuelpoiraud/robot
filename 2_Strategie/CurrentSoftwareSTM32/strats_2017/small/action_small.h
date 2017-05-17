@@ -55,7 +55,7 @@
 	error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules);
 
 
-	error_e sub_anne_dispose_modules_side(ELEMENTS_property_e modules);
+	error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side);
 
 
 

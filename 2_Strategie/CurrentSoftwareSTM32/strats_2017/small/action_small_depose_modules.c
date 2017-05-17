@@ -517,6 +517,8 @@ error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules){
 	return IN_PROGRESS;
 }
 
+
+
 error_e sub_anne_return_modules_side(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_RETURN_MODULES_SIDE,
 			INIT,
@@ -729,7 +731,6 @@ error_e sub_anne_return_modules_side(ELEMENTS_property_e modules){
 }
 
 
-
 error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_RETURN_MODULES_SIDE_GET_IN,
 			INIT,
@@ -835,7 +836,7 @@ error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules){
 	return IN_PROGRESS;
 }
 
-
+#if 0
 error_e sub_anne_get_in_pos_1_depose_module_centre(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_1_DEPOSE_MODULES_CENTRE,
 			INIT,
@@ -1486,10 +1487,11 @@ error_e sub_anne_depose_centre_manager(){
 	}
 	return IN_PROGRESS;
 }
-
+#endif
 
 #define PUSH_BEFORE_DISPOSE_DISABLE			0		//Si 1 : on désactive le poussage avant dépose.
-#define ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE	(PI4096/18) 	//10 degrés //angle d'erreur en dessous duquel on accèpte la correction !
+#define ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE		(PI4096/18) 	//10 degrés //angle d'erreur en dessous duquel on accèpte la correction !
+#define DISTANCE_ACCEPT_CORRECTION_RUSH_MOONBASE	100
 #define R2				1.41				//Racine carré de 2, à 3 queues de vaches près
 #define R_TO_CENTER		650					//Rush goal to center (2000;1500)
 #define dHB				250					//Point H vers point B
@@ -1578,7 +1580,6 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 	static GEOMETRY_vector_t Fn_to_next;	//Déplacement entre Fn et Fn+1 !
 
 
-
 	//Le Getout est le point B !
 
 	//Trajet nominal :
@@ -1632,11 +1633,6 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				state = ERROR;	//C'est pas cette fonction qui gère la dépose latérale !
 			else
 				state = COMPUTE_POINTS;
-
-			nb_try++;
-
-
-
 			break;
 		case COMPUTE_POINTS:
 			//On calcule les points qui seront utilisés dans les trajectoires.
@@ -1952,6 +1948,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 }
 
 
+#if 0
 error_e sub_anne_get_in_depose_modules_centre(moduleTypeDominating_e module_type, moduleStockLocation_e robot_side, ELEMENTS_side_match_e basis_side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_GET_IN_DEPOSE_MODULES_CENTRE,
 			INIT,
@@ -2082,10 +2079,283 @@ error_e sub_anne_get_in_depose_modules_centre(moduleTypeDominating_e module_type
 
 	return IN_PROGRESS;
 }
+#endif
 
 
 
+/*
+ *
+	get in
+	calage contre la zone
+	calcul des points
+	get_out_to_turning_axe
+	courbe pour approche de la zone (scan faisable en même temps)
+	dépose 1
+	dépose 2
+	dépose 3
+	poussage
+	dépose 4 ?
 
+	Si on vient de la prise fusée adverse et que le précédent calage contre cette zone est récent
+	-> on peut embrayer direct sur le calcul des points et l'entrée en zone...
+
+	Ce cas peut-être géré en faisant la dépose directement dans la sub de prise fusée adverse ?
+		en appelant la sub de dépose side à la première position de dépose... !!!
+ */
+#define OFFSET_M_R		25	//distance dans le sens avant-arrière entre le module stocké dans le robot et le centre du robot.
+
+error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DISPOSE_MODULES_SIDE,
+			INIT,
+			GET_IN,
+			ASTAR_GET_IN,
+			RUSH_TO_GOAL,
+			EXTRACT_FROM_RUSH_TO_A,
+			GOTO_F0_VIA_E0,
+			GOTO_F1,
+			GOTO_F2,
+			GOTO_P0,
+			GOTO_P1,
+			GOTO_F3,
+			DISPOSE,
+			EXTRACT_BEYOND_F0,
+			EXTRACT_BEYOND_F3,
+			ERROR,
+			DONE
+		);
+	error_e ret;
+	ret = IN_PROGRESS;
+	static GEOMETRY_point_t G, O, A, E0, F0, F1, F2, F3, P0, P1;
+	static color_e color_side;
+	static displacement_t output_curve[2];
+
+	switch(state)
+	{
+		case INIT:
+			if(side == OUR_SIDE)
+				color_side = global.color;
+			else
+				color_side = (global.color==BLUE)?YELLOW:BLUE;
+			if(color_side == BLUE)
+			{
+				G = (GEOMETRY_point_t){1000-OFFSET_M_R,0};
+				O = (GEOMETRY_point_t){1000-OFFSET_M_R,197};
+				A = (GEOMETRY_point_t){1000-OFFSET_M_R,258};
+				E0 = (GEOMETRY_point_t){900-OFFSET_M_R,220};
+				F0 = (GEOMETRY_point_t){800-OFFSET_M_R,208};
+				F1 = (GEOMETRY_point_t){925-OFFSET_M_R,208};
+				F2 = (GEOMETRY_point_t){1050-OFFSET_M_R,208};
+				F3 = (GEOMETRY_point_t){1075-OFFSET_M_R,208};
+				P0 = (GEOMETRY_point_t){1100-OFFSET_M_R,208};
+				P1 = (GEOMETRY_point_t){950-OFFSET_M_R,208};
+
+				//TODO ajouter les cas spécifiques où l'on est déjà sur place (après prise fusée adverse notamment !)
+				if(i_am_in_square(750,1350,200,1400))
+					state = GET_IN;
+				else
+					state = ASTAR_GET_IN;
+			}
+			else
+			{
+				G = (GEOMETRY_point_t){850+OFFSET_M_R,3000};
+				O = (GEOMETRY_point_t){850+OFFSET_M_R,2903};
+				A = (GEOMETRY_point_t){850+OFFSET_M_R,2742};
+				E0 = (GEOMETRY_point_t){950+OFFSET_M_R,2780};
+				F0 = (GEOMETRY_point_t){1050+OFFSET_M_R,2792};
+				F1 = (GEOMETRY_point_t){925+OFFSET_M_R,2792};
+				F2 = (GEOMETRY_point_t){800+OFFSET_M_R,2792};
+				F3 = (GEOMETRY_point_t){825+OFFSET_M_R,2792};
+				P0 = (GEOMETRY_point_t){750+OFFSET_M_R,2792};
+				P1 = (GEOMETRY_point_t){900+OFFSET_M_R,2792};
+
+				if(i_am_in_square(750,1350,1600,2800))
+					state = GET_IN;
+				else
+					state = ASTAR_GET_IN;
+			}
+			state = GET_IN;
+			break;
+		case GET_IN:
+			state = try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case ASTAR_GET_IN:
+			state = ASTAR_try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case RUSH_TO_GOAL:
+			state = try_rush(G.x, G.y, state, EXTRACT_FROM_RUSH_TO_A, EXTRACT_FROM_RUSH_TO_A, FORWARD, NO_DODGE_AND_WAIT, TRUE);
+			if(ON_LEAVE())
+			{
+				if(color_side == BLUE)
+				{
+						//Si moins de 10cm d'erreur... (dans le bon sens... pas de limite si on est hors terrain)
+					if(		(absolute(global.pos.angle - PI4096/2) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
+						&&	((global.pos.y - O.y) < DISTANCE_ACCEPT_CORRECTION_RUSH_MOONBASE) )
+						PROP_set_position(global.pos.x, O.y,-PI4096/2);
+				}
+				else
+				{
+					if(		(absolute(global.pos.angle + PI4096/2) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
+						&&	((O.y - global.pos.y) < DISTANCE_ACCEPT_CORRECTION_RUSH_MOONBASE) )
+						PROP_set_position(global.pos.x, O.y,PI4096/2);
+				}
+			}
+
+			//TODO enrichir avec un scan pour permettre le remplissage d'une zone non vide... en rejoignant après un poussage la bonne case directement.
+			break;
+		case EXTRACT_FROM_RUSH_TO_A:
+			state = try_going(A.x, A.y, state, GOTO_F0_VIA_E0, RUSH_TO_GOAL, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case GOTO_F0_VIA_E0:
+			//BACKWARD pour se mettre du bon côté !!!
+			state = try_going_multipoint(	(displacement_t []){	(GEOMETRY_point_t){E0.x, E0.y}, FAST,(GEOMETRY_point_t){F0.x, F0.y}, FAST}, 2, state, DISPOSE, EXTRACT_BEYOND_F3, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case DISPOSE:{
+			static enum state_e success_state;
+			static arg_dipose_mae_e last_module;
+			if(entrance)
+			{
+				if(STOCKS_getNbModules(MODULE_STOCK_SMALL) > 1)//Il reste plus d'un module à déposer. Il faudra donc une autre dépose.
+				{
+					if(last_state == GOTO_F0_VIA_E0)
+						success_state = GOTO_F1;
+					else if(last_state == GOTO_F1)
+						success_state = GOTO_F2;
+					else if(last_state == GOTO_F2)
+						success_state = GOTO_P0;	//Il faut pousser !
+					else
+						success_state = EXTRACT_BEYOND_F3;
+
+					last_module = ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER;
+				}
+				else if(STOCKS_getNbModules(MODULE_STOCK_SMALL)==1)//Dernière dépose
+				{
+					success_state = EXTRACT_BEYOND_F3;
+					last_module = ARG_DISPOSE_ONE_CYLINDER_AND_FINISH;
+				}
+				else	//On a plus rien à déposer
+				{
+					state = EXTRACT_BEYOND_F3;
+				}
+			}
+			else	//le else est important en cas de sortie effectuée dans l'entrance !
+			{
+				state = check_sub_action_result(sub_act_anne_mae_dispose_modules(last_module),state,success_state,EXTRACT_BEYOND_F3);
+				if(ON_LEAVE())
+				{
+					if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0)
+						nop(); //TODO : Désactiver la sub de dépose, on est vide !
+				}
+			}
+
+			break;}
+		case GOTO_F1:
+			state = try_going(F1.x, F1.y, state, DISPOSE, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case GOTO_F2:
+			state = try_going(F2.x, F2.y, state, DISPOSE, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GOTO_P0:
+			state = try_going(P0.x, P0.y, state, DISPOSE, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(ON_LEAVE())
+			{
+				//TODO sortir bras de push
+			}
+			break;
+		case GOTO_P1:
+			state = try_going(P1.x, P1.y, state, DISPOSE, EXTRACT_BEYOND_F3, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(ON_LEAVE())
+			{
+				//TODO rentrer bras de push
+			}
+			break;
+		case GOTO_F3:
+			state = try_going(F3.x, F3.y, state, DISPOSE, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case EXTRACT_BEYOND_F0:
+
+			if(entrance)
+			{
+				//On veut sortir vers le côté où se trouve F0
+				//On calcule une courbe de sortie...
+				if(color_side == BLUE)
+				{
+					output_curve[0].point.x = global.pos.x - 100;
+					output_curve[0].point.y = MIN(global.pos.y + 15, A.y);	//L'écretage est utile si on vient d'un échec d'extraction précédent
+					output_curve[0].speed = FAST;
+					output_curve[1].point.x = global.pos.x - 200;
+					output_curve[1].point.y = MIN(global.pos.y + 50, A.y);
+					output_curve[1].speed = FAST;
+				}
+				else
+				{
+					output_curve[0].point.x = global.pos.x + 100;
+					output_curve[0].point.y = MAX(global.pos.y - 15, A.y);
+					output_curve[0].speed = FAST;
+					output_curve[1].point.x = global.pos.x + 200;
+					output_curve[1].point.y = MAX(global.pos.y - 50, A.y);
+					output_curve[1].speed = FAST;
+				}
+				//TODO borner pour ne pas génèrer de point innaccessible (cratère / obstacle.... !)
+			}
+			state = try_going_multipoint(	output_curve, 2, state, DONE, EXTRACT_BEYOND_F3, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+
+			break;
+
+		case EXTRACT_BEYOND_F3:
+			if(entrance)
+			{
+				//On veut sortir vers le côté où se trouve F0
+				//On calcule une courbe de sortie...
+				if(color_side == BLUE)
+				{
+					output_curve[0].point.x = global.pos.x + 100;
+					output_curve[0].point.y = MIN(global.pos.y + 15, A.y);
+					output_curve[0].speed = FAST;
+					output_curve[1].point.x = global.pos.x + 200;
+					output_curve[1].point.y = MIN(global.pos.y + 50, A.y);
+					output_curve[1].speed = FAST;
+				}
+				else
+				{
+					output_curve[0].point.x = global.pos.x - 100;
+					output_curve[0].point.y = MAX(global.pos.y - 15, A.y);
+					output_curve[0].speed = FAST;
+					output_curve[1].point.x = global.pos.x - 200;
+					output_curve[1].point.y = MAX(global.pos.y - 50, A.y);
+					output_curve[1].speed = FAST;
+				}
+
+				//TODO borner pour ne pas génèrer de point innaccessible (cratère / obstacle.... !)
+
+			}
+			state = try_going_multipoint(	output_curve, 2, state, DONE, EXTRACT_BEYOND_F0, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			ret = NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			ret = END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_anne_return_side\n");
+			break;
+	}
+
+
+	return ret;
+}
+
+#if 0
 error_e sub_anne_dispose_modules_side(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DISPOSE_MODULES_SIDE,
 			INIT,
@@ -2296,7 +2566,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_property_e modules){
 
 	return IN_PROGRESS;
 }
-
+#endif
 
 
 
