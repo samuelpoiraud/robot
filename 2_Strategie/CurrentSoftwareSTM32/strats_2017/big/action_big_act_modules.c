@@ -950,8 +950,8 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 				}
 			}
 
-			if((storage == MODULE_STOCK_RIGHT && (global.absolute_time > time_timeout_right || ACT_get_state_vacuostat(VACUOSTAT_SLIDER_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))
-			|| (storage == MODULE_STOCK_LEFT && (global.absolute_time > time_timeout_left || ACT_get_state_vacuostat(VACUOSTAT_SLIDER_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))){
+			if((storage == MODULE_STOCK_RIGHT && (global.absolute_time > time_timeout_right || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))
+			|| (storage == MODULE_STOCK_LEFT && (global.absolute_time > time_timeout_left || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))){
 				state = CHECK_CONTAINER_IS_AVAILABLE;
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
