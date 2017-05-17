@@ -546,7 +546,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IN:		print(string,len, "| IN |");			break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_OUT:		print(string,len, "| OUT |");	break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_DEPOSE:	printf(string, len, "| DEPOSE |"); 		break;
+							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_HIT:	printf(string, len, "| HIT |"); 		break;
+							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_PREVENT_DEPOSE:	printf(string, len, "| PREV_DEPOSE |"); 		break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_STOP:	print(string,len, "| STOP |");			break;
 							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
 						  }
@@ -557,6 +558,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_IN:		print(string,len, "| IN |");			break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_OUT:	print(string,len, "| OUT |");		break;
+							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_HIT:	printf(string, len, "| HIT |"); 		break;
+							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_PREVENT_DEPOSE:	printf(string, len, "| PREV_DEPOSE |"); 		break;
 							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
 							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
 						  }
