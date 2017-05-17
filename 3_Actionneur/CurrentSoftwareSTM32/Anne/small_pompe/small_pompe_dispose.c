@@ -64,7 +64,7 @@ bool_e SMALL_POMPE_DISPOSE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_POMPE_NORMAL:
 			case ACT_POMPE_REVERSE:
 			case ACT_POMPE_STOP:
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_SMALL_POMPE_DISPOSE, &SMALL_POMPE_DISPOSE_run_command, msg->data.act_msg.act_data.act_optionnal_data[0],TRUE);
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_SMALL_POMPE_DISPOSE, &SMALL_POMPE_DISPOSE_run_command, msg->data.act_msg.act_data.act_order.act_optionnal_data[0],TRUE);
 				break;
 
 			default:

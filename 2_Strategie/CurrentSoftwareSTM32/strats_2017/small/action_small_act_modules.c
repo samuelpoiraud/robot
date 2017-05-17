@@ -312,13 +312,14 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			if (entrance){
 				//On redescend et active la pompe de l'elevator pour la prochaine prise
 				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR , ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 			}
 			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_BRING_BACK_CYLINDER_2, ACTION_BRING_BACK_CYLINDER_2);
 			break;
 
 		case ACTION_BRING_BACK_CYLINDER_2:
 			if(entrance){
+				// On allume la pompe seulement a ce moment pour bien laisser le temps au stockage du module ^précédent de se faire
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 				//On rentre le bras dans le robot
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER, ACT_SMALL_CYLINDER_SLIDER_IN );
 
@@ -384,7 +385,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP, 0);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_REVERSE, 100);
 				time_timeout = global.absolute_time + 1000;
 			}
 
@@ -416,7 +417,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE, MODULE_STOCK_SMALL)){
 				// Vérification des ordres effectués
-				state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_STOCK_UP_CYLINDER, ERROR);
+				state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_RISE_SLOPE, ERROR);
 			}else{
 				//Plus de place on arrete la prise
 				moduleToTake = FALSE;
@@ -442,7 +443,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_STOCK_UP_CYLINDER, ERROR);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_STOCK_UP_CYLINDER, ACTION_STOCK_UP_CYLINDER);
 			break;
 
 		case ACTION_STOCK_UP_CYLINDER:
