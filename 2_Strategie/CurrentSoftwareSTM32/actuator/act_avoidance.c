@@ -81,6 +81,9 @@ void ACT_AVOIDANCE_init(){
 		init_new_offset(ACT_QUEUE_Small_cylinder_dispose,	ACT_AVOID_SMALL_CYLINDER_DISPOSE_Raise,		ACT_SMALL_CYLINDER_DISPOSE_RAISE,			0,		0,		0,		0);
 		init_new_offset(ACT_QUEUE_Small_cylinder_dispose,	ACT_AVOID_SMALL_CYLINDER_DISPOSE_Dispose,	ACT_SMALL_CYLINDER_DISPOSE_DISPOSE,			0,		0,		0,		0);
 
+		init_new_offset(ACT_QUEUE_Small_cylinder_poussix,	ACT_AVOID_SMALL_CYLINDER_POUSSIX_Down,		ACT_SMALL_CYLINDER_POUSSIX_DOWN,			0,		0,		0,		0);
+
+
 //		init_new_offset(ACT_QUEUE_Small_magic_arm,			ACT_AVOID_SMALL_MAGIC_ARM_Out,				ACT_SMALL_MAGIC_ARM_OUT,			      	0,	    0,      0,	   	0);
 
 //		init_new_offset(ACT_QUEUE_Small_cylinder_multifonction,	ACT_AVOID_SMALL_CYLINDER_MULTIFONCTION_Out,	ACT_SMALL_CYLINDER_MULTIFONCTION_OUT,		0,	    0,      0,		0);

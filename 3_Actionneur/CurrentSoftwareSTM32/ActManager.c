@@ -69,7 +69,7 @@
 	#include "Anne/small_ore/small_ore.h"
 	#include "Anne/small_pompe/small_pompe_dispose.h"
 	#include "Anne/small_pompe/small_pompe_prise.h"
-
+	#include "Anne/small_cylinder/small_cylinder_poussix/small_cylinder_poussix.h"
 
 #endif
 
@@ -144,6 +144,8 @@ static ACTQ_functions_t actionneurs[] = {
 		ACT_DECLARE(SMALL_MAGIC_ARM),
 		ACT_DECLARE(SMALL_MAGIC_COLOR),
 		ACT_DECLARE(SMALL_ORE),
+		ACT_DECLARE(SMALL_CYLINDER_POUSSIX),
+
 
 		ACT_DECLARE(SMALL_POMPE_DISPOSE),
 		ACT_DECLARE(SMALL_POMPE_PRISE)

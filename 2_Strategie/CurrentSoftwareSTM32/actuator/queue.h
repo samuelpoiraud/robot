@@ -69,6 +69,7 @@ typedef enum {
 	ACT_QUEUE_Small_cylinder_slider,
 	ACT_QUEUE_Small_cylinder_slope,
 	ACT_QUEUE_Small_cylinder_multifonction,
+	ACT_QUEUE_Small_cylinder_poussix,
 	ACT_QUEUE_Small_pompe_prise,
 	ACT_QUEUE_Small_pompe_dispose,
 
