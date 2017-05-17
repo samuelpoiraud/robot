@@ -29,6 +29,7 @@ void test_strat_robot_virtuel(void);
 
 void strat_reglage_prop(void);
 
+void strat_stop_robot();
 
 error_e sub_wait(Sint16 x, Sint16 y, time32_t duration);
 
