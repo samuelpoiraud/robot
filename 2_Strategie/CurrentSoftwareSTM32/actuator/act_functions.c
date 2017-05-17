@@ -567,14 +567,14 @@ void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
 	}
 
 	if(on)
-		IHM_leds_send_msg(1, (led_ihm_t){LED_4_IHM, ON});
+		IHM_leds_send_msg(1, (led_ihm_t){LED_0_IHM, ON});
 	else
-		IHM_leds_send_msg(1, (led_ihm_t){LED_4_IHM, OFF});
+		IHM_leds_send_msg(1, (led_ihm_t){LED_0_IHM, OFF});
 
 	if(pumped)
-		IHM_leds_send_msg(1, (led_ihm_t){LED_5_IHM, ON});
+		IHM_leds_send_msg(1, (led_ihm_t){LED_1_IHM, ON});
 	else
-		IHM_leds_send_msg(1, (led_ihm_t){LED_5_IHM, OFF});
+		IHM_leds_send_msg(1, (led_ihm_t){LED_1_IHM, OFF});
 }
 
 Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, time32_t timeout, Uint8 in_progress, Uint8 sucess, Uint8 fail){

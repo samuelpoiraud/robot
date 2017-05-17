@@ -204,7 +204,7 @@
 
 			strncpy(lastStratName, BRAIN_get_current_strat_name(), 20);
 
-			idMatchTime = LCD_OVER_UART_addText(50, 250, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_16x26, "%02d", (Uint16)(global.match_time/1000));
+			idMatchTime = LCD_OVER_UART_addText(250, 60, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_16x26, "%02d", (Uint16)(global.match_time/1000));
 
 			lastMatchTime = global.match_time/1000;
 
