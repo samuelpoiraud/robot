@@ -72,6 +72,9 @@ static bool_e ax12_is_initialized = FALSE;
 // Warner de l'actionneur : Déclenche l'envoi d'un message CAN lorsqu'une certaine position est franchi
 static act_warner_s warner;
 
+// Flag qui permet d'annuler l'ordre en cours dans le cas où l'on vient de recevoir un ordre "run_now"
+static bool_e run_now = FALSE;
+
 // Fonction appellée au lancement de la carte (via ActManager)
 void BIG_BALL_BACK_LEFT_init() {
 	static bool_e initialized = FALSE;
@@ -209,6 +212,7 @@ bool_e BIG_BALL_BACK_LEFT_CAN_process_msg(CAN_msg_t* msg) {
             case ACT_BIG_BALL_BACK_LEFT_UP :
             case ACT_BIG_BALL_BACK_LEFT_DOWN :
             case ACT_BIG_BALL_BACK_LEFT_STOP :
+            	run_now = msg->data.act_msg.act_data.act_order.run_now;
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_BIG_BALL_BACK_LEFT, &BIG_BALL_BACK_LEFT_run_command, 0,TRUE);
 				break;
 
@@ -305,8 +309,14 @@ static void BIG_BALL_BACK_LEFT_command_run(queue_id_t queueId) {
 
 	Uint16 pos = AX12_get_position(BIG_BALL_BACK_LEFT_AX12_ID);
 
-    if(ACTQ_check_status_ax12(queueId, BIG_BALL_BACK_LEFT_AX12_ID, QUEUE_get_arg(queueId)->param, pos, BIG_BALL_BACK_LEFT_AX12_ASSER_POS_EPSILON, BIG_BALL_BACK_LEFT_AX12_ASSER_TIMEOUT, BIG_BALL_BACK_LEFT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
-        QUEUE_next(queueId, ACT_BIG_BALL_BACK_LEFT, result, errorCode, line);
+	if(!run_now){
+		if(ACTQ_check_status_ax12(queueId, BIG_BALL_BACK_LEFT_AX12_ID, QUEUE_get_arg(queueId)->param, pos, BIG_BALL_BACK_LEFT_AX12_ASSER_POS_EPSILON, BIG_BALL_BACK_LEFT_AX12_ASSER_TIMEOUT, BIG_BALL_BACK_LEFT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+			QUEUE_next(queueId, ACT_BIG_BALL_BACK_LEFT, result, errorCode, line);
+	}else{
+		// Lorsqu'on vient de recevoir un run_now, on passe directement à l'ordre reçu.
+		ACTQ_flush_queue_to_run_now(queueId, ACT_BIG_BALL_BACK_LEFT);
+	}
+
 
     // On ne surveille le warner que si il est activé
 	if(warner.activated)

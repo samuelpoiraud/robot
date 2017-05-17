@@ -63,6 +63,9 @@ static void MOTOR_ROLLER_FOAM_command_init(queue_id_t queueId);
 
 static volatile RPM_SENSOR_id_t id = 0xFF;
 
+// Flag qui permet d'annuler l'ordre en cours dans le cas où l'on vient de recevoir un ordre "run_now"
+static bool_e run_now = FALSE;
+
 // Fonction appellée au lancement de la carte (via ActManager)
 void MOTOR_ROLLER_FOAM_init() {
 	static bool_e initialized = FALSE;
@@ -123,11 +126,13 @@ bool_e MOTOR_ROLLER_FOAM_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_ORE_ROLLER_FOAM_STOP :
 			case ACT_ORE_ROLLER_FOAM_IDLE :
+				run_now = msg->data.act_msg.act_data.act_order.run_now;
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOTOR_ORE_ROLLER_FOAM, &MOTOR_ROLLER_FOAM_run_command, 0, TRUE);
 				break;
 
 			case ACT_ORE_ROLLER_FOAM_RUN :
-				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOTOR_ORE_ROLLER_FOAM, &MOTOR_ROLLER_FOAM_run_command, msg->data.act_msg.act_data.act_optionnal_data[0], TRUE);
+				run_now = msg->data.act_msg.act_data.act_order.run_now;
+				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_MOTOR_ORE_ROLLER_FOAM, &MOTOR_ROLLER_FOAM_run_command, msg->data.act_msg.act_data.act_order.act_optionnal_data[0], TRUE);
 				break;
 
 			default:
@@ -173,8 +178,13 @@ static void MOTOR_ROLLER_FOAM_command_run(queue_id_t queueId) {
 	Uint8 result, error_code;
 	Uint16 line;
 
-	if(ACTQ_check_status_dcMotorSpeed(MOTOR_ROLLER_FOAM_ID, &result, &error_code, &line)){
-		QUEUE_next(queueId, ACT_ORE_ROLLER_FOAM, result, error_code, line);
+	if(!run_now){
+		if(ACTQ_check_status_dcMotorSpeed(MOTOR_ROLLER_FOAM_ID, &result, &error_code, &line)){
+			QUEUE_next(queueId, ACT_ORE_ROLLER_FOAM, result, error_code, line);
+		}
+	}else{
+		// Lorsqu'on vient de recevoir un run_now, on passe directement à l'ordre reçu.
+		ACTQ_flush_queue_to_run_now(queueId, ACT_ORE_ROLLER_FOAM);
 	}
 }
 

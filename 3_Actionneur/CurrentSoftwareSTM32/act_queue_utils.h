@@ -139,6 +139,14 @@
 	//Macro pour avoir la ligne a laquelle cette macro est utilisé comme paramètre à CAN_sendResultWithParam
 	#define ACTQ_sendResultWithLine(originalSid, originalCommand, result, errorCode) ACTQ_sendResultWitExplicitLine(originalSid, originalCommand, result, errorCode, __LINE__)
 
+	/**
+	 * Fonction qui annule tous les ordres empilés d'une queue lors de la réception d'un ordre "run_now" (ie. a executer immediatment).
+	 *
+	 * On doit annuler l'ordre en cours et tous les ordres empilés sur la queue.
+	 * Seul le dernier ordre stockés dans la queue doit être conservé car c'est celui qui doit être execute immediatement.
+	 */
+	void ACTQ_flush_queue_to_run_now(queue_id_t queue_id, Uint11 act_sid);
+
 	void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param);
 
 

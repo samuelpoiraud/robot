@@ -48,6 +48,8 @@ static bool_e rx24_is_initialized_right = FALSE;
 // Warner de l'actionneur : Déclenche l'envoi d'un message CAN lorsqu'une certaine position est franchi
 static act_warner_s warner;
 
+// Flag qui permet d'annuler l'ordre en cours dans le cas où l'on vient de recevoir un ordre "run_now"
+static bool_e run_now = FALSE;
 
 // Fonction appellée au lancement de la carte (via ActManager)
 void ORE_ROLLER_ARM_init() {
@@ -225,6 +227,7 @@ bool_e ORE_ROLLER_ARM_CAN_process_msg(CAN_msg_t* msg) {
             case ACT_ORE_ROLLER_ARM_DEPOSE :
             case ACT_ORE_ROLLER_ARM_IN :
             case ACT_ORE_ROLLER_ARM_STOP :
+            	run_now = msg->data.act_msg.act_data.act_order.run_now;
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_ORE_ROLLER_ARM, &ORE_ROLLER_ARM_run_command, 0,TRUE);
 				break;
 
@@ -355,16 +358,21 @@ static void ORE_ROLLER_ARM_command_run(queue_id_t queueId) {
         done_left = ACTQ_check_status_rx24(queueId, ORE_ROLLER_ARM_LEFT_RX24_ID, rx24_goalPosition_left, pos_left, ORE_ROLLER_ARM_RX24_ASSER_POS_EPSILON, ORE_ROLLER_ARM_RX24_ASSER_TIMEOUT, ORE_ROLLER_ARM_RX24_ASSER_POS_LARGE_EPSILON, &result_left, &errorCode_left, &line_left);
 	}
 
-	if(done_right && done_left){
-		done_right = FALSE;
-		done_left = FALSE;
-		if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE){
-            QUEUE_next(queueId, ACT_ORE_ROLLER_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
-		}else if(result_right != ACT_RESULT_DONE){
-            QUEUE_next(queueId, ACT_ORE_ROLLER_ARM, result_right, errorCode_right, line_right);
-		}else {
-            QUEUE_next(queueId, ACT_ORE_ROLLER_ARM, result_left, errorCode_left, line_left);
+	if(!run_now){
+		if(done_right && done_left){
+			done_right = FALSE;
+			done_left = FALSE;
+			if(result_right == ACT_RESULT_DONE && result_left == ACT_RESULT_DONE){
+				QUEUE_next(queueId, ACT_ORE_ROLLER_ARM, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
+			}else if(result_right != ACT_RESULT_DONE){
+				QUEUE_next(queueId, ACT_ORE_ROLLER_ARM, result_right, errorCode_right, line_right);
+			}else {
+				QUEUE_next(queueId, ACT_ORE_ROLLER_ARM, result_left, errorCode_left, line_left);
+			}
 		}
+	}else{
+		// Lorsqu'on vient de recevoir un run_now, on passe directement à l'ordre reçu.
+		ACTQ_flush_queue_to_run_now(queueId, ACT_ORE_ROLLER_ARM);
 	}
 
 	// On ne surveille le warner que si il est activé

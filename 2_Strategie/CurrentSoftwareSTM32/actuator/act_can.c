@@ -70,10 +70,11 @@ void ACT_arg_init(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd) {
 	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
 }
 
-void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param)  {
+void ACT_arg_init_with_param(QUEUE_arg_t* arg, Uint16 sid, Uint8 cmd, Uint16 param, bool_e run_now)  {
 	arg->msg.sid = sid;
 	arg->msg.data.act_msg.order = cmd;
-	arg->msg.data.act_msg.act_data.act_optionnal_data[0] = param;
+	arg->msg.data.act_msg.act_data.act_order.act_optionnal_data[0] = param;
+	arg->msg.data.act_msg.act_data.act_order.run_now = run_now;
 	arg->msg.size = SIZE_ACT_MSG;
 	arg->fallbackMsg.sid = ACT_ARG_NOFALLBACK_SID;
 	arg->timeout = ACT_ARG_DEFAULT_TIMEOUT_MS;
