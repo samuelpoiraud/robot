@@ -315,6 +315,7 @@ static void BIG_BALL_BACK_LEFT_command_run(queue_id_t queueId) {
 	}else{
 		// Lorsqu'on vient de recevoir un run_now, on passe directement à l'ordre reçu.
 		ACTQ_flush_queue_to_run_now(queueId, ACT_BIG_BALL_BACK_LEFT);
+		run_now = FALSE;
 	}
 
 
