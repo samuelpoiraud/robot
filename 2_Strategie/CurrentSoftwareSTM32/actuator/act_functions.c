@@ -337,6 +337,72 @@ error_e ACT_check_position_config(Uint16 sid, ACT_order_e order){
 	return ret;
 }
 
+error_e ACT_check_position_config_left(Uint16 sid, ACT_order_e order){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+	static Uint8 i = 0;
+	error_e ret = IN_PROGRESS;
+
+	switch(state){
+		case SEND:
+			i = ACT_search_link_SID_Queue(sid);
+			ACT_get_config_request(sid, POSITION_CONFIG);
+			act_config[i].info_received = FALSE;
+			begin_time = global.absolute_time;
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.absolute_time - begin_time > ACT_CONFIG_ANSWER_TIMEOUT){
+				RESET_MAE();
+				ret = END_WITH_TIMEOUT;
+			}else if(act_config[i].info_received && act_config[i].pos == order){ // On a recu une réponse
+				RESET_MAE();
+				ret = END_OK;
+			}else if(act_config[i].info_received){
+				RESET_MAE();
+				ret = NOT_HANDLED;
+			}
+			break;
+	}
+	return ret;
+}
+
+error_e ACT_check_position_config_right(Uint16 sid, ACT_order_e order){
+	CREATE_MAE(SEND,
+				WAIT);
+
+	static time32_t begin_time;
+	static Uint8 i = 0;
+	error_e ret = IN_PROGRESS;
+
+	switch(state){
+		case SEND:
+			i = ACT_search_link_SID_Queue(sid);
+			ACT_get_config_request(sid, POSITION_CONFIG);
+			act_config[i].info_received = FALSE;
+			begin_time = global.absolute_time;
+			state = WAIT;
+			break;
+
+		case WAIT:
+			if(global.absolute_time - begin_time > ACT_CONFIG_ANSWER_TIMEOUT){
+				RESET_MAE();
+				ret = END_WITH_TIMEOUT;
+			}else if(act_config[i].info_received && act_config[i].pos == order){ // On a recu une réponse
+				RESET_MAE();
+				ret = END_OK;
+			}else if(act_config[i].info_received){
+				RESET_MAE();
+				ret = NOT_HANDLED;
+			}
+			break;
+	}
+	return ret;
+}
+
 ////////////////////////////////////////
 //////////////// WARNER ////////////////
 ////////////////////////////////////////
@@ -424,7 +490,7 @@ void ACT_sensor_answer(CAN_msg_t* msg){
 }
 
 
-Uint8 ACT_wait_state_vacuostat(Uint8 idVacuostat, MOSFET_BOARD_CURRENT_MEASURE_state_e stateToWait, Uint8 in_progress, Uint8 sucess, Uint8 fail){
+Uint8 ACT_wait_state_vacuostat(act_vacuostat_id idVacuostat, MOSFET_BOARD_CURRENT_MEASURE_state_e stateToWait, Uint8 in_progress, Uint8 sucess, Uint8 fail){
 	CREATE_MAE(INIT,
 				GET_STATE,
 				WAIT_STATE);
@@ -471,6 +537,10 @@ Uint8 ACT_wait_state_vacuostat(Uint8 idVacuostat, MOSFET_BOARD_CURRENT_MEASURE_s
 	}
 
 	return in_progress;
+}
+
+MOSFET_BOARD_CURRENT_MEASURE_state_e ACT_get_state_vacuostat(act_vacuostat_id idVacuostat){
+	return vacuostat[idVacuostat].state;
 }
 
 void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
