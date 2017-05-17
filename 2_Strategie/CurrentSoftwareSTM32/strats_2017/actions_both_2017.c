@@ -11,6 +11,7 @@
 
 
 #include "actions_both_2017.h"
+#include "actions_both_generic.h"
 #include "../QS/QS_stateMachineHelper.h"
 #include "../QS/QS_outputlog.h"
 #include "../QS/QS_CapteurCouleurCW.h"
@@ -19,6 +20,7 @@
 #include "../utils/generic_functions.h"
 #include "../actuator/queue.h"
 #include "../actuator/act_functions.h"
+#include "../utils/actionChecker.h"
 
 #define BIG_COLOR_LEFT_CH0_PORT 	GPIOC
 #define BIG_COLOR_LEFT_CH0_PIN	 	GPIO_Pin_6
@@ -197,7 +199,7 @@ error_e sub_cross_rocker(void){
 
 			// COCO ON T'ATTEND !
 			//J'arrive avec mes gros sabots et mes méthodes dégueulasses !
-			state = check_sub_action_result(action_recalage_y(FORWARD, COLOR_ANGLE(-PI4096/2), COLOR_Y(710+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE), FALSE, diffy, TRUE), state, AVANCE_TO_NEXT_POSITION, AVANCE_TO_NEXT_POSITION);
+			state = check_sub_action_result(action_recalage_y(FORWARD, COLOR_ANGLE(-PI4096/2), COLOR_Y(710+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE), FALSE, &diffy, TRUE), state, AVANCE_TO_NEXT_POSITION, AVANCE_TO_NEXT_POSITION);
 		}break;
 
 		case AVANCE_TO_NEXT_POSITION:
@@ -207,7 +209,7 @@ error_e sub_cross_rocker(void){
 		case RECALAGE_X:{
 			Sint16 diffx = 0;
 
-			state = check_sub_action_result(action_recalage_x(FORWARD, -PI4096, SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffx, TRUE), state, GET_OUT, CORRECT_ODOMETRY_MEASURE);
+			state = check_sub_action_result(action_recalage_x(FORWARD, -PI4096, SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, &diffx, TRUE), state, GET_OUT, CORRECT_ODOMETRY_MEASURE);
 		}break;
 
 		case GET_OUT:

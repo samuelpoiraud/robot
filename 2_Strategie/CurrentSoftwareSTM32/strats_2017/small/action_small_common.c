@@ -1,14 +1,15 @@
 #include "action_small.h"
-#include "../../propulsion/movement.h"
-#include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_outputlog.h"
 #include "../../QS/QS_IHM.h"
+#include "../../propulsion/movement.h"
+#include "../../propulsion/astar.h"
 #include "../../utils/actionChecker.h"
 #include "../../utils/generic_functions.h"
 #include "../../actuator/act_functions.h"
 #include "../../avoidance.h"
 #include "../high_level_strat.h"
+#include "../actions_both_2017.h"
 
 
 bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEMENTS_side_match_e * moonbase_side);

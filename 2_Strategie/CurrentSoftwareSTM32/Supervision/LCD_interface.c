@@ -20,6 +20,7 @@
 	#include "RTC.h"
 	#include "../brain.h"
 	#include "SD/SD.h"
+	#include "string.h"
 
 	#define SELFTEST_NB_DISPLAYED_LINE	14
 
@@ -162,7 +163,7 @@
 		static bool_e changeMenuSelftest = FALSE;
 		static bool_e changeMenuIhmTest = FALSE;
 		static bool_e changeMenuCheckList = FALSE;
-		static LCD_objectId_t idX, idY, idAngle, idVoltage, idTime, idStrat, idMatch;
+		static LCD_objectId_t idX, idY, idAngle, idVoltage, idTime, idStrat, idMatch, idMatchTime;
 		static LCD_objectId_t idAdv1, idAdv2, idAdvIr1, idAdvIr2;
 		static time32_t lastRefresh;
 
@@ -171,6 +172,7 @@
 		static char lastStratName[20];
 		static Uint16 lastIdSD;
 		static bool_e lastStateSD;
+		static time32_t lastMatchTime;
 
 		if(init){
 			changeMenuSelftest = FALSE;
@@ -201,6 +203,10 @@
 			idStrat = LCD_OVER_UART_addText(15, 30, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%s", BRAIN_get_current_strat_name());
 
 			strncpy(lastStratName, BRAIN_get_current_strat_name(), 20);
+
+			idMatchTime = LCD_OVER_UART_addText(50, 250, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_16x26, "%02d", (Uint16)(global.match_time/1000=);
+
+			lastMatchTime = global.match_time/1000;
 
 			if(SD_isOK())
 				idMatch = LCD_OVER_UART_addText(200, 180, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "SD : %d", SD_get_match_id());
@@ -241,8 +247,13 @@
 			}
 
 			if(strcmp(lastStratName, BRAIN_get_current_strat_name()) != 0){
-				LCD_OVER_UART_setText(lastStratName, "%s", BRAIN_get_current_strat_name());
+				LCD_OVER_UART_setText(idStrat, "%s", BRAIN_get_current_strat_name());
 				strncpy(lastStratName, BRAIN_get_current_strat_name(), 20);
+			}
+
+			if(lastMatchTime != global.match_time/1000){
+				LCD_OVER_UART_setText(idMatchTime, "%02d", (Uint16)(global.match_time/1000));
+				lastMatchTime = global.match_time/1000;
 			}
 
 			if(lastStateSD != SD_isOK() || lastIdSD != SD_get_match_id()){

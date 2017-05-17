@@ -26,6 +26,8 @@
 		#include "../LCD/interface.h"
 		#include "../LCD/middleware.h"
 		#include "../LCD/image/image.h"
+	#else
+		#include "../Supervision/LCD_interface.h"
 	#endif
 
 	#if LCD_OVER_UART__UART_ID == 1

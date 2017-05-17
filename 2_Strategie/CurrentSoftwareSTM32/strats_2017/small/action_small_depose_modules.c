@@ -1,4 +1,5 @@
 #include "action_small.h"
+#include "../actions_both_generic.h"
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
 #include "../../QS/QS_stateMachineHelper.h"
@@ -1009,7 +1010,7 @@ error_e sub_anne_get_in_pos_3_depose_module_centre(){
 			break;
 
 		case RECALAGE_RELATIF:
-			state = check_sub_action_result(action_recalage_y(FORWARD, PI4096/2, 1432 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffy, TRUE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
+			state = check_sub_action_result(action_recalage_y(FORWARD, PI4096/2, 1432 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, &diffy, TRUE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
 			break;
 
 		case GET_OUT_RECALAGE:
@@ -1178,7 +1179,7 @@ error_e sub_anne_get_in_pos_4_depose_module_centre(){
 			break;
 
 		case RECALAGE_RELATIF:
-			state = check_sub_action_result(action_recalage_y(FORWARD, -PI4096/2, 1568 + SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, diffy, TRUE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
+			state = check_sub_action_result(action_recalage_y(FORWARD, -PI4096/2, 1568 + SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, &diffy, TRUE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
 			break;
 
 		case GET_OUT_RECALAGE:
@@ -1864,7 +1865,10 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
 				pusher_is_up = FALSE;
 			}
-			state = try_going_multipoint(	(displacement_t []){	(GEOMETRY_point_t){D.x, D.y}, FAST,(GEOMETRY_point_t){E.x, E.y}, FAST}, 2, state, GOTO_FX, BACK_TO_FX, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(	(displacement_t []){
+											(displacement_t){ (GEOMETRY_point_t) {D.x, D.y}, FAST},
+											(displacement_t){ (GEOMETRY_point_t) {E.x, E.y}, FAST}
+											}, 2, state, GOTO_FX, BACK_TO_FX, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case BACK_TO_FX:	//On retourne a C si échec d'extraction
 			state = try_going(FX.x, FX.y, state, GOTO_D_AND_E, GOTO_D_AND_E, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1873,8 +1877,10 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 		case GOTO_FX:
 			//Le sens est important... il faut maintenant qu'on se place pour la pose !
 			//state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, SLOW, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			state = try_going_multipoint(	(displacement_t []){	(GEOMETRY_point_t){D.x, D.y}, FAST,(GEOMETRY_point_t){FX.x, FX.y}, FAST}, 2, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-
+			state = try_going_multipoint(	(displacement_t []){
+											(displacement_t){ (GEOMETRY_point_t) {D.x, D.y}, FAST},
+											(displacement_t){ (GEOMETRY_point_t) {FX.x, FX.y}, FAST}
+											}, 2, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			break;
 		case COMPUTE_DISPOSE_MODULE:
