@@ -730,8 +730,8 @@
 				ACT_order_e order					:8;
 				union{
 					struct{
-						Uint16 act_optionnal_data[3];
 						bool_e run_now				:1;
+						Uint16 act_optionnal_data[2];
 					}act_order;
 
 					// For setting a config

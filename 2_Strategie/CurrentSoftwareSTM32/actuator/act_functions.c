@@ -212,7 +212,9 @@ bool_e ACT_push_order_with_all_params(ACT_sid_e sid,  ACT_order_e order, Uint16 
 	}
 
 	ACT_arg_init_with_param(&args, sid, order, param, run_now);
-	ACT_arg_set_timeout(&args, timeout);
+	if(timeout != 0){
+		ACT_arg_set_timeout(&args, timeout);
+	}
 	ACT_arg_set_fallbackmsg(&args, sid,  ACT_DEFAULT_STOP);
 
 	debug_printf("Pushing %s Run cmd (sid : %d   order : %d)\n", act_link_SID_Queue[i].name, sid, order);
