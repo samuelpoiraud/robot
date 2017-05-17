@@ -102,7 +102,7 @@ static void INTERFACE_IHM_debug(bool_e entrance){
 
 	if(entrance){
 
-		id1 = MIDDLEWARE_addText(50, 50, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, TEXT_FONTS_7x10, "%8d", var);
+		id1 = MIDDLEWARE_addText(50, 50, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, TEXT_FONTS_7x10, "%8ld", var);
 		id2 = MIDDLEWARE_addText(50, 60, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, TEXT_FONTS_7x10, "%d", BUTTON_SELFTEST_PORT);
 		id3 = MIDDLEWARE_addText(50, 70, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, TEXT_FONTS_7x10, "%d", BUTTON_CALIBRATION_PORT);
 		id4 = MIDDLEWARE_addText(50, 80, ILI9341_COLOR_BLACK, ILI9341_TRANSPARENT, TEXT_FONTS_7x10, "%d", BUTTON_PRINTMATCH_PORT);
@@ -118,7 +118,7 @@ static void INTERFACE_IHM_debug(bool_e entrance){
 	}
 
 	if(var != lastVar1){
-		MIDDLEWARE_setText(id1, "%8d", var);
+		MIDDLEWARE_setText(id1, "%8ld", var);
 		lastVar1 = var;
 	}
 
@@ -184,10 +184,10 @@ static void INTERFACE_IHM_position(bool_e entrance){
 
 		voltage = MIDDLEWARE_addText(50, 100, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "%4d mV", global.voltage.Vpermanent);
 
-		advIr1 = MIDDLEWARE_addText(10, 115, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "advIr1 dist : %4d  |  angle : %4d..", global.foe[0].dist, ((Sint32)global.foe[0].angle)*180/PI4096);
-		advIr2 = MIDDLEWARE_addText(10, 130, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "advIr2 dist : %4d  |  angle : %4d..", global.foe[1].dist, ((Sint32)global.foe[1].angle)*180/PI4096);
-		adv1 = MIDDLEWARE_addText(10, 145, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv1 dist : %4d  |  angle : %4d..", global.foe[2].dist, ((Sint32)global.foe[2].angle)*180/PI4096);
-		adv2 = MIDDLEWARE_addText(10, 160, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv2 dist : %4d  |  angle : %4d..", global.foe[3].dist, ((Sint32)global.foe[3].angle)*180/PI4096);
+		advIr1 = MIDDLEWARE_addText(10, 115, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "advIr1 dist : %4d  |  angle : %4ld..", global.foe[0].dist, ((Sint32)global.foe[0].angle)*180/PI4096);
+		advIr2 = MIDDLEWARE_addText(10, 130, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "advIr2 dist : %4d  |  angle : %4ld..", global.foe[1].dist, ((Sint32)global.foe[1].angle)*180/PI4096);
+		adv1 = MIDDLEWARE_addText(10, 145, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv1 dist : %4d  |  angle : %4ld..", global.foe[2].dist, ((Sint32)global.foe[2].angle)*180/PI4096);
+		adv2 = MIDDLEWARE_addText(10, 160, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv2 dist : %4d  |  angle : %4ld..", global.foe[3].dist, ((Sint32)global.foe[3].angle)*180/PI4096);
 	}
 
 	if(global.absolute_time - lastRefresh > 100){
