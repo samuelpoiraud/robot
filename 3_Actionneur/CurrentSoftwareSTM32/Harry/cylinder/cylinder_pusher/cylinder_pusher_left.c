@@ -174,8 +174,10 @@ static void CYLINDER_PUSHER_LEFT_get_position_config(ACT_order_e *pOrder, Uint16
 		order = ACT_CYLINDER_PUSHER_LEFT_OUT;
 	}else if(position > CYLINDER_PUSHER_LEFT_AX12_IDLE_POS - epsilon && position < CYLINDER_PUSHER_LEFT_AX12_IDLE_POS + epsilon){
 		order = ACT_CYLINDER_PUSHER_LEFT_IDLE;
-	}else if(position > CYLINDER_PUSHER_LEFT_AX12_DEPOSE_POS - epsilon && position < CYLINDER_PUSHER_LEFT_AX12_DEPOSE_POS + epsilon){
-		order = ACT_CYLINDER_PUSHER_LEFT_DEPOSE;
+	}else if(position > CYLINDER_PUSHER_LEFT_AX12_HIT_POS - epsilon && position < CYLINDER_PUSHER_LEFT_AX12_HIT_POS + epsilon){
+		order = ACT_CYLINDER_PUSHER_LEFT_HIT;
+	}else if(position > CYLINDER_PUSHER_LEFT_AX12_PREVENT_DEPOSE_POS - epsilon && position < CYLINDER_PUSHER_LEFT_AX12_PREVENT_DEPOSE_POS + epsilon){
+		order = ACT_CYLINDER_PUSHER_LEFT_PREVENT_DEPOSE;
 	}
 
 	if(pOrder != NULL)
@@ -214,7 +216,8 @@ bool_e CYLINDER_PUSHER_LEFT_CAN_process_msg(CAN_msg_t* msg) {
             case ACT_CYLINDER_PUSHER_LEFT_IDLE :
             case ACT_CYLINDER_PUSHER_LEFT_IN :
             case ACT_CYLINDER_PUSHER_LEFT_OUT :
-            case ACT_CYLINDER_PUSHER_LEFT_DEPOSE :
+            case ACT_CYLINDER_PUSHER_LEFT_HIT :
+            case ACT_CYLINDER_PUSHER_LEFT_PREVENT_DEPOSE :
             case ACT_CYLINDER_PUSHER_LEFT_STOP :
             	run_now = msg->data.act_msg.act_data.act_order.run_now;
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CYLINDER_PUSHER_LEFT, &CYLINDER_PUSHER_LEFT_run_command, 0,TRUE);
@@ -271,7 +274,8 @@ static void CYLINDER_PUSHER_LEFT_command_init(queue_id_t queueId) {
         case ACT_CYLINDER_PUSHER_LEFT_IDLE : *ax12_goalPosition = CYLINDER_PUSHER_LEFT_AX12_IDLE_POS; break;
         case ACT_CYLINDER_PUSHER_LEFT_IN : *ax12_goalPosition = CYLINDER_PUSHER_LEFT_AX12_IN_POS; break;
         case ACT_CYLINDER_PUSHER_LEFT_OUT : *ax12_goalPosition = CYLINDER_PUSHER_LEFT_AX12_OUT_POS; break;
-        case ACT_CYLINDER_PUSHER_LEFT_DEPOSE : *ax12_goalPosition = CYLINDER_PUSHER_LEFT_AX12_DEPOSE_POS; break;
+        case ACT_CYLINDER_PUSHER_LEFT_HIT : *ax12_goalPosition = CYLINDER_PUSHER_LEFT_AX12_HIT_POS; break;
+        case ACT_CYLINDER_PUSHER_LEFT_PREVENT_DEPOSE : *ax12_goalPosition = CYLINDER_PUSHER_LEFT_AX12_PREVENT_DEPOSE_POS; break;
         case ACT_CYLINDER_PUSHER_LEFT_STOP :
             AX12_set_torque_enabled(CYLINDER_PUSHER_LEFT_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
             QUEUE_next(queueId, ACT_CYLINDER_PUSHER_LEFT, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, __LINE__);

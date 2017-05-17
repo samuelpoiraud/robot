@@ -1626,9 +1626,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 			if(global.prop.reach_y && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
 				if(global.color == BLUE){
-					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_DEPOSE);
+					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_HIT);
 				}else{
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_DEPOSE);
+					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_HIT);
 				}
 			}
 
@@ -1709,9 +1709,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case GO_TO_START_POINT_RIGHT:{
 			if(entrance && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
 				if(global.color == BLUE){
-					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_DEPOSE);
+					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_HIT);
 				}else{
-					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_DEPOSE);
+					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_HIT);
 				}
 			}
 
