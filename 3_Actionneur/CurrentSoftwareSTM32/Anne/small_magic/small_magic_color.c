@@ -73,6 +73,9 @@ static bool_e rx24_is_initialized = FALSE;
 // Warner de l'actionneur : Déclenche l'envoi d'un message CAN lorsqu'une certaine position est franchi
 static act_warner_s warner;
 
+// Flag qui permet d'annuler l'ordre en cours dans le cas où l'on vient de recevoir un ordre "run_now"
+static bool_e run_now = FALSE;
+
 // Fonction appellée au lancement de la carte (via ActManager)
 void SMALL_MAGIC_COLOR_init() {
 	static bool_e initialized = FALSE;
@@ -211,6 +214,7 @@ bool_e SMALL_MAGIC_COLOR_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED:
 			case ACT_SMALL_MAGIC_COLOR_ZERO_SPEED:
 			case ACT_SMALL_MAGIC_COLOR_STOP :
+				run_now = msg->data.act_msg.act_data.act_order.run_now;
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SMALL_MAGIC_COLOR, &SMALL_MAGIC_COLOR_run_command, 0,TRUE);
 				break;
 
@@ -308,8 +312,13 @@ static void SMALL_MAGIC_COLOR_command_run(queue_id_t queueId) {
 
 	Uint16 speed = RX24_get_speed_percentage(SMALL_MAGIC_COLOR_RX24_ID);
 
-	if(ACTQ_check_status_rx24(queueId, SMALL_MAGIC_COLOR_RX24_ID, QUEUE_get_arg(queueId)->param, speed, SMALL_MAGIC_COLOR_RX24_ASSER_SPEED_EPSILON, SMALL_MAGIC_COLOR_RX24_ASSER_TIMEOUT, SMALL_MAGIC_COLOR_RX24_ASSER_SPEED_LARGE_EPSILON, &result, &errorCode, &line))
-		QUEUE_next(queueId, ACT_SMALL_MAGIC_COLOR, result, errorCode, line);
+	if(!run_now){
+		if(ACTQ_check_status_rx24(queueId, SMALL_MAGIC_COLOR_RX24_ID, QUEUE_get_arg(queueId)->param, speed, SMALL_MAGIC_COLOR_RX24_ASSER_SPEED_EPSILON, SMALL_MAGIC_COLOR_RX24_ASSER_TIMEOUT, SMALL_MAGIC_COLOR_RX24_ASSER_SPEED_LARGE_EPSILON, &result, &errorCode, &line))
+			QUEUE_next(queueId, ACT_SMALL_MAGIC_COLOR, result, errorCode, line);
+	}else{
+		// Lorsqu'on vient de recevoir un run_now, on passe directement à l'ordre reçu.
+		ACTQ_flush_queue_to_run_now(queueId, ACT_SMALL_MAGIC_COLOR);
+	}
 
     // On ne surveille le warner que si il est activé
 	if(warner.activated){

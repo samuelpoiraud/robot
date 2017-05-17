@@ -72,6 +72,9 @@ static bool_e ax12_is_initialized = FALSE;
 // Warner de l'actionneur : Déclenche l'envoi d'un message CAN lorsqu'une certaine position est franchi
 static act_warner_s warner;
 
+// Flag qui permet d'annuler l'ordre en cours dans le cas où l'on vient de recevoir un ordre "run_now"
+static bool_e run_now = FALSE;
+
 // Fonction appellée au lancement de la carte (via ActManager)
 void CYLINDER_BALANCER_RIGHT_init() {
 	static bool_e initialized = FALSE;
@@ -209,6 +212,7 @@ bool_e CYLINDER_BALANCER_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_CYLINDER_BALANCER_RIGHT_IN :
 			case ACT_CYLINDER_BALANCER_RIGHT_OUT :
 			case ACT_CYLINDER_BALANCER_RIGHT_STOP :
+				run_now = msg->data.act_msg.act_data.act_order.run_now;
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CYLINDER_BALANCER_RIGHT, &CYLINDER_BALANCER_RIGHT_run_command, 0,TRUE);
 				break;
 
@@ -305,8 +309,13 @@ static void CYLINDER_BALANCER_RIGHT_command_run(queue_id_t queueId) {
 
 	Uint16 pos = AX12_get_position(CYLINDER_BALANCER_RIGHT_AX12_ID);
 
-	if(ACTQ_check_status_ax12(queueId, CYLINDER_BALANCER_RIGHT_AX12_ID, QUEUE_get_arg(queueId)->param, pos, CYLINDER_BALANCER_RIGHT_AX12_ASSER_POS_EPSILON, CYLINDER_BALANCER_RIGHT_AX12_ASSER_TIMEOUT, CYLINDER_BALANCER_RIGHT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
-		QUEUE_next(queueId, ACT_CYLINDER_BALANCER_RIGHT, result, errorCode, line);
+	if(!run_now) {
+		if(ACTQ_check_status_ax12(queueId, CYLINDER_BALANCER_RIGHT_AX12_ID, QUEUE_get_arg(queueId)->param, pos, CYLINDER_BALANCER_RIGHT_AX12_ASSER_POS_EPSILON, CYLINDER_BALANCER_RIGHT_AX12_ASSER_TIMEOUT, CYLINDER_BALANCER_RIGHT_AX12_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+			QUEUE_next(queueId, ACT_CYLINDER_BALANCER_RIGHT, result, errorCode, line);
+	} else {
+		// Lorsqu'on vient de recevoir un run_now, on passe directement à l'ordre reçu.
+		ACTQ_flush_queue_to_run_now(queueId, ACT_CYLINDER_BALANCER_RIGHT);
+	}
 
 	// On ne surveille le warner que si il est activé
 	if(warner.activated)

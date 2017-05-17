@@ -52,11 +52,11 @@ Uint8 ACT_search_link_SID_Queue(ACT_sid_e sid);
  *      break;
  */
 
-
+bool_e ACT_push_order_with_all_params(ACT_sid_e sid,  ACT_order_e order, Uint16 param, Uint16 timeout, bool_e run_now);
 bool_e ACT_push_order(ACT_sid_e sid,  ACT_order_e order);
 bool_e ACT_push_order_with_timeout(ACT_sid_e sid,  ACT_order_e order, Uint16 timeout);
 bool_e ACT_push_order_with_param(ACT_sid_e sid,  ACT_order_e order, Uint16 param);
-
+bool_e ACT_push_order_now(ACT_sid_e sid,  ACT_order_e order);
 
 // -------------------------------- Fonctions de pilotage haut niveau des actionneurs (avec machine à état intégré)
 

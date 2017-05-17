@@ -74,6 +74,9 @@ static bool_e rx24_is_initialized = FALSE;
 // Warner de l'actionneur : Déclenche l'envoi d'un message CAN lorsqu'une certaine position est franchi
 static act_warner_s warner;
 
+// Flag qui permet d'annuler l'ordre en cours dans le cas où l'on vient de recevoir un ordre "run_now"
+static bool_e run_now = FALSE;
+
 // Fonction appellée au lancement de la carte (via ActManager)
 void EXEMPLE_init() {
 	static bool_e initialized = FALSE;
@@ -214,6 +217,7 @@ bool_e EXEMPLE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_EXEMPLE_LOCK :
 			case ACT_EXEMPLE_UNLOCK :
 			case ACT_EXEMPLE_STOP :
+				run_now = msg->data.act_msg.act_data.act_order.run_now;
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_EXEMPLE, &EXEMPLE_run_command, 0,TRUE);
 				break;
 
@@ -310,8 +314,13 @@ static void EXEMPLE_command_run(queue_id_t queueId) {
 
 	Uint16 pos = RX24_get_position(EXEMPLE_RX24_ID);
 
-	if(ACTQ_check_status_rx24(queueId, EXEMPLE_RX24_ID, QUEUE_get_arg(queueId)->param, pos, EXEMPLE_RX24_ASSER_POS_EPSILON, EXEMPLE_RX24_ASSER_TIMEOUT, EXEMPLE_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
-		QUEUE_next(queueId, ACT_EXEMPLE, result, errorCode, line);
+	if(!run_now){
+		if(ACTQ_check_status_rx24(queueId, EXEMPLE_RX24_ID, QUEUE_get_arg(queueId)->param, pos, EXEMPLE_RX24_ASSER_POS_EPSILON, EXEMPLE_RX24_ASSER_TIMEOUT, EXEMPLE_RX24_ASSER_POS_LARGE_EPSILON, &result, &errorCode, &line))
+			QUEUE_next(queueId, ACT_EXEMPLE, result, errorCode, line);
+	}else{
+		// Lorsqu'on vient de recevoir un run_now, on passe directement à l'ordre reçu.
+		ACTQ_flush_queue_to_run_now(queueId, ACT_EXEMPLE);
+	}
 
     // On ne surveille le warner que si il est activé
 	if(warner.activated)

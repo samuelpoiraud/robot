@@ -331,6 +331,25 @@ bool_e ACTQ_finish_SendNothing(queue_id_t queue_id, Uint11 act_sid, Uint8 result
 	return FALSE;
 }
 
+/**
+ * Fonction qui annule tous les ordres empilés d'une queue lors de la réception d'un ordre "run_now" (ie. a executer immediatment).
+ *
+ * On doit annuler l'ordre en cours et tous les ordres empilés sur la queue.
+ * Seul le dernier ordre stockés dans la queue doit être conservé car c'est celui qui doit être execute immediatement.
+ */
+void ACTQ_flush_queue_to_run_now(queue_id_t queue_id, Uint11 act_sid) {
+	Uint8 i = 0;
+	Uint16 nb_actions_in_queue;
+
+	// On compte le nombre d'actions dans la queue
+	nb_actions_in_queue = QUEUE_pending_num(queue_id);
+
+	// On annule l'ordre en cours et tous les autres ordres empilés sauf le dernier (ie. celui qu'on vient de recevoir)
+	for(i = 0; i < nb_actions_in_queue - 1; i++){
+		QUEUE_next(queue_id, act_sid, ACT_RESULT_DONE, ACT_RESULT_ERROR_OK, 0x0100);
+	}
+}
+
 void ACTQ_printResult(Uint11 originalSid, Uint8 originalCommand, Uint8 result, Uint8 errorCode, Uint16 param) {
 	ACTQ_internal_printResult(originalSid, originalCommand, result, errorCode, CAN_TPT_Normal, param, FALSE);
 }
