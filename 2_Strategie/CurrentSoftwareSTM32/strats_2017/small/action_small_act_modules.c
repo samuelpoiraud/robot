@@ -241,10 +241,15 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 				//On active la pompe avant d'avancer
 				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_NORMAL, 100);
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
+				state1 = IN_PROGRESS;
+				state2 = IN_PROGRESS;
 			}
 
-			state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
-			state2 =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(state1 == IN_PROGRESS)
+				state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
+
+			if(state2 == IN_PROGRESS)
+				state2 = try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS ){
 				if(state1 == END_OK && state2 == END_OK){
@@ -268,10 +273,15 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 				//On active la pompe avant d'avancer
 				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_NORMAL, 100 );
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
+				state1bis = IN_PROGRESS;
+				state2bis = IN_PROGRESS;
 			}
 
-			state1bis = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
-			state2bis =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(state1bis == IN_PROGRESS)
+				state1bis = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
+
+			if(state2bis == IN_PROGRESS)
+				state2bis =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			if(state1bis != IN_PROGRESS && state2bis != IN_PROGRESS ){
 				if(state1bis == END_OK && state2bis == END_OK){
@@ -318,12 +328,16 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 				}
 
 				time_timeout = global.absolute_time + 2000;
-
+				state1 = IN_PROGRESS;
+				state2 = IN_PROGRESS;
 			}
 
 			// Vérification des ordres effectués
-			state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
-			state2 = try_going(store_pos.x, store_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(state1 == IN_PROGRESS)
+				state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
+
+			if(state2 == IN_PROGRESS)
+				state2 = try_going(store_pos.x, store_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			//On attends pour securisé le ventousage par l'elevator
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && global.absolute_time > time_timeout){
