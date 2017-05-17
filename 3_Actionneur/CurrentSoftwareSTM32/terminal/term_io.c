@@ -89,6 +89,8 @@
 	#include "../Anne/small_magic/small_magic_color_config.h"
 	#include "../Anne/small_ore/small_ore.h"
 	#include "../Anne/small_ore/small_ore_config.h"
+	#include "../Anne/small_cylinder/small_cylinder_poussix/small_cylinder_poussix_config.h"
+	#include "../Anne/small_cylinder/small_cylinder_poussix/small_cylinder_poussix.h"
 
 
 #endif
@@ -170,7 +172,9 @@ terminal_motor_s terminal_motor[] = {
 		DECLARE_AX12(2, 'n', SMALL_CYLINDER_MULTIFONCTION_AX12),
 		DECLARE_RX24(2, 'o', SMALL_MAGIC_ARM_RX24),
 		DECLARE_RX24(2, 'q', SMALL_MAGIC_COLOR_RX24),
-		DECLARE_AX12(2, 'r', SMALL_ORE_AX12)
+		DECLARE_AX12(2, 'r', SMALL_ORE_AX12),
+		DECLARE_AX12(2, 's', SMALL_CYLINDER_POUSSIX_AX12)
+
 
 
 	#endif

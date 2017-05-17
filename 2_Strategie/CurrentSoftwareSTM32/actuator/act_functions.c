@@ -109,6 +109,8 @@ const act_link_SID_Queue_s act_link_SID_Queue[] = {
 	{ACT_SMALL_CYLINDER_SLIDER,			ACT_QUEUE_Small_cylinder_slider,		"Cylinder slider"},
 	{ACT_SMALL_CYLINDER_SLOPE,			ACT_QUEUE_Small_cylinder_slope,			"Cylinder slope"},
 	{ACT_SMALL_CYLINDER_MULTIFONCTION,	ACT_QUEUE_Small_cylinder_multifonction,	"Cylinder multifonction"},
+	{ACT_SMALL_CYLINDER_POUSSIX,		ACT_QUEUE_Small_cylinder_poussix,		"Cylinder poussix"},
+
 
 	{ACT_SMALL_POMPE_DISPOSE,			ACT_QUEUE_Small_pompe_dispose,			"Pompe dispose"},
 	{ACT_SMALL_POMPE_PRISE,				ACT_QUEUE_Small_pompe_prise,			"Pompe prise"},

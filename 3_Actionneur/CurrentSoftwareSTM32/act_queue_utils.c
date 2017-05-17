@@ -411,10 +411,10 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
           case ACT_SMALL_ORE & 0xFF:					originalSidStr = "SmallOre";				break;
           case ACT_SMALL_POMPE_DISPOSE & 0xFF:			originalSidStr = "SmallPompeDispose";		break;
           case ACT_SMALL_POMPE_PRISE & 0xFF:			originalSidStr = "SmallPompePrise";			break;
+          case ACT_SMALL_CYLINDER_POUSSIX & 0xFF:		originalSidStr = "SmallCylinderPoussix";	break;
 
 
-
-		default:								    originalSidStr = "Unknown";				break;
+          default:								    	originalSidStr = "Unknown";					break;
 	}
 	switch(result) {
 		case ACT_RESULT_DONE:        resultStr = "Done";       break;
