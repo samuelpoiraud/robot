@@ -326,6 +326,7 @@ static void SMALL_CYLINDER_MULTIFONCTION_command_run(queue_id_t queueId) {
 	}else{
 		// Lorsqu'on vient de recevoir un run_now, on passe directement à l'ordre reçu.
 		ACTQ_flush_queue_to_run_now(queueId, ACT_SMALL_CYLINDER_MULTIFONCTION);
+		run_now = FALSE;
 	}
 
     // On ne surveille le warner que si il est activé
