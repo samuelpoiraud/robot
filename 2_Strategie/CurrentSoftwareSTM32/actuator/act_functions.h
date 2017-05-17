@@ -92,6 +92,8 @@ bool_e ACT_set_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value)
  * La valeur de retour sera END_OK si l'actionneur MY_ACT est dans une position différente de MY_ACT_OPEN_POS.
  */
 error_e ACT_check_position_config(Uint16 sid, ACT_order_e order);
+error_e ACT_check_position_config_left(Uint16 sid, ACT_order_e order);
+error_e ACT_check_position_config_right(Uint16 sid, ACT_order_e order);
 
 void ACT_get_config_answer(CAN_msg_t* msg);
 bool_e ACT_get_config_request(Uint16 sid, act_config_e config);
@@ -112,7 +114,9 @@ void ACT_reset_all_warner();
 *
  * @return : le state rentré en argument
  */
-Uint8 ACT_wait_state_vacuostat(Uint8 idVacuostat, MOSFET_BOARD_CURRENT_MEASURE_state_e stateToWait, Uint8 in_progress, Uint8 sucess, Uint8 fail);
+Uint8 ACT_wait_state_vacuostat(act_vacuostat_id idVacuostat, MOSFET_BOARD_CURRENT_MEASURE_state_e stateToWait, Uint8 in_progress, Uint8 sucess, Uint8 fail);
+
+MOSFET_BOARD_CURRENT_MEASURE_state_e ACT_get_state_vacuostat(act_vacuostat_id idVacuostat);
 
 void ACT_receive_vacuostat_msg(CAN_msg_t *msg);
 
