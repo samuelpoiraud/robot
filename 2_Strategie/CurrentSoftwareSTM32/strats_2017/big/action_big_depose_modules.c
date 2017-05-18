@@ -23,13 +23,13 @@
 //error_e sub_harry_get_in_middle_our_side_depose_module_centre();
 
 typedef enum{
-	NO_POS = 0,
 	POS_1,
 	POS_2,
 	POS_3,
 	POS_4,
 	POS_5,
-	POS_6
+	POS_6,
+	NO_POS,
 }dropPlace_e;
 
 Uint8 nbCylindresSurBase = 0;
@@ -121,7 +121,7 @@ error_e sub_harry_depose_centre_manager(){
 					dispose_place = POS_3;
 				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER)<6){
 					dispose_place = POS_5;
-				}
+				}else{dispose_place = NO_POS;}
 
 			}else if(((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))\
 					|| ((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))){
@@ -129,7 +129,7 @@ error_e sub_harry_depose_centre_manager(){
 					dispose_place = POS_2;
 				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left != 2){
 					dispose_place = POS_4;
-				}
+				}else{dispose_place = NO_POS;}
 
 			}else if((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
 				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left != 1){
@@ -138,7 +138,7 @@ error_e sub_harry_depose_centre_manager(){
 					dispose_place = POS_1;
 				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER)<6){
 					dispose_place = POS_5;
-				}
+				}else{dispose_place = NO_POS;}
 
 			}else if(((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))\
 					|| ((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))){
@@ -146,7 +146,7 @@ error_e sub_harry_depose_centre_manager(){
 					dispose_place = POS_4;
 				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6 && nb_try_left != 2){
 					dispose_place = POS_2;
-				}
+				}else{dispose_place = NO_POS;}
 
 			}else if(((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))\
 					||((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))){
@@ -156,7 +156,7 @@ error_e sub_harry_depose_centre_manager(){
 					dispose_place = POS_3;
 				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
 					dispose_place = POS_1;
-				}
+				}else{dispose_place = NO_POS;}
 			}else{
 				dispose_place = NO_POS;
 			}
@@ -168,7 +168,11 @@ error_e sub_harry_depose_centre_manager(){
 		break;
 
 		case ACTION_DISPOSE:
-			state = check_sub_action_result(sub_harry_depose_modules_centre(dispose_place, robot_side), state, SUCCESS_DEPOSE, ERROR_DEPOSE);
+			if(dispose_place != NO_POS){
+				state = check_sub_action_result(sub_harry_depose_modules_centre(dispose_place, robot_side), state, SUCCESS_DEPOSE, ERROR_DEPOSE);
+			}else{
+				state = DONE;
+			}
 			break;
 
 		// Vérifie que tout a été déposé, cependant si l'on reste bloqué trop longtemps on sort
@@ -430,8 +434,13 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 		case NEXT_DEPOSE_MODULE_LEFT:
 			if(STOCKS_isEmpty(MODULE_STOCK_LEFT)){
 				state = GET_OUT;
-			}
-			else{
+			}else if (drop_place == POS_1 && MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER) >= 6){
+				state=GET_OUT;
+			}else if (drop_place == POS_3 && MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE) >= 6){
+				state=GET_OUT;
+			}else if (drop_place == POS_5 && MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER) >= 6){
+				state=GET_OUT;
+			}else{
 				state = GO_TO_DEPOSE_MODULE;
 			}
 			break;
@@ -440,8 +449,11 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 			if(STOCKS_isEmpty(MODULE_STOCK_RIGHT)){
 				state = GET_OUT;
-			}
-			else{
+			}else if (drop_place == POS_2 && MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER) >= 6){
+				state=GET_OUT;
+			}else if (drop_place == POS_4 && MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE) >= 6){
+				state=GET_OUT;
+			}else{
 				state = GO_TO_DEPOSE_MODULE;
 			}
 			break;
@@ -531,6 +543,8 @@ error_e sub_harry_get_in_depose_modules_centre(Uint8 drop_place){
 				state = GET_IN_POS_5;
 			}else if(drop_place == POS_6){
 				state = GET_IN_POS_6;
+			}else{
+				state = DONE;
 			}
 			break;
 
