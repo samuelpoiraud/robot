@@ -28,7 +28,7 @@
 	error_e sub_act_anne_mae_store_modules(bool_e trigger);
 	error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger);
 	error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose);
-
+	error_e sub_act_anne_mae_store_last_module(bool_e trigger);
 
 	//Belgique
 	error_e sub_anne_homologation_belgique();
