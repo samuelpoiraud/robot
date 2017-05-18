@@ -1416,8 +1416,21 @@ error_e sub_anne_fusee_color(){
 			//state=check_sub_action_result(sub_anne_take_rocket(),state,GET_OUT,GET_OUT_ERROR);
 
 
-			#warning "temporaire pour faire comme si la prise fonctionnait"
+			#warning "temporaire pour faire comme si la prise fonctionnait !!!"
 			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER,MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR,MODULE_STOCK_SMALL);
+			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER,MODULE_STOCK_SMALL);
+			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
+			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
 
 			#warning "Samuel : je n'ai pas compris pourquoi on a ces 4 lignes non protégées... c'est la sub qui doit indiquer le dépilage au fur et à mesure !"
 			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
