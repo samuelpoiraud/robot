@@ -433,9 +433,9 @@ error_e sub_anne_chose_moonbase_and_dispose_modules(void)
 				state = COMPUTE_WHAT_DOING;
 			break;
 
-		case DISPOSE_ON_LATERAL_MOONBASE:	//TODO
-			debug_printf("Fonction non implémentée à ce jour : dépose de notre côté\n");
-			state = COMPUTE_WHAT_DOING;
+		case DISPOSE_ON_LATERAL_MOONBASE:
+			if(sub_anne_dispose_modules_side((moonbase==MODULE_MOONBASE_OUR_SIDE)?OUR_SIDE:ADV_SIDE) != IN_PROGRESS)
+				state = COMPUTE_WHAT_DOING;
 			break;
 
 		case COMPUTE_WHAT_DOING:

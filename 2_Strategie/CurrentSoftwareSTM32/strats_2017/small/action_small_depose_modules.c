@@ -2174,7 +2174,6 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 				else
 					state = ASTAR_GET_IN;
 			}
-			state = GET_IN;
 			break;
 		case GET_IN:
 			state = try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
