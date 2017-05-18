@@ -125,6 +125,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			COMPUTE_NEXT_CYLINDER,
 			COMPUTE_ACTION,
 
+			ACTION_PREPARE_ARM_AND_BALANCER,
 			ACTION_MOVE_AWAY_MULTIFONCTION,
 			AVANCE,
 			AVANCE_ERROR,
@@ -141,7 +142,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			ACTION_BRING_CYLINDER_TO_TOP,
 			ACTION_STOCK_UP_CYLINDER,
 			ACTION_PUT_CYLINDER_IN_CONTAINER,
-			ACTION_PUT_SLOPE_DOWN,
+			ACTION_PUT_SLOPE_VERY_UP,
 
 			ERROR_DISABLE_ACT,
 			ERROR,
@@ -225,8 +226,30 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			if(moduleToTake == FALSE){
 				state = DONE; // On a fini ou rien n'est possible de faire
 			}else{
+				state = ACTION_PREPARE_ARM_AND_BALANCER;
+			}
+			break;
+
+		case ACTION_PREPARE_ARM_AND_BALANCER:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
+				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_PREPARE_TO_TAKE);
+				state1 = IN_PROGRESS;
+				state2 = IN_PROGRESS;
+			}
+
+			if(state1 == IN_PROGRESS){
+				state1 = check_act_status(ACT_QUEUE_Small_cylinder_balancer, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}
+
+			if(state2 == IN_PROGRESS){
+				state2 = check_act_status(ACT_QUEUE_Small_cylinder_arm, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}
+
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS){
 				state = ACTION_MOVE_AWAY_MULTIFONCTION;
 			}
+
 			break;
 
 		case ACTION_MOVE_AWAY_MULTIFONCTION:
@@ -448,11 +471,16 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			if(entrance){
 				//on souffle un peu pour faciliter la depose
 				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
+
+				time_timeout = global.absolute_time + 2000;
 			}
-			state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
+			if(global.absolute_time > time_timeout){
+				state = ACTION_PUT_SLOPE_VERY_UP;
+			}
+			//state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
 			break;
 
-		case ACTION_PUT_SLOPE_DOWN:
+		case ACTION_PUT_SLOPE_VERY_UP:
 			if(entrance){
 				//On pousse le module avec le slope
 				ACT_push_order(ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_VERY_UP);

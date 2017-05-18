@@ -21,7 +21,7 @@
 
 //Position
     #define SMALL_CYLINDER_ELEVATOR_RX24_IDLE_POS					480
-    #define SMALL_CYLINDER_ELEVATOR_RX24_TOP_POS			     	806	//en degré
+    #define SMALL_CYLINDER_ELEVATOR_RX24_TOP_POS			     	797 //806	//en degré
     #define SMALL_CYLINDER_ELEVATOR_RX24_WAIT_FOR_SLOPE		     	750	//en degré
     #define SMALL_CYLINDER_ELEVATOR_RX24_BOTTOM_POS					473	//en degré
     #define SMALL_CYLINDER_ELEVATOR_RX24_LOCK_WITH_CYLINDER_POS		489	//en degré
