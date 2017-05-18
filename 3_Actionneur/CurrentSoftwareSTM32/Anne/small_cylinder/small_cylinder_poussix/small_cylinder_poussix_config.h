@@ -21,9 +21,11 @@
 	#define SMALL_CYLINDER_POUSSIX_AX12_SPEED						100		// Vitesse par défaut de l'AX12
 
 //Position
-	#define SMALL_CYLINDER_POUSSIX_AX12_IDLE_POS					512
-	#define SMALL_CYLINDER_POUSSIX_AX12_DOWN_POS				    512		//en degré
-	#define SMALL_CYLINDER_POUSSIX_AX12_UP_POS						512		//en degré
+	#define SMALL_CYLINDER_POUSSIX_AX12_IDLE_POS					205
+	#define SMALL_CYLINDER_POUSSIX_AX12_DOWN_POS				    562		//en degré
+	#define SMALL_CYLINDER_POUSSIX_AX12_UP_POS						205		//en degré
+	#define SMALL_CYLINDER_POUSSIX_AX12_MID_POS						401		//en degré
+
 
 	#define SMALL_CYLINDER_POUSSIX_AX12_WARNER_POS					512
 

@@ -172,6 +172,8 @@ static void SMALL_CYLINDER_POUSSIX_get_position_config(ACT_order_e *pOrder, Uint
 		order = ACT_SMALL_CYLINDER_POUSSIX_DOWN;
 	}else if(position > SMALL_CYLINDER_POUSSIX_AX12_UP_POS - epsilon && position < SMALL_CYLINDER_POUSSIX_AX12_UP_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_POUSSIX_UP;
+	}else if(position > SMALL_CYLINDER_POUSSIX_AX12_MID_POS - epsilon && position < SMALL_CYLINDER_POUSSIX_AX12_MID_POS + epsilon){
+		order = ACT_SMALL_CYLINDER_POUSSIX_MID;
 	}else if(position > SMALL_CYLINDER_POUSSIX_AX12_IDLE_POS - epsilon && position < SMALL_CYLINDER_POUSSIX_AX12_IDLE_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_POUSSIX_IDLE;
 	}
@@ -210,6 +212,7 @@ bool_e SMALL_CYLINDER_POUSSIX_CAN_process_msg(CAN_msg_t* msg) {
 			// Listing de toutes les positions de l'actionneur possible
 			case ACT_SMALL_CYLINDER_POUSSIX_IDLE :
 			case ACT_SMALL_CYLINDER_POUSSIX_DOWN :
+			case ACT_SMALL_CYLINDER_POUSSIX_MID :
 			case ACT_SMALL_CYLINDER_POUSSIX_UP :
 			case ACT_SMALL_CYLINDER_POUSSIX_STOP :
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_SMALL_CYLINDER_POUSSIX, &SMALL_CYLINDER_POUSSIX_run_command, 0,TRUE);
@@ -265,6 +268,7 @@ static void SMALL_CYLINDER_POUSSIX_command_init(queue_id_t queueId) {
 		// Listing de toutes les positions de l'actionneur possible avec les valeurs de position associées
 		case ACT_SMALL_CYLINDER_POUSSIX_IDLE : *ax12_goalPosition = SMALL_CYLINDER_POUSSIX_AX12_IDLE_POS; break;
 		case ACT_SMALL_CYLINDER_POUSSIX_DOWN : *ax12_goalPosition = SMALL_CYLINDER_POUSSIX_AX12_DOWN_POS; break;
+		case ACT_SMALL_CYLINDER_POUSSIX_MID : *ax12_goalPosition = SMALL_CYLINDER_POUSSIX_AX12_MID_POS; break;
 		case ACT_SMALL_CYLINDER_POUSSIX_UP : *ax12_goalPosition = SMALL_CYLINDER_POUSSIX_AX12_UP_POS; break;
 
 		case ACT_SMALL_CYLINDER_POUSSIX_STOP :
