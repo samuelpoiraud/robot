@@ -135,7 +135,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 			PROTECT_NEXT_FALL,
 			ACTION_BRING_BACK_CYLINDER,
-			ACTION_BRING_BACK_CYLINDER_2,
 			RECULE,
 			RECULE_ERROR,
 			ACTION_LOCK_MULTIFUNCTION,
@@ -160,9 +159,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 	static bool_e rocketSide[MAX_MODULE_ROCKET];
 	static Uint8 indexSide = 0;
 	static bool_e moduleToTake = FALSE;		// Module en cours de prise
-	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS;
-	static error_e state1bis = IN_PROGRESS, state2bis = IN_PROGRESS;
-	static error_e state1ter = IN_PROGRESS, state2ter = IN_PROGRESS;
+	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS, state3 = IN_PROGRESS;
 	static moduleType_e moduleType = MODULE_EMPTY;
 	static time32_t time_timeout;
 
@@ -241,66 +238,42 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 				//On active la pompe avant d'avancer
 				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_NORMAL, 100);
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
+
+				//On redescend et active la pompe de l'elevator pour la prochaine prise
+				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR , ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+
 				state1 = IN_PROGRESS;
 				state2 = IN_PROGRESS;
+				state3 = IN_PROGRESS;
+
 			}
+
+			//Et on avance en meme temps :
 
 			if(state1 == IN_PROGRESS)
 				state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
 
 			if(state2 == IN_PROGRESS)
-				state2 = try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state2 = check_act_status(ACT_QUEUE_Small_cylinder_elevator, IN_PROGRESS, END_OK, NOT_HANDLED);
 
-			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS ){
-				if(state1 == END_OK && state2 == END_OK){
-					// On continue
-					state = ACTION_BRING_BACK_CYLINDER;
-				}else if(state1 == END_OK && state2 == NOT_HANDLED){
-					//on a avancé le slider mais pas le robot
+			if(state3 == IN_PROGRESS)
+				state3 =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS ){
+				if(state3 == NOT_HANDLED){
+					//on a pas avancé physiquement, on retente
 					state = AVANCE;
 				}else{
-					//Au cas ou le slider ne part pas :
-					//state = ERROR_ACTION_GO_TAKE_CYLINDER;
-					//Sinon
+					//On continue
 					state = ACTION_BRING_BACK_CYLINDER;
-				}
-			}
-			break;
-
-		case ERROR_ACTION_GO_TAKE_CYLINDER:
-			//On retente les memes actions
-			if(entrance){
-				//On active la pompe avant d'avancer
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_NORMAL, 100 );
-				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
-				state1bis = IN_PROGRESS;
-				state2bis = IN_PROGRESS;
-			}
-
-			if(state1bis == IN_PROGRESS)
-				state1bis = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
-
-			if(state2bis == IN_PROGRESS)
-				state2bis =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-
-			if(state1bis != IN_PROGRESS && state2bis != IN_PROGRESS ){
-				if(state1bis == END_OK && state2bis == END_OK){
-					// On l'a bien ventouse donc on continue
-					state = ACTION_BRING_BACK_CYLINDER;
-				}else if(state1 == NOT_HANDLED && state1bis == NOT_HANDLED){
-					//Le bras n'est pas sortit les deux fois, on part en error
-					//On ne leve pas le flag car si le bras se debloque en bougeant, ca marchera la fois d'apres
-					state = ERROR;
-				}else if(state1bis == END_OK && state2bis == NOT_HANDLED){
-					//On a sortit le slider mais pas bouger le robot
-					state = AVANCE;
 				}
 			}
 			break;
 
 		case AVANCE:
 			//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
-			state = try_going(take_pos.x, take_pos.y, state, ACTION_GO_TAKE_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case AVANCE_ERROR:
@@ -309,14 +282,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			break;
 
 		case ACTION_BRING_BACK_CYLINDER:
-			if (entrance){
-				//On redescend et active la pompe de l'elevator pour la prochaine prise
-				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR , ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_BRING_BACK_CYLINDER_2, ACTION_BRING_BACK_CYLINDER_2);
-			break;
-
-		case ACTION_BRING_BACK_CYLINDER_2:
 			if(entrance){
 				// On allume la pompe seulement a ce moment pour bien laisser le temps au stockage du module ^précédent de se faire
 				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
@@ -1033,7 +998,7 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 
 		case TAKE_CYLINDER:  // On ventouse le cylindre pour le prendre
 			if(entrance){
-				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_NORMAL, 100);
+				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_DEPOSE_NORMAL, 100);
 				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_TAKE);
 			}
 			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, RAISE_CYLINDER, RAISE_CYLINDER);

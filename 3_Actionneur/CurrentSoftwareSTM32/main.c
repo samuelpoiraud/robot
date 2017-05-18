@@ -639,11 +639,23 @@ static void MAIN_onButton0LongPush(){
 	}else if(state == 2){
 		msg.sid = ACT_SMALL_POMPE_PRISE;
 		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}else if(state == 3){
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.data.act_msg.order = ACT_POMPE_SMALL_ELEVATOR_NORMAL;
+		msg.data.act_msg.act_data.act_order.act_optionnal_data[0] = 100;
+	}else if(state == 4){
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.data.act_msg.order = ACT_POMPE_SMALL_ELEVATOR_NORMAL;
+		msg.data.act_msg.act_data.act_order.act_optionnal_data[0] = 100;
+	}else if(state == 5){
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
 	}
+
 
 	if(msg.sid != 0)
 		CAN_process_msg(&msg);
-	state = (state == 2)? 0 : state + 1;
+	state = (state == 5)? 0 : state + 1;
 }
 
 static void MAIN_onButton1(){
