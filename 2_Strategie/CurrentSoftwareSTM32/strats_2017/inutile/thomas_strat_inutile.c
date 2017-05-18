@@ -10,6 +10,7 @@
 #include "../../strats_2017/big/action_big.h"
 #include "../../strats_2017/small/action_small.h"
 #include "../../strats_2017/actions_both_2017.h"
+#include "../../QS/QS_CANmsgList.h"
 
 
 void thomas_strat_inutile_big(){
@@ -48,9 +49,10 @@ void thomas_strat_inutile_big(){
 }
 
 void thomas_strat_inutile_small(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_INUTILE,
 				INIT,
 				GO_POSITION,
+				ARM_OUT,
 				GET_IN_DIRECT,
 				GO_TO_START_POINT,
 				ACTION,
@@ -60,11 +62,18 @@ void thomas_strat_inutile_small(){
 
 	switch(state){
 		case INIT:
-			state = try_going(global.pos.x+200, global.pos.y, state, GO_POSITION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(global.pos.x+200, global.pos.y, state, GO_POSITION, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GO_POSITION:
-			state = try_going(800, COLOR_Y(1000), state, GET_IN_DIRECT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(800, COLOR_Y(1000), state, ARM_OUT, ERROR, FAST, BACKWARD, DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case ARM_OUT:
+			if (entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_PREPARE_TO_TAKE);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, GET_IN_DIRECT, GET_IN_DIRECT);
 			break;
 
 		case GET_IN_DIRECT:
