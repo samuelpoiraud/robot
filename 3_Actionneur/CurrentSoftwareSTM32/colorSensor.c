@@ -29,7 +29,7 @@
 	static volatile COLOR_SENSOR_color_e actualColor = COLOR_SENSOR_NONE, lastColor = COLOR_SENSOR_NONE;
 	static volatile COLOR_SENSOR_color_e actualPresence = FALSE, lastPresence = FALSE;
 
-	static void COLOR_SENSOR_computeColor(Uint32 blue, Uint32 white, Uint32 yellow);
+	static void COLOR_SENSOR_computeColor(Uint32 ambiant, Uint32 blue, Uint32 white, Uint32 yellow);
 
 	void COLOR_SENSOR_init(){
 		GPIO_SetBits(SMALL_COLOR_I2C_ACTIVATE);
@@ -78,12 +78,12 @@
 
 			#ifdef SENSOR_DEBUG_MODE
 				if(global.absolute_time - lastDisplay > 1000){
-					//debug_printf("A:%3d R:%3d G:%3d B:%3d BLEU:%3d BLANC:%3d JAUNE:%3d\n",ambiant, red, green, blue, blue_found, white_found, yellow_found);
+					debug_printf("%d; %d; %d; %d; %d; %d; %d\n", ambiant, red, green, blue, blue_found, white_found, yellow_found);
 					lastDisplay = global.absolute_time;
 				}
 			#endif
 
-			COLOR_SENSOR_computeColor(blue_found, white_found, yellow_found);
+			COLOR_SENSOR_computeColor(ambiant, blue_found, white_found, yellow_found);
 
 			lastProcess = global.absolute_time;
 		}
@@ -97,7 +97,7 @@
 		return actualColor;
 	}
 
-	static void COLOR_SENSOR_computeColor(Uint32 blue, Uint32 white, Uint32 yellow){
+	static void COLOR_SENSOR_computeColor(Uint32 ambiant, Uint32 blue, Uint32 white, Uint32 yellow){
 
 		Uint32 color[3] = {blue, white, yellow};
 
@@ -108,10 +108,14 @@
 			}
 		}
 
-		if(color[indiceMin] > 10)
+		if(indiceMin == 1){ // Si on détecte du blanc
+			if(ambiant > 1000)
+				actualColor = indiceMin + 1;
+			else
+				actualColor = 0;
+		}else{
 			actualColor = indiceMin + 1;
-		else
-			actualColor = 0;
+		}
 
 		if(lastColor != actualColor){
 			COLOR_SENSOR_sendColor();
@@ -128,7 +132,7 @@
 		CAN_send(&msg);
 
 		#ifdef SENSOR_DEBUG_MODE
-			switch(actualColor){
+			/*switch(actualColor){
 				case COLOR_SENSOR_NONE :
 					debug_printf("%s\n", "COLOR_SENSOR_NONE");
 					break;
@@ -148,7 +152,7 @@
 				default:
 					debug_printf("%s\n", COLOR_SENSOR_NONE);
 					break;
-			}
+			}*/
 		#endif
 	}
 
