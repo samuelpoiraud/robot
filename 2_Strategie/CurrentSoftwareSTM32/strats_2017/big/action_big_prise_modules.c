@@ -64,12 +64,13 @@ error_e sub_harry_prise_modules_initiale(){
 				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_HARVEST);
 			}
 
-			state = try_advance(NULL, entrance, 250, state, ADVANCE_SLOWLY, ADVANCE_SLOWLY, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = try_advance(NULL, entrance, 200, state, ADVANCE_SLOWLY, ADVANCE_SLOWLY, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 
 		case ADVANCE_SLOWLY:
-			state = try_advance(NULL, entrance, 100, state, MOVE_TO_TAKE_MODULES, MOVE_TO_TAKE_MODULES, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			//state = try_advance(NULL, entrance, 100, state, MOVE_TO_TAKE_MODULES, MOVE_TO_TAKE_MODULES, SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = try_going(417, COLOR_Y(940), state, MOVE_TO_TAKE_MODULES, MOVE_TO_TAKE_MODULES,SLOW, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case MOVE_TO_TAKE_MODULES:
@@ -1926,15 +1927,14 @@ error_e sub_harry_rocket_monocolor(){
 error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_PRISE_ROCKET_MULTICOLOR,
 				INIT,
-				//INIT_ALL_ACTIONNEUR,
 				ALL_THE_GET_IN,
 				GET_IN_MIDDLE_SQUARE,
 				GET_IN_OUR_SQUARE,
 				GET_IN_ADV_SQUARE,
 				GET_IN_PATHFIND,
 
-				GET_IN_FRONT_OF_ONE_ON_TWO,
-				TURN_TO_POS,
+				//GET_IN_FRONT_OF_ONE_ON_TWO,
+				//TURN_TO_POS,
 				GET_IN_FRONT_OF_TWO_ON_TWO,
 				ACTION,
 
@@ -1982,26 +1982,12 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 				}
 			}
 			}break;
-		/*
-		case INIT_ALL_ACTIONNEUR:
-			// on appelle une fonction qui verifie la position initiale de tout nos actionneurs
-			static error_e result;
-			if(entrance){
-				result = init_all_actionneur();
-			}
-			if(result == END_OK){
-				state=ALL_THE_GET_IN;
-			}else{
-				state=ERROR;
-			}
-			break;
-			*/
 
 		case ALL_THE_GET_IN:
 
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				if(i_am_in_square(700, 1450, 250, 1000)){
-					state = GET_IN_FRONT_OF_ONE_ON_TWO; //GET_IN_OUR_SQUARE;
+					state = GET_IN_FRONT_OF_TWO_ON_TWO; //GET_IN_OUR_SQUARE;
 				}else if (i_am_in_square(350, 1050, 900, 2100)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(700, 1450, 2000, 2750)){
@@ -2011,7 +1997,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 				}
 			}else{ // Prise fusee cote bleu
 				if(i_am_in_square(700, 1450, 2000, 2750)){
-					state = GET_IN_FRONT_OF_ONE_ON_TWO; //GET_IN_OUR_SQUARE;
+					state = GET_IN_FRONT_OF_TWO_ON_TWO; //GET_IN_OUR_SQUARE;
 				}else if (i_am_in_square(350, 1050, 900, 2100)){
 					state = GET_IN_MIDDLE_SQUARE;
 				}else if (i_am_in_square(700, 1450, 250, 1000)){
@@ -2025,9 +2011,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 
 		case GET_IN_OUR_SQUARE:
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 400, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(1350, 400, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(1350, 2600, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(1350, 2600, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
@@ -2050,20 +2036,20 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 
 		case GET_IN_PATHFIND:
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = ASTAR_try_going(1350, 400, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = ASTAR_try_going(1350, 400, GET_IN_PATHFIND, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = ASTAR_try_going(1350, 2600, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = ASTAR_try_going(1350, 2600, GET_IN_PATHFIND, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 
-		case GET_IN_FRONT_OF_ONE_ON_TWO:
+		/*case GET_IN_FRONT_OF_ONE_ON_TWO:
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state = try_going(1350, 360, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
 				state = try_going(1350, 2640, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
-			break;
+			break;*/
 
 		case GET_IN_FRONT_OF_TWO_ON_TWO:
 			if(entrance){
@@ -2073,20 +2059,22 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_UP);
 				}
 			}
+
+			// On passe en SLOW pour être plus précis en Y sinon ca ne marche pas.
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 300, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 305, state, ACTION, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2700, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 2695, state, ACTION, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
-		case TURN_TO_POS:
+		/*case TURN_TO_POS:
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state = try_go_angle(-PI4096/2, state, ACTION, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			}else{
 				state = try_go_angle(PI4096/2, state, ACTION, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			}
-			break;
+			break;*/
 
 
 		case ACTION:
