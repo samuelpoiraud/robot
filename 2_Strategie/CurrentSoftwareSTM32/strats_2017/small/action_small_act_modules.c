@@ -764,8 +764,9 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			MOVE_BALANCER_OUT,
 			CHECK_IF_TURN_FOR_COLOR_NEEDED,
 			TURN_FOR_COLOR,
-			WAIT_WHITE,
 			WAIT_OUR_COLOR,
+			WAIT_TIME_IN_WHITE,
+			WAIT_WHITE,
 			STOP_TURN,
 			END_CHECK_POSITION_BALANCER,
 			END_MOVE_BALANCER_IN,
@@ -852,33 +853,41 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 		case TURN_FOR_COLOR:
 			if(entrance){
 				ACT_push_order(ACT_SMALL_CYLINDER_COLOR, ACT_SMALL_CYLINDER_COLOR_NORMAL_SPEED);
+				time_timeout = global.absolute_time + 500;
 			}
-			// Aucune vérification ici
-			state = WAIT_WHITE;
-			break;
-
-		case WAIT_WHITE:
-			state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_WHITE, TIMEOUT_COLOR, state, WAIT_OUR_COLOR, STOP_TURN);
+			if(global.absolute_time > time_timeout){	// Attente de la fin de la chute du module pour éviter les effets de bords de détection de couleur
+				state = WAIT_OUR_COLOR;
+			}
 			break;
 
 		case WAIT_OUR_COLOR:
+			if(global.color == BLUE)
+				state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_BLUE, TIMEOUT_COLOR, state, WAIT_WHITE, STOP_TURN);
+			else
+				state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_YELLOW, TIMEOUT_COLOR, state, WAIT_WHITE, STOP_TURN);
+			break;
+
+		case WAIT_WHITE:
 			// On en profite pour retourner le balancer vers l'intérieur du robot pour gagner du temps
 			// Pas de vérification du résultat ici, la couleur est prioritaire.
 			if(entrance){
 				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, MODULE_STOCK_SMALL);
 			}
+			state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_WHITE, TIMEOUT_COLOR, state, WAIT_TIME_IN_WHITE, STOP_TURN);
+			break;
 
-			if(global.color == BLUE)
-				state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_BLUE, TIMEOUT_COLOR, state, STOP_TURN, ERROR);
-			else
-				state = ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_YELLOW, TIMEOUT_COLOR, state, STOP_TURN, ERROR);
+		case WAIT_TIME_IN_WHITE:
+			if(entrance){
+				time_timeout = global.absolute_time + 400;
+			}
+
+			if(global.absolute_time > time_timeout){	// Attente du faible rotation
+				state = STOP_TURN;
+			}
 
 			if(ON_LEAVE()){
-				if(state == STOP_TURN){	// On a trouvé la couleur
-					ELEMENTS_set_flag(FLAG_ANNE_MODULE_COLOR_SUCCESS, TRUE);
-				}
-				state = STOP_TURN;
+				ELEMENTS_set_flag(FLAG_ANNE_MODULE_COLOR_SUCCESS, TRUE);
 			}
 			break;
 

@@ -144,12 +144,12 @@
 		}
 
 		if(ACT_IS_READY && actDisplay == FALSE){
-			LCD_OVER_UART_setText(actReady, "Actionneur prêt");
+			LCD_OVER_UART_setText(actReady, "Actionneur ready");
 			actDisplay = TRUE;
 		}
 
 		if(PROP_IS_READY && propDisplay == FALSE){
-			LCD_OVER_UART_setText(propReady, "Propulsion prête");
+			LCD_OVER_UART_setText(propReady, "Propulsion ready");
 			propDisplay = TRUE;
 		}
 
