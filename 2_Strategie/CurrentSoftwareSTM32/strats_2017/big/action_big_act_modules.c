@@ -1980,13 +1980,12 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			AVANCE_ERROR,
 			TURN_TO_POS,
 
+			ELEVATOR_GO_UP,
 			ACTION_GO_TAKE_CYLINDER,
-			ACTION_GO_TAKE_CYLINDER_2,
 
 			PROTECT_NEXT_FALL,
 			ACTION_BRING_BACK_CYLINDER,
 			ACTION_BRING_BACK_CYLINDER_2,
-			//STOP_POMPE_SLIDER,
 
 			RECULE,
 			RECULE_ERROR,
@@ -2006,6 +2005,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	static Uint8 indexSide = 0;
 	static ELEMENTS_side_e moduleToTake = NO_SIDE;		// Module en cours de prise
 	static bool_e needToStoreRight, needToStoreLeft;
+	static bool_e takeNothingRight, takeNothingLeft;
 	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS;
 	static error_e state3 = IN_PROGRESS;
 	static MOSFET_BOARD_CURRENT_MEASURE_state_e pump_state;
@@ -2047,6 +2047,8 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			moduleToTake = NO_SIDE;
 			needToStoreRight = FALSE;
 			needToStoreLeft = FALSE;
+			takeNothingRight =  FALSE;
+			takeNothingLeft = FALSE;
 
 			// Calcul des positions
 			store_pos.x = global.pos.x;
@@ -2079,20 +2081,27 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				moduleToTake = NO_SIDE;		// Soit les 2 stocks sont plein soit plus aucun actionneur ne fonctionne.
 			}
 			indexSide++; // On incrémente l'index pour le prochain passage
-			state = COMPUTE_ACTION;
+
+			if(indexSide > 4){ // Ici c'est bien strictement supérieur
+				state = DONE;
+			}else{
+				state = COMPUTE_ACTION;
+			}
 			break;
 
 		case COMPUTE_ACTION:
-			if(!needToStoreLeft && !needToStoreRight && moduleToTake == NO_SIDE){
+			if(!needToStoreLeft && !needToStoreRight && moduleToTake == NO_SIDE && indexSide >= 4){
 				state = DONE; // On a fini ou rien n'est possible de faire
+			}else if(takeNothingLeft && takeNothingRight){
+				state = DONE; // La fusée est vide.
 			}else if(needToStoreLeft && needToStoreRight){
 				state = RECULE; // On doit stocker 2 modules
-			}else if(needToStoreLeft &&  moduleToTake == LEFT){
+			}else if(needToStoreLeft &&  (moduleToTake == LEFT || indexSide >= 4)){
 				state = RECULE; // On doit stocker le module gauche
-			}else if(needToStoreRight &&  moduleToTake == RIGHT){
+			}else if(needToStoreRight &&  (moduleToTake == RIGHT || indexSide >= 4)){
 				state = RECULE; // On doit stocker le module droit
 			}else if((moduleToTake == LEFT || moduleToTake == RIGHT) && (needToStoreLeft || needToStoreRight)){
-				state = ACTION_GO_TAKE_CYLINDER; // on doit prendre à partir de la position de prise
+				state = ELEVATOR_GO_UP; // on doit prendre à partir de la position de prise
 			}else if(moduleToTake == LEFT || moduleToTake == RIGHT){
 				state = AVANCE; // on doit prendre un cylindre à partir de la position de stockage
 			}else{
@@ -2109,10 +2118,10 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			break;
 
 		case TURN_TO_POS:
-			state = try_go_angle(take_angle, state, ACTION_GO_TAKE_CYLINDER, ACTION_GO_TAKE_CYLINDER, FAST, ANY_WAY, END_AT_LAST_POINT);
+			state = try_go_angle(take_angle, state, ELEVATOR_GO_UP, ELEVATOR_GO_UP, FAST, ANY_WAY, END_AT_LAST_POINT);
 			break;
 
-		case ACTION_GO_TAKE_CYLINDER:
+		case ELEVATOR_GO_UP:
 			if (entrance){
 				if(moduleToTake == RIGHT){
 					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
@@ -2121,13 +2130,13 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				}
 			}
 			if(moduleToTake == RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_GO_TAKE_CYLINDER_2, ACTION_GO_TAKE_CYLINDER_2);
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, ACTION_GO_TAKE_CYLINDER, ACTION_GO_TAKE_CYLINDER);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_GO_TAKE_CYLINDER_2, ACTION_GO_TAKE_CYLINDER_2);
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, ACTION_GO_TAKE_CYLINDER, ACTION_GO_TAKE_CYLINDER);
 			}
 
 			break;
-		case ACTION_GO_TAKE_CYLINDER_2:
+		case ACTION_GO_TAKE_CYLINDER:
 			if(entrance){
 				if(moduleToTake == RIGHT){
 					//On active la pompe avant d'avancer
@@ -2260,61 +2269,35 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 
 			if(state1 != IN_PROGRESS){
 
-				if((moduleToTake == RIGHT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))
-				|| (moduleToTake == LEFT && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
-					state = COMPUTE_ACTION;	// Si l'élévateur n'est pas occupé, on continue le stockage
-				}else if((moduleToTake == RIGHT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))
-				|| (moduleToTake == LEFT && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
-					state = COMPUTE_ACTION;		// Si l'élévateur est occupé, on va prendre le cylindre suivant
-				}
+				state = COMPUTE_ACTION;
 
-				// On met à jour les données : Passage du module dans la position POS_ENTRY
-				if(moduleToTake == RIGHT){
-					needToStoreRight = TRUE;
-					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
-				}else{
-					needToStoreLeft = TRUE;
-					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
-				}
-
-				ROCKETS_removeModule(rocket); // Suppression du module de la fusée
-
-				if(state == COMPUTE_ACTION){ // Très important
+				// On continue si on pompe un objet ou si la pompe est considéré OFF (ce qui signifie une perte de communication)
+				if((moduleToTake == RIGHT && ACT_get_state_vacuostat(VACUOSTAT_SLIDER_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)
+				|| (moduleToTake == LEFT && ACT_get_state_vacuostat(VACUOSTAT_SLIDER_LEFT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)){
+					// On met à jour les données : Passage du module dans la position POS_ENTRY
+					if(moduleToTake == RIGHT){
+						needToStoreRight = TRUE;
+						STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
+					}else{
+						needToStoreLeft = TRUE;
+						STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
+					}
 					moduleToTake = NO_SIDE;
+
+					ROCKETS_removeModule(rocket); // Suppression du module de la fusée
+				}
+				else // En cas d'erreur : on est sur que la pompe était allumé mais on a rien ventousé
+				{
+					if(moduleToTake == RIGHT){	// On a rien pris à droite
+						moduleToTake = LEFT;
+						takeNothingRight = TRUE;
+					}else{						// On a rien pris à gauche
+						moduleToTake = RIGHT;
+						takeNothingLeft = TRUE;
+					}
 				}
 			}
 			break;
-
-		/*case STOP_POMPE_SLIDER:
-			if(entrance){
-				time_timeout_before_pompe_stop = global.absolute_time + 1000;
-				time_timeout_after_pompe_stop = global.absolute_time + 2000;
-				pompe_stop =  FALSE;
-			}
-
-			if(global.absolute_time > time_timeout_before_pompe_stop && pompe_stop == FALSE){
-				if(moduleToTake == RIGHT){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP );
-				}else{
-					ACT_push_order( ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP );
-				}
-				pompe_stop=TRUE;
-			}
-
-			// On attend une seconde le temps que le ventousage se fasse bien
-			if(global.absolute_time > time_timeout_after_pompe_stop){
-				pompe_stop=FALSE;
-				state = COMPUTE_ACTION;
-
-				// On met à jour les données : Passage du module de POS_ENTRY à POS_ELEVATOR
-				if(moduleToTake == RIGHT){
-					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_RIGHT);
-				}else{
-					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_LEFT);
-				}
-				moduleToTake = NO_SIDE;
-			}
-			break;*/
 
 		case RECULE:
 			if(entrance){
@@ -2342,18 +2325,23 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_RIGHT);
 					sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
 				}
+
+				// Reset des variables
+				takeNothingLeft = FALSE;
+				takeNothingRight = FALSE;
 			}
 
-			if(indexSide >= 4){
+			/*if(indexSide >= 4){
 				state = DONE; // pas besoin d'attendre
 				needToStoreLeft = FALSE;
 				needToStoreRight = FALSE;
-			}else if((needToStoreLeft && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_FINISH)
+			}else */
+			if((needToStoreLeft && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_FINISH)
 			&& needToStoreRight && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH))
 			|| (needToStoreLeft && !needToStoreRight && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_FINISH))
 			|| (!needToStoreLeft && needToStoreRight && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH))
 			){
-				state = COMPUTE_NEXT_CYLINDER;
+				state = COMPUTE_ACTION;
 				needToStoreLeft = FALSE;
 				needToStoreRight = FALSE;
 			}
