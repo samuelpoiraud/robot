@@ -218,9 +218,9 @@ static void MAIN_onButton0() {
 		msg1.sid = ACT_ORE_WALL;
 		msg1.data.act_msg.order = ACT_ORE_WALL_OUT;
 	}else if(state == 2){
-		msg1.sid = ACT_ORE_ROLLER_FOAM;
-		msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_RUN;
-		msg1.data.act_msg.act_data.act_order.act_optionnal_data[0] = ACT_ORE_ROLLER_FOAM_SPEED_RUN;
+	msg1.sid = ACT_ORE_ROLLER_FOAM;
+	msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_RUN;
+	msg1.data.act_msg.act_data.act_order.act_optionnal_data[0] = (Uint16)(510);
 	}else if(state == 3){
 		msg1.sid = ACT_ORE_ROLLER_FOAM;
 		msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_STOP;
