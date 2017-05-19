@@ -1595,9 +1595,9 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 
 		case GET_IN_PATHFIND:
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = ASTAR_try_going(1250, 500, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
+				state = ASTAR_try_going(1250, 500, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = ASTAR_try_going(1250, 2500, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_AVOIDANCE, END_AT_BRAKE);
+				state = ASTAR_try_going(1250, 2500, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
