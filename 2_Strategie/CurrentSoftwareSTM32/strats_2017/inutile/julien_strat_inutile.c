@@ -58,6 +58,13 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 			{MODULE_OUR_MID, LEFT}
 	};
 
+	UNUSED_VAR(our_modules);
+	UNUSED_VAR(our_modules_with_rocket);
+	UNUSED_VAR(adv_modules);
+	UNUSED_VAR(adv_modules_with_rocket);
+	UNUSED_VAR(number_modules);
+	UNUSED_VAR(list_modules);
+
 	static int destination=0;
 
 	switch(state){

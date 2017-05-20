@@ -1031,12 +1031,10 @@ error_e sub_wait(Sint16 x, Sint16 y, time32_t duration)
 	CREATE_MAE_WITH_VERBOSE(SM_ID_BOTH_WAIT,
 			INIT,
 			GET_IN_WITH_ASTAR,
-			GOTO_POINT,
 			WAIT,
 			ERROR,
 			DONE
 		);
-	static enum state_e success_state;
 	static time32_t local_time;
 
 	switch(state)
@@ -1047,9 +1045,11 @@ error_e sub_wait(Sint16 x, Sint16 y, time32_t duration)
 			else
 				state = GET_IN_WITH_ASTAR;
 			break;
+
 		case GET_IN_WITH_ASTAR:
 			state = ASTAR_try_going(x, y, state, WAIT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
+
 		case WAIT:
 			if(entrance)
 			{
@@ -1058,10 +1058,12 @@ error_e sub_wait(Sint16 x, Sint16 y, time32_t duration)
 			if(global.match_time > local_time + duration)
 				state = DONE;
 			break;
+
 		case ERROR:
 			state = INIT;
 			return NOT_HANDLED;
 			break;
+
 		case DONE:
 			state = INIT;
 			return END_OK;

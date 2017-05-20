@@ -31,7 +31,6 @@ error_e sub_act_anne_return_module(){
 		);
 
 	static time32_t time_timeout = 0;
-	bool_e white_color, blue_color, yellow_color;
 	#define TIMEOUT_TURN		(3000)
 	#define TIMEOUT_TIMER		(350)
 
@@ -779,7 +778,6 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 	error_e ret = IN_PROGRESS;
 	static error_e stateAct = IN_PROGRESS;
 	static time32_t time_timeout = 0;
-	bool_e color_white = 0, color_blue = 0, color_yellow = 0;
 
 	switch(state){
 

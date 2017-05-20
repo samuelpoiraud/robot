@@ -254,6 +254,10 @@ void guillaumeMa_strat_inutile_big(){
 			break;
 
 
+		case ERROR1:
+			break;
+
+
 		case ERROR2:
 			state = POINT4;
 			break;

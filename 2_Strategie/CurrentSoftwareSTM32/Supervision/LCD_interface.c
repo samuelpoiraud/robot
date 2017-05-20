@@ -164,7 +164,7 @@
 		static bool_e changeMenuIhmTest = FALSE;
 		static bool_e changeMenuCheckList = FALSE;
 		static LCD_objectId_t idX, idY, idAngle, idVoltage, idTime, idStrat, idMatch, idMatchTime;
-		static LCD_objectId_t idAdv1, idAdv2, idAdvIr1, idAdvIr2;
+		//static LCD_objectId_t idAdv1, idAdv2, idAdvIr1, idAdvIr2;
 		static time32_t lastRefresh;
 
 		static Sint16 lastX, lastY, lastTeta, lastVoltate;
