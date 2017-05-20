@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef VL53L0X_TYPES_H_
 	#define VL53L0X_TYPES_H_
 
-	#include "../QS_all.h"
+	#include "../../QS_all.h"
 
 	#ifdef USE_VL53L0X
 

@@ -3,7 +3,7 @@
 #ifdef USE_VL53L0X
 
 	#include "QS_vl53l0x_api.h"
-	#include "../QS_i2c.h"
+	#include "../../QS_i2c.h"
 
 	#include <string.h>
 
