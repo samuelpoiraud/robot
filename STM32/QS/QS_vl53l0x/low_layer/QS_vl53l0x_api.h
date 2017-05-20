@@ -29,7 +29,7 @@
 #ifndef _VL53L0X_API_H_
 	#define _VL53L0X_API_H_
 
-	#include "../QS_all.h"
+	#include "../../QS_all.h"
 
 	#ifdef USE_VL53L0X
 
