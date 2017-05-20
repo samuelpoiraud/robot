@@ -148,7 +148,6 @@ error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules){
 #define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
 	static time32_t time_timeout = 0;
 	Uint8 pos_get_in;
-	Uint8 passage;
 
 	static Uint8 nb_cylinder_in_basis = 0;
 	static Sint16 tryx, tryy;
@@ -555,8 +554,6 @@ error_e sub_anne_return_modules_side(ELEMENTS_property_e modules){
 
 #define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
 	static time32_t time_timeout = 0;
-	Uint8 pos_get_in;
-	Uint8 passage;
 
 	static Uint8 nb_cylinder_in_basis = 0;
 	static Sint16 tryx, tryy;
@@ -2207,7 +2204,11 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			break;
 		case GOTO_F0_VIA_E0:
 			//BACKWARD pour se mettre du bon côté !!!
-			state = try_going_multipoint(	(displacement_t []){	(GEOMETRY_point_t){E0.x, E0.y}, FAST,(GEOMETRY_point_t){F0.x, F0.y}, FAST}, 2, state, DISPOSE, EXTRACT_BEYOND_F3, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going_multipoint(	(displacement_t []) {
+												(displacement_t) { (GEOMETRY_point_t){E0.x, E0.y}, FAST},
+												(displacement_t) { (GEOMETRY_point_t){F0.x, F0.y}, FAST}
+											},
+											2, state, DISPOSE, EXTRACT_BEYOND_F3, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case DISPOSE:{
 			static enum state_e success_state;
@@ -4683,7 +4684,7 @@ error_e sub_anne_return_modules(ELEMENTS_side_e side){
 
 
 // la place des modules est comptée en partant du centre "Atos"
-/*error_e manager_return_modules(){ => Fonction à ne pas utiliser
+error_e manager_return_modules(){ => Fonction à ne pas utiliser
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_anne_DEPOSE_MODULES_CENTRE,
 			INIT,
 			RETURN_MODULE_DROP_MIDDLE,

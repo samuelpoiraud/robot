@@ -943,7 +943,8 @@ error_e sub_anne_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_
 				}
 			}
 
-			state=check_sub_action_result(sub_act_annne_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT, ERROR);
+#warning "Cette subaction n\'existe pas !"
+			//state=check_sub_action_result(sub_act_annne_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT, ERROR);
 
 			if(state==GET_OUT){
 				if(modules == OUR_ELEMENT)

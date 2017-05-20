@@ -18,6 +18,7 @@
 #include "QS/QS_IHM.h"
 #include "queue.h"
 #include "mosfetBoard.h"
+#include "colorSensor.h"
 
 #include "ActManager.h"
 
