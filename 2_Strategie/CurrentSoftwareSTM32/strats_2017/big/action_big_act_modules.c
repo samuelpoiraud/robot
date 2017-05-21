@@ -15,6 +15,10 @@
 #include "../actions_both_2017.h"
 
 
+#define TIME_COLOR_BLUE_DETECTION	(100)	// en ms
+
+// Fonctions privées
+static bool_e color_blue_is_detected(CW_sensor_e sensor, bool_e color_white, bool_e color_yellow);
 
 #if 0
 // Subaction actionneur de prise fusée v2
@@ -809,6 +813,8 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	static enum state_e stateRight = WAIT_TRIGGER, stateLeft = WAIT_TRIGGER;
 	static enum state_e lastStateRight = WAIT_TRIGGER, lastStateLeft = WAIT_TRIGGER;
 	error_e ret = IN_PROGRESS;
+	static time32_t time_timeout_left, time_timeout_right;
+	time32_t time_timeout;
 
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
@@ -816,11 +822,13 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 		entrance = (stateRight != lastStateRight);
 		last_state = lastStateRight;
 		lastStateRight = stateRight;
+		time_timeout = time_timeout_right;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 		entrance = (stateLeft != lastStateLeft);
 		last_state = lastStateLeft;
 		lastStateLeft = stateLeft;
+		time_timeout = time_timeout_left;
 	}else{
 		error_printf("sub_act_harry_mae_store_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
@@ -837,8 +845,8 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	}
 	//---------------------- Fin gestion de la réentrance ---------------------------
 
-	//static error_e stateAct = IN_PROGRESS;
-	static time32_t time_timeout_left, time_timeout_right;
+	// Variables static mais dupliquées pour gérer la réentrance, vous pouvez donc utiliser :
+	//time32_t time_timeout;
 
 #ifdef DISPLAY_STOCKS
 	if(entrance){
@@ -943,15 +951,11 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				if(storage == MODULE_STOCK_RIGHT){
-					time_timeout_left = global.absolute_time + 1000;
-				}else{
-					time_timeout_right = global.absolute_time + 1000;
-				}
+				time_timeout = global.absolute_time + 1000;
 			}
 
-			if((storage == MODULE_STOCK_RIGHT && (global.absolute_time > time_timeout_right || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))
-			|| (storage == MODULE_STOCK_LEFT && (global.absolute_time > time_timeout_left || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))){
+			if((storage == MODULE_STOCK_RIGHT && (global.absolute_time > time_timeout || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))
+			|| (storage == MODULE_STOCK_LEFT && (global.absolute_time > time_timeout || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))){
 				state = CHECK_CONTAINER_IS_AVAILABLE;
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
@@ -1053,16 +1057,14 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 		case PUT_CYLINDER_IN_CONTAINER:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					time_timeout_right = global.absolute_time + 400;
 					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
 				}else{
-					time_timeout_left = global.absolute_time + 400;
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
 				}
+				time_timeout = global.absolute_time + 400;
 			}
 
-			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
-			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
+			if(global.absolute_time > time_timeout){
 				//state = SLOPE_GO_VERY_UP;
 				state = COMPUTE_ACTION;
 
@@ -1154,8 +1156,10 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 	if(storage == MODULE_STOCK_RIGHT){
 		stateRight = state;
+		time_timeout_right = time_timeout;
 	}else if(storage == MODULE_STOCK_LEFT){
 		stateLeft = state;
+		time_timeout_left = time_timeout;
 	} // else L'erreur a déjà été affichée
 
 	return ret;
@@ -1163,6 +1167,26 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 
 
+// Fonction spéciale de détection du bleu
+static bool_e color_blue_is_detected(CW_sensor_e sensor, bool_e color_white, bool_e color_yellow) {
+	assert(sensor <= 1); // CW_SENSOR_LEFT or CW_SENSOR_RIGHT
+	static bool_e color_detected[2];
+	static time32_t time_detection[2];
+	bool_e color_response = FALSE;
+
+	if(!color_white && !color_yellow && !color_detected[sensor]) {
+		color_detected[sensor] = TRUE;
+		time_detection[sensor] = global.absolute_time + TIME_COLOR_BLUE_DETECTION;
+		debug_printf("Color blue is detected\n\n");
+	}else if(!color_white && !color_yellow && color_detected[sensor] && global.absolute_time > time_detection[sensor]){
+		color_response = TRUE;
+	}else if(color_white || color_yellow){
+		color_detected[sensor] = FALSE;
+		color_response = FALSE;
+	}
+
+	return color_response;
+}
 
 
 
@@ -1193,6 +1217,10 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 	static enum state_e stateRight = WAIT_TRIGGER, stateLeft = WAIT_TRIGGER;
 	static enum state_e lastStateRight = DONE, lastStateLeft = DONE;
 	error_e ret = IN_PROGRESS;
+	static time32_t time_timeout_left = 0, time_timeout_right = 0;
+	time32_t time_timeout;
+	static Uint8 nb_errors_balancer_left = 0, nb_errors_balancer_right = 0;
+	Uint8 nb_errors_balancer;
 
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
@@ -1200,11 +1228,15 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 		entrance = (stateRight != lastStateRight);
 		last_state = lastStateRight;
 		lastStateRight = stateRight;
+		time_timeout = time_timeout_right;
+		nb_errors_balancer = nb_errors_balancer_right;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 		entrance = (stateLeft != lastStateLeft);
 		last_state = lastStateLeft;
 		lastStateLeft = stateLeft;
+		time_timeout = time_timeout_left;
+		nb_errors_balancer = nb_errors_balancer_left;
 	}else{
 		error_printf("sub_act_harry_mae_prepare_modules_for_dispose could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
@@ -1221,12 +1253,16 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 	}
 	//---------------------- Fin gestion de la réentrance ---------------------------
 
-	#define TIMEOUT_COLOR	(3000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
+	#define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
 	#define NB_TRY_BALANCER_TOLERATED (3)
-	static error_e stateAct = IN_PROGRESS;
-	static time32_t time_timeout_left = 0, time_timeout_right = 0;
+
+	// Variables static mais dupliquées pour gérer la réentrance, vous pouvez donc utiliser :
+	//time32_t time_timeout;
+	//Uint8 nb_errors_balancer;
+
+	// Variables locales (pas de duplication nécessaire pour la réentrance)
+	error_e stateAct = IN_PROGRESS;
 	bool_e color_white = 0, color_blue = 0, color_yellow = 0;
-	static Uint8 nb_errors_balancer_left = 0, nb_errors_balancer_right = 0;
 
 	switch(state){
 
@@ -1238,25 +1274,25 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				if(storage == MODULE_STOCK_RIGHT){
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS, FALSE);
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH, FALSE);
-					nb_errors_balancer_right = 0;
 				}else{
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS, FALSE);
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH, FALSE);
-					nb_errors_balancer_left = 0;
 				}
+
+				nb_errors_balancer = 0;
 			}
 			break;
 
 		case INIT:
 			//Partie de code ajoutée à la coupe de Belgique qui permettait de mieux déposer les cylindres
-			if(entrance){
+			/*if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order(ACT_CYLINDER_SLOPE_RIGHT, ACT_CYLINDER_SLOPE_RIGHT_UP);
 				}
 				else{
 					ACT_push_order(ACT_CYLINDER_SLOPE_LEFT, ACT_CYLINDER_SLOPE_LEFT_UP);
 				}
-			}
+			}*/
 
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
 				state = MOVE_BALANCER_OUT; // Préparation de la dépose possible
@@ -1267,31 +1303,21 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 		case WAIT_STORAGE:
 			if(entrance){
-				if(storage == MODULE_STOCK_RIGHT){
-					time_timeout_right = global.absolute_time + 10000;
-				}else{
-					time_timeout_left = global.absolute_time + 10000;
-				}
+				time_timeout = global.absolute_time + 10000;
 				sub_act_harry_mae_store_modules(storage, TRUE);
 			}
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
 				state = WAIT_MODULE_FALL;
-			}else if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
-			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
+			}else if(global.absolute_time > time_timeout){
 				state = ERROR; // Le stockage a semble t il échoué, on ne peut rien faire de plus ici
 			}
 			break;
 
 		case WAIT_MODULE_FALL:	// On attend que le module tombe bien dans le balancer, c'est à dire que le stockage se termine bien mécaniquement
 			if(entrance){
-				if(storage == MODULE_STOCK_RIGHT){
-					time_timeout_right = global.absolute_time + 1500;
-				}else{
-					time_timeout_left = global.absolute_time + 1500;
-				}
+				time_timeout = global.absolute_time + 1500;
 			}
-			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
-			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
+			if(global.absolute_time > time_timeout){
 				state = MOVE_BALANCER_OUT;
 			}
 			break;
@@ -1324,15 +1350,10 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
 
 					// On incrémente l'erreur
-					if(storage == MODULE_STOCK_RIGHT){
-						nb_errors_balancer_right++;
-					}else{
-						nb_errors_balancer_left++;
-					}
+					nb_errors_balancer++;
 
 					// On regarde si on retente ou si on part en ERROR
-					if((storage == MODULE_STOCK_RIGHT && nb_errors_balancer_right < NB_TRY_BALANCER_TOLERATED)
-					|| (storage == MODULE_STOCK_LEFT && nb_errors_balancer_left < NB_TRY_BALANCER_TOLERATED)){
+					if(nb_errors_balancer < NB_TRY_BALANCER_TOLERATED){
 						state = ERROR_MOVE_BALANCER_OUT;	// L'actionneur n'est pas en position, on doit le mettre
 					}else{
 						state = ERROR;
@@ -1374,33 +1395,39 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 		case TURN_FOR_COLOR:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					time_timeout_right = global.absolute_time + TIMEOUT_COLOR;
 					ACT_push_order(ACT_CYLINDER_COLOR_RIGHT, ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED);
 				}else{
-					time_timeout_left = global.absolute_time + TIMEOUT_COLOR;
 					ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED);
 				}
+				time_timeout = global.absolute_time + TIMEOUT_COLOR;
 			}
 			// Aucune vérification ici
-			state = WAIT_WHITE;
-			break;
-
-		case WAIT_WHITE:
-			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
-			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
-				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
-			}else if(storage == MODULE_STOCK_RIGHT){
-				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE)){
-					state = WAIT_OUR_COLOR;
-				}
-			}else{
-				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE)){
-					state = WAIT_OUR_COLOR;
-				}
-			}
+			state = WAIT_OUR_COLOR;
 			break;
 
 		case WAIT_OUR_COLOR:
+			if(global.absolute_time > time_timeout){
+				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
+			}else if(storage == MODULE_STOCK_RIGHT){
+				color_white = CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE);
+				color_yellow = CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow, FALSE);
+				color_blue = color_blue_is_detected(CW_SENSOR_RIGHT, color_white, color_yellow);
+
+				if( ((global.color == BLUE) && color_blue) || ((global.color == YELLOW) && color_yellow)){
+					state = WAIT_WHITE;
+				}
+			}else{
+				color_white = CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE);
+				color_yellow = CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow, FALSE);
+				color_blue = color_blue_is_detected(CW_SENSOR_LEFT, color_white, color_yellow);
+
+				if( ((global.color == BLUE) && color_blue) || ((global.color == YELLOW) && color_yellow)){
+					state = WAIT_WHITE;
+				}
+			}
+			break;
+
+		case WAIT_WHITE:
 			// On en profite pour retourner le balancer vers l'intérieur du robot pour gagner du temps
 			// Pas de vérification du résultat ici, la couleur est prioritaire.
 			if(entrance){
@@ -1413,25 +1440,15 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}
 
 			// On attend notre couleur
-			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
-			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
+			if(global.absolute_time > time_timeout){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 			}else if(storage == MODULE_STOCK_RIGHT){
-
-				color_white = CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE);
-				color_yellow = CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow, FALSE);
-				color_blue = (!color_white && !color_yellow);
-
-				if( ((global.color == BLUE) && color_blue) || ((global.color == YELLOW) && color_yellow)){
+				if(CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE)){
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
 			}else{
-				color_white = CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE);
-				color_yellow = CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow, FALSE);
-				color_blue = (!color_white && !color_yellow);
-
-				if( ((global.color == BLUE) && color_blue) || ((global.color == YELLOW) && color_yellow)){
+				if(CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE)){
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS, TRUE);
 					state=STOP_TURN;
 				}
@@ -1516,8 +1533,12 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 	if(storage == MODULE_STOCK_RIGHT){
 		stateRight = state;
+		time_timeout_right = time_timeout;
+		nb_errors_balancer_right = nb_errors_balancer;
 	}else if(storage == MODULE_STOCK_LEFT){
 		stateLeft = state;
+		time_timeout_left = time_timeout;
+		nb_errors_balancer_left = nb_errors_balancer;
 	} // else L'erreur a déjà été affichée
 
 	return ret;
@@ -1539,6 +1560,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			TRIGGER_CYLINDER_PREPARATION,
 			WAIT_CYLINDER_PREPARATION,
 			TAKE_CYLINDER,
+			CHECK_VACUOSTAT_TAKE_CYLINDER,
 			RAISE_CYLINDER,
 			GET_OUT_CYLINDER_OF_ROBOT,
 			UNFOLD_DISPOSE_SERVO,
@@ -1558,18 +1580,34 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 	//-------------------- Début gestion de la réentrance ---------------------------
 	static enum state_e stateRight = INIT, stateLeft = INIT;
 	static enum state_e lastStateRight = DONE, lastStateLeft = DONE;
+	static bool_e anotherDisposeWillFollowLeft = FALSE, anotherDisposeWillFollowRight = FALSE;
+	bool_e anotherDisposeWillFollow = FALSE;
+	static time32_t time_timeout_left = 0, time_timeout_right = 0;
+	time32_t time_timeout = 0;
+	static bool_e subactionSucessLeft = TRUE, subactionSucessRight = TRUE;
+	bool_e subactionSucess = TRUE;
+
 	error_e ret = IN_PROGRESS;
+
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
 		state = stateRight;
 		entrance = (stateRight != lastStateRight);
 		last_state = lastStateRight;
 		lastStateRight = stateRight;
+
+		anotherDisposeWillFollow = anotherDisposeWillFollowRight;
+		time_timeout = time_timeout_right;
+		subactionSucess = subactionSucessRight;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 		entrance = (stateLeft != lastStateLeft);
 		last_state = lastStateLeft;
 		lastStateLeft = stateLeft;
+
+		anotherDisposeWillFollow = anotherDisposeWillFollowLeft;
+		time_timeout = time_timeout_left;
+		subactionSucess = subactionSucessLeft;
 	}else{
 		error_printf("sub_act_harry_mae_dispose_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
@@ -1586,10 +1624,14 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 	}
 	//---------------------- Fin gestion de la réentrance ---------------------------
 
-	static error_e stateAct = IN_PROGRESS;
-	static bool_e anotherDisposeWillFollow = FALSE;
-	static time32_t time_timeout_left = 0, time_timeout_right = 0;
-	static bool_e subaction_sucess = TRUE;
+	// Variables static mais dupliquées pour gérer la réentrance, vous pouvez donc utiliser :
+	//bool_e anotherDisposeWillFollow = FALSE;
+	//time32_t time_timeout = 0;
+	//bool_e subactionSucess = TRUE;
+
+	// Variables locales (pas de duplication nécessaire pour la réentrance)
+	error_e stateAct = IN_PROGRESS;
+	MOSFET_BOARD_CURRENT_MEASURE_state_e statePump;
 
 #ifdef DISPLAY_STOCKS
 	if(entrance){
@@ -1688,9 +1730,33 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 				}
 			}
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, RAISE_CYLINDER, RAISE_CYLINDER);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, CHECK_VACUOSTAT_TAKE_CYLINDER, CHECK_VACUOSTAT_TAKE_CYLINDER);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, RAISE_CYLINDER, RAISE_CYLINDER);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, CHECK_VACUOSTAT_TAKE_CYLINDER, CHECK_VACUOSTAT_TAKE_CYLINDER);
+			}
+			break;
+
+		case CHECK_VACUOSTAT_TAKE_CYLINDER:
+			if(entrance){
+				time_timeout = global.absolute_time + 200;
+			}
+
+			if(storage == MODULE_STOCK_RIGHT){
+				statePump = ACT_get_state_vacuostat(VACUOSTAT_DISPOSE_RIGHT);
+			}else{
+				statePump = ACT_get_state_vacuostat(VACUOSTAT_DISPOSE_LEFT);
+			}
+
+			if(statePump != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING){
+				// Soit on recoit MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT et c'est bon
+				// Soit on recoit MOSFET_BOARD_CURRENT_MEASURE_STATE_NO_PUMPING et c'est qu'on a perdu la communication, donc on continue
+				state = RAISE_CYLINDER;
+			}else if(global.absolute_time > time_timeout){
+				// Erreur : il n'y a pas de module
+				// On supprime le module du stock
+				STOCKS_removeModule(storage, STOCK_POS_COLOR);
+				subactionSucess = FALSE;
+				state = CHOOSE_ARM_STORAGE_POS;
 			}
 			break;
 
@@ -1755,12 +1821,12 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 		case GO_TO_DISPOSE_POS:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					time_timeout_right = global.absolute_time + 400;  // Temporisation avant de déventouser
 					ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_DISPOSE);
 				}else{
-					time_timeout_left = global.absolute_time + 400;  // Temporisation avant de déventouser
 					ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_DISPOSE);
 				}
+
+				time_timeout = global.absolute_time + 400;  // Temporisation avant de déventouser
 			}
 
 			if(storage == MODULE_STOCK_RIGHT){
@@ -1769,9 +1835,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 				stateAct = check_act_status(ACT_QUEUE_Cylinder_arm_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if(stateAct != IN_PROGRESS
-			&& ((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
-			  || (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)) ){
+			if(stateAct != IN_PROGRESS && global.absolute_time > time_timeout){
 				state = DISPOSE_CYLINDER;
 			}
 			break;
@@ -1779,17 +1843,15 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 		case DISPOSE_CYLINDER:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					time_timeout_right = global.absolute_time + 700;		// Temporisation pour déventouser
 					ACT_push_order(ACT_POMPE_DISPOSE_RIGHT, ACT_POMPE_STOP);
 				}else{
-					time_timeout_left = global.absolute_time + 700;			// Temporisation pour déventouser
 					ACT_push_order(ACT_POMPE_DISPOSE_LEFT, ACT_POMPE_STOP);
 				}
+				time_timeout = global.absolute_time + 700;		// Temporisation pour déventouser
 			}
 
 			// Pas de vérification ici car les pompes retournent toujours vrai
-			if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout_right)
-			|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout_left)){
+			if(global.absolute_time > time_timeout){
 				state = CHOOSE_ARM_STORAGE_POS;
 
 				// Mettre à jour les données
@@ -1834,6 +1896,11 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, DONE, DONE);
 			}
+
+			// Le cylindre n'a pas réussi à être déposé donc je renvoie ERROR
+			if(ON_LEAVE() && !subactionSucess){
+				state = ERROR;
+			}
 			break;
 
 		case S2_MOVE_DISPOSE_SERVO:
@@ -1866,6 +1933,11 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			}else{
 				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, DONE, DONE);
 			}
+
+			// Le cylindre n'a pas réussi à être déposé donc je renvoie ERROR
+			if(ON_LEAVE() && !subactionSucess){
+				state = ERROR;
+			}
 			break;
 
 
@@ -1889,8 +1961,14 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 	if(storage == MODULE_STOCK_RIGHT){
 		stateRight = state;
+		anotherDisposeWillFollowRight = anotherDisposeWillFollow;
+		time_timeout_right = time_timeout;
+		subactionSucessRight = subactionSucess;
 	}else if(storage == MODULE_STOCK_LEFT){
 		stateLeft = state;
+		anotherDisposeWillFollowLeft = anotherDisposeWillFollow;
+		time_timeout_left = time_timeout;
+		subactionSucessLeft = subactionSucess;
 	} // else L'erreur a déjà été affichée
 
 	return ret;
@@ -2082,6 +2160,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			}
 			indexSide++; // On incrémente l'index pour le prochain passage
 
+			// Gestion d'erreur soft pour éviter les boucles infinies
 			if(indexSide > 4){ // Ici c'est bien strictement supérieur
 				state = DONE;
 			}else{

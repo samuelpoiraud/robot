@@ -21,7 +21,7 @@
 
 //Position
 	#define CYLINDER_COLOR_LEFT_RX24_IDLE_SPEED					0 	// 0% de vitesse
-	#define CYLINDER_COLOR_LEFT_RX24_NORMAL_SPEED			    -100	// 100% de vitesse
+	#define CYLINDER_COLOR_LEFT_RX24_NORMAL_SPEED			    100	// 100% de vitesse
 	#define CYLINDER_COLOR_LEFT_RX24_ZERO_SPEED					0 	// 0% de vitesse
 
 	#define CYLINDER_COLOR_LEFT_RX24_WARNER_POS					512

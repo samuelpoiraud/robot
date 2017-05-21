@@ -159,6 +159,9 @@ int main (void)
 		COLOR_SENSOR_init();
 	#endif
 
+	// Initialisation des capteurs couleurs Tritroniks et Télémécanics sensors
+	ColorSensor_init();
+
 	// ATTENTION à ce moment, la couleur n'a pas encore été initialisée
 
 	while(1)

@@ -167,7 +167,7 @@ bool_e STOCKS_isEmpty(moduleStockLocation_e storage);
 bool_e STOCKS_moduleStockPlaceIsEmpty(moduleStockPosition_e place, moduleStockLocation_e storage);
 void STOCKS_addModule(moduleType_e type, moduleStockPosition_e position, moduleStockLocation_e storage);
 void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage);
-moduleType_e STOCKS_removeModule(moduleStockLocation_e storage);
+moduleType_e STOCKS_removeModule( moduleStockPosition_e position, moduleStockLocation_e storage);
 void STOCKS_print(moduleStockLocation_e storage);
 
 // Fonction pour le vidage de la fusee
