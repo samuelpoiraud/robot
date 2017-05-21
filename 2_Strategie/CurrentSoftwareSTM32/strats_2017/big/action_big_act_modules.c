@@ -787,11 +787,13 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			// Le stockage des modules
 			ELEVATOR_GO_BOTTOM,
 			SLIDER_GO_IN,
-			STOP_POMPE_SLIDER,
+			WAIT_ELEVATOR_PUMPING,
+			STOP_PUMP_SLIDER,
 			CHECK_CONTAINER_IS_AVAILABLE,
 			ELEVATOR_GO_MID_POS,
 			PREPARE_SLOPE_FOR_ELEVATOR,
 			ELEVATOR_GO_TOP_POS,
+			CHECK_VACUOSTAT_BEFORE_STORING,
 			STOCK_UP_CYLINDER,
 			WAIT_STABILZATION,
 			PUT_CYLINDER_IN_CONTAINER,
@@ -815,6 +817,9 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	error_e ret = IN_PROGRESS;
 	static time32_t time_timeout_left, time_timeout_right;
 	time32_t time_timeout;
+	static Uint8 nb_errors_suction_left, nb_errors_suction_right;
+	Uint8 nb_errors_suction;
+
 
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
@@ -823,12 +828,14 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 		last_state = lastStateRight;
 		lastStateRight = stateRight;
 		time_timeout = time_timeout_right;
+		nb_errors_suction = nb_errors_suction_right;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 		entrance = (stateLeft != lastStateLeft);
 		last_state = lastStateLeft;
 		lastStateLeft = stateLeft;
 		time_timeout = time_timeout_left;
+		nb_errors_suction = nb_errors_suction_left;
 	}else{
 		error_printf("sub_act_harry_mae_store_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
@@ -845,8 +852,11 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	}
 	//---------------------- Fin gestion de la réentrance ---------------------------
 
+	#define MAX_ERRORS_SUCTION (1)
+
 	// Variables static mais dupliquées pour gérer la réentrance, vous pouvez donc utiliser :
 	//time32_t time_timeout;
+	//Uint8 nb_errors_suction;
 
 #ifdef DISPLAY_STOCKS
 	if(entrance){
@@ -864,6 +874,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 				state = LAUNCH_CYLINDER_PREPARATION;
 				ELEMENTS_set_flag(FLAG_HARRY_STORAGE_LEFT_FINISH, FALSE);
 				ELEMENTS_set_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH, FALSE);
+				nb_errors_suction = 0;
 			}
 			break;
 
@@ -943,28 +954,68 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, STOP_POMPE_SLIDER, STOP_POMPE_SLIDER);
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, WAIT_ELEVATOR_PUMPING, WAIT_ELEVATOR_PUMPING);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, STOP_POMPE_SLIDER, STOP_POMPE_SLIDER);
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_left, state, WAIT_ELEVATOR_PUMPING, WAIT_ELEVATOR_PUMPING);
 			}
 			break;
 
-		case STOP_POMPE_SLIDER:
+		case WAIT_ELEVATOR_PUMPING:
 			if(entrance){
-				time_timeout = global.absolute_time + 1000;
+				time_timeout = global.absolute_time + 500;
 			}
 
 			if((storage == MODULE_STOCK_RIGHT && (global.absolute_time > time_timeout || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))
 			|| (storage == MODULE_STOCK_LEFT && (global.absolute_time > time_timeout || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))){
-				state = CHECK_CONTAINER_IS_AVAILABLE;
+				state = STOP_PUMP_SLIDER;
+			}
+			break;
+
+		case STOP_PUMP_SLIDER:
+			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
 				}else{
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 				}
+				time_timeout = global.absolute_time + 500;
+			}
 
-				// Mise à jour des données
-				STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, storage);
+			if(global.absolute_time > time_timeout){
+
+				if((storage == MODULE_STOCK_RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)
+				|| (storage == MODULE_STOCK_LEFT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)){
+					// Mise à jour des données
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, storage);
+					state = CHECK_CONTAINER_IS_AVAILABLE;
+
+				}else if(nb_errors_suction < MAX_ERRORS_SUCTION){
+					// On retente
+					nb_errors_suction++;
+					state = ELEVATOR_GO_BOTTOM;
+
+					// On réactive la pompe du slider et on stoppe celle de l'élévateur
+					if(storage == MODULE_STOCK_RIGHT){
+						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL);
+						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP);
+					}else{
+						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP);
+					}
+				}else{
+					// On arrête l'action ici car on n'y arrive pas
+					state = COMPUTE_ACTION;
+
+					// On supprime le module
+					STOCKS_removeModule(STOCK_POS_ENTRY, storage);
+
+					// On stoppe celle de l'élévateur
+					if(storage == MODULE_STOCK_RIGHT){
+						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP);
+					}else{
+						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP);
+					}
+				}
 			}
 			break;
 
@@ -1022,9 +1073,22 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, STOCK_UP_CYLINDER, STOCK_UP_CYLINDER);
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, CHECK_VACUOSTAT_BEFORE_STORING, CHECK_VACUOSTAT_BEFORE_STORING);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, STOCK_UP_CYLINDER, STOCK_UP_CYLINDER);
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, CHECK_VACUOSTAT_BEFORE_STORING, CHECK_VACUOSTAT_BEFORE_STORING);
+			}
+			break;
+
+		case CHECK_VACUOSTAT_BEFORE_STORING:
+			if((storage == MODULE_STOCK_RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)
+			|| (storage == MODULE_STOCK_LEFT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)){
+				// Soit on a MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT, et on ventouse encore bien
+				// Soit on a MOSFET_BOARD_CURRENT_MEASURE_STATE_NO_PUMPING, et c'est qu'on a perdu la communication, donc on continue
+				state = STOCK_UP_CYLINDER;
+			}else{
+				// Sinon on a perdu le cylindre en route car il s'est déventousé
+				STOCKS_removeModule(STOCK_POS_ELEVATOR, storage);
+				state = COMPUTE_ACTION;
 			}
 			break;
 
@@ -1157,9 +1221,11 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	if(storage == MODULE_STOCK_RIGHT){
 		stateRight = state;
 		time_timeout_right = time_timeout;
+		nb_errors_suction_right = nb_errors_suction;
 	}else if(storage == MODULE_STOCK_LEFT){
 		stateLeft = state;
 		time_timeout_left = time_timeout;
+		nb_errors_suction_left = nb_errors_suction;
 	} // else L'erreur a déjà été affichée
 
 	return ret;
