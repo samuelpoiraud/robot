@@ -587,7 +587,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 
 		case LAUNCH_CYLINDER_PREPARATION:  // Parallélisation de la préparation de la couleur
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER, MODULE_STOCK_SMALL)){
-				sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_SMALL, TRUE);
+				sub_act_anne_mae_prepare_modules_for_dispose(TRUE);
 			}
 			state = INIT;
 			break;

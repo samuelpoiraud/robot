@@ -2150,13 +2150,11 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	static ELEMENTS_side_e moduleToTake = NO_SIDE;		// Module en cours de prise
 	static bool_e needToStoreRight, needToStoreLeft;
 	static bool_e takeNothingRight, takeNothingLeft;
-	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS;
-	static error_e state3 = IN_PROGRESS;
-	static MOSFET_BOARD_CURRENT_MEASURE_state_e pump_state;
 	static moduleType_e moduleType = MODULE_EMPTY;
-	static time32_t time_timeout_before_pompe_stop;
-	static time32_t time_timeout_after_pompe_stop;
-	static bool_e pompe_stop = FALSE;
+
+	// Variables locales
+	error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS, state3 = IN_PROGRESS;
+	MOSFET_BOARD_CURRENT_MEASURE_state_e pump_state;
 
 #ifdef DISPLAY_STOCKS
 	if(entrance){
