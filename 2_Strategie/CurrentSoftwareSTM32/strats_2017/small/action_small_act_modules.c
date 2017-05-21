@@ -333,7 +333,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			if(state2 == IN_PROGRESS)
 				state2 = try_going(store_pos.x, store_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
-			//On attends pour securisé le ventousage par l'elevator
+			//On attends pour securiser le ventousage par l'elevator
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && global.absolute_time > time_timeout){
 
 				if (state2 == NOT_HANDLED){
@@ -535,6 +535,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 error_e sub_act_anne_mae_store_modules(bool_e trigger){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_ANNE_MAE_STORE_MODULES,
 			WAIT_TRIGGER,
+			LAUNCH_CYLINDER_PREPARATION,
 			INIT,
 			COMPUTE_ACTION,
 
@@ -545,6 +546,8 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			CHECK_CONTAINER_IS_AVAILABLE,
 			ELEVATOR_GO_MID_POS,
 			PREPARE_SLOPE_FOR_ELEVATOR,
+			ELEVATOR_WAIT_FOR_SLOPE,
+			SLOPE_GO_ALMOST_UP_POS,
 			ELEVATOR_GO_TOP_POS,
 			STOCK_UP_CYLINDER,
 			WAIT_STABILZATION,
@@ -578,8 +581,15 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 
 		case WAIT_TRIGGER:
 			if(trigger){
-				state = INIT;
+				state = LAUNCH_CYLINDER_PREPARATION;
 			}
+			break;
+
+		case LAUNCH_CYLINDER_PREPARATION:  // Parallélisation de la préparation de la couleur
+			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER, MODULE_STOCK_SMALL)){
+				sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_SMALL, TRUE);
+			}
+			state = INIT;
 			break;
 
 		case INIT:
@@ -656,6 +666,24 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 		case PREPARE_SLOPE_FOR_ELEVATOR:
 			if(entrance){
 				ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_DOWN);
+			}
+
+			// Vérification des ordres effectués
+			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, ELEVATOR_WAIT_FOR_SLOPE, ELEVATOR_WAIT_FOR_SLOPE);
+			break;
+
+		case ELEVATOR_WAIT_FOR_SLOPE:
+			if(entrance){
+				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR, ACT_SMALL_CYLINDER_ELEVATOR_WAIT_FOR_SLOPE);
+			}
+
+			// Vérification des ordres effectués
+			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, SLOPE_GO_ALMOST_UP_POS, SLOPE_GO_ALMOST_UP_POS);
+			break;
+
+		case SLOPE_GO_ALMOST_UP_POS:
+			if(entrance){
+				ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_ALMOST_UP);
 			}
 
 			// Vérification des ordres effectués
@@ -761,6 +789,8 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			WAIT_STORAGE,
 			WAIT_MODULE_FALL,
 			MOVE_BALANCER_OUT,
+			BEGIN_CHECK_POSITION_BALANCER,
+			ERROR_MOVE_BALANCER_OUT,
 			CHECK_IF_TURN_FOR_COLOR_NEEDED,
 			TURN_FOR_COLOR,
 			WAIT_OUR_COLOR,
@@ -774,10 +804,12 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 		);
 
 	#define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
+	#define NB_TRY_BALANCER_TOLERATED (3)
 
 	error_e ret = IN_PROGRESS;
 	static error_e stateAct = IN_PROGRESS;
 	static time32_t time_timeout = 0;
+	static Uint8 nb_errors_balancer = 0;
 
 	switch(state){
 
@@ -788,6 +820,8 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 				// On baisse le flag dans le cas où cela n'a pas encore été fait
 				ELEMENTS_set_flag(FLAG_ANNE_MODULE_COLOR_SUCCESS, FALSE);
 				ELEMENTS_set_flag(FLAG_ANNE_MODULE_COLOR_FINISH, FALSE);
+
+				nb_errors_balancer = 0;
 			}
 			break;
 
@@ -831,14 +865,42 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_balancer, state, CHECK_IF_TURN_FOR_COLOR_NEEDED, ERROR);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_balancer, state, CHECK_IF_TURN_FOR_COLOR_NEEDED, CHECK_IF_TURN_FOR_COLOR_NEEDED);
+			break;
 
-			// On exit
-			if(state != MOVE_BALANCER_OUT && state != ERROR){
-				// Mise à jour des données : on fait progresser le module en POS_BALANCER vers la position POS_COLOR
-				STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, MODULE_STOCK_SMALL);
+		case BEGIN_CHECK_POSITION_BALANCER:
+			// On utilise ACT_check_position_config_right pour des questions de réentrance car cette MAE est executée en parallèle
+			stateAct = ACT_check_position_config_right(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_OUT);
+
+			if(stateAct != IN_PROGRESS){
+				if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
+
+					// On incrémente l'erreur
+					nb_errors_balancer++;
+
+					// On regarde si on retente ou si on part en ERROR
+					if(nb_errors_balancer < NB_TRY_BALANCER_TOLERATED){
+						state = ERROR_MOVE_BALANCER_OUT;	// L'actionneur n'est pas en position, on doit le mettre
+					}else{
+						state = ERROR;
+					}
+				}else{
+					state = CHECK_IF_TURN_FOR_COLOR_NEEDED;  // C'est bon l'actionneur est en position
+
+					// Mise à jour des données : on fait progresser le module en POS_BALANCER vers la position POS_COLOR
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, MODULE_STOCK_SMALL);
+				}
 			}
 			break;
+
+		case ERROR_MOVE_BALANCER_OUT:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
+			}
+			// Vérification des ordres effectués
+			state = check_act_status(ACT_QUEUE_Small_cylinder_balancer, state, MOVE_BALANCER_OUT, MOVE_BALANCER_OUT);
+			break;
+
 
 		case CHECK_IF_TURN_FOR_COLOR_NEEDED:
 			if(STOCKS_getModuleType(STOCK_POS_COLOR, MODULE_STOCK_SMALL) == MODULE_POLY){
