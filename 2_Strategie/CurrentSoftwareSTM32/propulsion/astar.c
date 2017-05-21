@@ -913,6 +913,7 @@
 		Uint32 wantedDistToStartNode = 0;
 		bool_e endOfTraj = FALSE;
 		UNUSED_VAR(last_index);
+		UNUSED_VAR(lastDistToStartNode);
 
 		// On recherche le nombre de noeuds constituant la trajectoire
 		node = last_node;
