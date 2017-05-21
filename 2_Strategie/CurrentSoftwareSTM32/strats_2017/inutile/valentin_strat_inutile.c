@@ -31,12 +31,14 @@ void valentin_strat_inutile_big(){
 			GUN_GO_DOWN,
 			WAIT_FOR_MAX_POWER,
 			TURN_TRIHOLE,
+			SEND_ORDERS,
 			ERROR,
 			DONE
 		);
 
 	//sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
-	//static time32_t local_time = 0;
+	static time32_t local_time = 0;
+	static bool_e action_done = FALSE;
 
 	switch(state){
 
@@ -44,14 +46,14 @@ void valentin_strat_inutile_big(){
 			/*if(entrance){
 				ACT_push_order(ACT_CYLINDER_COLOR_LEFT, ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED);
 			}*/
-			//state = ACTION;
+			state = ACTION;
 			//state = ROLLER_ARM_GO_DOWN;
 			//state = TRY_SELFTEST;
 			//state = TURN_COLOR;
 			//state = GUN_GO_DOWN;
 			//state = try_going(1250, COLOR_Y(300), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			//state = try_going(1250, COLOR_Y(350), state, PATHFIND, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			state = ACTION;
+			//state = SEND_ORDERS;
 			break;
 
 		case PATHFIND:
@@ -59,15 +61,21 @@ void valentin_strat_inutile_big(){
 			break;
 
 		case ACTION:
-			//if(entrance){
-				//ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_IN);
-				//ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_IN);
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
+				ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE);
+				ACT_push_order(ACT_CYLINDER_ARM_RIGHT, ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE);
+				ACT_push_order(ACT_CYLINDER_DISPOSE_LEFT, ACT_CYLINDER_DISPOSE_LEFT_TAKE);
+				ACT_push_order(ACT_CYLINDER_DISPOSE_RIGHT, ACT_CYLINDER_DISPOSE_RIGHT_TAKE);
+				//STOCKS_setModuleType(STOCK_POS_BALANCER, MODULE_STOCK_LEFT, MODULE_POLY);
+				//sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, TRUE);
 				//sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
-			//}
+			}
 			//state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, ACTION_2, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
-			//state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ACTION_2, ERROR);
-			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(LEFT), state, PATHFIND, ERROR);
+			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DONE, ERROR);
+			//state = check_sub_action_result(sub_harry_prise_module_unicolor_south(LEFT), state, PATHFIND, ERROR);
 			break;
 
 		case ACTION_2:
@@ -157,7 +165,31 @@ void valentin_strat_inutile_big(){
 			state = DONE;
 			break;
 
+		case SEND_ORDERS:
+			/*if(entrance){
+				ACT_push_order_now(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_OUT);
+			}
 
+			state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, DONE, ERROR);
+			*/
+			if(entrance){
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_OUT);
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_OUT);
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_OUT);
+				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				local_time= global.absolute_time;
+			}
+
+			if(global.absolute_time > local_time + 100 && !action_done){
+				ACT_push_order_now(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
+				action_done = TRUE;
+			}
+			if(action_done){
+				state = check_act_status(ACT_QUEUE_Cylinder_slider_right, state, DONE, ERROR);
+			}
+			break;
 
 		case ERROR:
 			if(entrance){
@@ -184,6 +216,9 @@ void valentin_strat_inutile_small(){
 
 	switch(state){
 		case INIT:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_OUT);
+			}
 			state = TAKE_CRATER;
 			//state = ACTION;
 			//state = try_going(global.pos.x + 800, global.pos.y, state, TAKE_CRATER, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);

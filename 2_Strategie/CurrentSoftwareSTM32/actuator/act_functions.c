@@ -258,7 +258,7 @@ bool_e ACT_set_config(Uint16 sid, Uint8 sub_act, act_config_e cmd, Uint16 value)
 	msg.data.act_msg.act_data.act_config.data_config.raw_data = value;
 
 	ACT_arg_init_with_msg(&args, msg);
-	ACT_arg_set_timeout(&args, 0);
+	ACT_arg_set_timeout(&args, 500);
 
 	debug_printf("Config : %s\n", act_link_SID_Queue[ACT_search_link_SID_Queue(sid)].name);
 	debug_printf("    cmd : %d\n", cmd);
@@ -277,7 +277,7 @@ bool_e ACT_get_config_request(Uint16 sid, act_config_e config){
 	msg.data.act_msg.act_data.config = config;
 
 	ACT_arg_init_with_msg(&args, msg);
-	ACT_arg_set_timeout(&args, 0);
+	ACT_arg_set_timeout(&args, 500);
 
 	return ACT_push_operation(act_link_SID_Queue[ACT_search_link_SID_Queue(sid)].queue_id, &args);
 }

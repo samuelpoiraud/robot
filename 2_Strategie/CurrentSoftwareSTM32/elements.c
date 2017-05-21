@@ -471,7 +471,7 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 		case STOCK_PLACE_COLOR_TO_ARM_DISPOSE:
 			if(moduleStockInfo[storage].stockModules[STOCK_POS_ARM_DISPOSE] == MODULE_EMPTY){
 				moduleStockInfo[storage].stockModules[STOCK_POS_ARM_DISPOSE] = moduleStockInfo[storage].stockModules[STOCK_POS_COLOR];
-				STOCKS_removeModule(storage);	// On supprime le cylindre du stock
+				STOCKS_removeModule(STOCK_POS_COLOR, storage);	// On supprime le cylindre du stock
 			}else{
 				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_CONTAINER_OUT_TO_OUTSIDE\n");
 			}
@@ -490,8 +490,8 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 
 
 // Permet de supprimer un module dans un des stocks du robot
-moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
-	if(moduleStockInfo[storage].stockModules[STOCK_POS_COLOR] != MODULE_EMPTY){
+moduleType_e STOCKS_removeModule( moduleStockPosition_e position, moduleStockLocation_e storage){
+	if(moduleStockInfo[storage].stockModules[position] != MODULE_EMPTY){
 		moduleType_e module = moduleStockInfo[storage].stockModules[STOCK_POS_COLOR];
 
 		if(module == MODULE_BLUE || module == MODULE_YELLOW){
@@ -501,7 +501,7 @@ moduleType_e STOCKS_removeModule(moduleStockLocation_e storage){
 			moduleStockInfo[storage].nbModulesMulticolor--;
 		}
 		// Le module sur le retourneur de couleur vient d'être déposé
-		moduleStockInfo[storage].stockModules[STOCK_POS_COLOR] = MODULE_EMPTY;
+		moduleStockInfo[storage].stockModules[position] = MODULE_EMPTY;
 		moduleStockInfo[storage].nbCurrentModules--;
 		return module;
 	}
