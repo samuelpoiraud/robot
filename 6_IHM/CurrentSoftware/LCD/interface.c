@@ -31,12 +31,12 @@ void INTERFACE_processMain(void){
 	#endif
 
 	if(SWITCH_LCD_PORT != lastStateSwitchLCD && actualIhm != INTERFACE_IHM_WAIT){
+		LCD_OVER_UART_ihmControl(SWITCH_LCD_PORT);
+
 		if(SWITCH_LCD_PORT)
 			INTERFACE_setInterface(INTERFACE_IHM_POSITION);
 		else
 			INTERFACE_setInterface(INTERFACE_IHM_CUSTOM);
-
-		LCD_OVER_UART_ihmControl(SWITCH_LCD_PORT);
 
 		lastStateSwitchLCD = SWITCH_LCD_PORT;
 	}
@@ -190,7 +190,7 @@ static void INTERFACE_IHM_position(bool_e entrance){
 		adv2 = MIDDLEWARE_addText(10, 160, 0x0000, 0xFFFF, TEXT_FONTS_7x10, "adv2 dist : %4d  |  angle : %4ld..", global.foe[3].dist, ((Sint32)global.foe[3].angle)*180/PI4096);
 	}
 
-	if(global.absolute_time - lastRefresh > 100){
+	if(global.absolute_time - lastRefresh > 500){
 		MIDDLEWARE_setText(x, "x : %4d", global.pos.x);
 		MIDDLEWARE_setText(y, "y : %4d", global.pos.y);
 		MIDDLEWARE_setText(teta, "teta : %4d  |  %4d°", global.pos.teta, global.pos.teta*180/PI4096);
@@ -209,6 +209,8 @@ static void INTERFACE_IHM_position(bool_e entrance){
 
 		MIDDLEWARE_setText(adv1, "adv1 dist : %4d  |  angle : %4ld", global.foe[2].dist, ((Sint32)global.foe[2].angle)*180/PI4096);
 		MIDDLEWARE_setText(adv2, "adv2 dist : %4d  |  angle : %4ld", global.foe[3].dist, ((Sint32)global.foe[3].angle)*180/PI4096);
+
+		lastRefresh = global.absolute_time;
 	}
 
 

@@ -68,6 +68,16 @@ volatile Uint8 t500ms = 0;	//Minuteur [500ms]
 static bool_e warning_bat = FALSE;
 static Uint16 hokuyo_lost_counter = 0;
 volatile static bool_e warning_bat_display = TRUE;
+volatile static SELFTEST_progressState_e progressState = SELFTEST_PROGRESS_NONE;
+
+const char * SELFTEST_progressState_char[] = {
+		"Strategy",
+		"Check other cards",
+		"Actuator",
+		"Propulsion",
+		"IHM",
+		"Beacon"
+};
 
 
 error_e SELFTEST_strategy(bool_e reset);
@@ -157,12 +167,12 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 	{
 		INIT = 0,
 		WAIT_SELFTEST_LAUNCH,
+		SELFTEST_STRAT,
 		SELFTEST_PING_ACT_PROP,
 		SELFTEST_ACT,
 		SELFTEST_PROP,
 		SELFTEST_IHM,
 		SELFTEST_BEACON_IR,
-		SELFTEST_STRAT,
 		SELFTEST_END
 	}state_e;
 	static state_e state = INIT;
@@ -201,6 +211,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				flag_timeout = FALSE;
 				watchdog_id = WATCHDOG_create_flag(TIMEOUT_SELFTEST_STRAT, (bool_e*) &(flag_timeout));
 				debug_printf("SELFTEST STRATEGY\r\n");
+				progressState = SELFTEST_PROGRESS_STRATEGY;
 			}
 			if(SELFTEST_strategy(FALSE) != IN_PROGRESS)	//La fonction SELFTEST_strategy déclare elle-même ses erreurs.
 			{
@@ -223,6 +234,7 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				CAN_send_sid(BEACON_PING);
 				CAN_send_sid(IHM_PING);
 				debug_printf("SELFTEST PING OTHER BOARDS\r\n");
+				progressState = SELFTEST_PROGRESS_CHECK_OTHER_CARD;
 			}
 			if(CAN_msg_received != NULL)
 			{
@@ -283,6 +295,8 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				}
 				else
 					state = SELFTEST_PROP;
+
+				progressState = SELFTEST_PROGRESS_ACTUATOR;
 			}
 			// Appel du nouveau selftest
 			if(act_ping_ok && SELFTESTACT_run() != IN_PROGRESS){	//La fonction SELFTESTACT_run déclare elle-même ses erreurs.
@@ -322,6 +336,8 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				// Lever erreur si switch_asser n'est actif
 				if(IHM_switchs_get(SWITCH18_DISABLE_ASSER))
 					SELFTEST_declare_errors(NULL,SELFTEST_PROP_SWITCH_ASSER_DISABLE);
+
+				progressState = SELFTEST_PROGRESS_PROPULSION;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_PROP_SELFTEST_DONE)
@@ -351,6 +367,8 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				}
 				else
 					state = SELFTEST_BEACON_IR;
+
+				progressState = SELFTEST_PROGRESS_IHM;
 			}
 
 			if(CAN_msg_received != NULL)
@@ -382,6 +400,8 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 				}
 				else
 					state = SELFTEST_END;
+
+				progressState = SELFTEST_PROGRESS_BEACON;
 			}
 			if(CAN_msg_received != NULL)
 				if(CAN_msg_received->sid == STRAT_BEACON_SELFTEST_DONE)
@@ -1010,6 +1030,17 @@ bool_e SELFTEST_is_running(void)
 bool_e SELFTEST_is_over(void)
 {
 	return selftest_is_over;
+}
+
+SELFTEST_progressState_e SELFTEST_get_progress_state(void){
+	return progressState;
+}
+
+const char * SELFTEST_get_progress_state_char(void){
+	if(progressState > 0 && progressState < SELFTEST_PROGRESS_NUMBER)
+		return SELFTEST_progressState_char[progressState];
+	else
+		return "None";
 }
 
 Uint8 SELFTEST_get_errors_number(void)

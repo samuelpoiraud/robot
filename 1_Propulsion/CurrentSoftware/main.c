@@ -100,7 +100,6 @@ void initialisation(void)
 	SYSTICK_init((time32_t*)&(global.absolute_time));
 
 	GPIO_SetBits(LED_RUN);
-	GPIO_SetBits(I_AM_READY);
 
 	SECRETARY_init();	//Pour recevoir tout les messages CAN envoyés très tôt...
 	GPIO_ResetBits(LED_RUN);
@@ -163,6 +162,8 @@ void initialisation(void)
 
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
+
+	GPIO_SetBits(I_AM_READY);
 
 	/*
 	Récapitulatif des priorités des ITs :

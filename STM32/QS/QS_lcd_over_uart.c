@@ -92,7 +92,8 @@
 
 		struct{
 			Uint8 lastValue;
-			Uint8 * value;
+			Uint8 * valuePtr;
+			Uint8  value;
 		}progressBar;
 
 		struct{
@@ -136,6 +137,8 @@
 		static LCD_objectId_t LCD_OVER_UART_newObject(void);
 	#else
 		static objectId_t UART_OVER_LCD_newObject(void);
+		static void UART_OVER_LCD_deleteObject(objectId_t id);
+		static void UART_OVER_LCD_deleteAllObject();
 		static objectId_t UART_OVER_LCD_getIdLocalByRemoteId(objectId_t remoteId);
 		static objectId_t UART_OVER_LCD_getIdStorageByRemoteId(objectId_t remoteId);
 
@@ -328,7 +331,7 @@
 
 			LCD_objects[id].object.type = LCD_OBJECT_TYPE_PROGRESS_BAR;
 			LCD_objects[id].object.link.progressBar.lastValue = *value;
-			LCD_objects[id].object.link.progressBar.value = value;
+			LCD_objects[id].object.link.progressBar.valuePtr = value;
 
 			msg.header.type = LCD_MSG_TYPE_ADD_PROGRESS_BAR;
 			msg.body.addProgressBar.id = id;
@@ -619,13 +622,15 @@
 			msg.header.size = 0;
 
 			LCD_OVER_UART_sendMsg(&msg);
+
+			LCD_OVER_UART_deleteAllObject();
 		}
 	#else
 		void LCD_OVER_UART_ihmControl(bool_e ihmUnderControl){
 			LCD_msg_s msg;
 
 			msg.header.type = LCD_MSG_TYPE_IHM_CONTROL;
-			msg.header.size = 0;
+			msg.header.size = SIZE_LCD_IHM_CONTROL;
 
 			msg.body.ihmControl.ihmUnderControl = ihmUnderControl;
 
@@ -667,6 +672,13 @@
 			assert(id < LCD_NB_MAX_OBJECT);
 
 			objectId[id].used = FALSE;
+		}
+
+		static void UART_OVER_LCD_deleteAllObject(){
+			objectId_t i;
+			for(i=0; i<LCD_NB_MAX_OBJECT; i++){
+				UART_OVER_LCD_deleteObject(i);
+			}
 		}
 
 		static objectId_t UART_OVER_LCD_getIdLocalByRemoteId(objectId_t remoteId){
@@ -793,7 +805,7 @@
 			#else
 				case LCD_MSG_TYPE_UPDATE_PROGRESS_BAR:
 					idStorage = UART_OVER_LCD_getIdStorageByRemoteId(msg->body.updateProgressBar.id);
-					*(objectId[idStorage].data.link.progressBar.value) = msg->body.updateProgressBar.value;
+					objectId[idStorage].data.link.progressBar.value = msg->body.updateProgressBar.value;
 					break;
 
 				case LCD_MSG_TYPE_ADD_ANIMATION :
@@ -834,7 +846,8 @@
 
 				case LCD_MSG_TYPE_ADD_PROGRESS_BAR :
 					idStorage = UART_OVER_LCD_newObject();
-					idObject = MIDDLEWARE_addProgressBar(msg->body.addProgressBar.x, msg->body.addProgressBar.y, msg->body.addProgressBar.width, msg->body.addProgressBar.height, msg->body.addProgressBar.orientation, (bool_e *)&(objectId[idStorage].data.link.progressBar.value));
+					objectId[idStorage].data.link.progressBar.value = msg->body.addProgressBar.baseValue;
+					idObject = MIDDLEWARE_addProgressBar(msg->body.addProgressBar.x, msg->body.addProgressBar.y, msg->body.addProgressBar.width, msg->body.addProgressBar.height, msg->body.addProgressBar.orientation, (Uint8 *)&(objectId[idStorage].data.link.progressBar.value));
 					UART_OVER_LCD_setSyncObject(idStorage, idObject, msg->body.addProgressBar.id, LCD_OBJECT_TYPE_PROGRESS_BAR);
 					break;
 
@@ -862,6 +875,7 @@
 
 				case LCD_MSG_TYPE_RESET_SCREEN :
 					MIDDLEWARE_resetScreen();
+					UART_OVER_LCD_deleteAllObject();
 					break;
 
 				case LCD_MSG_TYPE_SET_BACKGROUND :
@@ -892,12 +906,12 @@
 						switch(LCD_objects[id].object.type){
 
 							case LCD_OBJECT_TYPE_PROGRESS_BAR :
-								if(LCD_objects[id].object.link.progressBar.lastValue != *(LCD_objects[id].object.link.progressBar.value)){
-									LCD_objects[id].object.link.progressBar.lastValue = *(LCD_objects[id].object.link.progressBar.value);
+								if(LCD_objects[id].object.link.progressBar.lastValue != *(LCD_objects[id].object.link.progressBar.valuePtr)){
+									LCD_objects[id].object.link.progressBar.lastValue = *(LCD_objects[id].object.link.progressBar.valuePtr);
 									LCD_msg_s msg;
 									msg.header.type = LCD_MSG_TYPE_UPDATE_PROGRESS_BAR;
 									msg.header.size = SIZE_LCD_UPDATE_PROGRESS_BAR;
-									msg.body.updateProgressBar.value = *(LCD_objects[id].object.link.progressBar.value);
+									msg.body.updateProgressBar.value = *(LCD_objects[id].object.link.progressBar.valuePtr);
 									msg.body.updateProgressBar.id = id;
 									LCD_OVER_UART_sendMsg(&msg);
 								}

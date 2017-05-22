@@ -16,15 +16,17 @@
 	#include "../QS/QS_outputlog.h"
 	#include "../QS/QS_stateMachineHelper.h"
 	#include "../QS/QS_lcd_over_uart.h"
+	#include "../QS/QS_watchdog.h"
 	#include "Selftest.h"
 	#include "RTC.h"
 	#include "../brain.h"
 	#include "SD/SD.h"
 	#include "string.h"
+	#include "../detection.h"
 
-	#define SELFTEST_NB_DISPLAYED_LINE	14
+	#define SELFTEST_NB_DISPLAYED_LINE	13
 
-	#define LCD_MIN_TIME_REFRESH		200
+	#define LCD_MIN_TIME_REFRESH		400
 
 	typedef enum{
 		MENU_WAIT_SWITCH = -1,
@@ -74,6 +76,10 @@
 
 		switch(LCD_state){
 			case MENU_WAIT_SWITCH:
+				if(entrance){
+					LCD_OVER_UART_deleteAllObject();
+				}
+
 				if(LCD_is_under_IHM_control == FALSE){
 					LCD_state = MENU_MAIN;
 				}
@@ -129,6 +135,7 @@
 		static LCD_objectId_t actReady, propReady;
 		static bool_e actDisplay = FALSE, propDisplay = FALSE;
 		static bool_e skip = FALSE;
+		static time32_t beginTimeMenu;
 
 		if(init){
 			actDisplay = FALSE;
@@ -141,6 +148,7 @@
 			LCD_OVER_UART_addText(20, 225, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "En attente de l'initialisation des cartes");
 			actReady = LCD_OVER_UART_addText(10, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente actionneur");
 			propReady = LCD_OVER_UART_addText(10, 35, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Attente propulsion");
+			beginTimeMenu = global.absolute_time;
 		}
 
 		if(ACT_IS_READY && actDisplay == FALSE){
@@ -153,7 +161,7 @@
 			propDisplay = TRUE;
 		}
 
-		if((ACT_IS_READY && PROP_IS_READY) || skip)
+		if((ACT_IS_READY && PROP_IS_READY && (global.absolute_time - beginTimeMenu) > 2000) || skip)
 			return MENU_MAIN;
 
 		return MENU_WAIT_OHTER_BOARD;
@@ -161,10 +169,9 @@
 
 	static LCD_state_e LCD_MENU_mainMenu(bool_e init){
 		static bool_e changeMenuSelftest = FALSE;
-		static bool_e changeMenuIhmTest = FALSE;
 		static bool_e changeMenuCheckList = FALSE;
-		static LCD_objectId_t idX, idY, idAngle, idVoltage, idTime, idStrat, idMatch, idMatchTime;
-		//static LCD_objectId_t idAdv1, idAdv2, idAdvIr1, idAdvIr2;
+		static LCD_objectId_t idPos, idVoltage, idTime, idStrat, idMatch, idMatchTime;
+		static LCD_objectId_t idAdv[4];
 		static time32_t lastRefresh;
 
 		static Sint16 lastX, lastY, lastTeta, lastVoltate;
@@ -173,39 +180,35 @@
 		static Uint16 lastIdSD;
 		static bool_e lastStateSD;
 		static time32_t lastMatchTime;
+		static foe_t lastFoe[4];
 
 		if(init){
 			changeMenuSelftest = FALSE;
-			changeMenuIhmTest = FALSE;
 			changeMenuCheckList = FALSE;
 
 			LCD_OVER_UART_addButton(10, 210, 0, 0, FALSE, &changeMenuSelftest, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Selftest");
-			LCD_OVER_UART_addButton(130, 210, 0, 0, FALSE, &changeMenuIhmTest, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "IHM test");
-			LCD_OVER_UART_addButton(260, 210, 0, 0, FALSE, &changeMenuCheckList, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Check");
+			LCD_OVER_UART_addButton(130, 210, 0, 0, FALSE, &changeMenuCheckList, LCD_COLOR_BLACK, LCD_COLOR_GREEN, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Check");
 
-			idX = LCD_OVER_UART_addText(5, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.x);
-			idY = LCD_OVER_UART_addText(45, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.y);
-			idAngle = LCD_OVER_UART_addText(85, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.pos.angle);
+			idPos = LCD_OVER_UART_addText(5, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_16x26, "%4d | %4d | %3d.%d", global.pos.x, global.pos.y, global.pos.angle*180/PI4096, absolute((global.pos.angle*1800/PI4096)%10));
 			lastX = global.pos.x;
 			lastY = global.pos.y;
 			lastTeta = global.pos.angle;
 
-			idVoltage = LCD_OVER_UART_addText(130, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d", global.alim_value);
+			idVoltage = LCD_OVER_UART_addText(200, 150, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d mV", global.alim_value);
 			lastVoltate = global.alim_value;
 
 			date_t date;
-			RTC_get_time(&date);
+			RTC_get_local_time(&date);
 
 			lastDate = date;
 
-			idTime = LCD_OVER_UART_addText(200, 5, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%02d:%02d:%02d", date.hours, date.minutes, date.seconds);
+			idTime = LCD_OVER_UART_addText(15, 180, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%02d:%02d:%02d", date.hours, date.minutes, date.seconds);
 
-			idStrat = LCD_OVER_UART_addText(15, 30, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%s", BRAIN_get_current_strat_name());
+			idStrat = LCD_OVER_UART_addText(15, 45, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%s", BRAIN_get_current_strat_name());
 
 			strncpy(lastStratName, BRAIN_get_current_strat_name(), 20);
 
-			idMatchTime = LCD_OVER_UART_addText(250, 60, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_16x26, "%02d", (Uint16)(global.match_time/1000));
-
+			idMatchTime = LCD_OVER_UART_addText(250, 50, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_16x26, "%02d", (Uint16)(global.match_time/1000));
 			lastMatchTime = global.match_time/1000;
 
 			if(SD_isOK())
@@ -216,28 +219,52 @@
 			lastStateSD = SD_isOK();
 			lastIdSD = SD_get_match_id();
 
-			LCD_OVER_UART_addLine(0, 25, 319, 25, LCD_COLOR_BLACK);
-			LCD_OVER_UART_addLine(125, 0, 125, 25, LCD_COLOR_BLACK);
-			LCD_OVER_UART_addLine(195, 0, 195, 25, LCD_COLOR_BLACK);
+			LCD_OVER_UART_addLine(0, 35, 319, 35, LCD_COLOR_BLACK);
+
+			Uint8 i;
+			for(i=0; i<4; i++){
+				if(i < 2){
+
+					if(global.foe[MAX_HOKUYO_FOES+i].enable)
+						idAdv[i] = LCD_OVER_UART_addText(10, 90 + 15*i, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "adv%d dist : %4d  |  angle : %3ld", i, global.foe[i].dist, ((Sint32)global.foe[i].angle)*180/PI4096);
+					else
+						idAdv[i] = LCD_OVER_UART_addText(10, 90 + 15*i, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "adv%d obsolate", i);
+
+					lastFoe[i].dist = global.foe[i].dist;
+					lastFoe[i].angle = global.foe[i].angle;
+					lastFoe[i].enable = global.foe[i].enable;
+				}else{
+
+					if(global.foe[MAX_HOKUYO_FOES+i-2].enable)
+						idAdv[i] = LCD_OVER_UART_addText(10, 90 + 15*i, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "advIr%d dist : %4d  |  angle : %3ld", i-2, global.foe[MAX_HOKUYO_FOES+i-2].dist, ((Sint32)global.foe[MAX_HOKUYO_FOES+i-2].angle)*180/PI4096);
+					else if(global.foe[MAX_HOKUYO_FOES+i-2].fiability_error)
+						idAdv[i] = LCD_OVER_UART_addText(10, 90 + 15*i, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "advIr%d erreur %d", i-2, global.foe[MAX_HOKUYO_FOES+i-2].fiability_error);
+					else
+						idAdv[i] = LCD_OVER_UART_addText(10, 90 + 15*i, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "advIr%d obsolate", i-2);
+
+					lastFoe[i].dist = global.foe[MAX_HOKUYO_FOES+i-2].dist;
+					lastFoe[i].angle = global.foe[MAX_HOKUYO_FOES+i-2].angle;
+					lastFoe[i].fiability_error = global.foe[MAX_HOKUYO_FOES+i-2].fiability_error;
+					lastFoe[i].enable = global.foe[MAX_HOKUYO_FOES+i-2].enable;
+				}
+			}
 		}
 
 		if(global.absolute_time - lastRefresh > LCD_MIN_TIME_REFRESH){
 			lastRefresh = global.absolute_time;
 
 			date_t date;
-			RTC_get_time(&date);
+			RTC_get_local_time(&date);
 
 			if(lastX != global.pos.x || lastY != global.pos.y || lastTeta != global.pos.angle){
-				LCD_OVER_UART_setText(idX, "%d", global.pos.x);
-				LCD_OVER_UART_setText(idY, "%d", global.pos.y);
-				LCD_OVER_UART_setText(idAngle, "%d", global.pos.angle);
+				LCD_OVER_UART_setText(idPos, "%4d | %4d | %3d.%d", global.pos.x, global.pos.y, global.pos.angle*180/PI4096, absolute((global.pos.angle*1800/PI4096)%10));
 				lastX = global.pos.x;
 				lastY = global.pos.y;
 				lastTeta = global.pos.angle;
 			}
 
 			if(lastVoltate != global.alim_value){
-				LCD_OVER_UART_setText(idVoltage, "%d", global.pos.y);
+				LCD_OVER_UART_setText(idVoltage, "%d mV", global.alim_value);
 				lastVoltate = global.alim_value;
 			}
 
@@ -265,13 +292,42 @@
 				lastStateSD = SD_isOK();
 				lastIdSD = SD_get_match_id();
 			}
+
+			Uint8 i;
+			for(i=0; i<4; i++){
+				if(i < 2){
+					if(lastFoe[i].dist != global.foe[i].dist || lastFoe[i].angle != global.foe[i].angle || lastFoe[i].enable != global.foe[i].enable){
+
+						if(global.foe[MAX_HOKUYO_FOES+i].enable)
+							LCD_OVER_UART_setText(idAdv[i], "adv%d dist : %4d  |  angle : %3ld", i, global.foe[i].dist, ((Sint32)global.foe[i].angle)*180/PI4096);
+						else
+							LCD_OVER_UART_setText(idAdv[i], "adv%d obsolate", i);
+
+						lastFoe[i].dist = global.foe[i].dist;
+						lastFoe[i].angle = global.foe[i].angle;
+						lastFoe[i].enable = global.foe[i].enable;
+					}
+				}else{
+					if(lastFoe[i].dist != global.foe[MAX_HOKUYO_FOES+i-2].dist || lastFoe[i].angle != global.foe[MAX_HOKUYO_FOES+i-2].angle || lastFoe[i].fiability_error != global.foe[MAX_HOKUYO_FOES+i-2].fiability_error || lastFoe[i].enable != global.foe[MAX_HOKUYO_FOES+i-2].enable){
+
+						if(global.foe[MAX_HOKUYO_FOES+i-2].enable)
+							LCD_OVER_UART_setText(idAdv[i], "advIr%d dist : %4d  |  angle : %3ld", i-2, global.foe[MAX_HOKUYO_FOES+i-2].dist, ((Sint32)global.foe[MAX_HOKUYO_FOES+i-2].angle)*180/PI4096);
+						else if(global.foe[MAX_HOKUYO_FOES+i-2].fiability_error)
+							LCD_OVER_UART_setText(idAdv[i], "advIr%d erreur %d", i-2, global.foe[MAX_HOKUYO_FOES+i-2].fiability_error);
+						else
+							LCD_OVER_UART_setText(idAdv[i], "advIr%d obsolate", i-2);
+
+						lastFoe[i].dist = global.foe[MAX_HOKUYO_FOES+i-2].dist;
+						lastFoe[i].angle = global.foe[MAX_HOKUYO_FOES+i-2].angle;
+						lastFoe[i].fiability_error = global.foe[MAX_HOKUYO_FOES+i-2].fiability_error;
+						lastFoe[i].enable = global.foe[MAX_HOKUYO_FOES+i-2].enable;
+					}
+				}
+			}
 		}
 
 		if(changeMenuSelftest)
 			return MENU_SELFTEST;
-
-		if(changeMenuIhmTest)
-			return MENU_IHM_TEST;
 
 		if(changeMenuCheckList)
 			return MENU_CHECK_LIST;
@@ -292,9 +348,12 @@
 		static bool_e up = FALSE, lastUp = FALSE;
 		static bool_e down = FALSE, lastDown = FALSE;
 
-		static LCD_objectId_t idText[SELFTEST_NB_DISPLAYED_LINE];
+		static LCD_objectId_t idText[SELFTEST_NB_DISPLAYED_LINE], idSelftestProgress;
 
 		static Uint8 ptrError = 0;
+
+		static Uint8 selftestProgressBar = 0;
+		static Uint8 lastSelftestProgressState = 0;
 
 		bool_e refreshDisplay = FALSE;
 		Uint8 i;
@@ -336,9 +395,18 @@
 
 			case WAIT_RESULT:
 				if(entrance){
+					selftestProgressBar = 0;
 					LCD_OVER_UART_addText(10, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Selftest");
-					LCD_OVER_UART_addAnimatedImage(100, 50, LCD_ANIMATION_WAIT_CIRCLE);
 					LCD_OVER_UART_addButton(250, 10, 0, 0, FALSE, &exit, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Exit");
+					LCD_OVER_UART_addAnimatedImage(140, 80, LCD_ANIMATION_WAIT_CIRCLE);
+					LCD_OVER_UART_addProgressBar(60, 130, 200, 20, LCD_OBJECT_HORIZONTAL_L_2_R, &selftestProgressBar);
+					idSelftestProgress = LCD_OVER_UART_addText(90, 165, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%s", SELFTEST_get_progress_state_char());
+				}
+
+				if(SELFTEST_get_progress_state() != lastSelftestProgressState){
+					lastSelftestProgressState = SELFTEST_get_progress_state();
+					selftestProgressBar = (lastSelftestProgressState * 100) / SELFTEST_PROGRESS_NUMBER;
+					LCD_OVER_UART_setText(idSelftestProgress, "%s", SELFTEST_get_progress_state_char());
 				}
 
 				if(SELFTEST_is_over()){
@@ -404,29 +472,80 @@
 	static LCD_state_e LCD_MENU_checkList(bool_e init){
 		CREATE_MAE(
 			INIT,
-			WAIT_LAUNCH_SELFTEST,
-			WAIT_RESULT,
-			DISPLAY_RESULT);
+			DISPLAY_CHECK);
 
 		static bool_e exit = FALSE;
+		static bool_e prec = FALSE, lastPrec = FALSE, next = FALSE, lastNext = FALSE;
+		static LCD_objectId_t checkListText = LCD_OBJECT_ID_ERROR_FULL;
+
+		const char * checkListString[] = {
+				"Check rouleaux minerais et modules",
+				"Check plastiques de stm sur les slopes",
+				"Check bonne position des actionnneurs",
+				"Check module/balle dans les robots",
+				"Check funny action (BP XX long push)",
+				"Check high level strategie",
+				"Nettoyer les capteurs couleurs",
+				"Check les balises IR",
+				"Check l'hokuyo",
+				"Lancer le selftest",
+				"Check la tension batterie > 24",
+				"Check switch (surtout la bascule !)",
+				"Check propreté des roues",
+				"Check asservissement du robot",
+				"Check position slider",
+				"Check bille porteuse",
+				"Check conflit arm et pompe",
+				"Check conflit tuyau et slope",
+				"Placer les biroutes"
+		};
+
+		const Uint8 checkListStringSize = sizeof(checkListString) / sizeof(const char *);
+
+		static Uint8 index = 0, lastIndex = 0;
 
 		if(init){
 			exit = FALSE;
+			checkListText = LCD_OBJECT_ID_ERROR_FULL;
 
 			RESET_MAE();
 		}
 
 		switch(state){
 			case INIT:
-				state = WAIT_LAUNCH_SELFTEST;
+				state = DISPLAY_CHECK;
 				break;
 
-			case WAIT_LAUNCH_SELFTEST:
+			case DISPLAY_CHECK:
 				if(entrance){
 					LCD_OVER_UART_addText(10, 10, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "Check list");
 					LCD_OVER_UART_addButton(250, 10, 0, 0, FALSE, &exit, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Exit");
+					LCD_OVER_UART_addButton(10, 150, 0, 0, FALSE, &prec, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Precedent");
+					LCD_OVER_UART_addButton(150, 150, 0, 0, FALSE, &next, LCD_COLOR_BLACK, LCD_COLOR_BLUE, LCD_COLOR_RED, LCD_COLOR_BLACK, LCD_TEXT_FONTS_11x18, "Suivant");
+					checkListText = LCD_OVER_UART_addText(10, 80, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_7x10, "n°%d : %s", index, checkListString[index]);
 				}
 
+				if(lastNext == TRUE && next == FALSE){
+					if(index < checkListStringSize-1)
+						index++;
+					else
+						index = 0;
+				}
+
+				if(lastPrec == TRUE && prec == FALSE){
+					if(index > 0)
+						index--;
+					else
+						index = checkListStringSize-1;
+				}
+
+				if(lastIndex != index){
+					LCD_OVER_UART_setText(checkListText, "n°%d : %s", index, checkListString[index]);
+				}
+
+				lastPrec = prec;
+				lastNext = next;
+				lastIndex = index;
 				break;
 
 			default:

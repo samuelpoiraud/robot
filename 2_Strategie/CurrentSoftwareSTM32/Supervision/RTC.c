@@ -242,5 +242,5 @@ static bool_e I2C_read_RTC(Uint8 address, Uint8 cmd, Uint8 * data, Uint8 size){
 }
 
 static bool_e I2C_write_RTC(Uint8 address, Uint8 * data, Uint8 size){
-	return I2C_Read(I2C2, address, NULL, 0, data, size);
+	return I2C_Write(I2C2, address, NULL, 0, data, size);
 }
