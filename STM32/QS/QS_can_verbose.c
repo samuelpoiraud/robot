@@ -38,6 +38,7 @@ static void print_ihm_result(CAN_msg_t * msg, char ** string, int * len);
 static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int len, QS_VERBOSE_msg_type_e verbose_msg_type);
 static const char * print_mosfetState(MOSFET_BOARD_CURRENT_MEASURE_state_e state);
 static const char * print_colorSensor(COLOR_SENSOR_I2C_color_e color);
+static const char * print_corrector(corrector_e corrector);
 
 #define print(buffer, len, ...) \
 	do { \
@@ -183,7 +184,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_SCAN_DUNE:							print(string, len, "%x PROP_SCAN_DUNE                         ", PROP_SCAN_DUNE                                 );  break;
 		case PROP_ACTIVE_PID:							print(string, len, "%x PROP_ACTIVE_PID                        ", PROP_ACTIVE_PID                                );  break;
 		case PROP_RUSH:									print(string, len, "%x PROP_RUSH                              ", PROP_RUSH		                                );  break;
-
+		case PROP_STAY_POSITION:						print(string, len, "%x PROP_STAY_POSITION                     ", PROP_STAY_POSITION								);  break;
 
 		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING         ", BEACON_ENABLE_PERIODIC_SENDING					);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING        ", BEACON_DISABLE_PERIODIC_SENDING				);	break;
@@ -992,7 +993,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case DEBUG_PROP_MOVE_POSITION:			print(string, len, "| offset d'aleration x : %d    y : %d    teta : %d\n", msg->data.debug_prop_move_position.xOffset, msg->data.debug_prop_move_position.yOffset, msg->data.debug_prop_move_position.tetaOffset);	break;
 		case PROP_ACTIVE_PID:					print(string, len, "| %s\n",(msg->data.prop_active_pid.state)?"Enable":"Disable");	break;
 		case PROP_RUSH:							print(string, len, "| %s  1_acc : %d   2_acc : %d   brake_acc : %d  rot_trans_coef : %d\n",(msg->data.prop_rush.rush)?"Enable":"Disable", msg->data.prop_rush.first_traj_acc, msg->data.prop_rush.second_traj_acc, msg->data.prop_rush.brake_acc, msg->data.prop_rush.acc_rot_trans);	break;
-		case PROP_DATALASER:					print(string, len, "utilisation des télémetres\n");	break;
+		case PROP_DATALASER:					print(string, len, "| utilisation des télémetres\n");	break;
+		case PROP_STAY_POSITION:				print(string, len, "| %s", print_corrector(msg->data.prop_stay_position.corrector));  break;
 
 		case MOSFET_BOARD_GET_MOSFET_CURRENT_STATE:		print(string, len, "| id : %d\n", msg->data.mosfet_board_get_mosfet_state.id);	break;
 		case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:	print(string, len, "| id : %d   state : %s\n", msg->data.mosfet_board_tell_mosfet_state.id, print_mosfetState(msg->data.mosfet_board_tell_mosfet_state.state)); break;
@@ -1053,6 +1055,24 @@ static const char * print_mosfetState(MOSFET_BOARD_CURRENT_MEASURE_state_e state
 			return "PUMPING_NOTHING";
 		case MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT:
 			return "PUMPING_OBJECT";
+		default:
+			return "UNKNOW";
+	}
+}
+
+static const char * print_corrector(corrector_e corrector){
+	switch(corrector){
+		case CORRECTOR_ENABLE :
+			return "CORRECTOR_ENABLE";
+
+		case CORRECTOR_ROTATION_ONLY :
+			return "CORRECTOR_ROTATION_ONLY";
+
+		case CORRECTOR_TRANSLATION_ONLY :
+			return "CORRECTOR_TRANSLATION_ONLY";
+
+		case CORRECTOR_DISABLE :
+			return "CORRECTOR_DISABLE";
 		default:
 			return "UNKNOW";
 	}
