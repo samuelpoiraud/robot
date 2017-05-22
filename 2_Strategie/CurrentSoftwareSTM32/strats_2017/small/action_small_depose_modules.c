@@ -1582,6 +1582,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 	static GEOMETRY_point_t IndoorPoint;	//Point de retour en zone si échec d'extraction
 	//Le Getout est le point B !
 
+	static uint8_t remaining_dispose_modules_try;
 	//Trajet nominal :
 
 	// GetIn -> G(non atteint) -> A -> B -> C (calcul F0) -> D -> E -> F0 -> F1 -> ... -> F3 -> B
@@ -1590,6 +1591,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 
 	switch(state){
 		case INIT:
+
+			remaining_dispose_modules_try = 5;	//Nb de modules qu'opn essaye de déposer...
+
 			//Color_side
 			if(basis_side == OUR_SIDE)
 				color_side = global.color;
@@ -1904,12 +1908,13 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 
 			break;
 		case COMPUTE_DISPOSE_MODULE:
-
+			if(remaining_dispose_modules_try)
+				remaining_dispose_modules_try--;
 			//TODO détection de fin de stock ou de fin de zone ou savoir si c'est le dernier module à poser
-			//TODO gestion du besoin de poussage après dépose..
-			if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0)
+
+			if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0 || remaining_dispose_modules_try == 0)
 				state = GET_OUT_TO_B;			//fini !
-			else if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 1)
+			else if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 1 || remaining_dispose_modules_try == 1)
 				state = DISPOSE_LAST_MODULE;	//Presque fini !
 			else
 				state = DISPOSE_MODULE;	//Encore du taff !
@@ -1920,7 +1925,21 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			//On considère qu'on a posé des modules unicolores de notre couleur... il n'est pas question de venir les retourner plus tard...
 			//c'est sans doute perfectible en prenant en compte ce qu'on a réellement déposé.
 			if(ON_LEAVE())
+			{
 				MOONBASES_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, moonbase);
+
+				//C'était pas le dernier, donc j'ai encore au moins un module à poser.
+				//Je regarde s'il faut pousser pour lui faire de la place !
+				if(global.pos.x < 1600 &&	(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE5_YELLOW_OUTDOOR))//plus qu'une place dans la zone !
+					state = PUSH_DISPOSED_MODULES;
+				else if(global.pos.x < 1450 &&	(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE4_YELLOW_INDOOR))
+					state = PUSH_DISPOSED_MODULES;
+				else if(global.pos.x < 1300 &&	(dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW))
+					state = PUSH_DISPOSED_MODULES;
+				else
+					state = GOTO_NEXT_F;	//pas besoin de pousser, je maintiens le prochain état.
+
+			}
 			break;
 		case DISPOSE_LAST_MODULE:
 			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, PUSH_DISPOSED_MODULES, PUSH_DISPOSED_MODULES);
@@ -1941,7 +1960,15 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			break;
 		case PUSH_DISPOSED_MODULES:
 			//TODO
-			state = GET_OUT_TO_B;
+			if(entrance)
+			{
+				//TODO faire sortir l'actionneur push qui se trouve côté module (si on est dans le bon sens !)
+			}
+
+
+			state = COMPUTE_DISPOSE_MODULE;
+
+			//TODO ajouter ailleurs qu'ici, dans la gestion de l'extraction (nominale ou palliative), le rangement de bras de poussage !
 			break;
 		case GET_OUT_TO_B:
 			state = try_going(B.x, B.y, state, DONE, BACK_TO_PREVIOUS_F, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
