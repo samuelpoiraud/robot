@@ -1402,11 +1402,19 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case GET_IN_DIRECT:
-			state = try_going(400, COLOR_Y(1150), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(global.color == BLUE){
+				state = try_going(400, COLOR_Y(1145), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(400, COLOR_Y(1155), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(400, COLOR_Y(1150), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(global.color == BLUE){
+				state = ASTAR_try_going(400, COLOR_Y(1145), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = ASTAR_try_going(400, COLOR_Y(1155), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case GO_TO_START_POINT: //ajuster la distance fusée
@@ -1414,30 +1422,30 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
-			//state=check_sub_action_result(sub_anne_take_rocket(),state,GET_OUT,GET_OUT_ERROR);
-			state = GET_OUT;
+			state=check_sub_action_result(sub_act_anne_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, TRUE, TRUE, TRUE, TRUE),state,GET_OUT,GET_OUT_ERROR);
+//			state = GET_OUT;
+//
+//			#warning "temporaire pour faire comme si la prise fonctionnait !!!"
+//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER,MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR,MODULE_STOCK_SMALL);
+//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER,MODULE_STOCK_SMALL);
+//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
+//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
 
-			#warning "temporaire pour faire comme si la prise fonctionnait !!!"
-			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER,MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR,MODULE_STOCK_SMALL);
-			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER,MODULE_STOCK_SMALL);
-			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
-			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
-
-			#warning "Samuel : je n'ai pas compris pourquoi on a ces 4 lignes non protégées... c'est la sub qui doit indiquer le dépilage au fur et à mesure !"
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+//			#warning "Samuel : je n'ai pas compris pourquoi on a ces 4 lignes non protégées... c'est la sub qui doit indiquer le dépilage au fur et à mesure !"
+//			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+//			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+//			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
+//			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
 
 			break;
 
@@ -1638,12 +1646,12 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 
 		case ACTION:{
 			error_e resultAction = sub_act_anne_take_rocket_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT);
-			//error_e resultInit = init_all_actionneur(); // On init ou pas ? Si on le fail on part en failed_init // A ne pas faire ici
-
-			#warning "temporaire pour faire comme si la prise fonctionnait"
-			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-
-			resultAction = END_OK;
+//			error_e resultInit = init_all_actionneur(); // On init ou pas ? Si on le fail on part en failed_init // A ne pas faire ici
+			error_e resultInit = END_OK;
+//			#warning "temporaire pour faire comme si la prise fonctionnait"
+//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+//
+//			resultAction = END_OK;
 			if(resultAction == END_OK){
 				state=GET_OUT;
 				if(rocket == OUR_ELEMENT){
