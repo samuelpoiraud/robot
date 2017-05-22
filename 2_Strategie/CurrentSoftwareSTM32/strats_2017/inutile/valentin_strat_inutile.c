@@ -61,7 +61,8 @@ void valentin_strat_inutile_big(){
 			break;
 
 		case ACTION:
-			if(entrance){
+			/*if(entrance){
+				PROP_set_position(1350, 400, -PI4096/2);
 				ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 				ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 				ACT_push_order(ACT_CYLINDER_ARM_LEFT, ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE);
@@ -71,14 +72,17 @@ void valentin_strat_inutile_big(){
 				//STOCKS_setModuleType(STOCK_POS_BALANCER, MODULE_STOCK_LEFT, MODULE_POLY);
 				//sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, TRUE);
 				//sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
-			}
-			//state = check_sub_action_result(sub_act_harry_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, ACTION_2, ERROR);
+			}*/
+			//state = check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
-			state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DONE, ERROR);
+			//state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_harry_prise_module_unicolor_south(LEFT), state, PATHFIND, ERROR);
+			//state = check_sub_action_result(SELFTESTACT_run(), state, ACTION_2, ERROR);
+			state = check_sub_action_result(sub_harry_depose_modules_side_intro(OUR_ELEMENT, RIGHT, OUR_SIDE, SUD), state, DONE, ERROR);
 			break;
 
 		case ACTION_2:
+			//state = check_sub_action_result(SELFTESTACT_run(), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(MODULE_ROCKET_MULTI_OUR_SIDE, RIGHT, LEFT, RIGHT, LEFT), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, DONE, ERROR);

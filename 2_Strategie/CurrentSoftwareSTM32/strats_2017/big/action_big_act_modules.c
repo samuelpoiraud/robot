@@ -19,7 +19,7 @@
 #define TIME_COLOR_BLUE_DETECTION	(100)	// en ms
 
 // Fonctions privées
-static bool_e color_blue_is_detected(CW_sensor_e sensor, bool_e color_white, bool_e color_yellow);
+static bool_e color_blue_is_detected(CW_sensor_e sensor, bool_e color_white, bool_e color_yellow, bool_e entrance);
 
 #if 0
 // Subaction actionneur de prise fusée v2
@@ -1235,11 +1235,15 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 
 // Fonction spéciale de détection du bleu
-static bool_e color_blue_is_detected(CW_sensor_e sensor, bool_e color_white, bool_e color_yellow) {
+static bool_e color_blue_is_detected(CW_sensor_e sensor, bool_e color_white, bool_e color_yellow, bool_e entrance) {
 	assert(sensor <= 1); // CW_SENSOR_LEFT or CW_SENSOR_RIGHT
 	static bool_e color_detected[2];
 	static time32_t time_detection[2];
 	bool_e color_response = FALSE;
+
+	if(entrance){
+		color_detected[sensor] = FALSE;
+	}
 
 	if(!color_white && !color_yellow && !color_detected[sensor]) {
 		color_detected[sensor] = TRUE;
@@ -1478,7 +1482,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}else if(storage == MODULE_STOCK_RIGHT){
 				color_white = CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_White, FALSE);
 				color_yellow = CW_is_color_detected(CW_SENSOR_RIGHT, CW_Channel_Yellow, FALSE);
-				color_blue = color_blue_is_detected(CW_SENSOR_RIGHT, color_white, color_yellow);
+				color_blue = color_blue_is_detected(CW_SENSOR_RIGHT, color_white, color_yellow, entrance);
 
 				if( ((global.color == BLUE) && color_blue) || ((global.color == YELLOW) && color_yellow)){
 					state = WAIT_WHITE;
@@ -1486,7 +1490,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}else{
 				color_white = CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_White, FALSE);
 				color_yellow = CW_is_color_detected(CW_SENSOR_LEFT, CW_Channel_Yellow, FALSE);
-				color_blue = color_blue_is_detected(CW_SENSOR_LEFT, color_white, color_yellow);
+				color_blue = color_blue_is_detected(CW_SENSOR_LEFT, color_white, color_yellow, entrance);
 
 				if( ((global.color == BLUE) && color_blue) || ((global.color == YELLOW) && color_yellow)){
 					state = WAIT_WHITE;
@@ -1506,7 +1510,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
 			}
 
-			// On attend notre couleur
+			// On attend le blanc
 			if(global.absolute_time > time_timeout){
 				state = STOP_TURN;   // Problème : on arrive pas a déterminer la couleur
 			}else if(storage == MODULE_STOCK_RIGHT){
