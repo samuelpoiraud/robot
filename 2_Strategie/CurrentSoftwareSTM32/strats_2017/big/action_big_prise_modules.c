@@ -1875,7 +1875,7 @@ error_e sub_harry_rocket_monocolor(){
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
-			state=check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, LEFT, RIGHT, LEFT, RIGHT),state,GET_OUT,GET_OUT_ERROR);
+			state=check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, LEFT, RIGHT, LEFT, RIGHT, TRUE),state,GET_OUT,GET_OUT_ERROR);
 			break;
 
 		case GET_OUT:
@@ -2078,7 +2078,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 
 
 		case ACTION:
-			state = check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT),state, GET_OUT, GET_OUT_ERROR);
+			state = check_sub_action_result(sub_act_harry_take_rocket_parallel_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT, TRUE),state, GET_OUT, GET_OUT_ERROR);
 			break;
 
 		case GET_OUT:

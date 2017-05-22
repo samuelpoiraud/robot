@@ -2115,7 +2115,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 
 // Subaction actionneur de prise fusée v3
-error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e rocket, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top){
+error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e rocket, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top, bool_e alternate){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_ACT_HARRY_TAKE_ROCKET_PARALLEL,
 			INIT,
 			COMPUTE_NEXT_CYLINDER,
@@ -2212,6 +2212,10 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				moduleToTake = NO_SIDE;		// La fusée est vide, nous avons fini.
 			}else if(rocketSide[indexSide] == NO_SIDE){
 				moduleToTake = NO_SIDE; 	// On ne doit pas prendre les modules suivants (ceci est un choix de l'utilisateur)
+			}else if(alternate && needToStoreLeft && !needToStoreRight && !STOCKS_isFull(MODULE_STOCK_RIGHT) && !ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT)){
+				moduleToTake = RIGHT;       // On privilégie l'alternance et on a déjà pris à gauche. On prend donc à droite si il reste de la place
+			}else if(alternate && !needToStoreLeft && needToStoreRight && !STOCKS_isFull(MODULE_STOCK_LEFT) && !ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_LEFT)){
+				moduleToTake = LEFT;       // On privilégie l'alternance et on a déjà pris à gauche. On prend donc à droite si il reste de la place
 			}else if(rocketSide[indexSide] == RIGHT && !STOCKS_isFull(MODULE_STOCK_RIGHT) && !ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT)){
 				moduleToTake = RIGHT;		// On demande RIGHT et il est dispo
 			}else if(rocketSide[indexSide] == LEFT && !STOCKS_isFull(MODULE_STOCK_LEFT) && !ELEMENTS_get_flag(FLAG_HARRY_DISABLE_MODULE_LEFT)){
@@ -2231,6 +2235,14 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			}else{
 				state = COMPUTE_ACTION;
 			}
+
+			if(moduleToTake == NO_SIDE){
+				debug_printf("Module to take : NO_SIDE\n");
+			}else if(moduleToTake == LEFT){
+				debug_printf("Module to take : LEFT\n");
+			}else{
+				debug_printf("Module to take : RIGHT\n");
+			}
 			break;
 
 		case COMPUTE_ACTION:
@@ -2240,12 +2252,12 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				state = DONE; // La fusée est vide.
 			}else if(needToStoreLeft && needToStoreRight){
 				state = RECULE; // On doit stocker 2 modules
-			}else if(needToStoreLeft &&  (moduleToTake == LEFT || indexSide >= 4)){
+			}else if(needToStoreLeft && moduleToTake == LEFT){
 				state = RECULE; // On doit stocker le module gauche
-			}else if(needToStoreRight &&  (moduleToTake == RIGHT || indexSide >= 4)){
+			}else if(needToStoreRight && moduleToTake == RIGHT){
 				state = RECULE; // On doit stocker le module droit
 			}else if((moduleToTake == LEFT || moduleToTake == RIGHT) && (needToStoreLeft || needToStoreRight)){
-				state = ELEVATOR_GO_UP; // on doit prendre à partir de la position de prise
+				state = ELEVATOR_GO_UP; // on doit prendre à partir de la position de prise et on a déjà pris un module
 			}else if(moduleToTake == LEFT || moduleToTake == RIGHT){
 				state = AVANCE; // on doit prendre un cylindre à partir de la position de stockage
 			}else{

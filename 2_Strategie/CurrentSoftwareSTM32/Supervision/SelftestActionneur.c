@@ -235,12 +235,12 @@ error_e SELFTESTACT_run(){
 	static ACT_sid_e liste_error_actionneur[NB_MAX_ACTIONS];
 	static Uint8 nb_actions;
 	static Uint8 nb_etapes;
-	static Uint8 indice = 0;
-	static Uint8 ind_start_etape = 0, ind_end_etape = 0;
-	static Uint8 etape_en_cours = 1;
-	static bool_e check_finish = FALSE;
-	static bool_e new_error = FALSE;
-	static Uint8 ind_nb_errors = 0;
+	static Uint8 indice;
+	static Uint8 ind_start_etape, ind_end_etape;
+	static Uint8 etape_en_cours;
+	static bool_e check_finish;
+	static bool_e new_error;
+	static Uint8 ind_nb_errors;
 	Uint8 i;
 	Uint8 j;
 
@@ -266,6 +266,8 @@ error_e SELFTESTACT_run(){
 			}
 
 			etape_en_cours = 1;
+			indice = 0;
+			ind_nb_errors = 0;
 			state = MOVE_ACTIONNEUR;
 			break;
 
@@ -322,7 +324,7 @@ error_e SELFTESTACT_run(){
 						SELFTEST_declare_errors(NULL, tableau_selftest[i].error_code);
 						debug_printf("ERROR %d\n", tableau_selftest[i].error_code);
 						liste_error_actionneur[ind_nb_errors] = tableau_selftest[i].actionneur;
-						ind_nb_errors += 1;
+						ind_nb_errors++;
 					}
 				}
 			}
