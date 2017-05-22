@@ -39,6 +39,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 static const char * print_mosfetState(MOSFET_BOARD_CURRENT_MEASURE_state_e state);
 static const char * print_colorSensor(COLOR_SENSOR_I2C_color_e color);
 static const char * print_corrector(corrector_e corrector);
+static const char * print_mosfetId(act_vacuostat_id id);
 
 #define print(buffer, len, ...) \
 	do { \
@@ -996,11 +997,11 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_DATALASER:					print(string, len, "| utilisation des télémetres\n");	break;
 		case PROP_STAY_POSITION:				print(string, len, "| %s", print_corrector(msg->data.prop_stay_position.corrector));  break;
 
-		case MOSFET_BOARD_GET_MOSFET_CURRENT_STATE:		print(string, len, "| id : %d\n", msg->data.mosfet_board_get_mosfet_state.id);	break;
-		case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:	print(string, len, "| id : %d   state : %s\n", msg->data.mosfet_board_tell_mosfet_state.id, print_mosfetState(msg->data.mosfet_board_tell_mosfet_state.state)); break;
+		case MOSFET_BOARD_GET_MOSFET_CURRENT_STATE:		print(string, len, "| %s (%d)\n", print_mosfetId(msg->data.mosfet_board_get_mosfet_state.id), msg->data.mosfet_board_get_mosfet_state.id);	break;
+		case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:	print(string, len, "| %s (%d)   state : %s\n", print_mosfetId(msg->data.mosfet_board_get_mosfet_state.id), msg->data.mosfet_board_tell_mosfet_state.id, print_mosfetState(msg->data.mosfet_board_tell_mosfet_state.state)); break;
 
-		case ACT_GET_MOSFET_CURRENT_STATE:				print(string, len, "| id : %d\n", msg->data.act_get_mosfet_state.id);	break;
-		case ACT_TELL_MOSFET_CURRENT_STATE:				print(string, len, "| id : %d   state : %s\n", msg->data.act_tell_mosfet_state.id, print_mosfetState(msg->data.act_tell_mosfet_state.state));	break;
+		case ACT_GET_MOSFET_CURRENT_STATE:				print(string, len, "| %s (%d)\n", print_mosfetId(msg->data.mosfet_board_get_mosfet_state.id), msg->data.act_get_mosfet_state.id);	break;
+		case ACT_TELL_MOSFET_CURRENT_STATE:				print(string, len, "| %s (%d)   state : %s\n", print_mosfetId(msg->data.mosfet_board_get_mosfet_state.id), msg->data.act_tell_mosfet_state.id, print_mosfetState(msg->data.act_tell_mosfet_state.state));	break;
 
 		case ACT_TELL_COLOR_SENSOR_I2C:					print(string, len, "| %s\n", print_colorSensor(msg->data.act_tell_color_sensor_i2c.color));	break;
 
@@ -1044,6 +1045,25 @@ static const char * print_colorSensor(COLOR_SENSOR_I2C_color_e color){
 
 		default:
 			return "COLOR_SENSOR_UNKNOW";
+	}
+}
+
+static const char * print_mosfetId(act_vacuostat_id id){
+	switch(id){
+		case VACUOSTAT_ELEVATOR_RIGHT :
+			return "VACUOSTAT_ELEVATOR_RIGHT";
+		case VACUOSTAT_ELEVATOR_LEFT :
+			return "VACUOSTAT_ELEVATOR_LEFT";
+		case VACUOSTAT_DISPOSE_RIGHT :
+			return "VACUOSTAT_DISPOSE_RIGHT";
+		case VACUOSTAT_DISPOSE_LEFT :
+			return "VACUOSTAT_DISPOSE_LEFT";
+		case VACUOSTAT_SLIDER_RIGHT :
+			return "VACUOSTAT_SLIDER_RIGHT";
+		case VACUOSTAT_SLIDER_LEFT :
+			return "VACUOSTAT_SLIDER_LEFT";
+		default :
+			return "UNKONW";
 	}
 }
 
