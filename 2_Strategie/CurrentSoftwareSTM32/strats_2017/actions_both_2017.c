@@ -243,7 +243,6 @@ error_e sub_cross_rocker(void){
 }
 
 
-
 error_e sub_wait_1_sec(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_WAIT_ONE_SEC,
 							INIT,
@@ -278,6 +277,72 @@ error_e sub_wait_1_sec(void){
 			break;
 	}
 	return IN_PROGRESS;
+}
+
+#define DEFAULT_PROTECT_ZONE		ZONE_TO_PROTECT_OUR_FULL_SIDE
+
+//Cette fonction de protection se rend à un point à protéger et rend la main au bout d'une seconde...
+//Elle peut être appelée en boucle si on a rien d'autre à faire... ^^
+error_e sub_protect(zone_to_protect_e zone)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_PROTECT_ZONE,
+								INIT,
+								GET_IN_ASTAR,
+								WAIT_1SEC,
+								DONE,
+								ERROR
+								);
+	error_e ret;
+	ret = IN_PROGRESS;
+	static GEOMETRY_point_t p;
+
+	switch (state) {
+			case INIT:
+				if(zone == ZONE_TO_PROTECT_SMART_CHOICE)
+					zone = DEFAULT_PROTECT_ZONE;	//On fait confiance au codeur qui a placé son espoir dans le define.
+
+				switch(zone)
+				{
+					case ZONE_TO_PROTECT_ADV_CENTER_MOONBASE:	p = (GEOMETRY_point_t){1300,COLOR_Y(2300)};			break;
+					case ZONE_TO_PROTECT_ADV_SIDE_MOONBASE:		p = (GEOMETRY_point_t){900,COLOR_Y(2700)};			break;
+					case ZONE_TO_PROTECT_MIDDLE_MOONBASE:		p = (GEOMETRY_point_t){950,1500};					break;
+					case ZONE_TO_PROTECT_OUR_CENTER_MOONBASE:	p = (GEOMETRY_point_t){1300,COLOR_Y(700)};			break;
+					case ZONE_TO_PROTECT_OUR_SIDE_MOONBASE:		p = (GEOMETRY_point_t){900,COLOR_Y(300)};			break;
+					case ZONE_TO_PROTECT_OUR_FULL_SIDE:					//no break
+					case ZONE_TO_PROTECT_SMART_CHOICE:					//no break
+					default:									p = (GEOMETRY_point_t){800,COLOR_Y(1300)};			break;
+				}
+				if(i_am_in_square(p.x-50, p.x+50, p.y-50, p.y+50))
+					state = WAIT_1SEC;	//Nous sommes déjà sur le point à protéger (à 50mm près)
+				else
+					state = GET_IN_ASTAR;
+				debug_printf("Protection : i will try to protect %d ; %d\n", p.x, p.y);
+				break;
+			case GET_IN_ASTAR:
+				state = ASTAR_try_going(p.x, p.y, state, WAIT_1SEC, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				break;
+			case WAIT_1SEC:
+				state = wait_time(1000, state, DONE);
+				break;
+			case DONE:
+				RESET_MAE();
+				on_turning_point();
+				ret = END_OK;
+				break;
+
+			case ERROR:
+				RESET_MAE();
+				on_turning_point();
+				ret = NOT_HANDLED;
+				break;
+
+			default:
+				if(entrance)
+					debug_printf("default case in sub_wait_1_sec\n");
+				break;
+		}
+
+		return ret;
 }
 
 // Subaction de test de l'évitement (A ne pas jouer en match)

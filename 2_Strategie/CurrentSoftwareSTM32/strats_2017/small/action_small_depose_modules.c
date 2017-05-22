@@ -426,19 +426,19 @@ error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules){
 			break;
 
 		case GET_IN_POS_BLUE:
-			state = try_going(1100, 925, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1100, 925, state, DONE, ASTAR_BLUE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GET_IN_POS_BLUE_FROM_CENTRAL:
-			state = try_going(1000, 1000, state, GET_IN_POS_BLUE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = try_going(1000, 1000, state, GET_IN_POS_BLUE, ASTAR_BLUE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_BLUE_FROM_YELLOW:
-			state = try_going(900, 2000, state, GET_IN_POS_BLUE_FROM_YELLOW, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(900, 2000, state, GET_IN_POS_BLUE_FROM_YELLOW, ASTAR_BLUE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case ASTAR_BLUE:
-			state = ASTAR_try_going(1100, 925, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(1100, 925, state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GET_IN_CENTRAL:
@@ -454,19 +454,19 @@ error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules){
 			break;
 
 		case GET_IN_POS_CENTRAL:
-			state = try_going(1000, 1750, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1000, 1750, state, DONE, ASTAR_CENTRAL, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_CENTRAL_FROM_BLUE:
-			state = try_going(975, 1000, state, GET_IN_POS_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(975, 1000, state, GET_IN_POS_CENTRAL, ASTAR_CENTRAL, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_CENTRAL_FROM_YELLOW:
-			state = try_going(900, 1750, state, GET_IN_POS_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(900, 1750, state, GET_IN_POS_CENTRAL, ASTAR_CENTRAL, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case ASTAR_CENTRAL:
-			state = ASTAR_try_going(1000, 1750, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = ASTAR_try_going(1000, 1750, state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_YELLOW:
@@ -482,19 +482,19 @@ error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules){
 			break;
 
 		case GET_IN_POS_YELLOW:
-			state = try_going(1450, 2400, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1450, 2400, state, DONE, ASTAR_YELLOW, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_YELLOW_FROM_CENTRAL:
-			state = try_going(1000, 2000, state, GET_IN_POS_YELLOW, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1000, 2000, state, GET_IN_POS_YELLOW, ASTAR_YELLOW, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_YELLOW_FROM_BLUE:
-			state = try_going(900, 1000, state, GET_IN_POS_YELLOW_FROM_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(900, 1000, state, GET_IN_POS_YELLOW_FROM_CENTRAL, ASTAR_YELLOW, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case ASTAR_YELLOW:
-			state = ASTAR_try_going(1450, 2400, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(1450, 2400, state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -771,19 +771,19 @@ error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules){
 			break;
 
 		case GET_IN_POS_OUR_SIDE:
-			state = try_going(820, COLOR_Y(400), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = try_going(820, COLOR_Y(400), state, DONE, ASTAR_OUR_SIDE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_OUR_SIDE_FROM_CENTRAL:
-			state = try_going(1000, COLOR_Y(1000), state, GET_IN_POS_OUR_SIDE_FROM_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = try_going(1000, COLOR_Y(1000), state, GET_IN_POS_OUR_SIDE_FROM_CENTRAL, ASTAR_OUR_SIDE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_OUR_SIDE_FROM_ADV_SIDE:
-			state = try_going(900, COLOR_Y(2000), state, GET_IN_POS_OUR_SIDE_FROM_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(900, COLOR_Y(2000), state, GET_IN_POS_OUR_SIDE_FROM_CENTRAL, ASTAR_OUR_SIDE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case ASTAR_OUR_SIDE:
-			state = ASTAR_try_going(820, COLOR_Y(400), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(820, COLOR_Y(400), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_ADV_SIDE:
@@ -799,19 +799,19 @@ error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules){
 			break;
 
 		case GET_IN_POS_ADV_SIDE:
-			state = try_going(820, COLOR_Y(2600), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = try_going(820, COLOR_Y(2600), state, DONE, ASTAR_ADV_SIDE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_ADV_SIDE_FROM_CENTRAL:
-			state = try_going(1000, COLOR_Y(2000), state, GET_IN_POS_ADV_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(1000, COLOR_Y(2000), state, GET_IN_POS_ADV_SIDE, ASTAR_ADV_SIDE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_POS_ADV_SIDE_FROM_OUR_SIDE:
-			state = try_going(900, COLOR_Y(1000), state, GET_IN_POS_ADV_SIDE_FROM_CENTRAL, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			state = try_going(900, COLOR_Y(1000), state, GET_IN_POS_ADV_SIDE_FROM_CENTRAL, ASTAR_ADV_SIDE, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
 			break;
 
 		case ASTAR_ADV_SIDE:
-			state = ASTAR_try_going(820, COLOR_Y(2600), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(820, COLOR_Y(2600), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 
@@ -1520,7 +1520,6 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			PUSH_TO_C,
 			COMPUTE_F_E_D,
 			GOTO_D_AND_E,
-			BACK_TO_FX,
 			GOTO_FX,
 			COMPUTE_DISPOSE_MODULE,
 			DISPOSE_MODULE,
@@ -1529,7 +1528,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			BACK_TO_PREVIOUS_F,
 			PUSH_DISPOSED_MODULES,
 			GET_OUT_TO_B,
-			GET_OUT_ERROR,
+			EXTRACT_LEFT,
+			EXTRACT_RIGHT,
+			EXTRACT_INDOOR,
 			ERROR,
 			DONE
 		);
@@ -1576,7 +1577,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 
 	static GEOMETRY_vector_t Fn_to_next;	//Déplacement entre Fn et Fn+1 !
 
-
+	static GEOMETRY_point_t ExtractLeft;	//Point d'extraction en cas de problème
+	static GEOMETRY_point_t ExtractRight;	//Point d'extraction en cas de problème
+	static GEOMETRY_point_t IndoorPoint;	//Point de retour en zone si échec d'extraction
 	//Le Getout est le point B !
 
 	//Trajet nominal :
@@ -1636,6 +1639,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			if(dzone == DZONE0_BLUE_OUTDOOR)
 			{
 				GetIn = (GEOMETRY_point_t){1725,860};
+				ExtractLeft = (GEOMETRY_point_t){1800,750};
+				ExtractRight = (GEOMETRY_point_t){1500,750};
+				IndoorPoint = (GEOMETRY_point_t){1725,860};
 				if(i_am_in_square(1000, 1800, 200, 650))
 					state = GET_IN;
 				else
@@ -1644,6 +1650,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			else if(dzone == DZONE5_YELLOW_OUTDOOR)
 			{
 				GetIn = (GEOMETRY_point_t){1725,2140};
+				ExtractLeft = (GEOMETRY_point_t){1500,2250};
+				ExtractRight = (GEOMETRY_point_t){1800,2250};
+				IndoorPoint = (GEOMETRY_point_t){1725,2140};
 				if(i_am_in_square(1000, 1800, 2350, 2800))
 					state = GET_IN;
 				else
@@ -1652,6 +1661,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			else if(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE2_MIDDLE_BLUE)
 			{
 				GetIn = (GEOMETRY_point_t){1350,1240};
+				ExtractLeft = (GEOMETRY_point_t){1200,1000};
+				ExtractRight = (GEOMETRY_point_t){1050,1250};
+				IndoorPoint = (GEOMETRY_point_t){1500,1300};
 				if(i_am_in_square(0, 1300, 1000, 1300))
 					state = GET_IN;
 				else
@@ -1660,6 +1672,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			else	//dzone 3 ou 4
 			{
 				GetIn = (GEOMETRY_point_t){1350,1760};
+				ExtractLeft = (GEOMETRY_point_t){1050,1750};
+				ExtractRight = (GEOMETRY_point_t){1200,2000};
+				IndoorPoint = (GEOMETRY_point_t){1500,1700};
 				if(i_am_in_square(0, 1300, 1700, 2000))
 					state = GET_IN;
 				else
@@ -1760,7 +1775,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			break;
 
 		case GET_IN:	//On file direct vers le point de get_in
-			state = try_going(GetIn.x, GetIn.y, state, RUSH_AND_COMPUTE_O_H_A_B_C, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(GetIn.x, GetIn.y, state, RUSH_AND_COMPUTE_O_H_A_B_C, PATHFIND, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PATHFIND:
 			state = ASTAR_try_going(GetIn.x, GetIn.y, state, RUSH_AND_COMPUTE_O_H_A_B_C, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1852,7 +1867,22 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			debug_printf("E :%4d ; %4d\n", E.x, E.y);
 			state = GOTO_D_AND_E;
 			break;
-		case GOTO_D_AND_E:
+		case GOTO_D_AND_E:{
+			static enum state_e success_state;
+			if(entrance)
+			{
+				if(last_state==GOTO_FX)
+				{
+					//TODO d'une façon générale, revoir l'extraction pour sortir de la merde quand on est dérangé en pleine action.
+					//Actuellement : risque de collision avec la moonbase
+					if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE4_YELLOW_INDOOR)
+						success_state = EXTRACT_LEFT;
+					else
+						success_state = EXTRACT_RIGHT;
+				}
+				else
+					success_state = GOTO_FX;
+			}
 			if(entrance && pusher_is_up)
 			{
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
@@ -1861,12 +1891,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			state = try_going_multipoint(	(displacement_t []){
 											(displacement_t){ (GEOMETRY_point_t) {D.x, D.y}, FAST},
 											(displacement_t){ (GEOMETRY_point_t) {E.x, E.y}, FAST}
-											}, 2, state, GOTO_FX, BACK_TO_FX, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-		case BACK_TO_FX:	//On retourne a C si échec d'extraction
-			state = try_going(FX.x, FX.y, state, GOTO_D_AND_E, GOTO_D_AND_E, SLOW, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+											}, 2, state, success_state, success_state, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;}
 
-			break;
 		case GOTO_FX:
 			//Le sens est important... il faut maintenant qu'on se place pour la pose !
 			//state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, SLOW, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1904,13 +1931,13 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 		case GOTO_NEXT_F:
 			if(entrance)
 				FX = (GEOMETRY_point_t){FX.x + Fn_to_next.x, FX.y + Fn_to_next.y};	//Next point...
-			state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, BACK_TO_PREVIOUS_F, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			//Le end at break permettra sans doute de démarrer l'actionneur avant la fin du mouvement, c'est l'éclate !
 			break;
 		case BACK_TO_PREVIOUS_F:
 			if(entrance)
 				FX = (GEOMETRY_point_t){FX.x - Fn_to_next.x, FX.y - Fn_to_next.y};	//Previous point...
-			state = try_going(FX.x, FX.y, state, GOTO_NEXT_F, GOTO_NEXT_F, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(FX.x, FX.y, state, GOTO_NEXT_F, (color_side == BLUE)?EXTRACT_RIGHT:EXTRACT_LEFT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case PUSH_DISPOSED_MODULES:
 			//TODO
@@ -1920,6 +1947,24 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			state = try_going(B.x, B.y, state, DONE, BACK_TO_PREVIOUS_F, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
+		//Stratégie d'extraction en cas de merdier : alternance entre deux points d'extraction et un point intérieur
+		case EXTRACT_LEFT:
+			state = try_going(ExtractLeft.x, ExtractLeft.y, state, ERROR, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case EXTRACT_RIGHT:
+			state = try_going(ExtractRight.x, ExtractRight.y, state, ERROR, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case EXTRACT_INDOOR:	//On retourne vers l'intérieur... pour provoquer des aller-retours !
+		{
+			static enum state_e success_or_fail_state;
+			if(entrance)
+			{
+				success_or_fail_state = (last_state == EXTRACT_LEFT)?EXTRACT_RIGHT:EXTRACT_LEFT;
+			}
+			state = try_going(IndoorPoint.x, IndoorPoint.y, state, success_or_fail_state, success_or_fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+
+			break;
+		}
 		case ERROR:
 			if(entrance){
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IDLE);
@@ -2173,7 +2218,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			}
 			break;
 		case GET_IN:
-			state = try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(A.x, A.y, state, RUSH_TO_GOAL, ASTAR_GET_IN, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case ASTAR_GET_IN:
 			state = ASTAR_try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);

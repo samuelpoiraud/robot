@@ -213,17 +213,17 @@ error_e sub_anne_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS
 
 			case GET_IN_CLOSE_ADV_ZONE:
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-					state = try_going(900, 2000, state, GO_TO_START_POINT_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					state = try_going(900, 2000, state, GO_TO_START_POINT_SIDE, GET_IN_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}else{
-					state = try_going(900, 1000, state, GO_TO_START_POINT_SIDE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					state = try_going(900, 1000, state, GO_TO_START_POINT_SIDE, GET_IN_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
 				break;
 
 			case GET_IN_FAR_ADV_ZONE:
 				if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-					state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_START_POINT_SIDE, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_START_POINT_SIDE, GET_IN_ASTAR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}else{
-					state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_START_POINT_SIDE, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+					state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_START_POINT_SIDE, GET_IN_ASTAR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 				}
 				break;
 
@@ -523,17 +523,17 @@ error_e sub_anne_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_
 
 		case GET_IN_CLOSE_ADV_ZONE:
 			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-				state = try_going(900, 2000, state, GO_TO_SIDE_POINT_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(900, 2000, state, GO_TO_SIDE_POINT_UP, GET_IN_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(900, 1000, state, GO_TO_SIDE_POINT_UP, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(900, 1000, state, GO_TO_SIDE_POINT_UP, GET_IN_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 		case GET_IN_FAR_ADV_ZONE:
 			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-				state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_SIDE_POINT_UP, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_SIDE_POINT_UP, GET_IN_ASTAR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_SIDE_POINT_UP, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_SIDE_POINT_UP, GET_IN_ASTAR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
@@ -839,25 +839,25 @@ error_e sub_anne_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_
 
 		case GET_IN_FROM_START_ZONE:
 			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-				state = try_going(700, 1000, state, GO_TO_MID_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(700, 1000, state, GO_TO_MID_POINT, GET_IN_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(700, 2000, state, GO_TO_MID_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(700, 2000, state, GO_TO_MID_POINT, GET_IN_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 		case GET_IN_CLOSE_ADV_ZONE:
 			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-				state = try_going(900, 2000, state, GO_TO_MID_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(900, 2000, state, GO_TO_MID_POINT, GET_IN_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going(900, 1000, state, GO_TO_MID_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(900, 1000, state, GO_TO_MID_POINT, GET_IN_ASTAR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 		case GET_IN_FAR_ADV_ZONE:
 			if((global.color == BLUE && modules == OUR_ELEMENT) || (global.color == YELLOW && modules == ADV_ELEMENT)){
-				state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_MID_POINT, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going_multipoint(curve_far_zone_yellow, 2, state, GO_TO_MID_POINT, GET_IN_ASTAR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_MID_POINT, ERROR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going_multipoint(curve_far_zone_blue, 2, state, GO_TO_MID_POINT, GET_IN_ASTAR, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
@@ -1415,7 +1415,7 @@ error_e sub_anne_fusee_color(){
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
 			//state=check_sub_action_result(sub_anne_take_rocket(),state,GET_OUT,GET_OUT_ERROR);
-
+			state = GET_OUT;
 
 			#warning "temporaire pour faire comme si la prise fonctionnait !!!"
 			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
@@ -1438,7 +1438,7 @@ error_e sub_anne_fusee_color(){
 			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
 			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
 			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-			state = DONE;
+
 			break;
 
 		case GET_OUT:

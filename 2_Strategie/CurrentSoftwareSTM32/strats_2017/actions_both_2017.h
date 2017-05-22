@@ -21,6 +21,19 @@
 	error_e sub_cross_rocker(void);
 	error_e sub_wait_1_sec(void);
 
+	typedef enum
+	{
+		ZONE_TO_PROTECT_SMART_CHOICE,	//On laisse la fonction choisir ce qu'elle préfère protéger...
+		ZONE_TO_PROTECT_OUR_FULL_SIDE,
+		ZONE_TO_PROTECT_MIDDLE_MOONBASE,
+		ZONE_TO_PROTECT_ADV_CENTER_MOONBASE,
+		ZONE_TO_PROTECT_OUR_CENTER_MOONBASE,
+		ZONE_TO_PROTECT_OUR_SIDE_MOONBASE,
+		ZONE_TO_PROTECT_ADV_SIDE_MOONBASE
+	}zone_to_protect_e;
+
+	error_e sub_protect(zone_to_protect_e zone);
+
 	// Subaction de test de l'évitement (A ne pas jouer en match)
 	error_e strat_test_avoidance(void);
 
