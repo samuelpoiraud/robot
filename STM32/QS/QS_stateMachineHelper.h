@@ -150,7 +150,7 @@ typedef enum {
 		SM_ID_STRAT_EVITEMENT_TESTS                     = 0x0303,
 		SM_ID_SUB_CROSS_ROCKER							= 0x0304,
 		SM_ID_SUB_WAIT_ONE_SEC							= 0x0305,
-
+		SM_ID_SUB_PROTECT_ZONE							= 0x0306,
 
 		//0x300 SUBFUNCTIONS
 		SM_ID_BOTH_WAIT									= 0x0400,
