@@ -514,6 +514,12 @@
 				prop_referential_e referential	:1;
 			}prop_go_position;
 
+		#define PROP_STAY_POSITION			0x156
+		#define SIZE_PROP_STAY_POSITION		8
+			struct{
+				corrector_e corrector			:8;
+			}prop_stay_position;
+
 
 		#define PROP_GO_ANGLE				0x177
 		#define SIZE_PROP_GO_ANGLE			6

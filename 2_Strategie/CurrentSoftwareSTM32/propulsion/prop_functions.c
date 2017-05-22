@@ -100,6 +100,15 @@ void PROP_rushInTheWall(way_e way, bool_e asser_rot, Sint16 angle, PROP_speed_e 
 	CAN_send (&order);
 }
 
+void PROP_stayPosition(corrector_e corrector){
+	CAN_msg_t order;
+	order.sid = PROP_STAY_POSITION;
+	order.size = SIZE_PROP_STAY_POSITION;
+	order.data.prop_stay_position.corrector = corrector;
+	CAN_send(&order);
+}
+
+
 
 error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_trajectory, Uint8 idLastTraj, STRAT_endCondition_e end_condition, time32_t begin_time){
 

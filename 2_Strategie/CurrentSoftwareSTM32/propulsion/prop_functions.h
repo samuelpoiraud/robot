@@ -29,6 +29,7 @@
 
 	error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_trajectory, Uint8 idLastTraj, STRAT_endCondition_e end_condition, time32_t begin_time);
 
+	void PROP_stayPosition(corrector_e corrector);
 // ---------------------------------------------------------------------------- Fonctions de warner
 
 	/*

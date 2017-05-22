@@ -15,16 +15,6 @@
 
 	void CORRECTOR_init(void);
 
-
-	typedef enum
-	{
-		CORRECTOR_ENABLE = 0,
-		CORRECTOR_ROTATION_ONLY,
-		CORRECTOR_TRANSLATION_ONLY,
-		CORRECTOR_DISABLE
-	}corrector_e;
-
-
 	void CORRECTOR_set_coef(PROPULSION_coef_e coef, Sint32 value);
 
 	Sint32 CORRECTOR_get_coef(PROPULSION_coef_e coef);

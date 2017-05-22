@@ -279,6 +279,24 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 							);
 		break;
 
+		case PROP_STAY_POSITION:
+			ROADMAP_add_order(TRAJECTORY_TRANSLATION,
+						global.position.x,	//x
+						global.position.y,	//y
+						0,					//teta
+						PROP_ABSOLUTE,		//relative
+						PROP_NOW,			//maintenant
+						ANY_WAY,			//sens de marche
+						NOT_BORDER_MODE,	//mode bordure
+						PROP_END_AT_POINT,	//mode multipoints
+						SLOW,				//Vitesse
+						NO_ACKNOWLEDGE,		//Demande spécifique de NON acquittement,
+						msg->data.prop_stay_position.corrector,
+						AVOID_DISABLED,
+						0
+					);
+			break;
+
 		case PROP_CALIBRATION:	//Autocalage !
 			SEQUENCES_calibrate();
 		break;
