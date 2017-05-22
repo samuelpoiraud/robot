@@ -2276,7 +2276,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 		case TURN_TO_POS:
 			state = try_go_angle(take_angle, state, ELEVATOR_GO_UP, ELEVATOR_GO_UP, FAST, ANY_WAY, END_AT_LAST_POINT);
 			if(ON_LEAVE()){
-				PROP_stayPosition(CORRECTOR_ROTATION_ONLY);
+				PROP_set_correctors(TRUE, FALSE);
 			}
 			break;
 
@@ -2394,6 +2394,9 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 
 		case ACTION_BRING_BACK_CYLINDER_2:
 			if(entrance){
+
+				PROP_set_correctors(TRUE, TRUE);	// Remise des corrections pour ne pas se faire tirer par la fusée
+
 				if(moduleToTake == RIGHT){
 					// Activation de la pompe de l'élévateur si on stocke le cylindre après
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
