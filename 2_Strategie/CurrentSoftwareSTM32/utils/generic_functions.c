@@ -54,7 +54,7 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 {
 	Uint8 widthRobot;
 	widthRobot =  (QS_WHO_AM_I_get() == BIG_ROBOT)? (BIG_ROBOT_WIDTH/2) : (SMALL_ROBOT_WIDTH/2);
-	widthRobot += 100;	//Marge !
+	widthRobot += 50;	//Marge !
 
 	// Spécifique Terrain 2017
 	if(
