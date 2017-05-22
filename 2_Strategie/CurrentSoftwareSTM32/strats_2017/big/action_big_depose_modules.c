@@ -16,11 +16,6 @@
 //permet de régler la distance entre la base côté et le robot(largeurBase+distance):
 #define DISTANCE_BASE_SIDE_ET_ROBOT	((Uint16) 120+200)
 
-// Fonctions privées
-//error_e sub_harry_get_in_our_side_depose_module_centre();
-//error_e sub_harry_get_in_middle_adv_side_depose_module_centre();
-//error_e sub_harry_get_in_adv_side_depose_module_centre();
-//error_e sub_harry_get_in_middle_our_side_depose_module_centre();
 
 typedef enum{
 	POS_1,
@@ -115,9 +110,9 @@ error_e sub_harry_depose_centre_manager(){
 		//Choix de l'emplacement exact de la dépose
 		case MODULE_CHOOSE_POSITION:
 			if((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6 && nb_try_left != 1){
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6 && nb_try_left == 0){
 					dispose_place = POS_1;
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left != 2){
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left == 1){
 					dispose_place = POS_3;
 				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER)<6){
 					dispose_place = POS_5;
@@ -125,16 +120,16 @@ error_e sub_harry_depose_centre_manager(){
 
 			}else if(((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))\
 					|| ((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == OUR_SIDE))){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6  && nb_try_left != 1){
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6  && nb_try_left == 0){
 					dispose_place = POS_2;
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left != 2){
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left == 1){
 					dispose_place = POS_4;
 				}else{dispose_place = NO_POS;}
 
 			}else if((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left != 1){
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left == 0){
 					dispose_place = POS_3;
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6 && nb_try_left != 2){
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6 && nb_try_left == 1){
 					dispose_place = POS_1;
 				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER)<6){
 					dispose_place = POS_5;
@@ -142,17 +137,17 @@ error_e sub_harry_depose_centre_manager(){
 
 			}else if(((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))\
 					|| ((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left != 1){
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left == 0){
 					dispose_place = POS_4;
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6 && nb_try_left != 2){
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6 && nb_try_left == 1){
 					dispose_place = POS_2;
 				}else{dispose_place = NO_POS;}
 
 			}else if(((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))\
 					||((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER)<6 && nb_try_left != 1){
+				if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER)<6 && nb_try_left == 0){
 					dispose_place = POS_5;
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left != 2){
+				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6 && nb_try_left == 1){
 					dispose_place = POS_3;
 				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
 					dispose_place = POS_1;
@@ -987,216 +982,6 @@ error_e sub_harry_get_in_pos_6_depose_module_centre(){
 			break;
 	}
 
-	return IN_PROGRESS;
-}
-
-error_e sub_harry_pos_1_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_1_DEPOSE_MODULES_CENTRE,
-			INIT,
-			ROTATE,
-			ADVANCE,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			state = ROTATE;
-			break;
-
-		case ROTATE:
-			state = try_go_angle(PI4096/8, state, ADVANCE, ERROR, FAST, FORWARD, END_AT_BRAKE);
-			break;
-
-		case ADVANCE:
-			state = try_going(1610, COLOR_Y(760), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-error_e sub_harry_pos_2_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_2_DEPOSE_MODULES_CENTRE,
-			INIT,
-			ROTATE,
-			ADVANCE,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			state = ROTATE;
-			break;
-
-		case ROTATE:
-			state = try_go_angle(PI4096/8, state, ADVANCE, ERROR, FAST, FORWARD, END_AT_BRAKE);
-			break;
-
-		case ADVANCE:
-			state = try_going(1270, COLOR_Y(1100), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-error_e sub_harry_pos_3_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_3_DEPOSE_MODULES_CENTRE,
-			INIT,
-			ROTATE,
-			ADVANCE,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			state = ROTATE;
-			break;
-
-		case ROTATE:
-			state = try_go_angle(0, state, ADVANCE, ERROR, FAST, FORWARD, END_AT_BRAKE);
-			break;
-
-		case ADVANCE:
-			state = try_going(1200, COLOR_Y(1250), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-error_e sub_harry_pos_4_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_4_DEPOSE_MODULES_CENTRE,
-			INIT,
-			ROTATE,
-			ADVANCE,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			state = ROTATE;
-			break;
-
-		case ROTATE:
-			state = try_go_angle(0, state, ADVANCE, ERROR, FAST, FORWARD, END_AT_BRAKE);
-			break;
-
-		case ADVANCE:
-			state = try_going(1200, COLOR_Y(1700), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-error_e sub_harry_pos_5_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_5_DEPOSE_MODULES_CENTRE,
-			INIT,
-			ROTATE,
-			ADVANCE,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			state = ROTATE;
-			break;
-
-		case ROTATE:
-			state = try_go_angle(-PI4096/8, state, ADVANCE, ERROR, FAST, FORWARD, END_AT_BRAKE);
-			break;
-
-		case ADVANCE:
-			state = try_going(1270, COLOR_Y(1900), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-	return IN_PROGRESS;
-}
-
-error_e sub_harry_pos_6_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_POS_6_DEPOSE_MODULES_CENTRE,
-			INIT,
-			ROTATE,
-			ADVANCE,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			state = ROTATE;
-			break;
-
-		case ROTATE:
-			state = try_go_angle(-PI4096/8, state, ADVANCE, ERROR, FAST, FORWARD, END_AT_BRAKE);
-			break;
-
-		case ADVANCE:
-			state = try_going(1610, COLOR_Y(2240), state, DONE, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
 	return IN_PROGRESS;
 }
 
