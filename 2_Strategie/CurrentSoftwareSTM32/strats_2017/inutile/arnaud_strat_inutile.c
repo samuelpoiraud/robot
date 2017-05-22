@@ -64,5 +64,43 @@ void arnaud_strat_inutile_big(){
 }
 
 void arnaud_strat_inutile_small(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
+				INIT,
+				INIT_ACT,
+				PREPARE_MODULE,
+				DISPOSE_MODULE,
+				ERROR,
+				DONE
+			);
 
+	switch(state){
+		case INIT:
+			state = INIT_ACT;
+			break;
+
+		case INIT_ACT:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_PREPARE_TO_TAKE);
+				ACT_push_order(ACT_SMALL_CYLINDER_DISPOSE, ACT_SMALL_CYLINDER_DISPOSE_TAKE);
+				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, DISPOSE_MODULE, DISPOSE_MODULE);
+			break;
+
+		case PREPARE_MODULE:
+			if(entrance){
+				sub_act_anne_mae_prepare_modules_for_dispose(TRUE);
+			}
+			break;
+
+		case DISPOSE_MODULE:
+				state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, DONE, ERROR);
+			break;
+
+		case ERROR:
+			break;
+
+		case DONE:
+			break;
+	}
 }

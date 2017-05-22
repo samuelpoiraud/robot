@@ -865,7 +865,7 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_balancer, state, CHECK_IF_TURN_FOR_COLOR_NEEDED, CHECK_IF_TURN_FOR_COLOR_NEEDED);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_balancer, state, BEGIN_CHECK_POSITION_BALANCER, BEGIN_CHECK_POSITION_BALANCER);
 			break;
 
 		case BEGIN_CHECK_POSITION_BALANCER:
