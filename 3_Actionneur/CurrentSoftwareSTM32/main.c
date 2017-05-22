@@ -149,6 +149,8 @@ int main (void)
 	// Demande des états initiaux des switchs
 	CAN_send_sid(IHM_GET_SWITCH);
 
+	GPIO_SetBits(I_AM_READY);
+
 	while(1)
 	{
 		/*-------------------------------------

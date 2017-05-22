@@ -49,6 +49,9 @@ int term_cmd_setdate(int argc, const char *argv[]) {
 	date.minutes = (Uint8)temp;
 
 	RTC_set_time(&date);
+	RTC_get_time(&date);
+	RTC_print_time();
+
 
 	return 0;
 }

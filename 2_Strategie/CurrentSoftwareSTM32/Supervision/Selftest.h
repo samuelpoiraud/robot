@@ -24,6 +24,18 @@
 		BEACON_FAR
 	}selftest_beacon_e;*/
 
+
+	typedef enum{
+		SELFTEST_PROGRESS_NONE = -1,
+		SELFTEST_PROGRESS_STRATEGY,
+		SELFTEST_PROGRESS_CHECK_OTHER_CARD,
+		SELFTEST_PROGRESS_ACTUATOR,
+		SELFTEST_PROGRESS_PROPULSION,
+		SELFTEST_PROGRESS_IHM,
+		SELFTEST_PROGRESS_BEACON,
+		SELFTEST_PROGRESS_NUMBER
+	}SELFTEST_progressState_e;
+
 	void SELFTEST_init(void);
 
 	void SELFTEST_update(CAN_msg_t* CAN_msg_received);
@@ -45,6 +57,8 @@
 
 	SELFTEST_error_code_e SELFTEST_getError(Uint8 index);
 	char * SELFTEST_getError_string(SELFTEST_error_code_e error_num);
+	SELFTEST_progressState_e SELFTEST_get_progress_state(void);
+	const char * SELFTEST_get_progress_state_char(void);
 	bool_e SELFTEST_is_running(void);
 	bool_e SELFTEST_is_over(void);
 	Uint8 SELFTEST_get_errors_number(void);

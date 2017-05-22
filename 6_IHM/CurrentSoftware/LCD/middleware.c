@@ -558,9 +558,11 @@ static void MIDDLEWARE_rebuildObject(){
 						objectTab[i].objectData.progressBar.refreshBack = FALSE;
 					}
 
+					Uint8 lastValue = (objectTab[i].objectData.progressBar.lastValue <= 100) ? objectTab[i].objectData.progressBar.lastValue: 100;
+
 					if(objectTab[i].objectData.progressBar.orientation == OBJECT_HORIZONTAL_L_2_R){
 
-						Uint16 width = objectTab[i].objectData.progressBar.lastValue * (objectTab[i].objectData.progressBar.width - 4) / 100;
+						Uint16 width = lastValue * (objectTab[i].objectData.progressBar.width - 4) / 100;
 
 						ILI9341_drawFilledRectangle(objectTab[i].objectData.progressBar.x + 2,
 													objectTab[i].objectData.progressBar.y + 2,
@@ -570,7 +572,7 @@ static void MIDDLEWARE_rebuildObject(){
 
 					}else if(objectTab[i].objectData.progressBar.orientation == OBJECT_HORIZONTAL_R_2_L){
 
-						Uint16 width = objectTab[i].objectData.progressBar.lastValue * (objectTab[i].objectData.progressBar.width - 4) / 100;
+						Uint16 width = lastValue * (objectTab[i].objectData.progressBar.width - 4) / 100;
 
 						ILI9341_drawFilledRectangle(objectTab[i].objectData.progressBar.x + objectTab[i].objectData.progressBar.width - 2 - width,
 													objectTab[i].objectData.progressBar.y + 2,
@@ -580,7 +582,7 @@ static void MIDDLEWARE_rebuildObject(){
 
 					}else if(objectTab[i].objectData.progressBar.orientation == OBJECT_VERTICAL_T_2_B){
 
-						Uint16 height = objectTab[i].objectData.progressBar.lastValue * (objectTab[i].objectData.progressBar.height - 4) / 100;
+						Uint16 height = lastValue * (objectTab[i].objectData.progressBar.height - 4) / 100;
 
 						ILI9341_drawFilledRectangle(objectTab[i].objectData.progressBar.x + 2,
 													objectTab[i].objectData.progressBar.y + 2,
@@ -589,7 +591,7 @@ static void MIDDLEWARE_rebuildObject(){
 													ILI9341_COLOR_GREEN);
 					}else if(objectTab[i].objectData.progressBar.orientation == OBJECT_VERTICAL_B_2_T){
 
-						Uint16 height = objectTab[i].objectData.progressBar.lastValue * (objectTab[i].objectData.progressBar.height - 4) / 100;
+						Uint16 height = lastValue * (objectTab[i].objectData.progressBar.height - 4) / 100;
 
 						ILI9341_drawFilledRectangle(objectTab[i].objectData.progressBar.x + 2,
 													objectTab[i].objectData.progressBar.y + objectTab[i].objectData.progressBar.height - 2 - height,
@@ -761,7 +763,7 @@ void MIDDLEWARE_setText(objectId_t id, const char *text, ...){
 		case TEXT :{
 
 			objectTab[id].surfaceToErase.x = objectTab[id].objectData.text.x;
-			objectTab[id].surfaceToErase.y = objectTab[id].objectData.text.x;
+			objectTab[id].surfaceToErase.y = objectTab[id].objectData.text.y;
 			objectTab[id].surfaceToErase.width = objectTab[id].objectData.text.width;
 			objectTab[id].surfaceToErase.height = objectTab[id].objectData.text.height;
 			objectTab[id].toErase = TRUE;
@@ -784,7 +786,7 @@ void MIDDLEWARE_setText(objectId_t id, const char *text, ...){
 		case BUTTON_BASE :{
 
 				objectTab[id].surfaceToErase.x = objectTab[id].objectData.buttonBase.x;
-				objectTab[id].surfaceToErase.y = objectTab[id].objectData.buttonBase.x;
+				objectTab[id].surfaceToErase.y = objectTab[id].objectData.buttonBase.y;
 				objectTab[id].surfaceToErase.width = objectTab[id].objectData.buttonBase.widthButton;
 				objectTab[id].surfaceToErase.height = objectTab[id].objectData.buttonBase.heightButton;
 				objectTab[id].toErase = TRUE;
@@ -845,6 +847,11 @@ objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, objectColor_e colorText, objec
 	va_start(args_list, text);
 	vsnprintf((char *)objectTab[idFound].objectData.text.text, OBJECT_TEXT_MAX_SIZE, text, args_list);
 	va_end(args_list);
+
+	Uint16 widthText, heightText;
+	ILI9341_getStringSize((char *)objectTab[idFound].objectData.text.text, MIDDLEWARE_getFont(objectTab[idFound].objectData.text.fonts), &widthText, &heightText);
+	objectTab[idFound].objectData.text.width = widthText;
+	objectTab[idFound].objectData.text.height = heightText;
 
 	return idFound;
 }
