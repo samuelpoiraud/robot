@@ -555,7 +555,7 @@ void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
 	vacuostat[msg->data.act_tell_mosfet_state.id].state = msg->data.act_tell_mosfet_state.state;
 	vacuostat[msg->data.act_tell_mosfet_state.id].lastRefresh = global.absolute_time;
 
-	if(global.flags.match_started == FALSE || global.flags.match_started == TRUE){
+	if(global.flags.match_started == FALSE || global.flags.match_over == TRUE){
 
 		Uint8 i;
 		bool_e on = FALSE;
