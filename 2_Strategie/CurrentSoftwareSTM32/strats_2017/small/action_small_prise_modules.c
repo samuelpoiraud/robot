@@ -1445,11 +1445,11 @@ error_e sub_anne_fusee_color(){
 			if(entrance){
 				//set_sub_act_enable(SUB__DEPOSE_MODULES, TRUE);
 			}
-			state=try_going(500, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(400, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_OUT_ERROR:
-			state=try_going(500, global.pos.y, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(400, global.pos.y, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case AVANCE:
