@@ -74,16 +74,7 @@
 			};
 		} RF_header_t;
 
-		typedef union{
-			Uint8 raw_data[3];
-			struct{
-				Uint16 offset	:16;
-				Uint8 count		:8;		// Multiple of 500 ms
-			};
-		}RF_synchro_data_t;
-
-
-		typedef void (*RF_onReceive_ptr)(bool_e for_me, RF_header_t header, RF_synchro_data_t data);
+		typedef void (*RF_onReceive_ptr)(bool_e for_me, RF_header_t header, Uint8 *data, Uint8 size);
 		typedef void (*RF_onCanMsg_ptr)(CAN_msg_t* msg);
 
 		void RF_init(RF_module_e module, RF_onReceive_ptr onReceiveCallback, RF_onCanMsg_ptr onCanMsgCallback);
@@ -91,7 +82,7 @@
 		void RF_putc(Uint8 c);
 		void RF_can_send(RF_module_e target_id, CAN_msg_t *msg);
 		void RF_synchro_request(RF_module_e target_id);
-		void RF_synchro_response(RF_module_e target_id, RF_synchro_data_t data);
+		void RF_synchro_response(RF_module_e target_id, Sint16 timer_offset);
 
 		//void RF_set_channel(Uint8 channel);
 		//void RF_set_output_power(Uint8 power);

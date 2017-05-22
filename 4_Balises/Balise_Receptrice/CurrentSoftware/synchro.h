@@ -10,6 +10,5 @@
 	bool_e SYNCHRO_get_warner_foe1_is_rf_unreacheable(void);
 	bool_e SYNCHRO_get_warner_foe2_is_rf_unreacheable(void);
 	bool_e SYNCHRO_is_synchronized(void);
-	Uint8 SYNCHRO_getSynchronisedTime(void);
 
 #endif // SYNCHRO_H
