@@ -13,6 +13,7 @@
 #include "../../elements.h"
 #include "../../high_level_strat.h"
 #include "../actions_both_2017.h"
+#include "../propulsion/prop_functions.h"
 
 
 #define TIME_COLOR_BLUE_DETECTION	(100)	// en ms
@@ -2262,6 +2263,9 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 
 		case TURN_TO_POS:
 			state = try_go_angle(take_angle, state, ELEVATOR_GO_UP, ELEVATOR_GO_UP, FAST, ANY_WAY, END_AT_LAST_POINT);
+			if(ON_LEAVE()){
+				PROP_stayPosition(CORRECTOR_ROTATION_ONLY);
+			}
 			break;
 
 		case ELEVATOR_GO_UP:
