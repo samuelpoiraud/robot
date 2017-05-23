@@ -1300,7 +1300,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			state2 = check_act_status(ACT_QUEUE_Cylinder_pusher_left, state2, DONE, ERROR);
 			 // abandon après avoir pousser
 			if((state1==ERROR)||(state2==ERROR)){
-				state=PUSHER_DOWN;
+				state=PUSHER_UP;
 			}
 			else if((state1==DONE)&&(state2==DONE)){
 				state=PREPARE_TO_DISPOSE;
