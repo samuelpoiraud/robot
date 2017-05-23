@@ -1023,7 +1023,6 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 					state = CHECK_CONTAINER_IS_AVAILABLE;
 
 				}else if(nb_errors_suction < MAX_ERRORS_SUCTION){
-#warning arnaud -> valentin problème si executer en déplacement
 					// On retente
 					nb_errors_suction++;
 					state = ELEVATOR_GO_BOTTOM;
@@ -1312,6 +1311,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			WAIT_OUR_COLOR,
 			STOP_TURN,
 			END_CHECK_POSITION_BALANCER,
+			ERROR_MOVE_BALANCER_IN,
 			END_MOVE_BALANCER_IN,
 			ERROR,
 			DONE
@@ -1578,6 +1578,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			}
 			// Aucune vérification ici
 			state = END_CHECK_POSITION_BALANCER;
+			nb_errors_balancer = 0; // Réinit des erreurs balancer à 0 pour le passage en position IN
 			break;
 
 		case END_CHECK_POSITION_BALANCER:
@@ -1589,11 +1590,33 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 			if(stateAct != IN_PROGRESS){
 				if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
-					state = END_MOVE_BALANCER_IN;	// L'actionneur n'est pas en position, on doit le mettre
+					nb_errors_balancer++;
+
+					if(nb_errors_balancer < NB_TRY_BALANCER_TOLERATED){
+						state = ERROR_MOVE_BALANCER_IN;	// L'actionneur n'est pas en position, on doit le mettre
+					}else{
+						state = ERROR;
+					}
 				}else{
 					state = DONE;  // C'est bon l'actionneur est en position
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
 				}
+			}
+			break;
+
+		case ERROR_MOVE_BALANCER_IN:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_VERY_OUT);
+				}else{
+					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_VERY_OUT);
+				}
+			}
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, END_MOVE_BALANCER_IN, END_MOVE_BALANCER_IN);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, END_MOVE_BALANCER_IN, END_MOVE_BALANCER_IN);
 			}
 			break;
 
@@ -1606,13 +1629,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				}
 			}
 
-			// Aucune vérification
-			state = DONE;
-
-			// On exit
-			if(state != END_MOVE_BALANCER_IN){
-				// Mise à jour des données : on décale les modules du stock
-				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
+			// Vérification des ordres effectués
+			if(storage == MODULE_STOCK_RIGHT){
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_right, state, END_CHECK_POSITION_BALANCER, END_CHECK_POSITION_BALANCER);
+			}else{
+				state = check_act_status(ACT_QUEUE_Cylinder_balancer_left, state, END_CHECK_POSITION_BALANCER, END_CHECK_POSITION_BALANCER);
 			}
 			break;
 
@@ -2528,15 +2549,6 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			break;
 
 		case RECULE:
-			if(entrance){
-#warning Pourquoi eteindre les pompes ? on prends le risque de perdre les modules
-				/*if(needToStoreLeft){
-					ACT_push_order( ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP );
-				}
-				if(needToStoreRight){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP );
-				}*/
-			}
 			state = try_going(store_pos.x, store_pos.y, state, STORE_CYLINDER, RECULE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
