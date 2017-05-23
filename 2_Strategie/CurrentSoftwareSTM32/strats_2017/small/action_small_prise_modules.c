@@ -13,7 +13,7 @@
 #include "../../high_level_strat.h"
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
-
+#include "../actions_both_generic.h"
 
 error_e sub_anne_homologation_belgique(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_HOMOLOGATION_BELGIQUE,
@@ -1497,8 +1497,12 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			ALL_THE_GET_IN,
 			GET_IN_MIDDLE_SQUARE,
 			GET_IN_OUR_SQUARE,
-			GET_IN_ADV_SQUARE,
 			GET_IN_PATHFIND,
+
+			RUSH_TO_MEASURE_Y,
+			BACK_AFTER_RUSH,
+			BACK_AFTER_FAILING_RUSH,
+			SCANNING_TRAJECTORY,
 
 			GET_IN_FRONT_OF_ONE_ON_TWO,
 			TURN_TO_POS,
@@ -1506,14 +1510,15 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			ACTION,
 
 			GET_OUT,
-			GET_OUT_ERROR,
-			AVANCE,
-			AVANCE_ERROR,
+			ADVANCE,
 
 			ERROR,
 			DONE
 						);
 
+	static color_e color_side;
+	static bool_e we_will_get_out_with_error;
+	static Sint16 delta_x_rocket;
 	switch(state){
 
 		case INIT:{
@@ -1535,6 +1540,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 					ELEMENTS_set_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_ADV_ROCKET_MULTI, TRUE);
 				}
 						}
+			delta_x_rocket = 0;
 			}break;
 		/*
 		case INIT_ALL_ACTIONNEUR:
@@ -1554,95 +1560,96 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 		case ALL_THE_GET_IN:
 
 			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				if(i_am_in_square(700, 1450, 250, 1000)){
+				color_side = BLUE;
+				if(i_am_in_square(700, 1450, 250, 1000))
 					state = GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(350, 1150, 1000, 2000)){
+				else if (i_am_in_square(300, 1150, 1000, 2000))
 					state = GET_IN_MIDDLE_SQUARE;
-				}else if (i_am_in_square(700, 1450, 2000, 2750)){
-					state = GET_IN_ADV_SQUARE;
-				}else{
+				else
 					state = GET_IN_PATHFIND;
-				}
+
 			}else{ // Prise fusee cote bleu
-				if(i_am_in_square(700, 1450, 2000, 2750)){
+				color_side = YELLOW;
+				if(i_am_in_square(700, 1450, 2000, 2750))
 					state = GET_IN_OUR_SQUARE;
-				}else if (i_am_in_square(350, 1150, 1000, 2000)){
+				else if (i_am_in_square(300, 1150, 1000, 2000))
 					state = GET_IN_MIDDLE_SQUARE;
-				}else if (i_am_in_square(700, 1450, 250, 1000)){
-					state = GET_IN_ADV_SQUARE;
-				}else{
+				else
 					state = GET_IN_PATHFIND;
-				}
+
 			}
 			break;
 
 
 		case GET_IN_OUR_SQUARE:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1250, 500, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}else{
-				state = try_going(1250, 2500, state, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}
+			state = try_going(1000, (color_side==BLUE)?400:2600, state, RUSH_TO_MEASURE_Y, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_MIDDLE_SQUARE:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(900, 950, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}else{
-				state = try_going(900, 2050, state, GET_IN_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}
+			state = try_going(900, (color_side==BLUE)?750:2250, state, GET_IN_OUR_SQUARE, GET_IN_PATHFIND, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
-
-		case GET_IN_ADV_SQUARE:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(850, 2000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}else{
-				state = try_going(850, 1000, state, GET_IN_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}
-			break;
-
 
 		case GET_IN_PATHFIND:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = ASTAR_try_going(1250, 500, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
-			}else{
-				state = ASTAR_try_going(1250, 2500, GET_IN_PATHFIND, GET_IN_FRONT_OF_ONE_ON_TWO, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(1000, (color_side==BLUE)?400:2600, state, RUSH_TO_MEASURE_Y, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+		case RUSH_TO_MEASURE_Y:{
+			Sint16 delta;
+			Sint16 theorical_y;
+			theorical_y = 80+28+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE;
+			if(color_side==YELLOW)
+				theorical_y = 3000-theorical_y;
+			state = check_sub_action_result(action_recalage_y(FORWARD,(color_side==BLUE)?(-PI4096/2):(PI4096/2), theorical_y, FALSE, &delta, TRUE), state, BACK_AFTER_RUSH, BACK_AFTER_FAILING_RUSH);
+			break;}
+		case BACK_AFTER_RUSH:
+			state = try_going(global.pos.x, (color_side==BLUE)?260:2740,state,SCANNING_TRAJECTORY, RUSH_TO_MEASURE_Y, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case BACK_AFTER_FAILING_RUSH:
+			state = try_going(global.pos.x, (color_side==BLUE)?260:2740,state,ERROR, RUSH_TO_MEASURE_Y, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		case SCANNING_TRAJECTORY:{
+			static bool_e scan_is_running;
+			//Le scan se fait toujours en marche avant.. on doit utiliser le bon capteur en fonction du color_side !
+			if(entrance)
+			{
+				scan_is_running = FALSE;
+				PROP_WARNER_arm_x(1100);
+			}
+			if(global.prop.reach_x)
+			{
+				if(scan_is_running == FALSE)
+				{
+					scan_is_running = TRUE;
+					//TODO activer le scan sur la carte actionneur
+					//TODO activer les broadcast pos à 5mm d'intervalle
+					PROP_WARNER_arm_x(1300);
+				}
+				else	//Le scan est actif
+				{
+					//TODO fin du scan sur la carte actionneur... récupérer l'info de position !!!
+					//TODO désactiver les broadcast pos à 5mm d'intervalle -> remettre la bonne valeur par défaut...
+				}
+			}
+			//TODO if(minimum_receive_from_actuator.....) delta_x_rocket = ....;
+			state = try_going(1400, (color_side==BLUE)?260:2740,state,GET_IN_FRONT_OF_ONE_ON_TWO, GET_IN_FRONT_OF_ONE_ON_TWO, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
-
-
 		case GET_IN_FRONT_OF_ONE_ON_TWO:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 360, state, TURN_TO_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			}else{
-				state = try_going(1350, 2640, state, TURN_TO_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			}
+			state = try_going(1350+delta_x_rocket, (color_side==BLUE)?360:2640, state, TURN_TO_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TURN_TO_POS:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_go_angle(-PI4096/2, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
-			}else{
-				state = try_go_angle(PI4096/2, state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
-			}
+			state = try_go_angle((color_side==BLUE)?(-PI4096/2):(PI4096/2), state, GET_IN_FRONT_OF_TWO_ON_TWO, ERROR, FAST, ANY_WAY, END_AT_LAST_POINT);
 			break;
 
 		case GET_IN_FRONT_OF_TWO_ON_TWO:
 			if(entrance){
-				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+				if(color_side==BLUE)
 					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_UP);
-				}else{
+				else
 					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_UP);
-					}
 				}
-				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-					state = try_going(1350,160, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(1350, 2840, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-				}
+				state = try_going(1350+delta_x_rocket,(color_side==BLUE)?160:2840, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 				break;
-
-
 
 		case ACTION:{
 			error_e resultAction = sub_act_anne_take_rocket_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT);
@@ -1652,8 +1659,9 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 //			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
 //
 //			resultAction = END_OK;
-			if(resultAction == END_OK){
-				state=GET_OUT;
+			if(resultAction == END_OK)
+			{
+				we_will_get_out_with_error = FALSE;
 				if(rocket == OUR_ELEMENT){
 					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
 					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
@@ -1665,55 +1673,27 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
 					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
 				}
-			}else{
-				state=GET_OUT_ERROR;
 			}
+			else
+				we_will_get_out_with_error = TRUE;
+
+			state=GET_OUT;
 			}break;
 
 		case GET_OUT:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}else{
-				state=try_going(global.pos.x, 2500, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}
-			if(ON_LEAVE()){
-				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
+			state=try_going(global.pos.x, (color_side==BLUE)?500:2500, state, (we_will_get_out_with_error)?ERROR:DONE, ADVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+
+			if(ON_LEAVE())
+			{
+				if(color_side==BLUE)
 					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_DOWN);
-				}else{
+				else
 					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
-				}
 			}
 			break;
 
-		case GET_OUT_ERROR:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 500, state, ERROR, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}else{
-				state=try_going(global.pos.x, 2500, state, ERROR, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}
-			if(ON_LEAVE()){
-				if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-					ACT_push_order(ACT_BIG_BALL_FRONT_LEFT, ACT_BIG_BALL_FRONT_LEFT_DOWN);
-				}else{
-					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_DOWN);
-				}
-			}
-			break;
-
-		case AVANCE:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 2500, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}else{
-				state=try_going(global.pos.x, 2780, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}
-			break;
-
-		case AVANCE_ERROR:
-			if((rocket == OUR_ELEMENT && global.color == BLUE) || (rocket == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 220, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}else{
-				state=try_going(global.pos.x, 2780, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			}
+		case ADVANCE:
+			state=try_going(global.pos.x, (color_side==BLUE)?220:2780, state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
