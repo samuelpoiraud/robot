@@ -1169,7 +1169,8 @@ error_e sub_harry_pos_6_depose_module_centre(){
  * argument côté table et côté robot
  * logique de sub calquée sur anne
  */
-#define OFFSET_M_R		put val //distance entre le module et le centre du robot
+//#define OFFSET_M_R		put val //distance entre le module et le centre du robot
+
 error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_match_e side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_SIDE_INTRO,
 			INIT,
@@ -1180,7 +1181,6 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			POSITION_ANGLE,
 			GO_TO_PUSH,
 			PREPARE_TO_PUSH,
-			PRAPARE_TO_PUSH,
 			PUSH,
 			PUSHER_UP,
 			PREPARE_TO_DISPOSE,
@@ -1194,8 +1194,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 			DONE
 		);
-	error_e ret;
-	ret = IN_PROGRESS;
+
 	static color_e color_side;
 	static GEOMETRY_point_t a, b; // coté
 	static sens_robot, sens_robot_inv;
@@ -1250,20 +1249,14 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 		case GO_TO_PUSH:
 			//va au sud avant de remonter /// FORWARK/BACKWARD robot side
 			if(robot_side == RIGHT){
-				try_going(1300, COLOR_Y(350), state, PRAPARE_TO_PUSH, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				try_going(1300, COLOR_Y(350), state, PREPARE_TO_PUSH, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				try_going(1300, COLOR_Y(350), state, PRAPARE_TO_PUSH, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				try_going(1300, COLOR_Y(350), state, PREPARE_TO_PUSH, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
-	/*
-		case PREPARE_TO_PUSH: //utilse ?
-			//pos pour descendre le pusher , 2eme point pour l'angle
-			break;
-	 */
-
-		case PRAPARE_TO_PUSH:
+		case PREPARE_TO_PUSH:
 			//descedre l'actionneur
 			if(robot_side == RIGHT){
 				if(entrance){
@@ -1389,14 +1382,13 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			RESET_MAE();
 			on_turning_point();
 			return NOT_HANDLED;
-			break;
 
 
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
 			return END_OK;
-			break;
+	}
 
 	return IN_PROGRESS;
 }
@@ -1549,9 +1541,6 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 			DONE
 		);
 
-
-
-
 	switch(state){
 		case INIT:
 			state=START;
@@ -1628,7 +1617,7 @@ error_e sub_harry_return_modules(ELEMENTS_side_e side){
 	}
 
 	return IN_PROGRESS;
-}}
+}
 
 
 // la place des modules est comptée en partant du centre "Atos"
