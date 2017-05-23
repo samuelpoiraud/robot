@@ -216,7 +216,7 @@
 	// de combien on accelere à chaque boucle d'asser
 	#define SMALL_ACCELERATION_NORMAL					80		//[mm.4096/5ms/5ms] ATTENTION : doit être un multiple de 16...
 	#define SMALL_ACCELERATION_MAX						192		//[mm.4096/5ms/5ms]
-	#define SMALL_ACCELERATION_AVOIDANCE				160		//[mm.4096/5ms/5ms]
+	#define SMALL_ACCELERATION_AVOIDANCE				100		//[mm.4096/5ms/5ms]
 
 	#define SMALL_ACCELERATION_ROTATION_TRANSLATION		10		//[rad.1024/mm]		Sur check Norris : 200mm entre les roues => 1024/50 = 20
 	#define SMALL_ACCELERATION_ROTATION_TRANSLATION_MAX	10		//[rad.1024/mm]
