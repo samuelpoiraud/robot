@@ -1195,8 +1195,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 		);
 
 	static color_e color_side;
-	static GEOMETRY_point_t a, b; // coté
-	static sens_robot, sens_robot_inv;
+	static ELEMENTS_side_e sens_robot, sens_robot_inv;
 
 	switch(state){
 		case INIT:
