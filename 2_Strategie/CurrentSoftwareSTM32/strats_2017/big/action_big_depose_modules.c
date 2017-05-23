@@ -33,7 +33,7 @@ bool_e depose_side;
 
 
 error_e sub_harry_depose_centre_manager(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_CENTRE_MANAGER,
 				INIT,
 				CHOOSE_ROBOT_SIDE,
 				DEPOSE_POSITION,
@@ -226,7 +226,7 @@ error_e sub_harry_depose_centre_manager(){
 
 
 error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e robot_side){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_CENTRE_MANAGER,
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_CENTRE,
 			INIT,
 			GET_IN,
 			GO_TO_DEPOSE_MODULE_POS,
