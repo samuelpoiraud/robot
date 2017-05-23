@@ -29,9 +29,9 @@
 #include "../Supervision/SD/SD.h"
 
 #define FOE_IS_LEFT_TIME			250		//[ms] temps depuis lequel l'adversaire doit être parti pour que l'on reprenne notre trajectoire.
-#define EXTRACTION_DISTANCE			300
+#define EXTRACTION_DISTANCE			150
 
-static error_e extraction_of_foe(PROP_speed_e speed);
+
 static error_e goto_extract_with_avoidance(const displacement_t displacements);
 
 //------------------------------------------------------------------- Machines à états de déplacements
@@ -178,11 +178,11 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 					state = GO;
 					break;
 				case FOE_IN_PATH:
+				case END_WITH_TIMEOUT:
 					state = ERROR;
 					break;
 				case NOT_HANDLED:
 				case END_OK:
-				case END_WITH_TIMEOUT:
 				default:
 					state = DONE;
 					break;
@@ -563,7 +563,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 /* ----------------------------------------------------------------------------- */
 
 /*	Trouve une extraction lorsqu'un ou plusieurs ennemi(s) qui nous pose(nt) problème */
-static error_e extraction_of_foe(PROP_speed_e speed){
+error_e extraction_of_foe(PROP_speed_e speed){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_EXTRACTION_OF_FOE,
 		IDLE,
 		COMPUTE,

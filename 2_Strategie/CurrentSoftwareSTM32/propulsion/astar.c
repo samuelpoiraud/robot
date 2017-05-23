@@ -1212,6 +1212,10 @@
 	}
 
 
+
+#define DIST_FOE_TO_EXTRACT		500		//Distance en dessous de laquelle on tente une extraction si DODGE est actif et qu'un adversaire nous dérange !
+
+
 	/** @brief ASTAR_try_going
 	 *		Machine à état réalisant le try_going  après appel à l'algorithme astar
 	 * @param x : l'abscisse u point d'arrivée
@@ -1238,6 +1242,7 @@
 								ASTAR_CONFIG,
 								ASTAR_INIT,
 								ASTAR_GO_DIRECTLY,
+								ASTAR_DODGE_FOE,
 								ASTAR_COMPUTE,
 								ASTAR_DISPLACEMENT,
 								ASTAR_FAIL,
@@ -1295,11 +1300,17 @@
 						}else{
 							from = (GEOMETRY_point_t){global.pos.x, global.pos.y}; // On réinitialise la position de départ
 							ASTAR_generate_graph(from, dest);
-							state = ASTAR_COMPUTE; // On tente en pathfind
+							if(foe_in_square(FALSE, global.pos.x - DIST_FOE_TO_EXTRACT, global.pos.x + DIST_FOE_TO_EXTRACT, global.pos.y - DIST_FOE_TO_EXTRACT, global.pos.y + DIST_FOE_TO_EXTRACT)
+									&& (avoidance == DODGE_AND_NO_WAIT || avoidance == DODGE_AND_WAIT))
+								state = ASTAR_DODGE_FOE;
+							else
+								state = ASTAR_COMPUTE; // On tente en pathfind
 						}
 				}
 				break;
-
+			case ASTAR_DODGE_FOE:
+				state = check_sub_action_result(extraction_of_foe(FAST),state,ASTAR_COMPUTE,ASTAR_FAIL);
+				break;
 			case ASTAR_COMPUTE:
 				result = ASTAR_compute(displacements, &nb_displacements, from, dest, speed,  FALSE);
 				if(result == END_OK){
@@ -1307,8 +1318,16 @@
 					state = ASTAR_DISPLACEMENT;
 				}else if(result == FOE_IN_PATH){
 					success_possible = FALSE;
-					state = ASTAR_DISPLACEMENT;
-					warn_printf("ASTAR failure but will try to reach x=%d y=%d\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
+					//state = ASTAR_DISPLACEMENT;
+					//warn_printf("ASTAR failure but will try to reach x=%d y=%d\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
+					warn_printf("ASTAR failure - Foe in path\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
+					if(nb_try > 0 && (avoidance == DODGE_AND_NO_WAIT || avoidance == DODGE_AND_WAIT))
+					{
+						state = ASTAR_DODGE_FOE;
+						warn_printf("We try to extract from him\n");
+					}
+					else
+						state = ASTAR_FAIL;
 				}else{
 					state = ASTAR_FAIL;  // Aucun chemin trouvé
 				}

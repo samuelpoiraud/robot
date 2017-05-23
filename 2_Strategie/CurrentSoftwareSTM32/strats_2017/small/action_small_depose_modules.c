@@ -15,6 +15,19 @@
 #include "../../propulsion/pathfind.h"
 #include "../../propulsion/prop_functions.h"
 
+typedef enum
+{
+	DZONE0_BLUE_OUTDOOR,
+	DZONE1_BLUE_INDOOR,
+	DZONE2_MIDDLE_BLUE,
+	DZONE3_MIDDLE_YELLOW,
+	DZONE4_YELLOW_INDOOR,
+	DZONE5_YELLOW_OUTDOOR
+}dispose_zone_t;
+
+
+static error_e sub_ExtractMoonbase(dispose_zone_t dzone);
+
 error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_MANAGER_RETURN_MODULES,
 			INIT,
@@ -1486,6 +1499,11 @@ error_e sub_anne_depose_centre_manager(){
 }
 #endif
 
+
+
+
+
+
 #define PUSH_BEFORE_DISPOSE_DISABLE			0		//Si 1 : on désactive le poussage avant dépose.
 #define ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE		(PI4096/18) 	//10 degrés //angle d'erreur en dessous duquel on accèpte la correction !
 #define DISTANCE_ACCEPT_CORRECTION_RUSH_MOONBASE	100
@@ -1516,35 +1534,30 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			PATHFIND,
 			RUSH_AND_COMPUTE_O_H_A_B_C,
 			EXTRACT_FROM_RUSH_TO_A,
-			GOTO_B,
-			PUSH_TO_C,
+			EXTRACT_FROM_RUSH_TO_A_TO_GETOUT,
+			//GOTO_B,
+			//PUSH_TO_C,
 			COMPUTE_F_E_D,
-			GOTO_D_AND_E,
-			GOTO_FX,
+			GOTO_E,
+			//GOTO_D_AND_E,
+			GOTO_D_FX,
 			COMPUTE_DISPOSE_MODULE,
 			DISPOSE_MODULE,
 			DISPOSE_LAST_MODULE,
 			GOTO_NEXT_F,
-			BACK_TO_PREVIOUS_F,
-			PUSH_DISPOSED_MODULES,
+			//BACK_TO_PREVIOUS_F,
+			PUSH_DISPOSED_MODULES_COMPUTE,
+			PUSH_DISPOSED_MODULES_GO_PUSH_OUT,
+			PUSH_DISPOSED_MODULES_GO_PUSH_IN,
 			GET_OUT_TO_B,
-			EXTRACT_LEFT,
-			EXTRACT_RIGHT,
-			EXTRACT_INDOOR,
+			EXTRACT_MANAGER,
 			ERROR,
 			DONE
 		);
 
-	typedef enum
-	{
-		DZONE0_BLUE_OUTDOOR,
-		DZONE1_BLUE_INDOOR,
-		DZONE2_MIDDLE_BLUE,
-		DZONE3_MIDDLE_YELLOW,
-		DZONE4_YELLOW_INDOOR,
-		DZONE5_YELLOW_OUTDOOR
-	}dispose_zone_t;
 
+	static bool_e we_are_disposing_the_last_module;
+	static bool_e we_need_to_push_after_dispose;
 	static bool_e pusher_is_up = FALSE;
 	static dispose_zone_t dzone;
 	static color_e color_side;		//Défini si par rapport à une zone on va poser plutôt du côté bleu ou jaune
@@ -1576,10 +1589,11 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 	static GEOMETRY_vector_t F0E;	//vecteur F0E (E=point pour s'extraire carrément de l'axe de push)
 
 	static GEOMETRY_vector_t Fn_to_next;	//Déplacement entre Fn et Fn+1 !
+	static GEOMETRY_vector_t vector_cm;	//vecteur unitaire qui indique la direction de la zone !
 
-	static GEOMETRY_point_t ExtractLeft;	//Point d'extraction en cas de problème
-	static GEOMETRY_point_t ExtractRight;	//Point d'extraction en cas de problème
-	static GEOMETRY_point_t IndoorPoint;	//Point de retour en zone si échec d'extraction
+	static GEOMETRY_point_t Push_out;
+	static GEOMETRY_point_t Push_in;
+
 	//Le Getout est le point B !
 
 	static uint8_t remaining_dispose_modules_try;
@@ -1643,9 +1657,6 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			if(dzone == DZONE0_BLUE_OUTDOOR)
 			{
 				GetIn = (GEOMETRY_point_t){1725,860};
-				ExtractLeft = (GEOMETRY_point_t){1800,750};
-				ExtractRight = (GEOMETRY_point_t){1500,750};
-				IndoorPoint = (GEOMETRY_point_t){1725,860};
 				if(i_am_in_square(1000, 1800, 200, 650))
 					state = GET_IN;
 				else
@@ -1654,9 +1665,6 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			else if(dzone == DZONE5_YELLOW_OUTDOOR)
 			{
 				GetIn = (GEOMETRY_point_t){1725,2140};
-				ExtractLeft = (GEOMETRY_point_t){1500,2250};
-				ExtractRight = (GEOMETRY_point_t){1800,2250};
-				IndoorPoint = (GEOMETRY_point_t){1725,2140};
 				if(i_am_in_square(1000, 1800, 2350, 2800))
 					state = GET_IN;
 				else
@@ -1665,9 +1673,6 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			else if(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE2_MIDDLE_BLUE)
 			{
 				GetIn = (GEOMETRY_point_t){1350,1240};
-				ExtractLeft = (GEOMETRY_point_t){1200,1000};
-				ExtractRight = (GEOMETRY_point_t){1050,1250};
-				IndoorPoint = (GEOMETRY_point_t){1500,1300};
 				if(i_am_in_square(0, 1300, 1000, 1300))
 					state = GET_IN;
 				else
@@ -1676,9 +1681,6 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			else	//dzone 3 ou 4
 			{
 				GetIn = (GEOMETRY_point_t){1350,1760};
-				ExtractLeft = (GEOMETRY_point_t){1050,1750};
-				ExtractRight = (GEOMETRY_point_t){1200,2000};
-				IndoorPoint = (GEOMETRY_point_t){1500,1700};
 				if(i_am_in_square(0, 1300, 1700, 2000))
 					state = GET_IN;
 				else
@@ -1702,6 +1704,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 					HB = (GEOMETRY_vector_t){-dHB/R2, -dHB/R2};
 					HC = (GEOMETRY_vector_t){dHC_OUTDOOR/R2, dHC_OUTDOOR/R2};
 					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1/R2, -FN_FN1/R2};
+					vector_cm = (GEOMETRY_vector_t){-10/R2, -10/R2};
 					F0D = (GEOMETRY_vector_t){(-F0D_LONG+F0D_LARGE)/R2, (-F0D_LONG-F0D_LARGE)/R2};
 					F0E = (GEOMETRY_vector_t){(-F0E_LONG+F0E_LARGE)/R2, (-F0E_LONG-F0E_LARGE)/R2};
 					break;
@@ -1712,6 +1715,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 					HB = (GEOMETRY_vector_t){-dHB/R2, -dHB/R2};
 					HC = (GEOMETRY_vector_t){dHC_INDOOR/R2, dHC_INDOOR/R2};
 					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1/R2, -FN_FN1/R2};
+					vector_cm = (GEOMETRY_vector_t){-10/R2, -10/R2};
 					F0D = (GEOMETRY_vector_t){(-F0D_LONG-F0D_LARGE)/R2, (-F0D_LONG+F0D_LARGE)/R2};
 					F0E = (GEOMETRY_vector_t){(-F0E_LONG-F0E_LARGE)/R2, (-F0E_LONG+F0E_LARGE)/R2};
 					break;
@@ -1722,6 +1726,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 					HB = (GEOMETRY_vector_t){-dHB, 0};
 					HC = (GEOMETRY_vector_t){dHC_INDOOR, 0};
 					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1, 0};
+					vector_cm = (GEOMETRY_vector_t){-10, 0};
 					F0D = (GEOMETRY_vector_t){(-F0D_LONG), -F0D_LARGE};
 					F0E = (GEOMETRY_vector_t){(-F0E_LONG), -F0E_LARGE};
 					break;
@@ -1732,6 +1737,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 					HB = (GEOMETRY_vector_t){-dHB, 0};
 					HC = (GEOMETRY_vector_t){dHC_INDOOR, 0};
 					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1, 0};
+					vector_cm = (GEOMETRY_vector_t){-10, 0};
 					F0D = (GEOMETRY_vector_t){(-F0D_LONG), F0D_LARGE};
 					F0E = (GEOMETRY_vector_t){(-F0E_LONG), F0E_LARGE};
 					break;
@@ -1742,6 +1748,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 					HB = (GEOMETRY_vector_t){-dHB/R2, dHB/R2};
 					HC = (GEOMETRY_vector_t){dHC_INDOOR/R2, -dHC_INDOOR/R2};
 					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1/R2, FN_FN1/R2};
+					vector_cm = (GEOMETRY_vector_t){-10/R2, 10/R2};
 					F0D = (GEOMETRY_vector_t){(-F0D_LONG-F0D_LARGE)/R2, (F0D_LONG-F0D_LARGE)/R2};
 					F0E = (GEOMETRY_vector_t){(-F0E_LONG-F0E_LARGE)/R2, (F0E_LONG-F0E_LARGE)/R2};
 					break;
@@ -1752,6 +1759,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 					HB = (GEOMETRY_vector_t){-dHB/R2, dHB/R2};
 					HC = (GEOMETRY_vector_t){dHC_OUTDOOR/R2, -dHC_OUTDOOR/R2};
 					Fn_to_next = (GEOMETRY_vector_t){-FN_FN1/R2, FN_FN1/R2};
+					vector_cm = (GEOMETRY_vector_t){-10/R2, 10/R2};
 					F0D = (GEOMETRY_vector_t){(-F0D_LONG+F0D_LARGE)/R2, (F0D_LONG+F0D_LARGE)/R2};
 					F0E = (GEOMETRY_vector_t){(-F0E_LONG+F0E_LARGE)/R2, (F0E_LONG+F0E_LARGE)/R2};
 					break;
@@ -1785,7 +1793,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			state = ASTAR_try_going(GetIn.x, GetIn.y, state, RUSH_AND_COMPUTE_O_H_A_B_C, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case RUSH_AND_COMPUTE_O_H_A_B_C:
-			state = try_rush(G.x, G.y, state, EXTRACT_FROM_RUSH_TO_A, EXTRACT_FROM_RUSH_TO_A, FORWARD, NO_DODGE_AND_WAIT, TRUE);
+			state = try_rush(G.x, G.y, state, EXTRACT_FROM_RUSH_TO_A, EXTRACT_FROM_RUSH_TO_A_TO_GETOUT, FORWARD, NO_DODGE_AND_WAIT, TRUE);
 			if(ON_LEAVE())
 			{
 				if(moonbase == MODULE_MOONBASE_MIDDLE)
@@ -1832,14 +1840,14 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			break;
 
 		case EXTRACT_FROM_RUSH_TO_A:
-			state = try_going(A.x, A.y, state, GOTO_B, RUSH_AND_COMPUTE_O_H_A_B_C, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			if(ON_LEAVE())
-			{
-				if(PUSH_BEFORE_DISPOSE_DISABLE)
-					state = COMPUTE_F_E_D;	//On saute les points B et C qui permettent le poussage.
-			}
+			state = try_going(A.x, A.y, state, COMPUTE_F_E_D, RUSH_AND_COMPUTE_O_H_A_B_C, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
-		case GOTO_B:
+
+		case EXTRACT_FROM_RUSH_TO_A_TO_GETOUT:
+			//On recule après un rush qui a échoué... dans l'optique de quitter la sub !
+			state = try_going(A.x, A.y, state, GET_OUT_TO_B, RUSH_AND_COMPUTE_O_H_A_B_C, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+		/*case GOTO_B:
 			//inverser le sens si un servo de poussage est ajouté côté dépose.
 			state = try_going(B.x, B.y, state, PUSH_TO_C, COMPUTE_F_E_D, FAST, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
@@ -1861,60 +1869,47 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				FX = (GEOMETRY_point_t){global.pos.x , global.pos.y};	//le point C n'est pas atteignable, notre point actuel servira donc de F0.
 			}
 			break;
+			*/
 		case COMPUTE_F_E_D:
-			//TODO dégager cet état lorsqu'on aura un servo côté dépose !
+			FX = (GEOMETRY_point_t){C.x, C.y};
 			D = (GEOMETRY_point_t){FX.x + F0D.x, FX.y + F0D.y};
 			E = (GEOMETRY_point_t){FX.x + F0E.x, FX.y + F0E.y};
 
 			debug_printf("FX (au début) :%4d ; %4d\n", FX.x, FX.y);
 			debug_printf("D :%4d ; %4d\n", D.x, D.y);
 			debug_printf("E :%4d ; %4d\n", E.x, E.y);
-			state = GOTO_D_AND_E;
+			state = GOTO_E;
 			break;
-		case GOTO_D_AND_E:{
-			static enum state_e success_state;
-			if(entrance)
-			{
-				if(last_state==GOTO_FX)
-				{
-					//TODO d'une façon générale, revoir l'extraction pour sortir de la merde quand on est dérangé en pleine action.
-					//Actuellement : risque de collision avec la moonbase
-					if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE4_YELLOW_INDOOR)
-						success_state = EXTRACT_LEFT;
-					else
-						success_state = EXTRACT_RIGHT;
-				}
-				else
-					success_state = GOTO_FX;
-			}
-			if(entrance && pusher_is_up)
-			{
-				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
-				pusher_is_up = FALSE;
-			}
-			state = try_going_multipoint(	(displacement_t []){
-											(displacement_t){ (GEOMETRY_point_t) {D.x, D.y}, FAST},
-											(displacement_t){ (GEOMETRY_point_t) {E.x, E.y}, FAST}
-											}, 2, state, success_state, success_state, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;}
+		case GOTO_E:
+			state = try_going(E.x, E.y, state, GOTO_D_FX, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
 
-		case GOTO_FX:
+
+		case GOTO_D_FX:
 			//Le sens est important... il faut maintenant qu'on se place pour la pose !
 			//state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, SLOW, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			state = try_going_multipoint(	(displacement_t []){
 											(displacement_t){ (GEOMETRY_point_t) {D.x, D.y}, FAST},
 											(displacement_t){ (GEOMETRY_point_t) {FX.x, FX.y}, FAST}
-											}, 2, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+											}, 2, state, COMPUTE_DISPOSE_MODULE, EXTRACT_MANAGER, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			break;
+
+
+
 		case COMPUTE_DISPOSE_MODULE:
 			if(remaining_dispose_modules_try)
 				remaining_dispose_modules_try--;
 			//TODO détection de fin de stock ou de fin de zone ou savoir si c'est le dernier module à poser
+			we_are_disposing_the_last_module = (STOCKS_getNbModules(MODULE_STOCK_SMALL) == 1 || remaining_dispose_modules_try == 1)?TRUE:FALSE;
+			we_need_to_push_after_dispose =
+					(	(global.pos.x < 1600 &&	(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE5_YELLOW_OUTDOOR))
+					|| (global.pos.x < 1450 &&	(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE4_YELLOW_INDOOR))
+					|| (global.pos.x < 1300 &&	(dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW)))?TRUE:FALSE;
 
 			if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0 || remaining_dispose_modules_try == 0)
 				state = GET_OUT_TO_B;			//fini !
-			else if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 1 || remaining_dispose_modules_try == 1)
+			else if(we_are_disposing_the_last_module)
 				state = DISPOSE_LAST_MODULE;	//Presque fini !
 			else
 				state = DISPOSE_MODULE;	//Encore du taff !
@@ -1930,19 +1925,15 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 
 				//C'était pas le dernier, donc j'ai encore au moins un module à poser.
 				//Je regarde s'il faut pousser pour lui faire de la place !
-				if(global.pos.x < 1600 &&	(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE5_YELLOW_OUTDOOR))//plus qu'une place dans la zone !
-					state = PUSH_DISPOSED_MODULES;
-				else if(global.pos.x < 1450 &&	(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE4_YELLOW_INDOOR))
-					state = PUSH_DISPOSED_MODULES;
-				else if(global.pos.x < 1300 &&	(dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW))
-					state = PUSH_DISPOSED_MODULES;
+				if(we_need_to_push_after_dispose)
+					state = PUSH_DISPOSED_MODULES_COMPUTE;
 				else
 					state = GOTO_NEXT_F;	//pas besoin de pousser, je maintiens le prochain état.
 
 			}
 			break;
 		case DISPOSE_LAST_MODULE:
-			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, PUSH_DISPOSED_MODULES, PUSH_DISPOSED_MODULES);
+			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, (we_need_to_push_after_dispose)?PUSH_DISPOSED_MODULES_COMPUTE:GET_OUT_TO_B, (we_need_to_push_after_dispose)?PUSH_DISPOSED_MODULES_COMPUTE:GET_OUT_TO_B);
 
 			if(ON_LEAVE())
 				MOONBASES_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, moonbase);
@@ -1950,48 +1941,69 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 		case GOTO_NEXT_F:
 			if(entrance)
 				FX = (GEOMETRY_point_t){FX.x + Fn_to_next.x, FX.y + Fn_to_next.y};	//Next point...
-			state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, GOTO_D_AND_E, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			//Le end at break permettra sans doute de démarrer l'actionneur avant la fin du mouvement, c'est l'éclate !
 			break;
+
+		/*case GOTO_D_AND_E:
+			if(entrance && pusher_is_up)
+			{
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
+				pusher_is_up = FALSE;
+			}
+			state = try_going_multipoint(	(displacement_t []){
+											(displacement_t){ (GEOMETRY_point_t) {D.x, D.y}, FAST},
+											(displacement_t){ (GEOMETRY_point_t) {E.x, E.y}, FAST}
+											}, 2, state, GOTO_D_FX, GOTO_D_FX, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+
 		case BACK_TO_PREVIOUS_F:
 			if(entrance)
 				FX = (GEOMETRY_point_t){FX.x - Fn_to_next.x, FX.y - Fn_to_next.y};	//Previous point...
 			state = try_going(FX.x, FX.y, state, GOTO_NEXT_F, (color_side == BLUE)?EXTRACT_RIGHT:EXTRACT_LEFT, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-		case PUSH_DISPOSED_MODULES:
-			//TODO
-			if(entrance)
+			break;*/
+		case PUSH_DISPOSED_MODULES_COMPUTE:
+			if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE4_YELLOW_INDOOR)
 			{
-				//TODO faire sortir l'actionneur push qui se trouve côté module (si on est dans le bon sens !)
+				Push_out = (GEOMETRY_point_t){FX.x - 2*vector_cm.x, FX.y - 2*vector_cm.y};
+				Push_in = (GEOMETRY_point_t){FX.x + 12*vector_cm.x, FX.y + 12*vector_cm.y};
+			}
+			else
+			{
+				Push_out = (GEOMETRY_point_t){FX.x - 12*vector_cm.x, FX.y - 12*vector_cm.y};
+				Push_in = (GEOMETRY_point_t){FX.x + 2*vector_cm.x, FX.y + 2*vector_cm.y};
 			}
 
-
-			state = COMPUTE_DISPOSE_MODULE;
-
-			//TODO ajouter ailleurs qu'ici, dans la gestion de l'extraction (nominale ou palliative), le rangement de bras de poussage !
+			state = PUSH_DISPOSED_MODULES_GO_PUSH_OUT;
+			break;
+		case PUSH_DISPOSED_MODULES_GO_PUSH_OUT:
+			state = try_going(Push_out.x, Push_out.y, state, PUSH_DISPOSED_MODULES_GO_PUSH_IN, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(ON_LEAVE())
+			{
+				//TODO faire sortir l'actionneur push qui se trouve côté module
+			}
+			break;
+		case PUSH_DISPOSED_MODULES_GO_PUSH_IN:
+			state = try_going(Push_in.x, Push_in.y, state, (we_are_disposing_the_last_module)?GET_OUT_TO_B:GOTO_NEXT_F, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(ON_LEAVE())
+			{
+				//TODO faire rentrer l'actionneur push qui se trouve côté module
+			}
 			break;
 		case GET_OUT_TO_B:
-			state = try_going(B.x, B.y, state, DONE, BACK_TO_PREVIOUS_F, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(B.x, B.y, state, DONE, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		//Stratégie d'extraction en cas de merdier : alternance entre deux points d'extraction et un point intérieur
-		case EXTRACT_LEFT:
-			state = try_going(ExtractLeft.x, ExtractLeft.y, state, ERROR, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-		case EXTRACT_RIGHT:
-			state = try_going(ExtractRight.x, ExtractRight.y, state, ERROR, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-		case EXTRACT_INDOOR:	//On retourne vers l'intérieur... pour provoquer des aller-retours !
-		{
-			static enum state_e success_or_fail_state;
+
+		//Stratégie d'extraction en cas de merdier... demerden Sie sich!
+		case EXTRACT_MANAGER:
 			if(entrance)
 			{
-				success_or_fail_state = (last_state == EXTRACT_LEFT)?EXTRACT_RIGHT:EXTRACT_LEFT;
+				//TODO ajouter le rangement de bras de poussage !
 			}
-			state = try_going(IndoorPoint.x, IndoorPoint.y, state, success_or_fail_state, success_or_fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-
+			state = check_sub_action_result(sub_ExtractMoonbase(dzone), state, ERROR, ERROR);
 			break;
-		}
+
 		case ERROR:
 			if(entrance){
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IDLE);
@@ -2014,6 +2026,170 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			break;
 	}
 	return IN_PROGRESS;
+}
+
+
+
+static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_EXTRACT_MOONBASE,
+				INIT,
+				COMPUTE_POINTS,
+				EXTRACT_TO_COMPUTED_POINT,
+				BACK_TO_COMPUTED_INDOOR,
+				EXTRACT_LEFT,
+				EXTRACT_RIGHT,
+				EXTRACT_INDOOR,
+				DONE,
+				ERROR
+				);
+	error_e ret;
+	ret = IN_PROGRESS;
+	static GEOMETRY_point_t projete;
+	static GEOMETRY_point_t ExtractPoint;
+	static GEOMETRY_point_t ExtractLeft;
+	static GEOMETRY_point_t ExtractRight;
+	static GEOMETRY_point_t IndoorPoint;
+	static GEOMETRY_vector_t vector_cm;
+	static GEOMETRY_vector_t vector_extract_cm;
+
+	static Sint16 distance_to_moonbase;
+
+	switch(state)
+	{
+			case INIT:
+
+				if(dzone <= DZONE5_YELLOW_OUTDOOR)
+					state = COMPUTE_POINTS;
+				else
+					state = ERROR;
+				break;
+			case COMPUTE_POINTS:
+				//Calcul du projeté du robot au centre de la ligne de dépose.
+				if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE1_BLUE_INDOOR)
+				{
+					projete = (GEOMETRY_point_t){		(2000-(1500-global.pos.y) + global.pos.x)/2,
+														(global.pos.y + 1500-(2000-global.pos.x))/2};
+				}
+				else if(dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW)
+				{
+					projete = (GEOMETRY_point_t){global.pos.x, 1500};
+				}
+				else
+				{
+					projete = (GEOMETRY_point_t){		(2000-(global.pos.y-1500) + global.pos.x)/2,
+														(global.pos.y + 1500+(2000-global.pos.x))/2};
+
+				}
+
+				distance_to_moonbase = GEOMETRY_distance(projete, (GEOMETRY_point_t){global.pos.x, global.pos.y}) - MOONBASE_TO_R;
+
+				if(dzone == DZONE0_BLUE_OUTDOOR)
+				{
+					ExtractLeft = (GEOMETRY_point_t){1800,750};
+					ExtractRight = (GEOMETRY_point_t){1500,750};
+					IndoorPoint = (GEOMETRY_point_t){1725,860};
+				}
+				else if(dzone == DZONE5_YELLOW_OUTDOOR)
+				{
+					ExtractLeft = (GEOMETRY_point_t){1500,2250};
+					ExtractRight = (GEOMETRY_point_t){1800,2250};
+					IndoorPoint = (GEOMETRY_point_t){1725,2140};
+				}
+				else if(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE2_MIDDLE_BLUE)
+				{
+					ExtractLeft = (GEOMETRY_point_t){1200,1000};
+					ExtractRight = (GEOMETRY_point_t){1050,1250};
+					IndoorPoint = (GEOMETRY_point_t){1500,1300};
+				}
+				else	//dzone 3 ou 4
+				{
+					ExtractLeft = (GEOMETRY_point_t){1050,1750};
+					ExtractRight = (GEOMETRY_point_t){1200,2000};
+					IndoorPoint = (GEOMETRY_point_t){1500,1700};
+				}
+
+				//Le vector_cm nous indique l'orientation de la zone.
+				//Le vecteur d'extraction nous indique comment sortir de la zone.
+				//La somme des deux donne une trajectoire relative pertinente pour sortir doucement.
+				//Une multiplication du vector_extract_cm permet des rotations plus importantes !
+				switch(dzone)
+				{
+					case DZONE0_BLUE_OUTDOOR:	vector_cm = (GEOMETRY_vector_t){-100/R2, -100/R2};	vector_extract_cm = (GEOMETRY_vector_t){0,-10/R2};	break;
+					case DZONE1_BLUE_INDOOR:	vector_cm = (GEOMETRY_vector_t){-100/R2, -100/R2};	vector_extract_cm = (GEOMETRY_vector_t){0,10/R2};	break;
+					case DZONE2_MIDDLE_BLUE:	vector_cm = (GEOMETRY_vector_t){-100, 0};			vector_extract_cm = (GEOMETRY_vector_t){0,-10};		break;
+					case DZONE3_MIDDLE_YELLOW:	vector_cm = (GEOMETRY_vector_t){-100, 0};			vector_extract_cm = (GEOMETRY_vector_t){0,+10};		break;
+					case DZONE4_YELLOW_INDOOR:	vector_cm = (GEOMETRY_vector_t){-100/R2, 100/R2};	vector_extract_cm = (GEOMETRY_vector_t){0,-10/R2};	break;
+					case DZONE5_YELLOW_OUTDOOR:	vector_cm = (GEOMETRY_vector_t){-100/R2, 100/R2};	vector_extract_cm = (GEOMETRY_vector_t){0,+10/R2};	break;
+					default:	break;
+				}
+
+
+				state = EXTRACT_TO_COMPUTED_POINT;	//Hypothèse
+				if(distance_to_moonbase < 110)
+					vector_extract_cm.y *= 1;			//On s'extrait doucement
+				else if(distance_to_moonbase < 120)
+					vector_extract_cm.y *= 2;			//On s'extrait moyenement
+				else if(distance_to_moonbase < 140)
+					vector_extract_cm.y *= 4;			//On s'extrait fortement
+				else									//Turning point ! :D On vise des points LEFT / RIGHT fixés en dur.
+				{
+					if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE4_YELLOW_INDOOR)
+						state = EXTRACT_LEFT;
+					else
+						state = EXTRACT_RIGHT;
+				}
+
+
+
+				break;
+			case EXTRACT_TO_COMPUTED_POINT:
+				if(entrance)
+				{
+					ExtractPoint = (GEOMETRY_point_t){global.pos.x + vector_cm.x, global.pos.y + vector_cm.y + vector_extract_cm.y};
+				}
+				state = try_going(ExtractPoint.x, ExtractPoint.y, state, COMPUTE_POINTS, BACK_TO_COMPUTED_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				break;
+			case BACK_TO_COMPUTED_INDOOR:
+				if(entrance)
+				{
+					//On s'autorise de reculer de 3cm...
+					//Ce point est osé, et un peu arbitraire... wait & see!
+					ExtractPoint = (GEOMETRY_point_t){global.pos.x - (3*vector_cm.x)/10, global.pos.y + 3*(vector_cm.y + vector_extract_cm.y)/10};
+				}
+				state = try_going(ExtractPoint.x, ExtractPoint.y, state, COMPUTE_POINTS, COMPUTE_POINTS, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				break;
+
+			case EXTRACT_LEFT:
+				state = try_going(ExtractLeft.x, ExtractLeft.y, state, ERROR, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				break;
+			case EXTRACT_RIGHT:
+				state = try_going(ExtractRight.x, ExtractRight.y, state, ERROR, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				break;
+			case EXTRACT_INDOOR:	//On retourne vers l'intérieur... pour provoquer des aller-retours !
+			{
+				static enum state_e success_or_fail_state;
+				if(entrance)
+				{
+					success_or_fail_state = (last_state == EXTRACT_LEFT)?EXTRACT_RIGHT:EXTRACT_LEFT;
+				}
+				state = try_going(IndoorPoint.x, IndoorPoint.y, state, success_or_fail_state, success_or_fail_state, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+
+				break;
+			}
+
+			case DONE:
+				ret = END_OK;
+				state = INIT;
+				break;
+			case ERROR:
+				ret = NOT_HANDLED;
+				state = INIT;
+				break;
+			default:
+				break;
+	}
+	return ret;
 }
 
 
@@ -2178,6 +2354,8 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DISPOSE_MODULES_SIDE,
 			INIT,
 			GET_IN,
+			GET_IN_FROM_BLUE_ROCKET,
+			GET_IN_FROM_YELLOW_ROCKET,
 			ASTAR_GET_IN,
 			RUSH_TO_GOAL,
 			EXTRACT_FROM_RUSH_TO_A,
@@ -2222,6 +2400,8 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 				//TODO ajouter les cas spécifiques où l'on est déjà sur place (après prise fusée adverse notamment !)
 				if(i_am_in_square(750,1350,200,1400))
 					state = GET_IN;
+				else if(i_am_in_square(300,500,1500,2000))	//Après la prise de notre fusée jaune !
+					state = GET_IN_FROM_YELLOW_ROCKET;
 				else
 					state = ASTAR_GET_IN;
 			}
@@ -2240,6 +2420,8 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 
 				if(i_am_in_square(750,1350,1600,2800))
 					state = GET_IN;
+				else if(i_am_in_square(300,500,1000,1500))	//Après la prise de notre fusée jaune !
+					state = GET_IN_FROM_BLUE_ROCKET;
 				else
 					state = ASTAR_GET_IN;
 			}
@@ -2247,6 +2429,22 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 		case GET_IN:
 			state = try_going(A.x, A.y, state, RUSH_TO_GOAL, ASTAR_GET_IN, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
+		case GET_IN_FROM_BLUE_ROCKET:
+			//TODO ajouter prise du module polychrome sur cette courbe ?
+			state = try_going_multipoint(	(displacement_t []) {
+											(displacement_t) { (GEOMETRY_point_t){700, 1850}, FAST},
+											(displacement_t) { (GEOMETRY_point_t){800, 2350}, FAST}
+										},
+										2, state, GET_IN, ASTAR_GET_IN, FORWARD, DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+		case GET_IN_FROM_YELLOW_ROCKET:
+			state = try_going_multipoint(	(displacement_t []) {
+											(displacement_t) { (GEOMETRY_point_t){700, 1150}, FAST},
+											(displacement_t) { (GEOMETRY_point_t){800, 650}, FAST}
+										},
+										2, state, GET_IN, ASTAR_GET_IN, FORWARD, DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
 		case ASTAR_GET_IN:
 			state = ASTAR_try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
