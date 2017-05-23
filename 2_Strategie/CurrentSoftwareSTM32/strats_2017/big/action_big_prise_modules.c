@@ -2713,7 +2713,7 @@ error_e sub_push_modules_bretagne(){
 			break;
 
 		case DEPOSE_MODULE:
-			state = check_sub_action_result(sub_harry_cylinder_depose_manager(), state, DONE, ERROR); //
+//			state = check_sub_action_result(sub_harry_cylinder_depose_manager(), state, DONE, ERROR); //
 			break;
 
 		case ERROR_GET_OUT:

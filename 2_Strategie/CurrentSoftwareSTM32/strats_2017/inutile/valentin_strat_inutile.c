@@ -78,7 +78,7 @@ void valentin_strat_inutile_big(){
 			//state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DONE, ERROR);
 			//state = check_sub_action_result(sub_harry_prise_module_unicolor_south(LEFT), state, PATHFIND, ERROR);
 			//state = check_sub_action_result(SELFTESTACT_run(), state, ACTION_2, ERROR);
-			state = check_sub_action_result(sub_harry_depose_modules_side_intro(OUR_ELEMENT, RIGHT, OUR_SIDE, SUD), state, DONE, ERROR);
+			state = check_sub_action_result(sub_harry_depose_modules_side(RIGHT, OUR_SIDE), state, DONE, ERROR);
 			break;
 
 		case ACTION_2:
