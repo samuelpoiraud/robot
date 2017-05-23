@@ -1231,29 +1231,29 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			break;
 
 		case GET_IN:
-			state = try_going(1000, COLOR_Y(350), state, CALAGE, GET_IN_ASTAR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT); //1000 258
+			state = try_going(1000, COLOR_Y(400), state, CALAGE, GET_IN_ASTAR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT); //1000 258
 			break;
 
 		case GET_IN_ASTAR:
-			state = ASTAR_try_going(1000, COLOR_Y(350), state, CALAGE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT); //1000 258
+			state = ASTAR_try_going(1000, COLOR_Y(400), state, CALAGE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT); //1000 258
 			break;
 
 		case CALAGE:
-			state = try_rush(1000, COLOR_Y(0), state, POSITION_ANGLE, ERROR, sens_robot_inv, NO_DODGE_AND_WAIT, TRUE); //1000 0
+			state = try_rush(1000, COLOR_Y(0), state, POSITION_ANGLE, ERROR, sens_robot, NO_DODGE_AND_WAIT, TRUE); //1000 0
 			break;
 
 		case POSITION_ANGLE:
-			// avance et tourne pour longer (350)
-			try_going(1000, COLOR_Y(350), state, GO_TO_PUSH, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			// avance et tourne pour longer (400)
+			state = try_going(1000, COLOR_Y(400), state, GO_TO_PUSH, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GO_TO_PUSH:
 			//va au sud avant de remonter /// FORWARK/BACKWARD robot side
 			if(robot_side == RIGHT){
-				try_going(1300, COLOR_Y(350), state, PREPARE_TO_PUSH, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1300, COLOR_Y(400), state, PREPARE_TO_PUSH, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				try_going(1300, COLOR_Y(350), state, PREPARE_TO_PUSH, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1300, COLOR_Y(400), state, PREPARE_TO_PUSH, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1280,10 +1280,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 		case PUSH:
 			if(robot_side == RIGHT){
-				try_going(600, COLOR_Y(350), state, PUSHER_UP, PUSHER_UP, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(600, COLOR_Y(400), state, PUSHER_UP, PUSHER_UP, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				try_going(600, COLOR_Y(350), state, PUSHER_UP, PUSHER_UP, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(600, COLOR_Y(400), state, PUSHER_UP, PUSHER_UP, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1302,7 +1302,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			state2 = check_act_status(ACT_QUEUE_Cylinder_pusher_left, state2, DONE, ERROR);
 			 // abandon après avoir pousser
 			if((state1==ERROR)||(state2==ERROR)){
-				state=PUSHER_UP;
+				state=ERROR; //bug ?
 			}
 			else if((state1==DONE)&&(state2==DONE)){
 				state=PREPARE_TO_DISPOSE;
@@ -1311,10 +1311,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 		case PREPARE_TO_DISPOSE:
 			if(robot_side == RIGHT){
-				try_going(1000, COLOR_Y(300), state, POSITION_DISPOSE_1, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1200, COLOR_Y(350), state, POSITION_DISPOSE_1, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				try_going(1000, COLOR_Y(300), state, POSITION_DISPOSE_1, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1200, COLOR_Y(350), state, POSITION_DISPOSE_1, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1323,10 +1323,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			 */
 		case POSITION_DISPOSE_1:
 			if(robot_side == RIGHT){
-				try_going(850, COLOR_Y(300), state, DISPOSE_1, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				try_going(1000, COLOR_Y(350), state, DISPOSE_1, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				try_going(850, COLOR_Y(300), state, DISPOSE_1, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				try_going(1000, COLOR_Y(350), state, DISPOSE_1, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1344,10 +1344,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			 */
 		case POSITION_DISPOSE_2:
 			if(robot_side == RIGHT){
-				try_going(720, COLOR_Y(300), state, DISPOSE_2, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(925, COLOR_Y(350), state, DISPOSE_2, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				try_going(720, COLOR_Y(300), state, DISPOSE_2, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(925, COLOR_Y(350), state, DISPOSE_2, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1365,10 +1365,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			 */
 		case POSITION_DISPOSE_3:
 			if(robot_side == RIGHT){
-				try_going(600, COLOR_Y(300), state, DISPOSE_3, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(850, COLOR_Y(350), state, DISPOSE_3, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				try_going(600, COLOR_Y(300), state, DISPOSE_3, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(850, COLOR_Y(350), state, DISPOSE_3, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1383,7 +1383,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 		case GET_OUT:
 			//pos de depard ou plus loin
-			try_going(1000, COLOR_Y(400), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1000, COLOR_Y(500), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 
