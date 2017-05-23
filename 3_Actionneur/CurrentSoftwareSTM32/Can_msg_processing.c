@@ -196,12 +196,6 @@ void CAN_process_msg(CAN_msg_t* msg) {
 			component_printf(LOG_LEVEL_Trace, "Msg SID: 0x%03x(%u)\n", msg->sid, msg->sid);
 			break;
 	}//End switch
-
-#ifdef USE_MOSTFET_BOARD
-	if((msg->sid & 0xF00) == BROADCAST_FILTER){
-		MOSFET_BOARD_putCanMsg(msg);
-	}
-#endif
 }
 
 static void CAN_send_callback(CAN_msg_t* msg){

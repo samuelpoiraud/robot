@@ -175,6 +175,7 @@ void any_match(void)
 			date_t date;
 			Uint16 matchId = SD_get_match_id();
 			RTC_get_local_time(&date);
+			RTC_print_time();
 			CAN_msg_t msg;
 			msg.sid = BROADCAST_START;
 			msg.size = SIZE_BROADCAST_START;
