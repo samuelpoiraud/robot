@@ -39,6 +39,8 @@ error_e sub_harry_prise_modules_initiale(){
 
 	error_e stateAct1, stateAct2;
 
+	static bool_e alreadyStoreModule = FALSE;
+
 	switch(state){
 		case INIT:
 			// Pas de GET_IN, on est forcément dans la zone de départ.
@@ -75,6 +77,20 @@ error_e sub_harry_prise_modules_initiale(){
 
 		case MOVE_TO_TAKE_MODULES:
 			state = try_going_multipoint(curve, 4, state, STORE_MODULES, ERROR, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+
+			if(ACT_get_state_vacuostat(VACUOSTAT_SLIDER_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT
+					&& ACT_get_state_vacuostat(VACUOSTAT_SLIDER_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT
+					&& alreadyStoreModule == FALSE){ // Pas besoin d'attendre de s'arrêter on a bien ventousé
+
+				alreadyStoreModule = TRUE;
+
+				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
+				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
+
+				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
+			}
+
 			break;
 
 		case SLIDERS_GO_IN:
@@ -93,7 +109,7 @@ error_e sub_harry_prise_modules_initiale(){
 			break;
 
 		case STORE_MODULES:
-			if(entrance){
+			if(entrance && alreadyStoreModule == FALSE){
 				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 
