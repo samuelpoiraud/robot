@@ -98,7 +98,7 @@ error_e sub_anne_prise_modules_centre(ELEMENTS_property_e modules){
 
 	switch(state){
 		case INIT:
-			state = INIT;
+			state = DONE;
 			break;
 
 		case ERROR:

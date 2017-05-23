@@ -212,5 +212,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 error_e ACTION_update_position();
 
 
+error_e extraction_of_foe(PROP_speed_e speed);
+
 
 #endif /* ndef MOVEMENT_H */
