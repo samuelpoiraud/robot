@@ -212,6 +212,11 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 		/*[mm]*/				break_distance = SQUARE(current_speed)/(2*breaking_acceleration) >> 12;	//distance que l'on va parcourir si l'on décide de freiner maintenant. (Division par 4096 car on calcule avec des variables /4096)
 		/*[mm]*/				respect_distance = ((QS_WHO_AM_I_get() == SMALL_ROBOT)? SMALL_ROBOT_RESPECT_DIST_MIN : BIG_ROBOT_RESPECT_DIST_MIN);	//Distance à laquelle on souhaite s'arrêter
 		/*[mm]*/				slow_distance = ((QS_WHO_AM_I_get() == SMALL_ROBOT)? SMALL_ROBOT_DIST_MIN_SPEED_SLOW : BIG_ROBOT_DIST_MIN_SPEED_SLOW);	//Distance à laquelle on souhaite ralentir
+
+		// Correction dégeu à J-1 de la coupe
+		if(!HOKUYO_isWorkingWell() && I_AM_SMALL()){
+			break_distance += 100;
+		}
 	}
 
 	if(active_small_avoidance == FALSE){ // Evitement normal
