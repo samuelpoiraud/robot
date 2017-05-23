@@ -105,6 +105,9 @@ error_e sub_harry_depose_centre_manager(){
 			else{
 				state = DONE;
 			}
+			if(module_type == NO_DOMINATING){
+				module_type = MODULE_POLY_DOMINATING;
+			}
 			break;
 
 		//Choix de l'emplacement exact de la dépose
