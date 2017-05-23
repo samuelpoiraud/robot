@@ -1169,7 +1169,6 @@ error_e sub_harry_pos_6_depose_module_centre(){
  * argument côté table et côté robot
  * logique de sub calquée sur anne
  */
-//#define OFFSET_M_R		put val //distance entre le module et le centre du robot
 
 error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_match_e side){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MODULES_SIDE_INTRO,
@@ -1256,8 +1255,11 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			}
 			break;
 
+			/*
+			 * pousser les modules avant la dépose
+			 */
 		case PREPARE_TO_PUSH:
-			//descedre l'actionneur
+			//descendre l'actionneur
 			if(robot_side == RIGHT){
 				if(entrance){
 					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_OUT);
@@ -1276,15 +1278,15 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 		case PUSH:
 			if(robot_side == RIGHT){
-				try_going(600, COLOR_Y(350), state, PUSHER_UP, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				try_going(600, COLOR_Y(350), state, PUSHER_UP, PUSHER_UP, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				try_going(600, COLOR_Y(350), state, PUSHER_UP, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				try_going(600, COLOR_Y(350), state, PUSHER_UP, PUSHER_UP, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
 			/*
-			 * remonte le pusher avant de se repprocher du côté de terrain
+			 * remonte le pusher avant de se rapprocher du côté de terrain
 			 */
 		case PUSHER_UP:{
 			Uint8 state1=PUSHER_UP;
@@ -1298,7 +1300,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			state2 = check_act_status(ACT_QUEUE_Cylinder_pusher_left, state2, DONE, ERROR);
 			 // abandon après avoir pousser
 			if((state1==ERROR)||(state2==ERROR)){
-				state=PUSHER_UP;
+				state=PUSHER_DOWN;
 			}
 			else if((state1==DONE)&&(state2==DONE)){
 				state=PREPARE_TO_DISPOSE;
@@ -1314,6 +1316,9 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			}
 			break;
 
+			/*
+			 * se met en position pour poser le premier module
+			 */
 		case POSITION_DISPOSE_1:
 			if(robot_side == RIGHT){
 				try_going(850, COLOR_Y(300), state, DISPOSE_1, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1331,7 +1336,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_2, ERROR);
 			}
 			break;
-//MODULE_STOCK_RIGHT  / ARG_DISPOSE_ONE_CYLINDER_AND_FINISH
+
+			/*
+			 * se met en position pour le seconde module
+			 */
 		case POSITION_DISPOSE_2:
 			if(robot_side == RIGHT){
 				try_going(720, COLOR_Y(300), state, DISPOSE_2, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1350,6 +1358,9 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			}
 			break;
 
+			/*
+			 * se met en position pour le troisieme module
+			 */
 		case POSITION_DISPOSE_3:
 			if(robot_side == RIGHT){
 				try_going(600, COLOR_Y(300), state, DISPOSE_3, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
