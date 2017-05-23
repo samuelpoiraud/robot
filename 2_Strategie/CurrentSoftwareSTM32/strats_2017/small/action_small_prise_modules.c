@@ -1522,15 +1522,39 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 	switch(state){
 
 		case INIT:{
-			/*if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
-				state = ERROR; // Actionneurs désactivés
-			}else*/ if((rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))
+			if(IHM_switchs_get(SWITCH_ANNE_DISABLE_MODULE))
+			{
+				debug_printf("switch modules désactivé\n");
+				state = ERROR; 	// Actionneurs désactivés
+			}
+			else if(rocket != OUR_ELEMENT && IHM_switchs_get(SWITCH_ANNE_TAKE_ADV_ROCKET)==FALSE)
+			{
+				debug_printf("Fusée adverse désactivée\n");
+				state = ERROR;	//Fusée adverse désactivée
+			}
+			else if(rocket == OUR_ELEMENT && IHM_switchs_get(SWITCH_ANNE_TAKE_OUR_ROCKET)==FALSE)
+			{
+				debug_printf("Notre fusée désactivée\n");
+				state = ERROR;	//Notre fusée désactivée
+			}
+			else if((rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))
 			|| (rocket == ADV_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_ADV_SIDE))){
+			{
+				debug_printf("Fusée déjà vidée\n");
 				state = DONE;	 // On a déjà vidé cette fusée
+			}
 			}else if((rocket == OUR_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI))
 			|| (rocket == ADV_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI)) ){
-				state = ERROR; //  est déjà en train de vider cette fusée
-			}else{
+			{
+				debug_printf("Harry vide déjà cette fusée\n");
+				state = ERROR; //  Harry déjà en train de vider cette fusée
+			}
+			}else if(STOCKS_getNbModules(MODULE_STOCK_SMALL)>=4)
+			{
+				debug_printf("Plus de place pour prendre des modules\n");
+				state = ERROR;	//Plus de place pour prendre des modules !
+			}
+			else{
 				state = ALL_THE_GET_IN;
 				//state = INIT_ALL_ACTIONNEUR;
 				// On lève le flag de subaction
