@@ -1594,8 +1594,8 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 
 					// Mise à jour des données : on fait progresser le module en POS_BALANCER vers la position POS_COLOR
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, MODULE_STOCK_SMALL);
-					ELEMENTS_set_flag(FLAG_SMALL_BALANCER_FINISH, TRUE);
 				}
+				ELEMENTS_set_flag(FLAG_SMALL_BALANCER_FINISH, TRUE);
 			}
 			break;
 
