@@ -172,6 +172,8 @@ static void CYLINDER_BALANCER_RIGHT_get_position_config(ACT_order_e *pOrder, Uin
 		order = ACT_CYLINDER_BALANCER_RIGHT_IN;
 	}else if(position > CYLINDER_BALANCER_RIGHT_AX12_OUT_POS - epsilon && position < CYLINDER_BALANCER_RIGHT_AX12_OUT_POS + epsilon){
 		order = ACT_CYLINDER_BALANCER_RIGHT_OUT;
+	}else if(position < CYLINDER_BALANCER_RIGHT_AX12_VERY_OUT_POS + epsilon){
+			order = ACT_CYLINDER_BALANCER_RIGHT_VERY_OUT;
 	}else if(position > CYLINDER_BALANCER_RIGHT_AX12_IDLE_POS - epsilon && position < CYLINDER_BALANCER_RIGHT_AX12_IDLE_POS + epsilon){
 		order = ACT_CYLINDER_BALANCER_RIGHT_IDLE;
 	}
@@ -211,6 +213,7 @@ bool_e CYLINDER_BALANCER_RIGHT_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_CYLINDER_BALANCER_RIGHT_IDLE :
 			case ACT_CYLINDER_BALANCER_RIGHT_IN :
 			case ACT_CYLINDER_BALANCER_RIGHT_OUT :
+			case ACT_CYLINDER_BALANCER_RIGHT_VERY_OUT :
 			case ACT_CYLINDER_BALANCER_RIGHT_STOP :
 				run_now = msg->data.act_msg.act_data.act_order.run_now;
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_CYLINDER_BALANCER_RIGHT, &CYLINDER_BALANCER_RIGHT_run_command, 0,TRUE);
@@ -267,6 +270,7 @@ static void CYLINDER_BALANCER_RIGHT_command_init(queue_id_t queueId) {
 		case ACT_CYLINDER_BALANCER_RIGHT_IDLE : *ax12_goalPosition = CYLINDER_BALANCER_RIGHT_AX12_IDLE_POS; break;
 		case ACT_CYLINDER_BALANCER_RIGHT_IN : *ax12_goalPosition = CYLINDER_BALANCER_RIGHT_AX12_IN_POS; break;
 		case ACT_CYLINDER_BALANCER_RIGHT_OUT : *ax12_goalPosition = CYLINDER_BALANCER_RIGHT_AX12_OUT_POS; break;
+		case ACT_CYLINDER_BALANCER_RIGHT_VERY_OUT : *ax12_goalPosition = CYLINDER_BALANCER_RIGHT_AX12_VERY_OUT_POS; break;
 
 		case ACT_CYLINDER_BALANCER_RIGHT_STOP :
 			AX12_set_torque_enabled(CYLINDER_BALANCER_RIGHT_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12
