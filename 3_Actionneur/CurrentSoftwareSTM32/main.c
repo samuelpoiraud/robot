@@ -326,6 +326,93 @@ static void MAIN_onButton0() {
 
 // depose balle tire
 static void MAIN_onButton0LongPush(){
+
+	static Uint8 state = 0;
+	CAN_msg_t msg;
+	msg.size = 8;
+	msg.data.act_msg.act_data.act_order.run_now = TRUE;
+
+	if(state == 0){
+		msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER;
+	}else if(state == 1){
+		msg.sid = ACT_POMPE_SLIDER_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 2){
+		msg.sid = ACT_CYLINDER_SLIDER_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_SLIDER_LEFT_OUT;
+	}else if(state == 3){
+		msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM;
+	}else if(state == 4){
+		msg.sid = ACT_POMPE_ELEVATOR_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 5){
+		msg.sid = ACT_CYLINDER_SLIDER_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_SLIDER_LEFT_IN;
+	}else if(state == 6){
+		msg.sid = ACT_POMPE_SLIDER_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}else if(state == 7){
+		msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_TOP;
+	}else if(state == 8){
+		msg.sid = ACT_CYLINDER_SLOPE_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_SLOPE_LEFT_UP;
+	}else if(state == 9){
+		msg.sid = ACT_POMPE_ELEVATOR_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}else if(state == 10){
+		msg.sid = ACT_CYLINDER_ELEVATOR_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM;
+	}else if(state == 11){
+		msg.sid = ACT_CYLINDER_SLOPE_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_SLOPE_LEFT_DOWN;
+	}else if(state == 12){
+		msg.sid = ACT_CYLINDER_ARM_LEFT ;
+		msg.data.act_msg.order = ACT_CYLINDER_ARM_LEFT_PREPARE_TO_TAKE;
+	}else if(state == 13){
+		msg.sid = ACT_CYLINDER_DISPOSE_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_DISPOSE_LEFT_TAKE;
+	}else if(state == 14){
+		msg.sid = ACT_CYLINDER_BALANCER_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_BALANCER_LEFT_IN;
+	}else if(state == 15){
+		msg.sid = ACT_CYLINDER_BALANCER_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_BALANCER_LEFT_OUT;
+	}else if(state == 16){
+		msg.sid = ACT_CYLINDER_ARM_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ARM_LEFT_TAKE;
+	}else if(state == 17){
+		msg.sid = ACT_POMPE_DISPOSE_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+	}else if(state == 18){
+		msg.sid = ACT_CYLINDER_DISPOSE_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_DISPOSE_LEFT_RAISE;
+	}else if(state == 19){
+		msg.sid = ACT_CYLINDER_ARM_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ARM_LEFT_DISPOSE;
+	}else if(state == 20){
+		msg.sid = ACT_CYLINDER_DISPOSE_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_DISPOSE_LEFT_DISPOSE;
+	}else if(state == 21){
+		msg.sid = ACT_POMPE_DISPOSE_LEFT;
+		msg.data.act_msg.order = ACT_POMPE_STOP;
+	}else if(state == 22){
+		msg.sid = ACT_CYLINDER_DISPOSE_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_DISPOSE_LEFT_TAKE;
+	}else if(state == 23){
+		msg.sid = ACT_CYLINDER_ARM_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ARM_LEFT_TAKE;
+	}else if(state == 24){
+		msg.sid = ACT_CYLINDER_ARM_LEFT;
+		msg.data.act_msg.order = ACT_CYLINDER_ARM_LEFT_IN;
+	}
+
+	if(msg.sid != 0)
+		CAN_process_msg(&msg);
+	state = (state == 24)? 0 : state + 1;
+
 	/*static Uint8 state = 0;
 	CAN_msg_t msg1;
 	msg1.size = 8;
