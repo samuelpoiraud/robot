@@ -1371,7 +1371,8 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 	switch(state){
 
 		case WAIT_TRIGGER:
-			if(trigger){
+			// Si trigger et qu'il n'y a pas déjà un module de prêt
+			if(trigger && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_COLOR, storage)){
 				state = INIT;
 
 				// On baisse le flag dans le cas où cela n'a pas encore été fait
@@ -1535,12 +1536,12 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			// On en profite pour retourner le balancer vers l'intérieur du robot pour gagner du temps
 			// Pas de vérification du résultat ici, la couleur est prioritaire.
 			if(entrance){
+				// On déclenche les balancers, on effectuera une vérification plus tard
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 				}else{
 					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 				}
-				STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
 			}
 
 			// On attend le blanc
@@ -1573,9 +1574,9 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 		case END_CHECK_POSITION_BALANCER:
 			if(storage == MODULE_STOCK_RIGHT){
-				stateAct = ACT_check_position_config(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
+				stateAct = ACT_check_position_config_right(ACT_CYLINDER_BALANCER_RIGHT, ACT_CYLINDER_BALANCER_RIGHT_IN);
 			}else{
-				stateAct = ACT_check_position_config(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
+				stateAct = ACT_check_position_config_left(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 			}
 
 			if(stateAct != IN_PROGRESS){
@@ -1583,6 +1584,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 					state = END_MOVE_BALANCER_IN;	// L'actionneur n'est pas en position, on doit le mettre
 				}else{
 					state = DONE;  // C'est bon l'actionneur est en position
+					STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
 				}
 			}
 			break;
@@ -1594,7 +1596,6 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				}else{
 					ACT_push_order(ACT_CYLINDER_BALANCER_LEFT, ACT_CYLINDER_BALANCER_LEFT_IN);
 				}
-
 			}
 
 			// Aucune vérification
