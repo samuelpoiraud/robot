@@ -1379,9 +1379,11 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 				if(storage == MODULE_STOCK_RIGHT){
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS, FALSE);
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH, FALSE);
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FALLEN, FALSE);
 				}else{
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_SUCCESS, FALSE);
 					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH, FALSE);
+					ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FALLEN, FALSE);
 				}
 
 				nb_errors_balancer = 0;
@@ -1468,6 +1470,12 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 
 					// Mise à jour des données : on fait progresser le module en POS_BALANCER vers la position POS_COLOR
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, storage);
+
+					if(storage == MODULE_STOCK_RIGHT){
+						ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FALLEN, TRUE);
+					}else{
+						ELEMENTS_set_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FALLEN, TRUE);
+					}
 				}
 			}
 			break;
@@ -1668,6 +1676,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			CHECK_VACUOSTAT_TAKE_CYLINDER,
 			RAISE_CYLINDER,
 			GET_OUT_CYLINDER_OF_ROBOT,
+			WAIT_FALL_OF_MODULE,
 			UNFOLD_DISPOSE_SERVO,
 			GO_TO_DISPOSE_POS,
 			DISPOSE_CYLINDER,
@@ -1896,14 +1905,27 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			}
 
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_right, state, WAIT_FALL_OF_MODULE, WAIT_FALL_OF_MODULE);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, UNFOLD_DISPOSE_SERVO, UNFOLD_DISPOSE_SERVO);
+				state = check_act_status(ACT_QUEUE_Cylinder_arm_left, state, WAIT_FALL_OF_MODULE, WAIT_FALL_OF_MODULE);
 			}
 
 			// On exit
 			if(ON_LEAVE()){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_COLOR_TO_ARM_DISPOSE, storage);
+			}
+			break;
+
+		case WAIT_FALL_OF_MODULE:
+			if(entrance){
+				// Une autre dépose va suivre, on peut dès à présent lancer la préparation du module suivant
+				if(anotherDisposeWillFollow){
+					sub_act_harry_mae_prepare_modules_for_dispose(storage, TRUE);
+				}
+			}
+			if((storage == MODULE_STOCK_RIGHT && (ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FALLEN) || ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH)))
+				|| (storage == MODULE_STOCK_LEFT && (ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FALLEN) || ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH)))){
+				state = UNFOLD_DISPOSE_SERVO;
 			}
 			break;
 
@@ -1915,10 +1937,7 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 					ACT_push_order(ACT_CYLINDER_DISPOSE_LEFT, ACT_CYLINDER_DISPOSE_LEFT_DISPOSE);
 				}
 
-				// Une autre dépose va suivre, on peut dès à présent lancer la préparation du module suivant
-				if(anotherDisposeWillFollow){
-					sub_act_harry_mae_prepare_modules_for_dispose(storage, TRUE);
-				}
+
 			}
 
 			if(storage == MODULE_STOCK_RIGHT){
@@ -2240,7 +2259,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 
 			store_pos.x = global.destination.x;
 			store_pos.y = global.destination.y;
-			compute_take_point_rocket(&take_pos, &take_angle, store_pos, global.pos.angle, 42);
+			compute_take_point_rocket(&take_pos, &take_angle, store_pos, global.pos.angle, 45);
 			debug_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
 
 			rocketSide[0] = module_very_down;

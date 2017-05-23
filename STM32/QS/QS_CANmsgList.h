@@ -55,12 +55,12 @@
 		 *********************************************************************************************************************/
 
 		#define BROADCAST_START				0x001
-		#define SIZE_BROADCAST_START		7
+		#define SIZE_BROADCAST_START		8
 			struct{
 				Uint16 matchId				:16;	// ID du match
 				Uint32 seconde				:6;
 				Uint32 minute				:6;
-				Uint32 heure				:4;
+				Uint32 heure				:5;
 				Uint32 jour					:5;
 				Uint32 mois					:4;
 				Uint32 annee				:7;		// 20xx (xx = annee)
