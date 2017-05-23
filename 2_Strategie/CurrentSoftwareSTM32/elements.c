@@ -422,9 +422,13 @@ void STOCKS_addModule(moduleType_e type, moduleStockPosition_e position, moduleS
 
 		error_printf("ERROR STOCKAGE MODULE in STOCK_addModule\n");
 	}
+
+	// Affichage du stock
+	STOCKS_print(storage);
 }
 
 void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e storage){
+	bool_e display_stock = TRUE;
 	switch(place){
 		case STOCK_PLACE_ENTRY_TO_ELEVATOR:
 			if(moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] == MODULE_EMPTY){
@@ -481,6 +485,7 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 			}else{
 				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_CONTAINER_OUT_TO_OUTSIDE\n");
 			}
+			display_stock = FALSE;
 			break;
 
 		case STOCK_PLACE_CLEAR_ARM_DISPOSE:
@@ -490,6 +495,11 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 		default:
 			error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo default case\n");
 			break;
+	}
+
+	// Affichage du stock
+	if(display_stock){
+		STOCKS_print(storage);
 	}
 }
 
@@ -515,11 +525,23 @@ moduleType_e STOCKS_removeModule( moduleStockPosition_e position, moduleStockLoc
 		// On vient de déposer un cylindre qui n'est pas là, on ne fait rien
 		return MODULE_EMPTY;
 	}
+
+	// Affichage du stock
+	STOCKS_print(storage);
 }
 
 void STOCKS_print(moduleStockLocation_e storage){
 	Uint8 i;
-	debug_printf("\n\n Affichage STOCK :\n");
+
+	if(I_AM_BIG()){
+		if(storage == MODULE_STOCK_LEFT)
+			debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
+		else
+			debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
+	}else{
+		debug_printf("---------- MODULE_STOCK_SMALL ---------\n");
+	}
+	//debug_printf("\n\n Affichage STOCK :\n");
 	for(i = 0; i < MAX_MODULE_STOCK; i++){
 		switch(moduleStockInfo[storage].stockModules[i]){
 			case MODULE_EMPTY:
