@@ -8,7 +8,7 @@
 
 	#include "../QS_outputlog.h"
 
-	#define DEBUG_DISPLAY_SENSOR	// Activer pour avoir l'affichage des données
+	//#define DEBUG_DISPLAY_SENSOR	// Activer pour avoir l'affichage des données
 
 	/**************************************
 	 * Définition des types

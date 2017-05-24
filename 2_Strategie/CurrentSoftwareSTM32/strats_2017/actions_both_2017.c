@@ -17,6 +17,7 @@
 #include "../QS/QS_CapteurCouleurCW.h"
 #include "../propulsion/prop_functions.h"
 #include "../propulsion/movement.h"
+#include "../propulsion/astar.h"
 #include "../utils/generic_functions.h"
 #include "../actuator/queue.h"
 #include "../actuator/act_functions.h"

@@ -16,6 +16,7 @@
 #include "../utils/actionChecker.h"
 #include "../Supervision/SD/SD.h"
 #include "../utils/generic_functions.h"
+#include "../avoidance.h"
 
 #define LOG_PREFIX "astar: "
 #define LOG_COMPONENT OUTPUT_LOG_COMPONENT_ASTAR
@@ -1300,7 +1301,7 @@
 						}else{
 							from = (GEOMETRY_point_t){global.pos.x, global.pos.y}; // On réinitialise la position de départ
 							ASTAR_generate_graph(from, dest);
-							if(foe_in_square(FALSE, global.pos.x - DIST_FOE_TO_EXTRACT, global.pos.x + DIST_FOE_TO_EXTRACT, global.pos.y - DIST_FOE_TO_EXTRACT, global.pos.y + DIST_FOE_TO_EXTRACT)
+							if(foe_in_square(FALSE, global.pos.x - DIST_FOE_TO_EXTRACT, global.pos.x + DIST_FOE_TO_EXTRACT, global.pos.y - DIST_FOE_TO_EXTRACT, global.pos.y + DIST_FOE_TO_EXTRACT, FOE_TYPE_ALL)
 									&& (avoidance == DODGE_AND_NO_WAIT || avoidance == DODGE_AND_WAIT))
 								state = ASTAR_DODGE_FOE;
 							else
