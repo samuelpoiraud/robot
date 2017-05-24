@@ -54,10 +54,10 @@ detection_zone_s zones_hokuyo[8]={{{(GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t)
 								 {{(GEOMETRY_point_t){0, 2290}, (GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){360, 3000},(GEOMETRY_point_t){0, 3000}}, FALSE}, 		// Zone de départ jaune
 								 {{(GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){700, 2290}, (GEOMETRY_point_t){700, 3000},(GEOMETRY_point_t){360, 3000}}, FALSE}, 	// Zone à côté de la zone de départ jaune
 
-								 {{(GEOMETRY_point_t){1400, 900}, (GEOMETRY_point_t){2000, 900}, (GEOMETRY_point_t){2000, 1300},(GEOMETRY_point_t){1850, 1350}}, FALSE}, // Zone de base lunaire côté bleu
-								 {{(GEOMETRY_point_t){1400, 900}, (GEOMETRY_point_t){1850, 1350}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1200, 1500}}, FALSE},// Zone de base lunaire milieu côté bleu
-								 {{(GEOMETRY_point_t){1400, 2100}, (GEOMETRY_point_t){1850, 1650}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1200, 1500}}, FALSE},// Zone de base lunaire milieu côté jaune
-								 {{(GEOMETRY_point_t){1400, 2100}, (GEOMETRY_point_t){2000, 2100}, (GEOMETRY_point_t){2000, 1700},(GEOMETRY_point_t){1850, 1650}}, FALSE}, // Zone de base lunaire côté bleu
+								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){2000, 850}, (GEOMETRY_point_t){2000, 1300},(GEOMETRY_point_t){1850, 1350}}, FALSE}, // Zone de base lunaire côté bleu
+								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){1850, 1350}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1100, 1500}}, FALSE},// Zone de base lunaire milieu côté bleu
+								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){1850, 1650}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1100, 1500}}, FALSE},// Zone de base lunaire milieu côté jaune
+								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){2000, 2150}, (GEOMETRY_point_t){2000, 1700},(GEOMETRY_point_t){1850, 1650}}, FALSE}, // Zone de base lunaire côté bleu
 								 };
 
 detection_zone_s zones_balise[8]={{{(GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){360, 0}, (GEOMETRY_point_t){360, 710},(GEOMETRY_point_t){0, 710}}, FALSE}, 				// Zone de départ bleu
@@ -65,10 +65,10 @@ detection_zone_s zones_balise[8]={{{(GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t)
 								 {{(GEOMETRY_point_t){0, 2290}, (GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){360, 3000},(GEOMETRY_point_t){0, 3000}}, FALSE}, 		// Zone de départ jaune
 								 {{(GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){700, 2290}, (GEOMETRY_point_t){700, 3000},(GEOMETRY_point_t){360, 3000}}, FALSE}, 	// Zone à côté de la zone de départ jaune
 
-								 {{(GEOMETRY_point_t){1400, 900}, (GEOMETRY_point_t){2000, 900}, (GEOMETRY_point_t){2000, 1300},(GEOMETRY_point_t){1850, 1350}}, FALSE}, // Zone de base lunaire côté bleu
-								 {{(GEOMETRY_point_t){1400, 900}, (GEOMETRY_point_t){1850, 1350}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1200, 1500}}, FALSE},// Zone de base lunaire milieu côté bleu
-								 {{(GEOMETRY_point_t){1400, 2100}, (GEOMETRY_point_t){1850, 1650}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1200, 1500}}, FALSE},// Zone de base lunaire milieu côté jaune
-								 {{(GEOMETRY_point_t){1400, 2100}, (GEOMETRY_point_t){2000, 2100}, (GEOMETRY_point_t){2000, 1700},(GEOMETRY_point_t){1850, 1650}}, FALSE}, // Zone de base lunaire côté bleu
+								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){2000, 850}, (GEOMETRY_point_t){2000, 1300},(GEOMETRY_point_t){1850, 1350}}, FALSE}, // Zone de base lunaire côté bleu
+								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){1850, 1350}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1100, 1500}}, FALSE},// Zone de base lunaire milieu côté bleu
+								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){1850, 1650}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1100, 1500}}, FALSE},// Zone de base lunaire milieu côté jaune
+								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){2000, 2150}, (GEOMETRY_point_t){2000, 1700},(GEOMETRY_point_t){1850, 1650}}, FALSE}, // Zone de base lunaire côté bleu
 								 };
 
 
