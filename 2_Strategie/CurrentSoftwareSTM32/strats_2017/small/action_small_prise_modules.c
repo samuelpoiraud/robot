@@ -1601,7 +1601,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			theorical_y = 80+28+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE;
 			if(color_side==YELLOW)
 				theorical_y = 3000-theorical_y;
-			state = check_sub_action_result(action_recalage_y(FORWARD,(color_side==BLUE)?(-PI4096/2):(PI4096/2), theorical_y, FALSE, &delta, TRUE), state, BACK_AFTER_RUSH, BACK_AFTER_FAILING_RUSH);
+			state = check_sub_action_result(action_recalage_y(FORWARD,(color_side==BLUE)?(-PI4096/2):(PI4096/2), theorical_y, (color_side==BLUE)?(-PI4096/2):(PI4096/2),  FALSE, &delta, TRUE, TRUE), state, BACK_AFTER_RUSH, BACK_AFTER_FAILING_RUSH);
 			break;}
 		case BACK_AFTER_RUSH:
 			state = try_going(global.pos.x, (color_side==BLUE)?260:2740,state,SCANNING_TRAJECTORY, RUSH_TO_MEASURE_Y, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);

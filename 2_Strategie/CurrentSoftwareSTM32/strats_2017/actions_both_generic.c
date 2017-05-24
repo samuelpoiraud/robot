@@ -1075,7 +1075,7 @@ error_e sub_wait(Sint16 x, Sint16 y, time32_t duration)
 #define MAX_CORRECT_POS_AT_RUSH					100			//Correction max en mm.
 #define MAX_ANGLE_WHEN_CORRECT_POS_AT_RUSH		PI4096/12	//Il faut être à moins de 5° pour accepter une correction de position !
 // Vérification de l'angle non actif !!!
-error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, bool_e get_out, Sint16* delta_correction_x, bool_e set_pos_at_rush){
+error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, Sint16 wanted_teta, bool_e get_out, Sint16* delta_correction_x, bool_e set_pos_at_rush, bool_e set_teta_at_rush){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_X,
 		INIT,
 		RUSH_WALL,
@@ -1126,7 +1126,7 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, bool_e get_
 				if(set_pos_at_rush){
 					if(delta_correction_x != NULL)
 						*delta_correction_x = global.pos.x - wanted_x;
-					PROP_set_position(wanted_x, global.pos.y, global.pos.angle);
+					PROP_set_position(wanted_x, global.pos.y, (set_teta_at_rush)?wanted_teta:global.pos.angle);
 					info_printf("Correction acceptée : x=%d->%d | y=%d | teta=%d\n", global.pos.x, wanted_x, global.pos.y, global.pos.angle);
 				}else
 					info_printf("Calage réussie sans correction\n");
@@ -1181,7 +1181,9 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, bool_e get_
 	return IN_PROGRESS;
 }
 
-error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, bool_e get_out, Sint16 * delta_correction_y, bool_e set_pos_at_rush){
+
+//set_teta_at_rush indique si on met l'angle à jour... n'est possible QUE SI on met y également à jour !
+error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, Sint16 wanted_teta, bool_e get_out, Sint16 * delta_correction_y, bool_e set_pos_at_rush, bool_e set_teta_at_rush){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_Y,
 		IDLE,
 		RUSH_WALL,
@@ -1235,7 +1237,7 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, bool_e get_
 				if(set_pos_at_rush){
 					if(delta_correction_y != NULL)
 						*delta_correction_y = global.pos.y - wanted_y;
-					PROP_set_position(global.pos.x, wanted_y, global.pos.angle);
+					PROP_set_position(global.pos.x, wanted_y, (set_teta_at_rush)?wanted_teta:global.pos.angle);
 					info_printf("Correction acceptée : x=%d | y=%d->%d | teta=%d\n", global.pos.x, global.pos.y, wanted_y, global.pos.angle);
 				}
 			}

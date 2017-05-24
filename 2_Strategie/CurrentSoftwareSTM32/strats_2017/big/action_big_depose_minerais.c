@@ -157,7 +157,7 @@ error_e sub_harry_depose_minerais(){
 
 		case RUSH_TO_CLEAT:
 			// Ca vaudrait peut être le coup de faire un action_recalage ?
-			state = check_sub_action_result(action_recalage_x(BACKWARD, 0,  382 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, FALSE, &correction_x, TRUE), state, MOVE_BACK_SHOOTING_POS, MOVE_BACK_SHOOTING_POS);
+			state = check_sub_action_result(action_recalage_x(BACKWARD, 0,  382 - BIG_CALIBRATION_BACKWARD_BORDER_DISTANCE, 0, FALSE, &correction_x, TRUE, FALSE), state, MOVE_BACK_SHOOTING_POS, MOVE_BACK_SHOOTING_POS);
 			//state=try_rush(0,COLOR_Y(300),state,MOVE_BACK_SHOOTING_POS,GET_OUT_ERROR,BACKWARD,NO_DODGE_AND_WAIT,TRUE);
 			break;
 

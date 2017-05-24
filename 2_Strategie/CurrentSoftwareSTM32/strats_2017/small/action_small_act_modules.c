@@ -112,7 +112,7 @@ error_e sub_act_anne_return_module(){
 	return IN_PROGRESS;
 }
 
-
+#define DISTANCE_AVANCE_RECULE	70
 #define DISABLE_TAKE_ROCKET_SPEED
 
 #if defined(DISABLE_TAKE_ROCKET_SPEED)
@@ -136,6 +136,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			ACTION_BRING_BACK_CYLINDER,
 			RECULE,
 			RECULE_ERROR,
+			GET_OUT_FROM_ROCKET,
 			ACTION_LOCK_MULTIFUNCTION,
 			STOP_POMPE_SLIDER,
 			ACTION_UNLOCK_MULTIFUNCTION,
@@ -188,7 +189,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			// Calcul des positions
 			store_pos.x = global.pos.x;
 			store_pos.y = global.pos.y;
-			compute_take_point_rocket(&take_pos, NULL, store_pos, global.pos.angle, 70);//derniere valeur a modifier pour changer la distance d'avancement et de recule lors de la prise
+			compute_take_point_rocket(&take_pos, NULL, store_pos, global.pos.angle, DISTANCE_AVANCE_RECULE);//derniere valeur a modifier pour changer la distance d'avancement et de recule lors de la prise
 			debug_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
 
 			modules_taken = 0;
@@ -295,30 +296,30 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS ){
 				if(state3 == NOT_HANDLED){
 					//on a pas avancé physiquement, on retente
-					state = AVANCE;
-					nbEssais = 0;
+					state = AVANCE_ERROR;
+					nbEssais = 1;	//Nous venons de faire une tentative d'avance.. (échouée, certes...)
 				}else{
 					//On continue
 					state = ACTION_BRING_BACK_CYLINDER;
 				}
 			}
 			break;
-
+		case AVANCE_ERROR:
+			//Si on a pas reussi a bien avancer, on recule pour réessayer
+			state = try_advance(NULL, TRUE, DISTANCE_AVANCE_RECULE-absolute(global.pos.x-take_pos.x), state, AVANCE, AVANCE, FAST, BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
+			break;
 		case AVANCE:
 			if(entrance)
 			{
-				nbEssais += 1;
+				nbEssais++;
 				if(nbEssais>=3)
-					state = ACTION_BRING_BACK_CYLINDER;//ou DONE ? est-ce-qu'on continue la prise?
+					state = ACTION_BRING_BACK_CYLINDER;
 			}
-			else	//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
+			else
 				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case AVANCE_ERROR:
-			//Si on a pas reussi a bien avancer, on reessaie
-			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
+
 
 		case ACTION_BRING_BACK_CYLINDER:
 			if(entrance){
@@ -393,13 +394,16 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(entrance)
 			{
 				nbEssais += 1;
-				if(nbEssais>=3)
+				if(nbEssais>=2)
 					state = DONE;
 			}
 			else
-				state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state= try_going(take_pos.x, take_pos.y, state, RECULE, GET_OUT_FROM_ROCKET, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
+		case GET_OUT_FROM_ROCKET:
+			state = try_advance(NULL, TRUE, DISTANCE_AVANCE_RECULE-absolute(global.pos.x-take_pos.x), state, DONE, DONE, FAST, BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 
+			break;
 		case ACTION_LOCK_MULTIFUNCTION:
 
 //			if (entrance){
