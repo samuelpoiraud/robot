@@ -1836,10 +1836,11 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 			state = check_act_status(ACT_QUEUE_Small_cylinder_dispose, state, GET_OUT_CYLINDER_OF_ROBOT, GET_OUT_CYLINDER_OF_ROBOT);
 			break;
 
-		case GET_OUT_CYLINDER_OF_ROBOT:
+		case GET_OUT_CYLINDER_OF_ROBOT:{
+			static time32_t timeout;
 			if(entrance){
 				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_OUT);
-
+				timeout = global.absolute_time + 3000;
 				//if(anotherDisposeWillFollow){
 					sub_act_anne_mae_prepare_modules_for_dispose(TRUE);
 				//}
@@ -1852,16 +1853,18 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 			}
 
 			if(stateAct != IN_PROGRESS){
-				if(/*!anotherDisposeWillFollow || */ELEMENTS_get_flag(FLAG_SMALL_BALANCER_FINISH)){
+				if(!anotherDisposeWillFollow || ELEMENTS_get_flag(FLAG_SMALL_BALANCER_FINISH)){
 					state = UNFOLD_DISPOSE_SERVO;
 				}
+				if(global.absolute_time > timeout)
+					state = UNFOLD_DISPOSE_SERVO;	//rustine dégeu si le flag ne s'est pas levé !
 			}
 
 			// On exit
 			if(ON_LEAVE()){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_COLOR_TO_ARM_DISPOSE, MODULE_STOCK_SMALL);
 			}
-			break;
+			break;}
 
 		case UNFOLD_DISPOSE_SERVO:
 			if(entrance){
