@@ -112,6 +112,17 @@ error_e sub_harry_depose_centre_manager(){
 
 		//Choix de l'emplacement exact de la dépose
 		case MODULE_CHOOSE_POSITION:
+
+			//Modification juste pour la prise de décision
+			//le côté du robot est rétabli ensuite
+			if(global.color == YELLOW){
+				if(robot_side == MODULE_STOCK_LEFT){
+					robot_side = MODULE_STOCK_RIGHT;
+				}else{
+					robot_side = MODULE_STOCK_LEFT;
+				}
+			}
+			//le développement suivant est pour la couleur bleue
 			if((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
 				if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6 && nb_try_left == 0){
 					dispose_place = POS_1;
@@ -159,6 +170,14 @@ error_e sub_harry_depose_centre_manager(){
 				dispose_place = NO_POS;
 			}
 
+			//Rétablissement de la valeur d'origine pour robot_side
+			if(global.color == YELLOW){
+				if(robot_side == MODULE_STOCK_LEFT){
+					robot_side = MODULE_STOCK_RIGHT;
+				}else{
+					robot_side = MODULE_STOCK_LEFT;
+				}
+			}
 			/*}else if((module_type == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
 				state = GET_IN_POS_6; //centre depose du cote adv SIM 1
 */
@@ -291,6 +310,10 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 					else if(drop_place == POS_3 || drop_place == POS_4){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_MIDDLE);}
 					else if(drop_place == POS_5 || drop_place == POS_6){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_ADV_CENTER);}
 				}
+				/*if(ELEMENTS_get_flag(FLAG_PUSHER_IS_BLOCKING)){
+					state = ERROR_DOWN_PUSHER;
+					ELEMENTS_set_flag(FLAG_PUSHER_IS_BLOCKING,FALSE);
+				}*/
 			}
 			break;
 
