@@ -1135,7 +1135,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 
 		case CHECK_CONTAINER_IS_AVAILABLE:
 			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER , MODULE_STOCK_SMALL)){
-				state = ELEVATOR_GO_TOP_POS;
+				state = PREPARE_SLOPE_FOR_ELEVATOR;
 			}else{
 				state = CHECK_CONTAINER_IS_AVAILABLE;
 			}

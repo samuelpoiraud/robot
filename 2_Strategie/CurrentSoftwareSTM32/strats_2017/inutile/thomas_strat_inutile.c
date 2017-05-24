@@ -66,7 +66,9 @@ void thomas_strat_inutile_small(){
 
 	switch(state){
 		case INIT:
+			//state= ACTION;
 			state = try_going(global.pos.x+200, global.pos.y, state, GO_POSITION, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			//state = check_sub_action_result(sub_act_anne_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, 4), state, DONE, ERROR);
 			break;
 
 		case GO_POSITION:
