@@ -1148,10 +1148,12 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 				time_timeout = global.absolute_time + 400;
 			}*/
 			//if(global.absolute_time > time_timeout){
-				state = CHECK_ELEVATOR_TOP_CYLINDER;
+			state = PUT_CYLINDER_IN_CONTAINER;
+			//state = CHECK_ELEVATOR_TOP_CYLINDER;
 			//}
 			break;
 
+		// Désactivation pose problème
 		case CHECK_ELEVATOR_TOP_CYLINDER:
 			if(storage == MODULE_STOCK_RIGHT){
 				if(ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING){	// On tient toujours le cylindre ou bug de com
