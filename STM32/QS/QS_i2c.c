@@ -296,7 +296,7 @@
 		}
 
 		if(!I2C_start(I2Cx, address, I2C_TRANSMITTER_MODE, I2C_ACK_DISABLE)){
-			//debug_printf("Problème à l'I2C_start de I2C_Write\n");
+			debug_printf("Problème à l'I2C_start de I2C_Write\n");
 			return FALSE;
 		}
 

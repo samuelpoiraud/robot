@@ -321,10 +321,10 @@ void PORTS_init(void){
 			(PORT_IO_E_13 << 13) |
 			(PORT_IO_E_14 << 14) |
 			(PORT_IO_E_15 << 15);
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_e_mask) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_e_mask) & 0xFFFFFFFF;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_e_mask)) & 0xFFFFFF83;	//TRACECLK, TRACED[0-3]
+	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_e_mask)) & 0xFFFFFFFF;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
 	PORTS_set_pull(GPIOE, GPIO_Pin_0, PORT_OPT_E_0);

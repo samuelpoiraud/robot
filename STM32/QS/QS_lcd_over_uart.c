@@ -704,6 +704,8 @@
 		}
 
 		static void UART_OVER_LCD_setSyncObject(objectId_t idStorage, objectId_t localId, objectId_t remoteId, LCD_objectType_e type){
+			assert(idStorage < LCD_NB_MAX_OBJECT);
+
 			objectId[idStorage].data.localId = localId;
 			objectId[idStorage].data.remoteId = remoteId;
 			objectId[idStorage].data.objectType = type;

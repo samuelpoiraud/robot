@@ -29,6 +29,9 @@
 
 		memoryOk = I2C_Write(Dev->I2cHandle, Dev->I2cDevAddr, &index, 1, pdata, count);
 
+		time32_t beginTimeBoot = global.absolute_time;
+		while(global.absolute_time - beginTimeBoot < 2);
+
 		if(memoryOk)
 			return VL53L0X_ERROR_NONE;
 		else
@@ -41,6 +44,9 @@
 
 		memoryOk = I2C_Read(Dev->I2cHandle, Dev->I2cDevAddr, &index, 1, pdata, count);
 
+		time32_t beginTimeBoot = global.absolute_time;
+		while(global.absolute_time - beginTimeBoot < 2);
+
 		if(memoryOk)
 			return VL53L0X_ERROR_NONE;
 		else
@@ -51,6 +57,9 @@
 		bool_e memoryOk;
 
 		memoryOk = I2C_Write(Dev->I2cHandle, Dev->I2cDevAddr, &index, 1, &data, 1);
+
+		time32_t beginTimeBoot = global.absolute_time;
+		while(global.absolute_time - beginTimeBoot < 2);
 
 		if(memoryOk)
 			return VL53L0X_ERROR_NONE;
@@ -64,6 +73,9 @@
 
 		memoryOk = I2C_Write(Dev->I2cHandle, Dev->I2cDevAddr, &index, 1, datas, 2);
 
+		time32_t beginTimeBoot = global.absolute_time;
+		while(global.absolute_time - beginTimeBoot < 2);
+
 		if(memoryOk)
 			return VL53L0X_ERROR_NONE;
 		else
@@ -75,6 +87,9 @@
 		bool_e memoryOk;
 
 		memoryOk = I2C_Write(Dev->I2cHandle, Dev->I2cDevAddr, &index, 1, datas, 4);
+
+		time32_t beginTimeBoot = global.absolute_time;
+		while(global.absolute_time - beginTimeBoot < 2);
 
 		if(memoryOk)
 			return VL53L0X_ERROR_NONE;
@@ -100,6 +115,9 @@
 		bool_e memoryOk;
 		memoryOk = I2C_Read(Dev->I2cHandle, Dev->I2cDevAddr, &index, 1, data, 1);
 
+		time32_t beginTimeBoot = global.absolute_time;
+		while(global.absolute_time - beginTimeBoot < 2);
+
 		if(memoryOk)
 			return VL53L0X_ERROR_NONE;
 		else
@@ -110,6 +128,9 @@
 		Uint8 datas[2];
 		bool_e memoryOk;
 		memoryOk = I2C_Read(Dev->I2cHandle, Dev->I2cDevAddr, &index, 1, datas, 2);
+
+		time32_t beginTimeBoot = global.absolute_time;
+		while(global.absolute_time - beginTimeBoot < 2);
 
 		if(data)
 			*data = ((((Uint16)datas[0]) << 8) | datas[1]);
@@ -124,6 +145,9 @@
 		Uint8 datas[4];
 		bool_e memoryOk;
 		memoryOk = I2C_Read(Dev->I2cHandle, Dev->I2cDevAddr, &index, 1, datas, 4);
+
+		time32_t beginTimeBoot = global.absolute_time;
+		while(global.absolute_time - beginTimeBoot < 2);
 
 		if(data)
 			*data = ((((Uint32)datas[0]) << 24) | (((Uint32)datas[1]) << 16) | (((Uint32)datas[2]) << 8) | datas[3]);
