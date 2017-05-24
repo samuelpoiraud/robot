@@ -749,15 +749,19 @@ static bool_e MIDDLEWARE_objectTouch(Uint16 xT, Uint16 yT, Uint16 x, Uint16 y, U
 //////////////////////////////////////////////////////////////////
 
 void MIDDLEWARE_setBackground(objectColor_e color){
-	assert(IS_OBJECT_COLOR_REAL(color));
+	if(!(IS_OBJECT_COLOR_REAL(color)))
+		return;
 
 	background.color = color;
 	background.toDisplay = TRUE;
 }
 
 void MIDDLEWARE_setText(objectId_t id, const char *text, ...){
-	assert(id < LCD_NB_MAX_OBJECT);
-	assert(objectTab[id].use);
+	if(!(id < LCD_NB_MAX_OBJECT))
+		return;
+
+	if(!(objectTab[id].use))
+		return;
 
 	switch(objectTab[id].type){
 		case TEXT :{
@@ -827,9 +831,14 @@ void MIDDLEWARE_setText(objectId_t id, const char *text, ...){
 //////////////////////////////////////////////////////////////////
 
 objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, objectColor_e colorText, objectColor_e colorBackground,  textFonts_e fonts, const char *text, ...){
-	assert(IS_OBJECT_COLOR_REAL(colorText));
-	assert(IS_TEXT_FONTS(fonts));
-	assert(text != NULL);
+	if(!(IS_OBJECT_COLOR_REAL(colorText)))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(IS_TEXT_FONTS(fonts)))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(text != NULL))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -857,9 +866,14 @@ objectId_t MIDDLEWARE_addText(Sint16 x, Sint16 y, objectColor_e colorText, objec
 }
 
 objectId_t MIDDLEWARE_addButtonImg(Sint16 x, Sint16 y, const imageInfo_s *imageNormal, const imageInfo_s *imageLock, bool_e lockTouch, bool_e * touch){
-	assert(imageNormal != NULL);
-	assert(imageLock != NULL);
-	assert(touch != NULL);
+	if(!(imageNormal != NULL))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(imageLock != NULL))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(touch != NULL))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -883,12 +897,23 @@ objectId_t MIDDLEWARE_addButtonImg(Sint16 x, Sint16 y, const imageInfo_s *imageN
 }
 
 objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height, bool_e lockTouch, bool_e *touch, objectColor_e colorText, objectColor_e colorButton, objectColor_e colorButtonTouch, objectColor_e colorBorder, textFonts_e fonts, const char *text, ...){
-	assert(touch != NULL);
-	assert(IS_OBJECT_COLOR_REAL(colorText));
-	assert(IS_OBJECT_COLOR_REAL(colorButton));
-	assert(IS_OBJECT_COLOR_REAL(colorButtonTouch));
-	assert(IS_TEXT_FONTS(fonts));
-	assert(text != NULL);
+	if(!(touch != NULL))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(IS_OBJECT_COLOR_REAL(colorText)))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(IS_OBJECT_COLOR_REAL(colorButton)))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(IS_OBJECT_COLOR_REAL(colorButtonTouch)))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(IS_TEXT_FONTS(fonts)))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(text != NULL))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -935,8 +960,11 @@ objectId_t MIDDLEWARE_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 }
 
 objectId_t MIDDLEWARE_addProgressBar(Sint16 x, Sint16 y, Uint16 width, Uint16 height, objectOrientation_e orientation, Uint8 *value){
-	assert(IS_OBJECT_ORIENTATION(orientation));
-	assert(value != NULL);
+	if(!(IS_OBJECT_ORIENTATION(orientation)))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(value != NULL))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -957,9 +985,14 @@ objectId_t MIDDLEWARE_addProgressBar(Sint16 x, Sint16 y, Uint16 width, Uint16 he
 }
 
 objectId_t MIDDLEWARE_addSlider(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Sint32 minValue, Sint32 maxValue, objectOrientation_e orientation, Sint32 *value){
-	assert(IS_OBJECT_ORIENTATION(orientation));
-	assert(value != NULL);
-	assert(minValue != maxValue);
+	if(!(IS_OBJECT_ORIENTATION(orientation)))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(value != NULL))
+		return OBJECT_ID_ERROR_FULL;
+
+	if(!(minValue != maxValue))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -985,7 +1018,8 @@ objectId_t MIDDLEWARE_addSlider(Sint16 x, Sint16 y, Uint16 width, Uint16 height,
 }
 
 objectId_t MIDDLEWARE_addImage(Sint16 x, Sint16 y, const imageInfo_s *image){
-	assert(image != NULL);
+	if(!(image != NULL))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -1001,7 +1035,8 @@ objectId_t MIDDLEWARE_addImage(Sint16 x, Sint16 y, const imageInfo_s *image){
 }
 
 objectId_t MIDDLEWARE_addAnimatedImage(Sint16 x, Sint16 y, const animatedImageInfo_s *animatedImageInfo){
-	assert(animatedImageInfo != NULL);
+	if(!(animatedImageInfo != NULL))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -1020,7 +1055,8 @@ objectId_t MIDDLEWARE_addAnimatedImage(Sint16 x, Sint16 y, const animatedImageIn
 }
 
 objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, objectColor_e colorBorder, objectColor_e colorCenter){
-	assert(IS_OBJECT_COLOR_REAL(colorBorder) || IS_OBJECT_COLOR_REAL(colorCenter));
+	if(!(IS_OBJECT_COLOR_REAL(colorBorder) || IS_OBJECT_COLOR_REAL(colorCenter)))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -1039,7 +1075,8 @@ objectId_t MIDDLEWARE_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 heig
 }
 
 objectId_t MIDDLEWARE_addCircle(Sint16 x, Sint16 y, Uint16 r, objectColor_e colorBorder, objectColor_e colorCenter){
-	assert(IS_OBJECT_COLOR_REAL(colorBorder) || IS_OBJECT_COLOR_REAL(colorCenter));
+	if(!(IS_OBJECT_COLOR_REAL(colorBorder) || IS_OBJECT_COLOR_REAL(colorCenter)))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -1057,7 +1094,8 @@ objectId_t MIDDLEWARE_addCircle(Sint16 x, Sint16 y, Uint16 r, objectColor_e colo
 }
 
 objectId_t MIDDLEWARE_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, objectColor_e color){
-	assert(IS_OBJECT_COLOR_REAL(color));
+	if(!(IS_OBJECT_COLOR_REAL(color)))
+		return OBJECT_ID_ERROR_FULL;
 
 	objectId_t idFound = MIDDLEWARE_newObject();
 
@@ -1089,7 +1127,7 @@ static objectId_t MIDDLEWARE_newObject(){
 }
 
 static FontDef_t* MIDDLEWARE_getFont(textFonts_e fonts){
-	assert(IS_TEXT_FONTS(fonts));
+	//assert(IS_TEXT_FONTS(fonts));
 
 	switch(fonts){
 		case TEXT_FONTS_7x10 :
@@ -1111,8 +1149,11 @@ static FontDef_t* MIDDLEWARE_getFont(textFonts_e fonts){
 //////////////////////////////////////////////////////////////////
 
 void MIDDLEWARE_deleteObject(objectId_t id){
-	assert(id < LCD_NB_MAX_OBJECT);
-	assert(objectTab[id].use);
+	if(!(id < LCD_NB_MAX_OBJECT))
+		return;
+
+	if(!(objectTab[id].use))
+		return;
 
 	objectTab[id].toDestroy = TRUE;
 }

@@ -194,9 +194,14 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addText(Sint16 x, Sint16 y, LCD_color_e colorText, LCD_color_e colorBackground, LCD_textFonts_e fonts, const char *text, ...){
-			assert(IS_LCD_COLOR_REAL(colorText));
-			assert(IS_LCD_TEXT_FONTS(fonts));
-			assert(text != NULL);
+			if(!(IS_LCD_COLOR_REAL(colorText)))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(IS_LCD_TEXT_FONTS(fonts)))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(text != NULL))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -234,8 +239,11 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addButtonImg(Sint16 x, Sint16 y, LCD_imageId_e imageId, LCD_imageId_e imageLockId, bool_e lockTouch, bool_e * touch){
-			assert(IS_LCD_IMAGE_ID(imageId));
-			assert(touch != NULL);
+			if(!(IS_LCD_IMAGE_ID(imageId)))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(touch != NULL))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -267,11 +275,20 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addButton(Sint16 x, Sint16 y, Uint16 width, Uint16 height, bool_e lockTouch, bool_e *touch, LCD_color_e colorText, LCD_color_e colorButton, LCD_color_e colorButtonTouch, LCD_color_e colorBorder, LCD_textFonts_e fonts, const char *text, ...){
-			assert(touch != NULL);
-			assert(IS_LCD_COLOR_REAL(colorText));
-			assert(IS_LCD_COLOR_REAL(colorButton));
-			assert(IS_LCD_TEXT_FONTS(fonts));
-			assert(text != NULL);
+			if(!(touch != NULL))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(IS_LCD_COLOR_REAL(colorText)))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(IS_LCD_COLOR_REAL(colorButton)))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(IS_LCD_TEXT_FONTS(fonts)))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(text != NULL))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -315,8 +332,11 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addProgressBar(Sint16 x, Sint16 y, Uint16 width, Uint16 height, LCD_objectOrientation_e orientation, Uint8 *value){
-			assert(IS_LCD_OBJECT_ORIENTATION(orientation));
-			assert(value != NULL);
+			if(!(IS_LCD_OBJECT_ORIENTATION(orientation)))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(value != NULL))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -350,8 +370,11 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addSlider(Sint16 x, Sint16 y, Uint16 width, Uint16 height, Sint32 minValue, Sint32 maxValue, LCD_objectOrientation_e orientation, Sint32 *value){
-			assert(IS_LCD_OBJECT_ORIENTATION(orientation));
-			assert(value != NULL);
+			if(!(IS_LCD_OBJECT_ORIENTATION(orientation)))
+				return LCD_OBJECT_ID_ERROR_FULL;
+
+			if(!(value != NULL))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -386,7 +409,8 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addImage(Sint16 x, Sint16 y, LCD_imageId_e imageId){
-			assert(IS_LCD_IMAGE_ID(imageId));
+			if(!(IS_LCD_IMAGE_ID(imageId)))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -415,7 +439,8 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addAnimatedImage(Sint16 x, Sint16 y, LCD_animationId_e animationId){
-			assert(IS_LCD_ANIMATION_ID(animationId));
+			if(!(IS_LCD_ANIMATION_ID(animationId)))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -444,7 +469,8 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addRectangle(Sint16 x, Sint16 y, Uint16 width, Uint16 height, LCD_color_e colorBorder, LCD_color_e colorCenter){
-			assert(IS_LCD_COLOR_REAL(colorBorder) || IS_LCD_COLOR_REAL(colorCenter));
+			if(!(IS_LCD_COLOR_REAL(colorBorder) || IS_LCD_COLOR_REAL(colorCenter)))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -476,7 +502,8 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addCircle(Sint16 x, Sint16 y, Uint16 r, LCD_color_e colorBorder, LCD_color_e colorCenter){
-			assert(IS_LCD_COLOR_REAL(colorBorder) || IS_LCD_COLOR_REAL(colorCenter));
+			if(!(IS_LCD_COLOR_REAL(colorBorder) || IS_LCD_COLOR_REAL(colorCenter)))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -507,7 +534,8 @@
 		}
 
 		LCD_objectId_t LCD_OVER_UART_addLine(Sint16 x0, Sint16 y0, Sint16 x1, Sint16 y1, LCD_color_e color){
-			assert(IS_LCD_COLOR_REAL(color));
+			if(!(IS_LCD_COLOR_REAL(color)))
+				return LCD_OBJECT_ID_ERROR_FULL;
 
 			LCD_objectId_t id;
 			LCD_msg_s msg;
@@ -538,7 +566,8 @@
 		}
 
 		void LCD_OVER_UART_setBackground(LCD_color_e color){
-			assert(IS_LCD_COLOR_REAL(color));
+			if(!(IS_LCD_COLOR_REAL(color)))
+				return;
 
 			LCD_msg_s msg;
 
@@ -554,8 +583,11 @@
 		}
 
 		void LCD_OVER_UART_setText(LCD_objectId_t id, const char * text, ...){
-			assert(id < LCD_NB_MAX_OBJECT);
-			assert(text != NULL);
+			if(!(id < LCD_NB_MAX_OBJECT))
+				return;
+
+			if(!(text != NULL))
+				return;
 
 			LCD_msg_s msg;
 
@@ -582,7 +614,8 @@
 		}
 
 		void LCD_OVER_UART_deleteObject(LCD_objectId_t id){
-			assert(id < LCD_NB_MAX_OBJECT);
+			if(!(id < LCD_NB_MAX_OBJECT))
+				return;
 
 			LCD_msg_s msg;
 
@@ -669,7 +702,8 @@
 		}
 
 		static void UART_OVER_LCD_deleteObject(objectId_t id){
-			assert(id < LCD_NB_MAX_OBJECT);
+			if(!(id < LCD_NB_MAX_OBJECT))
+				return;
 
 			objectId[id].used = FALSE;
 		}
@@ -704,7 +738,8 @@
 		}
 
 		static void UART_OVER_LCD_setSyncObject(objectId_t idStorage, objectId_t localId, objectId_t remoteId, LCD_objectType_e type){
-			assert(idStorage < LCD_NB_MAX_OBJECT);
+			if(!(idStorage < LCD_NB_MAX_OBJECT))
+				return;
 
 			objectId[idStorage].data.localId = localId;
 			objectId[idStorage].data.remoteId = remoteId;
@@ -712,7 +747,7 @@
 		}
 
 		static const imageInfo_s* UART_OVER_LCD_imageIdConvertor(LCD_imageId_e imageId){
-			assert(IS_LCD_IMAGE_ID(imageId));
+			//assert(IS_LCD_IMAGE_ID(imageId));
 
 			switch(imageId){
 				case LCD_IMAGE_LOGO :
@@ -739,7 +774,7 @@
 		}
 
 		static const animatedImageInfo_s* UART_OVER_LCD_animationIdConvertor(LCD_animationId_e animationId){
-			assert(IS_LCD_ANIMATION_ID(animationId));
+			//assert(IS_LCD_ANIMATION_ID(animationId));
 
 			switch(animationId){
 				case LCD_ANIMATION_WAIT_CIRCLE:
@@ -779,7 +814,8 @@
 			#ifndef LCD_OVER_UART__IHM_MODE
 				case LCD_MSG_TYPE_UPDATE_BUTTON:{
 					LCD_objectId_t id = msg->body.updateButton.id;
-					assert(id < LCD_NB_MAX_OBJECT);
+					if(!(id < LCD_NB_MAX_OBJECT))
+						return;
 					if(LCD_objects[id].used && LCD_objects[id].object.type == LCD_OBJECT_TYPE_BUTTON){
 						*(LCD_objects[id].object.link.button.touchStatePtr) = msg->body.updateButton.touchState;
 					}
@@ -787,7 +823,8 @@
 
 				case LCD_MSG_TYPE_UPDATE_BUTTON_IMG:{
 					LCD_objectId_t id = msg->body.updateButtonImg.id;
-					assert(id < LCD_NB_MAX_OBJECT);
+					if(!(id < LCD_NB_MAX_OBJECT))
+						return;
 					if(LCD_objects[id].used && LCD_objects[id].object.type == LCD_OBJECT_TYPE_BUTTON_IMG){
 						*(LCD_objects[id].object.link.buttonImg.touchState) = msg->body.updateButtonImg.touchState;
 					}
@@ -795,7 +832,8 @@
 
 				case LCD_MSG_TYPE_UPDATE_SLIDER:{
 					LCD_objectId_t id = msg->body.updateSlider.id;
-					assert(id < LCD_NB_MAX_OBJECT);
+					if(!(id < LCD_NB_MAX_OBJECT))
+						return;
 					if(LCD_objects[id].used && LCD_objects[id].object.type == LCD_OBJECT_TYPE_BUTTON_IMG){
 						*(LCD_objects[id].object.link.slider.value) = msg->body.updateSlider.value;
 					}
@@ -1112,7 +1150,8 @@
 		for(i=0; i < msg->header.size; i++)
 			LCD_FIFO_msg.buffer[LCD_FIFO_msg.writeIndex].body.rawData[i] = msg->body.rawData[i];
 
-		assert(!LCD_FIFO_isFull());
+		if(!(!LCD_FIFO_isFull()))
+			return FALSE;
 
 		LCD_FIFO_incWriteIndex();
 
