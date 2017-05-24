@@ -2054,12 +2054,13 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 	static GEOMETRY_vector_t vector_extract_cm;
 
 	static Sint16 distance_to_moonbase;
+	static bool_e way_getting_oudoor;	//Vrai si on est dans le sens où on va vers la sortie.. Faut si on revient vers l'intérieur avant de retenter de sortir.
 
 	switch(state)
 	{
 			case INIT:
 				AVOIDANCE_activeSmallAvoidance(TRUE);
-
+				way_getting_oudoor = TRUE;
 				if(dzone <= DZONE5_YELLOW_OUTDOOR)
 					state = COMPUTE_POINTS;
 				else
@@ -2125,8 +2126,10 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 					default:	break;
 				}
 
-
-				state = EXTRACT_TO_COMPUTED_POINT;	//Hypothèse
+				if(way_getting_oudoor)
+					state = EXTRACT_TO_COMPUTED_POINT;	//Hypothèse
+				else
+					state = BACK_TO_COMPUTED_INDOOR;
 				if(distance_to_moonbase < 110)
 					vector_extract_cm.y *= 1;			//On s'extrait doucement
 				else if(distance_to_moonbase < 120)
@@ -2150,6 +2153,11 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 					ExtractPoint = (GEOMETRY_point_t){global.pos.x + vector_cm.x, global.pos.y + vector_cm.y + vector_extract_cm.y};
 				}
 				state = try_going(ExtractPoint.x, ExtractPoint.y, state, COMPUTE_POINTS, BACK_TO_COMPUTED_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				if(state == BACK_TO_COMPUTED_INDOOR)	//EN cas d'échec, on force le passage par COMPUTE_POINTS.
+				{
+					way_getting_oudoor = FALSE;
+					state = COMPUTE_POINTS;
+				}
 				break;
 			case BACK_TO_COMPUTED_INDOOR:
 				if(entrance)
@@ -2159,6 +2167,8 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 					ExtractPoint = (GEOMETRY_point_t){global.pos.x - (3*vector_cm.x)/10, global.pos.y + 3*(vector_cm.y + vector_extract_cm.y)/10};
 				}
 				state = try_going(ExtractPoint.x, ExtractPoint.y, state, COMPUTE_POINTS, COMPUTE_POINTS, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				if(ON_LEAVE())
+					way_getting_oudoor = TRUE;
 				break;
 
 			case EXTRACT_LEFT:
