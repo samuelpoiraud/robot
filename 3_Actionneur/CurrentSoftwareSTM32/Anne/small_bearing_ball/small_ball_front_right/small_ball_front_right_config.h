@@ -23,7 +23,8 @@
 //Position
 	#define SMALL_BALL_FRONT_RIGHT_AX12_IDLE_POS					740
 	#define SMALL_BALL_FRONT_RIGHT_AX12_DOWN_POS				    740		//en degré
-	#define SMALL_BALL_FRONT_RIGHT_AX12_UP_POS						277		//109		//en degré
+
+	#define SMALL_BALL_FRONT_RIGHT_AX12_UP_POS						195		//109		//en degré
 
 //Position initiale de l'AX12
 	#define SMALL_BALL_FRONT_RIGHT_AX12_INIT_POS					SMALL_BALL_FRONT_RIGHT_AX12_IDLE_POS
