@@ -32,11 +32,16 @@
 		#ifdef USE_I2C_COLOR_SENSOR
 			#define USE_APDS9960
 				#define APDS9960_I2C		I2C3
-			#define USE_I2C3
-				#define I2C3_CLOCK_SPEED	100000
 		#endif
 
 /* Réglages capteur de distance */
-	//#define USE_VL53L0X
+	#define USE_VL53L0X
+		#define VL53L0X_I2C I2C3
+
+/* Réglages I2C */
+	#if defined(USE_I2C_COLOR_SENSOR) || defined(USE_VL53L0X)
+		#define USE_I2C3
+			#define I2C3_CLOCK_SPEED	100000
+	#endif
 
 #endif /* SMALL_CONFIG_USE_H */

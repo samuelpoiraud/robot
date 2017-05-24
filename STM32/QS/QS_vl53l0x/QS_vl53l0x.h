@@ -1,4 +1,9 @@
 
+/** ----------------  Defines possibles  --------------------
+ *	USE_VL53L0X					: Activation du VL53L0X
+ *	VL53L0X_I2C					: I2C utilisé pour le capteur de distance
+ */
+
 #ifndef _VL53L0X_H_
 	#define _VL53L0X_H_
 
@@ -6,21 +11,32 @@
 
 	#ifdef USE_VL53L0X
 
+		/* Bus I2C utilisé */
+		#ifndef VL53L0X_I2C
+			#error I2C VL53L0X non défini
+		#endif
+
 		typedef enum{
-			DISTANCE_SENSOR_FORWARD,
-			DISTANCE_SENSOR_BACKWARD,
+			DISTANCE_SENSOR_SMALL_LEFT,
+			DISTANCE_SENSOR_SMALL_RIGHT,
 			DISTANCE_SENSOR_NB_SENSOR
 		}VL53L0X_id_e;
-		#define IS_DISTANCE_SENSOR_ID(x)		(									\
-												((x) == DISTANCE_SENSOR_FORWARD)	\
-												((x) == DISTANCE_SENSOR_BACKWARD)	\
-												)
+		#define IS_VL53L0X_ID(x)	(										\
+									((x) == DISTANCE_SENSOR_SMALL_LEFT)		\
+									((x) == DISTANCE_SENSOR_SMALL_RIGHT)	\
+									)
 
 		typedef Uint16 VL53L0X_distanceMeasure_t;		// [mm]
 
 		bool_e VL53L0X_init(void);
+
 		void VL53L0X_processMain(void);
-		VL53L0X_distanceMeasure_t VL53L0X_getDistance(VL53L0X_id_e id);
+
+		void VL53L0X_askMeasure(VL53L0X_id_e id);
+
+		bool_e VL53L0X_measureReady(VL53L0X_id_e id);
+
+		VL53L0X_distanceMeasure_t VL53L0X_getMeasure(VL53L0X_id_e id);
 
 	#endif
 
