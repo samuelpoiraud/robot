@@ -222,7 +222,7 @@
 						#ifdef LED_ERROR
 							GPIO_SetBits(LED_ERROR);
 						#endif
-
+						error_printf("CAN overflow : timeout on msg sid=%d\n", can_msg->sid);
 						return;
 					}
 					#endif
