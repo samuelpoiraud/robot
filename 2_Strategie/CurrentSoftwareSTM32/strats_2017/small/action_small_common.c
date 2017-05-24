@@ -61,7 +61,8 @@ error_e sub_anne_initiale(void){
 
 			break;
 		case CROSS_ROCKER:
-			if(sub_cross_rocker() != IN_PROGRESS)
+			//if( sub_cross_rocker() != IN_PROGRESS || IHM_switchs_get(SWITCH_WITH_BASCULE) )
+			if( sub_cross_rocker() != IN_PROGRESS)
 				state = EXTRACT_FROM_BORDER_IF_NEEDED;
 			break;
 		case EXTRACT_FROM_BORDER_IF_NEEDED:

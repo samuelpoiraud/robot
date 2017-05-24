@@ -137,6 +137,178 @@ int main (void)
 		SCAN_init();
 	#endif
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	IHM_define_act_button(BP_0_IHM, &MAIN_onButton0, &MAIN_onButton0LongPush);
 	IHM_define_act_button(BP_1_IHM, &MAIN_onButton1, &MAIN_onButton1LongPush);
 	IHM_define_act_button(BP_2_IHM, &MAIN_onButton2, &MAIN_onButton2LongPush);
@@ -1052,26 +1224,26 @@ static void MAIN_onButton0LongPush(){
 	msg.data.act_msg.act_data.act_order.run_now = TRUE;
 
 	if(state == 0){
-		msg.sid = ACT_SMALL_POMPE_PRISE;
-		msg.data.act_msg.order = ACT_POMPE_NORMAL;
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.data.act_msg.order = ACT_POMPE_SMALL_SLIDER_NORMAL;
 		msg.data.act_msg.act_data.act_order.act_optionnal_data[0] = 100;
 	}else if(state == 1){
-		msg.sid = ACT_SMALL_POMPE_PRISE;
-		msg.data.act_msg.order = ACT_POMPE_REVERSE;
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.data.act_msg.order = ACT_POMPE_SMALL_SLIDER_REVERSE;
 		msg.data.act_msg.act_data.act_order.act_optionnal_data[0] = 100;
 	}else if(state == 2){
-		msg.sid = ACT_SMALL_POMPE_PRISE;
+		msg.sid = ACT_SMALL_POMPE_DISPOSE;
 		msg.data.act_msg.order = ACT_POMPE_STOP;
 	}else if(state == 3){
-		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.sid = ACT_SMALL_POMPE_PRISE;
 		msg.data.act_msg.order = ACT_POMPE_SMALL_ELEVATOR_NORMAL;
 		msg.data.act_msg.act_data.act_order.act_optionnal_data[0] = 100;
 	}else if(state == 4){
-		msg.sid = ACT_SMALL_POMPE_DISPOSE;
-		msg.data.act_msg.order = ACT_POMPE_SMALL_ELEVATOR_NORMAL;
+		msg.sid = ACT_SMALL_POMPE_PRISE;
+		msg.data.act_msg.order = ACT_POMPE_SMALL_ELEVATOR_REVERSE;
 		msg.data.act_msg.act_data.act_order.act_optionnal_data[0] = 100;
 	}else if(state == 5){
-		msg.sid = ACT_SMALL_POMPE_DISPOSE;
+		msg.sid = ACT_SMALL_POMPE_PRISE;
 		msg.data.act_msg.order = ACT_POMPE_STOP;
 	}
 
