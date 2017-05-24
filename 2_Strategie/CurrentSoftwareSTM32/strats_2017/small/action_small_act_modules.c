@@ -112,7 +112,7 @@ error_e sub_act_anne_return_module(){
 	return IN_PROGRESS;
 }
 
-#define DISTANCE_AVANCE_RECULE	70
+
 #define DISABLE_TAKE_ROCKET_SPEED
 
 #if defined(DISABLE_TAKE_ROCKET_SPEED)
@@ -136,7 +136,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			ACTION_BRING_BACK_CYLINDER,
 			RECULE,
 			RECULE_ERROR,
-			GET_OUT_FROM_ROCKET,
 			ACTION_LOCK_MULTIFUNCTION,
 			STOP_POMPE_SLIDER,
 			ACTION_UNLOCK_MULTIFUNCTION,
@@ -144,7 +143,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			ACTION_RISE_SLOPE,
 			ACTION_BRING_CYLINDER_TO_TOP,
 			ACTION_STOCK_UP_CYLINDER,
-			PETIT_COUP_DE_REVERSE,
 			TURN_BALANCER_IN,
 			ACTION_PUT_CYLINDER_IN_CONTAINER,
 			ACTION_PUT_SLOPE_VERY_UP,
@@ -189,7 +187,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			// Calcul des positions
 			store_pos.x = global.pos.x;
 			store_pos.y = global.pos.y;
-			compute_take_point_rocket(&take_pos, NULL, store_pos, global.pos.angle, DISTANCE_AVANCE_RECULE);//derniere valeur a modifier pour changer la distance d'avancement et de recule lors de la prise
+			compute_take_point_rocket(&take_pos, NULL, store_pos, global.pos.angle, 70);//derniere valeur a modifier pour changer la distance d'avancement et de recule lors de la prise
 			debug_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
 
 			modules_taken = 0;
@@ -269,12 +267,12 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 		case ACTION_GO_TAKE_CYLINDER:
 			if(entrance){
 				//On active la pompe avant d'avancer
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100);
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
 
 				//On redescend et active la pompe de l'elevator pour la prochaine prise
 				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR , ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 
 				state1 = IN_PROGRESS;
 				state2 = IN_PROGRESS;
@@ -296,35 +294,35 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS ){
 				if(state3 == NOT_HANDLED){
 					//on a pas avancé physiquement, on retente
-					state = AVANCE_ERROR;
-					nbEssais = 1;	//Nous venons de faire une tentative d'avance.. (échouée, certes...)
+					state = AVANCE;
+					nbEssais = 0;
 				}else{
 					//On continue
 					state = ACTION_BRING_BACK_CYLINDER;
 				}
 			}
 			break;
-		case AVANCE_ERROR:
-			//Si on a pas reussi a bien avancer, on recule pour réessayer
-			state = try_advance(NULL, TRUE, DISTANCE_AVANCE_RECULE-absolute(global.pos.x-take_pos.x), state, AVANCE, AVANCE, FAST, BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
-			break;
+
 		case AVANCE:
 			if(entrance)
 			{
-				nbEssais++;
+				nbEssais += 1;
 				if(nbEssais>=3)
-					state = ACTION_BRING_BACK_CYLINDER;
+					state = ACTION_BRING_BACK_CYLINDER;//ou DONE ? est-ce-qu'on continue la prise?
 			}
-			else
+			else	//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
 				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
-
+		case AVANCE_ERROR:
+			//Si on a pas reussi a bien avancer, on reessaie
+			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
 
 		case ACTION_BRING_BACK_CYLINDER:
 			if(entrance){
 				// On allume la pompe seulement a ce moment pour bien laisser le temps au stockage du module ^précédent de se faire
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 				//On rentre le bras dans le robot
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER, ACT_SMALL_CYLINDER_SLIDER_IN );
 
@@ -394,16 +392,13 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(entrance)
 			{
 				nbEssais += 1;
-				if(nbEssais>=2)
+				if(nbEssais>=3)
 					state = DONE;
 			}
 			else
-				state= try_going(take_pos.x, take_pos.y, state, RECULE, GET_OUT_FROM_ROCKET, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
-		case GET_OUT_FROM_ROCKET:
-			state = try_advance(NULL, TRUE, DISTANCE_AVANCE_RECULE-absolute(global.pos.x-take_pos.x), state, DONE, DONE, FAST, BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_LAST_POINT);
 
-			break;
 		case ACTION_LOCK_MULTIFUNCTION:
 
 //			if (entrance){
@@ -487,27 +482,18 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_VERTICAL);
 			}
 
-			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, TURN_BALANCER_IN, TURN_BALANCER_IN);
+			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, MODULE_STOCK_SMALL)){
+				// Vérification des ordres effectués
+				state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, TURN_BALANCER_IN, TURN_BALANCER_IN);
+			}else{
+				state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, ACTION_PUT_CYLINDER_IN_CONTAINER, ACTION_PUT_CYLINDER_IN_CONTAINER);
+			}
 
 			if(ON_LEAVE()){
 				// Mise à jour des données
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_SMALL);
 			}
 			break;
-
-//		case PETIT_COUP_DE_REVERSE:
-//			if(entrance){
-//				//on souffle un peu pour faciliter la depose
-//				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
-//
-//				time_timeout = global.absolute_time + 1000;
-//			}
-//			if(global.absolute_time > time_timeout){
-//				state = ACTION_PUT_CYLINDER_IN_CONTAINER;
-//			}
-//			//state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
-//			break;
 
 		case TURN_BALANCER_IN:
 			if(entrance){
@@ -746,7 +732,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 		case ACTION_GO_TAKE_CYLINDER:
 			if(entrance){
 				//On active la pompe avant d'avancer
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100);
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_OUT);
 
 				state1 = IN_PROGRESS;
@@ -803,7 +789,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 		case STORE_THE_TOP:
 			if(entrance){
 				//On pousse le cylindre avec l'air de la ventouse et verrouille le slope
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE , ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
 				ACT_push_order(ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_VERY_UP);
 
 				//Un petit temps de deventousage est necessaire
@@ -827,7 +813,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 		case ACTION_BRING_BACK_CYLINDER:
 			if(entrance){
 				//On active la pompe elevator
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE , ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 
 				//On rentre le bras dans le robot
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER, ACT_SMALL_CYLINDER_SLIDER_ALMOST_OUT_WITH_CYLINDER );
@@ -898,7 +884,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			if(entrance){
 
 				// On allume la pompe de l'elevator
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 
 				//On rentre le bras dans le robot
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER, ACT_SMALL_CYLINDER_SLIDER_IN);
@@ -938,7 +924,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_SLIDER_REVERSE, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_SLIDER_REVERSE, 100);
 				time_timeout = global.absolute_time + 1000;
 			}
 
@@ -1029,16 +1015,13 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			ELEVATOR_GO_BOTTOM,
 			SLIDER_GO_IN,
 			STOP_POMPE_SLIDER,
+			RISE_A_BIT_THE_ELEVATOR,
 			CHECK_CONTAINER_IS_AVAILABLE,
-			ELEVATOR_GO_MID_POS,
 			PREPARE_SLOPE_FOR_ELEVATOR,
 			ELEVATOR_WAIT_FOR_SLOPE,
 			SLOPE_GO_ALMOST_UP_POS,
 			ELEVATOR_GO_TOP_POS,
 			STOCK_UP_CYLINDER,
-			WAIT_STABILZATION,
-			PUT_CYLINDER_IN_CONTAINER,
-			SLOPE_GO_VERY_UP,
 
 			// Actions à faire en fin de subaction
 			ELEVATOR_GO_BOTTOM_TO_END,
@@ -1116,6 +1099,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 		case SLIDER_GO_IN:
 			if(entrance){
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_IN );
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 
 				// Si c'est possible, on prépare la SLOPE pour un futur stockage
 				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_SMALL)){
@@ -1130,22 +1114,29 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 		case STOP_POMPE_SLIDER: // on change le sens de ventousage de la pompe (ventousage elevator, arrêt slider)
 			if(entrance){
 				time_timeout = global.absolute_time + 1000;
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE , ACT_POMPE_SMALL_SLIDER_NORMAL, 100);
 			}
 
 			if(global.absolute_time > time_timeout){
-				state = CHECK_CONTAINER_IS_AVAILABLE;
+				state = RISE_A_BIT_THE_ELEVATOR;
 
 				// Mise à jour des données
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_SMALL);
 			}
 			break;
 
+		case RISE_A_BIT_THE_ELEVATOR:
+			if(entrance){
+				ACT_push_order( ACT_SMALL_CYLINDER_ELEVATOR , ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, CHECK_CONTAINER_IS_AVAILABLE, CHECK_CONTAINER_IS_AVAILABLE);
+			break;
+
 		case CHECK_CONTAINER_IS_AVAILABLE:
-			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_SMALL)){
+			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER , MODULE_STOCK_SMALL)){
 				state = ELEVATOR_GO_TOP_POS;
 			}else{
-				state = DONE;
+				state = CHECK_CONTAINER_IS_AVAILABLE;
 			}
 			break;
 
@@ -1187,45 +1178,15 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 
 		case STOCK_UP_CYLINDER:
 			if(entrance){
-				ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_UP);
+				ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_VERTICAL);
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, WAIT_STABILZATION, WAIT_STABILZATION);
-			break;
+			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, COMPUTE_ACTION, COMPUTE_ACTION);
 
-		case WAIT_STABILZATION:/*
-			if(entrance){
-				time_timeout = global.absolute_time + 400;
-			}*/
-			//if(global.absolute_time > time_timeout){
-				state = PUT_CYLINDER_IN_CONTAINER;
-			//}
-			break;
-
-		case PUT_CYLINDER_IN_CONTAINER:
-			if(entrance){
-				time_timeout = global.absolute_time + 400;
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);	// un coup de reverse pour bien décoler le module
-			}
-
-			if(global.absolute_time > time_timeout){
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP, 0);	// on stoppe la pompe
-				//state = SLOPE_GO_VERY_UP;
-				state = COMPUTE_ACTION;
-
-				// Mise à jour des données
+			if(ON_LEAVE()){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_SMALL);
 			}
-			break;
-
-		case SLOPE_GO_VERY_UP: // état non utilisé
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_VERY_UP);
-			}
-
-			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state,  COMPUTE_ACTION, COMPUTE_ACTION);
 			break;
 
 		case ELEVATOR_GO_BOTTOM_TO_END:
@@ -1380,7 +1341,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 		case STOP_POMPE_SLIDER: // on change le sens de ventousage de la pompe (ventousage elevator, arrêt slider)
 			if(entrance){
 				time_timeout = global.absolute_time + 1000;
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE , ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
 			}
 
 			if(global.absolute_time > time_timeout){
@@ -1456,7 +1417,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 		case PUT_CYLINDER_IN_CONTAINER:
 			if(entrance){
 				time_timeout = global.absolute_time + 400;
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);	// un coup de reverse pour bien décoler le module
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);	// un coup de reverse pour bien décoler le module
 			}
 
 			if(global.absolute_time > time_timeout){
