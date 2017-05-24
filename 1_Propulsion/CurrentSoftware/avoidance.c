@@ -214,6 +214,7 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 		/*[mm]*/				slow_distance = ((QS_WHO_AM_I_get() == SMALL_ROBOT)? SMALL_ROBOT_DIST_MIN_SPEED_SLOW : BIG_ROBOT_DIST_MIN_SPEED_SLOW);	//Distance à laquelle on souhaite ralentir
 
 		// Correction dégeu à J-1 de la coupe
+		//TODO elle est belle celle ci !!!
 		if(!HOKUYO_isWorkingWell() && I_AM_SMALL()){
 			break_distance += 100;
 		}
@@ -235,9 +236,9 @@ bool_e AVOIDANCE_target_safe(way_e way, bool_e verbose){
 			avoidance_rectangle_min_x = 100;
 
 	}else{
-
-		avoidance_rectangle_width_y_min = -((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH)/2;
-		avoidance_rectangle_width_y_max = ((QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH)/2;
+		//En mode small avoidance, on considère que la demi-taille de l'adversaire est FOE_SIZE/2
+		avoidance_rectangle_width_y_min = -( FOE_SIZE/2 + (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH)/2;
+		avoidance_rectangle_width_y_max = (  FOE_SIZE/2 + (QS_WHO_AM_I_get() == SMALL_ROBOT)?SMALL_ROBOT_WIDTH:BIG_ROBOT_WIDTH)/2;
 
 		if(way == FORWARD || way == ANY_WAY)	//On avance
 			avoidance_rectangle_max_x = break_distance + respect_distance;
