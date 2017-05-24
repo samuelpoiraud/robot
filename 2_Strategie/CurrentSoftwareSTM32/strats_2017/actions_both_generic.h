@@ -49,7 +49,7 @@ error_e func_go_to_home();
  * return sucess_state si le robot a réussi à se recaler
  * return fail_state si le robot n'a pas réussi à se recaler
  */
-error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, bool_e get_out, Sint16* delta_correction_x, bool_e set_pos_at_rush);
+error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, Sint16 wanted_teta, bool_e get_out, Sint16* delta_correction_x, bool_e set_pos_at_rush, bool_e set_teta_at_rush);
 
 /*
  * Fait avancer le robot vers une bordure afin de le recaler en y
@@ -65,7 +65,7 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, bool_e get_
  * return sucess_state si le robot a réussi à se recaler
  * return fail_state si le robot n'a pas réussi à se recaler
  */
-error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, bool_e get_out, Sint16* delta_correction_y, bool_e set_pos_at_rush);
+error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, Sint16 wanted_teta, bool_e get_out, Sint16 * delta_correction_y, bool_e set_pos_at_rush, bool_e set_teta_at_rush);
 
 void xbee_send_my_position(void);
 

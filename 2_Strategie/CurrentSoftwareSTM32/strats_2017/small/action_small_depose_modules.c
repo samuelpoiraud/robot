@@ -1981,14 +1981,14 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			state = try_going(Push_out.x, Push_out.y, state, PUSH_DISPOSED_MODULES_GO_PUSH_IN, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
-				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_OUT);
+				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_MID);
 			}
 			break;
 		case PUSH_DISPOSED_MODULES_GO_PUSH_IN:
 			state = try_going(Push_in.x, Push_in.y, state, (we_are_disposing_the_last_module)?GET_OUT_TO_B:GOTO_NEXT_F, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
-				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IN);
+				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_UP);
 			}
 			break;
 		case GET_OUT_TO_B:
@@ -2000,7 +2000,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 		case EXTRACT_MANAGER:
 			if(entrance)
 			{
-				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IN);
+				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_UP);
 			}
 			state = check_sub_action_result(sub_ExtractMoonbase(dzone), state, ERROR, ERROR);
 			break;
