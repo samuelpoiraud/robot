@@ -303,19 +303,19 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			break;
 
 		case AVANCE:
-			nbEssais += 1;
-			if(nbEssais<3){
-				//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
-				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
-				//On a echoué 2 fois
-				state = ACTION_BRING_BACK_CYLINDER;//ou DONE ? est-ce-qu'on continue la prise?
+			if(entrance)
+			{
+				nbEssais += 1;
+				if(nbEssais>=3)
+					state = ACTION_BRING_BACK_CYLINDER;//ou DONE ? est-ce-qu'on continue la prise?
 			}
+			else	//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
+				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case AVANCE_ERROR:
 			//Si on a pas reussi a bien avancer, on reessaie
-			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_BRING_BACK_CYLINDER:
@@ -368,35 +368,34 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			}
 			break;
 
-		case RECULE:
+		case RECULE:{
+			static enum state_e success_state;
+
 			//On recule lors de la prise, car on se deplace plus vite que le slider
-			if(ROCKETS_isEmpty(rocket)){
-				sub_act_anne_mae_store_modules(TRUE);
-				if(modules_taken==max_modules_to_take-1){
-					//a la prise du dernier module on part en slow pour ralentir la chute du dernier
-					state = try_going(store_pos.x, store_pos.y, state, DONE, RECULE_ERROR, SLOW, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(store_pos.x, store_pos.y, state, DONE, RECULE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(entrance)
+			{
+				if(ROCKETS_isEmpty(rocket))
+				{
+					sub_act_anne_mae_store_modules(TRUE);
+					success_state = DONE;
 				}
-			}else{
-				if(modules_taken==max_modules_to_take-1){
-					//a la prise du dernier module on part en slow pour ralentir la chute du dernier
-					state = try_going(store_pos.x, store_pos.y, state, ACTION_LOCK_MULTIFUNCTION, RECULE_ERROR, SLOW, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}else{
-					state = try_going(store_pos.x, store_pos.y, state, ACTION_LOCK_MULTIFUNCTION, RECULE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-				}
+				else
+					success_state = ACTION_LOCK_MULTIFUNCTION;
 			}
-			break;
+			//a la prise du dernier module on part en slow pour ralentir la chute du dernier
+			state = try_going(store_pos.x, store_pos.y, state, success_state, RECULE_ERROR, (modules_taken==max_modules_to_take-1)?SLOW:FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+
+			break;}
 
 		case RECULE_ERROR:
-			nbEssais += 1;
-			if(nbEssais<3){
-				//Si on a pas reussi a bien reculer, on reessaie
-				state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
-				//On a echoué 2 fois
-				state = ACTION_LOCK_MULTIFUNCTION;//ou DONE ? est-ce-qu'on continue la prise?
+			if(entrance)
+			{
+				nbEssais += 1;
+				if(nbEssais>=3)
+					state = DONE;
 			}
+			else
+				state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_LOCK_MULTIFUNCTION:
