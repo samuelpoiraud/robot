@@ -93,7 +93,7 @@ void thomas_strat_inutile_small(){
 			break;
 
 		case ACTION:
-			state = check_sub_action_result(sub_act_anne_take_rocket_down_to_top( MODULE_ROCKET_MULTI_OUR_SIDE, TRUE, TRUE, TRUE, TRUE)
+			state = check_sub_action_result(sub_act_anne_take_rocket_down_to_top( MODULE_ROCKET_MULTI_OUR_SIDE, 4)
 , state, FLEEEE, ERROR);
 			break;
 

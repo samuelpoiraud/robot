@@ -1424,31 +1424,7 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
-			state=check_sub_action_result(sub_act_anne_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, TRUE, TRUE, TRUE, TRUE),state,GET_OUT,GET_OUT_ERROR);
-//			state = GET_OUT;
-//
-//			#warning "temporaire pour faire comme si la prise fonctionnait !!!"
-//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER,MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR,MODULE_STOCK_SMALL);
-//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER,MODULE_STOCK_SMALL);
-//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER,MODULE_STOCK_SMALL);
-//			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-//			STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR,MODULE_STOCK_SMALL);
-
-//			#warning "Samuel : je n'ai pas compris pourquoi on a ces 4 lignes non protégées... c'est la sub qui doit indiquer le dépilage au fur et à mesure !"
-//			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-//			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-//			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-//			ROCKETS_removeModule(MODULE_ROCKET_MONO_OUR_SIDE);
-
+			state=check_sub_action_result(sub_act_anne_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, 4),state,GET_OUT,GET_OUT_ERROR);
 			break;
 
 		case GET_OUT:
@@ -1649,7 +1625,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 
 					Supervision_send_periodically_pos(5, PI4096/45);	//Broadcast pos à 5mm d'intervalle pour avoir un scan à 5mm d'intervalle
 
-#warning Vérifier le côté du scan
+//TODO : Débugger le capteur droit.... ou sinon corriger ici pour faire fonctionner le gauche  !
 					if(color_side==YELLOW)								//Activer le scan sur la carte actionneur
 						ACT_start_scan(SCAN_I2C_RIGHT);
 					else
@@ -1678,20 +1654,30 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				beginState = global.absolute_time;
 			}
 
-			if(global.absolute_time - beginState > 100){
-				// TODO Les données du scan ne sont pas accessible
+			if(global.absolute_time - beginState > 100){	//Données du scan non accessibles...
+				delta_x_rocket = 0;
+				#ifdef ROBOT_VIRTUEL_PARFAIT
+					delta_x_rocket = 50;	//Juste pour tester !!!
+				#endif
+					debug_printf("pas de scan accessible, on vise la fusée théorique, ca va merder à coup sur !\n");
 				state = GET_IN_FRONT_OF_ONE_ON_TWO;
 			}
 
-			if(ACT_get_scan_result(&scanData)){ // Réception des données du scan
-				// TODO Agir sur le delta_x_rocket
+
+			if(ACT_get_scan_result(&scanData)){ 			// Réception des données du scan
+				delta_x_rocket = 0;
+				if(absolute(scanData.max - scanData.min) > 45)	//S'il y a plus de 4,5cm, on considère qu'on a bien vu un module
+					if(absolute(scanData.xForMin - 1350) < 100)	//On autorise un décalage de la fusée de 10cm !
+						delta_x_rocket = scanData.xForMin - 1350;
+				debug_printf("SCAN :-) résultat : max-min=%d-%d=%d -> xForMin=%d\n", scanData.max, scanData.min, scanData.max - scanData.min, scanData.xForMin);
+				debug_printf("SCAN :-) delta_x_rocket : %d\n", delta_x_rocket);
 				state = GET_IN_FRONT_OF_ONE_ON_TWO;
 			}
 
 			}break;
 
 		case GET_IN_FRONT_OF_ONE_ON_TWO:
-			state = try_going(1350+delta_x_rocket, (color_side==BLUE)?360:2640, state, TURN_TO_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1350+delta_x_rocket, (color_side==BLUE)?360:2640, state, TURN_TO_POS, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TURN_TO_POS:
@@ -1709,32 +1695,23 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				break;
 
 		case ACTION:{
-			error_e resultAction = sub_act_anne_take_rocket_down_to_top(rocket, LEFT, RIGHT, LEFT, RIGHT);
+			error_e resultAction = sub_act_anne_take_rocket_down_to_top((rocket==OUR_ELEMENT)?MODULE_ROCKET_MULTI_OUR_SIDE:MODULE_ROCKET_MULTI_ADV_SIDE, 4);
 //			error_e resultInit = init_all_actionneur(); // On init ou pas ? Si on le fail on part en failed_init // A ne pas faire ici
 			error_e resultInit = END_OK;
 //			#warning "temporaire pour faire comme si la prise fonctionnait"
 //			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
 //
 //			resultAction = END_OK;
-			if(resultAction == END_OK)
+			if(resultAction != IN_PROGRESS)
 			{
-				we_will_get_out_with_error = FALSE;
-				if(rocket == OUR_ELEMENT){
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_OUR_SIDE);
-				}else{
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
-					ROCKETS_removeModule(MODULE_ROCKET_MULTI_ADV_SIDE);
-				}
+				if(resultAction == END_OK)
+					we_will_get_out_with_error = FALSE;
+				else
+					we_will_get_out_with_error = TRUE;
+				state=GET_OUT;
 			}
-			else
-				we_will_get_out_with_error = TRUE;
 
-			state=GET_OUT;
+
 			}break;
 
 		case GET_OUT:

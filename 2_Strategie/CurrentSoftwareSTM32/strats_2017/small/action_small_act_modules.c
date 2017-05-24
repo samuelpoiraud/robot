@@ -118,7 +118,7 @@ error_e sub_act_anne_return_module(){
 #if defined(DISABLE_TAKE_ROCKET_SPEED)
 
 // Subaction actionneur de prise fusée v2
-error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool_e module_very_down, bool_e module_down, bool_e module_top, bool_e module_very_top){
+error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint8 max_modules_to_take){
 
 	//ATTENTION ! Verfifier de quel cote de la pompe est branche !!!
 
@@ -153,9 +153,8 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 	// Positions du robot
 	static GEOMETRY_point_t take_pos;  // position du robot lors de la prise
 	static GEOMETRY_point_t store_pos; // position du robot lors du stockage
+	static Uint8 modules_taken;
 
-	static bool_e rocketSide[MAX_MODULE_ROCKET];
-	static Uint8 indexSide = 0;
 	static bool_e moduleToTake = FALSE;		// Module en cours de prise
 	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS, state3 = IN_PROGRESS;
 	static moduleType_e moduleType = MODULE_EMPTY;
@@ -189,31 +188,26 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			compute_take_point_rocket(&take_pos, NULL, store_pos, global.pos.angle, 70);//derniere valeur a modifier pour changer la distance d'avancement et de recule lors de la prise
 			debug_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
 
-			rocketSide[0] = module_very_down;
-			rocketSide[1] = module_down;
-			rocketSide[2] = module_top;
-			rocketSide[3] = module_very_top;
+			modules_taken = 0;
 			state = COMPUTE_NEXT_CYLINDER;
 			break;
 
 		case COMPUTE_NEXT_CYLINDER:
 			if(ELEMENTS_get_flag(FLAG_ANNE_DISABLE_MODULE)){
 				moduleToTake = FALSE;
-			}else if(ROCKETS_isEmpty(rocket) || indexSide >= 4){
+			}else if(ROCKETS_isEmpty(rocket)){
 				debug_printf("LA FUSEE EST VIDE");
 				moduleToTake = FALSE;		// La fusée est vide, nous avons fini.
-			}else if(rocketSide[indexSide] == FALSE){
-				debug_printf("ON REFUSE LA PRISE");
-				moduleToTake = FALSE; 	    // On ne doit pas prendre les modules suivants (ceci est un choix de l'utilisateur)
-			}else if(rocketSide[indexSide] == TRUE && !STOCKS_isFull(MODULE_STOCK_SMALL)){
-				debug_printf("ON Y VA");
-				moduleToTake = TRUE;		// On demande et il est dispo
-			}else{
-				debug_printf("PTIN ON EST DANS LE ELSE");
-				moduleToTake = FALSE;		// Le stock est plein
-			}
+			}else if(STOCKS_isFull(MODULE_STOCK_SMALL)){
+				debug_printf("ON REFUSE LA PRISE, le stock est plein");
+				moduleToTake = FALSE;
+			}else if(modules_taken == max_modules_to_take){
+				debug_printf("ON REFUSE LA PRISE, on nous a demandé d'en prendre seulement %d\n", max_modules_to_take); // On ne doit pas prendre les modules suivants (ceci est un choix de l'utilisateur)
+			}else
+				moduleToTake = TRUE;		// Le stock est plein
 
-			indexSide++; // On incrémente l'index pour le prochain passage
+			if(moduleToTake)
+				modules_taken++; // On incrémente l'index pour le prochain passage
 
 			//S'il y a un module dans le balancer et au dessus, et que la position color sous le balancer est vide
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER , MODULE_STOCK_SMALL)&&!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER , MODULE_STOCK_SMALL)&&STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_COLOR , MODULE_STOCK_SMALL)){
@@ -228,7 +222,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			if(moduleToTake == FALSE){
 				state = DONE; // On a fini ou rien n'est possible de faire
 			}else{
-				if(indexSide ==1){
+				if(modules_taken ==1){
 					state = ACTION_PREPARE_ARM_AND_BALANCER;
 				}else{
 					state = ACTION_MOVE_AWAY_MULTIFONCTION;
@@ -368,14 +362,14 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			//On recule lors de la prise, car on se deplace plus vite que le slider
 			if(ROCKETS_isEmpty(rocket)){
 				sub_act_anne_mae_store_modules(TRUE);
-				if(indexSide==3){
+				if(modules_taken==max_modules_to_take-1){
 					//a la prise du dernier module on part en slow pour ralentir la chute du dernier
 					state = try_going(store_pos.x, store_pos.y, state, DONE, RECULE_ERROR, SLOW, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
 					state = try_going(store_pos.x, store_pos.y, state, DONE, RECULE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}
 			}else{
-				if(indexSide==3){
+				if(modules_taken==max_modules_to_take-1){
 					//a la prise du dernier module on part en slow pour ralentir la chute du dernier
 					state = try_going(store_pos.x, store_pos.y, state, ACTION_LOCK_MULTIFUNCTION, RECULE_ERROR, SLOW, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				}else{
@@ -1579,6 +1573,8 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			if(stateAct != IN_PROGRESS){
 				if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
 
+
+
 					// On incrémente l'erreur
 					nb_errors_balancer++;
 
@@ -1829,9 +1825,9 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 			if(entrance){
 				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_OUT);
 
-				if(anotherDisposeWillFollow){
+				//if(anotherDisposeWillFollow){
 					sub_act_anne_mae_prepare_modules_for_dispose(TRUE);
-				}
+				//}
 
 				stateAct = IN_PROGRESS;
 			}
@@ -1841,7 +1837,7 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 			}
 
 			if(stateAct != IN_PROGRESS){
-				if(!anotherDisposeWillFollow || ELEMENTS_get_flag(FLAG_SMALL_BALANCER_FINISH)){
+				if(/*!anotherDisposeWillFollow || */ELEMENTS_get_flag(FLAG_SMALL_BALANCER_FINISH)){
 					state = UNFOLD_DISPOSE_SERVO;
 				}
 			}
