@@ -186,6 +186,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_ACTIVE_PID:							print(string, len, "%x PROP_ACTIVE_PID                        ", PROP_ACTIVE_PID                                );  break;
 		case PROP_RUSH:									print(string, len, "%x PROP_RUSH                              ", PROP_RUSH		                                );  break;
 		case PROP_STAY_POSITION:						print(string, len, "%x PROP_STAY_POSITION                     ", PROP_STAY_POSITION								);  break;
+		case PROP_SET_CORRECTORS:						print(string, len, "%x PROP_SET_CORRECTORS                    ", PROP_SET_CORRECTORS							);  break;
 
 		case BEACON_ENABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_ENABLE_PERIODIC_SENDING         ", BEACON_ENABLE_PERIODIC_SENDING					);	break;
 		case BEACON_DISABLE_PERIODIC_SENDING: 			print(string, len, "%x BEACON_DISABLE_PERIODIC_SENDING        ", BEACON_DISABLE_PERIODIC_SENDING				);	break;
@@ -1000,6 +1001,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case PROP_RUSH:							print(string, len, "| %s  1_acc : %d   2_acc : %d   brake_acc : %d  rot_trans_coef : %d\n",(msg->data.prop_rush.rush)?"Enable":"Disable", msg->data.prop_rush.first_traj_acc, msg->data.prop_rush.second_traj_acc, msg->data.prop_rush.brake_acc, msg->data.prop_rush.acc_rot_trans);	break;
 		case PROP_DATALASER:					print(string, len, "| utilisation des télémetres\n");	break;
 		case PROP_STAY_POSITION:				print(string, len, "| %s", print_corrector(msg->data.prop_stay_position.corrector));  break;
+		case PROP_SET_CORRECTORS:				print(string, len, "| rotation : %d  |  translation : %d\n", msg->data.prop_set_correctors.rot_corrector, msg->data.prop_set_correctors.trans_corrector);  break;
 
 		case MOSFET_BOARD_GET_MOSFET_CURRENT_STATE:		print(string, len, "| %s (%d)\n", print_mosfetId(msg->data.mosfet_board_get_mosfet_state.id), msg->data.mosfet_board_get_mosfet_state.id);	break;
 		case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:	print(string, len, "| %s (%d)   state : %s\n", print_mosfetId(msg->data.mosfet_board_get_mosfet_state.id), msg->data.mosfet_board_tell_mosfet_state.id, print_mosfetState(msg->data.mosfet_board_tell_mosfet_state.state)); break;
