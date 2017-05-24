@@ -252,6 +252,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			GO_TO_DEPOSE_MODULE,
 			DEPOSE_MODULE,
 
+			TIGHT_BACKWARD,
 			DOWN_PUSHER,
 			ERROR_DOWN_PUSHER,
 			UP_PUSHER_RIGHT,
@@ -262,6 +263,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			NEXT_DEPOSE_MODULE_LEFT,
 			NEXT_DEPOSE_MODULE_RIGHT,
 			GET_OUT,
+			GET_OUT_WITH_ERROR,
 			FINISH_GET_OUT_POS_1,
 			GET_OUT_ERROR,
 			ERROR,
@@ -270,11 +272,12 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 	switch(state){
 		case INIT:
-			state=GET_IN;
+			sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, TRUE);
+			state = GET_IN;
 			break;
 
 		case GET_IN:
-			state=check_sub_action_result(sub_harry_get_in_depose_modules_centre(drop_place), state, DOWN_PUSHER, ERROR);
+			state = check_sub_action_result(sub_harry_get_in_depose_modules_centre(drop_place), state, DOWN_PUSHER, ERROR);
 			break;
 
 		case GO_TO_DEPOSE_MODULE:
@@ -295,16 +298,16 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				}
 			}
 			if(robot_side == MODULE_STOCK_LEFT){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER, ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT);
 			}
 			else if(robot_side == MODULE_STOCK_RIGHT){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, DOWN_PUSHER, ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT);
 			}
 			else{
 				state = DONE;
 			}
 			if(ON_LEAVE()){
-				if(state == DOWN_PUSHER){
+				if(state == TIGHT_BACKWARD){
 					//J'ai mis polychrome parce que je vois pas trop comment le gérer sinon.
 					if(drop_place == POS_1 || drop_place == POS_2){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_OUR_CENTER);}
 					else if(drop_place == POS_3 || drop_place == POS_4){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_MIDDLE);}
@@ -315,6 +318,10 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 					ELEMENTS_set_flag(FLAG_PUSHER_IS_BLOCKING,FALSE);
 				}*/
 			}
+			break;
+
+		case TIGHT_BACKWARD:
+			state = try_advance(NULL, entrance, 15, state, DOWN_PUSHER, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case DOWN_PUSHER: // on sort le pusher
@@ -485,6 +492,10 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			}else{
 				state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
+			break;
+
+#warning gérer le get out with error ne pas faire seulement error
+		case GET_OUT_WITH_ERROR:
 			break;
 
 		case FINISH_GET_OUT_POS_1:
