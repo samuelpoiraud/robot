@@ -178,6 +178,8 @@ static void SMALL_CYLINDER_SLOPE_get_position_config(ACT_order_e *pOrder, Uint16
 		order = ACT_SMALL_CYLINDER_SLOPE_UP;
 	}else if(position > SMALL_CYLINDER_SLOPE_AX12_VERY_UP_POS - epsilon && position < SMALL_CYLINDER_SLOPE_AX12_VERY_UP_POS + epsilon){
 			order = ACT_SMALL_CYLINDER_SLOPE_VERY_UP;
+	}else if(position > SMALL_CYLINDER_SLOPE_AX12_VERTICAL_POS - epsilon && position < SMALL_CYLINDER_SLOPE_AX12_VERTICAL_POS + epsilon){
+			order = ACT_SMALL_CYLINDER_SLOPE_VERTICAL;
 	}else if(position > SMALL_CYLINDER_SLOPE_AX12_IDLE_POS - epsilon && position < SMALL_CYLINDER_SLOPE_AX12_IDLE_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_SLOPE_IDLE;
 	}
@@ -220,6 +222,7 @@ bool_e SMALL_CYLINDER_SLOPE_CAN_process_msg(CAN_msg_t* msg) {
 			case ACT_SMALL_CYLINDER_SLOPE_ALMOST_UP :
 			case ACT_SMALL_CYLINDER_SLOPE_UP :
 			case ACT_SMALL_CYLINDER_SLOPE_VERY_UP :
+			case ACT_SMALL_CYLINDER_SLOPE_VERTICAL :
 			case ACT_SMALL_CYLINDER_SLOPE_STOP :
 				run_now = msg->data.act_msg.act_data.act_order.run_now;
 				ACTQ_push_operation_from_msg(msg, QUEUE_ACT_AX12_SMALL_CYLINDER_SLOPE, &SMALL_CYLINDER_SLOPE_run_command, 0,TRUE);
@@ -279,6 +282,7 @@ static void SMALL_CYLINDER_SLOPE_command_init(queue_id_t queueId) {
 		case ACT_SMALL_CYLINDER_SLOPE_ALMOST_UP : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_ALMOST_UP_POS; break;
 		case ACT_SMALL_CYLINDER_SLOPE_UP : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_UP_POS; break;
 		case ACT_SMALL_CYLINDER_SLOPE_VERY_UP : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_VERY_UP_POS; break;
+		case ACT_SMALL_CYLINDER_SLOPE_VERTICAL : *ax12_goalPosition = SMALL_CYLINDER_SLOPE_AX12_VERTICAL_POS; break;
 
 		case ACT_SMALL_CYLINDER_SLOPE_STOP :
 			AX12_set_torque_enabled(SMALL_CYLINDER_SLOPE_AX12_ID, FALSE); //Stopper l'asservissement de l'AX12

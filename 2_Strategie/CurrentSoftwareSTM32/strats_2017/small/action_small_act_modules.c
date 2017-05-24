@@ -143,6 +143,8 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			ACTION_RISE_SLOPE,
 			ACTION_BRING_CYLINDER_TO_TOP,
 			ACTION_STOCK_UP_CYLINDER,
+			PETIT_COUP_DE_REVERSE,
+			TURN_BALANCER_IN,
 			ACTION_PUT_CYLINDER_IN_CONTAINER,
 			ACTION_PUT_SLOPE_VERY_UP,
 
@@ -233,7 +235,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 
 		case ACTION_PREPARE_ARM_AND_BALANCER:
 			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
+				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_PROTECT_FALL);
 				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_TAKE);
 				state1 = IN_PROGRESS;
 				state2 = IN_PROGRESS;
@@ -383,7 +385,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 					success_state = ACTION_LOCK_MULTIFUNCTION;
 			}
 			//a la prise du dernier module on part en slow pour ralentir la chute du dernier
-			state = try_going(store_pos.x, store_pos.y, state, success_state, RECULE_ERROR, (modules_taken==max_modules_to_take-1)?SLOW:FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(store_pos.x, store_pos.y, state, success_state, RECULE_ERROR, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 
 			break;}
 
@@ -478,11 +480,11 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 		case ACTION_STOCK_UP_CYLINDER:
 			if(entrance){
 				//On finit de verouiller le slope
-				ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_UP);
+				ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_VERTICAL);
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, ACTION_PUT_CYLINDER_IN_CONTAINER, ACTION_BRING_CYLINDER_TO_TOP);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, TURN_BALANCER_IN, TURN_BALANCER_IN);
 
 			if(ON_LEAVE()){
 				// Mise à jour des données
@@ -490,13 +492,32 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			}
 			break;
 
+//		case PETIT_COUP_DE_REVERSE:
+//			if(entrance){
+//				//on souffle un peu pour faciliter la depose
+//				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
+//
+//				time_timeout = global.absolute_time + 1000;
+//			}
+//			if(global.absolute_time > time_timeout){
+//				state = ACTION_PUT_CYLINDER_IN_CONTAINER;
+//			}
+//			//state = wait_time(1000, state, ACTION_PUT_SLOPE_DOWN);	// On attends un peu le temps que le cylindre roule
+//			break;
+
+		case TURN_BALANCER_IN:
+			if(entrance){
+				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_balancer, state, ACTION_PUT_CYLINDER_IN_CONTAINER, ACTION_PUT_CYLINDER_IN_CONTAINER);
+			break;
 
 		case ACTION_PUT_CYLINDER_IN_CONTAINER:
 			if(entrance){
 				//on souffle un peu pour faciliter la depose
-				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_SMALL_ELEVATOR_REVERSE, 100);
+				ACT_push_order(ACT_SMALL_CYLINDER_ELEVATOR, ACT_SMALL_CYLINDER_ELEVATOR_WAIT_FOR_SLOPE);
 
-				time_timeout = global.absolute_time + 2000;
+				time_timeout = global.absolute_time + 1000;
 			}
 			if(global.absolute_time > time_timeout){
 				state = ACTION_PUT_SLOPE_VERY_UP;
