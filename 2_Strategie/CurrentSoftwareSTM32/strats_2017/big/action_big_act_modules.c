@@ -2359,11 +2359,15 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			break;
 
 		case COMPUTE_ACTION:
+			error_printf("needToStoreLeft=%d needToStoreRight=%d moduleToTake=%d indexSide=%d\n", needToStoreLeft, needToStoreRight, moduleToTake, indexSide);
 			if(!needToStoreLeft && !needToStoreRight && moduleToTake == NO_SIDE && indexSide >= 4){
 				state = DONE; // On a fini ou rien n'est possible de faire
 			}else if(takeNothingLeft && takeNothingRight){
 				nbTakeNothingAtAll++;
-				if(nbTakeNothingAtAll <= 1){
+				takeNothingLeft = FALSE;
+				takeNothingRight = FALSE;
+				// On retente si on a rien pris et si c'est le premier essai
+				if(nbTakeNothingAtAll <= 1 && indexSide == 1){
 					compute_take_point_rocket(&take_pos, NULL, store_pos, take_angle, 45 + DELTA_ROBOT_TO_FAR); // on recalcule juste la position
 					state = AVANCE;
 				}else{
