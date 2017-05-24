@@ -173,7 +173,7 @@ static void CYLINDER_BALANCER_RIGHT_get_position_config(ACT_order_e *pOrder, Uin
 	}else if(position > CYLINDER_BALANCER_RIGHT_AX12_OUT_POS - epsilon && position < CYLINDER_BALANCER_RIGHT_AX12_OUT_POS + epsilon){
 		order = ACT_CYLINDER_BALANCER_RIGHT_OUT;
 	}else if(position < CYLINDER_BALANCER_RIGHT_AX12_VERY_OUT_POS + epsilon){
-			order = ACT_CYLINDER_BALANCER_RIGHT_VERY_OUT;
+		order = ACT_CYLINDER_BALANCER_RIGHT_VERY_OUT;
 	}else if(position > CYLINDER_BALANCER_RIGHT_AX12_IDLE_POS - epsilon && position < CYLINDER_BALANCER_RIGHT_AX12_IDLE_POS + epsilon){
 		order = ACT_CYLINDER_BALANCER_RIGHT_IDLE;
 	}
