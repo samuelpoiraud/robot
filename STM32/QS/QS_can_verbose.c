@@ -289,6 +289,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_GET_COLOR_SENSOR_I2C:					print(string, len, "%x ACT_GET_COLOR_SENSOR_I2C               ", ACT_GET_COLOR_SENSOR_I2C		 				);	break;
 		case ACT_TELL_COLOR_SENSOR_I2C:					print(string, len, "%x ACT_TELL_COLOR_SENSOR_I2C              ", ACT_TELL_COLOR_SENSOR_I2C		 				);	break;
 
+		case ACT_START_SCAN:							print(string, len, "%x ACT_START_SCAN                         ", ACT_START_SCAN		 							);	break;
+		case ACT_STOP_SCAN:								print(string, len, "%x ACT_STOP_SCAN                          ", ACT_STOP_SCAN		 							);	break;
+		case ACT_RESULT_SCAN:							print(string, len, "%x ACT_RESULT_SCAN                        ", ACT_RESULT_SCAN		 						);	break;
+
 		case MOSFET_BOARD_SET_MOSFET:					print(string, len, "%x MOSFET_BOARD_SET_MOSFET                ", MOSFET_BOARD_SET_MOSFET			 			);	break;
 		case MOSFET_BOARD_GET_MOSFET_CURRENT_STATE:		print(string, len, "%x MOSFET_BOARD_GET_MOSFET_CURRENT_STATE  ", MOSFET_BOARD_GET_MOSFET_CURRENT_STATE			);	break;
 		case MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE:	print(string, len, "%x MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE ", MOSFET_BOARD_TELL_MOSFET_CURRENT_STATE			);	break;
@@ -1004,6 +1008,9 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_TELL_MOSFET_CURRENT_STATE:				print(string, len, "| %s (%d)   state : %s\n", print_mosfetId(msg->data.mosfet_board_get_mosfet_state.id), msg->data.act_tell_mosfet_state.id, print_mosfetState(msg->data.act_tell_mosfet_state.state));	break;
 
 		case ACT_TELL_COLOR_SENSOR_I2C:					print(string, len, "| %s\n", print_colorSensor(msg->data.act_tell_color_sensor_i2c.color));	break;
+
+		case ACT_START_SCAN:							print(string, len, "| %s\n", ((msg->data.act_start_scan.side == SCAN_I2C_LEFT)?"LEFT":"RIGHT")); break;
+		case ACT_RESULT_SCAN:							print(string, len, "| min : %d   |  max : %d  |  xForMin : %d\n", msg->data.act_result_scan.min, msg->data.act_result_scan.max, msg->data.act_result_scan.xForMin);	break;
 
 
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;

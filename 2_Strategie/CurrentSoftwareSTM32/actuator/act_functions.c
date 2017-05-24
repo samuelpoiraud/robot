@@ -53,6 +53,11 @@ typedef struct{
 	time32_t lastRefresh;
 }act_color_sensor_s;
 
+typedef struct{
+	SCAN_I2C_data_s data;
+	bool_e received;
+}SCAN_I2C_result_s;
+
 typedef enum{
 	ACT_SENSOR_WAIT = 0,
 	ACT_SENSOR_ABSENT,
@@ -161,6 +166,8 @@ static volatile act_vacuostat_s vacuostat[ACT_NB_VACUOSTAT] = {0};
 static volatile act_color_sensor_s color_sensor = {0};
 
 static volatile act_turbine_s turbine;
+
+static volatile SCAN_I2C_result_s scan_act_result = { .received = FALSE };
 
 
 /* Pile contenant les arguments d'une demande d'opération
@@ -693,4 +700,45 @@ void ACT_set_turbine_speed(Uint16 speed){
 	msg.size = SIZE_ACT_SET_TURBINE_SPEED;
 	msg.data.act_set_turbine_speed.speed = speed;
 	CAN_send(&msg);
+}
+
+void ACT_start_scan(SCAN_I2C_side_e scanSide){
+	CAN_msg_t msg;
+	msg.sid = ACT_START_SCAN;
+	msg.size = SIZE_ACT_START_SCAN;
+	msg.data.act_start_scan.side = scanSide;
+	CAN_send(&msg);
+
+	scan_act_result.received = FALSE;
+}
+
+void ACT_stop_scan(){
+
+	scan_act_result.received = FALSE;
+
+	CAN_msg_t msg;
+	msg.sid = ACT_STOP_SCAN;
+	msg.size = SIZE_ACT_STOP_SCAN;
+	CAN_send(&msg);
+}
+
+bool_e ACT_get_scan_result(SCAN_I2C_data_s *data){
+	if(scan_act_result.received){
+		if(data != NULL)
+			*data = scan_act_result.data;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+void ACT_receive_result_scan_act(CAN_msg_t *msg){
+	if(msg->sid != ACT_RESULT_SCAN)
+			return;
+
+	scan_act_result.data.min = msg->data.act_result_scan.min;
+	scan_act_result.data.max = msg->data.act_result_scan.max;
+	scan_act_result.data.xForMin = msg->data.act_result_scan.xForMin;
+	scan_act_result.received = TRUE;
 }
