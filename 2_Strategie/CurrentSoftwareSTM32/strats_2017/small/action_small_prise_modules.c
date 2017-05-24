@@ -1503,6 +1503,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			BACK_AFTER_RUSH,
 			BACK_AFTER_FAILING_RUSH,
 			SCANNING_TRAJECTORY,
+			WAIT_RESULT,
 
 			GET_IN_FRONT_OF_ONE_ON_TWO,
 			TURN_TO_POS,
@@ -1563,7 +1564,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				}else{
 					ELEMENTS_set_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_ADV_ROCKET_MULTI, TRUE);
 				}
-						}
+			}
 			delta_x_rocket = 0;
 			}break;
 		/*
@@ -1643,20 +1644,50 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				if(scan_is_running == FALSE)
 				{
 					scan_is_running = TRUE;
-					//TODO activer le scan sur la carte actionneur
-					//TODO activer les broadcast pos à 5mm d'intervalle
+
+					Supervision_send_periodically_pos(5, PI4096/45);	//Broadcast pos à 5mm d'intervalle pour avoir un scan à 5mm d'intervalle
+
+#warning Vérifier le côté du scan
+					if(color_side==YELLOW)								//Activer le scan sur la carte actionneur
+						ACT_start_scan(SCAN_I2C_RIGHT);
+					else
+						ACT_start_scan(SCAN_I2C_LEFT);
+
 					PROP_WARNER_arm_x(1300);
 				}
 				else	//Le scan est actif
 				{
-					//TODO fin du scan sur la carte actionneur... récupérer l'info de position !!!
-					//TODO désactiver les broadcast pos à 5mm d'intervalle -> remettre la bonne valeur par défaut...
+					ACT_stop_scan();									//Fin du scan sur la carte actionneur... récupérer l'info de position !!!
+					Supervision_send_periodically_pos(20, PI4096/45);	//Désactiver les broadcast pos à 5mm d'intervalle -> remettre la bonne valeur par défaut...
+
+
 				}
 			}
 			//TODO if(minimum_receive_from_actuator.....) delta_x_rocket = ....;
-			state = try_going(1400, (color_side==BLUE)?260:2740,state,GET_IN_FRONT_OF_ONE_ON_TWO, GET_IN_FRONT_OF_ONE_ON_TWO, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1400, (color_side==BLUE)?260:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
+
+		case WAIT_RESULT:{
+			static time32_t beginState;
+			SCAN_I2C_data_s scanData;
+
+			if(entrance){
+				beginState = global.absolute_time;
+			}
+
+			if(global.absolute_time - beginState > 100){
+				// TODO Les données du scan ne sont pas accessible
+				state = GET_IN_FRONT_OF_ONE_ON_TWO;
+			}
+
+			if(ACT_get_scan_result(&scanData)){ // Réception des données du scan
+				// TODO Agir sur le delta_x_rocket
+				state = GET_IN_FRONT_OF_ONE_ON_TWO;
+			}
+
+			}break;
+
 		case GET_IN_FRONT_OF_ONE_ON_TWO:
 			state = try_going(1350+delta_x_rocket, (color_side==BLUE)?360:2640, state, TURN_TO_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;

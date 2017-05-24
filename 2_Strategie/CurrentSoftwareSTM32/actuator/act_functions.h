@@ -139,4 +139,19 @@ Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, time32_t timeo
 
 void ACT_receive_color_sensor_msg(CAN_msg_t *msg);
 
+
+typedef struct{
+	Uint16 min;
+	Uint16 max;
+	Uint16 xForMin;
+}SCAN_I2C_data_s;
+
+void ACT_start_scan(SCAN_I2C_side_e scanSide);
+
+void ACT_stop_scan();
+
+error_e ACT_wait_scan_result(SCAN_I2C_data_s *data);
+
+void ACT_receive_result_scan_act(CAN_msg_t *msg);
+
 #endif /* ndef ACT_FUNCTIONS_H */
