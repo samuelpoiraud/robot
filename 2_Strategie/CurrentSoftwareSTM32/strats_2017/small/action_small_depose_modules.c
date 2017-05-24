@@ -2058,6 +2058,7 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 	switch(state)
 	{
 			case INIT:
+				AVOIDANCE_activeSmallAvoidance(TRUE);
 
 				if(dzone <= DZONE5_YELLOW_OUTDOOR)
 					state = COMPUTE_POINTS;
@@ -2189,6 +2190,8 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 			default:
 				break;
 	}
+	if(ret != IN_PROGRESS)
+		AVOIDANCE_activeSmallAvoidance(FALSE);
 	return ret;
 }
 
@@ -2527,14 +2530,14 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			break;
 
 		case GOTO_P0:
-			state = try_going(P0.x, P0.y, state, DISPOSE, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(P0.x, P0.y, state, GOTO_P1, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
 				//TODO sortir bras de push
 			}
 			break;
 		case GOTO_P1:
-			state = try_going(P1.x, P1.y, state, DISPOSE, EXTRACT_BEYOND_F3, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(P1.x, P1.y, state, GOTO_F3, EXTRACT_BEYOND_F3, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
 				//TODO rentrer bras de push

@@ -397,16 +397,21 @@ error_e ACT_check_position_config_right(Uint16 sid, ACT_order_e order){
 			break;
 
 		case WAIT:
-			if(global.absolute_time - begin_time > ACT_CONFIG_ANSWER_TIMEOUT){
-				RESET_MAE();
-				ret = END_WITH_TIMEOUT;
-			}else if(act_config[i].info_received && act_config[i].pos == order){ // On a recu une réponse
+			#ifdef ROBOT_VIRTUEL_PARFAIT
 				RESET_MAE();
 				ret = END_OK;
-			}else if(act_config[i].info_received){
-				RESET_MAE();
-				ret = NOT_HANDLED;
-			}
+			#else
+				if(global.absolute_time - begin_time > ACT_CONFIG_ANSWER_TIMEOUT){
+					RESET_MAE();
+					ret = END_WITH_TIMEOUT;
+				}else if(act_config[i].info_received && act_config[i].pos == order){ // On a recu une réponse
+					RESET_MAE();
+					ret = END_OK;
+				}else if(act_config[i].info_received){
+					RESET_MAE();
+					ret = NOT_HANDLED;
+				}
+			#endif
 			break;
 	}
 	return ret;

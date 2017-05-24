@@ -233,7 +233,7 @@ void valentin_strat_inutile_small(){
 			break;
 
 		case TAKE_CRATER:
-			state = check_sub_action_result(sub_act_anne_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, TRUE, TRUE, TRUE, TRUE), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_anne_take_rocket_down_to_top(MODULE_ROCKET_MONO_OUR_SIDE, 4), state, DONE, ERROR);
 			break;
 
 		case ERROR:

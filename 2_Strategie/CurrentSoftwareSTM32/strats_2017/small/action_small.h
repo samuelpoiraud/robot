@@ -24,7 +24,7 @@
 	error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side);
 	error_e sub_anne_fusee_color();
 	error_e sub_anne_fusee_multicolor(ELEMENTS_property_e fusee);
-	error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool_e module_very_down, bool_e module_down, bool_e module_top, bool_e module_very_top);
+	error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint8 max_modules_to_take);
 	error_e sub_act_anne_mae_store_modules(bool_e trigger);
 	error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger);
 	error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose);
