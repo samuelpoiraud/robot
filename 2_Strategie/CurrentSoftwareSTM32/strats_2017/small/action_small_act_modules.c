@@ -159,6 +159,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 	static error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS, state3 = IN_PROGRESS;
 	static moduleType_e moduleType = MODULE_EMPTY;
 	static time32_t time_timeout;
+	static Uint8 nbEssais;
 
 #ifdef DISPLAY_STOCKS
 	if(entrance){
@@ -293,6 +294,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				if(state3 == NOT_HANDLED){
 					//on a pas avancé physiquement, on retente
 					state = AVANCE;
+					nbEssais = 0;
 				}else{
 					//On continue
 					state = ACTION_BRING_BACK_CYLINDER;
@@ -301,8 +303,14 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			break;
 
 		case AVANCE:
-			//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
-			state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			nbEssais += 1;
+			if(nbEssais<3){
+				//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
+				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				//On a echoué 2 fois
+				state = ACTION_BRING_BACK_CYLINDER;//ou DONE ? est-ce-qu'on continue la prise?
+			}
 			break;
 
 		case AVANCE_ERROR:
@@ -336,15 +344,11 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			//On attends pour securiser le ventousage par l'elevator
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS){
 
-				//C'etait le dernier, on finit et on montera le module avec la sub prepare
-				if(ROCKETS_isEmpty(rocket)){
-					sub_act_anne_mae_store_modules(TRUE);
-					state = DONE;
-				}
-
 				if (state2 == NOT_HANDLED){
 					//on s'est pas reculé, donc on n'as pas d'espace suffisant pour monter le module
 					state = RECULE;
+					//On initialise le nombre d'essai
+					nbEssais = 0;
 				}else{
 					//On continue
 					state = ACTION_LOCK_MULTIFUNCTION;
@@ -354,6 +358,12 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
 				ROCKETS_removeModule(rocket);
 				moduleToTake = FALSE;
+
+				//C'etait le dernier, on finit et on montera le module avec la sub prepare
+				if(ROCKETS_isEmpty(rocket)){
+					sub_act_anne_mae_store_modules(TRUE);
+					state = DONE;
+				}
 
 			}
 			break;
@@ -379,8 +389,14 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			break;
 
 		case RECULE_ERROR:
-			//Si on a pas reussi a bien reculer, on reessaie
-			state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			nbEssais += 1;
+			if(nbEssais<3){
+				//Si on a pas reussi a bien reculer, on reessaie
+				state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				//On a echoué 2 fois
+				state = ACTION_LOCK_MULTIFUNCTION;//ou DONE ? est-ce-qu'on continue la prise?
+			}
 			break;
 
 		case ACTION_LOCK_MULTIFUNCTION:
