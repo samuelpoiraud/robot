@@ -35,8 +35,11 @@
 		#endif
 
 /* Réglages capteur de distance */
-	#define USE_VL53L0X
-		#define VL53L0X_I2C I2C3
+	#define USE_SCAN
+		#ifdef USE_SCAN
+			#define USE_VL53L0X
+				#define VL53L0X_I2C I2C3
+		#endif
 
 /* Réglages I2C */
 	#if defined(USE_I2C_COLOR_SENSOR) || defined(USE_VL53L0X)

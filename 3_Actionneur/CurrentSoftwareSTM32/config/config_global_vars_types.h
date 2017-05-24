@@ -31,6 +31,7 @@
 		volatile Sint16 angle;
 		volatile Sint16 x;
 		volatile Sint16 y;
+		volatile bool_e updated;
 	}position_t;
 
 #endif /* ndef CONFIG_GLOBAL_VARS_TYPES_H */

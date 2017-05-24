@@ -19,6 +19,7 @@
 #include "queue.h"
 #include "mosfetBoard.h"
 #include "colorSensor.h"
+#include "scan.h"
 
 #include "ActManager.h"
 
@@ -84,6 +85,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 				global.pos.x = msg->data.broadcast_position_robot.x;
 				global.pos.y = msg->data.broadcast_position_robot.y;
 				global.pos.angle = msg->data.broadcast_position_robot.angle;
+				global.pos.updated = TRUE;
 			break;
 
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
@@ -183,6 +185,13 @@ void CAN_process_msg(CAN_msg_t* msg) {
 		case ACT_GET_COLOR_SENSOR_I2C:
 			#ifdef USE_I2C_COLOR_SENSOR
 				COLOR_SENSOR_sendColor();
+			#endif
+			break;
+
+		case ACT_START_SCAN:
+		case ACT_STOP_SCAN:
+			#ifdef USE_SCAN
+				SCAN_processMsg(msg);
 			#endif
 			break;
 
