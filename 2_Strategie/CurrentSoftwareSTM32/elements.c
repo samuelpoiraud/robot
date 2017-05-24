@@ -436,7 +436,7 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 				moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] = moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY];
 				moduleStockInfo[storage].stockModules[STOCK_POS_ENTRY] = MODULE_EMPTY;
 			}else{
-				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_ELEVATOR\n");
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_ENTRY_TO_ELEVATOR\n");
 			}
 			break;
 
@@ -453,7 +453,7 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 				}
 				moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR] = MODULE_EMPTY;
 			}else{
-				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_CONTAINER\n");
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_ELEVATOR_TO_CONTAINER\n");
 			}
 			break;
 
@@ -464,7 +464,7 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 				moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] = moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE];
 				moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] = MODULE_EMPTY;
 			}else{
-				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_CONTAINER_IN_TO_DISPENSER\n");
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_CONTAINER_TO_BALANCER\n");
 			}
 			break;
 
@@ -473,7 +473,7 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 				moduleStockInfo[storage].stockModules[STOCK_POS_COLOR] = moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER];
 				moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] = MODULE_EMPTY;
 			}else{
-				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_DISPENSER_TO_CONTAINER_OUT\n");
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_BALANCER_TO_COLOR\n");
 			}
 			break;
 
@@ -483,7 +483,7 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 				moduleStockInfo[storage].stockModules[STOCK_POS_ARM_DISPOSE] = moduleStockInfo[storage].stockModules[STOCK_POS_COLOR];
 				STOCKS_removeModule(STOCK_POS_COLOR, storage);	// On supprime le cylindre du stock
 			}else{
-				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_CONTAINER_OUT_TO_OUTSIDE\n");
+				error_printf("ERROR STOCKAGE MODULE in STOCK_makeModuleProgressTo STOCK_PLACE_COLOR_TO_ARM_DISPOSE\n");
 			}
 			display_stock = FALSE;
 			break;
