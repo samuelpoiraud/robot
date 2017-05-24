@@ -1887,8 +1887,11 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 				statePump = ACT_get_state_vacuostat(VACUOSTAT_DISPOSE_LEFT);
 			}
 
-			if(statePump != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING){
+			if(statePump == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT){
 				// Soit on recoit MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT et c'est bon
+				state = RAISE_CYLINDER;
+			}else if(statePump == MOSFET_BOARD_CURRENT_MEASURE_STATE_NO_PUMPING && global.absolute_time > time_timeout){
+				// Soit déplacer l'actionneur plus vite que le vacuostat
 				// Soit on recoit MOSFET_BOARD_CURRENT_MEASURE_STATE_NO_PUMPING et c'est qu'on a perdu la communication, donc on continue
 				state = RAISE_CYLINDER;
 			}else if(global.absolute_time > time_timeout){
