@@ -798,6 +798,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			CHECK_VACUOSTAT_BEFORE_STORING,
 			STOCK_UP_CYLINDER,
 			WAIT_STABILZATION,
+			CHECK_ELEVATOR_TOP_CYLINDER,
 			PUT_CYLINDER_IN_CONTAINER,
 			SLOPE_GO_VERY_UP,
 
@@ -912,7 +913,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 		case CHECK_ELEVATOR_VACUOSTAT:
 			if((storage == MODULE_STOCK_RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)
-				|| (storage == MODULE_STOCK_RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)){
+				|| (storage == MODULE_STOCK_LEFT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)){
 				state = STOP_PUMP_SLIDER;
 			}else{
 				state = ELEVATOR_GO_BOTTOM;
@@ -1142,21 +1143,41 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			}
 			break;
 
-		case WAIT_STABILZATION:/*
-			if(entrance){
+		case WAIT_STABILZATION:
+			/*if(entrance){
 				time_timeout = global.absolute_time + 400;
 			}*/
 			//if(global.absolute_time > time_timeout){
-				state = PUT_CYLINDER_IN_CONTAINER;
+				state = CHECK_ELEVATOR_TOP_CYLINDER;
 			//}
 			break;
 
-		case PUT_CYLINDER_IN_CONTAINER:
+		case CHECK_ELEVATOR_TOP_CYLINDER:
+			if(storage == MODULE_STOCK_RIGHT){
+				if(ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING){	// On tient toujours le cylindre ou bug de com
+					state = PUT_CYLINDER_IN_CONTAINER;
+				}else{
+					ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
+					STOCKS_removeModule(STOCK_POS_ELEVATOR, storage);
+					state = COMPUTE_ACTION;
+				}
+			}else{
+				if(ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING){	// On tient toujours le cylindree ou bug de com
+					state = PUT_CYLINDER_IN_CONTAINER;
+				}else{
+					ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
+					STOCKS_removeModule(STOCK_POS_ELEVATOR, storage);
+					state = COMPUTE_ACTION;
+				}
+			}
+			break;
+
+		case PUT_CYLINDER_IN_CONTAINER:{
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
 				}else{
-					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
 				}
 				time_timeout = global.absolute_time + 400;
 			}
@@ -1168,7 +1189,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 				// Mise à jour des données
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, storage);
 			}
-			break;
+			}break;
 
 		case SLOPE_GO_VERY_UP: // état non utilisé
 			if(entrance){

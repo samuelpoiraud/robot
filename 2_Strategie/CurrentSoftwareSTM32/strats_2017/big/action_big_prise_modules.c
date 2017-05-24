@@ -20,7 +20,6 @@ error_e sub_harry_prise_modules_initiale(){
 			ADVANCE_ON_TURNING_POINT,
 			ADVANCE_SLOWLY,
 			MOVE_TO_TAKE_MODULES,
-			SLIDERS_GO_IN,
 			STORE_MODULES,
 			ERROR,
 			DONE
@@ -91,21 +90,6 @@ error_e sub_harry_prise_modules_initiale(){
 				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
 			}
 
-			break;
-
-		case SLIDERS_GO_IN:
-			if(entrance){
-				ACT_push_order(ACT_CYLINDER_SLIDER_LEFT, ACT_CYLINDER_SLIDER_LEFT_IN);
-				ACT_push_order(ACT_CYLINDER_SLIDER_RIGHT, ACT_CYLINDER_SLIDER_RIGHT_IN);
-				ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
-				ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
-			}
-			stateAct1 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
-			stateAct2 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
-
-			if(stateAct1 != IN_PROGRESS && stateAct2 != IN_PROGRESS){
-				state = STORE_MODULES;
-			}
 			break;
 
 		case STORE_MODULES:
