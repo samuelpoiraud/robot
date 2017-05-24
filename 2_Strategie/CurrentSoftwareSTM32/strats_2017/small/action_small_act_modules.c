@@ -415,7 +415,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP, 0);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_STOP, 0);
 				time_timeout = global.absolute_time + 1000;
 			}
 
@@ -1421,7 +1421,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			}
 
 			if(global.absolute_time > time_timeout){
-				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_STOP, 0);	// on stoppe la pompe
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP, 0);	// on stoppe la pompe
 				//state = SLOPE_GO_VERY_UP;
 				state = COMPUTE_ACTION;
 
