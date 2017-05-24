@@ -1566,11 +1566,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				state = DONE; // Il n'y a plus rien à faire
 			}else if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
 				state = ERROR; // Actionneurs désactivés
-			}else if (ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)){
+			}else if(ELEMENTS_get_flag(FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI)){
 				state = ERROR; // Anne est en train de le prendre
-			}
-			else
-			{
+			}else{
 
 				if(i_am_in_square_color(700, 1600, 200, 900)){
 					state = GET_IN_DIRECT;
@@ -1582,6 +1580,12 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 					state = GET_IN_CLOSE_ADV_ZONE;
 				}else{
 					state = GET_IN_ASTAR;
+				}
+
+				if(global.color == BLUE && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT)){
+					sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
+				}else if(global.color == YELLOW && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT)){
+					sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
 				}
 
 				// On lève le flag de subaction
@@ -1647,15 +1651,22 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		case TAKE_MODULE_LEFT:
 			if(entrance){
-				// On ne peut utiliser l'élévateur que s'il est disponible
-				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
-					ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER );
-					//ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
-				}
-				ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-			}
 
-			state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE, GET_OUT_LEFT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				if(global.color == BLUE && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT)){
+					state = ERROR; // Notre slider est toujours prit
+				}else if(global.color == YELLOW && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT)){
+					state = ERROR; // Notre slider est toujours prit
+				}else{
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER );
+						//ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+				}
+			}else{
+				state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE, GET_OUT_LEFT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case RUSH_TO_LOCK_MODULE:
