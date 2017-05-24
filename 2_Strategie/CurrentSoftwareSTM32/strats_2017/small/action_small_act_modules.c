@@ -414,7 +414,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 
 		case STOP_POMPE_SLIDER:
 			if(entrance){
-				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_SLIDER_REVERSE, 100);
+				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP, 0);
 				time_timeout = global.absolute_time + 1000;
 			}
 
