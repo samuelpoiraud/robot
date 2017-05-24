@@ -1353,6 +1353,7 @@ error_e sub_anne_prise_module_unicolor_south(ELEMENTS_side_e side){
 	return IN_PROGRESS;
 }
 
+#define OFFSET_BEST_SLIDER_APPROACH	(-10)	//[mm] décalage souhaitable pour une meilleure prise...
 
 error_e sub_anne_fusee_color(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_FUSEE_COLOR,
@@ -1412,15 +1413,11 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case PATHFIND:
-			if(global.color == BLUE){
-				state = ASTAR_try_going(400, COLOR_Y(1145), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
-				state = ASTAR_try_going(400, COLOR_Y(1155), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}
+			state = ASTAR_try_going(400, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GO_TO_START_POINT: //ajuster la distance fusée
-			state = try_going(265, COLOR_Y(1150), state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(265, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs

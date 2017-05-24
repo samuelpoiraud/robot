@@ -1127,7 +1127,7 @@ error_e action_recalage_x(way_e sens, Sint16 angle, Sint16 wanted_x, Sint16 want
 					if(delta_correction_x != NULL)
 						*delta_correction_x = global.pos.x - wanted_x;
 					PROP_set_position(wanted_x, global.pos.y, (set_teta_at_rush)?wanted_teta:global.pos.angle);
-					info_printf("Correction acceptée : x=%d->%d | y=%d | teta=%d\n", global.pos.x, wanted_x, global.pos.y, global.pos.angle);
+					info_printf("Correction acceptée : x=%d->%d | y=%d | teta=%d\n", global.pos.x, wanted_x, global.pos.y, (set_teta_at_rush)?wanted_teta:global.pos.angle);
 				}else
 					info_printf("Calage réussie sans correction\n");
 			}
@@ -1238,7 +1238,7 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, Sint16 want
 					if(delta_correction_y != NULL)
 						*delta_correction_y = global.pos.y - wanted_y;
 					PROP_set_position(global.pos.x, wanted_y, (set_teta_at_rush)?wanted_teta:global.pos.angle);
-					info_printf("Correction acceptée : x=%d | y=%d->%d | teta=%d\n", global.pos.x, global.pos.y, wanted_y, global.pos.angle);
+					info_printf("Correction acceptée : x=%d | y=%d->%d | teta=%d\n", global.pos.x, global.pos.y, wanted_y, (set_teta_at_rush)?wanted_teta:global.pos.angle);
 				}
 			}
 			else
