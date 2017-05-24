@@ -2248,6 +2248,9 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			DONE
 		);
 
+	// Distance supplémentaire de laquelle on avance en cas d'erreur
+	#define DELTA_ROBOT_TO_FAR (15)
+
 	// Positions du robot
 	static GEOMETRY_point_t take_pos = {0, 0}; // position du robot lors de la prise
 	static GEOMETRY_point_t store_pos = {0, 0}; // position du robot lors du stockage
@@ -2258,6 +2261,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	static ELEMENTS_side_e moduleToTake = NO_SIDE;		// Module en cours de prise
 	static bool_e needToStoreRight, needToStoreLeft;
 	static bool_e takeNothingRight, takeNothingLeft;
+	static int nbTakeNothingAtAll;
 	static moduleType_e moduleType = MODULE_EMPTY;
 
 	// Variables locales
@@ -2299,6 +2303,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			needToStoreLeft = FALSE;
 			takeNothingRight =  FALSE;
 			takeNothingLeft = FALSE;
+			nbTakeNothingAtAll = 0;
 
 			// Calcul des positions
 
@@ -2357,7 +2362,13 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			if(!needToStoreLeft && !needToStoreRight && moduleToTake == NO_SIDE && indexSide >= 4){
 				state = DONE; // On a fini ou rien n'est possible de faire
 			}else if(takeNothingLeft && takeNothingRight){
-				state = DONE; // La fusée est vide.
+				nbTakeNothingAtAll++;
+				if(nbTakeNothingAtAll <= 1){
+					compute_take_point_rocket(&take_pos, NULL, store_pos, take_angle, 45 + DELTA_ROBOT_TO_FAR); // on recalcule juste la position
+					state = AVANCE;
+				}else{
+					state = DONE; // La fusée est vide.
+				}
 			}else if(needToStoreLeft && needToStoreRight){
 				state = RECULE; // On doit stocker 2 modules
 			}else if(needToStoreLeft && moduleToTake == LEFT){
