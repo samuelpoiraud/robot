@@ -29,7 +29,6 @@
 #include "QS/QS_IHM.h"
 #include "QS/QS_systick.h"
 #include "QS/QS_mosfet.h"
-#include "QS/QS_vl53l0x/QS_vl53l0x.h"
 #include "terminal/term_io.h"
 #include "queue.h"
 #include "clock.h"
@@ -37,6 +36,7 @@
 #include "Can_msg_processing.h"
 #include "mosfetBoard.h"
 #include "colorSensor.h"
+#include "scan.h"
 
 #ifdef I_AM_ROBOT_BIG
 #else
@@ -133,8 +133,8 @@ int main (void)
 		COLOR_SENSOR_init();
 	#endif
 
-	#ifdef USE_VL53L0X
-		VL53L0X_init();
+	#ifdef USE_SCAN
+		SCAN_init();
 	#endif
 
 	IHM_define_act_button(BP_0_IHM, &MAIN_onButton0, &MAIN_onButton0LongPush);
@@ -153,6 +153,9 @@ int main (void)
 
 	while(1)
 	{
+
+		global.pos.updated = FALSE;
+
 		/*-------------------------------------
 			Gestion des DELs, boutons, etc
 		-------------------------------------*/
@@ -203,8 +206,8 @@ int main (void)
 			COLOR_SENSOR_processMain();
 		#endif
 
-		#ifdef USE_VL53L0X
-			VL53L0X_processMain();
+		#ifdef USE_SCAN
+			SCAN_processMain();
 		#endif
 
 		OUTPUTLOG_process_main();

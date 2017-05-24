@@ -843,6 +843,23 @@
 				COLOR_SENSOR_I2C_color_e color				:8;
 			}act_tell_color_sensor_i2c;
 
+		#define ACT_START_SCAN								0x3EE
+		#define SIZE_ACT_START_SCAN							1
+			struct{
+				SCAN_I2C_side_e side						:8;
+			}act_start_scan;
+
+		#define ACT_STOP_SCAN								0x3ED
+		#define SIZE_ACT_STOP_SCAN							0
+
+		#define ACT_RESULT_SCAN								0x222
+		#define SIZE_ACT_RESULT_SCAN						6
+			struct{
+				Uint16 min									:16;
+				Uint16 max									:16;
+				Uint16 xForMin								:16;
+			}act_result_scan;
+
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
 	 **										Carte Strat <-> Carte Act													 **
