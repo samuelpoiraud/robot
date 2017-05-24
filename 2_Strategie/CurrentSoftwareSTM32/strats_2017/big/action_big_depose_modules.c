@@ -1370,10 +1370,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			 */
 		case POSITION_DISPOSE_1:
 			if(robot_side == RIGHT){ //slow is decalage
-				state = try_going(1000, COLOR_Y(310), state, DISPOSE_1, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1050, COLOR_Y(310), state, DISPOSE_1, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_going(1000, COLOR_Y(310), state, DISPOSE_1, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1050, COLOR_Y(310), state, DISPOSE_1, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1397,10 +1397,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			 */
 		case POSITION_DISPOSE_2:
 			if(robot_side == RIGHT){
-				state = try_going(925, COLOR_Y(310), state, DISPOSE_2, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(900, COLOR_Y(310), state, DISPOSE_2, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_going(925, COLOR_Y(310), state, DISPOSE_2, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(900, COLOR_Y(310), state, DISPOSE_2, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1424,10 +1424,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			 */
 		case POSITION_DISPOSE_3:
 			if(robot_side == RIGHT){
-				state = try_going(850, COLOR_Y(310), state, DISPOSE_3, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(750, COLOR_Y(310), state, DISPOSE_3, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_going(850, COLOR_Y(310), state, DISPOSE_3, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(750, COLOR_Y(310), state, DISPOSE_3, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
