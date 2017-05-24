@@ -161,7 +161,8 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 	static moduleType_e moduleType = MODULE_EMPTY;
 	static time32_t time_timeout;
 	static Uint8 nbEssais;
-
+	error_e ret;
+	ret = IN_PROGRESS;
 #ifdef DISPLAY_STOCKS
 	if(entrance){
 		debug_printf("---------- MODULE_STOCK_SMALL ---------\n");
@@ -172,7 +173,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 	switch(state){
 
 		case INIT:
-
 			if(rocket == MODULE_ROCKET_MONO_OUR_SIDE){
 				if(global.color == BLUE){
 					moduleType = MODULE_BLUE;
@@ -289,7 +289,8 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				state2 = check_act_status(ACT_QUEUE_Small_cylinder_elevator, IN_PROGRESS, END_OK, NOT_HANDLED);
 
 			if(state3 == IN_PROGRESS)
-				state3 =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				//state3 =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state3 = try_rush(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 
 			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS ){
 				if(state3 == NOT_HANDLED){
@@ -537,7 +538,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			}
 			RESET_MAE();
 			on_turning_point();
-			return END_OK;
+			ret = END_OK;
 			break;
 
 		case ERROR:
@@ -549,7 +550,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			}
 			RESET_MAE();
 			on_turning_point();
-			return NOT_HANDLED;
+			ret = NOT_HANDLED;
 			break;
 
 		default:
@@ -558,7 +559,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			break;
 	}
 
-	return IN_PROGRESS;
+	return ret;
 }
 #else
 

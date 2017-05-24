@@ -200,7 +200,7 @@ error_e sub_cross_rocker(void){
 
 			// COCO ON T'ATTEND !
 			//J'arrive avec mes gros sabots et mes méthodes dégueulasses !
-			state = check_sub_action_result(action_recalage_y(FORWARD, COLOR_ANGLE(-PI4096/2), COLOR_Y(710+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE),COLOR_ANGLE(PI4096/2), FALSE, &diffy, TRUE, TRUE), state, AVANCE_TO_NEXT_POSITION, AVANCE_TO_NEXT_POSITION);
+			state = check_sub_action_result(action_recalage_y(FORWARD, COLOR_ANGLE(-PI4096/2), COLOR_Y(710+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE),COLOR_ANGLE(-PI4096/2), FALSE, &diffy, TRUE, TRUE), state, AVANCE_TO_NEXT_POSITION, AVANCE_TO_NEXT_POSITION);
 		}break;
 
 		case AVANCE_TO_NEXT_POSITION:
@@ -210,7 +210,7 @@ error_e sub_cross_rocker(void){
 		case RECALAGE_X:{
 			Sint16 diffx = 0;
 
-			state = check_sub_action_result(action_recalage_x(FORWARD, -PI4096, SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, PI4096, FALSE, &diffx, TRUE, TRUE), state, GET_OUT, CORRECT_ODOMETRY_MEASURE);
+			state = check_sub_action_result(action_recalage_x(FORWARD, -PI4096, SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, -PI4096, FALSE, &diffx, TRUE, TRUE), state, GET_OUT, CORRECT_ODOMETRY_MEASURE);
 		}break;
 
 		case GET_OUT:
