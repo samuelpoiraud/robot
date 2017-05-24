@@ -150,7 +150,7 @@ void ACT_start_scan(SCAN_I2C_side_e scanSide);
 
 void ACT_stop_scan();
 
-error_e ACT_wait_scan_result(SCAN_I2C_data_s *data);
+bool_e ACT_get_scan_result(SCAN_I2C_data_s *data);
 
 void ACT_receive_result_scan_act(CAN_msg_t *msg);
 

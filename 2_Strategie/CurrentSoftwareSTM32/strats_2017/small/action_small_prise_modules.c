@@ -1,6 +1,7 @@
 #include "action_small.h"
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"
+#include "../../propulsion/prop_functions.h"
 #include "../../QS/QS_stateMachineHelper.h"
 #include "../../QS/QS_outputlog.h"
 #include "../../utils/actionChecker.h"
@@ -14,6 +15,7 @@
 #include "../../actuator/act_functions.h"
 #include "../../actuator/queue.h"
 #include "../actions_both_generic.h"
+#include "../Supervision/Supervision.h"
 
 error_e sub_anne_homologation_belgique(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_HOMOLOGATION_BELGIQUE,
