@@ -76,6 +76,11 @@
 
 		VL53L0X_initConfigSensor();
 
+		#ifdef DEBUG_DISPLAY_SENSOR
+			VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_RIGHT);
+			VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_LEFT);
+		#endif
+
 		return FALSE;
 	}
 
@@ -342,8 +347,10 @@
 		status = VL53L0X_GetRangingMeasurementData((VL53L0X_DEV)&(sensors[id].sensor), &rangingMeasurementData);
 		if(status){
 			debug_printf("VL53L0X_GetRangingMeasurementData %d failed\n", id);
-			sensors[id].measureDone = TRUE;
-			sensors[id].measureAsked = FALSE;
+			#ifndef DEBUG_DISPLAY_SENSOR
+				sensors[id].measureDone = TRUE;
+				sensors[id].measureAsked = FALSE;
+			#endif
 			sensors[id].measure = 0;
 		}
 
@@ -363,7 +370,11 @@
 		if(rangingMeasurementData.RangeStatus == 0){
 			sensors[id].measure = sensors[id].sensor.LeakyRange;
 			#ifdef DEBUG_DISPLAY_SENSOR
-				debug_printf("VL53L0X %d : %4d\n", id, sensors[id].sensor.LeakyRange);
+				static Uint16 pastValue = 0;
+				if(pastValue != sensors[id].sensor.LeakyRange){
+					debug_printf("VL53L0X %d : %4d\n", id, sensors[id].sensor.LeakyRange);
+					pastValue = sensors[id].sensor.LeakyRange;
+				}
 			#endif
 		}else{
 			sensors[id].measure = 0;
@@ -372,7 +383,9 @@
 			#endif
 		}
 
+	#ifndef DEBUG_DISPLAY_SENSOR
 		sensors[id].measureDone = TRUE;
 		sensors[id].measureAsked = FALSE;
+	#endif
 	}
 #endif
