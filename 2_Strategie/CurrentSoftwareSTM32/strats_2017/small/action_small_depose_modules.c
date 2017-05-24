@@ -14,6 +14,7 @@
 #include "../../actuator/queue.h"
 #include "../../propulsion/pathfind.h"
 #include "../../propulsion/prop_functions.h"
+#include "../avoidance.h"
 
 typedef enum
 {
@@ -2052,19 +2053,21 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 	static GEOMETRY_point_t IndoorPoint;
 	static GEOMETRY_vector_t vector_cm;
 	static GEOMETRY_vector_t vector_extract_cm;
-
+	static Uint8 nb_round_return;
 	static Sint16 distance_to_moonbase;
 	static bool_e way_getting_oudoor;	//Vrai si on est dans le sens où on va vers la sortie.. Faut si on revient vers l'intérieur avant de retenter de sortir.
 
 	switch(state)
 	{
 			case INIT:
-				AVOIDANCE_activeSmallAvoidance(TRUE);
+				//AVOIDANCE_activeSmallAvoidance(TRUE);
+				//TODO : ca marche pas top cette histoire !
 				way_getting_oudoor = TRUE;
 				if(dzone <= DZONE5_YELLOW_OUTDOOR)
 					state = COMPUTE_POINTS;
 				else
 					state = ERROR;
+				nb_round_return = 0;
 				break;
 			case COMPUTE_POINTS:
 				//Calcul du projeté du robot au centre de la ligne de dépose.
@@ -2085,7 +2088,8 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 				}
 
 				distance_to_moonbase = GEOMETRY_distance(projete, (GEOMETRY_point_t){global.pos.x, global.pos.y}) - MOONBASE_TO_R;
-
+				if(distance_to_moonbase<0)
+					distance_to_moonbase = 0;	//Ecretage !
 				if(dzone == DZONE0_BLUE_OUTDOOR)
 				{
 					ExtractLeft = (GEOMETRY_point_t){1800,750};
@@ -2125,14 +2129,15 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 					case DZONE5_YELLOW_OUTDOOR:	vector_cm = (GEOMETRY_vector_t){-100/R2, 100/R2};	vector_extract_cm = (GEOMETRY_vector_t){0,+10/R2};	break;
 					default:	break;
 				}
-
+				debug_printf("Distance to moonbase : %d\n",distance_to_moonbase);
 				if(way_getting_oudoor)
 					state = EXTRACT_TO_COMPUTED_POINT;	//Hypothèse
 				else
 					state = BACK_TO_COMPUTED_INDOOR;
-				if(distance_to_moonbase < 110)
+				nb_round_return++;
+				if(distance_to_moonbase < 110 && nb_round_return < 4)
 					vector_extract_cm.y *= 1;			//On s'extrait doucement
-				else if(distance_to_moonbase < 120)
+				else if(distance_to_moonbase < 120 && nb_round_return < 8)
 					vector_extract_cm.y *= 2;			//On s'extrait moyenement
 				else if(distance_to_moonbase < 140)
 					vector_extract_cm.y *= 4;			//On s'extrait fortement
@@ -2153,7 +2158,12 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 					ExtractPoint = (GEOMETRY_point_t){global.pos.x + vector_cm.x, global.pos.y + vector_cm.y + vector_extract_cm.y};
 				}
 				state = try_going(ExtractPoint.x, ExtractPoint.y, state, COMPUTE_POINTS, BACK_TO_COMPUTED_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-				if(state == BACK_TO_COMPUTED_INDOOR)	//EN cas d'échec, on force le passage par COMPUTE_POINTS.
+				if(state == COMPUTE_POINTS)	//En cas de succès, on considère qu'on est sorti si on atteint un x assez faible !
+				{
+					if(global.pos.x < 1100)
+						state = DONE;		//Fini !
+				}
+				if(state == BACK_TO_COMPUTED_INDOOR)	//En cas d'échec, on force le passage par COMPUTE_POINTS.
 				{
 					way_getting_oudoor = FALSE;
 					state = COMPUTE_POINTS;
@@ -2164,7 +2174,7 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 				{
 					//On s'autorise de reculer de 3cm...
 					//Ce point est osé, et un peu arbitraire... wait & see!
-					ExtractPoint = (GEOMETRY_point_t){global.pos.x - (3*vector_cm.x)/10, global.pos.y + 3*(vector_cm.y + vector_extract_cm.y)/10};
+					ExtractPoint = (GEOMETRY_point_t){global.pos.x - (3*vector_cm.x)/10, global.pos.y - (3*vector_cm.y)/10 + (3*vector_extract_cm.y)/10};
 				}
 				state = try_going(ExtractPoint.x, ExtractPoint.y, state, COMPUTE_POINTS, COMPUTE_POINTS, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				if(ON_LEAVE())
@@ -2172,10 +2182,10 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 				break;
 
 			case EXTRACT_LEFT:
-				state = try_going(ExtractLeft.x, ExtractLeft.y, state, ERROR, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(ExtractLeft.x, ExtractLeft.y, state, DONE, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 				break;
 			case EXTRACT_RIGHT:
-				state = try_going(ExtractRight.x, ExtractRight.y, state, ERROR, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(ExtractRight.x, ExtractRight.y, state, DONE, EXTRACT_INDOOR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 				break;
 			case EXTRACT_INDOOR:	//On retourne vers l'intérieur... pour provoquer des aller-retours !
 			{
@@ -2200,8 +2210,8 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 			default:
 				break;
 	}
-	if(ret != IN_PROGRESS)
-		AVOIDANCE_activeSmallAvoidance(FALSE);
+	//if(ret != IN_PROGRESS)
+	//	AVOIDANCE_activeSmallAvoidance(FALSE);	//TODO : ca marche pas top cette histoire !
 	return ret;
 }
 
@@ -2372,6 +2382,9 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			ASTAR_GET_IN,
 			RUSH_TO_GOAL,
 			EXTRACT_FROM_RUSH_TO_A,
+			EXTRACT_AFTER_FAILING_RUSH,
+			EXTRACT_AFTER_FAILING_RUSH_NORTH,
+			EXTRACT_AFTER_FAILING_RUSH_SOUTH,
 			GOTO_F0_VIA_E0,
 			GOTO_F1,
 			GOTO_F2,
@@ -2389,10 +2402,11 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 	static GEOMETRY_point_t G, O, A, E0, F0, F1, F2, F3, P0, P1;
 	static color_e color_side;
 	static displacement_t output_curve[2];
-
+	static Uint8 nb_try_extract_from_rush_to_a;
 	switch(state)
 	{
 		case INIT:
+			nb_try_extract_from_rush_to_a = 0;
 			if(side == OUR_SIDE)
 				color_side = global.color;
 			else
@@ -2482,8 +2496,44 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 
 			//TODO enrichir avec un scan pour permettre le remplissage d'une zone non vide... en rejoignant après un poussage la bonne case directement.
 			break;
-		case EXTRACT_FROM_RUSH_TO_A:
-			state = try_going(A.x, A.y, state, GOTO_F0_VIA_E0, RUSH_TO_GOAL, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case EXTRACT_FROM_RUSH_TO_A:{
+			static enum state_e fail_state;
+			if(entrance)
+			{
+				if(nb_try_extract_from_rush_to_a > 0)
+					AVOIDANCE_activeSmallAvoidance(TRUE);
+			}
+			if(nb_try_extract_from_rush_to_a <= 2)
+				fail_state = RUSH_TO_GOAL;
+			else if(color_side==BLUE && global.pos.y>80+28+130)	//Si on a réussit à sortir suffisamment et que ca fait déjà deux fois, on se casse !
+				fail_state = EXTRACT_AFTER_FAILING_RUSH;
+			else if (color_side==YELLOW && global.pos.y<3000-80-28-130)
+				fail_state = EXTRACT_AFTER_FAILING_RUSH;
+			else
+				fail_state = RUSH_TO_GOAL;
+
+			state = try_going(A.x, A.y, state, GOTO_F0_VIA_E0, fail_state, SLOW, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(ON_LEAVE())
+			{
+				if(nb_try_extract_from_rush_to_a > 0)
+					AVOIDANCE_activeSmallAvoidance(FALSE);
+				nb_try_extract_from_rush_to_a++;
+			}
+			break;}
+		case EXTRACT_AFTER_FAILING_RUSH:
+			//Choix entre un point au SOUTH et un autre au NORTH
+			if(color_side == YELLOW && foe_in_square(FALSE,850, 2000, 2000, 3000, FOE_TYPE_ALL))
+				state = EXTRACT_AFTER_FAILING_RUSH_NORTH;
+			else if(color_side == BLUE && foe_in_square(FALSE,850, 2000, 0, 1000, FOE_TYPE_ALL))
+				state = EXTRACT_AFTER_FAILING_RUSH_NORTH;
+			else
+				state = EXTRACT_AFTER_FAILING_RUSH_SOUTH;
+			break;
+		case EXTRACT_AFTER_FAILING_RUSH_SOUTH:
+			state = try_going(1200, (color_side==BLUE)?270:2730, state, ERROR, EXTRACT_AFTER_FAILING_RUSH_NORTH, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			break;
+		case EXTRACT_AFTER_FAILING_RUSH_NORTH:
+			state = try_going(600, (color_side==BLUE)?270:2730, state, ERROR, EXTRACT_AFTER_FAILING_RUSH_SOUTH, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 		case GOTO_F0_VIA_E0:
 			//BACKWARD pour se mettre du bon côté !!!

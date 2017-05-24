@@ -19,6 +19,7 @@ error_e sub_anne_initiale(void){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_INITIALE,
 			INIT,
 			CROSS_ROCKER,
+			EXTRACT_FROM_BORDER_IF_NEEDED,
 			COMPUTE_WHAT_DOING,
 			TAKE_OUR_ROCKET,
 			TAKE_ADV_ROCKET,
@@ -61,7 +62,16 @@ error_e sub_anne_initiale(void){
 			break;
 		case CROSS_ROCKER:
 			if(sub_cross_rocker() != IN_PROGRESS)
-				state = COMPUTE_WHAT_DOING;
+				state = EXTRACT_FROM_BORDER_IF_NEEDED;
+			break;
+		case EXTRACT_FROM_BORDER_IF_NEEDED:
+			if(entrance)
+			{
+				if(global.pos.x > 160)
+					state = COMPUTE_WHAT_DOING;
+			}
+			else	//Le else est très important !
+				state = try_going(160, global.pos.y, state, COMPUTE_WHAT_DOING, COMPUTE_WHAT_DOING, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 		case COMPUTE_WHAT_DOING:	//Cet état est susceptible d'être appelé lors de l'échec d'une sub... pour reréfléchir à quoi faire !
 			if(nb_try_our_rocket && !(agressivity && nb_try_adv_rocket))
