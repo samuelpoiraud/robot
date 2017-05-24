@@ -652,6 +652,7 @@ void SELFTEST_print_errors(SELFTEST_error_code_e * tab_errors, Uint8 size)
                 case SELFTEST_ACT_AX12_SMALL_MAGIC_COLOR:		debug_printf("SELFTEST_ACT_AX12_SMALL_MAGIC_COLOR");			break;
 
                 case SELFTEST_ACT_AX12_SMALL_ORE:				debug_printf("SELFTEST_ACT_AX12_SMALL_ORE");					break;
+                case SELFTEST_ACT_AX12_SMALL_POUSSIX:			debug_printf("SELFTEST_ACT_AX12_SMALL_POUSSIX");					break;
 
 
 				case SELFTEST_ACT_MISSING_TEST:					debug_printf("SELFTEST_ACT_MISSING_TEST");						break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)
@@ -1006,7 +1007,7 @@ char * SELFTEST_getError_string(SELFTEST_error_code_e error_num){
 	   case SELFTEST_ACT_AX12_SMALL_MAGIC_COLOR:		return "ACT MAGIG COLOR";		break;
 
 	   case SELFTEST_ACT_AX12_SMALL_ORE:				return "ACT ORE";				break;
-
+	   case SELFTEST_ACT_AX12_SMALL_POUSSIX:			return "ACT POUSSIX";			break;
 
 
 		case SELFTEST_ACT_MISSING_TEST:					return "ACT MISSING TEST";		break;	//Test manquant après un timeout du selftest actionneur, certains actionneur n'ont pas le selftest d'implémenté ou n'ont pas terminé leur action (ou plus rarement, la pile était pleine et le selftest n'a pas pu se faire)

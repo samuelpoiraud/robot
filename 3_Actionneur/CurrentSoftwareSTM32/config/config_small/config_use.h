@@ -18,9 +18,9 @@
 /* Réglages PWM */
 	#define USE_PWM_MODULE
 		#define PWM_FREQ	50000
-		#define SMALL_POMPE_DISPOSE_PWM_NUM		(2)
+		#define SMALL_POMPE_DISPOSE_PWM_NUM		(3)
 		#define USE_PWM2
-		#define SMALL_POMPE_PRISE_PWM_NUM		(3)
+		#define SMALL_POMPE_PRISE_PWM_NUM		(2)
 		#define USE_PWM3
 
 
