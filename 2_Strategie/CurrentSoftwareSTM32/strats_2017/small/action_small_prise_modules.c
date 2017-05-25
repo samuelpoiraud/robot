@@ -1419,11 +1419,7 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case GET_IN_DIRECT:
-			if(global.color == BLUE){
-				state = try_going(400, COLOR_Y(1145), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}else{
-				state = try_going(400, COLOR_Y(1155), state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}
+				state = try_going(400, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, i_am_in_square_color((0,500,800,1300))?NO_AVOIDANCE:NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PATHFIND:
@@ -1431,7 +1427,7 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case GO_TO_START_POINT: //ajuster la distance fusée
-			state = try_going(265, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(265, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
@@ -1450,7 +1446,7 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case AVANCE:
-			state=try_going(220, global.pos.y, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(220, global.pos.y, state, GET_OUT, GET_OUT, FAST, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
 			break;
 
 		case AVANCE_ERROR:

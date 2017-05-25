@@ -298,12 +298,12 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 					state = ACTION_BRING_BACK_CYLINDER;//ou DONE ? est-ce-qu'on continue la prise?
 			}
 			else	//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
-				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case AVANCE_ERROR:
 			//Si on a pas reussi a bien avancer, on reessaie
-			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_BRING_BACK_CYLINDER:
@@ -365,7 +365,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 					success_state = ACTION_LOCK_MULTIFUNCTION;
 			}
 			//a la prise du dernier module on part en slow pour ralentir la chute du dernier
-			state = try_going(store_pos.x, store_pos.y, state, success_state, RECULE_ERROR, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(store_pos.x, store_pos.y, state, success_state, RECULE_ERROR, SLOW, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 
 			break;}
 
@@ -377,7 +377,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 					state = DONE;
 			}
 			else
-				state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case ACTION_LOCK_MULTIFUNCTION:
