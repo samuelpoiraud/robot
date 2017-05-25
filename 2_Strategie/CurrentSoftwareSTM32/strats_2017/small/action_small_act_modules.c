@@ -413,7 +413,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 
 		case PARALLELE_STOP_POMPE_SLIDER: // on change le sens de ventousage de la pompe (ventousage elevator, arrêt slider)
 			if(entrance){
-				time_timeout = global.absolute_time + 500;
+				time_timeout = global.absolute_time + 1000;
 				ACT_push_order_with_param( ACT_SMALL_POMPE_DISPOSE , ACT_POMPE_STOP, 0);
 			}
 
