@@ -403,9 +403,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 				// pos 2
 				if(global.color == BLUE){
-					state = try_rush(1390, COLOR_Y(1220), state, UP_PUSHER_RIGHT,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+					state = try_rush(1382, COLOR_Y(1236), state, UP_PUSHER_RIGHT,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_rush(1390, COLOR_Y(1220), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+					state = try_rush(1382, COLOR_Y(1236), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
 			}else if(drop_place == POS_3){
 
@@ -426,9 +426,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				// pos 5
 				if(global.color == BLUE){
 
-					state = try_rush(1390, COLOR_Y(1780), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+					state = try_rush(1383, COLOR_Y(1765), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_rush(1390, COLOR_Y(1780), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+					state = try_rush(1383, COLOR_Y(1765), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
 			}/*else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 6
@@ -791,7 +791,7 @@ error_e sub_harry_get_in_pos_2_depose_module_centre(){
 			break;
 
 		case AVANCE:
-			state = try_going(1300,COLOR_Y(1135), state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
+			state = try_going(1250,COLOR_Y(1110), state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 			break;
 
 		case ROTATE:
@@ -970,12 +970,18 @@ error_e sub_harry_get_in_pos_5_depose_module_centre(){
 			GET_IN_FROM_OUR_SQUARE,
 			GET_IN_FROM_MIDDLE_SQUARE,
 			GET_IN_FROM_ADV_SQUARE,
+			START_POINT,
 			AVANCE,
 			ROTATE,
 			PATHFIND,
 			ERROR,
 			DONE
 		);
+
+	const displacement_t curve_middle[2] = {(displacement_t){(GEOMETRY_point_t){950, COLOR_Y(1050)}, FAST},
+														(displacement_t){(GEOMETRY_point_t){800, COLOR_Y(1700)}, FAST},
+											};
+
 
 	switch(state){
 		case INIT:
@@ -984,22 +990,23 @@ error_e sub_harry_get_in_pos_5_depose_module_centre(){
 			}else if(i_am_in_square_color(200, 1100, 900, 2100)){
 				state = GET_IN_FROM_MIDDLE_SQUARE;
 			}else if(i_am_in_square_color(800, 1400, 2100, 2700)){
-				state = GET_IN_FROM_ADV_SQUARE;
+				state = START_POINT;
 			}else{
 				state = PATHFIND;
 			}
 			break;
 
 		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(1100, COLOR_Y(2075), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			state = try_going_multipoint(curve_middle, 3, state, START_POINT, ERROR, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			//state = try_going(1100, COLOR_Y(2075), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case GET_IN_FROM_MIDDLE_SQUARE:
-			state = try_going(1000, COLOR_Y(2000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT,END_AT_BRAKE);
+			state = try_going(1000, COLOR_Y(2000), state, START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
-		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(900, COLOR_Y(1000), state, GET_IN_FROM_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT,END_AT_BRAKE);
+		case START_POINT:
+			state = try_going(1100, COLOR_Y(2075), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT,END_AT_BRAKE);
 			break;
 
 		case AVANCE:
