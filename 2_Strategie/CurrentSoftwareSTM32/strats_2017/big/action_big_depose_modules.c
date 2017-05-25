@@ -75,7 +75,7 @@ error_e sub_harry_depose_centre_manager(){
 
 		//On choisit le côté avec lequel le robot effectue sa dépose
 		case CHOOSE_ROBOT_SIDE:
-			//if(global.color == BLUE){ // Si on est bleu, on commence par checker le côté gauche
+			if(global.color == BLUE){ // Si on est bleu, on commence par checker le côté gauche
 				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0 && depose_left == FALSE){
 
 					if(STOCKS_getDominatingModulesType(MODULE_STOCK_LEFT) == MODULE_MONO_DOMINATING){
@@ -107,7 +107,7 @@ error_e sub_harry_depose_centre_manager(){
 					state = DONE;
 				}
 			}
-			/*else  // Si on est jaune, on commence par checker le côté droit
+			else  // Si on est jaune, on commence par checker le côté droit
 			{
 				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 && depose_right == FALSE){
 					if(STOCKS_getDominatingModulesType(MODULE_STOCK_RIGHT) == MODULE_MONO_DOMINATING){
@@ -138,7 +138,7 @@ error_e sub_harry_depose_centre_manager(){
 				else{
 					state = DONE;
 				}
-			}*/
+			}
 			if(module_type == NO_DOMINATING){
 				module_type = MODULE_POLY_DOMINATING;
 			}
@@ -244,7 +244,7 @@ error_e sub_harry_depose_centre_manager(){
 			break;
 
 		case SUCCESS_DEPOSE:
-			if (dispose_place == POS_1 || dispose_place == POS_3 || dispose_place == POS_5){
+			if (robot_side == MODULE_STOCK_LEFT){
 				depose_left = TRUE;
 			}else{
 				depose_right = TRUE;
@@ -312,7 +312,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 	switch(state){
 		case INIT:
 			flag_error = FALSE;
-			sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, TRUE);
+			sub_act_harry_mae_prepare_modules_for_dispose(robot_side, TRUE);
 			state = GET_IN;
 			break;
 
@@ -552,7 +552,6 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			}
 			break;
 
-#warning gérer le get out with error ne pas faire seulement error
 		case GET_OUT_WITH_ERROR:
 			flag_error = TRUE;
 			state = GET_OUT;
