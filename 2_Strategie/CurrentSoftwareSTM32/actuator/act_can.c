@@ -195,12 +195,12 @@ static void ACT_check_result(queue_id_e act_id) {
 		QUEUE_next(act_id);
 #else
 
-	if(global.absolute_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time(act_id) && act_states[act_id].acknowledge == FALSE){
+	if(global.absolute_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time_of_re_send_msg(act_id) && act_states[act_id].acknowledge == FALSE){
 		error_printf("Acknowledge timeout (by strat) act id: %u, sid: 0x%x", act_id, argument->msg.sid);
 		CAN_msg_t* msg = &(QUEUE_get_arg(act_id)->msg);
 		error_printf("RE-Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d\n", act_id, msg->sid , msg->size, msg->data.act_msg.order);
 		CAN_send(msg);
-		QUEUE_set_initial_time(act_id, global.absolute_time);
+		QUEUE_set_initial_time_of_re_send_msg(act_id, global.absolute_time);
 	}
 
 	if(global.absolute_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {

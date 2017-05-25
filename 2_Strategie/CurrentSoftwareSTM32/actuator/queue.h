@@ -139,7 +139,11 @@ QUEUE_arg_t* QUEUE_get_arg(queue_id_e queue_id);
 /*Renvoie le moment ou l'action a été initialisée */
 time32_t QUEUE_get_initial_time(queue_id_e queue_id);
 
-void QUEUE_set_initial_time(queue_id_e queue_id, time32_t initial_time);
+/*Renvoie le moment ou le message de l'action a été envoyé */
+time32_t QUEUE_get_initial_time_of_re_send_msg(queue_id_e queue_id);
+
+/*Modification du moment ou le message de l'action a été envoyé */
+void QUEUE_set_initial_time_of_re_send_msg(queue_id_e queue_id, time32_t initial_time);
 
 /*fonction de gestion des files*/
 void QUEUE_run();
