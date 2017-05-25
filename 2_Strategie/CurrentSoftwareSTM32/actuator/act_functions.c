@@ -595,6 +595,16 @@ void ACT_receive_vacuostat_msg(CAN_msg_t *msg){
 	}
 }
 
+#define TIME_REFRESH_VACUOSTAT	 (7000)
+void ACT_vacuostat_process_main(){
+	Uint8 i = 0;
+	for(i = 0; i < ACT_NB_VACUOSTAT; i++){
+		if(global.absolute_time - vacuostat[i].lastRefresh > TIME_REFRESH_VACUOSTAT){
+				vacuostat[i].state = MOSFET_BOARD_CURRENT_MEASURE_STATE_NO_PUMPING;
+		}
+	}
+}
+
 Uint8 ACT_wait_state_color_sensor(COLOR_SENSOR_I2C_color_e color, time32_t timeout, Uint8 in_progress, Uint8 sucess, Uint8 fail){
 	CREATE_MAE(INIT,
 				GET_STATE,

@@ -204,6 +204,9 @@ int main (void)
 			}
 		}
 
+		// Reset des états des vacuostats
+		ACT_vacuostat_process_main();
+
 		OUTPUTLOG_process_main();
 
 		process_measure_loop_duration();

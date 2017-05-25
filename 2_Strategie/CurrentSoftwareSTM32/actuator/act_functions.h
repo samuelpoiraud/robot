@@ -120,6 +120,8 @@ MOSFET_BOARD_CURRENT_MEASURE_state_e ACT_get_state_vacuostat(act_vacuostat_id id
 
 void ACT_receive_vacuostat_msg(CAN_msg_t *msg);
 
+void ACT_vacuostat_process_main();
+
 /**
  * @brief ACT_get_turbine_speed
  * @arg speed : pointeur de la variable ou stocker la vitesse [RPM]
