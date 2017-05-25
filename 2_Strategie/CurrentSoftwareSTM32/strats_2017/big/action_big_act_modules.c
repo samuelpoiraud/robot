@@ -18,6 +18,8 @@
 
 #define TIME_COLOR_BLUE_DETECTION	(100)	// en ms
 
+//#define DISPOSE_WAIT_FALL_OF_MODULE
+
 // Fonctions privées
 static bool_e color_blue_is_detected(CW_sensor_e sensor, bool_e color_white, bool_e color_yellow, bool_e entrance);
 
@@ -1970,10 +1972,14 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 					sub_act_harry_mae_prepare_modules_for_dispose(storage, TRUE);
 				}
 			}
+#ifdef DISPOSE_WAIT_FALL_OF_MODULE
 			if((storage == MODULE_STOCK_RIGHT && (ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FALLEN) || ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH)))
 				|| (storage == MODULE_STOCK_LEFT && (ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FALLEN) || ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH)))){
 				state = UNFOLD_DISPOSE_SERVO;
 			}
+#else
+			state = UNFOLD_DISPOSE_SERVO;
+#endif
 			break;
 
 		case UNFOLD_DISPOSE_SERVO:

@@ -1031,7 +1031,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			WAIT_DISPENSER_TO_END,
 			DISPENSER_GO_LOCK_TO_END,
 
-			ERROR_DISABLE_ACT,
+			//ERROR_DISABLE_ACT,
 			ERROR,
 			DONE
 
@@ -1094,7 +1094,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, SLIDER_GO_IN, ERROR_DISABLE_ACT);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, SLIDER_GO_IN, SLIDER_GO_IN);
 			break;
 
 		case SLIDER_GO_IN:
@@ -1200,10 +1200,10 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, DONE, DONE);
 			break;
 
-		case ERROR_DISABLE_ACT:
-			ELEMENTS_set_flag(FLAG_ANNE_DISABLE_MODULE, TRUE);
-			state = ERROR; // On ne peut plus rien faire
-			break;
+//		case ERROR_DISABLE_ACT:
+//			ELEMENTS_set_flag(FLAG_ANNE_DISABLE_MODULE, TRUE);
+//			state = ERROR; // On ne peut plus rien faire
+//			break;
 
 		case DONE:
 			if(entrance){
@@ -1534,7 +1534,7 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, MODULE_STOCK_SMALL)){
 				state = MOVE_BALANCER_OUT; // Préparation de la dépose possible
 			}else{
-				state = WAIT_STORAGE;	// Il n'y a pas de cylindre disponible //TODO déclencher le stockage
+				state = WAIT_STORAGE;	// Il n'y a pas de cylindre disponible
 			}
 			break;
 
@@ -1593,7 +1593,7 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 					// Mise à jour des données : on fait progresser le module en POS_BALANCER vers la position POS_COLOR
 					STOCKS_makeModuleProgressTo(STOCK_PLACE_BALANCER_TO_COLOR, MODULE_STOCK_SMALL);
 				}
-				ELEMENTS_set_flag(FLAG_SMALL_BALANCER_FINISH, TRUE);
+				//ELEMENTS_set_flag(FLAG_SMALL_BALANCER_FINISH, TRUE);
 			}
 			break;
 
@@ -1665,7 +1665,7 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			break;
 
 		case END_CHECK_POSITION_BALANCER:
-			stateAct = ACT_check_position_config(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
+			stateAct = ACT_check_position_config_right(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
 
 			if(stateAct != IN_PROGRESS){
 				if(stateAct == NOT_HANDLED || stateAct == END_WITH_TIMEOUT){
@@ -1828,9 +1828,9 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 			if(entrance){
 				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_OUT);
 				timeout = global.absolute_time + 3000;
-				//if(anotherDisposeWillFollow){
+				if(anotherDisposeWillFollow){
 					sub_act_anne_mae_prepare_modules_for_dispose(TRUE);
-				//}
+				}
 
 				stateAct = IN_PROGRESS;
 			}
