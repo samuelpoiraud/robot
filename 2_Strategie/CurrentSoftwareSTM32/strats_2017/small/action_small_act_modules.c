@@ -105,7 +105,7 @@ error_e sub_act_anne_return_module(){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_act_anne_return_module\n");
+				error_printf("default case in sub_act_anne_return_module\n");
 			break;
 	}
 
@@ -188,7 +188,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			store_pos.x = global.pos.x;
 			store_pos.y = global.pos.y;
 			compute_take_point_rocket(&take_pos, NULL, store_pos, global.pos.angle, 70);//derniere valeur a modifier pour changer la distance d'avancement et de recule lors de la prise
-			debug_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
+			error_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
 
 			modules_taken = 0;
 			state = COMPUTE_NEXT_CYLINDER;
@@ -198,13 +198,13 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(ELEMENTS_get_flag(FLAG_ANNE_DISABLE_MODULE)){
 				moduleToTake = FALSE;
 			}else if(ROCKETS_isEmpty(rocket)){
-				debug_printf("LA FUSEE EST VIDE");
+				error_printf("LA FUSEE EST VIDE");
 				moduleToTake = FALSE;		// La fusée est vide, nous avons fini.
 			}else if(STOCKS_isFull(MODULE_STOCK_SMALL)){
-				debug_printf("ON REFUSE LA PRISE, le stock est plein");
+				error_printf("ON REFUSE LA PRISE, le stock est plein");
 				moduleToTake = FALSE;
 			}else if(modules_taken == max_modules_to_take){
-				debug_printf("ON REFUSE LA PRISE, on nous a demandé d'en prendre seulement %d\n", max_modules_to_take); // On ne doit pas prendre les modules suivants (ceci est un choix de l'utilisateur)
+				error_printf("ON REFUSE LA PRISE, on nous a demandé d'en prendre seulement %d\n", max_modules_to_take); // On ne doit pas prendre les modules suivants (ceci est un choix de l'utilisateur)
 			}else
 				moduleToTake = TRUE;		// Le stock est plein
 
@@ -555,7 +555,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_act_anne_take_rocket\n");
+				error_printf("default case in sub_act_anne_take_rocket\n");
 			break;
 	}
 
@@ -993,7 +993,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_act_anne_take_rocket\n");
+				error_printf("default case in sub_act_anne_take_rocket\n");
 			break;
 	}
 
@@ -1222,7 +1222,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_act_anne_mae_store_modules\n");
+				error_printf("default case in sub_act_anne_mae_store_modules\n");
 			break;
 	}
 
@@ -1472,7 +1472,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_act_anne_mae_store_modules\n");
+				error_printf("default case in sub_act_anne_mae_store_modules\n");
 			break;
 	}
 
@@ -1709,7 +1709,7 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_act_anne_mae_prepare_modules_for_dispose\n");
+				error_printf("default case in sub_act_anne_mae_prepare_modules_for_dispose\n");
 			break;
 	}
 
@@ -1946,7 +1946,7 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_act_anne_mae_dispose_modules\n");
+				error_printf("default case in sub_act_anne_mae_dispose_modules\n");
 			break;
 	}
 

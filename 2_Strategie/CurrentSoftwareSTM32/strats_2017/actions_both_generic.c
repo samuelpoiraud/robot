@@ -295,7 +295,7 @@ void strat_reglage_odo_rotation(void){
 			//Si il est bien réglé l'angle interne du robot devrait etre de zero, sinon l'angle interne du robot s'est décalé quand le robot a approché le mur
 
 			if(absolute(positionCalage.angle) <= ROT_ODOMETRIE_PLAGE_ROTATION){
-				debug_printf("Step odométrie rotation finit : 0x%lx   | angle : %d \n", coefOdoRotation, positionCalage.angle);
+				error_printf("Step odométrie rotation finit : 0x%lx   | angle : %d \n", coefOdoRotation, positionCalage.angle);
 				LCD_printf(3, TRUE, TRUE, "V|%d|0x%lx", positionCalage.angle, coefOdoRotation);
 
 				if(actual_nb_tour == ROT_NB_TOUR_ODO_ROTATION){

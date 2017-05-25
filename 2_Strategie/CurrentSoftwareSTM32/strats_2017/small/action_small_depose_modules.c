@@ -114,7 +114,7 @@ error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_manager_return_module\n");
+				error_printf("default case in sub_anne_manager_return_module\n");
 			break;
 	}
 
@@ -382,7 +382,7 @@ error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_return_modules_centre\n");
+				error_printf("default case in sub_anne_return_modules_centre\n");
 			break;
 	}
 
@@ -523,7 +523,7 @@ error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_return_modules_centre_get_in\n");
+				error_printf("default case in sub_anne_return_modules_centre_get_in\n");
 			break;
 	}
 
@@ -734,7 +734,7 @@ error_e sub_anne_return_modules_side(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_return_modules_centre\n");
+				error_printf("default case in sub_anne_return_modules_centre\n");
 			break;
 	}
 
@@ -841,7 +841,7 @@ error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_return_modules_side_get_in\n");
+				error_printf("default case in sub_anne_return_modules_side_get_in\n");
 			break;
 	}
 	return IN_PROGRESS;
@@ -1493,7 +1493,7 @@ error_e sub_anne_depose_centre_manager(){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_depose_centre_manager\n");
+				error_printf("default case in sub_anne_depose_centre_manager\n");
 			break;
 	}
 	return IN_PROGRESS;
@@ -1831,12 +1831,12 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				C = (GEOMETRY_point_t){H.x + HC.x, H.y + HC.y};
 				FX = (GEOMETRY_point_t){C.x, C.y};	//on fait l'hypothèse que C est atteignable, c'est donc notre F0
 					//ce point sera susceptible de bouger si on montre que C n'est pas atteignable !
-				debug_printf("Points mesurés et calculés :\n");
-				debug_printf("O :%4d ; %4d\n", O.x, O.y);
-				debug_printf("H :%4d ; %4d\n", H.x, H.y);
-				debug_printf("A :%4d ; %4d\n", A.x, A.y);
-				debug_printf("B :%4d ; %4d\n", B.x, B.y);
-				debug_printf("C :%4d ; %4d\n", C.x, C.y);
+				error_printf("Points mesurés et calculés :\n");
+				error_printf("O :%4d ; %4d\n", O.x, O.y);
+				error_printf("H :%4d ; %4d\n", H.x, H.y);
+				error_printf("A :%4d ; %4d\n", A.x, A.y);
+				error_printf("B :%4d ; %4d\n", B.x, B.y);
+				error_printf("C :%4d ; %4d\n", C.x, C.y);
 
 			}
 			break;
@@ -1877,9 +1877,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			D = (GEOMETRY_point_t){FX.x + F0D.x, FX.y + F0D.y};
 			E = (GEOMETRY_point_t){FX.x + F0E.x, FX.y + F0E.y};
 
-			debug_printf("FX (au début) :%4d ; %4d\n", FX.x, FX.y);
-			debug_printf("D :%4d ; %4d\n", D.x, D.y);
-			debug_printf("E :%4d ; %4d\n", E.x, E.y);
+			error_printf("FX (au début) :%4d ; %4d\n", FX.x, FX.y);
+			error_printf("D :%4d ; %4d\n", D.x, D.y);
+			error_printf("E :%4d ; %4d\n", E.x, E.y);
 			state = GOTO_E;
 			break;
 		case GOTO_E:
@@ -2030,7 +2030,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_depose_modules_centre\n");
+				error_printf("default case in sub_anne_depose_modules_centre\n");
 			break;
 	}
 	return IN_PROGRESS;
@@ -2136,7 +2136,7 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 					case DZONE5_YELLOW_OUTDOOR:	vector_cm = (GEOMETRY_vector_t){-100/R2, 100/R2};	vector_extract_cm = (GEOMETRY_vector_t){0,+10/R2};	break;
 					default:	break;
 				}
-				debug_printf("Distance to moonbase : %d\n",distance_to_moonbase);
+				error_printf("Distance to moonbase : %d\n",distance_to_moonbase);
 				if(way_getting_oudoor)
 					state = EXTRACT_TO_COMPUTED_POINT;	//Hypothèse
 				else
@@ -2687,7 +2687,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_return_side\n");
+				error_printf("default case in sub_anne_return_side\n");
 			break;
 	}
 
@@ -2900,7 +2900,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_return_side\n");
+				error_printf("default case in sub_anne_return_side\n");
 			break;
 	}
 

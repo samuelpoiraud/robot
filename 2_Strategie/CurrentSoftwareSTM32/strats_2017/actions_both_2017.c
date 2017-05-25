@@ -235,7 +235,7 @@ error_e sub_cross_rocker(void){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_cross_rocker\n");
+				error_printf("default case in sub_cross_rocker\n");
 			state = ERROR;
 			break;
 	}
@@ -274,7 +274,7 @@ error_e sub_wait_1_sec(void){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_wait_1_sec\n");
+				error_printf("default case in sub_wait_1_sec\n");
 			break;
 	}
 	return IN_PROGRESS;
@@ -317,7 +317,7 @@ error_e sub_protect(zone_to_protect_e zone)
 					state = WAIT_1SEC;	//Nous sommes déjà sur le point à protéger (à 50mm près)
 				else
 					state = GET_IN_ASTAR;
-				debug_printf("Protection : i will try to protect %d ; %d\n", p.x, p.y);
+				error_printf("Protection : i will try to protect %d ; %d\n", p.x, p.y);
 				break;
 			case GET_IN_ASTAR:
 				state = ASTAR_try_going(p.x, p.y, state, WAIT_1SEC, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -339,7 +339,7 @@ error_e sub_protect(zone_to_protect_e zone)
 
 			default:
 				if(entrance)
-					debug_printf("default case in sub_wait_1_sec\n");
+					error_printf("default case in sub_wait_1_sec\n");
 				break;
 		}
 
@@ -373,7 +373,7 @@ error_e strat_test_avoidance(){
 
 		default:
 			if(entrance)
-				debug_printf("default case in strat_test_avoidance\n");
+				error_printf("default case in strat_test_avoidance\n");
 			break;
 	}
 	return IN_PROGRESS;
@@ -397,7 +397,7 @@ void compute_take_point_rocket(GEOMETRY_point_t *take_point, Sint16 *take_angle,
 		p.y = store_point.y - dist;
 		angle_theorical = -PI4096/2;
 	}else{
-		debug_printf("ERROR : couldn't compute point for rocket\n");
+		error_printf("ERROR : couldn't compute point for rocket\n");
 	}
 
 	if(take_point != NULL){

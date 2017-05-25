@@ -83,7 +83,7 @@ error_e sub_anne_homologation_belgique(){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_homologation_belgique\n");
+				error_printf("default case in sub_anne_homologation_belgique\n");
 			break;
 	}
 
@@ -117,7 +117,7 @@ error_e sub_anne_prise_modules_centre(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_prise_modules_centre\n");
+				error_printf("default case in sub_anne_prise_modules_centre\n");
 			break;
 	}
 
@@ -413,7 +413,7 @@ error_e sub_anne_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS
 
 			default:
 				if(entrance)
-					debug_printf("default case in sub_anne_prise_modules_centre\n");
+					error_printf("default case in sub_anne_prise_modules_centre\n");
 				break;
 		}
 	return IN_PROGRESS;
@@ -729,7 +729,7 @@ error_e sub_anne_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_prise_modules_centre\n");
+				error_printf("default case in sub_anne_prise_modules_centre\n");
 			break;
 	}
 
@@ -1009,7 +1009,7 @@ error_e sub_anne_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_prise_modules_centre\n");
+				error_printf("default case in sub_anne_prise_modules_centre\n");
 			break;
 	}
 
@@ -1183,7 +1183,7 @@ error_e sub_anne_prise_module_unicolor_north(ELEMENTS_side_e side){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_prise_module_unicolor_north\n");
+				error_printf("default case in sub_anne_prise_module_unicolor_north\n");
 			break;
 	}
 
@@ -1346,7 +1346,7 @@ error_e sub_anne_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_prise_module_unicolor_south\n");
+				error_printf("default case in sub_anne_prise_module_unicolor_south\n");
 			break;
 	}
 
@@ -1500,34 +1500,34 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 		case INIT:{
 			if(IHM_switchs_get(SWITCH_ANNE_DISABLE_MODULE))
 			{
-				debug_printf("switch modules désactivé\n");
+				error_printf("switch modules désactivé\n");
 				state = ERROR; 	// Actionneurs désactivés
 			}
 			else if(rocket != OUR_ELEMENT && IHM_switchs_get(SWITCH_ANNE_TAKE_ADV_ROCKET)==FALSE)
 			{
-				debug_printf("Fusée adverse désactivée\n");
+				error_printf("Fusée adverse désactivée\n");
 				state = ERROR;	//Fusée adverse désactivée
 			}
 			else if(rocket == OUR_ELEMENT && IHM_switchs_get(SWITCH_ANNE_TAKE_OUR_ROCKET)==FALSE)
 			{
-				debug_printf("Notre fusée désactivée\n");
+				error_printf("Notre fusée désactivée\n");
 				state = ERROR;	//Notre fusée désactivée
 			}
 			else if((rocket == OUR_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_OUR_SIDE))
 			|| (rocket == ADV_ELEMENT && ROCKETS_isEmpty(MODULE_ROCKET_MULTI_ADV_SIDE))){
 			{
-				debug_printf("Fusée déjà vidée\n");
+				error_printf("Fusée déjà vidée\n");
 				state = DONE;	 // On a déjà vidé cette fusée
 			}
 			}else if((rocket == OUR_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_MULTI))
 			|| (rocket == ADV_ELEMENT && ELEMENTS_get_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_ADV_ROCKET_MULTI)) ){
 			{
-				debug_printf("Harry vide déjà cette fusée\n");
+				error_printf("Harry vide déjà cette fusée\n");
 				state = ERROR; //  Harry déjà en train de vider cette fusée
 			}
 			}else if(STOCKS_getNbModules(MODULE_STOCK_SMALL)>=4)
 			{
-				debug_printf("Plus de place pour prendre des modules\n");
+				error_printf("Plus de place pour prendre des modules\n");
 				state = ERROR;	//Plus de place pour prendre des modules !
 			}
 			else{
@@ -1656,7 +1656,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				#ifdef ROBOT_VIRTUEL_PARFAIT
 					delta_x_rocket = 50;	//Juste pour tester !!!
 				#endif
-					debug_printf("pas de scan accessible, on vise la fusée théorique, ca va merder à coup sur !\n");
+					error_printf("pas de scan accessible, on vise la fusée théorique, ca va merder à coup sur !\n");
 				state = GET_IN_FRONT_OF_ONE_ON_TWO;
 			}
 
@@ -1666,8 +1666,8 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				if(absolute(scanData.max - scanData.min) > 45)	//S'il y a plus de 4,5cm, on considère qu'on a bien vu un module
 					if(absolute(scanData.xForMin - 1350) < 100)	//On autorise un décalage de la fusée de 10cm !
 						delta_x_rocket = scanData.xForMin - 1350;
-				debug_printf("SCAN :-) résultat : max-min=%d-%d=%d -> xForMin=%d\n", scanData.max, scanData.min, scanData.max - scanData.min, scanData.xForMin);
-				debug_printf("SCAN :-) delta_x_rocket : %d\n", delta_x_rocket);
+				error_printf("SCAN :-) résultat : max-min=%d-%d=%d -> xForMin=%d\n", scanData.max, scanData.min, scanData.max - scanData.min, scanData.xForMin);
+				error_printf("SCAN :-) delta_x_rocket : %d\n", delta_x_rocket);
 				state = GET_IN_FRONT_OF_ONE_ON_TWO;
 			}
 
@@ -1751,7 +1751,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_anne_fusee_multicolor\n");
+				error_printf("default case in sub_anne_fusee_multicolor\n");
 			break;
 	}
 
