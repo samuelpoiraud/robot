@@ -444,9 +444,12 @@ void STOCKS_makeModuleProgressTo(moduleStockPlace_e place, moduleStockLocation_e
 			if(moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] == MODULE_EMPTY){
 				// On change le module de place
 				// Considération : On considère que le BALANCER est la plupart du temps en position rentrée dans le robot
-				if(moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] == MODULE_EMPTY){
+				if(moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] == MODULE_EMPTY
+						&& moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] == MODULE_EMPTY
+						&& moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] == MODULE_EMPTY){
 					moduleStockInfo[storage].stockModules[STOCK_POS_BALANCER] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
-				}else if(moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] == MODULE_EMPTY){
+				}else if(moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] == MODULE_EMPTY
+						&& moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] == MODULE_EMPTY){
 					moduleStockInfo[storage].stockModules[STOCK_POS_CONTAINER] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
 				}else{	// STOCK_POS_SLOPE == MODULE_EMPTY
 					moduleStockInfo[storage].stockModules[STOCK_POS_SLOPE] = moduleStockInfo[storage].stockModules[STOCK_POS_ELEVATOR];
