@@ -52,13 +52,13 @@
 			SCAN_launchScan();
 		}
 
-		SCAN_on_shot_launch();
+		//SCAN_on_shot_launch();
 
 		VL53L0X_processMain();
 
-		SCAN_on_shot_compute();
+		//SCAN_on_shot_compute();
 
-		SCAN_on_shot_sendMsg();
+		//SCAN_on_shot_sendMsg();
 
 		if(SCAN_activate && global.pos.updated){
 			SCAN_computeScan();
