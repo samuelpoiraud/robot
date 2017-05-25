@@ -75,40 +75,75 @@ error_e sub_harry_depose_centre_manager(){
 
 		//On choisit le côté avec lequel le robot effectue sa dépose
 		case CHOOSE_ROBOT_SIDE:
-			if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0 && depose_left == FALSE){
+			if(global.color == BLUE){ // Si on est bleu, on commence par checker le côté gauche
+				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0 && depose_left == FALSE){
 
-				if(STOCKS_getDominatingModulesType(MODULE_STOCK_LEFT) == MODULE_MONO_DOMINATING){
-					module_type = MODULE_MONO_DOMINATING;
+					if(STOCKS_getDominatingModulesType(MODULE_STOCK_LEFT) == MODULE_MONO_DOMINATING){
+						module_type = MODULE_MONO_DOMINATING;
+					}
+					else if(STOCKS_getDominatingModulesType(MODULE_STOCK_LEFT) == MODULE_POLY_DOMINATING){
+						module_type = MODULE_POLY_DOMINATING;
+					}
+					else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
+						module_type = NO_DOMINATING;
+					}
+					robot_side = MODULE_STOCK_LEFT;
+					state = MODULE_CHOOSE_POSITION;
 				}
-				else if(STOCKS_getDominatingModulesType(MODULE_STOCK_LEFT) == MODULE_POLY_DOMINATING){
-					module_type = MODULE_POLY_DOMINATING;
+				else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 && depose_right == FALSE){
+					if(STOCKS_getDominatingModulesType(MODULE_STOCK_RIGHT) == MODULE_MONO_DOMINATING){
+						module_type = MODULE_MONO_DOMINATING;
+					}
+					else if(STOCKS_getDominatingModulesType(MODULE_STOCK_RIGHT) == MODULE_POLY_DOMINATING){
+						module_type = MODULE_POLY_DOMINATING;
+					}
+					else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
+						module_type = NO_DOMINATING;
+					}
+					robot_side = MODULE_STOCK_RIGHT;
+					state = MODULE_CHOOSE_POSITION;
 				}
-				else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
-					module_type = NO_DOMINATING;
+				else{
+					state = DONE;
 				}
-				robot_side = MODULE_STOCK_LEFT;
-				state = MODULE_CHOOSE_POSITION;
 			}
-			else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 && depose_right == FALSE){
-				if(STOCKS_getDominatingModulesType(MODULE_STOCK_RIGHT) == MODULE_MONO_DOMINATING){
-					module_type = MODULE_MONO_DOMINATING;
+			else  // Si on est jaune, on commence par checker le côté droit
+			{
+				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 && depose_right == FALSE){
+					if(STOCKS_getDominatingModulesType(MODULE_STOCK_RIGHT) == MODULE_MONO_DOMINATING){
+						module_type = MODULE_MONO_DOMINATING;
+					}
+					else if(STOCKS_getDominatingModulesType(MODULE_STOCK_RIGHT) == MODULE_POLY_DOMINATING){
+						module_type = MODULE_POLY_DOMINATING;
+					}
+					else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
+						module_type = NO_DOMINATING;
+					}
+					robot_side = MODULE_STOCK_RIGHT;
+					state = MODULE_CHOOSE_POSITION;
 				}
-				else if(STOCKS_getDominatingModulesType(MODULE_STOCK_RIGHT) == MODULE_POLY_DOMINATING){
-					module_type = MODULE_POLY_DOMINATING;
+				else if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0 && depose_left == FALSE){
+					if(STOCKS_getDominatingModulesType(MODULE_STOCK_LEFT) == MODULE_MONO_DOMINATING){
+						module_type = MODULE_MONO_DOMINATING;
+					}
+					else if(STOCKS_getDominatingModulesType(MODULE_STOCK_LEFT) == MODULE_POLY_DOMINATING){
+						module_type = MODULE_POLY_DOMINATING;
+					}
+					else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
+						module_type = NO_DOMINATING;
+					}
+					robot_side = MODULE_STOCK_LEFT;
+					state = MODULE_CHOOSE_POSITION;
 				}
-				else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
-					module_type = NO_DOMINATING;
+				else{
+					state = DONE;
 				}
-				robot_side = MODULE_STOCK_RIGHT;
-				state = MODULE_CHOOSE_POSITION;
-			}
-			else{
-				state = DONE;
 			}
 			if(module_type == NO_DOMINATING){
 				module_type = MODULE_POLY_DOMINATING;
 			}
-			error_printf("Nombre de modules côté left :%d\nNombre de modules côté right :%d\nrobot_side :%d\n");
+			error_printf("Nombre de modules côté left :%d\nNombre de modules côté right :%d\nrobot_side :%s\n", STOCKS_getNbModules(MODULE_STOCK_LEFT), STOCKS_getNbModules(MODULE_STOCK_RIGHT), (robot_side==MODULE_STOCK_RIGHT)? "MODULE_STOCK_RIGHT":"MODULE_STOCK_LEFT");
+			error_printf("ModuleType=%s\n", (module_type==MODULE_POLY_DOMINATING)? "MODULE_POLY_DOMINATING":"MODULE_MONO_DOMINATING");
 			break;
 
 		//Choix de l'emplacement exact de la dépose
