@@ -285,11 +285,11 @@ error_e sub_harry_depose_centre_manager(){
 				}
 			}
 			if(robot_side == MODULE_STOCK_LEFT && MOONBASES_getNbModules(MODULE_MOONBASE_OUR_SIDE) < 3){
-				state = check_sub_action_result(sub_harry_depose_modules_side(LEFT, OUR_SIDE), state, DONE, ERROR);
+				state = check_sub_action_result(sub_harry_depose_modules_side(LEFT, OUR_SIDE), state, COMPUTE, ERROR);
 			}else if(robot_side == MODULE_STOCK_RIGHT && MOONBASES_getNbModules(MODULE_MOONBASE_OUR_SIDE) < 3){
-				state = check_sub_action_result(sub_harry_depose_modules_side(RIGHT, OUR_SIDE), state, DONE, ERROR);
+				state = check_sub_action_result(sub_harry_depose_modules_side(RIGHT, OUR_SIDE), state, COMPUTE, ERROR);
 			}else{
-				state = DONE;
+				state = COMPUTE;
 			}
 			break;
 
