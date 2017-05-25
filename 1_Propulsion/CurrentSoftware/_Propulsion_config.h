@@ -277,7 +277,7 @@
 	#define BIG_ROTATION_SPEED_SNAIL			(Sint32)(1320)			//environ 0,075 rad/s
 
 	//Le robot est 'arrivé' lorsque sa vitesse est faible et sa position proche :
-	#define PRECISION_ARRIVE_POSITION_TRANSLATION	40960												//[mm.4096] 1cm
+	#define PRECISION_ARRIVE_POSITION_TRANSLATION	20480												//[mm.4096] 1cm
 	#define PRECISION_ARRIVE_SPEED_TRANSLATION		(PILOT_get_coef(PILOT_ACCELERATION_NORMAL)*2)		//[mm.4096/5ms]
 
 	#define PRECISION_ARRIVE_POSITION_ROTATION		(2*(PILOT_get_coef(PILOT_ROTATION_SPEED_MAX)+1))	//[rad.4096.1024] TODO le 2* n'est pas justifié, mais nécessaire, coupe 2012...
