@@ -31,6 +31,7 @@
 #include "zones.h"
 #include "elements.h"
 #include "avoidance.h"
+#include "Supervision/selftest.h"
 
 #include "strats_2017/actions_both_generic.h"
 #include "strats_2017/inutile/strat_inutile.h"
@@ -193,6 +194,7 @@ void any_match(void)
 			//PATHFIND_MAJ_COLOR();								// Configuration du pathfind spécifique à la couleur
 			ASTAR_init();										// Configuration du pathfind A*
 			initZones();										// Configuration des zones suivant la couleur
+			SELFTEST_resetHokuyoDisconnectionTime();
 			return;
 		}
 

@@ -374,6 +374,7 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		case BROADCAST_START:
 			//debug_printf("Broadcast_start, \n");
 			global.flags.match_started = TRUE;
+			HOKUYO_resetDisconnectionTime();
 		break;
 
 		case BROADCAST_ALIM :

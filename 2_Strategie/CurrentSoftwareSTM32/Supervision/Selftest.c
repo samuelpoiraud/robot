@@ -67,6 +67,8 @@ volatile Uint8 errors_index = 0;
 volatile Uint8 t500ms = 0;	//Minuteur [500ms]
 static bool_e warning_bat = FALSE;
 static Uint16 hokuyo_lost_counter = 0;
+static time32_t disconnection_time = 0;
+static time32_t disconnection_time_total = 0;
 volatile static bool_e warning_bat_display = TRUE;
 volatile static SELFTEST_progressState_e progressState = SELFTEST_PROGRESS_NONE;
 
@@ -895,15 +897,25 @@ void SELFTEST_check_hokuyo(){
 		BUZZER_play(15, DEFAULT_NOTE, 5);
 		LCD_printf(3, FALSE, TRUE, "HOKUYO LOST !");
 		hokuyo_lost_counter++;
+		disconnection_time = global.absolute_time;
 		msg.data.ihm_set_error.state = TRUE;
 		CAN_send(&msg);
 		alarmed = TRUE;
 	}else if(delta_time <= 250 && alarmed == TRUE){
+		if(disconnection_time > 0) {
+			disconnection_time = 0;
+			disconnection_time_total += global.absolute_time - disconnection_time;
+		}
 		LCD_printf(3, FALSE, TRUE, "HOKUYO IS ALIVE !");
 		msg.data.ihm_set_error.state = FALSE;
 		CAN_send(&msg);
 		alarmed = FALSE;
 	}
+}
+
+void SELFTEST_resetHokuyoDisconnectionTime() {
+	disconnection_time = 0;
+	disconnection_time_total = 0;
 }
 
 SELFTEST_error_code_e SELFTEST_getError(Uint8 index)
@@ -1058,6 +1070,6 @@ void clean_warning_bat(){
 }
 
 void Selftest_print_sd_hokuyo_lost(void){
-	info_printf("Hokuyo lost count : %d\n", hokuyo_lost_counter);
+	info_printf("Hokuyo lost count : %d (%d ms)\n", hokuyo_lost_counter, disconnection_time_total);
 }
 
