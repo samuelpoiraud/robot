@@ -104,10 +104,10 @@ error_e sub_act_anne_return_module(){
 			break;
 
 		default:
-			if(entrance)
-			{
+			if(entrance){
 				error_printf("default case in sub_act_anne_return_module\n");
 			}
+			RESET_MAE();
 			break;
 	}
 
@@ -539,6 +539,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			{
 				error_printf("default case in sub_act_anne_take_rocket\n");
 			}
+			RESET_MAE();
 			break;
 	}
 
@@ -979,6 +980,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, bool
 			{
 				error_printf("default case in sub_act_anne_take_rocket\n");
 			}
+			RESET_MAE();
 			break;
 	}
 
@@ -1205,6 +1207,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			{
 				error_printf("default case in sub_act_anne_mae_store_modules\n");
 			}
+			RESET_MAE();
 			break;
 	}
 
@@ -1696,6 +1699,7 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 			{
 				error_printf("default case in sub_act_anne_mae_prepare_modules_for_dispose\n");
 			}
+			RESET_MAE();
 			break;
 	}
 
@@ -1935,6 +1939,7 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 			{
 				error_printf("default case in sub_act_anne_mae_dispose_modules\n");
 			}
+			RESET_MAE();
 			break;
 	}
 

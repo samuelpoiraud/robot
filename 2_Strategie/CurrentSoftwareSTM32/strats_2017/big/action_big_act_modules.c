@@ -1271,8 +1271,10 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			break;
 
 		default:
-			if(entrance)
-				debug_printf("default case in sub_act_harry_mae_store_modules\n");
+			if(entrance){
+				error_printf("default case in sub_act_harry_mae_store_modules\n");
+			}
+			RESET_MAE();
 			break;
 	}
 
@@ -1685,8 +1687,10 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 			break;
 
 		default:
-			if(entrance)
-				debug_printf("default case in sub_act_harry_mae_prepare_modules_for_dispose\n");
+			if(entrance){
+				error_printf("default case in sub_act_harry_mae_prepare_modules_for_dispose\n");
+			}
+			RESET_MAE();
 			break;
 	}
 
@@ -2136,8 +2140,10 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 			break;
 
 		default:
-			if(entrance)
-				debug_printf("default case in sub_act_harry_mae_dispose_modules\n");
+			if(entrance){
+				error_printf("default case in sub_act_harry_mae_dispose_modules\n");
+			}
+			RESET_MAE();
 			break;
 	}
 
@@ -2667,8 +2673,10 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			break;
 
 		default:
-			if(entrance)
-				debug_printf("default case in sub_act_harry_take_rocket\n");
+			if(entrance){
+				error_printf("default case in sub_act_harry_take_rocket\n");
+			}
+			RESET_MAE();
 			break;
 	}
 
