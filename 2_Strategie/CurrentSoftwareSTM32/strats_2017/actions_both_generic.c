@@ -1187,6 +1187,7 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, Sint16 want
 	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_RECALAGE_Y,
 		IDLE,
 		RUSH_WALL,
+		SECOND_RUSH_WALL_WITHOUT_ASSER_IN_ROTATION,
 		COMPUTE,
 		GET_OUT,
 		WAIT_FOR_EXIT,
@@ -1205,9 +1206,11 @@ error_e action_recalage_y(way_e sens, Sint16 angle, Sint16 wanted_y, Sint16 want
 			break;
 
 		case RUSH_WALL :
-			state = try_rushInTheWall(angle, state, COMPUTE, COMPUTE, sens, TRUE, 0, 0);
+			state = try_rushInTheWall(angle, state, SECOND_RUSH_WALL_WITHOUT_ASSER_IN_ROTATION, SECOND_RUSH_WALL_WITHOUT_ASSER_IN_ROTATION, sens, TRUE, 0, 0);
 			break;
-
+		case SECOND_RUSH_WALL_WITHOUT_ASSER_IN_ROTATION:
+			state = try_rushInTheWall(angle, state, COMPUTE, COMPUTE, sens, FALSE, 0, 0);
+			break;
 		case COMPUTE :
 #ifdef ROBOT_VIRTUEL_PARFAIT
 #warning "Désactivation des capteurs pour permettre des recalages en simu"

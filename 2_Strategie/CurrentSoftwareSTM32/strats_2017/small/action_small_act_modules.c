@@ -129,8 +129,8 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			COMPUTE_NEXT_CYLINDER,
 			COMPUTE_ACTION,
 
-			ACTION_PREPARE_ARM_AND_BALANCER,
-			ACTION_MOVE_AWAY_MULTIFONCTION,
+			ACTION_PREPARE_ARM,
+			ACTION_PREPARE_BALANCER,
 			AVANCE,
 			AVANCE_ERROR,
 			ACTION_GO_TAKE_CYLINDER,
@@ -227,44 +227,28 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				state = DONE; // On a fini ou rien n'est possible de faire
 			}else{
 				if(modules_taken ==1){
-					state = ACTION_PREPARE_ARM_AND_BALANCER;
+					state = ACTION_PREPARE_ARM;
 				}else{
-					state = ACTION_MOVE_AWAY_MULTIFONCTION;
+					state = ACTION_GO_TAKE_CYLINDER;
 				}
 			}
 			break;
 
-		case ACTION_PREPARE_ARM_AND_BALANCER:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_PROTECT_FALL);
+		case ACTION_PREPARE_ARM:
+			if(entrance)
+			{
 				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_TAKE);
-				state1 = IN_PROGRESS;
-				state2 = IN_PROGRESS;
 			}
-
-			if(state1 == IN_PROGRESS){
-				state1 = check_act_status(ACT_QUEUE_Small_cylinder_balancer, IN_PROGRESS, END_OK, NOT_HANDLED);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, ACTION_PREPARE_BALANCER, ACTION_PREPARE_BALANCER);
+			break;
+		case ACTION_PREPARE_BALANCER:
+			if(entrance)
+			{
+				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_PROTECT_FALL);
 			}
-
-			if(state2 == IN_PROGRESS){
-				state2 = check_act_status(ACT_QUEUE_Small_cylinder_arm, IN_PROGRESS, END_OK, NOT_HANDLED);
-			}
-
-			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS){
-				state = ACTION_MOVE_AWAY_MULTIFONCTION;
-			}
-
+			state = check_act_status(ACT_QUEUE_Small_cylinder_balancer, state, ACTION_GO_TAKE_CYLINDER, ACTION_GO_TAKE_CYLINDER);
 			break;
 
-		case ACTION_MOVE_AWAY_MULTIFONCTION:
-			state = ACTION_GO_TAKE_CYLINDER;
-
-//			if (entrance){
-//				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_OUT); //position a definir, entre lock et puch
-////				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
-//			}
-//			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE, AVANCE);
-			break;
 
 		case ACTION_GO_TAKE_CYLINDER:
 			if(entrance){
