@@ -791,6 +791,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 							  case (Uint8)ACT_SMALL_CYLINDER_ARM_TAKE:				print(string,len, "| TAKE |");				break;
 							  case (Uint8)ACT_SMALL_CYLINDER_ARM_DISPOSE:			print(string,len, "| DISPOSE |");			break;
 							  case (Uint8)ACT_SMALL_CYLINDER_ARM_OUT:	print(string,len, "| OUT |");			break;
+							  case (Uint8)ACT_SMALL_CYLINDER_ARM_PROTECT_FALL:	print(string,len, "| PROTECT_FALL |");			break;
 							  case (Uint8)ACT_SMALL_CYLINDER_ARM_STOP:	print(string,len, "| STOP |");			break;
 							  default:                           		print(string,len, "| UNKNOW cmd |");	break;
 						  }
