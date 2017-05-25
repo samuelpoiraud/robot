@@ -1273,12 +1273,15 @@ static void MAIN_onButton1(){
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_VERY_UP;
 	}else if(state == 4){
 		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_VERTICAL;
+	}else if(state == 5){
+		msg.sid = ACT_SMALL_CYLINDER_SLOPE;
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_SLOPE_DOWN;
 	}
 
 	if(msg.sid != 0)
 		CAN_process_msg(&msg);
-	state = (state == 4)? 0 : state + 1;
+	state = (state == 5)? 0 : state + 1;
 }
 
 static void MAIN_onButton1LongPush(){
@@ -1289,15 +1292,18 @@ static void MAIN_onButton1LongPush(){
 
 	if(state == 0){
 		msg.sid = ACT_SMALL_CYLINDER_BALANCER;
-		msg.data.act_msg.order = ACT_SMALL_CYLINDER_BALANCER_OUT;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_BALANCER_PROTECT_FALL;
 	}else if(state == 1){
 		msg.sid = ACT_SMALL_CYLINDER_BALANCER;
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_BALANCER_IN;
+	}else if(state == 2){
+		msg.sid = ACT_SMALL_CYLINDER_BALANCER;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_BALANCER_OUT;
 	}
 
 	if(msg.sid != 0)
 		CAN_process_msg(&msg);
-	state = (state == 1)? 0 : state + 1;
+	state = (state == 2)? 0 : state + 1;
 
 }
 
@@ -1326,16 +1332,22 @@ static void MAIN_onButton2(){
 		msg.sid = ACT_SMALL_CYLINDER_DISPOSE;
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_DISPOSE_DISPOSE;
 	}else if(state == 6){
+		msg.sid = ACT_SMALL_CYLINDER_ARM;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_ARM_PROTECT_FALL;
+	}else if(state == 7){
+		msg.sid = ACT_SMALL_CYLINDER_ARM;
+		msg.data.act_msg.order = ACT_SMALL_CYLINDER_ARM_DISPOSE;
+	}else if(state == 8){
 		msg.sid = ACT_SMALL_CYLINDER_DISPOSE;
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_DISPOSE_IDLE;
-	}else if(state == 7){
+	}else if(state == 9){
 		msg.sid = ACT_SMALL_CYLINDER_ARM;
 		msg.data.act_msg.order = ACT_SMALL_CYLINDER_ARM_IN;
 	}
 
 	if(msg.sid != 0)
 		CAN_process_msg(&msg);
-	state = (state == 7)? 0 : state + 1;
+	state = (state == 9)? 0 : state + 1;
 }
 
 static void MAIN_onButton2LongPush(){
