@@ -75,7 +75,7 @@ error_e sub_harry_depose_centre_manager(){
 
 		//On choisit le côté avec lequel le robot effectue sa dépose
 		case CHOOSE_ROBOT_SIDE:
-			if(global.color == BLUE){ // Si on est bleu, on commence par checker le côté gauche
+			//if(global.color == BLUE){ // Si on est bleu, on commence par checker le côté gauche
 				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0 && depose_left == FALSE){
 
 					if(STOCKS_getDominatingModulesType(MODULE_STOCK_LEFT) == MODULE_MONO_DOMINATING){
@@ -107,7 +107,7 @@ error_e sub_harry_depose_centre_manager(){
 					state = DONE;
 				}
 			}
-			else  // Si on est jaune, on commence par checker le côté droit
+			/*else  // Si on est jaune, on commence par checker le côté droit
 			{
 				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 && depose_right == FALSE){
 					if(STOCKS_getDominatingModulesType(MODULE_STOCK_RIGHT) == MODULE_MONO_DOMINATING){
@@ -138,7 +138,7 @@ error_e sub_harry_depose_centre_manager(){
 				else{
 					state = DONE;
 				}
-			}
+			}*/
 			if(module_type == NO_DOMINATING){
 				module_type = MODULE_POLY_DOMINATING;
 			}
