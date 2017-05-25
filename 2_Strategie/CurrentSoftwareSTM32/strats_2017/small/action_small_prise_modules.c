@@ -1419,7 +1419,7 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case GET_IN_DIRECT:
-				state = try_going(400, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, i_am_in_square_color((0,500,800,1300))?NO_AVOIDANCE:NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(400, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, i_am_in_square_color(0,500,800,1300)?NO_AVOIDANCE:NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case PATHFIND:
