@@ -257,6 +257,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			ERROR_DOWN_PUSHER,
 			UP_PUSHER_RIGHT,
 			UP_PUSHER_LEFT,
+			ERROR_UP_PUSHER,
 
 			PUSH_MODULE,
 			PUSH_MODULE_RETURN,
@@ -270,8 +271,11 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			DONE
 		);
 
+	static bool_e flag_error;
+
 	switch(state){
 		case INIT:
+			flag_error = FALSE;
 			sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, TRUE);
 			state = GET_IN;
 			break;
@@ -298,10 +302,10 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				}
 			}
 			if(robot_side == MODULE_STOCK_LEFT){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT);
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT_WITH_ERROR);
 			}
 			else if(robot_side == MODULE_STOCK_RIGHT){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT);
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT_WITH_ERROR);
 			}
 			else{
 				state = DONE;
@@ -321,7 +325,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			break;
 
 		case TIGHT_BACKWARD:
-			state = try_advance(NULL, entrance, 15, state, DOWN_PUSHER, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_advance(NULL, entrance, 15, state, DOWN_PUSHER, GET_OUT_WITH_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case DOWN_PUSHER: // on sort le pusher
@@ -347,7 +351,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
 				}
 			}
-			state = try_advance(NULL, entrance, 150, state, DOWN_PUSHER, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_advance(NULL, entrance, 150, state, DOWN_PUSHER, GET_OUT_WITH_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 
@@ -405,16 +409,31 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			if (entrance){
 				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE_RETURN, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE_RETURN, ERROR_UP_PUSHER);
 			break;
 
 		case UP_PUSHER_LEFT:
 			if (entrance){
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE_RETURN, ERROR);
+			state = check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH_MODULE_RETURN, ERROR_UP_PUSHER);
 			break;
 
+
+		case ERROR_UP_PUSHER: // on sort le pusher
+		if (entrance){
+			if(robot_side == MODULE_STOCK_RIGHT){
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_OUT);
+			}else{
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_OUT);
+			}
+		}
+		if(robot_side == MODULE_STOCK_RIGHT){
+			state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, UP_PUSHER_RIGHT, UP_PUSHER_RIGHT);
+		}else{
+			state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, UP_PUSHER_LEFT, UP_PUSHER_LEFT);
+		}
+		break;
 
 		case PUSH_MODULE_RETURN:
 			if(drop_place == POS_1){
@@ -489,13 +508,18 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 		case GET_OUT:
 			if(drop_place == POS_1){
 				state = try_going(1460, COLOR_Y(610), state, FINISH_GET_OUT_POS_1, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			}else{
+			}else if(drop_place == POS_2){
+				state = try_going(1105, COLOR_Y(972), state , FINISH_GET_OUT_POS_1, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			else{
 				state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			break;
 
 #warning gérer le get out with error ne pas faire seulement error
 		case GET_OUT_WITH_ERROR:
+			flag_error = TRUE;
+			state = GET_OUT;
 			break;
 
 		case FINISH_GET_OUT_POS_1:
@@ -534,9 +558,14 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			break;
 
 		case DONE:
-			RESET_MAE();
-			on_turning_point();
-			return END_OK;
+			if(flag_error){
+				state = ERROR;
+			}
+			else{
+				RESET_MAE();
+				on_turning_point();
+				return END_OK;
+			}
 			break;
 
 		default:
@@ -663,7 +692,7 @@ error_e sub_harry_get_in_pos_1_depose_module_centre(){
 
 		case ROTATE:
 			if(global.color == YELLOW){
-				state = try_go_angle(COLOR_ANGLE(-PI4096/4), state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+				state = try_go_angle(COLOR_ANGLE(PI4096/4), state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			}else{
 				state = try_go_angle(COLOR_ANGLE(PI4096/4), state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
 			}
@@ -732,7 +761,7 @@ error_e sub_harry_get_in_pos_2_depose_module_centre(){
 
 		case ROTATE:
 			if(global.color == YELLOW){
-				state = try_go_angle(COLOR_ANGLE(-PI4096/4), state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
+				state = try_go_angle(COLOR_ANGLE(PI4096/4), state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			}else{
 				state = try_go_angle(COLOR_ANGLE(PI4096/4), state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
 			}
@@ -944,7 +973,7 @@ error_e sub_harry_get_in_pos_5_depose_module_centre(){
 
 		case ROTATE:
 			if(global.color == YELLOW){
-				state = try_go_angle(COLOR_ANGLE(PI4096/4), state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
+				state = try_go_angle(COLOR_ANGLE(-PI4096/4), state, DONE, ERROR, FAST, TRIGOWISE, END_AT_LAST_POINT);
 			}else{
 				state = try_go_angle(COLOR_ANGLE(-PI4096/4), state, DONE, ERROR, FAST, CLOCKWISE, END_AT_LAST_POINT);
 			}
