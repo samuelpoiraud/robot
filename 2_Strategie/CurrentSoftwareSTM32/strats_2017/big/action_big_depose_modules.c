@@ -42,6 +42,8 @@ error_e sub_harry_depose_centre_manager(){
 				COMPUTE,
 				SUCCESS_DEPOSE,
 				ERROR_DEPOSE,
+				DEPOSE_SIDE,
+				SECONDE_DEPOSE_SIDE,
 				ERROR,
 				DONE
 			);
@@ -230,7 +232,12 @@ error_e sub_harry_depose_centre_manager(){
 
 		// Vérifie que tout a été déposé, cependant si l'on reste bloqué trop longtemps on sort
 		case COMPUTE:
-			if( (depose_left == FALSE && nb_try_left >= 3 && depose_right == FALSE && nb_try_right >= 3) ||\
+			//A enlever si la dépose side foire.
+			if(depose_left == TRUE || depose_right == TRUE || depose_side == FALSE){
+				state = DEPOSE_SIDE;
+				depose_side = TRUE;
+			}
+			else if( (depose_left == FALSE && nb_try_left >= 3 && depose_right == FALSE && nb_try_right >= 3) ||\
 				(depose_left == TRUE && (depose_right == FALSE && nb_try_right >= 3)) ||\
 				((depose_left == FALSE && nb_try_left >= 3)&& depose_right == TRUE)){
 				state = DONE;
@@ -259,6 +266,31 @@ error_e sub_harry_depose_centre_manager(){
 				nb_try_right++;
 			}
 			state = COMPUTE;
+			break;
+
+		case DEPOSE_SIDE:
+			if(robot_side == MODULE_STOCK_LEFT){
+				state = check_sub_action_result(sub_harry_depose_modules_side(LEFT, OUR_SIDE), state, SECONDE_DEPOSE_SIDE, ERROR);
+			}else{
+				state = check_sub_action_result(sub_harry_depose_modules_side(RIGHT, OUR_SIDE), state, SECONDE_DEPOSE_SIDE, ERROR);
+			}
+			break;
+
+		case SECONDE_DEPOSE_SIDE:
+			if(entrance){
+				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0 && robot_side == MODULE_STOCK_RIGHT){
+					robot_side = MODULE_STOCK_LEFT;
+				}else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 && robot_side == MODULE_STOCK_LEFT){
+					robot_side = MODULE_STOCK_RIGHT;
+				}
+			}
+			if(robot_side == MODULE_STOCK_LEFT && MOONBASES_getNbModules(MODULE_MOONBASE_OUR_SIDE) < 3){
+				state = check_sub_action_result(sub_harry_depose_modules_side(LEFT, OUR_SIDE), state, DONE, ERROR);
+			}else if(robot_side == MODULE_STOCK_RIGHT && MOONBASES_getNbModules(MODULE_MOONBASE_OUR_SIDE) < 3){
+				state = check_sub_action_result(sub_harry_depose_modules_side(RIGHT, OUR_SIDE), state, DONE, ERROR);
+			}else{
+				state = DONE;
+			}
 			break;
 
 		case ERROR:
@@ -403,9 +435,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 				// pos 2
 				if(global.color == BLUE){
-					state = try_rush(1382, COLOR_Y(1236), state, UP_PUSHER_RIGHT,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+					state = try_rush(1379, COLOR_Y(1233), state, UP_PUSHER_RIGHT,ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_rush(1382, COLOR_Y(1236), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+					state = try_rush(1379, COLOR_Y(1233), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
 			}else if(drop_place == POS_3){
 
@@ -426,9 +458,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				// pos 5
 				if(global.color == BLUE){
 
-					state = try_rush(1383, COLOR_Y(1765), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+					state = try_rush(1379, COLOR_Y(1767), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}else{
-					state = try_rush(1383, COLOR_Y(1765), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+					state = try_rush(1379, COLOR_Y(1767), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 				}
 			}/*else if((modules == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
 				// pos 6
