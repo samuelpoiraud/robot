@@ -40,6 +40,7 @@ static const char * print_mosfetState(MOSFET_BOARD_CURRENT_MEASURE_state_e state
 static const char * print_colorSensor(COLOR_SENSOR_I2C_color_e color);
 static const char * print_corrector(corrector_e corrector);
 static const char * print_mosfetId(act_vacuostat_id id);
+static const char * print_scan_sensor_id(SCAN_SENSOR_id_e id);
 
 #define print(buffer, len, ...) \
 	do { \
@@ -293,6 +294,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case ACT_START_SCAN:							print(string, len, "%x ACT_START_SCAN                         ", ACT_START_SCAN		 							);	break;
 		case ACT_STOP_SCAN:								print(string, len, "%x ACT_STOP_SCAN                          ", ACT_STOP_SCAN		 							);	break;
 		case ACT_RESULT_SCAN:							print(string, len, "%x ACT_RESULT_SCAN                        ", ACT_RESULT_SCAN		 						);	break;
+		case ACT_SCAN_DISTANCE:							print(string, len, "%x ACT_SCAN_DISTANCE                      ", ACT_SCAN_DISTANCE		 						);	break;
+		case ACT_SCAN_DISTANCE_RESULT:					print(string, len, "%x ACT_SCAN_DISTANCE_RESULT               ", ACT_SCAN_DISTANCE_RESULT		 				);	break;
 
 		case MOSFET_BOARD_SET_MOSFET:					print(string, len, "%x MOSFET_BOARD_SET_MOSFET                ", MOSFET_BOARD_SET_MOSFET			 			);	break;
 		case MOSFET_BOARD_GET_MOSFET_CURRENT_STATE:		print(string, len, "%x MOSFET_BOARD_GET_MOSFET_CURRENT_STATE  ", MOSFET_BOARD_GET_MOSFET_CURRENT_STATE			);	break;
@@ -1015,6 +1018,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 		case ACT_START_SCAN:							print(string, len, "| %s\n", ((msg->data.act_start_scan.side == SCAN_I2C_LEFT)?"LEFT":"RIGHT")); break;
 		case ACT_RESULT_SCAN:							print(string, len, "| min : %d   |  max : %d  |  xForMin : %d\n", msg->data.act_result_scan.min, msg->data.act_result_scan.max, msg->data.act_result_scan.xForMin);	break;
+		case ACT_SCAN_DISTANCE:							print(string, len, "| %s \n", print_scan_sensor_id(msg->data.act_scan_distance.idSensor));	break;
+		case ACT_SCAN_DISTANCE_RESULT:					print(string, len, "| %s  |  presence : %d  |  distance : %d\n", print_scan_sensor_id(msg->data.act_scan_distance_result.idSensor), msg->data.act_scan_distance_result.present, msg->data.act_scan_distance_result.distance);	break;
 
 
 		case IHM_BUTTON:						print_ihm_result(msg, &string, &len);			break;
@@ -1104,6 +1109,16 @@ static const char * print_corrector(corrector_e corrector){
 
 		case CORRECTOR_DISABLE :
 			return "CORRECTOR_DISABLE";
+		default:
+			return "UNKNOW";
+	}
+}
+
+static const char * print_scan_sensor_id(SCAN_SENSOR_id_e id){
+	switch(id){
+		case SCAN_SENSOR_ID_SMALL_ELEVATOR :
+			return "SCAN_SENSOR_ID_SMALL_ELEVATOR";
+
 		default:
 			return "UNKNOW";
 	}

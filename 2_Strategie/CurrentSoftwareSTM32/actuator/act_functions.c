@@ -58,6 +58,12 @@ typedef struct{
 	bool_e received;
 }SCAN_I2C_result_s;
 
+typedef struct{
+	bool_e resultPresence;
+	Uint16 resultDistance;
+	bool_e received;
+}SCAN_on_shot_s;
+
 typedef enum{
 	ACT_SENSOR_WAIT = 0,
 	ACT_SENSOR_ABSENT,
@@ -168,6 +174,8 @@ static volatile act_color_sensor_s color_sensor = {0};
 static volatile act_turbine_s turbine;
 
 static volatile SCAN_I2C_result_s scan_act_result = { .received = FALSE };
+
+static volatile SCAN_on_shot_s scan_on_shot[SCAN_SENSOR_ID_NB] = {0};
 
 
 /* Pile contenant les arguments d'une demande d'opération
@@ -759,4 +767,41 @@ void ACT_receive_result_scan_act(CAN_msg_t *msg){
 	scan_act_result.data.max = msg->data.act_result_scan.max;
 	scan_act_result.data.xForMin = msg->data.act_result_scan.xForMin;
 	scan_act_result.received = TRUE;
+}
+
+void ACT_ask_scan_on_shot(SCAN_SENSOR_id_e id){
+
+	scan_on_shot[id].received = FALSE;
+
+	CAN_msg_t msg;
+	msg.sid = ACT_SCAN_DISTANCE;
+	msg.size = SIZE_ACT_SCAN_DISTANCE;
+	msg.data.act_scan_distance.idSensor = id;
+	CAN_send(&msg);
+}
+
+bool_e ACT_get_scan_on_shot_result(SCAN_SENSOR_id_e id, bool_e * resultPresence, Uint16 * resultDistance){
+	if(scan_on_shot[id].received){
+		if(resultPresence != NULL)
+			*resultPresence = scan_on_shot[id].resultPresence;
+		if(resultDistance != NULL)
+			*resultDistance = scan_on_shot[id].resultDistance;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+void ACT_receive_result_scan_on_shot(CAN_msg_t *msg){
+
+	if(msg->sid != ACT_SCAN_DISTANCE_RESULT)
+		return;
+
+	if(msg->data.act_scan_distance_result.idSensor >= SCAN_SENSOR_ID_NB)
+		return;
+
+	scan_on_shot[msg->data.act_scan_distance_result.idSensor].resultDistance = msg->data.act_scan_distance_result.distance;
+	scan_on_shot[msg->data.act_scan_distance_result.idSensor].resultPresence = msg->data.act_scan_distance_result.present;
+	scan_on_shot[msg->data.act_scan_distance_result.idSensor].received = TRUE;
+
 }
