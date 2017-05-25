@@ -59,8 +59,8 @@ bool_e is_possible_point_for_rotation(GEOMETRY_point_t * p)
 	// Spécifique Terrain 2017
 	if(
 			!is_in_square(0 + (widthRobot), 2000-(widthRobot), 0+(widthRobot), 3000-(widthRobot), *p)	// Hors Terrain
-		|| 	is_in_square(0, 382+(widthRobot), 0, 710+(widthRobot),*p)						// Tasseau zone de départ bleu + bascule
-		|| 	is_in_square(0, 382+(widthRobot), 2290-(widthRobot), 3000,*p)					// Tasseau zone de départ jaune + bascule
+		|| 	is_in_square(0, 382+(widthRobot), 0, 810+(widthRobot),*p)						// Tasseau zone de départ bleu + bascule
+		|| 	is_in_square(0, 382+(widthRobot), 2190-(widthRobot), 3000,*p)					// Tasseau zone de départ jaune + bascule
 		|| 	is_in_square(0, 80+(widthRobot), 1110-(widthRobot), 1190+(widthRobot),*p)		// Fusée bleu
 		|| 	is_in_square(0, 80+(widthRobot), 1110-(widthRobot), 1190+(widthRobot),*p)		// Fusée jaune
 		|| 	is_in_square(678-(widthRobot), 1400+(widthRobot), 0, 102+(widthRobot),*p)		// Zone de dépose modules côté bleu + fusée
