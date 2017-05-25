@@ -236,7 +236,7 @@ error_e sub_harry_depose_centre_manager(){
 		// Vérifie que tout a été déposé, cependant si l'on reste bloqué trop longtemps on sort
 		case COMPUTE:
 			//A enlever si la dépose side foire.
-			if(depose_left == TRUE || depose_right == TRUE || depose_side == FALSE){
+			if((depose_left == TRUE || depose_right == TRUE) && depose_side == FALSE){
 				state = DEPOSE_SIDE;
 				depose_side = TRUE;
 			}
@@ -1346,6 +1346,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 	//static int compteur = 0; // abandon si deux echecs de depose car les modules ne sont pas monter dans le robot
 	static int correction_blue, correction_yellow; // correction la depose n'est pas au meme niveau entre gauche et droite
 	error_e stateAct;
+	static moduleMoonbaseLocation_e moonbase;
 
 	switch(state){
 		case INIT:
@@ -1355,11 +1356,13 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			}
 			// un cylindre peu bloqué en bas du robot !
 
-			if(side == OUR_SIDE)
+			if(side == OUR_SIDE){
 				color_side = global.color;
-			else
+				moonbase = MODULE_MOONBASE_OUR_SIDE;
+			}else{
 				color_side = (global.color==BLUE)?YELLOW:BLUE;
-
+				moonbase = MODULE_MOONBASE_ADV_SIDE;
+			}
 
 			if(color_side == BLUE){
 				sens_robot = BACKWARD;
@@ -1510,6 +1513,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ELOIGNEMENT_ERROR);
 				}
 			}
+
+			if(ON_LEAVE()){
+				MOONBASES_addModule(MODULE_POLY, moonbase);
+			}
 			break;
 
 			/*
@@ -1541,6 +1548,9 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ELOIGNEMENT_ERROR);
 				}
 			}
+			if(ON_LEAVE()){
+				MOONBASES_addModule(MODULE_POLY, moonbase);
+			}
 			break;
 
 			/*
@@ -1561,6 +1571,9 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			}
 			else{
 				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ELOIGNEMENT);
+			}
+			if(ON_LEAVE()){
+				MOONBASES_addModule(MODULE_POLY, moonbase);
 			}
 			break;
 

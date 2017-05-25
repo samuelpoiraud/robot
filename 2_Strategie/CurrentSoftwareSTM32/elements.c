@@ -696,6 +696,7 @@ void MOONBASES_addModule(moduleType_e type, moduleMoonbaseLocation_e location){
 		moduleMoonbaseInfo[location].moonbaseModules[i+1] = moduleMoonbaseInfo[location].moonbaseModules[i];
 	}
 	moduleMoonbaseInfo[location].moonbaseModules[0] = type;
+	moduleMoonbaseInfo[location].nbCurrentModules++;
 }
 
 
