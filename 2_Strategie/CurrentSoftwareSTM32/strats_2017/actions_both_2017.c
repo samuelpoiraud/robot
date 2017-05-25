@@ -235,7 +235,9 @@ error_e sub_cross_rocker(void){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_cross_rocker\n");
+			}
 			state = ERROR;
 			break;
 	}
@@ -274,7 +276,9 @@ error_e sub_wait_1_sec(void){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_wait_1_sec\n");
+			}
 			break;
 	}
 	return IN_PROGRESS;
@@ -339,7 +343,9 @@ error_e sub_protect(zone_to_protect_e zone)
 
 			default:
 				if(entrance)
+				{
 					error_printf("default case in sub_wait_1_sec\n");
+				}
 				break;
 		}
 
@@ -373,7 +379,9 @@ error_e strat_test_avoidance(){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in strat_test_avoidance\n");
+			}
 			break;
 	}
 	return IN_PROGRESS;
