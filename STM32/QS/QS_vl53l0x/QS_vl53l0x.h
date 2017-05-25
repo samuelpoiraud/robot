@@ -19,11 +19,13 @@
 		typedef enum{
 			DISTANCE_SENSOR_SMALL_LEFT,
 			DISTANCE_SENSOR_SMALL_RIGHT,
+			DISTANCE_SENSOR_SMALL_ELEVATOR,
 			DISTANCE_SENSOR_NB_SENSOR
 		}VL53L0X_id_e;
 		#define IS_VL53L0X_ID(x)	(										\
 									((x) == DISTANCE_SENSOR_SMALL_LEFT)		\
 									((x) == DISTANCE_SENSOR_SMALL_RIGHT)	\
+									((x) == DISTANCE_SENSOR_SMALL_ELEVATOR)	\
 									)
 
 		typedef Uint16 VL53L0X_distanceMeasure_t;		// [mm]

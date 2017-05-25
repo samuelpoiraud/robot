@@ -5,18 +5,43 @@
 
 #ifdef USE_SCAN
 
+	typedef enum{
+		SCAN_THRESHOLD_FALSE_ON_LOWER,
+		SCAN_THRESHOLD_FALSE_ON_UPPER
+	}SCAN_on_shot_threshold_way_e;
+
 	typedef struct{
 		Uint16 min;
 		Uint16 max;
 		Uint16 xForMin;
 	}SCAN_data_s;
 
+	typedef struct{
+		bool_e SCAN_asked;
+		bool_e SCAN_readyToTransmit;
+		Uint8 nbTry;
+		VL53L0X_distanceMeasure_t distance;
+		bool_e presence;
+		VL53L0X_distanceMeasure_t threshold;
+		SCAN_on_shot_threshold_way_e thresholdWay;
+
+		VL53L0X_id_e idVL53L0X;
+	}SCAN_on_shot_data_s;
+
 	static volatile bool_e SCAN_activate = FALSE;
 	static volatile SCAN_I2C_side_e SCAN_side;
 	static volatile SCAN_data_s data;
 
+	static volatile SCAN_on_shot_data_s dataOnShot[SCAN_SENSOR_ID_NB] = {
+			(SCAN_on_shot_data_s){FALSE, FALSE, 0 , 0, 100, SCAN_THRESHOLD_FALSE_ON_UPPER, DISTANCE_SENSOR_SMALL_ELEVATOR}		// SCAN_SENSOR_ID_SMALL_ELEVATOR
+	};
+
 	static void SCAN_launchScan();
 	static void SCAN_computeScan();
+
+	static void SCAN_on_shot_launch();
+	static void SCAN_on_shot_compute();
+	static void SCAN_on_shot_sendMsg();
 
 	void SCAN_init(void){
 		VL53L0X_init();
@@ -27,7 +52,13 @@
 			SCAN_launchScan();
 		}
 
-		 VL53L0X_processMain();
+		SCAN_on_shot_launch();
+
+		VL53L0X_processMain();
+
+		SCAN_on_shot_compute();
+
+		SCAN_on_shot_sendMsg();
 
 		if(SCAN_activate && global.pos.updated){
 			SCAN_computeScan();
@@ -51,15 +82,21 @@
 
 				SCAN_activate = FALSE;
 
-				CAN_msg_t msg;
-				msg.sid = ACT_RESULT_SCAN;
-				msg.size = SIZE_ACT_RESULT_SCAN;
-				msg.data.act_result_scan.max = data.max;
-				msg.data.act_result_scan.min = data.min;
-				msg.data.act_result_scan.xForMin = data.xForMin;
-				CAN_send(&msg);
+				CAN_msg_t msgSend;
+				msgSend.sid = ACT_RESULT_SCAN;
+				msgSend.size = SIZE_ACT_RESULT_SCAN;
+				msgSend.data.act_result_scan.max = data.max;
+				msgSend.data.act_result_scan.min = data.min;
+				msgSend.data.act_result_scan.xForMin = data.xForMin;
+				CAN_send(&msgSend);
 
 				}break;
+
+			case ACT_SCAN_DISTANCE:
+				if(msg->data.act_scan_distance.idSensor < SCAN_SENSOR_ID_NB){
+					dataOnShot[msg->data.act_scan_distance.idSensor].SCAN_asked = TRUE;
+				}
+				break;
 
 			default:
 				error_printf("default switch SCAN_processMsg\n");
@@ -80,6 +117,76 @@
 			default:
 				error_printf("default switch SCAN_launchScan\n");
 				break;
+		}
+	}
+
+	static void SCAN_on_shot_launch(){
+		Uint8 i;
+		for(i=0; i<SCAN_SENSOR_ID_NB; i++){
+			if(dataOnShot[i].SCAN_asked && dataOnShot[i].nbTry < 3){
+				VL53L0X_askMeasure(dataOnShot[i].idVL53L0X);
+			}
+		}
+	}
+
+	static void SCAN_on_shot_compute(){
+		Uint8 i;
+		for(i=0; i<SCAN_SENSOR_ID_NB; i++){
+			if(dataOnShot[i].SCAN_asked && dataOnShot[i].nbTry < 3){
+
+				VL53L0X_distanceMeasure_t dist = VL53L0X_getMeasure(dataOnShot[i].idVL53L0X);
+
+				if(dist != 0){
+
+					dataOnShot[i].distance = dist;
+
+					if(dataOnShot[i].thresholdWay == SCAN_THRESHOLD_FALSE_ON_LOWER){
+						if(dataOnShot[i].distance > dataOnShot[i].threshold){
+							dataOnShot[i].presence = TRUE;
+						}else{
+							dataOnShot[i].presence = FALSE;
+						}
+					}else{
+						if(dataOnShot[i].distance < dataOnShot[i].threshold){
+							dataOnShot[i].presence = TRUE;
+						}else{
+							dataOnShot[i].presence = FALSE;
+						}
+					}
+
+					dataOnShot[i].SCAN_asked = FALSE;
+					dataOnShot[i].SCAN_readyToTransmit = TRUE;
+
+				}else if(dataOnShot[i].nbTry < 3){
+					dataOnShot[i].nbTry++;
+				}else{
+					dataOnShot[i].distance = 0;
+					dataOnShot[i].presence = FALSE;
+					dataOnShot[i].SCAN_asked = FALSE;
+					dataOnShot[i].SCAN_readyToTransmit = TRUE;
+				}
+			}
+		}
+	}
+
+	static void SCAN_on_shot_sendMsg(){
+		Uint8 i;
+		for(i=0; i<SCAN_SENSOR_ID_NB; i++){
+			if(dataOnShot[i].SCAN_readyToTransmit){
+
+				dataOnShot[i].SCAN_readyToTransmit = FALSE;
+
+				CAN_msg_t msg;
+
+				msg.sid = ACT_SCAN_DISTANCE_RESULT;
+				msg.size = SIZE_ACT_SCAN_DISTANCE_RESULT;
+				msg.data.act_scan_distance_result.idSensor = i;
+				msg.data.act_scan_distance_result.distance = dataOnShot[i].distance;
+				msg.data.act_scan_distance_result.idSensor = dataOnShot[i].presence;
+
+				CAN_send(&msg);
+
+			}
 		}
 	}
 

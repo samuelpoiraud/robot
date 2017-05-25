@@ -156,4 +156,11 @@ bool_e ACT_get_scan_result(SCAN_I2C_data_s *data);
 
 void ACT_receive_result_scan_act(CAN_msg_t *msg);
 
+
+void ACT_ask_scan_on_shot(SCAN_SENSOR_id_e id);
+
+bool_e ACT_get_scan_on_shot_result(SCAN_SENSOR_id_e id, bool_e * resultPresence, Uint16 * resultDistance);
+
+void ACT_receive_result_scan_on_shot(CAN_msg_t *msg);
+
 #endif /* ndef ACT_FUNCTIONS_H */

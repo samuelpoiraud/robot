@@ -500,6 +500,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ACT_receive_result_scan_act(incoming_msg);
 			break;
 
+		case ACT_SCAN_DISTANCE_RESULT:
+			ACT_receive_result_scan_on_shot(incoming_msg);
+			break;
+
 /************************************ Récupération des données de la balise *******************************/
 		case BROADCAST_BEACON_ADVERSARY_POSITION_IR:
 			//En absence d'hokuyo et du fonctionnement correct de la carte propulsion, les msg balises IR sont très important pour l'évitement.

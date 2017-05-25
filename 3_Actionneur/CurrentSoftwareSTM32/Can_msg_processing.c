@@ -190,6 +190,7 @@ void CAN_process_msg(CAN_msg_t* msg) {
 
 		case ACT_START_SCAN:
 		case ACT_STOP_SCAN:
+		case ACT_SCAN_DISTANCE:
 			#ifdef USE_SCAN
 				SCAN_processMsg(msg);
 			#endif

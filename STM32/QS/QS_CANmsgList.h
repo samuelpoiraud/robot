@@ -860,6 +860,20 @@
 				Uint16 xForMin								:16;
 			}act_result_scan;
 
+		#define ACT_SCAN_DISTANCE							0x3EC
+		#define SIZE_ACT_SCAN_DISTANCE						1
+			struct{
+				SCAN_SENSOR_id_e idSensor					:8;
+			}act_scan_distance;
+
+		#define ACT_SCAN_DISTANCE_RESULT					0x223
+		#define SIZE_ACT_SCAN_DISTANCE_RESULT				4
+			struct{
+				SCAN_SENSOR_id_e idSensor					:8;
+				Uint16 distance								:16;
+				bool_e present								:8;
+			}act_scan_distance_result;
+
 	/**********************************************************************************************************************
 	 **********************************************************************************************************************
 	 **										Carte Strat <-> Carte Act													 **
