@@ -20,7 +20,7 @@
 #define ACT_ARG_DEFAULT_TIMEOUT_MS 3000
 #define ACT_ARG_NOFALLBACK_SID 0xFFF
 
-#define ACT_RE_SEND_TIME	100
+#define ACT_RE_SEND_TIME	50
 
 #ifdef ACT_NO_ERROR_HANDLING
 	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c/h, constante: ACT_NO_ERROR_HANDLING)"
