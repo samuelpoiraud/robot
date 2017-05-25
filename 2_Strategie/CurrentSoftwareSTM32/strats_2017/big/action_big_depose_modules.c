@@ -1354,8 +1354,8 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 
 			if(color_side == BLUE){
-				sens_robot = BACKWARD;
-				sens_robot_inv = FORWARD;
+				sens_robot = FORWARD;
+				sens_robot_inv = BACKWARD;
 				correction_blue = 100;
 				correction_yellow = 0;
 				if(i_am_in_square(750, 1300, 200, 1400)){
@@ -1366,8 +1366,8 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 				}
 			}
 			else{ // color yellow
-				sens_robot = FORWARD;
-				sens_robot_inv = BACKWARD;
+				sens_robot = BACKWARD;
+				sens_robot_inv = FORWARD;
 				correction_yellow = 100;
 				correction_blue = 0;
 				if(i_am_in_square(750, 1300, 1600, 2800)){
