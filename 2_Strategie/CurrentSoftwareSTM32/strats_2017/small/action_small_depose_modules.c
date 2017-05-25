@@ -1549,6 +1549,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			//BACK_TO_PREVIOUS_F,
 			PUSH_DISPOSED_MODULES_COMPUTE,
 			PUSH_DISPOSED_MODULES_GO_PUSH_OUT,
+			WAIT_POUSSIX,
 			PUSH_DISPOSED_MODULES_GO_PUSH_IN,
 			GET_OUT_TO_B,
 			EXTRACT_MANAGER,
@@ -1968,6 +1969,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			{
 				Push_out = (GEOMETRY_point_t){FX.x - 2*vector_cm.x, FX.y - 2*vector_cm.y};
 				Push_in = (GEOMETRY_point_t){FX.x + 12*vector_cm.x, FX.y + 12*vector_cm.y};
+				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_DOWN);	//On le fait dès maintenant...
 			}
 			else
 			{
@@ -1978,11 +1980,16 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			state = PUSH_DISPOSED_MODULES_GO_PUSH_OUT;
 			break;
 		case PUSH_DISPOSED_MODULES_GO_PUSH_OUT:
-			state = try_going(Push_out.x, Push_out.y, state, PUSH_DISPOSED_MODULES_GO_PUSH_IN, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+
+			state = try_going(Push_out.x, Push_out.y, state, WAIT_POUSSIX, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
-				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_MID);
+				if(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE3_MIDDLE_YELLOW || dzone == DZONE5_YELLOW_OUTDOOR)
+					ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_DOWN);
 			}
+			break;
+		case WAIT_POUSSIX:
+			state = check_act_status(ACT_QUEUE_Small_cylinder_poussix, state, PUSH_DISPOSED_MODULES_GO_PUSH_IN, PUSH_DISPOSED_MODULES_GO_PUSH_IN);
 			break;
 		case PUSH_DISPOSED_MODULES_GO_PUSH_IN:
 			state = try_going(Push_in.x, Push_in.y, state, (we_are_disposing_the_last_module)?GET_OUT_TO_B:GOTO_NEXT_F, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
