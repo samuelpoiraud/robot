@@ -2262,6 +2262,9 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			DONE
 		);
 
+	// Distance entre le point de prise et le point de dépose
+	#define DELTA_BETWEEN_TAKE_AND_STORE (45)
+
 	// Distance supplémentaire de laquelle on avance en cas d'erreur au premier essai
 	#define DELTA_ROBOT_TO_FAR_1 (15)
 
@@ -2387,10 +2390,10 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				takeNothingRight = FALSE;
 				// On retente si on a rien pris et si c'est le premier essai
 				if(nbTakeNothingAtAll <= 1 && indexSide == 1){
-					compute_take_point_rocket(&take_pos, NULL, store_pos, take_angle, 45 + DELTA_ROBOT_TO_FAR_1); // on recalcule juste la position
+					compute_take_point_rocket_to_handle_error(&take_pos, NULL, store_pos, take_angle, DELTA_BETWEEN_TAKE_AND_STORE, DELTA_ROBOT_TO_FAR_1, (GEOMETRY_point_t){global.pos.x, global.pos.y});
 					state = AVANCE;
 				}else if(nbTakeNothingAtAll <= 2 && indexSide == 1){
-					compute_take_point_rocket(&take_pos, NULL, store_pos, take_angle, 45 + DELTA_ROBOT_TO_FAR_2); // on recalcule juste la position
+					compute_take_point_rocket_to_handle_error(&take_pos, NULL, store_pos, take_angle, DELTA_BETWEEN_TAKE_AND_STORE, DELTA_ROBOT_TO_FAR_2, (GEOMETRY_point_t){global.pos.x, global.pos.y});
 					state = AVANCE;
 				}else{
 					// On éteint les pompes (par sécurité)

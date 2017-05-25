@@ -40,6 +40,7 @@
 	// Fonction de calcul du point de prise de la fusée et de l'angle théorique de prise
 	void compute_take_point_rocket(GEOMETRY_point_t *take_point, Sint16 *take_angle, GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist);
 
+	void compute_take_point_rocket_to_handle_error(GEOMETRY_point_t *take_point, Sint16 *take_angle, GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist, Uint16 error_dist, GEOMETRY_point_t robot_pos);
 
 #endif
 
