@@ -114,7 +114,9 @@ error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_manager_return_module\n");
+			}
 			break;
 	}
 
@@ -382,7 +384,9 @@ error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_return_modules_centre\n");
+			}
 			break;
 	}
 
@@ -523,7 +527,9 @@ error_e sub_anne_return_modules_centre_get_in(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_return_modules_centre_get_in\n");
+			}
 			break;
 	}
 
@@ -734,7 +740,9 @@ error_e sub_anne_return_modules_side(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_return_modules_centre\n");
+			}
 			break;
 	}
 
@@ -841,7 +849,9 @@ error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_return_modules_side_get_in\n");
+			}
 			break;
 	}
 	return IN_PROGRESS;
@@ -1493,7 +1503,9 @@ error_e sub_anne_depose_centre_manager(){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_depose_centre_manager\n");
+			}
 			break;
 	}
 	return IN_PROGRESS;
@@ -1967,14 +1979,14 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 		case PUSH_DISPOSED_MODULES_COMPUTE:
 			if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE4_YELLOW_INDOOR)
 			{
-				Push_out = (GEOMETRY_point_t){FX.x - 2*vector_cm.x, FX.y - 2*vector_cm.y};
-				Push_in = (GEOMETRY_point_t){FX.x + 12*vector_cm.x, FX.y + 12*vector_cm.y};
+				Push_out = (GEOMETRY_point_t){FX.x + 2*vector_cm.x, FX.y + 2*vector_cm.y};
+				Push_in = (GEOMETRY_point_t){FX.x - 12*vector_cm.x, FX.y - 12*vector_cm.y};
 				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_DOWN);	//On le fait dès maintenant...
 			}
 			else
 			{
-				Push_out = (GEOMETRY_point_t){FX.x - 12*vector_cm.x, FX.y - 12*vector_cm.y};
-				Push_in = (GEOMETRY_point_t){FX.x + 2*vector_cm.x, FX.y + 2*vector_cm.y};
+				Push_out = (GEOMETRY_point_t){FX.x + 12*vector_cm.x, FX.y + 12*vector_cm.y};
+				Push_in = (GEOMETRY_point_t){FX.x - 2*vector_cm.x, FX.y - 2*vector_cm.y};
 			}
 
 			state = PUSH_DISPOSED_MODULES_GO_PUSH_OUT;
@@ -2030,7 +2042,9 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_depose_modules_centre\n");
+			}
 			break;
 	}
 	return IN_PROGRESS;
@@ -2687,7 +2701,9 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_return_side\n");
+			}
 			break;
 	}
 
@@ -2900,7 +2916,9 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_return_side\n");
+			}
 			break;
 	}
 

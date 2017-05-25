@@ -83,7 +83,9 @@ error_e sub_anne_homologation_belgique(){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_homologation_belgique\n");
+			}
 			break;
 	}
 
@@ -117,7 +119,9 @@ error_e sub_anne_prise_modules_centre(ELEMENTS_property_e modules){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_prise_modules_centre\n");
+			}
 			break;
 	}
 
@@ -413,7 +417,9 @@ error_e sub_anne_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENTS
 
 			default:
 				if(entrance)
+				{
 					error_printf("default case in sub_anne_prise_modules_centre\n");
+				}
 				break;
 		}
 	return IN_PROGRESS;
@@ -729,7 +735,9 @@ error_e sub_anne_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS_
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_prise_modules_centre\n");
+			}
 			break;
 	}
 
@@ -1009,7 +1017,9 @@ error_e sub_anne_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS_
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_prise_modules_centre\n");
+			}
 			break;
 	}
 
@@ -1183,7 +1193,9 @@ error_e sub_anne_prise_module_unicolor_north(ELEMENTS_side_e side){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_prise_module_unicolor_north\n");
+			}
 			break;
 	}
 
@@ -1346,7 +1358,9 @@ error_e sub_anne_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_prise_module_unicolor_south\n");
+			}
 			break;
 	}
 
@@ -1751,7 +1765,9 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 
 		default:
 			if(entrance)
+			{
 				error_printf("default case in sub_anne_fusee_multicolor\n");
+			}
 			break;
 	}
 
