@@ -283,7 +283,13 @@ error_e sub_harry_prise_modules_manager(const get_this_module_s list_modules[], 
 			break;
 
 		case GET_MODULE_SOUTH_ZONE:
-			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(side), state, CHOOSE_MODULE, CHOOSE_MODULE);
+			if(entrance){
+				if(global.color == BLUE)
+					side = LEFT;
+				else
+					side = RIGHT;
+			}
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_south(side), state, CHOOSE_MODULE, CHOOSE_MODULE);
 			if(ON_LEAVE()){
 				actions_done++;
 			}
