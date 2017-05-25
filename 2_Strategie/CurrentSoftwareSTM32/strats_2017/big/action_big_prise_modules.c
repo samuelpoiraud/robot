@@ -1534,14 +1534,16 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			GO_TO_START_POINT_RIGHT,
 
 			TAKE_MODULE_LEFT,
-			RUSH_TO_LOCK_MODULE,
-			GET_OUT_RUSH,
+			RUSH_TO_LOCK_MODULE_LEFT,
+			GET_OUT_RUSH_LEFT,
 			PREPARE_STORAGE_LEFT,
 			STORAGE_LEFT,
 			GET_OUT_LEFT,
 			GET_OUT_LEFT_ERROR,
 
 			TAKE_MODULE_RIGHT,
+			RUSH_TO_LOCK_MODULE_RIGHT,
+			GET_OUT_RUSH_RIGHT,
 			PREPARE_STORAGE_RIGHT,
 			STORAGE_RIGHT,
 			GET_OUT_RIGHT,
@@ -1647,8 +1649,6 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			}
 			}break;
 
-
-
 		case TAKE_MODULE_LEFT:
 			if(entrance){
 
@@ -1665,11 +1665,11 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
 				}
 			}else{
-				state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE, GET_OUT_LEFT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE_LEFT, GET_OUT_LEFT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
-		case RUSH_TO_LOCK_MODULE:
+		case RUSH_TO_LOCK_MODULE_LEFT:
 			if(entrance){
 				// Rentrer le pusher
 				if(global.color == BLUE){
@@ -1678,11 +1678,11 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_IN);
 				}
 			}
-			state = try_rush(2000, COLOR_Y(750), state, GET_OUT_RUSH, GET_OUT_RUSH, FORWARD, NO_DODGE_AND_NO_WAIT, TRUE);
+			state = try_rush(2000, COLOR_Y(750), state, GET_OUT_RUSH_LEFT, GET_OUT_RUSH_LEFT, FORWARD, NO_DODGE_AND_NO_WAIT, TRUE);
 			break;
 
-		case GET_OUT_RUSH:
-			state = try_going(1750, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, RUSH_TO_LOCK_MODULE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+		case GET_OUT_RUSH_LEFT:
+			state = try_going(1750, COLOR_Y(750), state, PREPARE_STORAGE_LEFT, RUSH_TO_LOCK_MODULE_LEFT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case PREPARE_STORAGE_LEFT:
@@ -1718,8 +1718,14 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 			state = DONE;
 			break;
 
+
+
 		case GO_TO_START_POINT_RIGHT:{
 			if(entrance && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
+				PROP_WARNER_arm_y(COLOR_Y(520));
+			}
+
+			if(global.prop.reach_y && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
 				if(global.color == BLUE){
 					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_HIT);
 				}else{
@@ -1727,29 +1733,38 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				}
 			}
 
-			/*const displacement_t curve_right[3] = {(displacement_t){(GEOMETRY_point_t){1450, COLOR_Y(560)}, FAST},
-												(displacement_t){(GEOMETRY_point_t){1622, COLOR_Y(700)}, FAST},
-												(displacement_t){(GEOMETRY_point_t){1685, COLOR_Y(710)}, FAST}
-												};*/
-			const displacement_t curve_right[2] = {(displacement_t){(GEOMETRY_point_t){1550, COLOR_Y(665)}, FAST},
-												(displacement_t){(GEOMETRY_point_t){1640, COLOR_Y(723)}, FAST}
+			const displacement_t curve_right[2] = {(displacement_t){(GEOMETRY_point_t){1507, COLOR_Y(637)}, FAST},
+												(displacement_t){(GEOMETRY_point_t){1630, COLOR_Y(730)}, SLOW}
 												};
 			state = try_going_multipoint(curve_right, 2, state, TAKE_MODULE_RIGHT, ERROR, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-
 			if(ON_LEAVE()){
 				ELEMENTS_set_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN, TRUE);
+				MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_OUR_CENTER);
 			}
 			}break;
 
 		case TAKE_MODULE_RIGHT:
 			if(entrance){
-				// On ne peut utiliser l'élévateur que s'il est disponible
-				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
-					ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER);
-					//ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
-				}
-				ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
 
+				if(global.color == BLUE && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT)){
+					state = ERROR; // Notre slider est toujours prit
+				}else if(global.color == YELLOW && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT)){
+					state = ERROR; // Notre slider est toujours prit
+				}else{
+					// On ne peut utiliser l'élévateur que s'il est disponible
+					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
+						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER );
+						//ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
+					}
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
+				}
+			}else{
+				state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE_RIGHT, GET_OUT_RIGHT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case RUSH_TO_LOCK_MODULE_RIGHT:
+			if(entrance){
 				// Rentrer le pusher
 				if(global.color == BLUE){
 					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IN);
@@ -1757,10 +1772,12 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_IN);
 				}
 			}
-
-			state = try_going(1772, COLOR_Y(795), state, PREPARE_STORAGE_RIGHT, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_rush(2000, COLOR_Y(750), state, GET_OUT_RUSH_RIGHT, GET_OUT_RUSH_RIGHT, FORWARD, NO_DODGE_AND_NO_WAIT, TRUE);
 			break;
 
+		case GET_OUT_RUSH_RIGHT:
+			state = try_going(1750, COLOR_Y(750), state, PREPARE_STORAGE_RIGHT, RUSH_TO_LOCK_MODULE_RIGHT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
 
 		case PREPARE_STORAGE_RIGHT:
 			if(entrance){
@@ -1774,18 +1791,18 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				}*/
 
 				STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
-				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
+				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_SOUTH_IS_TAKEN, TRUE);	// Flag element
 			}
 
 			state = GET_OUT_RIGHT;
 			break;
 
 		case GET_OUT_RIGHT:
-			state = try_going(1640, COLOR_Y(723), state, STORAGE_RIGHT, GET_OUT_RIGHT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1630, COLOR_Y(700), state, STORAGE_RIGHT, GET_OUT_RIGHT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_OUT_RIGHT_ERROR:
-			state = try_going(1772, COLOR_Y(795), state, GET_OUT_RIGHT, GET_OUT_RIGHT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(1825, COLOR_Y(700), state, GET_OUT_RIGHT, GET_OUT_RIGHT, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case STORAGE_RIGHT:
