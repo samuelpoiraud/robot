@@ -26,6 +26,8 @@
     #define SMALL_CYLINDER_ARM_RX24_TAKE_POS			     	453	//en degré
     #define SMALL_CYLINDER_ARM_RX24_DISPOSE_POS			     	436	//en degré
     #define SMALL_CYLINDER_ARM_RX24_OUT_POS						361	//en degré
+    #define SMALL_CYLINDER_ARM_RX24_PROTECT_FALL_POS			488	//en degré
+
 
 //Position initiale de l'RX24
     #define SMALL_CYLINDER_ARM_RX24_INIT_POS					SMALL_CYLINDER_ARM_RX24_IDLE_POS

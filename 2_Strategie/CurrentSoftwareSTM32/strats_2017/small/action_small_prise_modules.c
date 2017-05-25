@@ -1423,7 +1423,7 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case PATHFIND:
-			state = ASTAR_try_going(400, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = ASTAR_try_going(400, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, GO_TO_START_POINT, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GO_TO_START_POINT: //ajuster la distance fusée

@@ -178,6 +178,8 @@ static void SMALL_CYLINDER_ARM_get_position_config(ACT_order_e *pOrder, Uint16 *
 		order = ACT_SMALL_CYLINDER_ARM_DISPOSE;
 	}else if(position > SMALL_CYLINDER_ARM_RX24_OUT_POS - epsilon && position < SMALL_CYLINDER_ARM_RX24_OUT_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_ARM_OUT;
+	}else if(position > SMALL_CYLINDER_ARM_RX24_PROTECT_FALL_POS - epsilon && position < SMALL_CYLINDER_ARM_RX24_PROTECT_FALL_POS + epsilon){
+		order = ACT_SMALL_CYLINDER_ARM_PROTECT_FALL;
 	}else if(position > SMALL_CYLINDER_ARM_RX24_IDLE_POS - epsilon && position < SMALL_CYLINDER_ARM_RX24_IDLE_POS + epsilon){
 		order = ACT_SMALL_CYLINDER_ARM_IDLE;
 	}
@@ -220,6 +222,7 @@ bool_e SMALL_CYLINDER_ARM_CAN_process_msg(CAN_msg_t* msg) {
             case ACT_SMALL_CYLINDER_ARM_TAKE :
             case ACT_SMALL_CYLINDER_ARM_DISPOSE :
             case ACT_SMALL_CYLINDER_ARM_OUT :
+            case ACT_SMALL_CYLINDER_ARM_PROTECT_FALL:
             case ACT_SMALL_CYLINDER_ARM_STOP :
             	run_now = msg->data.act_msg.act_data.act_order.run_now;
                 ACTQ_push_operation_from_msg(msg, QUEUE_ACT_RX24_SMALL_CYLINDER_ARM, &SMALL_CYLINDER_ARM_run_command, 0,TRUE);
@@ -279,6 +282,7 @@ static void SMALL_CYLINDER_ARM_command_init(queue_id_t queueId) {
         case ACT_SMALL_CYLINDER_ARM_TAKE : *rx24_goalPosition = SMALL_CYLINDER_ARM_RX24_TAKE_POS; break;
         case ACT_SMALL_CYLINDER_ARM_DISPOSE : *rx24_goalPosition = SMALL_CYLINDER_ARM_RX24_DISPOSE_POS; break;
         case ACT_SMALL_CYLINDER_ARM_OUT : *rx24_goalPosition = SMALL_CYLINDER_ARM_RX24_OUT_POS; break;
+        case ACT_SMALL_CYLINDER_ARM_PROTECT_FALL : *rx24_goalPosition = SMALL_CYLINDER_ARM_RX24_PROTECT_FALL_POS; break;
 
         case ACT_SMALL_CYLINDER_ARM_STOP :
             RX24_set_torque_enabled(SMALL_CYLINDER_ARM_RX24_ID, FALSE); //Stopper l'asservissement du RX24
