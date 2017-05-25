@@ -2073,9 +2073,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 
 			// On passe en SLOW pour être plus précis en Y sinon ca ne marche pas.
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state = try_going(1350, 305, state, ACTION, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 300, state, ACTION, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(1350, 2695, state, ACTION, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350, 2700, state, ACTION, ERROR, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
