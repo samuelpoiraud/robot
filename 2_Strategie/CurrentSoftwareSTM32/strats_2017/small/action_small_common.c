@@ -381,10 +381,7 @@ bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEME
 					*moonbase_side = ADV_SIDE;
 				else
 				{
-					if(0)//Harry_does_not_use_middle_access())		//TODO
-						*moonbase_side = OUR_SIDE;
-					else
-						*moonbase_side = ADV_SIDE;
+					*moonbase_side = OUR_SIDE;
 				}
 				break;
 			case MODULE_MOONBASE_ADV_CENTER:
