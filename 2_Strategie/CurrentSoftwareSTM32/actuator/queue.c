@@ -44,6 +44,7 @@ typedef struct{
 	queue_size_t start_index;   //Début de la file (la ou on ajoute)
 	queue_size_t end_index;     //Fin de la file (la ou on execute)
 	time32_t initial_time_of_current_action;
+	time32_t initial_time_of_re_send_msg;
 	bool_e error_occured;
 } queue_t;
 
@@ -107,7 +108,12 @@ time32_t QUEUE_get_initial_time(queue_id_e queue_id) {
 	return queues[queue_id].initial_time_of_current_action;
 }
 
-void QUEUE_set_initial_time(queue_id_e queue_id, time32_t initial_time) {
+time32_t QUEUE_get_initial_time_of_re_send_msg(queue_id_e queue_id){
+	assert(queue_id < NB_QUEUE);
+	return queues[queue_id].initial_time_of_re_send_msg;
+}
+
+void QUEUE_set_initial_time_of_re_send_msg(queue_id_e queue_id, time32_t initial_time){
 	assert(queue_id < NB_QUEUE);
 	queues[queue_id].initial_time_of_current_action = initial_time;
 }
@@ -158,6 +164,7 @@ bool_e QUEUE_add(queue_id_e queue_id, action_function_t action, QUEUE_arg_t arg)
 		//on l'initialise
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
 		this->initial_time_of_current_action = global.absolute_time;
+		this->initial_time_of_re_send_msg = global.absolute_time;
 		action(queue_id, TRUE);
 	}
 
@@ -178,6 +185,7 @@ void QUEUE_next(queue_id_e queue_id)
 		//on initialise l'action suivante
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
 		this->initial_time_of_current_action = global.match_time;
+		this->initial_time_of_re_send_msg = global.absolute_time;
 		(this->action[this->end_index])(queue_id, TRUE);
 	} else {
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Queue empty\n");
