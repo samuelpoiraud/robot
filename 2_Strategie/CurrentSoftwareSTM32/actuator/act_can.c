@@ -195,15 +195,15 @@ static void ACT_check_result(queue_id_e act_id) {
 		QUEUE_next(act_id);
 #else
 
-	if(global.match_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time(act_id) && act_states[act_id].acknowledge == FALSE){
+	if(global.absolute_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time(act_id) && act_states[act_id].acknowledge == FALSE){
 		error_printf("Acknowledge timeout (by strat) act id: %u, sid: 0x%x", act_id, argument->msg.sid);
 		CAN_msg_t* msg = &(QUEUE_get_arg(act_id)->msg);
 		error_printf("RE-Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d\n", act_id, msg->sid , msg->size, msg->data.act_msg.order);
 		CAN_send(msg);
-		QUEUE_set_initial_time(act_id, global.match_time);
+		QUEUE_set_initial_time(act_id, global.absolute_time);
 	}
 
-	if(global.match_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
+	if(global.absolute_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
 		error_printf("Operation timeout (by strat) act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data.act_result.cmd);
 		act_states[act_id].disabled = TRUE;
 		act_states[act_id].lastResult = ACT_FUNCTION_ActDisabled;

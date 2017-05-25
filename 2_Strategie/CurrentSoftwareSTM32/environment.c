@@ -416,17 +416,8 @@ void CAN_update (CAN_msg_t* incoming_msg)
 		case PROP_ROBOT_CALIBRE:
 			global.prop.calibrated = TRUE;
 			if(QS_WHO_AM_I_get() == SMALL_ROBOT){
-				CAN_msg_t msg;
-				msg.size = SIZE_ACT_MSG;
-				msg.data.act_msg.act_data.act_order.run_now = TRUE;
-
-				msg.sid = ACT_SMALL_BALL_FRONT_LEFT;
-				msg.data.act_msg.order = ACT_SMALL_BALL_FRONT_LEFT_UP;
-				CAN_send(&msg);
-
-				msg.sid = ACT_SMALL_BALL_FRONT_RIGHT;
-				msg.data.act_msg.order = ACT_SMALL_BALL_FRONT_RIGHT_UP;
-				CAN_send(&msg);
+				ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT, ACT_SMALL_BALL_FRONT_LEFT_UP);
+				ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT, ACT_SMALL_BALL_FRONT_RIGHT_UP);
 			}
 			break;
 		case DEBUG_PROPULSION_COEF_IS:
