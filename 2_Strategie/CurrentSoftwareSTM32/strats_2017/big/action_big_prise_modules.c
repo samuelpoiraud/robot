@@ -1626,7 +1626,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		case GO_TO_START_POINT_LEFT:{
 			if(entrance && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
-				PROP_WARNER_arm_y(520);
+				PROP_WARNER_arm_y(COLOR_Y(520));
 			}
 
 			if(global.prop.reach_y && !ELEMENTS_get_flag(FLAG_OUR_MULTICOLOR_NEAR_DEPOSE_IS_TAKEN)){
