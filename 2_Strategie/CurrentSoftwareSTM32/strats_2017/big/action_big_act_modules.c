@@ -811,7 +811,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			WAIT_DISPENSER_TO_END,
 			DISPENSER_GO_LOCK_TO_END,
 
-			ERROR_DISABLE_ACT,
+			//ERROR_DISABLE_ACT,
 			ERROR,
 			DONE
 		);
@@ -937,9 +937,9 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 			// Vérification des ordres effectués
 			if(storage == MODULE_STOCK_RIGHT){
-				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, SLIDER_GO_IN, ERROR_DISABLE_ACT);
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_right, state, SLIDER_GO_IN, SLIDER_GO_IN);
 			}else{
-				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, SLIDER_GO_IN, ERROR_DISABLE_ACT);
+				state = check_act_status(ACT_QUEUE_Cylinder_elevator_left, state, SLIDER_GO_IN, SLIDER_GO_IN);
 			}
 			break;
 
@@ -1230,14 +1230,14 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			}
 			break;
 
-		case ERROR_DISABLE_ACT:
-			if(storage == MODULE_STOCK_RIGHT){
-				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
-			}else{
-				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
-			}
-			state = ERROR; // On ne peut plus rien faire
-			break;
+//		case ERROR_DISABLE_ACT:
+//			if(storage == MODULE_STOCK_RIGHT){
+//				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_RIGHT, TRUE);
+//			}else{
+//				ELEMENTS_set_flag(FLAG_HARRY_DISABLE_MODULE_LEFT, TRUE);
+//			}
+//			state = ERROR; // On ne peut plus rien faire
+//			break;
 
 		case DONE:
 			if(entrance){
@@ -2379,6 +2379,9 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 					compute_take_point_rocket(&take_pos, NULL, store_pos, take_angle, 45 + DELTA_ROBOT_TO_FAR); // on recalcule juste la position
 					state = AVANCE;
 				}else{
+					// On éteint les pompes (par sécurité)
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
 					state = DONE; // La fusée est vide.
 				}
 			}else if(needToStoreLeft && needToStoreRight){
