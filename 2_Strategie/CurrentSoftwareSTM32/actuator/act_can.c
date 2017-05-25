@@ -164,7 +164,7 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 		act_states[act_id].lastResult = ACT_FUNCTION_InProgress;
 		act_states[act_id].acknowledge = FALSE;
 
-		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_optionnal_data[0], msg->data.act_msg.act_data.act_optionnal_data[1]);
+		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_order.act_optionnal_data[0], msg->data.act_msg.act_data.act_order.act_optionnal_data[1]);
 
 		if(MOSFET_isStratMosfetSid(act_id)){
 			MOSFET_CAN_process_msg(msg);
@@ -303,7 +303,7 @@ void ACT_process_acknowledge(CAN_msg_t* msg){
 
 	assert(msg->sid == ACT_ACKNOWLEDGE);
 
-	debug_printf("Received acknowledge: sid: 0x%x, act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->sid, msg->data.act_acknowledge.sid, msg->data.act_acknowledge.cmd, msg->data.act_acknowledge.result, msg->data.act_acknowledge.error_code);
+	debug_printf("Received acknowledge: sid: 0x%x, act: %u, cmd: 0x%x\n", msg->sid, msg->data.act_acknowledge.sid, msg->data.act_acknowledge.cmd);
 
 #ifdef ACT_NO_ERROR_HANDLING
 	act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;

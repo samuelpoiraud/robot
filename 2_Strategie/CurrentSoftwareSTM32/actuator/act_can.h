@@ -56,6 +56,7 @@ bool_e ACT_push_operation(queue_id_e act_id, QUEUE_arg_t* arg);
 
 // Gère les messages de retour de la carte actionneur lorsque une action s'est terminée ou a échouée
 void ACT_process_result(const CAN_msg_t* msg);
+void ACT_process_acknowledge(CAN_msg_t* msg);
 
 //Impose le résultat de l'actionneur (codé pour les pompes sur la carte strat en 2016)
 void ACT_set_result(queue_id_e act_id, act_result_e result);
