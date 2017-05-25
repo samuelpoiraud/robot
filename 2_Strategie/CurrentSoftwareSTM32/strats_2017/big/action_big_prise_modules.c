@@ -2147,7 +2147,11 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 			break;
 
 		case TAKE_MODULE_SOUTH:
-			state = check_sub_action_result(sub_harry_prise_module_unicolor_south(LEFT), state, DONE, DONE);
+			if(global.color == YELLOW){
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_south(RIGHT), state, DONE, DONE);
+			}else{
+				state = check_sub_action_result(sub_harry_prise_module_unicolor_south(LEFT), state, DONE, DONE);
+			}
 			break;
 
 		case DONE:
