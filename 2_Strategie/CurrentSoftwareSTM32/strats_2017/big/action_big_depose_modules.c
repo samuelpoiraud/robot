@@ -108,6 +108,7 @@ error_e sub_harry_depose_centre_manager(){
 			if(module_type == NO_DOMINATING){
 				module_type = MODULE_POLY_DOMINATING;
 			}
+			error_printf("Nombre de modules côté left :%d\nNombre de modules côté right :%d\nrobot_side :%d\n");
 			break;
 
 		//Choix de l'emplacement exact de la dépose
