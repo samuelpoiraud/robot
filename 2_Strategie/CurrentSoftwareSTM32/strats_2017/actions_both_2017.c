@@ -415,3 +415,33 @@ void compute_take_point_rocket(GEOMETRY_point_t *take_point, Sint16 *take_angle,
 	}
 }
 
+//Code permettant de calculer le deplacement du robot pendant la prise
+void compute_take_point_rocket_to_handle_error(GEOMETRY_point_t *take_point, Sint16 *take_angle, GEOMETRY_point_t store_point, Sint16 angle_robot, Uint16 dist, Uint16 error_dist, GEOMETRY_point_t robot_pos){
+	Sint16 angle = GEOMETRY_modulo_angle(angle_robot);
+	Sint16 angle_theorical =  angle;
+	GEOMETRY_point_t p = store_point;
+	if(angle > -PI4096/4 && angle <= PI4096/4){	// approximativement angle == 0
+		p.x = MAX(store_point.x + dist + error_dist, robot_pos.x + error_dist);
+		angle_theorical = 0;
+	}else if(angle > PI4096/4 && angle <= 3*PI4096/4){ // approximativement angle == PI4096/2
+		p.y = MAX(store_point.y + dist + error_dist, robot_pos.y + error_dist);
+		angle_theorical = PI4096/2;
+	}else if(angle > 3*PI4096/4 || angle <= -3*PI4096/4){ // approximativement angle == PI4096
+		p.x = MIN(store_point.x - dist - error_dist, robot_pos.x - error_dist);
+		angle_theorical = PI4096;
+	}else if(angle > -3*PI4096/4 && angle <= -PI4096/4){ // approximativement angle == -PI4096/2
+		p.y = MIN(store_point.y - dist - error_dist, robot_pos.y - error_dist);
+		angle_theorical = -PI4096/2;
+	}else{
+		error_printf("ERROR : couldn't compute point for rocket\n");
+	}
+
+	if(take_point != NULL){
+		*take_point = p;
+	}
+
+	if(take_angle != NULL){
+		*take_angle = angle_theorical;
+	}
+}
+

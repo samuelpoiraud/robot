@@ -1321,7 +1321,7 @@
 					success_possible = FALSE;
 					//state = ASTAR_DISPLACEMENT;
 					//warn_printf("ASTAR failure but will try to reach x=%d y=%d\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
-					warn_printf("ASTAR failure - Foe in path\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
+					warn_printf("ASTAR failure - Foe in path (%d; %d)\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
 					if(nb_try > 0 && (avoidance == DODGE_AND_NO_WAIT || avoidance == DODGE_AND_WAIT))
 					{
 						state = ASTAR_DODGE_FOE;

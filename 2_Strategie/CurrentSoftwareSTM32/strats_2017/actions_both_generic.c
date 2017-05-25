@@ -533,7 +533,7 @@ void strat_reglage_odo_translation(void){
 					else
 						coefOdoTranslation -= 1;
 
-					debug_printf("Il n'est pas allé assez loin (%d mm)\n", comparation_value);
+					debug_printf("Il n'est pas allé assez loin (%d mm)\n", (int)comparation_value);
 					LCD_printf(3, TRUE, TRUE, "- | %ld | 0x%lx", comparation_value, coefOdoTranslation);
 
 				}else if(comparation_value < -TRANS_ODOMETRIE_PLAGE_TRANSLATION){
@@ -547,7 +547,7 @@ void strat_reglage_odo_translation(void){
 					else
 						coefOdoTranslation += 1;
 
-					debug_printf("Il est trop loin (%d mm)\n", comparation_value);
+					debug_printf("Il est trop loin (%ld mm)\n", comparation_value);
 					LCD_printf(3, TRUE, TRUE, "+ | %ld | 0x%lx", comparation_value, coefOdoTranslation);
 				}
 
