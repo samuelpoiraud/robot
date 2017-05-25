@@ -1330,14 +1330,19 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			DISPOSE_3,
 			ELOIGNEMENT,
 			GET_OUT,
-
+			ELOIGNEMENT_ERROR,
+			GET_OUT_ERROR,
 			DONE
 		);
 
+	// Pousse les modules présent dans la zone en les poussant
+	//#define CHECK_ZONE_BY_PUSHING
+
 	static color_e color_side;
-	static ELEMENTS_side_e sens_robot, sens_robot_inv;
+	static way_e sens_robot, sens_robot_inv;
 	//static int compteur = 0; // abandon si deux echecs de depose car les modules ne sont pas monter dans le robot
 	static int correction_blue, correction_yellow; // correction la depose n'est pas au meme niveau entre gauche et droite
+	error_e stateAct;
 
 	switch(state){
 		case INIT:
@@ -1354,8 +1359,8 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 
 			if(color_side == BLUE){
-				sens_robot = FORWARD;
-				sens_robot_inv = BACKWARD;
+				sens_robot = BACKWARD;
+				sens_robot_inv = FORWARD;
 				correction_blue = 100;
 				correction_yellow = 0;
 				if(i_am_in_square(750, 1300, 200, 1400)){
@@ -1366,8 +1371,8 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 				}
 			}
 			else{ // color yellow
-				sens_robot = BACKWARD;
-				sens_robot_inv = FORWARD;
+				sens_robot = FORWARD;
+				sens_robot_inv = BACKWARD;
 				correction_yellow = 100;
 				correction_blue = 0;
 				if(i_am_in_square(750, 1300, 1600, 2800)){
@@ -1388,95 +1393,88 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			break;
 
 		case CALAGE:
-			if(color_side == BLUE){
-				state = try_rush(1000, 0, state, POSITION_ANGLE, ERROR, sens_robot, NO_DODGE_AND_WAIT, TRUE); //1000 0
-			}
-			else{
-				state = try_rush(1000, 3000, state, POSITION_ANGLE, ERROR, sens_robot_inv, NO_DODGE_AND_WAIT, TRUE); //1000 0
-			}
+			state = try_rush(1000, COLOR_Y(0), state, POSITION_ANGLE, ERROR, BACKWARD, NO_DODGE_AND_WAIT, TRUE); //1000 0
 			break;
 
 		case POSITION_ANGLE:
 			// avance et tourne pour longer (350)
-			if(robot_side == RIGHT){
-				state = try_going(1000, COLOR_Y(350), state, GO_TO_PUSH, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}
-			else{
-				state = try_going(1000, COLOR_Y(350), state, GO_TO_PUSH, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}
+#ifdef CHECK_ZONE_BY_PUSHING
+			state = try_going(1000, COLOR_Y(350), state, GO_TO_PUSH, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+#else
+			state = try_going(1000, COLOR_Y(350), state, PREPARE_TO_DISPOSE, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+#endif
 			break;
 
 		case GO_TO_PUSH:
 			//va au sud avant de remonter /// FORWARK/BACKWARD robot side
-			if(robot_side == RIGHT){
-				state = try_going(1200-correction_yellow, COLOR_Y(350), state, PREPARE_TO_PUSH, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(robot_side == RIGHT){ // BACKWARD en yellow // FORWARD en blue
+				state = try_going(1200-correction_yellow, COLOR_Y(350), state, PREPARE_TO_PUSH, ELOIGNEMENT_ERROR, FAST, sens_robot_inv, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
-			else{
-				state = try_going(1200-correction_blue, COLOR_Y(350), state, PREPARE_TO_PUSH, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			else{   // FORWARD en yellow // BACKWARD en blue
+				state = try_going(1200-correction_blue, COLOR_Y(350), state, PREPARE_TO_PUSH, ELOIGNEMENT_ERROR, FAST, sens_robot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
-			/*
-			 * pousser les modules avant la dépose
-			 */
+		// pousser les modules avant la dépose
 		case PREPARE_TO_PUSH:
-			//descendre l'actionneur
-			if(robot_side == RIGHT){
-				if(entrance){
+			if(entrance){
+				if(robot_side == RIGHT){
 					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_OUT);
-				}
-
-				state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH, PUSHER_UP);
-			}
-			else{
-				if(entrance){
+				}else{
 					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_OUT);
 				}
-
+			}
+			//descendre l'actionneur
+			if(robot_side == RIGHT){
+				state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH, PUSHER_UP);
+			}else{
 				state= check_act_status(ACT_QUEUE_Cylinder_pusher_left, state, PUSH, PUSHER_UP);
 			}
 			break;
 
 		case PUSH:
 			if(robot_side == RIGHT){
-				state = try_rush(750-correction_yellow, COLOR_Y(350), state, PUSHER_UP, PUSHER_UP, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_rush(750-correction_yellow, COLOR_Y(350), state, PUSHER_UP, PUSHER_UP, sens_robot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_rush(750-correction_blue, COLOR_Y(350), state, PUSHER_UP, PUSHER_UP, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_rush(750-correction_blue, COLOR_Y(350), state, PUSHER_UP, PUSHER_UP, sens_robot_inv, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
-			/*
-			 * remonte le pusher avant de se rapprocher du côté de terrain
-			 */
-		case PUSHER_UP:{
-			Uint8 state1=PUSHER_UP;
-			Uint8 state2=PUSHER_UP;
+		// remonte le pusher avant de se rapprocher du côté de terrain
+		case PUSHER_UP:
 			if(entrance){
-				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_BALANCER_LEFT_IDLE);
-				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_BALANCER_LEFT_IDLE);
+				if(robot_side == RIGHT){
+					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_BALANCER_RIGHT_IN);
+				}else{
+					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_BALANCER_LEFT_IN);
+				}
 			}
 
-			state1 = check_act_status(ACT_QUEUE_Cylinder_pusher_right, state1, DONE, ERROR);
-			state2 = check_act_status(ACT_QUEUE_Cylinder_pusher_left, state2, DONE, ERROR);
+			if(robot_side == RIGHT){
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_pusher_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}else{
+				stateAct = check_act_status(ACT_QUEUE_Cylinder_pusher_left, IN_PROGRESS, END_OK, NOT_HANDLED);
+			}
+
 			 // abandon après avoir pousser
-			if((state1==ERROR)||(state2==ERROR)){
+			if(stateAct==NOT_HANDLED){
 				state=PUSHER_UP;
 			}
-			else if((state1==DONE)&&(state2==DONE)){
+			else if(stateAct==END_OK){
 				state=PREPARE_TO_DISPOSE;
 			}
-		}break;
+		break;
+
 		/*
 		 *  placement avant la depose
 		 */
-
 		case PREPARE_TO_DISPOSE:
 			if(robot_side == RIGHT){
-				state = try_going(1200-correction_yellow, COLOR_Y(310), state, POSITION_DISPOSE_1, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1150, COLOR_Y(310), state, POSITION_DISPOSE_1, ELOIGNEMENT_ERROR, FAST, sens_robot_inv, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_going(1200-correction_blue, COLOR_Y(310), state, POSITION_DISPOSE_1, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1150, COLOR_Y(310), state, POSITION_DISPOSE_1, ELOIGNEMENT_ERROR, FAST, sens_robot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1494,19 +1492,19 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 		case DISPOSE_1:
 			if(robot_side == RIGHT){
-				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 1){
-					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_2, ERROR);
+				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) >= 1){
+					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_2, POSITION_DISPOSE_2);
 				}
 				else{
-					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ERROR);
+					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ELOIGNEMENT_ERROR);
 				}
 			}
 			else{
-				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 1){
-					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_2, ERROR);
+				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) >= 1){
+					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_2, POSITION_DISPOSE_2);
 				}
 				else{
-					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ERROR);
+					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ELOIGNEMENT_ERROR);
 				}
 			}
 			break;
@@ -1516,29 +1514,29 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			 */
 		case POSITION_DISPOSE_2:
 			if(robot_side == RIGHT){
-				state = try_going(900-correction_yellow, COLOR_Y(310), state, DISPOSE_2, ELOIGNEMENT, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(900-correction_yellow, COLOR_Y(310), state, DISPOSE_2, ELOIGNEMENT_ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_going(900-correction_blue, COLOR_Y(310), state, DISPOSE_2, ELOIGNEMENT, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(900-correction_blue, COLOR_Y(310), state, DISPOSE_2, ELOIGNEMENT_ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
 		case DISPOSE_2:
 			if(robot_side == RIGHT){
-				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 1){
-					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_3, ERROR);
+				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) >= 1){
+					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_3, POSITION_DISPOSE_3);
 				}
 				else{
-					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ERROR);
+					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ELOIGNEMENT_ERROR);
 				}
 			}
 			else{
-				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 1){
-					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_3, ERROR);
+				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) >= 1){
+					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, POSITION_DISPOSE_3, POSITION_DISPOSE_3);
 				}
-					else{
-					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ERROR);
-					}
+				else{
+					state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, ELOIGNEMENT, ELOIGNEMENT_ERROR);
+				}
 			}
 			break;
 
@@ -1547,10 +1545,10 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			 */
 		case POSITION_DISPOSE_3:
 			if(robot_side == RIGHT){
-				state = try_going(750-correction_yellow, COLOR_Y(310), state, DISPOSE_3, ELOIGNEMENT, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(750-correction_yellow, COLOR_Y(310), state, DISPOSE_3, ELOIGNEMENT_ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_going(750-correction_blue, COLOR_Y(310), state, DISPOSE_3, ELOIGNEMENT, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(750-correction_blue, COLOR_Y(310), state, DISPOSE_3, ELOIGNEMENT_ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			break;
 
@@ -1565,12 +1563,38 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 
 		case ELOIGNEMENT:
 			//pos de depard ou plus loin
-			state = try_going(900-correction_yellow, COLOR_Y(350), state, GET_OUT, GET_OUT, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(robot_side == RIGHT){
+				state = try_going(900-correction_yellow, COLOR_Y(350), state, GET_OUT, GET_OUT, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(900-correction_blue, COLOR_Y(350), state, GET_OUT, GET_OUT, FAST, sens_robot, DODGE_AND_WAIT, END_AT_BRAKE);
+			}
 			break;
 
 		case GET_OUT:
 			//pos de depard ou plus loin
-			state = try_going(1000-correction_blue, COLOR_Y(500), state, DONE, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(robot_side == RIGHT){
+				state = try_going(1000, COLOR_Y(500), state, DONE, DONE, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(1000, COLOR_Y(500), state, DONE, DONE, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case ELOIGNEMENT_ERROR:
+			//pos de depard ou plus loin
+			if(robot_side == RIGHT){
+				state = try_going(900-correction_yellow, COLOR_Y(350), state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_BRAKE);
+			}else{
+				state = try_going(900-correction_blue, COLOR_Y(350), state, GET_OUT_ERROR, GET_OUT_ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_BRAKE);
+			}
+			break;
+
+		case GET_OUT_ERROR:
+			//pos de depard ou plus loin
+			if(robot_side == RIGHT){
+				state = try_going(1000, COLOR_Y(500), state, ERROR, ERROR, FAST, sens_robot_inv, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(1000, COLOR_Y(500), state, ERROR, ERROR, FAST, sens_robot, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
 			break;
 
 		case ERROR:
