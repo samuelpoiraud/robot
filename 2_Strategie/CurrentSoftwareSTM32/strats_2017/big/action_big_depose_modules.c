@@ -969,7 +969,6 @@ error_e sub_harry_get_in_pos_5_depose_module_centre(){
 			INIT,
 			GET_IN_FROM_OUR_SQUARE,
 			GET_IN_FROM_MIDDLE_SQUARE,
-			GET_IN_FROM_ADV_SQUARE,
 			START_POINT,
 			AVANCE,
 			ROTATE,
