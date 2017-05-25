@@ -12,6 +12,7 @@
 #include "QS/QS_ax12.h"
 #include "QS/QS_rx24.h"
 #include "QS/QS_outputlog.h"
+#include "QS/QS_can.h"
 #include "act_queue_utils.h"
 #include "selftest.h"
 #include "mosfetBoard.h"
