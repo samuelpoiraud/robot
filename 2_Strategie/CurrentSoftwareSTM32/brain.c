@@ -200,8 +200,6 @@ void any_match(void)
 
 		SWITCH_change_color();	//Check the Color switch
 
-		SWITCH_bascule();
-
 		/* accepter et prévenir des mises à jour de couleur (TOP_COLOR par défaut) */
 		if(global.flags.color_updated && !global.prop.calibrated && !global.flags.ask_prop_calibration)
 		{
