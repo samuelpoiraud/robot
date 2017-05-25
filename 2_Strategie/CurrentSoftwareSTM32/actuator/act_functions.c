@@ -311,6 +311,7 @@ void ACT_get_config_answer(CAN_msg_t* msg){
 	}
 
 	act_config[i].info_received = TRUE; // On vient de recevoir une réponse
+	QUEUE_next(i); // On acquitte le message (du moins c'est une tentative)
 }
 
 error_e ACT_check_position_config(Uint16 sid, ACT_order_e order){
