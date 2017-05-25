@@ -161,7 +161,7 @@ error_e sub_cross_rocker(void){
 				ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT, ACT_SMALL_BALL_FRONT_LEFT_UP);
 				ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT, ACT_SMALL_BALL_FRONT_RIGHT_UP);
 			}
-			state = try_going(180, COLOR_Y(600), state, CROSS_END, MOVE_BACK, 22, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(180, COLOR_Y(600), state, CROSS_END, MOVE_BACK, 22, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
 			//if(global.prop.reach_y){
 //					ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT,ACT_SMALL_BALL_FRONT_LEFT_DOWN);
 	//				ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT,ACT_SMALL_BALL_FRONT_RIGHT_DOWN);
@@ -169,11 +169,11 @@ error_e sub_cross_rocker(void){
 			break;
 
 		case CROSS_END:
-			state = try_going(180, COLOR_Y(850), state, CORRECT_ODOMETRY_MATH, ERROR, 16, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(180, COLOR_Y(850), state, CORRECT_ODOMETRY_MATH, CROSS_END, 16, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case MOVE_BACK:
-			state = try_going(180, COLOR_Y(200), state, CROSS, CROSS, SLOW, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(180, COLOR_Y(200), state, CROSS, CROSS, SLOW, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case CORRECT_ODOMETRY_MATH:{
@@ -204,7 +204,7 @@ error_e sub_cross_rocker(void){
 		}break;
 
 		case AVANCE_TO_NEXT_POSITION:
-			state = try_advance(NULL, entrance, 100, state, RECALAGE_X, CORRECT_ODOMETRY_MEASURE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(global.pos.x,COLOR_Y(710+SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE+100), state, RECALAGE_X, CORRECT_ODOMETRY_MEASURE, FAST, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case RECALAGE_X:{
@@ -214,13 +214,11 @@ error_e sub_cross_rocker(void){
 		}break;
 
 		case GET_OUT:
-			state = try_advance(NULL, entrance, 300, state, DONE, RECALAGE_X, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-
-			//state = try_going(250, COLOR_Y(1000), state, DONE, GO_BACK, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(300, global.pos.y, state, DONE, GO_BACK, FAST, BACKWARD, NO_AVOIDANCE, END_AT_BRAKE);
 			break;
 
 		case GO_BACK:
-			state = try_going(175, COLOR_Y(900), state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(175, COLOR_Y(900), state, GET_OUT, GET_OUT, FAST, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case DONE:
