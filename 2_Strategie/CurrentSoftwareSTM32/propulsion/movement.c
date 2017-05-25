@@ -167,7 +167,7 @@ Uint8 try_rush(Sint16 x, Sint16 y, Uint8 in_progress, Uint8 success_state, Uint8
 			break;
 
 		case INIT_COEF:
-			PROP_set_threshold_error_translation(50, FALSE);
+			PROP_set_threshold_error_translation(75, FALSE);
 			state = GO;
 			break;
 

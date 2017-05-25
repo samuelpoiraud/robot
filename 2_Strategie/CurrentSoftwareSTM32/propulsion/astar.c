@@ -1214,7 +1214,7 @@
 
 
 
-#define DIST_FOE_TO_EXTRACT		500		//Distance en dessous de laquelle on tente une extraction si DODGE est actif et qu'un adversaire nous dérange !
+#define DIST_FOE_TO_EXTRACT		400		//Distance en dessous de laquelle on tente une extraction si DODGE est actif et qu'un adversaire nous dérange !
 
 
 	/** @brief ASTAR_try_going
