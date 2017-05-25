@@ -1395,7 +1395,7 @@ error_e sub_anne_fusee_color(){
 			}else if(ELEMENTS_get_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_OUR_ROCKET_UNI)){
 				state = ERROR;
 			}else{
-				if (i_am_in_square_color(170, 1100, 850, 2100)){
+				if (i_am_in_square_color(100, 1100, 850, 2100)){
 					state = GET_IN_DIRECT;
 				}else if(i_am_in_square_color(800, 1400, 300, 900)){
 					state = GET_IN_OUR_SQUARE;
@@ -1438,7 +1438,7 @@ error_e sub_anne_fusee_color(){
 			if(entrance){
 				//set_sub_act_enable(SUB__DEPOSE_MODULES, TRUE);
 			}
-			state=try_going(400, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state=try_going(400, global.pos.y, state, DONE, AVANCE, FAST, BACKWARD, NO_AVOIDANCE, END_AT_BRAKE);
 			break;
 
 		case GET_OUT_ERROR:
