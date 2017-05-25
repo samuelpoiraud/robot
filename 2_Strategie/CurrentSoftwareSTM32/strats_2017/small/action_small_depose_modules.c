@@ -1528,8 +1528,8 @@ error_e sub_anne_depose_centre_manager(){
 #define dRH				(MOONBASE_TO_R+115)	//Distance entre le centre de la moonbase et l'axe de dépose / poussage
 #define FN_FN1			120					//Distance entre deux déposes de modules
 
-#define dHC_OUTDOOR		50			//distance entre le Rush Goal et le premier module posable, côté cratère
-#define dHC_INDOOR		200			//distance entre le Rush Goal et le premier module posable, côté intérieur
+#define dHC_OUTDOOR		30			//distance entre le Rush Goal et le premier module posable, côté cratère
+#define dHC_INDOOR		180			//distance entre le Rush Goal et le premier module posable, côté intérieur
 
 #define	F0D_LONG		100			//L'extraction du dispose axis se fait en deux temps (D puis E)
 #define F0D_LARGE		5
@@ -1917,8 +1917,8 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			//TODO détection de fin de stock ou de fin de zone ou savoir si c'est le dernier module à poser
 			we_are_disposing_the_last_module = (STOCKS_getNbModules(MODULE_STOCK_SMALL) == 1 || remaining_dispose_modules_try == 1)?TRUE:FALSE;
 			we_need_to_push_after_dispose =
-					(	(global.pos.x < 1600 &&	(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE5_YELLOW_OUTDOOR))
-					|| (global.pos.x < 1450 &&	(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE4_YELLOW_INDOOR))
+					(	(global.pos.x < 1650 &&	(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE5_YELLOW_OUTDOOR))
+					|| (global.pos.x < 1500 &&	(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE4_YELLOW_INDOOR))
 					|| (global.pos.x < 1350 &&	(dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW)))?TRUE:FALSE;
 
 			if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0 || remaining_dispose_modules_try == 0)
@@ -1980,13 +1980,13 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE4_YELLOW_INDOOR)
 			{
 				Push_out = (GEOMETRY_point_t){FX.x + 2*vector_cm.x, FX.y + 2*vector_cm.y};
-				Push_in = (GEOMETRY_point_t){FX.x - 12*vector_cm.x, FX.y - 12*vector_cm.y};
+				Push_in = (GEOMETRY_point_t){FX.x - 15*vector_cm.x, FX.y - 15*vector_cm.y};
 				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_DOWN);	//On le fait dès maintenant...
 			}
 			else
 			{
 				Push_out = (GEOMETRY_point_t){FX.x + 12*vector_cm.x, FX.y + 12*vector_cm.y};
-				Push_in = (GEOMETRY_point_t){FX.x - 2*vector_cm.x, FX.y - 2*vector_cm.y};
+				Push_in = (GEOMETRY_point_t){FX.x - 5*vector_cm.x, FX.y - 5*vector_cm.y};
 			}
 
 			state = PUSH_DISPOSED_MODULES_GO_PUSH_OUT;
@@ -2410,7 +2410,9 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			GOTO_F1,
 			GOTO_F2,
 			GOTO_P0,
+			WAIT_POUSSIX,
 			GOTO_P1,
+			WAIT_POUSSIX_UP,
 			GOTO_F3,
 			DISPOSE,
 			EXTRACT_BEYOND_F0,
@@ -2611,18 +2613,25 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			break;
 
 		case GOTO_P0:
-			state = try_going(P0.x, P0.y, state, GOTO_P1, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(P0.x, P0.y, state, WAIT_POUSSIX, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
-				//TODO sortir bras de push
+				if(state == WAIT_POUSSIX)
+					ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_DOWN);
 			}
 			break;
+		case WAIT_POUSSIX:
+			state = check_act_status(ACT_QUEUE_Small_cylinder_poussix, state, GOTO_P1, GOTO_P1);
+			break;
 		case GOTO_P1:
-			state = try_going(P1.x, P1.y, state, GOTO_F3, EXTRACT_BEYOND_F3, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(P1.x, P1.y, state, WAIT_POUSSIX_UP, EXTRACT_BEYOND_F3, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
-				//TODO rentrer bras de push
+				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_UP);
 			}
+			break;
+		case WAIT_POUSSIX_UP:
+			state = check_act_status(ACT_QUEUE_Small_cylinder_poussix, state, GOTO_F3, GOTO_F3);
 			break;
 		case GOTO_F3:
 			state = try_going(F3.x, F3.y, state, DISPOSE, EXTRACT_BEYOND_F0, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
