@@ -2400,6 +2400,8 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			GET_IN,
 			GET_IN_FROM_BLUE_ROCKET,
 			GET_IN_FROM_YELLOW_ROCKET,
+			GET_IN_VIA_SOUTH_FROM_BLUE_ROCKET,
+			GET_IN_VIA_SOUTH_FROM_YELLOW_ROCKET,
 			ASTAR_GET_IN,
 			RUSH_TO_GOAL,
 			EXTRACT_FROM_RUSH_TO_A,
@@ -2486,6 +2488,18 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 											(displacement_t) { (GEOMETRY_point_t){800, 2350}, FAST}
 										},
 										2, state, GET_IN, ASTAR_GET_IN, FORWARD, DODGE_AND_WAIT, END_AT_BRAKE);
+			if(state == ASTAR_GET_IN)
+			{
+				if(i_am_in_square(200,800,900,1700))
+					state = GET_IN_VIA_SOUTH_FROM_BLUE_ROCKET;
+			}
+			break;
+		case GET_IN_VIA_SOUTH_FROM_BLUE_ROCKET:
+			state = try_going_multipoint(	(displacement_t []) {
+												(displacement_t) { (GEOMETRY_point_t){1200, 1800}, FAST},
+												(displacement_t) { (GEOMETRY_point_t){800, 2350}, FAST}
+											},
+											2, state, GET_IN, ASTAR_GET_IN, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 		case GET_IN_FROM_YELLOW_ROCKET:
 			state = try_going_multipoint(	(displacement_t []) {
@@ -2493,8 +2507,20 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 											(displacement_t) { (GEOMETRY_point_t){800, 650}, FAST}
 										},
 										2, state, GET_IN, ASTAR_GET_IN, FORWARD, DODGE_AND_WAIT, END_AT_BRAKE);
+			if(state == ASTAR_GET_IN)
+			{
+				//On a échoué...
+				if(i_am_in_square(200,800,1300,2100))	//Première partie de la courbe
+					state = GET_IN_VIA_SOUTH_FROM_YELLOW_ROCKET;
+			}
 			break;
-
+		case GET_IN_VIA_SOUTH_FROM_YELLOW_ROCKET:
+			state = try_going_multipoint(	(displacement_t []) {
+											(displacement_t) { (GEOMETRY_point_t){1200, 1200}, FAST},
+											(displacement_t) { (GEOMETRY_point_t){800, 650}, FAST}
+										},
+										2, state, GET_IN, ASTAR_GET_IN, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
 		case ASTAR_GET_IN:
 			state = ASTAR_try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
