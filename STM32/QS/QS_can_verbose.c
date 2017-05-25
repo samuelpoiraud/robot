@@ -84,6 +84,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 #ifdef I_AM_CARTE_STRAT			// Message ignoré par la stratégie
 		case XBEE_GET_COLOR:
 		case XBEE_SEND_COLOR:
+		case XBEE_COMMUNICATION_AVAILABLE:
+		case XBEE_COMMUNICATION_RESPONSE:
 #endif
 
 #ifdef I_AM_CARTE_PROP			// Message ignoré par la propulsion
