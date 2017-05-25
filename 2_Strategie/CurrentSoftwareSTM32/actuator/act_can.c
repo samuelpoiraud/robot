@@ -20,6 +20,8 @@
 #define ACT_ARG_DEFAULT_TIMEOUT_MS 3000
 #define ACT_ARG_NOFALLBACK_SID 0xFFF
 
+#define ACT_RE_SEND_TIME	100
+
 #ifdef ACT_NO_ERROR_HANDLING
 	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c/h, constante: ACT_NO_ERROR_HANDLING)"
 #endif
@@ -39,6 +41,7 @@ typedef struct {
 	act_error_recommended_behavior_e recommendedBehavior;		//Quoi faire suite à l'opération faite
 	ACT_function_result_e lastResult;
 	Uint32 lastParamResult;
+	bool_e acknowledge;
 } act_state_info_t;
 
 static act_state_info_t act_states[NB_QUEUE];  //Info lié a chaque actionneur
@@ -159,8 +162,9 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 
 		act_states[act_id].operationResult = ACT_RESULT_Working;
 		act_states[act_id].lastResult = ACT_FUNCTION_InProgress;
+		act_states[act_id].acknowledge = FALSE;
 
-		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x,  data[2]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_optionnal_data[0], msg->data.act_msg.act_data.act_optionnal_data[1], msg->data.act_msg.act_data.act_optionnal_data[2]);
+		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_optionnal_data[0], msg->data.act_msg.act_data.act_optionnal_data[1]);
 
 		if(MOSFET_isStratMosfetSid(act_id)){
 			MOSFET_CAN_process_msg(msg);
@@ -190,6 +194,14 @@ static void ACT_check_result(queue_id_e act_id) {
 		act_states[act_id].lastResult = ACT_FUNCTION_Done;
 		QUEUE_next(act_id);
 #else
+
+	if(global.match_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time(act_id) && act_states[act_id].acknowledge == FALSE){
+		error_printf("Acknowledge timeout (by strat) act id: %u, sid: 0x%x", act_id, argument->msg.sid);
+		CAN_msg_t* msg = &(QUEUE_get_arg(act_id)->msg);
+		error_printf("RE-Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d\n", act_id, msg->sid , msg->size, msg->data.act_msg.order);
+		CAN_send(msg);
+	}
+
 	if(global.match_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
 		error_printf("Operation timeout (by strat) act id: %u, sid: 0x%x, cmd: 0x%x\n", act_id, argument->msg.sid, argument->msg.data.act_result.cmd);
 		act_states[act_id].disabled = TRUE;
@@ -247,6 +259,9 @@ static void ACT_check_result(queue_id_e act_id) {
 						break;
 				}
 				act_states[act_id].lastParamResult = act_states[act_id].paramResult;
+				if(act_states[act_id].acknowledge == FALSE){
+					error_printf("Reception d'un résultat actionneur sans acquittement sid: 0x%x\n", argument->msg.sid);
+				}
 				break;
 
 			case ACT_RESULT_Ok:
@@ -263,6 +278,9 @@ static void ACT_check_result(queue_id_e act_id) {
 					QUEUE_next(act_id);
 				}
 				act_states[act_id].lastParamResult = act_states[act_id].paramResult;
+				if(act_states[act_id].acknowledge == FALSE){
+					error_printf("Reception d'un résultat actionneur sans acquittement sid: 0x%x\n", argument->msg.sid);
+				}
 				break;
 
 			case ACT_RESULT_Working:	//Pas encore fini l'opération, on a pas reçu de message de la carte actionneur
@@ -277,6 +295,36 @@ static void ACT_check_result(queue_id_e act_id) {
 		}
 	}
 #endif /* not def ACT_NO_ERROR_HANDLING */
+}
+
+void ACT_process_acknowledge(CAN_msg_t* msg){
+	queue_id_e act_id = NB_QUEUE;
+
+	assert(msg->sid == ACT_ACKNOWLEDGE);
+
+	debug_printf("Received acknowledge: sid: 0x%x, act: %u, cmd: 0x%x, result: %u, reason: %u\n", msg->sid, msg->data.act_acknowledge.sid, msg->data.act_acknowledge.cmd, msg->data.act_acknowledge.result, msg->data.act_acknowledge.error_code);
+
+#ifdef ACT_NO_ERROR_HANDLING
+	act_states[act_id].recommendedBehavior = ACT_BEHAVIOR_Ok;
+	act_states[act_id].operationResult = ACT_RESULT_Ok;
+	act_states[act_id].acknowledge = TRUE;
+#else
+
+	act_id = act_link_SID_Queue[ACT_search_link_SID_Queue((Uint16)(ACT_FILTER | msg->data.act_acknowledge.sid))].queue_id;
+
+	if(act_id >= NB_QUEUE) {
+		error_printf("Unknown act acknowledge, can_act_id: 0x%x, Pour gérer cet act, il faut ajouter un case dans le switch juste au dessus de ce printf\n", act_id);
+		return;
+	}
+
+	//Erreur de codage, ça ne devrait jamais arriver sauf si la commande en question a été lancé par quelqu'un d'autre que la strategie (par exemple via un bouton pour debug)
+	if(act_states[act_id].operationResult != ACT_RESULT_Working) {
+		warn_printf("act is not in working mode but received acknowledge, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data.act_result.sid, msg->data.act_result.cmd, msg->data.act_result.result, msg->data.act_result.error_code, act_states[act_id].operationResult);
+		return;
+	}
+
+	act_states[act_id].acknowledge = TRUE;
+#endif
 }
 
 // Gere les messages CAN ACT_RESULT contenant des infos sur le déroulement d'une action

@@ -41,6 +41,9 @@ static const char * print_colorSensor(COLOR_SENSOR_I2C_color_e color);
 static const char * print_corrector(corrector_e corrector);
 static const char * print_mosfetId(act_vacuostat_id id);
 static const char * print_scan_sensor_id(SCAN_SENSOR_id_e id);
+static const char * print_act_sid(Uint8 sid);
+static const char * print_act_order(Uint8 sid, Uint8 order);
+
 
 #define print(buffer, len, ...) \
 	do { \
@@ -81,8 +84,6 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 #ifdef I_AM_CARTE_STRAT			// Message ignoré par la stratégie
 		case XBEE_GET_COLOR:
 		case XBEE_SEND_COLOR:
-		case XBEE_COMMUNICATION_AVAILABLE:
-		case XBEE_COMMUNICATION_RESPONSE:
 #endif
 
 #ifdef I_AM_CARTE_PROP			// Message ignoré par la propulsion
@@ -284,6 +285,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case STRAT_MOSFET_8:                            print(string, len, "%x STRAT_MOSFET_8                         ", STRAT_MOSFET_8								    );	break;
 		case STRAT_MOSFET_MULTI:                        print(string, len, "%x STRAT_MOSFET_MULTI                     ", STRAT_MOSFET_MULTI							    );	break;
 
+		case ACT_ACKNOWLEDGE:                       	print(string, len, "%x ACT_ACKNOWLEDGE                        ", ACT_ACKNOWLEDGE							    );	break;
+
 		case ACT_GET_MOSFET_CURRENT_STATE:				print(string, len, "%x ACT_GET_MOSFET_CURRENT_STATE           ", ACT_GET_MOSFET_CURRENT_STATE			 		);	break;
 		case ACT_TELL_MOSFET_CURRENT_STATE:				print(string, len, "%x ACT_TELL_MOSFET_CURRENT_STATE          ", ACT_TELL_MOSFET_CURRENT_STATE			 		);	break;
 		case ACT_GET_TURBINE_SPEED:						print(string, len, "%x ACT_GET_TURBINE_SPEED                  ", ACT_GET_TURBINE_SPEED			 				);	break;
@@ -379,580 +382,10 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 
 		case ACT_RESULT:
 			print(string,len, "| act0x%x : ", msg->data.act_result.sid);
-			switch(msg->data.act_result.sid)
-			{
-				// Harry
-				case (Uint8)ACT_BIG_BALL_FRONT_LEFT:	    	print(string,len, "ACT_BIG_BALL_FRONT_LEFT ");		break;
-				case (Uint8)ACT_BIG_BALL_FRONT_RIGHT:	    	print(string,len, "ACT_BIG_BALL_FRONT_RIGHT ");		break;
-				case (Uint8)ACT_BIG_BALL_BACK_LEFT:	    		print(string,len, "ACT_BIG_BALL_BACK_LEFT ");		break;
-				case (Uint8)ACT_BIG_BALL_BACK_RIGHT:	    	print(string,len, "ACT_BIG_BALL_BACK_RIGHT ");		break;
-				case (Uint8)ACT_BEARING_BALL_WHEEL:	    		print(string,len, "ACT_BEARING_BALL_WHEEL ");		break;
 
-				case (Uint8)ACT_CYLINDER_SLOPE_LEFT:	    	print(string,len, "ACT_CYLINDER_SLOPE_LEFT ");		break;
-				case (Uint8)ACT_CYLINDER_SLOPE_RIGHT:	    	print(string,len, "ACT_CYLINDER_SLOPE_RIGHT ");		break;
-				case (Uint8)ACT_CYLINDER_BALANCER_LEFT:	    	print(string,len, "ACT_CYLINDER_BALANCER_LEFT ");	break;
-				case (Uint8)ACT_CYLINDER_BALANCER_RIGHT:	    print(string,len, "ACT_CYLINDER_BALANCER_RIGHT ");	break;
-				case (Uint8)ACT_CYLINDER_PUSHER_LEFT:	    	print(string,len, "ACT_CYLINDER_PUSHER_LEFT ");		break;
-				case (Uint8)ACT_CYLINDER_PUSHER_RIGHT:	    	print(string,len, "ACT_CYLINDER_PUSHER_RIGHT ");	break;
-				case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT:	    	print(string,len, "ACT_CYLINDER_ELEVATOR_LEFT ");	break;
-				case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT:	    print(string,len, "ACT_CYLINDER_ELEVATOR_RIGHT ");	break;
-				case (Uint8)ACT_CYLINDER_SLIDER_LEFT:	    	print(string,len, "ACT_CYLINDER_SLIDER_LEFT ");		break;
-				case (Uint8)ACT_CYLINDER_SLIDER_RIGHT:	    	print(string,len, "ACT_CYLINDER_SLIDER_RIGHT ");	break;
-				case (Uint8)ACT_CYLINDER_ARM_LEFT:	    		print(string,len, "ACT_CYLINDER_ARM_LEFT ");		break;
-				case (Uint8)ACT_CYLINDER_ARM_RIGHT:	    		print(string,len, "ACT_CYLINDER_ARM_RIGHT ");		break;
-				case (Uint8)ACT_CYLINDER_COLOR_LEFT:	    	print(string,len, "ACT_CYLINDER_COLOR_LEFT ");		break;
-				case (Uint8)ACT_CYLINDER_COLOR_RIGHT:	    	print(string,len, "ACT_CYLINDER_COLOR_RIGHT ");		break;
-				case (Uint8)ACT_CYLINDER_DISPOSE_LEFT:	    	print(string,len, "ACT_CYLINDER_DISPOSE_LEFT ");	break;
-				case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT:	    	print(string,len, "ACT_CYLINDER_DISPOSE_RIGHT ");	break;
+			print(string,len, "%s", print_act_sid(msg->data.act_result.sid));
 
-				case (Uint8)ACT_ORE_GUN:	    				print(string,len, "ACT_ORE_GUN ");					break;
-				case (Uint8)ACT_ORE_WALL:	    				print(string,len, "ACT_ORE_WALL ");					break;
-				case (Uint8)ACT_ORE_ROLLER_ARM:	    			print(string,len, "ACT_ORE_ROLLER_ARM ");			break;
-				case (Uint8)ACT_ORE_ROLLER_FOAM:	    		print(string,len, "ACT_ORE_ROLLER_FOAM ");			break;
-				case (Uint8)ACT_ORE_TRIHOLE:	    			print(string,len, "ACT_ORE_TRIHOLE ");				break;
-
-				case (Uint8)ACT_ROCKET:	    					print(string,len, "ACT_ROCKET ");					break;
-
-
-				// Anne
-				case (Uint8)ACT_SMALL_BALL_BACK:		    	print(string,len, "ACT_SMALL_BALL_BACK ");		break;
-				case (Uint8)ACT_SMALL_BALL_FRONT_LEFT:		    print(string,len, "ACT_SMALL_BALL_FRONT_LEFT ");	break;
-				case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT:		    print(string,len, "ACT_SMALL_BALL_FRONT_RIGHT ");	break;
-
-				case (Uint8)ACT_SMALL_CYLINDER_ARM:		    	print(string,len, "ACT_SMALL_CYLINDER_ARM ");		break;
-				case (Uint8)ACT_SMALL_CYLINDER_BALANCER:		print(string,len, "ACT_SMALL_CYLINDER_BALANCER ");	break;
-				case (Uint8)ACT_SMALL_CYLINDER_COLOR:		   	print(string,len, "ACT_SMALL_CYLINDER_COLOR ");		break;
-				case (Uint8)ACT_SMALL_CYLINDER_DISPOSE:		    print(string,len, "ACT_SMALL_CYLINDER_DISPOSE ");	break;
-				case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR:		print(string,len, "ACT_SMALL_CYLINDER_ELEVATOR ");	break;
-				case (Uint8)ACT_SMALL_CYLINDER_SLIDER:		   	print(string,len, "ACT_SMALL_CYLINDER_SLIDER ");	break;
-				case (Uint8)ACT_SMALL_CYLINDER_SLOPE:		    print(string,len, "ACT_SMALL_CYLINDER_SLOPE ");		break;
-				case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION:	print(string,len, "ACT_SMALL_CYLINDER_MULTIFONCTION ");		break;
-				case (Uint8)ACT_SMALL_POMPE_PRISE:				print(string,len, "ACT_SMALL_POMPE_PRISE ");		break;
-				case (Uint8)ACT_SMALL_POMPE_DISPOSE:			print(string,len, "ACT_SMALL_POMPE_DISPOSE ");		break;
-
-				case (Uint8)ACT_SMALL_MAGIC_ARM:		    	print(string,len, "ACT_SMALL_MAGIC_ARM ");			break;
-				case (Uint8)ACT_SMALL_MAGIC_COLOR:		    	print(string,len, "ACT_SMALL_MAGIC_COLOR ");		break;
-
-				case (Uint8)ACT_SMALL_ORE:		    			print(string,len, "ACT_SMALL_ORE ");				break;
-
-				//Mosfet
-				case (Uint8)ACT_TURBINE:						print(string, len, "ACT_TURBINE ");					break;
-				case (Uint8)ACT_POMPE_SLIDER_LEFT:				print(string, len, "ACT_POMPE_SLIDER_LEFT ");		break;
-				case (Uint8)ACT_POMPE_SLIDER_RIGHT:				print(string, len, "ACT_POMPE_SLIDER_RIGHT ");		break;
-				case (Uint8)ACT_POMPE_ELEVATOR_LEFT:			print(string, len, "ACT_POMPE_ELEVATOR_LEFT ");		break;
-				case (Uint8)ACT_POMPE_ELEVATOR_RIGHT:			print(string, len, "ACT_POMPE_ELEVATOR_RIGHT ");	break;
-				case (Uint8)ACT_POMPE_DISPOSE_LEFT:				print(string, len, "ACT_POMPE_DISPOSE_LEFT ");				break;
-				case (Uint8)ACT_POMPE_DISPOSE_RIGHT:			print(string, len, "ACT_POMPE_DISPOSE_RIGHT ");				break;
-				case (Uint8)ACT_MOSFET_8:						print(string, len, "ACT_MOSFET_8 ");				break;
-				case (Uint8)ACT_MOSFET_MULTI:					print(string, len, "ACT_MOSFET_MULTI ");            break;
-
-				case (Uint8)STRAT_MOSFET_1:						print(string, len, "STRAT_MOSFET_1 ");				break;
-				case (Uint8)STRAT_MOSFET_2:						print(string, len, "STRAT_MOSFET_2 ");				break;
-				case (Uint8)STRAT_MOSFET_3:						print(string, len, "STRAT_MOSFET_3 ");				break;
-				case (Uint8)STRAT_MOSFET_4:						print(string, len, "STRAT_MOSFET_4 ");				break;
-				case (Uint8)STRAT_MOSFET_5:                     print(string, len, "STRAT_MOSFET_5 ");				break;
-				case (Uint8)STRAT_MOSFET_6:                     print(string, len, "STRAT_MOSFET_6 ");				break;
-				case (Uint8)STRAT_MOSFET_7:                     print(string, len, "STRAT_MOSFET_7 ");				break;
-				case (Uint8)STRAT_MOSFET_8:                     print(string, len, "STRAT_MOSFET_8 ");				break;
-				case (Uint8)STRAT_MOSFET_MULTI:                 print(string, len, "STRAT_MOSFET_MULTI ");			break;
-
-
-				default:										print(string,len, "UNKNOW ACT -> complete verbose !");		break;
-			}
-
-
-			  switch(msg->data.act_result.sid){
-
-				  case (Uint8)ACT_BEARING_BALL_WHEEL:
-						switch(msg->data.act_result.cmd){
-							case (Uint8)ACT_BEARING_BALL_WHEEL_IDLE:	print(string,len, "| IDLE |");			break;
-							case (Uint8)ACT_BEARING_BALL_WHEEL_UP:		print(string,len, "| UP |");			break;
-							case (Uint8)ACT_BEARING_BALL_WHEEL_DOWN:	print(string,len, "| DOWN |");			break;
-							case (Uint8)ACT_BEARING_BALL_WHEEL_STOP:	print(string,len, "| STOP |");			break;
-							default:                                    print(string,len, "| UNKNOW cmd |");	break;
-						}
-				  break;
-
-				  case (Uint8)ACT_BIG_BALL_BACK_LEFT:
-						switch(msg->data.act_result.cmd){
-							case (Uint8)ACT_BIG_BALL_BACK_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							case (Uint8)ACT_BIG_BALL_BACK_LEFT_UP:		print(string,len, "| UP |");			break;
-							case (Uint8)ACT_BIG_BALL_BACK_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-							case (Uint8)ACT_BIG_BALL_BACK_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							default:                                    print(string,len, "| UNKNOW cmd |");	break;
-						}
-				  break;
-
-				  case (Uint8)ACT_BIG_BALL_BACK_RIGHT:
-						switch(msg->data.act_result.cmd){
-							case (Uint8)ACT_BIG_BALL_BACK_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							case (Uint8)ACT_BIG_BALL_BACK_RIGHT_UP:		print(string,len, "| UP |");			break;
-							case (Uint8)ACT_BIG_BALL_BACK_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
-							case (Uint8)ACT_BIG_BALL_BACK_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							default:                                    print(string,len, "| UNKNOW cmd |");	break;
-						}
-				  break;
-
-				  case (Uint8)ACT_BIG_BALL_FRONT_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_UP:	print(string,len, "| UP |");			break;
-							  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-							  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_UP:		print(string,len, "| UP |");			break;
-							  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
-							  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_SLOPE_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_UP:	print(string,len, "| UP |");	break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_UP:		print(string,len, "| UP |");			break;
-							  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_BALANCER_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IN:	print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_OUT:	print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_VERY_OUT:	print(string,len, "| VERY_OUT |");	break;
-							  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IN:	print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_OUT:	print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_VERY_OUT:	print(string,len, "| VERY_OUT |");	break;
-							  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				 case (Uint8)ACT_CYLINDER_PUSHER_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IN:		print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_OUT:		print(string,len, "| OUT |");	break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_HIT:		print(string, len, "| HIT |"); 		break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_PREVENT_DEPOSE:	print(string, len, "| PREV_DEPOSE |"); 		break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_IN:		print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_OUT:	print(string,len, "| OUT |");		break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_HIT:	print(string, len, "| HIT |"); 		break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_PREVENT_DEPOSE:	print(string, len, "| PREV_DEPOSE |"); 		break;
-							  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM:	print(string,len, "| BOTTOM |");	break;
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_TOP:	print(string,len, "| TOP |");			break;
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM:	print(string,len, "| BOTTOM |");	break;
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_TOP:	print(string,len, "| TOP |");			break;
-							  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IDLE:print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT:	print(string,len, "| A OUT |");	break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER:	print(string,len, "| AC OUT |");	break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IN:	print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_OUT:	print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_HARVEST:print(string,len, "| HARVEST |");	break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_STOP:print(string,len, "| STOP |");			break;
-							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT:	print(string,len, "| A OUT |");		break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER:	print(string,len, "| AC OUT |");	break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_IN:		print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_OUT:	print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_HARVEST:print(string,len, "| HARVEST |");		break;
-							  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-
-
-				  case (Uint8)ACT_CYLINDER_ARM_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_ARM_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_ARM_LEFT_IN:		print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				print(string,len, "| TAKE |");				break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			print(string,len, "| DISPOSE |");			break;
-							  case (Uint8)ACT_CYLINDER_ARM_LEFT_OUT:	print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_CYLINDER_ARM_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_ARM_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IN:	print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				print(string,len, "| TAKE |");				break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			print(string,len, "| DISPOSE |");			break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_OUT:	print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_CYLINDER_ARM_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				 case (Uint8)ACT_CYLINDER_COLOR_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_IDLE:			print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED:	print(string,len, "| NORMAL_SPEED |");	break;
-							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_ZERO_SPEED:	print(string,len, "| ZERO_SPEED |");	break;
-							  case (Uint8)ACT_CYLINDER_COLOR_LEFT_STOP:			print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_COLOR_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_IDLE:		print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED:print(string,len, "| NORMAL_SPEED |");	break;
-							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_ZERO_SPEED:	print(string,len, "| ZERO_SPEED |");	break;
-							  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_STOP:		print(string,len, "| STOP |");			break;
-							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				case (Uint8)ACT_CYLINDER_DISPOSE_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_TAKE:	print(string,len, "| TAKE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_RAISE:  print(string,len, "| RAISE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_DISPOSE:  print(string,len, "| DISPOSE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_TAKE:	print(string,len, "| TAKE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_RAISE:	print(string,len, "| RAISE |");			break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE:	print(string,len, "| DISPOSE |");	break;
-							  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_ORE_GUN:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_ORE_GUN_IDLE:	print(string,len, "| IDLE |");		break;
-							  case (Uint8)ACT_ORE_GUN_DOWN:	print(string,len, "| DOWN |");		break;
-							  case (Uint8)ACT_ORE_GUN_UP:	print(string,len, "| UP |");		break;
-							  case (Uint8)ACT_ORE_GUN_STOP:	print(string,len, "| STOP |");		break;
-							  default:                      print(string,len, "| UNKNOW cmd |");break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_ORE_ROLLER_ARM:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_ORE_ROLLER_ARM_IDLE:	print(string,len, "| IDLE |");		break;
-							  case (Uint8)ACT_ORE_ROLLER_ARM_OUT:	print(string,len, "| OUT |");		break;
-							  case (Uint8)ACT_ORE_ROLLER_ARM_IN:	print(string,len, "| IN |");		break;
-							  case (Uint8)ACT_ORE_ROLLER_ARM_STOP:	print(string,len, "| STOP |");		break;
-							  default:                      		print(string,len, "| UNKNOW cmd |");break;
-						  }
-				  break;
-
-				 case (Uint8)ACT_ORE_ROLLER_FOAM:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_ORE_ROLLER_FOAM_IDLE:	print(string,len, "| IDLE |");		break;
-							  case (Uint8)ACT_ORE_ROLLER_FOAM_RUN:	print(string,len, "| RUN |");		break;
-							  case (Uint8)ACT_ORE_ROLLER_FOAM_STOP:	print(string,len, "| STOP |");		break;
-							  default:                      		print(string,len, "| UNKNOW cmd |");break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_ORE_WALL:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_ORE_WALL_IDLE:	print(string,len, "| IDLE |");		break;
-							  case (Uint8)ACT_ORE_WALL_OUT:		print(string,len, "| OUT |");		break;
-							  case (Uint8)ACT_ORE_WALL_IN:		print(string,len, "| IN |");		break;
-							  case (Uint8)ACT_ORE_WALL_STOP:	print(string,len, "| STOP |");		break;
-							  default:                      	print(string,len, "| UNKNOW cmd |");break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_ORE_TRIHOLE:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_ORE_TRIHOLE_IDLE:	print(string,len, "| IDLE |");		break;
-							  case (Uint8)ACT_ORE_TRIHOLE_RUN:	print(string,len, "| RUN |");		break;
-							  case (Uint8)ACT_ORE_TRIHOLE_STOP:	print(string,len, "| STOP |");		break;
-							  default:                      		print(string,len, "| UNKNOW cmd |");break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_ROCKET:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_ROCKET_IDLE:		print(string,len, "| IDLE |");		break;
-							  case (Uint8)ACT_ROCKET_LAUNCH:	print(string,len, "| LAUNCH |");	break;
-							  case (Uint8)ACT_ROCKET_STOP:		print(string,len, "| STOP |");		break;
-							  default:                      	print(string,len, "| UNKNOW cmd |");break;
-						  }
-				  break;
-
-// Anne
-				  case (Uint8)ACT_SMALL_BALL_BACK:
-						switch(msg->data.act_result.cmd){
-							case (Uint8)ACT_SMALL_BALL_BACK_IDLE:	print(string,len, "| IDLE |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_UP:		print(string,len, "| UP |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_DOWN:	print(string,len, "| DOWN |");			break;
-							case (Uint8)ACT_SMALL_BALL_BACK_STOP:	print(string,len, "| STOP |");			break;
-							default:                                    print(string,len, "| UNKNOW cmd |");	break;
-						}
-				  break;
-
-				  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_UP:	print(string,len, "| UP |");			break;
-							  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_DOWN:	print(string,len, "| DOWN |");			break;
-							  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_UP:	print(string,len, "| UP |");			break;
-							  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_DOWN:	print(string,len, "| DOWN |");			break;
-							  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_CYLINDER_ARM:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_CYLINDER_ARM_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ARM_IN:	print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ARM_PREPARE_TO_TAKE:	print(string,len, "| PREPARE_TO_TAKE |");	break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ARM_TAKE:				print(string,len, "| TAKE |");				break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ARM_DISPOSE:			print(string,len, "| DISPOSE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ARM_OUT:	print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ARM_PROTECT_FALL:	print(string,len, "| PROTECT_FALL |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ARM_STOP:	print(string,len, "| STOP |");			break;
-							  default:                           		print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_CYLINDER_BALANCER:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_CYLINDER_BALANCER_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_BALANCER_IN:	print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_BALANCER_OUT:	print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_BALANCER_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_CYLINDER_COLOR:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_CYLINDER_COLOR_IDLE:			print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_COLOR_NORMAL_SPEED:	print(string,len, "| NORMAL_SPEED |");	break;
-							  case (Uint8)ACT_SMALL_CYLINDER_COLOR_ZERO_SPEED:		print(string,len, "| ZERO_SPEED |");	break;
-							  case (Uint8)ACT_SMALL_CYLINDER_COLOR_STOP:			print(string,len, "| STOP |");			break;
-							  default:                                  			print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_TAKE:	print(string,len, "| TAKE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_RAISE:	print(string,len, "| RAISE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_DISPOSE:	print(string,len, "| DISPOSE |");	break;
-							  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_STOP:	print(string,len, "| STOP |");			break;
-							  default:                           		    print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER:	print(string,len, "| LOCK |");	break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM:	print(string,len, "| BOTTOM |");	break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_TOP:	print(string,len, "| TOP |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_CYLINDER_SLIDER:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_IDLE:		print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_ALMOST_OUT:	print(string,len, "| A OUT |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_ALMOST_OUT_WITH_CYLINDER:	print(string,len, "| AC OUT |");	break;
-							  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_IN:			print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_OUT:		print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_STOP:		print(string,len, "| STOP |");			break;
-							  default:                                 		 	print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_CYLINDER_SLOPE:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_DOWN:	print(string,len, "| DOWN |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_UP:		print(string,len, "| UP |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_STOP:	print(string,len, "| STOP |");			break;
-							  default:                           			print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_IDLE:	print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK:	print(string,len, "| LOCK |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH:	print(string,len, "| PUSH |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_OUT:		print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_IN:		print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_STOP:	print(string,len, "| STOP |");			break;
-							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_POMPE_PRISE:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_POMPE_NORMAL:		print(string,len, "| NORMAL |");			break;
-							  case (Uint8)ACT_POMPE_REVERSE:	print(string,len, "| REVERSE |");			break;
-							  case (Uint8)ACT_POMPE_STOP:		print(string,len, "| STOP |");				break;
-							  default:                          print(string,len, "| UNKNOW cmd |");		break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_POMPE_DISPOSE:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_POMPE_NORMAL:		print(string,len, "| NORMAL |");			break;
-							  case (Uint8)ACT_POMPE_REVERSE:	print(string,len, "| REVERSE |");			break;
-							  case (Uint8)ACT_POMPE_STOP:		print(string,len, "| STOP |");				break;
-							  default:                          print(string,len, "| UNKNOW cmd |");		break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_MAGIC_ARM:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_MAGIC_ARM_IDLE:			print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_MAGIC_ARM_IN:			print(string,len, "| IN |");			break;
-							  case (Uint8)ACT_SMALL_MAGIC_ARM_OUT:			print(string,len, "| OUT |");			break;
-							  case (Uint8)ACT_SMALL_MAGIC_ARM_STOP:			print(string,len, "| STOP |");			break;
-							  default:                           			print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_MAGIC_COLOR:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_MAGIC_COLOR_IDLE:			print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED:	print(string,len, "| NORMAL_SPEED |");	break;
-							  case (Uint8)ACT_SMALL_MAGIC_COLOR_ZERO_SPEED:		print(string,len, "| ZERO_SPEED |");	break;
-							  case (Uint8)ACT_SMALL_MAGIC_COLOR_STOP:			print(string,len, "| STOP |");			break;
-							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_SMALL_ORE:
-						  switch(msg->data.act_result.cmd){
-							  case (Uint8)ACT_SMALL_ORE_IDLE:					print(string,len, "| IDLE |");			break;
-							  case (Uint8)ACT_SMALL_ORE_UP:						print(string,len, "| UP |");			break;
-							  case (Uint8)ACT_SMALL_ORE_DOWN:					print(string,len, "| DOWN |");			break;
-							  case (Uint8)ACT_SMALL_ORE_STOP:					print(string,len, "| STOP |");			break;
-							  default:                                  		print(string,len, "| UNKNOW cmd |");	break;
-						  }
-				  break;
-
-				  case (Uint8)ACT_TURBINE:
-				  case (Uint8)ACT_POMPE_SLIDER_LEFT:
-				  case (Uint8)ACT_POMPE_SLIDER_RIGHT:
-				  case (Uint8)ACT_POMPE_ELEVATOR_LEFT:
-				  case (Uint8)ACT_POMPE_ELEVATOR_RIGHT:
-				  case (Uint8)ACT_POMPE_DISPOSE_LEFT:
-				  case (Uint8)ACT_POMPE_DISPOSE_RIGHT:
-				  case (Uint8)ACT_MOSFET_8:
-				  case (Uint8)STRAT_MOSFET_1:
-				  case (Uint8)STRAT_MOSFET_2:
-				  case (Uint8)STRAT_MOSFET_3:
-				  case (Uint8)STRAT_MOSFET_4:
-				  case (Uint8)STRAT_MOSFET_5:
-				  case (Uint8)STRAT_MOSFET_6:
-				  case (Uint8)STRAT_MOSFET_7:
-				  case (Uint8)STRAT_MOSFET_8:
-				  switch(msg->data.act_result.cmd){
-						  case (Uint8)ACT_MOSFET_NORMAL:		print(string,len, "| NORMAL |");		break;
-						  case (Uint8)ACT_MOSFET_STOP:		    print(string,len, "| STOP |");			break;
-						  default:								print(string,len, "| UNKNOW cmd |");	break;
-					  }
-				  break;
-
-				  case (Uint8)ACT_MOSFET_MULTI:
-				  case (Uint8)STRAT_MOSFET_MULTI:
-					  print(string,len, "| MULTI : 0x%x |", msg->data.act_result.cmd);
-				  break;
-				  break;
-
-			}
+			print(string,len, "%s", print_act_order(msg->data.act_result.sid, msg->data.act_result.cmd));
 
 
 			//Todo ajouter la commande dont on envoie le résultat (data 1) ???
@@ -979,6 +412,11 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 			print(string,len, "\n");
 			break;
 
+			case ACT_ACKNOWLEDGE:
+				print(string,len, "%s", print_act_sid(msg->data.act_result.sid));
+				print(string,len, "%s", print_act_order(msg->data.act_result.sid, msg->data.act_result.cmd));
+				print(string,len, "\n");
+				break;
 
 		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", msg->data.debug_propulsion_set_coef.id, msg->data.debug_propulsion_set_coef.value);	break;
@@ -1124,6 +562,580 @@ static const char * print_scan_sensor_id(SCAN_SENSOR_id_e id){
 
 		default:
 			return "UNKNOW";
+	}
+}
+
+static const char * print_act_sid(Uint8 sid){
+	switch(sid)
+	{
+		// Harry
+		case (Uint8)ACT_BIG_BALL_FRONT_LEFT:	    	return "ACT_BIG_BALL_FRONT_LEFT ";
+		case (Uint8)ACT_BIG_BALL_FRONT_RIGHT:	    	return "ACT_BIG_BALL_FRONT_RIGHT ";
+		case (Uint8)ACT_BIG_BALL_BACK_LEFT:	    		return "ACT_BIG_BALL_BACK_LEFT ";
+		case (Uint8)ACT_BIG_BALL_BACK_RIGHT:	    	return "ACT_BIG_BALL_BACK_RIGHT ";
+		case (Uint8)ACT_BEARING_BALL_WHEEL:	    		return "ACT_BEARING_BALL_WHEEL ";
+
+		case (Uint8)ACT_CYLINDER_SLOPE_LEFT:	    	return "ACT_CYLINDER_SLOPE_LEFT ";
+		case (Uint8)ACT_CYLINDER_SLOPE_RIGHT:	    	return "ACT_CYLINDER_SLOPE_RIGHT ";
+		case (Uint8)ACT_CYLINDER_BALANCER_LEFT:	    	return "ACT_CYLINDER_BALANCER_LEFT ";
+		case (Uint8)ACT_CYLINDER_BALANCER_RIGHT:	    return "ACT_CYLINDER_BALANCER_RIGHT ";
+		case (Uint8)ACT_CYLINDER_PUSHER_LEFT:	    	return "ACT_CYLINDER_PUSHER_LEFT ";
+		case (Uint8)ACT_CYLINDER_PUSHER_RIGHT:	    	return "ACT_CYLINDER_PUSHER_RIGHT ";
+		case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT:	    	return "ACT_CYLINDER_ELEVATOR_LEFT ";
+		case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT:	    return "ACT_CYLINDER_ELEVATOR_RIGHT ";
+		case (Uint8)ACT_CYLINDER_SLIDER_LEFT:	    	return "ACT_CYLINDER_SLIDER_LEFT ";
+		case (Uint8)ACT_CYLINDER_SLIDER_RIGHT:	    	return "ACT_CYLINDER_SLIDER_RIGHT ";
+		case (Uint8)ACT_CYLINDER_ARM_LEFT:	    		return "ACT_CYLINDER_ARM_LEFT ";
+		case (Uint8)ACT_CYLINDER_ARM_RIGHT:	    		return "ACT_CYLINDER_ARM_RIGHT ";
+		case (Uint8)ACT_CYLINDER_COLOR_LEFT:	    	return "ACT_CYLINDER_COLOR_LEFT ";
+		case (Uint8)ACT_CYLINDER_COLOR_RIGHT:	    	return "ACT_CYLINDER_COLOR_RIGHT ";
+		case (Uint8)ACT_CYLINDER_DISPOSE_LEFT:	    	return "ACT_CYLINDER_DISPOSE_LEFT ";
+		case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT:	    	return "ACT_CYLINDER_DISPOSE_RIGHT ";
+
+		case (Uint8)ACT_ORE_GUN:	    				return "ACT_ORE_GUN ";
+		case (Uint8)ACT_ORE_WALL:	    				return "ACT_ORE_WALL ";
+		case (Uint8)ACT_ORE_ROLLER_ARM:	    			return "ACT_ORE_ROLLER_ARM ";
+		case (Uint8)ACT_ORE_ROLLER_FOAM:	    		return "ACT_ORE_ROLLER_FOAM ";
+		case (Uint8)ACT_ORE_TRIHOLE:	    			return "ACT_ORE_TRIHOLE ";
+
+		case (Uint8)ACT_ROCKET:	    					return "ACT_ROCKET ";
+
+
+		// Anne
+		case (Uint8)ACT_SMALL_BALL_BACK:		    	return "ACT_SMALL_BALL_BACK ";
+		case (Uint8)ACT_SMALL_BALL_FRONT_LEFT:		    return "ACT_SMALL_BALL_FRONT_LEFT ";
+		case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT:		    return "ACT_SMALL_BALL_FRONT_RIGHT ";
+
+		case (Uint8)ACT_SMALL_CYLINDER_ARM:		    	return "ACT_SMALL_CYLINDER_ARM ";
+		case (Uint8)ACT_SMALL_CYLINDER_BALANCER:		return "ACT_SMALL_CYLINDER_BALANCER ";
+		case (Uint8)ACT_SMALL_CYLINDER_COLOR:		   	return "ACT_SMALL_CYLINDER_COLOR ";
+		case (Uint8)ACT_SMALL_CYLINDER_DISPOSE:		    return "ACT_SMALL_CYLINDER_DISPOSE ";
+		case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR:		return "ACT_SMALL_CYLINDER_ELEVATOR ";
+		case (Uint8)ACT_SMALL_CYLINDER_SLIDER:		   	return "ACT_SMALL_CYLINDER_SLIDER ";
+		case (Uint8)ACT_SMALL_CYLINDER_SLOPE:		    return "ACT_SMALL_CYLINDER_SLOPE ";
+		case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION:	return "ACT_SMALL_CYLINDER_MULTIFONCTION ";
+		case (Uint8)ACT_SMALL_POMPE_PRISE:				return "ACT_SMALL_POMPE_PRISE ";
+		case (Uint8)ACT_SMALL_POMPE_DISPOSE:			return "ACT_SMALL_POMPE_DISPOSE ";
+
+		case (Uint8)ACT_SMALL_MAGIC_ARM:		    	return "ACT_SMALL_MAGIC_ARM ";
+		case (Uint8)ACT_SMALL_MAGIC_COLOR:		    	return "ACT_SMALL_MAGIC_COLOR ";
+
+		case (Uint8)ACT_SMALL_ORE:		    			return "ACT_SMALL_ORE ";
+
+		//Mosfet
+		case (Uint8)ACT_TURBINE:						return "ACT_TURBINE ";
+		case (Uint8)ACT_POMPE_SLIDER_LEFT:				return "ACT_POMPE_SLIDER_LEFT ";
+		case (Uint8)ACT_POMPE_SLIDER_RIGHT:				return "ACT_POMPE_SLIDER_RIGHT ";
+		case (Uint8)ACT_POMPE_ELEVATOR_LEFT:			return "ACT_POMPE_ELEVATOR_LEFT ";
+		case (Uint8)ACT_POMPE_ELEVATOR_RIGHT:			return "ACT_POMPE_ELEVATOR_RIGHT ";
+		case (Uint8)ACT_POMPE_DISPOSE_LEFT:				return "ACT_POMPE_DISPOSE_LEFT ";
+		case (Uint8)ACT_POMPE_DISPOSE_RIGHT:			return "ACT_POMPE_DISPOSE_RIGHT ";
+		case (Uint8)ACT_MOSFET_8:						return "ACT_MOSFET_8 ";
+		case (Uint8)ACT_MOSFET_MULTI:					return "ACT_MOSFET_MULTI ";
+
+		case (Uint8)STRAT_MOSFET_1:						return "STRAT_MOSFET_1 ";
+		case (Uint8)STRAT_MOSFET_2:						return "STRAT_MOSFET_2 ";
+		case (Uint8)STRAT_MOSFET_3:						return "STRAT_MOSFET_3 ";
+		case (Uint8)STRAT_MOSFET_4:						return "STRAT_MOSFET_4 ";
+		case (Uint8)STRAT_MOSFET_5:                     return "STRAT_MOSFET_5 ";
+		case (Uint8)STRAT_MOSFET_6:                     return "STRAT_MOSFET_6 ";
+		case (Uint8)STRAT_MOSFET_7:                     return "STRAT_MOSFET_7 ";
+		case (Uint8)STRAT_MOSFET_8:                     return "STRAT_MOSFET_8 ";
+		case (Uint8)STRAT_MOSFET_MULTI:                 return "STRAT_MOSFET_MULTI ";
+
+		default:										return "UNKNOW ACT -> complete verbose !";
+	}
+}
+
+static const char * print_act_order(Uint8 sid, Uint8 order){
+	switch(sid){
+
+	  case (Uint8)ACT_BEARING_BALL_WHEEL:
+			switch(order){
+				case (Uint8)ACT_BEARING_BALL_WHEEL_IDLE:	return "| IDLE |";
+				case (Uint8)ACT_BEARING_BALL_WHEEL_UP:		return "| UP |";
+				case (Uint8)ACT_BEARING_BALL_WHEEL_DOWN:	return "| DOWN |";
+				case (Uint8)ACT_BEARING_BALL_WHEEL_STOP:	return "| STOP |";
+				default:                                    return "| UNKNOW cmd |";
+			}
+	  break;
+
+	  case (Uint8)ACT_BIG_BALL_BACK_LEFT:
+			switch(order){
+				case (Uint8)ACT_BIG_BALL_BACK_LEFT_IDLE:	return "| IDLE |";
+				case (Uint8)ACT_BIG_BALL_BACK_LEFT_UP:		return "| UP |";
+				case (Uint8)ACT_BIG_BALL_BACK_LEFT_DOWN:	return "| DOWN |";
+				case (Uint8)ACT_BIG_BALL_BACK_LEFT_STOP:	return "| STOP |";
+				default:                                    return "| UNKNOW cmd |";
+			}
+	  break;
+
+	  case (Uint8)ACT_BIG_BALL_BACK_RIGHT:
+			switch(order){
+				case (Uint8)ACT_BIG_BALL_BACK_RIGHT_IDLE:	return "| IDLE |";
+				case (Uint8)ACT_BIG_BALL_BACK_RIGHT_UP:		return "| UP |";
+				case (Uint8)ACT_BIG_BALL_BACK_RIGHT_DOWN:	return "| DOWN |";
+				case (Uint8)ACT_BIG_BALL_BACK_RIGHT_STOP:	return "| STOP |";
+				default:                                    return "| UNKNOW cmd |";
+			}
+	  break;
+
+	  case (Uint8)ACT_BIG_BALL_FRONT_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_UP:	return "| UP |";
+				  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_DOWN:	return "| DOWN |";
+				  case (Uint8)ACT_BIG_BALL_FRONT_LEFT_STOP:	return "| STOP |";
+				  default:                                  return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_UP:		return "| UP |";
+				  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_DOWN:	return "| DOWN |";
+				  case (Uint8)ACT_BIG_BALL_FRONT_RIGHT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_SLOPE_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_DOWN:	return "| DOWN |";
+				  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_UP:	return "| UP |";
+				  case (Uint8)ACT_CYLINDER_SLOPE_LEFT_STOP:	return "| STOP |";
+				  default:                                  return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_DOWN:	return "| DOWN |";
+				  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_UP:		return "| UP |";
+				  case (Uint8)ACT_CYLINDER_SLOPE_RIGHT_STOP:	return "| STOP |";
+				  default:                           		    return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_BALANCER_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_IN:	return "| IN |";
+				  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_OUT:	return "| OUT |";
+				  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_VERY_OUT:	return "| VERY_OUT |";
+				  case (Uint8)ACT_CYLINDER_BALANCER_LEFT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_IN:	return "| IN |";
+				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_OUT:	return "| OUT |";
+				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_VERY_OUT:	return "| VERY_OUT |";
+				  case (Uint8)ACT_CYLINDER_BALANCER_RIGHT_STOP:	return "| STOP |";
+				  default:                                  		return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	 case (Uint8)ACT_CYLINDER_PUSHER_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_IN:		return "| IN |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_OUT:		return "| OUT |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_HIT:		return "| HIT |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_PREVENT_DEPOSE:	return "| PREV_DEPOSE |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_LEFT_STOP:	return "| STOP |";
+				  default:                                  return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_IN:		return "| IN |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_OUT:	return "| OUT |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_HIT:	return "| HIT |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_PREVENT_DEPOSE:	return "| PREV_DEPOSE |";
+				  case (Uint8)ACT_CYLINDER_PUSHER_RIGHT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER:	return "| LOCK |";
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_BOTTOM:	return "| BOTTOM |";
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_TOP:	return "| TOP |";
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_LEFT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER:	return "| LOCK |";
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_BOTTOM:	return "| BOTTOM |";
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_TOP:	return "| TOP |";
+				  case (Uint8)ACT_CYLINDER_ELEVATOR_RIGHT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_SLIDER_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IDLE:return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT:	return "| A OUT |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_ALMOST_OUT_WITH_CYLINDER:	return "| AC OUT |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_IN:	return "| IN |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_OUT:	return "| OUT |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_HARVEST:return "| HARVEST |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_LEFT_STOP:return "| STOP |";
+				  default:                                  return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT:	return "| A OUT |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_ALMOST_OUT_WITH_CYLINDER:	return "| AC OUT |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_IN:		return "| IN |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_OUT:	return "| OUT |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_HARVEST:return "| HARVEST |";
+				  case (Uint8)ACT_CYLINDER_SLIDER_RIGHT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+
+
+	  case (Uint8)ACT_CYLINDER_ARM_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_ARM_LEFT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_ARM_LEFT_IN:		return "| IN |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	return "| PREPARE_TO_TAKE |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				return "| TAKE |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			return "| DISPOSE |";
+				  case (Uint8)ACT_CYLINDER_ARM_LEFT_OUT:	return "| OUT |";
+				  case (Uint8)ACT_CYLINDER_ARM_LEFT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_ARM_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_IN:	return "| IN |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_PREPARE_TO_TAKE:	return "| PREPARE_TO_TAKE |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_TAKE:				return "| TAKE |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_DISPOSE:			return "| DISPOSE |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_OUT:	return "| OUT |";
+				  case (Uint8)ACT_CYLINDER_ARM_RIGHT_STOP:	return "| STOP |";
+				  default:                           		    return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	 case (Uint8)ACT_CYLINDER_COLOR_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_COLOR_LEFT_IDLE:			return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_COLOR_LEFT_NORMAL_SPEED:	return "| NORMAL_SPEED |";
+				  case (Uint8)ACT_CYLINDER_COLOR_LEFT_ZERO_SPEED:	return "| ZERO_SPEED |";
+				  case (Uint8)ACT_CYLINDER_COLOR_LEFT_STOP:			return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_COLOR_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_IDLE:		return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_NORMAL_SPEED:return "| NORMAL_SPEED |";
+				  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_ZERO_SPEED:	return "| ZERO_SPEED |";
+				  case (Uint8)ACT_CYLINDER_COLOR_RIGHT_STOP:		return "| STOP |";
+				  default:                           		    return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	case (Uint8)ACT_CYLINDER_DISPOSE_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_TAKE:	return "| TAKE |";
+				  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_RAISE:  return "| RAISE |";
+				  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_DISPOSE:  return "| DISPOSE |";
+				  case (Uint8)ACT_CYLINDER_DISPOSE_LEFT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_TAKE:	return "| TAKE |";
+				  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_RAISE:	return "| RAISE |";
+				  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_DISPOSE:	return "| DISPOSE |";
+				  case (Uint8)ACT_CYLINDER_DISPOSE_RIGHT_STOP:	return "| STOP |";
+				  default:                           		    return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_ORE_GUN:
+			  switch(order){
+				  case (Uint8)ACT_ORE_GUN_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_ORE_GUN_DOWN:	return "| DOWN |";
+				  case (Uint8)ACT_ORE_GUN_UP:	return "| UP |";
+				  case (Uint8)ACT_ORE_GUN_STOP:	return "| STOP |";
+				  default:                      return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_ORE_ROLLER_ARM:
+			  switch(order){
+				  case (Uint8)ACT_ORE_ROLLER_ARM_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_ORE_ROLLER_ARM_OUT:	return "| OUT |";
+				  case (Uint8)ACT_ORE_ROLLER_ARM_IN:	return "| IN |";
+				  case (Uint8)ACT_ORE_ROLLER_ARM_STOP:	return "| STOP |";
+				  default:                      		return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	 case (Uint8)ACT_ORE_ROLLER_FOAM:
+			  switch(order){
+				  case (Uint8)ACT_ORE_ROLLER_FOAM_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_ORE_ROLLER_FOAM_RUN:	return "| RUN |";
+				  case (Uint8)ACT_ORE_ROLLER_FOAM_STOP:	return "| STOP |";
+				  default:                      		return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_ORE_WALL:
+			  switch(order){
+				  case (Uint8)ACT_ORE_WALL_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_ORE_WALL_OUT:		return "| OUT |";
+				  case (Uint8)ACT_ORE_WALL_IN:		return "| IN |";
+				  case (Uint8)ACT_ORE_WALL_STOP:	return "| STOP |";
+				  default:                      	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_ORE_TRIHOLE:
+			  switch(order){
+				  case (Uint8)ACT_ORE_TRIHOLE_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_ORE_TRIHOLE_RUN:	return "| RUN |";
+				  case (Uint8)ACT_ORE_TRIHOLE_STOP:	return "| STOP |";
+				  default:                      		return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_ROCKET:
+			  switch(order){
+				  case (Uint8)ACT_ROCKET_IDLE:		return "| IDLE |";
+				  case (Uint8)ACT_ROCKET_LAUNCH:	return "| LAUNCH |";
+				  case (Uint8)ACT_ROCKET_STOP:		return "| STOP |";
+				  default:                      	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+// Anne
+	  case (Uint8)ACT_SMALL_BALL_BACK:
+			switch(order){
+				case (Uint8)ACT_SMALL_BALL_BACK_IDLE:	return "| IDLE |";
+				case (Uint8)ACT_SMALL_BALL_BACK_UP:		return "| UP |";
+				case (Uint8)ACT_SMALL_BALL_BACK_DOWN:	return "| DOWN |";
+				case (Uint8)ACT_SMALL_BALL_BACK_STOP:	return "| STOP |";
+				default:                                    return "| UNKNOW cmd |";
+			}
+	  break;
+
+	  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_UP:	return "| UP |";
+				  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_DOWN:	return "| DOWN |";
+				  case (Uint8)ACT_SMALL_BALL_FRONT_LEFT_STOP:	return "| STOP |";
+				  default:                                  return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_UP:	return "| UP |";
+				  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_DOWN:	return "| DOWN |";
+				  case (Uint8)ACT_SMALL_BALL_FRONT_RIGHT_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_CYLINDER_ARM:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_CYLINDER_ARM_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ARM_IN:	return "| IN |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ARM_PREPARE_TO_TAKE:	return "| PREPARE_TO_TAKE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ARM_TAKE:				return "| TAKE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ARM_DISPOSE:			return "| DISPOSE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ARM_OUT:	return "| OUT |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ARM_STOP:	return "| STOP |";
+				  default:                           		return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_CYLINDER_BALANCER:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_CYLINDER_BALANCER_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_BALANCER_IN:	return "| IN |";
+				  case (Uint8)ACT_SMALL_CYLINDER_BALANCER_OUT:	return "| OUT |";
+				  case (Uint8)ACT_SMALL_CYLINDER_BALANCER_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_CYLINDER_COLOR:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_CYLINDER_COLOR_IDLE:			return "| IDLE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_COLOR_NORMAL_SPEED:	return "| NORMAL_SPEED |";
+				  case (Uint8)ACT_SMALL_CYLINDER_COLOR_ZERO_SPEED:		return "| ZERO_SPEED |";
+				  case (Uint8)ACT_SMALL_CYLINDER_COLOR_STOP:			return "| STOP |";
+				  default:                                  			return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_TAKE:	return "| TAKE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_RAISE:	return "| RAISE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_DISPOSE:	return "| DISPOSE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_DISPOSE_STOP:	return "| STOP |";
+				  default:                           		    return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_LOCK_WITH_CYLINDER:	return "| LOCK |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM:	return "| BOTTOM |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_TOP:	return "| TOP |";
+				  case (Uint8)ACT_SMALL_CYLINDER_ELEVATOR_STOP:	return "| STOP |";
+				  default:                                  	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_CYLINDER_SLIDER:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_IDLE:		return "| IDLE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_ALMOST_OUT:	return "| A OUT |";
+				  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_ALMOST_OUT_WITH_CYLINDER:	return "| AC OUT |";
+				  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_IN:			return "| IN |";
+				  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_OUT:		return "| OUT |";
+				  case (Uint8)ACT_SMALL_CYLINDER_SLIDER_STOP:		return "| STOP |";
+				  default:                                 		 	return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_CYLINDER_SLOPE:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_DOWN:	return "| DOWN |";
+				  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_UP:		return "| UP |";
+				  case (Uint8)ACT_SMALL_CYLINDER_SLOPE_STOP:	return "| STOP |";
+				  default:                           			return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_IDLE:	return "| IDLE |";
+				  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK:	return "| LOCK |";
+				  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH:	return "| PUSH |";
+				  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_OUT:		return "| OUT |";
+				  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_IN:		return "| IN |";
+				  case (Uint8)ACT_SMALL_CYLINDER_MULTIFONCTION_STOP:	return "| STOP |";
+				  default:                                  		return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_POMPE_PRISE:
+			  switch(order){
+				  case (Uint8)ACT_POMPE_NORMAL:		return "| NORMAL |";
+				  case (Uint8)ACT_POMPE_REVERSE:	return "| REVERSE |";
+				  case (Uint8)ACT_POMPE_STOP:		return "| STOP |";
+				  default:                          return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_POMPE_DISPOSE:
+			  switch(order){
+				  case (Uint8)ACT_POMPE_NORMAL:		return "| NORMAL |";
+				  case (Uint8)ACT_POMPE_REVERSE:	return "| REVERSE |";
+				  case (Uint8)ACT_POMPE_STOP:		return "| STOP |";
+				  default:                          return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_MAGIC_ARM:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_MAGIC_ARM_IDLE:			return "| IDLE |";
+				  case (Uint8)ACT_SMALL_MAGIC_ARM_IN:			return "| IN |";
+				  case (Uint8)ACT_SMALL_MAGIC_ARM_OUT:			return "| OUT |";
+				  case (Uint8)ACT_SMALL_MAGIC_ARM_STOP:			return "| STOP |";
+				  default:                           			return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_MAGIC_COLOR:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_MAGIC_COLOR_IDLE:			return "| IDLE |";
+				  case (Uint8)ACT_SMALL_MAGIC_COLOR_NORMAL_SPEED:	return "| NORMAL_SPEED |";
+				  case (Uint8)ACT_SMALL_MAGIC_COLOR_ZERO_SPEED:		return "| ZERO_SPEED |";
+				  case (Uint8)ACT_SMALL_MAGIC_COLOR_STOP:			return "| STOP |";
+				  default:                                  		return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_SMALL_ORE:
+			  switch(order){
+				  case (Uint8)ACT_SMALL_ORE_IDLE:					return "| IDLE |";
+				  case (Uint8)ACT_SMALL_ORE_UP:						return "| UP |";
+				  case (Uint8)ACT_SMALL_ORE_DOWN:					return "| DOWN |";
+				  case (Uint8)ACT_SMALL_ORE_STOP:					return "| STOP |";
+				  default:                                  		return "| UNKNOW cmd |";
+			  }
+	  break;
+
+	  case (Uint8)ACT_TURBINE:
+	  case (Uint8)ACT_POMPE_SLIDER_LEFT:
+	  case (Uint8)ACT_POMPE_SLIDER_RIGHT:
+	  case (Uint8)ACT_POMPE_ELEVATOR_LEFT:
+	  case (Uint8)ACT_POMPE_ELEVATOR_RIGHT:
+	  case (Uint8)ACT_POMPE_DISPOSE_LEFT:
+	  case (Uint8)ACT_POMPE_DISPOSE_RIGHT:
+	  case (Uint8)ACT_MOSFET_8:
+	  case (Uint8)STRAT_MOSFET_1:
+	  case (Uint8)STRAT_MOSFET_2:
+	  case (Uint8)STRAT_MOSFET_3:
+	  case (Uint8)STRAT_MOSFET_4:
+	  case (Uint8)STRAT_MOSFET_5:
+	  case (Uint8)STRAT_MOSFET_6:
+	  case (Uint8)STRAT_MOSFET_7:
+	  case (Uint8)STRAT_MOSFET_8:
+	  switch(order){
+			  case (Uint8)ACT_MOSFET_NORMAL:		return "| NORMAL |";
+			  case (Uint8)ACT_MOSFET_STOP:		    return "| STOP |";
+			  default:								return "| UNKNOW cmd |";
+		  }
+	  break;
+
+	  case (Uint8)ACT_MOSFET_MULTI:
+	  case (Uint8)STRAT_MOSFET_MULTI:
+		  return "| MULTI |";
+	  break;
 	}
 }
 
