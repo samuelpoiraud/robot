@@ -1513,7 +1513,7 @@ error_e sub_act_anne_mae_prepare_modules_for_dispose(bool_e trigger){
 	switch(state){
 
 		case WAIT_TRIGGER:
-			if(trigger){
+			if(trigger && STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_COLOR, MODULE_STOCK_SMALL)){
 				state = INIT;
 
 				// On baisse le flag dans le cas où cela n'a pas encore été fait
