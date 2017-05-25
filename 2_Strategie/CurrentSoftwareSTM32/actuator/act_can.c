@@ -200,6 +200,7 @@ static void ACT_check_result(queue_id_e act_id) {
 		CAN_msg_t* msg = &(QUEUE_get_arg(act_id)->msg);
 		error_printf("RE-Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d\n", act_id, msg->sid , msg->size, msg->data.act_msg.order);
 		CAN_send(msg);
+		QUEUE_set_initial_time(act_id, global.match_time);
 	}
 
 	if(global.match_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
