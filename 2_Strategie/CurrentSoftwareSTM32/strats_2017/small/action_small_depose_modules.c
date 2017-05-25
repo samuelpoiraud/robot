@@ -1528,7 +1528,7 @@ error_e sub_anne_depose_centre_manager(){
 #define dRH				(MOONBASE_TO_R+115)	//Distance entre le centre de la moonbase et l'axe de dépose / poussage
 #define FN_FN1			120					//Distance entre deux déposes de modules
 
-#define dHC_OUTDOOR		80			//distance entre le Rush Goal et le premier module posable, côté cratère
+#define dHC_OUTDOOR		50			//distance entre le Rush Goal et le premier module posable, côté cratère
 #define dHC_INDOOR		200			//distance entre le Rush Goal et le premier module posable, côté intérieur
 
 #define	F0D_LONG		100			//L'extraction du dispose axis se fait en deux temps (D puis E)
@@ -1919,7 +1919,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			we_need_to_push_after_dispose =
 					(	(global.pos.x < 1600 &&	(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE5_YELLOW_OUTDOOR))
 					|| (global.pos.x < 1450 &&	(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE4_YELLOW_INDOOR))
-					|| (global.pos.x < 1300 &&	(dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW)))?TRUE:FALSE;
+					|| (global.pos.x < 1350 &&	(dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW)))?TRUE:FALSE;
 
 			if(STOCKS_getNbModules(MODULE_STOCK_SMALL) == 0 || remaining_dispose_modules_try == 0)
 				state = GET_OUT_TO_B;			//fini !
