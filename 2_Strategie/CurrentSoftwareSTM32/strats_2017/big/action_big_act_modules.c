@@ -2277,6 +2277,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	static bool_e takeNothingRight, takeNothingLeft;
 	static int nbTakeNothingAtAll;
 	static moduleType_e moduleType = MODULE_EMPTY;
+	static Uint8 nbErrorsAvance;
 
 	// Variables locales
 	error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS, state3 = IN_PROGRESS;
@@ -2318,6 +2319,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			takeNothingRight =  FALSE;
 			takeNothingLeft = FALSE;
 			nbTakeNothingAtAll = 0;
+			nbErrorsAvance = 0;
 
 			// Calcul des positions
 
@@ -2406,10 +2408,21 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			break;
 
 		case AVANCE:
-			state = try_going(take_pos.x, take_pos.y, state, TURN_TO_POS, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			if(nbErrorsAvance == 0){
+				state = try_going(take_pos.x, take_pos.y, state, TURN_TO_POS, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}else{
+				state = try_going(take_pos.x, take_pos.y, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			if(ON_LEAVE()){
+				// Reset à 0
+				nbErrorsAvance = 0;
+			}
 			break;
 
 		case AVANCE_ERROR:
+			if(entrance){
+				nbErrorsAvance++;
+			}
 			state = try_going(store_pos.x, store_pos.y, state, AVANCE, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
