@@ -194,8 +194,8 @@
 			lastY = global.pos.y;
 			lastTeta = global.pos.angle;
 
-			idVoltage = LCD_OVER_UART_addText(200, 150, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d mV", global.alim_value);
-			lastVoltate = global.alim_value;
+			idVoltage = LCD_OVER_UART_addText(200, 150, LCD_COLOR_BLACK, LCD_COLOR_TRANSPARENT, LCD_TEXT_FONTS_11x18, "%d mV", SELFTEST_measure24_mV());
+			lastVoltate = SELFTEST_measure24_mV();
 
 			date_t date;
 			RTC_get_local_time(&date);
@@ -263,9 +263,9 @@
 				lastTeta = global.pos.angle;
 			}
 
-			if(lastVoltate != global.alim_value){
-				LCD_OVER_UART_setText(idVoltage, "%d mV", global.alim_value);
-				lastVoltate = global.alim_value;
+			if(lastVoltate != SELFTEST_measure24_mV()){
+				LCD_OVER_UART_setText(idVoltage, "%d mV", SELFTEST_measure24_mV());
+				lastVoltate = SELFTEST_measure24_mV();
 			}
 
 			if(lastDate.seconds != date.seconds){
