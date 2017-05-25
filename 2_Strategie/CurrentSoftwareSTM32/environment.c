@@ -461,6 +461,10 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			ACT_process_result(incoming_msg);
 			break;
 
+		case ACT_ACKNOWLEDGE:
+			ACT_process_acknowledge(incoming_msg);
+			break;
+
 		case STRAT_INFORM_CAPTEUR:
 			ACT_sensor_answer(incoming_msg);
 			break;

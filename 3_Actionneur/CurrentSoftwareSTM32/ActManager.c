@@ -200,8 +200,19 @@ bool_e ACTMGR_process_msg(CAN_msg_t* msg) {
 	for(i = 0; i < NB_ACTIONNEURS; i++) {
 		//Dans le cas du selftest, on fait le test pour tous les actionneurs, qu'ils gèrent ou non le message
 		if(actionneurs[i].onCanMsg != NULL)
-			if(actionneurs[i].onCanMsg(msg) && msg->sid != ACT_DO_SELFTEST)
+			if(actionneurs[i].onCanMsg(msg)){
+				CAN_msg_t msgSend;
+
+				msgSend.sid = ACT_ACKNOWLEDGE;
+				msgSend.size = SIZE_ACT_ACKNOWLEDGE;
+				msgSend.data.act_acknowledge.sid = msg->sid & 0xFF;;
+				msgSend.data.act_acknowledge.cmd = msg->data.act_msg.order;
+				msgSend.data.act_acknowledge.param = msg->data.act_msg.act_data.act_order.act_optionnal_data[0];
+
+				CAN_send(&msgSend);
+
 				return TRUE;
+			}
 	}
 
 	return FALSE;

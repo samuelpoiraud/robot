@@ -710,19 +710,31 @@
 	 **********************************************************************************************************************
 	 *********************************************************************************************************************/
 
-		/*
-		 * Le sid actionneur & 0xFF (on ne garde que l'octet de poid faible,
-		 * l'octet de poids fort contient le filtre et on en a pas besoin)
-		 */
-		#define ACT_RESULT					(STRAT_FILTER | (ACT_FILTER >> 4) | 0)
-		#define SIZE_ACT_RESULT				8
-			struct{
-				Uint32 param						:32;
-				Uint8 sid							:8;
-				Uint8 cmd							:8;
-				act_result_error_code_e error_code	:8;
-				act_result_state_e result			:2;
-			}act_result;
+			/*
+			 * Le sid actionneur & 0xFF (on ne garde que l'octet de poid faible,
+			 * l'octet de poids fort contient le filtre et on en a pas besoin)
+			 */
+			#define ACT_RESULT					(STRAT_FILTER | (ACT_FILTER >> 4) | 0)
+			#define SIZE_ACT_RESULT				8
+				struct{
+					Uint32 param						:32;
+					Uint8 sid							:8;
+					Uint8 cmd							:8;
+					act_result_error_code_e error_code	:8;
+					act_result_state_e result			:2;
+				}act_result;
+
+			/*
+			 * Le sid actionneur & 0xFF (on ne garde que l'octet de poid faible,
+			 * l'octet de poids fort contient le filtre et on en a pas besoin)
+			 */
+			#define ACT_ACKNOWLEDGE				(STRAT_FILTER | (ACT_FILTER >> 4) | 1)
+			#define SIZE_ACT_ACKNOWLEDGE		6
+				struct{
+					Uint32 param						:32;
+					Uint8 sid							:8;
+					Uint8 cmd							:8;
+				}act_acknowledge;
 
 
 		/*
