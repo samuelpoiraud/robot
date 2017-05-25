@@ -380,6 +380,74 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 												print(string, len, " : %s\n",(msg->data.xbee_sync_elements_flags.flag)?"Enable":"Disable");
 												break;
 
+		case  ACT_BIG_BALL_FRONT_LEFT:
+		case  ACT_BIG_BALL_FRONT_RIGHT:
+		case  ACT_BIG_BALL_BACK_LEFT:
+		case  ACT_BIG_BALL_BACK_RIGHT:
+		case  ACT_BEARING_BALL_WHEEL:
+		case  ACT_CYLINDER_SLOPE_LEFT:
+		case  ACT_CYLINDER_SLOPE_RIGHT:
+		case  ACT_CYLINDER_BALANCER_LEFT:
+		case  ACT_CYLINDER_BALANCER_RIGHT:
+		case  ACT_CYLINDER_PUSHER_LEFT:
+		case  ACT_CYLINDER_PUSHER_RIGHT:
+		case  ACT_CYLINDER_ELEVATOR_LEFT:
+		case  ACT_CYLINDER_ELEVATOR_RIGHT:
+		case  ACT_CYLINDER_SLIDER_LEFT:
+		case  ACT_CYLINDER_SLIDER_RIGHT:
+		case  ACT_CYLINDER_ARM_LEFT:
+		case  ACT_CYLINDER_ARM_RIGHT:
+		case  ACT_CYLINDER_COLOR_LEFT:
+		case  ACT_CYLINDER_COLOR_RIGHT:
+		case  ACT_CYLINDER_DISPOSE_LEFT:
+		case  ACT_CYLINDER_DISPOSE_RIGHT:
+		case  ACT_ORE_GUN:
+		case  ACT_ORE_WALL:
+		case  ACT_ORE_ROLLER_ARM:
+		case  ACT_ORE_ROLLER_FOAM:
+		case  ACT_ORE_TRIHOLE:
+		case  ACT_ROCKET:
+		case ACT_SMALL_BALL_BACK:
+		case ACT_SMALL_BALL_FRONT_LEFT:
+		case ACT_SMALL_BALL_FRONT_RIGHT:
+		case ACT_SMALL_CYLINDER_ARM:
+		case ACT_SMALL_CYLINDER_BALANCER:
+		case ACT_SMALL_CYLINDER_COLOR:
+		case ACT_SMALL_CYLINDER_DISPOSE:
+		case ACT_SMALL_CYLINDER_ELEVATOR:
+		case ACT_SMALL_CYLINDER_SLIDER:
+		case ACT_SMALL_CYLINDER_SLOPE:
+		case ACT_SMALL_CYLINDER_MULTIFONCTION:
+		case ACT_SMALL_POMPE_PRISE:
+		case ACT_SMALL_POMPE_DISPOSE:
+
+		case ACT_SMALL_MAGIC_ARM:
+		case ACT_SMALL_MAGIC_COLOR:
+
+		case ACT_SMALL_ORE:
+
+		// Mosfets
+		case ACT_TURBINE:
+		case ACT_POMPE_SLIDER_LEFT:
+		case ACT_POMPE_SLIDER_RIGHT:
+		case ACT_POMPE_ELEVATOR_LEFT:
+		case ACT_POMPE_ELEVATOR_RIGHT:
+		case ACT_POMPE_DISPOSE_LEFT:
+		case ACT_POMPE_DISPOSE_RIGHT:
+		case ACT_MOSFET_8:
+		case ACT_MOSFET_MULTI:
+		case STRAT_MOSFET_1:
+		case STRAT_MOSFET_2:
+		case STRAT_MOSFET_3:
+		case STRAT_MOSFET_4:
+		case STRAT_MOSFET_5:
+		case STRAT_MOSFET_6:
+		case STRAT_MOSFET_7:
+		case STRAT_MOSFET_8:
+		case STRAT_MOSFET_MULTI:
+			print(string,len, "%s\n", print_act_order(msg->sid & 0xFF, msg->data.act_msg.order));
+			break;
+
 		case ACT_RESULT:
 			print(string,len, "| act0x%x : ", msg->data.act_result.sid);
 
@@ -1136,6 +1204,9 @@ static const char * print_act_order(Uint8 sid, Uint8 order){
 	  case (Uint8)STRAT_MOSFET_MULTI:
 		  return "| MULTI |";
 	  break;
+
+	  default:
+		  return "| UNKNOW |";
 	}
 }
 
