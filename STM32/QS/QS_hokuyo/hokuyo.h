@@ -110,6 +110,11 @@ void HOKUYO_deviceDisconnected(void);
  */
 void HOKUYO_deviceConnected(void);
 
+/**
+ * @brief Reset du temps de déconnexion total de l'hokuyo
+ */
+void HOKUYO_resetDisconnectionTime();
+
 #endif /* QS_HOKUYO_HOKUYO_H_ */
 
 #endif

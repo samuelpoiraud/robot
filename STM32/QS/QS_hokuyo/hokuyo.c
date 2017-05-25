@@ -157,6 +157,8 @@ volatile Uint16 time_since_last_sent_adversaries_datas = 0;
 
 /* Nombre de déconnexion de l'hokuyo depuis le lancement de la carte */
 static Uint16 nb_hokuyo_disconnection = 0;
+static time32_t disconnection_time = 0;
+static time32_t disconnection_time_total = 0;
 
 /* Temps en [ms] de la dernière mesure */
 static time32_t duration_last_measure = 0;
@@ -218,6 +220,8 @@ void HOKUYO_init(void) {
 	}
 
 	hokuyo_initialized = TRUE;
+	disconnection_time = 0;
+	disconnection_time_total = 0;
 }
 
 void HOKUYO_processIt(Uint8 ms) {
@@ -262,6 +266,7 @@ void HOKUYO_processMain(void) {
 	USBH_Process(&USB_OTG_Core, &USB_Host);
 
 	if(flag_device_disconnected) {
+		disconnection_time = global.absolute_time;
 		flag_device_disconnected = FALSE;
 		hokuyo_initialized = FALSE;
 		HOKUYO_init();
@@ -349,6 +354,13 @@ void HOKUYO_processMain(void) {
 				terminal_debug("hokuyo is alive");
 				isFirstReceiveFrame = FALSE;
 			}
+			// L'hokuyo est en vie
+			if(disconnection_time > 0) {
+				disconnection_time_total += (global.absolute_time - disconnection_time);
+				disconnection_time = 0;
+			}
+
+
 			HOKUYO_parseDataFrame();
 			state=DETECTION_ADVERSARIES;
 		break;
@@ -449,6 +461,11 @@ HOKUYO_adversary_position* HOKUYO_getAdversaryPosition(Uint8 i) {
 
 Uint16 HOKUYO_getNbHokuyoDisconnection(void) {
 	return nb_hokuyo_disconnection;
+}
+
+void HOKUYO_resetDisconnectionTime() {
+	disconnection_time_total = 0;
+	disconnection_time = 0;
 }
 
 time32_t HOKUYO_getLastMeasureDuration(void) {
