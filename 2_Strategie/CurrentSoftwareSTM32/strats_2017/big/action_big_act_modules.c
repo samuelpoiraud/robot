@@ -2262,8 +2262,11 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			DONE
 		);
 
-	// Distance supplémentaire de laquelle on avance en cas d'erreur
-	#define DELTA_ROBOT_TO_FAR (15)
+	// Distance supplémentaire de laquelle on avance en cas d'erreur au premier essai
+	#define DELTA_ROBOT_TO_FAR_1 (15)
+
+	// Distance supplémentaire de laquelle on avance en cas d'erreur au second essai
+	#define DELTA_ROBOT_TO_FAR_2 (25)
 
 	// Positions du robot
 	static GEOMETRY_point_t take_pos = {0, 0}; // position du robot lors de la prise
@@ -2383,8 +2386,11 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				takeNothingLeft = FALSE;
 				takeNothingRight = FALSE;
 				// On retente si on a rien pris et si c'est le premier essai
-				if(nbTakeNothingAtAll <= 2 && indexSide == 1){
-					compute_take_point_rocket(&take_pos, NULL, store_pos, take_angle, 45 + nbTakeNothingAtAll * DELTA_ROBOT_TO_FAR); // on recalcule juste la position
+				if(nbTakeNothingAtAll <= 1 && indexSide == 1){
+					compute_take_point_rocket(&take_pos, NULL, store_pos, take_angle, 45 + DELTA_ROBOT_TO_FAR_1); // on recalcule juste la position
+					state = AVANCE;
+				}else if(nbTakeNothingAtAll <= 2 && indexSide == 1){
+					compute_take_point_rocket(&take_pos, NULL, store_pos, take_angle, 45 + DELTA_ROBOT_TO_FAR_2); // on recalcule juste la position
 					state = AVANCE;
 				}else{
 					// On éteint les pompes (par sécurité)
