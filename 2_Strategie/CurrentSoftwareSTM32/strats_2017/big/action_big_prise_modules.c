@@ -1658,9 +1658,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case TAKE_MODULE_LEFT:
 			if(entrance){
 
-				if(global.color == BLUE && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT)){
+				if(global.color == BLUE && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
 					state = ERROR; // Notre slider est toujours prit
-				}else if(global.color == YELLOW && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT)){
+				}else if(global.color == YELLOW && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))){
 					state = ERROR; // Notre slider est toujours prit
 				}else{
 					// On ne peut utiliser l'élévateur que s'il est disponible
@@ -1752,9 +1752,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case TAKE_MODULE_RIGHT:
 			if(entrance){
 
-				if(global.color == BLUE && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT)){
+				if(global.color == BLUE && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
 					state = ERROR; // Notre slider est toujours prit
-				}else if(global.color == YELLOW && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT)){
+				}else if(global.color == YELLOW && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))){
 					state = ERROR; // Notre slider est toujours prit
 				}else{
 					// On ne peut utiliser l'élévateur que s'il est disponible
