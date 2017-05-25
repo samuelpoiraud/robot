@@ -107,6 +107,11 @@ time32_t QUEUE_get_initial_time(queue_id_e queue_id) {
 	return queues[queue_id].initial_time_of_current_action;
 }
 
+void QUEUE_set_initial_time(queue_id_e queue_id, time32_t initial_time) {
+	assert(queue_id < NB_QUEUE);
+	queues[queue_id].initial_time_of_current_action = initial_time;
+}
+
 void QUEUE_run()
 {
 	queue_id_e queue_id;
