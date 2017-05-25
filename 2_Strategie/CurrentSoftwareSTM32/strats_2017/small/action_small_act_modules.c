@@ -327,11 +327,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				//On rentre le bras dans le robot
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER, ACT_SMALL_CYLINDER_SLIDER_IN );
 
-				// On redescent les slopes pour le stockage suivant
-				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE, MODULE_STOCK_SMALL)){
-					ACT_push_order(ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_DOWN);
-				}
-
 				state1 = IN_PROGRESS;
 				state2 = IN_PROGRESS;
 			}
@@ -366,7 +361,6 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 					sub_act_anne_mae_store_modules(TRUE);
 					state = DONE;
 				}
-
 			}
 			break;
 
@@ -401,16 +395,17 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			break;
 
 		case ACTION_LOCK_MULTIFUNCTION:
+			if(entrance){
+				// On redescent les slopes pour le stockage suivant
+				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE, MODULE_STOCK_SMALL)){
+					ACT_push_order(ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_DOWN);
+				}
+			}
 
-//			if (entrance){
-//				ACT_push_order( ACT_SMALL_CYLINDER_MULTIFONCTION , ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK);
-//			}
 			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_SMALL)){
-				//state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, STOP_POMPE_SLIDER, STOP_POMPE_SLIDER);
-				state = STOP_POMPE_SLIDER;
+				state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, STOP_POMPE_SLIDER, STOP_POMPE_SLIDER);
 			}else{
-				//state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, COMPUTE_NEXT_CYLINDER, COMPUTE_NEXT_CYLINDER);
-				state = COMPUTE_NEXT_CYLINDER;
+				state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, COMPUTE_NEXT_CYLINDER, COMPUTE_NEXT_CYLINDER);
 			}
 			break;
 
@@ -1101,11 +1096,6 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			if(entrance){
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER , ACT_SMALL_CYLINDER_SLIDER_IN );
 				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE , ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
-
-				// Si c'est possible, on prépare la SLOPE pour un futur stockage
-				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE , MODULE_STOCK_SMALL)){
-					ACT_push_order( ACT_SMALL_CYLINDER_SLOPE, ACT_SMALL_CYLINDER_SLOPE_DOWN);
-				}
 			}
 
 			// Vérification des ordres effectués
