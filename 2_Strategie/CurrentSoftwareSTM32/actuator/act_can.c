@@ -317,12 +317,6 @@ void ACT_process_acknowledge(CAN_msg_t* msg){
 		return;
 	}
 
-	//Erreur de codage, ça ne devrait jamais arriver sauf si la commande en question a été lancé par quelqu'un d'autre que la strategie (par exemple via un bouton pour debug)
-	if(act_states[act_id].operationResult != ACT_RESULT_Working) {
-		warn_printf("act is not in working mode but received acknowledge, act: 0x%x, cmd: 0x%x, result: %u, reason: %u, mode: %d\n", msg->data.act_result.sid, msg->data.act_result.cmd, msg->data.act_result.result, msg->data.act_result.error_code, act_states[act_id].operationResult);
-		return;
-	}
-
 	act_states[act_id].acknowledge = TRUE;
 #endif
 }
