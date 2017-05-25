@@ -2482,13 +2482,13 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 				if(color_side == BLUE)
 				{
 						//Si moins de 10cm d'erreur... (dans le bon sens... pas de limite si on est hors terrain)
-					if(		(absolute(global.pos.angle - PI4096/2) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
+					if(		(absolute(global.pos.angle + PI4096/2) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
 						&&	((global.pos.y - O.y) < DISTANCE_ACCEPT_CORRECTION_RUSH_MOONBASE) )
 						PROP_set_position(global.pos.x, O.y,-PI4096/2);
 				}
 				else
 				{
-					if(		(absolute(global.pos.angle + PI4096/2) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
+					if(		(absolute(global.pos.angle - PI4096/2) < ANGLE_ACCEPT_CORRECTION_RUSH_MOONBASE)
 						&&	((O.y - global.pos.y) < DISTANCE_ACCEPT_CORRECTION_RUSH_MOONBASE) )
 						PROP_set_position(global.pos.x, O.y,PI4096/2);
 				}
