@@ -244,7 +244,6 @@ static trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destinat
 	//Si on est déjà sur le point demandé >>> aucune trajectoire..... on fait donc la trajectoire "AUCUNE", qui arrivera directement.
 	if(d < PRECISION_ARRIVE_POSITION_TRANSLATION && absolute(global.vitesse_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION)
 	{
-#warning SAMUEL : décommente ça pour vérifier si c est dans ce cas qu on n effectue pas de rotation
 	//	debug_printf("Point trop proche\n");
 		return TRAJECTORY_NONE;
 	}
@@ -257,6 +256,9 @@ static trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destinat
 		else	//cool, c'est parti pour une rotation préalable !
 			return TRAJECTORY_ROTATION;
 	}
+
+	#warning SAMUEL : décommente ça pour vérifier si c est dans ce cas qu on n effectue pas de rotation
+	//debug_printf("DEBUG : Angle faible donc translation\n");
 
 	//Je n'autorise la translation que si l'angle à parcourir est très faible...
 	return TRAJECTORY_TRANSLATION;
@@ -410,6 +412,10 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 				}
 				else
 				{
+
+					#warning SAMUEL : décommente ça pour vérifier si c est dans ce cas qu on n effectue pas de rotation
+					//debug_printf("DEBUG : Angle faible donc translation\n");
+
 					order->trajectory = TRAJECTORY_TRANSLATION;
 				}
 			}
