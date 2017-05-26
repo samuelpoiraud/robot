@@ -1877,8 +1877,8 @@ error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dip
 
 		case WAIT_CYLINDER_PREPARATION :	// Ajouter un timeout
 			// On attend la préparation du cylinder (retournement couleur)
-			if((storage == MODULE_STOCK_RIGHT && ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH))
-			|| (storage == MODULE_STOCK_LEFT && ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH))){
+			if((storage == MODULE_STOCK_RIGHT && (ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_FINISH) || ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS)))
+			|| (storage == MODULE_STOCK_LEFT && (ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_LEFT_FINISH) || ELEMENTS_get_flag(FLAG_HARRY_MODULE_COLOR_RIGHT_SUCCESS))) ){
 				state = TAKE_CYLINDER;
 			}// TODO Gérer erreur ici
 			break;
@@ -2266,10 +2266,10 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	#define DELTA_BETWEEN_TAKE_AND_STORE (45)
 
 	// Distance supplémentaire de laquelle on avance en cas d'erreur au premier essai
-	#define DELTA_ROBOT_TO_FAR_1 (15)
+	#define DELTA_ROBOT_TO_FAR_1 (10)
 
 	// Distance supplémentaire de laquelle on avance en cas d'erreur au second essai
-	#define DELTA_ROBOT_TO_FAR_2 (25)
+	#define DELTA_ROBOT_TO_FAR_2 (20)
 
 	// Positions du robot
 	static GEOMETRY_point_t take_pos = {0, 0}; // position du robot lors de la prise

@@ -343,6 +343,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 		);
 
 	static bool_e flag_error;
+	static Uint8 nb_modules_at_entrance;
 
 	switch(state){
 		case INIT:
@@ -371,6 +372,8 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				}else{
 					ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_PREVENT_DEPOSE);
 				}
+
+				nb_modules_at_entrance = STOCKS_getNbModules(robot_side);
 			}
 			if(robot_side == MODULE_STOCK_LEFT){
 				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT_WITH_ERROR);
@@ -382,6 +385,13 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				state = DONE;
 			}
 			if(ON_LEAVE()){
+				// En cas d'erreur mais qu'on a quand même enlevé un cylindre du stock du robot, on considère que c'est bon
+				// Typiquement, le module du balancer en préparation sort du robot en même temps que le module précédent
+				if(state == GET_OUT_WITH_ERROR){
+					if(STOCKS_getNbModules(robot_side) < nb_modules_at_entrance){
+						state = TIGHT_BACKWARD;
+					}
+				}
 				if(state == TIGHT_BACKWARD){
 					//J'ai mis polychrome parce que je vois pas trop comment le gérer sinon.
 					if(drop_place == POS_1 || drop_place == POS_2){MOONBASES_addModule(MODULE_POLY, MODULE_MOONBASE_OUR_CENTER);}
