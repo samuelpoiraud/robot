@@ -1283,12 +1283,12 @@ static const char * print_act_order(Uint8 sid, Uint8 order){
 
 
 static const char * print_act_error(act_error error){
-	switch(act_error){
+	switch(error){
 		case ACT_ERROR_OVERHEATING:
 			return "ACT_ERROR_OVERHEATING";
 
-		case ACT_ERROR_OVERHEATING:
-			return "ACT_ERROR_OVERHEATING";
+		case ACT_ERROR_OVERLOAD:
+			return "ACT_ERROR_OVERLOAD";
 
 		default:
 			return "UNKNOW";
