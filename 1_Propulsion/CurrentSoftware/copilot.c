@@ -393,7 +393,7 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 			else
 			{
 				if((global.vitesse_translation == 0 && absolute(angle_a_parcourir) > (PI4096/32)) ||
-						((global.vitesse_translation != 0) && absolute(angle_a_parcourir) < (HALF_PI4096*17)/20))	//Si l'angle à parcourir est plus grand que PI/2 ou un petit peu moins -> rotation préalable.
+						((global.vitesse_translation != 0) && absolute(angle_a_parcourir) > (HALF_PI4096*17)/20))	//Si l'angle à parcourir est plus grand que PI/2 ou un petit peu moins -> rotation préalable.
 				{
 					//debug_printf("rotation préalable courbe\r\n");
 					//On réécrit le reste de la trajectoire pour la suite...
