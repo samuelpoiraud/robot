@@ -299,6 +299,10 @@ void SELFTEST_update(CAN_msg_t* CAN_msg_received)
 					state = SELFTEST_PROP;
 
 				progressState = SELFTEST_PROGRESS_ACTUATOR;
+
+#ifdef ROBOT_VIRTUEL_PARFAIT
+				SELFTEST_declare_errors(NULL, SELFTEST_ACT_SIMU);
+#endif
 			}
 			// Appel du nouveau selftest
 			if(act_ping_ok && SELFTESTACT_run() != IN_PROGRESS){	//La fonction SELFTESTACT_run déclare elle-même ses erreurs.
