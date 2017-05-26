@@ -21,7 +21,7 @@
 
 //Position
     #define CYLINDER_ELEVATOR_LEFT_RX24_IDLE_POS					347
-    #define CYLINDER_ELEVATOR_LEFT_RX24_TOP_POS			     		706	//en degré (+359 par rapport à BOTTOM_POS)
+    #define CYLINDER_ELEVATOR_LEFT_RX24_TOP_POS			     		695	//en degré (+359 par rapport à BOTTOM_POS) 706
     #define CYLINDER_ELEVATOR_LEFT_RX24_BOTTOM_POS					347	//en degré
     #define CYLINDER_ELEVATOR_LEFT_RX24_LOCK_WITH_CYLINDER_POS		523	//en degré (+176 par rapport à BOTTOM_POS)
 
