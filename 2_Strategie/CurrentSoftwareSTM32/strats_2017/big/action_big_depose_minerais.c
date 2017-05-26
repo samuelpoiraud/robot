@@ -536,12 +536,23 @@ error_e sub_harry_depose_minerais_zone(){
 		case POS_TO_PRE_SHOT:
 			// parallele tire des balles
 #warning 'activer le tire '
+			if(entrance){
+				ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
+				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
+			}
+			//sub_harry_shooting_depose_minerais
 			state=try_going(650,COLOR_Y(925), state , STOP_TO_END, STOP_TO_END, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case STOP_TO_END:
-			state=try_going(400,COLOR_Y(900), state , DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			//tire
+#warning 'activer le tire '
+			if(entrance){
+				ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
+				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
+			}
+			state=try_going(400,COLOR_Y(900), state , DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+
 			break;
 
 		case GO_START_ZONE:
@@ -549,9 +560,7 @@ error_e sub_harry_depose_minerais_zone(){
 			break;
 
 		case ASTAR_POS_TO_PRE_SHOT:
-			// parallele tire des balles
-#warning 'activer le tire '
-			state=try_going(680,COLOR_Y(930), state , POS_TO_PRE_SHOT, POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state= ASTAR_try_going(680,COLOR_Y(930), state , POS_TO_PRE_SHOT, POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
