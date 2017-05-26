@@ -337,7 +337,17 @@ static void BRAIN_action_in_match(void){
 
 //Executé juste une fois à la fin du match
 static void BRAIN_action_at_end_of_match(void){
-
+	if(I_AM_BIG()){
+		ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
+		ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
+		ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
+		ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
+		ACT_push_order(ACT_POMPE_DISPOSE_LEFT, ACT_POMPE_STOP);
+		ACT_push_order(ACT_POMPE_DISPOSE_RIGHT, ACT_POMPE_STOP);
+	}else{
+		ACT_push_order(ACT_SMALL_POMPE_PRISE, ACT_POMPE_STOP);
+		ACT_push_order(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_STOP);
+	}
 }
 
 //Executé dés la fin du match
