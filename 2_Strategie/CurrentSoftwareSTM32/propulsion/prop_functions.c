@@ -268,6 +268,16 @@ void PROP_set_position(Sint16 x, Sint16 y, Sint16 teta){
 	CAN_send(&msg);
 }
 
+void PROP_set_speed(PROP_speed_e speed)
+{
+	CAN_msg_t msg;
+	msg.sid = DEBUG_PROPULSION_SET_SPEED;
+	msg.size = SIZE_DEBUG_PROPULSION_SET_SPEED;
+	msg.data.debug_propulsion_set_speed.prop_speed = speed;
+	CAN_send(&msg);
+}
+
+
 //Acceleration en mm/4096/5ms/5ms..
 void PROP_set_acceleration(Uint32 acceleration){
 	CAN_msg_t msg;

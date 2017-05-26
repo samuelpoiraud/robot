@@ -22,6 +22,7 @@
 #include "../actuator/queue.h"
 #include "../actuator/act_functions.h"
 #include "../utils/actionChecker.h"
+#include "../QS/QS_IHM.h"
 
 #define BIG_COLOR_LEFT_CH0_PORT 	GPIOC
 #define BIG_COLOR_LEFT_CH0_PIN	 	GPIO_Pin_6
@@ -153,23 +154,32 @@ error_e sub_cross_rocker(void){
 			}
 			break;
 */
-		case CROSS:
+		case CROSS:{
+			PROP_speed_e speed;
 			if(entrance){
-			//	PROP_WARNER_arm_y(COLOR_Y(530));
+				if(IHM_switchs_get(SWITCH_ENABLE_FAST_BASCULE))
+				{
+					PROP_WARNER_arm_y(COLOR_Y(480));	//480 !!!
+					speed = 30;
+				}
+				else
+					speed = 22;
+
 				PROP_set_threshold_error_translation(1214400, FALSE);
 				ACT_push_order(ACT_SMALL_BALL_BACK, ACT_SMALL_BALL_BACK_UP);
 				ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT, ACT_SMALL_BALL_FRONT_LEFT_UP);
 				ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT, ACT_SMALL_BALL_FRONT_RIGHT_UP);
 			}
-			state = try_going(180, COLOR_Y(600), state, CROSS_END, MOVE_BACK, 22, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
-			//if(global.prop.reach_y){
-//					ACT_push_order(ACT_SMALL_BALL_FRONT_LEFT,ACT_SMALL_BALL_FRONT_LEFT_DOWN);
-	//				ACT_push_order(ACT_SMALL_BALL_FRONT_RIGHT,ACT_SMALL_BALL_FRONT_RIGHT_DOWN);
-			//}
-			break;
+			state = try_going(180, COLOR_Y(600), state, CROSS_END, MOVE_BACK, speed, FORWARD, NO_AVOIDANCE, END_AT_BRAKE);
+
+			if(global.prop.reach_y)
+				PROP_set_speed(22);
+			break;}
 
 		case CROSS_END:
-			state = try_going(180, COLOR_Y(875), state, CORRECT_ODOMETRY_MATH, CROSS_END, 16, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			if(global.prop.reach_y)
+				PROP_set_speed(16);
+			state = try_going(180, COLOR_Y(875), state, CORRECT_ODOMETRY_MATH, MOVE_BACK, 16, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case MOVE_BACK:

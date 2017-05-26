@@ -87,6 +87,8 @@
 
 	void PROP_set_acceleration(Uint32 acceleration);
 
+	void PROP_set_speed(PROP_speed_e speed);
+
 	/* Demande un envoi par la propulsion de l'ensemble de ses coefs */
 	void PROP_ask_propulsion_coefs(void);
 
