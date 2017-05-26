@@ -992,10 +992,10 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 				// On réactive la pompe du slider et on stoppe celle de l'élévateur
 				if(storage == MODULE_STOCK_RIGHT){
-					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL);
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL); // Je pense qu'elle est déjà activé
 					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP);
 				}else{
-					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL ); // Je pense qu'elle est déjà activé
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP);
 				}
 
@@ -2424,7 +2424,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			if(nbErrorsAvance == 0){
 				state = try_going(take_pos.x, take_pos.y, state, TURN_TO_POS, AVANCE_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}else{
-				state = try_going(take_pos.x, take_pos.y, state, TURN_TO_POS, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(take_pos.x, take_pos.y, state, TURN_TO_POS, TURN_TO_POS, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			if(ON_LEAVE()){
 				// Reset à 0

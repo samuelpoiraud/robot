@@ -538,30 +538,30 @@ void STOCKS_print(moduleStockLocation_e storage){
 
 	if(I_AM_BIG()){
 		if(storage == MODULE_STOCK_LEFT)
-			debug_printf("---------- MODULE_STOCK_LEFT ---------\n");
+			error_printf("---------- MODULE_STOCK_LEFT ---------\n");
 		else
-			debug_printf("---------- MODULE_STOCK_RIGHT ---------\n");
+			error_printf("---------- MODULE_STOCK_RIGHT ---------\n");
 	}else{
-		debug_printf("---------- MODULE_STOCK_SMALL ---------\n");
+		error_printf("---------- MODULE_STOCK_SMALL ---------\n");
 	}
 	//debug_printf("\n\n Affichage STOCK :\n");
 	for(i = 0; i < MAX_MODULE_STOCK; i++){
 		switch(moduleStockInfo[storage].stockModules[i]){
 			case MODULE_EMPTY:
-				debug_printf(" - MODULE_EMPTY\n");
+				error_printf(" - MODULE_EMPTY\n");
 				break;
 			case MODULE_BLUE:
-				debug_printf(" - MODULE_BLUE\n");
+				error_printf(" - MODULE_BLUE\n");
 				break;
 			case MODULE_YELLOW:
-				debug_printf(" - MODULE_YELLOW\n");
+				error_printf(" - MODULE_YELLOW\n");
 				break;
 			case MODULE_POLY:
-				debug_printf(" - MODULE_POLY\n");
+				error_printf(" - MODULE_POLY\n");
 				break;
 		}
 	}
-	debug_printf("\n");
+	error_printf("\n");
 }
 
 //###################################  GESTION DES MODULES DANS LES FUSEES ###############################
