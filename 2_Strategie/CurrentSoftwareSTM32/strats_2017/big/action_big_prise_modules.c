@@ -36,8 +36,6 @@ error_e sub_harry_prise_modules_initiale(){
 										(displacement_t){(GEOMETRY_point_t){1350, COLOR_Y(400)}, SLOW}	// si on veut aller jusqu'à la fusée, attention risque de collision
 										};
 
-	error_e stateAct1, stateAct2;
-
 	static bool_e alreadyStoreModule = FALSE;
 
 	switch(state){

@@ -171,11 +171,11 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 	static Uint8 nbEssais;
 
 	//Variables pour la gestion du capteur
-	static bool_e resultScan;
-	static bool_e donneeScan;
-	static Uint8 nbFail;
-	static Uint8 nbFailAffiles;
-	static Uint8 nbReussitesAffilees;
+//	static bool_e resultScan;
+//	static bool_e donneeScan;
+//	static Uint8 nbFail;
+//	static Uint8 nbFailAffiles;
+//	static Uint8 nbReussitesAffilees;
 
 	error_e ret;
 	ret = IN_PROGRESS;
@@ -191,9 +191,9 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 
 		case INIT:
 			if(entrance){
-				nbFail = 0;
-				nbFailAffiles = 0;
-				nbReussitesAffilees = 0;
+//				nbFail = 0;
+//				nbFailAffiles = 0;
+//				nbReussitesAffilees = 0;
 			}
 			if(rocket == MODULE_ROCKET_MONO_OUR_SIDE){
 				if(global.color == BLUE){
@@ -719,6 +719,8 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 
 	error_e ret = IN_PROGRESS;
 	static time32_t time_timeout;
+
+	UNUSED_VAR(time_timeout);
 
 #ifdef DISPLAY_STOCKS
 	if(entrance){

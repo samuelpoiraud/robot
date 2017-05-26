@@ -1704,7 +1704,6 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 		case ACTION:{
 			error_e resultAction = sub_act_anne_take_rocket_down_to_top((rocket==OUR_ELEMENT)?MODULE_ROCKET_MULTI_OUR_SIDE:MODULE_ROCKET_MULTI_ADV_SIDE, 4);
 //			error_e resultInit = init_all_actionneur(); // On init ou pas ? Si on le fail on part en failed_init // A ne pas faire ici
-			error_e resultInit = END_OK;
 //			#warning "temporaire pour faire comme si la prise fonctionnait"
 //			STOCKS_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
 //

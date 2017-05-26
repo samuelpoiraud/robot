@@ -1074,6 +1074,6 @@ void clean_warning_bat(){
 }
 
 void Selftest_print_sd_hokuyo_lost(void){
-	info_printf("Hokuyo lost count : %d (%d ms)\n", hokuyo_lost_counter, disconnection_time_total);
+	info_printf("Hokuyo lost count : %d (%lu ms)\n", hokuyo_lost_counter, disconnection_time_total);
 }
 

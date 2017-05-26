@@ -37,8 +37,12 @@ error_e sub_anne_initiale(void){
 	static Uint8 nb_try_return_middle = 0;
 	static Uint8 nb_try_return_adv_side = 0;
 	static bool_e must_protect_after_dispose = FALSE;
-	static moduleMoonbaseLocation_e moonbase;
 	error_e ret = IN_PROGRESS;
+
+	UNUSED_VAR(nb_try_return_adv_middle);
+	UNUSED_VAR(nb_try_return_middle);
+	UNUSED_VAR(nb_try_return_adv_side);
+	UNUSED_VAR(must_protect_after_dispose);
 
 	switch(state){
 		case INIT:
