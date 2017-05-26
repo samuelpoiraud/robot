@@ -135,7 +135,7 @@ error_e sub_act_big_off(){
 
 // sub petit cratère
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+#warning 'debut de cratere'
 
 error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_NORTH_LITTLE_CRATER,
@@ -316,7 +316,7 @@ error_e sub_harry_take_north_little_crater(ELEMENTS_property_e minerais){
 }
 
 
-
+#warning 'debut de cratere 2 '
 
 error_e sub_harry_get_in_north_little_crater(ELEMENTS_property_e minerais){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_NORTH_LITTLE_CRATER,
@@ -408,7 +408,7 @@ error_e sub_harry_get_in_north_little_crater(ELEMENTS_property_e minerais){
 	return IN_PROGRESS;
 }
 
-
+#warning 'debut de cratere 3 '
 error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_SOUTH_LITTLE_CRATER,
 			INIT,
@@ -477,13 +477,13 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
 			}
 
-			state1=check_act_status(ACT_QUEUE_Ore_roller_arm, DOWN_SYSTEM, GO_TO_CENTER, ERROR);
-			state2=check_act_status(ACT_QUEUE_Ore_wall, DOWN_SYSTEM, GO_TO_CENTER, ERROR);
+			state1=check_act_status(ACT_QUEUE_Ore_roller_arm, DOWN_SYSTEM, END_OK, ERROR);
+			state2=check_act_status(ACT_QUEUE_Ore_wall, DOWN_SYSTEM, END_OK, ERROR);
 
 			if((state1==ERROR)||(state2==ERROR)){
 				state=ERROR;
-			}else if ((state1==GO_TO_CENTER)&&(state2==GO_TO_CENTER)){
-				state=GO_TO_CENTER;
+			}else if ((state1==END_OK)&&(state2==END_OK)){
+				state=DONE;
 			}else{ // Add a else just to be secure
 				state = DONE;
 			}
@@ -558,7 +558,7 @@ error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais){
 	return IN_PROGRESS;
 }
 
-
+#warning 'debut de cratere 4 '
 
 error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_SOUTH_LITTLE_CRATER,
@@ -647,6 +647,160 @@ error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais){
 
 	return IN_PROGRESS;
 }
+#warning 'fin '
+
+// sub_harry_rammassage
+error_e sub_harry_take_minerais(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_MINERAIS,
+			INIT,
+			RAMASSAGE,
+			FIN_RAMASSAGE,
+			ERROR,
+			DONE
+		);
+	static time32_t time;
+
+	switch(state){
+	/*
+	 * active puis stop, les actionneurs de prise de minerais
+	 * 26/05/2017
+	 */
+		case INIT:{
+			Uint8 state1=INIT;
+			Uint8 state2=INIT;
+			if (entrance){
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
+				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_OUT);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
+			}
+
+			state1=check_act_status(ACT_QUEUE_Ore_roller_arm, INIT, END_OK, ERROR);
+			state2=check_act_status(ACT_QUEUE_Ore_wall, INIT, END_OK, ERROR);
+
+			if((state1==ERROR)||(state2==ERROR)){
+				state=ERROR;
+			}else if ((state1==END_OK)&&(state2==END_OK)){
+				state=RAMASSAGE;
+			}else{ // Add a else just to be secure
+				state = DONE;
+			}
+		}break;
+
+#warning 'time = temps pour prendre les modules'
+	case RAMASSAGE:
+		if(entrance){
+			time = global.match_time;
+		}
+		if((global.match_time - time)==5000){
+			state = FIN_RAMASSAGE;
+		}else{
+			state = IN_PROGRESS;
+		}
+		break;
+
+				case FIN_RAMASSAGE:{
+			Uint8 state1=IN_PROGRESS;
+			Uint8 state2=IN_PROGRESS;
+			if (entrance){
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP, ACT_ROLLER_FOAM_SPEED_RUN);
+				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IN);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IN);
+			}
+
+			state1=check_act_status(ACT_QUEUE_Ore_roller_arm, INIT, END_OK, ERROR);
+			state2=check_act_status(ACT_QUEUE_Ore_wall, INIT, END_OK, ERROR);
+
+			if((state1==ERROR)||(state2==ERROR)){
+				state=ERROR;
+			}else if ((state1==END_OK)&&(state2==END_OK)){
+				state=DONE;
+			}else{ // Add a else just to be secure
+				state = DONE;
+			}
+		}
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_depose_minerais_zone\n");
+			break;
+	}
+	return IN_PROGRESS;
+}
+
+/*
+sub_harry_take_north_little_crater
+sub_harry_get_in_north_little_crater
+sub_harry_take_south_little_crater
+sub_harry_get_in_south_little_crater
+
+
+
+liste des sub pour france :
+sub_harry_take_minerais()
+sub_harry_get_in_north_little_crater(OUR_ELEMENT)
+sub_harry_depose_minerais_zone()
+*/
+
+error_e sub_harry_test_minerai(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_CRATER_TEST,
+			INIT,
+			TEST,
+			TEST2,
+			DONE,
+			ERROR
+		);
+
+	switch(state){
+		case INIT:
+			state = check_sub_action_result(sub_harry_take_south_little_crater(OUR_ELEMENT), state, TEST, ERROR);
+			break;
+
+		case TEST:
+			state = check_sub_action_result(sub_harry_take_north_little_crater(OUR_ELEMENT), state, TEST2, ERROR);
+			break;
+
+		case TEST2:
+			state = check_sub_action_result(sub_harry_depose_minerais_zone(), state, DONE, ERROR);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_get_in_south_little_crater\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
+
+
+
+
+
+
+
+
 
 
 error_e sub_harry_take_big_crater(ELEMENTS_property_e minerais){ // OUR_ELEMENT / ADV_ELEMENT

@@ -516,11 +516,11 @@ error_e sub_harry_depose_minerais_zone(){
 	 */
 		case INIT:
 			if(i_am_in_square_color(1200,1700,300,900))
-				//je sort de la depose module (1200, 300) (1700, 900)
+				//je sort de la depose module
 				state=SORTIE_MODULE;  //go //(1370, 630) => (1200, 950) => (400, 950)
 			else if(i_am_in_square_color(1600,1200,300,900))
-				// je sort de la prise de minerais  (600, 300) (1200, 900)
-				state=GO_START_ZONE; //go (800, 950)
+				// je sort de la prise de minerais
+				state=GO_START_ZONE;
 			else
 				state=GO_START_ZONE;
 			break;
@@ -575,7 +575,7 @@ error_e sub_harry_depose_minerais_zone(){
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_get_in_depose_minerais_alternative\n");
+				debug_printf("default case in sub_harry_depose_minerais_zone\n");
 			break;
 	}
 	return IN_PROGRESS;
