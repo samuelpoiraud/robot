@@ -199,10 +199,10 @@ static void ACT_check_result(queue_id_e act_id) {
 #else
 
 	if(act_states[act_id].acknowledge == FALSE
-			&&	((act_states[act_id].alreadyReSend == FALSE && global.absolute_time >= ACT_RE_SEND_FIRST_TIME + QUEUE_get_initial_time_of_re_send_msg(act_id))
-				||	(act_states[act_id].alreadyReSend == TRUE && global.absolute_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time_of_re_send_msg(act_id)))
+			&&	(((act_states[act_id].alreadyReSend == FALSE) && (global.absolute_time >= ACT_RE_SEND_FIRST_TIME + QUEUE_get_initial_time_of_re_send_msg(act_id)))
+				||	((act_states[act_id].alreadyReSend == TRUE) && (global.absolute_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time_of_re_send_msg(act_id))))
 		){
-		error_printf("Acknowledge timeout (by strat) act id: %u, sid: 0x%x", act_id, argument->msg.sid);
+		error_printf("Acknowledge timeout (by strat) act id: %u, sid: 0x%x\n", act_id, argument->msg.sid);
 		CAN_msg_t* msg = &(QUEUE_get_arg(act_id)->msg);
 		error_printf("RE-Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d\n", act_id, msg->sid , msg->size, msg->data.act_msg.order);
 		CAN_send(msg);
