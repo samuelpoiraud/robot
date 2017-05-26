@@ -551,7 +551,7 @@ error_e sub_harry_depose_minerais_zone(){
 				ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
 				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
 			}
-			state=try_going(400,COLOR_Y(900), state , DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state=try_going(400,COLOR_Y(900), state , STOP_TO_END, STOP_TO_END, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 
 			break;
 
