@@ -1071,6 +1071,9 @@
 		ACT_RESULT_ERROR_NO_RESOURCES,	//La carte n'a pas assez de resource pour gérer la commande. Commande à renvoyer plus tard.
 		ACT_RESULT_ERROR_INVALID_ARG,	//La commande ne peut pas être effectuée, l'argument n'est pas valide ou est en dehors des valeurs acceptés
 		ACT_RESULT_ERROR_CANCELED,		//L'action a été annulé
+		ACT_RESULT_ERROR_OVERHEATING,	//Actioneur en surchauffe
+		ACT_RESULT_ERROR_OVERLOAD,		//Actionneur en surcharge
+		ACT_RESULT_ERROR_OVERVOLTAGE_OR_UNDERVOLTAGE,	//Actionneur en surtension ou sous tension
 
 		ACT_RESULT_ERROR_UNKNOWN = 255	//Erreur inconnue ou qui ne correspond pas aux précédentes.
 
@@ -1078,7 +1081,7 @@
 
 	typedef enum{
 		ACT_ERROR_OVERHEATING = 0,
-		ACT_ERROR_TORQUE_TOO_HIGH=1
+		ACT_ERROR_OVERLOAD
 	}act_error;
 
 	typedef enum{

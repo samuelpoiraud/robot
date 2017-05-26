@@ -43,6 +43,7 @@ static const char * print_mosfetId(act_vacuostat_id id);
 static const char * print_scan_sensor_id(SCAN_SENSOR_id_e id);
 static const char * print_act_sid(Uint8 sid);
 static const char * print_act_order(Uint8 sid, Uint8 order);
+static const char * print_act_error(act_error error);
 
 
 #define print(buffer, len, ...) \
@@ -209,6 +210,7 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case XBEE_ELEMENTS_HARDFLAGS:					print(string, len, "%x XBEE_ELEMENTS_HARDFLAGS			      ",XBEE_ELEMENTS_HARDFLAGS							);	break;
 
 		case ACT_RESULT:								print(string, len, "%x ACT_RESULT                             ", ACT_RESULT										);	break;
+		case ACT_ERROR:									print(string, len, "%x ACT_ERROR                              ", ACT_ERROR										);	break;
 		case ACT_GET_CONFIG_ANSWER:						print(string, len, "%x ACT_GET_CONFIG_ANSWER                  ", ACT_GET_CONFIG_ANSWER							);	break;
 		case ACT_WARNER_ANSWER:							print(string, len, "%x ACT_WARNER_ANSWER                  	  ", ACT_WARNER_ANSWER							    );	break;
 
@@ -534,21 +536,26 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 				case ACT_RESULT_ERROR_OK:			if(msg->data.act_result.result != ACT_RESULT_DONE)	print(string,len, "NO ERROR ");		break;
 				case ACT_RESULT_ERROR_TIMEOUT:		print(string,len, "TIMEOUT ");					break;
 				case ACT_RESULT_ERROR_OTHER:		print(string,len, "OTHER ");					break;
-				case ACT_RESULT_ERROR_NOT_HERE:		print(string,len, "ACTUATOR NO RESPONDING !");	break;
+				case ACT_RESULT_ERROR_NOT_HERE:		print(string,len, "ACTUATOR NO HERE !");		break;
 				case ACT_RESULT_ERROR_LOGIC:		print(string,len, "SOFTWARE ERROR !");			break;
 				case ACT_RESULT_ERROR_NO_RESOURCES:	print(string,len, "NOT ENOUGH RESOURCES !");	break;
 				case ACT_RESULT_ERROR_INVALID_ARG:	print(string,len, "INVALID ARG ! ");			break;
 				case ACT_RESULT_ERROR_CANCELED:		print(string,len, "ACTION CANCELED ");			break;
+				case ACT_RESULT_ERROR_OVERHEATING:	print(string,len, "OVERHEATING ! ");			break;
+				case ACT_RESULT_ERROR_OVERLOAD:		print(string,len, "OVERLOAD ! ");				break;
+				case ACT_RESULT_ERROR_OVERVOLTAGE_OR_UNDERVOLTAGE:		print(string,len, "OVERVOLTAGE OR UNDERVOLTAGE ! ");				break;
 				default:							print(string,len, "UNKNOW ERROR !");			break;
 			}
 			print(string,len, "\n");
 			break;
 
-			case ACT_ACKNOWLEDGE:
-				print(string,len, "%s", print_act_sid(msg->data.act_result.sid));
-				print(string,len, "%s", print_act_order(msg->data.act_result.sid, msg->data.act_result.cmd));
-				print(string,len, "\n");
-				break;
+		case ACT_ACKNOWLEDGE:
+			print(string,len, "%s", print_act_sid(msg->data.act_result.sid));
+			print(string,len, "%s", print_act_order(msg->data.act_result.sid, msg->data.act_result.cmd));
+			print(string,len, "\n");
+			break;
+
+		case ACT_ERROR:	print(string, len, "| %s \n", print_act_error(msg->data.act_error.error_code));	break;
 
 		case DEBUG_FOE_POS:						print(string, len, "|\n");												break;
 		case DEBUG_PROPULSION_SET_COEF:			print(string, len, "| COEF_ID=%d  VALUE=%ld\n", msg->data.debug_propulsion_set_coef.id, msg->data.debug_propulsion_set_coef.value);	break;
@@ -1271,6 +1278,20 @@ static const char * print_act_order(Uint8 sid, Uint8 order){
 
 	  default:
 		  return "| UNKNOW |";
+	}
+}
+
+
+static const char * print_act_error(act_error error){
+	switch(act_error){
+		case ACT_ERROR_OVERHEATING:
+			return "ACT_ERROR_OVERHEATING";
+
+		case ACT_ERROR_OVERHEATING:
+			return "ACT_ERROR_OVERHEATING";
+
+		default:
+			return "UNKNOW";
 	}
 }
 

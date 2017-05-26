@@ -130,7 +130,20 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Sint16 wantedGoa
 		*result = ACT_RESULT_NOT_HANDLED;
 		*error_code = ACT_RESULT_ERROR_LOGIC;
 		*line = 0x0200;
-	} else if(error & AX12_ERROR_TIMEOUT) {
+	} else if(error & AX12_ERROR_OVERLOAD) {
+		AX12_set_torque_enabled(ax12Id, FALSE);
+		*result = ACT_RESULT_FAILED;
+		*error_code = ACT_RESULT_ERROR_OVERLOAD;
+		*line = 0x0300;
+		ACTQ_sendErrorAct(ax12Id, ACT_ERROR_OVERLOAD);
+	}else if(error & AX12_ERROR_OVERHEATING) {
+		//autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
+		AX12_set_torque_enabled(ax12Id, FALSE);
+		*result = ACT_RESULT_FAILED;
+		*error_code = ACT_RESULT_ERROR_OVERHEATING;
+		*line = error; //0x00xx avec xx = error
+		ACTQ_sendErrorAct(ax12Id, ACT_ERROR_OVERHEATING);
+	}else if(error & AX12_ERROR_TIMEOUT) {
 		//AX12_set_torque_enabled(ax12Id, FALSE);
 		*result = ACT_RESULT_FAILED;
 		*error_code = ACT_RESULT_ERROR_NOT_HERE;
@@ -148,13 +161,6 @@ bool_e ACTQ_check_status_ax12(queue_id_t queueId, Uint8 ax12Id, Sint16 wantedGoa
 			*error_code = ACT_RESULT_ERROR_TIMEOUT;
 			*line = 0x0500;
 		}
-	} else if(error & AX12_ERROR_OVERHEATING) {
-		//autres erreurs fiable, les autres on les teste pas car si elle arrive, c'est plus probablement un problème de transmission ou code ...
-		AX12_set_torque_enabled(ax12Id, FALSE);
-		*result = ACT_RESULT_FAILED;
-		*error_code = ACT_RESULT_ERROR_UNKNOWN;
-		*line = error; //0x00xx avec xx = error
-		ACTQ_sendErrorAct(ax12Id, ACT_ERROR_OVERHEATING);
 	} else if(error) {
 		component_printf(LOG_LEVEL_Error, "Error AX12 %d\n", error);
 		return FALSE;
