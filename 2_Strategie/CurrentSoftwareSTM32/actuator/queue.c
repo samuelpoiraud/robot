@@ -184,7 +184,7 @@ void QUEUE_next(queue_id_e queue_id)
 	{
 		//on initialise l'action suivante
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, "Init action\n");
-		this->initial_time_of_current_action = global.match_time;
+		this->initial_time_of_current_action = global.absolute_time;
 		this->initial_time_of_re_send_msg = global.absolute_time;
 		(this->action[this->end_index])(queue_id, TRUE);
 	} else {
