@@ -140,6 +140,24 @@ queue_id_t QUEUE_create()
 	return i;
 }
 
+queue_id_t QUEUE_create_if_not_exist_for_this_act(QUEUE_act_e act_id)
+{
+	queue_id_t i;
+	queue_id_t ret = 255;
+	bool_e b = FALSE;
+	for(i=0; i<NB_QUEUE; i++)
+	{
+		if(queues[i].used && queues[i].act == act_id)
+		{
+			b = TRUE;
+			ret = i;
+		}
+	}
+	if(!b)
+		ret = QUEUE_create();
+	return ret;
+}
+
 void QUEUE_run()
 {
 	queue_id_t queue_id;
@@ -151,7 +169,7 @@ void QUEUE_run()
 		{
 			thisa=&(queues[queue_id]);
 			(thisa->action[thisa->head])(queue_id, FALSE);
-			component_printf_queue(LOG_LEVEL_Trace, queue_id, "Run\n");
+			//component_printf_queue(LOG_LEVEL_Trace, queue_id, "Run\n");
 		}
 	}
 }
@@ -287,7 +305,7 @@ void QUEUE_flush(queue_id_t queue_id)
 	{
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, " Queue reset\n");
 		sems[QUEUE_get_act(queue_id)].token = TRUE;	//On rend la sémaphore utilisée par l'actionneur
-		queues[queue_id].used = FALSE; //On rend la file
+		//queues[queue_id].used = FALSE; //On rend la file
 	}
 	else
 	{

@@ -31,9 +31,15 @@ static void ACTQ_internal_printResult(Uint11 originalSid, Uint8 originalCommand,
 //Met sur la pile une action qui sera gérée par act_function_ptr avec en paramètre param. L'action est protégée par semaphore avec act_id
 //Cette fonction est appelée par les fonctions de traitement des messages CAN de chaque actionneur.
 void ACTQ_push_operation_from_msg(CAN_msg_t* msg, QUEUE_act_e act_id, action_t act_function_ptr, Uint16 param, bool_e sendResult) {
-	queue_id_t queueId = QUEUE_create();
-	assert(queueId != QUEUE_CREATE_FAILED);
+	queue_id_t queueId = QUEUE_create_if_not_exist_for_this_act(act_id);
+	//assert(queueId != QUEUE_CREATE_FAILED);
 	if(queueId != QUEUE_CREATE_FAILED) {	//Si on est pas en verbose_mode, l'assert sera ignoré et la suite risque de vraiment planter ...
+		if(msg->data.act_msg.act_data.act_order.run_now)
+		{
+			QUEUE_flush(queueId);
+
+		}
+
 		QUEUE_add(queueId, &QUEUE_take_sem, (QUEUE_arg_t){0, 0, NULL}, act_id);
 
 		// Si nous voulons, nous envoyer des messages nous-même sans avertir les autres cartes
@@ -346,7 +352,7 @@ bool_e ACTQ_finish_SendNothing(queue_id_t queue_id, Uint11 act_sid, Uint8 result
 void ACTQ_flush_queue_to_run_now(queue_id_t queue_id, Uint11 act_sid) {
 	Uint8 i = 0;
 	Uint16 nb_actions_in_queue;
-
+	return;
 	// On compte le nombre d'actions dans la queue
 	nb_actions_in_queue = QUEUE_pending_num(queue_id);
 
