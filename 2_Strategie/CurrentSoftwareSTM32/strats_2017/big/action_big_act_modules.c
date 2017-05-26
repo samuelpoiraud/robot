@@ -2286,7 +2286,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	static Uint8 nbErrorsAvance;
 
 	// Variables locales
-	error_e state1 = IN_PROGRESS, state2 = IN_PROGRESS, state3 = IN_PROGRESS;
+	error_e state1 = IN_PROGRESS;
 	MOSFET_BOARD_CURRENT_MEASURE_state_e pump_state;
 
 #ifdef DISPLAY_STOCKS
@@ -2501,11 +2501,11 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			if(moduleToTake == RIGHT){
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 				pump_state = ACT_get_state_vacuostat(VACUOSTAT_SLIDER_RIGHT); // Retour d'info par vacuostat
-				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
+				//state3 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}else{
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 				pump_state = ACT_get_state_vacuostat(VACUOSTAT_SLIDER_LEFT); // Retour d'info par vacuostat
-				state3 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
+				//state3 = check_act_status(ACT_QUEUE_Cylinder_slider_right, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
 			if(state1 != IN_PROGRESS || pump_state == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT){

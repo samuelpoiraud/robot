@@ -165,7 +165,9 @@ error_e sub_anne_return_modules_centre(ELEMENTS_property_e modules){
 
 #define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
 	static time32_t time_timeout = 0;
-	Uint8 pos_get_in;
+	//Uint8 pos_get_in;
+
+	UNUSED_VAR(time_timeout);
 
 	static Uint8 nb_cylinder_in_basis = 0;
 	static Sint16 tryx, tryy;
@@ -577,8 +579,13 @@ error_e sub_anne_return_modules_side(ELEMENTS_property_e modules){
 #define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
 	static time32_t time_timeout = 0;
 
+	UNUSED_VAR(time_timeout);
+
 	static Uint8 nb_cylinder_in_basis = 0;
 	static Sint16 tryx, tryy;
+
+	UNUSED_VAR(tryx);
+	UNUSED_VAR(tryy);
 
 	switch(state){
 		case INIT:
