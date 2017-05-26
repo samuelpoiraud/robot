@@ -216,6 +216,8 @@
 			FLAG_SUB_ANNE_TAKE_CYLINDER_NORTH_UNI,
 			FLAG_SUB_ANNE_TAKE_CYLINDER_SOUTH_UNI,
 
+			// Flag de filtrage des zones d'évitement lorsque Anne fait une dépose side
+			FLAG_ACTIVATE_FILTER_ANNE_DEPOSE_SIDE,
 
 			F_ELEMENTS_FLAGS_END_SYNCH,	//Les flags au-dessus seront synchro entre les deux robots
 
@@ -391,6 +393,20 @@
 		 ACCESS_NORTH_GRANTED = 1,
 		 ACCESS_SOUTH_GRANTED = 2
 	}access_scan_e;
+
+	typedef enum{
+		DETECTION_START_ZONE_BLUE,
+		DETECTION_NEXT_TO_START_ZONE_BLUE,
+		DETECTION_START_ZONE_YELLOW,
+		DETECTION_NEXT_TO_START_ZONE_YELLOW,
+		DETECTION_MOONBASE_BLUE_SIDE,
+		DETECTION_MOONBASE_MIDDLE_BLUE_SIDE,
+		DETECTION_MOONBASE_MIDDLE_YELLOW_SIDE,
+		DETECTION_MOONBASE_YELLOW_SIDE,
+		DETECTION_FILTER_ZONE_BIG_IGNORE_SMALL,
+		DETECTION_FILTER_ZONE_SMALL_IGNORE_BIG,
+		NB_DETECTION_ZONES
+	}detection_zone_id_e;
 
 
 	/**********************************************************************************************************************
