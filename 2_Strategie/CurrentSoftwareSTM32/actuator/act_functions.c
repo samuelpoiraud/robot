@@ -238,19 +238,21 @@ bool_e ACT_push_order_with_all_params(ACT_sid_e sid,  ACT_order_e order, Uint16 
 
 	ACT_AVOIDANCE_new_classic_cmd(act_link_SID_Queue[i].queue_id, order);
 
+	QUEUE_reset(act_link_SID_Queue[i].queue_id);
+
 	return ACT_push_operation(act_link_SID_Queue[i].queue_id, &args);
 }
 
 bool_e ACT_push_order(ACT_sid_e sid,  ACT_order_e order){
-	return ACT_push_order_with_all_params(sid, order, 0, 0, FALSE);
+	return ACT_push_order_with_all_params(sid, order, 0, 0, TRUE);
 }
 
 bool_e ACT_push_order_with_timeout(ACT_sid_e sid,  ACT_order_e order, Uint16 timeout){
-	return ACT_push_order_with_all_params(sid, order, 0, timeout, FALSE);
+	return ACT_push_order_with_all_params(sid, order, 0, timeout, TRUE);
 }
 
 bool_e ACT_push_order_with_param(ACT_sid_e sid,  ACT_order_e order, Uint16 param){
-	return ACT_push_order_with_all_params(sid, order, param, 0, FALSE);
+	return ACT_push_order_with_all_params(sid, order, param, 0, TRUE);
 }
 
 bool_e ACT_push_order_now(ACT_sid_e sid,  ACT_order_e order){

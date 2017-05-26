@@ -355,6 +355,13 @@ void ACT_process_result(const CAN_msg_t* msg) {
 		return;
 	}
 
+	CAN_msg_t* msgOrder = &(QUEUE_get_arg(act_id)->msg);
+
+	if((msg->data.act_result.sid != msgOrder->sid & 0xFF)
+			|| (msg->data.act_result.cmd != msgOrder->data.act_msg.order)){
+		error_printf("Received result not match with actual order in queue\n");
+	}
+
 	switch(msg->data.act_result.result) {
 		case ACT_RESULT_DONE:
 			//On n'affecte pas act_states[act_id].recommendedBehavior pour garder une trace des erreurs précédentes (dans le cas ou on a renvoyé une commande par exemple, permet de savoir l'erreur d'origine)

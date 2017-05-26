@@ -511,7 +511,8 @@ static Uint16 QS_CAN_VERBOSE_can_msg_sprint(CAN_msg_t * msg, char * string, int 
 		case STRAT_MOSFET_7:
 		case STRAT_MOSFET_8:
 		case STRAT_MOSFET_MULTI:
-			print(string,len, "%s\n", print_act_order(msg->sid & 0xFF, msg->data.act_msg.order));
+			print(string,len, "%s", print_act_order(msg->sid & 0xFF, msg->data.act_msg.order));
+			print(string,len, "%s\n", (msg->data.act_msg.act_data.act_order.run_now)?"NOW":"NOT_NOW");
 			break;
 
 		case ACT_RESULT:
