@@ -16,6 +16,9 @@
 //permet de régler la distance entre la base côté et le robot(largeurBase+distance):
 #define DISTANCE_BASE_SIDE_ET_ROBOT	((Uint16) 120+200)
 
+// Zone filtré pour le gros robot
+#define FILTER_ZONE_FOR_BIG		(8)
+
 
 typedef enum{
 	POS_1,
@@ -354,6 +357,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 	static bool_e flag_error;
 	static Uint8 nb_modules_at_entrance;
+	CAN_msg_t can_msg;
 
 	switch(state){
 		case INIT:
@@ -364,6 +368,14 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 		case GET_IN:
 			state = check_sub_action_result(sub_harry_get_in_depose_modules_centre(drop_place), state, DOWN_PUSHER, ERROR);
+
+			if(ON_LEAVE() && state == DOWN_PUSHER){
+				can_msg.sid = PROP_TRANSPARENCY;
+				can_msg.size = SIZE_PROP_TRANSPARENCY;
+				can_msg.data.prop_transparency.enable = TRUE;
+				can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_BIG;
+				CAN_send(&can_msg);
+			}
 			break;
 
 		case GO_TO_DEPOSE_MODULE:
@@ -643,6 +655,13 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,ACT_CYLINDER_PUSHER_LEFT_IDLE);
 				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,ACT_CYLINDER_PUSHER_RIGHT_IDLE);
 			}
+			// Envoi de la libération de la zone de transparence
+			can_msg.sid = PROP_TRANSPARENCY;
+			can_msg.size = SIZE_PROP_TRANSPARENCY;
+			can_msg.data.prop_transparency.enable = FALSE;
+			can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_BIG;
+			CAN_send(&can_msg);
+
 			RESET_MAE();
 			on_turning_point();
 			return NOT_HANDLED;
@@ -653,6 +672,13 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				state = ERROR;
 			}
 			else{
+				// Envoi de la libération de la zone de transparence
+				can_msg.sid = PROP_TRANSPARENCY;
+				can_msg.size = SIZE_PROP_TRANSPARENCY;
+				can_msg.data.prop_transparency.enable = FALSE;
+				can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_BIG;
+				CAN_send(&can_msg);
+
 				RESET_MAE();
 				on_turning_point();
 				return END_OK;

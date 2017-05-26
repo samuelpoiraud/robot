@@ -16,6 +16,10 @@
 #include "../../propulsion/prop_functions.h"
 #include "../avoidance.h"
 
+
+// Zone filtré pour le petit robot
+#define FILTER_ZONE_FOR_SMALL	(9)
+
 typedef enum
 {
 	DZONE0_BLUE_OUTDOOR,
@@ -1182,6 +1186,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 	static color_e color_side;
 	static displacement_t output_curve[2];
 	static Uint8 nb_try_extract_from_rush_to_a;
+	CAN_msg_t can_msg;
 	switch(state)
 	{
 		case INIT:
@@ -1283,6 +1288,14 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			state = ASTAR_try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case RUSH_TO_GOAL:
+			if(entrance){
+				// Envoi du filtrage de la zone de transparence
+				can_msg.sid = PROP_TRANSPARENCY;
+				can_msg.size = SIZE_PROP_TRANSPARENCY;
+				can_msg.data.prop_transparency.enable = TRUE;
+				can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_SMALL;
+				CAN_send(&can_msg);
+			}
 			state = try_rush(G.x, G.y, state, EXTRACT_FROM_RUSH_TO_A, EXTRACT_FROM_RUSH_TO_A, FORWARD, NO_DODGE_AND_WAIT, TRUE);
 			if(ON_LEAVE())
 			{
@@ -1481,12 +1494,26 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			state = try_going_multipoint(	output_curve, 2, state, DONE, EXTRACT_BEYOND_F0, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case ERROR:
+			// Envoi de la libération de la zone de transparence
+			can_msg.sid = PROP_TRANSPARENCY;
+			can_msg.size = SIZE_PROP_TRANSPARENCY;
+			can_msg.data.prop_transparency.enable = FALSE;
+			can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_SMALL;
+			CAN_send(&can_msg);
+
 			RESET_MAE();
 			on_turning_point();
 			ret = NOT_HANDLED;
 			break;
 
 		case DONE:
+			// Envoi de la libération de la zone de transparence
+			can_msg.sid = PROP_TRANSPARENCY;
+			can_msg.size = SIZE_PROP_TRANSPARENCY;
+			can_msg.data.prop_transparency.enable = FALSE;
+			can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_SMALL;
+			CAN_send(&can_msg);
+
 			RESET_MAE();
 			on_turning_point();
 			ret = END_OK;
