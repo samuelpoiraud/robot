@@ -2617,8 +2617,8 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			else if(state1 != IN_PROGRESS)// En cas d'erreur : on est sur que la pompe était allumé mais on a rien ventousé
 			{
 				// On continue si on pompe un objet ou si la pompe est considéré OFF (ce qui signifie une perte de communication)
-				if((moduleToTake == RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)
-				|| (moduleToTake == LEFT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)){
+				if((moduleToTake == RIGHT && ACT_get_state_vacuostat(VACUOSTAT_SLIDER_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)
+				|| (moduleToTake == LEFT && ACT_get_state_vacuostat(VACUOSTAT_SLIDER_LEFT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)){
 					// On met à jour les données : Passage du module dans la position POS_ENTRY
 					if(moduleToTake == RIGHT){
 						needToStoreRight = TRUE;
@@ -2633,6 +2633,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				}
 				else
 				{
+					// Erreur : on a rien pris avec le slider
 					if(moduleToTake == RIGHT){	// On a rien pris à droite
 						moduleToTake = LEFT;
 						takeNothingRight = TRUE;
