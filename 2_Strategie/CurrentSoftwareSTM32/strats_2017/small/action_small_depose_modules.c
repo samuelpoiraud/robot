@@ -992,139 +992,6 @@ static error_e sub_ExtractMoonbase(dispose_zone_t dzone)
 }
 
 
-#if 0
-error_e sub_anne_get_in_depose_modules_centre(moduleTypeDominating_e module_type, moduleStockLocation_e robot_side, ELEMENTS_side_match_e basis_side){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_GET_IN_DEPOSE_MODULES_CENTRE,
-			INIT,
-			GET_IN_POS_1,
-			GET_IN_POS_2,
-			GET_IN_POS_3,
-			GET_IN_POS_4,
-			GET_IN_POS_5,
-			GET_IN_POS_6,
-			ERROR,
-			DONE
-		);
-//color Y
-	switch(state){
-		case INIT:
-			if((module_type == MODULE_POLY_DOMINATING) && (basis_side == OUR_SIDE)){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
-					state = GET_IN_POS_3;  //notre depose de notre cote  SIM 6
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_SIDE)<6){
-					state = GET_IN_POS_1;
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_SIDE)<6){
-					state = GET_IN_POS_5;
-				}else{
-					state = ERROR;
-				}
-			}else if(basis_side == OUR_SIDE){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
-					state = GET_IN_POS_2;  //notre depose de notre cote  SIM 6
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
-					state = GET_IN_POS_4;
-				}else{
-					state = ERROR;
-				}
-			}else if((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == OUR_SIDE)){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
-					state = GET_IN_POS_3;  //notre depose de notre cote  SIM 6
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
-					state = GET_IN_POS_1;
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_CENTER)<6){
-					state = GET_IN_POS_5;
-				}else{
-					state = ERROR;
-				}
-
-			}else if(((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))\
-					|| ((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_RIGHT) && (basis_side == ADV_SIDE))){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
-					state = GET_IN_POS_4;  //notre depose de notre cote  SIM 6
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)<6){
-					state = GET_IN_POS_2;
-				}else{
-					state = ERROR;
-				}
-
-			}else if(((module_type == MODULE_MONO_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))\
-					||((module_type == MODULE_POLY_DOMINATING) && (robot_side == MODULE_STOCK_LEFT) && (basis_side == ADV_SIDE))){
-				if(MOONBASES_getNbModules(MODULE_MOONBASE_ADV_SIDE)<6){
-					state = GET_IN_POS_5;  //notre depose de notre cote  SIM 6
-				}else if(MOONBASES_getNbModules(MODULE_MOONBASE_MIDDLE)<6){
-					state = GET_IN_POS_3;
-				}else{
-					state = ERROR;
-				}
-
-			/*}else if((module_type == ADV_ELEMENT) && (basis_side == ADV_SIDE)){
-				state = GET_IN_POS_6; //centre depose du cote adv SIM 1
-*/
-
-			}else{
-				state = ERROR;
-			}
-			//ce manager me gonfle je met ça pour mon test on verra à après pour le manager.
-			state = GET_IN_POS_3;
-			break;
-
-		case GET_IN_POS_1:
-			if(entrance){
-				drop_zone_bis = POS_1;
-			}
-			state = check_sub_action_result(sub_anne_get_in_pos_1_depose_module_centre(), state, DONE, ERROR);
-			break;
-
-		case GET_IN_POS_2:
-			if(entrance){
-				drop_zone_bis = POS_2;
-			}
-			state = check_sub_action_result(sub_anne_get_in_pos_2_depose_module_centre(), state, DONE, ERROR);
-			break;
-
-		case GET_IN_POS_3:
-			if(entrance){
-				drop_zone_bis = POS_3;
-			}
-			state = check_sub_action_result(sub_anne_get_in_pos_3_depose_module_centre(), state, DONE, ERROR);
-			break;
-
-		case GET_IN_POS_4:
-			if(entrance){
-				drop_zone_bis = POS_4;
-			}
-			state = check_sub_action_result(sub_anne_get_in_pos_4_depose_module_centre(), state, DONE, ERROR);
-			break;
-
-		case GET_IN_POS_5:
-			if(entrance){
-				drop_zone_bis = POS_5;
-			}
-			state = check_sub_action_result(sub_anne_get_in_pos_5_depose_module_centre(), state, DONE, ERROR);
-			break;
-
-		case GET_IN_POS_6:
-			if(entrance){
-				drop_zone_bis = POS_6;
-			}
-			state = check_sub_action_result(sub_anne_get_in_pos_6_depose_module_centre(), state, DONE, ERROR);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-#endif
-
 
 
 /*
@@ -1153,6 +1020,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DISPOSE_MODULES_SIDE,
 			INIT,
 			GET_IN,
+			GET_IN_FROM_OUR_ROCKET,
 			GET_IN_FROM_BLUE_ROCKET,
 			GET_IN_FROM_YELLOW_ROCKET,
 			GET_IN_VIA_SOUTH_FROM_BLUE_ROCKET,
@@ -1212,6 +1080,8 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 					state = GET_IN;
 				else if(i_am_in_square(300,500,1500,2000))	//Après la prise de notre fusée jaune !
 					state = GET_IN_FROM_YELLOW_ROCKET;
+				else if(i_am_in_square(300,500,1000,1500))
+					state = GET_IN_FROM_OUR_ROCKET;
 				else
 					state = ASTAR_GET_IN;
 			}
@@ -1232,12 +1102,18 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 					state = GET_IN;
 				else if(i_am_in_square(0,500,1000,1500))	//Après la prise de notre fusée jaune !
 					state = GET_IN_FROM_BLUE_ROCKET;
+				else if(i_am_in_square(300,500,1500,2000))
+					state = GET_IN_FROM_OUR_ROCKET;
 				else
 					state = ASTAR_GET_IN;
 			}
 			break;
 		case GET_IN:
-			state = try_going(A.x, A.y, state, RUSH_TO_GOAL, ASTAR_GET_IN, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(A.x, A.y, state, RUSH_TO_GOAL, ASTAR_GET_IN, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;
+
+		case GET_IN_FROM_OUR_ROCKET:
+			state = try_going(800, COLOR_Y(800), state, GET_IN, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 		case GET_IN_FROM_BLUE_ROCKET:
 			//TODO ajouter prise du module polychrome sur cette courbe ?
@@ -1274,6 +1150,8 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 					state = GET_IN_VIA_SOUTH_FROM_YELLOW_ROCKET;
 			}
 			break;
+
+
 		case GET_IN_VIA_SOUTH_FROM_YELLOW_ROCKET:
 		/*	state = try_going_multipoint(	(displacement_t []) {
 											(displacement_t) { (GEOMETRY_point_t){1200, 1200}, FAST},
@@ -1534,219 +1412,6 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 	return ret;
 }
 
-#if 0
-error_e sub_anne_dispose_modules_side(ELEMENTS_property_e modules){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DISPOSE_MODULES_SIDE,
-			INIT,
-			GET_IN,
-			COMPUTE,
 
-			GO_TO_BLUE,
-			OPEN_MULTIFONCTION_BLUE,
-			RUSH_BLUE,
-			CLOSE_PUSHER_BLUE,
-			AVANCE_BLUE,
-			ENABLE_MAGIC_BLUE,
-			COMPUTE_LITTLE_MOVE_BACK_BLUE,
-			LITTLE_MOVE_BACK_BLUE,
-			LITTLE_MOVE_BACK_ERROR_BLUE,
-			MOVE_BACK_BLUE,
-			GET_OUT_BLUE,
-
-			GO_TO_YELLOW,
-			OPEN_MULTIFONCTION_YELLOW,
-			RUSH_YELLOW,
-			CLOSE_PUSHER_YELLOW,
-			AVANCE_YELLOW,
-			ENABLE_MAGIC_YELLOW,
-			COMPUTE_LITTLE_MOVE_BACK_YELLOW,
-			LITTLE_MOVE_BACK_YELLOW,
-			LITTLE_MOVE_BACK_ERROR_YELLOW,
-			MOVE_BACK_YELLOW,
-			GET_OUT_YELLOW,
-
-			ERROR,
-			DONE
-		);
-
-#define TIMEOUT_COLOR	(4000)  // Temps au dela duquel on arrête de tourner le module, on a échoué a détecté la couleur
-	static time32_t time_timeout = 0;
-	Uint8 pos_get_in;
-	Uint8 passage;
-
-	static Uint8 nb_cylinder_in_basis = 0;
-	static Sint16 tryx, tryy;
-
-	switch(state){
-		case INIT:
-			state = GET_IN;
-			break;
-
-		case GET_IN:
-			state = check_sub_action_result(sub_anne_return_modules_side_get_in(modules), state, COMPUTE, ERROR);
-			break;
-
-		case COMPUTE:
-			if(((modules == OUR_ELEMENT)&&(global.color == BLUE)) || ((modules == ADV_ELEMENT)&&(global.color == YELLOW))){
-				state = GO_TO_BLUE;
-			}else if(((modules == ADV_ELEMENT)&&(global.color == BLUE)) || ((modules == OUR_ELEMENT)&&(global.color == YELLOW))){
-				state = GO_TO_YELLOW;
-			}else
-				state = ERROR;
-			break;
-
-		case GO_TO_BLUE:
-			state = try_going(750, 300, state, OPEN_MULTIFONCTION_BLUE, GET_OUT_BLUE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case OPEN_MULTIFONCTION_BLUE:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, RUSH_BLUE, RUSH_BLUE);
-#warning 'je vois pas quoi mettre en cas d\'erreur'
-			break;
-
-		case RUSH_BLUE:
-			/*if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
-			}*/
-			state = try_rush(1450, 300, state, CLOSE_PUSHER_BLUE, MOVE_BACK_BLUE, BACKWARD, NO_DODGE_AND_WAIT, TRUE);
-			if(ON_LEAVE()){
-				nb_cylinder_in_basis = (1200 - global.pos.x)/100;
-			}
-			break;
-
-		case CLOSE_PUSHER_BLUE:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE_BLUE, MOVE_BACK_BLUE);
-			break;
-
-		case AVANCE_BLUE:
-			state = try_going(1450, 300, state, ENABLE_MAGIC_BLUE, MOVE_BACK_BLUE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-#warning 'il faut mettre autre chose que move back pour retourner ce qui est déjà accessible'
-			break;
-
-		case ENABLE_MAGIC_BLUE:
-			state = check_sub_action_result(sub_act_anne_return_module(), state, COMPUTE_LITTLE_MOVE_BACK_BLUE, MOVE_BACK_BLUE);
-#warning 'quelles sont les raisons possibles d\'une erreur ?'
-			break;
-
-		case COMPUTE_LITTLE_MOVE_BACK_BLUE:
-			if(global.pos.y>(1800 - nb_cylinder_in_basis*100))
-				state = LITTLE_MOVE_BACK_BLUE;
-			else
-				state = MOVE_BACK_BLUE;
-			break;
-
-		case LITTLE_MOVE_BACK_BLUE:
-			state = try_advance(NULL, entrance, 100, state, ENABLE_MAGIC_BLUE, LITTLE_MOVE_BACK_ERROR_BLUE, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case LITTLE_MOVE_BACK_ERROR_BLUE:{
-			if(entrance){
-				Uint8 nb_module_returned = 0;
-				nb_module_returned = (1800 - global.pos.x)/70;
-				tryy = 1200 - 100*nb_module_returned;
-			}
-			state = try_going(tryx, 300, state, LITTLE_MOVE_BACK_BLUE, LITTLE_MOVE_BACK_BLUE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-		}
-		break;
-
-		case MOVE_BACK_BLUE:
-			state = try_going(700, 300, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-#warning 'OUPS! j\'ai très mal négocié les get out, faut revoir la fin'
-
-		case GO_TO_YELLOW:
-			state = try_going(750, 2700, state, OPEN_MULTIFONCTION_YELLOW, GET_OUT_YELLOW, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case OPEN_MULTIFONCTION_YELLOW:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, RUSH_BLUE, RUSH_BLUE);
-#warning 'je vois pas quoi mettre en cas d\'erreur'
-			break;
-
-		case RUSH_YELLOW:
-/*			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
-			}*/
-			state = try_rush(1100, 2700, state, CLOSE_PUSHER_YELLOW, MOVE_BACK_YELLOW, FORWARD, NO_DODGE_AND_WAIT, TRUE);
-			if(ON_LEAVE()){
-				nb_cylinder_in_basis = (1200 - global.pos.x)/100;
-			}
-			break;
-
-		case CLOSE_PUSHER_YELLOW:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, AVANCE_YELLOW, MOVE_BACK_YELLOW);
-			break;
-
-		case AVANCE_YELLOW:
-			state = try_going(1200, 2700, state, ENABLE_MAGIC_YELLOW, MOVE_BACK_YELLOW, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-#warning 'il faut mettre autre chose que move back pour retourner ce qui est déjà accessible'
-			break;
-
-		case ENABLE_MAGIC_YELLOW:
-			state = check_sub_action_result(sub_act_anne_return_module(), state, COMPUTE_LITTLE_MOVE_BACK_YELLOW, MOVE_BACK_YELLOW);
-#warning 'quelles sont les raisons possibles d\'une erreur ?'
-			break;
-
-		case COMPUTE_LITTLE_MOVE_BACK_YELLOW:
-			if(global.pos.y>(1200+nb_cylinder_in_basis*100))
-				state = LITTLE_MOVE_BACK_YELLOW;
-			else
-				state = MOVE_BACK_YELLOW;
-			break;
-
-		case LITTLE_MOVE_BACK_YELLOW:
-			state = try_advance(NULL, entrance, 100, state, ENABLE_MAGIC_YELLOW, LITTLE_MOVE_BACK_ERROR_YELLOW, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case LITTLE_MOVE_BACK_ERROR_YELLOW:{
-			if(entrance){
-				Uint8 nb_module_returned = 0;
-				nb_module_returned = (1800 - global.pos.x)/70;
-				tryx = 1800 - 70*nb_module_returned;
-			}
-			state = try_going(tryx, 2700, state, LITTLE_MOVE_BACK_YELLOW, LITTLE_MOVE_BACK_YELLOW, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-		}
-		break;
-
-		case MOVE_BACK_YELLOW:
-			state = try_going(1000, 2700, state, DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			on_turning_point();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			on_turning_point();
-			return END_OK;
-			break;
-
-		default:
-			if(entrance)
-			{
-				error_printf("default case in sub_anne_return_side\n");
-			}
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-#endif
 
 
