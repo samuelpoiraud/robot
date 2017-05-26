@@ -483,7 +483,7 @@ void CAN_update (CAN_msg_t* incoming_msg)
 			Uint8 error_code = incoming_msg->data.act_error.error_code;
 			if(error_code == ACT_ERROR_OVERHEATING){
 				error_printf("Surchauffe servomoteur, id = %d", incoming_msg->data.act_error.idAct);
-			}else if (error_code == ACT_ERROR_TORQUE_TOO_HIGH){
+			}else if (error_code == ACT_ERROR_OVERLOAD){
 				error_printf("Couple du servo trop élevé, id = %d", incoming_msg->data.act_error.idAct);
 			}else{
 				error_printf("Error servomoteur, id = %d", incoming_msg->data.act_error.idAct);
