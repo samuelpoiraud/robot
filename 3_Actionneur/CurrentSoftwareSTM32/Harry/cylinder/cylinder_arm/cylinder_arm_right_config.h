@@ -20,7 +20,7 @@
 	#define CYLINDER_ARM_RIGHT_RX24_SPEED						15		// Vitesse par défaut du RX24
 
 //Position
-    #define CYLINDER_ARM_RIGHT_RX24_IDLE_POS					386
+    #define CYLINDER_ARM_RIGHT_RX24_IDLE_POS					388
     #define CYLINDER_ARM_RIGHT_RX24_IN_POS			     		401	//en degré (+15 par rapport à IDLE_POS)
 	#define CYLINDER_ARM_RIGHT_RX24_PREPARE_TO_TAKE_POS			488	//en degré
 	#define CYLINDER_ARM_RIGHT_RX24_TAKE_POS			     	457	//en degré
