@@ -75,7 +75,7 @@ bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 
 	debug_printf("Nouveau selftest, test de %d actionneurs\n", expected_act_num);
 
-	queue_id_t queueId = QUEUE_create();
+	queue_id_t queueId = QUEUE_create(NB_ACT);
 	QUEUE_add(queueId, &SELFTEST_run, (QUEUE_arg_t){0, 0}, 0);
 
 	return TRUE;
@@ -83,7 +83,7 @@ bool_e SELFTEST_new_selftest(Uint8 nb_actionneurs) {
 
 void SELFTEST_set_actions(action_t action, Uint8 action_num, const SELFTEST_action_t actions[]) {
 	Uint8 i, j;
-	queue_id_t queueId = QUEUE_create();
+	queue_id_t queueId = QUEUE_create(NB_ACT);
 
 	//contient la liste des actionneurs dont on a déjà fait QUEUE_take_sem
 	Uint8 act_locked_count = 0;

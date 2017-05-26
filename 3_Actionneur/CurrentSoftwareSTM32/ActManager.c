@@ -182,7 +182,7 @@ void ACTMGR_reset_config() {
 void ACTMGR_reset_act() {
 	queue_id_t queueId;
 
-	queueId = QUEUE_create();
+	queueId = QUEUE_create(NB_ACT);
 	QUEUE_add(queueId, &ACTMGR_run_reset_act, (QUEUE_arg_t){0, 0, NULL}, 0);
 }
 
