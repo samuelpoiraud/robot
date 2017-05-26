@@ -108,39 +108,65 @@ void PROP_stayPosition(corrector_e corrector){
 	CAN_send(&order);
 }
 
+void PROP_init_moveAndDetection_data(PROP_moveAndDetection_data_s * data){
+	data->avoidanceInTraj = FALSE;
+	data->avoidanceInTrajWithWait = FALSE;
+}
 
-
-error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_trajectory, Uint8 idLastTraj, STRAT_endCondition_e end_condition, time32_t begin_time){
+error_e wait_move_and_wait_detection(PROP_moveAndDetection_data_s * data, trajectory_e trajectory_type, Uint8 nb_trajectory, Uint8 idLastTraj, avoidance_type_e avoidance_type, STRAT_endCondition_e end_condition, time32_t begin_time){
 
 	time32_t timeout_traj;
 	error_e ret = IN_PROGRESS;
-
-	// todo temps d'évitement
 
 	switch(trajectory_type){
 
 		case TRAJECTORY_AUTOMATIC_CURVE:
 		case TRAJECTORY_TRANSLATION:
 
+			if(global.prop.detected_foe){
+
+				if(avoidance_type == DODGE_AND_WAIT
+						|| avoidance_type == NO_DODGE_AND_WAIT){		// Pas besoin d'attendre on était en wait -> donc arrêté
+
+					data->avoidanceInTrajWithWait = TRUE;
+
+				}else{													// Sinon on attends un traj finie
+
+					data->avoidanceInTraj = TRUE;
+
+				}
+			}
+
 			if(nb_trajectory > 1)
 				timeout_traj = (GOTO_MULTI_POINT_TIMEOUT_TIME) * nb_trajectory;
 			else
 				timeout_traj = GOTO_TIMEOUT_TIME;
 
-			if(global.prop.idTrajActual == idLastTraj
-					&& (global.prop.ended
-						|| (global.prop.brake && end_condition == END_AT_BRAKE)
-						)
-					){
-				ret = END_OK;
+			if(data->avoidanceInTrajWithWait){
 
-			}else if(global.absolute_time - begin_time >= timeout_traj)
-				ret = END_WITH_TIMEOUT;
-			else if(global.prop.error)
+				ret = FOE_IN_PATH;
+
+			}else if(global.prop.error){
+
 				ret = NOT_HANDLED;
 
-			if(global.prop.detected_foe){
-				ret = FOE_IN_PATH;
+			}else if(global.absolute_time - begin_time >= timeout_traj){
+
+				ret = END_WITH_TIMEOUT;
+
+			}else if(global.prop.idTrajActual == idLastTraj){
+
+				// TODO faire un gestion plus propre avec un clean automatique de global.prop.detected_foe
+				if(global.prop.ended && (data->avoidanceInTraj || global.prop.detected_foe)){
+					ret = FOE_IN_PATH;
+				}else if(global.prop.ended || (global.prop.brake && end_condition == END_AT_BRAKE)){
+					ret = END_OK;
+				}
+
+			}else if(global.prop.idTrajActual == 0){	// GEstion spécifique pour un évitement lors d'une traj multipoint avec les id intermédiaire fixé à 0
+				if(global.prop.ended && (data->avoidanceInTraj || global.prop.detected_foe)){
+					ret = FOE_IN_PATH;
+				}
 			}
 			break;
 

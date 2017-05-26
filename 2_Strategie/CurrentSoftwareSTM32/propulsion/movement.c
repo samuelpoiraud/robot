@@ -90,6 +90,7 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 
 	static time32_t begin_time;
 	static Uint8 idTraj;
+	static PROP_moveAndDetection_data_s propData;
 
 	Uint8 ret = in_progress;
 
@@ -97,13 +98,14 @@ Uint8 try_go_angle(Sint16 angle, Uint8 in_progress, Uint8 success_state, Uint8 f
 	{
 		case GO:
 			idTraj = PROP_getNextIdTraj();
+			PROP_init_moveAndDetection_data(&propData);
 			begin_time = global.absolute_time;
 			PROP_goAngle(angle, PROP_ABSOLUTE, speed, way, FALSE, PROP_END_AT_POINT, idTraj);
 			state = WAIT;
 			break;
 
 		case WAIT:{
-			error_e sub_action = wait_move_and_wait_detection(TRAJECTORY_ROTATION, 1, idTraj, endCondition, begin_time);
+			error_e sub_action = wait_move_and_wait_detection(&propData, TRAJECTORY_ROTATION, 1, idTraj, NO_AVOIDANCE, endCondition, begin_time);
 
 			switch(sub_action)
 			{
@@ -264,16 +266,20 @@ Uint8 try_stop(Uint8 in_progress, Uint8 success_state, Uint8 fail_state)
 	);
 
 	static time32_t begin_time;
+	static Uint8 idTraj;
+	static PROP_moveAndDetection_data_s propData;
 
 	switch(state){
 		case GO :
+			idTraj = PROP_getNextIdTraj();
+			PROP_init_moveAndDetection_data(&propData);
 			begin_time = global.absolute_time;
 			PROP_stop();
 			state = WAIT;
 			break;
 
 		case WAIT :{
-			error_e subaction = wait_move_and_wait_detection(TRAJECTORY_STOP, 1, 0, END_AT_LAST_POINT, begin_time);
+			error_e subaction = wait_move_and_wait_detection(&propData, TRAJECTORY_STOP, 1, idTraj, NO_AVOIDANCE, END_AT_LAST_POINT, begin_time);
 			switch (subaction) {
 				case END_OK:
 					debug_printf("PROP_STOP effectué\n");
@@ -319,6 +325,7 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 	static bool_e timeout;
 	static time32_t begin_time;
 	static Uint8 idTraj;
+	static PROP_moveAndDetection_data_s propData;
 
 	Uint8 ret = in_progress;
 
@@ -332,6 +339,7 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 				PROP_set_acceleration(acceleration);
 
 			idTraj = PROP_getNextIdTraj();
+			PROP_init_moveAndDetection_data(&propData);
 			begin_time = global.absolute_time;
 			timeout = FALSE;
 			state = PUSH_ORDER;
@@ -344,7 +352,7 @@ Uint8 try_rushInTheWall(Sint16 angle, Uint8 in_progress, Uint8 success_state, Ui
 			break;
 
 		case WAIT:{
-			error_e subaction = wait_move_and_wait_detection(TRAJECTORY_TRANSLATION, 1, idTraj, END_AT_LAST_POINT, begin_time);
+			error_e subaction = wait_move_and_wait_detection(&propData, TRAJECTORY_TRANSLATION, 1, idTraj, NO_AVOIDANCE, END_AT_LAST_POINT, begin_time);
 			switch (subaction) {
 				case END_OK:
 				case NOT_HANDLED:
@@ -437,6 +445,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 	static time32_t beginTime;
 	static Uint8 idTraj;
 	static error_e sub_action;
+	static PROP_moveAndDetection_data_s propData;
 
 	switch(state)
 	{
@@ -450,6 +459,8 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 				RESET_MAE();
 				return NOT_HANDLED;
 			}
+
+			PROP_init_moveAndDetection_data(&propData);
 			state = LOAD_MOVE;
 			break;
 
@@ -488,7 +499,7 @@ error_e goto_pos_curve_with_avoidance(const displacement_t displacements[], cons
 			}break;
 
 		case WAIT_MOVE_AND_SCAN_FOE:
-			sub_action = wait_move_and_wait_detection(TRAJECTORY_TRANSLATION, nb_displacements, idTraj, end_condition, beginTime);
+			sub_action = wait_move_and_wait_detection(&propData, TRAJECTORY_TRANSLATION, nb_displacements, idTraj, avoidance_type, end_condition, beginTime);
 			switch(sub_action)
 			{
 				case END_OK:
@@ -796,6 +807,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 
 	static time32_t beginTime;
 	static Uint8 idTraj;
+	static PROP_moveAndDetection_data_s propData;
 
 	switch(state)
 	{
@@ -805,6 +817,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 			global.destination = displacements.point;
 
 			idTraj = PROP_getNextIdTraj();
+			PROP_init_moveAndDetection_data(&propData);
 			beginTime = global.absolute_time;
 			PROP_goTo(displacements.point.x, displacements.point.y, PROP_ABSOLUTE, FALSE, PROP_END_AT_POINT, displacements.speed, ANY_WAY, PROP_NO_CURVE, AVOID_ENABLED, PROP_NO_BORDER_MODE, idTraj);
 			debug_printf("goto_extract_with_avoidance : load_move\n");
@@ -812,7 +825,7 @@ static error_e goto_extract_with_avoidance(const displacement_t displacements)
 			break;
 
 		case WAIT_MOVE_AND_SCAN_FOE:{
-			error_e subaction = wait_move_and_wait_detection(TRAJECTORY_TRANSLATION, 1, idTraj, END_AT_LAST_POINT, beginTime);
+			error_e subaction = wait_move_and_wait_detection(&propData, TRAJECTORY_TRANSLATION, 1, idTraj, AVOID_ENABLED, END_AT_LAST_POINT, beginTime);
 			switch(subaction)
 			{
 				case END_OK:
