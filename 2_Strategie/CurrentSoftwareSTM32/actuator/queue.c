@@ -77,6 +77,7 @@ void QUEUE_init()
 		queues[i].end_index = 0;
 		queues[i].error_occured = FALSE;
 		queues[i].initial_time_of_current_action = 0;
+		queues[i].initial_time_of_re_send_msg = 0;
 	}
 
 	CLOCK_init();
@@ -115,7 +116,7 @@ time32_t QUEUE_get_initial_time_of_re_send_msg(queue_id_e queue_id){
 
 void QUEUE_set_initial_time_of_re_send_msg(queue_id_e queue_id, time32_t initial_time){
 	assert(queue_id < NB_QUEUE);
-	queues[queue_id].initial_time_of_current_action = initial_time;
+	queues[queue_id].initial_time_of_re_send_msg = initial_time;
 }
 
 void QUEUE_run()
