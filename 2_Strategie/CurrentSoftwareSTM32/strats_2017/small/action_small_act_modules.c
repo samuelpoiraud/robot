@@ -1333,7 +1333,7 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 
 			// On exit
 			if(ON_LEAVE()){
-				STOCKS_makeModuleProgressTo(STOCK_PLACE_COLOR_TO_ARM_DISPOSE, MODULE_STOCK_SMALL);
+				STOCKS_makeModuleProgressTo(STOCK_PLACE_CLEAR_ARM_DISPOSE, MODULE_STOCK_SMALL);
 			}
 			break;
 
