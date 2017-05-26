@@ -227,7 +227,7 @@ error_e sub_harry_depose_centre_manager(){
 
 		case ACTION_DISPOSE:
 			if(dispose_place != NO_POS){
-				state = check_sub_action_result(sub_harry_depose_modules_centre(dispose_place, robot_side), state, SUCCESS_DEPOSE, ERROR_DEPOSE);
+				state = check_sub_action_result(sub_harry_depose_modules_centre(dispose_place, robot_side), state, SUCCESS_DEPOSE, SUCCESS_DEPOSE); // On force SUCESS_DEPOSE même en cas d'erreur pour faire une dépose side.
 			}else{
 				state = DONE;
 			}
@@ -398,6 +398,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				// En cas d'erreur mais qu'on a quand même enlevé un cylindre du stock du robot, on considère que c'est bon
 				// Typiquement, le module du balancer en préparation sort du robot en même temps que le module précédent
 				if(state == GET_OUT_WITH_ERROR){
+					error_printf("nbModules before = %d, after = %d\n", nb_modules_at_entrance, STOCKS_getNbModules(robot_side));
 					if(STOCKS_getNbModules(robot_side) < nb_modules_at_entrance){
 						state = TIGHT_BACKWARD;
 					}
