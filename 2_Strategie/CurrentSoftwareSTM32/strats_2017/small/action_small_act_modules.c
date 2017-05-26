@@ -1169,7 +1169,11 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 			UNFOLD_DISPOSE_SERVO,
 			GO_TO_DISPOSE_POS,
 			DISPOSE_CYLINDER,
-			ARM_BACK_AND_WAIT_FALL,
+			ARM_BACK_TO_WAIT_FALL,
+			DISPOSE_AWAY_TO_WAIT_FALL,
+			ARM_CLOSE_TO_WAIT_FALL,
+			PUT_ARM_AWAY_TO_PROTECT_DISPOSE,
+			ENABLE_SUB_PREPARE_MODULE,
 
 			CHOOSE_ARM_STORAGE_POS,
 			S1_MOVE_DISPOSE_SERVO,
@@ -1306,40 +1310,71 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 
 			// Pas de vérification ici car les pompes retournent toujours vrai
 			if(global.absolute_time > time_timeout){
-				state = ARM_BACK_AND_WAIT_FALL;
+				state = ARM_BACK_TO_WAIT_FALL;
 
 				// Mettre à jour les données
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_CLEAR_ARM_DISPOSE, MODULE_STOCK_SMALL);
 			}
 			break;
 
-		case ARM_BACK_AND_WAIT_FALL:
-			if(entrance){
+		case ARM_BACK_TO_WAIT_FALL:
+			//On veut coller le bras au robot pour empecher la chute
+			//premiere etape : ecarter l'arm
+			if(entrance)
+			{
 				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_TAKE);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, DISPOSE_AWAY_TO_WAIT_FALL, DISPOSE_AWAY_TO_WAIT_FALL);
+			break;
+
+		case DISPOSE_AWAY_TO_WAIT_FALL:
+			//On veut coller le bras au robot pour empecher la chute
+			//deuxieme etape : ecarter le dispose
+			if(entrance)
+			{
+				ACT_push_order(ACT_SMALL_CYLINDER_DISPOSE, ACT_SMALL_CYLINDER_DISPOSE_DISPOSE);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_dispose, state, ARM_CLOSE_TO_WAIT_FALL, ARM_CLOSE_TO_WAIT_FALL);
+			break;
+
+		case ARM_CLOSE_TO_WAIT_FALL:
+			//On veut coller le bras au robot pour empecher la chute
+			//premiere etape : rapprocher l'arm
+			if(entrance)
+			{
+				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_PROTECT_FALL);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, ENABLE_SUB_PREPARE_MODULE, ENABLE_SUB_PREPARE_MODULE);
+			break;
+
+		case ENABLE_SUB_PREPARE_MODULE:
+			if(entrance){
 				timeout = global.absolute_time + 3000;
 				if(anotherDisposeWillFollow){
 					sub_act_anne_mae_prepare_modules_for_dispose(TRUE);
 				}
-
-				stateAct = IN_PROGRESS;
 			}
-
-			if(stateAct == IN_PROGRESS){
-				stateAct = check_act_status(ACT_QUEUE_Small_cylinder_arm, IN_PROGRESS, END_OK, NOT_HANDLED);
+			if(!anotherDisposeWillFollow || ELEMENTS_get_flag(FLAG_SMALL_BALANCER_FINISH)){
+				state = PUT_ARM_AWAY_TO_PROTECT_DISPOSE;
 			}
-
-			if(stateAct != IN_PROGRESS){
-				if(!anotherDisposeWillFollow || ELEMENTS_get_flag(FLAG_SMALL_BALANCER_FINISH)){
-					state = CHOOSE_ARM_STORAGE_POS;
-				}
-				if(global.absolute_time > timeout)
-					state = CHOOSE_ARM_STORAGE_POS;	//rustine dégeu si le flag ne s'est pas levé !
+			if(global.absolute_time > timeout){
+				state = PUT_ARM_AWAY_TO_PROTECT_DISPOSE;	//rustine dégeu si le flag ne s'est pas levé !
 			}
 
 			// On exit
 			if(ON_LEAVE()){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_CLEAR_ARM_DISPOSE, MODULE_STOCK_SMALL);
 			}
+			break;
+
+		case PUT_ARM_AWAY_TO_PROTECT_DISPOSE:
+			//On a rapproché l'arm pour securiser la prise
+			//il faut l'en eloigner
+			if(entrance)
+			{
+				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_PROTECT_FALL);
+			}
+			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, CHOOSE_ARM_STORAGE_POS, CHOOSE_ARM_STORAGE_POS);
 			break;
 
 		case CHOOSE_ARM_STORAGE_POS:
@@ -1381,7 +1416,6 @@ error_e sub_act_anne_mae_dispose_modules(arg_dipose_mae_e arg_dispose){
 
 			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, DONE, DONE);
 			break;
-
 
 		case DONE:
 			RESET_MAE();
