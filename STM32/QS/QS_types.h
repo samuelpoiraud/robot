@@ -219,6 +219,20 @@
 			// Flag de filtrage des zones d'évitement lorsque Anne fait une dépose side
 			FLAG_ACTIVATE_FILTER_ANNE_DEPOSE_SIDE,
 
+			//Flag de déclaration qu'on file à notre dépose side... (sous entendu : on ne lèvera ce flag que s'il n'est pas déjà levé par l'autre)
+			FLAG_HARRY_IS_GETTING_TO_OUR_SIDE_TO_DISPOSE,
+			FLAG_ANNE_IS_GETTING_TO_OUR_SIDE_TO_DISPOSE,
+
+			//Anne donne l'autorisation à harry d'aller déposer au middle, autorisation indispensable pour lui !
+			FLAG_ANNE_GIVE_AUTORISATION_TO_HARRY_TO_DISPOSE_MIDDLE,
+
+			//on a terminé la dépose our middle, on autorise Anne à se rendre protéger
+			//ATTENTION, ne lever ce flag que si on est franchement sorti de la zone de dépose.
+			FLAG_HARRY_GIVE_AUTORISATION_TO_ANNE_TO_PROTECT_OUR_MIDDLE,
+
+			//ATTENTION, lever ce flag dès que harry décide d'aller poser au middle (suite à l'autorisation d'Anne)
+			FLAG_HARRY_ACCEPT_AND_EXPLOIT_THE_AUTORISATION_TO_DIPOSE_MIDDLE,
+
 			F_ELEMENTS_FLAGS_END_SYNCH,	//Les flags au-dessus seront synchro entre les deux robots
 
 			//Flags pour savoir si la comm passe entre les deux robots

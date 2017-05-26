@@ -315,6 +315,11 @@ bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEME
 				default:
 					break;
 			}
+
+			//Si Harry a demandé à se rendre à la zone side, on se refuse à le rejoindre... bien que ça puisse être une partie de plaisir
+			if(mb == MODULE_MOONBASE_OUR_SIDE && ELEMENTS_get_flag(FLAG_HARRY_IS_GETTING_TO_OUR_SIDE_TO_DISPOSE))
+				malus = 4;
+
 			if(malus)
 			{
 				moonbases_score[mb] -= malus;
@@ -351,6 +356,8 @@ bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEME
 		debug_printf("Zone retenue : %d - %s\n",*moonbase, MOONBASES_toString(*moonbase));
 		ret = TRUE;	//On a trouvé une zone !!! champomy !
 
+		if(*moonbase == MODULE_MOONBASE_OUR_SIDE)
+			ELEMENTS_set_flag(FLAG_ANNE_IS_GETTING_TO_OUR_SIDE_TO_DISPOSE, TRUE);
 
 		//TODO choix du côté...
 		/*A- Si la zone est notre zone du milieu :
