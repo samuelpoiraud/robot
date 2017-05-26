@@ -169,7 +169,7 @@ error_e sub_cross_rocker(void){
 			break;
 
 		case CROSS_END:
-			state = try_going(180, COLOR_Y(850), state, CORRECT_ODOMETRY_MATH, CROSS_END, 16, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			state = try_going(180, COLOR_Y(875), state, CORRECT_ODOMETRY_MATH, CROSS_END, 16, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case MOVE_BACK:
