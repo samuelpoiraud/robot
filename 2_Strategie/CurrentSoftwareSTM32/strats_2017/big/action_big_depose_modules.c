@@ -237,7 +237,11 @@ error_e sub_harry_depose_centre_manager(){
 		case COMPUTE:
 			//A enlever si la dépose side foire.
 			if((depose_left == TRUE || depose_right == TRUE) && depose_side == FALSE){
-				state = DEPOSE_SIDE;
+				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 || STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0)
+					state = DEPOSE_SIDE;
+				else {
+					state = CHOOSE_ROBOT_SIDE;
+				}
 				depose_side = TRUE;
 			}
 			else if( (depose_left == FALSE && nb_try_left >= 3 && depose_right == FALSE && nb_try_right >= 3) ||\
@@ -272,18 +276,24 @@ error_e sub_harry_depose_centre_manager(){
 			break;
 
 		case DEPOSE_SIDE:
-			if(robot_side == MODULE_STOCK_LEFT){
-				state = check_sub_action_result(sub_harry_depose_modules_side(LEFT, OUR_SIDE), state, SECONDE_DEPOSE_SIDE, ERROR);
-			}else{
-				state = check_sub_action_result(sub_harry_depose_modules_side(RIGHT, OUR_SIDE), state, SECONDE_DEPOSE_SIDE, ERROR);
+			if(entrance){
+				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) <= STOCKS_getNbModules(MODULE_STOCK_LEFT)){
+					robot_side = MODULE_STOCK_LEFT;
+				}
+				else {
+					robot_side = MODULE_STOCK_RIGHT;
+				}
 			}
+			state = check_sub_action_result(sub_harry_depose_modules_side(robot_side, OUR_SIDE), state, SECONDE_DEPOSE_SIDE, ERROR);
+
 			break;
 
 		case SECONDE_DEPOSE_SIDE:
 			if(entrance){
-				if(STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0 && robot_side == MODULE_STOCK_RIGHT){
+				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) <= STOCKS_getNbModules(MODULE_STOCK_LEFT)){
 					robot_side = MODULE_STOCK_LEFT;
-				}else if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 && robot_side == MODULE_STOCK_LEFT){
+				}
+				else {
 					robot_side = MODULE_STOCK_RIGHT;
 				}
 			}
