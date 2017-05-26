@@ -96,9 +96,10 @@
 	#define PORT_OPT_B_3		PORT_OPT_NO_PULL
 		// Programmation
 
-	#define PORT_IO_B_4			PORT_IO_INPUT
-	#define PORT_OPT_B_4		PORT_OPT_NO_PULL
-		//
+	#define PORT_IO_B_4			PORT_IO_OUTPUT
+	#define PORT_OPT_B_4		PORT_OPT_PULL_DOWN
+		#define CS_LASER_ELEVATOR_PORT	GPIOB
+		#define CS_LASER_ELEVATOR_PIN	GPIO_Pin_4
 
 	#define PORT_IO_B_5			PORT_IO_INPUT
 	#define PORT_OPT_B_5		PORT_OPT_NO_PULL

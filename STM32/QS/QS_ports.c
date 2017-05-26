@@ -198,10 +198,10 @@ void PORTS_init(void){
 			(PORT_IO_B_13 << 13) |
 			(PORT_IO_B_14 << 14) |
 			(PORT_IO_B_15 << 15);
-	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_b_mask) & 0xFFFFFFEF; //JTDO/TRACESWO,
+	GPIO_InitStructure.GPIO_Pin = ((uint32_t)port_b_mask) & 0xFFFFFFFF; //JTDO/TRACESWO,
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_b_mask)) & 0xFFFFFFEF; //JTDO/TRACESWO
+	GPIO_InitStructure.GPIO_Pin = (~((uint32_t)port_b_mask)) & 0xFFFFFFFF; //JTDO/TRACESWO
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	PORTS_set_pull(GPIOB, GPIO_Pin_0, PORT_OPT_B_0);
