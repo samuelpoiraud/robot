@@ -491,10 +491,12 @@ error_e sub_harry_get_in_depose_minerais_alternative(){
 error_e sub_harry_depose_minerais_zone(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MINERAIS_ZONE,
 			INIT,
-			GET_IN_FROM_OUR_SQUARE,
-			GET_IN_MIDDLE_SQUARE,
-			GET_IN_FROM_ADV_SQUARE,
-			PATHFIND,
+			SORTIE_MODULE,
+			LINE_TO_PRE_SHOT,
+			POS_TO_PRE_SHOT,
+			STOP_TO_END,
+			GO_START_ZONE,
+			ASTAR_POS_TO_PRE_SHOT,
 			ERROR,
 			DONE
 		);
@@ -508,32 +510,48 @@ error_e sub_harry_depose_minerais_zone(){
 	// (400, 900)
 
 	switch(state){
+	/*
+	 * ou je suis pour deposer vite
+	 * 26/05/2017
+	 */
 		case INIT:
-			//si j'ai rien à déposer je vais en erreur
-			if(i_am_in_square_color(800,1400,300,900))
-				state=GET_IN_FROM_OUR_SQUARE;
-			else if(i_am_in_square_color(100,1100,900,2100))
-				state=DONE;//GET_IN_MIDDLE_SQUARE;
-			else if(i_am_in_square_color(800,1400,2100,2700))
-				state=GET_IN_FROM_ADV_SQUARE;
+			if(i_am_in_square_color(1200,1700,300,900))
+				//je sort de la depose module (1200, 300) (1700, 900)
+				state=SORTIE_MODULE;  //go //(1370, 630) => (1200, 950) => (400, 950)
+			else if(i_am_in_square_color(1600,1200,300,900))
+				// je sort de la prise de minerais  (600, 300) (1200, 900)
+				state=GO_START_ZONE; //go (800, 950)
 			else
-				state=PATHFIND;
+				state=GO_START_ZONE;
 			break;
 
-		case GET_IN_FROM_OUR_SQUARE:
-			state=try_going(1000,COLOR_Y(1100),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+		case SORTIE_MODULE:
+			state=try_going(1370,COLOR_Y(630), state, LINE_TO_PRE_SHOT, ASTAR_POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
-		case GET_IN_MIDDLE_SQUARE:
-			state=try_going(800,COLOR_Y(1000),state,GET_IN_FROM_OUR_SQUARE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+		case LINE_TO_PRE_SHOT:
+			state=try_going(1200,COLOR_Y(950), state, POS_TO_PRE_SHOT, POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
-		case GET_IN_FROM_ADV_SQUARE:
-			state=try_going(800,COLOR_Y(1850),state,GET_IN_MIDDLE_SQUARE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+		case POS_TO_PRE_SHOT:
+			// parallele tire des balles
+#warning 'activer le tire '
+			state=try_going(650,COLOR_Y(925), state , STOP_TO_END, STOP_TO_END, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
-		case PATHFIND:
-			state=ASTAR_try_going(600,COLOR_Y(1150),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+		case STOP_TO_END:
+			state=try_going(400,COLOR_Y(900), state , DONE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			//tire
+			break;
+
+		case GO_START_ZONE:
+			state=try_going(800,COLOR_Y(950), state , POS_TO_PRE_SHOT, ASTAR_POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case ASTAR_POS_TO_PRE_SHOT:
+			// parallele tire des balles
+#warning 'activer le tire '
+			state=try_going(680,COLOR_Y(930), state , POS_TO_PRE_SHOT, POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
 		case ERROR:
@@ -551,7 +569,6 @@ error_e sub_harry_depose_minerais_zone(){
 				debug_printf("default case in sub_harry_get_in_depose_minerais_alternative\n");
 			break;
 	}
-
 	return IN_PROGRESS;
 }
 
