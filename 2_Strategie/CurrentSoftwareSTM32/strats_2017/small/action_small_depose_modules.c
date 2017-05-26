@@ -941,7 +941,7 @@ error_e sub_from_our_rocket_to_dzone(dispose_zone_t dzone)
 				else
 					fail_state = GOTO_S2;	//Never happen...
 			}
-			state = try_going(S1.x, COLOR_Y(S1.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(S1.x, COLOR_Y(S1.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 		case GOTO_S2:
 			if(entrance)
@@ -958,7 +958,7 @@ error_e sub_from_our_rocket_to_dzone(dispose_zone_t dzone)
 				else
 					success_state = GOTO_S3;
 			}
-			state = try_going(S2.x, COLOR_Y(S2.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(S2.x, COLOR_Y(S2.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 		case GOTO_S3:
 			if(entrance)
@@ -978,7 +978,7 @@ error_e sub_from_our_rocket_to_dzone(dispose_zone_t dzone)
 				}
 			}
 			else
-				state = try_going(S3.x, COLOR_Y(S3.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(S3.x, COLOR_Y(S3.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 
@@ -993,7 +993,7 @@ error_e sub_from_our_rocket_to_dzone(dispose_zone_t dzone)
 				else
 					fail_state = GOTO_N2;	//Never happen...
 			}
-			state = try_going(N1.x, COLOR_Y(N1.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(N1.x, COLOR_Y(N1.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 
 			break;
 		case GOTO_N2:
@@ -1009,7 +1009,7 @@ error_e sub_from_our_rocket_to_dzone(dispose_zone_t dzone)
 				else
 					success_state = GOTO_N3;
 			}
-			state = try_going(N2.x, COLOR_Y(N2.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			state = try_going(N2.x, COLOR_Y(N2.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case GOTO_N3:
@@ -1055,7 +1055,7 @@ error_e sub_from_our_rocket_to_dzone(dispose_zone_t dzone)
 						goal = GOAL_DSIDE_BLUE;
 				}
 			}
-			state = try_going(goal.x, goal.y, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(goal.x, goal.y, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;}
 		case ERROR:
 			//Nous n'avons pas réussi à nous rendre au point demandé !
