@@ -276,6 +276,9 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 		COPILOT_do_order(order);
 		return;
 	}
+	//if(order->idTraj >=16)
+//		debug_printf("vive rcva, même sans Gargamel\n");
+
 
 
 	if(order->relative == PROP_RELATIVE) //Si l'ordre est relatif, c'est maintenant qu'il doit devenir absolu !
@@ -389,7 +392,7 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 			}
 			else
 			{
-				if(angle_a_parcourir<=-(HALF_PI4096*17)/20 || angle_a_parcourir >= (HALF_PI4096*17)/20)	//Si l'angle à parcourir est plus grand que PI/2 ou un petit peu moins -> rotation préalable.
+				if(global.vitesse_translation == 0 || angle_a_parcourir<=-(HALF_PI4096*17)/20 || angle_a_parcourir >= (HALF_PI4096*17)/20)	//Si l'angle à parcourir est plus grand que PI/2 ou un petit peu moins -> rotation préalable.
 				{
 					//debug_printf("rotation préalable courbe\r\n");
 					//On réécrit le reste de la trajectoire pour la suite...
@@ -413,8 +416,8 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 				else
 				{
 
-					#warning SAMUEL : décommente ça pour vérifier si c est dans ce cas qu on n effectue pas de rotation
-					debug_printf("DEBUG : Angle faible donc translation\n");
+				//	#warning SAMUEL : décommente ça pour vérifier si c est dans ce cas qu on n effectue pas de rotation
+				//	debug_printf("DEBUG : Angle faible donc translation\n");
 
 					order->trajectory = TRAJECTORY_TRANSLATION;
 				}
