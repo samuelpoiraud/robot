@@ -240,7 +240,7 @@ error_e sub_harry_depose_centre_manager(){
 				if(STOCKS_getNbModules(MODULE_STOCK_RIGHT) > 0 || STOCKS_getNbModules(MODULE_STOCK_LEFT) > 0)
 					state = DEPOSE_SIDE;
 				else {
-					state = CHOOSE_ROBOT_SIDE;
+					state = DONE;
 				}
 				depose_side = TRUE;
 			}
