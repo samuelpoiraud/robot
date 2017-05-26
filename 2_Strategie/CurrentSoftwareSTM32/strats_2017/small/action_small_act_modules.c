@@ -755,7 +755,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 		case COMPUTE_ACTION:
 			if(ELEMENTS_get_flag(FLAG_ANNE_DISABLE_MODULE)){
 				state = ERROR;
-			}else if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_SMALL)){ // Il y a un module en bas et l'élévateur est vide
+			}else if((!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_SMALL))&&(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER, MODULE_STOCK_SMALL))&&(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE, MODULE_STOCK_SMALL))){ // Il y a un module en bas et l'élévateur est vide
 				state = CHECK_CONTAINER_IS_AVAILABLE; // On cherche a stocker le module qui est en bas
 			}else if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_SMALL)){
 				state = ELEVATOR_GO_BOTTOM_TO_END; // On redescend l'élévateur si besoin avant de finir
@@ -809,7 +809,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 //			break;
 
 		case CHECK_CONTAINER_IS_AVAILABLE:
-			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER, MODULE_STOCK_SMALL)){
+			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_SLOPE, MODULE_STOCK_SMALL)){
 				state = PREPARE_SLOPE_FOR_ELEVATOR;
 			}else{
 				state = CHECK_CONTAINER_IS_AVAILABLE;

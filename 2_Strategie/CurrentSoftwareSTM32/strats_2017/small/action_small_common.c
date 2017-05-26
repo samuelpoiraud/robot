@@ -13,6 +13,7 @@
 
 
 bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEMENTS_side_match_e * moonbase_side);
+bool_e turn_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEMENTS_side_match_e * moonbase_side);
 
 
 error_e sub_anne_initiale(void){
@@ -32,10 +33,6 @@ error_e sub_anne_initiale(void){
 	static Uint8 nb_try_adv_rocket = 0;
 	static Uint8 agressivity = 0;
 
-
-	static Uint8 nb_try_return_adv_middle = 0;
-	static Uint8 nb_try_return_middle = 0;
-	static Uint8 nb_try_return_adv_side = 0;
 	static bool_e must_protect_after_dispose = FALSE;
 	error_e ret = IN_PROGRESS;
 
@@ -55,10 +52,6 @@ error_e sub_anne_initiale(void){
 			agressivity = IHM_switchs_get(SWITCH_ANNE_AGRESSIVITY)?1:0;
 
 
-			//Retournements
-			nb_try_return_adv_middle = IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_MIDDLE)?1:0;
-			nb_try_return_middle = IHM_switchs_get(SWITCH_ANNE_RETURN_MIDDLE)?1:0;
-			nb_try_return_adv_side = IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_SIDE)?1:0;
 
 			//si aucun retournement d'activé et une seule fusée d'activée... il ne nous restera plus qu'à protéger...
 			must_protect_after_dispose = IHM_switchs_get(SWITCH_ANNE_PROTECT)?TRUE:FALSE;
@@ -156,7 +149,7 @@ error_e sub_anne_initiale(void){
 			break;
 
 		case TURN_ADV_MODULES:
-			if(sub_act_anne_return_module() != IN_PROGRESS)
+			if(sub_anne_chose_moonbase_and_turn_modules() != IN_PROGRESS)
 				state = DONE;
 			break;
 		case ERROR:
@@ -209,7 +202,7 @@ error_e sub_anne_initiale(void){
 bool_e dispose_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEMENTS_side_match_e * moonbase_side)
 {
 	static bool_e moonbases_enable[NB_MOONBASES];	//nombres de places restantes si zones activée (IHM). 0 si zone désactivée.
-	static bool_e nb_tentatives_moonbases[NB_MOONBASES];		//nombre de tentatives où on a essayé d'aller à...
+	static Uint8 nb_tentatives_moonbases[NB_MOONBASES];		//nombre de tentatives où on a essayé d'aller à...
 	static bool_e initialized = FALSE;
 	Sint8 modules_in_stock;
 	Sint8 moonbases_score[NB_MOONBASES];	//Celui qui obtient le meilleur score va gagner ! A vos marques... prêt.... partez !
@@ -468,6 +461,177 @@ error_e sub_anne_chose_moonbase_and_dispose_modules(void)
 			on_turning_point();
 			ret = NOT_HANDLED;
 			break;
+		case DONE:
+			RESET_MAE();
+			on_turning_point();
+			ret = END_OK;
+			break;
+
+	}
+	return ret;
+}
+
+//Elle a pout but de choisir une zone de dépose selon :
+//		- les zones déjà tentées
+//		- notre position
+//		- positions adverses
+//		- tout autre idée géniale...
+//Param nb_try_dispose : tableau de nombre d'essai restant pour chaque zone
+//Param moonbase : si on return TRUE, vous trouverez ici le choix de zone !
+//TODO : ajouter un argument pointeur qui renverra le meilleur accès (côté blue ou yellow)
+bool_e turn_manager_chose_moonbase(moduleMoonbaseLocation_e * moonbase, ELEMENTS_side_match_e * moonbase_side)
+{
+	static bool_e moonbases_enable[NB_MOONBASES];	//nombres de places restantes si zones activée (IHM). 0 si zone désactivée.
+	static bool_e allready_tried_zones[NB_MOONBASES][2];		//nombre de tentatives où on a essayé d'aller à...
+	static bool_e adv_in_zone[NB_MOONBASES][2];		//nombre de tentatives où on a essayé d'aller à...
+	static bool_e initialized = FALSE;
+	static moduleMoonbaseLocation_e priority_order[] = {MODULE_MOONBASE_ADV_CENTER,MODULE_MOONBASE_MIDDLE,MODULE_MOONBASE_ADV_SIDE};
+	bool_e ret = FALSE;
+
+	if(!initialized)
+	{
+		initialized = TRUE;
+		//Lecture des switchs
+		moonbases_enable[MODULE_MOONBASE_MIDDLE] = IHM_switchs_get(SWITCH_ANNE_RETURN_MIDDLE);
+		moonbases_enable[MODULE_MOONBASE_OUR_CENTER] = FALSE;
+		moonbases_enable[MODULE_MOONBASE_ADV_CENTER] = IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_MIDDLE);
+		moonbases_enable[MODULE_MOONBASE_OUR_SIDE] = FALSE;
+		moonbases_enable[MODULE_MOONBASE_ADV_SIDE] = IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_SIDE);
+	}
+
+	moduleMoonbaseLocation_e mb;
+	for(mb = 0; mb<NB_MOONBASES; mb++)
+	{
+		if(moonbases_enable[mb])
+		{
+			Sint8 modules_poses = MOONBASES_getNbModules(mb);
+
+			if(modules_poses >= 4) //On a déjà déposer au moins 4 modules ici
+				moonbases_enable[mb] = FALSE;
+		}
+		switch(mb){
+			case MODULE_MOONBASE_MIDDLE:
+				if(foe_in_square_color(FALSE, 1150, 2000, 1070, 1500 ,FOE_TYPE_HOKUYO))
+					adv_in_zone[mb][OUR_SIDE] = TRUE;
+				else
+					adv_in_zone[mb][OUR_SIDE] = FALSE;
+				if(foe_in_square_color(FALSE, 1150, 2000, 1500, 1930 ,FOE_TYPE_HOKUYO))
+					adv_in_zone[mb][ADV_SIDE] = TRUE;
+				else
+					adv_in_zone[mb][ADV_SIDE] = FALSE;
+				break;
+			case MODULE_MOONBASE_ADV_CENTER:
+				if(foe_in_square_color(FALSE, 1150, 2000, 1500, 1930 ,FOE_TYPE_HOKUYO))
+					adv_in_zone[mb][OUR_SIDE] = TRUE;
+				else
+					adv_in_zone[mb][OUR_SIDE] = FALSE;
+				if(foe_in_square_color(FALSE, 1350, 2000, 2000, 2500 ,FOE_TYPE_HOKUYO))
+					adv_in_zone[mb][ADV_SIDE] = TRUE;
+				else
+					adv_in_zone[mb][ADV_SIDE] = FALSE;
+				break;
+			case MODULE_MOONBASE_ADV_SIDE:
+				if(foe_in_square_color(FALSE, 600, 1200, 2400, 3000 ,FOE_TYPE_HOKUYO)){
+					adv_in_zone[mb][ADV_SIDE] = TRUE;
+					adv_in_zone[mb][OUR_SIDE] = TRUE;
+				}
+				else{
+					adv_in_zone[mb][OUR_SIDE] = FALSE;
+					adv_in_zone[mb][ADV_SIDE] = FALSE;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	Uint8 priority = 0;
+	while(!ret && priority<3){
+		mb = priority_order[priority];
+		if(moonbases_enable[mb])
+		{
+			if(!adv_in_zone[mb][OUR_SIDE] && !allready_tried_zones[mb][OUR_SIDE]){
+				*moonbase = mb;
+				if(mb!=MODULE_MOONBASE_ADV_SIDE)
+					*moonbase_side = OUR_SIDE;
+				allready_tried_zones[mb][OUR_SIDE] = TRUE;
+				ret = TRUE;
+			}
+			else if(!adv_in_zone[mb][ADV_SIDE] && !allready_tried_zones[mb][ADV_SIDE]){
+				*moonbase = mb;
+				if(mb!=MODULE_MOONBASE_ADV_SIDE)
+					*moonbase_side = ADV_SIDE;
+				allready_tried_zones[mb][ADV_SIDE] = TRUE;
+				ret = TRUE;
+			}
+			else
+				priority++;
+		}
+		else
+			priority++;
+	}
+
+	return ret;
+}
+
+error_e sub_anne_chose_moonbase_and_turn_modules(void)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_CHOSE_MOONBASE_AND_TURN,
+				INIT,
+				COMPUTE_TURN_ZONE,
+				TURN_ON_CENTRAL_MOONBASE,
+				TURN_ON_LATERAL_MOONBASE,
+				COMPUTE_WHAT_DOING,
+				ERROR,
+				DONE
+			);
+	static moduleMoonbaseLocation_e moonbase;
+	static ELEMENTS_side_match_e moonbase_side;
+	static Uint8 nb_fail = 0;
+	error_e ret = IN_PROGRESS;
+	switch(state)
+	{
+		case INIT:
+			nb_fail = 0;
+			state = COMPUTE_TURN_ZONE;
+			break;
+
+		case COMPUTE_TURN_ZONE:
+			if(dispose_manager_chose_moonbase(&moonbase, &moonbase_side) == TRUE)	//Une zone est choisie (avec un côté d'accès s'il s'agit d'une zone centrale)
+			{
+				if(moonbase == MODULE_MOONBASE_OUR_SIDE || moonbase == MODULE_MOONBASE_ADV_SIDE)
+					state = TURN_ON_LATERAL_MOONBASE;
+				else
+					state = TURN_ON_CENTRAL_MOONBASE;
+			}
+			else
+				state = ERROR;	//Aucune zone choisie par le turn manager.
+
+			break;
+		case TURN_ON_CENTRAL_MOONBASE:
+			if(sub_anne_turn_modules_centre(moonbase, moonbase_side) != IN_PROGRESS)
+				state = COMPUTE_WHAT_DOING;
+			break;
+
+		case TURN_ON_LATERAL_MOONBASE:
+			if(sub_anne_turn_modules_side((moonbase==MODULE_MOONBASE_OUR_SIDE)?OUR_SIDE:ADV_SIDE) != IN_PROGRESS)
+				state = COMPUTE_WHAT_DOING;
+			break;
+
+		case COMPUTE_WHAT_DOING:
+			nb_fail++;
+			if(nb_fail < 3)	//On autorise une seconde tentative (au premier passage ici : nb_fail == 1)
+				state = COMPUTE_TURN_ZONE;
+			else
+				state = ERROR;	//Bon bah, on a tenté 2 fois, et on a perdu... demerden sie sich
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			on_turning_point();
+			ret = NOT_HANDLED;
+			break;
+
 		case DONE:
 			RESET_MAE();
 			on_turning_point();
