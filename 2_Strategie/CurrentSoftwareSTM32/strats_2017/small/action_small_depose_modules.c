@@ -23,10 +23,12 @@ typedef enum
 	DZONE2_MIDDLE_BLUE,
 	DZONE3_MIDDLE_YELLOW,
 	DZONE4_YELLOW_INDOOR,
-	DZONE5_YELLOW_OUTDOOR
+	DZONE5_YELLOW_OUTDOOR,
+	DZONE6_YELLOW_SIDE,
+	DZONE7_BLUE_SIDE
 }dispose_zone_t;
 
-
+#define OFFSET_M_R		25	//distance dans le sens avant-arrière entre le module stocké dans le robot et le centre du robot.
 static error_e sub_ExtractMoonbase(dispose_zone_t dzone);
 
 error_e sub_anne_manager_return_modules(ELEMENTS_property_e modules){
@@ -857,663 +859,222 @@ error_e sub_anne_return_modules_side_get_in(ELEMENTS_property_e modules){
 	return IN_PROGRESS;
 }
 
-#if 0
-error_e sub_anne_get_in_pos_1_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_1_DEPOSE_MODULES_CENTRE,
-			INIT,
-			GET_IN_FROM_OUR_SQUARE,
-			GET_IN_FROM_MIDDLE_SQUARE,
-			GET_IN_FROM_ADV_SQUARE,
-			PATHFIND,
-			ERROR,
-			DONE
-		);
+//Cette fonction ne peut être appelée que si on est en sortie de notre fusée color, et qu'on vise l'une des zones adverses !!!
+//si cette sub renvoit END_OK, cela suppose qu'on peut rejoindre directement en GET_IN le point d'entrée de la DZONE demandée !
+error_e sub_from_our_rocket_to_dzone(dispose_zone_t dzone)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_SUB_ANNE_FROM_OUR_ROCKET_TO_DZONE,
+		INIT,
+		COMPUTE,
+		TURN_TO_SEE_FOES,
+		GOTO_N1,
+		GOTO_N2,
+		GOTO_N3,
+		GOTO_S1,
+		GOTO_S2,
+		GOTO_S3,
+		GOTO_GOAL,
+		DONE,
+		ERROR
+	);
+	const GEOMETRY_point_t GOAL_DZ05 = (GEOMETRY_point_t){1400,2400};
+	const GEOMETRY_point_t GOAL_DZ1234 = (GEOMETRY_point_t){1200,1800};
+	const GEOMETRY_point_t GOAL_DSIDE_YELLOW = (GEOMETRY_point_t){850+OFFSET_M_R,2742};
+	const GEOMETRY_point_t GOAL_DSIDE_BLUE = (GEOMETRY_point_t){1000-OFFSET_M_R,258};
 
-	switch(state){
+	const GEOMETRY_point_t N1 = (GEOMETRY_point_t){450,1600};
+	const GEOMETRY_point_t N2 = (GEOMETRY_point_t){750,2100};
+	const GEOMETRY_point_t N3 = (GEOMETRY_point_t){900,2500};
+	const GEOMETRY_point_t S1 = (GEOMETRY_point_t){800,1300};
+	const GEOMETRY_point_t S2 = (GEOMETRY_point_t){1000,1700};
+	const GEOMETRY_point_t S3 = (GEOMETRY_point_t){1400,2400};
+
+	static bool_e my_goal_is_05;
+	static bool_e my_goal_is_1234;
+	static bool_e my_goal_is_side;
+
+	static enum state_e fail_state;
+	static enum state_e success_state;
+
+	error_e ret;
+	ret = IN_PROGRESS;
+	switch(state)
+	{
 		case INIT:
-			if(i_am_in_square(800, 1400, 300, 900)){
-				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
-				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
-				state = GET_IN_FROM_ADV_SQUARE;
-			}else{
-				state = PATHFIND;
+			if(i_am_in_square_color(0,500,1000,1500))
+			{
+				if(global.color == BLUE)
+					state = TURN_TO_SEE_FOES;
+				else
+					state = COMPUTE;
 			}
+			else
+				state = ERROR;	//impossible de continuer dans cette sub si on est pas au bon endroit !
 			break;
-
-		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(1450, COLOR_Y(600), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+		case TURN_TO_SEE_FOES:	//Si on est bleu, la zone adverse est dans l'angle mort de l'hokuyo, on préfère faire une rotation pour y voir plus clair !
+			state = try_go_angle(PI4096/4, state, COMPUTE, COMPUTE, FAST,ANY_WAY,END_AT_BRAKE);
 			break;
-
-		case GET_IN_FROM_MIDDLE_SQUARE:
-			state = try_going(1000, COLOR_Y(1000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(900, COLOR_Y(2000), state, GET_IN_FROM_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case PATHFIND:
-			state = ASTAR_try_going(1450, COLOR_Y(600), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-
-error_e sub_anne_get_in_pos_2_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_2_DEPOSE_MODULES_CENTRE,
-			INIT,
-			GET_IN_FROM_OUR_SQUARE,
-			GET_IN_FROM_MIDDLE_SQUARE,
-			GET_IN_FROM_ADV_SQUARE,
-			PATHFIND,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			if(i_am_in_square(800, 1400, 300, 900)){
-				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
-				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
-				state = GET_IN_FROM_ADV_SQUARE;
-			}else{
-				state = PATHFIND;
-			}
-			break;
-
-		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(1100, COLOR_Y(925), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_MIDDLE_SQUARE:
-			state = try_going(1000, COLOR_Y(1000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(900, COLOR_Y(2000), state, GET_IN_FROM_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case PATHFIND:
-			state = ASTAR_try_going(1100, COLOR_Y(925), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e sub_anne_get_in_pos_3_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_GET_IN_POS_3_DEPOSE_MODULES_CENTRE,
-			INIT,
-			GET_IN_FROM_BLUE_SQUARE,
-			GET_IN_FROM_MIDDLE_SQUARE,
-			GET_IN_FROM_YELLOW_SQUARE,
-			PATHFIND,
-			GO_TO_RECALAGE,
-			RECALAGE_RELATIF,
-			GET_OUT_RECALAGE,
-			GO_TO_RUSH,
-			OPEN_MULTIFONCTION,
-			RUSH,
-			CLOSE_PUSHER,
-			HALF_TURN,
-			MOVE_BACK_TO_PUSH,
-			AVANCE,
-			DISPOSE,
-			COMPUTE_LITTLE_MOVE_BACK,
-			LITTLE_MOVE_BACK,
-			LITTLE_MOVE_BACK_ERROR,
-			MOVE_BACK,
-			GET_OUT,
-			ERROR,
-			DONE
-		);
-	static Uint8 nb_cylinder_in_basis = 0;
-	static Sint16 tryx = 0;
-	static Sint16 diffy = 0;
-
-
-	switch(state){
-		case INIT:
-			if((i_am_in_square(800, 1400, 300, 900))||(i_am_in_square(200, 1100, 900, 2100))){
-				state = GET_IN_FROM_BLUE_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
-				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
-				state = GET_IN_FROM_YELLOW_SQUARE;
-			}else{
-				state = PATHFIND;
-			}
-			break;
-
-		case GET_IN_FROM_BLUE_SQUARE:
-			state = try_going(975, 1300, state, GO_TO_RECALAGE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_MIDDLE_SQUARE:
-			state = try_going(1000, COLOR_Y(1250), state, GET_IN_FROM_BLUE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_YELLOW_SQUARE:
-			state = try_going(900, 2000, state, GET_IN_FROM_BLUE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case PATHFIND:
-			state = ASTAR_try_going(975, 1300, state, GO_TO_RECALAGE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case GO_TO_RECALAGE:
-			state = try_going(1270, 1290, state, RECALAGE_RELATIF, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case RECALAGE_RELATIF:
-			state = check_sub_action_result(action_recalage_y(FORWARD, PI4096/2, 1432 - SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, &diffy, TRUE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
-			break;
-
-		case GET_OUT_RECALAGE:
-			state = try_advance(NULL, entrance, 60, state, GO_TO_RUSH, RECALAGE_RELATIF, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case GO_TO_RUSH:
-			state = try_going(950, 1320, state, OPEN_MULTIFONCTION, OPEN_MULTIFONCTION, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case OPEN_MULTIFONCTION:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, RUSH, ERROR);
-			break;
-
-		case RUSH:
-			state = try_rush(1520, 1310, state, MOVE_BACK, MOVE_BACK, FORWARD, NO_DODGE_AND_WAIT, TRUE);
-			if(ON_LEAVE()){
-				nb_cylinder_in_basis = (1580 - global.pos.x)/100;
-			}
-			break;
-
-	/*	case CLOSE_PUSHER:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
-			}
-//			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, MOVE_BACK, MOVE_BACK);
-			state = MOVE_BACK;
-			//
-			break;*/
-
-		case MOVE_BACK:
-			if(entrance){
-				PROP_WARNER_arm_x(global.pos.x-50);
-			}
-			state = try_going(1000, 1310, state, HALF_TURN, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			if((global.prop.reach_x)||ON_LEAVE()){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
-			}
-			break;
-
-		case HALF_TURN:
-			state = try_go_angle(-PI4096, state, AVANCE, GET_OUT, FAST, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case AVANCE:
-			state = try_going(1520-100*nb_cylinder_in_basis, 1310, state, DISPOSE, GET_OUT, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case DISPOSE:
-			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, COMPUTE_LITTLE_MOVE_BACK, GET_OUT);
-#warning 'quelles sont les raisons possibles d\'une erreur ?'
-			break;
-
-		case COMPUTE_LITTLE_MOVE_BACK:
-			if(STOCKS_isEmpty(MODULE_STOCK_SMALL)){
-				state = GET_OUT;
-			}else if(global.pos.x>1370){
-				state = LITTLE_MOVE_BACK;
-			}else{// si il te reste des modules tu sors pour pousser encore puis poser
-				state = MOVE_BACK_TO_PUSH;
-			}
-			break;
-
-		case MOVE_BACK_TO_PUSH:
-			state = try_going(1000, 1310, state, RUSH, LITTLE_MOVE_BACK_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case LITTLE_MOVE_BACK:
-			state = try_advance(NULL, entrance, 110, state, DISPOSE, LITTLE_MOVE_BACK_ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case LITTLE_MOVE_BACK_ERROR:{
-			if(entrance){
-				Uint8 nb_module_returned = 0;
-				nb_module_returned = (1520 - global.pos.x)/110;
-				tryx = 1520 - 110*nb_module_returned;
-			}
-			state = try_going(tryx, 1310, state, LITTLE_MOVE_BACK, LITTLE_MOVE_BACK, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-		}
-		break;
-
-		case GET_OUT:
-			state = try_going(800, 1310, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e sub_anne_get_in_pos_4_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_4_DEPOSE_MODULES_CENTRE,
-			INIT,
-			GET_IN_FROM_OUR_SQUARE,
-			GET_IN_FROM_MIDDLE_SQUARE,
-			GET_IN_FROM_ADV_SQUARE,
-			PATHFIND,
-			GO_TO_RECALAGE,
-			RECALAGE_RELATIF,
-			GET_OUT_RECALAGE,
-			GO_TO_RUSH,
-			OPEN_MULTIFONCTION,
-			RUSH,
-			CLOSE_PUSHER,
-			HALF_TURN,
-			MOVE_BACK_TO_PUSH,
-			AVANCE,
-			DISPOSE,
-			COMPUTE_LITTLE_MOVE_BACK,
-			LITTLE_MOVE_BACK,
-			LITTLE_MOVE_BACK_ERROR,
-			MOVE_BACK,
-			GET_OUT,
-
-			ERROR,
-			DONE
-		);
-
-	static Sint16 diffy = 0;
-	static Uint8 nb_cylinder_in_basis = 0;
-	static Sint16 tryx = 0;
-
-	switch(state){
-		case INIT:
-			if((i_am_in_square(800, 1400, 300, 900))||(i_am_in_square(200, 1100, 900, 2100))){
-				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
-				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
-				state = GET_IN_FROM_ADV_SQUARE;
-			}else{
-				state = PATHFIND;
-			}
-			break;
-
-		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(975, 1700, state, GO_TO_RECALAGE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_MIDDLE_SQUARE:
-			state = try_going(1000, 1750, state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(900, 1000, state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case PATHFIND:
-			state = ASTAR_try_going(975, 1700, state, GO_TO_RECALAGE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case GO_TO_RECALAGE:
-			state = try_going(1270, 1680, state, RECALAGE_RELATIF, GET_OUT, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case RECALAGE_RELATIF:
-			state = check_sub_action_result(action_recalage_y(FORWARD, -PI4096/2, 1568 + SMALL_CALIBRATION_FORWARD_BORDER_DISTANCE, FALSE, &diffy, TRUE), state, GET_OUT_RECALAGE, GET_OUT_RECALAGE);
-			break;
-
-		case GET_OUT_RECALAGE:
-			state = try_advance(NULL, entrance, 60, state, GO_TO_RUSH, RECALAGE_RELATIF, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case GO_TO_RUSH:
-			state = try_going(950, 1660, state, OPEN_MULTIFONCTION, OPEN_MULTIFONCTION, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case OPEN_MULTIFONCTION:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_PUSH);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, RUSH, ERROR);
-			break;
-
-		case RUSH:
-			state = try_rush(1520, 1660, state, MOVE_BACK, MOVE_BACK, BACKWARD, NO_DODGE_AND_WAIT, TRUE);
-			if(ON_LEAVE()){
-				nb_cylinder_in_basis = (1580 - global.pos.x)/100;
-			}
-			break;
-
-	/*	case CLOSE_PUSHER:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
-			}
-//			state = check_act_status(ACT_QUEUE_Small_cylinder_multifonction, state, MOVE_BACK, MOVE_BACK);
-			state = MOVE_BACK;
-			//
-			break;*/
-
-		case MOVE_BACK:
-			if(entrance){
-				PROP_WARNER_arm_x(global.pos.x-50);
-			}
-			state = try_going(1000, 1660, state, HALF_TURN, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			if((global.prop.reach_x)||ON_LEAVE()){
-				ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_IN);
-			}
-			break;
-
-		case HALF_TURN:
-			state = try_go_angle(0, state, AVANCE, GET_OUT, FAST, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case AVANCE:
-			state = try_going(1520-100*nb_cylinder_in_basis, 1660, state, DISPOSE, GET_OUT, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case DISPOSE:
-			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER), state, COMPUTE_LITTLE_MOVE_BACK, GET_OUT);
-#warning 'quelles sont les raisons possibles d\'une erreur ?'
-			break;
-
-		case COMPUTE_LITTLE_MOVE_BACK:
-			if(STOCKS_isEmpty(MODULE_STOCK_SMALL)){
-				state = GET_OUT;
-			}else if(global.pos.x>1370){
-				state = LITTLE_MOVE_BACK;
-			}else{// si il te reste des modules tu sors pour pousser encore puis poser
-				state = MOVE_BACK_TO_PUSH;
-			}
-			break;
-
-		case MOVE_BACK_TO_PUSH:
-			state = try_going(1000, 1660, state, RUSH, LITTLE_MOVE_BACK_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case LITTLE_MOVE_BACK:
-			state = try_advance(NULL, entrance, 110, state, DISPOSE, LITTLE_MOVE_BACK_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
-
-		case LITTLE_MOVE_BACK_ERROR:{
-			if(entrance){
-				Uint8 nb_module_returned = 0;
-				nb_module_returned = (1520 - global.pos.x)/110;
-				tryx = 1520 - 110*nb_module_returned;
-			}
-			state = try_going(tryx, 1660, state, LITTLE_MOVE_BACK, LITTLE_MOVE_BACK, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-		}
-		break;
-
-		case GET_OUT:
-			state = try_going(800, 1660, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e sub_anne_get_in_pos_5_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_5_DEPOSE_MODULES_CENTRE,
-			INIT,
-			GET_IN_FROM_OUR_SQUARE,
-			GET_IN_FROM_MIDDLE_SQUARE,
-			GET_IN_FROM_ADV_SQUARE,
-			PATHFIND,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			if(i_am_in_square(800, 1400, 300, 900)){
-				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
-				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
-				state = GET_IN_FROM_ADV_SQUARE;
-			}else{
-				state = PATHFIND;
-			}
-			break;
-
-		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(1100, COLOR_Y(2075), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_MIDDLE_SQUARE:
-			state = try_going(1000, COLOR_Y(2000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(900, COLOR_Y(1000), state, GET_IN_FROM_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case PATHFIND:
-			state = ASTAR_try_going(1100, COLOR_Y(2075), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-error_e sub_anne_get_in_pos_6_depose_module_centre(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_GET_IN_POS_6_DEPOSE_MODULES_CENTRE,
-			INIT,
-			GET_IN_FROM_OUR_SQUARE,
-			GET_IN_FROM_MIDDLE_SQUARE,
-			GET_IN_FROM_ADV_SQUARE,
-			PATHFIND,
-			ERROR,
-			DONE
-		);
-
-	switch(state){
-		case INIT:
-			if(i_am_in_square(800, 1400, 300, 900)){
-				state = GET_IN_FROM_OUR_SQUARE;
-			}else if(i_am_in_square(200, 1100, 900, 2100)){
-				state = GET_IN_FROM_MIDDLE_SQUARE;
-			}else if(i_am_in_square(800, 1400, 2100, 2700)){
-				state = GET_IN_FROM_ADV_SQUARE;
-			}else{
-				state = PATHFIND;
-			}
-			break;
-
-		case GET_IN_FROM_OUR_SQUARE:
-			state = try_going(1450, COLOR_Y(2400), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_MIDDLE_SQUARE:
-			state = try_going(1000, COLOR_Y(2000), state, GET_IN_FROM_OUR_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case GET_IN_FROM_ADV_SQUARE:
-			state = try_going(900, COLOR_Y(1000), state, GET_IN_FROM_MIDDLE_SQUARE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
-			break;
-
-		case PATHFIND:
-			state = ASTAR_try_going(1450, COLOR_Y(2400), state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-	}
-
-	return IN_PROGRESS;
-}
-
-
-typedef enum{
-	POS_1=0,  //position de notre côté
-	POS_2,
-	POS_3,
-	POS_4,
-	POS_5,
-	POS_6,
-	NO_POS
-}dropPlace_e;
-
-dropPlace_e drop_zone_bis =NO_POS;
-
-//Uint8 nbCylindresSurBase = 0;
-bool_e depose_side;
-
-static Uint8 nb_try = 0;
-
-
-error_e sub_anne_depose_centre_manager(){
-	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_DEPOSE_CENTRE_MANAGER,
-				INIT,
-				DEPOSE,
-				COMPUTE,
-				SUCCESS_DEPOSE,
-				ERROR_DEPOSE,
-				ERROR,
-				DONE
-			);
-
-	static bool_e depose = FALSE;
-	static ELEMENTS_side_match_e side = OUR_SIDE;
-	static moduleTypeDominating_e module_type = MODULE_MONO_DOMINATING;
-
-	switch(state){
-
-		case INIT:
-			if(STOCKS_getNbModules(MODULE_STOCK_SMALL) > 0 && depose == FALSE){
-
-				if(STOCKS_getDominatingModulesType(MODULE_STOCK_SMALL) == MODULE_MONO_DOMINATING){
-					module_type = MODULE_MONO_DOMINATING;
-				}
-				else if(STOCKS_getDominatingModulesType(MODULE_STOCK_SMALL) == MODULE_POLY_DOMINATING){
-					module_type = MODULE_POLY_DOMINATING;
-				}else{//A choisir si l'on veut déposer plutôt comme des mono ou poly sur le terrain
-					module_type = NO_DOMINATING;
-				}
-				state = DEPOSE;
-			}else{
-				state = DONE;
-			}
-			break;
-
-		case DEPOSE:
-			//TODO choix de la zone..
-			state = check_sub_action_result(sub_anne_depose_modules_centre(MODULE_MOONBASE_MIDDLE, side), state, SUCCESS_DEPOSE, ERROR_DEPOSE);
-			break;
-
 		case COMPUTE:
-			if((depose == FALSE && nb_try >= 3) ||(depose == TRUE)){
-				state = DONE;
-			}
-			if(depose == FALSE){
-				state = DEPOSE;
-			}
-			else{
-				state = DONE;
-			}
-			break;
 
-		case SUCCESS_DEPOSE:
-			if (last_state == DEPOSE) {depose = TRUE;}
-			state = COMPUTE;
+			my_goal_is_05 = (dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE5_YELLOW_OUTDOOR);
+			my_goal_is_1234 = (dzone == DZONE1_BLUE_INDOOR || dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE3_MIDDLE_YELLOW || dzone == DZONE4_YELLOW_INDOOR);
+			my_goal_is_side = (dzone == DZONE6_YELLOW_SIDE || DZONE7_BLUE_SIDE);
+			if((my_goal_is_05 || my_goal_is_1234 || my_goal_is_side) == FALSE)
+				state = ERROR;	//sécurité
+			else if(foe_in_square_color(FALSE, 400,800,1600,3000, FOE_TYPE_HOKUYO))	//Adversaire au north !
+				state = GOTO_S1;
+			else if(foe_in_square_color(FALSE, 800,1600,1600,3000, FOE_TYPE_HOKUYO))	//Adversaire au south !
+				state = GOTO_N1;
+			else if(dzone == DZONE6_YELLOW_SIDE)	//Point non accessible à cause du cratère
+				state = GOTO_N1;
+			else
+				state = GOTO_GOAL;
 			break;
-
-		case ERROR_DEPOSE:
-			state = COMPUTE;
-			break;
-
-		case ERROR:
-			RESET_MAE();
-			return NOT_HANDLED;
-			break;
-
-		case DONE:
-			RESET_MAE();
-			return END_OK;
-			break;
-
-		default:
+		case GOTO_S1:
 			if(entrance)
 			{
-				error_printf("default case in sub_anne_depose_centre_manager\n");
+				success_state = GOTO_S2;
+				if(last_state==COMPUTE)
+					fail_state = GOTO_N1;
+				else if(last_state == GOTO_N1)
+					fail_state = GOTO_S2;
+				else
+					fail_state = GOTO_S2;	//Never happen...
 			}
+			state = try_going(S1.x, COLOR_Y(S1.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+		case GOTO_S2:
+			if(entrance)
+			{
+				if(last_state==GOTO_S1 || last_state == GOTO_N1)
+					fail_state = GOTO_N2;
+				else if(my_goal_is_1234)
+					fail_state = GOTO_GOAL;
+				else
+					fail_state = GOTO_S3;	//Never happen...
+
+				if(my_goal_is_1234)
+					success_state = GOTO_GOAL;
+				else
+					success_state = GOTO_S3;
+			}
+			state = try_going(S2.x, COLOR_Y(S2.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+		case GOTO_S3:
+			if(entrance)
+			{
+				if(my_goal_is_1234)
+					state = ERROR;	//Never happen ! security
+
+				if(my_goal_is_05)
+				{
+					fail_state = ERROR;	//S3 innaccessible, donc zone KO !
+					success_state = GOTO_GOAL;
+				}
+				else	//goal side !
+				{
+					fail_state = GOTO_GOAL;
+					success_state = GOTO_GOAL;
+				}
+			}
+			else
+				state = try_going(S3.x, COLOR_Y(S3.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+
+		case GOTO_N1:
+			if(entrance)
+			{
+				success_state = GOTO_N2;
+				if(last_state==COMPUTE)
+					fail_state = GOTO_S1;
+				else if(last_state == GOTO_S1)
+					fail_state = GOTO_N2;
+				else
+					fail_state = GOTO_N2;	//Never happen...
+			}
+			state = try_going(N1.x, COLOR_Y(N1.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+
+			break;
+		case GOTO_N2:
+			if(entrance)
+			{
+				if(last_state==GOTO_N1 || last_state == GOTO_S1)
+					fail_state = GOTO_S2;
+				else
+					fail_state = GOTO_N3;	//Never happen...
+
+				if(my_goal_is_1234)
+					success_state = GOTO_GOAL;
+				else
+					success_state = GOTO_N3;
+			}
+			state = try_going(N2.x, COLOR_Y(N2.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+
+		case GOTO_N3:
+			if(entrance)
+			{
+				if(my_goal_is_1234)
+					state = ERROR;	//Never happen ! security
+
+				if(my_goal_is_05)
+				{
+					fail_state = GOTO_GOAL;	//N3 innaccessible, donc zone KO !
+					success_state = GOTO_GOAL;
+				}
+				else	//goal side !
+				{
+					fail_state = GOTO_GOAL;
+					success_state = GOTO_GOAL;
+				}
+			}
+			else
+				state = try_going(N3.x, COLOR_Y(N3.y), state, success_state, fail_state, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;
+		case GOTO_GOAL:
+		{
+			static GEOMETRY_point_t goal;
+			if(entrance)
+			{
+				if(my_goal_is_1234)
+				{
+					goal.x = GOAL_DZ1234.x;
+					goal.y = COLOR_Y(GOAL_DZ1234.y);
+				}
+				else if(my_goal_is_05)
+				{
+					goal.x = GOAL_DZ05.x;
+					goal.y = COLOR_Y(GOAL_DZ05.y);
+				}
+				else
+				{
+					if(global.color == BLUE)
+						goal = GOAL_DSIDE_YELLOW;
+					else
+						goal = GOAL_DSIDE_BLUE;
+				}
+			}
+			state = try_going(goal.x, goal.y, state, DONE, ERROR, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;}
+		case ERROR:
+			//Nous n'avons pas réussi à nous rendre au point demandé !
+			ret = NOT_HANDLED;
+			RESET_MAE();
+			break;
+		case DONE:
+			//On est content...
+			ret = END_OK;
+			RESET_MAE();
+			break;
+		default:
+			state = ERROR;
 			break;
 	}
-	return IN_PROGRESS;
+
+
+	return ret;
 }
-#endif
-
-
-
 
 
 
@@ -1544,6 +1105,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			INIT,
 			COMPUTE_POINTS,
 			GET_IN,
+			GET_IN_FROM_OUR_ROCKET_TO_DZONE,
 			PATHFIND,
 			RUSH_AND_COMPUTE_O_H_A_B_C,
 			EXTRACT_FROM_RUSH_TO_A,
@@ -1673,6 +1235,8 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				GetIn = (GEOMETRY_point_t){1725,860};
 				if(i_am_in_square(1000, 1800, 200, 650))
 					state = GET_IN;
+				else if(i_am_in_square(0,500,1500,2000) && global.color == YELLOW)
+					state = GET_IN_FROM_OUR_ROCKET_TO_DZONE;
 				else
 					state = PATHFIND;
 			}
@@ -1681,6 +1245,8 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				GetIn = (GEOMETRY_point_t){1725,2140};
 				if(i_am_in_square(1000, 1800, 2350, 2800))
 					state = GET_IN;
+				else if(i_am_in_square(0,500,1000,1500) && global.color == BLUE)
+					state = GET_IN_FROM_OUR_ROCKET_TO_DZONE;
 				else
 					state = PATHFIND;
 			}
@@ -1689,6 +1255,8 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				GetIn = (GEOMETRY_point_t){1350,1240};
 				if(i_am_in_square(0, 1300, 1000, 1300))
 					state = GET_IN;
+				else if(i_am_in_square(0,500,1500,2000) && global.color == YELLOW)
+					state = GET_IN_FROM_OUR_ROCKET_TO_DZONE;
 				else
 					state = PATHFIND;
 			}
@@ -1697,6 +1265,8 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				GetIn = (GEOMETRY_point_t){1350,1760};
 				if(i_am_in_square(0, 1300, 1700, 2000))
 					state = GET_IN;
+				else if(i_am_in_square(0,500,1000,1500) && global.color == BLUE)
+					state = GET_IN_FROM_OUR_ROCKET_TO_DZONE;
 				else
 					state = PATHFIND;
 			}
@@ -1799,6 +1369,10 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			//  F3 = F2 + Fn_to_next;	//Si existe
 
 			break;
+		case GET_IN_FROM_OUR_ROCKET_TO_DZONE:
+			//Cet état n'est accessible que si l'on sort juste de notre fusée color !
+			state = check_sub_action_result(sub_from_our_rocket_to_dzone(dzone), state, GET_IN, ERROR);
+			break;
 
 		case GET_IN:	//On file direct vers le point de get_in
 			state = try_going(GetIn.x, GetIn.y, state, RUSH_AND_COMPUTE_O_H_A_B_C, PATHFIND, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1894,9 +1468,17 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			error_printf("E :%4d ; %4d\n", E.x, E.y);
 			state = GOTO_E;
 			break;
-		case GOTO_E:
-			state = try_going(E.x, E.y, state, GOTO_D_FX, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			break;
+		case GOTO_E:{
+			static way_e way;
+			if(entrance)
+			{
+				if(E.x < global.pos.x)	//On doit monter... vers le north
+					way = (color_side==BLUE)?FORWARD:BACKWARD;
+				else					//On doit descendre vers le south..
+					way = (color_side==BLUE)?BACKWARD:FORWARD;
+			}
+			state = try_going(E.x, E.y, state, GOTO_D_FX, EXTRACT_MANAGER, FAST, way, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			break;}
 
 
 		case GOTO_D_FX:
@@ -2391,7 +1973,7 @@ error_e sub_anne_get_in_depose_modules_centre(moduleTypeDominating_e module_type
 	Ce cas peut-être géré en faisant la dépose directement dans la sub de prise fusée adverse ?
 		en appelant la sub de dépose side à la première position de dépose... !!!
  */
-#define OFFSET_M_R		25	//distance dans le sens avant-arrière entre le module stocké dans le robot et le centre du robot.
+
 
 error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 {
@@ -2472,7 +2054,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 
 				if(i_am_in_square(750,1350,1600,2800))
 					state = GET_IN;
-				else if(i_am_in_square(300,500,1000,1500))	//Après la prise de notre fusée jaune !
+				else if(i_am_in_square(0,500,1000,1500))	//Après la prise de notre fusée jaune !
 					state = GET_IN_FROM_BLUE_ROCKET;
 				else
 					state = ASTAR_GET_IN;
@@ -2483,7 +2065,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			break;
 		case GET_IN_FROM_BLUE_ROCKET:
 			//TODO ajouter prise du module polychrome sur cette courbe ?
-			state = try_going_multipoint(	(displacement_t []) {
+		/*	state = try_going_multipoint(	(displacement_t []) {
 											(displacement_t) { (GEOMETRY_point_t){700, 1850}, FAST},
 											(displacement_t) { (GEOMETRY_point_t){800, 2350}, FAST}
 										},
@@ -2493,6 +2075,8 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 				if(i_am_in_square(200,800,900,1700))
 					state = GET_IN_VIA_SOUTH_FROM_BLUE_ROCKET;
 			}
+			*/
+			state = check_sub_action_result(sub_from_our_rocket_to_dzone(DZONE6_YELLOW_SIDE), state, GET_IN, ERROR);
 			break;
 		case GET_IN_VIA_SOUTH_FROM_BLUE_ROCKET:
 			state = try_going_multipoint(	(displacement_t []) {
@@ -2515,11 +2099,13 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			}
 			break;
 		case GET_IN_VIA_SOUTH_FROM_YELLOW_ROCKET:
-			state = try_going_multipoint(	(displacement_t []) {
+		/*	state = try_going_multipoint(	(displacement_t []) {
 											(displacement_t) { (GEOMETRY_point_t){1200, 1200}, FAST},
 											(displacement_t) { (GEOMETRY_point_t){800, 650}, FAST}
 										},
 										2, state, GET_IN, ASTAR_GET_IN, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+										*/
+			state = check_sub_action_result(sub_from_our_rocket_to_dzone(DZONE7_BLUE_SIDE), state, GET_IN, ERROR);
 			break;
 		case ASTAR_GET_IN:
 			state = ASTAR_try_going(A.x, A.y, state, RUSH_TO_GOAL, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);

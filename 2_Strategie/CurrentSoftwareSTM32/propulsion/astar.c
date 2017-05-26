@@ -1322,7 +1322,10 @@
 					//state = ASTAR_DISPLACEMENT;
 					//warn_printf("ASTAR failure but will try to reach x=%d y=%d\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
 					warn_printf("ASTAR failure - Foe in path (%d; %d)\n", displacements[nb_displacements-1].point.x, displacements[nb_displacements-1].point.y);
-					if(nb_try > 0 && (avoidance == DODGE_AND_NO_WAIT || avoidance == DODGE_AND_WAIT))
+					if(		nb_try > 0
+							&& (avoidance == DODGE_AND_NO_WAIT || avoidance == DODGE_AND_WAIT)
+							&& foe_in_square(FALSE, global.pos.x - DIST_FOE_TO_EXTRACT, global.pos.x + DIST_FOE_TO_EXTRACT, global.pos.y - DIST_FOE_TO_EXTRACT, global.pos.y + DIST_FOE_TO_EXTRACT, FOE_TYPE_ALL)
+							)
 					{
 						state = ASTAR_DODGE_FOE;
 						warn_printf("We try to extract from him\n");
@@ -1336,7 +1339,8 @@
 				break;
 
 			case ASTAR_DISPLACEMENT:
-				result = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, avoidance, end_condition, PROP_NO_BORDER_MODE);
+				//Au delà du premier essai, ni attente ni dodge SVP !
+				result = goto_pos_curve_with_avoidance(NULL, displacements, nb_displacements, way, (nb_try < NB_TRY_WITH_DODGE - 1)?NO_DODGE_AND_NO_WAIT:avoidance, end_condition, PROP_NO_BORDER_MODE);
 
 				switch(result)
 				{
