@@ -1983,6 +1983,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 			);
 
 	static moduleRocketLocation_e rocket = 0;
+	static bool_e subaction_success = TRUE;
 
 	switch(state){
 
@@ -1994,6 +1995,7 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 				rocket = MODULE_ROCKET_MULTI_ADV_SIDE;
 			}
 			ROCKETS_print(MODULE_ROCKET_MULTI_OUR_SIDE);
+			subaction_success = TRUE;
 
 			if(IHM_switchs_get(SWITCH_DISABLE_MODULE_RIGHT) && IHM_switchs_get(SWITCH_DISABLE_MODULE_LEFT)){
 				state = ERROR; // Actionneurs désactivés
@@ -2114,6 +2116,9 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 			break;
 
 		case GET_OUT:
+			if(entrance){
+				subaction_success = TRUE;
+			}
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
 				state=try_going(global.pos.x, 500, state, CHOOSE_ACTION_AFTER_GET_OUT, AVANCE, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
@@ -2129,10 +2134,13 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 			break;
 
 		case GET_OUT_ERROR:
+			if(entrance){
+				subaction_success = FALSE;
+			}
 			if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
-				state=try_going(global.pos.x, 500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 500, state, CHOOSE_ACTION_AFTER_GET_OUT, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else{
-				state=try_going(global.pos.x, 2500, state, ERROR, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state=try_going(global.pos.x, 2500, state, CHOOSE_ACTION_AFTER_GET_OUT, AVANCE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			if(ON_LEAVE()){
 				if((element == OUR_ELEMENT && global.color == BLUE) || (element == ADV_ELEMENT && global.color == YELLOW)){
@@ -2163,7 +2171,11 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 #ifdef HARRY_TAKE_MODULE_UNICOLOR_SOUTH_AFTER_ROCKET_MULTICOLOR
 				state = TAKE_MODULE_SOUTH;
 #else
-				state = DONE;
+				if(subaction_success){
+					state = DONE;
+				}else{
+					state = ERROR;
+				}
 #endif
 			break;
 
@@ -2172,6 +2184,11 @@ error_e sub_harry_rocket_multicolor(ELEMENTS_property_e element){
 				state = check_sub_action_result(sub_harry_prise_module_unicolor_south(RIGHT), state, DONE, DONE);
 			}else{
 				state = check_sub_action_result(sub_harry_prise_module_unicolor_south(LEFT), state, DONE, DONE);
+			}
+			if(ON_LEAVE()){
+				if(!subaction_success){ // En cas d'erreur, on renvoie ERROR
+					state = ERROR;
+				}
 			}
 			break;
 
