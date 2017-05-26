@@ -315,14 +315,28 @@ error_e sub_protect(zone_to_protect_e zone)
 	switch (state) {
 			case INIT:
 				if(zone == ZONE_TO_PROTECT_SMART_CHOICE)
-					zone = DEFAULT_PROTECT_ZONE;	//On fait confiance au codeur qui a placé son espoir dans le define.
+				{
+					if(ELEMENTS_get_flag(FLAG_HARRY_GIVE_AUTORISATION_TO_ANNE_TO_PROTECT_OUR_MIDDLE))
+						zone = ZONE_TO_PROTECT_OUR_CENTER_MOONBASE;
+					else if(ELEMENTS_get_flag(FLAG_HARRY_ACCEPT_AND_EXPLOIT_THE_AUTORISATION_TO_DIPOSE_MIDDLE))
+					{
+						//Ne surtout pas emmerder harry qui va au middle... on lui laisse le chemin
+						if(COLOR_Y(global.pos.y) > 1000)
+							zone = ZONE_TO_PROTECT_ADV_CENTER_MOONBASE;
+						else
+							zone = ZONE_TO_PROTECT_OUR_SIDE_MOONBASE;
+					}
+					else
+						zone = ZONE_TO_PROTECT_OUR_FULL_SIDE;	//Protect par défaut...
+
+				}
 
 				switch(zone)
 				{
-					case ZONE_TO_PROTECT_ADV_CENTER_MOONBASE:	p = (GEOMETRY_point_t){1300,COLOR_Y(2300)};			break;
+					case ZONE_TO_PROTECT_ADV_CENTER_MOONBASE:	p = (GEOMETRY_point_t){1300,COLOR_Y(1800)};			break;
 					case ZONE_TO_PROTECT_ADV_SIDE_MOONBASE:		p = (GEOMETRY_point_t){900,COLOR_Y(2700)};			break;
 					case ZONE_TO_PROTECT_MIDDLE_MOONBASE:		p = (GEOMETRY_point_t){950,1500};					break;
-					case ZONE_TO_PROTECT_OUR_CENTER_MOONBASE:	p = (GEOMETRY_point_t){1300,COLOR_Y(700)};			break;
+					case ZONE_TO_PROTECT_OUR_CENTER_MOONBASE:	p = (GEOMETRY_point_t){1300,COLOR_Y(1200)};			break;
 					case ZONE_TO_PROTECT_OUR_SIDE_MOONBASE:		p = (GEOMETRY_point_t){900,COLOR_Y(300)};			break;
 					case ZONE_TO_PROTECT_OUR_FULL_SIDE:					//no break
 					case ZONE_TO_PROTECT_SMART_CHOICE:					//no break

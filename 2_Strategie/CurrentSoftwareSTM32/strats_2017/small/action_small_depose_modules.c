@@ -1166,6 +1166,9 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			break;
 		case RUSH_TO_GOAL:
 			if(entrance){
+				//On a réussi à rejoindre la zone du side... on ne retournera certainement pas au middle, on autorise harry à s'y rendre !
+				ELEMENTS_set_flag(FLAG_ANNE_GIVE_AUTORISATION_TO_HARRY_TO_DISPOSE_MIDDLE,TRUE);
+
 				// Envoi du filtrage de la zone de transparence
 				can_msg.sid = PROP_TRANSPARENCY;
 				can_msg.size = SIZE_PROP_TRANSPARENCY;
