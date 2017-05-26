@@ -207,7 +207,7 @@ static bool_e COPILOT_decision_change_order(bool_e * change_order_in_multipoint_
 					 ||
 						( (checkNextOrder.trajectory == TRAJECTORY_TRANSLATION || checkNextOrder.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
 						 &&
-						  (current_order.trajectory == TRAJECTORY_TRANSLATION || checkNextOrder.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
+						  (current_order.trajectory == TRAJECTORY_TRANSLATION || current_order.trajectory == TRAJECTORY_AUTOMATIC_CURVE)
 						)
 				   ){
 					*change_order_in_multipoint_without_reaching_destination = TRUE;
@@ -244,6 +244,7 @@ static trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destinat
 	//Si on est déjà sur le point demandé >>> aucune trajectoire..... on fait donc la trajectoire "AUCUNE", qui arrivera directement.
 	if(d < PRECISION_ARRIVE_POSITION_TRANSLATION && absolute(global.vitesse_translation) < PRECISION_ARRIVE_SPEED_TRANSLATION)
 	{
+#warning SAMUEL : décommente ça pour vérifier si c est dans ce cas qu on n effectue pas de rotation
 	//	debug_printf("Point trop proche\n");
 		return TRAJECTORY_NONE;
 	}
