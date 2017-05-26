@@ -20,7 +20,8 @@
 #define ACT_ARG_DEFAULT_TIMEOUT_MS 3000
 #define ACT_ARG_NOFALLBACK_SID 0xFFF
 
-#define ACT_RE_SEND_TIME	50
+#define ACT_RE_SEND_FIRST_TIME	50
+#define ACT_RE_SEND_TIME		200
 
 #ifdef ACT_NO_ERROR_HANDLING
 	#warning "La gestion d'erreur des actionneurs est désactivée ! (voir act_function.c/h, constante: ACT_NO_ERROR_HANDLING)"
@@ -42,6 +43,7 @@ typedef struct {
 	ACT_function_result_e lastResult;
 	Uint32 lastParamResult;
 	bool_e acknowledge;
+	bool_e alreadyReSend;
 } act_state_info_t;
 
 static act_state_info_t act_states[NB_QUEUE];  //Info lié a chaque actionneur
@@ -163,6 +165,7 @@ static void ACT_run_operation(queue_id_e act_id, bool_e init) {
 		act_states[act_id].operationResult = ACT_RESULT_Working;
 		act_states[act_id].lastResult = ACT_FUNCTION_InProgress;
 		act_states[act_id].acknowledge = FALSE;
+		act_states[act_id].alreadyReSend = FALSE;
 
 		debug_printf("Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d,  data[0]:0x%x,  data[1]:0x%x\n", act_id, msg->sid , msg->size, msg->data.act_msg.order, msg->data.act_msg.act_data.act_order.act_optionnal_data[0], msg->data.act_msg.act_data.act_order.act_optionnal_data[1]);
 
@@ -195,12 +198,16 @@ static void ACT_check_result(queue_id_e act_id) {
 		QUEUE_next(act_id);
 #else
 
-	if(global.absolute_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time_of_re_send_msg(act_id) && act_states[act_id].acknowledge == FALSE){
+	if(act_states[act_id].acknowledge == FALSE
+			&&	((act_states[act_id].alreadyReSend == FALSE && global.absolute_time >= ACT_RE_SEND_FIRST_TIME + QUEUE_get_initial_time_of_re_send_msg(act_id))
+				||	(act_states[act_id].alreadyReSend == TRUE && global.absolute_time >= ACT_RE_SEND_TIME + QUEUE_get_initial_time_of_re_send_msg(act_id)))
+		){
 		error_printf("Acknowledge timeout (by strat) act id: %u, sid: 0x%x", act_id, argument->msg.sid);
 		CAN_msg_t* msg = &(QUEUE_get_arg(act_id)->msg);
 		error_printf("RE-Sending operation, act_id: %d, sid: 0x%x, size: %d, order=%d\n", act_id, msg->sid , msg->size, msg->data.act_msg.order);
 		CAN_send(msg);
 		QUEUE_set_initial_time_of_re_send_msg(act_id, global.absolute_time);
+		act_states[act_id].alreadyReSend = TRUE;
 	}
 
 	if(global.absolute_time >= argument->timeout + QUEUE_get_initial_time(act_id)) {
