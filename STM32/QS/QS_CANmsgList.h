@@ -983,6 +983,12 @@
 				Sint32 error_treshold_trans		:32;	// [mm]
 			}debug_set_error_treshold_translation;
 
+		#define DEBUG_PROPULSION_SET_SPEED		0x715
+		#define SIZE_DEBUG_PROPULSION_SET_SPEED	4
+			struct{
+				PROP_speed_e prop_speed		:16;	//
+			}debug_propulsion_set_speed;
+
 		#define DEBUG_PROPULSION_GET_COEFS	0x720
 
 		#define DEBUG_PROPULSION_COEF_IS	0x721
