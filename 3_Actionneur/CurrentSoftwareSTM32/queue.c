@@ -40,6 +40,7 @@ typedef struct{
 	action_t action[QUEUE_SIZE];
 	QUEUE_arg_t arg[QUEUE_SIZE];
 	QUEUE_act_e act[QUEUE_SIZE];
+	QUEUE_act_e act_id;
 	queue_size_t head;
 	queue_size_t tail;
 	time32_t initial_time_of_current_action;
@@ -115,7 +116,7 @@ time32_t QUEUE_get_initial_time(queue_id_t queue_id) {
 	return queues[queue_id].initial_time_of_current_action;
 }
 
-queue_id_t QUEUE_create()
+queue_id_t QUEUE_create(QUEUE_act_e act_id)
 {
 	queue_id_t i;
 
@@ -134,7 +135,7 @@ queue_id_t QUEUE_create()
 	queues[i].tail = 0;
 	queues[i].error_occured = FALSE;
 	queues[i].used = TRUE;
-
+	queues[i].act_id = act_id;
 	component_printf_queue(LOG_LEVEL_Info, i, "Created\n");
 
 	return i;
@@ -147,14 +148,17 @@ queue_id_t QUEUE_create_if_not_exist_for_this_act(QUEUE_act_e act_id)
 	bool_e b = FALSE;
 	for(i=0; i<NB_QUEUE; i++)
 	{
-		if(queues[i].used && queues[i].act == act_id)
+		if(queues[i].used && queues[i].act_id == act_id)
 		{
 			b = TRUE;
 			ret = i;
+			break;
 		}
 	}
 	if(!b)
-		ret = QUEUE_create();
+		ret = QUEUE_create(act_id);
+
+
 	return ret;
 }
 
@@ -306,6 +310,8 @@ void QUEUE_flush(queue_id_t queue_id)
 		component_printf_queue(LOG_LEVEL_Debug, queue_id, " Queue reset\n");
 		sems[QUEUE_get_act(queue_id)].token = TRUE;	//On rend la sémaphore utilisée par l'actionneur
 		//queues[queue_id].used = FALSE; //On rend la file
+		queues[queue_id].head = 0;	//On vide !
+		queues[queue_id].tail = 0;
 	}
 	else
 	{

@@ -68,7 +68,7 @@ time32_t QUEUE_get_initial_time(queue_id_t queue_id);
 bool_e is_available(queue_id_t queue_id);
 
 /*Création d'une file*/
-queue_id_t QUEUE_create();
+queue_id_t QUEUE_create(QUEUE_act_e act_id);
 
 /*fonction de gestion des files*/
 void QUEUE_run();
