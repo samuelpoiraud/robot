@@ -160,7 +160,10 @@ error_e sub_cross_rocker(void){
 				if(IHM_switchs_get(SWITCH_ENABLE_FAST_BASCULE))
 				{
 					PROP_WARNER_arm_y(COLOR_Y(480));	//480 !!!
-					speed = 30;
+					if(IHM_switchs_get(SWITCH_ENABLE_VERY_FAST_BASCULE))
+						speed = 40;
+					else
+						speed = 30;
 				}
 				else
 					speed = 22;
