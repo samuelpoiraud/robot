@@ -41,6 +41,7 @@
 	error_e sub_harry_shooting_depose_minerais();
 	error_e sub_harry_depose_minerais_alternative();
 	error_e sub_harry_get_in_depose_minerais_alternative();
+	error_e sub_harry_depose_minerais_zone();
 
 
 	// action_big_prise_modules
