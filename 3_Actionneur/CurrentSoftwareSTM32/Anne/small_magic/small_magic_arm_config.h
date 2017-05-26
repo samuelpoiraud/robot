@@ -20,8 +20,8 @@
 	#define SMALL_MAGIC_ARM_RX24_SPEED						100		// Vitesse par défaut du RX24
 
 //Position
-	#define SMALL_MAGIC_ARM_RX24_IDLE_POS					528
-	#define SMALL_MAGIC_ARM_RX24_IN_POS			     		528	//en degré
+	#define SMALL_MAGIC_ARM_RX24_IDLE_POS					516
+	#define SMALL_MAGIC_ARM_RX24_IN_POS			     		516	//en degré
 	#define SMALL_MAGIC_ARM_RX24_OUT_POS					460	//en degré
 	#define SMALL_MAGIC_ARM_RX24_CURRENT_POS_DELTA			5	// delta en degré pour forcer un peu sur le cylindre
 
