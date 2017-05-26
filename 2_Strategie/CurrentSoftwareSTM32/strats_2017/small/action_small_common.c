@@ -36,9 +36,6 @@ error_e sub_anne_initiale(void){
 	static bool_e must_protect_after_dispose = FALSE;
 	error_e ret = IN_PROGRESS;
 
-	UNUSED_VAR(nb_try_return_adv_middle);
-	UNUSED_VAR(nb_try_return_middle);
-	UNUSED_VAR(nb_try_return_adv_side);
 	UNUSED_VAR(must_protect_after_dispose);
 
 	switch(state){
