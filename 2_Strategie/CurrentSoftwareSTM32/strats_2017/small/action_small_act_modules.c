@@ -213,6 +213,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			error_printf("Take pos computed is (%d;%d)\n", take_pos.x, take_pos.y );
 
 			modules_taken = 0;
+			nbEssais = 0;
 			state = COMPUTE_NEXT_CYLINDER;
 			break;
 
@@ -331,9 +332,11 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(entrance)
 			{
 				nbEssais += 1;
-				if(nbEssais>=3)
-					state = ACTION_BRING_BACK_CYLINDER;//ou DONE ? est-ce-qu'on continue la prise?
+				//if(nbEssais>=2)
+				//	state = ACTION_BRING_BACK_CYLINDER;//ou DONE ? est-ce-qu'on continue la prise?
 			}
+			if(nbEssais>=2)
+				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, ACTION_BRING_BACK_CYLINDER, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			else	//On avance en meme temps pour la prise, car on se deplace plus vite que le slider
 				state = try_going(take_pos.x, take_pos.y, state, ACTION_BRING_BACK_CYLINDER, AVANCE_ERROR, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
