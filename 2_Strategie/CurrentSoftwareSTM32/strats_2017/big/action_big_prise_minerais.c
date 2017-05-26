@@ -1,3 +1,5 @@
+#warning 'x = 1700 pour cratere sud ! '
+
 #include "action_big.h"
 #include "../../propulsion/movement.h"
 #include "../../propulsion/astar.h"

@@ -484,3 +484,74 @@ error_e sub_harry_get_in_depose_minerais_alternative(){
 	return IN_PROGRESS;
 }
 
+/*
+ * sub larguage de minerais dans la zone de depard (france)
+ */
+
+error_e sub_harry_depose_minerais_zone(){
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MINERAIS_ZONE,
+			INIT,
+			GET_IN_FROM_OUR_SQUARE,
+			GET_IN_MIDDLE_SQUARE,
+			GET_IN_FROM_ADV_SQUARE,
+			PATHFIND,
+			ERROR,
+			DONE
+		);
+
+
+	// go (400, color1200) avant depose
+	// (300, 1100) fonce zone de depard et depose
+
+	// pour depose en route !
+	//(1200, 900)
+	// (400, 900)
+
+	switch(state){
+		case INIT:
+			//si j'ai rien à déposer je vais en erreur
+			if(i_am_in_square_color(800,1400,300,900))
+				state=GET_IN_FROM_OUR_SQUARE;
+			else if(i_am_in_square_color(100,1100,900,2100))
+				state=DONE;//GET_IN_MIDDLE_SQUARE;
+			else if(i_am_in_square_color(800,1400,2100,2700))
+				state=GET_IN_FROM_ADV_SQUARE;
+			else
+				state=PATHFIND;
+			break;
+
+		case GET_IN_FROM_OUR_SQUARE:
+			state=try_going(1000,COLOR_Y(1100),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_MIDDLE_SQUARE:
+			state=try_going(800,COLOR_Y(1000),state,GET_IN_FROM_OUR_SQUARE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			break;
+
+		case GET_IN_FROM_ADV_SQUARE:
+			state=try_going(800,COLOR_Y(1850),state,GET_IN_MIDDLE_SQUARE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			break;
+
+		case PATHFIND:
+			state=ASTAR_try_going(600,COLOR_Y(1150),state,DONE,ERROR,FAST,ANY_WAY,NO_DODGE_AND_WAIT,END_AT_BRAKE);
+			break;
+
+		case ERROR:
+			RESET_MAE();
+			return NOT_HANDLED;
+			break;
+
+		case DONE:
+			RESET_MAE();
+			return END_OK;
+			break;
+
+		default:
+			if(entrance)
+				debug_printf("default case in sub_harry_get_in_depose_minerais_alternative\n");
+			break;
+	}
+
+	return IN_PROGRESS;
+}
+
