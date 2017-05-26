@@ -17,6 +17,11 @@
 
 	#include "movement.h"
 
+	typedef struct{
+		bool_e avoidanceInTraj;
+		bool_e avoidanceInTrajWithWait;
+	}PROP_moveAndDetection_data_s;
+
 // ---------------------------------------------------------------------------- Fonctions de déplacement
 
 	void PROP_stop();
@@ -27,9 +32,12 @@
 
 	void PROP_rushInTheWall(way_e way, bool_e asser_rot, Sint16 angle, PROP_speed_e speed, Uint8 idTraj);
 
-	error_e wait_move_and_wait_detection(trajectory_e trajectory_type, Uint8 nb_trajectory, Uint8 idLastTraj, STRAT_endCondition_e end_condition, time32_t begin_time);
-
 	void PROP_stayPosition(corrector_e corrector);
+
+	void PROP_init_moveAndDetection_data(PROP_moveAndDetection_data_s * data);
+
+	error_e wait_move_and_wait_detection(PROP_moveAndDetection_data_s * data, trajectory_e trajectory_type, Uint8 nb_trajectory, Uint8 idLastTraj, avoidance_type_e avoidance_type, STRAT_endCondition_e end_condition, time32_t begin_time);
+
 // ---------------------------------------------------------------------------- Fonctions de warner
 
 	/*

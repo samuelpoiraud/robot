@@ -67,10 +67,10 @@ void AVOIDANCE_process_it(){
 									NOT_BORDER_MODE,	//mode bordure
 									PROP_END_AT_POINT, //mode multipoints
 									FAST,				//Vitesse
-									NO_ACKNOWLEDGE,
+									ACKNOWLEDGE_ASKED,
 									CORRECTOR_ENABLE,
 									AVOID_DISABLED,
-									0
+									current_order.idTraj
 								);
 
 				// Puis on avertie la stratégie qu'il y a eu évitement

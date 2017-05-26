@@ -450,12 +450,12 @@ static void COPILOT_do_order(order_t * order)
 				supp.border_mode = NOT_BORDER_MODE;
 				supp.propEndCondition = PROP_END_AT_POINT;
 				supp.speed = FAST;
-				supp.acknowledge = NO_ACKNOWLEDGE;
+				supp.acknowledge = ACKNOWLEDGE_ASKED;
 				supp.corrector = CORRECTOR_ENABLE;
 				supp.avoidance = AVOID_DISABLED;
 				supp.total_wait_time = 0;
 				supp.trajectory = TRAJECTORY_STOP;
-				supp.idTraj = 0;
+				supp.idTraj = order->idTraj;
 			current_order = supp;
 
 			AVOIDANCE_said_foe_detected(FALSE, FALSE);
