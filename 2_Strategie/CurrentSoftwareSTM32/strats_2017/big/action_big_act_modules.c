@@ -2594,13 +2594,27 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				state1 = check_act_status(ACT_QUEUE_Cylinder_slider_left, IN_PROGRESS, END_OK, NOT_HANDLED);
 			}
 
-			if(state1 != IN_PROGRESS){
+			if((moduleToTake == RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)
+			|| (moduleToTake == LEFT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)){
+				// On met à jour les données : Passage du module dans la position POS_ENTRY
+				if(moduleToTake == RIGHT){
+					needToStoreRight = TRUE;
+					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
+				}else{
+					needToStoreLeft = TRUE;
+					STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
+				}
+				moduleToTake = NO_SIDE;
+
+				ROCKETS_removeModule(rocket); // Suppression du module de la fusée
 
 				state = COMPUTE_ACTION;
-
+			}
+			else if(state1 != IN_PROGRESS)// En cas d'erreur : on est sur que la pompe était allumé mais on a rien ventousé
+			{
 				// On continue si on pompe un objet ou si la pompe est considéré OFF (ce qui signifie une perte de communication)
-				if((moduleToTake == RIGHT && ACT_get_state_vacuostat(VACUOSTAT_SLIDER_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)
-				|| (moduleToTake == LEFT && ACT_get_state_vacuostat(VACUOSTAT_SLIDER_LEFT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)){
+				if((moduleToTake == RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)
+				|| (moduleToTake == LEFT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)){
 					// On met à jour les données : Passage du module dans la position POS_ENTRY
 					if(moduleToTake == RIGHT){
 						needToStoreRight = TRUE;
@@ -2613,7 +2627,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 
 					ROCKETS_removeModule(rocket); // Suppression du module de la fusée
 				}
-				else // En cas d'erreur : on est sur que la pompe était allumé mais on a rien ventousé
+				else
 				{
 					if(moduleToTake == RIGHT){	// On a rien pris à droite
 						moduleToTake = LEFT;
@@ -2623,6 +2637,8 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 						takeNothingLeft = TRUE;
 					}
 				}
+
+				state = COMPUTE_ACTION;
 			}
 			break;
 
