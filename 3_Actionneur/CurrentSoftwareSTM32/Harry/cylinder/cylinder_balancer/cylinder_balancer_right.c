@@ -166,7 +166,7 @@ static void CYLINDER_BALANCER_RIGHT_get_config(CAN_msg_t *incoming_msg){
 static void CYLINDER_BALANCER_RIGHT_get_position_config(ACT_order_e *pOrder, Uint16 *pPos){
 	ACT_order_e order = ACT_CYLINDER_BALANCER_RIGHT_STOP;
 	Uint16 position = AX12_get_position(CYLINDER_BALANCER_RIGHT_AX12_ID);
-	Uint16 epsilon = CYLINDER_BALANCER_RIGHT_AX12_ASSER_POS_EPSILON;
+	Uint16 epsilon = CYLINDER_BALANCER_RIGHT_AX12_ASSER_POS_LARGE_EPSILON;
 
 	if(position > CYLINDER_BALANCER_RIGHT_AX12_IN_POS - epsilon && position < CYLINDER_BALANCER_RIGHT_AX12_IN_POS + epsilon){
 		order = ACT_CYLINDER_BALANCER_RIGHT_IN;
