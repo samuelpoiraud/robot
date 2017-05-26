@@ -17,9 +17,6 @@
 #include "../avoidance.h"
 
 
-// Zone filtré pour le petit robot
-#define FILTER_ZONE_FOR_SMALL	(9)
-
 typedef enum
 {
 	DZONE0_BLUE_OUTDOOR,
@@ -1191,10 +1188,12 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 	{
 		case INIT:
 			nb_try_extract_from_rush_to_a = 0;
-			if(side == OUR_SIDE)
+			if(side == OUR_SIDE){
 				color_side = global.color;
-			else
+				ELEMENTS_set_flag(FLAG_ACTIVATE_FILTER_ANNE_DEPOSE_SIDE, TRUE);
+			}else{
 				color_side = (global.color==BLUE)?YELLOW:BLUE;
+			}
 			if(color_side == BLUE)
 			{
 				G = (GEOMETRY_point_t){1000-OFFSET_M_R,0};
@@ -1293,7 +1292,7 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 				can_msg.sid = PROP_TRANSPARENCY;
 				can_msg.size = SIZE_PROP_TRANSPARENCY;
 				can_msg.data.prop_transparency.enable = TRUE;
-				can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_SMALL;
+				can_msg.data.prop_transparency.number = DETECTION_FILTER_ZONE_SMALL_IGNORE_BIG;
 				CAN_send(&can_msg);
 			}
 			state = try_rush(G.x, G.y, state, EXTRACT_FROM_RUSH_TO_A, EXTRACT_FROM_RUSH_TO_A, FORWARD, NO_DODGE_AND_WAIT, TRUE);
@@ -1498,8 +1497,10 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			can_msg.sid = PROP_TRANSPARENCY;
 			can_msg.size = SIZE_PROP_TRANSPARENCY;
 			can_msg.data.prop_transparency.enable = FALSE;
-			can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_SMALL;
+			can_msg.data.prop_transparency.number = DETECTION_FILTER_ZONE_SMALL_IGNORE_BIG;
 			CAN_send(&can_msg);
+
+			ELEMENTS_set_flag(FLAG_ACTIVATE_FILTER_ANNE_DEPOSE_SIDE, FALSE);
 
 			RESET_MAE();
 			on_turning_point();
@@ -1511,8 +1512,10 @@ error_e sub_anne_dispose_modules_side(ELEMENTS_side_match_e side)
 			can_msg.sid = PROP_TRANSPARENCY;
 			can_msg.size = SIZE_PROP_TRANSPARENCY;
 			can_msg.data.prop_transparency.enable = FALSE;
-			can_msg.data.prop_transparency.number = FILTER_ZONE_FOR_SMALL;
+			can_msg.data.prop_transparency.number = DETECTION_FILTER_ZONE_SMALL_IGNORE_BIG;
 			CAN_send(&can_msg);
+
+			ELEMENTS_set_flag(FLAG_ACTIVATE_FILTER_ANNE_DEPOSE_SIDE, FALSE);
 
 			RESET_MAE();
 			on_turning_point();

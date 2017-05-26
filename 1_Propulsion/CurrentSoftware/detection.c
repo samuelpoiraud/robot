@@ -17,6 +17,7 @@
 #include "QS/QS_timer.h"
 #include "QS/QS_maths.h"
 #include "QS/QS_who_am_i.h"
+#include "QS/QS_types.h"
 #include "../config/config_pin.h"
 
 volatile static Uint32 hokuyo_update_time = 0;
@@ -35,23 +36,9 @@ typedef struct{
 	bool_e enable;
 }detection_zone_s;
 
-typedef enum{
-	START_ZONE_BLUE,
-	NEXT_TO_START_ZONE_BLUE,
-	START_ZONE_YELLOW,
-	NEXT_TO_START_ZONE_YELLOW,
-	MOONBASE_BLUE_SIDE,
-	MOONBASE_MIDDLE_BLUE_SIDE,
-	MOONBASE_MIDDLE_YELLOW_SIDE,
-	MOONBASE_YELLOW_SIDE,
-	FILTER_ZONE_FOR_BIG,
-	FILTER_ZONE_FOR_SMALL,
-	NB_DETECTION_ZONES
-}detection_zone_id_e;
-
 static const GEOMETRY_point_t out_point = {1500, 2500};
 
-detection_zone_s zones_hokuyo[9]={{{(GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){360, 0}, (GEOMETRY_point_t){360, 710},(GEOMETRY_point_t){0, 710}}, FALSE}, 				// Zone de départ bleu
+detection_zone_s zones_hokuyo[NB_DETECTION_ZONES]={{{(GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){360, 0}, (GEOMETRY_point_t){360, 710},(GEOMETRY_point_t){0, 710}}, FALSE}, 				// Zone de départ bleu
 								 {{(GEOMETRY_point_t){360, 0}, (GEOMETRY_point_t){700, 0}, (GEOMETRY_point_t){700, 710},(GEOMETRY_point_t){360, 710}}, FALSE}, 			// Zone à côté de la zone de départ bleu
 								 {{(GEOMETRY_point_t){0, 2290}, (GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){360, 3000},(GEOMETRY_point_t){0, 3000}}, FALSE}, 		// Zone de départ jaune
 								 {{(GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){700, 2290}, (GEOMETRY_point_t){700, 3000},(GEOMETRY_point_t){360, 3000}}, FALSE}, 	// Zone à côté de la zone de départ jaune
@@ -65,11 +52,11 @@ detection_zone_s zones_hokuyo[9]={{{(GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t)
 								 {{(GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){1150, 0}, (GEOMETRY_point_t){1150, 1000},(GEOMETRY_point_t){400, 1000}}, FALSE},
 
 								 // Zone filtré pour le petit robot
-								 {{(GEOMETRY_point_t){1150, 0}, (GEOMETRY_point_t){2000, 0}, (GEOMETRY_point_t){2000, 1000},(GEOMETRY_point_t){1150, 1000}}, FALSE},
+								 {{(GEOMETRY_point_t){1150, 0}, (GEOMETRY_point_t){2000, 0}, (GEOMETRY_point_t){2000, 1000},(GEOMETRY_point_t){1150, 1000}}, FALSE}
 
 								};
 
-detection_zone_s zones_balise[9]={{{(GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){360, 0}, (GEOMETRY_point_t){360, 710},(GEOMETRY_point_t){0, 710}}, FALSE}, 				// Zone de départ bleu
+detection_zone_s zones_balise[NB_DETECTION_ZONES]={{{(GEOMETRY_point_t){0, 0}, (GEOMETRY_point_t){360, 0}, (GEOMETRY_point_t){360, 710},(GEOMETRY_point_t){0, 710}}, FALSE}, 				// Zone de départ bleu
 								 {{(GEOMETRY_point_t){360, 0}, (GEOMETRY_point_t){700, 0}, (GEOMETRY_point_t){700, 710},(GEOMETRY_point_t){360, 710}}, FALSE}, 			// Zone à côté de la zone de départ bleu
 								 {{(GEOMETRY_point_t){0, 2290}, (GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){360, 3000},(GEOMETRY_point_t){0, 3000}}, FALSE}, 		// Zone de départ jaune
 								 {{(GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){700, 2290}, (GEOMETRY_point_t){700, 3000},(GEOMETRY_point_t){360, 3000}}, FALSE}, 	// Zone à côté de la zone de départ jaune
@@ -284,65 +271,65 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 					adv_pos.x = adversaries[HOKUYO_MAX_FOES+i].x;
 					adv_pos.y = adversaries[HOKUYO_MAX_FOES+i].y;
 
-					if(is_in_polygon(zones_hokuyo[START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-						if(is_in_polygon(zones_hokuyo[NEXT_TO_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+					if(is_in_polygon(zones_hokuyo[DETECTION_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_NEXT_TO_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
 					}
 
-					if(is_in_polygon(zones_hokuyo[NEXT_TO_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-						if(is_in_polygon(zones_hokuyo[START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+					if(is_in_polygon(zones_hokuyo[DETECTION_NEXT_TO_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
 					}
 
-					if(is_in_polygon(zones_hokuyo[START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-						if(is_in_polygon(zones_hokuyo[NEXT_TO_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+					if(is_in_polygon(zones_hokuyo[DETECTION_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_NEXT_TO_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
 					}
 
-					if(is_in_polygon(zones_hokuyo[NEXT_TO_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-						if(is_in_polygon(zones_hokuyo[START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+					if(is_in_polygon(zones_hokuyo[DETECTION_NEXT_TO_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
 					}
 
-					if(is_in_polygon(zones_hokuyo[MOONBASE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-						if(is_in_polygon(zones_hokuyo[MOONBASE_MIDDLE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+					if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_MIDDLE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
 					}
 
-					if(is_in_polygon(zones_hokuyo[MOONBASE_MIDDLE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-						if(is_in_polygon(zones_hokuyo[MOONBASE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+					if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_MIDDLE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
-						if(is_in_polygon(zones_hokuyo[MOONBASE_MIDDLE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
-							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
-							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
-						}
-					}
-
-					if(is_in_polygon(zones_hokuyo[MOONBASE_MIDDLE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-						if(is_in_polygon(zones_hokuyo[MOONBASE_MIDDLE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
-							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
-							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
-						}
-						if(is_in_polygon(zones_hokuyo[MOONBASE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_MIDDLE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
 					}
 
-					if(is_in_polygon(zones_hokuyo[MOONBASE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-						if(is_in_polygon(zones_hokuyo[MOONBASE_MIDDLE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+					if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_MIDDLE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_MIDDLE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+						if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
+							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
+							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
+						}
+					}
+
+					if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+						if(is_in_polygon(zones_hokuyo[DETECTION_MOONBASE_MIDDLE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, adv_pos, out_point, NULL)){
 							adversaries[HOKUYO_MAX_FOES+i].enable = FALSE;
 							adversaries[HOKUYO_MAX_FOES+i].updated = FALSE;
 						}
@@ -390,32 +377,32 @@ void DETECTION_new_adversary_position(CAN_msg_t * msg, HOKUYO_adversary_position
 				zones_balise[j].enable = FALSE;
 			}
 
-			if(is_in_polygon(zones_balise[START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-				zones_balise[NEXT_TO_START_ZONE_BLUE].enable = TRUE;
+			if(is_in_polygon(zones_balise[DETECTION_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+				zones_balise[DETECTION_NEXT_TO_START_ZONE_BLUE].enable = TRUE;
 			}
-			if(is_in_polygon(zones_balise[NEXT_TO_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-				zones_balise[START_ZONE_BLUE].enable = TRUE;
+			if(is_in_polygon(zones_balise[DETECTION_NEXT_TO_START_ZONE_BLUE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+				zones_balise[DETECTION_START_ZONE_BLUE].enable = TRUE;
 			}
-			if(is_in_polygon(zones_balise[START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-				zones_balise[NEXT_TO_START_ZONE_YELLOW].enable = TRUE;
+			if(is_in_polygon(zones_balise[DETECTION_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+				zones_balise[DETECTION_NEXT_TO_START_ZONE_YELLOW].enable = TRUE;
 			}
-			if(is_in_polygon(zones_balise[NEXT_TO_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-				zones_balise[START_ZONE_YELLOW].enable = TRUE;
+			if(is_in_polygon(zones_balise[DETECTION_NEXT_TO_START_ZONE_YELLOW].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+				zones_balise[DETECTION_START_ZONE_YELLOW].enable = TRUE;
 			}
 
-			if(is_in_polygon(zones_balise[MOONBASE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-				zones_balise[MOONBASE_MIDDLE_BLUE_SIDE].enable = TRUE;
+			if(is_in_polygon(zones_balise[DETECTION_MOONBASE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+				zones_balise[DETECTION_MOONBASE_MIDDLE_BLUE_SIDE].enable = TRUE;
 			}
-			if(is_in_polygon(zones_balise[MOONBASE_MIDDLE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-				zones_balise[MOONBASE_BLUE_SIDE].enable = TRUE;
-				zones_balise[MOONBASE_MIDDLE_YELLOW_SIDE].enable = TRUE;
+			if(is_in_polygon(zones_balise[DETECTION_MOONBASE_MIDDLE_BLUE_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+				zones_balise[DETECTION_MOONBASE_BLUE_SIDE].enable = TRUE;
+				zones_balise[DETECTION_MOONBASE_MIDDLE_YELLOW_SIDE].enable = TRUE;
 			}
-			if(is_in_polygon(zones_balise[MOONBASE_MIDDLE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-				zones_balise[MOONBASE_YELLOW_SIDE].enable = TRUE;
-				zones_balise[MOONBASE_MIDDLE_BLUE_SIDE].enable = TRUE;
+			if(is_in_polygon(zones_balise[DETECTION_MOONBASE_MIDDLE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+				zones_balise[DETECTION_MOONBASE_YELLOW_SIDE].enable = TRUE;
+				zones_balise[DETECTION_MOONBASE_MIDDLE_BLUE_SIDE].enable = TRUE;
 			}
-			if(is_in_polygon(zones_balise[MOONBASE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
-				zones_balise[MOONBASE_MIDDLE_YELLOW_SIDE].enable = TRUE;
+			if(is_in_polygon(zones_balise[DETECTION_MOONBASE_YELLOW_SIDE].polygon, NB_POINTS_BY_ZONE, pos, out_point, NULL)){
+				zones_balise[DETECTION_MOONBASE_MIDDLE_YELLOW_SIDE].enable = TRUE;
 			}
 
 			GEOMETRY_point_t p;
