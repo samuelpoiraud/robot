@@ -441,7 +441,11 @@ void SECRETARY_process_CANmsg(CAN_msg_t* msg, MAIL_from_to_e from)
 		//REGLAGES DES COEFFICIENTS !!!!!!!!
 		case DEBUG_PROPULSION_SET_ACCELERATION:
 			// if(msg->data.debug_propulsion_set_acceleration.acceleration_coef < 200)	//Sécurité...
-				PILOT_set_coef(PILOT_ACCELERATION_NORMAL, msg->data.debug_propulsion_set_acceleration.acceleration_coef);
+			PILOT_set_coef(PILOT_ACCELERATION_NORMAL, msg->data.debug_propulsion_set_acceleration.acceleration_coef);
+		break;
+
+		case DEBUG_PROPULSION_SET_SPEED:
+			PILOT_set_speed(msg->data.debug_propulsion_set_speed.prop_speed);
 		break;
 
 		case DEBUG_PROPULSION_GET_COEFS:

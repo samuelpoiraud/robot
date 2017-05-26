@@ -258,7 +258,7 @@ static trajectory_e COPILOT_decision_rotation_before_translation(Sint16 destinat
 	}
 
 	#warning SAMUEL : décommente ça pour vérifier si c est dans ce cas qu on n effectue pas de rotation
-	//debug_printf("DEBUG : Angle faible donc translation\n");
+	debug_printf("DEBUG : Angle faible donc translation\n");
 
 	//Je n'autorise la translation que si l'angle à parcourir est très faible...
 	return TRAJECTORY_TRANSLATION;
@@ -414,7 +414,7 @@ static void COPILOT_try_order(order_t * order, bool_e change_order_in_multipoint
 				{
 
 					#warning SAMUEL : décommente ça pour vérifier si c est dans ce cas qu on n effectue pas de rotation
-					//debug_printf("DEBUG : Angle faible donc translation\n");
+					debug_printf("DEBUG : Angle faible donc translation\n");
 
 					order->trajectory = TRAJECTORY_TRANSLATION;
 				}
