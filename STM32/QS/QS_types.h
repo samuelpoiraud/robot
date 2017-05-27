@@ -258,7 +258,8 @@
 			FLAG_HARRY_MODULE_COLOR_LEFT_FALLEN,  	// Flag levé lorsque la mae de préparation des modules pour la dépose à descendu le module suivant
 			FLAG_HARRY_STORAGE_LEFT_FINISH,			// Flag levé lorsque que la subaction de stockage à gauche est terminé
 			FLAG_HARRY_STORAGE_RIGHT_FINISH,		// Flag levé lorsque que la subaction de stockage à droite est terminé
-
+			FLAG_HARRY_STORAGE_LEFT_SUCCESS,
+			FLAG_HARRY_STORAGE_RIGHT_SUCCESS,
 
 			FLAG_ANNE_STOMACH_IS_FULL, 				//le reservoir de baballe
 			FLAG_ANNE_DISABLE_MODULE,				// Ce flag est levé lorsqu'une désactivation de l'actionneur à eu lieu (après une erreur)

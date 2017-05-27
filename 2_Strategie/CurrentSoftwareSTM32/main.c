@@ -194,8 +194,8 @@ int main (void)
 		// Subactions actionneurs parallèles 2017
 		if(!global.flags.match_over){
 			if(I_AM_BIG()){
-				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, FALSE);
-				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, FALSE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, FALSE, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, FALSE, TRUE);
 				sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_RIGHT, FALSE);
 				sub_act_harry_mae_prepare_modules_for_dispose(MODULE_STOCK_LEFT, FALSE);
 			}else{
