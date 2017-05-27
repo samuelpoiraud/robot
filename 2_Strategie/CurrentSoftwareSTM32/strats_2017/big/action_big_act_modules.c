@@ -2760,6 +2760,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 					}
 				}else{
 					ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_ELEVATOR_LEFT, ACT_POMPE_STOP);
 				}
 				if(needToStoreRight){
 					//STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_RIGHT);
@@ -2770,6 +2771,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 					}
 				}else{
 					ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
+					ACT_push_order(ACT_POMPE_ELEVATOR_RIGHT, ACT_POMPE_STOP);
 				}
 
 				// Reset des variables
