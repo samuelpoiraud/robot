@@ -700,6 +700,9 @@ static const char * print_scan_sensor_id(SCAN_SENSOR_id_e id){
 		case SCAN_SENSOR_ID_SMALL_ELEVATOR :
 			return "SCAN_SENSOR_ID_SMALL_ELEVATOR";
 
+		case SCAN_SENSOR_ID_SMALL_FRONT :
+			return "SCAN_SENSOR_ID_SMALL_FRONT";
+
 		default:
 			return "UNKNOW";
 	}

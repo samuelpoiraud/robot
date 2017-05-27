@@ -11,6 +11,7 @@
 #include "../../strats_2017/big/action_big.h"
 #include "../../strats_2017/small/action_small.h"
 #include "../../strats_2017/actions_both_2017.h"
+#include "../../QS/QS_outputlog.h"
 
 void arnaud_strat_inutile_big(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
@@ -66,35 +67,45 @@ void arnaud_strat_inutile_big(){
 void arnaud_strat_inutile_small(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_INUTILE,
 				INIT,
-				INIT_ACT,
-				PREPARE_MODULE,
-				DISPOSE_MODULE,
+				ASK_MEASURE,
+				WAIT_MEASURE,
+				DISPLAY,
+				WAIT,
 				ERROR,
 				DONE
 			);
 
+	bool_e resultPresence1;
+	Uint16 resultDistance1;
+
+	bool_e resultPresence2;
+	Uint16 resultDistance2;
+
 	switch(state){
 		case INIT:
-			state = INIT_ACT;
+			state = ASK_MEASURE;
 			break;
 
-		case INIT_ACT:
-			if(entrance){
-				ACT_push_order(ACT_SMALL_CYLINDER_ARM, ACT_SMALL_CYLINDER_ARM_PREPARE_TO_TAKE);
-				ACT_push_order(ACT_SMALL_CYLINDER_DISPOSE, ACT_SMALL_CYLINDER_DISPOSE_TAKE);
-				ACT_push_order(ACT_SMALL_CYLINDER_BALANCER, ACT_SMALL_CYLINDER_BALANCER_IN);
-			}
-			state = check_act_status(ACT_QUEUE_Small_cylinder_arm, state, DISPOSE_MODULE, DISPOSE_MODULE);
+		case ASK_MEASURE:
+			ACT_ask_scan_on_shot(SCAN_SENSOR_ID_SMALL_ELEVATOR);
+			ACT_ask_scan_on_shot(SCAN_SENSOR_ID_SMALL_FRONT);
+			state = WAIT_MEASURE;
 			break;
 
-		case PREPARE_MODULE:
-			if(entrance){
-				sub_act_anne_mae_prepare_modules_for_dispose(TRUE);
-			}
+		case WAIT_MEASURE:
+			if(ACT_get_scan_on_shot_result(SCAN_SENSOR_ID_SMALL_ELEVATOR, &resultPresence1, &resultDistance1)
+					&& ACT_get_scan_on_shot_result(SCAN_SENSOR_ID_SMALL_FRONT, &resultPresence2, &resultDistance2))
+				state = DISPLAY;
 			break;
 
-		case DISPOSE_MODULE:
-				state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_AND_FINISH), state, DONE, ERROR);
+		case DISPLAY:
+			debug_printf("Elevator : %d  |  %d", resultPresence1, resultDistance1);
+			debug_printf("Front : %d  |  %d", resultPresence2, resultDistance2);
+			state = WAIT;
+			break;
+
+		case WAIT:
+			state = wait_time(2000, state, ASK_MEASURE);
 			break;
 
 		case ERROR:

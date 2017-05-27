@@ -310,8 +310,8 @@
 
 	#define PORT_IO_E_5			PORT_IO_OUTPUT
 	#define PORT_OPT_E_5		PORT_OPT_PULL_DOWN
-		#define CS_LASER_RIGHT_PORT	GPIOE
-		#define CS_LASER_RIGHT_PIN	GPIO_Pin_5
+		#define CS_LASER_FRONT_PORT	GPIOE
+		#define CS_LASER_FRONT_PIN	GPIO_Pin_5
 		// Programmation
 
 	#define PORT_IO_E_6			PORT_IO_OUTPUT
