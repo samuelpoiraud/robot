@@ -1656,18 +1656,18 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case TAKE_MODULE_LEFT:
 			if(entrance){
 
-				if(global.color == BLUE && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
+				/*if(global.color == BLUE && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
 					state = ERROR; // Notre slider est toujours prit
 				}else if(global.color == YELLOW && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))){
 					state = ERROR; // Notre slider est toujours prit
-				}else{
+				}else{*/
 					// On ne peut utiliser l'élévateur que s'il est disponible
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT)){
 						ACT_push_order( ACT_CYLINDER_ELEVATOR_LEFT , ACT_CYLINDER_ELEVATOR_LEFT_LOCK_WITH_CYLINDER );
 						//ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_NORMAL );
 					}
 					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
-				}
+				//}
 			}else{
 				state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE_LEFT, GET_OUT_LEFT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
@@ -1750,18 +1750,18 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case TAKE_MODULE_RIGHT:
 			if(entrance){
 
-				if(global.color == BLUE && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
+				/*if(global.color == BLUE && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_LEFT))){
 					state = ERROR; // Notre slider est toujours prit
 				}else if(global.color == YELLOW && (!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT) || !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT))){
 					state = ERROR; // Notre slider est toujours prit
-				}else{
+				}else{*/
 					// On ne peut utiliser l'élévateur que s'il est disponible
 					if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_RIGHT)){
 						ACT_push_order( ACT_CYLINDER_ELEVATOR_RIGHT , ACT_CYLINDER_ELEVATOR_RIGHT_LOCK_WITH_CYLINDER );
 						//ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_NORMAL );
 					}
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL );
-				}
+				//}
 			}else{
 				state = try_going(1750, COLOR_Y(750), state, RUSH_TO_LOCK_MODULE_RIGHT, GET_OUT_RIGHT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
@@ -1819,6 +1819,8 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case ERROR:
 			RESET_MAE();
 			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_SOUTH_UNI, FALSE); // Flag subaction
+			ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IN);
+			ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_IN);
 			on_turning_point();
 			return NOT_HANDLED;
 			break;
@@ -1826,6 +1828,8 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 		case DONE:
 			RESET_MAE();
 			ELEMENTS_set_flag(FLAG_SUB_HARRY_TAKE_CYLINDER_SOUTH_UNI, FALSE); // Flag subaction
+			ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IN);
+			ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_IN);
 			on_turning_point();
 			return END_OK;
 			break;
