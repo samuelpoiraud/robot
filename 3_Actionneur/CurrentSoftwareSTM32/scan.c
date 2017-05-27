@@ -33,7 +33,8 @@
 	static volatile SCAN_data_s data;
 
 	static volatile SCAN_on_shot_data_s dataOnShot[SCAN_SENSOR_ID_NB] = {
-			(SCAN_on_shot_data_s){FALSE, FALSE, 0 , 0, 100, SCAN_THRESHOLD_FALSE_ON_UPPER, DISTANCE_SENSOR_SMALL_ELEVATOR}		// SCAN_SENSOR_ID_SMALL_ELEVATOR
+			(SCAN_on_shot_data_s){.threshold = 40, .thresholdWay = SCAN_THRESHOLD_FALSE_ON_UPPER, .idVL53L0X = DISTANCE_SENSOR_SMALL_ELEVATOR},		// SCAN_SENSOR_ID_SMALL_ELEVATOR
+			(SCAN_on_shot_data_s){.threshold = 30, .thresholdWay = SCAN_THRESHOLD_FALSE_ON_UPPER, .idVL53L0X = DISTANCE_SENSOR_SMALL_SLIDER}		// DISTANCE_SENSOR_SMALL_SLIDER
 	};
 
 	static void SCAN_launchScan();
@@ -45,6 +46,16 @@
 
 	void SCAN_init(void){
 		VL53L0X_init();
+
+		Uint8 i;
+		for(i=0; i<SCAN_SENSOR_ID_NB; i++){
+			dataOnShot[i].SCAN_asked = FALSE;
+			dataOnShot[i].SCAN_readyToTransmit = FALSE;
+			dataOnShot[i].distance = 0;
+			dataOnShot[i].nbTry = 0;
+			dataOnShot[i].presence = FALSE;
+		}
+
 	}
 
 	void SCAN_processMain(void){
@@ -52,13 +63,13 @@
 			SCAN_launchScan();
 		}
 
-		//SCAN_on_shot_launch();
+		SCAN_on_shot_launch();
 
 		VL53L0X_processMain();
 
-		//SCAN_on_shot_compute();
+		SCAN_on_shot_compute();
 
-		//SCAN_on_shot_sendMsg();
+		SCAN_on_shot_sendMsg();
 
 		if(SCAN_activate && global.pos.updated){
 			SCAN_computeScan();
@@ -94,6 +105,8 @@
 
 			case ACT_SCAN_DISTANCE:
 				if(msg->data.act_scan_distance.idSensor < SCAN_SENSOR_ID_NB){
+					dataOnShot[msg->data.act_scan_distance.idSensor].nbTry = 0;
+					dataOnShot[msg->data.act_scan_distance.idSensor].SCAN_readyToTransmit = 0;
 					dataOnShot[msg->data.act_scan_distance.idSensor].SCAN_asked = TRUE;
 				}
 				break;
@@ -111,7 +124,7 @@
 				break;
 
 			case SCAN_I2C_RIGHT:
-				VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_RIGHT);
+				VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_SLIDER);
 				break;
 
 			default:
@@ -123,7 +136,7 @@
 	static void SCAN_on_shot_launch(){
 		Uint8 i;
 		for(i=0; i<SCAN_SENSOR_ID_NB; i++){
-			if(dataOnShot[i].SCAN_asked && dataOnShot[i].nbTry < 3){
+			if(dataOnShot[i].SCAN_asked){
 				VL53L0X_askMeasure(dataOnShot[i].idVL53L0X);
 			}
 		}
@@ -132,7 +145,7 @@
 	static void SCAN_on_shot_compute(){
 		Uint8 i;
 		for(i=0; i<SCAN_SENSOR_ID_NB; i++){
-			if(dataOnShot[i].SCAN_asked && dataOnShot[i].nbTry < 3){
+			if(dataOnShot[i].SCAN_asked){
 
 				VL53L0X_distanceMeasure_t dist = VL53L0X_getMeasure(dataOnShot[i].idVL53L0X);
 
@@ -158,6 +171,7 @@
 					dataOnShot[i].SCAN_readyToTransmit = TRUE;
 
 				}else if(dataOnShot[i].nbTry < 3){
+					error_printf("Erreur lecture distance %s\n", VL53L0X_getNameSensor(dataOnShot[i].idVL53L0X));
 					dataOnShot[i].nbTry++;
 				}else{
 					dataOnShot[i].distance = 0;
@@ -182,7 +196,7 @@
 				msg.size = SIZE_ACT_SCAN_DISTANCE_RESULT;
 				msg.data.act_scan_distance_result.idSensor = i;
 				msg.data.act_scan_distance_result.distance = dataOnShot[i].distance;
-				msg.data.act_scan_distance_result.idSensor = dataOnShot[i].presence;
+				msg.data.act_scan_distance_result.present = dataOnShot[i].presence;
 
 				CAN_send(&msg);
 
@@ -201,8 +215,8 @@
 				break;
 
 			case SCAN_I2C_RIGHT:
-				scanDone = VL53L0X_measureReady(DISTANCE_SENSOR_SMALL_RIGHT);
-				scanMeasure = VL53L0X_getMeasure(DISTANCE_SENSOR_SMALL_RIGHT);
+				scanDone = VL53L0X_measureReady(DISTANCE_SENSOR_SMALL_SLIDER);
+				scanMeasure = VL53L0X_getMeasure(DISTANCE_SENSOR_SMALL_SLIDER);
 				break;
 
 			default:

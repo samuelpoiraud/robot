@@ -40,6 +40,7 @@
 		bool_e measureAsked;
 		bool_e measureDone;
 		VL53L0X_distanceMeasure_t measure;
+		VL53L0X_distanceMeasure_t lastMeasure;
 	}VL53L0X_sensor_t;
 
 	/**************************************
@@ -57,7 +58,7 @@
 
 	static volatile VL53L0X_sensor_t sensors[DISTANCE_SENSOR_NB_SENSOR] = {
 			{	.setAddress = 0x54, .rangeConfig = VL53L0X_HIGH_ACCURACY, .deviceMode = VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, .GPIOx = CS_LASER_LEFT_PORT, .GPIO_Pin = CS_LASER_LEFT_PIN},	// DISTANCE_SENSOR_SMALL_LEFT
-			{	.setAddress = 0x56, .rangeConfig = VL53L0X_HIGH_ACCURACY, .deviceMode = VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, .GPIOx = CS_LASER_RIGHT_PORT, .GPIO_Pin = CS_LASER_RIGHT_PIN},	// DISTANCE_SENSOR_SMALL_RIGHT
+			{	.setAddress = 0x56, .rangeConfig = VL53L0X_HIGH_ACCURACY, .deviceMode = VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, .GPIOx = CS_LASER_FRONT_PORT, .GPIO_Pin = CS_LASER_FRONT_PIN},	// DISTANCE_SENSOR_SMALL_RIGHT
 			{	.setAddress = 0x58, .rangeConfig = VL53L0X_HIGH_ACCURACY, .deviceMode = VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, .GPIOx = CS_LASER_ELEVATOR_PORT, .GPIO_Pin = CS_LASER_ELEVATOR_PIN}	// DISTANCE_SENSOR_SMALL_RIGHT
 	};
 
@@ -78,8 +79,9 @@
 		VL53L0X_initConfigSensor();
 
 		#ifdef DEBUG_DISPLAY_SENSOR
-			VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_RIGHT);
-			VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_LEFT);
+			//VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_SLIDER);
+			//VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_LEFT);
+			VL53L0X_askMeasure(DISTANCE_SENSOR_SMALL_ELEVATOR);
 		#endif
 
 		return FALSE;
@@ -357,12 +359,14 @@
 
 		if(rangingMeasurementData.RangeStatus == 0){
 
-			if(sensors[id].sensor.LeakyFirst){
+			sensors[id].sensor.LeakyRange = rangingMeasurementData.RangeMilliMeter;
+
+			/*if(sensors[id].sensor.LeakyFirst){
 				sensors[id].sensor.LeakyFirst = 0;
 				sensors[id].sensor.LeakyRange = rangingMeasurementData.RangeMilliMeter;
 			}else{
 				sensors[id].sensor.LeakyRange = (sensors[id].sensor.LeakyRange * LeakyFactorFix8 + (256 - LeakyFactorFix8) * rangingMeasurementData.RangeMilliMeter) >> 8;
-			}
+			}*/
 
 		}else{
 			sensors[id].sensor.LeakyFirst = 1;
@@ -371,16 +375,18 @@
 		if(rangingMeasurementData.RangeStatus == 0){
 			sensors[id].measure = sensors[id].sensor.LeakyRange;
 			#ifdef DEBUG_DISPLAY_SENSOR
-				static Uint16 pastValue = 0;
-				if(pastValue != sensors[id].sensor.LeakyRange){
-					debug_printf("VL53L0X %d : %4d\n", id, sensors[id].sensor.LeakyRange);
-					pastValue = sensors[id].sensor.LeakyRange;
+				if(sensors[id].lastMeasure != sensors[id].measure){
+					debug_printf("VL53L0X %s : %4d\n", VL53L0X_getNameSensor(id), sensors[id].measure);
+					sensors[id].lastMeasure = sensors[id].sensor.LeakyRange;
 				}
 			#endif
 		}else{
 			sensors[id].measure = 0;
 			#ifdef DEBUG_DISPLAY_SENSOR
-				debug_printf("VL53L0X %d : ----\n", id, sensors[id].sensor.LeakyRange);
+				if(sensors[id].lastMeasure != sensors[id].measure){
+					debug_printf("VL53L0X %s : ----\n", VL53L0X_getNameSensor(id), sensors[id].sensor.LeakyRange);
+					sensors[id].lastMeasure = 0;
+				}
 			#endif
 		}
 
@@ -388,5 +394,21 @@
 		sensors[id].measureDone = TRUE;
 		sensors[id].measureAsked = FALSE;
 	#endif
+	}
+
+	const char * VL53L0X_getNameSensor(VL53L0X_id_e id){
+		switch(id){
+			case DISTANCE_SENSOR_SMALL_LEFT :
+				return "DISTANCE_SENSOR_SMALL_LEFT";
+
+			case DISTANCE_SENSOR_SMALL_SLIDER :
+				return "DISTANCE_SENSOR_SMALL_SLIDER";
+
+			case DISTANCE_SENSOR_SMALL_ELEVATOR :
+				return "DISTANCE_SENSOR_SMALL_ELEVATOR";
+
+			default :
+				return "UNKNOW";
+		}
 	}
 #endif

@@ -881,8 +881,8 @@
 		#define ACT_SCAN_DISTANCE_RESULT					0x223
 		#define SIZE_ACT_SCAN_DISTANCE_RESULT				4
 			struct{
-				SCAN_SENSOR_id_e idSensor					:8;
 				Uint16 distance								:16;
+				SCAN_SENSOR_id_e idSensor					:8;
 				bool_e present								:8;
 			}act_scan_distance_result;
 
