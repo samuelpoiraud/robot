@@ -780,7 +780,7 @@ return IN_PROGRESS;
 
 
 // Subaction actionneur de stockage
-error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e trigger){
+error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e trigger, bool_e arg_release_module_on_error){
 	CREATE_MAE_ACT(SM_ID_ACT_HARRY_MAE_STORE_MODULES,
 			WAIT_TRIGGER,
 			LAUNCH_CYLINDER_PREPARATION, // Parallélisation de la préparation de la couleur
@@ -792,6 +792,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 			ELEVATOR_GO_BOTTOM,
 			SLIDER_GO_IN,
 			WAIT_ELEVATOR_PUMPING,
+			ERROR_SUCTION_ELEVATOR,
 			STOP_PUMP_SLIDER,
 			CHECK_CONTAINER_IS_AVAILABLE,
 			ELEVATOR_GO_MID_POS,
@@ -824,7 +825,8 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	time32_t time_timeout;
 	static Uint8 nb_errors_suction_left, nb_errors_suction_right;
 	Uint8 nb_errors_suction;
-
+	static Uint8 release_module_on_error_left, release_module_on_error_right;
+	Uint8 release_module_on_error;
 
 	// On charge l'état courant
 	if(storage == MODULE_STOCK_RIGHT){
@@ -834,6 +836,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 		lastStateRight = stateRight;
 		time_timeout = time_timeout_right;
 		nb_errors_suction = nb_errors_suction_right;
+		release_module_on_error = release_module_on_error_right;
 	}else if(storage == MODULE_STOCK_LEFT){
 		state = stateLeft;
 		entrance = (stateLeft != lastStateLeft);
@@ -841,6 +844,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 		lastStateLeft = stateLeft;
 		time_timeout = time_timeout_left;
 		nb_errors_suction = nb_errors_suction_left;
+		release_module_on_error = release_module_on_error_left;
 	}else{
 		error_printf("sub_act_harry_mae_store_modules could only be called with MODULE_STOCK_RIGHT ou MODULE_STOCK_LEFT\n");
 		return NOT_HANDLED;
@@ -862,6 +866,7 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 	// Variables static mais dupliquées pour gérer la réentrance, vous pouvez donc utiliser :
 	//time32_t time_timeout;
 	//Uint8 nb_errors_suction;
+	//bool_e release_module_on_error;
 
 #ifdef DISPLAY_STOCKS
 	if(entrance){
@@ -877,9 +882,15 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 		case WAIT_TRIGGER:
 			if(trigger){
 				state = LAUNCH_CYLINDER_PREPARATION;
-				ELEMENTS_set_flag(FLAG_HARRY_STORAGE_LEFT_FINISH, FALSE);
-				ELEMENTS_set_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH, FALSE);
+				if(storage == MODULE_STOCK_RIGHT){
+					ELEMENTS_set_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH, FALSE);
+					ELEMENTS_set_flag(FLAG_HARRY_STORAGE_RIGHT_SUCCESS, FALSE);
+				}else{
+					ELEMENTS_set_flag(FLAG_HARRY_STORAGE_LEFT_FINISH, FALSE);
+					ELEMENTS_set_flag(FLAG_HARRY_STORAGE_LEFT_SUCCESS, FALSE);
+				}
 				nb_errors_suction = 0;
+				release_module_on_error = arg_release_module_on_error;
 			}
 			break;
 
@@ -999,15 +1010,16 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP);
 				}
 
-			}else if((storage == MODULE_STOCK_RIGHT && (global.absolute_time > time_timeout || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))
-					|| (storage == MODULE_STOCK_LEFT && (global.absolute_time > time_timeout || ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT))){
-
-				state = STOP_PUMP_SLIDER;
-
+			}else if((storage == MODULE_STOCK_RIGHT && global.absolute_time > time_timeout)
+					|| (storage == MODULE_STOCK_LEFT && global.absolute_time > time_timeout)){
+				state = ERROR_SUCTION_ELEVATOR;
+			}else if((storage == MODULE_STOCK_RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)
+					|| (storage == MODULE_STOCK_LEFT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) == MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_OBJECT)){
+				state = STOP_PUMP_SLIDER; // ok
 			}
 			break;
 
-		case STOP_PUMP_SLIDER:
+		/*case STOP_PUMP_SLIDER:
 			if(entrance){
 				if(storage == MODULE_STOCK_RIGHT){
 					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
@@ -1039,6 +1051,49 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP);
 					}
 				}else{
+
+					if(release_module_on_error){
+						// On arrête l'action ici car on n'y arrive pas
+						state = COMPUTE_ACTION;
+
+						// On supprime le module
+						STOCKS_removeModule(STOCK_POS_ENTRY, storage);
+
+						// On stoppe celle de l'élévateur
+						if(storage == MODULE_STOCK_RIGHT){
+							ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP);
+						}else{
+							ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP);
+						}
+					}else{
+						// On ne doit pas lacher le module, l'erreur doit être gérée ailleurs
+						state = ERROR;
+					}
+				}
+			}
+			break;*/
+
+		case ERROR_SUCTION_ELEVATOR:
+			if((storage == MODULE_STOCK_RIGHT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_RIGHT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)
+			|| (storage == MODULE_STOCK_LEFT && ACT_get_state_vacuostat(VACUOSTAT_ELEVATOR_LEFT) != MOSFET_BOARD_CURRENT_MEASURE_STATE_PUMPING_NOTHING)){
+				// Finalement, c'est bon
+				state = STOP_PUMP_SLIDER;
+			}else if(nb_errors_suction < MAX_ERRORS_SUCTION){
+				// On retente
+				nb_errors_suction++;
+				state = ELEVATOR_GO_BOTTOM;
+
+				// On réactive la pompe du slider et on stoppe celle de l'élévateur
+				if(storage == MODULE_STOCK_RIGHT){
+					//ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_NORMAL);
+					ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP);
+				}else{
+					//ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_NORMAL );
+					ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP);
+				}
+			}else{
+				error_printf("release_module_on_error = %d\n", release_module_on_error);
+				if(release_module_on_error){
 					// On arrête l'action ici car on n'y arrive pas
 					state = COMPUTE_ACTION;
 
@@ -1047,11 +1102,33 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 
 					// On stoppe celle de l'élévateur
 					if(storage == MODULE_STOCK_RIGHT){
+						ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP);
 						ACT_push_order( ACT_POMPE_ELEVATOR_RIGHT , ACT_POMPE_STOP);
 					}else{
+						ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP);
 						ACT_push_order( ACT_POMPE_ELEVATOR_LEFT , ACT_POMPE_STOP);
 					}
+				}else{
+					// On ne doit pas lacher le module, l'erreur doit être gérée ailleurs
+					state = ERROR;
 				}
+			}
+			break;
+
+		case STOP_PUMP_SLIDER:
+			if(entrance){
+				if(storage == MODULE_STOCK_RIGHT){
+					ACT_push_order( ACT_POMPE_SLIDER_RIGHT , ACT_POMPE_STOP );
+				}else{
+					ACT_push_order( ACT_POMPE_SLIDER_LEFT , ACT_POMPE_STOP );
+				}
+				time_timeout = global.absolute_time + 500;
+			}
+
+			if(global.absolute_time > time_timeout){
+				// Mise à jour des données
+				STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, storage);
+				state = CHECK_CONTAINER_IS_AVAILABLE;
 			}
 			break;
 
@@ -1245,9 +1322,11 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 				if(storage == MODULE_STOCK_RIGHT){
 					debug_printf("Set flag FLAG_HARRY_STORAGE_RIGHT_FINISH\n");
 					ELEMENTS_set_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH, TRUE);
+					ELEMENTS_set_flag(FLAG_HARRY_STORAGE_RIGHT_SUCCESS, TRUE);
 				}else if(storage == MODULE_STOCK_LEFT){
 					debug_printf("Set flag FLAG_HARRY_STORAGE_LEFT_FINISH\n");
 					ELEMENTS_set_flag(FLAG_HARRY_STORAGE_LEFT_FINISH, TRUE);
+					ELEMENTS_set_flag(FLAG_HARRY_STORAGE_LEFT_SUCCESS, TRUE);
 				}
 			}
 			RESET_MAE();
@@ -1282,10 +1361,12 @@ error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e tr
 		stateRight = state;
 		time_timeout_right = time_timeout;
 		nb_errors_suction_right = nb_errors_suction;
+		release_module_on_error_right = release_module_on_error;
 	}else if(storage == MODULE_STOCK_LEFT){
 		stateLeft = state;
 		time_timeout_left = time_timeout;
 		nb_errors_suction_left = nb_errors_suction;
+		release_module_on_error_left = release_module_on_error;
 	} // else L'erreur a déjà été affichée
 
 	return ret;
@@ -1437,7 +1518,7 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 		case WAIT_STORAGE:
 			if(entrance){
 				time_timeout = global.absolute_time + 10000;
-				sub_act_harry_mae_store_modules(storage, TRUE);
+				sub_act_harry_mae_store_modules(storage, TRUE, TRUE);
 			}
 			if(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_BALANCER, storage)){
 				state = WAIT_MODULE_FALL;
@@ -2283,6 +2364,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 	static int nbTakeNothingAtAll;
 	static moduleType_e moduleType = MODULE_EMPTY;
 	static Uint8 nbErrorsAvance;
+	static bool_e justStore;
 
 	// Variables locales
 	error_e state1 = IN_PROGRESS;
@@ -2323,6 +2405,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			needToStoreLeft = FALSE;
 			takeNothingRight =  FALSE;
 			takeNothingLeft = FALSE;
+			justStore = FALSE;
 			nbTakeNothingAtAll = 0;
 			nbErrorsAvance = 0;
 
@@ -2407,7 +2490,12 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			}else if(needToStoreRight && moduleToTake == RIGHT){
 				state = RECULE; // On doit stocker le module droit
 			}else if((moduleToTake == LEFT || moduleToTake == RIGHT) && (needToStoreLeft || needToStoreRight)){
-				state = ACTION_GO_TAKE_CYLINDER; // on doit prendre à partir de la position de prise et on a déjà pris un module
+				// on doit prendre un module et on a déjà pris un module
+				if(justStore){
+					state = AVANCE;
+				}else{
+					state = ACTION_GO_TAKE_CYLINDER;
+				}
 			}else if(moduleToTake == LEFT || moduleToTake == RIGHT){
 				if(i_am_in_square(take_pos.x - 10, take_pos.x + 10, take_pos.y - 10, take_pos.y + 10)){
 					state = TURN_TO_POS; // on doit prendre un cylindre à partir de la position de prise
@@ -2416,6 +2504,10 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				}
 			}else{
 				state = COMPUTE_NEXT_CYLINDER;
+			}
+
+			if(ON_LEAVE()){
+				justStore = FALSE;
 			}
 			break;
 
@@ -2439,6 +2531,10 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			break;
 
 		case TURN_TO_POS:
+			if(entrance){
+				ACT_push_order( ACT_CYLINDER_SLIDER_LEFT , ACT_CYLINDER_SLIDER_LEFT_IN );
+				ACT_push_order( ACT_CYLINDER_SLIDER_RIGHT , ACT_CYLINDER_SLIDER_RIGHT_IN );
+			}
 			state = try_go_angle(take_angle, state, ACTION_GO_TAKE_CYLINDER, ACTION_GO_TAKE_CYLINDER, FAST, ANY_WAY, END_AT_LAST_POINT);
 			if(ON_LEAVE()){
 				PROP_set_correctors(TRUE, FALSE);
@@ -2658,13 +2754,21 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			if(entrance){
 				if(needToStoreLeft){
 					//STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_LEFT);
-					sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
+					if(indexSide >= 4 && moduleToTake == NO_SIDE){ // C'est le dernier stockage
+						sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE);
+					}else{
+						sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, FALSE);
+					}
 				}else{
 					ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
 				}
 				if(needToStoreRight){
 					//STOCKS_makeModuleProgressTo(STOCK_PLACE_ENTRY_TO_ELEVATOR, MODULE_STOCK_RIGHT);
-					sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
+					if(indexSide >= 4 && moduleToTake == NO_SIDE){ // C'est le dernier stockage
+						sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE);
+					}else{
+						sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, FALSE);
+					}
 				}else{
 					ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
 				}
@@ -2672,6 +2776,8 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				// Reset des variables
 				takeNothingLeft = FALSE;
 				takeNothingRight = FALSE;
+
+				justStore = TRUE;
 			}
 
 			/*if(indexSide >= 4){
@@ -2685,8 +2791,18 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			|| (!needToStoreLeft && needToStoreRight && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH))
 			){
 				state = COMPUTE_ACTION;
-				needToStoreLeft = FALSE;
-				needToStoreRight = FALSE;
+
+				if(indexSide >= 4 && moduleToTake == NO_SIDE){ // C'est le dernier stockage
+					needToStoreLeft = FALSE;
+					needToStoreRight = FALSE;
+				}else{
+					if(ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_SUCCESS)){
+						needToStoreLeft = FALSE;
+					}
+					if(ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_SUCCESS)){
+						needToStoreRight = FALSE;
+					}
+				}
 			}
 			break;
 

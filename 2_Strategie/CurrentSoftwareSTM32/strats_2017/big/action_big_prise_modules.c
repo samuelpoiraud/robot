@@ -84,8 +84,8 @@ error_e sub_harry_prise_modules_initiale(){
 				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 
-				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
-				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE);
 			}
 
 			break;
@@ -95,8 +95,8 @@ error_e sub_harry_prise_modules_initiale(){
 				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_LEFT);
 				STOCKS_addModule(MODULE_POLY, STOCK_POS_ENTRY, MODULE_STOCK_RIGHT);
 
-				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
-				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE);
 			}
 
 			if(ELEMENTS_get_flag(FLAG_HARRY_STORAGE_LEFT_FINISH) && ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_FINISH)){
@@ -589,7 +589,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}
 
 				//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
-				state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE), state, DONE, ERROR);
 
 				if(ON_LEAVE()){
 					if(prise_point_up){ // Il y a besoin d'un GET_OUT
@@ -622,7 +622,7 @@ error_e sub_harry_prise_module_start_centre(ELEMENTS_property_e modules, ELEMENT
 				}
 
 				//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
-				state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
+				state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE),state,DONE,ERROR);
 
 				if(ON_LEAVE()){
 					if(prise_point_up){ // Il y a besoin d'un GET_OUT
@@ -986,7 +986,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 
 			//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
-			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE),state,DONE,ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE),state,DONE,ERROR);
 			break;
 
 		case STORAGE_RIGHT:
@@ -1008,7 +1008,7 @@ error_e sub_harry_prise_module_side_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 
 			//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
-			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE),state,DONE,ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE),state,DONE,ERROR);
 			break;
 
 		case ERROR:
@@ -1247,7 +1247,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 
 			//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, LEFT), state, DONE, ERROR);
-			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, GET_OUT, ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE), state, GET_OUT, ERROR);
 			break;
 
 		case STORAGE_RIGHT:
@@ -1269,7 +1269,7 @@ error_e sub_harry_prise_module_base_centre(ELEMENTS_property_e modules, ELEMENTS
 			}
 
 			//state = check_sub_action_result(sub_act_harry_get_module(STOCK_POS_ELEVATOR, RIGHT), state, DONE, ERROR);
-			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT, ERROR);
+			state=check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE), state, GET_OUT, ERROR);
 			break;
 
 		case GET_OUT:
@@ -1457,7 +1457,7 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 			}
-			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE), state, DONE, ERROR);
+			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE), state, DONE, ERROR);
 			break;
 
 
@@ -1487,7 +1487,7 @@ error_e sub_harry_prise_module_unicolor_north(ELEMENTS_side_e side){
 				}
 				ELEMENTS_set_flag(FLAG_OUR_UNICOLOR_NORTH_IS_TAKEN, TRUE);	// Flag element
 			}
-			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE), state, GET_OUT_RIGHT, ERROR);
+			state = check_sub_action_result(sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE), state, GET_OUT_RIGHT, ERROR);
 			break;
 
 		case GET_OUT_RIGHT:
@@ -1589,9 +1589,9 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 				}
 
 				if(global.color == BLUE && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_LEFT)){
-					sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
+					sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE);
 				}else if(global.color == YELLOW && !STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ENTRY, MODULE_STOCK_RIGHT)){
-					sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
+					sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE);
 				}
 
 				// On lève le flag de subaction
@@ -1717,7 +1717,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		case STORAGE_LEFT:
 			if(entrance){
-				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE);
 			}
 			state = DONE;
 			break;
@@ -1811,7 +1811,7 @@ error_e sub_harry_prise_module_unicolor_south(ELEMENTS_side_e side){
 
 		case STORAGE_RIGHT:
 			if(entrance){
-				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE);
+				sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE);
 			}
 			state = DONE;
 			break;

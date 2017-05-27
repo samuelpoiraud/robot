@@ -59,7 +59,7 @@
 	error_e sub_harry_rocket_multicolor(ELEMENTS_property_e rocket);
 	error_e sub_act_harry_take_rocket_down_to_top(moduleRocketLocation_e rocket, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top);
 	error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e rocket, ELEMENTS_side_e module_very_down, ELEMENTS_side_e module_down, ELEMENTS_side_e module_top, ELEMENTS_side_e module_very_top, bool_e alternate);
-	error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e trigger);
+	error_e sub_act_harry_mae_store_modules(moduleStockLocation_e storage, bool_e trigger, bool_e release_module_on_error);
 	error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e storage, bool_e trigger);
 	error_e sub_act_harry_mae_dispose_modules(moduleStockLocation_e storage, arg_dipose_mae_e arg_dispose);
 
