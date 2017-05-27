@@ -33,6 +33,14 @@
 	error_e sub_harry_take_south_little_crater(ELEMENTS_property_e minerais);
 	error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais);
 
+	typedef enum
+	{
+		ORE_DURING_DISPOSE_NO_EVENT,
+		ORE_DURING_DISPOSE_YOU_CAN_TAKE_NOW,
+		ORE_DURING_DISPOSE_YOU_MUST_STOP_NOW
+	}mae_harry_take_ore_during_dispose_module_e;
+
+	void mae_harry_take_ore_during_dispose_module(mae_harry_take_ore_during_dispose_module_e event);
 
 	// action_big_depose_minerais
 	error_e sub_harry_manager_put_off_ore(); //manager
