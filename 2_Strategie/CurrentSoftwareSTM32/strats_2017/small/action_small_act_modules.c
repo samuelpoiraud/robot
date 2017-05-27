@@ -889,10 +889,10 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 //			break;
 
 		case CHECK_CONTAINER_IS_AVAILABLE:
-			if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER, MODULE_STOCK_SMALL)){
+			if((STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER, MODULE_STOCK_SMALL))&&(!STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_ELEVATOR, MODULE_STOCK_SMALL))){
 				state = PREPARE_SLOPE_FOR_ELEVATOR;
 			}else{
-				state = CHECK_CONTAINER_IS_AVAILABLE;
+				state = DONE;
 			}
 			break;
 
@@ -938,7 +938,7 @@ error_e sub_act_anne_mae_store_modules(bool_e trigger){
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, COMPUTE_ACTION, COMPUTE_ACTION);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_slope, state, ELEVATOR_GO_BOTTOM_TO_END, ELEVATOR_GO_BOTTOM_TO_END);
 
 			if(ON_LEAVE()){
 				STOCKS_makeModuleProgressTo(STOCK_PLACE_ELEVATOR_TO_CONTAINER, MODULE_STOCK_SMALL);
