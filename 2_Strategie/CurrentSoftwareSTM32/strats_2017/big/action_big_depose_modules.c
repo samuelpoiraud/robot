@@ -1789,6 +1789,7 @@ error_e sub_harry_cylinder_depose_manager(){
 
 		case GO_TO_OUR_SIDE:
 			//state=check_sub_action_result(sub_harry_depose_modules_side_intro(OUR_ELEMENT,RIGHT, OUR_SIDE,SUD),state,DONE,ERROR);
+			state = DONE;
 			break;
 
 		case GO_TO_ADV_CENTER:
@@ -1803,6 +1804,7 @@ error_e sub_harry_cylinder_depose_manager(){
 
 		case GO_TO_ADV_SIDE:
 			//state=check_sub_action_result(sub_harry_depose_modules_side_intro(ADV_ELEMENT,RIGHT, OUR_SIDE,SUD),state,DONE,ERROR);
+			state = DONE;
 			break;
 
 		case ERROR:
