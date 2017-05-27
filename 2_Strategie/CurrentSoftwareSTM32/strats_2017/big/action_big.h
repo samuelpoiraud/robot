@@ -71,9 +71,9 @@
 	// action_big_depose_modules
 	error_e sub_harry_cylinder_depose_manager();
 	error_e sub_harry_depose_centre_manager();
-	error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e robot_side);
-	error_e sub_harry_get_in_depose_modules_centre(Uint8 drop_place);
-	error_e sub_harry_get_in_pos_1_depose_module_centre();
+	error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e robot_side, way_e way);
+	error_e sub_harry_get_in_depose_modules_centre(Uint8 drop_place, way_e way);
+	error_e sub_harry_get_in_pos_1_depose_module_centre(way_e way);
 	error_e sub_harry_get_in_pos_2_depose_module_centre();
 	error_e sub_harry_get_in_pos_3_depose_module_centre();
 	error_e sub_harry_get_in_pos_4_depose_module_centre();
