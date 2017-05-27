@@ -483,7 +483,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			if (entrance){
 				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT,  ACT_CYLINDER_PUSHER_RIGHT_IN);
 			}
-			state = check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE_RETURN, ERROR_UP_PUSHER);
+			state = check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, (way==FORWARD)?PUSH_MODULE_RETURN:DEPOSE_MODULE, ERROR_UP_PUSHER);
 			break;
 
 		case UP_PUSHER_LEFT:
