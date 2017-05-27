@@ -391,16 +391,20 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				// pos 1
 				if(way == FORWARD){
 					if(global.color == BLUE){
-						state = try_rush(1715, COLOR_Y(865), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+						state = try_rush((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(1715-(MOONBASES_getNbModules()-3)*7):(1715),\
+								COLOR_Y((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(865-(MOONBASES_getNbModules()-3)*7):(865)), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 					}else{
-						state = try_rush(1715, COLOR_Y(865), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+						state = try_rush((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(1715-(MOONBASES_getNbModules()-3)*7):(1715),\
+									COLOR_Y((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(865-(MOONBASES_getNbModules()-3)*7):(865)), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 					}
 				}
 				else{
 					if(global.color == BLUE){
-						state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_RIGHT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
+						state = try_rush((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(1690-(MOONBASES_getNbModules()-3)*7):(1690),\
+								COLOR_Y((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(830-(MOONBASES_getNbModules()-3)*7):(830)), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 					}else{
-						state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_LEFT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
+						state = try_rush((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(1690-(MOONBASES_getNbModules()-3)*7):(1690),\
+									COLOR_Y((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(830-(MOONBASES_getNbModules()-3)*7):(830)), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
 					}
 				}
 			}else if(drop_place == POS_2){
@@ -564,6 +568,8 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			if(ON_LEAVE())
+				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IDLE);
+				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_IDLE);
 				ELEMENTS_set_flag(FLAG_HARRY_GIVE_AUTORISATION_TO_ANNE_TO_PROTECT_OUR_MIDDLE, TRUE);
 			break;
 
