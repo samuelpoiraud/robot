@@ -147,13 +147,15 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 
 			RECULE,
 			RECULE_ERROR,
+			CHECK_CYLINDER_IN_SLIDER,
+			COMPUTE_NEXT_STATE,
+
 			ACTION_LOCK_MULTIFUNCTION,
 			STOP_POMPE_SLIDER,
 			ACTION_BRING_UP_CYLINDER_WAIT_FOR_SLOPE,
 
 			ACTION_CHECK_PRESENCE,
 			COMPUTE_CHECK_PRESENCE,
-			TRY_ONE_MORE_TIME,
 
 			ACTION_RISE_SLOPE,
 			ACTION_BRING_CYLINDER_TO_TOP,
@@ -176,6 +178,8 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 	static moduleType_e moduleType = MODULE_EMPTY;
 	static time32_t time_timeout;
 	static Uint8 nbEssais;
+
+	static bool_e firstFailTake = FALSE;
 
 	//Variables pour la gestion du capteur
 //	static bool_e resultScan;
@@ -233,8 +237,10 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			}else if(STOCKS_isFull(MODULE_STOCK_SMALL)){
 				error_printf("ON REFUSE LA PRISE, le stock est plein");
 				moduleToTake = FALSE;
-			}else if(modules_taken == max_modules_to_take){
+			}/*else if(modules_taken == max_modules_to_take){
 				error_printf("ON REFUSE LA PRISE, on nous a demandé d'en prendre seulement %d\n", max_modules_to_take); // On ne doit pas prendre les modules suivants (ceci est un choix de l'utilisateur)
+			}*/else if(global.match_time > 75000){
+				moduleToTake = FALSE;
 			}else
 				moduleToTake = TRUE;		// Le stock est plein
 
@@ -312,12 +318,11 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				state2 = check_act_status(ACT_QUEUE_Small_cylinder_elevator, IN_PROGRESS, END_OK, NOT_HANDLED);
 
 			if(state3 == IN_PROGRESS)
-				//state3 =try_going(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 				state3 = try_rush(take_pos.x, take_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 
-			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS ){
-				if(state3 == NOT_HANDLED){
-					//on a pas avancé physiquement, on retente
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS && state3 != IN_PROGRESS){
+
+				if(state3 == NOT_HANDLED){		// Cas impossible en théorie vue que c'est un try rush
 					state = AVANCE;
 					nbEssais = 0;
 				}else{
@@ -349,6 +354,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(entrance){
 				// On allume la pompe seulement a ce moment pour bien laisser le temps au stockage du module précédent de se faire
 				ACT_push_order_with_param( ACT_SMALL_POMPE_PRISE, ACT_POMPE_SMALL_ELEVATOR_NORMAL, 100);
+
 				//On rentre le bras dans le robot
 				ACT_push_order( ACT_SMALL_CYLINDER_SLIDER, ACT_SMALL_CYLINDER_SLIDER_IN );
 
@@ -389,21 +395,13 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 //					if(modules_taken == 3){
 //						state = CALCULATE_POSITION_1;
 //					}else{
-					state = PREPARE_ARM_CLOSE;
+					state = CHECK_CYLINDER_IN_SLIDER;
 //					}
 				}
 
 				// On met à jour les données
 				STOCKS_addModule(moduleType, STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-				ROCKETS_removeModule(rocket);
 				moduleToTake = FALSE;
-
-				//C'etait le dernier, on finit et on montera le module avec la sub prepare
-				if(ROCKETS_isEmpty(rocket)){
-					state = PARALLELE_ELEVATOR_GO_BOTTOM;
-					//					sub_act_anne_mae_store_modules(TRUE);
-					//					state = DONE;
-				}
 			}
 			break;
 
@@ -453,25 +451,9 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 //			}
 //			break;
 
-		case RECULE:{
-			static enum state_e success_state;
-
-			//On recule lors de la prise, car on se deplace plus vite que le slider
-			if(entrance)
-			{
-				if(ROCKETS_isEmpty(rocket))
-				{
-					success_state = PARALLELE_ELEVATOR_GO_BOTTOM;
-					//sub_act_anne_mae_store_modules(TRUE);
-					//success_state = DONE;
-				}
-				else
-					success_state = PREPARE_ARM_CLOSE;
-			}
-			//a la prise du dernier module on part en slow pour ralentir la chute du dernier
-			state = try_going(store_pos.x, store_pos.y, state, success_state, RECULE_ERROR, 25, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
-
-			break;}
+		case RECULE:
+			state = try_going(store_pos.x, store_pos.y, state, CHECK_CYLINDER_IN_SLIDER, RECULE_ERROR, 25, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			break;
 
 		case RECULE_ERROR:
 			if(entrance)
@@ -479,10 +461,52 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				nbEssais += 1;
 				if(nbEssais>=3)
 					state = DONE;
+#warning NON je refuse
 			}
 			else
 				state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
+
+		case CHECK_CYLINDER_IN_SLIDER:{
+
+			bool_e presence;
+
+			if(entrance){
+				ACT_ask_scan_on_shot(SCAN_SENSOR_ID_SMALL_FRONT);
+				time_timeout = global.absolute_time + 50;
+			}
+
+			if(ACT_get_scan_on_shot_result(SCAN_SENSOR_ID_SMALL_FRONT, &presence, NULL)){			// Si on reçois une réponse on la compute
+
+				if(presence){
+					ROCKETS_removeModule(rocket);
+					state = COMPUTE_NEXT_STATE;
+				}else{
+
+					if(firstFailTake == FALSE){
+						firstFailTake = TRUE;
+					}else{
+						ROCKETS_removeModule(rocket);
+					}
+
+					STOCKS_removeModule(STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
+					state = COMPUTE_NEXT_CYLINDER;
+				}
+
+			}else if(global.absolute_time > time_timeout){												// Sinon timeout et on considère qu'on a prit
+
+				ROCKETS_removeModule(rocket);
+				state = COMPUTE_NEXT_STATE;
+			}
+
+			}break;
+
+		case COMPUTE_NEXT_STATE:
+			if(ROCKETS_isEmpty(rocket))
+				state = PARALLELE_ELEVATOR_GO_BOTTOM;
+			else
+				state = PREPARE_ARM_CLOSE;
+		break;
 
 
 		case PARALLELE_ELEVATOR_GO_BOTTOM:
@@ -586,71 +610,13 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(state1 != IN_PROGRESS){
 				if(STOCKS_moduleStockPlaceIsEmpty(STOCK_POS_CONTAINER, MODULE_STOCK_SMALL)){
 					// Vérification des ordres effectués
-					state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_CHECK_PRESENCE, ERROR);
+					state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_RISE_SLOPE, ERROR);
 				}else{
 					//Plus de place on arrete la prise
 					moduleToTake = FALSE;
 					state = COMPUTE_NEXT_CYLINDER;
 				}
 			}
-			break;
-
-		case ACTION_CHECK_PRESENCE:
-			#warning 'a verifier par Arnaud'
-			state = COMPUTE_CHECK_PRESENCE;
-//			if(entrance){
-//				ACT_ask_scan_on_shot(SCAN_SENSOR_ID_SMALL_ELEVATOR);
-//				time_timeout = global.absolute_time + 50;
-//			}
-//
-//			if(global.absolute_time>time_timeout){
-//
-//				resultScan = ACT_get_scan_on_shot_result(SCAN_SENSOR_ID_SMALL_ELEVATOR, donneeScan);
-//				//SI on ne recupere pas de donnee alors on considere que le cylindre est la
-//				if(!resultScan)
-//					donneeScan = TRUE;
-//				state = COMPUTE_CHECK_PRESENCE
-//			}
-
-			break;
-
-		case COMPUTE_CHECK_PRESENCE:
-			#warning 'a verifier par Arnaud'
-			state =  TRY_ONE_MORE_TIME;
-//			if(donneeScan){
-//				//On a rien en haut, on a fail cette prise
-//				nbFail += 1;
-//				nbFailAffiles +=1;
-//				nbReussitesAffilees = 0;
-//			}else{
-//				//On est bon, on continue
-//				nbFailAffiles = 0;
-//				nbReussitesAffilees = 1;
-//			}
-//
-//			if((nbFail==1)||(nbReussitesAffilees >=2))
-//				//on retente une fois de plus la prise complete si on a fail au moins une fois
-//				//ou si on a réussi deux prises successives sachant su'on a verifié qu'il restait de la place lors d'un cas précédent.
-//				modules_taken --;
-//				STOCKS_removeModule( STOCK_POS_ENTRY, MODULE_STOCK_SMALL);
-//				STOCKS_removeModule( STOCK_POS_ELEVATOR, MODULE_STOCK_SMALL);
-//				state = TRY_ONE_MORE_TIME;
-//
-//			if(nbFailAffiles == 3){
-//				//On a rien capté trois fois d'affiler, on part
-//				state = DONE;
-//			}
-
-			break;
-
-		case TRY_ONE_MORE_TIME:
-			#warning 'a verifier par Arnaud'
-			state=ACTION_RISE_SLOPE;
-//			if(entrance){
-//				act_push_order(ACT_SMALL_CYLINDER_ELEVATOR, ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
-//			}
-//			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, COMPUTE_NEXT_CYLINDER, COMPUTE_NEXT_CYLINDER);
-
 			break;
 
 		case ACTION_RISE_SLOPE:
@@ -671,8 +637,34 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			}
 
 			// Vérification des ordres effectués
-			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_STOCK_UP_CYLINDER, ACTION_STOCK_UP_CYLINDER);
+			state = check_act_status(ACT_QUEUE_Small_cylinder_elevator, state, ACTION_CHECK_PRESENCE, ACTION_CHECK_PRESENCE);
 			break;
+
+		case ACTION_CHECK_PRESENCE:{
+
+			bool_e presence;
+
+			if(entrance){
+				ACT_ask_scan_on_shot(SCAN_SENSOR_ID_SMALL_ELEVATOR);
+				time_timeout = global.absolute_time + 50;
+			}
+
+			if(ACT_get_scan_on_shot_result(SCAN_SENSOR_ID_SMALL_ELEVATOR, &presence, NULL)){			// Si on reçois une réponse on la compute
+
+				if(presence){
+					state = ACTION_STOCK_UP_CYLINDER;
+				}else{
+					STOCKS_removeModule(STOCK_POS_ELEVATOR, MODULE_STOCK_SMALL);
+					ACT_push_order(ACT_SMALL_CYLINDER_ELEVATOR, ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
+					state = COMPUTE_NEXT_CYLINDER;
+				}
+
+			}else if(global.absolute_time > time_timeout){												// Sinon timeout et on considère qu'on a prit
+
+				state = ACTION_STOCK_UP_CYLINDER;
+			}
+
+			}break;
 
 		case ACTION_STOCK_UP_CYLINDER:
 			if(entrance){
