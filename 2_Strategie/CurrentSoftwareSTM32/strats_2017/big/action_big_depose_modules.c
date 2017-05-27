@@ -556,9 +556,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 		case GET_OUT:
 			if(drop_place == POS_1){
-				state = try_going(1460, COLOR_Y(610), state, FINISH_GET_OUT_POS_1, GET_OUT_ERROR, FAST, (way==FORWARD)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(1460, COLOR_Y(610), state, DONE, GET_OUT_ERROR, FAST, (way==FORWARD)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}else if(drop_place == POS_2){
-				state = try_going(1105, COLOR_Y(972), state , FINISH_GET_OUT_POS_1, GET_OUT_ERROR, FAST, (way==FORWARD)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+				state = try_going(1105, COLOR_Y(972), state , DONE, GET_OUT_ERROR, FAST, (way==FORWARD)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
 			else{
 				state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
@@ -765,7 +765,7 @@ error_e sub_harry_get_in_pos_1_depose_module_centre(way_e way){
 			if(way == FORWARD)
 				state = try_going(1600,COLOR_Y(750), state, ROTATE, ERROR, FAST, FORWARD, NO_DODGE_AND_WAIT,END_AT_LAST_POINT);
 			else
-				state = try_going(1540, COLOR_Y(692), state, ROTATE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1528, COLOR_Y(680), state, ROTATE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case ROTATE:{
