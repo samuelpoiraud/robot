@@ -292,7 +292,8 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			COMPUTE_DISPOSE_MODULE,
 			DISPOSE_MODULE,
 			DISPOSE_LAST_MODULE,
-			GOTO_NEXT_F,
+			COMPUTE_NEXT_F,
+			GOTO_FX,
 			//BACK_TO_PREVIOUS_F,
 			PUSH_DISPOSED_MODULES_COMPUTE,
 			PUSH_DISPOSED_MODULES_GO_PUSH_OUT,
@@ -684,7 +685,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				state = DISPOSE_MODULE;	//Encore du taff !
 			break;
 		case DISPOSE_MODULE:
-			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER),state,GOTO_NEXT_F,GOTO_NEXT_F);
+			state = check_sub_action_result(sub_act_anne_mae_dispose_modules(ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER),state,COMPUTE_NEXT_F,COMPUTE_NEXT_F);
 
 			//On considère qu'on a posé des modules unicolores de notre couleur... il n'est pas question de venir les retourner plus tard...
 			//c'est sans doute perfectible en prenant en compte ce qu'on a réellement déposé.
@@ -697,7 +698,7 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 				if(we_need_to_push_after_dispose)
 					state = PUSH_DISPOSED_MODULES_COMPUTE;
 				else
-					state = GOTO_NEXT_F;	//pas besoin de pousser, je maintiens le prochain état.
+					state = COMPUTE_NEXT_F;	//pas besoin de pousser, je maintiens le prochain état.
 
 			}
 			break;
@@ -707,13 +708,14 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 			if(ON_LEAVE())
 				MOONBASES_addModule((global.color==BLUE)?MODULE_BLUE:MODULE_YELLOW, moonbase);
 			break;
-		case GOTO_NEXT_F:
-			if(entrance)
-				FX = (GEOMETRY_point_t){FX.x + Fn_to_next.x, FX.y + Fn_to_next.y};	//Next point...
-			state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			//Le end at break permettra sans doute de démarrer l'actionneur avant la fin du mouvement, c'est l'éclate !
+		case COMPUTE_NEXT_F:
+			FX = (GEOMETRY_point_t){FX.x + Fn_to_next.x, FX.y + Fn_to_next.y};	//Next point...
+			state = GOTO_FX;
 			break;
+		case GOTO_FX:
+			state = try_going(FX.x, FX.y, state, COMPUTE_DISPOSE_MODULE, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 
+			break;
 		/*case GOTO_D_AND_E:
 			if(entrance && pusher_is_up)
 			{
@@ -734,37 +736,59 @@ error_e sub_anne_depose_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMEN
 		case PUSH_DISPOSED_MODULES_COMPUTE:
 			if(dzone == DZONE0_BLUE_OUTDOOR || dzone == DZONE2_MIDDLE_BLUE || dzone == DZONE4_YELLOW_INDOOR)
 			{
-				Push_out = (GEOMETRY_point_t){FX.x + 2*vector_cm.x, FX.y + 2*vector_cm.y};
-				Push_in = (GEOMETRY_point_t){FX.x - 15*vector_cm.x, FX.y - 15*vector_cm.y};
-				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_DOWN);	//On le fait dès maintenant...
+
+				/*if(we_are_disposing_the_last_module)
+				{
+					state = GET_OUT_AND_PUSH_WITH_ROBOT;
+				}
+				else
+				{*/
+					Push_out = (GEOMETRY_point_t){FX.x + 2*vector_cm.x, FX.y + 2*vector_cm.y};
+					Push_in = (GEOMETRY_point_t){FX.x - 15*vector_cm.x, FX.y - 15*vector_cm.y};
+					ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_DOWN);	//On le fait dès maintenant...
+					state = PUSH_DISPOSED_MODULES_GO_PUSH_OUT;
+				//}
+
 			}
 			else
 			{
-				Push_out = (GEOMETRY_point_t){FX.x + 12*vector_cm.x, FX.y + 12*vector_cm.y};
+				Push_out = (GEOMETRY_point_t){FX.x + 15*vector_cm.x, FX.y + 15*vector_cm.y};
 				Push_in = (GEOMETRY_point_t){FX.x - 5*vector_cm.x, FX.y - 5*vector_cm.y};
+				state = PUSH_DISPOSED_MODULES_GO_PUSH_OUT;
 			}
 
-			state = PUSH_DISPOSED_MODULES_GO_PUSH_OUT;
+
 			break;
 		case PUSH_DISPOSED_MODULES_GO_PUSH_OUT:
 
 			state = try_going(Push_out.x, Push_out.y, state, WAIT_POUSSIX, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
-				if(dzone == DZONE1_BLUE_INDOOR || dzone == DZONE3_MIDDLE_YELLOW || dzone == DZONE5_YELLOW_OUTDOOR)
+				if(color_side == YELLOW)
 					ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_DOWN);
 			}
 			break;
 		case WAIT_POUSSIX:
 			state = check_act_status(ACT_QUEUE_Small_cylinder_poussix, state, PUSH_DISPOSED_MODULES_GO_PUSH_IN, PUSH_DISPOSED_MODULES_GO_PUSH_IN);
 			break;
-		case PUSH_DISPOSED_MODULES_GO_PUSH_IN:
-			state = try_going(Push_in.x, Push_in.y, state, (we_are_disposing_the_last_module)?GET_OUT_TO_B:GOTO_NEXT_F, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+		case PUSH_DISPOSED_MODULES_GO_PUSH_IN:{
+			static enum state_e success_state;
+			if(entrance)
+			{
+				if(we_are_disposing_the_last_module)
+					success_state = GET_OUT_TO_B;	//Plus rien à poser, on se barre !
+				else if(color_side == BLUE)
+					success_state = GOTO_FX;	//On doit rejoindre la prochaine position pour poser un module, on est en face du précédent
+				else	//Autres dzones
+					success_state = COMPUTE_DISPOSE_MODULE;	//On peut poser directement ici, puisque le module à poser est avant le push
+			}
+
+			state = try_going(Push_in.x, Push_in.y, state, success_state, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			if(ON_LEAVE())
 			{
 				ACT_push_order(ACT_SMALL_CYLINDER_POUSSIX,ACT_SMALL_CYLINDER_POUSSIX_UP);
 			}
-			break;
+			break;}
 		case GET_OUT_TO_B:
 			state = try_going(B.x, B.y, state, DONE, EXTRACT_MANAGER, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
