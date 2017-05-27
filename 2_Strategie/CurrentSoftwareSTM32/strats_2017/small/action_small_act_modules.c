@@ -370,7 +370,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
 
 			if(state2 == IN_PROGRESS)
-				state2 = try_going(store_pos.x, store_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, ((ROCKETS_getNbModules(rocket) == 1)?15:25), BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+				state2 = try_going(store_pos.x, store_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, ((ROCKETS_getNbModules(rocket) == 1)?10:25), BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 
 			//Les etats 3, 4, et 5 sont respectivement les trois actions lancé en parallele en debut de sub
 			if(state3 == IN_PROGRESS)
@@ -722,9 +722,10 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				// On active la dépose
 				set_sub_act_enable(SUB_ANNE_DEPOSE_MODULES, TRUE);
 				// On range tout : Non tout doit être bon
-				//ACT_push_order(ACT_SMALL_CYLINDER_SLIDER,        ACT_SMALL_CYLINDER_SLIDER_IN);
+				ACT_push_order(ACT_SMALL_CYLINDER_SLIDER,        ACT_SMALL_CYLINDER_SLIDER_IN);
+				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_STOP, 0);
 				//ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK);
-				//ACT_push_order(ACT_SMALL_CYLINDER_ELEVATOR,      ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
+				ACT_push_order(ACT_SMALL_CYLINDER_ELEVATOR,      ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
 			}
 			RESET_MAE();
 			on_turning_point();
@@ -735,6 +736,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 			if(entrance){
 				// On range tout
 				ACT_push_order(ACT_SMALL_CYLINDER_SLIDER,        ACT_SMALL_CYLINDER_SLIDER_IN);
+				ACT_push_order_with_param(ACT_SMALL_POMPE_DISPOSE, ACT_POMPE_STOP, 0);
 				//ACT_push_order(ACT_SMALL_CYLINDER_MULTIFONCTION, ACT_SMALL_CYLINDER_MULTIFONCTION_LOCK);
 				ACT_push_order(ACT_SMALL_CYLINDER_ELEVATOR,      ACT_SMALL_CYLINDER_ELEVATOR_BOTTOM);
 			}
