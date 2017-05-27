@@ -647,7 +647,91 @@ error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais){
 
 	return IN_PROGRESS;
 }
-#warning 'fin '
+
+
+
+
+void mae_harry_take_ore_during_dispose_module(mae_harry_take_ore_during_dispose_module_e event)
+{
+	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_ORE_DURING_DISPOSE,
+			INIT,
+			WAIT_FOR_TAKING_ORDER,
+			MOVING_ACTUATORS,
+			TAKING,
+			STORE_ACTUATORS,
+			FAIL);
+	static error_e state1=IN_PROGRESS;
+	static error_e state2=IN_PROGRESS;
+	switch(state)
+	{
+		case INIT:
+			if(!IHM_switchs_get(SWITCH_OUR_ORES))
+				state = FAIL;
+			else
+				state = WAIT_FOR_TAKING_ORDER;
+			break;
+		case WAIT_FOR_TAKING_ORDER:
+			if(event == ORE_DURING_DISPOSE_YOU_CAN_TAKE_NOW)
+				state = MOVING_ACTUATORS;
+			break;
+		case MOVING_ACTUATORS:
+			if (entrance){
+				state1=IN_PROGRESS;
+				state2=IN_PROGRESS;
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
+				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_OUT);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
+			}
+
+			if(state1 == IN_PROGRESS)
+				state1=check_act_status(ACT_QUEUE_Ore_roller_arm, IN_PROGRESS, END_OK, NOT_HANDLED);
+			if(state2 == IN_PROGRESS)
+				state2=check_act_status(ACT_QUEUE_Ore_wall, IN_PROGRESS, END_OK, NOT_HANDLED);
+
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS)
+			{
+				if ((state1==END_OK)&&(state2==END_OK))
+					state=TAKING;
+				else
+					state=STORE_ACTUATORS;
+			}
+			break;
+		case TAKING:
+			if(entrance)
+				ELEMENTS_set_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN, TRUE);
+			if(event == ORE_DURING_DISPOSE_YOU_MUST_STOP_NOW)
+				state = STORE_ACTUATORS;
+			break;
+		case STORE_ACTUATORS:
+			if(entrance)
+			{
+				state1=IN_PROGRESS;
+				state2=IN_PROGRESS;
+				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP, ACT_ROLLER_FOAM_SPEED_RUN);
+				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IN);
+				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IN);
+			}
+			if(state1 == IN_PROGRESS)
+				state1=check_act_status(ACT_QUEUE_Ore_roller_arm, IN_PROGRESS, END_OK, NOT_HANDLED);
+			if(state2 == IN_PROGRESS)
+				state2=check_act_status(ACT_QUEUE_Ore_wall, IN_PROGRESS, END_OK, NOT_HANDLED);
+
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS)
+			{
+				if ((state1==END_OK)&&(state2==END_OK))
+					state = WAIT_FOR_TAKING_ORDER;
+				else
+					state = FAIL;
+			}
+			break;
+		case FAIL:
+			//etat puits :(
+			break;
+	}
+
+}
+
+
 
 // sub_harry_rammassage
 error_e sub_harry_take_minerais(){

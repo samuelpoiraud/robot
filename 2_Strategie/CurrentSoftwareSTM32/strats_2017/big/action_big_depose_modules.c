@@ -128,10 +128,8 @@ error_e sub_harry_depose_centre_manager(){
 		case ACTION_DISPOSE:
 			if(dispose_place == POS_1){
 				state = check_sub_action_result(sub_harry_depose_modules_centre(dispose_place, robot_side, way), state, SUCCESS_DEPOSE, ERROR_DEPOSE); // On force SUCESS_DEPOSE même en cas d'erreur pour faire une dépose side.
-			}else if(dispose_place == POS_2){
-				if(ELEMENTS_get_flag(FLAG_ANNE_GIVE_AUTORISATION_TO_HARRY_TO_DISPOSE_MIDDLE)== TRUE){
-					ELEMENTS_set_flag(FLAG_HARRY_ACCEPT_AND_EXPLOIT_THE_AUTORISATION_TO_DIPOSE_MIDDLE, TRUE);
-				}
+			}else if(dispose_place == POS_2 && ELEMENTS_get_flag(FLAG_ANNE_GIVE_AUTORISATION_TO_HARRY_TO_DISPOSE_MIDDLE)== TRUE){
+				ELEMENTS_set_flag(FLAG_HARRY_ACCEPT_AND_EXPLOIT_THE_AUTORISATION_TO_DIPOSE_MIDDLE, TRUE);
 				state = DEPOSE_CENTRE;
 			}else if(dispose_place == POS_SIDE){
 				state = COMPUTE_SIDE;
@@ -183,8 +181,6 @@ error_e sub_harry_depose_centre_manager(){
 				else {
 					robot_side = MODULE_STOCK_RIGHT;
 				}
-
-				ELEMENTS_set_flag(FLAG_HARRY_GIVE_AUTORISATION_TO_ANNE_TO_PROTECT_OUR_MIDDLE, TRUE);
 			}
 			state = check_sub_action_result(sub_harry_depose_modules_side(robot_side, OUR_SIDE), state, SECONDE_DEPOSE_SIDE, ERROR);
 			if(ON_LEAVE()){
@@ -266,6 +262,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 	CAN_msg_t can_msg;
 	static bool_e filter_activate = FALSE;
 
+	error_e ret;
+	ret = IN_PROGRESS;
+
 	if(ELEMENTS_get_flag(FLAG_ACTIVATE_FILTER_ANNE_DEPOSE_SIDE) && !filter_activate){
 		can_msg.sid = PROP_TRANSPARENCY;
 		can_msg.size = SIZE_PROP_TRANSPARENCY;
@@ -275,6 +274,10 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 		filter_activate = TRUE;
 	}
+
+
+	//Appel de la MAE parralèle cratère pendant la prise
+	mae_harry_take_ore_during_dispose_module(ORE_DURING_DISPOSE_NO_EVENT);
 
 	switch(state){
 		case INIT:
@@ -358,6 +361,11 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				}else{
 					ACT_push_order(ACT_CYLINDER_PUSHER_LEFT,  ACT_CYLINDER_PUSHER_LEFT_OUT);
 				}
+
+
+
+				if(way == BACKWARD)
+					mae_harry_take_ore_during_dispose_module(ORE_DURING_DISPOSE_YOU_CAN_TAKE_NOW);
 			}
 			if(robot_side == MODULE_STOCK_RIGHT){
 				state= check_act_status(ACT_QUEUE_Cylinder_pusher_right, state, PUSH_MODULE, ERROR_DOWN_PUSHER);
@@ -555,6 +563,8 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			else{
 				state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
+			if(ON_LEAVE())
+				ELEMENTS_set_flag(FLAG_HARRY_GIVE_AUTORISATION_TO_ANNE_TO_PROTECT_OUR_MIDDLE, TRUE);
 			break;
 
 		case GET_OUT_WITH_ERROR:
@@ -601,7 +611,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 			RESET_MAE();
 			on_turning_point();
-			return NOT_HANDLED;
+			ret = NOT_HANDLED;
 			break;
 
 		case DONE:
@@ -618,7 +628,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 				RESET_MAE();
 				on_turning_point();
-				return END_OK;
+				ret = END_OK;
 			}
 			break;
 
@@ -627,7 +637,10 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				debug_printf("default case in sub_harry_depose_modules_centre\n");
 			break;
 	}
-	return IN_PROGRESS;
+
+	if(ret != IN_PROGRESS)
+		mae_harry_take_ore_during_dispose_module(ORE_DURING_DISPOSE_YOU_MUST_STOP_NOW);
+	return ret;
 }
 
 
@@ -672,10 +685,18 @@ error_e sub_harry_get_in_depose_modules_centre(Uint8 drop_place, way_e way){
 			break;
 
 		case GET_IN_POS_3:
+			if(entrance)
+			{
+				ELEMENTS_set_flag(FLAG_HARRY_ACCEPT_AND_EXPLOIT_THE_AUTORISATION_TO_DIPOSE_MIDDLE, TRUE);
+			}
 			state = check_sub_action_result(sub_harry_get_in_pos_3_depose_module_centre(), state, DONE, ERROR);
 			break;
 
 		case GET_IN_POS_4:
+			if(entrance)
+			{
+				ELEMENTS_set_flag(FLAG_HARRY_ACCEPT_AND_EXPLOIT_THE_AUTORISATION_TO_DIPOSE_MIDDLE, TRUE);
+			}
 			state = check_sub_action_result(sub_harry_get_in_pos_4_depose_module_centre(), state, DONE, ERROR);
 			break;
 
