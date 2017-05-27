@@ -43,10 +43,10 @@ detection_zone_s zones_hokuyo[NB_DETECTION_ZONES]={{{(GEOMETRY_point_t){0, 0}, (
 								 {{(GEOMETRY_point_t){0, 2290}, (GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){360, 3000},(GEOMETRY_point_t){0, 3000}}, FALSE}, 		// Zone de départ jaune
 								 {{(GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){700, 2290}, (GEOMETRY_point_t){700, 3000},(GEOMETRY_point_t){360, 3000}}, FALSE}, 	// Zone à côté de la zone de départ jaune
 
-								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){2000, 850}, (GEOMETRY_point_t){2000, 1300},(GEOMETRY_point_t){1850, 1350}}, FALSE}, // Zone de base lunaire côté bleu
-								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){1850, 1350}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1100, 1500}}, FALSE},// Zone de base lunaire milieu côté bleu
-								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){1850, 1650}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1100, 1500}}, FALSE},// Zone de base lunaire milieu côté jaune
-								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){2000, 2150}, (GEOMETRY_point_t){2000, 1700},(GEOMETRY_point_t){1850, 1650}}, FALSE}, // Zone de base lunaire côté bleu
+								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){1350, 600}, (GEOMETRY_point_t){2000, 600},(GEOMETRY_point_t){2000, 1500}}, FALSE}, // Zone de base lunaire côté bleu
+								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1100, 1500},(GEOMETRY_point_t){885, 1035}}, FALSE},// Zone de base lunaire milieu côté bleu
+								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1100, 1500},(GEOMETRY_point_t){885, 1965}}, FALSE},// Zone de base lunaire milieu côté jaune
+								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){1350, 2400}, (GEOMETRY_point_t){2000, 2400},(GEOMETRY_point_t){2000, 1500}}, FALSE}, // Zone de base lunaire côté bleu
 
 								 // Zone filtré pour le gros robot
 								 {{(GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){1150, 0}, (GEOMETRY_point_t){1150, 1000},(GEOMETRY_point_t){400, 1000}}, FALSE},
@@ -61,10 +61,10 @@ detection_zone_s zones_balise[NB_DETECTION_ZONES]={{{(GEOMETRY_point_t){0, 0}, (
 								 {{(GEOMETRY_point_t){0, 2290}, (GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){360, 3000},(GEOMETRY_point_t){0, 3000}}, FALSE}, 		// Zone de départ jaune
 								 {{(GEOMETRY_point_t){360, 2290}, (GEOMETRY_point_t){700, 2290}, (GEOMETRY_point_t){700, 3000},(GEOMETRY_point_t){360, 3000}}, FALSE}, 	// Zone à côté de la zone de départ jaune
 
-								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){2000, 850}, (GEOMETRY_point_t){2000, 1300},(GEOMETRY_point_t){1850, 1350}}, FALSE}, // Zone de base lunaire côté bleu
-								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){1850, 1350}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1100, 1500}}, FALSE},// Zone de base lunaire milieu côté bleu
-								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){1850, 1650}, (GEOMETRY_point_t){1800, 1500},(GEOMETRY_point_t){1100, 1500}}, FALSE},// Zone de base lunaire milieu côté jaune
-								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){2000, 2150}, (GEOMETRY_point_t){2000, 1700},(GEOMETRY_point_t){1850, 1650}}, FALSE}, // Zone de base lunaire côté bleu
+								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){1350, 600}, (GEOMETRY_point_t){2000, 600},(GEOMETRY_point_t){2000, 1500}}, FALSE}, // Zone de base lunaire côté bleu
+								 {{(GEOMETRY_point_t){1350, 850}, (GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1100, 1500},(GEOMETRY_point_t){885, 1035}}, FALSE},// Zone de base lunaire milieu côté bleu
+								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){2000, 1500}, (GEOMETRY_point_t){1100, 1500},(GEOMETRY_point_t){885, 1965}}, FALSE},// Zone de base lunaire milieu côté jaune
+								 {{(GEOMETRY_point_t){1350, 2150}, (GEOMETRY_point_t){1350, 2400}, (GEOMETRY_point_t){2000, 2400},(GEOMETRY_point_t){2000, 1500}}, FALSE}, // Zone de base lunaire côté bleu
 
 								 // Zone filtré pour le gros robot
 								 {{(GEOMETRY_point_t){400, 0}, (GEOMETRY_point_t){1150, 0}, (GEOMETRY_point_t){1150, 1000},(GEOMETRY_point_t){400, 1000}}, FALSE},
