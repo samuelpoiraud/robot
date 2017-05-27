@@ -42,9 +42,9 @@ void BUTTON_init()
 	IHM_define_act_button(BP_3_IHM,NULL, BUTTON_3_long_push);
 	IHM_define_act_button(BP_4_IHM,NULL, BUTTON_4_long_push);
 	IHM_define_act_button(BP_5_IHM,NULL, BUTTON_5_long_push);
-	IHM_define_act_button(BP_SELFTEST,SELFTEST_ask_launch, NULL);
-	IHM_define_act_button(BP_PRINTMATCH,SD_print_previous_match, NULL);
-	IHM_define_act_button(BP_SUSPEND_RESUME_MATCH, BUTTON_suspend_match, NULL);
+	//IHM_define_act_button(BP_SELFTEST,SELFTEST_ask_launch, NULL);
+	//IHM_define_act_button(BP_PRINTMATCH,SD_print_previous_match, NULL);
+	//IHM_define_act_button(BP_SUSPEND_RESUME_MATCH, BUTTON_suspend_match, NULL);
 }
 
 

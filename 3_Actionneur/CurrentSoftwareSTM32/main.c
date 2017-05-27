@@ -862,68 +862,12 @@ static void MAIN_onButton3LongPush() {}
 
 // prise de balle
 static void MAIN_onButton4(){
-	static Uint8 state = 0;
-	CAN_msg_t msg1;
-	msg1.size = 8;
-	msg1.data.act_msg.act_data.act_order.run_now = TRUE;
 
-	if(state == 0){
-		msg1.sid = ACT_ORE_ROLLER_ARM;
-		msg1.data.act_msg.order = ACT_ORE_ROLLER_ARM_OUT;
-	}else if(state == 1){
-		msg1.sid = ACT_ORE_WALL;
-		msg1.data.act_msg.order = ACT_ORE_WALL_OUT;
-	}else if(state == 2){
-		msg1.sid = ACT_ORE_ROLLER_FOAM;
-		msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_RUN;
-		msg1.data.act_msg.act_data.act_order.act_optionnal_data[0] = ACT_ORE_ROLLER_FOAM_SPEED_RUN;
-	}else if(state == 3){
-		msg1.sid = ACT_ORE_ROLLER_FOAM;
-		msg1.data.act_msg.order = ACT_ORE_ROLLER_FOAM_STOP;
-	}else if(state == 4){
-		msg1.sid = ACT_ORE_WALL;
-		msg1.data.act_msg.order = ACT_ORE_WALL_IN;
-	}else if(state == 5){
-		msg1.sid = ACT_ORE_ROLLER_ARM;
-		msg1.data.act_msg.order = ACT_ORE_ROLLER_ARM_IN;
-	}
-
-	if(msg1.sid != 0)
-		CAN_process_msg(&msg1);
-	state = (state == 5)? 0 : state + 1;
 }
 
 // depose balle tire
 static void MAIN_onButton4LongPush(){
-static Uint8 state = 0;
-	CAN_msg_t msg1;
-	msg1.size = 8;
-	msg1.data.act_msg.act_data.act_order.run_now = TRUE;
 
-	if(state == 0){
-		msg1.sid = ACT_ORE_GUN;
-		msg1.data.act_msg.order = ACT_ORE_GUN_DOWN;
-	}else if(state == 1){
-		msg1.sid = ACT_TURBINE;
-		msg1.data.act_msg.order = ACT_TURBINE_NORMAL;
-	}else if(state == 2){
-		msg1.sid = ACT_ORE_TRIHOLE;
-		msg1.data.act_msg.order = ACT_ORE_TRIHOLE_RUN;
-		msg1.data.act_msg.act_data.act_order.act_optionnal_data[0] = ACT_ORE_TRIHOLE_SPEED_RUN;
-	}else if(state == 3){
-		msg1.sid = ACT_ORE_TRIHOLE;
-		msg1.data.act_msg.order = ACT_ORE_TRIHOLE_STOP;
-	}else if(state == 4){
-		msg1.sid = ACT_TURBINE;
-		msg1.data.act_msg.order = ACT_TURBINE_STOP;
-	}else if(state == 5){
-		msg1.sid = ACT_ORE_GUN;
-		msg1.data.act_msg.order = ACT_ORE_GUN_UP;
-	}
-
-	if(msg1.sid != 0)
-		CAN_process_msg(&msg1);
-	state = (state == 5)? 0 : state + 1;
 }
 
 //roue en position passage cratere
