@@ -398,9 +398,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				}
 				else{
 					if(global.color == BLUE){
-						state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_LEFT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
-					}else{
 						state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_RIGHT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
+					}else{
+						state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_LEFT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
 					}
 				}
 			}else if(drop_place == POS_2){
