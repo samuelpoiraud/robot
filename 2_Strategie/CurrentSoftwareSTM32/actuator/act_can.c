@@ -357,9 +357,10 @@ void ACT_process_result(const CAN_msg_t* msg) {
 
 	CAN_msg_t* msgOrder = &(QUEUE_get_arg(act_id)->msg);
 
-	if((msg->data.act_result.sid != msgOrder->sid & 0xFF)
+	if((msg->data.act_result.sid != (msgOrder->sid & 0xFF))
 			|| (msg->data.act_result.cmd != msgOrder->data.act_msg.order)){
-		error_printf("Received result not match with actual order in queue\n");
+		error_printf("Received result not match with actual order in queue : order(0x%x, %d) result(0x%x, %d)\n", msgOrder->sid & 0xFF, msgOrder->data.act_msg.order, msg->data.act_result.sid, msg->data.act_result.cmd);
+		return;
 	}
 
 	switch(msg->data.act_result.result) {
