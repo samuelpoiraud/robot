@@ -34,7 +34,7 @@
 
 	static volatile SCAN_on_shot_data_s dataOnShot[SCAN_SENSOR_ID_NB] = {
 			(SCAN_on_shot_data_s){.threshold = 40, .thresholdWay = SCAN_THRESHOLD_FALSE_ON_UPPER, .idVL53L0X = DISTANCE_SENSOR_SMALL_ELEVATOR},		// SCAN_SENSOR_ID_SMALL_ELEVATOR
-			(SCAN_on_shot_data_s){.threshold = 30, .thresholdWay = SCAN_THRESHOLD_FALSE_ON_UPPER, .idVL53L0X = DISTANCE_SENSOR_SMALL_SLIDER}		// DISTANCE_SENSOR_SMALL_SLIDER
+			(SCAN_on_shot_data_s){.threshold = 35, .thresholdWay = SCAN_THRESHOLD_FALSE_ON_UPPER, .idVL53L0X = DISTANCE_SENSOR_SMALL_SLIDER}		// DISTANCE_SENSOR_SMALL_SLIDER
 	};
 
 	static void SCAN_launchScan();
