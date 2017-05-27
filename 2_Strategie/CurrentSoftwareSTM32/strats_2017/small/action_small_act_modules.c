@@ -370,7 +370,7 @@ error_e sub_act_anne_take_rocket_down_to_top(moduleRocketLocation_e rocket, Uint
 				state1 = check_act_status(ACT_QUEUE_Small_cylinder_slider, IN_PROGRESS, END_OK, NOT_HANDLED);
 
 			if(state2 == IN_PROGRESS)
-				state2 = try_going(store_pos.x, store_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, 25, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+				state2 = try_going(store_pos.x, store_pos.y, IN_PROGRESS, END_OK, NOT_HANDLED, ((ROCKETS_getNbModules(rocket) == 1)?15:25), BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 
 			//Les etats 3, 4, et 5 sont respectivement les trois actions lancé en parallele en debut de sub
 			if(state3 == IN_PROGRESS)
