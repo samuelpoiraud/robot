@@ -1427,7 +1427,7 @@ error_e sub_anne_fusee_color(){
 			break;
 
 		case GO_TO_START_POINT: //ajuster la distance fusée
-			state = try_going(265, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
+			state = try_going(255, COLOR_Y(1150)+OFFSET_BEST_SLIDER_APPROACH, state, TAKE_ROCKET, GET_OUT_ERROR, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case TAKE_ROCKET: // Execution des ordres actionneurs
