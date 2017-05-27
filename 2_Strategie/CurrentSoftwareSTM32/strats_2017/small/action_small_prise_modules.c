@@ -1476,6 +1476,9 @@ error_e sub_anne_fusee_color(){
 	return IN_PROGRESS;
 }
 
+
+#define OFFSET_POS_SENSOR_IN_ROBOT	65
+
 error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_ANNE_FUSEE_MULTICOLOR,
 			INIT,
@@ -1618,7 +1621,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			break;
 		case SCANNING_TRAJECTORY:{
 
-#if 0
+
 			static bool_e scan_is_running;
 			//Le scan se fait toujours en marche avant.. on doit utiliser le bon capteur en fonction du color_side !
 			if(entrance)
@@ -1635,10 +1638,11 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 					Supervision_send_periodically_pos(5, PI4096/45);	//Broadcast pos à 5mm d'intervalle pour avoir un scan à 5mm d'intervalle
 
 //TODO : Débugger le capteur droit.... ou sinon corriger ici pour faire fonctionner le gauche  !
-					if(color_side==YELLOW)								//Activer le scan sur la carte actionneur
+					/*if(color_side==YELLOW)								//Activer le scan sur la carte actionneur
 						ACT_start_scan(SCAN_I2C_RIGHT);
 					else
-						ACT_start_scan(SCAN_I2C_LEFT);
+					*/
+					ACT_start_scan(SCAN_I2C_LEFT);
 
 					PROP_WARNER_arm_x(1300);
 				}
@@ -1651,9 +1655,9 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			//TODO if(minimum_receive_from_actuator.....) delta_x_rocket = ....;
-			state = try_going(1350, (color_side==BLUE)?260:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-#endif
-			state = GET_IN_FRONT_OF_ONE_ON_TWO;
+			state = try_going((color_side==BLUE)?1380:1350, (color_side==BLUE)?260:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+
+			//state = GET_IN_FRONT_OF_ONE_ON_TWO;
 		}
 			break;
 
@@ -1677,6 +1681,12 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 
 			if(ACT_get_scan_result(&scanData)){ 			// Réception des données du scan
 				delta_x_rocket = 0;
+
+				if(color_side == BLUE)
+					scanData.xForMin -= OFFSET_POS_SENSOR_IN_ROBOT;
+				else
+					scanData.xForMin += OFFSET_POS_SENSOR_IN_ROBOT;
+
 				if(absolute(scanData.max - scanData.min) > 45)	//S'il y a plus de 4,5cm, on considère qu'on a bien vu un module
 					if(absolute(scanData.xForMin - 1350) < 100)	//On autorise un décalage de la fusée de 10cm !
 						delta_x_rocket = scanData.xForMin - 1350;
