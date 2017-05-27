@@ -398,9 +398,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				}
 				else{
 					if(global.color == BLUE){
-						state = try_rush(1670, COLOR_Y(810), state, UP_PUSHER_LEFT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
+						state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_LEFT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
 					}else{
-						state = try_rush(1670, COLOR_Y(810), state, UP_PUSHER_RIGHT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
+						state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_RIGHT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
 					}
 				}
 			}else if(drop_place == POS_2){
@@ -487,9 +487,9 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				}
 				else{
 					if(global.color == BLUE){
-						state = try_going(1540, COLOR_Y(692), state, NEXT_DEPOSE_MODULE_LEFT, GET_OUT_WITH_ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
-					}else{
 						state = try_going(1540, COLOR_Y(692), state, NEXT_DEPOSE_MODULE_RIGHT, GET_OUT_WITH_ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+					}else{
+						state = try_going(1540, COLOR_Y(692), state, NEXT_DEPOSE_MODULE_LEFT, GET_OUT_WITH_ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 					}
 				}
 			}else if(drop_place == POS_2){
