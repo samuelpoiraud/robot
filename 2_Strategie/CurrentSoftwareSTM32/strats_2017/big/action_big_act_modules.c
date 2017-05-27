@@ -1702,7 +1702,10 @@ error_e sub_act_harry_mae_prepare_modules_for_dispose(moduleStockLocation_e stor
 					if(nb_errors_balancer < NB_TRY_BALANCER_TOLERATED){
 						state = ERROR_MOVE_BALANCER_IN;	// L'actionneur n'est pas en position, on doit le mettre
 					}else{
-						state = ERROR;
+						// Erreur mais on considère que c'est bon
+						//state = ERROR;
+						state = DONE;  // C'est bon l'actionneur est en position
+						STOCKS_makeModuleProgressTo(STOCK_PLACE_CONTAINER_TO_BALANCER, storage);
 					}
 				}else{
 					state = DONE;  // C'est bon l'actionneur est en position
