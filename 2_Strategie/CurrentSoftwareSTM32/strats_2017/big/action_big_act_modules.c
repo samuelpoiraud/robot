@@ -2494,11 +2494,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				state = RECULE; // On doit stocker le module droit
 			}else if((moduleToTake == LEFT || moduleToTake == RIGHT) && (needToStoreLeft || needToStoreRight)){
 				// on doit prendre un module et on a déjà pris un module
-				if(i_am_in_square(take_pos.x - 10, take_pos.x + 10, take_pos.y - 10, take_pos.y + 10)){
-					state = TURN_TO_POS; // on doit prendre un cylindre à partir de la position de prise
-				}else{
-					state = AVANCE; // on doit prendre un cylindre à partir de la position de stockage
-				}
+				state = ACTION_GO_TAKE_CYLINDER;
 			}else if(moduleToTake == LEFT || moduleToTake == RIGHT){
 				if(i_am_in_square(take_pos.x - 10, take_pos.x + 10, take_pos.y - 10, take_pos.y + 10)){
 					state = TURN_TO_POS; // on doit prendre un cylindre à partir de la position de prise
@@ -2746,11 +2742,11 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			break;
 
 		case RECULE:
-			state = try_going(store_pos.x, store_pos.y, state, STORE_CYLINDER, RECULE_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(store_pos.x, store_pos.y, state, STORE_CYLINDER, RECULE_ERROR, FAST, BACKWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case RECULE_ERROR:
-			state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state= try_going(take_pos.x, take_pos.y, state, RECULE, RECULE, FAST, FORWARD, NO_AVOIDANCE, END_AT_LAST_POINT);
 			break;
 
 		case STORE_CYLINDER:
@@ -2760,7 +2756,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 					if(indexSide >= 4 && moduleToTake == NO_SIDE){ // C'est le dernier stockage
 						sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE);
 					}else{
-						sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, FALSE);
+						sub_act_harry_mae_store_modules(MODULE_STOCK_LEFT, TRUE, TRUE);
 					}
 				}else{
 					ACT_push_order(ACT_POMPE_SLIDER_LEFT, ACT_POMPE_STOP);
@@ -2770,7 +2766,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 					if(indexSide >= 4 && moduleToTake == NO_SIDE){ // C'est le dernier stockage
 						sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE);
 					}else{
-						sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, FALSE);
+						sub_act_harry_mae_store_modules(MODULE_STOCK_RIGHT, TRUE, TRUE);
 					}
 				}else{
 					ACT_push_order(ACT_POMPE_SLIDER_RIGHT, ACT_POMPE_STOP);
@@ -2795,7 +2791,7 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 			){
 				state = COMPUTE_ACTION;
 
-				if(indexSide >= 4 && moduleToTake == NO_SIDE){ // C'est le dernier stockage
+				/*if(indexSide >= 4 && moduleToTake == NO_SIDE){ // C'est le dernier stockage
 					needToStoreLeft = FALSE;
 					needToStoreRight = FALSE;
 				}else{
@@ -2805,7 +2801,9 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 					if(ELEMENTS_get_flag(FLAG_HARRY_STORAGE_RIGHT_SUCCESS)){
 						needToStoreRight = FALSE;
 					}
-				}
+				}*/
+				needToStoreLeft = FALSE;
+				needToStoreRight = FALSE;
 			}
 			break;
 
