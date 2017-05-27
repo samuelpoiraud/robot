@@ -491,17 +491,18 @@ error_e sub_harry_get_in_depose_minerais_alternative(){
 error_e sub_harry_depose_minerais_zone(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_DEPOSE_MINERAIS_ZONE,
 			INIT,
-			SORTIE_MODULE,
-			LINE_TO_PRE_SHOT,
-			POS_TO_PRE_SHOT,
-			STOP_TO_END,
+			GET_APPROACH_POINT_FROM_SOUTH,
+			GET_APPROACH_POINT_FROM_MIDDLE,
+			DISPOSE_POINT,
 			GO_START_ZONE,
-			ASTAR_POS_TO_PRE_SHOT,
+			GO_ANGLE,
+			WAIT_FEW_SECONDS,
+			STOP_UNTIL_END_OF_MATCH,
 			ERROR,
 			DONE
 		);
 
-
+	static bool_e turbine_and_trihole_running;
 	// go (400, color1200) avant depose
 	// (300, 1100) fonce zone de depard et depose
 
@@ -515,54 +516,74 @@ error_e sub_harry_depose_minerais_zone(){
 	 * 26/05/2017
 	 */
 		case INIT:
-			if(i_am_in_square_color(1200,1700,300,900))
+
+
+/*//A des fins de test... !
+			PROP_set_position(1400, 600, COLOR_ANGLE(PI4096/4));
+			global.pos.x = 1400;
+			global.pos.y = 600;
+			global.pos.angle = COLOR_ANGLE(PI4096/4);
+*/
+
+
+			turbine_and_trihole_running = FALSE;
+			if(ELEMENTS_get_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN)==FALSE)
+				state = DONE;
+			else if(IHM_switchs_get(SWITCH_DISABLE_ORE))
+				state = DONE;
+			else if(i_am_in_square_color(800,1500,300,900))
 				//je sort de la depose module
-				state=SORTIE_MODULE;  //go //(1370, 630) => (1200, 950) => (400, 950)
-			else if(i_am_in_square_color(1600,1200,300,900))
+				state=GET_APPROACH_POINT_FROM_SOUTH;  //go //(1370, 630) => (1200, 950) => (400, 950)
+			else if(i_am_in_square_color(600,1200,900,2100))
 				// je sort de la prise de minerais
-				state=GO_START_ZONE;
+				state=DISPOSE_POINT;
 			else
-				state=GO_START_ZONE;
+				state = ERROR;
 			break;
 
-		case SORTIE_MODULE:
-			state=try_going(1370,COLOR_Y(630), state, LINE_TO_PRE_SHOT, ASTAR_POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+		case GET_APPROACH_POINT_FROM_SOUTH:
+			state=try_going(800,COLOR_Y(1000), state, DISPOSE_POINT, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
-		case LINE_TO_PRE_SHOT:
-			state=try_going(1200,COLOR_Y(950), state, POS_TO_PRE_SHOT, POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case POS_TO_PRE_SHOT:
-			// parallele tire des balles
-#warning 'activer le tire '
+		case DISPOSE_POINT:
 			if(entrance){
+				PROP_WARNER_arm_x(500);
+			}
+
+			state=try_going(350,COLOR_Y(1050), state , GO_ANGLE, ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+
+			if(global.prop.reach_x || (ON_LEAVE() && state == GO_ANGLE && !turbine_and_trihole_running))
+			{
+				turbine_and_trihole_running = TRUE;
 				ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
 				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
 			}
-			//sub_harry_shooting_depose_minerais
-			state=try_going(650,COLOR_Y(925), state , STOP_TO_END, STOP_TO_END, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 
-		case STOP_TO_END:
-			//tire
-#warning 'activer le tire '
-			if(entrance){
-				ACT_push_order(ACT_TURBINE, ACT_MOSFET_NORMAL);
-				ACT_push_order_with_param(ACT_ORE_TRIHOLE, ACT_ORE_TRIHOLE_RUN, ACT_TRIHOLE_SPEED_RUN);
+		case GO_ANGLE:
+			state = try_go_angle(COLOR_ANGLE(PI4096/4), state, WAIT_FEW_SECONDS, WAIT_FEW_SECONDS, FAST, ANY_WAY, END_AT_LAST_POINT);
+			break;
+		case WAIT_FEW_SECONDS:
+		{
+			static time32_t timeout;
+			if(entrance)
+				timeout = global.match_time;
+			if(global.match_time - timeout > 2000)
+			{
+				if(global.match_time < 80000)
+					state = DONE;
+				else
+					state = STOP_UNTIL_END_OF_MATCH;
 			}
-			state=try_going(400,COLOR_Y(900), state , STOP_TO_END, STOP_TO_END, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
+			break;}
+		case STOP_UNTIL_END_OF_MATCH:
+
+			if(entrance)
+			{
+				error_printf("Il reste moins de 10 secondes... -> boucle infinie volontaire jusqu'à la fin du match... prions !\n");
+			}
 
 			break;
-
-		case GO_START_ZONE:
-			state=try_going(800,COLOR_Y(950), state , POS_TO_PRE_SHOT, ASTAR_POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
-		case ASTAR_POS_TO_PRE_SHOT:
-			state= ASTAR_try_going(680,COLOR_Y(930), state , POS_TO_PRE_SHOT, POS_TO_PRE_SHOT, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
-			break;
-
 		case ERROR:
 			RESET_MAE();
 			return NOT_HANDLED;
