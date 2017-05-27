@@ -387,7 +387,7 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 
 
 		case PUSH_MODULE:
-			if(drop_place == POS_1){
+			/*if(drop_place == POS_1){
 				// pos 1
 				if(way == FORWARD){
 					if(global.color == BLUE){
@@ -407,7 +407,37 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 									COLOR_Y((MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)>3)?(830-(MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER)-3)*7):(830)), state, UP_PUSHER_RIGHT, ERROR,  FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 					}
 				}
-			}else if(drop_place == POS_2){
+			}
+
+			*/
+
+
+
+
+			if(drop_place == POS_1){
+							// pos 1
+							if(way == FORWARD){
+								if(global.color == BLUE){
+									state = try_rush(1715, COLOR_Y(865), state, UP_PUSHER_LEFT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+								}else{
+									state = try_rush(1715, COLOR_Y(865), state, UP_PUSHER_RIGHT, ERROR, FORWARD, DODGE_AND_WAIT, FALSE);
+								}
+							}
+							else{
+								if(global.color == BLUE){
+									state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_RIGHT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
+								}else{
+									state = try_rush(1690, COLOR_Y(830), state, UP_PUSHER_LEFT, ERROR, BACKWARD, DODGE_AND_WAIT, FALSE);
+								}
+							}
+						}
+
+
+
+
+
+
+			else if(drop_place == POS_2){
 
 				// pos 2
 				if(global.color == BLUE){
