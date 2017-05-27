@@ -1307,7 +1307,6 @@ static bool_e color_blue_is_detected(CW_sensor_e sensor, bool_e color_white, boo
 	if(!color_white && !color_yellow && !color_detected[sensor]) {
 		color_detected[sensor] = TRUE;
 		time_detection[sensor] = global.absolute_time + TIME_COLOR_BLUE_DETECTION;
-		debug_printf("Color blue is detected\n\n");
 	}else if(!color_white && !color_yellow && color_detected[sensor] && global.absolute_time > time_detection[sensor]){
 		color_response = TRUE;
 	}else if(color_white || color_yellow){

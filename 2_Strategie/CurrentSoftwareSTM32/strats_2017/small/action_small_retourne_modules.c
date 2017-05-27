@@ -402,9 +402,9 @@ error_e sub_anne_turn_modules_centre(moduleMoonbaseLocation_e moonbase, ELEMENTS
 
 		case GOTO_E:
 			if(((A.x < E.x) && (color_side == YELLOW)) || ((A.x > E.x) && (color_side = BLUE)))
-				state = try_going(E.x, E.y, state, GOTO_D_FX, EXTRACT_MANAGER, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			else
 				state = try_going(E.x, E.y, state, GOTO_D_FX, EXTRACT_MANAGER, FAST, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			else
+				state = try_going(E.x, E.y, state, GOTO_D_FX, EXTRACT_MANAGER, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case GOTO_D_FX:
