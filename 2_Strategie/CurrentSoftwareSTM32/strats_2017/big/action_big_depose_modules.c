@@ -567,10 +567,11 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 			else{
 				state = try_advance(NULL, entrance, 250, state, DONE, GET_OUT_ERROR, FAST, BACKWARD, NO_DODGE_AND_WAIT, END_AT_BRAKE);
 			}
-			if(ON_LEAVE())
+			if(ON_LEAVE()){
 				ACT_push_order(ACT_CYLINDER_PUSHER_LEFT, ACT_CYLINDER_PUSHER_LEFT_IDLE);
 				ACT_push_order(ACT_CYLINDER_PUSHER_RIGHT, ACT_CYLINDER_PUSHER_RIGHT_IDLE);
 				ELEMENTS_set_flag(FLAG_HARRY_GIVE_AUTORISATION_TO_ANNE_TO_PROTECT_OUR_MIDDLE, TRUE);
+			}
 			break;
 
 		case GET_OUT_WITH_ERROR:
@@ -1428,9 +1429,9 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 		case POSITION_ANGLE:
 			// avance et tourne pour longer (350)
 #ifdef CHECK_ZONE_BY_PUSHING
-			state = try_going(1000, COLOR_Y(350), state, GO_TO_PUSH, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(global.pos.x, COLOR_Y(350), state, GO_TO_PUSH, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 #else
-			state = try_going(1000, COLOR_Y(350), state, PREPARE_TO_DISPOSE, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(global.pos.x, COLOR_Y(350), state, PREPARE_TO_DISPOSE, ERROR, FAST, FORWARD, DODGE_AND_WAIT, END_AT_LAST_POINT);
 #endif
 			break;
 
