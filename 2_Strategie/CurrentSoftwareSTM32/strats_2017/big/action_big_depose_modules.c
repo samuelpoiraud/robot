@@ -182,7 +182,7 @@ error_e sub_harry_depose_centre_manager(){
 					robot_side = MODULE_STOCK_RIGHT;
 				}
 			}
-			state = check_sub_action_result(sub_harry_depose_modules_side(robot_side, OUR_SIDE), state, SECONDE_DEPOSE_SIDE, ERROR);
+			state = check_sub_action_result(sub_harry_depose_modules_side((robot_side==MODULE_STOCK_LEFT)?LEFT:RIGHT, OUR_SIDE), state, SECONDE_DEPOSE_SIDE, ERROR);
 			if(ON_LEAVE()){
 				zone_dispose = DISPOSE_ORES;
 			}
@@ -316,10 +316,10 @@ error_e sub_harry_depose_modules_centre(Uint8 drop_place, moduleStockLocation_e 
 				nb_modules_at_entrance = STOCKS_getNbModules(robot_side);
 			}
 			if(robot_side == MODULE_STOCK_LEFT){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT_WITH_ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_LEFT, ((STOCKS_getNbModules(robot_side) > 1 && MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER) > 1) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT_WITH_ERROR);
 			}
 			else if(robot_side == MODULE_STOCK_RIGHT){
-				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ((STOCKS_getNbModules(robot_side) > 1 ) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT_WITH_ERROR);
+				state = check_sub_action_result(sub_act_harry_mae_dispose_modules(MODULE_STOCK_RIGHT, ((STOCKS_getNbModules(robot_side) > 1  && MOONBASES_getNbModules(MODULE_MOONBASE_OUR_CENTER) > 1) ? ARG_DISPOSE_ONE_CYLINDER_FOLLOW_BY_ANOTHER :ARG_DISPOSE_ONE_CYLINDER_AND_FINISH)), state, TIGHT_BACKWARD, GET_OUT_WITH_ERROR);
 			}
 			else{
 				state = DONE;
