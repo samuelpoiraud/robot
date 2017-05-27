@@ -653,89 +653,121 @@ error_e sub_harry_get_in_south_little_crater(ELEMENTS_property_e minerais){
 error_e sub_harry_take_minerais(){
 	CREATE_MAE_WITH_VERBOSE(SM_ID_STRAT_HARRY_TAKE_MINERAIS,
 			INIT,
+			OPEN_AND_RUN,
 			RAMASSAGE,
 			FIN_RAMASSAGE,
 			ERROR,
 			DONE
 		);
 	static time32_t time;
-
+	static error_e state1=IN_PROGRESS;
+	static error_e state2=IN_PROGRESS;
+	error_e ret;
+	ret = IN_PROGRESS;
 	switch(state){
 	/*
 	 * active puis stop, les actionneurs de prise de minerais
 	 * 26/05/2017
 	 */
 		case INIT:{
-			Uint8 state1=INIT;
-			Uint8 state2=INIT;
+			if(IHM_switchs_get(SWITCH_DISABLE_ORE))
+				state = ERROR;
+			else
+				state = OPEN_AND_RUN;
+		}break;
+
+		case OPEN_AND_RUN:
 			if (entrance){
+				state1=IN_PROGRESS;
+				state2=IN_PROGRESS;
 				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_RUN, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_OUT);
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_OUT);
 			}
 
-			state1=check_act_status(ACT_QUEUE_Ore_roller_arm, INIT, END_OK, ERROR);
-			state2=check_act_status(ACT_QUEUE_Ore_wall, INIT, END_OK, ERROR);
+			if(state1 == IN_PROGRESS)
+				state1=check_act_status(ACT_QUEUE_Ore_roller_arm, IN_PROGRESS, END_OK, NOT_HANDLED);
+			if(state2 == IN_PROGRESS)
+				state2=check_act_status(ACT_QUEUE_Ore_wall, IN_PROGRESS, END_OK, NOT_HANDLED);
 
-			if((state1==ERROR)||(state2==ERROR)){
-				state=ERROR;
-			}else if ((state1==END_OK)&&(state2==END_OK)){
-				state=RAMASSAGE;
-			}else{ // Add a else just to be secure
-				state = DONE;
+			if(state1 != IN_PROGRESS && state2 != IN_PROGRESS)
+			{
+				if((state1==NOT_HANDLED)||(state2==NOT_HANDLED)){
+					state=FIN_RAMASSAGE;
+				}else if ((state1==END_OK)&&(state2==END_OK)){
+					state=RAMASSAGE;
+				}else{ // Add a else just to be secure
+					state = DONE;
+				}
 			}
-		}break;
+			break;
+		case RAMASSAGE:
+			if(entrance){
+				time = global.match_time;
 
-#warning 'time = temps pour prendre les modules'
-	case RAMASSAGE:
-		if(entrance){
-			time = global.match_time;
-		}
-		if((global.match_time - time)==5000){
-			state = FIN_RAMASSAGE;
-		}else{
-			state = IN_PROGRESS;
-		}
-		break;
 
-				case FIN_RAMASSAGE:{
-			Uint8 state1=IN_PROGRESS;
-			Uint8 state2=IN_PROGRESS;
-			if (entrance){
+
+
+
+
+			}
+			if((global.match_time - time)>=5000){
+				{
+					ELEMENTS_set_flag(FLAG_OUR_SOUTH_CRATER_IS_TAKEN, TRUE);
+					state = FIN_RAMASSAGE;
+				}
+
+			}
+			break;
+
+		case FIN_RAMASSAGE:{
+			if(entrance)
+			{
+				state1=IN_PROGRESS;
+				state2=IN_PROGRESS;
 				ACT_push_order_with_param(ACT_ORE_ROLLER_FOAM, ACT_ORE_ROLLER_FOAM_STOP, ACT_ROLLER_FOAM_SPEED_RUN);
 				ACT_push_order(ACT_ORE_ROLLER_ARM, ACT_ORE_ROLLER_ARM_IN);
 				ACT_push_order(ACT_ORE_WALL, ACT_ORE_WALL_IN);
 			}
+			if(state1 == IN_PROGRESS)
+				state1=check_act_status(ACT_QUEUE_Ore_roller_arm, IN_PROGRESS, END_OK, NOT_HANDLED);
+			if(state2 == IN_PROGRESS)
+				state2=check_act_status(ACT_QUEUE_Ore_wall, IN_PROGRESS, END_OK, NOT_HANDLED);
 
-			state1=check_act_status(ACT_QUEUE_Ore_roller_arm, INIT, END_OK, ERROR);
-			state2=check_act_status(ACT_QUEUE_Ore_wall, INIT, END_OK, ERROR);
 
-			if((state1==ERROR)||(state2==ERROR)){
-				state=ERROR;
+			if((state1==NOT_HANDLED)||(state2==NOT_HANDLED)){
+				state = ERROR;
 			}else if ((state1==END_OK)&&(state2==END_OK)){
-				state=DONE;
+				state = DONE;
 			}else{ // Add a else just to be secure
 				state = DONE;
 			}
+
+
 		}
 			break;
 
 		case ERROR:
+
 			RESET_MAE();
-			return NOT_HANDLED;
+			ret = NOT_HANDLED;
 			break;
 
 		case DONE:
 			RESET_MAE();
-			return END_OK;
+			ret = END_OK;
 			break;
 
 		default:
 			if(entrance)
-				debug_printf("default case in sub_harry_depose_minerais_zone\n");
+			{
+				error_printf("default case in sub_harry_depose_minerais_zone\n");
+			}
 			break;
 	}
-	return IN_PROGRESS;
+
+
+	return ret;
 }
 
 /*
@@ -1400,8 +1432,6 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			ERROR_COLLECT_BLUE_MIDDLE_MOVE_FOWARD,
 			ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT,
 
-			TEST,
-
 			DONE,
 			ERROR
 		);
@@ -1478,7 +1508,7 @@ error_e sub_harry_take_big_crater_blue_middle(){
 			 * sort du cratere
 			 */
 		case COLLECT_BLUE_MIDDLE_POSITION_LEFT:
-			state = try_going(1300, 400, state, TEST,  ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT, 30, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);;
+			state = try_going(1300, 400, state, DONE,  ERROR_COLLECT_BLUE_MIDDLE_POSITION_LEFT, 30, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);;
 			//lien avec action suivante
 			break;
 

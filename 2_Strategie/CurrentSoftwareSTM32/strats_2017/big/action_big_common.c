@@ -43,6 +43,7 @@ error_e sub_harry_initiale(){
 			PUT_OFF,
 			ERROR,
 			DONE
+
 		);
 
 #define SIZE_OUR_MODULES  (3)
@@ -85,8 +86,10 @@ const get_this_module_s adv_modules_with_rocket[SIZE_ADV_MODULES_WITH_ROCKET] = 
 			}else{
 				state = ADVANCE_TO_GET_OUT_START_ZONE;
 			}
-			break;
+			
 
+			
+			break;
 		case ADVANCE_ON_TURNING_POINT:
 			state = try_advance(NULL, entrance, 100, state, COMPUTE, COMPUTE, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
