@@ -24,7 +24,6 @@ error_e sub_anne_initiale(void){
 			COMPUTE_WHAT_DOING,
 			TAKE_OUR_ROCKET,
 			TAKE_ADV_ROCKET,
-			TURN_ADV_MODULES,
 			DISPOSE,
 			ERROR,
 			DONE
@@ -80,8 +79,6 @@ error_e sub_anne_initiale(void){
 					agressivity--;
 				state = TAKE_ADV_ROCKET;
 			}
-			else if(IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_MIDDLE) || IHM_switchs_get(SWITCH_ANNE_RETURN_MIDDLE) || IHM_switchs_get(SWITCH_ANNE_RETURN_ADV_SIDE) )
-				state = TURN_ADV_MODULES;
 			else
 				state = DONE;	//Plus rien à faire !
 
@@ -143,16 +140,6 @@ error_e sub_anne_initiale(void){
 						state = ERROR;	//Echec de la dépose. On rend la main à la highlevel...
 					break;
 			}
-			break;
-
-		case TURN_ADV_MODULES:
-			if(sub_anne_chose_moonbase_and_turn_modules() != IN_PROGRESS)
-				state = DONE;
-			break;
-		case ERROR:
-			RESET_MAE();
-			on_turning_point();
-			ret = NOT_HANDLED;
 			break;
 
 		case DONE:
@@ -601,7 +588,7 @@ error_e sub_anne_chose_moonbase_and_turn_modules(void)
 			break;
 
 		case COMPUTE_TURN_ZONE:
-			if(dispose_manager_chose_moonbase(&moonbase, &moonbase_side) == TRUE)	//Une zone est choisie (avec un côté d'accès s'il s'agit d'une zone centrale)
+			if(turn_manager_chose_moonbase(&moonbase, &moonbase_side) == TRUE)	//Une zone est choisie (avec un côté d'accès s'il s'agit d'une zone centrale)
 			{
 				if(moonbase == MODULE_MOONBASE_OUR_SIDE || moonbase == MODULE_MOONBASE_ADV_SIDE)
 					state = TURN_ON_LATERAL_MOONBASE;
