@@ -1377,6 +1377,7 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 			PUSH,
 			PUSHER_UP,
 			PREPARE_TO_DISPOSE,
+			TAKE_ANGLE,
 			POSITION_DISPOSE_1,
 			DISPOSE_1,
 			POSITION_DISPOSE_2,
@@ -1531,10 +1532,19 @@ error_e sub_harry_depose_modules_side(ELEMENTS_side_e robot_side, ELEMENTS_side_
 		 */
 		case PREPARE_TO_DISPOSE:
 			if(robot_side == RIGHT){
-				state = try_going(1150, COLOR_Y(310), state, POSITION_DISPOSE_1, ELOIGNEMENT_ERROR, FAST, sens_robot_inv, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1150, COLOR_Y(310), state, TAKE_ANGLE, ELOIGNEMENT_ERROR, FAST, sens_robot_inv, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			}
 			else{
-				state = try_going(1150, COLOR_Y(310), state, POSITION_DISPOSE_1, ELOIGNEMENT_ERROR, FAST, sens_robot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+				state = try_going(1150, COLOR_Y(310), state, TAKE_ANGLE, ELOIGNEMENT_ERROR, FAST, sens_robot, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			}
+			break;
+
+		case TAKE_ANGLE:
+			if((color_side == YELLOW && robot_side == RIGHT) || (color_side == BLUE && robot_side == LEFT)){
+				state = try_go_angle(PI4096, state, POSITION_DISPOSE_1, POSITION_DISPOSE_1, FAST, ANY_WAY, END_AT_LAST_POINT);
+			}
+			else{
+				state = try_go_angle(0, state, POSITION_DISPOSE_1, POSITION_DISPOSE_1, FAST, ANY_WAY, END_AT_LAST_POINT);
 			}
 			break;
 
