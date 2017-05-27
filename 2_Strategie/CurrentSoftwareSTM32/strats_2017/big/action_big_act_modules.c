@@ -2494,10 +2494,10 @@ error_e sub_act_harry_take_rocket_parallel_down_to_top(moduleRocketLocation_e ro
 				state = RECULE; // On doit stocker le module droit
 			}else if((moduleToTake == LEFT || moduleToTake == RIGHT) && (needToStoreLeft || needToStoreRight)){
 				// on doit prendre un module et on a déjà pris un module
-				if(justStore){
-					state = AVANCE;
+				if(i_am_in_square(take_pos.x - 10, take_pos.x + 10, take_pos.y - 10, take_pos.y + 10)){
+					state = TURN_TO_POS; // on doit prendre un cylindre à partir de la position de prise
 				}else{
-					state = ACTION_GO_TAKE_CYLINDER;
+					state = AVANCE; // on doit prendre un cylindre à partir de la position de stockage
 				}
 			}else if(moduleToTake == LEFT || moduleToTake == RIGHT){
 				if(i_am_in_square(take_pos.x - 10, take_pos.x + 10, take_pos.y - 10, take_pos.y + 10)){
