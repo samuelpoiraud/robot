@@ -1617,6 +1617,8 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			state = try_going(global.pos.x, (color_side==BLUE)?260:2740,state,ERROR, RUSH_TO_MEASURE_Y, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case SCANNING_TRAJECTORY:{
+
+#if 0
 			static bool_e scan_is_running;
 			//Le scan se fait toujours en marche avant.. on doit utiliser le bon capteur en fonction du color_side !
 			if(entrance)
@@ -1649,8 +1651,10 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			//TODO if(minimum_receive_from_actuator.....) delta_x_rocket = ....;
-			state = try_going(1400, (color_side==BLUE)?260:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
-			}
+			state = try_going(1350, (color_side==BLUE)?260:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+#endif
+			state = GET_IN_FRONT_OF_ONE_ON_TWO;
+		}
 			break;
 
 		case WAIT_RESULT:{
@@ -1698,7 +1702,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				else
 					ACT_push_order(ACT_BIG_BALL_FRONT_RIGHT, ACT_BIG_BALL_FRONT_RIGHT_UP);
 				}
-				state = try_going(1350+delta_x_rocket,(color_side==BLUE)?160:2840, state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+				state = try_going(1350+delta_x_rocket+((color_side==BLUE)?(-OFFSET_BEST_SLIDER_APPROACH):OFFSET_BEST_SLIDER_APPROACH),(color_side==BLUE)?255:(3000-255), state, ACTION, ERROR, FAST, FORWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 				break;
 
 		case ACTION:{
