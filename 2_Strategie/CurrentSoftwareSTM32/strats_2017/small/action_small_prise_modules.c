@@ -1655,7 +1655,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			//TODO if(minimum_receive_from_actuator.....) delta_x_rocket = ....;
-			state = try_going((color_side==BLUE)?1380:1350, (color_side==BLUE)?260:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going((color_side==BLUE)?1380:1350, (color_side==BLUE)?260:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			//state = GET_IN_FRONT_OF_ONE_ON_TWO;
 		}
