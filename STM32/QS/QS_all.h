@@ -9,6 +9,17 @@
  *	Version 20100418
  */
 
+//Arnaud est le plus beau.
+//Valentin le plus crétin #M.LeProfesseur
+//Guillaume Berland, c'est toi le gland.
+//Guillaume Maillard celui qui fait des chaises avec du papier toilette, le debrouillard.
+//Corentin champion de Bier-Pong de demain.
+//Samuel notre doyen spirituel
+//Julien le roi du calin.
+//Thomas qui ne code pas ;)
+
+
+
 #ifndef QS_ALL_H
 	#define QS_ALL_H
 
