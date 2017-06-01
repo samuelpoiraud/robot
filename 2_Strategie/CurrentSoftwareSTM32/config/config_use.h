@@ -1,5 +1,5 @@
 /*
- *  Club Robot ESEO 2013 - 2014
+ *  Club Robot ESEO 2013 - 2017
  *
  *  $Id$
  *
@@ -37,9 +37,9 @@
 	#warning 'ATTENTION CE MODE EST STRICTEMENT INTERDIT EN MATCH NE SOYEZ PAS INCONSCIENT!'
 #endif
 
-//#define DISABLE_SECURE_GPIO_INIT
+//#define DISABLE_SECURE_GPIO_INIT	//Peut être utile sur d'anciens FdP.
 #ifdef DISABLE_SECURE_GPIO_INIT
-	#warning 'ATTENTION SECURITE DU GPIO DESACTIVER'
+	#warning 'ATTENTION SECURITE DU GPIO DESACTIVEE'
 #endif
 
 #define FAST_COS_SIN			//Calcul rapide des cos et sin à l'aide d'un GRAND tableau de valeur
@@ -54,23 +54,12 @@
 
 //#define USE_FOE_ANALYSER
 
-//#define MAIN_IR_RCVA
-#ifdef MAIN_IR_RCVA
-	#warning "PAS CE CODE DANS LE ROBOT SVP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-#endif
-
 #define USE_ASTAR				//Activation de l'algorithme ASTAR, avec pathfind par polygones
 
 #define SD_ENABLE				//Activation de la carte SD
 
 #define USE_SYNC_ELEMENTS
 //#define USE_HARDFLAGS
-
-//#define ADV_SIDE_ON_OUR_MOONBASE
-
-//#define ADV_SIDE_ON_CENTRAL_MOONBASE
-
-//#define ADV_SIDE_ON_ADV_MOONBASE
 
 
 //////////////////////////////////////////////////////////////////

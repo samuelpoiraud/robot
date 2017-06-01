@@ -1493,6 +1493,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			SCANNING_TRAJECTORY,
 			WAIT_RESULT,
 
+			BACK_A_BIT,
 			GET_IN_FRONT_OF_ONE_ON_TWO,
 			TURN_TO_POS,
 			GET_IN_FRONT_OF_TWO_ON_TWO,
@@ -1595,7 +1596,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 
 
 		case GET_IN_OUR_SQUARE:
-			state = try_going(1000, (color_side==BLUE)?400:2600, state, RUSH_TO_MEASURE_Y, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
+			state = try_going(1000, (color_side==BLUE)?320:2650, state, RUSH_TO_MEASURE_Y, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_BRAKE);
 			break;
 
 		case GET_IN_MIDDLE_SQUARE:
@@ -1603,7 +1604,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			break;
 
 		case GET_IN_PATHFIND:
-			state = ASTAR_try_going(1000, (color_side==BLUE)?400:2600, state, RUSH_TO_MEASURE_Y, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
+			state = ASTAR_try_going(1000, (color_side==BLUE)?350:2650, state, RUSH_TO_MEASURE_Y, ERROR, FAST, ANY_WAY, DODGE_AND_WAIT, END_AT_BRAKE);
 			break;
 		case RUSH_TO_MEASURE_Y:{
 			Sint16 delta;
@@ -1614,7 +1615,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			state = check_sub_action_result(action_recalage_y(FORWARD,(color_side==BLUE)?(-PI4096/2):(PI4096/2), theorical_y, (color_side==BLUE)?(-PI4096/2):(PI4096/2),  FALSE, &delta, TRUE, TRUE), state, BACK_AFTER_RUSH, BACK_AFTER_FAILING_RUSH);
 			break;}
 		case BACK_AFTER_RUSH:
-			state = try_going(global.pos.x, (color_side==BLUE)?260:2740,state,SCANNING_TRAJECTORY, RUSH_TO_MEASURE_Y, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going(global.pos.x, (color_side==BLUE)?380:2740,state,SCANNING_TRAJECTORY, RUSH_TO_MEASURE_Y, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 			break;
 		case BACK_AFTER_FAILING_RUSH:
 			state = try_going(global.pos.x, (color_side==BLUE)?260:2740,state,ERROR, RUSH_TO_MEASURE_Y, FAST, ANY_WAY, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
@@ -1627,7 +1628,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 			if(entrance)
 			{
 				scan_is_running = FALSE;
-				PROP_WARNER_arm_x(1100);
+				PROP_WARNER_arm_x((color_side==BLUE)?(1200+OFFSET_POS_SENSOR_IN_ROBOT):(1250-OFFSET_POS_SENSOR_IN_ROBOT));
 			}
 			if(global.prop.reach_x)
 			{
@@ -1644,7 +1645,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 					*/
 					ACT_start_scan(SCAN_I2C_LEFT);
 
-					PROP_WARNER_arm_x(1300);
+					PROP_WARNER_arm_x(1435);
 				}
 				else	//Le scan est actif
 				{
@@ -1655,7 +1656,7 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 				}
 			}
 			//TODO if(minimum_receive_from_actuator.....) delta_x_rocket = ....;
-			state = try_going((color_side==BLUE)?1380:1350, (color_side==BLUE)?260:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
+			state = try_going((color_side==BLUE)?1440:1350, (color_side==BLUE)?380:2740, state, WAIT_RESULT, WAIT_RESULT, SLOW, (color_side==BLUE)?BACKWARD:FORWARD, NO_DODGE_AND_WAIT, END_AT_LAST_POINT);
 
 			//state = GET_IN_FRONT_OF_ONE_ON_TWO;
 		}
@@ -1692,13 +1693,16 @@ error_e sub_anne_fusee_multicolor(ELEMENTS_property_e rocket){
 						delta_x_rocket = scanData.xForMin - 1350;
 				error_printf("SCAN :-) résultat : max-min=%d-%d=%d -> xForMin=%d\n", scanData.max, scanData.min, scanData.max - scanData.min, scanData.xForMin);
 				error_printf("SCAN :-) delta_x_rocket : %d\n", delta_x_rocket);
-				state = GET_IN_FRONT_OF_ONE_ON_TWO;
+				state = (color_side==BLUE)?BACK_A_BIT:GET_IN_FRONT_OF_ONE_ON_TWO;
 			}
 
 			}break;
 
+		case BACK_A_BIT:
+			state = try_advance(NULL,TRUE,50,state,GET_IN_FRONT_OF_ONE_ON_TWO,GET_IN_FRONT_OF_ONE_ON_TWO,FAST,BACKWARD,NO_DODGE_AND_NO_WAIT,END_AT_BRAKE);
+			break;
 		case GET_IN_FRONT_OF_ONE_ON_TWO:
-			state = try_going(1350+delta_x_rocket, (color_side==BLUE)?360:2640, state, TURN_TO_POS, ERROR, FAST, BACKWARD, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
+			state = try_going(1350+delta_x_rocket, (color_side==BLUE)?360:2640, state, TURN_TO_POS, ERROR, FAST, ANY_WAY, NO_DODGE_AND_NO_WAIT, END_AT_LAST_POINT);
 			break;
 
 		case TURN_TO_POS:
